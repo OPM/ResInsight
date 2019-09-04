@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,24 +21,24 @@
 
 #include "RiaApplication.h"
 
-#include "RimWellPath.h"
+#include "RimViewWindow.h"
+#include "RimWellAllocationPlot.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogPlot.h"
+#include "RimWellPath.h"
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
-#include "RimWellAllocationPlot.h"
-#include "RimViewWindow.h"
 
-#include "cafSelectionManagerTools.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiObjectEditorHandle.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT(RicWellLogFileCloseFeature, "RicWellLogFileCloseFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicWellLogFileCloseFeature::isCommandEnabled()
 {
@@ -47,7 +47,7 @@ bool RicWellLogFileCloseFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicWellLogFileCloseFeature::onActionTriggered(bool isChecked)
 {
@@ -78,7 +78,7 @@ void RicWellLogFileCloseFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicWellLogFileCloseFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -87,7 +87,7 @@ void RicWellLogFileCloseFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::set<RimViewWindow*> RicWellLogFileCloseFeature::referringWellLogPlots(const RimWellLogFile* wellLogFile)
 {
@@ -99,21 +99,20 @@ std::set<RimViewWindow*> RicWellLogFileCloseFeature::referringWellLogPlots(const
     for (const auto& obj : referringObjects)
     {
         RimWellAllocationPlot* allocationPlot;
-        RimWellPltPlot* pltPlot;
-        RimWellRftPlot* rftPlot;
-        RimWellLogPlot* wellLogPlot;
+        RimWellPltPlot*        pltPlot;
+        RimWellRftPlot*        rftPlot;
+        RimWellLogPlot*        wellLogPlot;
 
         obj->firstAncestorOrThisOfType(allocationPlot);
         obj->firstAncestorOrThisOfType(pltPlot);
         obj->firstAncestorOrThisOfType(rftPlot);
         obj->firstAncestorOrThisOfType(wellLogPlot);
 
-        RimViewWindow* plot = 
-            allocationPlot ?    dynamic_cast<RimViewWindow*>(allocationPlot) :
-            pltPlot ?           dynamic_cast<RimViewWindow*>(pltPlot) :
-            rftPlot ?           dynamic_cast<RimViewWindow*>(rftPlot) :
-            wellLogPlot ?       dynamic_cast<RimViewWindow*>(wellLogPlot) :
-                                nullptr;
+        RimViewWindow* plot = allocationPlot
+                                  ? dynamic_cast<RimViewWindow*>(allocationPlot)
+                                  : pltPlot ? dynamic_cast<RimViewWindow*>(pltPlot)
+                                            : rftPlot ? dynamic_cast<RimViewWindow*>(rftPlot)
+                                                      : wellLogPlot ? dynamic_cast<RimViewWindow*>(wellLogPlot) : nullptr;
 
         if (plot != nullptr)
         {

@@ -74,7 +74,9 @@ private:
             , k(k)
             , view(view)
             , factorOfSafety(factorOfSafety)
-            , color(color) {}
+            , color(color)
+        {
+        }
 
         cvf::Vec3f      principals;
         size_t          gridIndex;

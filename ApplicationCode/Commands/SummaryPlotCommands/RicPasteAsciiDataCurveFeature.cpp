@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -29,18 +29,18 @@
 
 #include <QAction>
 
-#include "RimSummaryPlot.h"
 #include "RimAsciiDataCurve.h"
-
+#include "RimSummaryPlot.h"
 
 CAF_CMD_SOURCE_INIT(RicPasteAsciiDataCurveFeature, "RicPasteAsciiDataCurveFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicPasteAsciiDataCurveFeature::isCommandEnabled()
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 
     if (!destinationObject)
     {
@@ -58,11 +58,12 @@ bool RicPasteAsciiDataCurveFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataCurveFeature::onActionTriggered(bool isChecked)
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
     CVF_ASSERT(destinationObject);
 
     RimSummaryPlot* summaryPlot = nullptr;
@@ -72,11 +73,12 @@ void RicPasteAsciiDataCurveFeature::onActionTriggered(bool isChecked)
         return;
     }
 
-    std::vector<caf::PdmPointer<RimAsciiDataCurve> > sourceObjects = RicPasteAsciiDataCurveFeature::asciiDataCurves();
+    std::vector<caf::PdmPointer<RimAsciiDataCurve>> sourceObjects = RicPasteAsciiDataCurveFeature::asciiDataCurves();
 
     for (size_t i = 0; i < sourceObjects.size(); i++)
     {
-        RimAsciiDataCurve* newObject = dynamic_cast<RimAsciiDataCurve*>(sourceObjects[i]->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+        RimAsciiDataCurve* newObject = dynamic_cast<RimAsciiDataCurve*>(
+            sourceObjects[i]->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
         CVF_ASSERT(newObject);
 
         summaryPlot->addAsciiDataCruve(newObject);
@@ -86,7 +88,7 @@ void RicPasteAsciiDataCurveFeature::onActionTriggered(bool isChecked)
 
         // If source curve is part of a curve filter, resolve of references to the summary case does not
         // work when pasting the new curve into a plot. Must set summary case manually.
-        //newObject->setSummaryCase(sourceObjects[i]->summaryCase());
+        // newObject->setSummaryCase(sourceObjects[i]->summaryCase());
 
         newObject->initAfterReadRecursively();
 
@@ -98,7 +100,7 @@ void RicPasteAsciiDataCurveFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataCurveFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -108,16 +110,15 @@ void RicPasteAsciiDataCurveFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmPointer<RimAsciiDataCurve> > RicPasteAsciiDataCurveFeature::asciiDataCurves()
+std::vector<caf::PdmPointer<RimAsciiDataCurve>> RicPasteAsciiDataCurveFeature::asciiDataCurves()
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
 
-    std::vector<caf::PdmPointer<RimAsciiDataCurve> > typedObjects;
+    std::vector<caf::PdmPointer<RimAsciiDataCurve>> typedObjects;
     objectGroup.objectsByType(&typedObjects);
 
     return typedObjects;
 }
-

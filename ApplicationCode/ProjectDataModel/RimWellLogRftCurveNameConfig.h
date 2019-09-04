@@ -31,4 +31,3 @@ class RimWellLogRftCurveNameConfig : public RimNameConfig
 public:
     RimWellLogRftCurveNameConfig(const RimNameConfigHolderInterface* configHolder = nullptr);
 };
-

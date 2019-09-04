@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -26,46 +26,44 @@
 #include "RicfReplaceCase.h"
 #include "RifcCommandFileReader.h"
 
-namespace caf {
-    template<>
-    void RicfCommandFileExecutor::ExportTypeEnum::setUp()
-    {
-        addItem(RicfCommandFileExecutor::COMPLETIONS, "COMPLETIONS", "Completions");
-        addItem(RicfCommandFileExecutor::PROPERTIES,  "PROPERTIES",  "Properties");
-        addItem(RicfCommandFileExecutor::SNAPSHOTS,   "SNAPSHOTS",   "Snapshots");
-        addItem(RicfCommandFileExecutor::STATISTICS,  "STATISTICS",  "Statistics");
-        addItem(RicfCommandFileExecutor::WELLPATHS,   "WELLPATHS",   "Well Path");
-        addItem(RicfCommandFileExecutor::CELLS,       "CELLS",       "Cells");
-        addItem(RicfCommandFileExecutor::LGRS,        "LGRS",        "Lgrs");
-        setDefault(RicfCommandFileExecutor::COMPLETIONS);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RicfCommandFileExecutor::RicfCommandFileExecutor()
+namespace caf
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RicfCommandFileExecutor::~RicfCommandFileExecutor()
+template<>
+void RicfCommandFileExecutor::ExportTypeEnum::setUp()
 {
+    addItem(RicfCommandFileExecutor::COMPLETIONS, "COMPLETIONS", "Completions");
+    addItem(RicfCommandFileExecutor::PROPERTIES, "PROPERTIES", "Properties");
+    addItem(RicfCommandFileExecutor::SNAPSHOTS, "SNAPSHOTS", "Snapshots");
+    addItem(RicfCommandFileExecutor::STATISTICS, "STATISTICS", "Statistics");
+    addItem(RicfCommandFileExecutor::WELLPATHS, "WELLPATHS", "Well Path");
+    addItem(RicfCommandFileExecutor::CELLS, "CELLS", "Cells");
+    addItem(RicfCommandFileExecutor::LGRS, "LGRS", "Lgrs");
+    setDefault(RicfCommandFileExecutor::COMPLETIONS);
+}
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+RicfCommandFileExecutor::RicfCommandFileExecutor() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicfCommandFileExecutor::~RicfCommandFileExecutor() {}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RicfCommandFileExecutor::executeCommands(QTextStream& stream)
 {
-    RicfMessages messages;
+    RicfMessages                    messages;
     std::vector<RicfCommandObject*> executableCommands;
     {
         clearCachedData();
 
-        std::vector<RicfCommandObject*> fileCommands = RicfCommandFileReader::readCommands(stream, caf::PdmDefaultObjectFactory::instance(), &messages);
+        std::vector<RicfCommandObject*> fileCommands =
+            RicfCommandFileReader::readCommands(stream, caf::PdmDefaultObjectFactory::instance(), &messages);
         for (auto message : messages.m_messages)
         {
             if (message.first == RicfMessages::MESSAGE_WARNING)
@@ -110,7 +108,7 @@ void RicfCommandFileExecutor::executeCommands(QTextStream& stream)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicfCommandFileExecutor::setExportPath(ExportType type, QString path)
 {
@@ -118,11 +116,11 @@ void RicfCommandFileExecutor::setExportPath(ExportType type, QString path)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicfCommandFileExecutor::getExportPath(ExportType type) const
 {
-    auto it = m_exportPaths.find(type);
+    auto    it = m_exportPaths.find(type);
     QString path;
     if (it != m_exportPaths.end())
     {
@@ -132,7 +130,7 @@ QString RicfCommandFileExecutor::getExportPath(ExportType type) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicfCommandFileExecutor::setLastProjectPath(const QString& path)
 {
@@ -140,7 +138,7 @@ void RicfCommandFileExecutor::setLastProjectPath(const QString& path)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicfCommandFileExecutor::getLastProjectPath() const
 {
@@ -148,7 +146,7 @@ QString RicfCommandFileExecutor::getLastProjectPath() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicfCommandFileExecutor* RicfCommandFileExecutor::instance()
 {
@@ -157,9 +155,10 @@ RicfCommandFileExecutor* RicfCommandFileExecutor::instance()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<RicfCommandObject*> RicfCommandFileExecutor::prepareFileCommandsForExecution(const std::vector<RicfCommandObject*>& commandsReadFromFile)
+std::vector<RicfCommandObject*>
+    RicfCommandFileExecutor::prepareFileCommandsForExecution(const std::vector<RicfCommandObject*>& commandsReadFromFile)
 {
     // This function will merge multiple RicfSingleCaseReplace object by a single RicfMultiCaseReplace object
     // A command file version for multi case replace was rejected by @hhgs 2018-02-02
@@ -173,7 +172,7 @@ std::vector<RicfCommandObject*> RicfCommandFileExecutor::prepareFileCommandsForE
     {
         std::vector<RicfSingleCaseReplace*> objectsToBeDeleted;
         std::vector<RicfSingleCaseReplace*> batchOfReplaceCaseFileObjects;
-        
+
         std::map<int, QString> aggregatedCasePathPairs;
 
         for (RicfCommandObject* command : commandsReadFromFile)
@@ -220,7 +219,7 @@ std::vector<RicfCommandObject*> RicfCommandFileExecutor::prepareFileCommandsForE
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicfCommandFileExecutor::clearCachedData()
 {

@@ -25,7 +25,6 @@
 #include <map>
 #include <memory>
 
-
 //==================================================================================================
 //
 //
@@ -36,17 +35,16 @@ class VdePacketDirectory
 public:
     VdePacketDirectory();
 
-    void                        addPacket(std::unique_ptr<VdeArrayDataPacket> packet);
-    const VdeArrayDataPacket*   lookupPacket(int arrayId) const;
+    void                      addPacket(std::unique_ptr<VdeArrayDataPacket> packet);
+    const VdeArrayDataPacket* lookupPacket(int arrayId) const;
 
-    void                        clear();
-    void                        pruneUnreferencedPackets(const std::vector<int>& packetIdsInUseArr);
+    void clear();
+    void pruneUnreferencedPackets(const std::vector<int>& packetIdsInUseArr);
 
-    bool                        getPacketsAsCombinedBuffer(const std::vector<int>& packetIdsToGet, QByteArray* combinedPacketArr) const;
+    bool getPacketsAsCombinedBuffer(const std::vector<int>& packetIdsToGet, QByteArray* combinedPacketArr) const;
 
 private:
-    typedef std::map<int, std::unique_ptr<VdeArrayDataPacket>>  IdToPacketMap_T;
-    
-    IdToPacketMap_T   m_idToPacketMap;
-};
+    typedef std::map<int, std::unique_ptr<VdeArrayDataPacket>> IdToPacketMap_T;
 
+    IdToPacketMap_T m_idToPacketMap;
+};

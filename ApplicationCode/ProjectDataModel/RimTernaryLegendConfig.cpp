@@ -2,25 +2,25 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimTernaryLegendConfig.h"
 
-#include "RiaGuiApplication.h"
 #include "RiaColorTables.h"
+#include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 
 #include "RimEclipseView.h"
@@ -37,34 +37,44 @@
 
 #include <cmath>
 
-
 CAF_PDM_SOURCE_INIT(RimTernaryLegendConfig, "RimTernaryLegendConfig");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimTernaryLegendConfig::RimTernaryLegendConfig() 
+RimTernaryLegendConfig::RimTernaryLegendConfig()
 {
     CAF_PDM_InitObject("Ternary Color Legend", ":/Legend.png", "", "");
     CAF_PDM_InitField(&m_showLegend, "ShowTernaryLegend", true, "Show Ternary Legend", "", "", "");
     m_showLegend.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitField(&precision, "Precision", 2, "Significant digits", "", "The number of significant digits displayed in the legend numbers","");
-    CAF_PDM_InitField(&rangeMode, "RangeType", RangeModeEnum(USER_DEFINED), "Range type", "", "Switches between automatic and user defined range on the legend", "");
+    CAF_PDM_InitField(&precision,
+                      "Precision",
+                      2,
+                      "Significant digits",
+                      "",
+                      "The number of significant digits displayed in the legend numbers",
+                      "");
+    CAF_PDM_InitField(&rangeMode,
+                      "RangeType",
+                      RangeModeEnum(USER_DEFINED),
+                      "Range type",
+                      "",
+                      "Switches between automatic and user defined range on the legend",
+                      "");
 
-    CAF_PDM_InitFieldNoDefault(&applyLocalMinMax,   "m_applyLocalMinMax", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&applyLocalMinMax, "m_applyLocalMinMax", "", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&applyLocalMinMax);
     applyLocalMinMax = false;
 
-    CAF_PDM_InitFieldNoDefault(&applyGlobalMinMax,   "m_applyGlobalMinMax", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&applyGlobalMinMax, "m_applyGlobalMinMax", "", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&applyGlobalMinMax);
     applyGlobalMinMax = false;
 
-    CAF_PDM_InitFieldNoDefault(&applyFullRangeMinMax,   "m_applyFullRangeMinMax", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&applyFullRangeMinMax, "m_applyFullRangeMinMax", "", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&applyFullRangeMinMax);
     applyFullRangeMinMax = false;
 
-    CAF_PDM_InitFieldNoDefault(&ternaryRangeSummary,        "ternaryRangeSummary", "Range summary", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&ternaryRangeSummary, "ternaryRangeSummary", "Range summary", "", "", "");
     ternaryRangeSummary.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
     ternaryRangeSummary.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
@@ -89,16 +99,16 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimTernaryLegendConfig::~RimTernaryLegendConfig()
-{
-}
+RimTernaryLegendConfig::~RimTernaryLegendConfig() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimTernaryLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimTernaryLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                              const QVariant&            oldValue,
+                                              const QVariant&            newValue)
 {
     if (changedField == &applyLocalMinMax)
     {
@@ -108,7 +118,7 @@ void RimTernaryLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changed
         userDefinedMinValueSgas = m_localAutoMin[TERNARY_SGAS_IDX];
         userDefinedMaxValueSwat = m_localAutoMax[TERNARY_SWAT_IDX];
         userDefinedMinValueSwat = m_localAutoMin[TERNARY_SWAT_IDX];
-        
+
         applyLocalMinMax = false;
     }
     else if (changedField == &applyGlobalMinMax)
@@ -147,14 +157,14 @@ void RimTernaryLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changed
         {
             viewLinker->updateCellResult();
         }
-        
+
         view->updateCurrentTimeStepAndRedraw();
         view->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTernaryLegendConfig::updateLegend()
 {
@@ -174,17 +184,20 @@ void RimTernaryLegendConfig::updateLegend()
 
     int numberPrecision = 1;
     {
-        QString tmpString = QString::number(soilLower, 'g', numberPrecision) + " - " + QString::number(soilUpper, 'g', numberPrecision);
+        QString tmpString =
+            QString::number(soilLower, 'g', numberPrecision) + " - " + QString::number(soilUpper, 'g', numberPrecision);
         soilRange = cvfqt::Utils::toString(tmpString);
     }
 
     {
-        QString tmpString = QString::number(sgasLower, 'g', numberPrecision) + " - " + QString::number(sgasUpper, 'g', numberPrecision);
+        QString tmpString =
+            QString::number(sgasLower, 'g', numberPrecision) + " - " + QString::number(sgasUpper, 'g', numberPrecision);
         sgasRange = cvfqt::Utils::toString(tmpString);
     }
 
     {
-        QString tmpString = QString::number(swatLower, 'g', numberPrecision) + " - " + QString::number(swatUpper, 'g', numberPrecision);
+        QString tmpString =
+            QString::number(swatLower, 'g', numberPrecision) + " - " + QString::number(swatUpper, 'g', numberPrecision);
         swatRange = cvfqt::Utils::toString(tmpString);
     }
 
@@ -192,16 +205,20 @@ void RimTernaryLegendConfig::updateLegend()
     {
         m_legend->setRangeText(soilRange, sgasRange, swatRange);
 
-        RiaApplication* app = RiaApplication::instance();
+        RiaApplication* app         = RiaApplication::instance();
         RiaPreferences* preferences = app->preferences();
         m_legend->enableBackground(preferences->showLegendBackground());
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimTernaryLegendConfig::setAutomaticRanges(TernaryArrayIndex ternaryIndex, double globalMin, double globalMax, double localMin, double localMax)
+void RimTernaryLegendConfig::setAutomaticRanges(TernaryArrayIndex ternaryIndex,
+                                                double            globalMin,
+                                                double            globalMax,
+                                                double            localMin,
+                                                double            localMax)
 {
     double candidateGlobalAutoMin = roundToNumSignificantDigits(globalMin, precision);
     double candidateGlobalAutoMax = roundToNumSignificantDigits(globalMax, precision);
@@ -211,30 +228,30 @@ void RimTernaryLegendConfig::setAutomaticRanges(TernaryArrayIndex ternaryIndex, 
 
     m_globalAutoMin[ternaryIndex] = candidateGlobalAutoMin;
     m_globalAutoMax[ternaryIndex] = candidateGlobalAutoMax;
-    m_localAutoMin[ternaryIndex] = candidateLocalAutoMin;
-    m_localAutoMax[ternaryIndex] = candidateLocalAutoMax;
+    m_localAutoMin[ternaryIndex]  = candidateLocalAutoMin;
+    m_localAutoMax[ternaryIndex]  = candidateLocalAutoMax;
 
     updateLabelText();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTernaryLegendConfig::recreateLegend()
 {
-    // Due to possible visualization bug, we need to recreate the legend if the last viewer 
-    // has been removed, (and thus the opengl resources has been deleted) The text in 
+    // Due to possible visualization bug, we need to recreate the legend if the last viewer
+    // has been removed, (and thus the opengl resources has been deleted) The text in
     // the legend disappeared because of this, so workaround: recreate the legend when needed:
 
     cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
-    m_legend = new RivTernarySaturationOverlayItem(standardFont);
+    m_legend                = new RivTernarySaturationOverlayItem(standardFont);
     m_legend->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
 
     updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTernaryLegendConfig::setUiValuesFromLegendConfig(const RimTernaryLegendConfig* otherLegendConfig)
 {
@@ -255,7 +272,7 @@ double RimTernaryLegendConfig::roundToNumSignificantDigits(double domainValue, d
     }
 
     double logDecValue = log10(absDomainValue);
-    logDecValue = cvf::Math::ceil(logDecValue);
+    logDecValue        = cvf::Math::ceil(logDecValue);
 
     double factor = pow(10.0, numSignificantDigits - logDecValue);
 
@@ -263,7 +280,7 @@ double RimTernaryLegendConfig::roundToNumSignificantDigits(double domainValue, d
     double integerPart;
     double fraction = modf(tmp, &integerPart);
 
-    if (cvf::Math::abs(fraction)>= 0.5) (integerPart >= 0) ? integerPart++: integerPart-- ;
+    if (cvf::Math::abs(fraction) >= 0.5) (integerPart >= 0) ? integerPart++ : integerPart--;
 
     double newDomainValue = integerPart / factor;
 
@@ -271,7 +288,7 @@ double RimTernaryLegendConfig::roundToNumSignificantDigits(double domainValue, d
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTernaryLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -314,7 +331,7 @@ void RimTernaryLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimTernaryLegendConfig::showLegend() const
 {
@@ -322,7 +339,7 @@ bool RimTernaryLegendConfig::showLegend() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTernaryLegendConfig::setTitle(const QString& title)
 {
@@ -330,13 +347,15 @@ void RimTernaryLegendConfig::setTitle(const QString& title)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimTernaryLegendConfig::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimTernaryLegendConfig::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                   QString                    uiConfigName,
+                                                   caf::PdmUiEditorAttribute* attribute)
 {
     if (&applyLocalMinMax == field)
     {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
         if (attrib)
         {
             attrib->m_buttonText = "Apply local min/max values";
@@ -344,7 +363,7 @@ void RimTernaryLegendConfig::defineEditorAttribute(const caf::PdmFieldHandle* fi
     }
     else if (&applyGlobalMinMax == field)
     {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
         if (attrib)
         {
             attrib->m_buttonText = "Apply global min/max values";
@@ -352,7 +371,7 @@ void RimTernaryLegendConfig::defineEditorAttribute(const caf::PdmFieldHandle* fi
     }
     else if (&applyFullRangeMinMax == field)
     {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
         if (attrib)
         {
             attrib->m_buttonText = "Apply full range";
@@ -361,9 +380,14 @@ void RimTernaryLegendConfig::defineEditorAttribute(const caf::PdmFieldHandle* fi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimTernaryLegendConfig::ternaryRanges(double& soilLower, double& soilUpper, double& sgasLower, double& sgasUpper, double& swatLower, double& swatUpper) const
+void RimTernaryLegendConfig::ternaryRanges(double& soilLower,
+                                           double& soilUpper,
+                                           double& sgasLower,
+                                           double& sgasUpper,
+                                           double& swatLower,
+                                           double& swatUpper) const
 {
     if (rangeMode() == AUTOMATIC_CURRENT_TIMESTEP)
     {
@@ -395,7 +419,7 @@ void RimTernaryLegendConfig::ternaryRanges(double& soilLower, double& soilUpper,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTernaryLegendConfig::updateLabelText()
 {
@@ -403,14 +427,16 @@ void RimTernaryLegendConfig::updateLabelText()
         userDefinedMinValueSoil.uiCapability()->setUiName("Min");
         userDefinedMaxValueSoil.uiCapability()->setUiName("Max");
 
-        if (m_globalAutoMin[TERNARY_SOIL_IDX] != cvf::UNDEFINED_DOUBLE )
+        if (m_globalAutoMin[TERNARY_SOIL_IDX] != cvf::UNDEFINED_DOUBLE)
         {
-            userDefinedMinValueSoil.uiCapability()->setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SOIL_IDX], 'g', precision) + ")");
+            userDefinedMinValueSoil.uiCapability()->setUiName(
+                QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SOIL_IDX], 'g', precision) + ")");
         }
 
-        if (m_globalAutoMax[TERNARY_SOIL_IDX] != cvf::UNDEFINED_DOUBLE )
+        if (m_globalAutoMax[TERNARY_SOIL_IDX] != cvf::UNDEFINED_DOUBLE)
         {
-            userDefinedMaxValueSoil.uiCapability()->setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SOIL_IDX], 'g', precision) + ")");
+            userDefinedMaxValueSoil.uiCapability()->setUiName(
+                QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SOIL_IDX], 'g', precision) + ")");
         }
     }
 
@@ -418,14 +444,16 @@ void RimTernaryLegendConfig::updateLabelText()
         userDefinedMinValueSgas.uiCapability()->setUiName("Min");
         userDefinedMaxValueSgas.uiCapability()->setUiName("Max");
 
-        if (m_globalAutoMin[TERNARY_SGAS_IDX] != cvf::UNDEFINED_DOUBLE )
+        if (m_globalAutoMin[TERNARY_SGAS_IDX] != cvf::UNDEFINED_DOUBLE)
         {
-            userDefinedMinValueSgas.uiCapability()->setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SGAS_IDX], 'g', precision) + ")");
+            userDefinedMinValueSgas.uiCapability()->setUiName(
+                QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SGAS_IDX], 'g', precision) + ")");
         }
 
-        if (m_globalAutoMax[TERNARY_SGAS_IDX] != cvf::UNDEFINED_DOUBLE )
+        if (m_globalAutoMax[TERNARY_SGAS_IDX] != cvf::UNDEFINED_DOUBLE)
         {
-            userDefinedMaxValueSgas.uiCapability()->setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SGAS_IDX], 'g', precision) + ")");
+            userDefinedMaxValueSgas.uiCapability()->setUiName(
+                QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SGAS_IDX], 'g', precision) + ")");
         }
     }
 
@@ -433,39 +461,47 @@ void RimTernaryLegendConfig::updateLabelText()
         userDefinedMinValueSwat.uiCapability()->setUiName("Min");
         userDefinedMaxValueSwat.uiCapability()->setUiName("Max");
 
-        if (m_globalAutoMin[TERNARY_SWAT_IDX] != cvf::UNDEFINED_DOUBLE )
+        if (m_globalAutoMin[TERNARY_SWAT_IDX] != cvf::UNDEFINED_DOUBLE)
         {
-            userDefinedMinValueSwat.uiCapability()->setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SWAT_IDX], 'g', precision) + ")");
+            userDefinedMinValueSwat.uiCapability()->setUiName(
+                QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SWAT_IDX], 'g', precision) + ")");
         }
 
-        if (m_globalAutoMax[TERNARY_SWAT_IDX] != cvf::UNDEFINED_DOUBLE )
+        if (m_globalAutoMax[TERNARY_SWAT_IDX] != cvf::UNDEFINED_DOUBLE)
         {
-            userDefinedMaxValueSwat.uiCapability()->setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SWAT_IDX], 'g', precision) + ")");
+            userDefinedMaxValueSwat.uiCapability()->setUiName(
+                QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SWAT_IDX], 'g', precision) + ")");
         }
     }
 
     if (rangeMode == AUTOMATIC_ALLTIMESTEPS)
     {
         QString tmpString;
-        tmpString  = QString("SOIL : ") + QString::number(m_globalAutoMin[TERNARY_SOIL_IDX], 'g', precision) + " - " + QString::number(m_globalAutoMax[TERNARY_SOIL_IDX], 'g', precision) + "\n";
-        tmpString += QString("SGAS : ") + QString::number(m_globalAutoMin[TERNARY_SGAS_IDX], 'g', precision) + " - " + QString::number(m_globalAutoMax[TERNARY_SGAS_IDX], 'g', precision) + "\n";
-        tmpString += QString("SWAT : ") + QString::number(m_globalAutoMin[TERNARY_SWAT_IDX], 'g', precision) + " - " + QString::number(m_globalAutoMax[TERNARY_SWAT_IDX], 'g', precision) + "\n";
+        tmpString = QString("SOIL : ") + QString::number(m_globalAutoMin[TERNARY_SOIL_IDX], 'g', precision) + " - " +
+                    QString::number(m_globalAutoMax[TERNARY_SOIL_IDX], 'g', precision) + "\n";
+        tmpString += QString("SGAS : ") + QString::number(m_globalAutoMin[TERNARY_SGAS_IDX], 'g', precision) + " - " +
+                     QString::number(m_globalAutoMax[TERNARY_SGAS_IDX], 'g', precision) + "\n";
+        tmpString += QString("SWAT : ") + QString::number(m_globalAutoMin[TERNARY_SWAT_IDX], 'g', precision) + " - " +
+                     QString::number(m_globalAutoMax[TERNARY_SWAT_IDX], 'g', precision) + "\n";
 
         ternaryRangeSummary = tmpString;
     }
     else if (rangeMode == AUTOMATIC_CURRENT_TIMESTEP)
     {
         QString tmpString;
-        tmpString  = QString("SOIL : ") + QString::number(m_localAutoMin[TERNARY_SOIL_IDX], 'g', precision) + " - " + QString::number(m_localAutoMax[TERNARY_SOIL_IDX], 'g', precision) + "\n";
-        tmpString += QString("SGAS : ") + QString::number(m_localAutoMin[TERNARY_SGAS_IDX], 'g', precision) + " - " + QString::number(m_localAutoMax[TERNARY_SGAS_IDX], 'g', precision) + "\n";
-        tmpString += QString("SWAT : ") + QString::number(m_localAutoMin[TERNARY_SWAT_IDX], 'g', precision) + " - " + QString::number(m_localAutoMax[TERNARY_SWAT_IDX], 'g', precision) + "\n";
+        tmpString = QString("SOIL : ") + QString::number(m_localAutoMin[TERNARY_SOIL_IDX], 'g', precision) + " - " +
+                    QString::number(m_localAutoMax[TERNARY_SOIL_IDX], 'g', precision) + "\n";
+        tmpString += QString("SGAS : ") + QString::number(m_localAutoMin[TERNARY_SGAS_IDX], 'g', precision) + " - " +
+                     QString::number(m_localAutoMax[TERNARY_SGAS_IDX], 'g', precision) + "\n";
+        tmpString += QString("SWAT : ") + QString::number(m_localAutoMin[TERNARY_SWAT_IDX], 'g', precision) + " - " +
+                     QString::number(m_localAutoMax[TERNARY_SWAT_IDX], 'g', precision) + "\n";
 
         ternaryRangeSummary = tmpString;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RivTernaryScalarMapper* RimTernaryLegendConfig::scalarMapper() const
 {
@@ -473,7 +509,7 @@ const RivTernaryScalarMapper* RimTernaryLegendConfig::scalarMapper() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const caf::TitledOverlayFrame* RimTernaryLegendConfig::titledOverlayFrame() const
 {
@@ -481,7 +517,7 @@ const caf::TitledOverlayFrame* RimTernaryLegendConfig::titledOverlayFrame() cons
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::TitledOverlayFrame* RimTernaryLegendConfig::titledOverlayFrame()
 {
@@ -489,7 +525,7 @@ caf::TitledOverlayFrame* RimTernaryLegendConfig::titledOverlayFrame()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimTernaryLegendConfig::objectToggleField()
 {

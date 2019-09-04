@@ -57,8 +57,8 @@ protected:
     void contextMenuEvent(QContextMenuEvent*) override;
     void setDefaults();
     void updateLayout() override;
-private:
-    void updateLegendLayout();
-    std::map<caf::PdmPointer<RimEnsembleCurveSet>, QPointer<RiuCvfOverlayItemWidget>> m_ensembleLegendWidgets;
 
+private:
+    void                                                                              updateLegendLayout();
+    std::map<caf::PdmPointer<RimEnsembleCurveSet>, QPointer<RiuCvfOverlayItemWidget>> m_ensembleLegendWidgets;
 };

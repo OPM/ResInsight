@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,11 +21,11 @@
 #include "RiaApplication.h"
 
 #include "RimContextCommandBuilder.h"
+#include "RimTofAccumulatedPhaseFractionsPlot.h"
 #include "RimTotalWellAllocationPlot.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-#include "RimTofAccumulatedPhaseFractionsPlot.h"
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuNightchartsWidget.h"
@@ -38,10 +38,8 @@
 #include <QLabel>
 #include <QMenu>
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefinition, QWidget* parent)
     : QFrame(parent)
@@ -75,7 +73,7 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
 
     mainLayout->addLayout(plotWidgetsLayout);
     plotWidgetsLayout->addLayout(rightColumnLayout);
-    
+
     m_legendWidget = new RiuNightchartsWidget(this);
     new RiuPlotObjectPicker(m_legendWidget, m_plotDefinition->plotLegend());
 
@@ -100,14 +98,12 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuWellAllocationPlot::~RiuWellAllocationPlot()
-{
-}
+RiuWellAllocationPlot::~RiuWellAllocationPlot() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellAllocationPlot* RiuWellAllocationPlot::ownerPlotDefinition()
 {
@@ -115,7 +111,7 @@ RimWellAllocationPlot* RiuWellAllocationPlot::ownerPlotDefinition()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimViewWindow* RiuWellAllocationPlot::ownerViewWindow() const
 {
@@ -123,7 +119,7 @@ RimViewWindow* RiuWellAllocationPlot::ownerViewWindow() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuWellAllocationPlot::showTitle(const QString& title)
 {
@@ -133,16 +129,15 @@ void RiuWellAllocationPlot::showTitle(const QString& title)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuWellAllocationPlot::hideTitle()
 {
     m_titleLabel->hide();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuWellAllocationPlot::showLegend(bool doShow)
 {
@@ -152,9 +147,8 @@ void RiuWellAllocationPlot::showLegend(bool doShow)
         m_legendWidget->hide();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuWellAllocationPlot::addLegendItem(const QString& name, const cvf::Color3f& color, float value)
 {
@@ -165,18 +159,16 @@ void RiuWellAllocationPlot::addLegendItem(const QString& name, const cvf::Color3
     m_legendWidget->update();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuWellAllocationPlot::clearLegend()
 {
     m_legendWidget->clear();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuWellAllocationPlot::minimumSizeHint() const
 {
@@ -184,11 +176,11 @@ QSize RiuWellAllocationPlot::minimumSizeHint() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuWellAllocationPlot::contextMenuEvent(QContextMenuEvent* event)
 {
-    QMenu menu;
+    QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
 
     menuBuilder << "RicShowContributingWellsFromPlotFeature";
@@ -202,7 +194,7 @@ void RiuWellAllocationPlot::contextMenuEvent(QContextMenuEvent* event)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuWellAllocationPlot::sizeHint() const
 {
@@ -210,9 +202,6 @@ QSize RiuWellAllocationPlot::sizeHint() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuWellAllocationPlot::setDefaults()
-{
-}
-
+void RiuWellAllocationPlot::setDefaults() {}

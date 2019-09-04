@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -36,14 +36,14 @@
 CAF_CMD_SOURCE_INIT(RicSetMasterViewFeature, "RicSetMasterViewFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicSetMasterViewFeature::isCommandEnabled()
 {
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (!activeView) return false;
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject*    proj       = RiaApplication::instance()->project();
     RimViewLinker* viewLinker = activeView->assosiatedViewLinker();
     if (viewLinker && viewLinker->masterView() == activeView)
     {
@@ -64,14 +64,14 @@ bool RicSetMasterViewFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSetMasterViewFeature::onActionTriggered(bool isChecked)
 {
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (!activeView) return;
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject*    proj       = RiaApplication::instance()->project();
     RimViewLinker* viewLinker = proj->viewLinkerCollection()->viewLinker();
 
     viewLinker->applyRangeFilterCollectionByUserChoice();
@@ -92,10 +92,9 @@ void RicSetMasterViewFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSetMasterViewFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Set As Master View");
 }
-

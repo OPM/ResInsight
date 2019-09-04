@@ -75,13 +75,13 @@ RifReaderRftInterface* RimObservedFmuRftData::rftReader()
 bool RimObservedFmuRftData::hasWell(const QString& wellPathName) const
 {
     std::vector<QString> allWells = wells();
-	for (const QString& well : allWells)
-	{
-		if (well == wellPathName)
-		{
+    for (const QString& well : allWells)
+    {
+        if (well == wellPathName)
+        {
             return true;
-		}
-	}
+        }
+    }
     return false;
 }
 
@@ -91,5 +91,5 @@ bool RimObservedFmuRftData::hasWell(const QString& wellPathName) const
 std::vector<QString> RimObservedFmuRftData::wells() const
 {
     std::set<QString> wellNames = const_cast<RifReaderFmuRft*>(m_fmuRftReader.p())->wellNames();
-    return std::vector<QString>(wellNames.begin(), wellNames.end());	
+    return std::vector<QString>(wellNames.begin(), wellNames.end());
 }

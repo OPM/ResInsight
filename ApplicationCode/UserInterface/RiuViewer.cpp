@@ -51,9 +51,9 @@
 #include "cafFrameAnimationControl.h"
 #include "cafOverlayScalarMapperLegend.h"
 #include "cafOverlayScaleLegend.h"
-#include "cafTitledOverlayFrame.h"
 #include "cafQStyledProgressBar.h"
 #include "cafStyleSheetTools.h"
+#include "cafTitledOverlayFrame.h"
 
 #include "cvfCamera.h"
 #include "cvfFont.h"
@@ -95,9 +95,10 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 {
     cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
     QFont      font         = RiaGuiApplication::instance()->font();
-    font.setPointSize(RiaFontCache::pointSizeFromFontSizeEnum(RiaGuiApplication::instance()->preferences()->defaultSceneFontSize()));
+    font.setPointSize(
+        RiaFontCache::pointSizeFromFontSizeEnum(RiaGuiApplication::instance()->preferences()->defaultSceneFontSize()));
 
-    m_axisCross             = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
+    m_axisCross = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
     m_axisCross->setAxisLabels("X", "Y", "Z");
     m_axisCross->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_RIGHT);
     m_mainRendering->addOverlayItem(m_axisCross.p());
@@ -480,7 +481,7 @@ void RiuViewer::showInfoText(bool enable)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::showVersionInfo(bool enable)
 {
@@ -1065,7 +1066,7 @@ void RiuViewer::updateFonts()
     cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
     m_mainRendering->removeOverlayItem(m_axisCross.p());
 
-    m_axisCross             = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
+    m_axisCross = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
     m_axisCross->setAxisLabels("X", "Y", "Z");
     m_axisCross->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_RIGHT);
     m_mainRendering->addOverlayItem(m_axisCross.p());
@@ -1073,7 +1074,7 @@ void RiuViewer::updateFonts()
 
     QFont font = QApplication::font();
     font.setPointSize(RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultSceneFontSize()));
-    
+
     m_zScaleLabel->setFont(font);
     m_infoLabel->setFont(font);
     m_animationProgress->setFont(font);
@@ -1170,14 +1171,17 @@ void RiuViewer::updateOverlayItemsStyle()
     p.setColor(QPalette::Dark, backgroundFrameColor);
     p.setColor(QPalette::Mid, backgroundFrameColor);
 
-    m_infoLabel->setStyleSheet(caf::StyleSheetTools::createFrameStyleSheet("QLabel", "InfoLabel", contrastColor, backgroundColor, backgroundFrameColor));
-    m_histogramWidget->setStyleSheet(caf::StyleSheetTools::createFrameStyleSheet("", "HistogramWidget", contrastColor, backgroundColor, backgroundFrameColor));
+    m_infoLabel->setStyleSheet(
+        caf::StyleSheetTools::createFrameStyleSheet("QLabel", "InfoLabel", contrastColor, backgroundColor, backgroundFrameColor));
+    m_histogramWidget->setStyleSheet(
+        caf::StyleSheetTools::createFrameStyleSheet("", "HistogramWidget", contrastColor, backgroundColor, backgroundFrameColor));
     m_histogramWidget->setPalette(p);
 
     m_versionInfoLabel->setPalette(p);
     m_zScaleLabel->setPalette(p);
 
-    QColor progressColor(Qt::green); progressColor.setAlphaF(0.8f);
+    QColor progressColor(Qt::green);
+    progressColor.setAlphaF(0.8f);
     backgroundColor.setAlphaF(0.8f);
     m_animationProgress->setTextBackgroundAndProgressColor(contrastColor, backgroundColor, backgroundFrameColor, progressColor);
 }

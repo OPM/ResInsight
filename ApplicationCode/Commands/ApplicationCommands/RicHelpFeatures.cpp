@@ -125,7 +125,8 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
     RiaGrpcServer* grpcServer = RiaApplication::instance()->grpcServer();
     if (grpcServer && grpcServer->isRunning())
     {
-        dlg.addVersionEntry(" ", QString("   Python Script Server available and running at port %1").arg(grpcServer->portNumber()));
+        dlg.addVersionEntry(" ",
+                            QString("   Python Script Server available and running at port %1").arg(grpcServer->portNumber()));
     }
     else
     {

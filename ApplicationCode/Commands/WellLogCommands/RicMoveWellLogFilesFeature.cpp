@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,8 +21,8 @@
 
 #include "RiaApplication.h"
 #include "RimProject.h"
-#include "RimWellPath.h"
 #include "RimWellLogFile.h"
+#include "RimWellPath.h"
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiObjectEditorHandle.h"
@@ -34,7 +34,7 @@
 CAF_CMD_SOURCE_INIT(RicMoveWellLogFilesFeature, "RicMoveWellLogFilesFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicMoveWellLogFilesFeature::isCommandEnabled()
 {
@@ -48,7 +48,7 @@ bool RicMoveWellLogFilesFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicMoveWellLogFilesFeature::onActionTriggered(bool isChecked)
 {
@@ -56,10 +56,10 @@ void RicMoveWellLogFilesFeature::onActionTriggered(bool isChecked)
     if (!userData.isNull() && userData.type() == QVariant::String)
     {
         RimProject* proj = RiaApplication::instance()->project();
-        
-        RimWellPath* destWellPath = proj->wellPathByName(userData.toString());
-        RimWellLogFile* wellLogFile = caf::firstAncestorOfTypeFromSelectedObject<RimWellLogFile*>();
-        RimWellPath* sourceWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>();
+
+        RimWellPath*    destWellPath   = proj->wellPathByName(userData.toString());
+        RimWellLogFile* wellLogFile    = caf::firstAncestorOfTypeFromSelectedObject<RimWellLogFile*>();
+        RimWellPath*    sourceWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>();
 
         if (!destWellPath || !wellLogFile || !sourceWellPath) return;
 
@@ -72,7 +72,7 @@ void RicMoveWellLogFilesFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicMoveWellLogFilesFeature::setupActionLook(QAction* actionToSetup)
 {

@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,66 +21,64 @@
 #include "RigCaseToCaseCellMapperTools.h"
 
 #include "RigFemPart.h"
-#include "RigMainGrid.h"
 #include "RigFemPartGrid.h"
-
+#include "RigMainGrid.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, RigMainGrid* dependentEclGrid)
-    : m_masterGrid(masterEclGrid),
-      m_dependentGrid(dependentEclGrid),
-      m_masterFemPart(nullptr),
-      m_dependentFemPart(nullptr)
+    : m_masterGrid(masterEclGrid)
+    , m_dependentGrid(dependentEclGrid)
+    , m_masterFemPart(nullptr)
+    , m_dependentFemPart(nullptr)
 {
     m_masterCellOrIntervalIndex.resize(dependentEclGrid->globalCellArray().size(), cvf::UNDEFINED_INT);
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigFemPart* masterFemPart, RigMainGrid* dependentEclGrid)
-    : m_masterGrid(nullptr),
-      m_dependentGrid(dependentEclGrid),
-      m_masterFemPart(masterFemPart),
-      m_dependentFemPart(nullptr)
+    : m_masterGrid(nullptr)
+    , m_dependentGrid(dependentEclGrid)
+    , m_masterFemPart(masterFemPart)
+    , m_dependentFemPart(nullptr)
 {
     m_masterCellOrIntervalIndex.resize(dependentEclGrid->globalCellArray().size(), cvf::UNDEFINED_INT);
     this->calculateEclToGeomCellMapping(dependentEclGrid, masterFemPart, false);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigFemPart* masterFemPart, RigFemPart* dependentFemPart)
-    : m_masterGrid(nullptr),
-      m_dependentGrid(nullptr),
-      m_masterFemPart(masterFemPart),
-      m_dependentFemPart(dependentFemPart)
+    : m_masterGrid(nullptr)
+    , m_dependentGrid(nullptr)
+    , m_masterFemPart(masterFemPart)
+    , m_dependentFemPart(dependentFemPart)
 {
     m_masterCellOrIntervalIndex.resize(dependentFemPart->elementCount(), cvf::UNDEFINED_INT);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, RigFemPart* dependentFemPart)
-    : m_masterGrid(masterEclGrid),
-      m_dependentGrid(nullptr),
-      m_masterFemPart(dependentFemPart),
-      m_dependentFemPart(nullptr)
+    : m_masterGrid(masterEclGrid)
+    , m_dependentGrid(nullptr)
+    , m_masterFemPart(dependentFemPart)
+    , m_dependentFemPart(nullptr)
 {
     m_masterCellOrIntervalIndex.resize(dependentFemPart->elementCount(), cvf::UNDEFINED_INT);
     this->calculateEclToGeomCellMapping(masterEclGrid, dependentFemPart, true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-const int * RigCaseToCaseCellMapper::masterCaseCellIndices(int dependentCaseReservoirCellIndex, int* masterCaseCellIndexCount) const
+const int* RigCaseToCaseCellMapper::masterCaseCellIndices(int  dependentCaseReservoirCellIndex,
+                                                          int* masterCaseCellIndexCount) const
 {
     int seriesIndex = m_masterCellOrIntervalIndex[dependentCaseReservoirCellIndex];
 
@@ -93,7 +91,7 @@ const int * RigCaseToCaseCellMapper::masterCaseCellIndices(int dependentCaseRese
     if (seriesIndex < 0)
     {
         (*masterCaseCellIndexCount) = static_cast<int>(m_masterCellIndexSeries[-seriesIndex].size());
-        return &(m_masterCellIndexSeries[-seriesIndex][0]);    
+        return &(m_masterCellIndexSeries[-seriesIndex][0]);
     }
     else
     {
@@ -103,7 +101,7 @@ const int * RigCaseToCaseCellMapper::masterCaseCellIndices(int dependentCaseRese
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigCaseToCaseCellMapper::addMapping(int depCaseCellIdx, int masterCaseMatchingCell)
 {
@@ -124,43 +122,45 @@ void RigCaseToCaseCellMapper::addMapping(int depCaseCellIdx, int masterCaseMatch
     {
         m_masterCellIndexSeries[-mcOrSeriesIdx].push_back(masterCaseMatchingCell);
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RigCaseToCaseCellMapper::calculateEclToGeomCellMapping(RigMainGrid* masterEclGrid, RigFemPart* dependentFemPart, bool eclipseIsMaster)
+void RigCaseToCaseCellMapper::calculateEclToGeomCellMapping(RigMainGrid* masterEclGrid,
+                                                            RigFemPart*  dependentFemPart,
+                                                            bool         eclipseIsMaster)
 {
     // Find tolerance
 
     double cellSizeI, cellSizeJ, cellSizeK;
     masterEclGrid->characteristicCellSizes(&cellSizeI, &cellSizeJ, &cellSizeK);
-    
-    double xyTolerance  = cellSizeI* 0.4;
-    double zTolerance   = cellSizeK* 0.4;
+
+    double xyTolerance = cellSizeI * 0.4;
+    double zTolerance  = cellSizeK * 0.4;
 
     bool isEclFaceNormalsOutwards = masterEclGrid->isFaceNormalsOutwards();
 
     cvf::Vec3d elmCorners[8];
 
-    size_t cellCount =  masterEclGrid->cellCount();
+    size_t cellCount = masterEclGrid->cellCount();
 
     for (size_t cellIdx = 0; cellIdx < cellCount; ++cellIdx)
     {
-        #ifdef _DEBUG
-        { 
-            // For debugging 
+#ifdef _DEBUG
+        {
+            // For debugging
             size_t i, j, k;
             masterEclGrid->ijkFromCellIndex(cellIdx, &i, &j, &k); // Will not work when LGR present
         }
-        #endif  
+#endif
 
         cvf::Vec3d geoMechConvertedEclCell[8];
         RigCaseToCaseCellMapperTools::estimatedFemCellFromEclCell(masterEclGrid, cellIdx, geoMechConvertedEclCell);
 
         cvf::BoundingBox elmBBox;
-        for (int i = 0; i < 8 ; ++i) elmBBox.add(geoMechConvertedEclCell[i]);
+        for (int i = 0; i < 8; ++i)
+            elmBBox.add(geoMechConvertedEclCell[i]);
 
         std::vector<size_t> closeElements;
         dependentFemPart->findIntersectingCells(elmBBox, &closeElements);
@@ -171,10 +171,11 @@ void RigCaseToCaseCellMapper::calculateEclToGeomCellMapping(RigMainGrid* masterE
 
             RigCaseToCaseCellMapperTools::elementCorners(dependentFemPart, elmIdx, elmCorners);
 
-            RigCaseToCaseCellMapperTools::rotateCellTopologicallyToMatchBaseCell(geoMechConvertedEclCell, isEclFaceNormalsOutwards , elmCorners);
+            RigCaseToCaseCellMapperTools::rotateCellTopologicallyToMatchBaseCell(
+                geoMechConvertedEclCell, isEclFaceNormalsOutwards, elmCorners);
 
-            bool isMatching = RigCaseToCaseCellMapperTools::isEclFemCellsMatching(geoMechConvertedEclCell, elmCorners, 
-                                                    xyTolerance, zTolerance);
+            bool isMatching =
+                RigCaseToCaseCellMapperTools::isEclFemCellsMatching(geoMechConvertedEclCell, elmCorners, xyTolerance, zTolerance);
 
             if (isMatching)
             {

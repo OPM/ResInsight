@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -28,21 +28,18 @@
 #include "cafSelectionManager.h"
 #include "cvfAssert.h"
 
-#include <QAction>
 #include "RimSummaryPlot.h"
-
+#include <QAction>
 
 CAF_CMD_SOURCE_INIT(RicEditSummaryCrossPlotFeature, "RicEditSummaryCrossPlotFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicEditSummaryCrossPlotFeature::RicEditSummaryCrossPlotFeature()
-{
-}
+RicEditSummaryCrossPlotFeature::RicEditSummaryCrossPlotFeature() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEditSummaryCrossPlotFeature::closeDialogAndResetTargetPlot()
 {
@@ -57,7 +54,7 @@ void RicEditSummaryCrossPlotFeature::closeDialogAndResetTargetPlot()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreatorDialog* RicEditSummaryCrossPlotFeature::curveCreatorDialog()
 {
@@ -67,7 +64,7 @@ RicSummaryCurveCreatorDialog* RicEditSummaryCrossPlotFeature::curveCreatorDialog
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicEditSummaryCrossPlotFeature::isCommandEnabled()
 {
@@ -77,7 +74,7 @@ bool RicEditSummaryCrossPlotFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEditSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
 {
@@ -95,12 +92,12 @@ void RicEditSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
     // Set target plot
     if (selectedSummaryPlot())
     {
-        //dialog->updateFromSummaryPlot(selectedSummaryPlot());
+        // dialog->updateFromSummaryPlot(selectedSummaryPlot());
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEditSummaryCrossPlotFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -109,7 +106,7 @@ void RicEditSummaryCrossPlotFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicEditSummaryCrossPlotFeature::selectedSummaryPlot() const
 {

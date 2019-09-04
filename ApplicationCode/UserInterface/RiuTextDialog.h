@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -29,18 +29,20 @@
 class QTabWidget;
 class RimSummaryPlot;
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class RiuQPlainTextEdit : public QPlainTextEdit
 {
     Q_OBJECT
 public:
-    explicit RiuQPlainTextEdit(QWidget *parent = nullptr) : QPlainTextEdit(parent) {}
+    explicit RiuQPlainTextEdit(QWidget* parent = nullptr)
+        : QPlainTextEdit(parent)
+    {
+    }
 
 protected:
-    void keyPressEvent(QKeyEvent *e) override;
+    void keyPressEvent(QKeyEvent* e) override;
 
 private slots:
     void slotCopyContentToClipboard();
@@ -48,9 +50,8 @@ private slots:
     void slotExportToFile();
 };
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class RiuTextDialog : public QDialog
 {
@@ -63,9 +64,9 @@ public:
 
 private:
     RiuQPlainTextEdit* m_textEdit;
-protected:
-    void contextMenuEvent(QContextMenuEvent *) override;
 
+protected:
+    void contextMenuEvent(QContextMenuEvent*) override;
 };
 
 class RiuTabbedTextProvider : public QObject
@@ -81,7 +82,7 @@ public:
 };
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class RiuTabbedTextDialog : public QDialog
 {
@@ -97,14 +98,13 @@ private:
     RiuQPlainTextEdit* currentTextEdit() const;
     void               updateTabText();
 
-    QTabWidget*                           m_tabWidget;
-    QPointer<RiuTabbedTextProvider>       m_textProvider;
-    std::vector<QString>                  m_tabTexts;
+    QTabWidget*                     m_tabWidget;
+    QPointer<RiuTabbedTextProvider> m_textProvider;
+    std::vector<QString>            m_tabTexts;
 
 private slots:
     void slotTabChanged(int index);
 
 protected:
-    void contextMenuEvent(QContextMenuEvent *) override;
+    void contextMenuEvent(QContextMenuEvent*) override;
 };
-

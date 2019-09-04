@@ -87,8 +87,9 @@ RimAdvancedSnapshotExportDefinition::~RimAdvancedSnapshotExportDefinition() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimAdvancedSnapshotExportDefinition::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                                bool*                      useOptionsOnly)
+QList<caf::PdmOptionItemInfo>
+    RimAdvancedSnapshotExportDefinition::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                               bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -172,8 +173,8 @@ void RimAdvancedSnapshotExportDefinition::getTimeStepStrings(QList<caf::PdmOptio
 ///
 //--------------------------------------------------------------------------------------------------
 void RimAdvancedSnapshotExportDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                                  const QVariant&            oldValue,
-                                                  const QVariant&            newValue)
+                                                           const QVariant&            oldValue,
+                                                           const QVariant&            newValue)
 {
     if (changedField == &eclipseResultType)
     {

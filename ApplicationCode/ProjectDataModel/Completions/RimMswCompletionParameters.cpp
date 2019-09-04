@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,31 +23,32 @@
 
 #include <limits>
 
-namespace caf {
-    template<>
-    void RimMswCompletionParameters::ReferenceMDEnum::setUp()
-    {
-        addItem(RimMswCompletionParameters::AUTO_REFERENCE_MD, "GridIntersectionRefMD", "Grid Entry Point");
-        addItem(RimMswCompletionParameters::MANUAL_REFERENCE_MD, "ManualRefMD", "User Defined");
-        setDefault(RimMswCompletionParameters::AUTO_REFERENCE_MD);
-    }
+namespace caf
+{
+template<>
+void RimMswCompletionParameters::ReferenceMDEnum::setUp()
+{
+    addItem(RimMswCompletionParameters::AUTO_REFERENCE_MD, "GridIntersectionRefMD", "Grid Entry Point");
+    addItem(RimMswCompletionParameters::MANUAL_REFERENCE_MD, "ManualRefMD", "User Defined");
+    setDefault(RimMswCompletionParameters::AUTO_REFERENCE_MD);
+}
 
-    template<>
-    void RimMswCompletionParameters::PressureDropEnum::setUp()
-    {
-        addItem(RimMswCompletionParameters::HYDROSTATIC, "H--", "Hydrostatic");
-        addItem(RimMswCompletionParameters::HYDROSTATIC_FRICTION, "HF-", "Hydrostatic + Friction");
-        addItem(RimMswCompletionParameters::HYDROSTATIC_FRICTION_ACCELERATION, "HFA", "Hydrostatic + Friction + Acceleration");
-        setDefault(RimMswCompletionParameters::HYDROSTATIC_FRICTION);
-    }
+template<>
+void RimMswCompletionParameters::PressureDropEnum::setUp()
+{
+    addItem(RimMswCompletionParameters::HYDROSTATIC, "H--", "Hydrostatic");
+    addItem(RimMswCompletionParameters::HYDROSTATIC_FRICTION, "HF-", "Hydrostatic + Friction");
+    addItem(RimMswCompletionParameters::HYDROSTATIC_FRICTION_ACCELERATION, "HFA", "Hydrostatic + Friction + Acceleration");
+    setDefault(RimMswCompletionParameters::HYDROSTATIC_FRICTION);
+}
 
-    template<>
-    void RimMswCompletionParameters::LengthAndDepthEnum::setUp()
-    {
-        addItem(RimMswCompletionParameters::INC, "INC", "Incremental");
-        addItem(RimMswCompletionParameters::ABS, "ABS", "Absolute");
-        setDefault(RimMswCompletionParameters::INC);
-    }
+template<>
+void RimMswCompletionParameters::LengthAndDepthEnum::setUp()
+{
+    addItem(RimMswCompletionParameters::INC, "INC", "Incremental");
+    addItem(RimMswCompletionParameters::ABS, "ABS", "Absolute");
+    setDefault(RimMswCompletionParameters::INC);
+}
 }
 
 CAF_PDM_SOURCE_INIT(RimMswCompletionParameters, "RimMswCompletionParameters");
@@ -69,8 +70,10 @@ RimMswCompletionParameters::RimMswCompletionParameters(bool enableReferenceDepth
         m_refMD.xmlCapability()->disableIO();
     }
 
-    CAF_PDM_InitField(&m_linerDiameter, "LinerDiameter", std::numeric_limits<double>::infinity(), "Liner Inner Diameter", "", "", "");
-    CAF_PDM_InitField(&m_roughnessFactor, "RoughnessFactor", std::numeric_limits<double>::infinity(), "Roughness Factor", "", "", "");
+    CAF_PDM_InitField(
+        &m_linerDiameter, "LinerDiameter", std::numeric_limits<double>::infinity(), "Liner Inner Diameter", "", "", "");
+    CAF_PDM_InitField(
+        &m_roughnessFactor, "RoughnessFactor", std::numeric_limits<double>::infinity(), "Roughness Factor", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_pressureDrop, "PressureDrop", "Pressure Drop", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_lengthAndDepth, "LengthAndDepth", "Length and Depth", "", "", "");
@@ -83,10 +86,7 @@ RimMswCompletionParameters::RimMswCompletionParameters(bool enableReferenceDepth
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMswCompletionParameters::~RimMswCompletionParameters()
-{
-
-}
+RimMswCompletionParameters::~RimMswCompletionParameters() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -109,7 +109,7 @@ double RimMswCompletionParameters::manualReferenceMD() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimMswCompletionParameters::linerDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const
 {
@@ -142,7 +142,7 @@ double RimMswCompletionParameters::defaultLinerDiameter(RiaEclipseUnitTools::Uni
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimMswCompletionParameters::roughnessFactor(RiaEclipseUnitTools::UnitSystem unitSystem) const
 {
@@ -191,7 +191,7 @@ RimMswCompletionParameters::LengthAndDepthEnum RimMswCompletionParameters::lengt
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimMswCompletionParameters::maxSegmentLength() const
 {
@@ -247,9 +247,11 @@ void RimMswCompletionParameters::setLengthAndDepth(LengthAndDepthType lengthAndD
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimMswCompletionParameters::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimMswCompletionParameters::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                  const QVariant&            oldValue,
+                                                  const QVariant&            newValue)
 {
     if (changedField == &m_refMDType)
     {
@@ -329,4 +331,3 @@ void RimMswCompletionParameters::setUnitSystemSpecificDefaults()
         m_roughnessFactor = defaultRoughnessFactor(wellPath->unitSystem());
     }
 }
-

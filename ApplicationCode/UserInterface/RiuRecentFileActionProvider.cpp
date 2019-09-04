@@ -1,34 +1,33 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) Statoil ASA 2016
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuRecentFileActionProvider.h"
 
-#include "RiaGuiApplication.h"
 #include "RiaFilePathTools.h"
+#include "RiaGuiApplication.h"
 
 #include <QAction>
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QSettings>
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuRecentFileActionProvider::RiuRecentFileActionProvider(int maxActionCount)
     : m_maxActionCount(maxActionCount)
@@ -38,18 +37,16 @@ RiuRecentFileActionProvider::RiuRecentFileActionProvider(int maxActionCount)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuRecentFileActionProvider::~RiuRecentFileActionProvider()
-{
-}
+RiuRecentFileActionProvider::~RiuRecentFileActionProvider() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuRecentFileActionProvider::addFileName(const QString& fileName)
 {
-    QSettings settings;
+    QSettings   settings;
     QStringList files = settings.value("recentFileList").toStringList();
     files.removeAll(fileName);
     files.prepend(fileName);
@@ -62,11 +59,11 @@ void RiuRecentFileActionProvider::addFileName(const QString& fileName)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuRecentFileActionProvider::removeFileName(const QString& fileName)
 {
-    QSettings settings;
+    QSettings   settings;
     QStringList files = settings.value("recentFileList").toStringList();
     files.removeAll(fileName);
 
@@ -76,16 +73,17 @@ void RiuRecentFileActionProvider::removeFileName(const QString& fileName)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuRecentFileActionProvider::updateActions()
 {
-    QSettings settings;
+    QSettings   settings;
     QStringList files = settings.value("recentFileList").toStringList();
 
     int numRecentFiles = qMin(files.size(), m_maxActionCount);
 
-    for (int i = 0; i < numRecentFiles; ++i) {
+    for (int i = 0; i < numRecentFiles; ++i)
+    {
         QString text = tr("&%1 %2").arg(i + 1).arg(QFileInfo(files[i]).fileName());
         m_recentFileActions[i]->setText(text);
         m_recentFileActions[i]->setData(files[i]);
@@ -100,7 +98,7 @@ void RiuRecentFileActionProvider::updateActions()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<QAction*> RiuRecentFileActionProvider::actions() const
 {
@@ -116,11 +114,11 @@ std::vector<QAction*> RiuRecentFileActionProvider::actions() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuRecentFileActionProvider::slotOpenRecentFile()
 {
-    QAction* action = qobject_cast<QAction *>(sender());
+    QAction* action = qobject_cast<QAction*>(sender());
     if (action)
     {
         QString fileName = RiaFilePathTools::toInternalSeparator(action->data().toString());
@@ -146,7 +144,7 @@ void RiuRecentFileActionProvider::slotOpenRecentFile()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuRecentFileActionProvider::createActions()
 {
@@ -155,7 +153,7 @@ void RiuRecentFileActionProvider::createActions()
         QAction* act = new QAction(this);
         act->setVisible(false);
         connect(act, SIGNAL(triggered()), this, SLOT(slotOpenRecentFile()));
-        
+
         m_recentFileActions.push_back(act);
     }
 

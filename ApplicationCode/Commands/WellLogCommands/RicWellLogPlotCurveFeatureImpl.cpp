@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,13 +22,12 @@
 #include "RiaColorTables.h"
 
 #include "RimWellAllocationPlot.h"
-#include "RimWellRftPlot.h"
 #include "RimWellLogCurve.h"
+#include "RimWellRftPlot.h"
 
 #include "cafSelectionManager.h"
 
 #include <QColor>
-
 
 //--------------------------------------------------------------------------------------------------
 /// Pick default curve color from an index based palette
@@ -39,7 +38,7 @@ cvf::Color3f RicWellLogPlotCurveFeatureImpl::curveColorFromTable(size_t index)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellLogCurve*> RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves()
 {
@@ -75,11 +74,12 @@ std::vector<RimWellLogCurve*> RicWellLogPlotCurveFeatureImpl::selectedWellLogCur
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellAllocationPlot* RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
     if (!destinationObject) return nullptr;
 
     RimWellAllocationPlot* wellAllocationPlot = nullptr;
@@ -89,11 +89,12 @@ RimWellAllocationPlot* RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot(
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellRftPlot* RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
     if (!destinationObject) return nullptr;
 
     RimWellRftPlot* wellRftPlot = nullptr;

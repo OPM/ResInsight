@@ -54,7 +54,7 @@ std::vector<std::vector<cvf::Vec3d>> calcFacePoints(const std::vector<cvf::Vec3d
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d>
-RiaCellDividingTools::createHexCornerCoords(std::array<cvf::Vec3d, 8> mainCellCorners, size_t nx, size_t ny, size_t nz)
+    RiaCellDividingTools::createHexCornerCoords(std::array<cvf::Vec3d, 8> mainCellCorners, size_t nx, size_t ny, size_t nz)
 {
     std::array<std::pair<size_t, size_t>, 12> edgeCorners = {
         std::make_pair(0, 1),
@@ -133,13 +133,12 @@ RiaCellDividingTools::createHexCornerCoords(std::array<cvf::Vec3d, 8> mainCellCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RiaCellDividingTools::computeFlowDistance(const std::array<cvf::Vec3d, 8>& cellVertices,
-                                                 const cvf::Vec3d& areaCenter)
+double RiaCellDividingTools::computeFlowDistance(const std::array<cvf::Vec3d, 8>& cellVertices, const cvf::Vec3d& areaCenter)
 {
     auto subCellCorners = createHexCornerCoords(cellVertices, 2, 2, 2);
 
     double weightedDistanceTotal = 0.0;
-    double weightTotal = 0.0;
+    double weightTotal           = 0.0;
 
     for (size_t c = 0; c < 8; c++)
     {
@@ -149,7 +148,8 @@ double RiaCellDividingTools::computeFlowDistance(const std::array<cvf::Vec3d, 8>
         cvf::Vec3d centerOfSubCell = cvf::Vec3d::ZERO;
         {
             cvf::Vec3d vertexSum = cvf::Vec3d::ZERO;
-            for (size_t v = 0; v < 8; v++) vertexSum += subCellCorners[c * 8 + v];
+            for (size_t v = 0; v < 8; v++)
+                vertexSum += subCellCorners[c * 8 + v];
             centerOfSubCell = vertexSum / 8;
         }
 

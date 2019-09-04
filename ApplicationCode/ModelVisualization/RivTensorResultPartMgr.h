@@ -18,8 +18,8 @@
 
 #pragma once
 
-#include "cvfBase.h"
 #include "cvfArray.h"
+#include "cvfBase.h"
 #include "cvfColor3.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
@@ -56,13 +56,18 @@ public:
 private:
     struct TensorVisualization
     {
-        TensorVisualization(cvf::Vec3f vertex, cvf::Vec3f result, cvf::Vec3f faceNormal, bool isPressure, int princial, float principalValue)
+        TensorVisualization(cvf::Vec3f vertex,
+                            cvf::Vec3f result,
+                            cvf::Vec3f faceNormal,
+                            bool       isPressure,
+                            int        princial,
+                            float      principalValue)
             : vertex(vertex)
             , result(result)
             , faceNormal(faceNormal)
             , isPressure(isPressure)
             , principalNumber(princial)
-            , principalValue(principalValue) {};
+            , principalValue(principalValue){};
 
         cvf::Vec3f vertex;
         cvf::Vec3f result;
@@ -87,7 +92,8 @@ private:
 
     cvf::ref<cvf::Part> createPart(const std::vector<TensorVisualization>& tensorVisualizations) const;
 
-    static void createOneColorPerPrincipalScalarMapper(const RimTensorResults::TensorColors& colorSet, cvf::ScalarMapperDiscreteLinear* scalarMapper);
+    static void createOneColorPerPrincipalScalarMapper(const RimTensorResults::TensorColors& colorSet,
+                                                       cvf::ScalarMapperDiscreteLinear*      scalarMapper);
     static void createOneColorPerPrincipalTextureCoords(cvf::Vec2fArray*                        textureCoords,
                                                         const std::vector<TensorVisualization>& tensorVisualizations,
                                                         const cvf::ScalarMapper*                mapper);
@@ -101,8 +107,8 @@ private:
     static bool isPressure(float principalValue);
     bool        isDrawable(cvf::Vec3f resultVector, bool showPrincipal) const;
 
-    std::array<cvf::Vec3f, 5>   createArrowVertices(const TensorVisualization &tensorVisualization) const;
-    std::array<uint, 8>         createArrowIndices(uint startIndex) const;
+    std::array<cvf::Vec3f, 5> createArrowVertices(const TensorVisualization& tensorVisualization) const;
+    std::array<uint, 8>       createArrowIndices(uint startIndex) const;
 
 private:
     caf::PdmPointer<RimGeoMechView> m_rimReservoirView;

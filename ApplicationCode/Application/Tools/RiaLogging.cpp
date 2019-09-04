@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,26 +22,24 @@
 #include <sstream>
 
 #ifdef WIN32
-#pragma warning (push)
-#pragma warning (disable: 4668)
+#pragma warning(push)
+#pragma warning(disable : 4668)
 // Define this one to tell windows.h to not define min() and max() as macros
 #if defined WIN32 && !defined NOMINMAX
 #define NOMINMAX
 #endif
 #include <windows.h>
-#pragma warning (pop)
+#pragma warning(pop)
 #else
-#include <cstring>
 #include <cstdio>
+#include <cstring>
 #endif
 
 #include "QString"
 
-
-
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 class RiaDefaultConsoleLogger : public RiaLogger
@@ -49,25 +47,23 @@ class RiaDefaultConsoleLogger : public RiaLogger
 public:
     RiaDefaultConsoleLogger();
 
-    int     level() const override;
-    void    setLevel(int logLevel) override;
-    void    error(  const char* message) override;
-    void    warning(const char* message) override;
-    void    info(   const char* message) override;
-    void    debug(  const char* message) override;
+    int  level() const override;
+    void setLevel(int logLevel) override;
+    void error(const char* message) override;
+    void warning(const char* message) override;
+    void info(const char* message) override;
+    void debug(const char* message) override;
 
 private:
-    static void         writeMessageToConsole(const char* prefix, const char* message);
-    static void         writeToConsole(const std::string& str);
+    static void writeMessageToConsole(const char* prefix, const char* message);
+    static void writeToConsole(const std::string& str);
 
 private:
-    int     m_logLevel;
+    int m_logLevel;
 };
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiaDefaultConsoleLogger::RiaDefaultConsoleLogger()
     : m_logLevel(RI_LL_WARNING)
@@ -75,7 +71,7 @@ RiaDefaultConsoleLogger::RiaDefaultConsoleLogger()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RiaDefaultConsoleLogger::level() const
 {
@@ -83,7 +79,7 @@ int RiaDefaultConsoleLogger::level() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaDefaultConsoleLogger::setLevel(int logLevel)
 {
@@ -91,7 +87,7 @@ void RiaDefaultConsoleLogger::setLevel(int logLevel)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaDefaultConsoleLogger::error(const char* message)
 {
@@ -99,40 +95,37 @@ void RiaDefaultConsoleLogger::error(const char* message)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaDefaultConsoleLogger::warning(const char* message)
 {
     writeMessageToConsole("warn:  ", message);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaDefaultConsoleLogger::info(const char* message)
 {
     writeMessageToConsole("info:  ", message);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaDefaultConsoleLogger::debug(const char* message)
 {
     writeMessageToConsole("debug: ", message);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaDefaultConsoleLogger::writeMessageToConsole(const char* prefix, const char* message)
 {
     std::ostringstream oss;
 
-//    VF_ASSERT(prefix);
+    //    VF_ASSERT(prefix);
     oss << prefix;
 
     if (message)
@@ -147,9 +140,8 @@ void RiaDefaultConsoleLogger::writeMessageToConsole(const char* prefix, const ch
     writeToConsole(oss.str());
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaDefaultConsoleLogger::writeToConsole(const std::string& str)
 {
@@ -170,23 +162,22 @@ void RiaDefaultConsoleLogger::writeToConsole(const std::string& str)
 
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 
 RiaLogger* RiaLogging::sm_logger = new RiaDefaultConsoleLogger;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiaLogger* RiaLogging::loggerInstance()
 {
     return sm_logger;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::setLoggerInstance(RiaLogger* loggerInstance)
 {
@@ -199,9 +190,8 @@ void RiaLogging::setLoggerInstance(RiaLogger* loggerInstance)
     sm_logger = loggerInstance;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::deleteLoggerInstance()
 {
@@ -210,7 +200,7 @@ void RiaLogging::deleteLoggerInstance()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::error(const QString& message)
 {
@@ -222,7 +212,7 @@ void RiaLogging::error(const QString& message)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::warning(const QString& message)
 {
@@ -234,7 +224,7 @@ void RiaLogging::warning(const QString& message)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::info(const QString& message)
 {
@@ -246,7 +236,7 @@ void RiaLogging::info(const QString& message)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::debug(const QString& message)
 {

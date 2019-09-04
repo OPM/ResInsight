@@ -45,9 +45,10 @@ RivWellConnectionFactorGeometryGenerator::RivWellConnectionFactorGeometryGenerat
 RivWellConnectionFactorGeometryGenerator::~RivWellConnectionFactorGeometryGenerator() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivWellConnectionFactorGeometryGenerator::createSurfacePart(const cvf::ScalarMapper* scalarMapper, bool disableLighting)
+cvf::ref<cvf::Part> RivWellConnectionFactorGeometryGenerator::createSurfacePart(const cvf::ScalarMapper* scalarMapper,
+                                                                                bool                     disableLighting)
 {
     if (!scalarMapper) return nullptr;
 
@@ -144,7 +145,7 @@ cvf::ref<cvf::DrawableGeo> RivWellConnectionFactorGeometryGenerator::createSurfa
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RivWellConnectionFactorGeometryGenerator::connectionFactor(cvf::uint triangleIndex) const
 {
@@ -164,7 +165,7 @@ size_t RivWellConnectionFactorGeometryGenerator::globalCellIndexFromTriangleInde
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RivWellConnectionFactorGeometryGenerator::mapFromTriangleToConnectionIndex(cvf::uint triangleIndex) const
 {

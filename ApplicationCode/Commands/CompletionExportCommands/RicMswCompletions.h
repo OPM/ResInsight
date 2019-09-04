@@ -32,31 +32,31 @@
 class RimWellPathValve;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class RicMswCompletion
 {
 public:
     RicMswCompletion(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
 
-    virtual RigCompletionData::CompletionType    completionType() const = 0;
+    virtual RigCompletionData::CompletionType completionType() const = 0;
 
-    const QString&                       label() const;
-    size_t                               index() const;
-    int                                  branchNumber() const;
-    void                                 setBranchNumber(int branchNumber);
+    const QString& label() const;
+    size_t         index() const;
+    int            branchNumber() const;
+    void           setBranchNumber(int branchNumber);
 
-    void                                 addSubSegment(std::shared_ptr<RicMswSubSegment> subSegment);
+    void addSubSegment(std::shared_ptr<RicMswSubSegment> subSegment);
 
     std::vector<std::shared_ptr<RicMswSubSegment>>&       subSegments();
     const std::vector<std::shared_ptr<RicMswSubSegment>>& subSegments() const;
 
-    void                                 setLabel(const QString& label);
+    void setLabel(const QString& label);
 
 private:
-    QString                              m_label;
-    size_t                               m_index;
-    int                                  m_branchNumber;
+    QString m_label;
+    size_t  m_index;
+    int     m_branchNumber;
 
     std::vector<std::shared_ptr<RicMswSubSegment>> m_subSegments;
 };
@@ -66,9 +66,13 @@ class RicMswFishbones : public RicMswCompletion
 public:
     RicMswFishbones(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT)
         : RicMswCompletion(label, index, branchNumber)
-    {}
+    {
+    }
 
-    RigCompletionData::CompletionType completionType() const override { return RigCompletionData::FISHBONES; }
+    RigCompletionData::CompletionType completionType() const override
+    {
+        return RigCompletionData::FISHBONES;
+    }
 };
 
 //==================================================================================================
@@ -119,9 +123,10 @@ public:
     double area() const;
     void   setFlowCoefficient(double icdFlowCoefficient);
     void   setArea(double icdArea);
+
 private:
-    double                  m_flowCoefficient;
-    double                  m_area;
+    double m_flowCoefficient;
+    double m_area;
 };
 
 //==================================================================================================

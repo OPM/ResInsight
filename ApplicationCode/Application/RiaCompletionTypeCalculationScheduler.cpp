@@ -20,8 +20,8 @@
 
 #include "RiaApplication.h"
 
-#include "RigEclipseCaseData.h"
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
@@ -37,8 +37,8 @@
 #include <QTimer>
 #include <QTreeView>
 
-#include <set>
 #include "cafProgressState.h"
+#include <set>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -84,7 +84,9 @@ void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAnd
 
         if (eclipseCase->eclipseCaseData())
         {
-            eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->clearScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
+            eclipseCase->eclipseCaseData()
+                ->results(RiaDefines::MATRIX_MODEL)
+                ->clearScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
 
             // Delete virtual perforation transmissibilities, as these are the basis for the computation of completion type
             eclipseCase->eclipseCaseData()->setVirtualPerforationTransmissibilities(nullptr);
@@ -101,7 +103,7 @@ void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAnd
 //--------------------------------------------------------------------------------------------------
 void RiaCompletionTypeCalculationScheduler::slotRecalculateCompletionType()
 {
-    if ( caf::ProgressState::isActive() )
+    if (caf::ProgressState::isActive())
     {
         startTimer();
         return;

@@ -21,8 +21,7 @@ bool RicSwapGridCrossPlotDataSetAxesFeature::isCommandEnabled()
     else if (caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlot>())
     {
         auto plot = caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlot>();
-        if (!plot->dataSets().empty())
-            return true;
+        if (!plot->dataSets().empty()) return true;
     }
     return false;
 }

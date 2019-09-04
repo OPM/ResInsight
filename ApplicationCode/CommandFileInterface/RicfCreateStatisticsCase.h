@@ -30,7 +30,7 @@ public:
     RicfCreateStatisticsCaseResult(int caseId = -1);
 
 public:
-    caf::PdmField<int>     caseId;
+    caf::PdmField<int> caseId;
 };
 
 //==================================================================================================

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ class QTime;
 class DateTimeSpan;
 
 //==================================================================================================
-// 
+//
 //==================================================================================================
 enum class DateTimePeriod
 {
@@ -51,7 +51,7 @@ enum class DateTimePeriod
 };
 
 //==================================================================================================
-// 
+//
 //==================================================================================================
 class RiaQDateTimeTools
 {
@@ -66,9 +66,9 @@ class RiaQDateTimeTools
 public:
     enum DateFormatComponents
     {
-		DATE_FORMAT_UNSPECIFIED = -2,
-        DATE_FORMAT_NONE = -1,
-        DATE_FORMAT_YEAR = 0,
+        DATE_FORMAT_UNSPECIFIED = -2,
+        DATE_FORMAT_NONE        = -1,
+        DATE_FORMAT_YEAR        = 0,
         DATE_FORMAT_YEAR_MONTH,
         DATE_FORMAT_YEAR_MONTH_DAY,
         DATE_FORMAT_SIZE
@@ -76,8 +76,8 @@ public:
 
     enum TimeFormatComponents
     {
-		TIME_FORMAT_UNSPECIFIED = -2,
-        TIME_FORMAT_NONE = -1,
+        TIME_FORMAT_UNSPECIFIED = -2,
+        TIME_FORMAT_NONE        = -1,
         TIME_FORMAT_HOUR,
         TIME_FORMAT_HOUR_MINUTE,
         TIME_FORMAT_HOUR_MINUTE_SECOND,
@@ -114,13 +114,13 @@ public:
     static QDateTime createUtcDateTime(const QDate& date, const QTime& time);
     static QDateTime createUtcDateTime(const QDateTime& dt);
 
-    static bool      lessThan(const QDateTime& dt1, const QDateTime& dt2);
+    static bool lessThan(const QDateTime& dt1, const QDateTime& dt2);
 
-    static const DateTimeSpan   timeSpan(DateTimePeriod period);
-    static QDateTime            truncateTime(const QDateTime& dt, DateTimePeriod period);
+    static const DateTimeSpan timeSpan(DateTimePeriod period);
+    static QDateTime          truncateTime(const QDateTime& dt, DateTimePeriod period);
 
-    static std::vector<DateTimePeriod>  dateTimePeriods();
-    static QString                      dateTimePeriodName(DateTimePeriod period);
+    static std::vector<DateTimePeriod> dateTimePeriods();
+    static QString                     dateTimePeriodName(DateTimePeriod period);
 
     // This function uses C locale to make sure the text representation of a date is stable, independent of the locale
     // settings on local machine. Required for stable regression testing.
@@ -136,25 +136,46 @@ public:
     static QString timeFormatString(const QString& fullTimeFormat, TimeFormatComponents timeComponents);
 
 private:
-    static quint64  secondsInDay();
-    static quint64  secondsInYear();
-
+    static quint64 secondsInDay();
+    static quint64 secondsInYear();
 };
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class DateTimeSpan
 {
 public:
-    DateTimeSpan() : m_years(0), m_months(0), m_days(0) { }
-    DateTimeSpan(int years, int months, int days) : m_years(years), m_months(months), m_days(days) { }
+    DateTimeSpan()
+        : m_years(0)
+        , m_months(0)
+        , m_days(0)
+    {
+    }
+    DateTimeSpan(int years, int months, int days)
+        : m_years(years)
+        , m_months(months)
+        , m_days(days)
+    {
+    }
 
-    int years() const { return m_years; }
-    int months() const { return m_months; }
-    int days() const { return m_days; }
+    int years() const
+    {
+        return m_years;
+    }
+    int months() const
+    {
+        return m_months;
+    }
+    int days() const
+    {
+        return m_days;
+    }
 
-    bool isEmpty() { return m_years == 0 && m_months == 0 && m_days; }
+    bool isEmpty()
+    {
+        return m_years == 0 && m_months == 0 && m_days;
+    }
 
 private:
     int m_years;

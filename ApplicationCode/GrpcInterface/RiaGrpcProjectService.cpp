@@ -96,7 +96,8 @@ grpc::Status
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcProjectService::GetAllCases(grpc::ServerContext* context, const rips::Empty* request, rips::CaseInfoArray* reply)
+grpc::Status
+    RiaGrpcProjectService::GetAllCases(grpc::ServerContext* context, const rips::Empty* request, rips::CaseInfoArray* reply)
 {
     std::vector<RimCase*> cases;
     RiaApplication::instance()->project()->allCases(cases);
@@ -125,8 +126,9 @@ grpc::Status RiaGrpcProjectService::GetAllCases(grpc::ServerContext* context, co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status
-    RiaGrpcProjectService::GetCasesInGroup(grpc::ServerContext* context, const rips::CaseGroup* request, rips::CaseInfoArray* reply)
+grpc::Status RiaGrpcProjectService::GetCasesInGroup(grpc::ServerContext*   context,
+                                                    const rips::CaseGroup* request,
+                                                    rips::CaseInfoArray*   reply)
 {
     RimProject*               proj = RiaApplication::instance()->project();
     RimEclipseCaseCollection* analysisModels =
@@ -199,13 +201,12 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcProjectService::createCallbacks()
 {
     typedef RiaGrpcProjectService Self;
 
-    return {
-        new RiaGrpcUnaryCallback<Self, Empty, CaseRequest>(this, &Self::GetCurrentCase, &Self::RequestGetCurrentCase),
-        new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>(this, &Self::GetSelectedCases, &Self::RequestGetSelectedCases),
-        new RiaGrpcUnaryCallback<Self, Empty, CaseGroups>(this, &Self::GetAllCaseGroups, &Self::RequestGetAllCaseGroups),
-        new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>(this, &Self::GetAllCases, &Self::RequestGetAllCases),
-        new RiaGrpcUnaryCallback<Self, CaseGroup, CaseInfoArray>(this, &Self::GetCasesInGroup, &Self::RequestGetCasesInGroup),
-        new RiaGrpcUnaryCallback<Self, Empty, PdmObject>(this, &Self::GetPdmObject, &Self::RequestGetPdmObject) };
+    return {new RiaGrpcUnaryCallback<Self, Empty, CaseRequest>(this, &Self::GetCurrentCase, &Self::RequestGetCurrentCase),
+            new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>(this, &Self::GetSelectedCases, &Self::RequestGetSelectedCases),
+            new RiaGrpcUnaryCallback<Self, Empty, CaseGroups>(this, &Self::GetAllCaseGroups, &Self::RequestGetAllCaseGroups),
+            new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>(this, &Self::GetAllCases, &Self::RequestGetAllCases),
+            new RiaGrpcUnaryCallback<Self, CaseGroup, CaseInfoArray>(this, &Self::GetCasesInGroup, &Self::RequestGetCasesInGroup),
+            new RiaGrpcUnaryCallback<Self, Empty, PdmObject>(this, &Self::GetPdmObject, &Self::RequestGetPdmObject)};
 }
 
 static bool RiaGrpcProjectService_init =

@@ -17,8 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RifReaderRftInterface.h"
 
-
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -26,12 +24,12 @@ std::set<RifEclipseRftAddress> RifReaderRftInterface::eclipseRftAddresses(const 
 {
     std::set<RifEclipseRftAddress> matchingAddresses;
     std::set<RifEclipseRftAddress> allAddresses = this->eclipseRftAddresses();
-	for (const RifEclipseRftAddress& address : allAddresses)
-	{
-		if (address.wellName() == wellName && address.timeStep() == timeStep)
-		{
+    for (const RifEclipseRftAddress& address : allAddresses)
+    {
+        if (address.wellName() == wellName && address.timeStep() == timeStep)
+        {
             matchingAddresses.insert(address);
-		}
-	}
+        }
+    }
     return matchingAddresses;
 }

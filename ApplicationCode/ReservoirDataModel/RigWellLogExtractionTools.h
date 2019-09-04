@@ -2,17 +2,17 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,8 +21,8 @@
 #include <cmath>
 
 //==================================================================================================
-///  
-/// 
+///
+///
 //==================================================================================================
 
 struct RigWellLogExtractionTools
@@ -31,7 +31,7 @@ struct RigWellLogExtractionTools
     {
         double depthDiff = d1 - d2;
 
-        const double tolerance = 0.1;// Meters To handle inaccuracies across faults
+        const double tolerance = 0.1; // Meters To handle inaccuracies across faults
 
         return (fabs(depthDiff) < tolerance); // Equal depth
     }
@@ -55,9 +55,12 @@ struct RigMDCellIdxEnterLeaveKey
     double measuredDepth;
     size_t hexIndex;
     bool   isEnteringCell; // As opposed to leaving.
-    bool   isLeavingCell() const { return !isEnteringCell;}
+    bool   isLeavingCell() const
+    {
+        return !isEnteringCell;
+    }
 
-    bool operator < (const RigMDCellIdxEnterLeaveKey& other) const 
+    bool operator<(const RigMDCellIdxEnterLeaveKey& other) const
     {
         if (RigWellLogExtractionTools::isEqualDepth(measuredDepth, other.measuredDepth))
         {
@@ -81,11 +84,10 @@ struct RigMDCellIdxEnterLeaveKey
     }
 };
 
-
 //==================================================================================================
 ///  Class used to sort the intersections along the wellpath,
 ///  Use as key in a map
-/// Sorting according to MD first,then Leaving before entering cell, then Cell Idx, 
+/// Sorting according to MD first,then Leaving before entering cell, then Cell Idx,
 //==================================================================================================
 
 struct RigMDEnterLeaveCellIdxKey
@@ -99,10 +101,13 @@ struct RigMDEnterLeaveCellIdxKey
 
     double measuredDepth;
     bool   isEnteringCell; // As opposed to leaving.
-    bool   isLeavingCell() const { return !isEnteringCell;}
+    bool   isLeavingCell() const
+    {
+        return !isEnteringCell;
+    }
     size_t hexIndex;
 
-    bool operator < (const RigMDEnterLeaveCellIdxKey& other) const
+    bool operator<(const RigMDEnterLeaveCellIdxKey& other) const
     {
         if (RigWellLogExtractionTools::isEqualDepth(measuredDepth, other.measuredDepth))
         {
@@ -125,12 +130,9 @@ struct RigMDEnterLeaveCellIdxKey
         return (measuredDepth < other.measuredDepth);
     }
 
-    static bool isProperCellEnterLeavePair(const RigMDEnterLeaveCellIdxKey& key1, const RigMDEnterLeaveCellIdxKey& key2 )
+    static bool isProperCellEnterLeavePair(const RigMDEnterLeaveCellIdxKey& key1, const RigMDEnterLeaveCellIdxKey& key2)
     {
-        return ( key1.hexIndex == key2.hexIndex 
-                && key1.isEnteringCell && key2.isLeavingCell()
-                && !RigWellLogExtractionTools::isEqualDepth(key1.measuredDepth, key2.measuredDepth));
+        return (key1.hexIndex == key2.hexIndex && key1.isEnteringCell && key2.isLeavingCell() &&
+                !RigWellLogExtractionTools::isEqualDepth(key1.measuredDepth, key2.measuredDepth));
     }
 };
-
-

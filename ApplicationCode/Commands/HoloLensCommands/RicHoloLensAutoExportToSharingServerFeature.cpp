@@ -92,7 +92,7 @@ bool RicHoloLensAutoExportToSharingServerFeature::isCommandEnabled()
 void RicHoloLensAutoExportToSharingServerFeature::onActionTriggered(bool isChecked)
 {
     m_isActive = !m_isActive;
-    
+
     if (!isSessionValid())
     {
         RiaLogging::error("No valid HoloLens session present");

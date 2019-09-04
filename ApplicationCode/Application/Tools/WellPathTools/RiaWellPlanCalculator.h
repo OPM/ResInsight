@@ -26,34 +26,34 @@
 class RiaWellPlanCalculator
 {
 public:
-    RiaWellPlanCalculator(const cvf::Vec3d& startTangent, 
-                          const std::vector<cvf::Vec3d>& lineArcEndPoints);
+    RiaWellPlanCalculator(const cvf::Vec3d& startTangent, const std::vector<cvf::Vec3d>& lineArcEndPoints);
 
     struct WellPlanSegment
     {
-        double MD; 
-        double CL; 
+        double MD;
+        double CL;
         double inc;
         double azi;
-        double TVD; 
-        double NS; 
-        double EW; 
-        double dogleg; 
-        double build; 
+        double TVD;
+        double NS;
+        double EW;
+        double dogleg;
+        double build;
         double turn;
     };
 
-    const std::vector<WellPlanSegment>& wellPlan() const { return m_wpResult; } 
+    const std::vector<WellPlanSegment>& wellPlan() const
+    {
+        return m_wpResult;
+    }
 
 private:
     void addSegment(cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d p2, cvf::Vec3d* endTangent);
     void addLineSegment(cvf::Vec3d p1, cvf::Vec3d p2, cvf::Vec3d* endTangent);
     void addArcSegment(cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d p2, cvf::Vec3d* endTangent);
 
-    cvf::Vec3d               m_startTangent;
-    std::vector<cvf::Vec3d>  m_lineArcEndPoints;
+    cvf::Vec3d              m_startTangent;
+    std::vector<cvf::Vec3d> m_lineArcEndPoints;
 
     std::vector<WellPlanSegment> m_wpResult;
-
 };
-

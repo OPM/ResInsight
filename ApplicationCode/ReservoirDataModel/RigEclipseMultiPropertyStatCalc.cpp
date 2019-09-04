@@ -2,17 +2,17 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,16 +20,13 @@
 #include "RigEclipseMultiPropertyStatCalc.h"
 #include "RigEclipseNativeStatCalc.h"
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigEclipseMultiPropertyStatCalc::RigEclipseMultiPropertyStatCalc() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RigEclipseMultiPropertyStatCalc::RigEclipseMultiPropertyStatCalc()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigEclipseMultiPropertyStatCalc::addStatisticsCalculator(RigStatisticsCalculator* statisticsCalculator)
 {
@@ -40,7 +37,7 @@ void RigEclipseMultiPropertyStatCalc::addStatisticsCalculator(RigStatisticsCalcu
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigEclipseMultiPropertyStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max)
 {
@@ -54,7 +51,7 @@ void RigEclipseMultiPropertyStatCalc::minMaxCellScalarValues(size_t timeStepInde
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigEclipseMultiPropertyStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg)
 {
@@ -67,9 +64,8 @@ void RigEclipseMultiPropertyStatCalc::posNegClosestToZero(size_t timeStepIndex, 
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigEclipseMultiPropertyStatCalc::valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount)
 {
@@ -82,11 +78,11 @@ void RigEclipseMultiPropertyStatCalc::valueSumAndSampleCount(size_t timeStepInde
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseMultiPropertyStatCalc::addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator)
+void RigEclipseMultiPropertyStatCalc::addDataToHistogramCalculator(size_t                  timeStepIndex,
+                                                                   RigHistogramCalculator& histogramCalculator)
 {
     for (size_t i = 0; i < m_nativeStatisticsCalculators.size(); i++)
     {
@@ -98,7 +94,7 @@ void RigEclipseMultiPropertyStatCalc::addDataToHistogramCalculator(size_t timeSt
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigEclipseMultiPropertyStatCalc::uniqueValues(size_t timeStepIndex, std::set<int>& values)
 {
@@ -112,7 +108,7 @@ void RigEclipseMultiPropertyStatCalc::uniqueValues(size_t timeStepIndex, std::se
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RigEclipseMultiPropertyStatCalc::timeStepCount()
 {
@@ -125,13 +121,13 @@ size_t RigEclipseMultiPropertyStatCalc::timeStepCount()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseMultiPropertyStatCalc::addNativeStatisticsCalculator(RigCaseCellResultsData* cellResultsData, const RigEclipseResultAddress& eclipseResultAddress)
+void RigEclipseMultiPropertyStatCalc::addNativeStatisticsCalculator(RigCaseCellResultsData*        cellResultsData,
+                                                                    const RigEclipseResultAddress& eclipseResultAddress)
 {
     if (eclipseResultAddress.isValid())
     {
         this->addStatisticsCalculator(new RigEclipseNativeStatCalc(cellResultsData, eclipseResultAddress));
     }
 }
-

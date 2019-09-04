@@ -2,9 +2,8 @@
 
 #include "RiaWeightedMeanCalculator.h"
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RiaWeightedMeanCalculator, BasicUsage)
 {
@@ -18,10 +17,10 @@ TEST(RiaWeightedMeanCalculator, BasicUsage)
     {
         RiaWeightedMeanCalculator<double> calc;
 
-        std::vector<double> values {3.0, 6.0};
-        std::vector<double> weights {1.0, 2.0};
+        std::vector<double> values{3.0, 6.0};
+        std::vector<double> weights{1.0, 2.0};
 
-        for (size_t i = 0; i< values.size(); i++)
+        for (size_t i = 0; i < values.size(); i++)
         {
             calc.addValueAndWeight(values[i], weights[i]);
         }

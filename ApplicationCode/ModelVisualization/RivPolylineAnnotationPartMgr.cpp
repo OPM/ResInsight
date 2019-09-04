@@ -1,69 +1,66 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RivPolylineAnnotationPartMgr.h"
 
-#include "RiaGuiApplication.h"
 #include "RiaBoundingBoxTools.h"
+#include "RiaGuiApplication.h"
 
 #include "Rim3dView.h"
 #include "RimAnnotationCollection.h"
-#include "RimPolylinesAnnotation.h"
-#include "RimPolylinesAnnotationInView.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationLineAppearance.h"
 #include "RimEclipseView.h"
+#include "RimPolylinesAnnotation.h"
+#include "RimPolylinesAnnotationInView.h"
 
 #include "RigMainGrid.h"
 #include "RigPolyLinesData.h"
 
-#include "RivPolylineGenerator.h"
 #include "RivPartPriority.h"
+#include "RivPolylineGenerator.h"
 #include "RivPolylinesAnnotationSourceInfo.h"
-
 
 #include "cafEffectGenerator.h"
 
+#include "cafDisplayCoordTransform.h"
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
+#include "cvfDrawableVectors.h"
+#include "cvfGeometryBuilderTriangles.h"
+#include "cvfGeometryUtils.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfTransform.h"
-#include "cafDisplayCoordTransform.h"
-#include "cvfGeometryBuilderTriangles.h"
-#include "cvfGeometryUtils.h"
-#include "cvfDrawableVectors.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RivPolylineAnnotationPartMgr::RivPolylineAnnotationPartMgr(Rim3dView* view, RimPolylinesAnnotationInView* annotationInView)
-: m_rimView(view), m_rimAnnotationInView(annotationInView)
+    : m_rimView(view)
+    , m_rimAnnotationInView(annotationInView)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RivPolylineAnnotationPartMgr::~RivPolylineAnnotationPartMgr()
-{
-
-}
+RivPolylineAnnotationPartMgr::~RivPolylineAnnotationPartMgr() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -75,20 +72,21 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
     auto rimAnnotation = m_rimAnnotationInView->sourceAnnotation();
     if (!rimAnnotation->isEmpty() && rimAnnotation->isActive())
     {
-        auto        lineColor     = rimAnnotation->appearance()->color();
-        auto        isDashedLine  = rimAnnotation->appearance()->isDashed();
-        auto        lineThickness = rimAnnotation->appearance()->thickness();
+        auto lineColor     = rimAnnotation->appearance()->color();
+        auto isDashedLine  = rimAnnotation->appearance()->isDashed();
+        auto lineThickness = rimAnnotation->appearance()->thickness();
 
         auto* collection = annotationCollection();
         if (!collection) return;
 
-        auto linesInDomain = getPolylinesPointsInDomain(collection->snapAnnotations(), collection->annotationPlaneZ());
+        auto linesInDomain  = getPolylinesPointsInDomain(collection->snapAnnotations(), collection->annotationPlaneZ());
         auto linesInDisplay = transformPolylinesPointsToDisplay(linesInDomain, displayXf);
 
         // Line part
-        if(rimAnnotation->showLines())
+        if (rimAnnotation->showLines())
         {
-            cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable(linesInDisplay, rimAnnotation->closePolyline());
+            cvf::ref<cvf::DrawableGeo> drawableGeo =
+                RivPolylineGenerator::createLineAlongPolylineDrawable(linesInDisplay, rimAnnotation->closePolyline());
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setName("RivPolylineAnnotationPartMgr");
             part->setDrawable(drawableGeo.p());
@@ -108,17 +106,18 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
         }
 
         // Sphere part
-        if(rimAnnotation->showSpheres())
+        if (rimAnnotation->showSpheres())
         {
-            auto sphereColor = rimAnnotation->appearance()->sphereColor();
+            auto   sphereColor        = rimAnnotation->appearance()->sphereColor();
             double sphereRadiusFactor = rimAnnotation->appearance()->sphereRadiusFactor();
 
-            cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray;
-            cvf::ref<cvf::Vec3fArray> vecRes   = new cvf::Vec3fArray;
-            cvf::ref<cvf::Color3fArray> colors = new cvf::Color3fArray;
+            cvf::ref<cvf::Vec3fArray>   vertices = new cvf::Vec3fArray;
+            cvf::ref<cvf::Vec3fArray>   vecRes   = new cvf::Vec3fArray;
+            cvf::ref<cvf::Color3fArray> colors   = new cvf::Color3fArray;
 
             size_t pointCount = 0;
-            for (const auto& line : linesInDisplay) pointCount += line.size();
+            for (const auto& line : linesInDisplay)
+                pointCount += line.size();
             vertices->reserve(pointCount);
             vecRes->reserve(pointCount);
             colors->reserve(pointCount);
@@ -149,12 +148,12 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
             vectorDrawable->setColors(colors.p());
 
             cvf::GeometryBuilderTriangles builder;
-            double cellRadius = 15.0;
-            auto eclipseView = dynamic_cast<RimEclipseView*>(m_rimView.p());
+            double                        cellRadius  = 15.0;
+            auto                          eclipseView = dynamic_cast<RimEclipseView*>(m_rimView.p());
             if (eclipseView)
             {
                 double characteristicCellSize = eclipseView->mainGrid()->characteristicIJCellSize();
-                cellRadius             = sphereRadiusFactor * characteristicCellSize;
+                cellRadius                    = sphereRadiusFactor * characteristicCellSize;
             }
 
             cvf::GeometryUtils::createSphere(cellRadius, 15, 15, &builder);
@@ -191,7 +190,7 @@ std::vector<std::vector<RivPolylineAnnotationPartMgr::Vec3d>>
         for (const auto& pt : pts)
         {
             auto ptInDisp = pt;
-            ptInDisp.z() = planeZ;
+            ptInDisp.z()  = planeZ;
             polyline.push_back(ptInDisp);
         }
         polylinesInDisplay.push_back(polyline);
@@ -202,9 +201,9 @@ std::vector<std::vector<RivPolylineAnnotationPartMgr::Vec3d>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::Vec3d>> RivPolylineAnnotationPartMgr::transformPolylinesPointsToDisplay(
-    const std::vector<std::vector<Vec3d>>& pointsInDomain,
-    const caf::DisplayCoordTransform* displayXf)
+std::vector<std::vector<cvf::Vec3d>>
+    RivPolylineAnnotationPartMgr::transformPolylinesPointsToDisplay(const std::vector<std::vector<Vec3d>>& pointsInDomain,
+                                                                    const caf::DisplayCoordTransform*      displayXf)
 {
     std::vector<std::vector<Vec3d>> pointsInDisplay;
     for (const auto& pts : pointsInDomain)
@@ -212,7 +211,6 @@ std::vector<std::vector<cvf::Vec3d>> RivPolylineAnnotationPartMgr::transformPoly
         std::vector<cvf::Vec3d> displayCoords = displayXf->transformToDisplayCoords(pts);
 
         pointsInDisplay.push_back(displayCoords);
-
     }
     return pointsInDisplay;
 }
@@ -237,11 +235,11 @@ bool RivPolylineAnnotationPartMgr::isPolylinesInBoundingBox(const cvf::BoundingB
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivPolylineAnnotationPartMgr::clearAllGeometry()
 {
-    m_linePart = nullptr;
+    m_linePart   = nullptr;
     m_spherePart = nullptr;
 }
 
@@ -256,11 +254,11 @@ RimAnnotationInViewCollection* RivPolylineAnnotationPartMgr::annotationCollectio
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivPolylineAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model,
-                                                                     const caf::DisplayCoordTransform * displayXf,
-                                                                     const cvf::BoundingBox& boundingBox)
+void RivPolylineAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model,
+                                                                     const caf::DisplayCoordTransform* displayXf,
+                                                                     const cvf::BoundingBox&           boundingBox)
 {
     auto rimAnnotation = m_rimAnnotationInView->sourceAnnotation();
     if (!rimAnnotation) return;
@@ -272,7 +270,7 @@ void RivPolylineAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelB
 
     buildPolylineAnnotationParts(displayXf);
 
-    if ( m_linePart.notNull() )
+    if (m_linePart.notNull())
     {
         model->addPart(m_linePart.p());
     }
@@ -282,4 +280,3 @@ void RivPolylineAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelB
         model->addPart(m_spherePart.p());
     }
 }
-

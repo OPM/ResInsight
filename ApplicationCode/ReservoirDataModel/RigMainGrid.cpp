@@ -40,8 +40,8 @@ RigMainGrid::RigMainGrid()
     m_flipXAxis = false;
     m_flipYAxis = false;
 
-    m_useMapAxes = false;
-    m_mapAxes    = defaultMapAxes();
+    m_useMapAxes   = false;
+    m_mapAxes      = defaultMapAxes();
     m_dualPorosity = false;
 }
 
@@ -856,5 +856,5 @@ std::array<double, 6> RigMainGrid::defaultMapAxes()
     const double yPoint[2] = {0.0, 1.0};
 
     // Order (see Elipse Reference Manual for keyword MAPAXES): Y_x, Y_y, O_x, O_y, X_x, X_y
-    return { yPoint[0], yPoint[1], origin[0], origin[1], xPoint[0], xPoint[1] };
+    return {yPoint[0], yPoint[1], origin[0], origin[1], xPoint[0], xPoint[1]};
 }

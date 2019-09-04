@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@
 
 #include "RimProject.h"
 
-#include "RiuPlotMainWindowTools.h" 
+#include "RiuPlotMainWindowTools.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWheelZoomer.h"
@@ -49,9 +49,10 @@
 #include <cfloat>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlot::RiuQwtPlot(RimViewWindow* viewWindow, QWidget* parent) : QwtPlot(parent)
+RiuQwtPlot::RiuQwtPlot(RimViewWindow* viewWindow, QWidget* parent)
+    : QwtPlot(parent)
 {
     Q_ASSERT(viewWindow);
     m_ownerViewWindow = viewWindow;
@@ -76,30 +77,29 @@ RiuQwtPlot::RiuQwtPlot(RimViewWindow* viewWindow, QWidget* parent) : QwtPlot(par
     auto wheelZoomer = new RiuQwtPlotWheelZoomer(this);
 
     connect(wheelZoomer, SIGNAL(zoomUpdated()), SLOT(onZoomedSlot()));
-    connect(m_zoomerLeft, SIGNAL(zoomed( const QRectF & )), SLOT(onZoomedSlot()));
-    connect(panner, SIGNAL(panned( int , int  )), SLOT(onZoomedSlot()));
+    connect(m_zoomerLeft, SIGNAL(zoomed(const QRectF&)), SLOT(onZoomedSlot()));
+    connect(panner, SIGNAL(panned(int, int)), SLOT(onZoomedSlot()));
 
     RiuQwtScalePicker* scalePicker = new RiuQwtScalePicker(this);
     connect(scalePicker, SIGNAL(clicked(int, double)), this, SLOT(onAxisClicked(int, double)));
 
     RiuQwtPlotTools::setCommonPlotBehaviour(this);
     RiuQwtPlotTools::setDefaultAxes(this);
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlot::~RiuQwtPlot()
 {
     if (ownerPlotDefinition())
     {
         ownerPlotDefinition()->detachAllCurves();
-    }  
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimRiuQwtPlotOwnerInterface* RiuQwtPlot::ownerPlotDefinition() const
 {
@@ -108,7 +108,7 @@ RimRiuQwtPlotOwnerInterface* RiuQwtPlot::ownerPlotDefinition() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimViewWindow* RiuQwtPlot::ownerViewWindow() const
 {
@@ -116,7 +116,7 @@ RimViewWindow* RiuQwtPlot::ownerViewWindow() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuQwtPlot::minimumSizeHint() const
 {
@@ -126,16 +126,12 @@ QSize RiuQwtPlot::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 /// Empty default implementation
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlot::selectSample(QwtPlotCurve* curve, int sampleNumber)
-{ 
-}
+void RiuQwtPlot::selectSample(QwtPlotCurve* curve, int sampleNumber) {}
 
 //--------------------------------------------------------------------------------------------------
 /// Empty default implementation
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlot::clearSampleSelection()
-{
-}
+void RiuQwtPlot::clearSampleSelection() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -147,7 +143,7 @@ void RiuQwtPlot::hideEvent(QHideEvent* event)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuQwtPlot::sizeHint() const
 {
@@ -163,16 +159,16 @@ QwtInterval RiuQwtPlot::currentAxisRange(QwtPlot::Axis axis)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RiuQwtPlot::eventFilter(QObject* watched, QEvent* event)
 {
-    if(watched == canvas())
+    if (watched == canvas())
     {
         QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
-        if(mouseEvent)
+        if (mouseEvent)
         {
-            if(mouseEvent->button() == Qt::LeftButton && mouseEvent->type() == QMouseEvent::MouseButtonRelease)
+            if (mouseEvent->button() == Qt::LeftButton && mouseEvent->type() == QMouseEvent::MouseButtonRelease)
             {
                 bool anyZoomingActive = false;
 
@@ -198,25 +194,25 @@ bool RiuQwtPlot::eventFilter(QObject* watched, QEvent* event)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlot::selectClosestCurve(const QPoint& pos)
 {
-    QwtPlotCurve* closestCurve = nullptr;
-    double distMin = DBL_MAX;
-    int closestCurvePoint = -1;
-    const QwtPlotItemList& itmList = itemList();
-    for(QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++)
+    QwtPlotCurve*          closestCurve      = nullptr;
+    double                 distMin           = DBL_MAX;
+    int                    closestCurvePoint = -1;
+    const QwtPlotItemList& itmList           = itemList();
+    for (QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++)
     {
-        if((*it)->rtti() == QwtPlotItem::Rtti_PlotCurve)
+        if ((*it)->rtti() == QwtPlotItem::Rtti_PlotCurve)
         {
             QwtPlotCurve* candidateCurve = static_cast<QwtPlotCurve*>(*it);
-            double dist = DBL_MAX;
-            int curvePoint = candidateCurve->closestPoint(pos, &dist);
-            if(dist < distMin)
+            double        dist           = DBL_MAX;
+            int           curvePoint     = candidateCurve->closestPoint(pos, &dist);
+            if (dist < distMin)
             {
-                closestCurve = candidateCurve;
-                distMin = dist;
+                closestCurve      = candidateCurve;
+                distMin           = dist;
                 closestCurvePoint = curvePoint;
             }
         }
@@ -238,13 +234,13 @@ void RiuQwtPlot::selectClosestCurve(const QPoint& pos)
                 RiuPlotMainWindowTools::showPlotMainWindow();
                 RiuPlotMainWindowTools::selectAsCurrentItem(selectedPlotObject);
                 highlightCurve(closestCurve);
-            }        
+            }
         }
     }
-    
+
     if (closestCurve && distMin < 10)
     {
-        selectSample(closestCurve, closestCurvePoint);        
+        selectSample(closestCurve, closestCurvePoint);
     }
     else
     {
@@ -322,7 +318,7 @@ void RiuQwtPlot::resetCurveHighlighting()
             const QPen& existingPen = plotCurve->pen();
             auto        colors      = m_originalCurveColors[plotCurve];
             double      zValue      = m_originalZValues[plotCurve];
-            
+
             plotCurve->setPen(colors.lineColor, existingPen.width(), existingPen.style());
             plotCurve->setZ(zValue);
             QwtSymbol* symbol = const_cast<QwtSymbol*>(plotCurve->symbol());
@@ -346,9 +342,9 @@ void RiuQwtPlot::onZoomedSlot()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlot::onAxisClicked(int axis, double value)
-{    
+{
     ownerPlotDefinition()->selectAxisInPropertyEditor(axis);
 }

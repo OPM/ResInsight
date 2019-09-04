@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 -     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,9 +23,9 @@
 
 #include "RimEclipseView.h"
 #include "RimFractureTemplateCollection.h"
-#include "RimRegularLegendConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimRegularLegendConfig.h"
 #include "RimStimPlanFractureTemplate.h"
 
 #include "cafPdmUiItem.h"
@@ -36,39 +36,37 @@
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 
-
-
 CAF_PDM_SOURCE_INIT(RimStimPlanColors, "RimStimPlanColors");
 
-namespace caf {
+namespace caf
+{
+template<>
+void caf::AppEnum<RimStimPlanColors::StimPlanResultColorType>::setUp()
+{
+    addItem(RimStimPlanColors::COLOR_INTERPOLATION, "COLOR_INTERPOLATION", "On");
+    addItem(RimStimPlanColors::SINGLE_ELEMENT_COLOR, "SINGLE_ELEMENT_COLOR", "Off");
 
-    template<>
-    void caf::AppEnum< RimStimPlanColors::StimPlanResultColorType >::setUp()
-    {
-        addItem(RimStimPlanColors::COLOR_INTERPOLATION, "COLOR_INTERPOLATION", "On");
-        addItem(RimStimPlanColors::SINGLE_ELEMENT_COLOR, "SINGLE_ELEMENT_COLOR", "Off");
-
-        setDefault(RimStimPlanColors::COLOR_INTERPOLATION);
-    }
+    setDefault(RimStimPlanColors::COLOR_INTERPOLATION);
+}
 
 } // End namespace caf
 
 //--------------------------------------------------------------------------------------------------
 /// Internal methods
 //--------------------------------------------------------------------------------------------------
-static void setDefaultFractureResult(caf::PdmField<QString> &field);
+static void    setDefaultFractureResult(caf::PdmField<QString>& field);
 static QString toString(const std::pair<QString, QString>& resultNameAndUnit);
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimStimPlanColors::RimStimPlanColors()
 {
     CAF_PDM_InitObject("Fractures", ":/FractureSymbol16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_resultNameAndUnit, "ResultName", QString(""),  "Result Variable", "", "", "");
+    CAF_PDM_InitField(&m_resultNameAndUnit, "ResultName", QString(""), "Result Variable", "", "", "");
 
-    CAF_PDM_InitField(&m_defaultColor,      "DefaultColor", cvf::Color3f(cvf::Color3::BROWN), "Default Color", "", "", "");
+    CAF_PDM_InitField(&m_defaultColor, "DefaultColor", cvf::Color3f(cvf::Color3::BROWN), "Default Color", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfigurations, "LegendConfigurations", "", "", "", "");
     m_legendConfigurations.uiCapability()->setUiTreeHidden(true);
@@ -79,15 +77,12 @@ RimStimPlanColors::RimStimPlanColors()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimStimPlanColors::~RimStimPlanColors()
-{
-
-}
+RimStimPlanColors::~RimStimPlanColors() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::setShowStimPlanMesh(bool showStimPlanMesh)
 {
@@ -95,13 +90,13 @@ void RimStimPlanColors::setShowStimPlanMesh(bool showStimPlanMesh)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::loadDataAndUpdate()
 {
     RimFractureTemplateCollection* fractureTemplates = fractureTemplateCollection();
 
-    std::vector<std::pair<QString, QString> > resultNameAndUnits = fractureTemplates->resultNamesAndUnits();
+    std::vector<std::pair<QString, QString>> resultNameAndUnits = fractureTemplates->resultNamesAndUnits();
 
     // Delete legends referencing results not present on file
     {
@@ -137,7 +132,7 @@ void RimStimPlanColors::loadDataAndUpdate()
     for (auto resultNameAndUnit : resultNameAndUnits)
     {
         QString resultNameUnitString = toString(resultNameAndUnit);
-        bool foundResult = false;
+        bool    foundResult          = false;
 
         for (RimRegularLegendConfig* legend : m_legendConfigurations)
         {
@@ -150,10 +145,9 @@ void RimStimPlanColors::loadDataAndUpdate()
         if (!foundResult)
         {
             RimRegularLegendConfig* legendConfig = new RimRegularLegendConfig();
-            legendConfig->resultVariableName = resultNameUnitString;
+            legendConfig->resultVariableName     = resultNameUnitString;
             legendConfig->setMappingMode(RimRegularLegendConfig::LINEAR_DISCRETE);
             legendConfig->setColorRange(RimRegularLegendConfig::STIMPLAN);
-
 
             m_legendConfigurations.push_back(legendConfig);
         }
@@ -163,9 +157,10 @@ void RimStimPlanColors::loadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimStimPlanColors::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimStimPlanColors::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                       bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -186,9 +181,11 @@ QList<caf::PdmOptionItemInfo> RimStimPlanColors::calculateValueOptions(const caf
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimStimPlanColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                         const QVariant&            oldValue,
+                                         const QVariant&            newValue)
 {
     RimEclipseView* sourceView = nullptr;
     this->firstAncestorOrThisOfType(sourceView);
@@ -217,7 +214,7 @@ void RimStimPlanColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         }
     }
 
-    if(changedField == &m_stimPlanCellVizMode)
+    if (changedField == &m_stimPlanCellVizMode)
     {
         Rim3dView* rimView = nullptr;
         this->firstAncestorOrThisOfType(rimView);
@@ -229,7 +226,7 @@ void RimStimPlanColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimRegularLegendConfig* RimStimPlanColors::activeLegend() const
 {
@@ -245,7 +242,7 @@ RimRegularLegendConfig* RimStimPlanColors::activeLegend() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimStimPlanColors::uiResultName() const
 {
@@ -253,7 +250,7 @@ QString RimStimPlanColors::uiResultName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::setDefaultResultName()
 {
@@ -261,7 +258,7 @@ void RimStimPlanColors::setDefaultResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimStimPlanColors::unit() const
 {
@@ -269,7 +266,7 @@ QString RimStimPlanColors::unit() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RimStimPlanColors::defaultColor() const
 {
@@ -277,15 +274,15 @@ cvf::Color3f RimStimPlanColors::defaultColor() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::updateLegendData()
 {
     RimRegularLegendConfig* legendConfig = activeLegend();
     if (legendConfig)
     {
-        double minValue = HUGE_VAL;
-        double maxValue = -HUGE_VAL;
+        double minValue         = HUGE_VAL;
+        double maxValue         = -HUGE_VAL;
         double posClosestToZero = HUGE_VAL;
         double negClosestToZero = -HUGE_VAL;
 
@@ -304,11 +301,11 @@ void RimStimPlanColors::updateLegendData()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::updateStimPlanTemplates() const
 {
-    //Get all frac templates and re-generate stimplan cells
+    // Get all frac templates and re-generate stimplan cells
     RimProject* proj;
     this->firstAncestorOrThisOfType(proj);
     if (proj)
@@ -324,7 +321,7 @@ void RimStimPlanColors::updateStimPlanTemplates() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::updateConductivityResultName()
 {
@@ -339,14 +336,14 @@ void RimStimPlanColors::updateConductivityResultName()
             if (resultNameAndUnit.first.contains("conductivity", Qt::CaseInsensitive))
             {
                 QString resultNameAndUnitString = toString(resultNameAndUnit);
-                m_resultNameAndUnit = resultNameAndUnitString;
+                m_resultNameAndUnit             = resultNameAndUnitString;
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplateCollection* RimStimPlanColors::fractureTemplateCollection() const
 {
@@ -357,7 +354,7 @@ RimFractureTemplateCollection* RimStimPlanColors::fractureTemplateCollection() c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimStimPlanColors::toResultName(const QString& resultNameAndUnit)
 {
@@ -372,12 +369,12 @@ QString RimStimPlanColors::toResultName(const QString& resultNameAndUnit)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimStimPlanColors::toUnit(const QString& resultNameAndUnit)
 {
     int start = resultNameAndUnit.indexOf("[");
-    int end = resultNameAndUnit.indexOf("]");
+    int end   = resultNameAndUnit.indexOf("]");
 
     if (start != -1 && end != -1)
     {
@@ -388,7 +385,7 @@ QString RimStimPlanColors::toUnit(const QString& resultNameAndUnit)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
@@ -401,7 +398,7 @@ void RimStimPlanColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrder
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -409,7 +406,7 @@ void RimStimPlanColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     colorGroup->add(&m_resultNameAndUnit);
     colorGroup->add(&m_defaultColor);
 
-    bool stimPlanExists = false;
+    bool        stimPlanExists = false;
     RimProject* proj;
     this->firstAncestorOrThisOfType(proj);
     std::vector<RimFractureTemplate*> fracTemplates = proj->allFractureTemplates();
@@ -433,13 +430,12 @@ void RimStimPlanColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.skipRemainingFields(true);
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// Internal methods
 //--------------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString toString(const std::pair<QString, QString>& resultNameAndUnit)
 {
@@ -449,7 +445,7 @@ QString toString(const std::pair<QString, QString>& resultNameAndUnit)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void setDefaultFractureResult(caf::PdmField<QString> &field)
+void setDefaultFractureResult(caf::PdmField<QString>& field)
 {
     RimProject* proj = RiaApplication::instance()->project();
 
@@ -470,5 +466,4 @@ void setDefaultFractureResult(caf::PdmField<QString> &field)
             }
         }
     }
-
 }

@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@
 #include <QVBoxLayout>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuProjectAndPropertyView::RiuProjectAndPropertyView(QWidget* parent, Qt::WindowFlags f)
     : QWidget(parent, f)
@@ -53,12 +53,18 @@ RiuProjectAndPropertyView::RiuProjectAndPropertyView(QWidget* parent, Qt::Window
     m_projectTreeView->treeView()->setDragDropMode(QAbstractItemView::DragDrop);
 
     m_projectTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(m_projectTreeView->treeView(), SIGNAL(customContextMenuRequested(const QPoint&)), RiuMainWindow::instance(), SLOT(customMenuRequested(const QPoint&)));
+    connect(m_projectTreeView->treeView(),
+            SIGNAL(customContextMenuRequested(const QPoint&)),
+            RiuMainWindow::instance(),
+            SLOT(customMenuRequested(const QPoint&)));
 
     // Property view
     m_propertyView = new caf::PdmUiPropertyView;
 
-    connect(m_projectTreeView, SIGNAL(selectedObjectChanged(caf::PdmObjectHandle*)), m_propertyView, SLOT(showProperties(caf::PdmObjectHandle*)));
+    connect(m_projectTreeView,
+            SIGNAL(selectedObjectChanged(caf::PdmObjectHandle*)),
+            m_propertyView,
+            SLOT(showProperties(caf::PdmObjectHandle*)));
 
     QWidget* propertyEditorWithHeader = new QWidget;
     {
@@ -88,7 +94,7 @@ RiuProjectAndPropertyView::RiuProjectAndPropertyView(QWidget* parent, Qt::Window
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuProjectAndPropertyView::setPdmItem(caf::PdmUiItem* object)
 {
@@ -97,7 +103,7 @@ void RiuProjectAndPropertyView::setPdmItem(caf::PdmUiItem* object)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuProjectAndPropertyView::showProperties(caf::PdmObjectHandle* object)
 {

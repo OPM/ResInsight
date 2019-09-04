@@ -38,8 +38,3 @@ public:
 private:
     caf::PdmChildArrayField<RimGeoMechContourMapView*> m_contourMapViews;
 };
-
-
-
-
-

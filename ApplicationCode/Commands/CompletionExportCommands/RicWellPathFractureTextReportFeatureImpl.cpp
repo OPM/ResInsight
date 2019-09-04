@@ -80,10 +80,8 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
 
     textStream << lineStart << "\n";
 
-
     std::vector<RimStimPlanFractureTemplate*> stimPlanTemplates;
     std::vector<RimEllipseFractureTemplate*>  ellipseTemplates;
-    
 
     {
         auto proj              = RiaApplication::instance()->project();
@@ -103,7 +101,7 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
             }
 
             auto stimPlanTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
-            if (stimPlanTemplate) 
+            if (stimPlanTemplate)
             {
                 stimPlanTemplates.push_back(stimPlanTemplate);
             }
@@ -151,7 +149,7 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
     }
 
     {
-        std::vector<RimFractureTemplate*>  fracTemplates;
+        std::vector<RimFractureTemplate*> fracTemplates;
         fracTemplates.insert(fracTemplates.end(), ellipseTemplates.begin(), ellipseTemplates.end());
         fracTemplates.insert(fracTemplates.end(), stimPlanTemplates.begin(), stimPlanTemplates.end());
 

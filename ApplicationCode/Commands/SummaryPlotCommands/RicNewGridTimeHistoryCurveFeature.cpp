@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -38,8 +38,8 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "RiuPlotMainWindowTools.h"
 #include "Riu3dSelectionManager.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiPropertyViewDialog.h"
@@ -49,11 +49,10 @@
 
 #include <QAction>
 
-
 CAF_CMD_SOURCE_INIT(RicNewGridTimeHistoryCurveFeature, "RicNewGridTimeHistoryCurveFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewGridTimeHistoryCurveFeature::createCurveFromSelectionItem(const RiuSelectionItem* selectionItem, RimSummaryPlot* plot)
 {
@@ -63,7 +62,7 @@ void RicNewGridTimeHistoryCurveFeature::createCurveFromSelectionItem(const RiuSe
     RimGridTimeHistoryCurve* newCurve = new RimGridTimeHistoryCurve();
     newCurve->setFromSelectionItem(selectionItem);
     newCurve->setLineThickness(2);
-        
+
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plot->curveCount());
     newCurve->setColor(curveColor);
 
@@ -78,7 +77,7 @@ void RicNewGridTimeHistoryCurveFeature::createCurveFromSelectionItem(const RiuSe
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 {
@@ -90,8 +89,9 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 
     RimSummaryPlot* defaultSelectedPlot = nullptr;
     {
-        QString lastUsedPlotRef = app->cacheDataObject(lastUsedSummaryPlotKey).toString();
-        RimSummaryPlot* lastUsedPlot = dynamic_cast<RimSummaryPlot*>(caf::PdmReferenceHelper::objectFromReference(app->project(), lastUsedPlotRef));
+        QString         lastUsedPlotRef = app->cacheDataObject(lastUsedSummaryPlotKey).toString();
+        RimSummaryPlot* lastUsedPlot =
+            dynamic_cast<RimSummaryPlot*>(caf::PdmReferenceHelper::objectFromReference(app->project(), lastUsedPlotRef));
         if (lastUsedPlot)
         {
             defaultSelectedPlot = lastUsedPlot;
@@ -99,7 +99,7 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 
         if (!defaultSelectedPlot)
         {
-            defaultSelectedPlot = dynamic_cast<RimSummaryPlot*>( app->activePlotWindow() );
+            defaultSelectedPlot = dynamic_cast<RimSummaryPlot*>(app->activePlotWindow());
         }
 
         if (!defaultSelectedPlot && summaryPlotColl->summaryPlots().size() > 0)
@@ -137,7 +137,7 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
     {
         summaryPlot = featureUi.selectedSummaryPlot();
     }
-    
+
     QString refFromProjectToView = caf::PdmReferenceHelper::referenceFromRootToObject(app->project(), summaryPlot);
     app->setCacheDataObject(lastUsedSummaryPlotKey, refFromProjectToView);
 
@@ -145,18 +145,18 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicNewGridTimeHistoryCurveFeature::suggestedNewPlotName()
 {
     QString resultName;
     {
-        Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-        RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(activeView);
+        Rim3dView*      activeView = RiaApplication::instance()->activeReservoirView();
+        RimEclipseView* eclView    = dynamic_cast<RimEclipseView*>(activeView);
         if (eclView)
         {
             RimEclipseResultDefinition* resDef = eclView->cellResult();
-            resultName = resDef->resultVariableUiShortName();
+            resultName                         = resDef->resultVariableUiShortName();
         }
 
         RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(activeView);
@@ -178,10 +178,18 @@ QString RicNewGridTimeHistoryCurveFeature::suggestedNewPlotName()
 
                 switch (resultAddress.resultPosType)
                 {
-                case RIG_NODAL: posName = "N"; break;
-                case RIG_ELEMENT_NODAL: posName = "EN"; break;
-                case RIG_INTEGRATION_POINT: posName = "IP"; break;
-                case RIG_ELEMENT: posName = "E"; break;
+                    case RIG_NODAL:
+                        posName = "N";
+                        break;
+                    case RIG_ELEMENT_NODAL:
+                        posName = "EN";
+                        break;
+                    case RIG_INTEGRATION_POINT:
+                        posName = "IP";
+                        break;
+                    case RIG_ELEMENT:
+                        posName = "E";
+                        break;
                 }
 
                 QString fieldUiName = resultDefinition->resultFieldUiName();
@@ -191,7 +199,7 @@ QString RicNewGridTimeHistoryCurveFeature::suggestedNewPlotName()
             }
         }
     }
-    
+
     QString plotName = "New Plot Name";
     if (!resultName.isEmpty())
     {
@@ -202,7 +210,7 @@ QString RicNewGridTimeHistoryCurveFeature::suggestedNewPlotName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewGridTimeHistoryCurveFeature::isCommandEnabled()
 {
@@ -216,7 +224,8 @@ bool RicNewGridTimeHistoryCurveFeature::isCommandEnabled()
         const RiuEclipseSelectionItem* eclSelectionItem = dynamic_cast<const RiuEclipseSelectionItem*>(items[0]);
         if (eclSelectionItem)
         {
-            if (eclSelectionItem->m_view->cellResult()->isFlowDiagOrInjectionFlooding() && eclSelectionItem->m_view->cellResult()->resultVariable() != RIG_NUM_FLOODED_PV)
+            if (eclSelectionItem->m_view->cellResult()->isFlowDiagOrInjectionFlooding() &&
+                eclSelectionItem->m_view->cellResult()->resultVariable() != RIG_NUM_FLOODED_PV)
             {
                 return false;
             }
@@ -229,7 +238,7 @@ bool RicNewGridTimeHistoryCurveFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewGridTimeHistoryCurveFeature::onActionTriggered(bool isChecked)
 {
@@ -247,11 +256,10 @@ void RicNewGridTimeHistoryCurveFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewGridTimeHistoryCurveFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Plot Time History for Selected Cells");
     actionToSetup->setIcon(QIcon(":/SummaryCurve16x16.png"));
 }
-

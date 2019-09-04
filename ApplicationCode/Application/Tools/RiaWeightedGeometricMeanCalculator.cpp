@@ -65,7 +65,7 @@ double RiaWeightedGeometricMeanCalculator::aggregatedWeight() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RiaWeightedGeometricMeanCalculator::validAggregatedWeight() const
 {

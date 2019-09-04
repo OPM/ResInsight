@@ -48,24 +48,24 @@ bool RicCreateGridCrossPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreateGridCrossPlotFeature::onActionTriggered(bool isChecked)
 {
-    RimProject* project      = RiaApplication::instance()->project();
-    
-    bool launchedFromPlotCollection = true;
+    RimProject* project = RiaApplication::instance()->project();
+
+    bool                        launchedFromPlotCollection = true;
     RimGridCrossPlotCollection* collection =
         caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGridCrossPlotCollection>();
     if (!collection)
     {
-        collection = project->mainPlotCollection()->gridCrossPlotCollection();
+        collection                 = project->mainPlotCollection()->gridCrossPlotCollection();
         launchedFromPlotCollection = false;
     }
-    RimGridCrossPlot* plot = collection->createGridCrossPlot();    
+    RimGridCrossPlot*        plot    = collection->createGridCrossPlot();
     RimGridCrossPlotDataSet* dataSet = plot->createDataSet();
 
     if (!launchedFromPlotCollection)
     {
         dataSet->setCellFilterView(RiaApplication::instance()->activeGridView());
     }
-    
+
     plot->loadDataAndUpdate();
     plot->zoomAll();
     plot->updateConnectedEditors();
@@ -80,7 +80,7 @@ void RicCreateGridCrossPlotFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicCreateGridCrossPlotFeature::setupActionLook(QAction* actionToSetup)
 {
-    RimGridCrossPlotCollection* collection  =
+    RimGridCrossPlotCollection* collection =
         caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGridCrossPlotCollection>();
     if (!collection)
     {
@@ -88,7 +88,7 @@ void RicCreateGridCrossPlotFeature::setupActionLook(QAction* actionToSetup)
     }
     else
     {
-        actionToSetup->setText("Create Grid Cross Plot");     
+        actionToSetup->setText("Create Grid Cross Plot");
     }
     actionToSetup->setIcon(QIcon(":/SummaryXPlotsLight16x16.png"));
 }

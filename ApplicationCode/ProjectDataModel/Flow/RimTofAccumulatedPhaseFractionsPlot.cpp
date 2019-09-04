@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -36,12 +36,10 @@
 
 #include "cvfColor3.h"
 
-
 CAF_PDM_SOURCE_INIT(RimTofAccumulatedPhaseFractionsPlot, "TofAccumulatedPhaseFractionsPlot");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimTofAccumulatedPhaseFractionsPlot::RimTofAccumulatedPhaseFractionsPlot()
 {
@@ -58,18 +56,17 @@ RimTofAccumulatedPhaseFractionsPlot::RimTofAccumulatedPhaseFractionsPlot()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimTofAccumulatedPhaseFractionsPlot::~RimTofAccumulatedPhaseFractionsPlot()
 {
     removeMdiWindowFromMdiArea();
-    
+
     deleteViewWidget();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTofAccumulatedPhaseFractionsPlot::deleteViewWidget()
 {
@@ -81,7 +78,7 @@ void RimTofAccumulatedPhaseFractionsPlot::deleteViewWidget()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTofAccumulatedPhaseFractionsPlot::reloadFromWell()
 {
@@ -89,7 +86,7 @@ void RimTofAccumulatedPhaseFractionsPlot::reloadFromWell()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseResultCase* RimTofAccumulatedPhaseFractionsPlot::resultCase()
 {
@@ -100,7 +97,7 @@ RimEclipseResultCase* RimTofAccumulatedPhaseFractionsPlot::resultCase()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimTofAccumulatedPhaseFractionsPlot::tracerName()
 {
@@ -111,7 +108,7 @@ QString RimTofAccumulatedPhaseFractionsPlot::tracerName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RimTofAccumulatedPhaseFractionsPlot::timeStep()
 {
@@ -122,7 +119,7 @@ size_t RimTofAccumulatedPhaseFractionsPlot::timeStep()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QWidget* RimTofAccumulatedPhaseFractionsPlot::viewWidget()
 {
@@ -130,22 +127,20 @@ QWidget* RimTofAccumulatedPhaseFractionsPlot::viewWidget()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimTofAccumulatedPhaseFractionsPlot::zoomAll()
-{
-}
-
+void RimTofAccumulatedPhaseFractionsPlot::zoomAll() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimTofAccumulatedPhaseFractionsPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimTofAccumulatedPhaseFractionsPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                           const QVariant&            oldValue,
+                                                           const QVariant&            newValue)
 {
     RimViewWindow::fieldChangedByUi(changedField, oldValue, newValue);
 
-    if (changedField == &m_userName ||
-        changedField == &m_showPlotTitle)
+    if (changedField == &m_userName || changedField == &m_showPlotTitle)
     {
         updateMdiWindowTitle();
     }
@@ -153,12 +148,10 @@ void RimTofAccumulatedPhaseFractionsPlot::fieldChangedByUi(const caf::PdmFieldHa
     {
         onLoadDataAndUpdate();
     }
- 
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QImage RimTofAccumulatedPhaseFractionsPlot::snapshotWindowContent()
 {
@@ -170,7 +163,7 @@ QImage RimTofAccumulatedPhaseFractionsPlot::snapshotWindowContent()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTofAccumulatedPhaseFractionsPlot::setDescription(const QString& description)
 {
@@ -179,7 +172,7 @@ void RimTofAccumulatedPhaseFractionsPlot::setDescription(const QString& descript
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimTofAccumulatedPhaseFractionsPlot::description() const
 {
@@ -187,7 +180,7 @@ QString RimTofAccumulatedPhaseFractionsPlot::description() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTofAccumulatedPhaseFractionsPlot::onLoadDataAndUpdate()
 {
@@ -197,7 +190,7 @@ void RimTofAccumulatedPhaseFractionsPlot::onLoadDataAndUpdate()
     {
         RigTofAccumulatedPhaseFractionsCalculator calc(resultCase(), tracerName(), timeStep());
 
-        const std::vector<double>& xValues = calc.sortedUniqueTOFValues();
+        const std::vector<double>& xValues   = calc.sortedUniqueTOFValues();
         const std::vector<double>& watValues = calc.accumulatedPhaseFractionsSwat();
         const std::vector<double>& oilValues = calc.accumulatedPhaseFractionsSoil();
         const std::vector<double>& gasValues = calc.accumulatedPhaseFractionsSgas();
@@ -207,7 +200,7 @@ void RimTofAccumulatedPhaseFractionsPlot::onLoadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QWidget* RimTofAccumulatedPhaseFractionsPlot::createViewWidget(QWidget* mainWindowParent)
 {
@@ -217,5 +210,3 @@ QWidget* RimTofAccumulatedPhaseFractionsPlot::createViewWidget(QWidget* mainWind
     }
     return m_tofAccumulatedPhaseFractionsPlotWidget;
 }
-
-

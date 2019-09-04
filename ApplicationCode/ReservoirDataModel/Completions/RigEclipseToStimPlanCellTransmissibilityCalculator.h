@@ -71,8 +71,8 @@ private:
     static cvf::ref<RigResultAccessor> createResultAccessor(const RimEclipseCase* eclipseCase, const QString& uiResultName);
 
 private:
-    const RimEclipseCase*   m_case;
-    const RimFracture*      m_fracture;
+    const RimEclipseCase* m_case;
+    const RimFracture*    m_fracture;
 
     double                 m_cDarcy;
     double                 m_fractureSkinFactor;

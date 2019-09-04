@@ -72,21 +72,21 @@ void RiaConsoleApplication::initialize()
 #pragma warning(disable : 4996) // Temporarily disables warning 4996.
 
     bool isReOpenStdToConsoleNeeded = false;
-    
-    if ( AttachConsole(ATTACH_PARENT_PROCESS) )
+
+    if (AttachConsole(ATTACH_PARENT_PROCESS))
     {
         int fileType = GetFileType(GetStdHandle(STD_OUTPUT_HANDLE));
-        
-        // FILE_TYPE_CHAR indicates a windows console buffer. 
+
+        // FILE_TYPE_CHAR indicates a windows console buffer.
         // FILE_TYPE_PIPE indicates redirection imposed by the starting shell (eg migw shell)
         // If we are dealing with a pipe, we do not want to do the reopen, and destroy the connection.
 
-        if (fileType == FILE_TYPE_CHAR ) 
+        if (fileType == FILE_TYPE_CHAR)
         {
             isReOpenStdToConsoleNeeded = true;
         }
     }
-    else if ( AllocConsole() )
+    else if (AllocConsole())
     {
         isReOpenStdToConsoleNeeded = true;
     }
@@ -95,7 +95,7 @@ void RiaConsoleApplication::initialize()
     {
         freopen("conout$", "w", stdout);
         freopen("conout$", "w", stderr);
-        freopen("conin$",  "r", stdin);
+        freopen("conin$", "r", stdin);
     }
 
 #pragma warning(pop)
@@ -125,8 +125,8 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments(cvf::Pr
 
     if (progOpt->option("help") || progOpt->option("?"))
     {
-        this->showFormattedTextInMessageBoxOrConsole("\nThe current command line options in ResInsight are:\n"
-                                                     + this->commandLineParameterHelp());
+        this->showFormattedTextInMessageBoxOrConsole("\nThe current command line options in ResInsight are:\n" +
+                                                     this->commandLineParameterHelp());
         return RiaApplication::EXIT_COMPLETED;
     }
 
@@ -268,7 +268,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments(cvf::Pr
         if (!progOpt->hasOption("startdir"))
         {
             QFileInfo commandFileInfo(commandFile);
-            QString commandDir = commandFileInfo.absolutePath();
+            QString   commandDir = commandFileInfo.absolutePath();
             setStartDir(commandDir);
         }
 
@@ -354,7 +354,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments(cvf::Pr
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaConsoleApplication::showFormattedTextInMessageBoxOrConsole(const QString& errMsg)
 {
@@ -415,7 +415,6 @@ void RiaConsoleApplication::onProjectClosed()
 {
     processEvents();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///

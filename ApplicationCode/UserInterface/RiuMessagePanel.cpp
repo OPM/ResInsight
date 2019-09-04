@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -25,19 +25,17 @@
 #include <QPlainTextEdit>
 #include <QVBoxLayout>
 
-
-
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuMessagePanel::RiuMessagePanel(QDockWidget* parent)
-:   QWidget(parent)
+    : QWidget(parent)
 {
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->setMargin(0);
@@ -52,16 +50,18 @@ RiuMessagePanel::RiuMessagePanel(QDockWidget* parent)
     layout->addWidget(m_textEdit);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanel::addMessage(RILogLevel messageLevel, const QString& msg)
 {
     QColor clr(Qt::black);
-    if      (messageLevel == RI_LL_ERROR)    clr = Qt::red;
-    else if (messageLevel == RI_LL_WARNING)  clr = QColor(220,100,10);
-    else if (messageLevel == RI_LL_DEBUG)    clr = QColor(100,100,200);
+    if (messageLevel == RI_LL_ERROR)
+        clr = Qt::red;
+    else if (messageLevel == RI_LL_WARNING)
+        clr = QColor(220, 100, 10);
+    else if (messageLevel == RI_LL_DEBUG)
+        clr = QColor(100, 100, 200);
 
     QTextCharFormat form = m_textEdit->currentCharFormat();
     form.setForeground(clr);
@@ -86,18 +86,16 @@ void RiuMessagePanel::addMessage(RILogLevel messageLevel, const QString& msg)
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuMessagePanel::sizeHint() const
 {
     return QSize(20, 20);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanel::slotShowContextMenu(const QPoint& pos)
 {
@@ -116,13 +114,12 @@ void RiuMessagePanel::slotShowContextMenu(const QPoint& pos)
 
     menu.addSeparator();
     menu.addAction("Clear All &Messages", this, SLOT(slotClearMessages()));
-    
+
     menu.exec(m_textEdit->mapToGlobal(pos));
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanel::slotClearMessages()
 {
@@ -131,80 +128,71 @@ void RiuMessagePanel::slotClearMessages()
     RiaLogging::info("Message window cleared.");
 }
 
-
-
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuMessagePanelLogger::RiuMessagePanelLogger(RiuMessagePanel* messagePanel)
-:   m_messagePanel(messagePanel),
-    m_logLevel(RI_LL_WARNING)
+    : m_messagePanel(messagePanel)
+    , m_logLevel(RI_LL_WARNING)
 {
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RiuMessagePanelLogger::level() const
 {
     return m_logLevel;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanelLogger::setLevel(int logLevel)
 {
     m_logLevel = logLevel;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanelLogger::error(const char* message)
 {
     writeToMessagePanel(RI_LL_ERROR, message);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanelLogger::warning(const char* message)
 {
     writeToMessagePanel(RI_LL_WARNING, message);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanelLogger::info(const char* message)
 {
     writeToMessagePanel(RI_LL_INFO, message);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanelLogger::debug(const char* message)
 {
     writeToMessagePanel(RI_LL_DEBUG, message);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanelLogger::writeToMessagePanel(RILogLevel messageLevel, const char* message)
 {
@@ -218,5 +206,3 @@ void RiuMessagePanelLogger::writeToMessagePanel(RILogLevel messageLevel, const c
         m_messagePanel->addMessage(messageLevel, message);
     }
 }
-
-

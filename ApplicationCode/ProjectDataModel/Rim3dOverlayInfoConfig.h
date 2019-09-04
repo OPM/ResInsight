@@ -1,27 +1,27 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
+#include "cafAppEnum.h"
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
-#include "cafPdmField.h"
-#include "cafAppEnum.h"
 
 #include "cvfAssert.h"
 #include "cvfObject.h"
@@ -40,8 +40,8 @@ class RigStatisticsDataCache;
 class RicGridStatisticsDialog;
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class Rim3dOverlayInfoConfig : public caf::PdmObject
 {
@@ -50,19 +50,35 @@ class Rim3dOverlayInfoConfig : public caf::PdmObject
     class HistogramData
     {
     public:
-        HistogramData() : min(HUGE_VAL), max(HUGE_VAL), p10(HUGE_VAL), p90(HUGE_VAL), mean(HUGE_VAL), weightedMean(HUGE_VAL), sum(0.0), histogram(nullptr) {}
+        HistogramData()
+            : min(HUGE_VAL)
+            , max(HUGE_VAL)
+            , p10(HUGE_VAL)
+            , p90(HUGE_VAL)
+            , mean(HUGE_VAL)
+            , weightedMean(HUGE_VAL)
+            , sum(0.0)
+            , histogram(nullptr)
+        {
+        }
 
-        double min;
-        double max;
-        double p10;
-        double p90;
-        double mean;
-        double sum;
-        double weightedMean;
+        double                     min;
+        double                     max;
+        double                     p10;
+        double                     p90;
+        double                     mean;
+        double                     sum;
+        double                     weightedMean;
         const std::vector<size_t>* histogram;
-        bool isValid(double parameter) { return parameter != HUGE_VAL && parameter != -HUGE_VAL; }
+        bool                       isValid(double parameter)
+        {
+            return parameter != HUGE_VAL && parameter != -HUGE_VAL;
+        }
 
-        bool isValid() { return histogram && histogram->size() > 0 && isValid(min) && isValid(max); }
+        bool isValid()
+        {
+            return histogram && histogram->size() > 0 && isValid(min) && isValid(max);
+        }
     };
 
 public:
@@ -81,15 +97,15 @@ public:
     QString       resultInfoText(const HistogramData& histData);
 
     RicGridStatisticsDialog* getOrCreateGridStatisticsDialog();
-    void          showStatisticsInfoDialog(bool raise = true);
-    QImage        statisticsDialogScreenShotImage();
+    void                     showStatisticsInfoDialog(bool raise = true);
+    QImage                   statisticsDialogScreenShotImage();
 
-    bool          showAnimProgress() const;
-    bool          showCaseInfo() const;
-    bool          showResultInfo() const;
-    bool          isActive() const;
+    bool showAnimProgress() const;
+    bool showCaseInfo() const;
+    bool showResultInfo() const;
+    bool isActive() const;
 
-    bool          showVersionInfo() const;
+    bool showVersionInfo() const;
 
     enum StatisticsTimeRangeType
     {
@@ -102,7 +118,7 @@ public:
         ALL_CELLS,
         VISIBLE_CELLS
     };
-    
+
 private:
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     caf::PdmFieldHandle* objectToggleField() override;
@@ -134,13 +150,13 @@ private:
     caf::PdmField<bool> m_showHistogram;
     caf::PdmField<bool> m_showVersionInfo;
 
-    caf::PdmField<caf::AppEnum<StatisticsTimeRangeType> > m_statisticsTimeRange;
-    caf::PdmField<caf::AppEnum<StatisticsCellRangeType> > m_statisticsCellRange;
+    caf::PdmField<caf::AppEnum<StatisticsTimeRangeType>> m_statisticsTimeRange;
+    caf::PdmField<caf::AppEnum<StatisticsCellRangeType>> m_statisticsCellRange;
 
     caf::PdmPointer<RimGridView>     m_viewDef;
     cvf::Vec2ui                      m_position;
     bool                             m_isVisCellStatUpToDate;
     cvf::ref<RigStatisticsDataCache> m_visibleCellStatistics;
 
-    std::unique_ptr<RicGridStatisticsDialog>    m_gridStatisticsDialog;
+    std::unique_ptr<RicGridStatisticsDialog> m_gridStatisticsDialog;
 };

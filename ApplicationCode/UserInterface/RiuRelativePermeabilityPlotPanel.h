@@ -48,12 +48,12 @@ public:
     RiuRelativePermeabilityPlotPanel(QDockWidget* parent);
     ~RiuRelativePermeabilityPlotPanel() override;
 
-    void                                setPlotData(RiaEclipseUnitTools::UnitSystem unitSystem,
-                                                    const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& relPermCurves, 
-                                                    double swat, 
-                                                    double sgas,
-                                                    QString caseName, 
-                                                    QString cellReferenceText);
+    void                                setPlotData(RiaEclipseUnitTools::UnitSystem                              unitSystem,
+                                                    const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& relPermCurves,
+                                                    double                                                       swat,
+                                                    double                                                       sgas,
+                                                    QString                                                      caseName,
+                                                    QString                                                      cellReferenceText);
     void                                clearPlot();
     RiuRelativePermeabilityPlotUpdater* plotUpdater();
     void                                applyFontSizes(bool replot);
@@ -76,39 +76,42 @@ private:
         double max;
     };
 
-    void           plotUiSelectedCurves();
-    static void    setPlotDefaults(QwtPlot* plot);
-    static void    plotCurvesInQwt(RiaEclipseUnitTools::UnitSystem unitSystem,
-                                   const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr, 
-                                   double swat,
-                                   double sgas,
-                                   QString cellReferenceText,
-                                   bool logScaleLeftAxis,
-                                   bool fixedXAxis,
-                                   bool fixedLeftYAxis,
-                                   QwtPlot* plot,
-                                   std::vector<QwtPlotMarker*>* myPlotMarkers);
+    void        plotUiSelectedCurves();
+    static void setPlotDefaults(QwtPlot* plot);
+    static void plotCurvesInQwt(RiaEclipseUnitTools::UnitSystem                              unitSystem,
+                                const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr,
+                                double                                                       swat,
+                                double                                                       sgas,
+                                QString                                                      cellReferenceText,
+                                bool                                                         logScaleLeftAxis,
+                                bool                                                         fixedXAxis,
+                                bool                                                         fixedLeftYAxis,
+                                QwtPlot*                                                     plot,
+                                std::vector<QwtPlotMarker*>*                                 myPlotMarkers);
 
     static QString determineXAxisTitleFromCurveCollection(const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr);
 
-    static void    addVerticalSaturationMarkerLine(double   saturationValue, 
-                                                   QString  label, 
-                                                   QColor   color, 
-                                                   QwtPlot* plot,
-                                                   std::vector<QwtPlotMarker*>* myPlotMarkers);
+    static void addVerticalSaturationMarkerLine(double                       saturationValue,
+                                                QString                      label,
+                                                QColor                       color,
+                                                QwtPlot*                     plot,
+                                                std::vector<QwtPlotMarker*>* myPlotMarkers);
 
-    static void    addCurveConstSaturationIntersectionMarker(const RigFlowDiagSolverInterface::RelPermCurve& curve,
-                                                             double saturationValue, 
-                                                             QColor markerColor, 
-                                                             WhichYAxis whichYAxis,
-                                                             QwtPlot* plot, 
-                                                             std::vector<QwtPlotMarker*>* myPlotMarkers,
-                                                             std::vector<QPointF>* points,
-                                                             std::vector<WhichYAxis>* axes);
+    static void addCurveConstSaturationIntersectionMarker(const RigFlowDiagSolverInterface::RelPermCurve& curve,
+                                                          double                                          saturationValue,
+                                                          QColor                                          markerColor,
+                                                          WhichYAxis                                      whichYAxis,
+                                                          QwtPlot*                                        plot,
+                                                          std::vector<QwtPlotMarker*>*                    myPlotMarkers,
+                                                          std::vector<QPointF>*                           points,
+                                                          std::vector<WhichYAxis>*                        axes);
 
-    static double  interpolatedCurveYValue(const std::vector<double>& xVals, const std::vector<double>& yVals, double x);
+    static double interpolatedCurveYValue(const std::vector<double>& xVals, const std::vector<double>& yVals, double x);
 
-    static void    addTransparentCurve(QwtPlot* plot, const std::vector<QPointF>& points, const std::vector<WhichYAxis>& axes, bool logScaleLeftAxis);
+    static void addTransparentCurve(QwtPlot*                       plot,
+                                    const std::vector<QPointF>&    points,
+                                    const std::vector<WhichYAxis>& axes,
+                                    bool                           logScaleLeftAxis);
 
     std::vector<RigFlowDiagSolverInterface::RelPermCurve> gatherUiSelectedCurves() const;
     QString                                               asciiDataForUiSelectedCurves() const;

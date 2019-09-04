@@ -2,17 +2,17 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -28,19 +28,16 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 
-#include <QFileInfo>
 #include <QDir>
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RiaProjectModifier::RiaProjectModifier()
-{
-}
+#include <QFileInfo>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+RiaProjectModifier::RiaProjectModifier() {}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RiaProjectModifier::setReplaceCaseFirstOccurrence(QString newGridFileName)
 {
@@ -48,7 +45,7 @@ void RiaProjectModifier::setReplaceCaseFirstOccurrence(QString newGridFileName)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaProjectModifier::setReplaceCase(int caseIdToReplace, QString newGridFileName)
 {
@@ -59,7 +56,7 @@ void RiaProjectModifier::setReplaceCase(int caseIdToReplace, QString newGridFile
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaProjectModifier::setReplaceSourceCasesFirstOccurrence(std::vector<QString> newGridFileNames)
 {
@@ -67,7 +64,7 @@ void RiaProjectModifier::setReplaceSourceCasesFirstOccurrence(std::vector<QStrin
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaProjectModifier::setReplaceSourceCasesById(int caseGroupIdToReplace, std::vector<QString> newGridFileNames)
 {
@@ -78,7 +75,7 @@ void RiaProjectModifier::setReplaceSourceCasesById(int caseGroupIdToReplace, std
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaProjectModifier::setReplacePropertiesFolderFirstOccurrence(QString newPropertiesFolder)
 {
@@ -86,7 +83,7 @@ void RiaProjectModifier::setReplacePropertiesFolderFirstOccurrence(QString newPr
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaProjectModifier::setReplacePropertiesFolder(int caseIdToReplace, QString newPropertiesFolder)
 {
@@ -97,9 +94,9 @@ void RiaProjectModifier::setReplacePropertiesFolder(int caseIdToReplace, QString
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RiaProjectModifier::applyModificationsToProject(RimProject* project) 
+bool RiaProjectModifier::applyModificationsToProject(RimProject* project)
 {
     if (m_caseIdToGridFileNameMap.size() > 0)
     {
@@ -120,7 +117,7 @@ bool RiaProjectModifier::applyModificationsToProject(RimProject* project)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaProjectModifier::replaceSourceCases(RimProject* project)
 {
@@ -162,13 +159,13 @@ void RiaProjectModifier::replaceSourceCases(RimProject* project)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaProjectModifier::replaceCase(RimProject* project)
 {
     std::vector<RimCase*> allCases;
     project->allCases(allCases);
-    
+
     for (RimCase* rimCase : allCases)
     {
         RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>(rimCase);
@@ -203,7 +200,7 @@ void RiaProjectModifier::replaceCase(RimProject* project)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaProjectModifier::replacePropertiesFolder(RimProject* project)
 {
@@ -235,8 +232,8 @@ void RiaProjectModifier::replacePropertiesFolder(RimProject* project)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Returns absolute path name to the specified file. 
-/// 
+/// Returns absolute path name to the specified file.
+///
 /// If \a relOrAbsolutePath is a relative, the current working directory for the process will be
 /// used in order to make the path absolute.
 //--------------------------------------------------------------------------------------------------
@@ -248,12 +245,12 @@ QString RiaProjectModifier::makeFilePathAbsolute(QString relOrAbsolutePath)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaProjectModifier::caseNameFromGridFileName(QString fullGridFilePathName)
 {
     QString fn = QDir::fromNativeSeparators(fullGridFilePathName);
-    
+
     // Extract file name plus the 'deepest' directory
     QString deepestDirPlusFileName = fn.section('/', -2, -1);
 
@@ -263,7 +260,7 @@ QString RiaProjectModifier::caseNameFromGridFileName(QString fullGridFilePathNam
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RiaProjectModifier::firstCaseId(RimProject* project)
 {
@@ -283,13 +280,13 @@ int RiaProjectModifier::firstCaseId(RimProject* project)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RiaProjectModifier::firstGroupId(RimProject* project)
 {
     for (size_t oilFieldIdx = 0; oilFieldIdx < project->oilFields().size(); oilFieldIdx++)
     {
-        RimOilField* oilField = project->oilFields[oilFieldIdx];
+        RimOilField*              oilField       = project->oilFields[oilFieldIdx];
         RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : nullptr;
         if (analysisModels)
         {
@@ -304,9 +301,9 @@ int RiaProjectModifier::firstGroupId(RimProject* project)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-int RiaProjectModifier::firstInputCaseId(RimProject * project)
+int RiaProjectModifier::firstInputCaseId(RimProject* project)
 {
     std::vector<RimCase*> allCases;
     project->allCases(allCases);
@@ -324,10 +321,9 @@ int RiaProjectModifier::firstInputCaseId(RimProject * project)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RiaProjectModifier::firstOccurrenceId()
 {
     return -999;
 }
-

@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cafPdmPointer.h"
 
 #include <QObject>
@@ -39,7 +38,7 @@ public:
     void unregisterFilter();
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *event) override;
+    bool eventFilter(QObject* obj, QEvent* event) override;
 
 private:
     caf::PdmPointer<RimMeasurement> m_parent;

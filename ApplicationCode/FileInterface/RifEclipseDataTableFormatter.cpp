@@ -22,7 +22,7 @@
 
 #include <limits>
 
-#define MAX_ECLIPSE_DATA_ROW_WIDTH 132  // Maximum eclipse data row width
+#define MAX_ECLIPSE_DATA_ROW_WIDTH 132 // Maximum eclipse data row width
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -148,7 +148,7 @@ void RifEclipseDataTableFormatter::outputBuffer()
     {
         m_out << m_commentPrefix;
         for (size_t i = 0u; i < m_columns.size(); ++i)
-        {       
+        {
             m_out << formatColumn(m_columns[i].title, i);
         }
         m_out << "\n";
@@ -166,13 +166,13 @@ void RifEclipseDataTableFormatter::outputBuffer()
         }
         else if (line.lineType == CONTENTS)
         {
-            QString lineText = m_tableRowPrependText;
-            bool isComment = m_tableRowPrependText.startsWith(m_commentPrefix);
+            QString lineText   = m_tableRowPrependText;
+            bool    isComment  = m_tableRowPrependText.startsWith(m_commentPrefix);
             QString appendText = (line.appendTextSet ? line.appendText : m_tableRowAppendText);
 
             for (size_t i = 0; i < line.data.size(); ++i)
             {
-                QString column = formatColumn(line.data[i], i);
+                QString column      = formatColumn(line.data[i], i);
                 QString newLineText = lineText + column;
                 if (i == line.data.size() - 1)
                 {
@@ -202,7 +202,7 @@ void RifEclipseDataTableFormatter::outputComment(RifEclipseOutputTableLine& comm
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifEclipseDataTableFormatter::outputHorizontalLine(RifEclipseOutputTableLine& comment)
 {
@@ -228,7 +228,7 @@ void RifEclipseDataTableFormatter::outputHorizontalLine(RifEclipseOutputTableLin
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseDataTableFormatter::isAllHeadersEmpty(const std::vector<RifEclipseOutputTableColumn>& headers)
 {
@@ -297,7 +297,7 @@ RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::comment(const QStrin
 {
     RifEclipseOutputTableLine line;
     line.data.push_back(comment);
-    line.lineType = COMMENT;
+    line.lineType      = COMMENT;
     line.appendTextSet = false;
     if (m_columns.empty())
     {
@@ -316,10 +316,10 @@ RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::comment(const QStrin
 RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::addHorizontalLine(const QChar& character)
 {
     RifEclipseOutputTableLine line;
-    QString data;
+    QString                   data;
     data += character;
     line.data.push_back(data);
-    line.lineType = HORIZONTAL_LINE;
+    line.lineType      = HORIZONTAL_LINE;
     line.appendTextSet = false;
     if (m_columns.empty())
     {
@@ -414,8 +414,8 @@ RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::addValueOrDefaultMar
 void RifEclipseDataTableFormatter::rowCompleted()
 {
     RifEclipseOutputTableLine line;
-    line.data = m_lineBuffer;
-    line.lineType = CONTENTS;
+    line.data          = m_lineBuffer;
+    line.lineType      = CONTENTS;
     line.appendTextSet = false;
     m_buffer.push_back(line);
     m_lineBuffer.clear();
@@ -427,10 +427,10 @@ void RifEclipseDataTableFormatter::rowCompleted()
 void RifEclipseDataTableFormatter::rowCompleted(const QString& appendText)
 {
     RifEclipseOutputTableLine line;
-    line.data     = m_lineBuffer;
-    line.lineType = CONTENTS;
+    line.data          = m_lineBuffer;
+    line.lineType      = CONTENTS;
     line.appendTextSet = true;
-    line.appendText = appendText;
+    line.appendText    = appendText;
     m_buffer.push_back(line);
     m_lineBuffer.clear();
 }
@@ -468,7 +468,7 @@ int RifEclipseDataTableFormatter::measure(size_t num)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RifEclipseDataTableFormatter::tableWidth() const
 {
@@ -523,7 +523,7 @@ QString RifEclipseDataTableFormatter::format(size_t num)
 QString RifEclipseDataTableFormatter::formatColumn(const QString str, size_t columnIndex) const
 {
     const RifEclipseOutputTableColumn& column = m_columns[columnIndex];
-    
+
     if (column.alignment == LEFT)
     {
         int colSpacing = (columnIndex == m_columns.size() - 1) ? 0 : m_colSpacing;

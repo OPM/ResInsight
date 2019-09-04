@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,15 +22,15 @@
 
 #include "cafUiProcess.h"
 
-#include <QWidget>
-#include <QLabel>
 #include <QDockWidget>
 #include <QHBoxLayout>
-#include <QPushButton>
+#include <QLabel>
 #include <QPlainTextEdit>
+#include <QPushButton>
+#include <QWidget>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuProcessMonitor::RiuProcessMonitor(QDockWidget* pParent)
     : QWidget(pParent)
@@ -48,11 +48,11 @@ RiuProcessMonitor::RiuProcessMonitor(QDockWidget* pParent)
     pTopLayout->addStretch();
     QPushButton* clearPushButton = new QPushButton("Clear", this);
     pTopLayout->addWidget(clearPushButton);
-    connect(clearPushButton, SIGNAL(clicked()), this, SLOT(slotClearTextEdit()) );
+    connect(clearPushButton, SIGNAL(clicked()), this, SLOT(slotClearTextEdit()));
 
     m_terminatePushButton = new QPushButton("Stop", this);
     pTopLayout->addWidget(m_terminatePushButton);
-    connect(m_terminatePushButton, SIGNAL(clicked()), this, SLOT(slotTerminateProcess()) );
+    connect(m_terminatePushButton, SIGNAL(clicked()), this, SLOT(slotTerminateProcess()));
     m_terminatePushButton->setEnabled(false);
 
     m_textEdit = new QPlainTextEdit(this);
@@ -70,18 +70,13 @@ RiuProcessMonitor::RiuProcessMonitor(QDockWidget* pParent)
     setStatusMsg("N/A", caf::PROCESS_STATE_NORMAL);
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuProcessMonitor::~RiuProcessMonitor() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RiuProcessMonitor::~RiuProcessMonitor()
-{
-
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuProcessMonitor::startMonitorWorkProcess(caf::UiProcess* pProcess)
 {
@@ -92,9 +87,9 @@ void RiuProcessMonitor::startMonitorWorkProcess(caf::UiProcess* pProcess)
     m_monitoredProcess = pProcess;
     if (!m_monitoredProcess) return;
 
-    connect(m_monitoredProcess, SIGNAL(signalStatusMsg(const QString&, int)),    SLOT(slotShowProcStatusMsg(const QString&, int)));
-    connect(m_monitoredProcess, SIGNAL(readyReadStandardError()),                SLOT(slotProcReadyReadStdErr()));
-    connect(m_monitoredProcess, SIGNAL(readyReadStandardOutput()),                SLOT(slotProcReadyReadStdOut()));
+    connect(m_monitoredProcess, SIGNAL(signalStatusMsg(const QString&, int)), SLOT(slotShowProcStatusMsg(const QString&, int)));
+    connect(m_monitoredProcess, SIGNAL(readyReadStandardError()), SLOT(slotProcReadyReadStdErr()));
+    connect(m_monitoredProcess, SIGNAL(readyReadStandardOutput()), SLOT(slotProcReadyReadStdOut()));
 
     m_terminatePushButton->setEnabled(true);
 
@@ -102,9 +97,8 @@ void RiuProcessMonitor::startMonitorWorkProcess(caf::UiProcess* pProcess)
     addStringToLog(timeStamp + " Process starting\n");
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuProcessMonitor::stopMonitorWorkProcess()
 {
@@ -118,9 +112,8 @@ void RiuProcessMonitor::stopMonitorWorkProcess()
     addStringToLog(timeStamp + " Process finished\n\n");
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuProcessMonitor::setStatusMsg(const QString& sStatusMsg, int iStatusMsgType)
 {
@@ -130,17 +123,21 @@ void RiuProcessMonitor::setStatusMsg(const QString& sStatusMsg, int iStatusMsgTy
 
     switch (iStatusMsgType)
     {
-        case caf::PROCESS_STATE_RUNNING:    sMsg = "<font color='green'>"   + sStatusMsg + "</font>";   break;
-        case caf::PROCESS_STATE_ERROR:      sMsg = "<font color='red'>"     + sStatusMsg + "</font>";   break;
-        default:                            sMsg = sStatusMsg;
+        case caf::PROCESS_STATE_RUNNING:
+            sMsg = "<font color='green'>" + sStatusMsg + "</font>";
+            break;
+        case caf::PROCESS_STATE_ERROR:
+            sMsg = "<font color='red'>" + sStatusMsg + "</font>";
+            break;
+        default:
+            sMsg = sStatusMsg;
     }
 
     m_labelStatus->setText(sMsg);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuProcessMonitor::addStringToLog(const QString& sTxt)
 {
@@ -150,18 +147,16 @@ void RiuProcessMonitor::addStringToLog(const QString& sTxt)
     m_textEdit->ensureCursorVisible();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuProcessMonitor::slotShowProcStatusMsg(const QString& sMsg, int iStatusMsgType)
 {
     setStatusMsg(sMsg, iStatusMsgType);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuProcessMonitor::slotProcReadyReadStdOut()
 {
@@ -174,9 +169,8 @@ void RiuProcessMonitor::slotProcReadyReadStdOut()
     addStringToLog(dataArray.data());
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuProcessMonitor::slotProcReadyReadStdErr()
 {
@@ -190,7 +184,7 @@ void RiuProcessMonitor::slotProcReadyReadStdErr()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuProcessMonitor::slotTerminateProcess()
 {
@@ -201,10 +195,9 @@ void RiuProcessMonitor::slotTerminateProcess()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuProcessMonitor::slotClearTextEdit()
 {
     m_textEdit->clear();
 }
-

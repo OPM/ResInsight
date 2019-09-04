@@ -12,12 +12,10 @@
 
 #include <vector>
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-template <typename T>
+template<typename T>
 void fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields)
 {
     if (!object) return;
@@ -32,7 +30,7 @@ void fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields)
         caf::PdmField<T>* typedField = dynamic_cast<caf::PdmField<T>*>(field);
         if (typedField) typedFields.push_back(&typedField->v());
 
-        caf::PdmField< std::vector<T> >* typedFieldInVector = dynamic_cast<caf::PdmField< std::vector<T> >*>(field);
+        caf::PdmField<std::vector<T>>* typedFieldInVector = dynamic_cast<caf::PdmField<std::vector<T>>*>(field);
         if (typedFieldInVector)
         {
             for (T& typedFieldFromVector : typedFieldInVector->v())
@@ -51,7 +49,7 @@ void fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RimRelocatePathTest, findPathsInProjectFile)
 {
@@ -64,7 +62,7 @@ TEST(RimRelocatePathTest, findPathsInProjectFile)
     project.fileName = fileName;
     project.readFile();
 
-    std::vector< caf::FilePath* > filePaths;
+    std::vector<caf::FilePath*> filePaths;
 
     fieldsByType(&project, filePaths);
 

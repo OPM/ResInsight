@@ -22,8 +22,8 @@
 #include "RiaTestDataDirectory.h"
 #include "RifActiveCellsReader.h"
 
-#include "ert/ecl/ecl_grid.hpp"
 #include "ert/ecl/ecl_file.hpp"
+#include "ert/ecl/ecl_grid.hpp"
 
 #include <QDir>
 

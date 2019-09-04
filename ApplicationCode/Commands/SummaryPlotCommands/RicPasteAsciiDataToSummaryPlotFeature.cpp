@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,35 +24,35 @@
 
 #include "RiaLogging.h"
 
-#include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimAsciiDataCurve.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
+#include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
 
 #include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmDocument.h"
 #include "cafPdmObjectGroup.h"
-#include "cafSelectionManager.h"
-#include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmSettings.h"
+#include "cafPdmUiPropertyViewDialog.h"
+#include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
 #include "cvfColor3.h"
 
-#include <QApplication>
 #include <QAction>
+#include <QApplication>
 #include <QClipboard>
 #include <QMimeData>
-
 
 CAF_CMD_SOURCE_INIT(RicPasteAsciiDataToSummaryPlotFeature, "RicPasteAsciiDataToSummaryPlotFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicPasteAsciiDataToSummaryPlotFeature::isCommandEnabled()
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 
     RimSummaryPlot* summaryPlot = nullptr;
     destinationObject->firstAncestorOrThisOfType(summaryPlot);
@@ -68,12 +68,12 @@ bool RicPasteAsciiDataToSummaryPlotFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered(bool isChecked)
 {
-
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
     RimSummaryPlot* summaryPlot = nullptr;
     destinationObject->firstAncestorOrThisOfType(summaryPlot);
 
@@ -116,7 +116,7 @@ void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -126,7 +126,7 @@ void RicPasteAsciiDataToSummaryPlotFeature::setupActionLook(QAction* actionToSet
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicPasteAsciiDataToSummaryPlotFeature::getPastedData()
 {
@@ -139,12 +139,12 @@ QString RicPasteAsciiDataToSummaryPlotFeature::getPastedData()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicPasteAsciiDataToSummaryPlotFeature::hasPastedText()
 {
-    QClipboard* clipboard = QApplication::clipboard();
-    const QMimeData* mimeData = clipboard->mimeData();
+    QClipboard*      clipboard = QApplication::clipboard();
+    const QMimeData* mimeData  = clipboard->mimeData();
     if (mimeData->hasText() && mimeData->text().size() > 12)
     {
         QString text = mimeData->text();
@@ -156,14 +156,15 @@ bool RicPasteAsciiDataToSummaryPlotFeature::hasPastedText()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurves(QString& data, const RicPasteAsciiDataToSummaryPlotFeatureUi& settings)
+std::vector<RimAsciiDataCurve*>
+    RicPasteAsciiDataToSummaryPlotFeature::parseCurves(QString& data, const RicPasteAsciiDataToSummaryPlotFeatureUi& settings)
 {
     std::vector<RimAsciiDataCurve*> curves;
-    const AsciiDataParseOptions& parseOptions = settings.parseOptions();
-    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser(data);
-    
+    const AsciiDataParseOptions&    parseOptions = settings.parseOptions();
+    RifCsvUserDataPastedTextParser  parser       = RifCsvUserDataPastedTextParser(data);
+
     if (!parser.parse(parseOptions))
     {
         return curves;
@@ -174,7 +175,7 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
         return curves;
     }
 
-    std::map< CurveType, std::vector<RimAsciiDataCurve*> > curveToTypeMap;
+    std::map<CurveType, std::vector<RimAsciiDataCurve*>> curveToTypeMap;
 
     QString curvePrefix = parseOptions.curvePrefix;
 
@@ -209,18 +210,18 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
             cvf::Color3f color;
             switch (it.first)
             {
-            case CURVE_GAS:
-                color = RimSummaryCurveAppearanceCalculator::cycledGreenColor(i);
-                break;
-            case CURVE_OIL:
-                color = RimSummaryCurveAppearanceCalculator::cycledRedColor(i);
-                break;
-            case CURVE_WAT:
-                color = RimSummaryCurveAppearanceCalculator::cycledBlueColor(i);
-                break;
-            default:
-                color = RimSummaryCurveAppearanceCalculator::cycledNoneRGBBrColor(i);
-                break;
+                case CURVE_GAS:
+                    color = RimSummaryCurveAppearanceCalculator::cycledGreenColor(i);
+                    break;
+                case CURVE_OIL:
+                    color = RimSummaryCurveAppearanceCalculator::cycledRedColor(i);
+                    break;
+                case CURVE_WAT:
+                    color = RimSummaryCurveAppearanceCalculator::cycledBlueColor(i);
+                    break;
+                default:
+                    color = RimSummaryCurveAppearanceCalculator::cycledNoneRGBBrColor(i);
+                    break;
             }
             it.second[i]->setColor(color);
         }
@@ -230,7 +231,7 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicPasteAsciiDataToSummaryPlotFeature::CurveType RicPasteAsciiDataToSummaryPlotFeature::guessCurveType(const QString& curveName)
 {
@@ -250,9 +251,10 @@ RicPasteAsciiDataToSummaryPlotFeature::CurveType RicPasteAsciiDataToSummaryPlotF
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RicPasteAsciiDataToSummaryPlotFeature::createSummaryPlotAndAddToPlotCollection(RimSummaryPlotCollection *plotCollection)
+RimSummaryPlot*
+    RicPasteAsciiDataToSummaryPlotFeature::createSummaryPlotAndAddToPlotCollection(RimSummaryPlotCollection* plotCollection)
 {
     QString name = QString("Summary Plot %1").arg(plotCollection->summaryPlots.size() + 1);
 

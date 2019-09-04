@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@
 
 CAF_PDM_SOURCE_INIT(RimGeoMechCase, "ResInsightGeoMechCase");
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCase::RimGeoMechCase(void)
     : m_applyTimeFilter(false)
@@ -65,15 +65,17 @@ RimGeoMechCase::RimGeoMechCase(void)
 
     CAF_PDM_InitFieldNoDefault(&m_caseFileName, "CaseFileName", "Case File Name", "", "", "");
     m_caseFileName.uiCapability()->setUiReadOnly(true);
-    CAF_PDM_InitFieldNoDefault(&geoMechViews, "GeoMechViews", "",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&geoMechViews, "GeoMechViews", "", "", "", "");
     geoMechViews.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_cohesion, "CaseCohesion", 10.0, "Cohesion", "", "Used to calculate the SE:SFI result", "");
-    CAF_PDM_InitField(&m_frictionAngleDeg, "FrctionAngleDeg", 30.0, "Friction Angle [Deg]", "", "Used to calculate the SE:SFI result", "");
+    CAF_PDM_InitField(
+        &m_frictionAngleDeg, "FrctionAngleDeg", 30.0, "Friction Angle [Deg]", "", "Used to calculate the SE:SFI result", "");
 
     CAF_PDM_InitFieldNoDefault(&m_elementPropertyFileNames, "ElementPropertyFileNames", "Element Property Files", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_elementPropertyFileNameIndexUiSelection, "ElementPropertyFileNameIndexUiSelection", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(
+        &m_elementPropertyFileNameIndexUiSelection, "ElementPropertyFileNameIndexUiSelection", "", "", "", "");
     m_elementPropertyFileNameIndexUiSelection.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&m_closeElementPropertyFileCommand, "closeElementPropertyFileCommad", false, "", "", "", "");
@@ -88,7 +90,7 @@ RimGeoMechCase::RimGeoMechCase(void)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCase::~RimGeoMechCase(void)
 {
@@ -115,7 +117,7 @@ RimGeoMechCase::~RimGeoMechCase(void)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::setFileName(const QString& fileName)
 {
@@ -123,7 +125,7 @@ void RimGeoMechCase::setFileName(const QString& fileName)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechCase::caseFileName() const
 {
@@ -131,19 +133,19 @@ QString RimGeoMechCase::caseFileName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigGeoMechCaseData* RimGeoMechCase::geoMechData()
 {
-    return m_geoMechCaseData.p();    
+    return m_geoMechCaseData.p();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RigGeoMechCaseData* RimGeoMechCase::geoMechData() const
 {
-    return m_geoMechCaseData.p();    
+    return m_geoMechCaseData.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -176,12 +178,12 @@ void RimGeoMechCase::reloadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView* RimGeoMechCase::createAndAddReservoirView()
 {
     RimGeoMechView* gmv = new RimGeoMechView();
-	RiaApplication::instance()->project()->assignViewIdToView(gmv);
+    RiaApplication::instance()->project()->assignViewIdToView(gmv);
 
     gmv->setGeoMechCase(this);
 
@@ -213,7 +215,7 @@ RimGeoMechView* RimGeoMechCase::createCopyAndAddView(const RimGeoMechView* sourc
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCase::CaseOpenStatus RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
 {
@@ -226,7 +228,7 @@ RimGeoMechCase::CaseOpenStatus RimGeoMechCase::openGeoMechCase(std::string* erro
     }
 
     cvf::ref<RigGeoMechCaseData> geoMechCaseData = new RigGeoMechCaseData(m_caseFileName().path().toStdString());
-    bool fileOpenSuccess = geoMechCaseData->open(errorMessage);
+    bool                         fileOpenSuccess = geoMechCaseData->open(errorMessage);
     if (!fileOpenSuccess)
     {
         return CASE_OPEN_ERROR;
@@ -251,7 +253,8 @@ RimGeoMechCase::CaseOpenStatus RimGeoMechCase::openGeoMechCase(std::string* erro
     {
         m_applyTimeFilter = false; // Clear when we've done this once.
 
-        caf::PdmUiPropertyViewDialog propertyDialog(nullptr, m_timeStepFilter, "Time Step Filter", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        caf::PdmUiPropertyViewDialog propertyDialog(
+            nullptr, m_timeStepFilter, "Time Step Filter", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
         propertyDialog.resize(QSize(400, 400));
 
         // Push arrow cursor onto the cursor stack so it takes over from the wait cursor.
@@ -268,10 +271,10 @@ RimGeoMechCase::CaseOpenStatus RimGeoMechCase::openGeoMechCase(std::string* erro
 
     // Continue reading the open file
     if (!geoMechCaseData->readFemParts(errorMessage, m_timeStepFilter->filteredTimeSteps()))
-    { 
+    {
         return CASE_OPEN_ERROR;
     }
-    
+
     if (activeFormationNames())
     {
         geoMechCaseData->femPartResults()->setActiveFormationNames(activeFormationNames()->formationNamesData());
@@ -286,7 +289,7 @@ RimGeoMechCase::CaseOpenStatus RimGeoMechCase::openGeoMechCase(std::string* erro
     {
         fileNames.push_back(fileName.path());
     }
-    geoMechCaseData->femPartResults()->addElementPropertyFiles(fileNames);    
+    geoMechCaseData->femPartResults()->addElementPropertyFiles(fileNames);
 
     m_geoMechCaseData = geoMechCaseData;
 
@@ -294,16 +297,15 @@ RimGeoMechCase::CaseOpenStatus RimGeoMechCase::openGeoMechCase(std::string* erro
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
-    //No longer in use. Filepaths are now of type caf::FilePath, and updated in RimProject on load.
+    // No longer in use. Filepaths are now of type caf::FilePath, and updated in RimProject on load.
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<Rim3dView*> RimGeoMechCase::allSpecialViews() const
 {
@@ -322,14 +324,15 @@ std::vector<Rim3dView*> RimGeoMechCase::allSpecialViews() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     std::vector<PdmObjectHandle*> children;
     geoMechViews.childObjects(&children);
 
-    for ( auto child : children ) uiTreeOrdering.add(child);
+    for (auto child : children)
+        uiTreeOrdering.add(child);
 
     if (!m_2dIntersectionViewCollection->views().empty())
     {
@@ -353,7 +356,7 @@ RimGeoMechContourMapViewCollection* RimGeoMechCase::contourMapCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimGeoMechCase::timeStepDates() const
 {
@@ -363,7 +366,7 @@ std::vector<QDateTime> RimGeoMechCase::timeStepDates() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::initAfterRead()
 {
@@ -383,7 +386,7 @@ void RimGeoMechCase::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QStringList RimGeoMechCase::timeStepStrings() const
 {
@@ -403,25 +406,25 @@ QStringList RimGeoMechCase::timeStepStrings() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechCase::timeStepName(int frameIdx) const
 {
     const RigGeoMechCaseData* rigCaseData = geoMechData();
     if (rigCaseData && rigCaseData->femPartResults())
     {
-       std::vector<std::string> stepNames = rigCaseData->femPartResults()->filteredStepNames();
-       if (frameIdx < static_cast<int>(stepNames.size()))
-       {
-           return QString::fromStdString(stepNames[frameIdx]);
-       }
+        std::vector<std::string> stepNames = rigCaseData->femPartResults()->filteredStepNames();
+        if (frameIdx < static_cast<int>(stepNames.size()))
+        {
+            return QString::fromStdString(stepNames[frameIdx]);
+        }
     }
 
     return "";
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimGeoMechCase::activeCellsBoundingBox() const
 {
@@ -429,7 +432,7 @@ cvf::BoundingBox RimGeoMechCase::activeCellsBoundingBox() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimGeoMechCase::allCellsBoundingBox() const
 {
@@ -444,7 +447,7 @@ cvf::BoundingBox RimGeoMechCase::allCellsBoundingBox() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimGeoMechCase::characteristicCellSize() const
 {
@@ -454,12 +457,12 @@ double RimGeoMechCase::characteristicCellSize() const
 
         return cellSize;
     }
-    
+
     return 10.0;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::setFormationNames(RimFormationNames* formationNames)
 {
@@ -471,7 +474,7 @@ void RimGeoMechCase::setFormationNames(RimFormationNames* formationNames)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::addElementPropertyFiles(const std::vector<caf::FilePath>& fileNames)
 {
@@ -495,9 +498,9 @@ void RimGeoMechCase::addElementPropertyFiles(const std::vector<caf::FilePath>& f
             m_elementPropertyFileNames.v().push_back(newFileNameToPossiblyAdd);
         }
     }
-    
+
     this->updateConnectedEditors();
-    
+
     if (m_geoMechCaseData.notNull())
     {
         geoMechData()->femPartResults()->addElementPropertyFiles(newFileNames);
@@ -505,7 +508,7 @@ void RimGeoMechCase::addElementPropertyFiles(const std::vector<caf::FilePath>& f
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimGeoMechCase::cohesion() const
 {
@@ -513,7 +516,7 @@ double RimGeoMechCase::cohesion() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimGeoMechCase::frictionAngleDeg() const
 {
@@ -529,7 +532,7 @@ void RimGeoMechCase::setApplyTimeFilter(bool applyTimeFilter)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimGeoMechCase::displayModelOffset() const
 {
@@ -543,7 +546,7 @@ cvf::Vec3d RimGeoMechCase::displayModelOffset() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimGeoMechCase::vectorOfValidDateTimesFromTimeStepStrings(const QStringList& timeStepStrings)
 {
@@ -569,33 +572,32 @@ std::vector<QDateTime> RimGeoMechCase::vectorOfValidDateTimesFromTimeStepStrings
 QDateTime RimGeoMechCase::dateTimeFromTimeStepString(const QString& timeStepString)
 {
     QString dateFormat = "yyyyMMdd";
-    QString dateStr = subStringOfDigits(timeStepString, dateFormat.size());
+    QString dateStr    = subStringOfDigits(timeStepString, dateFormat.size());
     return QDateTime::fromString(dateStr, dateFormat);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if(changedField == &activeFormationNames)
+    if (changedField == &activeFormationNames)
     {
         updateFormationNamesData();
     }
 
     if (changedField == &m_cohesion || changedField == &m_frictionAngleDeg)
     {
-
         RigGeoMechCaseData* rigCaseData = geoMechData();
-        if ( rigCaseData && rigCaseData->femPartResults() )
+        if (rigCaseData && rigCaseData->femPartResults())
         {
             rigCaseData->femPartResults()->setCalculationParameters(m_cohesion(), cvf::Math::toRadians(m_frictionAngleDeg()));
         }
 
         std::vector<Rim3dView*> views = this->views();
-        for ( Rim3dView* view : views )
+        for (Rim3dView* view : views)
         {
-            if ( view  ) // Todo: only those using the variable actively
+            if (view) // Todo: only those using the variable actively
             {
                 view->scheduleCreateDisplayModelAndRedraw();
             }
@@ -616,14 +618,14 @@ void RimGeoMechCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::updateFormationNamesData()
 {
     RigGeoMechCaseData* rigCaseData = geoMechData();
-    if(rigCaseData && rigCaseData->femPartResults())
+    if (rigCaseData && rigCaseData->femPartResults())
     {
-        if(activeFormationNames())
+        if (activeFormationNames())
         {
             rigCaseData->femPartResults()->setActiveFormationNames(activeFormationNames()->formationNamesData());
         }
@@ -633,24 +635,24 @@ void RimGeoMechCase::updateFormationNamesData()
         }
 
         std::vector<Rim3dView*> views = this->views();
-        for(Rim3dView* view : views)
+        for (Rim3dView* view : views)
         {
             RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(view);
 
-            if ( geomView && geomView->isUsingFormationNames() )
+            if (geomView && geomView->isUsingFormationNames())
             {
-                if ( !activeFormationNames() )
+                if (!activeFormationNames())
                 {
-                    if ( geomView->cellResult()->resultPositionType() == RIG_FORMATION_NAMES )
+                    if (geomView->cellResult()->resultPositionType() == RIG_FORMATION_NAMES)
                     {
                         geomView->cellResult()->setResultAddress(RigFemResultAddress(RIG_FORMATION_NAMES, "", ""));
                         geomView->cellResult()->updateConnectedEditors();
                     }
 
                     RimGeoMechPropertyFilterCollection* eclFilColl = geomView->geoMechPropertyFilterCollection();
-                    for ( RimGeoMechPropertyFilter* propFilter : eclFilColl->propertyFilters )
+                    for (RimGeoMechPropertyFilter* propFilter : eclFilColl->propertyFilters)
                     {
-                        if ( propFilter->resultDefinition()->resultPositionType() == RIG_FORMATION_NAMES )
+                        if (propFilter->resultDefinition()->resultPositionType() == RIG_FORMATION_NAMES)
                         {
                             propFilter->resultDefinition()->setResultAddress(RigFemResultAddress(RIG_FORMATION_NAMES, "", ""));
                         }
@@ -658,9 +660,9 @@ void RimGeoMechCase::updateFormationNamesData()
                 }
 
                 RimGeoMechPropertyFilterCollection* eclFilColl = geomView->geoMechPropertyFilterCollection();
-                for ( RimGeoMechPropertyFilter* propFilter : eclFilColl->propertyFilters )
+                for (RimGeoMechPropertyFilter* propFilter : eclFilColl->propertyFilters)
                 {
-                    if ( propFilter->resultDefinition->resultPositionType() == RIG_FORMATION_NAMES )
+                    if (propFilter->resultDefinition->resultPositionType() == RIG_FORMATION_NAMES)
                     {
                         propFilter->setToDefaultValues();
                         propFilter->updateConnectedEditors();
@@ -678,7 +680,7 @@ void RimGeoMechCase::updateFormationNamesData()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechCase::subStringOfDigits(const QString& inputString, int numberOfDigitsToFind)
 {
@@ -709,15 +711,20 @@ QString RimGeoMechCase::subStringOfDigits(const QString& inputString, int number
 struct descendingComparator
 {
     template<class T>
-    bool operator()(T const &a, T const &b) const { return a > b; }
+    bool operator()(T const& a, T const& b) const
+    {
+        return a > b;
+    }
 };
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::closeSelectedElementPropertyFiles()
 {
-    std::sort(m_elementPropertyFileNameIndexUiSelection.v().begin(), m_elementPropertyFileNameIndexUiSelection.v().end(), descendingComparator());
+    std::sort(m_elementPropertyFileNameIndexUiSelection.v().begin(),
+              m_elementPropertyFileNameIndexUiSelection.v().end(),
+              descendingComparator());
 
     std::vector<QString> filesToClose;
 
@@ -733,7 +740,7 @@ void RimGeoMechCase::closeSelectedElementPropertyFiles()
 
     if (m_geoMechCaseData.notNull())
     {
-         addressesToDelete = geoMechData()->femPartResults()->removeElementPropertyFiles(filesToClose);
+        addressesToDelete = geoMechData()->femPartResults()->removeElementPropertyFiles(filesToClose);
     }
 
     for (RimGeoMechView* view : geoMechViews())
@@ -759,7 +766,7 @@ void RimGeoMechCase::closeSelectedElementPropertyFiles()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::reloadSelectedElementPropertyFiles()
 {
@@ -785,50 +792,51 @@ void RimGeoMechCase::reloadSelectedElementPropertyFiles()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-   uiOrdering.add(&caseUserDescription);
-   uiOrdering.add(&caseId);
-   uiOrdering.add(&m_caseFileName);
+    uiOrdering.add(&caseUserDescription);
+    uiOrdering.add(&caseId);
+    uiOrdering.add(&m_caseFileName);
 
-   caf::PdmUiGroup* caseGroup = uiOrdering.addNewGroup("Case Options");
-   caseGroup->add(&activeFormationNames);
-   caseGroup->add(&m_cohesion);
-   caseGroup->add(&m_frictionAngleDeg);
+    caf::PdmUiGroup* caseGroup = uiOrdering.addNewGroup("Case Options");
+    caseGroup->add(&activeFormationNames);
+    caseGroup->add(&m_cohesion);
+    caseGroup->add(&m_frictionAngleDeg);
 
-   caf::PdmUiGroup* elmPropGroup = uiOrdering.addNewGroup("Element Properties");
-   elmPropGroup->add(&m_elementPropertyFileNameIndexUiSelection);
-   elmPropGroup->add(&m_reloadElementPropertyFileCommand);
-   elmPropGroup->add(&m_closeElementPropertyFileCommand);
+    caf::PdmUiGroup* elmPropGroup = uiOrdering.addNewGroup("Element Properties");
+    elmPropGroup->add(&m_elementPropertyFileNameIndexUiSelection);
+    elmPropGroup->add(&m_reloadElementPropertyFileCommand);
+    elmPropGroup->add(&m_closeElementPropertyFileCommand);
 
-
-   caf::PdmUiGroup* timeStepFilterGroup = uiOrdering.addNewGroup("Time Step Filter");
-   timeStepFilterGroup->setCollapsedByDefault(true);
-   m_timeStepFilter->uiOrdering(uiConfigName, *timeStepFilterGroup);
-
+    caf::PdmUiGroup* timeStepFilterGroup = uiOrdering.addNewGroup("Time Step Filter");
+    timeStepFilterGroup->setCollapsedByDefault(true);
+    m_timeStepFilter->uiOrdering(uiConfigName, *timeStepFilterGroup);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechCase::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimGeoMechCase::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                           QString                    uiConfigName,
+                                           caf::PdmUiEditorAttribute* attribute)
 {
     if (field == &m_reloadElementPropertyFileCommand)
     {
-        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute)->m_buttonText = "Reload Case(s)";
+        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute)->m_buttonText = "Reload Case(s)";
     }
     if (field == &m_closeElementPropertyFileCommand)
     {
-        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute)->m_buttonText = "Close Case(s)";
+        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute)->m_buttonText = "Close Case(s)";
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimGeoMechCase::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimGeoMechCase::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                    bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 

@@ -21,8 +21,8 @@
 #include <cvfBase.h>
 #include <cvfVector3.h>
 
-#include <vector>
 #include <array>
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------
 ///

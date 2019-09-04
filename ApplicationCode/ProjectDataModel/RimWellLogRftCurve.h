@@ -1,21 +1,20 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017  Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 
 #pragma once
 
@@ -40,8 +39,8 @@ class RimSummaryCaseCollection;
 class RimWellPath;
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class RimWellLogRftCurve : public RimWellLogCurve
 {
@@ -51,51 +50,52 @@ public:
     RimWellLogRftCurve();
     ~RimWellLogRftCurve() override;
 
-    QString       wellName() const override;
-    QString       wellLogChannelName() const override;
+    QString wellName() const override;
+    QString wellLogChannelName() const override;
 
     void                  setEclipseResultCase(RimEclipseResultCase* eclipseResultCase);
     RimEclipseResultCase* eclipseResultCase() const;
 
-    void                  setSummaryCase(RimSummaryCase* summaryCase);
-    RimSummaryCase*       summaryCase() const;
+    void            setSummaryCase(RimSummaryCase* summaryCase);
+    RimSummaryCase* summaryCase() const;
 
-	void                      setEnsemble(RimSummaryCaseCollection* ensemble);
+    void                      setEnsemble(RimSummaryCaseCollection* ensemble);
     RimSummaryCaseCollection* ensemble() const;
-    
-	void                   setObservedFmuRftData(RimObservedFmuRftData* observedFmuRftData);
+
+    void                   setObservedFmuRftData(RimObservedFmuRftData* observedFmuRftData);
     RimObservedFmuRftData* observedFmuRftData() const;
 
-    void                  setRftAddress(RifEclipseRftAddress address);
-    RifEclipseRftAddress  rftAddress() const;
+    void                 setRftAddress(RifEclipseRftAddress address);
+    RifEclipseRftAddress rftAddress() const;
 
-    void                  setDefaultAddress(QString wellName);
-    void                  updateWellChannelNameAndTimeStep();
+    void setDefaultAddress(QString wellName);
+    void updateWellChannelNameAndTimeStep();
 
-    void                  setSimWellBranchData(bool branchDetection, int branchIndex);
+    void setSimWellBranchData(bool branchDetection, int branchIndex);
 
 protected:
     // Overrides from RimWellLogPlotCurve
-    QString                         createCurveAutoName() override;
-    void                            onLoadDataAndUpdate(bool updateParentPlot) override;
+    QString createCurveAutoName() override;
+    void    onLoadDataAndUpdate(bool updateParentPlot) override;
 
     // Pdm overrrides
-    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                        bool*                      useOptionsOnly) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     RifReaderRftInterface* rftReader() const;
 
     RigEclipseWellLogExtractor* extractor();
 
-    bool                 createWellPathIdxToRftFileIdxMapping();
-    size_t               rftFileIndex(size_t wellPathIndex);
-    std::vector<size_t>  sortedIndicesInRftFile();
+    bool                createWellPathIdxToRftFileIdxMapping();
+    size_t              rftFileIndex(size_t wellPathIndex);
+    std::vector<size_t> sortedIndicesInRftFile();
 
-    std::vector<double>  xValues();
-    std::vector<double>  tvDepthValues();
-    std::vector<double>  measuredDepthValues();
+    std::vector<double> xValues();
+    std::vector<double> tvDepthValues();
+    std::vector<double> measuredDepthValues();
     std::vector<double> interpolatedMeasuredDepthValuesFromWellPathOrObservedData(const std::vector<double>& tvDepthValues);
 
 private:
@@ -112,5 +112,4 @@ private:
     bool                                                                     m_isUsingPseudoLength;
     bool                                                                     m_derivingMDFromObservedData;
     caf::PdmField<caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>> m_wellLogChannelName;
-
 };

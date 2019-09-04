@@ -22,8 +22,8 @@
 #include "RiaDefines.h"
 
 #include "RiaGrpcCallbacks.h"
-#include "RiaGrpcServiceInterface.h"
 #include "RiaGrpcCaseService.h"
+#include "RiaGrpcServiceInterface.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigMainGrid.h"
@@ -56,13 +56,13 @@ class RiaGrpcServerImpl
 public:
     RiaGrpcServerImpl(int portNumber);
     ~RiaGrpcServerImpl();
-    int portNumber() const;
-    bool isRunning() const;
-    void run();
-    void runInThread();
-    void initialize();
+    int    portNumber() const;
+    bool   isRunning() const;
+    void   run();
+    void   runInThread();
+    void   initialize();
     size_t processAllQueuedRequests();
-    void quit();
+    void   quit();
 
 private:
     void waitForNextRequest();
@@ -73,7 +73,7 @@ private:
     std::unique_ptr<grpc::ServerCompletionQueue>        m_completionQueue;
     std::unique_ptr<grpc::Server>                       m_server;
     std::list<std::shared_ptr<RiaGrpcServiceInterface>> m_services;
-    std::list<RiaGrpcCallbackInterface*>                 m_unprocessedRequests;
+    std::list<RiaGrpcCallbackInterface*>                m_unprocessedRequests;
     std::mutex                                          m_requestMutex;
     std::thread                                         m_thread;
 };
@@ -83,7 +83,8 @@ private:
 //--------------------------------------------------------------------------------------------------
 RiaGrpcServerImpl::RiaGrpcServerImpl(int portNumber)
     : m_portNumber(portNumber)
-{}
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -134,8 +135,8 @@ void RiaGrpcServerImpl::runInThread()
 ///
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServerImpl::initialize()
-{   
-    CAF_ASSERT(m_portNumber > 0 && m_portNumber <= (int) std::numeric_limits<quint16>::max());
+{
+    CAF_ASSERT(m_portNumber > 0 && m_portNumber <= (int)std::numeric_limits<quint16>::max());
 
     QString serverAddress = QString("localhost:%1").arg(m_portNumber);
 
@@ -150,11 +151,11 @@ void RiaGrpcServerImpl::initialize()
     }
 
     m_completionQueue = builder.AddCompletionQueue();
-    m_server = builder.BuildAndStart();
+    m_server          = builder.BuildAndStart();
 
     CVF_ASSERT(m_server);
     RiaLogging::info(QString("Server listening on %1").arg(serverAddress));
-    
+
     // Spawn new CallData instances to serve new clients.
     for (auto service : m_services)
     {
@@ -233,7 +234,7 @@ void RiaGrpcServerImpl::waitForNextRequest()
     while (m_completionQueue->Next(&tag, &ok))
     {
         std::lock_guard<std::mutex> requestLock(m_requestMutex);
-        RiaGrpcCallbackInterface* method = static_cast<RiaGrpcCallbackInterface*>(tag);
+        RiaGrpcCallbackInterface*   method = static_cast<RiaGrpcCallbackInterface*>(tag);
         if (!ok)
         {
             method->setNextCallState(RiaGrpcCallbackInterface::FINISH_REQUEST);
@@ -263,7 +264,7 @@ void RiaGrpcServerImpl::process(RiaGrpcCallbackInterface* method)
     }
     else if (method->callState() == RiaGrpcCallbackInterface::PROCESS_REQUEST)
     {
-        method->onProcessRequest();       
+        method->onProcessRequest();
     }
     else
     {
@@ -272,7 +273,6 @@ void RiaGrpcServerImpl::process(RiaGrpcCallbackInterface* method)
         delete method;
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -352,8 +352,7 @@ size_t RiaGrpcServer::processAllQueuedRequests()
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServer::quit()
 {
-    if (m_serverImpl)
-        m_serverImpl->quit();
+    if (m_serverImpl) m_serverImpl->quit();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -381,7 +380,6 @@ int RiaGrpcServer::findAvailablePortNumber(int defaultPortNumber)
     }
     return -1;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///

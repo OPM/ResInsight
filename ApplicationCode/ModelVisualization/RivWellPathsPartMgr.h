@@ -58,7 +58,6 @@ public:
                                           double                            characteristicCellSize,
                                           const cvf::BoundingBox&           wellPathClipBoundingBox);
 
-
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model,
                                            size_t                            timeStepIndex,
                                            const caf::DisplayCoordTransform* displayCoordTransform,
@@ -68,10 +67,10 @@ public:
     void appendStaticFracturePartsToModel(cvf::ModelBasicList* model, const cvf::BoundingBox& wellPathClipBoundingBox);
 
 private:
-    void                   clearGeometryCache();
-    void                   scheduleGeometryRegen();
-    void                   createPartManagersIfRequired();
-    bool                   isWellPathVisible() const;
+    void clearGeometryCache();
+    void scheduleGeometryRegen();
+    void createPartManagersIfRequired();
+    bool isWellPathVisible() const;
 
 private:
     caf::PdmPointer<Rim3dView>                  m_rimView;

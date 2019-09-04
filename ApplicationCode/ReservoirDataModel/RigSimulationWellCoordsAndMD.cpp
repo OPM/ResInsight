@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,16 +22,16 @@
 #include "cvfMath.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigSimulationWellCoordsAndMD::RigSimulationWellCoordsAndMD(const std::vector<cvf::Vec3d>& wellPathPoints)
-: m_wellPathPoints(wellPathPoints)
+    : m_wellPathPoints(wellPathPoints)
 {
     computeMeasuredDepths();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<cvf::Vec3d>& RigSimulationWellCoordsAndMD::wellPathPoints() const
 {
@@ -39,7 +39,7 @@ const std::vector<cvf::Vec3d>& RigSimulationWellCoordsAndMD::wellPathPoints() co
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>& RigSimulationWellCoordsAndMD::measuredDepths() const
 {
@@ -47,7 +47,7 @@ const std::vector<double>& RigSimulationWellCoordsAndMD::measuredDepths() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigSimulationWellCoordsAndMD::interpolatedPointAlongWellPath(double measuredDepth) const
 {
@@ -63,20 +63,20 @@ cvf::Vec3d RigSimulationWellCoordsAndMD::interpolatedPointAlongWellPath(double m
     {
         if (i == 0)
         {
-            //For measuredDepth same or lower than first point, use this first point
+            // For measuredDepth same or lower than first point, use this first point
             wellPathPoint = m_wellPathPoints.at(0);
         }
         else
         {
-            //Do interpolation
-            double stepsize = (measuredDepth - m_measuredDepths.at(i - 1)) /
-                (m_measuredDepths.at(i) - m_measuredDepths.at(i - 1));
+            // Do interpolation
+            double stepsize =
+                (measuredDepth - m_measuredDepths.at(i - 1)) / (m_measuredDepths.at(i) - m_measuredDepths.at(i - 1));
             wellPathPoint = m_wellPathPoints.at(i - 1) + stepsize * (m_wellPathPoints.at(i) - m_wellPathPoints.at(i - 1));
         }
     }
     else
     {
-        //Use endpoint if measuredDepth same or higher than last point
+        // Use endpoint if measuredDepth same or higher than last point
         wellPathPoint = m_wellPathPoints.at(i - 1);
     }
 
@@ -84,12 +84,12 @@ cvf::Vec3d RigSimulationWellCoordsAndMD::interpolatedPointAlongWellPath(double m
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigSimulationWellCoordsAndMD::locationAlongWellCoords(const cvf::Vec3d& position) const
 {
     double location = 0.0;
-    
+
     size_t closestIndex = findClosestIndex(position);
 
     if (closestIndex != cvf::UNDEFINED_SIZE_T)
@@ -101,18 +101,18 @@ double RigSimulationWellCoordsAndMD::locationAlongWellCoords(const cvf::Vec3d& p
         cvf::GeometryTools::projectPointOnLine(p1, p2, position, &intersection);
 
         location = m_measuredDepths[closestIndex - 1];
-        location += intersection * (p1-p2).length();
+        location += intersection * (p1 - p2).length();
     }
 
     return location;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RigSimulationWellCoordsAndMD::findClosestIndex(const cvf::Vec3d& position) const
 {
-    size_t closestIndex = cvf::UNDEFINED_SIZE_T;
+    size_t closestIndex    = cvf::UNDEFINED_SIZE_T;
     double closestDistance = cvf::UNDEFINED_DOUBLE;
 
     for (size_t i = 1; i < m_wellPathPoints.size(); i++)
@@ -124,20 +124,20 @@ size_t RigSimulationWellCoordsAndMD::findClosestIndex(const cvf::Vec3d& position
         if (candidateDistance < closestDistance)
         {
             closestDistance = candidateDistance;
-            closestIndex = i;
+            closestIndex    = i;
         }
     }
     return closestIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigSimulationWellCoordsAndMD::simWellAzimuthAngle(const cvf::Vec3d& position) const
 {
     size_t closestIndex = findClosestIndex(position);
 
-     //For vertical well (x-component of direction = 0) returned angle will be 90. 
+    // For vertical well (x-component of direction = 0) returned angle will be 90.
     double azimuthAngle = 90.0;
 
     if (closestIndex != cvf::UNDEFINED_DOUBLE)
@@ -158,20 +158,19 @@ double RigSimulationWellCoordsAndMD::simWellAzimuthAngle(const cvf::Vec3d& posit
 
         cvf::Vec3d direction = p2 - p1;
 
-
         if (fabs(direction.y()) > 1e-5)
-         {
-             double atanValue = direction.x() / direction.y();
-             azimuthAngle = atan(atanValue);
-             azimuthAngle = cvf::Math::toDegrees(azimuthAngle);
-         }
-     }
+        {
+            double atanValue = direction.x() / direction.y();
+            azimuthAngle     = atan(atanValue);
+            azimuthAngle     = cvf::Math::toDegrees(azimuthAngle);
+        }
+    }
 
     return azimuthAngle;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigSimulationWellCoordsAndMD::simWellDipAngle(const cvf::Vec3d& position) const
 {
@@ -198,22 +197,21 @@ double RigSimulationWellCoordsAndMD::simWellDipAngle(const cvf::Vec3d& position)
         cvf::Vec3d direction = p1 - p2;
 
         double horizonal = sqrt(pow(direction.x(), 2) + pow(direction.y(), 2));
-        double vertical = direction.z();
+        double vertical  = direction.z();
 
         if (fabs(vertical) > 1e-5)
         {
-            double atanValue =  vertical / horizonal;
-            dipAngle = atan(atanValue);
-            dipAngle = cvf::Math::toDegrees(dipAngle);
+            double atanValue = vertical / horizonal;
+            dipAngle         = atan(atanValue);
+            dipAngle         = cvf::Math::toDegrees(dipAngle);
         }
     }
 
     return dipAngle;
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigSimulationWellCoordsAndMD::computeMeasuredDepths()
 {

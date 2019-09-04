@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -39,35 +39,31 @@
 #include "qwt_date.h"
 #include "qwt_plot.h"
 
-
 CAF_PDM_SOURCE_INIT(RimAsciiDataCurve, "AsciiDataCurve");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimAsciiDataCurve::RimAsciiDataCurve()
 {
     CAF_PDM_InitObject("ASCII Data Curve", ":/SummaryCurve16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_plotAxis,  "PlotAxis",  "Axis", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_plotAxis, "PlotAxis", "Axis", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_timeSteps, "TimeSteps", "Time Steps", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_values,    "Values",    "Values", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_title,     "Title",     "Title", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_values, "Values", "Values", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_title, "Title", "Title", "", "", "");
 
     m_symbolSkipPixelDistance = 10.0f;
-    m_curveThickness = 2;
+    m_curveThickness          = 2;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimAsciiDataCurve::~RimAsciiDataCurve()
-{
-}
-
+RimAsciiDataCurve::~RimAsciiDataCurve() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimAsciiDataCurve::yValues() const
 {
@@ -75,7 +71,7 @@ std::vector<double> RimAsciiDataCurve::yValues() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RimAsciiDataCurve::timeSteps() const
 {
@@ -91,7 +87,7 @@ const std::vector<time_t>& RimAsciiDataCurve::timeSteps() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::setYAxis(RiaDefines::PlotAxis plotAxis)
 {
@@ -99,7 +95,7 @@ void RimAsciiDataCurve::setYAxis(RiaDefines::PlotAxis plotAxis)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiaDefines::PlotAxis RimAsciiDataCurve::yAxis() const
 {
@@ -107,7 +103,7 @@ RiaDefines::PlotAxis RimAsciiDataCurve::yAxis() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimAsciiDataCurve::createCurveAutoName()
 {
@@ -115,18 +111,18 @@ QString RimAsciiDataCurve::createCurveAutoName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::updateZoomInParentPlot()
 {
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfType(plot);
 
-    plot->updateZoomInQwt(); 
+    plot->updateZoomInQwt();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
@@ -135,7 +131,7 @@ void RimAsciiDataCurve::onLoadDataAndUpdate(bool updateParentPlot)
     if (isCurveVisible())
     {
         std::vector<time_t> dateTimes = this->timeSteps();
-        std::vector<double> values = this->yValues();
+        std::vector<double> values    = this->yValues();
 
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfType(plot);
@@ -149,21 +145,20 @@ void RimAsciiDataCurve::onLoadDataAndUpdate(bool updateParentPlot)
             }
             else
             {
-                double timeScale  = plot->timeAxisProperties()->fromTimeTToDisplayUnitScale();
+                double timeScale = plot->timeAxisProperties()->fromTimeTToDisplayUnitScale();
 
                 std::vector<double> times;
-                if ( dateTimes.size() )
+                if (dateTimes.size())
                 {
                     time_t startDate = dateTimes[0];
-                    for ( time_t& date: dateTimes )
+                    for (time_t& date : dateTimes)
                     {
-                        times.push_back(timeScale*(date - startDate));
+                        times.push_back(timeScale * (date - startDate));
                     }
                 }
 
                 m_qwtPlotCurve->setSamplesFromXValuesAndYValues(times, values, isLogCurve);
             }
-           
         }
         else
         {
@@ -179,7 +174,7 @@ void RimAsciiDataCurve::onLoadDataAndUpdate(bool updateParentPlot)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -199,7 +194,7 @@ void RimAsciiDataCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::updateQwtPlotAxis()
 {
@@ -217,7 +212,7 @@ void RimAsciiDataCurve::updateQwtPlotAxis()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::setTimeSteps(const std::vector<QDateTime>& timeSteps)
 {
@@ -225,7 +220,7 @@ void RimAsciiDataCurve::setTimeSteps(const std::vector<QDateTime>& timeSteps)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::setValues(const std::vector<double>& values)
 {
@@ -233,7 +228,7 @@ void RimAsciiDataCurve::setValues(const std::vector<double>& values)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::setTitle(const QString& title)
 {
@@ -241,22 +236,24 @@ void RimAsciiDataCurve::setTitle(const QString& title)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimAsciiDataCurve::curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values) const
 {
     CVF_ASSERT(timeSteps && values);
 
     *timeSteps = m_timeSteps();
-    *values = m_values();
+    *values    = m_values();
 
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimAsciiDataCurve::fieldChangedByUi(const caf::PdmFieldHandle * changedField, const QVariant & oldValue, const QVariant & newValue)
+void RimAsciiDataCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                         const QVariant&            oldValue,
+                                         const QVariant&            newValue)
 {
     RimPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
 
@@ -273,4 +270,3 @@ void RimAsciiDataCurve::fieldChangedByUi(const caf::PdmFieldHandle * changedFiel
         plot->updateAxes();
     }
 }
-

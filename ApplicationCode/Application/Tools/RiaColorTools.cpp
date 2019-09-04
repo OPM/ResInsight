@@ -99,7 +99,6 @@ cvf::Color3f RiaColorTools::brightContrastColorSofter()
     return cvf::Color3f::fromByteColor(200, 200, 200);
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -107,12 +106,10 @@ cvf::Color3f RiaColorTools::contrastColor(cvf::Color3f backgroundColor, bool sof
 {
     if (isBrightnessAboveThreshold(backgroundColor))
     {
-        if (softerContrast)
-            return darkContrastColorSofter();
+        if (softerContrast) return darkContrastColorSofter();
         return darkContrastColor();
     }
-    if (softerContrast)
-        return brightContrastColorSofter();
+    if (softerContrast) return brightContrastColorSofter();
     return brightContrastColor();
 }
 
@@ -153,8 +150,8 @@ cvf::Color3f RiaColorTools::blendCvfColors(const cvf::Color3f& color1,
     CVF_ASSERT(weight1 > 0 && weight2 > 0);
     int weightsum = weight1 + weight2;
     return cvf::Color3f((color1.r() * weight1 + color2.r() * weight2) / weightsum,
-                  (color1.g() * weight1 + color2.g() * weight2) / weightsum,
-                  (color1.b() * weight1 + color2.b() * weight2) / weightsum);
+                        (color1.g() * weight1 + color2.g() * weight2) / weightsum,
+                        (color1.b() * weight1 + color2.b() * weight2) / weightsum);
 }
 
 //--------------------------------------------------------------------------------------------------

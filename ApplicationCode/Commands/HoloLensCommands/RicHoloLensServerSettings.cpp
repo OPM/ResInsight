@@ -18,7 +18,6 @@
 
 #include "RicHoloLensServerSettings.h"
 
-
 CAF_PDM_SOURCE_INIT(RicHoloLensServerSettings, "RicHoloLensServerSettings");
 
 //--------------------------------------------------------------------------------------------------
@@ -32,10 +31,9 @@ RicHoloLensServerSettings::RicHoloLensServerSettings()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicHoloLensServerSettings::serverUrl() const
 {
     return m_serverAddress;
 }
-

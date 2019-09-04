@@ -3,21 +3,20 @@
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 
 #include "RivPipeGeometryGenerator.h"
 
@@ -30,27 +29,24 @@
 #include "cvfRay.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RivPipeGeometryGenerator::RivPipeGeometryGenerator()
 {
-    m_radius = 1.0;
-    m_crossSectionNodeCount = 8;
-    m_minimumBendAngle = 80.0;
-    m_bendScalingFactor = 0.00001;
+    m_radius                   = 1.0;
+    m_crossSectionNodeCount    = 8;
+    m_minimumBendAngle         = 80.0;
+    m_bendScalingFactor        = 0.00001;
     m_firstVisibleSegmentIndex = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RivPipeGeometryGenerator::~RivPipeGeometryGenerator()
-{
-
-}
+RivPipeGeometryGenerator::~RivPipeGeometryGenerator() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivPipeGeometryGenerator::setPipeCenterCoords(const cvf::Vec3dArray* coords)
 {
@@ -60,7 +56,7 @@ void RivPipeGeometryGenerator::setPipeCenterCoords(const cvf::Vec3dArray* coords
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivPipeGeometryGenerator::setRadius(double radius)
 {
@@ -71,18 +67,18 @@ void RivPipeGeometryGenerator::setRadius(double radius)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivPipeGeometryGenerator::setCrossSectionVertexCount(size_t nodeCount)
 {
-    CVF_ASSERT( 2 < nodeCount && nodeCount < 1000000);
+    CVF_ASSERT(2 < nodeCount && nodeCount < 1000000);
     m_crossSectionNodeCount = nodeCount;
 
     clearComputedData();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::createPipeSurface()
 {
@@ -99,7 +95,7 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::createPipeSurface()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::createCenterLine()
 {
@@ -107,9 +103,11 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::createCenterLine()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivPipeGeometryGenerator::pipeSurfaceTextureCoords(cvf::Vec2fArray* textureCoords, const std::vector<double>& segmentResults, const cvf::ScalarMapper* mapper) const
+void RivPipeGeometryGenerator::pipeSurfaceTextureCoords(cvf::Vec2fArray*           textureCoords,
+                                                        const std::vector<double>& segmentResults,
+                                                        const cvf::ScalarMapper*   mapper) const
 {
     CVF_ASSERT(textureCoords);
     CVF_ASSERT(mapper);
@@ -136,9 +134,11 @@ void RivPipeGeometryGenerator::pipeSurfaceTextureCoords(cvf::Vec2fArray* texture
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivPipeGeometryGenerator::centerlineTextureCoords(cvf::Vec2fArray* textureCoords, const std::vector<double>& segmentResults, const cvf::ScalarMapper* mapper) const
+void RivPipeGeometryGenerator::centerlineTextureCoords(cvf::Vec2fArray*           textureCoords,
+                                                       const std::vector<double>& segmentResults,
+                                                       const cvf::ScalarMapper*   mapper) const
 {
     CVF_ASSERT(textureCoords);
     CVF_ASSERT(mapper);
@@ -149,7 +149,7 @@ void RivPipeGeometryGenerator::centerlineTextureCoords(cvf::Vec2fArray* textureC
 
     for (size_t vxIdx = 0; vxIdx < vertexCount; ++vxIdx)
     {
-        cvf::Vec2f texCoord = mapper->mapToTextureCoord(segmentResults[vxIdx/2]);
+        cvf::Vec2f texCoord = mapper->mapToTextureCoord(segmentResults[vxIdx / 2]);
         textureCoords->set(vxIdx, texCoord);
     }
 }
@@ -157,7 +157,12 @@ void RivPipeGeometryGenerator::centerlineTextureCoords(cvf::Vec2fArray* textureC
 //--------------------------------------------------------------------------------------------------
 /// The circle points are generated in positive direction with circle normal pointing along yDir ^ zDir
 //--------------------------------------------------------------------------------------------------
-void RivPipeGeometryGenerator::computeCircle(double radius, size_t tesselationCount, const cvf::Vec3d& center, const cvf::Vec3d& yDirection, const cvf::Vec3d& zDirection, std::vector<cvf::Vec3d>* nodes)
+void RivPipeGeometryGenerator::computeCircle(double                   radius,
+                                             size_t                   tesselationCount,
+                                             const cvf::Vec3d&        center,
+                                             const cvf::Vec3d&        yDirection,
+                                             const cvf::Vec3d&        zDirection,
+                                             std::vector<cvf::Vec3d>* nodes)
 {
     cvf::Vec3d normal;
     cvf::Vec3d expandedCoord;
@@ -173,14 +178,15 @@ void RivPipeGeometryGenerator::computeCircle(double radius, size_t tesselationCo
         double fLocalNormCoordZ = cvf::Math::sin(angle);
 
         // Compute normal (vector going from center to the point on the circle)
-        // Do it this way and we can use this normal directly as long as both input orientation vectors are normalized (which they should be)
+        // Do it this way and we can use this normal directly as long as both input orientation vectors are normalized (which they
+        // should be)
 
-        normal = yDirection*fLocalNormCoordY + zDirection*fLocalNormCoordZ;
+        normal = yDirection * fLocalNormCoordY + zDirection * fLocalNormCoordZ;
         normal.normalize();
 
         // get the global expanded coord by scaling by radius
 
-        expandedCoord = center + radius*normal;
+        expandedCoord = center + radius * normal;
         nodes->push_back(expandedCoord);
 
         angle += delta;
@@ -188,13 +194,13 @@ void RivPipeGeometryGenerator::computeCircle(double radius, size_t tesselationCo
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateLine(const cvf::Vec3dArray* coords)
 {
     CVF_ASSERT(coords != nullptr);
 
-    if (coords->size() < 2 ) return nullptr;
+    if (coords->size() < 2) return nullptr;
 
     size_t duplicateVertexCount = 2 * (coords->size() - 1);
 
@@ -209,11 +215,11 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateLine(const cvf::Vec
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
 
-    // Convert double data to float data before sending them to ceeViz. 
+    // Convert double data to float data before sending them to ceeViz.
     // Sigh ....
     cvf::ref<cvf::Vec3fArray> floatCoords = new cvf::Vec3fArray;
     floatCoords->resize(duplicateVertexCount);
-    
+
     (*floatCoords)[0] = cvf::Vec3f((*coords)[0]);
 
     for (i = 1; i < coords->size() - 1; ++i)
@@ -235,9 +241,11 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateLine(const cvf::Vec
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder(double radius, size_t crossSectionNodeCount, const cvf::Vec3dArray* cylinderCenterCoords)
+cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder(double                 radius,
+                                                                              size_t                 crossSectionNodeCount,
+                                                                              const cvf::Vec3dArray* cylinderCenterCoords)
 {
     CVF_ASSERT(cylinderCenterCoords != nullptr);
 
@@ -266,21 +274,20 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder(do
         crossSectionVertices.push_back(cvf::Vec3f(extrudedNodes[i]));
     }
 
-
     // Calculate first valid pipe direction, to be able to handle centerNodes in the same place
 
-    cvf::Vec3d lastValidPipeDirection(0,0,-1);
+    cvf::Vec3d lastValidPipeDirection(0, 0, -1);
     for (i = 0; i < cylinderCenterCoords->size() - 1; i++)
     {
-        cvf::Vec3d candidateDir = (*cylinderCenterCoords)[i] - (*cylinderCenterCoords)[i+1];
-        if (candidateDir.normalize()) 
+        cvf::Vec3d candidateDir = (*cylinderCenterCoords)[i] - (*cylinderCenterCoords)[i + 1];
+        if (candidateDir.normalize())
         {
             lastValidPipeDirection = candidateDir;
             break;
         }
     }
 
-    if (i >= cylinderCenterCoords->size()-1) return nullptr; // The pipe coordinates is all the same point
+    if (i >= cylinderCenterCoords->size() - 1) return nullptr; // The pipe coordinates is all the same point
 
     // Loop along the cylinder center coords and calculate the cross section vertexes in each center vertex
 
@@ -288,15 +295,15 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder(do
     {
         size_t nextCcIdx = ccIdx + 1;
 
-        // Calculate this and next pipe direction, and intersection plane 
+        // Calculate this and next pipe direction, and intersection plane
 
-        cvf::Vec3d firstCoord = (*cylinderCenterCoords)[ccIdx];
+        cvf::Vec3d firstCoord  = (*cylinderCenterCoords)[ccIdx];
         cvf::Vec3d secondCoord = (*cylinderCenterCoords)[nextCcIdx];
 
         cvf::Vec3d candidateDir = secondCoord - firstCoord;
         if (!candidateDir.normalize())
         {
-            candidateDir = lastValidPipeDirection;    
+            candidateDir = lastValidPipeDirection;
         }
         else
         {
@@ -307,7 +314,7 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder(do
         if (nextCcIdx + 1 < cylinderCenterCoords->size())
         {
             cvf::Vec3d thirdCoord = (*cylinderCenterCoords)[nextCcIdx + 1];
-            nextDir = thirdCoord - secondCoord;
+            nextDir               = thirdCoord - secondCoord;
         }
 
         // If the next vector is too small, just assume the pipe is heading straight on
@@ -317,11 +324,18 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder(do
 
         if (intersectionPlaneNormal.lengthSquared() < 1e-10) // candidateDir == -nextDir => 180 deg turn
         {
-            CVF_ASSERT(false); // This is never supposed to happen due to what's done in updateFilteredPipeCenterCoords(). So look there for the bug... 
-            intersectionPlaneNormal = nextDir; 
+            CVF_ASSERT(false); // This is never supposed to happen due to what's done in updateFilteredPipeCenterCoords(). So look
+                               // there for the bug...
+            intersectionPlaneNormal = nextDir;
         }
 
-        computeExtrudedCoordsAndNormals(secondCoord, intersectionPlaneNormal, candidateDir, crossSectionNodeCount, &extrudedNodes, &crossSectionVertices, &cylinderSegmentNormals);
+        computeExtrudedCoordsAndNormals(secondCoord,
+                                        intersectionPlaneNormal,
+                                        candidateDir,
+                                        crossSectionNodeCount,
+                                        &extrudedNodes,
+                                        &crossSectionVertices,
+                                        &cylinderSegmentNormals);
     }
 
     size_t crossSectionCount = crossSectionVertices.size() / crossSectionNodeCount;
@@ -331,7 +345,7 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder(do
     CVF_ASSERT(crossSectionVertices.size() - crossSectionNodeCount == cylinderSegmentNormals.size());
 
     size_t segmentCount = crossSectionCount - 1;
-    size_t vertexCount = segmentCount * crossSectionNodeCount * 4;
+    size_t vertexCount  = segmentCount * crossSectionNodeCount * 4;
 
     cvf::ref<cvf::Vec3fArray> quadVertexArray = new cvf::Vec3fArray();
     quadVertexArray->reserve(vertexCount);
@@ -344,27 +358,27 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder(do
     {
         for (size_t nodeIdx = 0; nodeIdx < crossSectionNodeCount - 1; nodeIdx++)
         {
-            quadVertexArray->add(crossSectionVertices[( (segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 0]);
-            quadVertexArray->add(crossSectionVertices[( (segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 1]);
-            quadVertexArray->add(crossSectionVertices[( (segmentIdx + 1) * crossSectionNodeCount) + nodeIdx + 1]);
-            quadVertexArray->add(crossSectionVertices[( (segmentIdx + 1) * crossSectionNodeCount) + nodeIdx + 0]);
+            quadVertexArray->add(crossSectionVertices[((segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 0]);
+            quadVertexArray->add(crossSectionVertices[((segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 1]);
+            quadVertexArray->add(crossSectionVertices[((segmentIdx + 1) * crossSectionNodeCount) + nodeIdx + 1]);
+            quadVertexArray->add(crossSectionVertices[((segmentIdx + 1) * crossSectionNodeCount) + nodeIdx + 0]);
 
-            quadNormalArray->add(cylinderSegmentNormals[( (segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 0]);
-            quadNormalArray->add(cylinderSegmentNormals[( (segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 1]);
-            quadNormalArray->add(cylinderSegmentNormals[( (segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 1]);
-            quadNormalArray->add(cylinderSegmentNormals[( (segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 0]);
+            quadNormalArray->add(cylinderSegmentNormals[((segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 0]);
+            quadNormalArray->add(cylinderSegmentNormals[((segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 1]);
+            quadNormalArray->add(cylinderSegmentNormals[((segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 1]);
+            quadNormalArray->add(cylinderSegmentNormals[((segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 0]);
         }
 
         // Last quad closing the cylinder
-        quadVertexArray->add(crossSectionVertices[( (segmentIdx + 0) * crossSectionNodeCount) + crossSectionNodeCount - 1]);
-        quadVertexArray->add(crossSectionVertices[( (segmentIdx + 0) * crossSectionNodeCount) + 0]);
-        quadVertexArray->add(crossSectionVertices[( (segmentIdx + 1) * crossSectionNodeCount) + 0]);
-        quadVertexArray->add(crossSectionVertices[( (segmentIdx + 1) * crossSectionNodeCount) + crossSectionNodeCount - 1]);
+        quadVertexArray->add(crossSectionVertices[((segmentIdx + 0) * crossSectionNodeCount) + crossSectionNodeCount - 1]);
+        quadVertexArray->add(crossSectionVertices[((segmentIdx + 0) * crossSectionNodeCount) + 0]);
+        quadVertexArray->add(crossSectionVertices[((segmentIdx + 1) * crossSectionNodeCount) + 0]);
+        quadVertexArray->add(crossSectionVertices[((segmentIdx + 1) * crossSectionNodeCount) + crossSectionNodeCount - 1]);
 
-        quadNormalArray->add(cylinderSegmentNormals[( (segmentIdx + 0) * crossSectionNodeCount) + crossSectionNodeCount - 1]);
-        quadNormalArray->add(cylinderSegmentNormals[( (segmentIdx + 0) * crossSectionNodeCount) + 0]);
-        quadNormalArray->add(cylinderSegmentNormals[( (segmentIdx + 0) * crossSectionNodeCount) + 0]);
-        quadNormalArray->add(cylinderSegmentNormals[( (segmentIdx + 0) * crossSectionNodeCount) + crossSectionNodeCount - 1]);
+        quadNormalArray->add(cylinderSegmentNormals[((segmentIdx + 0) * crossSectionNodeCount) + crossSectionNodeCount - 1]);
+        quadNormalArray->add(cylinderSegmentNormals[((segmentIdx + 0) * crossSectionNodeCount) + 0]);
+        quadNormalArray->add(cylinderSegmentNormals[((segmentIdx + 0) * crossSectionNodeCount) + 0]);
+        quadNormalArray->add(cylinderSegmentNormals[((segmentIdx + 0) * crossSectionNodeCount) + crossSectionNodeCount - 1]);
     }
 
     CVF_ASSERT(vertexCount == quadVertexArray->size());
@@ -380,12 +394,12 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder(do
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateVariableRadiusTube(size_t                 crossSectionNodeCount,
-                                                                                const cvf::Vec3dArray* cylinderCenterCoords,
+cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateVariableRadiusTube(size_t                     crossSectionNodeCount,
+                                                                                const cvf::Vec3dArray*     cylinderCenterCoords,
                                                                                 const std::vector<double>& radii)
 {
     CVF_ASSERT(cylinderCenterCoords != nullptr);
-   
+
     // Calculate first valid pipe direction, to be able to handle centerNodes in the same place
     cvf::Vec3d lastValidPipeDirection = cvf::Vec3d::UNDEFINED;
     for (size_t i = 0; i < cylinderCenterCoords->size() - 1; i++)
@@ -425,8 +439,8 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateVariableRadiusTube(
     }
 
     // Loop along the cylinder center coords and calculate the cross section vertexes in each center vertex
-    
-    for (size_t ccIdx = 0; ccIdx < cylinderCenterCoords->size()-1; ccIdx++)
+
+    for (size_t ccIdx = 0; ccIdx < cylinderCenterCoords->size() - 1; ccIdx++)
     {
         size_t nextCcIdx = ccIdx + 1;
 
@@ -448,7 +462,8 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateVariableRadiusTube(
         orient2 = (nextDir ^ orient1).getNormalized();
 
         std::vector<cvf::Vec3d> extrudedNodes;
-        computeCircle(radii[nextCcIdx], crossSectionNodeCount, (*cylinderCenterCoords)[nextCcIdx], orient1, orient2, &extrudedNodes);
+        computeCircle(
+            radii[nextCcIdx], crossSectionNodeCount, (*cylinderCenterCoords)[nextCcIdx], orient1, orient2, &extrudedNodes);
 
         // Insert the next set of vertices and calculate normals for segment
         for (size_t i = 0; i < extrudedNodes.size(); i++)
@@ -481,12 +496,11 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateVariableRadiusTube(
                 nextNodeAlongCircle = cvf::Vec3f(lastExtrudedNodes.front());
             }
 
-            cvf::Vec3f circleDir = (nextNodeAlongCircle - lastNodeAlongCircle).getNormalized();
+            cvf::Vec3f circleDir     = (nextNodeAlongCircle - lastNodeAlongCircle).getNormalized();
             cvf::Vec3f segmentNormal = (wellDirectionDir ^ circleDir).getNormalized();
 
             crossSectionVertices.push_back(cvf::Vec3f(nextNodeAlongWellPath));
             cylinderSegmentNormals.push_back(segmentNormal);
-
         }
 
         lastExtrudedNodes = extrudedNodes;
@@ -546,15 +560,15 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateVariableRadiusTube(
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivPipeGeometryGenerator::computeExtrudedCoordsAndNormals( cvf::Vec3d intersectionCoord,
-                                                                cvf::Vec3d intersectionPlaneNormal,
-                                                                cvf::Vec3d segmentDirection,
-                                                                size_t crossSectionNodeCount,
-                                                                std::vector<cvf::Vec3d>* extrudedNodes,
-                                                                std::vector<cvf::Vec3f>* crossSectionVertices,
-                                                                std::vector<cvf::Vec3f>* cylinderSegmentNormals)
+void RivPipeGeometryGenerator::computeExtrudedCoordsAndNormals(cvf::Vec3d               intersectionCoord,
+                                                               cvf::Vec3d               intersectionPlaneNormal,
+                                                               cvf::Vec3d               segmentDirection,
+                                                               size_t                   crossSectionNodeCount,
+                                                               std::vector<cvf::Vec3d>* extrudedNodes,
+                                                               std::vector<cvf::Vec3f>* crossSectionVertices,
+                                                               std::vector<cvf::Vec3f>* cylinderSegmentNormals)
 {
     cvf::Plane intersectionPlane;
     intersectionPlane.setFromPointAndNormal(intersectionCoord, intersectionPlaneNormal);
@@ -591,7 +605,6 @@ void RivPipeGeometryGenerator::computeExtrudedCoordsAndNormals( cvf::Vec3d inter
         }
     }
 
-
     // Calculate the normals for the cylinder segment
 
     cvf::Plane cylinderPlane;
@@ -610,14 +623,14 @@ void RivPipeGeometryGenerator::computeExtrudedCoordsAndNormals( cvf::Vec3d inter
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
 {
     if (m_originalPipeCenterCoords->size() < 2) return;
     if (m_filteredPipeCenterCoords.size() > 0) return;
 
-    double squareDistanceTolerance = 1e-4*1e-4;
+    double squareDistanceTolerance = 1e-4 * 1e-4;
 
     const size_t lastOriginalCoordIdx = m_originalPipeCenterCoords->size() - 1;
 
@@ -631,7 +644,7 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
     m_filteredPipeSegmentToResult.push_back(firstSegmentWithLength);
 
     cvf::Vec3d lastValidDirectionAB;
-    size_t lastValidSegment = 0;
+    size_t     lastValidSegment = 0;
 
     // Go along the line, inserting bends, and skipping zero segments.
     // The zero segments are skipped by ignoring the _first_ coordinate(s) equal to the next ones
@@ -647,11 +660,11 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
         if (directionAB.lengthSquared() > squareDistanceTolerance)
         {
             lastValidDirectionAB = directionAB.getNormalized();
-            lastValidSegment = coordBIdx;
+            lastValidSegment     = coordBIdx;
         }
 
         // Wait to store a segment until we find an endpoint that is the start point of a valid segment
-         
+
         cvf::Vec3d directionBC = coordC - coordB;
         if (directionBC.lengthSquared() < squareDistanceTolerance)
         {
@@ -662,8 +675,8 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
         // Sharper angle detected, insert bending stuff
 
         double cosMinBendAngle = cvf::Math::cos(cvf::Math::toRadians(m_minimumBendAngle));
-        double dotProduct = lastValidDirectionAB * (-directionBC).getNormalized();
-        if (dotProduct > cosMinBendAngle) 
+        double dotProduct      = lastValidDirectionAB * (-directionBC).getNormalized();
+        if (dotProduct > cosMinBendAngle)
         {
             bool success = false;
 
@@ -679,8 +692,8 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
                 pipeIntermediateDirection.normalize();
             }
 
-            double bendRadius = m_bendScalingFactor * m_radius + 1.0e-30;
-            cvf::Vec3d firstIntermediate = coordB - pipeIntermediateDirection * bendRadius;
+            double     bendRadius         = m_bendScalingFactor * m_radius + 1.0e-30;
+            cvf::Vec3d firstIntermediate  = coordB - pipeIntermediateDirection * bendRadius;
             cvf::Vec3d secondIntermediate = coordB + pipeIntermediateDirection * bendRadius;
 
             m_filteredPipeCenterCoords.push_back(firstIntermediate);
@@ -699,24 +712,25 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
         }
     }
 
-    // Add the last point, as the above loop will not end the last none-zero segment, but wait for the start of the next valid one.
+    // Add the last point, as the above loop will not end the last none-zero segment, but wait for the start of the next valid
+    // one.
 
     m_filteredPipeCenterCoords.push_back(m_originalPipeCenterCoords->get(lastOriginalCoordIdx));
-   
+
     CVF_ASSERT(m_filteredPipeCenterCoords.size() - 1 == m_filteredPipeSegmentToResult.size());
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RivPipeGeometryGenerator::findFirstSegmentWithLength(double squareDistanceTolerance)
 {
     size_t segIdx;
-    for ( segIdx = 0; segIdx < m_originalPipeCenterCoords->size() - 1; segIdx++ )
+    for (segIdx = 0; segIdx < m_originalPipeCenterCoords->size() - 1; segIdx++)
     {
-        cvf::Vec3d candidateDir = (*m_originalPipeCenterCoords)[segIdx] - (*m_originalPipeCenterCoords)[segIdx+1];
-        double dirLengthSq = candidateDir.lengthSquared();
-        if ( dirLengthSq > squareDistanceTolerance && candidateDir.normalize() )
+        cvf::Vec3d candidateDir = (*m_originalPipeCenterCoords)[segIdx] - (*m_originalPipeCenterCoords)[segIdx + 1];
+        double     dirLengthSq  = candidateDir.lengthSquared();
+        if (dirLengthSq > squareDistanceTolerance && candidateDir.normalize())
         {
             return segIdx;
         }
@@ -726,7 +740,7 @@ size_t RivPipeGeometryGenerator::findFirstSegmentWithLength(double squareDistanc
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivPipeGeometryGenerator::clearComputedData()
 {
@@ -735,7 +749,7 @@ void RivPipeGeometryGenerator::clearComputedData()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RivPipeGeometryGenerator::segmentIndexFromTriangleIndex(size_t triangleIndex) const
 {
@@ -756,9 +770,12 @@ void RivPipeGeometryGenerator::setFirstVisibleSegmentIndex(size_t segmentIndex)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivPipeGeometryGenerator::cylinderWithCenterLineParts(cvf::Collection<cvf::Part>* destinationParts, const std::vector<cvf::Vec3d>& centerCoords, const cvf::Color3f& color, double radius)
+void RivPipeGeometryGenerator::cylinderWithCenterLineParts(cvf::Collection<cvf::Part>*    destinationParts,
+                                                           const std::vector<cvf::Vec3d>& centerCoords,
+                                                           const cvf::Color3f&            color,
+                                                           double                         radius)
 {
     setRadius(radius);
     setCrossSectionVertexCount(12);
@@ -773,7 +790,7 @@ void RivPipeGeometryGenerator::cylinderWithCenterLineParts(cvf::Collection<cvf::
         part->setDrawable(surfaceGeo.p());
 
         caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(color), caf::PO_1);
-        cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
+        cvf::ref<cvf::Effect>       eff = surfaceGen.generateCachedEffect();
 
         part->setEffect(eff.p());
 
@@ -787,7 +804,7 @@ void RivPipeGeometryGenerator::cylinderWithCenterLineParts(cvf::Collection<cvf::
         part->setDrawable(centerLineGeo.p());
 
         caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(color), caf::PO_1);
-        cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
+        cvf::ref<cvf::Effect>       eff = surfaceGen.generateCachedEffect();
 
         part->setEffect(eff.p());
 
@@ -837,4 +854,3 @@ void RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth(cvf::Coll
         destinationParts->push_back(part);
     }
 }
-

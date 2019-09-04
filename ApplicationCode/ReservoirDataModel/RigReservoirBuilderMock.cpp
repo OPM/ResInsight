@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,8 +21,8 @@
 #include "RigReservoirBuilderMock.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigEclipseCaseData.h"
 #include "RigCell.h"
+#include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
 
@@ -32,37 +32,40 @@
 #include <ctime>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigReservoirBuilderMock::RigReservoirBuilderMock()
 {
-    m_resultCount = 0;
-    m_timeStepCount = 0;
+    m_resultCount         = 0;
+    m_timeStepCount       = 0;
     m_gridPointDimensions = cvf::Vec3st::ZERO;
-    m_enableWellData = true;
+    m_enableWellData      = true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigReservoirBuilderMock::setGridPointDimensions(const cvf::Vec3st& gridPointDimensions)
 {
-    m_gridPointDimensions = gridPointDimensions;       
+    m_gridPointDimensions = gridPointDimensions;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigReservoirBuilderMock::setResultInfo(size_t resultCount, size_t timeStepCount)
 {
-    m_resultCount = resultCount;
+    m_resultCount   = resultCount;
     m_timeStepCount = timeStepCount;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::appendNodes(const cvf::Vec3d& min, const cvf::Vec3d& max, const cvf::Vec3st& cubeDimension, std::vector<cvf::Vec3d>& nodes)
+void RigReservoirBuilderMock::appendNodes(const cvf::Vec3d&        min,
+                                          const cvf::Vec3d&        max,
+                                          const cvf::Vec3st&       cubeDimension,
+                                          std::vector<cvf::Vec3d>& nodes)
 {
     double dx = (max.x() - min.x()) / static_cast<double>(cubeDimension.x());
     double dy = (max.y() - min.y()) / static_cast<double>(cubeDimension.y());
@@ -98,9 +101,8 @@ void RigReservoirBuilderMock::appendNodes(const cvf::Vec3d& min, const cvf::Vec3
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigReservoirBuilderMock::appendCubeNodes(const cvf::Vec3d& min, const cvf::Vec3d& max, std::vector<cvf::Vec3d>& nodes)
 {
@@ -112,13 +114,13 @@ void RigReservoirBuilderMock::appendCubeNodes(const cvf::Vec3d& min, const cvf::
     //  |  3------|--2     *---i        3 right    1, 2, 6, 5
     //  | /       | /                   4 back     3, 7, 6, 2
     //  |/        |/                    5 left     0, 4, 7, 3
-    //  0---------1                     
+    //  0---------1
 
     cvf::Vec3d v0(min.x(), min.y(), min.z());
     cvf::Vec3d v1(max.x(), min.y(), min.z());
     cvf::Vec3d v2(max.x(), max.y(), min.z());
     cvf::Vec3d v3(min.x(), max.y(), min.z());
-             
+
     cvf::Vec3d v4(min.x(), min.y(), max.z());
     cvf::Vec3d v5(max.x(), min.y(), max.z());
     cvf::Vec3d v6(max.x(), max.y(), max.z());
@@ -135,9 +137,12 @@ void RigReservoirBuilderMock::appendCubeNodes(const cvf::Vec3d& min, const cvf::
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCount, RigGridBase* hostGrid, std::vector<RigCell>& cells)
+void RigReservoirBuilderMock::appendCells(size_t                nodeStartIndex,
+                                          size_t                cellCount,
+                                          RigGridBase*          hostGrid,
+                                          std::vector<RigCell>& cells)
 {
     long long i;
 
@@ -166,7 +171,7 @@ void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCoun
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigReservoirBuilderMock::populateReservoir(RigEclipseCaseData* eclipseCase)
 {
@@ -209,22 +214,25 @@ void RigReservoirBuilderMock::populateReservoir(RigEclipseCaseData* eclipseCase)
         localGrid->setGridName("LGR_1");
         eclipseCase->mainGrid()->addLocalGrid(localGrid);
         localGrid->setParentGrid(eclipseCase->mainGrid());
-        
+
         localGrid->setIndexToStartOfCells(mainGridNodes.size() / 8);
         cvf::Vec3st gridPointDimensions(
-            lgr.m_singleCellRefinementFactors.x() * (lgr.m_mainGridMaxCellPosition.x() - lgr.m_mainGridMinCellPosition.x() + 1) + 1,
-            lgr.m_singleCellRefinementFactors.y() * (lgr.m_mainGridMaxCellPosition.y() - lgr.m_mainGridMinCellPosition.y() + 1) + 1,
-            lgr.m_singleCellRefinementFactors.z() * (lgr.m_mainGridMaxCellPosition.z() - lgr.m_mainGridMinCellPosition.z() + 1) + 1);
+            lgr.m_singleCellRefinementFactors.x() * (lgr.m_mainGridMaxCellPosition.x() - lgr.m_mainGridMinCellPosition.x() + 1) +
+                1,
+            lgr.m_singleCellRefinementFactors.y() * (lgr.m_mainGridMaxCellPosition.y() - lgr.m_mainGridMinCellPosition.y() + 1) +
+                1,
+            lgr.m_singleCellRefinementFactors.z() * (lgr.m_mainGridMaxCellPosition.z() - lgr.m_mainGridMinCellPosition.z() + 1) +
+                1);
         localGrid->setGridPointDimensions(gridPointDimensions);
 
         cvf::BoundingBox bb;
-        size_t cellIdx;
+        size_t           cellIdx;
         for (cellIdx = 0; cellIdx < mainGridIndicesWithSubGrid.size(); cellIdx++)
         {
             RigCell& cell = eclipseCase->mainGrid()->globalCellArray()[mainGridIndicesWithSubGrid[cellIdx]];
-            
+
             std::array<size_t, 8>& indices = cell.cornerIndices();
-            int nodeIdx;
+            int                    nodeIdx;
             for (nodeIdx = 0; nodeIdx < 8; nodeIdx++)
             {
                 bb.add(eclipseCase->mainGrid()->nodes()[indices[nodeIdx]]);
@@ -237,7 +245,7 @@ void RigReservoirBuilderMock::populateReservoir(RigEclipseCaseData* eclipseCase)
         appendNodes(bb.min(), bb.max(), lgrCellDimensions, mainGridNodes);
 
         size_t subGridCellCount = (mainGridNodes.size() / 8) - totalCellCount;
-        appendCells(totalCellCount*8, subGridCellCount, localGrid, eclipseCase->mainGrid()->globalCellArray());
+        appendCells(totalCellCount * 8, subGridCellCount, localGrid, eclipseCase->mainGrid()->globalCellArray());
         totalCellCount += subGridCellCount;
     }
 
@@ -263,26 +271,25 @@ void RigReservoirBuilderMock::populateReservoir(RigEclipseCaseData* eclipseCase)
     activeCellInfo->computeDerivedData();
 
     // Add grid coarsening for main grid
-    if (cellDimension().x() > 4 &&
-        cellDimension().y() > 5 &&
-        cellDimension().z() > 6)
+    if (cellDimension().x() > 4 && cellDimension().y() > 5 && cellDimension().z() > 6)
     {
         eclipseCase->mainGrid()->addCoarseningBox(1, 2, 1, 3, 1, 4);
         eclipseCase->mainGrid()->addCoarseningBox(3, 4, 4, 5, 5, 6);
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::addLocalGridRefinement(const cvf::Vec3st& mainGridStart, const cvf::Vec3st& mainGridEnd, const cvf::Vec3st& refinementFactors)
+void RigReservoirBuilderMock::addLocalGridRefinement(const cvf::Vec3st& mainGridStart,
+                                                     const cvf::Vec3st& mainGridEnd,
+                                                     const cvf::Vec3st& refinementFactors)
 {
     m_localGridRefinements.push_back(LocalGridRefinement(mainGridStart, mainGridEnd, refinementFactors));
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigReservoirBuilderMock::setWorldCoordinates(cvf::Vec3d minWorldCoordinate, cvf::Vec3d maxWorldCoordinate)
 {
@@ -290,16 +297,17 @@ void RigReservoirBuilderMock::setWorldCoordinates(cvf::Vec3d minWorldCoordinate,
     m_maxWorldCoordinate = maxWorldCoordinate;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirBuilderMock::inputProperty(RigEclipseCaseData* eclipseCase, const QString& propertyName, std::vector<double>* values)
+bool RigReservoirBuilderMock::inputProperty(RigEclipseCaseData*  eclipseCase,
+                                            const QString&       propertyName,
+                                            std::vector<double>* values)
 {
     size_t k;
 
     /* initialize random seed: */
-    srand ( time(nullptr) );
+    srand(time(nullptr));
 
     /* generate secret number: */
     int iSecret = rand() % 20 + 1;
@@ -313,7 +321,7 @@ bool RigReservoirBuilderMock::inputProperty(RigEclipseCaseData* eclipseCase, con
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RigReservoirBuilderMock::staticResult(RigEclipseCaseData* eclipseCase, const QString& result, std::vector<double>* values)
 {
@@ -329,20 +337,23 @@ bool RigReservoirBuilderMock::staticResult(RigEclipseCaseData* eclipseCase, cons
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirBuilderMock::dynamicResult(RigEclipseCaseData* eclipseCase, const QString& result, size_t stepIndex, std::vector<double>* values)
+bool RigReservoirBuilderMock::dynamicResult(RigEclipseCaseData*  eclipseCase,
+                                            const QString&       result,
+                                            size_t               stepIndex,
+                                            std::vector<double>* values)
 {
     int resultIndex = 1;
 
-    QRegExp rx("[0-9]{1,2}");   // Find number 0-99
-    int digitPos = rx.indexIn(result);
+    QRegExp rx("[0-9]{1,2}"); // Find number 0-99
+    int     digitPos = rx.indexIn(result);
     if (digitPos > -1)
     {
         resultIndex = rx.cap(0).toInt() + 1;
     }
 
-    double scaleValue = 1.0 + resultIndex * 0.1;
+    double scaleValue  = 1.0 + resultIndex * 0.1;
     double offsetValue = 100 * resultIndex;
 
     values->resize(eclipseCase->mainGrid()->globalCellArray().size());
@@ -350,7 +361,7 @@ bool RigReservoirBuilderMock::dynamicResult(RigEclipseCaseData* eclipseCase, con
 #pragma omp parallel for
     for (long long k = 0; k < static_cast<long long>(eclipseCase->mainGrid()->globalCellArray().size()); k++)
     {
-        double val = offsetValue + scaleValue * ( (stepIndex * 1000 + k) % eclipseCase->mainGrid()->globalCellArray().size() );
+        double val    = offsetValue + scaleValue * ((stepIndex * 1000 + k) % eclipseCase->mainGrid()->globalCellArray().size());
         values->at(k) = val;
     }
 
@@ -364,7 +375,7 @@ bool RigReservoirBuilderMock::dynamicResult(RigEclipseCaseData* eclipseCase, con
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigReservoirBuilderMock::addWellData(RigEclipseCaseData* eclipseCase, RigGridBase* grid)
 {
@@ -379,7 +390,7 @@ void RigReservoirBuilderMock::addWellData(RigEclipseCaseData* eclipseCase, RigGr
     for (wellIdx = 0; wellIdx < 1; wellIdx++)
     {
         cvf::ref<RigSimWellData> wellCellsTimeHistory = new RigSimWellData;
-        wellCellsTimeHistory->m_wellName = QString("Well %1").arg(wellIdx);
+        wellCellsTimeHistory->m_wellName              = QString("Well %1").arg(wellIdx);
 
         wellCellsTimeHistory->m_wellCellsTimeSteps.resize(m_timeStepCount);
 
@@ -389,13 +400,13 @@ void RigReservoirBuilderMock::addWellData(RigEclipseCaseData* eclipseCase, RigGr
             RigWellResultFrame& wellCells = wellCellsTimeHistory->m_wellCellsTimeSteps[timeIdx];
 
             wellCells.m_productionType = RigWellResultFrame::PRODUCER;
-            wellCells.m_isOpen = true;
+            wellCells.m_isOpen         = true;
 
-            wellCells.m_wellHead.m_gridIndex = 0;
+            wellCells.m_wellHead.m_gridIndex     = 0;
             wellCells.m_wellHead.m_gridCellIndex = grid->cellIndexFromIJK(1, 0, 0);
 
             // Connections
-//            int connectionCount = CVF_MIN(dim.x(), CVF_MIN(dim.y(), dim.z())) - 2;
+            //            int connectionCount = CVF_MIN(dim.x(), CVF_MIN(dim.y(), dim.z())) - 2;
             size_t connectionCount = dim.z() - 2;
             if (connectionCount > 0)
             {
@@ -406,16 +417,15 @@ void RigReservoirBuilderMock::addWellData(RigEclipseCaseData* eclipseCase, RigGr
                 size_t connIdx;
                 for (connIdx = 0; connIdx < connectionCount; connIdx++)
                 {
-                    if (connIdx == (size_t)(connectionCount/4)) continue;
+                    if (connIdx == (size_t)(connectionCount / 4)) continue;
 
                     RigWellResultPoint data;
                     data.m_gridIndex = 0;
 
-                    if (connIdx < dim.y()-2)
-                        data.m_gridCellIndex = grid->cellIndexFromIJK(1 , 1 + connIdx , 1 + connIdx);
+                    if (connIdx < dim.y() - 2)
+                        data.m_gridCellIndex = grid->cellIndexFromIJK(1, 1 + connIdx, 1 + connIdx);
                     else
-                        data.m_gridCellIndex = grid->cellIndexFromIJK(1 , dim.y()-2 , 1 + connIdx);
-                   
+                        data.m_gridCellIndex = grid->cellIndexFromIJK(1, dim.y() - 2, 1 + connIdx);
 
                     if (connIdx < connectionCount / 2)
                     {
@@ -426,19 +436,20 @@ void RigReservoirBuilderMock::addWellData(RigEclipseCaseData* eclipseCase, RigGr
                         data.m_isOpen = false;
                     }
 
-                    if (wellSegment.m_branchResultPoints.size() == 0 || wellSegment.m_branchResultPoints.back().m_gridCellIndex != data.m_gridCellIndex)
+                    if (wellSegment.m_branchResultPoints.size() == 0 ||
+                        wellSegment.m_branchResultPoints.back().m_gridCellIndex != data.m_gridCellIndex)
                     {
                         wellSegment.m_branchResultPoints.push_back(data);
 
-                        if (connIdx == connectionCount / 2 )
+                        if (connIdx == connectionCount / 2)
                         {
                             RigWellResultPoint deadEndData = data;
-                            deadEndData.m_gridCellIndex = data.m_gridCellIndex + 1;
-                            deadEndData.m_isOpen = true;
+                            deadEndData.m_gridCellIndex    = data.m_gridCellIndex + 1;
+                            deadEndData.m_isOpen           = true;
 
                             RigWellResultPoint deadEndData1 = data;
-                            deadEndData1.m_gridCellIndex = data.m_gridCellIndex + 2;
-                            deadEndData1.m_isOpen = false;
+                            deadEndData1.m_gridCellIndex    = data.m_gridCellIndex + 2;
+                            deadEndData1.m_isOpen           = false;
 
                             wellSegment.m_branchResultPoints.push_back(deadEndData);
                             wellSegment.m_branchResultPoints.push_back(deadEndData1);
@@ -450,11 +461,12 @@ void RigReservoirBuilderMock::addWellData(RigEclipseCaseData* eclipseCase, RigGr
                         }
                     }
 
-                    if (connIdx < dim.y()-2)
+                    if (connIdx < dim.y() - 2)
                     {
-                        data.m_gridCellIndex =  grid->cellIndexFromIJK(1 , 1 + connIdx , 2 + connIdx);
+                        data.m_gridCellIndex = grid->cellIndexFromIJK(1, 1 + connIdx, 2 + connIdx);
 
-                        if (wellSegment.m_branchResultPoints.size() == 0 || wellSegment.m_branchResultPoints.back().m_gridCellIndex != data.m_gridCellIndex)
+                        if (wellSegment.m_branchResultPoints.size() == 0 ||
+                            wellSegment.m_branchResultPoints.back().m_gridCellIndex != data.m_gridCellIndex)
                         {
                             wellSegment.m_branchResultPoints.push_back(data);
                         }
@@ -479,7 +491,7 @@ void RigReservoirBuilderMock::addWellData(RigEclipseCaseData* eclipseCase, RigGr
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigReservoirBuilderMock::addFaults(RigEclipseCaseData* eclipseCase)
 {
@@ -493,16 +505,16 @@ void RigReservoirBuilderMock::addFaults(RigEclipseCaseData* eclipseCase)
     {
         cvf::ref<RigFault> fault = new RigFault;
         fault->setName("Fault A");
-        
+
         cvf::Vec3st min = cvf::Vec3st::ZERO;
         cvf::Vec3st max(0, 0, cellDimension().z() - 2);
-        
+
         if (cellDimension().x() > 5)
         {
             min.x() = cellDimension().x() / 2;
             max.x() = min.x() + 2;
         }
-        
+
         if (cellDimension().y() > 5)
         {
             min.y() = cellDimension().y() / 2;
@@ -523,7 +535,7 @@ void RigReservoirBuilderMock::addFaults(RigEclipseCaseData* eclipseCase)
         size_t i1 = 2;
         size_t j1 = 2;
         size_t k1 = 3;
-        
+
         size_t i2 = 2;
         size_t j2 = 3;
         size_t k2 = 4;
@@ -548,11 +560,10 @@ void RigReservoirBuilderMock::addFaults(RigEclipseCaseData* eclipseCase)
     {
         tranVals[cIdx] = 0.2;
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigReservoirBuilderMock::enableWellData(bool enableWellData)
 {
@@ -560,9 +571,16 @@ void RigReservoirBuilderMock::enableWellData(bool enableWellData)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::addNnc(RigMainGrid* grid, size_t i1, size_t j1, size_t k1, size_t i2, size_t j2, size_t k2, std::vector<RigConnection> &nncConnections)
+void RigReservoirBuilderMock::addNnc(RigMainGrid*                grid,
+                                     size_t                      i1,
+                                     size_t                      j1,
+                                     size_t                      k1,
+                                     size_t                      i2,
+                                     size_t                      j2,
+                                     size_t                      k2,
+                                     std::vector<RigConnection>& nncConnections)
 {
     size_t c1GlobalIndex = grid->cellIndexFromIJK(i1, j1, k1);
     size_t c2GlobalIndex = grid->cellIndexFromIJK(i2, j2, k2);
@@ -573,4 +591,3 @@ void RigReservoirBuilderMock::addNnc(RigMainGrid* grid, size_t i1, size_t j1, si
 
     nncConnections.push_back(conn);
 }
-

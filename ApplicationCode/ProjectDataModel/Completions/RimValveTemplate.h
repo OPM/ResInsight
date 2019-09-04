@@ -30,8 +30,8 @@ class RimWellPathAicdParameters;
 class RimValveTemplate : public RimNamedObject
 {
     CAF_PDM_HEADER_INIT;
-public:
 
+public:
     RimValveTemplate();
     ~RimValveTemplate() override;
 
@@ -48,10 +48,11 @@ public:
     QString                             typeLabel() const;
     QString                             fullLabel() const;
     void                                setUserLabel(const QString& userLabel);
+
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                         bool*                      useOptionsOnly) override;
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
@@ -60,13 +61,12 @@ private:
 
     caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_valveTemplateUnit;
 
-    caf::PdmField<CompletionTypeEnum>                  m_type;
-    caf::PdmField<QString>                             m_userLabel;
+    caf::PdmField<CompletionTypeEnum> m_type;
+    caf::PdmField<QString>            m_userLabel;
 
     // ICD and ICVs only
-    caf::PdmField<double>                              m_orificeDiameter;
-    caf::PdmField<double>                              m_flowCoefficient;
+    caf::PdmField<double> m_orificeDiameter;
+    caf::PdmField<double> m_flowCoefficient;
     // AICDs
-    caf::PdmChildField<RimWellPathAicdParameters*>     m_aicdParameters;
+    caf::PdmChildField<RimWellPathAicdParameters*> m_aicdParameters;
 };
-

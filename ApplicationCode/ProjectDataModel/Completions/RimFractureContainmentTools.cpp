@@ -227,11 +227,8 @@ std::set<size_t> RimFractureContainmentTools::reservoirCellIndicesOpenForFlow(co
                 if (maximumFaultThrow > -1.0)
                 {
                     size_t anchorCellGlobalIndex = mainGrid->findReservoirCellIndexFromPoint(fracture->anchorPosition());
-                    appendNeighborCells(cellsIntersectingFracturePlane,
-                                        mainGrid,
-                                        anchorCellGlobalIndex,
-                                        cellsOpenForFlow,
-                                        maximumFaultThrow);
+                    appendNeighborCells(
+                        cellsIntersectingFracturePlane, mainGrid, anchorCellGlobalIndex, cellsOpenForFlow, maximumFaultThrow);
                 }
                 else
                 {

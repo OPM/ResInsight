@@ -218,14 +218,14 @@ QString RimGridCrossPlot::createAutoName() const
 
     if (m_nameConfig->addDataSetNames())
     {
-        QStringList                                                           dataSetStrings;
+        QStringList                                                          dataSetStrings;
         std::map<RimGridCrossPlotDataSet::NameComponents, std::set<QString>> allNameComponents;
         for (auto dataSet : m_crossPlotDataSets)
         {
             if (dataSet->isChecked())
             {
                 QStringList componentList;
-                auto dataSetNameComponents = dataSet->nameComponents();
+                auto        dataSetNameComponents = dataSet->nameComponents();
 
                 for (auto dataSetNameComponent : dataSetNameComponents)
                 {
@@ -683,7 +683,10 @@ bool RimGridCrossPlot::hasCustomFontSizes(RiaDefines::FontSettingType fontSettin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridCrossPlot::applyFontSize(RiaDefines::FontSettingType fontSettingType, int oldFontSize, int fontSize, bool forceChange /*= false*/)
+bool RimGridCrossPlot::applyFontSize(RiaDefines::FontSettingType fontSettingType,
+                                     int                         oldFontSize,
+                                     int                         fontSize,
+                                     bool                        forceChange /*= false*/)
 {
     if (fontSettingType != RiaDefines::PLOT_FONT) return false;
 
@@ -705,7 +708,7 @@ bool RimGridCrossPlot::applyFontSize(RiaDefines::FontSettingType fontSettingType
     if (forceChange || legendFontSize() == oldFontSize)
     {
         m_legendFontSize = fontSize;
-        anyChange = true;
+        anyChange        = true;
     }
 
     if (anyChange) loadDataAndUpdate();
@@ -789,7 +792,7 @@ void RimGridCrossPlot::updateAxisInQwt(RiaDefines::PlotAxis axisType)
         titleFont.setPointSize(axisProperties->titleFontSize());
         axisTitle.setFont(titleFont);
 
-        QFont   valuesFont = m_qwtPlot->axisFont(qwtAxisId);
+        QFont valuesFont = m_qwtPlot->axisFont(qwtAxisId);
         valuesFont.setPointSize(axisProperties->valuesFontSize());
         m_qwtPlot->setAxisFont(qwtAxisId, valuesFont);
 
@@ -946,7 +949,7 @@ void RimGridCrossPlot::setShowInfoBox(bool enable)
 //--------------------------------------------------------------------------------------------------
 std::set<RimPlotAxisPropertiesInterface*> RimGridCrossPlot::allPlotAxes() const
 {
-    return { m_xAxisProperties, m_yAxisProperties };
+    return {m_xAxisProperties, m_yAxisProperties};
 }
 
 //--------------------------------------------------------------------------------------------------

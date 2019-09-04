@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,8 +20,8 @@
 
 #include "RiaApplication.h"
 
-#include "RimObservedSummaryData.h"
 #include "RimObservedDataCollection.h"
+#include "RimObservedSummaryData.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryObservedDataFile.h"
@@ -34,25 +34,26 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-
 CAF_CMD_SOURCE_INIT(RicImportObservedDataFeature, "RicImportObservedDataFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicImportObservedDataFeature::selectObservedDataFileInDialog()
 {
-    RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
-    QStringList fileNames = QFileDialog::getOpenFileNames(nullptr, "Import Observed Data", defaultDir, "Observed Data (*.RSM *.txt *.csv);;All Files (*.*)");
+    RiaApplication* app        = RiaApplication::instance();
+    QString         defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
+    QStringList     fileNames  = QFileDialog::getOpenFileNames(
+        nullptr, "Import Observed Data", defaultDir, "Observed Data (*.RSM *.txt *.csv);;All Files (*.*)");
 
     if (fileNames.isEmpty()) return;
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory("INPUT_FILES", QFileInfo(fileNames.last()).absolutePath());
 
-    RimProject* proj = app->project();
-    RimObservedDataCollection* observedDataCollection = proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
+    RimProject*                proj = app->project();
+    RimObservedDataCollection* observedDataCollection =
+        proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
     if (!observedDataCollection) return;
 
     RimObservedSummaryData* observedData = nullptr;
@@ -68,17 +69,19 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
             if (fileName.endsWith(".rsm", Qt::CaseInsensitive))
             {
                 observedData = observedDataCollection->createAndAddRsmObservedSummaryDataFromFile(fileName, &errorText);
-                retryImport = false;
+                retryImport  = false;
             }
             else if (fileName.endsWith(".txt", Qt::CaseInsensitive) || fileName.endsWith(".csv", Qt::CaseInsensitive))
             {
                 bool useSavedFieldValuesInDialog = retryImport;
-                observedData = observedDataCollection->createAndAddCvsObservedSummaryDataFromFile(fileName, useSavedFieldValuesInDialog, &errorText);
+                observedData                     = observedDataCollection->createAndAddCvsObservedSummaryDataFromFile(
+                    fileName, useSavedFieldValuesInDialog, &errorText);
                 retryImport = !errorText.isEmpty();
             }
             else
             {
-                errorText = "Not able to import file. Make sure '*.rsm' is used as extension if data is in RMS format or '*.txt' or '*.csv' if data is in CSV format.";
+                errorText = "Not able to import file. Make sure '*.rsm' is used as extension if data is in RMS format or '*.txt' "
+                            "or '*.csv' if data is in CSV format.";
                 retryImport = false;
             }
 
@@ -98,7 +101,7 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicImportObservedDataFeature::isCommandEnabled()
 {
@@ -112,7 +115,7 @@ bool RicImportObservedDataFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicImportObservedDataFeature::onActionTriggered(bool isChecked)
 {
@@ -120,7 +123,7 @@ void RicImportObservedDataFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicImportObservedDataFeature::setupActionLook(QAction* actionToSetup)
 {

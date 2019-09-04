@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -27,23 +27,21 @@
 
 #include "cvfAssert.h"
 
-
 CAF_PDM_SOURCE_INIT(RimGeoMechPropertyFilterCollection, "GeoMechPropertyFilters");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechPropertyFilterCollection::RimGeoMechPropertyFilterCollection()
 {
     CAF_PDM_InitObject("Property Filters", ":/CellFilter_Values.png", "", "");
-    
-    CAF_PDM_InitFieldNoDefault(&propertyFilters, "PropertyFilters", "Property Filters",         "", "", "");
-    propertyFilters.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&propertyFilters, "PropertyFilters", "Property Filters", "", "", "");
+    propertyFilters.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechPropertyFilterCollection::~RimGeoMechPropertyFilterCollection()
 {
@@ -51,19 +49,18 @@ RimGeoMechPropertyFilterCollection::~RimGeoMechPropertyFilterCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView* RimGeoMechPropertyFilterCollection::reservoirView()
 {
     RimGeoMechView* geoMechView = nullptr;
     firstAncestorOrThisOfType(geoMechView);
-    
+
     return geoMechView;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilterCollection::loadAndInitializePropertyFilters()
 {
@@ -77,7 +74,7 @@ void RimGeoMechPropertyFilterCollection::loadAndInitializePropertyFilters()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilterCollection::initAfterRead()
 {
@@ -94,7 +91,7 @@ void RimGeoMechPropertyFilterCollection::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechPropertyFilterCollection::hasActiveFilters() const
 {
@@ -117,26 +114,25 @@ bool RimGeoMechPropertyFilterCollection::hasActiveDynamicFilters() const
     return hasActiveFilters();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechPropertyFilterCollection::isUsingFormationNames() const
 {
-    if ( !isActive ) return false;
+    if (!isActive) return false;
 
-    for ( size_t i = 0; i < propertyFilters.size(); i++ )
+    for (size_t i = 0; i < propertyFilters.size(); i++)
     {
         RimGeoMechPropertyFilter* propertyFilter = propertyFilters[i];
-        if (   propertyFilter->isActive() 
-            && propertyFilter->resultDefinition->resultPositionType() == RIG_FORMATION_NAMES 
-            && propertyFilter->resultDefinition->resultFieldName() != "") return true;
+        if (propertyFilter->isActive() && propertyFilter->resultDefinition->resultPositionType() == RIG_FORMATION_NAMES &&
+            propertyFilter->resultDefinition->resultFieldName() != "")
+            return true;
     }
 
     return false;
 }
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilterCollection::updateIconState()
 {
@@ -147,8 +143,7 @@ void RimGeoMechPropertyFilterCollection::updateIconState()
     if (view)
     {
         RimViewController* viewController = view->viewController();
-        if (viewController && ( viewController->isPropertyFilterOveridden() 
-                                || viewController->isVisibleCellsOveridden()))
+        if (viewController && (viewController->isPropertyFilterOveridden() || viewController->isVisibleCellsOveridden()))
         {
             activeIcon = false;
         }
@@ -168,4 +163,3 @@ void RimGeoMechPropertyFilterCollection::updateIconState()
         propFilter->updateIconState();
     }
 }
-

@@ -20,9 +20,9 @@
 
 #include "RigWellLogFile.h"
 
-#include "RimWellLogFileCurveNameConfig.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
+#include "RimWellLogFileCurveNameConfig.h"
 #include "RimWellPath.h"
 
 #include <QFileInfo>
@@ -122,8 +122,8 @@ QString Rim3dWellLogFileCurve::name() const
 QString Rim3dWellLogFileCurve::createAutoName() const
 {
     QStringList name;
-    QString unit;
-    bool channelNameAvailable = false;
+    QString     unit;
+    bool        channelNameAvailable = false;
 
     RimWellPath* wellPath;
     this->firstAncestorOrThisOfType(wellPath);
@@ -145,15 +145,15 @@ QString Rim3dWellLogFileCurve::createAutoName() const
         {
             if (channelNameAvailable)
             {
-             /*   RimWellLogPlot* wellLogPlot;
-                firstAncestorOrThisOfType(wellLogPlot);
-                CVF_ASSERT(wellLogPlot);
-                QString unitName = wellLogFile->wellLogChannelUnitString(m_wellLogChannelName, wellLogPlot->depthUnit());
+                /*   RimWellLogPlot* wellLogPlot;
+                   firstAncestorOrThisOfType(wellLogPlot);
+                   CVF_ASSERT(wellLogPlot);
+                   QString unitName = wellLogFile->wellLogChannelUnitString(m_wellLogChannelName, wellLogPlot->depthUnit());
 
-                if (!unitName.isEmpty())
-                {
-                    name.back() += QString(" [%1]").arg(unitName);
-                } */
+                   if (!unitName.isEmpty())
+                   {
+                       name.back() += QString(" [%1]").arg(unitName);
+                   } */
             }
 
             QString date = wellLogFile->date();
@@ -161,7 +161,6 @@ QString Rim3dWellLogFileCurve::createAutoName() const
             {
                 name.push_back(wellLogFile->date());
             }
-
         }
 
         return name.join(", ");

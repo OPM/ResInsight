@@ -22,8 +22,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "cafPdmFieldCvfColor.h"
 #include "cafPdmChildField.h"
+#include "cafPdmFieldCvfColor.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
@@ -45,10 +45,10 @@ public:
     {
         VERTICAL_ABOVE,
         VERTICAL_CENTER,
-        VERTICAL_BELOW,        
+        VERTICAL_BELOW,
         HORIZONTAL_LEFT,
         HORIZONTAL_CENTER,
-        HORIZONTAL_RIGHT        
+        HORIZONTAL_RIGHT
     };
     typedef caf::AppEnum<DrawPlane> DrawPlaneEnum;
 
@@ -58,51 +58,65 @@ public:
 
     void updateCurveIn3dView();
 
-    virtual QString name() const = 0;
+    virtual QString name() const                 = 0;
     virtual QString resultPropertyString() const = 0;
-    
-    DrawPlane       drawPlane() const;
-    static double   drawPlaneAngle(DrawPlane drawPlane);
 
-    cvf::Color3f    color() const;
-    bool            isShowingCurve() const;
-    virtual bool    isShowingTimeDependentResult() const { return isShowingCurve(); }
-    virtual bool    showInView(const Rim3dView* gridView) const                         { return isShowingCurve(); }
-    virtual bool    followAnimationTimeStep() const { return false;  }
-    virtual void    curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const = 0;
-    virtual void    curveValuesAndMdsAtTimeStep(std::vector<double>* values, std::vector<double>* measuredDepthValues, int timeStep) const;
-    virtual std::pair<double,double> findCurveValueRange();
+    DrawPlane     drawPlane() const;
+    static double drawPlaneAngle(DrawPlane drawPlane);
 
-    void            setColor(const cvf::Color3f& color);
+    cvf::Color3f color() const;
+    bool         isShowingCurve() const;
+    virtual bool isShowingTimeDependentResult() const
+    {
+        return isShowingCurve();
+    }
+    virtual bool showInView(const Rim3dView* gridView) const
+    {
+        return isShowingCurve();
+    }
+    virtual bool followAnimationTimeStep() const
+    {
+        return false;
+    }
+    virtual void curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const = 0;
+    virtual void
+                                      curveValuesAndMdsAtTimeStep(std::vector<double>* values, std::vector<double>* measuredDepthValues, int timeStep) const;
+    virtual std::pair<double, double> findCurveValueRange();
 
-    float           minCurveUIValue() const;
-    float           maxCurveUIValue() const;
-    void            resetMinMaxValuesAndUpdateUI();
-    bool            findClosestPointOnCurve(const cvf::Vec3d& globalIntersection,
-                                            cvf::Vec3d*       closestPoint,
-                                            double*           measuredDepthAtPoint,
-                                            double*           valueAtPoint) const;
+    void setColor(const cvf::Color3f& color);
 
-    void setGeometryGenerator(Riv3dWellLogCurveGeometryGenerator* generator);
+    float minCurveUIValue() const;
+    float maxCurveUIValue() const;
+    void  resetMinMaxValuesAndUpdateUI();
+    bool  findClosestPointOnCurve(const cvf::Vec3d& globalIntersection,
+                                  cvf::Vec3d*       closestPoint,
+                                  double*           measuredDepthAtPoint,
+                                  double*           valueAtPoint) const;
+
+    void                                         setGeometryGenerator(Riv3dWellLogCurveGeometryGenerator* generator);
     cvf::ref<Riv3dWellLogCurveGeometryGenerator> geometryGenerator();
 
 protected:
-    caf::PdmFieldHandle*            objectToggleField() override;
-    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void                                    configurationUiOrdering(caf::PdmUiOrdering& uiOrdering);
-    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;    
-    void                            initAfterRead() override;
-private:
-    void                                    resetMinMaxValues();
-protected:
-    caf::PdmField<DrawPlaneEnum>                    m_drawPlane;
-    caf::PdmField<cvf::Color3f>                     m_color;
-    caf::PdmField<float>                            m_minCurveUIValue;
-    caf::PdmField<float>                            m_maxCurveUIValue;
-    float                                           m_minCurveDataValue;
-    float                                           m_maxCurveDataValue;
-    cvf::ref<Riv3dWellLogCurveGeometryGenerator>    m_geometryGenerator;
-private:
-    caf::PdmField<bool>                             m_showCurve;
+    caf::PdmFieldHandle* objectToggleField() override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void configurationUiOrdering(caf::PdmUiOrdering& uiOrdering);
+    void defineEditorAttribute(const caf::PdmFieldHandle* field,
+                               QString                    uiConfigName,
+                               caf::PdmUiEditorAttribute* attribute) override;
+    void initAfterRead() override;
 
+private:
+    void resetMinMaxValues();
+
+protected:
+    caf::PdmField<DrawPlaneEnum>                 m_drawPlane;
+    caf::PdmField<cvf::Color3f>                  m_color;
+    caf::PdmField<float>                         m_minCurveUIValue;
+    caf::PdmField<float>                         m_maxCurveUIValue;
+    float                                        m_minCurveDataValue;
+    float                                        m_maxCurveDataValue;
+    cvf::ref<Riv3dWellLogCurveGeometryGenerator> m_geometryGenerator;
+
+private:
+    caf::PdmField<bool> m_showCurve;
 };

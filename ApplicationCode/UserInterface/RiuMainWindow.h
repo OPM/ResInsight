@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,8 +23,8 @@
 #include "RiuMainWindowBase.h"
 #include "RiuMdiArea.h"
 
-#include "cafPdmUiDragDropInterface.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmUiDragDropInterface.h"
 
 #include <QEvent>
 #include <QLabel>
@@ -55,21 +55,21 @@ struct RimMdiWindowGeometry;
 
 namespace caf
 {
-    class PdmUiTreeView;
-    class AnimationToolBar;
-    class PdmObject;
-    class PdmUiPropertyView;
-    class PdmUiItem;
+class PdmUiTreeView;
+class AnimationToolBar;
+class PdmObject;
+class PdmUiPropertyView;
+class PdmUiItem;
 }
 
 namespace ssihub
 {
-    class Interface;
+class Interface;
 }
 
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 class RiuMainWindow : public RiuMainWindowBase
@@ -81,187 +81,186 @@ public:
 
     static RiuMainWindow* instance();
 
-    QString         mainWindowName() override;
-    
-    void            initializeGuiNewProjectLoaded();
-    void            cleanupGuiCaseClose();
-    void            cleanupGuiBeforeProjectClose();
+    QString mainWindowName() override;
 
-    void            removeViewer( QWidget* viewer ) override;
-    void            addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry) override;
-    void            setActiveViewer(QWidget* subWindow) override;
+    void initializeGuiNewProjectLoaded();
+    void cleanupGuiCaseClose();
+    void cleanupGuiBeforeProjectClose();
 
-    void            setResultInfo(const QString& info) const;
+    void removeViewer(QWidget* viewer) override;
+    void addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry) override;
+    void setActiveViewer(QWidget* subWindow) override;
 
-    void            refreshViewActions();
-    void            refreshAnimationActions();    
-    void            updateScaleValue();
+    void setResultInfo(const QString& info) const;
+
+    void refreshViewActions();
+    void refreshAnimationActions();
+    void updateScaleValue();
 
     RiuProcessMonitor* processMonitor();
 
-    void            selectedCases(std::vector<RimCase*>& cases);
+    void selectedCases(std::vector<RimCase*>& cases);
 
-    void            setDefaultWindowSize();
+    void setDefaultWindowSize();
 
-    void            refreshDrawStyleActions();
-    
-    void            tileSubWindows() override;
-    void            storeSubWindowTiling(bool tiled) override;
-    void            clearWindowTiling() override;
+    void refreshDrawStyleActions();
 
-    bool            subWindowsAreTiled() const override;
-    bool            isAnyMdiSubWindowVisible();
-    QMdiSubWindow*  findMdiSubWindow(QWidget* viewer) override;
-    RimViewWindow*  findViewWindowFromSubWindow(QMdiSubWindow* lhs);
+    void tileSubWindows() override;
+    void storeSubWindowTiling(bool tiled) override;
+    void clearWindowTiling() override;
+
+    bool                  subWindowsAreTiled() const override;
+    bool                  isAnyMdiSubWindowVisible();
+    QMdiSubWindow*        findMdiSubWindow(QWidget* viewer) override;
+    RimViewWindow*        findViewWindowFromSubWindow(QMdiSubWindow* lhs);
     QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
 
-    RiuResultQwtPlot*                   resultPlot();
-    RiuRelativePermeabilityPlotPanel*   relativePermeabilityPlotPanel();
-    RiuPvtPlotPanel*                    pvtPlotPanel();
-    RiuMohrsCirclePlot*                 mohrsCirclePlot();
-    RiuMessagePanel*                    messagePanel();
+    RiuResultQwtPlot*                 resultPlot();
+    RiuRelativePermeabilityPlotPanel* relativePermeabilityPlotPanel();
+    RiuPvtPlotPanel*                  pvtPlotPanel();
+    RiuMohrsCirclePlot*               mohrsCirclePlot();
+    RiuMessagePanel*                  messagePanel();
 
-    void            showProcessMonitorDockPanel();
-    void            setDefaultToolbarVisibility();
-    void            applyFontSizesToDockedPlots();
+    void showProcessMonitorDockPanel();
+    void setDefaultToolbarVisibility();
+    void applyFontSizesToDockedPlots();
 
 protected:
-    void    closeEvent(QCloseEvent* event) override;
+    void closeEvent(QCloseEvent* event) override;
 
 private:
-    void            createActions();
-    void            createMenus();
-    void            createToolBars();
-    void            createDockPanels();
+    void createActions();
+    void createMenus();
+    void createToolBars();
+    void createDockPanels();
 
-    void            restoreTreeViewState();
+    void restoreTreeViewState();
 
-    void            updateUiFieldsFromActiveResult(caf::PdmObjectHandle* objectToUpdate);
+    void updateUiFieldsFromActiveResult(caf::PdmObjectHandle* objectToUpdate);
 
 private:
     // Edit actions
-    QAction*            m_newPropertyView;
+    QAction* m_newPropertyView;
 
     // View actions
-    QAction*            m_viewFromNorth;
-    QAction*            m_viewFromSouth;
-    QAction*            m_viewFromEast;
-    QAction*            m_viewFromWest;
-    QAction*            m_viewFromAbove;
-    QAction*            m_viewFromBelow;
+    QAction* m_viewFromNorth;
+    QAction* m_viewFromSouth;
+    QAction* m_viewFromEast;
+    QAction* m_viewFromWest;
+    QAction* m_viewFromAbove;
+    QAction* m_viewFromBelow;
 
     // Mock actions
-    QAction*            m_mockModelAction;
-    QAction*            m_mockResultsModelAction;
-    QAction*            m_mockLargeResultsModelAction;
-    QAction*            m_mockModelCustomizedAction;
-    QAction*            m_mockInputModelAction;
+    QAction* m_mockModelAction;
+    QAction* m_mockResultsModelAction;
+    QAction* m_mockLargeResultsModelAction;
+    QAction* m_mockModelCustomizedAction;
+    QAction* m_mockInputModelAction;
 
-    QAction*            m_snapshotAllViewsToFile;
+    QAction* m_snapshotAllViewsToFile;
 
-    QAction*            m_createCommandObject;
-    QAction*            m_showRegressionTestDialog;
-    QAction*            m_executePaintEventPerformanceTest;
+    QAction* m_createCommandObject;
+    QAction* m_showRegressionTestDialog;
+    QAction* m_executePaintEventPerformanceTest;
 
     caf::AnimationToolBar* m_animationToolBar;
 
-    RiuMdiArea*         m_mdiArea;
-    RiuResultInfoPanel* m_resultInfoPanel;
-    RiuProcessMonitor*  m_processMonitor;
-    QPointer<RiuMessagePanel>               m_messagePanel;
-    
-    RiuResultQwtPlot*                   m_resultQwtPlot;
-    RiuMohrsCirclePlot*                 m_mohrsCirclePlot;
-    RiuRelativePermeabilityPlotPanel*   m_relPermPlotPanel;
-    RiuPvtPlotPanel*                    m_pvtPlotPanel;
+    RiuMdiArea*               m_mdiArea;
+    RiuResultInfoPanel*       m_resultInfoPanel;
+    RiuProcessMonitor*        m_processMonitor;
+    QPointer<RiuMessagePanel> m_messagePanel;
 
-    QMenu*              m_windowMenu;
-    QLabel*             m_memoryCriticalWarning;
-    QToolButton*        m_memoryUsedButton;
-    QLabel*             m_memoryTotalStatus;
-    QTimer*             m_memoryRefreshTimer;
+    RiuResultQwtPlot*                 m_resultQwtPlot;
+    RiuMohrsCirclePlot*               m_mohrsCirclePlot;
+    RiuRelativePermeabilityPlotPanel* m_relPermPlotPanel;
+    RiuPvtPlotPanel*                  m_pvtPlotPanel;
 
-// Menu and action slots
+    QMenu*       m_windowMenu;
+    QLabel*      m_memoryCriticalWarning;
+    QToolButton* m_memoryUsedButton;
+    QLabel*      m_memoryTotalStatus;
+    QTimer*      m_memoryRefreshTimer;
+
+    // Menu and action slots
 private slots:
 
     friend class RiuMdiSubWindow;
 
     // Memory update slot
-    void    updateMemoryUsage();
+    void updateMemoryUsage();
 
     // File slots
-    void    slotRefreshFileActions();
+    void slotRefreshFileActions();
 
     // Edit slots
-    void    slotRefreshEditActions();
-    void    slotNewObjectPropertyView();
+    void slotRefreshEditActions();
+    void slotNewObjectPropertyView();
 
     // View slots
-    void    slotRefreshViewActions();
-    void    slotViewFromNorth();
-    void    slotViewFromSouth();
-    void    slotViewFromEast();
-    void    slotViewFromWest();
-    void    slotViewFromAbove();
-    void    slotViewFromBelow();
-    void    slotScaleChanged(int scaleValue);
+    void slotRefreshViewActions();
+    void slotViewFromNorth();
+    void slotViewFromSouth();
+    void slotViewFromEast();
+    void slotViewFromWest();
+    void slotViewFromAbove();
+    void slotViewFromBelow();
+    void slotScaleChanged(int scaleValue);
 
-    void    slotDrawStyleChanged(QAction* activatedAction);
-    void    slotToggleHideGridCellsAction(bool);
-    void    slotToggleFaultLabelsAction(bool);
-    void    slotDisableLightingAction(bool);
+    void slotDrawStyleChanged(QAction* activatedAction);
+    void slotToggleHideGridCellsAction(bool);
+    void slotToggleFaultLabelsAction(bool);
+    void slotDisableLightingAction(bool);
 
-    void    slotShowWellCellsAction(bool doAdd);
+    void slotShowWellCellsAction(bool doAdd);
 
     // Debug slots
-    void    slotSnapshotAllViewsToFile();
+    void slotSnapshotAllViewsToFile();
 
-    void    slotCreateCommandObject();
+    void slotCreateCommandObject();
 
-    void    slotShowRegressionTestDialog();
-    void    slotExecutePaintEventPerformanceTest();
+    void slotShowRegressionTestDialog();
+    void slotExecutePaintEventPerformanceTest();
 
     // Mock models
-    void    slotMockModel();
-    void    slotMockResultsModel();
-    void    slotMockLargeResultsModel();
-    void    slotMockModelCustomized();
-    void    slotInputMockModel();
+    void slotMockModel();
+    void slotMockResultsModel();
+    void slotMockLargeResultsModel();
+    void slotMockModelCustomized();
+    void slotInputMockModel();
 
     // Windows slots
-    void    slotBuildWindowActions();
+    void slotBuildWindowActions();
 
-    void    slotSubWindowActivated(QMdiSubWindow* subWindow);
+    void slotSubWindowActivated(QMdiSubWindow* subWindow);
 
-    void    selectedObjectsChanged();
-    void    customMenuRequested(const QPoint& pos);
+    void selectedObjectsChanged();
+    void customMenuRequested(const QPoint& pos);
 
     // Pdm System :
 public:
     void setPdmRoot(caf::PdmObject* pdmRoot);
+
 private:
-    
     std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
-    
-    QUndoView*                  m_undoView;
 
-    caf::PdmObject*             m_pdmRoot;
-    caf::PdmUiPropertyView*     m_pdmUiPropertyView;
+    QUndoView* m_undoView;
 
-    QSpinBox*                   m_scaleFactor;
+    caf::PdmObject*         m_pdmRoot;
+    caf::PdmUiPropertyView* m_pdmUiPropertyView;
 
-    QActionGroup*               m_dsActionGroup;
-    QAction*                    m_disableLightingAction;
-    QAction*                    m_drawStyleHideGridCellsAction;
-    QAction*                    m_toggleFaultsLabelAction;
-    QAction*                    m_drawStyleLinesAction;
-    QAction*                    m_drawStyleLinesSolidAction;
-    QAction*                    m_drawStyleFaultLinesSolidAction;
-    QAction*                    m_drawStyleSurfOnlyAction;
-    QAction*                    m_showWellCellsAction;
+    QSpinBox* m_scaleFactor;
 
-    QToolBar*                   m_holoLensToolBar;
+    QActionGroup* m_dsActionGroup;
+    QAction*      m_disableLightingAction;
+    QAction*      m_drawStyleHideGridCellsAction;
+    QAction*      m_toggleFaultsLabelAction;
+    QAction*      m_drawStyleLinesAction;
+    QAction*      m_drawStyleLinesSolidAction;
+    QAction*      m_drawStyleFaultLinesSolidAction;
+    QAction*      m_drawStyleSurfOnlyAction;
+    QAction*      m_showWellCellsAction;
 
-    std::vector<QPointer<QDockWidget> > m_additionalProjectViews;
+    QToolBar* m_holoLensToolBar;
 
+    std::vector<QPointer<QDockWidget>> m_additionalProjectViews;
 };

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017- Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -26,11 +26,10 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 
-
 CAF_PDM_SOURCE_INIT(RimEnsembleStatistics, "RimEnsembleStatistics");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEnsembleStatistics::RimEnsembleStatistics()
 {
@@ -39,9 +38,9 @@ RimEnsembleStatistics::RimEnsembleStatistics()
     CAF_PDM_InitField(&m_active, "Active", true, "Show statistics curves", "", "", "");
     CAF_PDM_InitField(&m_hideEnsembleCurves, "HideEnsembleCurves", false, "Hide Ensemble Curves", "", "", "");
     CAF_PDM_InitField(&m_basedOnFilteredCases, "BasedOnFilteredCases", false, "Based on Filtered Cases", "", "", "");
-    CAF_PDM_InitField(&m_showP10Curve, "ShowP10Curve", true, "P90", "", "", "");    // Yes, P90
+    CAF_PDM_InitField(&m_showP10Curve, "ShowP10Curve", true, "P90", "", "", ""); // Yes, P90
     CAF_PDM_InitField(&m_showP50Curve, "ShowP50Curve", false, "P50", "", "", "");
-    CAF_PDM_InitField(&m_showP90Curve, "ShowP90Curve", true, "P10", "", "", "");    // Yes, P10
+    CAF_PDM_InitField(&m_showP90Curve, "ShowP90Curve", true, "P10", "", "", ""); // Yes, P10
     CAF_PDM_InitField(&m_showMeanCurve, "ShowMeanCurve", true, "Mean", "", "", "");
     CAF_PDM_InitField(&m_showCurveLabels, "ShowCurveLabels", true, "Show Curve Labels", "", "", "");
     CAF_PDM_InitField(&m_warningLabel, "WarningLabel", QString("Warning: Ensemble time range mismatch"), "", "", "", "");
@@ -53,7 +52,7 @@ RimEnsembleStatistics::RimEnsembleStatistics()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimEnsembleStatistics::isActive() const
 {
@@ -61,7 +60,7 @@ bool RimEnsembleStatistics::isActive() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleStatistics::disableP10Curve(bool disable)
 {
@@ -69,7 +68,7 @@ void RimEnsembleStatistics::disableP10Curve(bool disable)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleStatistics::disableP50Curve(bool disable)
 {
@@ -77,7 +76,7 @@ void RimEnsembleStatistics::disableP50Curve(bool disable)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleStatistics::disableP90Curve(bool disable)
 {
@@ -85,7 +84,7 @@ void RimEnsembleStatistics::disableP90Curve(bool disable)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleStatistics::disableMeanCurve(bool disable)
 {
@@ -93,18 +92,15 @@ void RimEnsembleStatistics::disableMeanCurve(bool disable)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleStatistics::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimEnsembleStatistics::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                             const QVariant&            oldValue,
+                                             const QVariant&            newValue)
 {
-    if (changedField == &m_active ||
-        changedField == &m_basedOnFilteredCases ||
-        changedField == &m_showP10Curve ||
-        changedField == &m_showP50Curve ||
-        changedField == &m_showP90Curve ||
-        changedField == &m_showMeanCurve ||
-        changedField == &m_showCurveLabels ||
-        changedField == &m_color)
+    if (changedField == &m_active || changedField == &m_basedOnFilteredCases || changedField == &m_showP10Curve ||
+        changedField == &m_showP50Curve || changedField == &m_showP90Curve || changedField == &m_showMeanCurve ||
+        changedField == &m_showCurveLabels || changedField == &m_color)
     {
         auto curveSet = parentCurveSet();
         if (!curveSet) return;
@@ -113,7 +109,6 @@ void RimEnsembleStatistics::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 
         if (changedField == &m_active || changedField == &m_basedOnFilteredCases) curveSet->updateConnectedEditors();
     }
-
 
     if (changedField == &m_hideEnsembleCurves)
     {
@@ -125,7 +120,7 @@ void RimEnsembleStatistics::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleStatistics::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -158,7 +153,7 @@ void RimEnsembleStatistics::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet* RimEnsembleStatistics::parentCurveSet() const
 {

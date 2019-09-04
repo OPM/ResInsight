@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,9 +22,9 @@
 #include "RiaSummaryTools.h"
 
 #include "RimMainPlotCollection.h"
+#include "RimObservedDataCollection.h"
 #include "RimObservedFmuRftData.h"
 #include "RimObservedSummaryData.h"
-#include "RimObservedDataCollection.h"
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -40,7 +40,7 @@
 CAF_CMD_SOURCE_INIT(RicCloseObservedDataFeature, "RicCloseObservedDataFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCloseObservedDataFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -49,7 +49,7 @@ void RicCloseObservedDataFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCloseObservedDataFeature::deleteObservedSummaryData(const std::vector<RimObservedSummaryData*>& data)
 {
@@ -65,7 +65,7 @@ void RicCloseObservedDataFeature::deleteObservedSummaryData(const std::vector<Ri
 
         RimObservedDataCollection* observedDataCollection = nullptr;
         observedData->firstAncestorOrThisOfTypeAsserted(observedDataCollection);
-        
+
         observedDataCollection->removeObservedSummaryData(observedData);
         delete observedData;
         observedDataCollection->updateConnectedEditors();
@@ -85,10 +85,10 @@ void RicCloseObservedDataFeature::deleteObservedRmuRftData(const std::vector<Rim
         RimObservedDataCollection* observedDataCollection = nullptr;
         observedData->firstAncestorOrThisOfTypeAsserted(observedDataCollection);
 
-		for (RimWellRftPlot* plot : rftPlotColl->rftPlots())
-		{
+        for (RimWellRftPlot* plot : rftPlotColl->rftPlots())
+        {
             plot->deleteCurvesAssosicatedWithObservedData(observedData);
-		}
+        }
         observedDataCollection->removeObservedFmuRftData(observedData);
         delete observedData;
         observedDataCollection->updateConnectedEditors();
@@ -96,14 +96,14 @@ void RicCloseObservedDataFeature::deleteObservedRmuRftData(const std::vector<Rim
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicCloseObservedDataFeature::isCommandEnabled()
 {
     std::vector<RimObservedSummaryData*> summarySelection;
     caf::SelectionManager::instance()->objectsByType(&summarySelection);
 
-	std::vector<RimObservedFmuRftData*> fmuRftSelection;
+    std::vector<RimObservedFmuRftData*> fmuRftSelection;
     caf::SelectionManager::instance()->objectsByType(&fmuRftSelection);
 
     if (summarySelection.size() == 0 && fmuRftSelection.size() == 0)
@@ -122,7 +122,7 @@ bool RicCloseObservedDataFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCloseObservedDataFeature::onActionTriggered(bool isChecked)
 {
@@ -132,8 +132,8 @@ void RicCloseObservedDataFeature::onActionTriggered(bool isChecked)
     std::vector<RimObservedFmuRftData*> fmuRftSelection;
     caf::SelectionManager::instance()->objectsByType(&fmuRftSelection);
 
-	CVF_ASSERT(!(summarySelection.empty() && fmuRftSelection.empty()));
-    
+    CVF_ASSERT(!(summarySelection.empty() && fmuRftSelection.empty()));
+
     RicCloseObservedDataFeature::deleteObservedSummaryData(summarySelection);
     RicCloseObservedDataFeature::deleteObservedRmuRftData(fmuRftSelection);
 }

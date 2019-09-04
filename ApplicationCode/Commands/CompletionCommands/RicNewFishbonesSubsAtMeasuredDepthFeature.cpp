@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -33,11 +33,10 @@
 
 #include <QAction>
 
-
 CAF_CMD_SOURCE_INIT(RicNewFishbonesSubsAtMeasuredDepthFeature, "RicNewFishbonesSubsAtMeasuredDepthFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered(bool isChecked)
 {
@@ -48,12 +47,11 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered(bool isChecked
     CVF_ASSERT(wellPath);
 
     if (!RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem(wellPath)) return;
-    
+
     RimFishbonesMultipleSubs* obj = new RimFishbonesMultipleSubs;
     wellPath->fishbonesCollection()->appendFishbonesSubs(obj);
 
     obj->setMeasuredDepthAndCount(wellPathSelItem->m_measuredDepth, 12.5, 13);
-
 
     RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(wellPath->fishbonesCollection());
 
@@ -66,12 +64,12 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered(bool isChecked
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuWellPathSelectionItem* RicNewFishbonesSubsAtMeasuredDepthFeature::wellPathSelectionItem()
 {
     Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
-    RiuSelectionItem* selItem = riuSelManager->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
+    RiuSelectionItem*      selItem       = riuSelManager->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
 
     RiuWellPathSelectionItem* wellPathItem = dynamic_cast<RiuWellPathSelectionItem*>(selItem);
 
@@ -79,7 +77,7 @@ RiuWellPathSelectionItem* RicNewFishbonesSubsAtMeasuredDepthFeature::wellPathSel
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsAtMeasuredDepthFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -88,7 +86,7 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::setupActionLook(QAction* actionT
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewFishbonesSubsAtMeasuredDepthFeature::isCommandEnabled()
 {

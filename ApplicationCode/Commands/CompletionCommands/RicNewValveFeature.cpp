@@ -4,8 +4,8 @@
 #include "RiaApplication.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
-#include "RimWellPathValve.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathValve.h"
 
 #include "cafSelectionManager.h"
 
@@ -59,7 +59,6 @@ void RicNewValveFeature::onActionTriggered(bool isChecked)
         wellPathCollection->scheduleRedrawAffectedViews();
 
         Riu3DMainWindowTools::selectAsCurrentItem(valve);
-
     }
 }
 

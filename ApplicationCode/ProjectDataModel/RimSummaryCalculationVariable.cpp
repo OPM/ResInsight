@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -34,36 +34,35 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 
-
 CAF_PDM_SOURCE_INIT(RimSummaryCalculationVariable, "RimSummaryCalculationVariable");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculationVariable::RimSummaryCalculationVariable()
 {
     CAF_PDM_InitObject("RimSummaryCalculationVariable", ":/octave.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_name,             "VariableName",     "Variable Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_name, "VariableName", "Variable Name", "", "", "");
     m_name.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_button,           "PushButton", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_button, "PushButton", "", "", "", "");
     m_button.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     m_button.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault(&m_summaryAddressUi, "SummaryAddressUi",   "Summary Address", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_summaryAddressUi, "SummaryAddressUi", "Summary Address", "", "", "");
     m_summaryAddressUi.registerGetMethod(this, &RimSummaryCalculationVariable::summaryAddressDisplayString);
     m_summaryAddressUi.xmlCapability()->disableIO();
     m_summaryAddressUi.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_case,             "SummaryCase",      "Summary Case", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_summaryAddress,   "SummaryAddress",   "Summary Address", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_case, "SummaryCase", "Summary Case", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_summaryAddress, "SummaryAddress", "Summary Address", "", "", "");
 
     m_summaryAddress = new RimSummaryAddress;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCalculationVariable::name() const
 {
@@ -71,7 +70,7 @@ QString RimSummaryCalculationVariable::name() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculationVariable::setName(const QString& name)
 {
@@ -79,9 +78,11 @@ void RimSummaryCalculationVariable::setName(const QString& name)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculationVariable::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimSummaryCalculationVariable::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                     const QVariant&            oldValue,
+                                                     const QVariant&            newValue)
 {
     if (changedField == &m_button)
     {
@@ -126,18 +127,18 @@ void RimSummaryCalculationVariable::fieldChangedByUi(const caf::PdmFieldHandle* 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCalculationVariable::summaryAddressDisplayString() const
 {
     QString caseName;
-    if (m_case() ) caseName = m_case()->caseName();
+    if (m_case()) caseName = m_case()->caseName();
 
     return RiaSummaryCurveDefinition::curveDefinitionText(caseName, m_summaryAddress()->address());
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RimSummaryCalculationVariable::summaryCase()
 {
@@ -145,7 +146,7 @@ RimSummaryCase* RimSummaryCalculationVariable::summaryCase()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryAddress* RimSummaryCalculationVariable::summaryAddress()
 {
@@ -153,7 +154,7 @@ RimSummaryAddress* RimSummaryCalculationVariable::summaryAddress()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculationVariable::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -165,7 +166,7 @@ void RimSummaryCalculationVariable::defineUiOrdering(QString uiConfigName, caf::
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculationVariable::defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
@@ -194,7 +195,7 @@ void RimSummaryCalculationVariable::readDataFromApplicationStore(RiuSummaryCurve
         {
             sumAddress = lastUsedAddress;
         }
-        
+
         QString lastUsedSummaryCaseString = RiaApplication::instance()->cacheDataObject("CalculatorSummaryCase").toString();
 
         auto* lastUsedSummaryCase = dynamic_cast<RimSummaryCase*>(

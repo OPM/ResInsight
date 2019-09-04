@@ -81,7 +81,9 @@ void RimScriptCollection::readContentFromDisc()
 
     // Build a list of all scripts in the specified directory
     {
-        QStringList nameFilters; nameFilters << "*.m" << "*.py";
+        QStringList nameFilters;
+        nameFilters << "*.m"
+                    << "*.py";
         QStringList fileList = caf::Utils::getFilesInDirectory(directory, nameFilters, true);
 
         int i;
@@ -91,8 +93,8 @@ void RimScriptCollection::readContentFromDisc()
 
             if (caf::Utils::fileExists(fileName))
             {
-                RimCalcScript* calcScript = new RimCalcScript;
-                calcScript->absoluteFileName  = fileName;
+                RimCalcScript* calcScript    = new RimCalcScript;
+                calcScript->absoluteFileName = fileName;
 
                 QFileInfo fi(fileName);
                 calcScript->setUiName(fi.baseName());
@@ -116,7 +118,7 @@ void RimScriptCollection::readContentFromDisc()
             if (fi.baseName() != "__pycache__")
             {
                 RimScriptCollection* scriptLocation = new RimScriptCollection;
-                scriptLocation->directory = fi.absoluteFilePath();
+                scriptLocation->directory           = fi.absoluteFilePath();
                 scriptLocation->setUiName(fi.baseName());
                 scriptLocation->readContentFromDisc();
 

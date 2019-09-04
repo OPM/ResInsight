@@ -42,23 +42,22 @@ public:
     ~RimGridCrossPlotCurve() override = default;
     void setGroupingInformation(int dataSetIndex, int groupIndex);
     void setSamples(const std::vector<double>& xValues, const std::vector<double>& yValues);
-    
+
     void   setCurveAutoAppearance();
     int    groupIndex() const;
     size_t sampleCount() const;
     void   determineLegendIcon();
     void   setBlackAndWhiteLegendIcons(bool blackAndWhite);
-protected:
 
-    void determineSymbol();
-    void updateZoomInParentPlot() override;
-    void updateLegendsInPlot() override;
+protected:
+    void    determineSymbol();
+    void    updateZoomInParentPlot() override;
+    void    updateLegendsInPlot() override;
     QString createCurveAutoName() override;
-    void onLoadDataAndUpdate(bool updateParentPlot) override;
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void    onLoadDataAndUpdate(bool updateParentPlot) override;
+    void    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    int     m_dataSetIndex;
-    int     m_groupIndex;
+    int m_dataSetIndex;
+    int m_groupIndex;
 };
-

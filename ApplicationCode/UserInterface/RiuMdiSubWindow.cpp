@@ -83,7 +83,6 @@ RimMdiWindowGeometry RiuMdiSubWindow::windowGeometry() const
     return geo;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -99,7 +98,7 @@ void RiuMdiSubWindow::closeEvent(QCloseEvent* event)
 {
     QWidget* mainWidget = widget();
 
-	RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(mainWidget);
+    RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(mainWidget);
     if (!viewWindow)
     {
         RiuViewer* viewer = mainWidget->findChild<RiuViewer*>();
@@ -155,7 +154,7 @@ void RiuMdiSubWindow::moveEvent(QMoveEvent* moveEvent)
     {
         m_normalWindowGeometry = frameGeometry();
     }
-    
+
     if (!m_blockTilingChanges)
     {
         if (window() == RiaGuiApplication::instance()->mainWindow())

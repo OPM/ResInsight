@@ -21,10 +21,12 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaRftPltCurveDefinition::RiaRftPltCurveDefinition(const RifDataSourceForRftPlt& address, const QString& wellName, const QDateTime& timeStep)
+RiaRftPltCurveDefinition::RiaRftPltCurveDefinition(const RifDataSourceForRftPlt& address,
+                                                   const QString&                wellName,
+                                                   const QDateTime&              timeStep)
     : m_curveAddress(address)
-	, m_wellName(wellName)
-	, m_timeStep(timeStep)
+    , m_wellName(wellName)
+    , m_timeStep(timeStep)
 {
 }
 
@@ -57,13 +59,13 @@ const QDateTime& RiaRftPltCurveDefinition::timeStep() const
 //--------------------------------------------------------------------------------------------------
 bool RiaRftPltCurveDefinition::operator<(const RiaRftPltCurveDefinition& other) const
 {
-	if (m_curveAddress == other.m_curveAddress)
-	{
-		if (m_wellName == other.m_wellName)
-		{
+    if (m_curveAddress == other.m_curveAddress)
+    {
+        if (m_wellName == other.m_wellName)
+        {
             return m_timeStep < other.m_timeStep;
-		}
+        }
         return m_wellName < other.m_wellName;
-	}
+    }
     return m_curveAddress < other.m_curveAddress;
 }

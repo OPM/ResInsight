@@ -174,7 +174,6 @@ bool RimGridInfoCollection::isActive() const
 //--------------------------------------------------------------------------------------------------
 void RimGridInfoCollection::addGridInfo(RimGridInfo* gridInfo)
 {
-
     m_gridInfos.push_back(gridInfo);
 }
 
@@ -527,4 +526,3 @@ bool RimGridCollection::hasTemporaryLgrs() const
     }
     return false;
 }
-

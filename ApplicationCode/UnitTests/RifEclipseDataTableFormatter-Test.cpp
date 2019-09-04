@@ -7,10 +7,9 @@
 
 TEST(RifEclipseDataTableFormatter, BasicUsage)
 {
-    QString tableText;
+    QString                      tableText;
     QTextStream                  stream(&tableText);
     RifEclipseDataTableFormatter formatter(stream);
-
 
     std::vector<RifEclipseOutputTableColumn> header = {
         RifEclipseOutputTableColumn("Well"),
@@ -36,19 +35,16 @@ TEST(RifEclipseDataTableFormatter, BasicUsage)
     formatter.tableCompleted();
 
     std::cout << tableText.toStdString();
-
 }
-
 
 TEST(RifEclipseDataTableFormatter, NoPrefix)
 {
-    QString tableText;
+    QString                      tableText;
     QTextStream                  stream(&tableText);
     RifEclipseDataTableFormatter formatter(stream);
 
     formatter.setTableRowPrependText("   ");
     formatter.setTableRowLineAppendText("");
-
 
     std::vector<RifEclipseOutputTableColumn> header = {
         RifEclipseOutputTableColumn("Well"),
@@ -74,14 +70,13 @@ TEST(RifEclipseDataTableFormatter, NoPrefix)
     formatter.tableCompleted();
 
     std::cout << tableText.toStdString();
-
 }
 
 TEST(RifEclipseDataTableFormatter, LongLine)
 {
-    QString                                  tableText;
-    QTextStream                              stream(&tableText);
-    RifEclipseDataTableFormatter             formatter(stream);
+    QString                      tableText;
+    QTextStream                  stream(&tableText);
+    RifEclipseDataTableFormatter formatter(stream);
 
     std::vector<RifEclipseOutputTableColumn> header = {
         RifEclipseOutputTableColumn("50 Character Well Name"),
@@ -102,12 +97,12 @@ TEST(RifEclipseDataTableFormatter, LongLine)
     {
         formatter.add(std::numeric_limits<int>::max()); // 10 characters
     }
-    int fullLineLength = formatter.tableRowPrependText().length() + 9 * formatter.columnSpacing() +
-        50 + 8 * 10 + formatter.tableRowAppendText().length();
+    int fullLineLength = formatter.tableRowPrependText().length() + 9 * formatter.columnSpacing() + 50 + 8 * 10 +
+                         formatter.tableRowAppendText().length();
     int tableWidth = formatter.tableWidth();
     EXPECT_EQ(tableWidth, fullLineLength);
     EXPECT_GT(tableWidth, formatter.maxDataRowWidth());
-    
+
     formatter.rowCompleted();
     formatter.tableCompleted();
 

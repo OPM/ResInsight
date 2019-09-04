@@ -1651,7 +1651,7 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 
     {
         bool showFractureColors = false;
-    
+
         std::vector<RimFracture*> fractures;
         m_wellCollection->descendantsIncludingThisOfType(fractures);
         wellPathCollection()->descendantsIncludingThisOfType(fractures);

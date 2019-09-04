@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,15 +22,15 @@
 #include "RiaLogging.h"
 #include "RiaViewRedrawScheduler.h"
 
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimCase.h"
+#include "RimGridView.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
-#include "RimGridView.h"
-#include "RimCase.h"
-#include "Rim3dOverlayInfoConfig.h"
 
-#include "RicSnapshotViewToFileFeature.h"
 #include "RicSnapshotFilenameGenerator.h"
+#include "RicSnapshotViewToFileFeature.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuViewer.h"
@@ -46,16 +46,15 @@
 #include <QFileInfo>
 #include <QMdiSubWindow>
 
-
 CAF_CMD_SOURCE_INIT(RicSnapshotAllViewsToFileFeature, "RicSnapshotAllViewsToFileFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotAllViewsToFileFeature::saveAllViews()
 {
-    RiaApplication* app = RiaApplication::instance();
-    RimProject* proj = app->project();
+    RiaApplication* app  = RiaApplication::instance();
+    RimProject*     proj = app->project();
     if (!proj) return;
 
     // Save images in snapshot catalog relative to project directory
@@ -70,7 +69,9 @@ void RicSnapshotAllViewsToFileFeature::saveAllViews()
 //--------------------------------------------------------------------------------------------------
 /// Export all snapshots of a given case (or caseId == -1 for all cases)
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(const QString& snapshotFolderName, const QString& prefix /*= ""*/, int caseId /*= -1*/)
+void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(const QString& snapshotFolderName,
+                                                                          const QString& prefix /*= ""*/,
+                                                                          int            caseId /*= -1*/)
 {
     RimProject* project = RiaApplication::instance()->project();
 
@@ -112,7 +113,7 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(const 
 
                 RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
 
-                //riv->updateCurrentTimeStepAndRedraw();
+                // riv->updateCurrentTimeStepAndRedraw();
                 riv->createDisplayModelAndRedraw();
                 viewer->repaint();
 
@@ -123,15 +124,15 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(const 
                 }
 
                 QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
-                
+
                 RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, riv);
 
                 // Statistics dialog
 
                 RimGridView* rigv = dynamic_cast<RimGridView*>(riv);
-                if ( rigv )
+                if (rigv)
                 {
-                    QImage img = rigv->overlayInfoConfig()->statisticsDialogScreenShotImage();
+                    QImage img       = rigv->overlayInfoConfig()->statisticsDialogScreenShotImage();
                     absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName + "_Statistics", ".png");
                     RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, img);
                 }
@@ -141,7 +142,7 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(const 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicSnapshotAllViewsToFileFeature::isCommandEnabled()
 {
@@ -149,7 +150,7 @@ bool RicSnapshotAllViewsToFileFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotAllViewsToFileFeature::onActionTriggered(bool isChecked)
 {
@@ -168,11 +169,10 @@ void RicSnapshotAllViewsToFileFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotAllViewsToFileFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Snapshot All Views To File");
     actionToSetup->setIcon(QIcon(":/SnapShotSaveViews.png"));
 }
-

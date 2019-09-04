@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -25,9 +25,9 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryCrossPlot.h"
 #include "RimSummaryPlotCollection.h"
 
 #include "RiuPlotMainWindow.h"
@@ -38,11 +38,10 @@
 
 #include <QAction>
 
-
 CAF_CMD_SOURCE_INIT(RicNewSummaryCrossPlotCurveFeature, "RicNewSummaryCrossPlotCurveFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewSummaryCrossPlotCurveFeature::isCommandEnabled()
 {
@@ -50,7 +49,7 @@ bool RicNewSummaryCrossPlotCurveFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryCrossPlotCurveFeature::onActionTriggered(bool isChecked)
 {
@@ -59,13 +58,13 @@ void RicNewSummaryCrossPlotCurveFeature::onActionTriggered(bool isChecked)
     RimSummaryCrossPlot* plot = selectedCrossPlot();
     if (plot)
     {
-        RimSummaryCurve* newCurve = new RimSummaryCurve();
-        cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plot->curveCount());
+        RimSummaryCurve* newCurve   = new RimSummaryCurve();
+        cvf::Color3f     curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plot->curveCount());
         newCurve->setColor(curveColor);
 
         plot->addCurveAndUpdate(newCurve);
 
-        RimSummaryCase* defaultCase = nullptr; 
+        RimSummaryCase* defaultCase = nullptr;
         if (project->activeOilField()->summaryCaseMainCollection()->summaryCaseCount() > 0)
         {
             defaultCase = project->activeOilField()->summaryCaseMainCollection()->summaryCase(0);
@@ -73,7 +72,7 @@ void RicNewSummaryCrossPlotCurveFeature::onActionTriggered(bool isChecked)
 
             newCurve->loadDataAndUpdate(true);
         }
-        
+
         plot->updateConnectedEditors();
 
         RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
@@ -84,7 +83,7 @@ void RicNewSummaryCrossPlotCurveFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryCrossPlotCurveFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -93,13 +92,13 @@ void RicNewSummaryCrossPlotCurveFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCrossPlot* RicNewSummaryCrossPlotCurveFeature::selectedCrossPlot() const
 {
     RimSummaryCrossPlot* crossPlot = nullptr;
 
-    caf::PdmObject* selObj =  dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
+    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
     if (selObj)
     {
         crossPlot = RiaSummaryTools::parentCrossPlot(selObj);

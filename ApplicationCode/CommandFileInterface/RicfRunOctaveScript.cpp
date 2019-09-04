@@ -2,17 +2,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -31,16 +31,16 @@
 CAF_PDM_SOURCE_INIT(RicfRunOctaveScript, "runOctaveScript");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicfRunOctaveScript::RicfRunOctaveScript()
 {
-    RICF_InitField(&m_path,     "path",    QString(),          "Path", "", "", "");
-    RICF_InitField(&m_caseIds,  "caseIds", std::vector<int>(), "Case IDs", "", "", "");
+    RICF_InitField(&m_path, "path", QString(), "Path", "", "", "");
+    RICF_InitField(&m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicfRunOctaveScript::execute()
 {
@@ -65,11 +65,13 @@ RicfCommandResponse RicfRunOctaveScript::execute()
     bool ok;
     if (caseIds.empty())
     {
-        ok = RiaApplication::instance()->launchProcess(octavePath, processArguments, RiaApplication::instance()->octaveProcessEnvironment());
+        ok = RiaApplication::instance()->launchProcess(
+            octavePath, processArguments, RiaApplication::instance()->octaveProcessEnvironment());
     }
     else
     {
-        ok = RiaApplication::instance()->launchProcessForMultipleCases(octavePath, processArguments, caseIds, RiaApplication::instance()->octaveProcessEnvironment());
+        ok = RiaApplication::instance()->launchProcessForMultipleCases(
+            octavePath, processArguments, caseIds, RiaApplication::instance()->octaveProcessEnvironment());
     }
 
     RicfCommandResponse response;

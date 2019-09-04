@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@
 CAF_CMD_SOURCE_INIT(RicNewSimWellIntersectionFeature, "RicNewSimWellIntersectionFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewSimWellIntersectionFeature::isCommandEnabled()
 {
@@ -42,7 +42,7 @@ bool RicNewSimWellIntersectionFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewSimWellIntersectionFeature::onActionTriggered(bool isChecked)
 {
@@ -51,7 +51,7 @@ void RicNewSimWellIntersectionFeature::onActionTriggered(bool isChecked)
     CVF_ASSERT(collection.size() == 1);
 
     RimSimWellInView* simWell = collection[0];
-    
+
     RimEclipseView* eclView = nullptr;
     simWell->firstAncestorOrThisOfType(eclView);
     CVF_ASSERT(eclView);
@@ -61,7 +61,7 @@ void RicNewSimWellIntersectionFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewSimWellIntersectionFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -70,24 +70,23 @@ void RicNewSimWellIntersectionFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicNewSimWellIntersectionCmd::RicNewSimWellIntersectionCmd(RimIntersectionCollection* intersectionCollection, RimSimWellInView* simWell)
-    : CmdExecuteCommand(nullptr),
-    m_intersectionCollection(intersectionCollection),
-    m_simWell(simWell)
+RicNewSimWellIntersectionCmd::RicNewSimWellIntersectionCmd(RimIntersectionCollection* intersectionCollection,
+                                                           RimSimWellInView*          simWell)
+    : CmdExecuteCommand(nullptr)
+    , m_intersectionCollection(intersectionCollection)
+    , m_simWell(simWell)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicNewSimWellIntersectionCmd::~RicNewSimWellIntersectionCmd()
-{
-}
+RicNewSimWellIntersectionCmd::~RicNewSimWellIntersectionCmd() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicNewSimWellIntersectionCmd::name()
 {
@@ -95,7 +94,7 @@ QString RicNewSimWellIntersectionCmd::name()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewSimWellIntersectionCmd::redo()
 {
@@ -103,16 +102,14 @@ void RicNewSimWellIntersectionCmd::redo()
     CVF_ASSERT(m_simWell);
 
     RimIntersection* intersection = new RimIntersection();
-    intersection->name = m_simWell->name;
-    intersection->type = RimIntersection::CS_SIMULATION_WELL;
-    intersection->simulationWell = m_simWell;
+    intersection->name            = m_simWell->name;
+    intersection->type            = RimIntersection::CS_SIMULATION_WELL;
+    intersection->simulationWell  = m_simWell;
 
     m_intersectionCollection->appendIntersectionAndUpdate(intersection);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellIntersectionCmd::undo()
-{
-}
+void RicNewSimWellIntersectionCmd::undo() {}

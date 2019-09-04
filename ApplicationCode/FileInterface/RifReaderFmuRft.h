@@ -48,24 +48,24 @@ public:
         double  pressureError;
         QString formation;
 
-		Observation();
+        Observation();
 
-		bool valid() const;
+        bool valid() const;
     };
 
-	struct WellObservationSet
-	{
-		QDateTime                dateTime;
+    struct WellObservationSet
+    {
+        QDateTime                dateTime;
         int                      measurementIndex;
         std::vector<Observation> observations;
 
-		WellObservationSet(const QDateTime& dateTime, int measurementIndex);
-	};
+        WellObservationSet(const QDateTime& dateTime, int measurementIndex);
+    };
 
 public:
     RifReaderFmuRft(const QString& filePath);
     ~RifReaderFmuRft() = default;
-    
+
     static QStringList findSubDirectoriesWithFmuRftData(const QString& filePath);
     static bool        directoryContainsFmuRftData(const QString& filePath);
 
@@ -89,8 +89,8 @@ private:
     typedef std::map<QString, WellObservationSet>  WellObservationMap;
 
     WellObservationMap loadWellDates(QDir& dir, QString* errorMsg);
-    static bool readTxtFile(const QString& txtFileName, QString* errorMsg, WellObservationSet* wellObservationSet);
-    static bool readObsFile(const QString& obsFileName, QString* errorMsg, WellObservationSet* wellObservationSet);
+    static bool        readTxtFile(const QString& txtFileName, QString* errorMsg, WellObservationSet* wellObservationSet);
+    static bool        readObsFile(const QString& obsFileName, QString* errorMsg, WellObservationSet* wellObservationSet);
 
 private:
     QString            m_filePath;

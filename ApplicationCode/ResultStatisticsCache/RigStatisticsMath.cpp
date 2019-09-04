@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -26,17 +26,23 @@
 #include <math.h>
 
 //--------------------------------------------------------------------------------------------------
-/// A function to do basic statistical calculations 
+/// A function to do basic statistical calculations
 //--------------------------------------------------------------------------------------------------
 
-void RigStatisticsMath::calculateBasicStatistics(const std::vector<double>& values, double* min, double* max, double* sum, double* range, double* mean, double* dev)
+void RigStatisticsMath::calculateBasicStatistics(const std::vector<double>& values,
+                                                 double*                    min,
+                                                 double*                    max,
+                                                 double*                    sum,
+                                                 double*                    range,
+                                                 double*                    mean,
+                                                 double*                    dev)
 {
     double m_min(HUGE_VAL);
     double m_max(-HUGE_VAL);
     double m_mean(HUGE_VAL);
     double m_dev(HUGE_VAL);
 
-    double m_sum = 0.0;
+    double m_sum      = 0.0;
     double sumSquared = 0.0;
 
     size_t validValueCount = 0;
@@ -66,7 +72,7 @@ void RigStatisticsMath::calculateBasicStatistics(const std::vector<double>& valu
         double s1 = m_sum;
         double s2 = sumSquared;
 
-        m_dev = sqrt( (s0 * s2) - (s1 * s1) ) / s0;
+        m_dev = sqrt((s0 * s2) - (s1 * s1)) / s0;
     }
 
     if (min) *min = m_min;
@@ -77,7 +83,6 @@ void RigStatisticsMath::calculateBasicStatistics(const std::vector<double>& valu
     if (mean) *mean = m_mean;
     if (dev) *dev = m_dev;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Algorithm:
@@ -126,8 +131,7 @@ void RigStatisticsMath::calculateStatisticsCurves(const std::vector<double>& val
         double rank = percentiles[i] * (valueCount + 1) - 1;
         double rankRem;
         double rankFrac = std::modf(rank, &rankRem);
-        int rankInt = static_cast<int>(rankRem);
-
+        int    rankInt  = static_cast<int>(rankRem);
 
         if (rankInt < valueCount - 1)
         {
@@ -151,7 +155,8 @@ void RigStatisticsMath::calculateStatisticsCurves(const std::vector<double>& val
 /// the inputValues does not contain any valid values
 //--------------------------------------------------------------------------------------------------
 
-std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles(const std::vector<double> & inputValues, const std::vector<double>& pValPositions)
+std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles(const std::vector<double>& inputValues,
+                                                                       const std::vector<double>& pValPositions)
 {
     std::vector<double> sortedValues;
     sortedValues.reserve(inputValues.size());
@@ -175,9 +180,9 @@ std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles(const std
 
             size_t pValIndex = static_cast<size_t>(sortedValues.size() * cvf::Math::abs(pValPositions[i]) / 100);
 
-            if (pValIndex >= sortedValues.size() ) pValIndex = sortedValues.size() - 1;
+            if (pValIndex >= sortedValues.size()) pValIndex = sortedValues.size() - 1;
 
-            pVal = sortedValues[pValIndex];
+            pVal           = sortedValues[pValIndex];
             percentiles[i] = pVal;
         }
     }
@@ -190,7 +195,8 @@ std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles(const std
 /// This method treats HUGE_VAL as "undefined" values, and ignores these. Will return HUGE_VAL if
 /// the inputValues does not contain any valid values
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles(const std::vector<double> & inputValues, const std::vector<double>& pValPositions)
+std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles(const std::vector<double>& inputValues,
+                                                                        const std::vector<double>& pValPositions)
 {
     std::vector<double> sortedValues;
     sortedValues.reserve(inputValues.size());
@@ -222,7 +228,8 @@ std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles(const st
 
             if (upperValueIndex < sortedValues.size())
             {
-                pVal = (1.0 - upperValueWeight) * sortedValues[lowerValueIndex] + upperValueWeight * sortedValues[upperValueIndex];
+                pVal =
+                    (1.0 - upperValueWeight) * sortedValues[lowerValueIndex] + upperValueWeight * sortedValues[upperValueIndex];
             }
             else
             {
@@ -236,29 +243,33 @@ std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles(const st
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigHistogramCalculator::RigHistogramCalculator(double min, double max, size_t nBins, std::vector<size_t>* histogram)
 {
     assert(histogram);
     assert(nBins > 0);
 
-    if (max == min) {  nBins = 1; } // Avoid dividing on 0 range
+    if (max == min)
+    {
+        nBins = 1;
+    } // Avoid dividing on 0 range
 
-    m_histogram = histogram;
-    m_min = min;
+    m_histogram        = histogram;
+    m_min              = min;
     m_observationCount = 0;
 
     // Initialize bins
     m_histogram->resize(nBins);
-    for (size_t i = 0; i < m_histogram->size(); ++i) (*m_histogram)[i] = 0;
+    for (size_t i = 0; i < m_histogram->size(); ++i)
+        (*m_histogram)[i] = 0;
 
-    m_range = max - min;
-    m_maxIndex = nBins-1;
+    m_range    = max - min;
+    m_maxIndex = nBins - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigHistogramCalculator::addValue(double value)
 {
@@ -266,7 +277,7 @@ void RigHistogramCalculator::addValue(double value)
 
     size_t index = 0;
 
-    if (m_maxIndex > 0) index = (size_t)(m_maxIndex*(value - m_min)/m_range);
+    if (m_maxIndex > 0) index = (size_t)(m_maxIndex * (value - m_min) / m_range);
 
     if (index < m_histogram->size()) // Just clip to the max min range (-index will overflow to positive )
     {
@@ -276,43 +287,43 @@ void RigHistogramCalculator::addValue(double value)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigHistogramCalculator::addData(const std::vector<double>& data)
 {
     assert(m_histogram);
-    for (size_t i = 0; i < data.size(); ++i) 
+    for (size_t i = 0; i < data.size(); ++i)
     {
         addValue(data[i]);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigHistogramCalculator::addData(const std::vector<float>& data)
 {
     assert(m_histogram);
-    for (size_t i = 0; i < data.size(); ++i) 
+    for (size_t i = 0; i < data.size(); ++i)
     {
         addValue(data[i]);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigHistogramCalculator::calculatePercentil(double pVal)
 {
     assert(m_histogram);
     assert(m_histogram->size());
-    assert( 0.0 <= pVal && pVal <= 1.0);
+    assert(0.0 <= pVal && pVal <= 1.0);
 
-    double pValObservationCount = pVal*m_observationCount;
+    double pValObservationCount = pVal * m_observationCount;
     if (pValObservationCount == 0.0) return m_min;
 
     size_t accObsCount = 0;
-    double binWidth =  m_range/m_histogram->size();
+    double binWidth    = m_range / m_histogram->size();
     for (size_t binIdx = 0; binIdx < m_histogram->size(); ++binIdx)
     {
         size_t binObsCount = (*m_histogram)[binIdx];
@@ -320,10 +331,10 @@ double RigHistogramCalculator::calculatePercentil(double pVal)
         accObsCount += binObsCount;
         if (accObsCount >= pValObservationCount)
         {
-            double domainValueAtEndOfBin = m_min + (binIdx+1) * binWidth;
-            double unusedFractionOfLastBin = (double)(accObsCount - pValObservationCount)/binObsCount;
+            double domainValueAtEndOfBin   = m_min + (binIdx + 1) * binWidth;
+            double unusedFractionOfLastBin = (double)(accObsCount - pValObservationCount) / binObsCount;
 
-            double histogramBasedEstimate = domainValueAtEndOfBin - unusedFractionOfLastBin*binWidth;
+            double histogramBasedEstimate = domainValueAtEndOfBin - unusedFractionOfLastBin * binWidth;
 
             // See https://resinsight.org/docs/casegroupsandstatistics/#percentile-methods for details
 

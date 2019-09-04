@@ -28,6 +28,7 @@ class RimFractureTemplateCollection;
 class RimCompletionTemplateCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
 public:
     RimCompletionTemplateCollection();
     ~RimCompletionTemplateCollection() override;
@@ -47,5 +48,4 @@ private:
 
 protected:
     void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-
 };

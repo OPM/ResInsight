@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,11 +21,11 @@
 #include "RiaApplication.h"
 
 #include "RimContextCommandBuilder.h"
+#include "RimTofAccumulatedPhaseFractionsPlot.h"
 #include "RimTotalWellAllocationPlot.h"
-#include "RimWellPltPlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-#include "RimTofAccumulatedPhaseFractionsPlot.h"
+#include "RimWellPltPlot.h"
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuNightchartsWidget.h"
@@ -38,10 +38,8 @@
 #include <QLabel>
 #include <QMenu>
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuWellPltPlot::RiuWellPltPlot(RimWellPltPlot* plotDefinition, QWidget* parent)
     : QFrame(parent)
@@ -49,7 +47,7 @@ RiuWellPltPlot::RiuWellPltPlot(RimWellPltPlot* plotDefinition, QWidget* parent)
 
 {
     Q_ASSERT(m_plotDefinition);
-    
+
     QVBoxLayout* mainLayout = new QVBoxLayout();
     this->setLayout(mainLayout);
     this->layout()->setMargin(0);
@@ -76,21 +74,19 @@ RiuWellPltPlot::RiuWellPltPlot(RimWellPltPlot* plotDefinition, QWidget* parent)
 
     mainLayout->addLayout(plotWidgetsLayout);
     plotWidgetsLayout->addLayout(rightColumnLayout);
-    
+
     QWidget* wellFlowWidget = m_plotDefinition->wellLogPlot()->createPlotWidget();
 
     plotWidgetsLayout->addWidget(wellFlowWidget);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuWellPltPlot::~RiuWellPltPlot()
-{
-}
+RiuWellPltPlot::~RiuWellPltPlot() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellPltPlot* RiuWellPltPlot::ownerPlotDefinition()
 {
@@ -98,7 +94,7 @@ RimWellPltPlot* RiuWellPltPlot::ownerPlotDefinition()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimViewWindow* RiuWellPltPlot::ownerViewWindow() const
 {
@@ -106,7 +102,7 @@ RimViewWindow* RiuWellPltPlot::ownerViewWindow() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuWellPltPlot::showTitle(const QString& title)
 {
@@ -116,7 +112,7 @@ void RiuWellPltPlot::showTitle(const QString& title)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuWellPltPlot::hideTitle()
 {
@@ -124,7 +120,7 @@ void RiuWellPltPlot::hideTitle()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuWellPltPlot::minimumSizeHint() const
 {
@@ -132,14 +128,12 @@ QSize RiuWellPltPlot::minimumSizeHint() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPltPlot::contextMenuEvent(QContextMenuEvent* event)
-{
-}
+void RiuWellPltPlot::contextMenuEvent(QContextMenuEvent* event) {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuWellPltPlot::sizeHint() const
 {
@@ -147,8 +141,6 @@ QSize RiuWellPltPlot::sizeHint() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPltPlot::setDefaults()
-{
-}
+void RiuWellPltPlot::setDefaults() {}

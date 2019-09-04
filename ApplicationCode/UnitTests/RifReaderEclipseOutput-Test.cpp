@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,17 +22,17 @@
 
 #include "RigEclipseCaseData.h"
 
-#include <ert/ecl/ecl_file.h>
 #include "ert/ecl/ecl_kw_magic.h"
+#include <ert/ecl/ecl_file.h>
 
 #include "RiaStringEncodingTools.h"
 #include "RiaTestDataDirectory.h"
-#include "RifReaderEclipseOutput.h"
 #include "RifEclipseOutputFileTools.h"
-#include "RigEclipseCaseData.h"
-#include "RigCaseCellResultsData.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
+#include "RifReaderEclipseOutput.h"
 #include "RifReaderSettings.h"
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
 #include "RimEclipseResultCase.h"
 
 #include <QDebug>
@@ -43,7 +43,7 @@
 using namespace RiaDefines;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RigReservoirTest, BasicTest10k)
 {
@@ -62,20 +62,19 @@ TEST(RigReservoirTest, BasicTest10k)
 
         QStringList staticResults = cellData->resultNames(STATIC_NATIVE);
         EXPECT_EQ(0, staticResults.size());
-        //qDebug() << "Static results\n" << staticResults;
+        // qDebug() << "Static results\n" << staticResults;
 
         QStringList dynamicResults = cellData->resultNames(DYNAMIC_NATIVE);
         EXPECT_EQ(0, dynamicResults.size());
-        //qDebug() << "Dynamic results\n" << dynamicResults;
+        // qDebug() << "Dynamic results\n" << dynamicResults;
 
         int numTimeSteps = static_cast<int>(cellData->maxTimeStepCount());
         EXPECT_EQ(0, numTimeSteps);
-
     }
 
     {
         cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
-        bool result = readerInterfaceEcl->open(filePath, reservoir.p());
+        bool                             result             = readerInterfaceEcl->open(filePath, reservoir.p());
         EXPECT_TRUE(result);
         int numTimeSteps = static_cast<int>(readerInterfaceEcl->allTimeSteps().size());
         EXPECT_EQ(9, numTimeSteps);
@@ -86,15 +85,15 @@ TEST(RigReservoirTest, BasicTest10k)
 
         QStringList staticResults = cellData->resultNames(STATIC_NATIVE);
         EXPECT_EQ(44, staticResults.size());
-        //qDebug() << "Static results\n" << staticResults;
+        // qDebug() << "Static results\n" << staticResults;
 
         QStringList dynamicResults = cellData->resultNames(DYNAMIC_NATIVE);
         EXPECT_EQ(23, dynamicResults.size());
-        //qDebug() << "Dynamic results\n" << dynamicResults;
+        // qDebug() << "Dynamic results\n" << dynamicResults;
 
         int numTimeSteps = static_cast<int>(cellData->maxTimeStepCount());
         EXPECT_EQ(9, numTimeSteps);
-    }    
+    }
 }
 
 TEST(RigReservoirTest, BasicTest10kRestart)
@@ -112,13 +111,12 @@ TEST(RigReservoirTest, BasicTest10kRestart)
     filenames << filePath;
     unrstAccess.setRestartFiles(filenames);
 
-
-    QStringList resultNames;
+    QStringList         resultNames;
     std::vector<size_t> dataItemCount;
 
     unrstAccess.resultNames(&resultNames, &dataItemCount);
 
-    EXPECT_EQ(resultNames.size(), (int) dataItemCount.size());
+    EXPECT_EQ(resultNames.size(), (int)dataItemCount.size());
     EXPECT_EQ(83, resultNames.size());
 
     /* for (int i = 0; i < resultNames.size(); i++)
@@ -127,7 +125,7 @@ TEST(RigReservoirTest, BasicTest10kRestart)
     } */
 
     auto reportNums = unrstAccess.reportNumbers();
-    EXPECT_EQ((size_t) 9, reportNums.size());
+    EXPECT_EQ((size_t)9, reportNums.size());
 
     /* for (auto reportNum : reportNums)
     {
@@ -148,13 +146,13 @@ TEST(RigReservoirTest, BasicTest10k_NativeECL)
     EXPECT_TRUE(grid);
 
     QString subDir("RifReaderEclipseOutput");
-    QDir dataDir(TEST_DATA_DIR);
+    QDir    dataDir(TEST_DATA_DIR);
     dataDir.mkdir(subDir);
     dataDir.cd(subDir);
     QString outFilePath = dataDir.absoluteFilePath("TEST10K_FLT_LGR_NNC_OUT.GRDECL");
 
 #ifdef _MSC_VER
-#pragma warning (push)
+#pragma warning(push)
 #pragma warning(disable : 4996)
 #endif
     FILE* filePtr = fopen(RiaStringEncodingTools::toNativeEncoded(outFilePath).data(), "w");
@@ -172,14 +170,13 @@ TEST(RigReservoirTest, BasicTest10k_NativeECL)
 
     // Enable to produce text string so expectedMd5 can be updated
     // Qt4 doesn't take a parameter for toHex()
-    //qDebug() << expectedMd5.toLatin1().toHex(0) << "     " << generatedMd5.toHex(0);
+    // qDebug() << expectedMd5.toLatin1().toHex(0) << "     " << generatedMd5.toHex(0);
     EXPECT_TRUE(generatedMd5 == expectedMd5);
 
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 }
-
 
 TEST(RigReservoirTest, Test10k_ReadThenWriteToECL)
 {
@@ -558,17 +555,15 @@ TEST(RigReservoirTest, WellTest)
     EXPECT_TRUE(mainGridWellCells->size() == reservoir->mainGrid()->cellCount());
 }
 
-
-
 #endif
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(DISABLED_RigReservoirTest, WellTest)
 {
     cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
-    cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData(nullptr);
+    cvf::ref<RigEclipseCaseData>     reservoir          = new RigEclipseCaseData(nullptr);
 
     // Location of test dataset received from Håkon Høgstøl in July 2011 with 10k active cells
 #ifdef WIN32
@@ -584,4 +579,3 @@ TEST(DISABLED_RigReservoirTest, WellTest)
 
     readerInterfaceEcl->setHdf5FileName(sourSim);
 }
-

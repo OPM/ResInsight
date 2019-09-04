@@ -1,18 +1,18 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -37,15 +37,15 @@
 #include <cvfAssert.h>
 
 //--------------------------------------------------------------------------------------------------
-/// 
-/// 
+///
+///
 ///  RiuQPlainTextEdit
-/// 
-/// 
+///
+///
 //--------------------------------------------------------------------------------------------------
-void RiuQPlainTextEdit::keyPressEvent(QKeyEvent *e)
+void RiuQPlainTextEdit::keyPressEvent(QKeyEvent* e)
 {
-    if ( e->key() == Qt::Key_C && e->modifiers() == Qt::ControlModifier )
+    if (e->key() == Qt::Key_C && e->modifiers() == Qt::ControlModifier)
     {
         slotCopyContentToClipboard();
         e->setAccepted(true);
@@ -57,7 +57,7 @@ void RiuQPlainTextEdit::keyPressEvent(QKeyEvent *e)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuQPlainTextEdit::slotCopyContentToClipboard()
 {
@@ -90,7 +90,7 @@ void RiuQPlainTextEdit::slotCopyContentToClipboard()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuQPlainTextEdit::slotSelectAll()
 {
@@ -98,13 +98,13 @@ void RiuQPlainTextEdit::slotSelectAll()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuQPlainTextEdit::slotExportToFile()
 {
     // Get dialog
     RiuTabbedTextDialog* dialog = nullptr;
-    auto curr = parent();
+    auto                 curr   = parent();
     while (dialog == nullptr)
     {
         if (!curr) break;
@@ -113,20 +113,20 @@ void RiuQPlainTextEdit::slotExportToFile()
         curr = curr->parent();
     }
 
-    if(dialog)
+    if (dialog)
     {
         QString defaultDir = RicAsciiExportSummaryPlotFeature::defaultExportDir();
-        auto fileName = RicAsciiExportSummaryPlotFeature::getFileNameFromUserDialog(dialog->description(), defaultDir);
+        auto    fileName   = RicAsciiExportSummaryPlotFeature::getFileNameFromUserDialog(dialog->description(), defaultDir);
         RicAsciiExportSummaryPlotFeature::exportTextToFile(fileName, this->toPlainText());
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
-/// 
+///
+///
 /// RiuTextDialog
-/// 
-/// 
+///
+///
 //--------------------------------------------------------------------------------------------------
 RiuTextDialog::RiuTextDialog(QWidget* parent)
     : QDialog(parent, RiuTools::defaultDialogFlags())
@@ -146,16 +146,15 @@ RiuTextDialog::RiuTextDialog(QWidget* parent)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuTextDialog::setText(const QString& text)
 {
     m_textEdit->setPlainText(text);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuTextDialog::contextMenuEvent(QContextMenuEvent* event)
 {
@@ -187,13 +186,12 @@ void RiuTextDialog::contextMenuEvent(QContextMenuEvent* event)
     menu.exec(event->globalPos());
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuTabbedTextDialog::RiuTabbedTextDialog(RiuTabbedTextProvider* textProvider, QWidget* parent /*= nullptr*/)
-    : m_textProvider(textProvider), QDialog(parent, RiuTools::defaultDialogFlags())
+    : m_textProvider(textProvider)
+    , QDialog(parent, RiuTools::defaultDialogFlags())
 {
     m_tabWidget = new QTabWidget(this);
 
@@ -204,7 +202,7 @@ RiuTabbedTextDialog::RiuTabbedTextDialog(RiuTabbedTextProvider* textProvider, QW
 
     for (int tabIndex = 0; tabIndex < m_textProvider->tabCount(); ++tabIndex)
     {
-        QString tabTitle = m_textProvider->tabTitle(tabIndex);
+        QString            tabTitle = m_textProvider->tabTitle(tabIndex);
         RiuQPlainTextEdit* textEdit = new RiuQPlainTextEdit();
         textEdit->setReadOnly(true);
         textEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
@@ -247,7 +245,7 @@ QString RiuTabbedTextDialog::description() const
 //--------------------------------------------------------------------------------------------------
 void RiuTabbedTextDialog::redrawText()
 {
-    auto textEdit = currentTextEdit();
+    auto textEdit  = currentTextEdit();
     auto currIndex = m_tabWidget->currentIndex();
 
     textEdit->setPlainText("Populating Text View...");
@@ -265,21 +263,20 @@ void RiuTabbedTextDialog::redrawText()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuQPlainTextEdit * RiuTabbedTextDialog::currentTextEdit() const
+RiuQPlainTextEdit* RiuTabbedTextDialog::currentTextEdit() const
 {
     return dynamic_cast<RiuQPlainTextEdit*>(m_tabWidget->currentWidget());
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuTabbedTextDialog::updateTabText()
-{    
+{
     auto currIndex = m_tabWidget->currentIndex();
-    if (m_textProvider && m_textProvider->isValid() &&
-        m_tabWidget->tabText(currIndex) == m_textProvider->tabTitle(currIndex))
+    if (m_textProvider && m_textProvider->isValid() && m_tabWidget->tabText(currIndex) == m_textProvider->tabTitle(currIndex))
     {
         m_tabTexts[currIndex] = m_textProvider->tabText(currIndex);
     }
@@ -290,7 +287,7 @@ void RiuTabbedTextDialog::updateTabText()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuTabbedTextDialog::slotTabChanged(int index)
 {
@@ -298,15 +295,14 @@ void RiuTabbedTextDialog::slotTabChanged(int index)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuTabbedTextDialog::contextMenuEvent(QContextMenuEvent* event)
 {
-    QMenu menu;
+    QMenu              menu;
     RiuQPlainTextEdit* textEdit = dynamic_cast<RiuQPlainTextEdit*>(m_tabWidget->currentWidget());
 
     {
-
         QAction* actionToSetup = new QAction(this);
 
         actionToSetup->setText("Copy");

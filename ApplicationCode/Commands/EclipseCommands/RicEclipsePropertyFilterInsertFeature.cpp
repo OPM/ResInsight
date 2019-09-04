@@ -2,25 +2,25 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicEclipsePropertyFilterInsertFeature.h"
 
-#include "RicEclipsePropertyFilterInsertExec.h"
 #include "RicEclipsePropertyFilterFeatureImpl.h"
+#include "RicEclipsePropertyFilterInsertExec.h"
 
 #include "RimEclipsePropertyFilter.h"
 
@@ -33,7 +33,7 @@
 CAF_CMD_SOURCE_INIT(RicEclipsePropertyFilterInsertFeature, "RicEclipsePropertyFilterInsertFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicEclipsePropertyFilterInsertFeature::isCommandEnabled()
 {
@@ -47,7 +47,7 @@ bool RicEclipsePropertyFilterInsertFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterInsertFeature::onActionTriggered(bool isChecked)
 {
@@ -60,7 +60,7 @@ void RicEclipsePropertyFilterInsertFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterInsertFeature::setupActionLook(QAction* actionToSetup)
 {

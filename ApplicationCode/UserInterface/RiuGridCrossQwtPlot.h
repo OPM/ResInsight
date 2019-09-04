@@ -68,14 +68,14 @@ protected:
     void clearSampleSelection() override;
     bool curveText(const QwtPlotCurve* curve, QString* curveTitle, QString* xParamName, QString* yParamName) const;
     void applyFontSizeToOverlayItem(caf::TitledOverlayFrame* overlayItem);
+
 private:
     typedef caf::PdmPointer<RimGridCrossPlotDataSet> DataSetPtr;
-    typedef QPointer<RiuCvfOverlayItemWidget> LegendPtr;
-    typedef QPointer<RiuDraggableOverlayFrame> InfoBoxPtr;
+    typedef QPointer<RiuCvfOverlayItemWidget>        LegendPtr;
+    typedef QPointer<RiuDraggableOverlayFrame>       InfoBoxPtr;
 
     InfoBoxPtr                             m_infoBox;
     std::map<DataSetPtr, LegendPtr>        m_legendWidgets;
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
     QwtPlotMarker*                         m_selectedPointMarker;
-
 };

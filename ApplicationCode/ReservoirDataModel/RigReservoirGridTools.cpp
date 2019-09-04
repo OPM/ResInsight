@@ -1,21 +1,20 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 
 #include "RigReservoirGridTools.h"
 
@@ -27,17 +26,17 @@
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
-#include "RimGeoMechCase.h"
 #include "RimEclipseView.h"
+#include "RimGeoMechCase.h"
 
 #include <QString>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RigReservoirGridTools::gridCount(RimCase* rimCase)
 {
-    RigMainGrid* eclipseMainGrid = RigReservoirGridTools::eclipseMainGrid(rimCase);
+    RigMainGrid*          eclipseMainGrid       = RigReservoirGridTools::eclipseMainGrid(rimCase);
     RigFemPartCollection* geoMechPartCollection = RigReservoirGridTools::geoMechPartCollection(rimCase);
 
     if (eclipseMainGrid)
@@ -53,7 +52,7 @@ int RigReservoirGridTools::gridCount(RimCase* rimCase)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const cvf::StructGridInterface* RigReservoirGridTools::mainGrid(RimCase* rimCase)
 {
@@ -61,11 +60,11 @@ const cvf::StructGridInterface* RigReservoirGridTools::mainGrid(RimCase* rimCase
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const cvf::StructGridInterface* RigReservoirGridTools::gridByIndex(RimCase* rimCase, int gridIndex)
 {
-    RigMainGrid* eclipseMainGrid = RigReservoirGridTools::eclipseMainGrid(rimCase);
+    RigMainGrid*          eclipseMainGrid       = RigReservoirGridTools::eclipseMainGrid(rimCase);
     RigFemPartCollection* geoMechPartCollection = RigReservoirGridTools::geoMechPartCollection(rimCase);
 
     if (eclipseMainGrid)
@@ -81,11 +80,11 @@ const cvf::StructGridInterface* RigReservoirGridTools::gridByIndex(RimCase* rimC
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RigReservoirGridTools::gridName(RimCase* rimCase, int gridIndex)
 {
-    RigMainGrid* eclipseMainGrid = RigReservoirGridTools::eclipseMainGrid(rimCase);
+    RigMainGrid*          eclipseMainGrid       = RigReservoirGridTools::eclipseMainGrid(rimCase);
     RigFemPartCollection* geoMechPartCollection = RigReservoirGridTools::geoMechPartCollection(rimCase);
 
     if (eclipseMainGrid)
@@ -101,7 +100,7 @@ QString RigReservoirGridTools::gridName(RimCase* rimCase, int gridIndex)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RigActiveCellInfo* RigReservoirGridTools::activeCellInfo(Rim3dView* rimView)
 {
@@ -115,7 +114,7 @@ const RigActiveCellInfo* RigReservoirGridTools::activeCellInfo(Rim3dView* rimVie
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigMainGrid* RigReservoirGridTools::eclipseMainGrid(RimCase* rimCase)
 {
@@ -129,7 +128,7 @@ RigMainGrid* RigReservoirGridTools::eclipseMainGrid(RimCase* rimCase)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigFemPartCollection* RigReservoirGridTools::geoMechPartCollection(RimCase* rimCase)
 {

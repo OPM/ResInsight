@@ -21,10 +21,10 @@
 #include "RiaApplication.h"
 
 #include "RimEclipseView.h"
-#include "RimValveTemplate.h"
-#include "RimValveTemplateCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimValveTemplate.h"
+#include "RimValveTemplateCollection.h"
 #include "RimWellPathValve.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -40,7 +40,7 @@ CAF_CMD_SOURCE_INIT(RicNewValveTemplateFeature, "RicNewValveTemplateFeature");
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewValveTemplateFeature::selectValveTemplateAndUpdate(RimValveTemplate*           valveTemplate)
+void RicNewValveTemplateFeature::selectValveTemplateAndUpdate(RimValveTemplate* valveTemplate)
 {
     valveTemplate->loadDataAndUpdate();
 
@@ -93,7 +93,7 @@ RimValveTemplate* RicNewValveTemplateFeature::createNewValveTemplate()
     if (valveTemplateColl)
     {
         RimValveTemplate* valveTemplate = new RimValveTemplate();
-        QString           userLabel = QString("Valve Template #%1").arg(valveTemplateColl->valveTemplates().size() + 1);
+        QString           userLabel     = QString("Valve Template #%1").arg(valveTemplateColl->valveTemplates().size() + 1);
         valveTemplate->setUserLabel(userLabel);
         valveTemplateColl->addValveTemplate(valveTemplate);
         valveTemplate->setUnitSystem(valveTemplateColl->defaultUnitSystemType());

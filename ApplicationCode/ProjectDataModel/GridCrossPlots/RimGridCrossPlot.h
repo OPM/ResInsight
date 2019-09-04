@@ -22,8 +22,8 @@
 #include "cafPdmObject.h"
 
 #include "RiaDefines.h"
-#include "RimRiuQwtPlotOwnerInterface.h"
 #include "RimNameConfig.h"
+#include "RimRiuQwtPlotOwnerInterface.h"
 #include "RimViewWindow.h"
 
 #include <QPointer>
@@ -38,20 +38,21 @@ class RiuGridCrossQwtPlot;
 class RimGridCrossPlotNameConfig : public RimNameConfig
 {
     CAF_PDM_HEADER_INIT;
+
 public:
     RimGridCrossPlotNameConfig(RimNameConfigHolderInterface* holder = nullptr);
+
 public:
     caf::PdmField<bool> addDataSetNames;
 
 protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-
 };
 
 class RimGridCrossPlot : public RimViewWindow, public RimRiuQwtPlotOwnerInterface, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
-    
+
 public:
     RimGridCrossPlot();
     ~RimGridCrossPlot();
@@ -59,7 +60,7 @@ public:
     RimGridCrossPlotDataSet* createDataSet();
     int                      indexOfDataSet(const RimGridCrossPlotDataSet* dataSet) const;
     void                     addDataSet(RimGridCrossPlotDataSet* dataSet);
-    
+
     std::vector<RimGridCrossPlotDataSet*> dataSets() const;
 
     QWidget* viewWidget() override;
@@ -68,7 +69,7 @@ public:
     void     calculateZoomRangeAndUpdateQwt();
     void     reattachCurvesToQwtAndReplot();
     QString  createAutoName() const override;
-    
+
     bool                 showInfoBox() const;
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 detachAllCurves();
@@ -84,15 +85,18 @@ public:
     int                  legendFontSize() const;
 
     bool hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType, int defaultFontSize) const override;
-    bool applyFontSize(RiaDefines::FontSettingType fontSettingType, int oldFontSize, int fontSize, bool forceChange = false) override;
+    bool applyFontSize(RiaDefines::FontSettingType fontSettingType,
+                       int                         oldFontSize,
+                       int                         fontSize,
+                       bool                        forceChange = false) override;
 
 public:
     // Rim2dPlotInterface overrides
-    void updateAxisScaling() override;
-    void updateAxisDisplay() override;
-    void updateZoomWindowFromQwt() override;
-    void selectAxisInPropertyEditor(int axis) override;
-    void setAutoZoomForAllAxes(bool enableAutoZoom) override;
+    void            updateAxisScaling() override;
+    void            updateAxisDisplay() override;
+    void            updateZoomWindowFromQwt() override;
+    void            selectAxisInPropertyEditor(int axis) override;
+    void            setAutoZoomForAllAxes(bool enableAutoZoom) override;
     caf::PdmObject* findRimPlotObjectFromQwtCurve(const QwtPlotCurve* curve) const override;
 
 protected:
@@ -102,17 +106,17 @@ protected:
     void     defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void     defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
-    void     fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                         bool*                      useOptionsOnly) override;
 
     void updatePlot();
 
     virtual QString xAxisParameterString() const;
-    QString yAxisParameterString() const;
+    QString         yAxisParameterString() const;
 
-    void updateAxisInQwt(RiaDefines::PlotAxis axisType);
-    void updateAxisFromQwt(RiaDefines::PlotAxis axisType);
+    void                             updateAxisInQwt(RiaDefines::PlotAxis axisType);
+    void                             updateAxisFromQwt(RiaDefines::PlotAxis axisType);
     std::vector<const QwtPlotCurve*> visibleQwtCurves() const;
 
     RimPlotAxisProperties* xAxisProperties();
@@ -122,20 +126,17 @@ protected:
     void                        setShowInfoBox(bool enable);
 
     std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
+
 private:
-    caf::PdmField<bool>                                m_showInfoBox;
-    caf::PdmField<bool>                                m_showLegend;
-    caf::PdmField<int>                                 m_legendFontSize;
-    caf::PdmChildField<RimGridCrossPlotNameConfig*>    m_nameConfig;
+    caf::PdmField<bool>                             m_showInfoBox;
+    caf::PdmField<bool>                             m_showLegend;
+    caf::PdmField<int>                              m_legendFontSize;
+    caf::PdmChildField<RimGridCrossPlotNameConfig*> m_nameConfig;
 
-    caf::PdmChildField<RimPlotAxisProperties*>         m_yAxisProperties;
-    caf::PdmChildField<RimPlotAxisProperties*>         m_xAxisProperties;
+    caf::PdmChildField<RimPlotAxisProperties*> m_yAxisProperties;
+    caf::PdmChildField<RimPlotAxisProperties*> m_xAxisProperties;
 
-    caf::PdmChildArrayField<RimGridCrossPlotDataSet*>  m_crossPlotDataSets;
+    caf::PdmChildArrayField<RimGridCrossPlotDataSet*> m_crossPlotDataSets;
 
-    QPointer<RiuGridCrossQwtPlot>                      m_qwtPlot;
-        
+    QPointer<RiuGridCrossQwtPlot> m_qwtPlot;
 };
-
-
-

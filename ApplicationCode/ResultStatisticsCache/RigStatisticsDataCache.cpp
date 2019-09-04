@@ -2,17 +2,17 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,9 +24,8 @@
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigStatisticsDataCache::RigStatisticsDataCache(RigStatisticsCalculator* statisticsCalculator)
     : m_statisticsCalculator(statisticsCalculator)
@@ -37,7 +36,7 @@ RigStatisticsDataCache::RigStatisticsDataCache(RigStatisticsCalculator* statisti
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::clearAllStatistics()
 {
@@ -46,7 +45,7 @@ void RigStatisticsDataCache::clearAllStatistics()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::minMaxCellScalarValues(double& min, double& max)
 {
@@ -54,7 +53,7 @@ void RigStatisticsDataCache::minMaxCellScalarValues(double& min, double& max)
     {
         min = HUGE_VAL;
         max = -HUGE_VAL;
-        
+
         size_t i;
         for (i = 0; i < m_statisticsCalculator->timeStepCount(); i++)
         {
@@ -64,8 +63,8 @@ void RigStatisticsDataCache::minMaxCellScalarValues(double& min, double& max)
             if (tsmax > max) max = tsmax;
         }
 
-        m_statsAllTimesteps.m_minValue = min;
-        m_statsAllTimesteps.m_maxValue = max;
+        m_statsAllTimesteps.m_minValue           = min;
+        m_statsAllTimesteps.m_maxValue           = max;
         m_statsAllTimesteps.m_isMaxMinCalculated = true;
     }
 
@@ -74,7 +73,7 @@ void RigStatisticsDataCache::minMaxCellScalarValues(double& min, double& max)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max)
 {
@@ -101,7 +100,7 @@ void RigStatisticsDataCache::minMaxCellScalarValues(size_t timeStepIndex, double
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::posNegClosestToZero(double& pos, double& neg)
 {
@@ -109,7 +108,7 @@ void RigStatisticsDataCache::posNegClosestToZero(double& pos, double& neg)
     {
         pos = HUGE_VAL;
         neg = -HUGE_VAL;
-        
+
         size_t i;
         for (i = 0; i < m_statisticsCalculator->timeStepCount(); i++)
         {
@@ -119,8 +118,8 @@ void RigStatisticsDataCache::posNegClosestToZero(double& pos, double& neg)
             if (tsPos < pos && tsPos > 0) pos = tsPos;
         }
 
-        m_statsAllTimesteps.m_posClosestToZero = pos;
-        m_statsAllTimesteps.m_negClosestToZero = neg;
+        m_statsAllTimesteps.m_posClosestToZero          = pos;
+        m_statsAllTimesteps.m_negClosestToZero          = neg;
         m_statsAllTimesteps.m_isClosestToZeroCalculated = true;
     }
 
@@ -129,7 +128,7 @@ void RigStatisticsDataCache::posNegClosestToZero(double& pos, double& neg)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::posNegClosestToZero(size_t timeStepIndex, double& posNearZero, double& negNearZero)
 {
@@ -140,10 +139,9 @@ void RigStatisticsDataCache::posNegClosestToZero(size_t timeStepIndex, double& p
 
     if (!m_statsPrTs[timeStepIndex].m_isClosestToZeroCalculated)
     {
-
         double pos = HUGE_VAL;
         double neg = -HUGE_VAL;
-        
+
         m_statisticsCalculator->posNegClosestToZero(timeStepIndex, pos, neg);
 
         m_statsPrTs[timeStepIndex].m_posClosestToZero = pos;
@@ -156,7 +154,7 @@ void RigStatisticsDataCache::posNegClosestToZero(size_t timeStepIndex, double& p
     negNearZero = m_statsPrTs[timeStepIndex].m_negClosestToZero;
 }
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::meanCellScalarValues(double& meanValue)
 {
@@ -171,16 +169,16 @@ void RigStatisticsDataCache::meanCellScalarValues(double& meanValue)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::meanCellScalarValues(size_t timeStepIndex, double& meanValue)
 {
-   if (timeStepIndex >= m_statsPrTs.size())
+    if (timeStepIndex >= m_statsPrTs.size())
     {
         m_statsPrTs.resize(timeStepIndex + 1);
     }
 
-   if (!m_statsPrTs[timeStepIndex].m_isMeanCalculated)
+    if (!m_statsPrTs[timeStepIndex].m_isMeanCalculated)
     {
         m_statisticsCalculator->meanCellScalarValue(timeStepIndex, m_statsPrTs[timeStepIndex].m_meanValue);
         m_statsPrTs[timeStepIndex].m_isMeanCalculated = true;
@@ -189,9 +187,8 @@ void RigStatisticsDataCache::meanCellScalarValues(size_t timeStepIndex, double& 
     meanValue = m_statsPrTs[timeStepIndex].m_meanValue;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::sumCellScalarValues(double& sumValue)
 {
@@ -206,7 +203,7 @@ void RigStatisticsDataCache::sumCellScalarValues(double& sumValue)
             aggregatedSum += valueSum;
         }
 
-        m_statsAllTimesteps.m_valueSum = aggregatedSum;
+        m_statsAllTimesteps.m_valueSum             = aggregatedSum;
         m_statsAllTimesteps.m_isValueSumCalculated = true;
     }
 
@@ -214,7 +211,7 @@ void RigStatisticsDataCache::sumCellScalarValues(double& sumValue)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::sumCellScalarValues(size_t timeStepIndex, double& sumValue)
 {
@@ -225,10 +222,10 @@ void RigStatisticsDataCache::sumCellScalarValues(size_t timeStepIndex, double& s
 
     if (!m_statsPrTs[timeStepIndex].m_isValueSumCalculated)
     {
-        double valueSum = 0.0;
+        double valueSum    = 0.0;
         size_t sampleCount = 0;
         m_statisticsCalculator->valueSumAndSampleCount(timeStepIndex, valueSum, sampleCount);
-        m_statsPrTs[timeStepIndex].m_valueSum = valueSum;
+        m_statsPrTs[timeStepIndex].m_valueSum             = valueSum;
         m_statsPrTs[timeStepIndex].m_isValueSumCalculated = true;
     }
 
@@ -236,7 +233,7 @@ void RigStatisticsDataCache::sumCellScalarValues(size_t timeStepIndex, double& s
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigStatisticsDataCache::cellScalarValuesHistogram()
 {
@@ -246,7 +243,7 @@ const std::vector<size_t>& RigStatisticsDataCache::cellScalarValuesHistogram()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigStatisticsDataCache::cellScalarValuesHistogram(size_t timeStepIndex)
 {
@@ -256,7 +253,7 @@ const std::vector<size_t>& RigStatisticsDataCache::cellScalarValuesHistogram(siz
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<int>& RigStatisticsDataCache::uniqueCellScalarValues()
 {
@@ -266,7 +263,7 @@ const std::vector<int>& RigStatisticsDataCache::uniqueCellScalarValues()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<int>& RigStatisticsDataCache::uniqueCellScalarValues(size_t timeStepIndex)
 {
@@ -276,7 +273,7 @@ const std::vector<int>& RigStatisticsDataCache::uniqueCellScalarValues(size_t ti
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::mobileVolumeWeightedMean(size_t timeStepIndex, double& mean)
 {
@@ -294,7 +291,7 @@ void RigStatisticsDataCache::mobileVolumeWeightedMean(size_t timeStepIndex, doub
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::mobileVolumeWeightedMean(double& mean)
 {
@@ -309,7 +306,7 @@ void RigStatisticsDataCache::mobileVolumeWeightedMean(double& mean)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::p10p90CellScalarValues(double& p10, double& p90)
 {
@@ -320,7 +317,7 @@ void RigStatisticsDataCache::p10p90CellScalarValues(double& p10, double& p90)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::p10p90CellScalarValues(size_t timeStepIndex, double& p10, double& p90)
 {
@@ -331,7 +328,7 @@ void RigStatisticsDataCache::p10p90CellScalarValues(size_t timeStepIndex, double
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded()
 {
@@ -352,11 +349,11 @@ void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded(size_t timeStepIndex)
 {
-   if (m_statsPrTs[timeStepIndex].m_histogram.size() == 0)
+    if (m_statsPrTs[timeStepIndex].m_histogram.size() == 0)
     {
         double min;
         double max;
@@ -373,14 +370,15 @@ void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded(size_t timeStepI
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::computeUniqueValuesIfNeeded()
 {
     if (m_statsAllTimesteps.m_uniqueValues.size() == 0)
     {
         std::set<int> setValues;
-        m_statisticsCalculator->uniqueValues(0, setValues); // This is a Hack ! Only using first timestep. Ok for Static eclipse results but beware !
+        m_statisticsCalculator->uniqueValues(
+            0, setValues); // This is a Hack ! Only using first timestep. Ok for Static eclipse results but beware !
 
         for (auto val : setValues)
         {
@@ -390,16 +388,16 @@ void RigStatisticsDataCache::computeUniqueValuesIfNeeded()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::computeUniqueValuesIfNeeded(size_t timeStepIndex)
 {
-    if ( m_statsPrTs[timeStepIndex].m_uniqueValues.size() == 0 )
+    if (m_statsPrTs[timeStepIndex].m_uniqueValues.size() == 0)
     {
         std::set<int> setValues;
         m_statisticsCalculator->uniqueValues(timeStepIndex, setValues);
 
-        for ( auto val : setValues )
+        for (auto val : setValues)
         {
             m_statsPrTs[timeStepIndex].m_uniqueValues.push_back(val);
         }

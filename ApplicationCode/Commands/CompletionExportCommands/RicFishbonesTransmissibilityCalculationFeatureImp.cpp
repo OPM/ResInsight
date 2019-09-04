@@ -66,7 +66,10 @@ struct WellBorePartForTransCalc
     double intersectionWithWellMeasuredDepth;
     size_t lateralIndex;
 
-    void setSourcePdmObject(const caf::PdmObject* sourcePdmObj) { this->sourcePdmObject = const_cast<caf::PdmObject*>(sourcePdmObj); }
+    void setSourcePdmObject(const caf::PdmObject* sourcePdmObj)
+    {
+        this->sourcePdmObject = const_cast<caf::PdmObject*>(sourcePdmObj);
+    }
     caf::PdmPointer<caf::PdmObject> sourcePdmObject;
 };
 
@@ -133,14 +136,13 @@ std::vector<RigCompletionData>
             {
                 // No change in transmissibility for main bore
                 auto transmissibilityAndPermeability =
-                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityData(
-                        settings.caseToApply,
-                        wellPath,
-                        wellBorePart.lengthsInCell,
-                        wellBorePart.skinFactor,
-                        wellBorePart.wellRadius,
-                        globalCellIndex,
-                        settings.useLateralNTG);
+                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityData(settings.caseToApply,
+                                                                                              wellPath,
+                                                                                              wellBorePart.lengthsInCell,
+                                                                                              wellBorePart.skinFactor,
+                                                                                              wellBorePart.wellRadius,
+                                                                                              globalCellIndex,
+                                                                                              settings.useLateralNTG);
 
                 transmissibility = transmissibilityAndPermeability.connectionFactor();
             }
@@ -148,16 +150,15 @@ std::vector<RigCompletionData>
             {
                 // Adjust transmissibility for fishbone laterals
                 auto transmissibilityAndPermeability =
-                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityData(
-                        settings.caseToApply,
-                        wellPath,
-                        wellBorePart.lengthsInCell,
-                        wellBorePart.skinFactor,
-                        wellBorePart.wellRadius,
-                        globalCellIndex,
-                        settings.useLateralNTG,
-                        numberOfLaterals,
-                        mainBoreDirection);
+                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityData(settings.caseToApply,
+                                                                                              wellPath,
+                                                                                              wellBorePart.lengthsInCell,
+                                                                                              wellBorePart.skinFactor,
+                                                                                              wellBorePart.wellRadius,
+                                                                                              globalCellIndex,
+                                                                                              settings.useLateralNTG,
+                                                                                              numberOfLaterals,
+                                                                                              mainBoreDirection);
 
                 transmissibility = transmissibilityAndPermeability.connectionFactor();
             }
@@ -240,7 +241,8 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
                     endMD += 0.5;
                 }
 
-                appendMainWellBoreParts(wellBorePartsInCells, wellPath, settings, skinFactor, holeRadius, startMD, endMD, fishboneDefinition);
+                appendMainWellBoreParts(
+                    wellBorePartsInCells, wellPath, settings, skinFactor, holeRadius, startMD, endMD, fishboneDefinition);
             }
         }
     }
@@ -309,7 +311,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::appendMainWellBoreParts(
     bool isMainBore = true;
 
     std::pair<std::vector<cvf::Vec3d>, std::vector<double>> fishbonePerfWellPathCoords =
-        wellPath->wellPathGeometry()->clippedPointSubset(startMeasuredDepth, endMeasuredDepth); 
+        wellPath->wellPathGeometry()->clippedPointSubset(startMeasuredDepth, endMeasuredDepth);
 
     std::vector<WellPathCellIntersectionInfo> intersectedCellsIntersectionInfo =
         RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(

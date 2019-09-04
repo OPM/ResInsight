@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -27,10 +27,10 @@
 #include "RimFlowCharacteristicsPlot.h"
 
 #include "RiuQwtPlotCurve.h"
+#include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotZoomer.h"
 #include "RiuResultQwtPlot.h"
-#include "RiuQwtPlotTools.h"
 
 #include "cvfBase.h"
 #include "cvfColor3.h"
@@ -49,9 +49,8 @@
 #include <QLabel>
 #include <QMenu>
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlot* plotDefinition, QWidget* parent)
     : QFrame(parent)
@@ -59,7 +58,7 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlo
 
 {
     Q_ASSERT(m_plotDefinition);
-    
+
     QGridLayout* mainLayout = new QGridLayout();
     this->setLayout(mainLayout);
     this->layout()->setMargin(3);
@@ -71,11 +70,11 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlo
     this->setAutoFillBackground(true);
     this->setPalette(pal);
 
-    m_lorenzPlot = new QwtPlot(this);
+    m_lorenzPlot              = new QwtPlot(this);
     m_flowCapVsStorageCapPlot = new QwtPlot(this);
-    m_sweepEffPlot = new QwtPlot(this);
+    m_sweepEffPlot            = new QwtPlot(this);
 
-    mainLayout->addWidget(m_lorenzPlot, 0 ,0, 1, 2);
+    mainLayout->addWidget(m_lorenzPlot, 0, 0, 1, 2);
     mainLayout->addWidget(m_flowCapVsStorageCapPlot, 1, 0);
     mainLayout->addWidget(m_sweepEffPlot, 1, 1);
 
@@ -83,7 +82,7 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlo
     new RiuQwtPlotWheelZoomer(m_lorenzPlot);
     addWindowZoom(m_lorenzPlot);
 
-	QString dateFormat = RiaApplication::instance()->preferences()->dateFormat();
+    QString dateFormat = RiaApplication::instance()->preferences()->dateFormat();
     QString timeFormat = RiaApplication::instance()->preferences()->timeFormat();
 
     RiuQwtPlotTools::enableDateBasedBottomXAxis(m_lorenzPlot, dateFormat, timeFormat);
@@ -94,7 +93,8 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlo
     addWindowZoom(m_sweepEffPlot);
     m_sweepEffPlot->setTitle("Sweep Efficiency");
 
-    int legendFontSize = RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
+    int legendFontSize =
+        RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
 
     {
         QwtText axisTitle = m_sweepEffPlot->axisTitle(QwtPlot::xBottom);
@@ -137,7 +137,7 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlo
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuFlowCharacteristicsPlot::addWindowZoom(QwtPlot* plot)
 {
@@ -148,18 +148,18 @@ void RiuFlowCharacteristicsPlot::addWindowZoom(QwtPlot* plot)
     zoomer->initMousePattern(1);
 }
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuFlowCharacteristicsPlot::~RiuFlowCharacteristicsPlot()
-{
-}
+RiuFlowCharacteristicsPlot::~RiuFlowCharacteristicsPlot() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuFlowCharacteristicsPlot::setLorenzCurve(const QStringList& dateTimeStrings, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
+void RiuFlowCharacteristicsPlot::setLorenzCurve(const QStringList&            dateTimeStrings,
+                                                const std::vector<QDateTime>& dateTimes,
+                                                const std::vector<double>&    timeHistoryValues)
 {
-    m_lorenzPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true); 
+    m_lorenzPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true);
 
     if (!dateTimes.empty())
     {
@@ -169,12 +169,13 @@ void RiuFlowCharacteristicsPlot::setLorenzCurve(const QStringList& dateTimeStrin
         {
             if (timeHistoryValues[tsIdx] == HUGE_VAL) continue;
 
-            QDateTime dateTime = dateTimes[tsIdx];
-            double timeHistoryValue = timeHistoryValues[tsIdx];
+            QDateTime dateTime         = dateTimes[tsIdx];
+            double    timeHistoryValue = timeHistoryValues[tsIdx];
 
             QString curveName = dateTimeStrings[static_cast<int>(tsIdx)];
 
-            RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol(m_lorenzPlot, curveName, m_dateToColorMap[dateTime], dateTime, timeHistoryValue);
+            RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol(
+                m_lorenzPlot, curveName, m_dateToColorMap[dateTime], dateTime, timeHistoryValue);
         }
     }
 
@@ -182,14 +183,18 @@ void RiuFlowCharacteristicsPlot::setLorenzCurve(const QStringList& dateTimeStrin
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol(QwtPlot* plot, const QString& curveName, const QColor& color, const QDateTime& dateTime, double timeHistoryValue)
+void RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol(QwtPlot*         plot,
+                                                         const QString&   curveName,
+                                                         const QColor&    color,
+                                                         const QDateTime& dateTime,
+                                                         double           timeHistoryValue)
 {
     auto curve = createEmptyCurve(plot, curveName, color);
 
-    QwtSymbol::Style style = QwtSymbol::Diamond;
-    QwtSymbol* symbol = new QwtSymbol(style);
+    QwtSymbol::Style style  = QwtSymbol::Diamond;
+    QwtSymbol*       symbol = new QwtSymbol(style);
 
     symbol->setSize(15, 15);
     symbol->setColor(color);
@@ -210,12 +215,12 @@ void RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol(QwtPlot* plot, const QS
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotCurve* RiuFlowCharacteristicsPlot::createEmptyCurve(QwtPlot* plot, const QString& curveName, const QColor& curveColor )
+RiuQwtPlotCurve* RiuFlowCharacteristicsPlot::createEmptyCurve(QwtPlot* plot, const QString& curveName, const QColor& curveColor)
 {
     RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve(curveName);
-   
+
     plotCurve->setTitle(curveName);
     plotCurve->setPen(QPen(curveColor));
     plotCurve->attach(plot);
@@ -223,9 +228,11 @@ RiuQwtPlotCurve* RiuFlowCharacteristicsPlot::createEmptyCurve(QwtPlot* plot, con
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuFlowCharacteristicsPlot::addFlowCapStorageCapCurve(const QDateTime& dateTime, const std::vector<double>& xVals, const std::vector<double>& yVals)
+void RiuFlowCharacteristicsPlot::addFlowCapStorageCapCurve(const QDateTime&           dateTime,
+                                                           const std::vector<double>& xVals,
+                                                           const std::vector<double>& yVals)
 {
     CVF_ASSERT(!m_dateToColorMap.empty());
 
@@ -235,36 +242,38 @@ void RiuFlowCharacteristicsPlot::addFlowCapStorageCapCurve(const QDateTime& date
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuFlowCharacteristicsPlot::addSweepEfficiencyCurve(const QDateTime& dateTime, const std::vector<double>& xVals, const std::vector<double>& yVals)
+void RiuFlowCharacteristicsPlot::addSweepEfficiencyCurve(const QDateTime&           dateTime,
+                                                         const std::vector<double>& xVals,
+                                                         const std::vector<double>& yVals)
 {
     CVF_ASSERT(!m_dateToColorMap.empty());
 
-    RiuQwtPlotCurve* plotCurve = createEmptyCurve(m_sweepEffPlot, dateTime.toString(),  m_dateToColorMap[dateTime]);
+    RiuQwtPlotCurve* plotCurve = createEmptyCurve(m_sweepEffPlot, dateTime.toString(), m_dateToColorMap[dateTime]);
     plotCurve->setSamplesFromXValuesAndYValues(xVals, yVals, false);
 
     m_sweepEffPlot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuFlowCharacteristicsPlot::removeAllCurves()
 {
-    m_lorenzPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true); 
+    m_lorenzPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true);
     m_lorenzPlot->replot();
-    m_sweepEffPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true); 
+    m_sweepEffPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true);
     m_sweepEffPlot->replot();
-    m_flowCapVsStorageCapPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true); 
+    m_flowCapVsStorageCapPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true);
     m_flowCapVsStorageCapPlot->replot();
     m_dateToColorMap.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void zoomAllInPlot(QwtPlot * plot)
+void zoomAllInPlot(QwtPlot* plot)
 {
     plot->setAxisAutoScale(QwtPlot::xBottom, true);
     plot->setAxisAutoScale(QwtPlot::yLeft, true);
@@ -272,7 +281,7 @@ void zoomAllInPlot(QwtPlot * plot)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuFlowCharacteristicsPlot::zoomAll()
 {
@@ -282,7 +291,7 @@ void RiuFlowCharacteristicsPlot::zoomAll()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuFlowCharacteristicsPlot::showLegend(bool show)
 {
@@ -299,7 +308,7 @@ void RiuFlowCharacteristicsPlot::showLegend(bool show)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFlowCharacteristicsPlot* RiuFlowCharacteristicsPlot::ownerPlotDefinition()
 {
@@ -307,7 +316,7 @@ RimFlowCharacteristicsPlot* RiuFlowCharacteristicsPlot::ownerPlotDefinition()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimViewWindow* RiuFlowCharacteristicsPlot::ownerViewWindow() const
 {
@@ -315,7 +324,7 @@ RimViewWindow* RiuFlowCharacteristicsPlot::ownerViewWindow() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuFlowCharacteristicsPlot::minimumSizeHint() const
 {
@@ -357,26 +366,22 @@ QSize RiuFlowCharacteristicsPlot::sizeHint() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuFlowCharacteristicsPlot::setDefaults()
-{
-
-}
+void RiuFlowCharacteristicsPlot::setDefaults() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuFlowCharacteristicsPlot::initializeColors(const std::vector<QDateTime>& dateTimes)
 {
     CVF_ASSERT(m_dateToColorMap.empty());
 
-    const caf::ColorTable& palette = RiaColorTables::timestepsPaletteColors();
-    cvf::Color3ubArray colorArray = caf::ColorTable::interpolateColorArray(palette.color3ubArray(), dateTimes.size());
+    const caf::ColorTable& palette    = RiaColorTables::timestepsPaletteColors();
+    cvf::Color3ubArray     colorArray = caf::ColorTable::interpolateColorArray(palette.color3ubArray(), dateTimes.size());
 
     for (size_t tsIdx = 0; tsIdx < dateTimes.size(); ++tsIdx)
     {
-        m_dateToColorMap[dateTimes[tsIdx]] = QColor( colorArray[tsIdx].r(), colorArray[tsIdx].g(), colorArray[tsIdx].b());
+        m_dateToColorMap[dateTimes[tsIdx]] = QColor(colorArray[tsIdx].r(), colorArray[tsIdx].g(), colorArray[tsIdx].b());
     }
 }
-

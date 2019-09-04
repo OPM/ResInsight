@@ -80,4 +80,3 @@ void RicDeleteValveTemplateFeature::setupActionLook(QAction* actionToSetup)
     actionToSetup->setIcon(QIcon(":/Erase.png"));
     applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
 }
-

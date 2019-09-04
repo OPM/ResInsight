@@ -23,8 +23,8 @@
 
 #include "RimIdenticalGridCaseGroup.h"
 
-#include <QFileInfo>
 #include <QDir>
+#include <QFileInfo>
 #include <QStringList>
 
 CAF_PDM_SOURCE_INIT(RicfCreateGridCaseGroupResult, "createGridCaseGroupResult");
@@ -65,7 +65,7 @@ RicfCommandResponse RicfCreateGridCaseGroup::execute()
         }
         casePaths.push_back(casePath);
     }
-    
+
     RimIdenticalGridCaseGroup* caseGroup = nullptr;
 
     if (RiaImportEclipseCaseTools::addEclipseCases(casePaths, &caseGroup) && caseGroup)

@@ -67,14 +67,14 @@ private:
     {
         switch (m_numberFormat)
         {
-        case RimPlotAxisProperties::NUMBER_FORMAT_AUTO:
-            return 'g';
-        case RimPlotAxisProperties::NUMBER_FORMAT_DECIMAL:
-            return 'f';
-        case RimPlotAxisProperties::NUMBER_FORMAT_SCIENTIFIC:
-            return 'e';
-        default:
-            return 'g';
+            case RimPlotAxisProperties::NUMBER_FORMAT_AUTO:
+                return 'g';
+            case RimPlotAxisProperties::NUMBER_FORMAT_DECIMAL:
+                return 'f';
+            case RimPlotAxisProperties::NUMBER_FORMAT_SCIENTIFIC:
+                return 'e';
+            default:
+                return 'g';
         }
     }
 
@@ -144,8 +144,7 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot*
     }
 
     {
-        if (m_axisProperties->numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_AUTO &&
-            m_axisProperties->scaleFactor() == 1.0)
+        if (m_axisProperties->numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_AUTO && m_axisProperties->scaleFactor() == 1.0)
         {
             // Default to Qwt's own scale draw to avoid changing too much for default values
             qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(), new QwtScaleDraw);

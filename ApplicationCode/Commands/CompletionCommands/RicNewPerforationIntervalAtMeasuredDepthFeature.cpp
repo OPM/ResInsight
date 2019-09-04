@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -34,11 +34,10 @@
 
 #include <QAction>
 
-
 CAF_CMD_SOURCE_INIT(RicNewPerforationIntervalAtMeasuredDepthFeature, "RicNewPerforationIntervalAtMeasuredDepthFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewPerforationIntervalAtMeasuredDepthFeature::onActionTriggered(bool isChecked)
 {
@@ -49,9 +48,9 @@ void RicNewPerforationIntervalAtMeasuredDepthFeature::onActionTriggered(bool isC
     CVF_ASSERT(wellPath);
 
     if (!RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem(wellPath)) return;
-    
+
     RimPerforationInterval* perforationInterval = new RimPerforationInterval;
-    double measuredDepth = wellPathSelItem->m_measuredDepth;
+    double                  measuredDepth       = wellPathSelItem->m_measuredDepth;
     perforationInterval->setStartAndEndMD(measuredDepth, measuredDepth + 50);
 
     wellPath->perforationIntervalCollection()->appendPerforation(perforationInterval);
@@ -66,12 +65,12 @@ void RicNewPerforationIntervalAtMeasuredDepthFeature::onActionTriggered(bool isC
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuWellPathSelectionItem* RicNewPerforationIntervalAtMeasuredDepthFeature::wellPathSelectionItem()
 {
     Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
-    RiuSelectionItem* selItem = riuSelManager->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
+    RiuSelectionItem*      selItem       = riuSelManager->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
 
     RiuWellPathSelectionItem* wellPathItem = dynamic_cast<RiuWellPathSelectionItem*>(selItem);
 
@@ -79,7 +78,7 @@ RiuWellPathSelectionItem* RicNewPerforationIntervalAtMeasuredDepthFeature::wellP
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewPerforationIntervalAtMeasuredDepthFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -88,7 +87,7 @@ void RicNewPerforationIntervalAtMeasuredDepthFeature::setupActionLook(QAction* a
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewPerforationIntervalAtMeasuredDepthFeature::isCommandEnabled()
 {

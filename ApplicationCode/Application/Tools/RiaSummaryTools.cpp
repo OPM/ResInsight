@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,8 +22,8 @@
 
 #include "RifEclipseSummaryAddress.h"
 
-#include "RimOilField.h"
 #include "RimMainPlotCollection.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlot.h"
@@ -31,11 +31,11 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "cafPdmObject.h"
 #include "RimSummaryCrossPlotCollection.h"
+#include "cafPdmObject.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotCollection* RiaSummaryTools::summaryPlotCollection()
 {
@@ -49,7 +49,7 @@ RimSummaryPlotCollection* RiaSummaryTools::summaryPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseMainCollection* RiaSummaryTools::summaryCaseMainCollection()
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject*                   project                   = RiaApplication::instance()->project();
     RimSummaryCaseMainCollection* summaryCaseMainCollection = project->activeOilField()->summaryCaseMainCollection();
     CVF_ASSERT(summaryCaseMainCollection);
     return summaryCaseMainCollection;
@@ -71,7 +71,8 @@ void RiaSummaryTools::notifyCalculatedCurveNameHasChanged(const QString& previou
             {
                 if (adr.quantityName() == previousCurveName.toStdString())
                 {
-                    RifEclipseSummaryAddress updatedAdr = RifEclipseSummaryAddress::calculatedAddress(currentCurveName.toStdString());
+                    RifEclipseSummaryAddress updatedAdr =
+                        RifEclipseSummaryAddress::calculatedAddress(currentCurveName.toStdString());
                     curve->setSummaryAddressYAndApplyInterpolation(updatedAdr);
                 }
             }
@@ -80,7 +81,7 @@ void RiaSummaryTools::notifyCalculatedCurveNameHasChanged(const QString& previou
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RiaSummaryTools::parentSummaryPlot(caf::PdmObject* object)
 {
@@ -100,7 +101,7 @@ RimSummaryPlot* RiaSummaryTools::parentSummaryPlot(caf::PdmObject* object)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotCollection* RiaSummaryTools::parentSummaryPlotCollection(caf::PdmObject* object)
 {
@@ -115,7 +116,7 @@ RimSummaryPlotCollection* RiaSummaryTools::parentSummaryPlotCollection(caf::PdmO
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCrossPlot* RiaSummaryTools::parentCrossPlot(caf::PdmObject* object)
 {
@@ -130,7 +131,7 @@ RimSummaryCrossPlot* RiaSummaryTools::parentCrossPlot(caf::PdmObject* object)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCrossPlotCollection* RiaSummaryTools::parentCrossPlotCollection(caf::PdmObject* object)
 {
@@ -145,7 +146,7 @@ RimSummaryCrossPlotCollection* RiaSummaryTools::parentCrossPlotCollection(caf::P
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RiaSummaryTools::isSummaryCrossPlot(const RimSummaryPlot* plot)
 {

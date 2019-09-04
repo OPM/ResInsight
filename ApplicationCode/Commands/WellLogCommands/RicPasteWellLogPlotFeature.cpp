@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016      Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -31,15 +31,15 @@
 
 #include <QAction>
 
-
 CAF_CMD_SOURCE_INIT(RicPasteWellLogPlotFeature, "RicPasteWellLogPlotFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicPasteWellLogPlotFeature::isCommandEnabled()
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 
     RimWellLogPlotCollection* wellLogPlotCollection = nullptr;
     destinationObject->firstAncestorOrThisOfType(wellLogPlotCollection);
@@ -52,11 +52,12 @@ bool RicPasteWellLogPlotFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteWellLogPlotFeature::onActionTriggered(bool isChecked)
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 
     RimWellLogPlotCollection* wellLogPlotCollection = nullptr;
     destinationObject->firstAncestorOrThisOfType(wellLogPlotCollection);
@@ -65,14 +66,15 @@ void RicPasteWellLogPlotFeature::onActionTriggered(bool isChecked)
         return;
     }
 
-    std::vector<caf::PdmPointer<RimWellLogPlot> > sourceObjects = RicPasteWellLogPlotFeature::plots();
+    std::vector<caf::PdmPointer<RimWellLogPlot>> sourceObjects = RicPasteWellLogPlotFeature::plots();
 
     for (size_t i = 0; i < sourceObjects.size(); i++)
     {
         RimWellLogPlot* fileCurve = sourceObjects[i];
         if (fileCurve)
         {
-            RimWellLogPlot* newObject = dynamic_cast<RimWellLogPlot*>(fileCurve->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+            RimWellLogPlot* newObject = dynamic_cast<RimWellLogPlot*>(
+                fileCurve->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
             CVF_ASSERT(newObject);
 
             wellLogPlotCollection->wellLogPlots.push_back(newObject);
@@ -92,7 +94,7 @@ void RicPasteWellLogPlotFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteWellLogPlotFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -102,14 +104,14 @@ void RicPasteWellLogPlotFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmPointer<RimWellLogPlot> > RicPasteWellLogPlotFeature::plots()
+std::vector<caf::PdmPointer<RimWellLogPlot>> RicPasteWellLogPlotFeature::plots()
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
 
-    std::vector<caf::PdmPointer<RimWellLogPlot> > typedObjects;
+    std::vector<caf::PdmPointer<RimWellLogPlot>> typedObjects;
     objectGroup.objectsByType(&typedObjects);
 
     return typedObjects;

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,61 +20,61 @@
 
 #include "RifCsvUserDataParser.h"
 
-#include "cafPdmUiTextEditor.h"
 #include "cafPdmUiItem.h"
+#include "cafPdmUiTextEditor.h"
 
-namespace caf {
-
-    template<>
-    void RicPasteAsciiDataToSummaryPlotFeatureUi::DecimalSeparatorEnum::setUp()
-    {
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_DOT,   "DOT",   "Dot (.)");
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_COMMA, "COMMA", "Comma (,)");
-        setDefault(RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_DOT);
-    }
-
-    template<>
-    void RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormatEnum::setUp()
-    {
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_DDMMYYYY_DOT_SEPARATED, "dd.MM.yyyy", "Day.Month.Year (dd.MM.yyyy)");
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_DDMMYYYY_DASH_SEPARATED, "dd-MM-yyyy", "Day-Month-Year (dd-MM-yyyy)");
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_DDMMYYYY_SLASH_SEPARATED, "dd/MM/yyyy", "Day/Month/Year (dd/MM/yyyy)");
-
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_YYYYMMDD_DOT_SEPARATED, "yyyy.MM.dd", "Year.Month.Day (yyyy.MM.dd)");
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_YYYYMMDD_DASH_SEPARATED, "yyyy-MM-dd", "Year-Month-Day (yyyy-MM-dd)");
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_YYYYMMDD_SLASH_SEPARATED, "yyyy/MM/dd", "Year/Month/Day (yyyy/MM/dd)");
-
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_MMDDYYYY_SLASH_SEPARATED, "MM/dd/yyyy", "Month/Day/Year (MM/dd/yyyy)");
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_MMDDYY_SLASH_SEPARATED, "MM/dd/yy", "Month/Day/Year (MM/dd/yy)");
-
-        setDefault(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_DDMMYYYY_DOT_SEPARATED);
-    }
-
-    template<>
-    void RicPasteAsciiDataToSummaryPlotFeatureUi::TimeFormatEnum::setUp()
-    {
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_NONE,      "",             "None");
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMM,      "hh:mm",        "Hour:Minute (hh:mm)");
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMMSS,    "hh:mm:ss",     "Hour:Minute:Second (hh:mm:ss)");
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMMSSZZZ, "hh:mm:ss.zzz", "Hour:Minute:Second.Millisecond (hh:mm:ss.zzz)");
-        setDefault(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_NONE);
-    }
-
-    template<>
-    void RicPasteAsciiDataToSummaryPlotFeatureUi::CellSeparatorEnum::setUp()
-    {
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_TAB,       "TAB",         "Tab");
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_COMMA,     "COMMA",       "Comma: (,)");
-        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_SEMICOLON, "SEMICOLON",   "Semicolon (;)");
-        setDefault(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_TAB);
-    }
+namespace caf
+{
+template<>
+void RicPasteAsciiDataToSummaryPlotFeatureUi::DecimalSeparatorEnum::setUp()
+{
+    addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_DOT, "DOT", "Dot (.)");
+    addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_COMMA, "COMMA", "Comma (,)");
+    setDefault(RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_DOT);
 }
 
+template<>
+void RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormatEnum::setUp()
+{
+    addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_DDMMYYYY_DOT_SEPARATED, "dd.MM.yyyy", "Day.Month.Year (dd.MM.yyyy)");
+    addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_DDMMYYYY_DASH_SEPARATED, "dd-MM-yyyy", "Day-Month-Year (dd-MM-yyyy)");
+    addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_DDMMYYYY_SLASH_SEPARATED, "dd/MM/yyyy", "Day/Month/Year (dd/MM/yyyy)");
+
+    addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_YYYYMMDD_DOT_SEPARATED, "yyyy.MM.dd", "Year.Month.Day (yyyy.MM.dd)");
+    addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_YYYYMMDD_DASH_SEPARATED, "yyyy-MM-dd", "Year-Month-Day (yyyy-MM-dd)");
+    addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_YYYYMMDD_SLASH_SEPARATED, "yyyy/MM/dd", "Year/Month/Day (yyyy/MM/dd)");
+
+    addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_MMDDYYYY_SLASH_SEPARATED, "MM/dd/yyyy", "Month/Day/Year (MM/dd/yyyy)");
+    addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_MMDDYY_SLASH_SEPARATED, "MM/dd/yy", "Month/Day/Year (MM/dd/yy)");
+
+    setDefault(RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_DDMMYYYY_DOT_SEPARATED);
+}
+
+template<>
+void RicPasteAsciiDataToSummaryPlotFeatureUi::TimeFormatEnum::setUp()
+{
+    addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_NONE, "", "None");
+    addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMM, "hh:mm", "Hour:Minute (hh:mm)");
+    addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMMSS, "hh:mm:ss", "Hour:Minute:Second (hh:mm:ss)");
+    addItem(
+        RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMMSSZZZ, "hh:mm:ss.zzz", "Hour:Minute:Second.Millisecond (hh:mm:ss.zzz)");
+    setDefault(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_NONE);
+}
+
+template<>
+void RicPasteAsciiDataToSummaryPlotFeatureUi::CellSeparatorEnum::setUp()
+{
+    addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_TAB, "TAB", "Tab");
+    addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_COMMA, "COMMA", "Comma: (,)");
+    addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_SEMICOLON, "SEMICOLON", "Semicolon (;)");
+    setDefault(RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_TAB);
+}
+}
 
 CAF_PDM_SOURCE_INIT(RicPasteAsciiDataToSummaryPlotFeatureUi, "RicPasteAsciiDataToSummaryPlotFeatureUi");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const QString DATETIME_FORMAT_TOOLTIP = R"(
 <table>
@@ -109,51 +109,55 @@ Example: 'yyyy.MM.dd hh:mm:ss'
 )";
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-#define PREVIEW_TEXT_LINE_COUNT     30
+#define PREVIEW_TEXT_LINE_COUNT 30
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicPasteAsciiDataToSummaryPlotFeatureUi::CellSeparator mapCellSeparator(const QString& sep)
 {
-    if (sep == "\t")     return RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_TAB;
-    if (sep == ";")      return RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_SEMICOLON;
-    if (sep == ",")      return RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_COMMA;
-    
+    if (sep == "\t") return RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_TAB;
+    if (sep == ";") return RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_SEMICOLON;
+    if (sep == ",") return RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_COMMA;
+
     return RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_TAB;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString mapCellSeparator(RicPasteAsciiDataToSummaryPlotFeatureUi::CellSeparator cellSep)
 {
     switch (cellSep)
     {
-    case RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_COMMA:        return ",";
-    case RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_SEMICOLON:    return ";";
-    case RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_TAB:          return "\t";
+        case RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_COMMA:
+            return ",";
+        case RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_SEMICOLON:
+            return ";";
+        case RicPasteAsciiDataToSummaryPlotFeatureUi::CELL_TAB:
+            return "\t";
     }
     return "";
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicPasteAsciiDataToSummaryPlotFeatureUi::DecimalSeparator mapDecimalSeparator(const QString& sep)
 {
-    if (sep == ".")      return RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_DOT;
-    if (sep == ",")      return RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_COMMA;
+    if (sep == ".") return RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_DOT;
+    if (sep == ",") return RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_COMMA;
 
     return RicPasteAsciiDataToSummaryPlotFeatureUi::DECIMAL_DOT;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi() : m_createNewPlot(false)
+RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi()
+    : m_createNewPlot(false)
 {
     CAF_PDM_InitObject("RicPasteAsciiDataToSummaryPlotFeatureUi", "", "", "");
 
@@ -162,14 +166,27 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
 
     CAF_PDM_InitFieldNoDefault(&m_decimalSeparator, "DecimalSeparator", "Decimal Separator", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_dateFormat, "DateFormat",          "Date Format", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_timeFormat, "TimeFormat",          "Time Format", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_dateFormat, "DateFormat", "Date Format", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_timeFormat, "TimeFormat", "Time Format", "", "", "");
     CAF_PDM_InitField(&m_useCustomDateFormat, "UseCustomDateFormat", false, "Use Custom Date Time Format", "", "", "");
-    CAF_PDM_InitField(&m_customDateTimeFormat,"CustomDateTimeFormat", QString(), "Custom Date Time Format", "", DATETIME_FORMAT_TOOLTIP, "");
+    CAF_PDM_InitField(
+        &m_customDateTimeFormat, "CustomDateTimeFormat", QString(), "Custom Date Time Format", "", DATETIME_FORMAT_TOOLTIP, "");
 
-    CAF_PDM_InitField(&m_curveLineStyle, "LineStyle",                    caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>(RiuQwtPlotCurve::STYLE_NONE),       "Line Style", "", "", "");
-    CAF_PDM_InitField(&m_curveSymbol,    "Symbol",                       caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>(RiuQwtSymbol::SYMBOL_ELLIPSE), "Symbol", "", "", "");
-    CAF_PDM_InitField(&m_curveSymbolSkipDistance, "SymbolSkipDinstance", 0.0f,                                                                      "Symbol Skip Distance", "", "", "");
+    CAF_PDM_InitField(&m_curveLineStyle,
+                      "LineStyle",
+                      caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>(RiuQwtPlotCurve::STYLE_NONE),
+                      "Line Style",
+                      "",
+                      "",
+                      "");
+    CAF_PDM_InitField(&m_curveSymbol,
+                      "Symbol",
+                      caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>(RiuQwtSymbol::SYMBOL_ELLIPSE),
+                      "Symbol",
+                      "",
+                      "",
+                      "");
+    CAF_PDM_InitField(&m_curveSymbolSkipDistance, "SymbolSkipDinstance", 0.0f, "Symbol Skip Distance", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_cellSeparator, "CellSeparator", "Cell Separator", "", "", "");
 
@@ -184,7 +201,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::setUiModeImport(const QString& fileName)
 {
@@ -202,7 +219,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::setUiModeImport(const QString& fil
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::setUiModePasteText(const QString& text)
 {
@@ -213,7 +230,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::setUiModePasteText(const QString& 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicPasteAsciiDataToSummaryPlotFeatureUi::UiMode RicPasteAsciiDataToSummaryPlotFeatureUi::uiModeImport() const
 {
@@ -221,28 +238,28 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::UiMode RicPasteAsciiDataToSummaryPlotFe
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOptions() const
 {
     AsciiDataParseOptions parseOptions;
 
     parseOptions.assumeNumericDataColumns = true;
-    parseOptions.plotTitle = m_plotTitle();
-    parseOptions.curvePrefix = m_curvePrefix();
+    parseOptions.plotTitle                = m_plotTitle();
+    parseOptions.curvePrefix              = m_curvePrefix();
 
     {
         switch (m_decimalSeparator())
         {
-        case DECIMAL_COMMA:
-            parseOptions.decimalSeparator = ",";
-            parseOptions.locale = RifCsvUserDataParser::localeFromDecimalSeparator(",");
-            break;
-        case DECIMAL_DOT:
-        default:
-            parseOptions.decimalSeparator = ".";
-            parseOptions.locale = RifCsvUserDataParser::localeFromDecimalSeparator(".");
-            break;
+            case DECIMAL_COMMA:
+                parseOptions.decimalSeparator = ",";
+                parseOptions.locale           = RifCsvUserDataParser::localeFromDecimalSeparator(",");
+                break;
+            case DECIMAL_DOT:
+            default:
+                parseOptions.decimalSeparator = ".";
+                parseOptions.locale           = RifCsvUserDataParser::localeFromDecimalSeparator(".");
+                break;
         }
     }
 
@@ -250,22 +267,22 @@ const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOption
         if (m_useCustomDateFormat())
         {
             parseOptions.useCustomDateTimeFormat = true;
-            parseOptions.dateFormat = "";
-            parseOptions.timeFormat = "";
-            parseOptions.dateTimeFormat = m_customDateTimeFormat();
+            parseOptions.dateFormat              = "";
+            parseOptions.timeFormat              = "";
+            parseOptions.dateTimeFormat          = m_customDateTimeFormat();
         }
         else
         {
             parseOptions.useCustomDateTimeFormat = false;
-            parseOptions.dateFormat = m_dateFormat().text();
-            parseOptions.timeFormat = m_timeFormat().text();
-            parseOptions.dateTimeFormat = parseOptions.dateFormat +
-                (m_timeFormat() != TimeFormat::TIME_NONE ? " " + parseOptions.timeFormat : "");
+            parseOptions.dateFormat              = m_dateFormat().text();
+            parseOptions.timeFormat              = m_timeFormat().text();
+            parseOptions.dateTimeFormat =
+                parseOptions.dateFormat + (m_timeFormat() != TimeFormat::TIME_NONE ? " " + parseOptions.timeFormat : "");
         }
         if (m_timeFormat() == TimeFormat::TIME_NONE)
         {
-            parseOptions.fallbackDateTimeFormat = parseOptions.dateFormat + " " +
-                RicPasteAsciiDataToSummaryPlotFeatureUi::TimeFormatEnum::text(TIME_HHMM);
+            parseOptions.fallbackDateTimeFormat =
+                parseOptions.dateFormat + " " + RicPasteAsciiDataToSummaryPlotFeatureUi::TimeFormatEnum::text(TIME_HHMM);
         }
     }
 
@@ -273,15 +290,15 @@ const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOption
 
     parseOptions.cellSeparator = mapCellSeparator(m_cellSeparator());
 
-    parseOptions.curveLineStyle = m_curveLineStyle();
-    parseOptions.curveSymbol = m_curveSymbol();
+    parseOptions.curveLineStyle          = m_curveLineStyle();
+    parseOptions.curveSymbol             = m_curveSymbol();
     parseOptions.curveSymbolSkipDistance = m_curveSymbolSkipDistance();
 
     return parseOptions;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::createNewPlot()
 {
@@ -356,15 +373,14 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat
     return DATE_DDMMYYYY_DOT_SEPARATED;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     CVF_ASSERT(m_uiMode != UI_MODE_NONE);
 
-    if(m_uiMode == UI_MODE_PASTE)
+    if (m_uiMode == UI_MODE_PASTE)
     {
         caf::PdmUiGroup* namingGroup = uiOrdering.addNewGroup("Naming");
         if (m_createNewPlot)
@@ -396,7 +412,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering(QString uiConfigN
         }
     }
 
-    if(m_uiMode == UI_MODE_PASTE)
+    if (m_uiMode == UI_MODE_PASTE)
     {
         caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
 
@@ -416,10 +432,11 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering(QString uiConfigN
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RicPasteAsciiDataToSummaryPlotFeatureUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
-                                                                                             bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo>
+    RicPasteAsciiDataToSummaryPlotFeatureUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                   bool*                      useOptionsOnly)
 {
     CVF_ASSERT(m_uiMode != UI_MODE_NONE);
 
@@ -439,28 +456,32 @@ QList<caf::PdmOptionItemInfo> RicPasteAsciiDataToSummaryPlotFeatureUi::calculate
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicPasteAsciiDataToSummaryPlotFeatureUi::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RicPasteAsciiDataToSummaryPlotFeatureUi::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                                    QString                    uiConfigName,
+                                                                    caf::PdmUiEditorAttribute* attribute)
 {
     if (field == &m_previewText)
     {
-        caf::PdmUiTextEditorAttribute* attrib = dynamic_cast<caf::PdmUiTextEditorAttribute*> (attribute);
+        caf::PdmUiTextEditorAttribute* attrib = dynamic_cast<caf::PdmUiTextEditorAttribute*>(attribute);
         if (attrib)
         {
             attrib->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
-            
+
             QFont font("Monospace", 7);
-            attrib->font = font;
+            attrib->font     = font;
             attrib->textMode = caf::PdmUiTextEditorAttribute::HTML;
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicPasteAsciiDataToSummaryPlotFeatureUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RicPasteAsciiDataToSummaryPlotFeatureUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                               const QVariant&            oldValue,
+                                                               const QVariant&            newValue)
 {
     if (changedField == &m_cellSeparator || changedField == &m_timeSeriesColumnName)
     {
@@ -469,7 +490,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::fieldChangedByUi(const caf::PdmFie
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::initialize(RifCsvUserDataParser* parser)
 {

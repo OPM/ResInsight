@@ -90,7 +90,7 @@ public:
 
     static const char* plotNameFormatString();
 
-	void deleteCurvesAssosicatedWithObservedData(const RimObservedFmuRftData* observedFmuRftData);
+    void deleteCurvesAssosicatedWithObservedData(const RimObservedFmuRftData* observedFmuRftData);
 
 protected:
     // Overridden PDM methods
@@ -160,7 +160,7 @@ private:
 
     QPointer<RiuWellRftPlot> m_wellLogPlotWidget;
 
-	std::map<RifDataSourceForRftPlt, cvf::Color3f>     m_dataSourceColors;
+    std::map<RifDataSourceForRftPlt, cvf::Color3f>     m_dataSourceColors;
     std::map<QDateTime, RiuQwtSymbol::PointSymbolEnum> m_timeStepSymbols;
-    bool m_isOnLoad;
+    bool                                               m_isOnLoad;
 };

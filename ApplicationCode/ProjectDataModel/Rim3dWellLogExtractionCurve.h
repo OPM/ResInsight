@@ -42,37 +42,41 @@ public:
     Rim3dWellLogExtractionCurve();
     ~Rim3dWellLogExtractionCurve() override;
 
-    void            setPropertiesFromView(Rim3dView* view);
+    void    setPropertiesFromView(Rim3dView* view);
     QString resultPropertyString() const override;
 
-    bool    followAnimationTimeStep() const override;
-    void    curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const override;
-    void    curveValuesAndMdsAtTimeStep(std::vector<double>* values, std::vector<double>* measuredDepthValues, int timeStep) const override;
+    bool followAnimationTimeStep() const override;
+    void curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const override;
+    void curveValuesAndMdsAtTimeStep(std::vector<double>* values,
+                                     std::vector<double>* measuredDepthValues,
+                                     int                  timeStep) const override;
     std::pair<double, double> findCurveValueRange() override;
 
     QString name() const override;
     QString createAutoName() const override;
     double  rkbDiff() const;
 
-    bool    isShowingTimeDependentResult() const override;
+    bool isShowingTimeDependentResult() const override;
 
-    bool    showInView(const Rim3dView* gridView) const override;
+    bool showInView(const Rim3dView* gridView) const override;
 
 protected:
-    caf::PdmFieldHandle*            userDescriptionField() override;
-    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle* userDescriptionField() override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                bool*                      useOptionsOnly) override;
+                                                        bool*                      useOptionsOnly) override;
 
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void initAfterRead() override;
-    QString      wellDate() const;
+    void    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void    initAfterRead() override;
+    QString wellDate() const;
+
 private:
-    caf::PdmPtrField<RimCase*>                      m_case;
-    caf::PdmField<int>                              m_timeStep;
+    caf::PdmPtrField<RimCase*> m_case;
+    caf::PdmField<int>         m_timeStep;
 
-    caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
-    caf::PdmChildField<RimGeoMechResultDefinition*> m_geomResultDefinition;
+    caf::PdmChildField<RimEclipseResultDefinition*>          m_eclipseResultDefinition;
+    caf::PdmChildField<RimGeoMechResultDefinition*>          m_geomResultDefinition;
     caf::PdmChildField<RimWellLogExtractionCurveNameConfig*> m_nameConfig;
 };

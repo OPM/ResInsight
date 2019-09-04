@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,17 +23,16 @@
 
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
-#include "RimPerforationInterval.h"
-#include "RimProject.h"
 #include "RimMswCompletionParameters.h"
 #include "RimNonDarcyPerforationParameters.h"
+#include "RimPerforationInterval.h"
+#include "RimProject.h"
 
 #include "RigWellPath.h"
 
 #include "RifWellPathImporter.h"
 
 #include "Riu3DMainWindowTools.h"
-
 
 namespace caf
 {
@@ -46,11 +45,10 @@ void RimPerforationCollection::ReferenceMDEnum::setUp()
 }
 } // namespace caf
 
-
 CAF_PDM_SOURCE_INIT(RimPerforationCollection, "PerforationCollection");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimPerforationCollection::RimPerforationCollection()
 {
@@ -74,7 +72,7 @@ RimPerforationCollection::RimPerforationCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimPerforationCollection::~RimPerforationCollection()
 {
@@ -82,7 +80,7 @@ RimPerforationCollection::~RimPerforationCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RimMswCompletionParameters* RimPerforationCollection::mswParameters() const
 {
@@ -90,7 +88,7 @@ const RimMswCompletionParameters* RimPerforationCollection::mswParameters() cons
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RimNonDarcyPerforationParameters* RimPerforationCollection::nonDarcyParameters() const
 {
@@ -98,7 +96,7 @@ const RimNonDarcyPerforationParameters* RimPerforationCollection::nonDarcyParame
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimPerforationCollection::setUnitSystemSpecificDefaults()
 {
@@ -106,12 +104,12 @@ void RimPerforationCollection::setUnitSystemSpecificDefaults()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimPerforationCollection::appendPerforation(RimPerforationInterval* perforation)
 {
-    QDate firstTimeStepFromCase;
-    QDate lastTimeStepFromCase;
+    QDate      firstTimeStepFromCase;
+    QDate      lastTimeStepFromCase;
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (activeView)
     {
@@ -154,7 +152,7 @@ void RimPerforationCollection::appendPerforation(RimPerforationInterval* perfora
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<const RimPerforationInterval*> RimPerforationCollection::perforations() const
 {

@@ -27,4 +27,3 @@ public:
 
     void applyFontSizes(bool replot);
 };
-

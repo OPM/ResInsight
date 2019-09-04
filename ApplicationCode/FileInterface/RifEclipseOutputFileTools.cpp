@@ -3,74 +3,68 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifEclipseOutputFileTools.h"
 
+#include "RiaQDateTimeTools.h"
+#include "RiaStringEncodingTools.h"
 #include "RifEclipseRestartFilesetAccess.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
-#include "RiaStringEncodingTools.h"
-#include "RiaQDateTimeTools.h"
 
 #include "ert/ecl/ecl_file.h"
 #include "ert/ecl/ecl_grid.h"
 #include "ert/ecl/ecl_kw_magic.h"
-#include "ert/ecl/ecl_nnc_geometry.h"
 #include "ert/ecl/ecl_nnc_data.h"
+#include "ert/ecl/ecl_nnc_geometry.h"
 
 #include "cafProgressInfo.h"
 
 #include "cvfMath.h"
 
 #include <QCryptographicHash>
-#include <QFileInfo>
 #include <QDebug>
+#include <QFileInfo>
 
-#include <cassert>
 #include <algorithm>
-
+#include <cassert>
 
 //--------------------------------------------------------------------------------------------------
 /// Constructor
 //--------------------------------------------------------------------------------------------------
-RifEclipseOutputFileTools::RifEclipseOutputFileTools()
-{
-}
-
+RifEclipseOutputFileTools::RifEclipseOutputFileTools() {}
 
 //--------------------------------------------------------------------------------------------------
 /// Destructor
 //--------------------------------------------------------------------------------------------------
-RifEclipseOutputFileTools::~RifEclipseOutputFileTools()
-{
-}
+RifEclipseOutputFileTools::~RifEclipseOutputFileTools() {}
 
 struct KeywordItemCounter
 {
     KeywordItemCounter(const std::string& keyword, size_t aggregatedItemCount)
-        : m_keyword(keyword),
-        m_aggregatedItemCount(aggregatedItemCount),
-        m_reportStepCount(1)
-    {}
+        : m_keyword(keyword)
+        , m_aggregatedItemCount(aggregatedItemCount)
+        , m_reportStepCount(1)
+    {
+    }
 
     bool operator==(const std::string& rhs) const
     {
         return this->m_keyword == rhs;
     }
-
 
     std::string m_keyword;
     size_t      m_aggregatedItemCount;
@@ -78,9 +72,11 @@ struct KeywordItemCounter
 };
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::findKeywordsAndItemCount(std::vector<ecl_file_type*> ecl_files, QStringList* resultNames, std::vector<size_t>* resultDataItemCounts)
+void RifEclipseOutputFileTools::findKeywordsAndItemCount(std::vector<ecl_file_type*> ecl_files,
+                                                         QStringList*                resultNames,
+                                                         std::vector<size_t>*        resultDataItemCounts)
 {
     std::vector<RifRestartReportStep> reportSteps;
     RifEclipseOutputFileTools::createReportStepsMetaData(ecl_files, &reportSteps);
@@ -115,15 +111,17 @@ void getDayMonthYear(const ecl_kw_type* intehead_kw, int* day, int* month, int* 
 {
     assert(day && month && year);
 
-    *day = ecl_kw_iget_int(intehead_kw, INTEHEAD_DAY_INDEX);
+    *day   = ecl_kw_iget_int(intehead_kw, INTEHEAD_DAY_INDEX);
     *month = ecl_kw_iget_int(intehead_kw, INTEHEAD_MONTH_INDEX);
-    *year = ecl_kw_iget_int(intehead_kw, INTEHEAD_YEAR_INDEX);
+    *year  = ecl_kw_iget_int(intehead_kw, INTEHEAD_YEAR_INDEX);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Get list of time step texts (dates)
 //--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::timeSteps(const ecl_file_type* ecl_file, std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart)
+void RifEclipseOutputFileTools::timeSteps(const ecl_file_type*    ecl_file,
+                                          std::vector<QDateTime>* timeSteps,
+                                          std::vector<double>*    daysSinceSimulationStart)
 {
     if (!ecl_file) return;
 
@@ -134,7 +132,7 @@ void RifEclipseOutputFileTools::timeSteps(const ecl_file_type* ecl_file, std::ve
 
     // Get the number of occurrences of the INTEHEAD keyword
     int numINTEHEAD = ecl_file_get_num_named_kw(ecl_file, INTEHEAD_KW);
-    
+
     // Get the number of occurrences of the DOUBHEAD keyword
     int numDOUBHEAD = ecl_file_get_num_named_kw(ecl_file, DOUBHEAD_KW);
 
@@ -159,16 +157,16 @@ void RifEclipseOutputFileTools::timeSteps(const ecl_file_type* ecl_file, std::ve
     {
         ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, i);
         CVF_ASSERT(kwINTEHEAD);
-        int day = 0;
+        int day   = 0;
         int month = 0;
-        int year = 0;
+        int year  = 0;
         getDayMonthYear(kwINTEHEAD, &day, &month, &year);
 
         QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime(QDate(year, month, day));
         CVF_ASSERT(reportDateTime.isValid());
 
-        double dayValue = dayValues[i];
-        double dayFraction = dayValue - cvf::Math::floor(dayValue);
+        double dayValue     = dayValues[i];
+        double dayFraction  = dayValue - cvf::Math::floor(dayValue);
         double milliseconds = dayFraction * 24.0 * 60.0 * 60.0 * 1000.0;
 
         reportDateTime = reportDateTime.addMSecs(milliseconds);
@@ -181,15 +179,19 @@ void RifEclipseOutputFileTools::timeSteps(const ecl_file_type* ecl_file, std::ve
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::keywordData(const ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values)
+bool RifEclipseOutputFileTools::keywordData(const ecl_file_type* ecl_file,
+                                            const QString&       keyword,
+                                            size_t               fileKeywordOccurrence,
+                                            std::vector<double>* values)
 {
     bool result = false;
 
 #pragma omp critical(critical_section_keywordData_double)
     {
-        ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, RiaStringEncodingTools::toNativeEncoded(keyword).data(), static_cast<int>(fileKeywordOccurrence));
+        ecl_kw_type* kwData = ecl_file_iget_named_kw(
+            ecl_file, RiaStringEncodingTools::toNativeEncoded(keyword).data(), static_cast<int>(fileKeywordOccurrence));
         if (kwData)
         {
             size_t numValues = ecl_kw_get_size(kwData);
@@ -208,15 +210,19 @@ bool RifEclipseOutputFileTools::keywordData(const ecl_file_type* ecl_file, const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::keywordData(const ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values)
+bool RifEclipseOutputFileTools::keywordData(const ecl_file_type* ecl_file,
+                                            const QString&       keyword,
+                                            size_t               fileKeywordOccurrence,
+                                            std::vector<int>*    values)
 {
     bool result = false;
 
 #pragma omp critical(critical_section_keywordData_int)
     {
-        ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, RiaStringEncodingTools::toNativeEncoded(keyword).data(), static_cast<int>(fileKeywordOccurrence));
+        ecl_kw_type* kwData = ecl_file_iget_named_kw(
+            ecl_file, RiaStringEncodingTools::toNativeEncoded(keyword).data(), static_cast<int>(fileKeywordOccurrence));
         if (kwData)
         {
             size_t numValues = ecl_kw_get_size(kwData);
@@ -242,9 +248,10 @@ QString RifEclipseOutputFileTools::firstFileNameOfType(const QStringList& fileSe
     int i;
     for (i = 0; i < fileSet.count(); i++)
     {
-        bool formatted = false;
-        int reportNumber = -1;
-        if (ecl_util_get_file_type(RiaStringEncodingTools::toNativeEncoded(fileSet.at(i)).data(), &formatted, &reportNumber) == fileType)
+        bool formatted    = false;
+        int  reportNumber = -1;
+        if (ecl_util_get_file_type(RiaStringEncodingTools::toNativeEncoded(fileSet.at(i)).data(), &formatted, &reportNumber) ==
+            fileType)
         {
             return fileSet.at(i);
         }
@@ -254,7 +261,7 @@ QString RifEclipseOutputFileTools::firstFileNameOfType(const QStringList& fileSe
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Get all files of the given type from the provided list of filenames 
+/// Get all files of the given type from the provided list of filenames
 //--------------------------------------------------------------------------------------------------
 QStringList RifEclipseOutputFileTools::filterFileNamesOfType(const QStringList& fileSet, ecl_file_enum fileType)
 {
@@ -263,9 +270,10 @@ QStringList RifEclipseOutputFileTools::filterFileNamesOfType(const QStringList& 
     int i;
     for (i = 0; i < fileSet.count(); i++)
     {
-        bool formatted = false;
-        int reportNumber = -1;
-        if (ecl_util_get_file_type(RiaStringEncodingTools::toNativeEncoded(fileSet.at(i)).data(), &formatted, &reportNumber) == fileType)
+        bool formatted    = false;
+        int  reportNumber = -1;
+        if (ecl_util_get_file_type(RiaStringEncodingTools::toNativeEncoded(fileSet.at(i)).data(), &formatted, &reportNumber) ==
+            fileType)
         {
             fileNames.append(fileSet.at(i));
         }
@@ -292,7 +300,7 @@ QByteArray RifEclipseOutputFileTools::md5sum(const QString& fileName)
     if (file.open(QFile::ReadOnly))
     {
         QCryptographicHash hash(QCryptographicHash::Md5);
-        QByteArray fileContent = file.readAll();
+        QByteArray         fileContent = file.readAll();
         if (!fileContent.isEmpty())
         {
             hash.addData(fileContent);
@@ -310,12 +318,16 @@ bool RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(const QString& 
     CVF_ASSERT(baseNameFiles);
     baseNameFiles->clear();
 
-    QString filePath = QFileInfo(fullPathFileName).absoluteFilePath();
-    filePath = QFileInfo(filePath).path();
+    QString filePath     = QFileInfo(fullPathFileName).absoluteFilePath();
+    filePath             = QFileInfo(filePath).path();
     QString fileNameBase = QFileInfo(fullPathFileName).completeBaseName();
 
     stringlist_type* eclipseFiles = stringlist_alloc_new();
-    ecl_util_select_filelist(RiaStringEncodingTools::toNativeEncoded(filePath).data(), RiaStringEncodingTools::toNativeEncoded(fileNameBase).data(), ECL_OTHER_FILE, false, eclipseFiles);
+    ecl_util_select_filelist(RiaStringEncodingTools::toNativeEncoded(filePath).data(),
+                             RiaStringEncodingTools::toNativeEncoded(fileNameBase).data(),
+                             ECL_OTHER_FILE,
+                             false,
+                             eclipseFiles);
 
     int i;
     for (i = 0; i < stringlist_get_size(eclipseFiles); i++)
@@ -329,20 +341,22 @@ bool RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(const QString& 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::readGridDimensions(const QString& gridFileName, std::vector< std::vector<int> >& gridDimensions)
+void RifEclipseOutputFileTools::readGridDimensions(const QString& gridFileName, std::vector<std::vector<int>>& gridDimensions)
 {
-    ecl_grid_type * grid         = ecl_grid_alloc(RiaStringEncodingTools::toNativeEncoded(gridFileName).data());                               // bootstrap ecl_grid instance
-    stringlist_type * lgr_names  = ecl_grid_alloc_lgr_name_list( grid );                                   // get a list of all the lgr names.
+    ecl_grid_type* grid =
+        ecl_grid_alloc(RiaStringEncodingTools::toNativeEncoded(gridFileName).data()); // bootstrap ecl_grid instance
+    stringlist_type* lgr_names = ecl_grid_alloc_lgr_name_list(grid); // get a list of all the lgr names.
 
-    //printf("grid:%s has %d a total of %d lgr's \n", grid_filename , stringlist_get_size( lgr_names ));
-    for (int lgr_nr = 0; lgr_nr < stringlist_get_size( lgr_names); lgr_nr++)
+    // printf("grid:%s has %d a total of %d lgr's \n", grid_filename , stringlist_get_size( lgr_names ));
+    for (int lgr_nr = 0; lgr_nr < stringlist_get_size(lgr_names); lgr_nr++)
     {
-        ecl_grid_type * lgr_grid  = ecl_grid_get_lgr( grid , stringlist_iget( lgr_names , lgr_nr ));    // get the ecl_grid instance of the lgr - by name.
+        ecl_grid_type* lgr_grid =
+            ecl_grid_get_lgr(grid, stringlist_iget(lgr_names, lgr_nr)); // get the ecl_grid instance of the lgr - by name.
 
-        int nx,ny,nz,active_size;
-        ecl_grid_get_dims( lgr_grid , &nx , &ny , &nz , &active_size);                             // get some size info from this lgr.
+        int nx, ny, nz, active_size;
+        ecl_grid_get_dims(lgr_grid, &nx, &ny, &nz, &active_size); // get some size info from this lgr.
 
         std::vector<int> values;
         values.push_back(nx);
@@ -353,9 +367,8 @@ void RifEclipseOutputFileTools::readGridDimensions(const QString& gridFileName, 
         gridDimensions.push_back(values);
     }
 
-    ecl_grid_free( grid );
-    stringlist_free( lgr_names );
-
+    ecl_grid_free(grid);
+    stringlist_free(lgr_names);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -382,7 +395,7 @@ int RifEclipseOutputFileTools::readUnitsType(const ecl_file_type* ecl_file)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RifEclipseRestartDataAccess> RifEclipseOutputFileTools::createDynamicResultAccess(const QString& fileName)
 {
@@ -413,7 +426,7 @@ cvf::ref<RifEclipseRestartDataAccess> RifEclipseOutputFileTools::createDynamicRe
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RifEclipseOutputFileTools::createIndexFileName(const QString& resultFileName)
 {
@@ -425,7 +438,7 @@ QString RifEclipseOutputFileTools::createIndexFileName(const QString& resultFile
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::set<RiaDefines::PhaseType> RifEclipseOutputFileTools::findAvailablePhases(const ecl_file_type* ecl_file)
 {
@@ -459,13 +472,13 @@ std::set<RiaDefines::PhaseType> RifEclipseOutputFileTools::findAvailablePhases(c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::transferNncFluxData(const ecl_grid_type* grid,
+void RifEclipseOutputFileTools::transferNncFluxData(const ecl_grid_type*      grid,
                                                     const ecl_file_view_type* summaryView,
-                                                    std::vector<double>* waterFlux, 
-                                                    std::vector<double>* oilFlux, 
-                                                    std::vector<double>* gasFlux)
+                                                    std::vector<double>*      waterFlux,
+                                                    std::vector<double>*      oilFlux,
+                                                    std::vector<double>*      gasFlux)
 {
     ecl_nnc_geometry_type* nnc_geo = ecl_nnc_geometry_alloc(grid);
     if (nnc_geo)
@@ -499,7 +512,7 @@ void RifEclipseOutputFileTools::transferNncFluxData(const ecl_grid_type* grid,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::isExportedFromIntersect(const ecl_file_type* ecl_file)
 {
@@ -527,20 +540,21 @@ FILE* RifEclipseOutputFileTools::fopen(const QString& filePath, const QString& m
 #pragma warning(disable : 4996)
 #endif
 
-    FILE* filePtr = std::fopen(RiaStringEncodingTools::toNativeEncoded(filePath).data(), RiaStringEncodingTools::toNativeEncoded(mode).data());
+    FILE* filePtr = std::fopen(RiaStringEncodingTools::toNativeEncoded(filePath).data(),
+                               RiaStringEncodingTools::toNativeEncoded(mode).data());
 
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 
     return filePtr;
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::createReportStepsMetaData(std::vector<ecl_file_type*> ecl_files, std::vector<RifRestartReportStep>* reportSteps)
+void RifEclipseOutputFileTools::createReportStepsMetaData(std::vector<ecl_file_type*>        ecl_files,
+                                                          std::vector<RifRestartReportStep>* reportSteps)
 {
     if (!reportSteps) return;
 
@@ -579,7 +593,7 @@ void RifEclipseOutputFileTools::createReportStepsMetaData(std::vector<ecl_file_t
                         int namedKeywordCount = ecl_file_get_num_named_kw(ecl_file, kw);
                         for (int iOcc = 0; iOcc < namedKeywordCount; iOcc++)
                         {
-                            ecl_data_type dataType = ecl_file_iget_named_data_type(ecl_file, kw, iOcc);
+                            ecl_data_type dataType     = ecl_file_iget_named_data_type(ecl_file, kw, iOcc);
                             ecl_type_enum dataTypeEmum = ecl_type_get_type(dataType);
                             if (dataTypeEmum != ECL_DOUBLE_TYPE && dataTypeEmum != ECL_FLOAT_TYPE && dataTypeEmum != ECL_INT_TYPE)
                             {

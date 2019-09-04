@@ -17,8 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicfCommandResponse.h"
 
-
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -66,8 +64,7 @@ void RicfCommandResponse::setResult(caf::PdmObject* result)
 void RicfCommandResponse::updateStatus(Status status, const QString& message)
 {
     m_status = std::max(m_status, status);
-    if (!message.isEmpty())
-    m_messages.push_back(QString("%1:%2").arg(statusLabel(status)).arg(message));
+    if (!message.isEmpty()) m_messages.push_back(QString("%1:%2").arg(statusLabel(status)).arg(message));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,11 +74,11 @@ QString RicfCommandResponse::statusLabel(Status status)
 {
     switch (status)
     {
-    case COMMAND_WARNING:
-        return "WARNING";
-    case COMMAND_ERROR:
-        return "ERROR";
-    default:
-        return "";
+        case COMMAND_WARNING:
+            return "WARNING";
+        case COMMAND_ERROR:
+            return "ERROR";
+        default:
+            return "";
     }
 }

@@ -2,34 +2,32 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimGeoMechCellColors.h"
 
-#include "RimRegularLegendConfig.h"
 #include "Rim3dView.h"
+#include "RimRegularLegendConfig.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
-
 CAF_PDM_SOURCE_INIT(RimGeoMechCellColors, "GeoMechResultSlot");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCellColors::RimGeoMechCellColors(void)
 {
@@ -39,7 +37,7 @@ RimGeoMechCellColors::RimGeoMechCellColors(void)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCellColors::~RimGeoMechCellColors(void)
 {
@@ -47,7 +45,7 @@ RimGeoMechCellColors::~RimGeoMechCellColors(void)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCellColors::updateIconState()
 {
@@ -72,7 +70,7 @@ void RimGeoMechCellColors::updateIconState()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCellColors::initAfterRead()
 {
@@ -81,23 +79,23 @@ void RimGeoMechCellColors::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCellColors::updateLegendCategorySettings()
 {
-    if(this->hasCategoryResult())
+    if (this->hasCategoryResult())
     {
         legendConfig->setMappingMode(RimRegularLegendConfig::CATEGORY_INTEGER);
         legendConfig->setColorRange(RimRegularLegendConfig::CATEGORY);
     }
     else
     {
-        if(legendConfig->mappingMode() == RimRegularLegendConfig::CATEGORY_INTEGER)
+        if (legendConfig->mappingMode() == RimRegularLegendConfig::CATEGORY_INTEGER)
         {
             legendConfig->setMappingMode(RimRegularLegendConfig::LINEAR_CONTINUOUS);
         }
 
-        if(legendConfig->colorRange() == RimRegularLegendConfig::CATEGORY)
+        if (legendConfig->colorRange() == RimRegularLegendConfig::CATEGORY)
         {
             legendConfig->setColorRange(RimRegularLegendConfig::NORMAL);
         }

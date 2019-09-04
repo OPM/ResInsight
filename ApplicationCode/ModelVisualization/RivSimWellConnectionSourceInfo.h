@@ -34,7 +34,8 @@ class RivWellConnectionFactorGeometryGenerator;
 class RivSimWellConnectionSourceInfo : public cvf::Object
 {
 public:
-    explicit RivSimWellConnectionSourceInfo(RimSimWellInView* simWellInView, RivWellConnectionFactorGeometryGenerator* geometryGenerator);
+    explicit RivSimWellConnectionSourceInfo(RimSimWellInView*                         simWellInView,
+                                            RivWellConnectionFactorGeometryGenerator* geometryGenerator);
 
     RimSimWellInView* simWellInView() const;
 

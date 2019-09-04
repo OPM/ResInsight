@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -25,10 +25,10 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
+#include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimProject.h"
-#include "RimCase.h"
 
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
@@ -44,17 +44,16 @@
 
 #include <cstdlib>
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiaSocketServer::RiaSocketServer(QObject* parent)
-: QObject(parent),
-  m_tcpServer(nullptr),
-  m_currentClient(nullptr),
-  m_currentCommandSize(0),
-  m_currentCommand(nullptr),
-  m_currentCaseId(-1)
+    : QObject(parent)
+    , m_tcpServer(nullptr)
+    , m_currentClient(nullptr)
+    , m_currentCommandSize(0)
+    , m_currentCommand(nullptr)
+    , m_currentCaseId(-1)
 {
     // TCP server setup
 
@@ -88,7 +87,7 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
 //--------------------------------------------------------------------------------------------------
 RiaSocketServer::~RiaSocketServer()
 {
-    assert (m_currentCommand == nullptr);
+    assert(m_currentCommand == nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,8 +95,10 @@ RiaSocketServer::~RiaSocketServer()
 //--------------------------------------------------------------------------------------------------
 unsigned short RiaSocketServer::serverPort()
 {
-    if (m_tcpServer) return m_tcpServer->serverPort();
-    else return 0;
+    if (m_tcpServer)
+        return m_tcpServer->serverPort();
+    else
+        return 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,11 +106,11 @@ unsigned short RiaSocketServer::serverPort()
 //--------------------------------------------------------------------------------------------------
 void RiaSocketServer::slotNewClientConnection()
 {
-    // If we are currently handling a connection, just ignore the new one until the current one is disconnected. 
+    // If we are currently handling a connection, just ignore the new one until the current one is disconnected.
 
-    if (m_currentClient && (m_currentClient->state() != QAbstractSocket::UnconnectedState) )
+    if (m_currentClient && (m_currentClient->state() != QAbstractSocket::UnconnectedState))
     {
-        //PMonLog("Starting Timer");
+        // PMonLog("Starting Timer");
         m_nextPendingConnectionTimer->start(); // Reset and start again
         return;
     }
@@ -124,7 +125,7 @@ void RiaSocketServer::slotNewClientConnection()
         {
             QString txt;
             txt = "ResInsight SocketServer : The command did not finish up correctly at the presence of a new one.";
-            
+
             RiaLogging::error(txt);
         }
     }
@@ -151,8 +152,8 @@ RimEclipseCase* RiaSocketServer::findReservoir(int caseId)
             return eclipseView->eclipseCase();
         }
 
-        // If the active mdi window is different from an Eclipse view, search through available mdi windows to find the last activated
-        // Eclipse view. The sub windows are returned with the most recent activated window at the back.
+        // If the active mdi window is different from an Eclipse view, search through available mdi windows to find the last
+        // activated Eclipse view. The sub windows are returned with the most recent activated window at the back.
         QList<QMdiSubWindow*> subWindows = RiuMainWindow::instance()->subWindowList(QMdiArea::ActivationHistoryOrder);
         for (int i = subWindows.size() - 1; i > -1; i--)
         {
@@ -169,7 +170,7 @@ RimEclipseCase* RiaSocketServer::findReservoir(int caseId)
     }
     else
     {
-        RimProject* project =  RiaApplication::instance()->project();
+        RimProject* project = RiaApplication::instance()->project();
         if (!project) return nullptr;
 
         std::vector<RimCase*> cases;
@@ -200,7 +201,7 @@ bool RiaSocketServer::readCommandFromOctave()
     // If we have not read the currentCommandSize
     // read the size of the command if all the data is available
 
-    if (m_currentCommandSize == 0) 
+    if (m_currentCommandSize == 0)
     {
         if (m_currentClient->bytesAvailable() < (int)sizeof(qint64)) return false;
 
@@ -212,7 +213,7 @@ bool RiaSocketServer::readCommandFromOctave()
 
     // Now we can read the command name
 
-    QByteArray command = m_currentClient->read( m_currentCommandSize);
+    QByteArray  command = m_currentClient->read(m_currentCommandSize);
     QTextStream commandStream(command);
 
     QList<QByteArray> args;
@@ -223,7 +224,7 @@ bool RiaSocketServer::readCommandFromOctave()
         args.push_back(arg);
     }
 
-    CVF_ASSERT(args.size() > 0); 
+    CVF_ASSERT(args.size() > 0);
 
     // Create the actual RiaSocketCommand object that will interpret the socket data
 
@@ -244,9 +245,8 @@ bool RiaSocketServer::readCommandFromOctave()
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaSocketServer::slotCurrentClientDisconnected()
 {
@@ -258,7 +258,8 @@ void RiaSocketServer::slotCurrentClientDisconnected()
         if (!isFinished)
         {
             QString txt;
-            txt = QString("ResInsight SocketServer: The command was interrupted and did not finish because the connection to octave disconnected.");
+            txt = QString("ResInsight SocketServer: The command was interrupted and did not finish because the connection to "
+                          "octave disconnected.");
 
             RiaLogging::error(txt);
         }
@@ -292,7 +293,7 @@ void RiaSocketServer::slotReadyRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaSocketServer::setCurrentCaseId(int caseId)
 {
@@ -300,7 +301,7 @@ void RiaSocketServer::setCurrentCaseId(int caseId)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RiaSocketServer::currentCaseId() const
 {
@@ -337,25 +338,24 @@ void RiaSocketServer::terminateCurrentConnection()
     }
 
     m_currentCommandSize = 0;
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaSocketServer::handleNextPendingConnection()
 {
-    if (m_currentClient && (m_currentClient->state() != QAbstractSocket::UnconnectedState) )
+    if (m_currentClient && (m_currentClient->state() != QAbstractSocket::UnconnectedState))
     {
-        //PMonLog("Starting Timer");
+        // PMonLog("Starting Timer");
         m_nextPendingConnectionTimer->start(); // Reset and start again
         return;
     }
 
     // Stop timer
     if (m_nextPendingConnectionTimer->isActive())
-    {    
-        //PMonLog("Stopping Timer"); 
+    {
+        // PMonLog("Stopping Timer");
         m_nextPendingConnectionTimer->stop();
     }
 
@@ -367,7 +367,7 @@ void RiaSocketServer::handleNextPendingConnection()
         CVF_ASSERT(m_currentClient == nullptr);
         CVF_ASSERT(m_currentCommand == nullptr);
 
-        m_currentClient = clientToHandle;
+        m_currentClient      = clientToHandle;
         m_currentCommandSize = 0;
 
         connect(m_currentClient, SIGNAL(disconnected()), this, SLOT(slotCurrentClientDisconnected()));
@@ -384,4 +384,3 @@ void RiaSocketServer::handleNextPendingConnection()
         }
     }
 }
-

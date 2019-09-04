@@ -48,7 +48,7 @@ void RicCreateGridCrossPlotDataSetFeature::onActionTriggered(bool isChecked)
 
     RimGridCrossPlotDataSet* dataSet = crossPlot->createDataSet();
     dataSet->loadDataAndUpdate(true);
-    
+
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem(dataSet);
 }

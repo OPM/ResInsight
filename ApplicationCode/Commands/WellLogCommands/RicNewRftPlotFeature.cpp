@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017  Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -37,17 +37,16 @@
 
 #include <vector>
 
-
 CAF_CMD_SOURCE_INIT(RicNewRftPlotFeature, "RicNewRftPlotFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewRftPlotFeature::isCommandEnabled()
 {
     RimRftPlotCollection* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimRftPlotCollection*>();
     if (simWell) return true;
-    
+
     if (selectedWellName().isEmpty())
     {
         return false;
@@ -57,7 +56,7 @@ bool RicNewRftPlotFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewRftPlotFeature::onActionTriggered(bool isChecked)
 {
@@ -91,7 +90,7 @@ void RicNewRftPlotFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewRftPlotFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -100,7 +99,7 @@ void RicNewRftPlotFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicNewRftPlotFeature::selectedWellName()
 {

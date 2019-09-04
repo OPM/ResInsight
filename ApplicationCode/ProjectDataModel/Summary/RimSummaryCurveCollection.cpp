@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017- Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -30,8 +30,8 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotSourceStepping.h"
 
-#include "RiuSummaryQwtPlot.h"
 #include "RiuQwtPlotCurve.h"
+#include "RiuSummaryQwtPlot.h"
 
 #include "cafPdmUiTreeViewEditor.h"
 
@@ -42,7 +42,7 @@
 CAF_PDM_SOURCE_INIT(RimSummaryCurveCollection, "RimSummaryCurveCollection");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurveCollection::RimSummaryCurveCollection()
 {
@@ -78,7 +78,7 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurveCollection::~RimSummaryCurveCollection()
 {
@@ -86,7 +86,7 @@ RimSummaryCurveCollection::~RimSummaryCurveCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCurveCollection::isCurvesVisible()
 {
@@ -94,7 +94,7 @@ bool RimSummaryCurveCollection::isCurvesVisible()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::loadDataAndUpdate(bool updateParentPlot)
 {
@@ -104,7 +104,7 @@ void RimSummaryCurveCollection::loadDataAndUpdate(bool updateParentPlot)
         curve->updateQwtPlotAxis();
     }
 
-    if ( updateParentPlot )
+    if (updateParentPlot)
     {
         RimSummaryPlot* parentPlot;
         firstAncestorOrThisOfTypeAsserted(parentPlot);
@@ -113,7 +113,7 @@ void RimSummaryCurveCollection::loadDataAndUpdate(bool updateParentPlot)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::setParentQwtPlotAndReplot(QwtPlot* plot)
 {
@@ -126,7 +126,7 @@ void RimSummaryCurveCollection::setParentQwtPlotAndReplot(QwtPlot* plot)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::detachQwtCurves()
 {
@@ -148,7 +148,7 @@ void RimSummaryCurveCollection::reattachQwtCurves()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurve* RimSummaryCurveCollection::findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const
 {
@@ -164,7 +164,7 @@ RimSummaryCurve* RimSummaryCurveCollection::findRimCurveFromQwtCurve(const QwtPl
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::addCurve(RimSummaryCurve* curve)
 {
@@ -175,7 +175,7 @@ void RimSummaryCurveCollection::addCurve(RimSummaryCurve* curve)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::deleteCurve(RimSummaryCurve* curve)
 {
@@ -188,7 +188,7 @@ void RimSummaryCurveCollection::deleteCurve(RimSummaryCurve* curve)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves() const
 {
@@ -196,9 +196,10 @@ std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curvesForSourceStepping(RimSummaryPlotSourceStepping::SourceSteppingType steppingType) const
+std::vector<RimSummaryCurve*>
+    RimSummaryCurveCollection::curvesForSourceStepping(RimSummaryPlotSourceStepping::SourceSteppingType steppingType) const
 {
     std::vector<RimSummaryCurve*> stepCurves;
 
@@ -262,7 +263,7 @@ std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curvesForSourceStepping
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase)
 {
@@ -283,11 +284,10 @@ void RimSummaryCurveCollection::deleteCurvesAssosiatedWithCase(RimSummaryCase* s
         m_curves.removeChildObject(summaryCurve);
         delete summaryCurve;
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::deleteAllCurves()
 {
@@ -295,7 +295,7 @@ void RimSummaryCurveCollection::deleteAllCurves()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::updateCaseNameHasChanged()
 {
@@ -313,7 +313,7 @@ void RimSummaryCurveCollection::updateCaseNameHasChanged()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::setCurrentSummaryCurve(RimSummaryCurve* curve)
 {
@@ -323,7 +323,7 @@ void RimSummaryCurveCollection::setCurrentSummaryCurve(RimSummaryCurve* curve)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimSummaryCurveCollection::fieldsToShowInToolbar()
 {
@@ -339,7 +339,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryCurveCollection::fieldsToShowInToolb
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::handleKeyPressEvent(QKeyEvent* keyEvent)
 {
@@ -349,7 +349,7 @@ void RimSummaryCurveCollection::handleKeyPressEvent(QKeyEvent* keyEvent)
     {
         RimSummaryCrossPlot* summaryCrossPlot = nullptr;
         this->firstAncestorOrThisOfType(summaryCrossPlot);
-        
+
         if (summaryCrossPlot)
         {
             sourceStepping = m_unionSourceStepping();
@@ -405,7 +405,7 @@ void RimSummaryCurveCollection::handleKeyPressEvent(QKeyEvent* keyEvent)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::setCurveAsTopZWithinCategory(RimSummaryCurve* curve)
 {
@@ -425,7 +425,7 @@ void RimSummaryCurveCollection::setCurveAsTopZWithinCategory(RimSummaryCurve* cu
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::setCurveForSourceStepping(RimSummaryCurve* curve)
 {
@@ -433,7 +433,7 @@ void RimSummaryCurveCollection::setCurveForSourceStepping(RimSummaryCurve* curve
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurve* RimSummaryCurveCollection::curveForSourceStepping() const
 {
@@ -441,9 +441,11 @@ RimSummaryCurve* RimSummaryCurveCollection::curveForSourceStepping() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimSummaryCurveCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                 const QVariant&            oldValue,
+                                                 const QVariant&            newValue)
 {
     if (changedField == &m_showCurves)
     {
@@ -452,7 +454,7 @@ void RimSummaryCurveCollection::fieldChangedByUi(const caf::PdmFieldHandle* chan
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -488,7 +490,7 @@ void RimSummaryCurveCollection::defineUiOrdering(QString uiConfigName, caf::PdmU
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSummaryCurveCollection::objectToggleField()
 {
@@ -496,7 +498,7 @@ caf::PdmFieldHandle* RimSummaryCurveCollection::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {

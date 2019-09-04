@@ -45,8 +45,8 @@ bool RicEclipseCellResultToFileImpl::writePropertyToTextFile(const QString&     
     CVF_TIGHT_ASSERT(eclipseCase);
     if (!eclipseCase) return false;
 
-    cvf::ref<RigResultAccessor> resultAccessor =
-        RigResultAccessorFactory::createFromResultAddress(eclipseCase, 0, RiaDefines::MATRIX_MODEL, timeStep, RigEclipseResultAddress(resultName));
+    cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultAddress(
+        eclipseCase, 0, RiaDefines::MATRIX_MODEL, timeStep, RigEclipseResultAddress(resultName));
     if (resultAccessor.isNull())
     {
         return false;

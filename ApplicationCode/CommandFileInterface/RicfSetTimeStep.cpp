@@ -1,28 +1,28 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicfSetTimeStep.h"
 
-#include "RimProject.h"
-#include "RimOilField.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimEclipseCase.h"
 #include "Rim3dView.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
@@ -30,12 +30,12 @@
 CAF_PDM_SOURCE_INIT(RicfSetTimeStep, "setTimeStep");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicfSetTimeStep::RicfSetTimeStep()
 {
-    RICF_InitField(&m_caseId,        "caseId",    -1, "Case ID",  "", "", "");
-    RICF_InitField(&m_timeStepIndex, "timeStep",  -1, "Time Step Index",  "", "", "");
+    RICF_InitField(&m_caseId, "caseId", -1, "Case ID", "", "", "");
+    RICF_InitField(&m_timeStepIndex, "timeStep", -1, "Time Step Index", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ void RicfSetTimeStep::setTimeStepIndex(int timeStepIndex)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicfSetTimeStep::execute()
 {
@@ -68,7 +68,7 @@ RicfCommandResponse RicfSetTimeStep::execute()
             if (c->caseId == m_caseId)
             {
                 eclipseCase = c;
-                foundCase = true;
+                foundCase   = true;
                 break;
             }
         }

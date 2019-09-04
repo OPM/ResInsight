@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -31,17 +31,18 @@
 class ThicknessValidator : public QValidator
 {
 public:
-    State validate(QString &input, int &pos) const override
+    State validate(QString& input, int& pos) const override
     {
         if (input.isEmpty()) return State::Intermediate;
 
         int val = RiaStdStringTools::toInt(input.toStdString());
-        if (val > 0 && val < 8) return State::Acceptable;
-        else return State::Invalid;
+        if (val > 0 && val < 8)
+            return State::Acceptable;
+        else
+            return State::Invalid;
     }
 };
 
-    
 namespace caf
 {
 template<>
@@ -54,9 +55,7 @@ void RimAnnotationLineAppearance::LineStyle::setUp()
 }
 }
 
-
 CAF_PDM_SOURCE_INIT(RimAnnotationLineAppearance, "RimAnnotationLineAppearance");
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -66,11 +65,11 @@ RimAnnotationLineAppearance::RimAnnotationLineAppearance()
     CAF_PDM_InitObject("AnnotationLineAppearance", ":/WellCollection.png", "", "");
 
     CAF_PDM_InitField(&m_lineFieldsHidden, "LineFieldsHidden", false, "Line Fields Hidden", "", "", "");
-    CAF_PDM_InitField(&m_color,     "Color",     cvf::Color3f(cvf::Color3f::BLACK),  "Line Color", "", "", "");
-    CAF_PDM_InitField(&m_thickness, "Thickness", 2,                                  "Line Thickness", "", "", "");
+    CAF_PDM_InitField(&m_color, "Color", cvf::Color3f(cvf::Color3f::BLACK), "Line Color", "", "", "");
+    CAF_PDM_InitField(&m_thickness, "Thickness", 2, "Line Thickness", "", "", "");
 
     // Stippling not yet supported. Needs new stuff in VizFwk
-    CAF_PDM_InitField(&m_style,     "Style",     LineStyle(),                        "Style", "", "", "");
+    CAF_PDM_InitField(&m_style, "Style", LineStyle(), "Style", "", "", "");
     m_style.uiCapability()->setUiHidden(true);
     m_style.xmlCapability()->disableIO();
 
@@ -86,7 +85,7 @@ void RimAnnotationLineAppearance::setLineFieldsHidden(bool hidden)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationLineAppearance::setColor(const cvf::Color3f& newColor)
 {
@@ -136,12 +135,12 @@ void RimAnnotationLineAppearance::defineUiOrdering(QString uiConfigName, caf::Pd
 ///
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationLineAppearance::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                         const QVariant&            oldValue,
-                                         const QVariant&            newValue)
+                                                   const QVariant&            oldValue,
+                                                   const QVariant&            newValue)
 {
     RimAnnotationCollection* annColl = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(annColl);
-    annColl->scheduleRedrawOfRelevantViews(); 
+    annColl->scheduleRedrawOfRelevantViews();
 }
 
 //--------------------------------------------------------------------------------------------------

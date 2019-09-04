@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,11 +24,11 @@
 
 #include "RigWellPath.h"
 
-#include "RimProject.h"
+#include "Rim3dView.h"
 #include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
-#include "Rim3dView.h"
+#include "RimProject.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
 
@@ -41,16 +41,15 @@
 
 #include <cmath>
 
-
 CAF_CMD_SOURCE_INIT(RicNewFishbonesSubsFeature, "RicNewFishbonesSubsFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double getWellPathTipMd(RimWellPath* wellPath);
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsFeature::onActionTriggered(bool isChecked)
 {
@@ -75,7 +74,6 @@ void RicNewFishbonesSubsFeature::onActionTriggered(bool isChecked)
 
     RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(fishbonesCollection);
 
-
     RimWellPathCollection* wellPathCollection = nullptr;
     fishbonesCollection->firstAncestorOrThisOfType(wellPathCollection);
     if (wellPathCollection)
@@ -91,7 +89,7 @@ void RicNewFishbonesSubsFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection()
 {
@@ -100,7 +98,7 @@ RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection(
     if (allSelectedItems.size() != 1u) return nullptr;
 
     RimFishbonesCollection* objToFind = nullptr;
-    
+
     caf::PdmUiItem* pdmUiItem = allSelectedItems.front();
 
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
@@ -128,7 +126,7 @@ RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection(
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -137,7 +135,7 @@ void RicNewFishbonesSubsFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewFishbonesSubsFeature::isCommandEnabled()
 {
@@ -150,7 +148,7 @@ bool RicNewFishbonesSubsFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(RimFishbonesCollection* fishboneCollection)
 {
@@ -163,11 +161,11 @@ void RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(RimFishbonesCollectio
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
 
-    RiaApplication* app = RiaApplication::instance();
-    QString sessionKey = "AutoAdjustSettingsForFishbones";
+    RiaApplication* app        = RiaApplication::instance();
+    QString         sessionKey = "AutoAdjustSettingsForFishbones";
 
-    bool autoAdjustSettings = false;
-    QVariant v = app->cacheDataObject(sessionKey);
+    bool     autoAdjustSettings = false;
+    QVariant v                  = app->cacheDataObject(sessionKey);
     if (!v.isValid())
     {
         double currentScaleFactor = activeView->scaleZ();
@@ -177,7 +175,8 @@ void RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(RimFishbonesCollectio
         msgBox.setIcon(QMessageBox::Question);
 
         QString questionText;
-        questionText = QString("When displaying Fishbones structures, the view scaling should be set to 1.\n\nDo you want ResInsight to automatically set view scaling to 1?");
+        questionText = QString("When displaying Fishbones structures, the view scaling should be set to 1.\n\nDo you want "
+                               "ResInsight to automatically set view scaling to 1?");
 
         msgBox.setText(questionText);
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
@@ -206,7 +205,7 @@ void RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(RimFishbonesCollectio
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double getWellPathTipMd(RimWellPath* wellPath)
 {

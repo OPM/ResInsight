@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,9 +20,9 @@
 
 #include "RigFormationNames.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimTools.h"
-#include "Rim3dView.h"
 #include "RimWellLogTrack.h"
 
 #include "cafAssert.h"
@@ -35,7 +35,7 @@
 CAF_PDM_SOURCE_INIT(RimFormationNames, "FormationNames");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFormationNames::RimFormationNames()
 {
@@ -44,21 +44,19 @@ RimFormationNames::RimFormationNames()
     CAF_PDM_InitField(&m_formationNamesFileName, "FormationNamesFileName", QString(""), "File Name", "", "", "");
 
     m_formationNamesFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimFormationNames::~RimFormationNames()
-{
-
-}
+RimFormationNames::~RimFormationNames() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimFormationNames::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimFormationNames::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                         const QVariant&            oldValue,
+                                         const QVariant&            newValue)
 {
     if (&m_formationNamesFileName == changedField)
     {
@@ -73,7 +71,7 @@ void RimFormationNames::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFormationNames::initAfterRead()
 {
@@ -81,7 +79,7 @@ void RimFormationNames::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFormationNames::setFileName(const QString& fileName)
 {
@@ -91,7 +89,7 @@ void RimFormationNames::setFileName(const QString& fileName)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const QString& RimFormationNames::fileName()
 {
@@ -99,7 +97,7 @@ const QString& RimFormationNames::fileName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimFormationNames::fileNameWoPath()
 {
@@ -108,7 +106,7 @@ QString RimFormationNames::fileNameWoPath()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFormationNames::updateConnectedViews()
 {
@@ -136,23 +134,23 @@ void RimFormationNames::updateConnectedViews()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFormationNames::readFormationNamesFile(QString* errorMessage)
 {
     QFile dataFile(m_formationNamesFileName());
 
-    if (!dataFile.open(QFile::ReadOnly)) 
-    { 
-       if (errorMessage) (*errorMessage) += "Could not open the File: " + (m_formationNamesFileName()) + "\n"; 
-       return;
+    if (!dataFile.open(QFile::ReadOnly))
+    {
+        if (errorMessage) (*errorMessage) += "Could not open the File: " + (m_formationNamesFileName()) + "\n";
+        return;
     }
 
     m_formationNamesData = new RigFormationNames;
     QTextStream stream(&dataFile);
 
     QFileInfo fileInfo(m_formationNamesFileName());
-    
+
     if (fileInfo.fileName() == "layer_zone_table.txt")
     {
         readFmuFormationNameFile(stream, errorMessage);
@@ -161,17 +159,17 @@ void RimFormationNames::readFormationNamesFile(QString* errorMessage)
     {
         CAF_ASSERT(fileInfo.suffix() == "lyr");
         readLyrFormationNameFile(stream, errorMessage);
-    }  
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFormationNames::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
-    m_formationNamesFileName = RimTools::relocateFile(m_formationNamesFileName(), newProjectPath, oldProjectPath, nullptr, nullptr);
+    m_formationNamesFileName =
+        RimTools::relocateFile(m_formationNamesFileName(), newProjectPath, oldProjectPath, nullptr, nullptr);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -259,8 +257,8 @@ void RimFormationNames::readFmuFormationNameFile(QTextStream& stream, QString* e
     int lineNumber = 1;
 
     QString currentFormationName;
-    int startK = -1;
-    int endK   = -1;
+    int     startK = -1;
+    int     endK   = -1;
 
     while (!stream.atEnd())
     {
@@ -278,7 +276,7 @@ void RimFormationNames::readFmuFormationNameFile(QTextStream& stream, QString* e
         {
             QTextStream lineStream(&line);
 
-            double kLayer;
+            double  kLayer;
             QString formationName;
 
             lineStream >> kLayer >> formationName;

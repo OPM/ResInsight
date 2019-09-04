@@ -1,55 +1,55 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicGridStatisticsDialog.h"
+#include "ExportCommands/RicSnapshotFilenameGenerator.h"
 #include "ExportCommands/RicSnapshotViewToClipboardFeature.h"
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"
-#include "ExportCommands/RicSnapshotFilenameGenerator.h"
 
 #include "RiaApplication.h"
 
-#include "RimEclipseView.h"
 #include "Rim3dOverlayInfoConfig.h"
+#include "RimEclipseView.h"
 
 #include "RiuPlotMainWindow.h"
-#include "RiuSummaryQwtPlot.h"
 #include "RiuQwtPlotTools.h"
+#include "RiuSummaryQwtPlot.h"
 #include "RiuTools.h"
 
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QTextEdit>
-#include <QDialogButtonBox>
-#include <QPushButton>
-#include <QToolBar>
 #include <QAction>
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QPushButton>
+#include <QTextEdit>
+#include <QToolBar>
+#include <QVBoxLayout>
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_histogram.h>
 #include <qwt_plot_marker.h>
+#include <qwt_scale_draw.h>
 #include <qwt_series_data.h>
 #include <qwt_symbol.h>
-#include <qwt_scale_draw.h>
 
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicGridStatisticsDialog::RicGridStatisticsDialog(QWidget* parent)
     : QDialog(parent, RiuTools::defaultDialogFlags())
@@ -57,13 +57,13 @@ RicGridStatisticsDialog::RicGridStatisticsDialog(QWidget* parent)
     m_currentRimView = nullptr;
 
     // Create widgets
-    m_toolBar = new QToolBar();
+    m_toolBar        = new QToolBar();
     m_mainViewWidget = new QFrame();
-    m_label = new QLabel();
-    m_textEdit = new QTextEdit();
+    m_label          = new QLabel();
+    m_textEdit       = new QTextEdit();
     m_historgramPlot = new QwtPlot();
     m_aggregatedPlot = new QwtPlot();
-    m_buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+    m_buttons        = new QDialogButtonBox(QDialogButtonBox::Close);
 
     // Connect to close button signal
     connect(m_buttons, SIGNAL(rejected()), this, SLOT(slotDialogFinished()));
@@ -99,14 +99,12 @@ RicGridStatisticsDialog::RicGridStatisticsDialog(QWidget* parent)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicGridStatisticsDialog::~RicGridStatisticsDialog()
-{
-}
+RicGridStatisticsDialog::~RicGridStatisticsDialog() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicGridStatisticsDialog::setLabel(const QString& labelText)
 {
@@ -114,7 +112,7 @@ void RicGridStatisticsDialog::setLabel(const QString& labelText)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicGridStatisticsDialog::updateFromRimView(RimGridView* rimView)
 {
@@ -124,7 +122,7 @@ void RicGridStatisticsDialog::updateFromRimView(RimGridView* rimView)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QImage RicGridStatisticsDialog::screenShotImage()
 {
@@ -133,7 +131,7 @@ QImage RicGridStatisticsDialog::screenShotImage()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicGridStatisticsDialog::setInfoText(RimGridView* view)
 {
@@ -151,7 +149,7 @@ void RicGridStatisticsDialog::setInfoText(RimGridView* view)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicGridStatisticsDialog::setHistogramData(RimGridView* view)
 {
@@ -175,10 +173,10 @@ void RicGridStatisticsDialog::setHistogramData(RimGridView* view)
         if (histogramData.isValid())
         {
             QVector<QwtIntervalSample> histSamples;
-            QVector<QPointF> aggrSamples;
-            double xStep = (histogramData.max - histogramData.min) / (*histogramData.histogram).size();
-            double xCurr = histogramData.min;
-            double aggrValue = 0.0;
+            QVector<QPointF>           aggrSamples;
+            double                     xStep     = (histogramData.max - histogramData.min) / (*histogramData.histogram).size();
+            double                     xCurr     = histogramData.min;
+            double                     aggrValue = 0.0;
             for (size_t value : *histogramData.histogram)
             {
                 double xNext = xCurr + xStep;
@@ -191,10 +189,12 @@ void RicGridStatisticsDialog::setHistogramData(RimGridView* view)
             }
 
             // Axis
-            double xAxisSize = histogramData.max - histogramData.min;
+            double xAxisSize      = histogramData.max - histogramData.min;
             double xAxisExtension = xAxisSize * 0.02;
-            m_historgramPlot->setAxisScale(QwtPlot::xBottom, histogramData.min - xAxisExtension, histogramData.max + xAxisExtension);
-            m_aggregatedPlot->setAxisScale(QwtPlot::xBottom, histogramData.min - xAxisExtension, histogramData.max + xAxisExtension);
+            m_historgramPlot->setAxisScale(
+                QwtPlot::xBottom, histogramData.min - xAxisExtension, histogramData.max + xAxisExtension);
+            m_aggregatedPlot->setAxisScale(
+                QwtPlot::xBottom, histogramData.min - xAxisExtension, histogramData.max + xAxisExtension);
 
             // Set y axis label area width
             m_historgramPlot->axisScaleDraw(QwtPlot::yLeft)->setMinimumExtent(60);
@@ -218,28 +218,28 @@ void RicGridStatisticsDialog::setHistogramData(RimGridView* view)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicGridStatisticsDialog::createAndConnectToolbarActions()
 {
-    QAction* scrShotToClipboardAction = m_toolBar->addAction(RicSnapshotViewToClipboardFeature::icon(), RicSnapshotViewToClipboardFeature::text());
+    QAction* scrShotToClipboardAction =
+        m_toolBar->addAction(RicSnapshotViewToClipboardFeature::icon(), RicSnapshotViewToClipboardFeature::text());
     connect(scrShotToClipboardAction, SIGNAL(triggered()), this, SLOT(slotScreenShotToClipboard()));
 
-    QAction* scrShotToFileAction = m_toolBar->addAction(RicSnapshotViewToFileFeature::icon(), RicSnapshotViewToFileFeature::text());
+    QAction* scrShotToFileAction =
+        m_toolBar->addAction(RicSnapshotViewToFileFeature::icon(), RicSnapshotViewToFileFeature::text());
     connect(scrShotToFileAction, SIGNAL(triggered()), this, SLOT(slotScreenShotToFile()));
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicGridStatisticsDialog::deletePlotItems(QwtPlot* plot)
 {
     QwtPlotItemList itemList = plot->itemList();
     for (auto item : itemList)
     {
-        if (dynamic_cast<QwtPlotMarker*>(item)
-            || dynamic_cast<QwtPlotCurve*>(item)
-            || dynamic_cast<QwtPlotHistogram*>(item))
+        if (dynamic_cast<QwtPlotMarker*>(item) || dynamic_cast<QwtPlotCurve*>(item) || dynamic_cast<QwtPlotHistogram*>(item))
         {
             item->detach();
             delete item;
@@ -248,7 +248,7 @@ void RicGridStatisticsDialog::deletePlotItems(QwtPlot* plot)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicGridStatisticsDialog::setMarkers(const Rim3dOverlayInfoConfig::HistogramData& histData, QwtPlot* plot)
 {
@@ -276,7 +276,7 @@ void RicGridStatisticsDialog::setMarkers(const Rim3dOverlayInfoConfig::Histogram
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QwtPlotMarker* RicGridStatisticsDialog::createVerticalPlotMarker(const QColor& color, double xValue)
 {
@@ -288,7 +288,7 @@ QwtPlotMarker* RicGridStatisticsDialog::createVerticalPlotMarker(const QColor& c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicGridStatisticsDialog::adjustTextEditHeightToContent()
 {
@@ -297,7 +297,7 @@ void RicGridStatisticsDialog::adjustTextEditHeightToContent()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicGridStatisticsDialog::slotDialogFinished()
 {
@@ -305,7 +305,7 @@ void RicGridStatisticsDialog::slotDialogFinished()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicGridStatisticsDialog::slotScreenShotToClipboard()
 {
@@ -314,11 +314,11 @@ void RicGridStatisticsDialog::slotScreenShotToClipboard()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicGridStatisticsDialog::slotScreenShotToFile()
 {
-    QImage snapshotImage = screenShotImage();
+    QImage  snapshotImage = screenShotImage();
     QString defaultFileBaseName;
     if (m_currentRimView)
     {

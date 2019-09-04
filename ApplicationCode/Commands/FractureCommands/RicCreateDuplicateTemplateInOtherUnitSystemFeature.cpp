@@ -1,23 +1,22 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicCreateDuplicateTemplateInOtherUnitSystemFeature.h"
-
 
 #include "RiaApplication.h"
 #include "RiaEclipseUnitTools.h"
@@ -42,13 +41,13 @@
 #include "cvfAssert.h"
 
 #include <QAction>
-#include <QString>
 #include <QFileInfo>
+#include <QString>
 
 CAF_CMD_SOURCE_INIT(RicCreateDuplicateTemplateInOtherUnitSystemFeature, "RicConvertFractureTemplateUnitFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCreateDuplicateTemplateInOtherUnitSystemFeature::onActionTriggered(bool isChecked)
 {
@@ -74,11 +73,11 @@ void RicCreateDuplicateTemplateInOtherUnitSystemFeature::onActionTriggered(bool 
     auto currentUnit = copyOfTemplate->fractureTemplateUnit();
     if (currentUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
-       copyOfTemplate->convertToUnitSystem(RiaEclipseUnitTools::UNITS_FIELD);
+        copyOfTemplate->convertToUnitSystem(RiaEclipseUnitTools::UNITS_FIELD);
     }
     else
     {
-       copyOfTemplate->convertToUnitSystem(RiaEclipseUnitTools::UNITS_METRIC);
+        copyOfTemplate->convertToUnitSystem(RiaEclipseUnitTools::UNITS_METRIC);
     }
 
     QString name = copyOfTemplate->name();
@@ -92,7 +91,7 @@ void RicCreateDuplicateTemplateInOtherUnitSystemFeature::onActionTriggered(bool 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCreateDuplicateTemplateInOtherUnitSystemFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -117,14 +116,14 @@ void RicCreateDuplicateTemplateInOtherUnitSystemFeature::setupActionLook(QAction
     }
 
     QString text = QString("Create %1 Units Duplicate").arg(destinationUnit);
-    
+
     actionToSetup->setIcon(QIcon(":/FractureTemplate16x16.png"));
 
     actionToSetup->setText(text);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicCreateDuplicateTemplateInOtherUnitSystemFeature::isCommandEnabled()
 {

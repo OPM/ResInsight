@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -27,23 +27,22 @@
 
 // See also corresponding fake implementations in RimSummaryCurve
 
-QTextStream& operator << (QTextStream& str, const std::vector<RifEclipseSummaryAddress>& sobj)
+QTextStream& operator<<(QTextStream& str, const std::vector<RifEclipseSummaryAddress>& sobj)
 {
     CVF_ASSERT(false);
     return str;
 }
 
-QTextStream& operator >> (QTextStream& str, std::vector<RifEclipseSummaryAddress>& sobj)
+QTextStream& operator>>(QTextStream& str, std::vector<RifEclipseSummaryAddress>& sobj)
 {
     CVF_ASSERT(false);
     return str;
 }
-
 
 CAF_PDM_SOURCE_INIT(RimSummaryCurveFilter_OBSOLETE, "SummaryCurveFilter");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurveFilter_OBSOLETE::RimSummaryCurveFilter_OBSOLETE()
 {
@@ -62,12 +61,13 @@ RimSummaryCurveFilter_OBSOLETE::RimSummaryCurveFilter_OBSOLETE()
 
     m_summaryFilter = new RimSummaryFilter;
 
-    CAF_PDM_InitFieldNoDefault(&m_uiFilterResultMultiSelection, "FilterResultSelection", "Filter Result", "", "Ctrl-A : Select All", "");
+    CAF_PDM_InitFieldNoDefault(
+        &m_uiFilterResultMultiSelection, "FilterResultSelection", "Filter Result", "", "Ctrl-A : Select All", "");
     m_uiFilterResultMultiSelection.xmlCapability()->disableIO();
     m_uiFilterResultMultiSelection.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_uiFilterResultMultiSelection.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_uiFilterResultMultiSelection.uiCapability()->setAutoAddingOptionFromValue(false);
-    
+
     CAF_PDM_InitFieldNoDefault(&m_curves, "FilteredCurves", "Filtered Curves", "", "", "");
     m_curves.uiCapability()->setUiHidden(true);
     m_curves.uiCapability()->setUiTreeChildrenHidden(false);
@@ -83,13 +83,13 @@ RimSummaryCurveFilter_OBSOLETE::RimSummaryCurveFilter_OBSOLETE()
     CAF_PDM_InitField(&m_showCurves, "IsActive", true, "Show Curves", "", "", "");
     m_showCurves.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_useAutoAppearanceAssignment, "UseAutoAppearanceAssignment", true, "Auto", "", "", "" );
+    CAF_PDM_InitField(&m_useAutoAppearanceAssignment, "UseAutoAppearanceAssignment", true, "Auto", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_caseAppearanceType,     "CaseAppearanceType",     "Case",   "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_caseAppearanceType, "CaseAppearanceType", "Case", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_variableAppearanceType, "VariableAppearanceType", "Vector", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_wellAppearanceType,     "WellAppearanceType",     "Well",   "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_groupAppearanceType,    "GroupAppearanceType",    "Group",  "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_regionAppearanceType,   "RegionAppearanceType",   "Region", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellAppearanceType, "WellAppearanceType", "Well", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_groupAppearanceType, "GroupAppearanceType", "Group", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_regionAppearanceType, "RegionAppearanceType", "Region", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_plotAxis, "PlotAxis", "Axis", "", "", "");
     CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Contribute To Legend", "", "", "");
@@ -102,7 +102,7 @@ RimSummaryCurveFilter_OBSOLETE::RimSummaryCurveFilter_OBSOLETE()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurveFilter_OBSOLETE::~RimSummaryCurveFilter_OBSOLETE()
 {
@@ -110,21 +110,21 @@ RimSummaryCurveFilter_OBSOLETE::~RimSummaryCurveFilter_OBSOLETE()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimSummaryCurveFilter_OBSOLETE::curves()
 {
     std::vector<RimSummaryCurve*> myCurves;
-    for ( RimSummaryCurve* curve: m_curves)
+    for (RimSummaryCurve* curve : m_curves)
     {
         myCurves.push_back(curve);
     }
 
-    return myCurves;    
+    return myCurves;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveFilter_OBSOLETE::clearCurvesWithoutDelete()
 {

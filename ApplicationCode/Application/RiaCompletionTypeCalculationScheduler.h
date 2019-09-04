@@ -30,16 +30,20 @@ class RimEclipseCase;
 class RiaCompletionTypeCalculationScheduler : public QObject
 {
     Q_OBJECT;
+
 public:
     static RiaCompletionTypeCalculationScheduler* instance();
-    void                scheduleRecalculateCompletionTypeAndRedrawAllViews();
-    void                scheduleRecalculateCompletionTypeAndRedrawAllViews(RimEclipseCase* eclipseCase);
+    void                                          scheduleRecalculateCompletionTypeAndRedrawAllViews();
+    void                                          scheduleRecalculateCompletionTypeAndRedrawAllViews(RimEclipseCase* eclipseCase);
 
 private slots:
-    void                slotRecalculateCompletionType();
+    void slotRecalculateCompletionType();
 
 private:
-    RiaCompletionTypeCalculationScheduler() : m_recalculateCompletionTypeTimer(nullptr)  {}
+    RiaCompletionTypeCalculationScheduler()
+        : m_recalculateCompletionTypeTimer(nullptr)
+    {
+    }
     ~RiaCompletionTypeCalculationScheduler() override;
 
     RiaCompletionTypeCalculationScheduler(const RiaCompletionTypeCalculationScheduler& o) = delete;
@@ -50,8 +54,6 @@ private:
     void startTimer();
 
 private:
-    std::vector<caf::PdmPointer<RimEclipseCase> > m_eclipseCasesToRecalculate;
-    QTimer*                                       m_recalculateCompletionTypeTimer;
+    std::vector<caf::PdmPointer<RimEclipseCase>> m_eclipseCasesToRecalculate;
+    QTimer*                                      m_recalculateCompletionTypeTimer;
 };
-
-

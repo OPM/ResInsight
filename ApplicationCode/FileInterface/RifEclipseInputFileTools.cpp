@@ -46,8 +46,8 @@
 #include <QTextStream>
 
 #include "ert/ecl/ecl_box.hpp"
-#include "ert/ecl/ecl_kw.h"
 #include "ert/ecl/ecl_grid.hpp"
+#include "ert/ecl/ecl_kw.h"
 
 QString includeKeyword("INCLUDE");
 QString faultsKeyword("FAULTS");
@@ -221,7 +221,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString&      fileName,
         std::array<double, 6> mapAxesValues;
         ecl_grid_init_mapaxes_data_double(inputGrid, mapAxesValues.data());
         eclipseCase->mainGrid()->setMapAxes(mapAxesValues);
-    }    
+    }
 
     progress.setProgress(8);
     progress.setProgressDescription("Cleaning up ...");
@@ -283,8 +283,8 @@ bool RifEclipseInputFileTools::exportGrid(const QString&         fileName,
     std::vector<int*> ecl_coords;
     ecl_coords.reserve(mainGrid->cellCount() * cellsPerOriginal);
 
-    std::array<float, 6> mapAxes = mainGrid->mapAxesF();
-    cvf::Mat4d mapAxisTrans = mainGrid->mapAxisTransform();
+    std::array<float, 6> mapAxes      = mainGrid->mapAxesF();
+    cvf::Mat4d           mapAxisTrans = mainGrid->mapAxisTransform();
     if (exportInLocalCoordinates)
     {
         cvf::Vec3d minPoint3d(mainGrid->boundingBox().min());
@@ -292,7 +292,7 @@ bool RifEclipseInputFileTools::exportGrid(const QString&         fileName,
         cvf::Vec2f origin(mapAxes[2] - minPoint2f.x(), mapAxes[3] - minPoint2f.y());
         cvf::Vec2f xPoint = cvf::Vec2f(mapAxes[4], mapAxes[5]) - minPoint2f;
         cvf::Vec2f yPoint = cvf::Vec2f(mapAxes[0], mapAxes[1]) - minPoint2f;
-        mapAxes = { yPoint.x(), yPoint.y(), origin.x(), origin.y(), xPoint.x(), xPoint.y() };
+        mapAxes           = {yPoint.x(), yPoint.y(), origin.x(), origin.y(), xPoint.x(), xPoint.y()};
 
         mapAxisTrans.setTranslation(mapAxisTrans.translation() - minPoint3d);
     }
@@ -351,7 +351,7 @@ bool RifEclipseInputFileTools::exportGrid(const QString&         fileName,
                 float* ecl_cell_corners = new float[24];
                 for (size_t cIdx = 0; cIdx < 8; ++cIdx)
                 {
-                    cvf::Vec3d cellCorner                            =  refinedCoords[subIndex * 8 + cIdx];
+                    cvf::Vec3d cellCorner                            = refinedCoords[subIndex * 8 + cIdx];
                     ecl_cell_corners[cellMappingECLRi[cIdx] * 3]     = cellCorner[0];
                     ecl_cell_corners[cellMappingECLRi[cIdx] * 3 + 1] = cellCorner[1];
                     ecl_cell_corners[cellMappingECLRi[cIdx] * 3 + 2] = -cellCorner[2];
@@ -368,9 +368,9 @@ bool RifEclipseInputFileTools::exportGrid(const QString&         fileName,
     // Do not perform the transformation (applyMapaxes == false):
     // The coordinates have been transformed to the mapaxes coordinate system already.
     // However, send the mapaxes data in to libecl so that the coordinate system description is saved.
-    bool applyMapaxes = false;
-    ecl_grid_type* mainEclGrid =
-        ecl_grid_alloc_GRID_data((int)ecl_coords.size(), ecl_nx, ecl_ny, ecl_nz, 5, &ecl_coords[0], &ecl_corners[0], applyMapaxes, mapAxes.data());
+    bool           applyMapaxes = false;
+    ecl_grid_type* mainEclGrid  = ecl_grid_alloc_GRID_data(
+        (int)ecl_coords.size(), ecl_nx, ecl_ny, ecl_nz, 5, &ecl_coords[0], &ecl_corners[0], applyMapaxes, mapAxes.data());
     progress.setProgress(mainGrid->cellCount());
 
     for (float* floatArray : ecl_corners)
@@ -440,13 +440,12 @@ bool RifEclipseInputFileTools::exportKeywords(const QString&              result
         if (!cellResultsData->hasResultEntry(resAddr)) continue;
 
         cellResultsData->ensureKnownResultLoaded(resAddr);
-        
+
         CVF_ASSERT(!cellResultsData->cellScalarResults(resAddr).empty());
 
         resultValues = cellResultsData->cellScalarResults(resAddr)[0];
         CVF_ASSERT(!resultValues.empty());
         if (resultValues.empty()) continue;
-
 
         std::vector<double> filteredResults;
         filteredResults.reserve(resultValues.size());
@@ -812,7 +811,6 @@ bool RifEclipseInputFileTools::readProperty(const QString&      fileName,
         if (!isOk)
         {
             RiaLogging::error(QString("Failed to read property: %1").arg(errMsg));
-
         }
         ecl_kw_free(eclipseKeywordData);
     }
@@ -838,7 +836,7 @@ bool RifEclipseInputFileTools::readDataFromKeyword(ecl_kw_type*        eclipseKe
     CVF_ASSERT(eclipseKeywordData);
     CVF_ASSERT(errMsg);
 
-    bool mathingItemCount = false;
+    bool   mathingItemCount = false;
     size_t keywordItemCount = 0u;
     {
         keywordItemCount = static_cast<size_t>(ecl_kw_get_size(eclipseKeywordData));
@@ -851,7 +849,7 @@ bool RifEclipseInputFileTools::readDataFromKeyword(ecl_kw_type*        eclipseKe
             mathingItemCount = true;
         }
     }
-    
+
     if (!mathingItemCount)
     {
         QString errFormat("Size mismatch: Main Grid has %1 cells, keyword %2 has %3 cells");

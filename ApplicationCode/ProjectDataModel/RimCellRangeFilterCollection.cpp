@@ -3,25 +3,25 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimCellRangeFilterCollection.h"
 
-#include "RimCellRangeFilter.h"
 #include "Rim3dView.h"
+#include "RimCellRangeFilter.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
@@ -29,25 +29,24 @@
 
 #include "cvfStructGridGeometryGenerator.h"
 
-
 CAF_PDM_SOURCE_INIT(RimCellRangeFilterCollection, "CellRangeFilterCollection");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilterCollection::RimCellRangeFilterCollection()
 {
     CAF_PDM_InitObject("Range Filters", ":/CellFilter_Range.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&rangeFilters,   "RangeFilters", "Range Filters", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&rangeFilters, "RangeFilters", "Range Filters", "", "", "");
     rangeFilters.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&isActive,                  "Active", true, "Active", "", "", "");
+    CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilterCollection::~RimCellRangeFilterCollection()
 {
@@ -55,7 +54,7 @@ RimCellRangeFilterCollection::~RimCellRangeFilterCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// RimCellRangeFilter is using Eclipse 1-based indexing, adjust filter values before 
+/// RimCellRangeFilter is using Eclipse 1-based indexing, adjust filter values before
 //  populating cvf::CellRangeFilter (which is 0-based)
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex) const
@@ -75,19 +74,18 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
                     for (const auto& cellIndex : rangeFilter->individualCellIndices())
                     {
                         cellRangeFilter->addCellInclude(
-                            cellIndex.x() - 1 , cellIndex.y() - 1, cellIndex.z() - 1, rangeFilter->propagateToSubGrids());
+                            cellIndex.x() - 1, cellIndex.y() - 1, cellIndex.z() - 1, rangeFilter->propagateToSubGrids());
                     }
                 }
                 else
                 {
-                    cellRangeFilter->addCellIncludeRange(
-                        rangeFilter->startIndexI - 1,
-                        rangeFilter->startIndexJ - 1,
-                        rangeFilter->startIndexK - 1,
-                        rangeFilter->startIndexI - 1 + rangeFilter->cellCountI,
-                        rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
-                        rangeFilter->startIndexK - 1 + rangeFilter->cellCountK,
-                        rangeFilter->propagateToSubGrids());
+                    cellRangeFilter->addCellIncludeRange(rangeFilter->startIndexI - 1,
+                                                         rangeFilter->startIndexJ - 1,
+                                                         rangeFilter->startIndexK - 1,
+                                                         rangeFilter->startIndexI - 1 + rangeFilter->cellCountI,
+                                                         rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
+                                                         rangeFilter->startIndexK - 1 + rangeFilter->cellCountK,
+                                                         rangeFilter->propagateToSubGrids());
                 }
             }
             else
@@ -102,14 +100,13 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
                 }
                 else
                 {
-                    cellRangeFilter->addCellExcludeRange(
-                        rangeFilter->startIndexI - 1,
-                        rangeFilter->startIndexJ - 1,
-                        rangeFilter->startIndexK - 1,
-                        rangeFilter->startIndexI - 1 + rangeFilter->cellCountI,
-                        rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
-                        rangeFilter->startIndexK - 1 + rangeFilter->cellCountK, 
-                        rangeFilter->propagateToSubGrids());
+                    cellRangeFilter->addCellExcludeRange(rangeFilter->startIndexI - 1,
+                                                         rangeFilter->startIndexJ - 1,
+                                                         rangeFilter->startIndexK - 1,
+                                                         rangeFilter->startIndexI - 1 + rangeFilter->cellCountI,
+                                                         rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
+                                                         rangeFilter->startIndexK - 1 + rangeFilter->cellCountK,
+                                                         rangeFilter->propagateToSubGrids());
                 }
             }
         }
@@ -117,18 +114,20 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue)
 {
     updateIconState();
     uiCapability()->updateConnectedEditors();
-    
+
     updateDisplayModeNotifyManagedViews(nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews(RimCellRangeFilter* changedRangeFilter)
 {
@@ -155,11 +154,11 @@ void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews(RimCellRa
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimCellRangeFilterCollection::hasActiveFilters() const
 {
-    if (!isActive()) return false; 
+    if (!isActive()) return false;
 
     for (size_t i = 0; i < rangeFilters.size(); i++)
     {
@@ -170,7 +169,7 @@ bool RimCellRangeFilterCollection::hasActiveFilters() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimCellRangeFilterCollection::objectToggleField()
 {
@@ -178,11 +177,11 @@ caf::PdmFieldHandle* RimCellRangeFilterCollection::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimCellRangeFilterCollection::hasActiveIncludeFilters() const
 {
-    if (!isActive) return false; 
+    if (!isActive) return false;
 
     for (size_t i = 0; i < rangeFilters.size(); i++)
     {
@@ -193,7 +192,7 @@ bool RimCellRangeFilterCollection::hasActiveIncludeFilters() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Rim3dView* RimCellRangeFilterCollection::baseView() const
 {
@@ -204,15 +203,14 @@ Rim3dView* RimCellRangeFilterCollection::baseView() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::updateIconState()
 {
     bool activeIcon = true;
 
     RimViewController* viewController = baseView()->viewController();
-    if (viewController && ( viewController->isRangeFiltersControlled() 
-                         || viewController->isVisibleCellsOveridden()) )
+    if (viewController && (viewController->isRangeFiltersControlled() || viewController->isVisibleCellsOveridden()))
     {
         activeIcon = false;
     }
@@ -233,7 +231,7 @@ void RimCellRangeFilterCollection::updateIconState()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
 {
@@ -251,4 +249,3 @@ void RimCellRangeFilterCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& 
 
     updateIconState();
 }
-

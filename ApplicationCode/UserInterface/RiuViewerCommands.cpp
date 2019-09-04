@@ -158,7 +158,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     std::vector<RiuPickItemInfo> pickItemInfos;
     {
         cvf::HitItemCollection hitItems;
-        cvf::Vec3d globalRayOrigin;
+        cvf::Vec3d             globalRayOrigin;
         if (m_viewer->rayPick(event->x(), event->y(), &hitItems, &globalRayOrigin))
         {
             pickItemInfos = RiuPickItemInfo::convertToPickItemInfos(hitItems, globalRayOrigin);
@@ -168,7 +168,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     // Find the following data
 
     const cvf::Part* firstHitPart           = nullptr;
-    const cvf::Part* additionalHitPart = nullptr;
+    const cvf::Part* additionalHitPart      = nullptr;
     uint             firstPartTriangleIndex = cvf::UNDEFINED_UINT;
     m_currentPickPositionInDomainCoords     = cvf::Vec3d::UNDEFINED;
 
@@ -354,7 +354,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                         "RicEclipseHideFaultFeature", QString("Hide ") + faultName, hideFaultList);
                 }
             }
-            
+
             menuBuilder << "RicToggleMeasurementModeFeature";
             menuBuilder << "RicTogglePolyMeasurementModeFeature";
         }
@@ -363,7 +363,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     // Well log curve creation commands
     if (firstHitPart && firstHitPart->sourceInfo())
     {
-        RimWellPath* wellPath = nullptr;
+        RimWellPath*                 wellPath           = nullptr;
         const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(firstHitPart->sourceInfo());
         if (wellPathSourceInfo)
         {
@@ -373,7 +373,8 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         RimWellPathComponentInterface* wellPathComponent = nullptr;
         if (additionalHitPart)
         {
-            const RivObjectSourceInfo* objectSourceInfo = dynamic_cast<const RivObjectSourceInfo*>(additionalHitPart->sourceInfo());
+            const RivObjectSourceInfo* objectSourceInfo =
+                dynamic_cast<const RivObjectSourceInfo*>(additionalHitPart->sourceInfo());
             if (objectSourceInfo)
             {
                 wellPathComponent = dynamic_cast<RimWellPathComponentInterface*>(objectSourceInfo->object());
@@ -434,7 +435,6 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             menuBuilder.addSeparator();
             menuBuilder << "RicNewWellPathAttributeFeature";
             menuBuilder << "RicWellPathImportCompletionsFileFeature";
-
 
             menuBuilder.subMenuEnd();
 
@@ -550,7 +550,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 
     std::vector<RiuPickItemInfo> pickItemInfos;
     {
-        cvf::Vec3d globalRayOrigin;
+        cvf::Vec3d             globalRayOrigin;
         cvf::HitItemCollection hitItems;
         m_viewer->rayPick(winPosX, winPosY, &hitItems, &globalRayOrigin);
 

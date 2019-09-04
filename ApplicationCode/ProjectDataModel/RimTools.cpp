@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -33,12 +33,12 @@
 #include "cafPdmUiItem.h"
 #include "cafUtils.h"
 
-#include <QFileInfo>
-#include <QDir>
 #include <QDateTime>
+#include <QDir>
+#include <QFileInfo>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimTools::getCacheRootDirectoryPathFromProject()
 {
@@ -49,7 +49,7 @@ QString RimTools::getCacheRootDirectoryPathFromProject()
 
     QString projectFileName = RiaApplication::instance()->project()->fileName();
 
-    QString cacheRootFolderPath;
+    QString   cacheRootFolderPath;
     QFileInfo fileInfo(projectFileName);
     cacheRootFolderPath = fileInfo.canonicalPath();
     cacheRootFolderPath += "/" + fileInfo.completeBaseName();
@@ -77,7 +77,7 @@ QString RimTools::relocateFile(const QString&        originalFileName,
     if (foundFile) *foundFile = true;
 
     // Make sure we have a Qt formatted path ( using "/" not "\")
-    QString fileName = QDir::fromNativeSeparators(originalFileName);
+    QString fileName       = QDir::fromNativeSeparators(originalFileName);
     QString newProjectPath = QDir::fromNativeSeparators(currentProjectPath);
     QString oldProjectPath = QDir::fromNativeSeparators(previousProjectPath);
 
@@ -85,9 +85,10 @@ QString RimTools::relocateFile(const QString&        originalFileName,
     // because Qt will not. QDir::fromNativeSeparators does nothing on linux.
 
     bool isWindowsPath = false;
-    if (originalFileName.count("/")) isWindowsPath = false; // "/" are not allowed in a windows path
-    else if (originalFileName.count("\\")
-        && !caf::Utils::fileExists(originalFileName)) // To make sure we do not convert single linux files containing "\"
+    if (originalFileName.count("/"))
+        isWindowsPath = false; // "/" are not allowed in a windows path
+    else if (originalFileName.count("\\") &&
+             !caf::Utils::fileExists(originalFileName)) // To make sure we do not convert single linux files containing "\"
     {
         isWindowsPath = true;
     }
@@ -107,7 +108,7 @@ QString RimTools::relocateFile(const QString&        originalFileName,
     // First check in the new project file directory
     {
         QString fileNameWithoutPath = QFileInfo(fileName).fileName();
-        QString candidate = QDir::fromNativeSeparators(newProjectPath + QDir::separator() + fileNameWithoutPath);
+        QString candidate           = QDir::fromNativeSeparators(newProjectPath + QDir::separator() + fileNameWithoutPath);
         if (searchedPaths) searchedPaths->push_back(candidate);
 
         if (caf::Utils::fileExists(candidate))
@@ -118,23 +119,24 @@ QString RimTools::relocateFile(const QString&        originalFileName,
 
     // Then find the possible move of a directory structure where projects and files referenced are moved in "paralell"
 
-    QFileInfo fileNameFileInfo(QDir::fromNativeSeparators(fileName));
-    QString fileNamePath = fileNameFileInfo.path();
-    QString fileNameWithoutPath = fileNameFileInfo.fileName();
+    QFileInfo   fileNameFileInfo(QDir::fromNativeSeparators(fileName));
+    QString     fileNamePath         = fileNameFileInfo.path();
+    QString     fileNameWithoutPath  = fileNameFileInfo.fileName();
     QStringList fileNamePathElements = fileNamePath.split("/", QString::KeepEmptyParts);
 
-    QString oldProjPath = QDir::fromNativeSeparators(oldProjectPath);
+    QString     oldProjPath         = QDir::fromNativeSeparators(oldProjectPath);
     QStringList oldProjPathElements = oldProjPath.split("/", QString::KeepEmptyParts);
 
-    QString newProjPath = QDir::fromNativeSeparators(newProjectPath);
+    QString     newProjPath         = QDir::fromNativeSeparators(newProjectPath);
     QStringList newProjPathElements = newProjPath.split("/", QString::KeepEmptyParts);
 
     // Find the possible equal start of the old project path, and the referenced file
 
     bool pathStartsAreEqual = false;
-    bool pathEndsDiffer = false;
-    int firstDiffIdx = 0;
-    for (firstDiffIdx = 0; firstDiffIdx < fileNamePathElements.size() && firstDiffIdx < oldProjPathElements.size(); ++firstDiffIdx)
+    bool pathEndsDiffer     = false;
+    int  firstDiffIdx       = 0;
+    for (firstDiffIdx = 0; firstDiffIdx < fileNamePathElements.size() && firstDiffIdx < oldProjPathElements.size();
+         ++firstDiffIdx)
     {
 #ifdef WIN32
         // When comparing parts of a file path, the drive letter has been seen to be a mix of
@@ -226,7 +228,7 @@ QString RimTools::relocateFile(const QString&        originalFileName,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTools::wellPathOptionItems(QList<caf::PdmOptionItemInfo>* options)
 {
@@ -247,7 +249,7 @@ void RimTools::wellPathOptionItems(QList<caf::PdmOptionItemInfo>* options)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTools::wellPathWithFormationsOptionItems(QList<caf::PdmOptionItemInfo>* options)
 {
@@ -265,7 +267,7 @@ void RimTools::wellPathWithFormationsOptionItems(QList<caf::PdmOptionItemInfo>* 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTools::wellPathWithFormations(std::vector<RimWellPath*>* wellPaths)
 {
@@ -285,7 +287,7 @@ void RimTools::wellPathWithFormations(std::vector<RimWellPath*>* wellPaths)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTools::caseOptionItems(QList<caf::PdmOptionItemInfo>* options)
 {
@@ -331,7 +333,7 @@ void RimTools::eclipseCaseOptionItems(QList<caf::PdmOptionItemInfo>* options)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellPathCollection* RimTools::wellPathCollection()
 {

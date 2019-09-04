@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,36 +22,35 @@
 
 #include "RiuTools.h"
 
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QComboBox>
-#include <QLineEdit>
-#include <QTextEdit>
-#include <QDialogButtonBox>
-#include <QPushButton>
-#include <QToolBar>
+#include <QAbstractItemView>
 #include <QAction>
+#include <QComboBox>
+#include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QGroupBox>
+#include <QLabel>
+#include <QLineEdit>
 #include <QListWidget>
-#include <QAbstractItemView>
 #include <QMenu>
+#include <QPushButton>
+#include <QTextEdit>
 #include <QTime>
+#include <QToolBar>
+#include <QVBoxLayout>
 
-
-#define DEFAULT_DIALOG_WIDTH        250
-#define DEFAULT_DIALOG_HEIGHT       100
-#define DEFAULT_DIALOG_TITLE        "Export Plot Data"
+#define DEFAULT_DIALOG_WIDTH 250
+#define DEFAULT_DIALOG_HEIGHT 100
+#define DEFAULT_DIALOG_TITLE "Export Plot Data"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicResampleDialog::RicResampleDialog(QWidget* parent)
     : QDialog(parent, RiuTools::defaultDialogFlags())
 {
     // Create widgets
-    m_label             = new QLabel();
-    m_timePeriodCombo   = new QComboBox();
+    m_label           = new QLabel();
+    m_timePeriodCombo = new QComboBox();
 
     m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
@@ -76,23 +75,22 @@ RicResampleDialog::RicResampleDialog(QWidget* parent)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicResampleDialog::~RicResampleDialog()
-{
-}
+RicResampleDialog::~RicResampleDialog() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicResampleDialogResult RicResampleDialog::openDialog(QWidget *parent /*= 0*/,
-                                                      const QString &caption /*= QString()*/)
+RicResampleDialogResult RicResampleDialog::openDialog(QWidget* parent /*= 0*/, const QString& caption /*= QString()*/)
 {
-    RicResampleDialog       dialog(parent);
+    RicResampleDialog dialog(parent);
 
-    if(!caption.isEmpty())  dialog.setWindowTitle(caption);
-    else                    dialog.setWindowTitle(DEFAULT_DIALOG_TITLE);
-    
+    if (!caption.isEmpty())
+        dialog.setWindowTitle(caption);
+    else
+        dialog.setWindowTitle(DEFAULT_DIALOG_TITLE);
+
     dialog.setPeriodOptions(RiaQDateTimeTools::dateTimePeriods());
 
     dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_HEIGHT);
@@ -102,7 +100,7 @@ RicResampleDialogResult RicResampleDialog::openDialog(QWidget *parent /*= 0*/,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicResampleDialog::setPeriodOptions(const std::vector<DateTimePeriod>& dateTimePeriods)
 {
@@ -115,7 +113,7 @@ void RicResampleDialog::setPeriodOptions(const std::vector<DateTimePeriod>& date
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 DateTimePeriod RicResampleDialog::selectedDateTimePeriod() const
 {
@@ -124,7 +122,7 @@ DateTimePeriod RicResampleDialog::selectedDateTimePeriod() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicResampleDialog::slotDialogOkClicked()
 {
@@ -132,7 +130,7 @@ void RicResampleDialog::slotDialogOkClicked()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicResampleDialog::slotDialogCancelClicked()
 {

@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -37,8 +37,8 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RiuPlotMainWindow.h"
 #include "Riu3dSelectionManager.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManager.h"
@@ -47,22 +47,24 @@
 
 #include <vector>
 
-
 CAF_CMD_SOURCE_INIT(RicNewWellLogCurveExtractionFeature, "RicNewWellLogCurveExtractionFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogCurveExtractionFeature::isCommandEnabled()
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
     if (RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()) return false;
     int branchIndex;
-    return (caf::SelectionManager::instance()->selectedItemOfType<RimWellLogTrack>() != nullptr || caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>() != nullptr || RicWellLogTools::selectedSimulationWell(&branchIndex) != nullptr) && caseAvailable();
+    return (caf::SelectionManager::instance()->selectedItemOfType<RimWellLogTrack>() != nullptr ||
+            caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>() != nullptr ||
+            RicWellLogTools::selectedSimulationWell(&branchIndex) != nullptr) &&
+           caseAvailable();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
 {
@@ -75,12 +77,12 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
     }
     else
     {
-        RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>();
-        int branchIndex = -1;
-        RimSimWellInView* simWell = RicWellLogTools::selectedSimulationWell(&branchIndex);
+        RimWellPath*      wellPath    = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>();
+        int               branchIndex = -1;
+        RimSimWellInView* simWell     = RicWellLogTools::selectedSimulationWell(&branchIndex);
 
-        bool useBranchDetection = true;
-        RimSimWellInViewCollection* simWellColl = nullptr;
+        bool                        useBranchDetection = true;
+        RimSimWellInViewCollection* simWellColl        = nullptr;
         if (simWell)
         {
             simWell->firstAncestorOrThisOfTypeAsserted(simWellColl);
@@ -92,8 +94,12 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
             RimWellLogTrack* newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
 
             RimWellLogExtractionCurve* plotCurve =
-                RicWellLogTools::addExtractionCurve(newWellLogPlotTrack, RiaApplication::instance()->activeReservoirView(), wellPath,
-                                                    simWell, branchIndex, useBranchDetection);
+                RicWellLogTools::addExtractionCurve(newWellLogPlotTrack,
+                                                    RiaApplication::instance()->activeReservoirView(),
+                                                    wellPath,
+                                                    simWell,
+                                                    branchIndex,
+                                                    useBranchDetection);
 
             plotCurve->loadDataAndUpdate(true);
 
@@ -111,7 +117,7 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogCurveExtractionFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -120,7 +126,7 @@ void RicNewWellLogCurveExtractionFeature::setupActionLook(QAction* actionToSetup
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogCurveExtractionFeature::caseAvailable()
 {

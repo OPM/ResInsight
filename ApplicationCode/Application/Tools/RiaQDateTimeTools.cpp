@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -25,40 +25,38 @@
 #include "cafAppEnum.h"
 #include <cvfAssert.h>
 
-#include <ctime>
 #include <cmath>
-
+#include <ctime>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-const DateTimeSpan RiaQDateTimeTools::TIMESPAN_DAY = DateTimeSpan(0, 0, 1);
-const DateTimeSpan RiaQDateTimeTools::TIMESPAN_WEEK = DateTimeSpan(0, 0, 7);
-const DateTimeSpan RiaQDateTimeTools::TIMESPAN_MONTH = DateTimeSpan(0, 1, 0);
-const DateTimeSpan RiaQDateTimeTools::TIMESPAN_QUARTER = DateTimeSpan(0, 3, 0);
+const DateTimeSpan RiaQDateTimeTools::TIMESPAN_DAY      = DateTimeSpan(0, 0, 1);
+const DateTimeSpan RiaQDateTimeTools::TIMESPAN_WEEK     = DateTimeSpan(0, 0, 7);
+const DateTimeSpan RiaQDateTimeTools::TIMESPAN_MONTH    = DateTimeSpan(0, 1, 0);
+const DateTimeSpan RiaQDateTimeTools::TIMESPAN_QUARTER  = DateTimeSpan(0, 3, 0);
 const DateTimeSpan RiaQDateTimeTools::TIMESPAN_HALFYEAR = DateTimeSpan(0, 6, 0);
-const DateTimeSpan RiaQDateTimeTools::TIMESPAN_YEAR = DateTimeSpan(1, 0, 0);
-const DateTimeSpan RiaQDateTimeTools::TIMESPAN_DECADE = DateTimeSpan(10, 0, 0);
+const DateTimeSpan RiaQDateTimeTools::TIMESPAN_YEAR     = DateTimeSpan(1, 0, 0);
+const DateTimeSpan RiaQDateTimeTools::TIMESPAN_DECADE   = DateTimeSpan(10, 0, 0);
 
-const QString RiaQDateTimeTools::TIMESPAN_DAY_NAME = "Day";
-const QString RiaQDateTimeTools::TIMESPAN_WEEK_NAME = "Week";
-const QString RiaQDateTimeTools::TIMESPAN_MONTH_NAME = "Month";
-const QString RiaQDateTimeTools::TIMESPAN_QUARTER_NAME = "Quarter";
+const QString RiaQDateTimeTools::TIMESPAN_DAY_NAME      = "Day";
+const QString RiaQDateTimeTools::TIMESPAN_WEEK_NAME     = "Week";
+const QString RiaQDateTimeTools::TIMESPAN_MONTH_NAME    = "Month";
+const QString RiaQDateTimeTools::TIMESPAN_QUARTER_NAME  = "Quarter";
 const QString RiaQDateTimeTools::TIMESPAN_HALFYEAR_NAME = "Half Year";
-const QString RiaQDateTimeTools::TIMESPAN_YEAR_NAME = "Year";
-const QString RiaQDateTimeTools::TIMESPAN_DECADE_NAME = "Decade";
-
+const QString RiaQDateTimeTools::TIMESPAN_YEAR_NAME     = "Year";
+const QString RiaQDateTimeTools::TIMESPAN_DECADE_NAME   = "Decade";
 
 namespace caf
 {
 template<>
 void caf::AppEnum<RiaQDateTimeTools::DateFormatComponents>::setUp()
 {
-	addItem(RiaQDateTimeTools::DATE_FORMAT_NONE, "NO_DATE", "No Date");
-	addItem(RiaQDateTimeTools::DATE_FORMAT_YEAR, "YEAR", "Year Only");
-	addItem(RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH, "YEAR_MONTH", "Year and Month");
-	addItem(RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY, "YEAR_MONTH_DAY", "Year, Month and Day");
-	setDefault(RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY);
+    addItem(RiaQDateTimeTools::DATE_FORMAT_NONE, "NO_DATE", "No Date");
+    addItem(RiaQDateTimeTools::DATE_FORMAT_YEAR, "YEAR", "Year Only");
+    addItem(RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH, "YEAR_MONTH", "Year and Month");
+    addItem(RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY, "YEAR_MONTH_DAY", "Year, Month and Day");
+    setDefault(RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY);
 }
 
 template<>
@@ -68,12 +66,12 @@ void caf::AppEnum<RiaQDateTimeTools::TimeFormatComponents>::setUp()
     addItem(RiaQDateTimeTools::TIME_FORMAT_HOUR, "HOUR", "Hour Only");
     addItem(RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE, "HOUR_MINUTE", "Hour and Minute");
     addItem(RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND, "HOUR_MINUTE_SECONDS", "Hour, Minutes and Seconds");
-	setDefault(RiaQDateTimeTools::TIME_FORMAT_NONE);
+    setDefault(RiaQDateTimeTools::TIME_FORMAT_NONE);
 }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Qt::TimeSpec RiaQDateTimeTools::currentTimeSpec()
 {
@@ -81,7 +79,7 @@ Qt::TimeSpec RiaQDateTimeTools::currentTimeSpec()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 quint64 RiaQDateTimeTools::secondsInDay()
 {
@@ -89,7 +87,7 @@ quint64 RiaQDateTimeTools::secondsInDay()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 quint64 RiaQDateTimeTools::secondsInYear()
 {
@@ -97,7 +95,7 @@ quint64 RiaQDateTimeTools::secondsInYear()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::fromString(const QString& dateString, const QString& format)
 {
@@ -108,7 +106,7 @@ QDateTime RiaQDateTimeTools::fromString(const QString& dateString, const QString
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::fromYears(double years)
 {
@@ -120,7 +118,7 @@ QDateTime RiaQDateTimeTools::fromYears(double years)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::fromTime_t(time_t t)
 {
@@ -130,7 +128,7 @@ QDateTime RiaQDateTimeTools::fromTime_t(time_t t)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::addMSecs(const QDateTime& dt, double msecs)
 {
@@ -138,61 +136,55 @@ QDateTime RiaQDateTimeTools::addMSecs(const QDateTime& dt, double msecs)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::addDays(const QDateTime& dt, double days)
 {
-    double integerPart = 0.0;
+    double integerPart  = 0.0;
     double fractionPart = 0.0;
 
     fractionPart = modf(days, &integerPart);
 
     QDateTime tmp = dt.addDays(integerPart);
-    tmp = tmp.addSecs(fractionPart * RiaQDateTimeTools::secondsInDay());
+    tmp           = tmp.addSecs(fractionPart * RiaQDateTimeTools::secondsInDay());
 
     return tmp;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::addYears(const QDateTime& dt, double years)
 {
-    double integerPart = 0.0;
+    double integerPart  = 0.0;
     double fractionPart = 0.0;
 
     fractionPart = modf(years, &integerPart);
 
     QDateTime tmp = dt.addYears(integerPart);
-    tmp = tmp.addSecs(fractionPart * RiaQDateTimeTools::secondsInYear());
+    tmp           = tmp.addSecs(fractionPart * RiaQDateTimeTools::secondsInYear());
 
     return tmp;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::addSpan(const QDateTime& dt, DateTimeSpan span)
 {
-    return createUtcDateTime(dt)
-        .addYears(span.years())
-        .addMonths(span.months())
-        .addDays(span.days());
+    return createUtcDateTime(dt).addYears(span.years()).addMonths(span.months()).addDays(span.days());
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::subtractSpan(const QDateTime& dt, DateTimeSpan span)
 {
-    return createUtcDateTime(dt)
-        .addYears(-span.years())
-        .addMonths(-span.months())
-        .addDays(-span.days());
+    return createUtcDateTime(dt).addYears(-span.years()).addMonths(-span.months()).addDays(-span.days());
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::addPeriod(const QDateTime& dt, DateTimePeriod period)
 {
@@ -200,7 +192,7 @@ QDateTime RiaQDateTimeTools::addPeriod(const QDateTime& dt, DateTimePeriod perio
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::subtractPeriod(const QDateTime& dt, DateTimePeriod period)
 {
@@ -208,22 +200,21 @@ QDateTime RiaQDateTimeTools::subtractPeriod(const QDateTime& dt, DateTimePeriod 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::epoch()
 {
-
     // NB: Not able to use QDateTime::fromMSecsSinceEpoch as this was introduced in Qt 4.7
 
     QDateTime dt;
-    dt.setDate(QDate(1970, 1, 1)); 
+    dt.setDate(QDate(1970, 1, 1));
     dt.setTimeSpec(currentTimeSpec());
 
     return dt;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::createUtcDateTime()
 {
@@ -233,7 +224,7 @@ QDateTime RiaQDateTimeTools::createUtcDateTime()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::createUtcDateTime(const QDate& date)
 {
@@ -243,7 +234,7 @@ QDateTime RiaQDateTimeTools::createUtcDateTime(const QDate& date)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::createUtcDateTime(const QDate& date, const QTime& time)
 {
@@ -252,7 +243,7 @@ QDateTime RiaQDateTimeTools::createUtcDateTime(const QDate& date, const QTime& t
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::createUtcDateTime(const QDateTime& dt)
 {
@@ -262,7 +253,7 @@ QDateTime RiaQDateTimeTools::createUtcDateTime(const QDateTime& dt)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RiaQDateTimeTools::lessThan(const QDateTime& dt1, const QDateTime& dt2)
 {
@@ -271,86 +262,107 @@ bool RiaQDateTimeTools::lessThan(const QDateTime& dt1, const QDateTime& dt2)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const DateTimeSpan RiaQDateTimeTools::timeSpan(DateTimePeriod period)
 {
     switch (period)
     {
-    case DateTimePeriod::DAY:       return TIMESPAN_DAY;
-    case DateTimePeriod::WEEK:      return TIMESPAN_WEEK;
-    case DateTimePeriod::MONTH:     return TIMESPAN_MONTH;
-    case DateTimePeriod::QUARTER:   return TIMESPAN_QUARTER;
-    case DateTimePeriod::HALFYEAR:  return TIMESPAN_HALFYEAR;
-    case DateTimePeriod::YEAR:      return TIMESPAN_YEAR;
-    case DateTimePeriod::DECADE:    return TIMESPAN_DECADE;
+        case DateTimePeriod::DAY:
+            return TIMESPAN_DAY;
+        case DateTimePeriod::WEEK:
+            return TIMESPAN_WEEK;
+        case DateTimePeriod::MONTH:
+            return TIMESPAN_MONTH;
+        case DateTimePeriod::QUARTER:
+            return TIMESPAN_QUARTER;
+        case DateTimePeriod::HALFYEAR:
+            return TIMESPAN_HALFYEAR;
+        case DateTimePeriod::YEAR:
+            return TIMESPAN_YEAR;
+        case DateTimePeriod::DECADE:
+            return TIMESPAN_DECADE;
     }
     CVF_ASSERT(false);
     return DateTimeSpan();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::truncateTime(const QDateTime& dt, DateTimePeriod period)
 {
-    int y = dt.date().year();
-    int m = dt.date().month();
-    int d = dt.date().day();
+    int y   = dt.date().year();
+    int m   = dt.date().month();
+    int d   = dt.date().day();
     int dow = dt.date().dayOfWeek();
 
     switch (period)
     {
-    case DateTimePeriod::DAY:       return createUtcDateTime(QDate(y, m, d));
-    case DateTimePeriod::WEEK:      return createUtcDateTime(QDate(y, m, d).addDays(-dow + 1));
-    case DateTimePeriod::MONTH:     return createUtcDateTime(QDate(y, m, 1));
-    case DateTimePeriod::QUARTER:   return createUtcDateTime(QDate(y, ((m - 1) / 3) * 3 + 1, 1));
-    case DateTimePeriod::HALFYEAR:  return createUtcDateTime(QDate(y, ((m - 1) / 6) * 6 + 1, 1));
-    case DateTimePeriod::YEAR:      return createUtcDateTime(QDate(y, 1, 1));
-    case DateTimePeriod::DECADE:    return createUtcDateTime(QDate((y / 10) * 10, 1, 1));
+        case DateTimePeriod::DAY:
+            return createUtcDateTime(QDate(y, m, d));
+        case DateTimePeriod::WEEK:
+            return createUtcDateTime(QDate(y, m, d).addDays(-dow + 1));
+        case DateTimePeriod::MONTH:
+            return createUtcDateTime(QDate(y, m, 1));
+        case DateTimePeriod::QUARTER:
+            return createUtcDateTime(QDate(y, ((m - 1) / 3) * 3 + 1, 1));
+        case DateTimePeriod::HALFYEAR:
+            return createUtcDateTime(QDate(y, ((m - 1) / 6) * 6 + 1, 1));
+        case DateTimePeriod::YEAR:
+            return createUtcDateTime(QDate(y, 1, 1));
+        case DateTimePeriod::DECADE:
+            return createUtcDateTime(QDate((y / 10) * 10, 1, 1));
     }
     CVF_ASSERT(false);
     return createUtcDateTime();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<DateTimePeriod> RiaQDateTimeTools::dateTimePeriods()
 {
-    return std::vector<DateTimePeriod>(
-        {
-            DateTimePeriod::NONE,
-            DateTimePeriod::DAY,
-            DateTimePeriod::WEEK,
-            DateTimePeriod::MONTH,
-            DateTimePeriod::QUARTER,
-            DateTimePeriod::HALFYEAR,
-            DateTimePeriod::YEAR,
-            DateTimePeriod::DECADE,
-        });
+    return std::vector<DateTimePeriod>({
+        DateTimePeriod::NONE,
+        DateTimePeriod::DAY,
+        DateTimePeriod::WEEK,
+        DateTimePeriod::MONTH,
+        DateTimePeriod::QUARTER,
+        DateTimePeriod::HALFYEAR,
+        DateTimePeriod::YEAR,
+        DateTimePeriod::DECADE,
+    });
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaQDateTimeTools::dateTimePeriodName(DateTimePeriod period)
 {
     switch (period)
     {
-    case DateTimePeriod::DAY:       return TIMESPAN_DAY_NAME;
-    case DateTimePeriod::WEEK:      return TIMESPAN_WEEK_NAME;
-    case DateTimePeriod::MONTH:     return TIMESPAN_MONTH_NAME;
-    case DateTimePeriod::QUARTER:   return TIMESPAN_QUARTER_NAME;
-    case DateTimePeriod::HALFYEAR:  return TIMESPAN_HALFYEAR_NAME;
-    case DateTimePeriod::YEAR:      return TIMESPAN_YEAR_NAME;
-    case DateTimePeriod::DECADE:    return TIMESPAN_DECADE_NAME;
-    default:                        return "None";
+        case DateTimePeriod::DAY:
+            return TIMESPAN_DAY_NAME;
+        case DateTimePeriod::WEEK:
+            return TIMESPAN_WEEK_NAME;
+        case DateTimePeriod::MONTH:
+            return TIMESPAN_MONTH_NAME;
+        case DateTimePeriod::QUARTER:
+            return TIMESPAN_QUARTER_NAME;
+        case DateTimePeriod::HALFYEAR:
+            return TIMESPAN_HALFYEAR_NAME;
+        case DateTimePeriod::YEAR:
+            return TIMESPAN_YEAR_NAME;
+        case DateTimePeriod::DECADE:
+            return TIMESPAN_DECADE_NAME;
+        default:
+            return "None";
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaQDateTimeTools::toStringUsingApplicationLocale(const QDateTime& dt, const QString& format)
 {
@@ -363,7 +375,6 @@ QString RiaQDateTimeTools::toStringUsingApplicationLocale(const QDateTime& dt, c
 
     return defaultApplicationLocale.toString(dt, format);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -74,9 +74,9 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt(SourceType sourceType, RimSummary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt(SourceType sourceType,
-	                                           RimSummaryCase* summaryCase,
-	                                           RimSummaryCaseCollection* ensemble)
+RifDataSourceForRftPlt::RifDataSourceForRftPlt(SourceType                sourceType,
+                                               RimSummaryCase*           summaryCase,
+                                               RimSummaryCaseCollection* ensemble)
 {
     CVF_ASSERT(sourceType == SourceType::SUMMARY_RFT);
 
@@ -92,7 +92,7 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt(SourceType sourceType, RimObserve
 {
     CVF_ASSERT(sourceType == SourceType::OBSERVED_FMU_RFT);
 
-	m_sourceType         = sourceType;
+    m_sourceType         = sourceType;
     m_observedFmuRftData = observedFmuRftData;
 }
 
@@ -130,8 +130,8 @@ RifReaderRftInterface* RifDataSourceForRftPlt::rftReader() const
     else if (m_sourceType == ENSEMBLE_RFT)
     {
         if (m_ensemble) return m_ensemble->rftStatisticsReader();
-	}
-	return nullptr;
+    }
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -246,7 +246,7 @@ bool operator<(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt
         {
             return addr1.summaryCase()->caseName() < addr2.summaryCase()->caseName();
         }
-		return addr1.summaryCase() < addr2.summaryCase();
+        return addr1.summaryCase() < addr2.summaryCase();
     }
     else if (addr1.m_sourceType == RifDataSourceForRftPlt::ENSEMBLE_RFT)
     {
@@ -256,21 +256,21 @@ bool operator<(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt
         }
         return addr1.ensemble() < addr2.ensemble();
     }
-	else if (addr1.m_sourceType == RifDataSourceForRftPlt::OBSERVED_FMU_RFT)
+    else if (addr1.m_sourceType == RifDataSourceForRftPlt::OBSERVED_FMU_RFT)
     {
-		if (addr1.observedFmuRftData() && addr2.observedFmuRftData())
-		{
+        if (addr1.observedFmuRftData() && addr2.observedFmuRftData())
+        {
             return addr1.observedFmuRftData()->name() < addr2.observedFmuRftData()->name();
-		}
+        }
         return addr1.observedFmuRftData() < addr2.observedFmuRftData();
-	}
+    }
     else
     {
         if (addr1.eclCase() && addr2.eclCase())
         {
             return addr1.eclCase()->caseId() < addr2.eclCase()->caseId();
         }
-		return addr1.eclCase() < addr2.eclCase();
+        return addr1.eclCase() < addr2.eclCase();
     }
 }
 #if 0

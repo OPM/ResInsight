@@ -21,15 +21,14 @@
 #include "RimWellPath.h"
 #include "RimWellPathValve.h"
 
+#include "cafPdmDoubleStringValidator.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmDoubleStringValidator.h"
 
 #include <limits>
 
 CAF_PDM_SOURCE_INIT(RimWellPathAicdParameters, "WellPathAicdParameters");
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -109,9 +108,9 @@ std::array<double, AICD_NUM_PARAMS> RimWellPathAicdParameters::doubleValues() co
     for (int i = 0; i < (int)AICD_NUM_PARAMS; ++i)
     {
         caf::PdmDoubleStringValidator validator(nullptr);
-        QString stringValue = m_aicdParameterFields[(AICDParameters)i].value();
-        bool ok = true;
-        double doubleValue = stringValue.toDouble(&ok);
+        QString                       stringValue = m_aicdParameterFields[(AICDParameters)i].value();
+        bool                          ok          = true;
+        double                        doubleValue = stringValue.toDouble(&ok);
         if (ok)
         {
             doubleValues[i] = doubleValue;
@@ -135,17 +134,17 @@ void RimWellPathAicdParameters::defineUiOrdering(QString uiConfigName, caf::PdmU
     m_deviceOpen.uiCapability()->setUiReadOnly(readOnly);
     for (int i = 0; i < (int)AICD_NUM_REQ_PARAMS; ++i)
     {
-        uiOrdering.add(&m_aicdParameterFields[(AICDParameters) i]);
-        m_aicdParameterFields[(AICDParameters) i].uiCapability()->setUiReadOnly(readOnly);
+        uiOrdering.add(&m_aicdParameterFields[(AICDParameters)i]);
+        m_aicdParameterFields[(AICDParameters)i].uiCapability()->setUiReadOnly(readOnly);
     }
-    
+
     caf::PdmUiGroup* additionalGroup = uiOrdering.addNewGroup("Additional Parameters");
     for (int i = (int)AICD_NUM_REQ_PARAMS; i < (int)AICD_NUM_PARAMS; ++i)
     {
-        additionalGroup->add(&m_aicdParameterFields[(AICDParameters) i]);
+        additionalGroup->add(&m_aicdParameterFields[(AICDParameters)i]);
         m_aicdParameterFields[(AICDParameters)i].uiCapability()->setUiReadOnly(readOnly);
     }
-    additionalGroup->setCollapsedByDefault(true);   
+    additionalGroup->setCollapsedByDefault(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,7 +154,7 @@ void RimWellPathAicdParameters::defineEditorAttribute(const caf::PdmFieldHandle*
                                                       QString                    uiConfigName,
                                                       caf::PdmUiEditorAttribute* attribute)
 {
-    const caf::PdmField<QString>* stringField = dynamic_cast<const caf::PdmField<QString>*>(field);
+    const caf::PdmField<QString>*  stringField    = dynamic_cast<const caf::PdmField<QString>*>(field);
     caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>(attribute);
     if (stringField && lineEditorAttr)
     {
@@ -178,7 +177,7 @@ std::set<const caf::PdmField<QString>*> RimWellPathAicdParameters::stringFieldsW
     std::set<const caf::PdmField<QString>*> fields;
     for (int i = 0; i < (int)AICD_NUM_REQ_PARAMS; ++i)
     {
-        fields.insert(&m_aicdParameterFields[(AICDParameters) i]);
+        fields.insert(&m_aicdParameterFields[(AICDParameters)i]);
     }
     return fields;
 }

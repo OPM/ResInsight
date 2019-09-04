@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -28,27 +28,26 @@
 
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
+#include "RimProject.h"
 #include "RimRegularLegendConfig.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
-#include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
-#include "RimProject.h"
-#include "RimSummaryCaseMainCollection.h"
 
 #include "RiuPlotMainWindow.h"
 
-#include "cvfAssert.h"
 #include "cafSelectionManagerTools.h"
+#include "cvfAssert.h"
 
 #include <QAction>
-
 
 CAF_CMD_SOURCE_INIT(RicNewSummaryPlotFeature, "RicNewSummaryPlotFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewSummaryPlotFeature::isCommandEnabled()
 {
@@ -60,9 +59,9 @@ bool RicNewSummaryPlotFeature::isCommandEnabled()
         sumPlotColl = RiaSummaryTools::parentSummaryPlotCollection(selObj);
     }
 
-    auto ensembleFilter = dynamic_cast<RimEnsembleCurveFilter*>(selObj);
+    auto ensembleFilter     = dynamic_cast<RimEnsembleCurveFilter*>(selObj);
     auto ensembleFilterColl = dynamic_cast<RimEnsembleCurveFilterCollection*>(selObj);
-    auto legendConfig = dynamic_cast<RimRegularLegendConfig*>(selObj);
+    auto legendConfig       = dynamic_cast<RimRegularLegendConfig*>(selObj);
 
     if (ensembleFilter || ensembleFilterColl || legendConfig) return false;
     if (sumPlotColl) return true;
@@ -72,31 +71,31 @@ bool RicNewSummaryPlotFeature::isCommandEnabled()
 
     for (auto item : selectedItems)
     {
-        if (!dynamic_cast<RimSummaryCase*>(item) && !dynamic_cast<RimSummaryCaseCollection*>(item))
-            return false;
+        if (!dynamic_cast<RimSummaryCase*>(item) && !dynamic_cast<RimSummaryCaseCollection*>(item)) return false;
     }
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
 {
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
-    std::vector<RimSummaryCase*> selectedCases = caf::selectedObjectsByType<RimSummaryCase*>();
+    std::vector<RimSummaryCase*>           selectedCases  = caf::selectedObjectsByType<RimSummaryCase*>();
     std::vector<RimSummaryCaseCollection*> selectedGroups = caf::selectedObjectsByType<RimSummaryCaseCollection*>();
 
     std::vector<caf::PdmObject*> sourcesToSelect(selectedCases.begin(), selectedCases.end());
 
     if (sourcesToSelect.empty() && selectedGroups.empty())
     {
-        const auto allSingleCases = project->firstSummaryCaseMainCollection()->topLevelSummaryCases();
-        const auto allGroups = project->summaryGroups();
+        const auto                             allSingleCases = project->firstSummaryCaseMainCollection()->topLevelSummaryCases();
+        const auto                             allGroups      = project->summaryGroups();
         std::vector<RimSummaryCaseCollection*> allEnsembles;
-        for (const auto group : allGroups) if (group->isEnsemble()) allEnsembles.push_back(group);
+        for (const auto group : allGroups)
+            if (group->isEnsemble()) allEnsembles.push_back(group);
 
         if (!allSingleCases.empty())
         {
@@ -137,7 +136,7 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -145,30 +144,29 @@ void RicNewSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
     actionToSetup->setIcon(QIcon(":/SummaryPlotLight16x16.png"));
 }
 
-//==================================================================================================
-/// 
-//==================================================================================================
+    //==================================================================================================
+    ///
+    //==================================================================================================
 
-#include "RiuPlotMainWindowTools.h"
 #include "RicNewSummaryCurveFeature.h"
-#include "RimMainPlotCollection.h"
 #include "RicSummaryPlotFeatureImpl.h"
+#include "RimMainPlotCollection.h"
+#include "RiuPlotMainWindowTools.h"
 
 CAF_CMD_SOURCE_INIT(RicNewDefaultSummaryPlotFeature, "RicNewDefaultSummaryPlotFeature");
-
 
 std::pair<RimSummaryPlotCollection*, std::vector<RimSummaryCase*>> extractSumPlotCollectionOrSelectedSumCasesFromSelection()
 {
     std::vector<RimSummaryCase*> selectedSumCases;
-    RimSummaryPlotCollection* sumPlotColl = nullptr;
+    RimSummaryPlotCollection*    sumPlotColl = nullptr;
 
     std::vector<caf::PdmUiItem*> selectedItems;
     caf::SelectionManager::instance()->selectedItems(selectedItems);
 
-    if ( selectedItems.size() )
+    if (selectedItems.size())
     {
         caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>(selectedItems[0]);
-        sumPlotColl = RiaSummaryTools::parentSummaryPlotCollection(selObj);
+        sumPlotColl            = RiaSummaryTools::parentSummaryPlotCollection(selObj);
     }
 
     if (!sumPlotColl)
@@ -180,7 +178,7 @@ std::pair<RimSummaryPlotCollection*, std::vector<RimSummaryCase*>> extractSumPlo
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewDefaultSummaryPlotFeature::isCommandEnabled()
 {
@@ -190,7 +188,7 @@ bool RicNewDefaultSummaryPlotFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewDefaultSummaryPlotFeature::onActionTriggered(bool isChecked)
 {
@@ -212,9 +210,10 @@ void RicNewDefaultSummaryPlotFeature::onActionTriggered(bool isChecked)
         summaryCasesToUse = sumPlotSumCasesPair.second;
     }
 
-    if ( summaryCasesToUse.size() )
+    if (summaryCasesToUse.size())
     {
-        RimSummaryPlotCollection* sumPlotColl = RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+        RimSummaryPlotCollection* sumPlotColl =
+            RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
         RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
 
         for (RimSummaryCase* sumCase : summaryCasesToUse)
@@ -233,11 +232,10 @@ void RicNewDefaultSummaryPlotFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewDefaultSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Summary Plot");
     actionToSetup->setIcon(QIcon(":/SummaryPlotLight16x16.png"));
-
 }

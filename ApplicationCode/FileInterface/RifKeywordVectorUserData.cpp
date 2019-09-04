@@ -1,29 +1,29 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017- Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifKeywordVectorUserData.h"
 
-#include "RiaQDateTimeTools.h"
 #include "RiaLogging.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RifEclipseSummaryAddress.h"
-#include "RifKeywordVectorParser.h"
 #include "RifEclipseUserDataParserTools.h"
+#include "RifKeywordVectorParser.h"
 
 #include "cafUtils.h"
 
@@ -32,26 +32,18 @@
 #include <QStringList>
 #include <QTextStream>
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RifKeywordVectorUserData::RifKeywordVectorUserData()
-{
-    
-}
+RifKeywordVectorUserData::RifKeywordVectorUserData() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RifKeywordVectorUserData::~RifKeywordVectorUserData()
-{
-
-}
+RifKeywordVectorUserData::~RifKeywordVectorUserData() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifKeywordVectorUserData::parse(const QString& data, const QString& customWellName)
 {
@@ -89,7 +81,6 @@ bool RifKeywordVectorUserData::parse(const QString& data, const QString& customW
 
     std::map<QString, size_t> mapFromOriginToTimeStepIndex;
 
-
     for (size_t i = 0; i < keyValuePairVector.size(); i++)
     {
         const std::map<QString, QString>& keyValuePairs = keyValuePairVector[i];
@@ -100,7 +91,7 @@ bool RifKeywordVectorUserData::parse(const QString& data, const QString& customW
 
             {
                 QDateTime startDate;
-                QString startDateString = valueForKey(keyValuePairs, "STARTDATE");
+                QString   startDateString = valueForKey(keyValuePairs, "STARTDATE");
                 if (!startDateString.isEmpty())
                 {
                     QString dateFormatString = valueForKey(keyValuePairs, "DATEFORMAT");
@@ -153,8 +144,8 @@ bool RifKeywordVectorUserData::parse(const QString& data, const QString& customW
         {
             if (isVectorHeader(keyValuePairs))
             {
-                QString originText = valueForKey(keyValuePairs, "ORIGIN");
-                auto timeStepIndexIterator = mapFromOriginToTimeStepIndex.find(originText);
+                QString originText            = valueForKey(keyValuePairs, "ORIGIN");
+                auto    timeStepIndexIterator = mapFromOriginToTimeStepIndex.find(originText);
                 if (timeStepIndexIterator != mapFromOriginToTimeStepIndex.end())
                 {
                     QString vectorText = valueForKey(keyValuePairs, "VECTOR");
@@ -181,7 +172,7 @@ bool RifKeywordVectorUserData::parse(const QString& data, const QString& customW
 
                     m_allResultAddresses.insert(addr);
 
-                    m_mapFromAddressToTimeIndex[addr] = timeStepIndexIterator->second;
+                    m_mapFromAddressToTimeIndex[addr]   = timeStepIndexIterator->second;
                     m_mapFromAddressToVectorIndex[addr] = i;
                 }
             }
@@ -192,7 +183,7 @@ bool RifKeywordVectorUserData::parse(const QString& data, const QString& customW
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifKeywordVectorUserData::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const
 {
@@ -203,12 +194,12 @@ bool RifKeywordVectorUserData::values(const RifEclipseSummaryAddress& resultAddr
     {
         values->push_back(v);
     }
-        
+
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifKeywordVectorUserData::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
 {
@@ -219,12 +210,12 @@ const std::vector<time_t>& RifKeywordVectorUserData::timeSteps(const RifEclipseS
     }
 
     static std::vector<time_t> emptyVector;
-    
+
     return emptyVector;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::string RifKeywordVectorUserData::unitName(const RifEclipseSummaryAddress& resultAddress) const
 {
@@ -240,7 +231,7 @@ RiaEclipseUnitTools::UnitSystem RifKeywordVectorUserData::unitSystem() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifKeywordVectorUserData::isTimeHeader(const std::map<QString, QString>& header)
 {
@@ -256,7 +247,7 @@ bool RifKeywordVectorUserData::isTimeHeader(const std::map<QString, QString>& he
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifKeywordVectorUserData::isVectorHeader(const std::map<QString, QString>& header)
 {
@@ -272,7 +263,7 @@ bool RifKeywordVectorUserData::isVectorHeader(const std::map<QString, QString>& 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RifKeywordVectorUserData::valueForKey(const std::map<QString, QString>& header, const QString& key)
 {
@@ -284,4 +275,3 @@ QString RifKeywordVectorUserData::valueForKey(const std::map<QString, QString>& 
 
     return "";
 }
-

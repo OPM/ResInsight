@@ -1,60 +1,59 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 #include "RivWindowEdgeAxesOverlayItem.h"
 
 #include "cvfBase.h"
-#include "cvfOpenGL.h"
-#include "cvfOpenGLResourceManager.h"
+#include "cvfBufferObjectManaged.h"
+#include "cvfCamera.h"
+#include "cvfFont.h"
 #include "cvfGeometryBuilderDrawableGeo.h"
 #include "cvfGeometryUtils.h"
-#include "cvfViewport.h"
-#include "cvfCamera.h"
-#include "cvfTextDrawer.h"
-#include "cvfFont.h"
+#include "cvfGlyph.h"
+#include "cvfMatrixState.h"
+#include "cvfOpenGL.h"
+#include "cvfOpenGLResourceManager.h"
+#include "cvfRenderStateDepth.h"
+#include "cvfRenderStateLine.h"
 #include "cvfShaderProgram.h"
 #include "cvfShaderProgramGenerator.h"
 #include "cvfShaderSourceProvider.h"
 #include "cvfShaderSourceRepository.h"
+#include "cvfTextDrawer.h"
 #include "cvfUniform.h"
-#include "cvfMatrixState.h"
-#include "cvfBufferObjectManaged.h"
-#include "cvfGlyph.h"
-#include "cvfRenderStateDepth.h"
-#include "cvfRenderStateLine.h"
+#include "cvfViewport.h"
 
 #ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
 #endif
 
-#include "cvfScalarMapper.h"
-#include "cvfRenderStateBlending.h"
 #include "cafTickMarkGenerator.h"
+#include "cvfRenderStateBlending.h"
+#include "cvfScalarMapper.h"
 #include <array>
 
 using namespace cvf;
-
 
 //==================================================================================================
 ///
 /// \class cvf::OverlayColorLegend
 /// \ingroup Render
 ///
-/// 
+///
 ///
 //==================================================================================================
 
@@ -75,21 +74,17 @@ RivWindowEdgeAxesOverlayItem::RivWindowEdgeAxesOverlayItem(Font* font)
     CVF_ASSERT(font);
     CVF_ASSERT(!font->isEmpty());
 
-    setLayoutFixedPosition({0,0});
+    setLayoutFixedPosition({0, 0});
     updateGeomerySizes();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RivWindowEdgeAxesOverlayItem::~RivWindowEdgeAxesOverlayItem() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RivWindowEdgeAxesOverlayItem::~RivWindowEdgeAxesOverlayItem()
-{
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivWindowEdgeAxesOverlayItem::setDisplayCoordTransform(const caf::DisplayCoordTransform* displayCoordTransform)
 {
@@ -97,24 +92,24 @@ void RivWindowEdgeAxesOverlayItem::setDisplayCoordTransform(const caf::DisplayCo
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivWindowEdgeAxesOverlayItem::updateGeomerySizes()
 {
-    String str = String::number(-1.999e-17);
-    m_textSize =  m_font->textExtent(str);
-    m_pixelSpacing = 5.0f;
-    m_tickLineLength = m_textSize.y() *0.3f;
-    m_frameBorderHeight = m_pixelSpacing + m_textSize.y() + m_pixelSpacing + m_tickLineLength +  m_lineWidth;
-    m_frameBorderWidth  = m_pixelSpacing + m_textSize.x() + m_pixelSpacing + m_tickLineLength +  m_lineWidth;
+    String str          = String::number(-1.999e-17);
+    m_textSize          = m_font->textExtent(str);
+    m_pixelSpacing      = 5.0f;
+    m_tickLineLength    = m_textSize.y() * 0.3f;
+    m_frameBorderHeight = m_pixelSpacing + m_textSize.y() + m_pixelSpacing + m_tickLineLength + m_lineWidth;
+    m_frameBorderWidth  = m_pixelSpacing + m_textSize.x() + m_pixelSpacing + m_tickLineLength + m_lineWidth;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivWindowEdgeAxesOverlayItem::updateFromCamera(const Camera* camera)
 {
-    if (!camera || camera->projection() != Camera::ORTHO )
+    if (!camera || camera->projection() != Camera::ORTHO)
     {
         m_domainCoordsXValues.clear();
         m_domainCoordsYValues.clear();
@@ -124,16 +119,16 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera(const Camera* camera)
         return;
     }
 
-    m_windowSize = Vec2ui( camera->viewport()->width(), camera->viewport()->height());
+    m_windowSize = Vec2ui(camera->viewport()->width(), camera->viewport()->height());
     Vec3d windowOrigoInDomain;
     Vec3d windowMaxInDomain;
-    camera->unproject(Vec3d(0,0,0), &windowOrigoInDomain );
-    camera->unproject(Vec3d(m_windowSize.x(),m_windowSize.y(),0), &windowMaxInDomain );
+    camera->unproject(Vec3d(0, 0, 0), &windowOrigoInDomain);
+    camera->unproject(Vec3d(m_windowSize.x(), m_windowSize.y(), 0), &windowMaxInDomain);
 
     if (m_dispalyCoordsTransform.notNull())
     {
         windowOrigoInDomain = m_dispalyCoordsTransform->transformToDomainCoord(windowOrigoInDomain);
-        windowMaxInDomain = m_dispalyCoordsTransform->transformToDomainCoord(windowMaxInDomain);
+        windowMaxInDomain   = m_dispalyCoordsTransform->transformToDomainCoord(windowMaxInDomain);
     }
 
     double domainMinX = windowOrigoInDomain.x();
@@ -142,18 +137,17 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera(const Camera* camera)
     double domainMinY = m_domainAxes == XY_AXES ? windowOrigoInDomain.y() : windowOrigoInDomain.z();
     double domainMaxY = m_domainAxes == XY_AXES ? windowMaxInDomain.y() : windowMaxInDomain.z();
 
-    int xTickMaxCount = m_windowSize.x()/(2*m_textSize.x());
-    int yTickMaxCount = m_windowSize.y()/(2*m_textSize.x());
+    int xTickMaxCount = m_windowSize.x() / (2 * m_textSize.x());
+    int yTickMaxCount = m_windowSize.y() / (2 * m_textSize.x());
 
-    double minDomainXStepSize = (domainMaxX - domainMinX)/xTickMaxCount;
-    caf::TickMarkGenerator xTickCreator(domainMinX, domainMaxX,  minDomainXStepSize);
+    double                 minDomainXStepSize = (domainMaxX - domainMinX) / xTickMaxCount;
+    caf::TickMarkGenerator xTickCreator(domainMinX, domainMaxX, minDomainXStepSize);
     m_domainCoordsXValues = xTickCreator.tickMarkValues();
 
-    double minDomainYStepSize = (domainMaxY - domainMinY)/yTickMaxCount;
-    caf::TickMarkGenerator yTickCreator(domainMinY, domainMaxY,  minDomainYStepSize);
+    double                 minDomainYStepSize = (domainMaxY - domainMinY) / yTickMaxCount;
+    caf::TickMarkGenerator yTickCreator(domainMinY, domainMaxY, minDomainYStepSize);
     m_domainCoordsYValues = yTickCreator.tickMarkValues();
 
- 
     m_windowTickXValues.clear();
     Vec3d windowPoint;
     for (double domainX : m_domainCoordsXValues)
@@ -167,7 +161,7 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera(const Camera* camera)
         {
             displayDomainTick = Vec3d(domainX, 0, domainMinY);
         }
-        if ( m_dispalyCoordsTransform.notNull() )
+        if (m_dispalyCoordsTransform.notNull())
         {
             displayDomainTick = m_dispalyCoordsTransform->transformToDisplayCoord(displayDomainTick);
         }
@@ -189,7 +183,7 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera(const Camera* camera)
             displayDomainTick = Vec3d(domainMinX, 0, domainY);
         }
 
-        if ( m_dispalyCoordsTransform.notNull() )
+        if (m_dispalyCoordsTransform.notNull())
         {
             displayDomainTick = m_dispalyCoordsTransform->transformToDisplayCoord(displayDomainTick);
         }
@@ -199,7 +193,7 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera(const Camera* camera)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2ui RivWindowEdgeAxesOverlayItem::sizeHint()
 {
@@ -214,11 +208,10 @@ void RivWindowEdgeAxesOverlayItem::setTextColor(const Color3f& color)
     m_textColor = color;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// Returns the color of the text and lines
 //--------------------------------------------------------------------------------------------------
-const Color3f&  RivWindowEdgeAxesOverlayItem::textColor() const
+const Color3f& RivWindowEdgeAxesOverlayItem::textColor() const
 {
     return m_textColor;
 }
@@ -231,7 +224,6 @@ void RivWindowEdgeAxesOverlayItem::render(OpenGLContext* oglContext, const Vec2i
     renderGeneric(oglContext, position, size, false);
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// Software rendering using software
 //--------------------------------------------------------------------------------------------------
@@ -240,23 +232,23 @@ void RivWindowEdgeAxesOverlayItem::renderSoftware(OpenGLContext* oglContext, con
     renderGeneric(oglContext, position, size, true);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RivWindowEdgeAxesOverlayItem::pick(int oglXCoord, int oglYCoord, const Vec2i& position, const Vec2ui& size)
 {
     return false;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// Set up camera/viewport and render
 //--------------------------------------------------------------------------------------------------
-void RivWindowEdgeAxesOverlayItem::renderGeneric(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software)
-{   
-    if (size.x() <= 0 || size.y() <= 0
-    || (m_windowTickXValues.size() == 0 && m_windowTickYValues.size() == 0 ) )
+void RivWindowEdgeAxesOverlayItem::renderGeneric(OpenGLContext* oglContext,
+                                                 const Vec2i&   position,
+                                                 const Vec2ui&  size,
+                                                 bool           software)
+{
+    if (size.x() <= 0 || size.y() <= 0 || (m_windowTickXValues.size() == 0 && m_windowTickYValues.size() == 0))
     {
         return;
     }
@@ -270,7 +262,6 @@ void RivWindowEdgeAxesOverlayItem::renderGeneric(OpenGLContext* oglContext, cons
 
     TextDrawer textDrawer(m_font.p());
     addTextToTextDrawer(&textDrawer);
-
 
     if (software)
     {
@@ -288,9 +279,8 @@ void RivWindowEdgeAxesOverlayItem::renderGeneric(OpenGLContext* oglContext, cons
     CVF_CHECK_OGL(oglContext);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivWindowEdgeAxesOverlayItem::addTextToTextDrawer(TextDrawer* textDrawer)
 {
@@ -299,43 +289,43 @@ void RivWindowEdgeAxesOverlayItem::addTextToTextDrawer(TextDrawer* textDrawer)
 
     // Bottom X - axis text
     {
-        const float textYTop = m_windowSize.y() - m_pixelSpacing - m_textSize.y()*0.5f;
-        const float textYBott = m_pixelSpacing + m_textSize.y()*0.5f;
+        const float textYTop  = m_windowSize.y() - m_pixelSpacing - m_textSize.y() * 0.5f;
+        const float textYBott = m_pixelSpacing + m_textSize.y() * 0.5f;
 
         size_t numTicks = m_domainCoordsXValues.size();
         size_t i;
-        for ( i = 0; i < numTicks; i++ )
+        for (i = 0; i < numTicks; i++)
         {
             float textX = static_cast<float>(m_windowTickXValues[i]);
 
             double tickValue = m_domainCoordsXValues[i];
             String valueString;
 
-            valueString = String::number(tickValue, 'f', 0);
+            valueString    = String::number(tickValue, 'f', 0);
             auto labelSize = m_font->textExtent(valueString);
 
-            Vec2f pos(textX - labelSize.x()*0.5f, textYBott);
+            Vec2f pos(textX - labelSize.x() * 0.5f, textYBott);
             textDrawer->addText(valueString, pos);
             pos[1] = textYTop;
             textDrawer->addText(valueString, pos);
         }
     }
- 
+
     // Right Y - axis texts
     {
         const float textXRight = m_windowSize.x() - m_pixelSpacing - m_textSize.x();
-        const float textXLeft = m_frameBorderWidth - m_tickLineLength - m_pixelSpacing;
+        const float textXLeft  = m_frameBorderWidth - m_tickLineLength - m_pixelSpacing;
 
         size_t numTicks = m_domainCoordsYValues.size();
         size_t i;
-        for ( i = 0; i < numTicks; i++ )
+        for (i = 0; i < numTicks; i++)
         {
             float textY = static_cast<float>(m_windowTickYValues[i]);
 
-            double tickValue = m_isSwitchingYAxisValueSign ? -m_domainCoordsYValues[i]: m_domainCoordsYValues[i];
+            double tickValue = m_isSwitchingYAxisValueSign ? -m_domainCoordsYValues[i] : m_domainCoordsYValues[i];
             String valueString;
 
-            valueString = String::number(tickValue, 'f', 0);
+            valueString    = String::number(tickValue, 'f', 0);
             auto labelSize = m_font->textExtent(valueString);
 
             Vec2f pos(textXRight, textY);
@@ -347,11 +337,11 @@ void RivWindowEdgeAxesOverlayItem::addTextToTextDrawer(TextDrawer* textDrawer)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::array<Vec3f, 8> RivWindowEdgeAxesOverlayItem::frameVertexArray()
 {
-    float windowWidth = static_cast<float>(m_windowSize.x());
+    float windowWidth  = static_cast<float>(m_windowSize.x());
     float windowHeight = static_cast<float>(m_windowSize.y());
 
     //  3            2
@@ -360,16 +350,16 @@ std::array<Vec3f, 8> RivWindowEdgeAxesOverlayItem::frameVertexArray()
     //    4       5
     //  0            1
 
-    std::array<Vec3f, 8> vertexArray ={
-        Vec3f(0.0f                            , 0.0f                              , 0.0f),
-        Vec3f(windowWidth                     , 0.0f                              , 0.0f),
-        Vec3f(windowWidth                     , windowHeight                      , 0.0f),
-        Vec3f(0.0f                            , windowHeight                      , 0.0f),
-                                                                                  
-        Vec3f(m_frameBorderWidth              , m_frameBorderHeight               , 0.0f),
-        Vec3f(windowWidth - m_frameBorderWidth, m_frameBorderHeight               , 0.0f),
+    std::array<Vec3f, 8> vertexArray = {
+        Vec3f(0.0f, 0.0f, 0.0f),
+        Vec3f(windowWidth, 0.0f, 0.0f),
+        Vec3f(windowWidth, windowHeight, 0.0f),
+        Vec3f(0.0f, windowHeight, 0.0f),
+
+        Vec3f(m_frameBorderWidth, m_frameBorderHeight, 0.0f),
+        Vec3f(windowWidth - m_frameBorderWidth, m_frameBorderHeight, 0.0f),
         Vec3f(windowWidth - m_frameBorderWidth, windowHeight - m_frameBorderHeight, 0.0f),
-        Vec3f(m_frameBorderWidth              , windowHeight - m_frameBorderHeight, 0.0f),
+        Vec3f(m_frameBorderWidth, windowHeight - m_frameBorderHeight, 0.0f),
     };
 
     return vertexArray;
@@ -419,7 +409,6 @@ void RivWindowEdgeAxesOverlayItem::renderSoftwareFrameAndTickLines(OpenGLContext
     glVertex3fv(vertexArray[7].ptr());
     glVertex3fv(vertexArray[6].ptr());
     glEnd();
-
 
     // Render Line around
 
@@ -547,7 +536,7 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines(OpenGLContext* 
     blend.applyOpenGL(oglContext);
 
     // Shader program
-    
+
     ref<ShaderProgram> shaderProgram = oglContext->resourceManager()->getLinkedUnlitColorShaderProgram(oglContext);
     CVF_TIGHT_ASSERT(shaderProgram.notNull());
 
@@ -571,29 +560,22 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines(OpenGLContext* 
 
     // Triangle indices for the frame background
 
-    static const ushort backgroundTriangleIndices[] = { 0, 1, 5,  0, 5, 4,
-                                                        1, 2, 6,  1, 6, 5,
-                                                        3, 0, 4,  3, 4, 7,
-                                                        2, 3, 6,  3, 7, 6 };
+    static const ushort backgroundTriangleIndices[] = {0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 3, 0, 4, 3, 4, 7, 2, 3, 6, 3, 7, 6};
 
     glDrawRangeElements(GL_TRIANGLES, 0, 7, 24, GL_UNSIGNED_SHORT, backgroundTriangleIndices);
-
 
     // Draw frame border lines
 
     UniformFloat uniformColor("u_color", Color4f(m_lineColor, m_showAxisLines ? 0.25f : 1.0f));
     shaderProgram->applyUniform(oglContext, uniformColor);
 
-    static const ushort frameLineIndices[] = { 7, 4, 
-                                               4, 5, 
-                                               5, 6,
-                                               6, 7 };
+    static const ushort frameLineIndices[] = {7, 4, 4, 5, 5, 6, 6, 7};
 
     glDrawRangeElements(GL_LINES, 0, 7, 8, GL_UNSIGNED_SHORT, frameLineIndices);
 
     // Render tickmarks
 
-    static const ushort tickLineIndices[] = { 0, 1 };
+    static const ushort tickLineIndices[] = {0, 1};
 
     // X - axis Tick lines
 
@@ -627,7 +609,7 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines(OpenGLContext* 
     }
 
     // Left Y - axis Tick lines
-    
+
     for (double typos : m_windowTickYValues)
     {
         if (m_showAxisLines)
@@ -637,7 +619,6 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines(OpenGLContext* 
             vertexArray[1][0] = m_windowSize.x() - m_frameBorderWidth + m_tickLineLength;
             vertexArray[1][1] = (float)typos;
             glDrawRangeElements(GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices);
-
         }
         else
         {
@@ -656,7 +637,7 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines(OpenGLContext* 
             glDrawRangeElements(GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices);
         }
     }
-    
+
     glDisableVertexAttribArray(ShaderProgram::VERTEX);
 
     CVF_TIGHT_ASSERT(shaderProgram.notNull());
@@ -676,7 +657,7 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines(OpenGLContext* 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivWindowEdgeAxesOverlayItem::setLineColor(const Color3f& lineColor)
 {
@@ -684,7 +665,7 @@ void RivWindowEdgeAxesOverlayItem::setLineColor(const Color3f& lineColor)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const Color3f& RivWindowEdgeAxesOverlayItem::lineColor() const
 {
@@ -714,4 +695,3 @@ void RivWindowEdgeAxesOverlayItem::setShowAxisLines(bool showAxisLines)
 {
     m_showAxisLines = showAxisLines;
 }
-

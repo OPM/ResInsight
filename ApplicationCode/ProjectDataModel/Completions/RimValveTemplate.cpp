@@ -25,7 +25,6 @@
 
 CAF_PDM_SOURCE_INIT(RimValveTemplate, "ValveTemplate");
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -33,13 +32,19 @@ RimValveTemplate::RimValveTemplate()
 {
     CAF_PDM_InitObject("Valve Template", ":/ICDValve16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_valveTemplateUnit, "UnitSystem", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_UNKNOWN), "Units System", "", "", "");
+    CAF_PDM_InitField(&m_valveTemplateUnit,
+                      "UnitSystem",
+                      caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_UNKNOWN),
+                      "Units System",
+                      "",
+                      "",
+                      "");
     m_valveTemplateUnit.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&m_type, "CompletionType", "Type", "", "", "");
     m_type = RiaDefines::ICD;
     CAF_PDM_InitField(&m_userLabel, "UserLabel", QString("Template"), "Name", "", "", "");
-    
+
     this->setName(fullLabel());
 
     CAF_PDM_InitField(&m_orificeDiameter, "OrificeDiameter", 8.0, "Orifice Diameter [mm]", "", "", "");
@@ -49,23 +54,17 @@ RimValveTemplate::RimValveTemplate()
     m_aicdParameters = new RimWellPathAicdParameters;
     m_aicdParameters.uiCapability()->setUiTreeHidden(true);
     m_aicdParameters.uiCapability()->setUiTreeChildrenHidden(true);
-
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimValveTemplate::~RimValveTemplate()
-{
-}
+RimValveTemplate::~RimValveTemplate() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimValveTemplate::loadDataAndUpdate()
-{
-
-}
+void RimValveTemplate::loadDataAndUpdate() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -215,7 +214,7 @@ void RimValveTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("MSW AICD Parameters");
         m_aicdParameters->uiOrdering(uiConfigName, *group);
     }
-  
+
     bool readOnly = uiConfigName == QString("InsideValve");
     m_type.uiCapability()->setUiReadOnly(readOnly);
     m_userLabel.uiCapability()->setUiReadOnly(readOnly);
@@ -266,5 +265,4 @@ void RimValveTemplate::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderi
     {
         this->setUiIconFromResourceString(":/AICDValve16x16.png");
     }
-
 }

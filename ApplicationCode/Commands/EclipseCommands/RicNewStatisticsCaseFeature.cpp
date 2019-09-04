@@ -2,27 +2,27 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicNewStatisticsCaseFeature.h"
 
+#include "RimCaseCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseStatisticsCaseCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimCaseCollection.h"
 #include "RimProject.h"
 
 #include "RiaApplication.h"
@@ -35,7 +35,7 @@
 CAF_CMD_SOURCE_INIT(RicNewStatisticsCaseFeature, "RicNewStatisticsCaseFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewStatisticsCaseFeature::isCommandEnabled()
 {
@@ -43,7 +43,7 @@ bool RicNewStatisticsCaseFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewStatisticsCaseFeature::onActionTriggered(bool isChecked)
 {
@@ -59,7 +59,7 @@ void RicNewStatisticsCaseFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewStatisticsCaseFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -67,7 +67,7 @@ void RicNewStatisticsCaseFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmUiItem* RicNewStatisticsCaseFeature::selectedValidUIItem()
 {
@@ -94,7 +94,7 @@ caf::PdmUiItem* RicNewStatisticsCaseFeature::selectedValidUIItem()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseStatisticsCase* RicNewStatisticsCaseFeature::addStatisticalCalculation(caf::PdmUiItem* uiItem)
 {
@@ -103,17 +103,17 @@ RimEclipseStatisticsCase* RicNewStatisticsCaseFeature::addStatisticalCalculation
     if (dynamic_cast<RimEclipseStatisticsCase*>(uiItem))
     {
         RimEclipseStatisticsCase* currentObject = dynamic_cast<RimEclipseStatisticsCase*>(uiItem);
-        caseGroup = currentObject->parentStatisticsCaseCollection()->parentCaseGroup();
+        caseGroup                               = currentObject->parentStatisticsCaseCollection()->parentCaseGroup();
     }
     else if (dynamic_cast<RimCaseCollection*>(uiItem))
     {
         RimCaseCollection* statColl = dynamic_cast<RimCaseCollection*>(uiItem);
-        caseGroup = statColl->parentCaseGroup();
+        caseGroup                   = statColl->parentCaseGroup();
     }
 
     if (caseGroup)
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject*               proj          = RiaApplication::instance()->project();
         RimEclipseStatisticsCase* createdObject = caseGroup->createAndAppendStatisticsCase();
         proj->assignCaseIdToCase(createdObject);
 

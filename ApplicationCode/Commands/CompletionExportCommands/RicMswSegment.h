@@ -24,35 +24,35 @@
 #include <memory>
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class RicMswSegment
 {
 public:
     RicMswSegment(const QString& label,
-                  double startMD,
-                  double endMD,
-                  double startTVD,
-                  double endTVD,
-                  size_t subIndex = cvf::UNDEFINED_SIZE_T,
-                  int segmentNumber = -1);
+                  double         startMD,
+                  double         endMD,
+                  double         startTVD,
+                  double         endTVD,
+                  size_t         subIndex      = cvf::UNDEFINED_SIZE_T,
+                  int            segmentNumber = -1);
 
     QString label() const;
 
-    double  startMD() const;
-    double  endMD() const;
-    double  deltaMD() const;
-    double  startTVD() const;
-    double  endTVD() const;
-    double  deltaTVD() const;
+    double startMD() const;
+    double endMD() const;
+    double deltaMD() const;
+    double startTVD() const;
+    double endTVD() const;
+    double deltaTVD() const;
 
-    double  effectiveDiameter() const;
-    double  holeDiameter() const;
-    double  openHoleRoughnessFactor() const;
-    double  skinFactor() const;
-    
-    size_t  subIndex() const;
-    int     segmentNumber() const;
+    double effectiveDiameter() const;
+    double holeDiameter() const;
+    double openHoleRoughnessFactor() const;
+    double skinFactor() const;
+
+    size_t subIndex() const;
+    int    segmentNumber() const;
 
     const std::vector<std::shared_ptr<RicMswCompletion>>& completions() const;
     std::vector<std::shared_ptr<RicMswCompletion>>&       completions();
@@ -66,27 +66,26 @@ public:
     void addCompletion(std::shared_ptr<RicMswCompletion> completion);
     void removeCompletion(std::shared_ptr<RicMswCompletion> completion);
 
-    void setSourcePdmObject(const caf::PdmObject* object);
+    void                  setSourcePdmObject(const caf::PdmObject* object);
     const caf::PdmObject* sourcePdmObject() const;
 
     bool operator<(const RicMswSegment& rhs) const;
-    
-private:
-    QString                         m_label;
-    double                          m_startMD;
-    double                          m_endMD;
-    double                          m_startTVD;
-    double                          m_endTVD;
-    double                          m_effectiveDiameter;
-    double                          m_holeDiameter;
-    double                          m_openHoleRoughnessFactor;
-    double                          m_skinFactor;
 
-    size_t                          m_subIndex;
-    int                             m_segmentNumber;
+private:
+    QString m_label;
+    double  m_startMD;
+    double  m_endMD;
+    double  m_startTVD;
+    double  m_endTVD;
+    double  m_effectiveDiameter;
+    double  m_holeDiameter;
+    double  m_openHoleRoughnessFactor;
+    double  m_skinFactor;
+
+    size_t m_subIndex;
+    int    m_segmentNumber;
 
     std::vector<std::shared_ptr<RicMswCompletion>> m_completions;
 
     caf::PdmPointer<caf::PdmObject> m_sourcePdmObject;
 };
-

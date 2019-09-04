@@ -54,11 +54,11 @@ private:
     static caf::PdmField<T>* dataValueField(caf::PdmValueField* valueField);
     template<typename T>
     static const caf::PdmField<T>* constDataValueField(const caf::PdmValueField* valueField);
-    void assignPdmFieldValue(caf::PdmValueField*                      pdmValueField,
-                             const google::protobuf::Message&         params,
-                             const google::protobuf::FieldDescriptor* paramDescriptor);
-    void assignGrpcFieldValue(google::protobuf::Message*               reply,
-                              const google::protobuf::FieldDescriptor* fieldDescriptor,
-                              const caf::PdmValueField*                pdmValueField);
-    void assignResultToReply(const caf::PdmObject* result, rips::CommandReply* reply);
+    void                           assignPdmFieldValue(caf::PdmValueField*                      pdmValueField,
+                                                       const google::protobuf::Message&         params,
+                                                       const google::protobuf::FieldDescriptor* paramDescriptor);
+    void                           assignGrpcFieldValue(google::protobuf::Message*               reply,
+                                                        const google::protobuf::FieldDescriptor* fieldDescriptor,
+                                                        const caf::PdmValueField*                pdmValueField);
+    void                           assignResultToReply(const caf::PdmObject* result, rips::CommandReply* reply);
 };

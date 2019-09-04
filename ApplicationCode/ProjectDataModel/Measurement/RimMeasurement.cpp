@@ -27,8 +27,8 @@
 #include "RiuMeasurementEventFilter.h"
 #include "RiuViewerCommands.h"
 
-#include "cvfGeometryTools.h"
 #include "RiuMainWindow.h"
+#include "cvfGeometryTools.h"
 
 CAF_PDM_SOURCE_INIT(RimMeasurement, "RimMeasurement");
 

@@ -3,30 +3,30 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifEclipseRestartFilesetAccess.h"
-#include "RifEclipseOutputFileTools.h"
 #include "RiaStringEncodingTools.h"
+#include "RifEclipseOutputFileTools.h"
 
 #include "cafProgressInfo.h"
 
 #include "ert/ecl/ecl_file.h"
-#include "ert/ecl/ecl_nnc_geometry.h"
 #include "ert/ecl/ecl_nnc_data.h"
+#include "ert/ecl/ecl_nnc_geometry.h"
 
 //--------------------------------------------------------------------------------------------------
 /// Constructor
@@ -52,7 +52,6 @@ RifEclipseRestartFilesetAccess::~RifEclipseRestartFilesetAccess()
 
         m_ecl_files[i] = nullptr;
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,7 +78,7 @@ bool RifEclipseRestartFilesetAccess::open()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifEclipseRestartFilesetAccess::setRestartFiles(const QStringList& fileSet)
 {
@@ -87,7 +86,8 @@ void RifEclipseRestartFilesetAccess::setRestartFiles(const QStringList& fileSet)
     m_ecl_files.clear();
 
     m_fileNames = fileSet;
-    m_fileNames.sort(); // To make sure they are sorted in increasing *.X000N order. Hack. Should probably be actual time stored on file.
+    m_fileNames
+        .sort(); // To make sure they are sorted in increasing *.X000N order. Hack. Should probably be actual time stored on file.
 
     for (int i = 0; i < m_fileNames.size(); i++)
     {
@@ -100,12 +100,10 @@ void RifEclipseRestartFilesetAccess::setRestartFiles(const QStringList& fileSet)
 //--------------------------------------------------------------------------------------------------
 /// Close files
 //--------------------------------------------------------------------------------------------------
-void RifEclipseRestartFilesetAccess::close()
-{
-}
+void RifEclipseRestartFilesetAccess::close() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifEclipseRestartFilesetAccess::setTimeSteps(const std::vector<QDateTime>& timeSteps)
 {
@@ -133,12 +131,12 @@ void RifEclipseRestartFilesetAccess::timeSteps(std::vector<QDateTime>* timeSteps
         for (i = 0; i < numSteps; i++)
         {
             std::vector<QDateTime> stepTime;
-            std::vector<double> stepDays;
+            std::vector<double>    stepDays;
 
             openTimeStep(i);
 
             RifEclipseOutputFileTools::timeSteps(m_ecl_files[i], &stepTime, &stepDays);
-        
+
             if (stepTime.size() == 1)
             {
                 m_timeSteps.push_back(stepTime[0]);
@@ -150,10 +148,9 @@ void RifEclipseRestartFilesetAccess::timeSteps(std::vector<QDateTime>* timeSteps
                 m_daysSinceSimulationStart.push_back(0.0);
             }
         }
-
     }
 
-    *timeSteps = m_timeSteps;
+    *timeSteps                = m_timeSteps;
     *daysSinceSimulationStart = m_daysSinceSimulationStart;
 }
 
@@ -175,7 +172,10 @@ void RifEclipseRestartFilesetAccess::resultNames(QStringList* resultNames, std::
 //--------------------------------------------------------------------------------------------------
 /// Get result values for given time step
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseRestartFilesetAccess::results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values)
+bool RifEclipseRestartFilesetAccess::results(const QString&       resultName,
+                                             size_t               timeStep,
+                                             size_t               gridCount,
+                                             std::vector<double>* values)
 {
     if (timeStep >= timeStepCount())
     {
@@ -219,7 +219,11 @@ bool RifEclipseRestartFilesetAccess::results(const QString& resultName, size_t t
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseRestartFilesetAccess::dynamicNNCResults(const ecl_grid_type* grid, size_t timeStep, std::vector<double>* waterFlux, std::vector<double>* oilFlux, std::vector<double>* gasFlux)
+bool RifEclipseRestartFilesetAccess::dynamicNNCResults(const ecl_grid_type* grid,
+                                                       size_t               timeStep,
+                                                       std::vector<double>* waterFlux,
+                                                       std::vector<double>* oilFlux,
+                                                       std::vector<double>* gasFlux)
 {
     if (timeStep > timeStepCount())
     {
@@ -254,7 +258,7 @@ void RifEclipseRestartFilesetAccess::readWellData(well_info_type* well_info, boo
         if (m_ecl_files[i])
         {
             int reportNumber = RifEclipseRestartFilesetAccess::reportNumber(m_ecl_files[i]);
-            if(reportNumber != -1)
+            if (reportNumber != -1)
             {
                 well_info_add_wells(well_info, m_ecl_files[i], reportNumber, importCompleteMswData);
             }
@@ -263,7 +267,7 @@ void RifEclipseRestartFilesetAccess::readWellData(well_info_type* well_info, boo
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifEclipseRestartFilesetAccess::openTimeStep(size_t timeStep)
 {
@@ -271,8 +275,9 @@ void RifEclipseRestartFilesetAccess::openTimeStep(size_t timeStep)
 
     if (m_ecl_files[timeStep] == nullptr)
     {
-        int index = static_cast<int>(timeStep);
-        ecl_file_type* ecl_file = ecl_file_open(RiaStringEncodingTools::toNativeEncoded(m_fileNames[index]).data(), ECL_FILE_CLOSE_STREAM);
+        int            index = static_cast<int>(timeStep);
+        ecl_file_type* ecl_file =
+            ecl_file_open(RiaStringEncodingTools::toNativeEncoded(m_fileNames[index]).data(), ECL_FILE_CLOSE_STREAM);
 
         m_ecl_files[timeStep] = ecl_file;
 
@@ -286,14 +291,14 @@ void RifEclipseRestartFilesetAccess::openTimeStep(size_t timeStep)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RifEclipseRestartFilesetAccess::reportNumber(const ecl_file_type* ecl_file)
 {
     if (!ecl_file) return -1;
 
     const char* eclFileName = ecl_file_get_src_file(ecl_file);
-    QString fileNameUpper(eclFileName);
+    QString     fileNameUpper(eclFileName);
     fileNameUpper = fileNameUpper.toUpper();
 
     // Convert to upper case, as ecl_util_filename_report_nr does not handle lower case file extensions
@@ -303,7 +308,7 @@ int RifEclipseRestartFilesetAccess::reportNumber(const ecl_file_type* ecl_file)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RifEclipseRestartFilesetAccess::readUnitsType()
 {
@@ -319,7 +324,7 @@ int RifEclipseRestartFilesetAccess::readUnitsType()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::set<RiaDefines::PhaseType> RifEclipseRestartFilesetAccess::availablePhases() const
 {
@@ -327,7 +332,7 @@ std::set<RiaDefines::PhaseType> RifEclipseRestartFilesetAccess::availablePhases(
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<int> RifEclipseRestartFilesetAccess::reportNumbers()
 {
@@ -347,4 +352,3 @@ std::vector<int> RifEclipseRestartFilesetAccess::reportNumbers()
 
     return reportNr;
 }
-

@@ -28,8 +28,6 @@
 #include <algorithm>
 #include <limits>
 
-
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -89,10 +87,7 @@ void RicMswExportInfo::sortLocations()
 {
     std::sort(m_wellSegmentLocations.begin(),
               m_wellSegmentLocations.end(),
-        [](std::shared_ptr<RicMswSegment> lhs, std::shared_ptr<RicMswSegment> rhs)
-    {
-        return *lhs < *rhs;
-    });
+              [](std::shared_ptr<RicMswSegment> lhs, std::shared_ptr<RicMswSegment> rhs) { return *lhs < *rhs; });
 }
 
 //--------------------------------------------------------------------------------------------------

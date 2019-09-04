@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017  Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -37,41 +37,40 @@
 
 #include <algorithm>
 
-namespace caf {
+namespace caf
+{
+template<>
+void caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum>::setUp()
+{
+    addItem(RimTimeStepFilter::TS_ALL, "TS_ALL", "All");
+    addItem(RimTimeStepFilter::TS_INTERVAL_DAYS, "TS_INTERVAL_DAYS", "Skip by Days");
+    addItem(RimTimeStepFilter::TS_INTERVAL_WEEKS, "TS_INTERVAL_WEEKS", "Skip by Weeks");
+    addItem(RimTimeStepFilter::TS_INTERVAL_MONTHS, "TS_INTERVAL_MONTHS", "Skip by Months");
+    addItem(RimTimeStepFilter::TS_INTERVAL_QUARTERS, "TS_INTERVAL_QUARTERS", "Skip by Quarters");
+    addItem(RimTimeStepFilter::TS_INTERVAL_YEARS, "TS_INTERVAL_YEARS", "Skip by Years");
 
-    template<>
-    void caf::AppEnum< RimTimeStepFilter::TimeStepFilterTypeEnum >::setUp()
-    {
-        addItem(RimTimeStepFilter::TS_ALL,                  "TS_ALL",               "All");
-        addItem(RimTimeStepFilter::TS_INTERVAL_DAYS,        "TS_INTERVAL_DAYS",     "Skip by Days");
-        addItem(RimTimeStepFilter::TS_INTERVAL_WEEKS,       "TS_INTERVAL_WEEKS",    "Skip by Weeks");
-        addItem(RimTimeStepFilter::TS_INTERVAL_MONTHS,      "TS_INTERVAL_MONTHS",   "Skip by Months");
-        addItem(RimTimeStepFilter::TS_INTERVAL_QUARTERS,    "TS_INTERVAL_QUARTERS", "Skip by Quarters");
-        addItem(RimTimeStepFilter::TS_INTERVAL_YEARS,       "TS_INTERVAL_YEARS",    "Skip by Years");
-
-        setDefault(RimTimeStepFilter::TS_ALL);
-    }
+    setDefault(RimTimeStepFilter::TS_ALL);
+}
 
 } // End namespace caf
-
 
 CAF_PDM_SOURCE_INIT(RimTimeStepFilter, "RimTimeStepFilter");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimTimeStepFilter::RimTimeStepFilter()
 {
     CAF_PDM_InitObject("Time Step Filter", "", "", "");
 
-    caf::AppEnum< RimTimeStepFilter::TimeStepFilterTypeEnum > filterType = TS_ALL;
+    caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum> filterType = TS_ALL;
     CAF_PDM_InitField(&m_filterType, "FilterType", filterType, "Filter Type", "", "", "");
 
     CAF_PDM_InitField(&m_firstTimeStep, "FirstTimeStep", 0, "First Time Step", "", "", "");
     CAF_PDM_InitField(&m_lastTimeStep, "LastTimeStep", 0, "Last Time Step", "", "", "");
 
     CAF_PDM_InitField(&m_interval, "Interval", 1, "Interval", "", "", "");
-    m_interval.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());    
+    m_interval.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&m_timeStepNamesFromFile, "TimeStepsFromFile", std::vector<QString>(), "TimeSteps From File", "", "", "");
     m_timeStepNamesFromFile.xmlCapability()->disableIO();
@@ -90,7 +89,7 @@ RimTimeStepFilter::RimTimeStepFilter()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTimeStepFilter::clearFilteredTimeSteps()
 {
@@ -98,12 +97,12 @@ void RimTimeStepFilter::clearFilteredTimeSteps()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<QDateTime>& timeSteps)
 {
     m_dateFormat = RiaQDateTimeTools::createTimeFormatStringFromDates(timeSteps);
-    
+
     std::vector<QString> timeStepStrings;
     for (const QDateTime& date : timeSteps)
     {
@@ -113,7 +112,7 @@ void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<QDateTime>& timeS
     }
 
     m_timeStepNamesFromFile = timeStepStrings;
-    m_lastTimeStep = static_cast<int>(timeSteps.size()) - 1;
+    m_lastTimeStep          = static_cast<int>(timeSteps.size()) - 1;
 
     if (m_filteredTimeSteps().empty())
     {
@@ -123,7 +122,7 @@ void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<QDateTime>& timeS
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<std::pair<QString, QDateTime>>& timeSteps)
 {
@@ -136,7 +135,7 @@ void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<std::pair<QString
         }
     }
     m_dateFormat = RiaQDateTimeTools::createTimeFormatStringFromDates(validDates);
-    
+
     std::vector<QString> timeStepStrings;
     for (auto stringDatePair : timeSteps)
     {
@@ -149,7 +148,7 @@ void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<std::pair<QString
     }
 
     m_timeStepNamesFromFile = timeStepStrings;
-    m_lastTimeStep = static_cast<int>(timeSteps.size()) - 1;
+    m_lastTimeStep          = static_cast<int>(timeSteps.size()) - 1;
 
     if (m_filteredTimeSteps().empty())
     {
@@ -159,13 +158,13 @@ void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<std::pair<QString
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RimTimeStepFilter::filteredTimeSteps() const
 {
     std::vector<size_t> indices;
 
-    // Convert vector from int to size_t 
+    // Convert vector from int to size_t
     for (int index : m_filteredTimeSteps())
     {
         indices.push_back(static_cast<size_t>(index));
@@ -185,17 +184,19 @@ bool RimTimeStepFilter::updateFilteredTimeStepsFromUi()
     {
         return false;
     }
-    m_filteredTimeSteps = timeSteps;    
+    m_filteredTimeSteps = timeSteps;
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimTimeStepFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimTimeStepFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                         const QVariant&            oldValue,
+                                         const QVariant&            newValue)
 {
     RimEclipseResultCase* rimEclipseResultCase = parentEclipseResultCase();
-    RimGeoMechCase* rimGeoMechCase = parentGeoMechCase();
+    RimGeoMechCase*       rimGeoMechCase       = parentGeoMechCase();
     if (changedField == &m_applyReloadOfCase)
     {
         if (updateFilteredTimeStepsFromUi())
@@ -213,9 +214,7 @@ void RimTimeStepFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         }
     }
 
-    if (changedField == &m_filterType ||
-        changedField == &m_firstTimeStep ||
-        changedField == &m_lastTimeStep ||
+    if (changedField == &m_filterType || changedField == &m_firstTimeStep || changedField == &m_lastTimeStep ||
         changedField == &m_interval)
     {
         m_filteredTimeStepsUi = filteredTimeStepIndicesFromUi();
@@ -232,14 +231,14 @@ void RimTimeStepFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimTimeStepFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimTimeStepFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                       bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> optionItems;
 
-    if (fieldNeedingOptions == &m_firstTimeStep ||
-        fieldNeedingOptions == &m_lastTimeStep)
+    if (fieldNeedingOptions == &m_firstTimeStep || fieldNeedingOptions == &m_lastTimeStep)
     {
         for (size_t i = 0; i < m_timeStepNamesFromFile().size(); i++)
         {
@@ -254,7 +253,8 @@ QList<caf::PdmOptionItemInfo> RimTimeStepFilter::calculateValueOptions(const caf
         {
             if (filteredIndex < static_cast<int>(m_timeStepNamesFromFile().size()))
             {
-                optionItems.push_back(caf::PdmOptionItemInfo(m_timeStepNamesFromFile()[filteredIndex], static_cast<int>(filteredIndex)));
+                optionItems.push_back(
+                    caf::PdmOptionItemInfo(m_timeStepNamesFromFile()[filteredIndex], static_cast<int>(filteredIndex)));
             }
         }
     }
@@ -263,9 +263,11 @@ QList<caf::PdmOptionItemInfo> RimTimeStepFilter::calculateValueOptions(const caf
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimTimeStepFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimTimeStepFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                              QString                    uiConfigName,
+                                              caf::PdmUiEditorAttribute* attribute)
 {
     if (field == &m_applyReloadOfCase)
     {
@@ -286,7 +288,7 @@ void RimTimeStepFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<QString, QDateTime>> RimTimeStepFilter::allTimeSteps() const
 {
@@ -295,11 +297,11 @@ std::vector<std::pair<QString, QDateTime>> RimTimeStepFilter::allTimeSteps() con
     {
         timeSteps.push_back(std::make_pair(dateString, QDateTime::fromString(dateString, m_dateFormat)));
     }
-    return  timeSteps;    
+    return timeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<int> RimTimeStepFilter::filteredTimeStepIndicesFromUi() const
 {
@@ -352,7 +354,7 @@ std::vector<int> RimTimeStepFilter::filteredTimeStepIndicesFromUi() const
                     {
                         d = d.addDays(daysToSkip);
                         indices.push_back(i);
-                    }                    
+                    }
                 }
                 else
                 {
@@ -360,14 +362,14 @@ std::vector<int> RimTimeStepFilter::filteredTimeStepIndicesFromUi() const
                     indices.push_back(i);
                 }
             }
-        }      
+        }
     }
 
     return indices;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTimeStepFilter::updateFieldVisibility()
 {
@@ -382,7 +384,7 @@ void RimTimeStepFilter::updateFieldVisibility()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseResultCase* RimTimeStepFilter::parentEclipseResultCase() const
 {
@@ -403,7 +405,7 @@ RimGeoMechCase* RimTimeStepFilter::parentGeoMechCase() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimTimeStepFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -412,14 +414,14 @@ void RimTimeStepFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add(&m_lastTimeStep);
     uiOrdering.add(&m_interval);
     uiOrdering.add(&m_filteredTimeStepsUi);
-    size_t numberOfFilterOptions = filteredTimeStepIndicesFromUi().size();
-    QString displayUiName = QString("Select From %1 Time Steps:").arg(numberOfFilterOptions);
+    size_t  numberOfFilterOptions = filteredTimeStepIndicesFromUi().size();
+    QString displayUiName         = QString("Select From %1 Time Steps:").arg(numberOfFilterOptions);
     m_filteredTimeStepsUi.uiCapability()->setUiName(displayUiName);
 
     bool caseLoaded = false;
 
     RimEclipseResultCase* eclipseCase = parentEclipseResultCase();
-    RimGeoMechCase* geoMechCase = parentGeoMechCase();
+    RimGeoMechCase*       geoMechCase = parentGeoMechCase();
 
     if (eclipseCase)
     {

@@ -66,7 +66,7 @@ public:
     size_t globalCellIndexFromTriangleIndex(cvf::uint triangleIndex) const;
 
 private:
-    size_t mapFromTriangleToConnectionIndex(cvf::uint triangleIndex) const;
+    size_t                     mapFromTriangleToConnectionIndex(cvf::uint triangleIndex) const;
     cvf::ref<cvf::DrawableGeo> createSurfaceGeometry();
 
     static cvf::Mat4f rotationMatrixBetweenVectors(const cvf::Vec3d& v1, const cvf::Vec3d& v2);

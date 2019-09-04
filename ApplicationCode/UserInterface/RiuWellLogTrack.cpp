@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,9 +21,9 @@
 
 #include "RiaApplication.h"
 
+#include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-#include "RimWellLogCurve.h"
 
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtCurvePointTracker.h"
@@ -48,32 +48,28 @@
 
 #include <cfloat>
 
-#define RIU_SCROLLWHEEL_ZOOMFACTOR  1.1
-#define RIU_SCROLLWHEEL_PANFACTOR   0.1
+#define RIU_SCROLLWHEEL_ZOOMFACTOR 1.1
+#define RIU_SCROLLWHEEL_PANFACTOR 0.1
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuWellLogTrack::RiuWellLogTrack(RimWellLogTrack* plotTrackDefinition, QWidget* parent)
     : QwtPlot(parent)
 {
     Q_ASSERT(plotTrackDefinition);
     m_plotTrackDefinition = plotTrackDefinition;
-   
+
     setDefaults();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuWellLogTrack::~RiuWellLogTrack()
-{
-  
-}
-
+RiuWellLogTrack::~RiuWellLogTrack() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogTrack::setDefaults()
 {
@@ -91,11 +87,10 @@ void RiuWellLogTrack::setDefaults()
     axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Floating, true);
     setAxisScale(QwtPlot::yLeft, 1000, 0);
     setXRange(0, 100);
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogTrack::setDepthZoom(double minDepth, double maxDepth)
 {
@@ -104,7 +99,7 @@ void RiuWellLogTrack::setDepthZoom(double minDepth, double maxDepth)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogTrack::setXRange(double min, double max, QwtPlot::Axis axis)
 {
@@ -112,7 +107,7 @@ void RiuWellLogTrack::setXRange(double min, double max, QwtPlot::Axis axis)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogTrack::setDepthTitle(const QString& title)
 {
@@ -125,7 +120,7 @@ void RiuWellLogTrack::setDepthTitle(const QString& title)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogTrack::setXTitle(const QString& title)
 {
@@ -138,7 +133,7 @@ void RiuWellLogTrack::setXTitle(const QString& title)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RiuWellLogTrack::eventFilter(QObject* watched, QEvent* event)
 {
@@ -161,8 +156,8 @@ bool RiuWellLogTrack::eventFilter(QObject* watched, QEvent* event)
 
             if (wheelEvent->modifiers() & Qt::ControlModifier)
             {
-                QwtScaleMap scaleMap = canvasMap(QwtPlot::yLeft);
-                double zoomCenter = scaleMap.invTransform(wheelEvent->pos().y());
+                QwtScaleMap scaleMap   = canvasMap(QwtPlot::yLeft);
+                double      zoomCenter = scaleMap.invTransform(wheelEvent->pos().y());
 
                 if (wheelEvent->delta() > 0)
                 {
@@ -170,7 +165,7 @@ bool RiuWellLogTrack::eventFilter(QObject* watched, QEvent* event)
                 }
                 else
                 {
-                    plotDefinition->setDepthZoomByFactorAndCenter(1.0/RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter);
+                    plotDefinition->setDepthZoomByFactorAndCenter(1.0 / RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter);
                 }
             }
             else
@@ -198,25 +193,25 @@ bool RiuWellLogTrack::eventFilter(QObject* watched, QEvent* event)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogTrack::selectClosestCurve(const QPoint& pos)
 {
     QwtPlotCurve* closestCurve = nullptr;
-    double distMin = DBL_MAX;
+    double        distMin      = DBL_MAX;
 
     const QwtPlotItemList& itmList = itemList();
     for (QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++)
     {
-        if ((*it )->rtti() == QwtPlotItem::Rtti_PlotCurve )
+        if ((*it)->rtti() == QwtPlotItem::Rtti_PlotCurve)
         {
             QwtPlotCurve* candidateCurve = static_cast<QwtPlotCurve*>(*it);
-            double dist = DBL_MAX;
+            double        dist           = DBL_MAX;
             candidateCurve->closestPoint(pos, &dist);
             if (dist < distMin)
             {
                 closestCurve = candidateCurve;
-                distMin = dist;
+                distMin      = dist;
             }
         }
     }
@@ -238,7 +233,7 @@ void RiuWellLogTrack::selectClosestCurve(const QPoint& pos)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuWellLogTrack::sizeHint() const
 {
@@ -246,16 +241,15 @@ QSize RiuWellLogTrack::sizeHint() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuWellLogTrack::minimumSizeHint() const
 {
     return QSize(0, 0);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RiuWellLogTrack::isRimTrackVisible()
 {
@@ -263,8 +257,8 @@ bool RiuWellLogTrack::isRimTrackVisible()
     {
         return m_plotTrackDefinition->isVisible();
     }
-   
-   return false;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -320,7 +314,6 @@ void RiuWellLogTrack::enableDepthGridLines(bool majorGridLines, bool minorGridLi
         grid->setMajorPen(Qt::lightGray, 1.0, Qt::SolidLine);
         grid->setMinorPen(Qt::lightGray, 1.0, Qt::DashLine);
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -332,8 +325,9 @@ void RiuWellLogTrack::setMajorAndMinorTickIntervals(double majorTickInterval, do
     if (scaleEngine)
     {
         QwtInterval currentRange = this->axisInterval(QwtPlot::xTop);
-        QwtScaleDiv scaleDiv = scaleEngine->divideScaleWithExplicitIntervals(currentRange.minValue(), currentRange.maxValue(), majorTickInterval, minorTickInterval);
-    
+        QwtScaleDiv scaleDiv     = scaleEngine->divideScaleWithExplicitIntervals(
+            currentRange.minValue(), currentRange.maxValue(), majorTickInterval, minorTickInterval);
+
         this->setAxisScaleDiv(QwtPlot::xTop, scaleDiv);
     }
 }
@@ -345,7 +339,7 @@ void RiuWellLogTrack::setAutoTickIntervalCounts(int maxMajorTickIntervalCount, i
 {
     this->setAxisMaxMajor(QwtPlot::xTop, maxMajorTickIntervalCount);
     this->setAxisMaxMinor(QwtPlot::xTop, maxMinorTickIntervalCount);
-	// Reapply axis limits to force Qwt to use the tick settings.
+    // Reapply axis limits to force Qwt to use the tick settings.
     QwtInterval currentRange = this->axisInterval(QwtPlot::xTop);
     this->setXRange(currentRange.minValue(), currentRange.maxValue());
 }
@@ -355,7 +349,7 @@ void RiuWellLogTrack::setAutoTickIntervalCounts(int maxMajorTickIntervalCount, i
 //--------------------------------------------------------------------------------------------------
 double RiuWellLogTrack::getCurrentMajorTickInterval() const
 {
-    QwtScaleDiv scaleDiv = this->axisScaleDiv(QwtPlot::xTop);
+    QwtScaleDiv   scaleDiv   = this->axisScaleDiv(QwtPlot::xTop);
     QList<double> majorTicks = scaleDiv.ticks(QwtScaleDiv::MajorTick);
     if (majorTicks.size() < 2) return 0.0;
 
@@ -367,11 +361,9 @@ double RiuWellLogTrack::getCurrentMajorTickInterval() const
 //--------------------------------------------------------------------------------------------------
 double RiuWellLogTrack::getCurrentMinorTickInterval() const
 {
-    QwtScaleDiv scaleDiv = this->axisScaleDiv(QwtPlot::xTop);
+    QwtScaleDiv   scaleDiv   = this->axisScaleDiv(QwtPlot::xTop);
     QList<double> minorTicks = scaleDiv.ticks(QwtScaleDiv::MinorTick);
     if (minorTicks.size() < 2) return 0.0;
 
     return minorTicks.at(1) - minorTicks.at(0);
-
 }
-

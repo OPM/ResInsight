@@ -1,5 +1,5 @@
 
-#if 0  // Simplified ecl library access methods
+#if 0 // Simplified ecl library access methods
 typedef double (block_function_ftype) ( const double_vector_type *); 
 typedef struct ecl_grid_struct ecl_grid_type;
 
@@ -249,7 +249,5 @@ void            ecl_file_fprintf_kw_list( const ecl_file_type * ecl_file , FILE 
 
 // Find all files in a directory of specified ECLIPSE type and return as a list of strings
 int ecl_util_select_filelist( const char * path , const char * base , ecl_file_enum file_type , bool fmt_file , stringlist_type * filelist) {
-
-
 
 #endif

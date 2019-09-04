@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -50,15 +50,16 @@ public:
     bool                                      foundErrors() const;
     QString                                   createCombinedErrorMessage() const;
 
-    static QString     getSummaryFileFromGridFile(const QString& gridFile);
+    static QString getSummaryFileFromGridFile(const QString& gridFile);
 
 private:
     void determineFilesToImport(const std::vector<RifSummaryCaseFileImportInfo>& initialFiles);
-    void determineFilesToImportByAskingUser(const std::vector<RifSummaryCaseFileImportInfo>& initialFiles, bool enableApplyToAllField);
+    void determineFilesToImportByAskingUser(const std::vector<RifSummaryCaseFileImportInfo>& initialFiles,
+                                            bool                                             enableApplyToAllField);
     void determineFilesToImportUsingPrefs(const std::vector<RifSummaryCaseFileImportInfo>& initialFiles);
 
-    bool                                       m_showDialog;
-    bool                                       m_ensembleOrGroupMode;
+    bool m_showDialog;
+    bool m_ensembleOrGroupMode;
 
     std::vector<RifSummaryCaseFileResultInfo> m_summaryFileInfos;
     QStringList                               m_gridFiles;
@@ -66,13 +67,12 @@ private:
 };
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class RifSummaryCaseFileImportInfo
 {
 public:
-    RifSummaryCaseFileImportInfo(const QString& summaryFileName,
-                                 const QString& gridFileName);
+    RifSummaryCaseFileImportInfo(const QString& summaryFileName, const QString& gridFileName);
 
     const QString& summaryFileName() const;
     const QString& gridFileName() const;
@@ -91,8 +91,7 @@ private:
 class RifSummaryCaseFileResultInfo
 {
 public:
-    RifSummaryCaseFileResultInfo(const QString& summaryFileName, 
-                                 bool           includeRestartFiles);
+    RifSummaryCaseFileResultInfo(const QString& summaryFileName, bool includeRestartFiles);
 
     const QString& summaryFileName() const;
     bool           includeRestartFiles() const;
@@ -104,4 +103,3 @@ private:
     QString m_summaryFileName;
     bool    m_includeRestartFiles;
 };
-

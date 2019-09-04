@@ -100,20 +100,21 @@ private:
     typedef std::map<std::shared_ptr<RicMswCompletion>, std::set<std::pair<const RimWellPathValve*, size_t>>>
         ValveContributionMap;
 
-    static MainBoreSegments createMainBoreSegmentsForPerforations(const std::vector<SubSegmentIntersectionInfo>&    subSegIntersections,
-                                                   const std::vector<const RimPerforationInterval*>& perforationIntervals,
-                                                   const RimWellPath*                                wellPath,
-                                                   int                                               timeStep,
-                                                   RimEclipseCase*                                   eclipseCase,
-                                                   bool*                                             foundSubGridIntersections);
+    static MainBoreSegments
+        createMainBoreSegmentsForPerforations(const std::vector<SubSegmentIntersectionInfo>&    subSegIntersections,
+                                              const std::vector<const RimPerforationInterval*>& perforationIntervals,
+                                              const RimWellPath*                                wellPath,
+                                              int                                               timeStep,
+                                              RimEclipseCase*                                   eclipseCase,
+                                              bool*                                             foundSubGridIntersections);
 
-    static void createValveCompletions(std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
-                                            const std::vector<const RimPerforationInterval*>& perforationIntervals,
-                                            RiaEclipseUnitTools::UnitSystem unitSystem);
+    static void createValveCompletions(std::vector<std::shared_ptr<RicMswSegment>>&      mainBoreSegments,
+                                       const std::vector<const RimPerforationInterval*>& perforationIntervals,
+                                       RiaEclipseUnitTools::UnitSystem                   unitSystem);
 
     static void assignValveContributionsToSuperICDsOrAICDs(const std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
-                                                      const std::vector<const RimPerforationInterval*>&  perforationIntervals,
-                                                      RiaEclipseUnitTools::UnitSystem                    unitSystem);
+                                                           const std::vector<const RimPerforationInterval*>& perforationIntervals,
+                                                           RiaEclipseUnitTools::UnitSystem                   unitSystem);
 
     static void moveIntersectionsToICVs(const std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
                                         const std::vector<const RimPerforationInterval*>&  perforationIntervals,
@@ -139,16 +140,15 @@ private:
                                                                            RimEclipseCase*               eclipseCase);
 
     static void assignPerforationIntersections(const std::vector<RigCompletionData>& completionData,
-                                               std::shared_ptr<RicMswCompletion> perforationCompletion,
-                                               const SubSegmentIntersectionInfo& cellIntInfo,
-                                               double overlapStart,
-                                               double overlapEnd,
-                                               bool* foundSubGridIntersections);
+                                               std::shared_ptr<RicMswCompletion>     perforationCompletion,
+                                               const SubSegmentIntersectionInfo&     cellIntInfo,
+                                               double                                overlapStart,
+                                               double                                overlapEnd,
+                                               bool*                                 foundSubGridIntersections);
 
     static void assignBranchAndSegmentNumbers(const RimEclipseCase*          caseToApply,
                                               std::shared_ptr<RicMswSegment> location,
                                               int*                           branchNum,
                                               int*                           segmentNum);
-    static void assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply, RicMswExportInfo* exportInfo);    
-
+    static void assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply, RicMswExportInfo* exportInfo);
 };

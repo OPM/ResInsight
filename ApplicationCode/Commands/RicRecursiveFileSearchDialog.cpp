@@ -1,50 +1,50 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicRecursiveFileSearchDialog.h"
 
-#include "RiaGuiApplication.h"
 #include "RiaFilePathTools.h"
+#include "RiaGuiApplication.h"
 
 #include "RiuTools.h"
 
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QTextEdit>
-#include <QDialogButtonBox>
-#include <QPushButton>
-#include <QToolBar>
+#include <QAbstractItemView>
 #include <QAction>
+#include <QClipboard>
+#include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QGroupBox>
+#include <QLabel>
+#include <QLineEdit>
 #include <QListWidget>
-#include <QAbstractItemView>
 #include <QMenu>
+#include <QPushButton>
+#include <QTextEdit>
 #include <QTime>
+#include <QToolBar>
 #include <QToolTip>
-#include <QClipboard>
+#include <QVBoxLayout>
 
 #include <vector>
 
-#define RECURSIVE_FILESEARCH_DEFAULT_DIALOG_HEIGHT  350
-#define FIND_BUTTON_FIND_TEXT       "Find"
-#define FILES_FOUND_TEXT            "Files Found"
+#define RECURSIVE_FILESEARCH_DEFAULT_DIALOG_HEIGHT 350
+#define FIND_BUTTON_FIND_TEXT "Find"
+#define FILES_FOUND_TEXT "Files Found"
 
 //--------------------------------------------------------------------------------------------------
 /// Internal variables
@@ -54,20 +54,20 @@ static const QChar SEPARATOR = RiaFilePathTools::SEPARATOR;
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-static QStringList  trimLeftStrings(const QStringList& strings, const QString& trimText);
-static void         sortStringsByLength(QStringList& strings, bool ascending = true);
+static QStringList trimLeftStrings(const QStringList& strings, const QString& trimText);
+static void        sortStringsByLength(QStringList& strings, bool ascending = true);
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSearchDialog(QWidget *parent,
-                                                                                          const QString &caption,
-                                                                                          const QString &dir,
-                                                                                          const QString &pathFilter ,
-                                                                                          const QString &fileNameFilter,
-                                                                                          const QStringList &fileExtensions)
+RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSearchDialog(QWidget*           parent,
+                                                                                          const QString&     caption,
+                                                                                          const QString&     dir,
+                                                                                          const QString&     pathFilter,
+                                                                                          const QString&     fileNameFilter,
+                                                                                          const QStringList& fileExtensions)
 {
-    RicRecursiveFileSearchDialog  dialog(parent);
+    RicRecursiveFileSearchDialog dialog(parent);
 
     dialog.setWindowTitle(caption);
 
@@ -93,23 +93,23 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog(QWidget* parent)
     : QDialog(parent, RiuTools::defaultDialogFlags())
 {
     // Create widgets
-    m_browseButton                  = new QPushButton();
-    m_pathFilterLabel               = new QLabel();
-    m_pathFilterField               = new QLineEdit();
-    m_fileFilterLabel               = new QLabel();
-    m_fileFilterField               = new QLineEdit();
-    m_effectiveFilterLabel          = new QLabel();
-    m_effectiveFilterContentLabel   = new QLabel();
-    m_searchRootLabel               = new QLabel();
-    m_searchRootContentLabel        = new QLabel();
-    m_findOrCancelButton            = new QPushButton();
-    m_fileListWidget                = new QListWidget();
+    m_browseButton                = new QPushButton();
+    m_pathFilterLabel             = new QLabel();
+    m_pathFilterField             = new QLineEdit();
+    m_fileFilterLabel             = new QLabel();
+    m_fileFilterField             = new QLineEdit();
+    m_effectiveFilterLabel        = new QLabel();
+    m_effectiveFilterContentLabel = new QLabel();
+    m_searchRootLabel             = new QLabel();
+    m_searchRootContentLabel      = new QLabel();
+    m_findOrCancelButton          = new QPushButton();
+    m_fileListWidget              = new QListWidget();
 
     m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
@@ -117,12 +117,15 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog(QWidget* parent)
     connect(m_pathFilterField, SIGNAL(textChanged(const QString&)), this, SLOT(slotFilterChanged(const QString&)));
     connect(m_fileFilterField, SIGNAL(textChanged(const QString&)), this, SLOT(slotFilterChanged(const QString&)));
 
-    connect(m_fileListWidget, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(slotFileListCustomMenuRequested(const QPoint&)));
+    connect(m_fileListWidget,
+            SIGNAL(customContextMenuRequested(const QPoint&)),
+            this,
+            SLOT(slotFileListCustomMenuRequested(const QPoint&)));
 
     connect(m_browseButton, SIGNAL(clicked()), this, SLOT(slotBrowseButtonClicked()));
-    
+
     connect(m_findOrCancelButton, SIGNAL(clicked()), this, SLOT(slotFindOrCancelButtonClicked()));
-    
+
     connect(m_buttons, SIGNAL(accepted()), this, SLOT(slotDialogOkClicked()));
     connect(m_buttons, SIGNAL(rejected()), this, SLOT(slotDialogCancelClicked()));
 
@@ -142,7 +145,7 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog(QWidget* parent)
     m_fileListWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     m_fileListWidget->setSortingEnabled(true);
     m_fileListWidget->setMinimumHeight(350);
-    
+
     m_browseButton->setText("...");
     m_browseButton->setFixedWidth(25);
 
@@ -153,7 +156,7 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog(QWidget* parent)
     // Define layout
     QVBoxLayout* dialogLayout = new QVBoxLayout();
 
-    QGroupBox* inputGroup = new QGroupBox("Filter");
+    QGroupBox*   inputGroup      = new QGroupBox("Filter");
     QGridLayout* inputGridLayout = new QGridLayout();
     inputGridLayout->addWidget(m_pathFilterLabel, 0, 0);
     inputGridLayout->addWidget(m_pathFilterField, 0, 1, 1, 2);
@@ -166,12 +169,12 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog(QWidget* parent)
 
     inputGroup->setLayout(inputGridLayout);
 
-    m_outputGroup = new QGroupBox("Files Found");
+    m_outputGroup                 = new QGroupBox("Files Found");
     QGridLayout* outputGridLayout = new QGridLayout();
     outputGridLayout->addWidget(m_searchRootLabel, 1, 0);
     outputGridLayout->addWidget(m_searchRootContentLabel, 1, 1);
 
-    //outputGridLayout->addWidget(m_fileListLabel, 2, 0);
+    // outputGridLayout->addWidget(m_fileListLabel, 2, 0);
     outputGridLayout->addWidget(m_fileListWidget, 2, 0, 1, 3);
     m_outputGroup->setLayout(outputGridLayout);
 
@@ -181,7 +184,7 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog(QWidget* parent)
 
     setLayout(dialogLayout);
 
-    QString pathFilterHelpText = 
+    QString pathFilterHelpText =
         "The path filter uses normal wildcard file globbing, like in any unix shell. \n"
         "When the filter ends with a single \"*\" (eg. \"/home/*\"), however, ResInsight will \n"
         "search recursively in all subdirectories from that point.\n"
@@ -189,66 +192,60 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog(QWidget* parent)
         "\n"
         "An asterix \"*\" matches any number of any characters, except the path separator.\n"
         "A question mark \"?\" matches any single character, except the path separator.\n"
-        "Square brackets \"[]\" encloses a list of characters and matches one of the enclosed characters.\n" 
+        "Square brackets \"[]\" encloses a list of characters and matches one of the enclosed characters.\n"
         "they are also used to escape the characters *,? and []";
-        
 
     // https://doc.qt.io/qt-5/qregularexpression.html#wildcardToRegularExpression
 
     m_pathFilterLabel->setToolTip(pathFilterHelpText);
     m_pathFilterField->setToolTip(pathFilterHelpText);
 
-    QString fileFilterHelpText = 
-        "The file filter uses normal wildcards, but is not allowed to contain path separators. ";
+    QString fileFilterHelpText = "The file filter uses normal wildcards, but is not allowed to contain path separators. ";
 
     m_fileFilterLabel->setToolTip(fileFilterHelpText);
     m_fileFilterField->setToolTip(fileFilterHelpText);
 
-    QString effectiveFilterHelpText = 
-        "This label displays the complete filter that is being applied. \n"
-        "The possible \"...\" indicates a complete recursive directory search.";
+    QString effectiveFilterHelpText = "This label displays the complete filter that is being applied. \n"
+                                      "The possible \"...\" indicates a complete recursive directory search.";
 
     m_effectiveFilterLabel->setToolTip(effectiveFilterHelpText);
     m_effectiveFilterContentLabel->setToolTip(effectiveFilterHelpText);
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicRecursiveFileSearchDialog::~RicRecursiveFileSearchDialog()
-{
-}
+RicRecursiveFileSearchDialog::~RicRecursiveFileSearchDialog() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicRecursiveFileSearchDialog::cleanTextFromPathFilterField() const
 {
     QString pathFilterText = m_pathFilterField->text().trimmed();
-    pathFilterText = RiaFilePathTools::toInternalSeparator(pathFilterText);
-    pathFilterText = RiaFilePathTools::removeDuplicatePathSeparators(pathFilterText);
+    pathFilterText         = RiaFilePathTools::toInternalSeparator(pathFilterText);
+    pathFilterText         = RiaFilePathTools::removeDuplicatePathSeparators(pathFilterText);
     pathFilterText.replace(QString("**"), QString("*"));
     return pathFilterText;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicRecursiveFileSearchDialog::rootDirWithEndSeparator() const
 {
     QString rootDir = this->cleanTextFromPathFilterField();
-    rootDir = RiaFilePathTools::rootSearchPathFromSearchFilter(rootDir);
+    rootDir         = RiaFilePathTools::rootSearchPathFromSearchFilter(rootDir);
     return RiaFilePathTools::appendSeparatorIfNo(rootDir);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicRecursiveFileSearchDialog::pathFilterWithoutStartSeparator() const
 {
     QString pathFilter = this->cleanTextFromPathFilterField();
-    QString rootDir = RiaFilePathTools::rootSearchPathFromSearchFilter(pathFilter);
+    QString rootDir    = RiaFilePathTools::rootSearchPathFromSearchFilter(pathFilter);
 
     pathFilter.remove(0, rootDir.size());
     if (pathFilter.startsWith(SEPARATOR)) pathFilter.remove(0, 1);
@@ -256,7 +253,7 @@ QString RicRecursiveFileSearchDialog::pathFilterWithoutStartSeparator() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicRecursiveFileSearchDialog::fileNameFilter() const
 {
@@ -264,14 +261,14 @@ QString RicRecursiveFileSearchDialog::fileNameFilter() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QStringList RicRecursiveFileSearchDialog::fileExtensions() const
 {
     QString extFromFilter = extensionFromFileNameFilter();
     if (!extFromFilter.isEmpty())
     {
-        return QStringList({ extFromFilter });
+        return QStringList({extFromFilter});
     }
 
     QStringList exts = m_fileExtensions;
@@ -295,7 +292,7 @@ QString RicRecursiveFileSearchDialog::extensionFromFileNameFilter() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::updateFileListWidget()
 {
@@ -314,7 +311,7 @@ void RicRecursiveFileSearchDialog::updateFileListWidget()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::clearFileList()
 {
@@ -325,24 +322,28 @@ void RicRecursiveFileSearchDialog::clearFileList()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::updateStatus(Status status, const QString& extraText)
 {
-    static int progressLoopStep = 0;
+    static int   progressLoopStep = 0;
     static QTime lastStatusUpdate = QTime::currentTime();
-    QTime now = QTime::currentTime();
+    QTime        now              = QTime::currentTime();
 
     // Do not update dialog more often than twice per second to avoid text update from slowing down search progress
     if (status != NO_FILES_FOUND && lastStatusUpdate.msecsTo(now) < 250) return;
 
     QString newStatus;
-    if (status == SEARCHING_FOR_DIRS || status == SEARCHING_FOR_FILES )
+    if (status == SEARCHING_FOR_DIRS || status == SEARCHING_FOR_FILES)
     {
-        switch ( status )
+        switch (status)
         {
-            case SEARCHING_FOR_DIRS: newStatus = "Scanning Directories"; break;
-            case SEARCHING_FOR_FILES: newStatus = "Finding Files"; break;
+            case SEARCHING_FOR_DIRS:
+                newStatus = "Scanning Directories";
+                break;
+            case SEARCHING_FOR_FILES:
+                newStatus = "Finding Files";
+                break;
         }
 
         for (int progress = 0; progress < progressLoopStep; ++progress)
@@ -366,7 +367,7 @@ void RicRecursiveFileSearchDialog::updateStatus(Status status, const QString& ex
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QStringList RicRecursiveFileSearchDialog::findMatchingFiles()
 {
@@ -375,23 +376,22 @@ QStringList RicRecursiveFileSearchDialog::findMatchingFiles()
     QStringList dirs;
 
     QString pathFilter = this->pathFilterWithoutStartSeparator();
-    QString rootDir = this->rootDirWithEndSeparator();
+    QString rootDir    = this->rootDirWithEndSeparator();
     if (rootDir.size() > 1 && rootDir.endsWith(SEPARATOR)) rootDir.chop(1);
 
     buildDirectoryListRecursiveSimple(rootDir, pathFilter, &dirs);
-    
 
     return findFilesInDirs(dirs);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::buildDirectoryListRecursiveSimple(const QString& currentDirFullPathNoEndSeparator,
                                                                      const QString& currentPathFilterNoEndSeparator,
-                                                                     QStringList* accumulatedDirs)
+                                                                     QStringList*   accumulatedDirs)
 {
-    QString currDir = currentDirFullPathNoEndSeparator;
+    QString currDir    = currentDirFullPathNoEndSeparator;
     QString pathFilter = currentPathFilterNoEndSeparator;
 
     if (m_isCancelPressed)
@@ -420,8 +420,8 @@ void RicRecursiveFileSearchDialog::buildDirectoryListRecursiveSimple(const QStri
 
     for (const QString& subDir : subDirs)
     {
-        QString     fullPath = qdir.absoluteFilePath(subDir);
-        QString     nextPathFilter;
+        QString fullPath = qdir.absoluteFilePath(subDir);
+        QString nextPathFilter;
 
         if (pathFilterPartList.size() == 1 && pathFilterPartList[0] == "*")
         {
@@ -438,9 +438,8 @@ void RicRecursiveFileSearchDialog::buildDirectoryListRecursiveSimple(const QStri
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QStringList RicRecursiveFileSearchDialog::findFilesInDirs(const QStringList& dirs)
 {
@@ -449,7 +448,7 @@ QStringList RicRecursiveFileSearchDialog::findFilesInDirs(const QStringList& dir
 
     for (const auto& dir : dirs)
     {
-        QDir qdir(dir);
+        QDir        qdir(dir);
         QStringList files = qdir.entryList(filters, QDir::Files);
 
         if (m_isCancelPressed) return QStringList();
@@ -467,15 +466,15 @@ QStringList RicRecursiveFileSearchDialog::findFilesInDirs(const QStringList& dir
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QStringList RicRecursiveFileSearchDialog::createFileNameFilterList()
 {
-    QString fileNameFilter = this->fileNameFilter();
+    QString     fileNameFilter = this->fileNameFilter();
     QStringList fileExtensions = this->fileExtensions();
 
     QStringList nameFilter;
-    QString effectiveFileNameFilter = !fileNameFilter.isEmpty() ? fileNameFilter : "*";
+    QString     effectiveFileNameFilter = !fileNameFilter.isEmpty() ? fileNameFilter : "*";
 
     if (fileExtensions.size() == 0 || !extensionFromFileNameFilter().isEmpty())
     {
@@ -492,21 +491,19 @@ QStringList RicRecursiveFileSearchDialog::createFileNameFilterList()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::updateEffectiveFilter()
 {
     QString pathFilterText = pathFilterWithoutStartSeparator();
-    if (pathFilterText == "*" || pathFilterText.endsWith(QString(SEPARATOR) + "*")) 
+    if (pathFilterText == "*" || pathFilterText.endsWith(QString(SEPARATOR) + "*"))
     {
-         pathFilterText.chop(1);
-         pathFilterText = pathFilterText + "...";
+        pathFilterText.chop(1);
+        pathFilterText = pathFilterText + "...";
     }
 
-    QString effFilterText = QString("%1%2/%3")
-        .arg(rootDirWithEndSeparator())
-        .arg(pathFilterText)
-        .arg(createFileNameFilterList().join("|"));
+    QString effFilterText =
+        QString("%1%2/%3").arg(rootDirWithEndSeparator()).arg(pathFilterText).arg(createFileNameFilterList().join("|"));
 
     effFilterText = RiaFilePathTools::removeDuplicatePathSeparators(effFilterText);
 
@@ -516,7 +513,7 @@ void RicRecursiveFileSearchDialog::updateEffectiveFilter()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::setOkButtonEnabled(bool enabled)
 {
@@ -524,7 +521,7 @@ void RicRecursiveFileSearchDialog::setOkButtonEnabled(bool enabled)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::warningIfInvalidCharacters()
 {
@@ -541,7 +538,7 @@ void RicRecursiveFileSearchDialog::warningIfInvalidCharacters()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::slotFilterChanged(const QString& text)
 {
@@ -551,12 +548,12 @@ void RicRecursiveFileSearchDialog::slotFilterChanged(const QString& text)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::slotFileListCustomMenuRequested(const QPoint& point)
 {
-    QMenu menu;
-    QPoint globalPoint = point;
+    QMenu    menu;
+    QPoint   globalPoint = point;
     QAction* action;
 
     action = new QAction(QIcon(":/Copy.png"), "&Copy", this);
@@ -581,7 +578,7 @@ void RicRecursiveFileSearchDialog::slotFileListCustomMenuRequested(const QPoint&
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::slotToggleFileListItems()
 {
@@ -595,7 +592,7 @@ void RicRecursiveFileSearchDialog::slotToggleFileListItems()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::slotTurnOffFileListItems()
 {
@@ -609,7 +606,7 @@ void RicRecursiveFileSearchDialog::slotTurnOffFileListItems()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::slotTurnOnFileListItems()
 {
@@ -623,7 +620,7 @@ void RicRecursiveFileSearchDialog::slotTurnOnFileListItems()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::slotCopyFileItemText()
 {
@@ -635,7 +632,7 @@ void RicRecursiveFileSearchDialog::slotCopyFileItemText()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::slotFindOrCancelButtonClicked()
 {
@@ -643,19 +640,20 @@ void RicRecursiveFileSearchDialog::slotFindOrCancelButtonClicked()
     {
         clearFileList();
 
-        if(!m_fileListWidget->isVisible())
+        if (!m_fileListWidget->isVisible())
         {
             m_fileListWidget->setVisible(true);
             m_searchRootLabel->setVisible(true);
             m_searchRootContentLabel->setVisible(true);
 
-            if(height() < RECURSIVE_FILESEARCH_DEFAULT_DIALOG_HEIGHT) resize(width(), RECURSIVE_FILESEARCH_DEFAULT_DIALOG_HEIGHT);
+            if (height() < RECURSIVE_FILESEARCH_DEFAULT_DIALOG_HEIGHT)
+                resize(width(), RECURSIVE_FILESEARCH_DEFAULT_DIALOG_HEIGHT);
         }
 
         m_findOrCancelButton->setText("Cancel");
 
         m_isCancelPressed = false;
-        m_foundFiles = findMatchingFiles();
+        m_foundFiles      = findMatchingFiles();
         this->updateFileListWidget();
 
         m_findOrCancelButton->setText(FIND_BUTTON_FIND_TEXT);
@@ -664,7 +662,7 @@ void RicRecursiveFileSearchDialog::slotFindOrCancelButtonClicked()
         {
             clearFileList();
         }
-        else if(m_foundFiles.isEmpty())
+        else if (m_foundFiles.isEmpty())
         {
             updateStatus(NO_FILES_FOUND);
         }
@@ -683,7 +681,7 @@ void RicRecursiveFileSearchDialog::slotFindOrCancelButtonClicked()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::slotDialogOkClicked()
 {
@@ -702,35 +700,34 @@ void RicRecursiveFileSearchDialog::slotDialogOkClicked()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::slotDialogCancelClicked()
 {
-    m_foundFiles = QStringList();
+    m_foundFiles      = QStringList();
     m_isCancelPressed = true;
     reject();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::slotBrowseButtonClicked()
 {
     QString folder = QFileDialog::getExistingDirectory(this, "Select folder", rootDirWithEndSeparator());
     RiaFilePathTools::appendSeparatorIfNo(folder);
     folder += "*";
-    if(!folder.isEmpty()) m_pathFilterField->setText(QDir::toNativeSeparators(folder));
+    if (!folder.isEmpty()) m_pathFilterField->setText(QDir::toNativeSeparators(folder));
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QStringList  trimLeftStrings(const QStringList& strings, const QString& trimText)
+QStringList trimLeftStrings(const QStringList& strings, const QString& trimText)
 {
     QStringList trimmedStrings;
     for (const auto& string : strings)
@@ -746,13 +743,13 @@ QStringList  trimLeftStrings(const QStringList& strings, const QString& trimText
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void sortStringsByLength(QStringList& strings, bool ascending /*= true*/)
 {
-    QStringList sorted = strings;
-    int numItems = sorted.size();
-    bool swapped;
+    QStringList sorted   = strings;
+    int         numItems = sorted.size();
+    bool        swapped;
     do
     {
         swapped = false;
@@ -763,16 +760,13 @@ void sortStringsByLength(QStringList& strings, bool ascending /*= true*/)
             if (ascending && s0 > s1 || !ascending && s0 < s1)
             {
                 const QString temp = strings[i];
-                strings[i] = strings[i + 1];
-                strings[i + 1] = temp;
-                swapped = true;
+                strings[i]         = strings[i + 1];
+                strings[i + 1]     = temp;
+                swapped            = true;
             }
         }
     } while (swapped);
-
-
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Obsolete
@@ -783,8 +777,8 @@ QStringList RicRecursiveFileSearchDialog::buildDirectoryListRecursive(const QStr
 
     if (m_isCancelPressed) return allDirs;
 
-    QString currPathFilter = pathFilterWithoutStartSeparator();
-    bool subStringFilter = false;
+    QString currPathFilter  = pathFilterWithoutStartSeparator();
+    bool    subStringFilter = false;
 
     // Optimizing for speed by a refined match at first directory level
     if (level == 1)
@@ -795,7 +789,7 @@ QStringList RicRecursiveFileSearchDialog::buildDirectoryListRecursive(const QStr
             int wildcardIndex = pathFilter.indexOf(QRegExp(QString("[*%1]").arg(SEPARATOR)));
             if (wildcardIndex >= 0)
             {
-                currPathFilter = pathFilter.left(wildcardIndex + 1);
+                currPathFilter  = pathFilter.left(wildcardIndex + 1);
                 subStringFilter = true;
             }
         }
@@ -806,12 +800,12 @@ QStringList RicRecursiveFileSearchDialog::buildDirectoryListRecursive(const QStr
     {
         allDirs.push_back(currentDir);
     }
-    else if(level == 1 && subStringFilter)
+    else if (level == 1 && subStringFilter)
     {
         return QStringList();
     }
 
-    QDir qdir(currentDir);
+    QDir        qdir(currentDir);
     QStringList subDirs = qdir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
     for (QString subDir : subDirs)
     {

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -27,16 +27,16 @@
 CAF_PDM_SOURCE_INIT(RicfReplaceSourceCases, "replaceSourceCases");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicfReplaceSourceCases::RicfReplaceSourceCases()
 {
-    RICF_InitField(&m_caseGroupId,  "caseGroupId",  -1,        "Case Group ID",  "", "", "");
-    RICF_InitField(&m_gridListFile, "gridListFile", QString(), "Grid List File",  "", "", "");
+    RICF_InitField(&m_caseGroupId, "caseGroupId", -1, "Case Group ID", "", "", "");
+    RICF_InitField(&m_gridListFile, "gridListFile", QString(), "Grid List File", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicfReplaceSourceCases::execute()
 {
@@ -50,7 +50,8 @@ RicfCommandResponse RicfReplaceSourceCases::execute()
     QString lastProjectPath = RicfCommandFileExecutor::instance()->getLastProjectPath();
     if (lastProjectPath.isNull())
     {
-        QString error("replaceSourceCases: 'openProject' must be called before 'replaceSourceCases' to specify project file to replace cases in.");
+        QString error("replaceSourceCases: 'openProject' must be called before 'replaceSourceCases' to specify project file to "
+                      "replace cases in.");
         RiaLogging::error(error);
         return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }

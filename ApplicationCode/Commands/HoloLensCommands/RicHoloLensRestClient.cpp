@@ -21,23 +21,21 @@
 #include "cvfBase.h"
 #include "cvfTrace.h"
 
+#include <QDateTime>
 #include <QNetworkRequest>
 #include <QSslConfiguration>
-#include <QDateTime>
 
 // For getting time stamps for round-trip timing
-#if defined (__linux__)
-#include <sys/time.h>
+#if defined(__linux__)
 #include <ctime>
+#include <sys/time.h>
 #endif
-
 
 #ifndef QT_NO_OPENSSL
 // Uncomment to enable experimental SSL support
 // The experimental support must be revised before shipping
 #define EXPERIMENTAL_SSL_SUPPORT
 #endif
-
 
 //==================================================================================================
 //
@@ -48,11 +46,13 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicHoloLensRestClient::RicHoloLensRestClient(QString serverUrl, QString sessionName, RicHoloLensRestResponseHandler* responseHandler)
-:   m_serverUrl(serverUrl),
-    m_sessionName(sessionName),
-    m_responseHandler(responseHandler),
-    m_dbgDisableCertificateVerification(false)
+RicHoloLensRestClient::RicHoloLensRestClient(QString                         serverUrl,
+                                             QString                         sessionName,
+                                             RicHoloLensRestResponseHandler* responseHandler)
+    : m_serverUrl(serverUrl)
+    , m_sessionName(sessionName)
+    , m_responseHandler(responseHandler)
+    , m_dbgDisableCertificateVerification(false)
 {
 }
 
@@ -81,10 +81,9 @@ void RicHoloLensRestClient::createSession(const QByteArray& sessionPinCode)
     cvf::Trace::show("createSession: POST on url: %s", url.toLatin1().constData());
 
     QNetworkRequest request(url);
-    //request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/octet-stream"));
+    // request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/octet-stream"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/x-www-form-urlencoded"));
     request.setRawHeader("PinCode", sessionPinCode);
-
 
 #ifdef EXPERIMENTAL_SSL_SUPPORT
     // NOTE !!!
@@ -93,7 +92,7 @@ void RicHoloLensRestClient::createSession(const QByteArray& sessionPinCode)
     // This will have to be investigated further, SP 20180924
     QSslConfiguration sslConf = request.sslConfiguration();
 
-    // Needed this one to be able to connect to sharing server 
+    // Needed this one to be able to connect to sharing server
     sslConf.setProtocol(QSsl::AnyProtocol);
 
     if (m_dbgDisableCertificateVerification)
@@ -133,12 +132,13 @@ void RicHoloLensRestClient::slotCreateSessionFinished()
     }
 
     const QByteArray serverData = reply->readAll();
-    //cvf::Trace::show("  serverResponse: %s", serverData.constData());
+    // cvf::Trace::show("  serverResponse: %s", serverData.constData());
 
     // Currently we get the bearer token back in the response wholesale
     // The format we get is typically: "Bearer <the token>"
     // For example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
-    // Presumably the format of the response will change, but for now just strip away the starting "Bearer " string and consider the rest as the actual token
+    // Presumably the format of the response will change, but for now just strip away the starting "Bearer " string and consider
+    // the rest as the actual token
     m_bearerToken = serverData;
     m_bearerToken.replace("Bearer ", "");
 
@@ -160,7 +160,7 @@ void RicHoloLensRestClient::deleteSession()
     cvf::Trace::show("deleteSession: DELETE on url: %s", url.toLatin1().constData());
 
     QNetworkRequest request(url);
-    //request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/octet-stream"));
+    // request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/octet-stream"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/x-www-form-urlencoded"));
     addBearerAuthenticationHeaderToRequest(&request);
 
@@ -200,7 +200,8 @@ void RicHoloLensRestClient::slotDeleteSessionFinished()
 void RicHoloLensRestClient::sendMetaData(int metaDataSequenceNumber, const QString& jsonMetaDataString)
 {
     const QString url = m_serverUrl + "/sessions/" + m_sessionName + "/metadata";
-    cvf::Trace::show("sendMetaData (metaDataSequenceNumber=%d): POST on url: %s", metaDataSequenceNumber, url.toLatin1().constData());
+    cvf::Trace::show(
+        "sendMetaData (metaDataSequenceNumber=%d): POST on url: %s", metaDataSequenceNumber, url.toLatin1().constData());
 
     const qint64 sendStartTimeStamp_ms = getCurrentTimeStamp_ms();
 
@@ -253,12 +254,12 @@ void RicHoloLensRestClient::slotSendMetaDataFinished()
         if (var.type() == QVariant::LongLong)
         {
             const qint64 startTimeStamp_ms = var.toLongLong();
-            elapsedTime_s = (getCurrentTimeStamp_ms() - startTimeStamp_ms)/1000.0;
+            elapsedTime_s                  = (getCurrentTimeStamp_ms() - startTimeStamp_ms) / 1000.0;
         }
     }
 
     const QByteArray serverData = reply->readAll();
-    //cvf::Trace::show("  serverResponse: %s", serverData.constData());
+    // cvf::Trace::show("  serverResponse: %s", serverData.constData());
 
     reply->deleteLater();
 
@@ -320,7 +321,7 @@ void RicHoloLensRestClient::slotSendBinaryDataFinished()
         if (var.type() == QVariant::LongLong)
         {
             const qint64 startTimeStamp_ms = var.toLongLong();
-            elapsedTime_s = (getCurrentTimeStamp_ms() - startTimeStamp_ms)/1000.0;
+            elapsedTime_s                  = (getCurrentTimeStamp_ms() - startTimeStamp_ms) / 1000.0;
         }
     }
 
@@ -344,16 +345,16 @@ void RicHoloLensRestClient::slotSendBinaryDataFinished()
 void RicHoloLensRestClient::slotDbgUploadProgress(qint64 bytesSent, qint64 bytesTotal)
 {
     static int sl_lastPct = -1;
-    int pct = 0;
+    int        pct        = 0;
     if (bytesTotal > 0)
     {
-        pct = static_cast<int>(100*(bytesSent/static_cast<double>(bytesTotal)));
+        pct = static_cast<int>(100 * (bytesSent / static_cast<double>(bytesTotal)));
     }
 
     if (pct % 10 == 0 && pct != sl_lastPct)
     {
-        double elapsedTime_s = -1;
-        QByteArray dbgTagString;
+        double         elapsedTime_s = -1;
+        QByteArray     dbgTagString;
         QNetworkReply* reply = dynamic_cast<QNetworkReply*>(sender());
         if (reply)
         {
@@ -362,7 +363,7 @@ void RicHoloLensRestClient::slotDbgUploadProgress(qint64 bytesSent, qint64 bytes
                 if (var.type() == QVariant::LongLong)
                 {
                     const qint64 startTimeStamp_ms = var.toLongLong();
-                    elapsedTime_s = (getCurrentTimeStamp_ms() - startTimeStamp_ms)/1000.0;
+                    elapsedTime_s                  = (getCurrentTimeStamp_ms() - startTimeStamp_ms) / 1000.0;
                 }
             }
             {
@@ -374,7 +375,12 @@ void RicHoloLensRestClient::slotDbgUploadProgress(qint64 bytesSent, qint64 bytes
             }
         }
 
-        cvf::Trace::show("Progress sendBinaryData(%s): %3d%%, %.2f/%.2fMB (elapsedTime=%.2fs)", dbgTagString.constData(), pct, bytesSent/(1024.0*1024.0), bytesTotal/(1024.0*1024.0), elapsedTime_s);
+        cvf::Trace::show("Progress sendBinaryData(%s): %3d%%, %.2f/%.2fMB (elapsedTime=%.2fs)",
+                         dbgTagString.constData(),
+                         pct,
+                         bytesSent / (1024.0 * 1024.0),
+                         bytesTotal / (1024.0 * 1024.0),
+                         elapsedTime_s);
         sl_lastPct = pct;
     }
 }
@@ -410,8 +416,8 @@ bool RicHoloLensRestClient::detectAndHandleErrorReply(QString operationName, QNe
 {
     CVF_ASSERT(reply);
 
-    const QNetworkReply::NetworkError nwErrCode = reply->error();
-    const int httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    const QNetworkReply::NetworkError nwErrCode      = reply->error();
+    const int                         httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     if (nwErrCode == QNetworkReply::NoError && httpStatusCode == 200)
     {
         // No error detected
@@ -422,8 +428,12 @@ bool RicHoloLensRestClient::detectAndHandleErrorReply(QString operationName, QNe
     if (nwErrCode != QNetworkReply::NoError)
     {
         const QString nwErrCodeAsString = networkErrorCodeAsString(nwErrCode);
-        const QString errText = reply->errorString();
-        mainErrMsg += QString("  [nwErr='%1'(%2)  httpStatus=%3]:  %4").arg(nwErrCodeAsString).arg(nwErrCode).arg(httpStatusCode).arg(errText);
+        const QString errText           = reply->errorString();
+        mainErrMsg += QString("  [nwErr='%1'(%2)  httpStatus=%3]:  %4")
+                          .arg(nwErrCodeAsString)
+                          .arg(nwErrCode)
+                          .arg(httpStatusCode)
+                          .arg(errText);
     }
     else
     {
@@ -455,34 +465,57 @@ QString RicHoloLensRestClient::networkErrorCodeAsString(QNetworkReply::NetworkEr
 {
     switch (nwErr)
     {
-        case QNetworkReply::NoError:                            return "NoError";
+        case QNetworkReply::NoError:
+            return "NoError";
 
-        case QNetworkReply::ConnectionRefusedError:             return "ConnectionRefusedError";
-        case QNetworkReply::RemoteHostClosedError:              return "RemoteHostClosedError";
-        case QNetworkReply::HostNotFoundError:                  return "HostNotFoundError";
-        case QNetworkReply::TimeoutError:                       return "TimeoutError";
-        case QNetworkReply::OperationCanceledError:             return "OperationCanceledError";
-        case QNetworkReply::SslHandshakeFailedError:            return "SslHandshakeFailedError";
-        //case QNetworkReply::TemporaryNetworkFailureError:       return "TemporaryNetworkFailureError";
-        case QNetworkReply::UnknownNetworkError:                return "UnknownNetworkError";
+        case QNetworkReply::ConnectionRefusedError:
+            return "ConnectionRefusedError";
+        case QNetworkReply::RemoteHostClosedError:
+            return "RemoteHostClosedError";
+        case QNetworkReply::HostNotFoundError:
+            return "HostNotFoundError";
+        case QNetworkReply::TimeoutError:
+            return "TimeoutError";
+        case QNetworkReply::OperationCanceledError:
+            return "OperationCanceledError";
+        case QNetworkReply::SslHandshakeFailedError:
+            return "SslHandshakeFailedError";
+        // case QNetworkReply::TemporaryNetworkFailureError:       return "TemporaryNetworkFailureError";
+        case QNetworkReply::UnknownNetworkError:
+            return "UnknownNetworkError";
 
-        case QNetworkReply::ProxyConnectionRefusedError:        return "ProxyConnectionRefusedError";
-        case QNetworkReply::ProxyConnectionClosedError:         return "ProxyConnectionClosedError";
-        case QNetworkReply::ProxyNotFoundError:                 return "ProxyNotFoundError";
-        case QNetworkReply::ProxyTimeoutError:                  return "ProxyTimeoutError";
-        case QNetworkReply::ProxyAuthenticationRequiredError:   return "ProxyAuthenticationRequiredError";
-        case QNetworkReply::UnknownProxyError:                  return "UnknownProxyError";
+        case QNetworkReply::ProxyConnectionRefusedError:
+            return "ProxyConnectionRefusedError";
+        case QNetworkReply::ProxyConnectionClosedError:
+            return "ProxyConnectionClosedError";
+        case QNetworkReply::ProxyNotFoundError:
+            return "ProxyNotFoundError";
+        case QNetworkReply::ProxyTimeoutError:
+            return "ProxyTimeoutError";
+        case QNetworkReply::ProxyAuthenticationRequiredError:
+            return "ProxyAuthenticationRequiredError";
+        case QNetworkReply::UnknownProxyError:
+            return "UnknownProxyError";
 
-        case QNetworkReply::ContentAccessDenied:                return "ContentAccessDenied";
-        case QNetworkReply::ContentOperationNotPermittedError:  return "ContentOperationNotPermittedError";
-        case QNetworkReply::ContentNotFoundError:               return "ContentNotFoundError";
-        case QNetworkReply::AuthenticationRequiredError:        return "AuthenticationRequiredError";
-        case QNetworkReply::ContentReSendError:                 return "ContentReSendError";
-        case QNetworkReply::UnknownContentError:                return "UnknownContentError";
+        case QNetworkReply::ContentAccessDenied:
+            return "ContentAccessDenied";
+        case QNetworkReply::ContentOperationNotPermittedError:
+            return "ContentOperationNotPermittedError";
+        case QNetworkReply::ContentNotFoundError:
+            return "ContentNotFoundError";
+        case QNetworkReply::AuthenticationRequiredError:
+            return "AuthenticationRequiredError";
+        case QNetworkReply::ContentReSendError:
+            return "ContentReSendError";
+        case QNetworkReply::UnknownContentError:
+            return "UnknownContentError";
 
-        case QNetworkReply::ProtocolUnknownError:               return "ProtocolUnknownError";
-        case QNetworkReply::ProtocolInvalidOperationError:      return "ProtocolInvalidOperationError";
-        case QNetworkReply::ProtocolFailure:                    return "ProtocolFailure";
+        case QNetworkReply::ProtocolUnknownError:
+            return "ProtocolUnknownError";
+        case QNetworkReply::ProtocolInvalidOperationError:
+            return "ProtocolInvalidOperationError";
+        case QNetworkReply::ProtocolFailure:
+            return "ProtocolFailure";
     };
 
     return "UnknownErrorCode";
@@ -500,11 +533,9 @@ qint64 RicHoloLensRestClient::getCurrentTimeStamp_ms()
     struct timespec ts;
     if (clock_gettime(CLOCK_MONOTONIC, &ts) == 0)
     {
-        return static_cast<qint64>(ts.tv_sec*1000 + ts.tv_nsec/1000000);
+        return static_cast<qint64>(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
     }
 #else
     return 0;
 #endif
 }
-
-

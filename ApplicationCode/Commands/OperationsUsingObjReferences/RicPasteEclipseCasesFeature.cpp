@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -42,19 +42,17 @@
 #include <QAction>
 #include <QString>
 
-
 CAF_CMD_SOURCE_INIT(RicPasteEclipseCasesFeature, "RicPasteEclipseCasesFeature");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicPasteEclipseCasesFeature::isCommandEnabled()
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
 
-    std::vector<caf::PdmPointer<RimEclipseResultCase> > typedObjects;
+    std::vector<caf::PdmPointer<RimEclipseResultCase>> typedObjects;
     objectGroup.objectsByType(&typedObjects);
 
     if (typedObjects.size() == 0)
@@ -62,7 +60,8 @@ bool RicPasteEclipseCasesFeature::isCommandEnabled()
         return false;
     }
 
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 
     RimIdenticalGridCaseGroup* gridCaseGroup = RicPasteFeatureImpl::findGridCaseGroup(destinationObject);
     if (gridCaseGroup) return true;
@@ -71,11 +70,12 @@ bool RicPasteEclipseCasesFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteEclipseCasesFeature::onActionTriggered(bool isChecked)
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 
     RimIdenticalGridCaseGroup* gridCaseGroup = RicPasteFeatureImpl::findGridCaseGroup(destinationObject);
     if (!gridCaseGroup) return;
@@ -86,12 +86,12 @@ void RicPasteEclipseCasesFeature::onActionTriggered(bool isChecked)
     if (objectGroup.objects.size() == 0) return;
 
     addCasesToGridCaseGroup(objectGroup, gridCaseGroup);
-    
+
     return;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteEclipseCasesFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -101,9 +101,10 @@ void RicPasteEclipseCasesFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup)
+void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(caf::PdmObjectGroup&       objectGroup,
+                                                          RimIdenticalGridCaseGroup* gridCaseGroup)
 {
     RimProject* proj = RiaApplication::instance()->project();
     CVF_ASSERT(proj);
@@ -126,8 +127,8 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(caf::PdmObjectGroup& o
         return;
     }
 
-    RimEclipseResultCase* mainResultCase = nullptr;
-    std::vector< std::vector<int> > mainCaseGridDimensions;
+    RimEclipseResultCase*         mainResultCase = nullptr;
+    std::vector<std::vector<int>> mainCaseGridDimensions;
 
     // Read out main grid and main grid dimensions if present in case group
     if (gridCaseGroup->mainCase())
@@ -155,7 +156,7 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(caf::PdmObjectGroup& o
         insertedCases.push_back(rimResultReservoir);
     }
 
-    // Load stuff 
+    // Load stuff
     for (size_t i = 0; i < insertedCases.size(); i++)
     {
         RimEclipseResultCase* rimResultReservoir = insertedCases[i];
@@ -169,7 +170,7 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(caf::PdmObjectGroup& o
         }
         else
         {
-            std::vector< std::vector<int> > caseGridDimensions;
+            std::vector<std::vector<int>> caseGridDimensions;
             rimResultReservoir->readGridDimensions(caseGridDimensions);
 
             bool identicalGrid = RigGridManager::isGridDimensionsEqual(mainCaseGridDimensions, caseGridDimensions);
@@ -184,7 +185,7 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(caf::PdmObjectGroup& o
             }
         }
 
-        RimOilField* activeOilField = proj ? proj->activeOilField() : nullptr;
+        RimOilField*              activeOilField = proj ? proj->activeOilField() : nullptr;
         RimEclipseCaseCollection* analysisModels = (activeOilField) ? activeOilField->analysisModels() : nullptr;
         if (analysisModels) analysisModels->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
 
@@ -199,4 +200,3 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(caf::PdmObjectGroup& o
         }
     }
 }
-

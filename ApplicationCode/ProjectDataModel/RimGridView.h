@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,8 +20,8 @@
 
 #include "Rim3dView.h"
 
-#include "cvfBase.h"
 #include "cvfArray.h"
+#include "cvfBase.h"
 
 class RimAnnotationInViewCollection;
 class RimEclipseContourMapProjection;
@@ -34,65 +34,65 @@ class RimCellRangeFilterCollection;
 class RimGridView : public Rim3dView
 {
     CAF_PDM_HEADER_INIT;
+
 public:
     RimGridView();
     ~RimGridView(void) override;
 
-    void                                              showGridCells(bool enableGridCells);
-    
-    Rim3dOverlayInfoConfig*                           overlayInfoConfig() const;
-                                                      
-    cvf::ref<cvf::UByteArray>                         currentTotalCellVisibility();
+    void showGridCells(bool enableGridCells);
 
-    RimIntersectionCollection*                        crossSectionCollection() const;
-                                                      
-    virtual const RimPropertyFilterCollection*        propertyFilterCollection() const = 0;
+    Rim3dOverlayInfoConfig* overlayInfoConfig() const;
 
-    void                                              rangeFiltersUpdated();
-    RimCellRangeFilterCollection*                     rangeFilterCollection();
-    const RimCellRangeFilterCollection*               rangeFilterCollection() const;
+    cvf::ref<cvf::UByteArray> currentTotalCellVisibility();
 
-    RimAnnotationInViewCollection*                    annotationCollection() const;
+    RimIntersectionCollection* crossSectionCollection() const;
 
-    bool                                              hasOverridenRangeFilterCollection();
-    void                                              setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
-    void                                              replaceRangeFilterCollectionWithOverride();
-                                                      
-    RimViewController*                                viewController() const override;
-    RimViewLinker*                                    assosiatedViewLinker() const override;
-                                                      
+    virtual const RimPropertyFilterCollection* propertyFilterCollection() const = 0;
 
-    bool                                              isGridVisualizationMode() const override;
+    void                                rangeFiltersUpdated();
+    RimCellRangeFilterCollection*       rangeFilterCollection();
+    const RimCellRangeFilterCollection* rangeFilterCollection() const;
 
+    RimAnnotationInViewCollection* annotationCollection() const;
+
+    bool hasOverridenRangeFilterCollection();
+    void setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
+    void replaceRangeFilterCollectionWithOverride();
+
+    RimViewController* viewController() const override;
+    RimViewLinker*     assosiatedViewLinker() const override;
+
+    bool isGridVisualizationMode() const override;
 
     bool hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType, int defaultFontSize) const override;
-    bool applyFontSize(RiaDefines::FontSettingType fontSettingType, int oldFontSize, int fontSize, bool forceChange = false) override;
+    bool applyFontSize(RiaDefines::FontSettingType fontSettingType,
+                       int                         oldFontSize,
+                       int                         fontSize,
+                       bool                        forceChange = false) override;
 
 protected:
-    virtual void                              updateViewFollowingRangeFilterUpdates();
-    void                                      initAfterRead() override;
-    void                                      onTimeStepChanged() override;
-    virtual void                                      calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) = 0;
-    void                                      selectOverlayInfoConfig() override;
-                                                      
-    void                                      fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void updateViewFollowingRangeFilterUpdates();
+    void         initAfterRead() override;
+    void         onTimeStepChanged() override;
+    virtual void calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) = 0;
+    void         selectOverlayInfoConfig() override;
 
-    RimGridCollection*                          gridCollection() const;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
-    void                                        clearReservoirCellVisibilities();
+    RimGridCollection* gridCollection() const;
+
+    void clearReservoirCellVisibilities();
 
 protected: // Fields
-    caf::PdmChildField<RimIntersectionCollection*>    m_crossSectionCollection;
-    caf::PdmChildField<Rim3dOverlayInfoConfig*>       m_overlayInfoConfig;
-    caf::PdmChildField<RimCellRangeFilterCollection*> m_rangeFilterCollection;
-    caf::PdmChildField<RimCellRangeFilterCollection*> m_overrideRangeFilterCollection;
-    caf::PdmChildField<RimGridCollection*>            m_gridCollection;
+    caf::PdmChildField<RimIntersectionCollection*>     m_crossSectionCollection;
+    caf::PdmChildField<Rim3dOverlayInfoConfig*>        m_overlayInfoConfig;
+    caf::PdmChildField<RimCellRangeFilterCollection*>  m_rangeFilterCollection;
+    caf::PdmChildField<RimCellRangeFilterCollection*>  m_overrideRangeFilterCollection;
+    caf::PdmChildField<RimGridCollection*>             m_gridCollection;
     caf::PdmChildField<RimAnnotationInViewCollection*> m_annotationCollection;
 
 private:
-    cvf::ref<cvf::UByteArray>                         m_currentReservoirCellVisibility;
-    RimViewLinker*                                    viewLinkerIfMasterView() const;
-    bool                                              m_previousGridModeMeshLinesWasFaults;
+    cvf::ref<cvf::UByteArray> m_currentReservoirCellVisibility;
+    RimViewLinker*            viewLinkerIfMasterView() const;
+    bool                      m_previousGridModeMeshLinesWasFaults;
 };
-
-

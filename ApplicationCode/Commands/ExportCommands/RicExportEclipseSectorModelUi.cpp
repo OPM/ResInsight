@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,9 @@ void RicExportEclipseSectorModelUi::ResultExportOptionsEnum::setUp()
     addItem(RicExportEclipseSectorModelUi::EXPORT_NO_RESULTS, "NO_RESULTS", "Do not export");
     addItem(RicExportEclipseSectorModelUi::EXPORT_TO_GRID_FILE, "TO_GRID_FILE", "Append to grid file");
     addItem(RicExportEclipseSectorModelUi::EXPORT_TO_SINGLE_SEPARATE_FILE, "TO_SINGLE_RESULT_FILE", "Export to single file");
-    addItem(RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT, "TO_SEPARATE_RESULT_FILES", "Export to a separate file per parameter");
+    addItem(RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT,
+            "TO_SEPARATE_RESULT_FILES",
+            "Export to a separate file per parameter");
 
     setDefault(RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT);
 }
@@ -67,7 +69,7 @@ void RicExportEclipseSectorModelUi::GridBoxSelectionEnum::setUp()
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
 {
@@ -76,7 +78,13 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
     CAF_PDM_InitField(&exportGrid, "ExportGrid", true, "Export Grid Data", "", "Includes COORD, ZCORN and ACTNUM", "");
     CAF_PDM_InitField(&exportGridFilename, "ExportGridFilename", QString(), "Grid File Name", "", "", "");
     exportGridFilename.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
-    CAF_PDM_InitField(&exportInLocalCoordinates, "ExportInLocalCoords", false, "Export in Local Coordinates", "", "Remove UTM location on export", "");
+    CAF_PDM_InitField(&exportInLocalCoordinates,
+                      "ExportInLocalCoords",
+                      false,
+                      "Export in Local Coordinates",
+                      "",
+                      "Remove UTM location on export",
+                      "");
     CAF_PDM_InitField(&makeInvisibleCellsInactive, "InvisibleCellActnum", false, "Make Invisible Cells Inactive", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&exportGridBox, "GridBoxSelection", "Cells to Export", "", "", "");
@@ -99,7 +107,7 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
 
     CAF_PDM_InitField(&exportFaultsFilename, "ExportFaultsFilename", QString(), "Faults File Name", "", "", "");
     exportFaultsFilename.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
-    
+
     QString ijkLabel = "Cell Count I, J, K";
     CAF_PDM_InitField(&refinementCountI, "RefinementCountI", 1, ijkLabel, "", "", "");
     CAF_PDM_InitField(&refinementCountJ, "RefinementCountJ", 1, "", "", "", "");
@@ -108,23 +116,21 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
     CAF_PDM_InitFieldNoDefault(&exportParameters, "ExportParams", "Export Parameters", "", "", "");
     CAF_PDM_InitField(&exportParametersFilename, "ExportParamsFilename", QString(), "File Name", "", "", "");
     exportParametersFilename.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
-    
+
     CAF_PDM_InitFieldNoDefault(&selectedKeywords, "ExportMainKeywords", "Keywords to Export", "", "", "");
 
-    exportGridFilename    = defaultGridFileName();
+    exportGridFilename       = defaultGridFileName();
     exportParametersFilename = defaultResultsFileName();
-    exportFaultsFilename  = defaultFaultsFileName();
+    exportFaultsFilename     = defaultFaultsFileName();
 
     m_tabNames << "Grid Data";
     m_tabNames << "Parameters";
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicExportEclipseSectorModelUi::~RicExportEclipseSectorModelUi()
-{
-}
+RicExportEclipseSectorModelUi::~RicExportEclipseSectorModelUi() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -141,30 +147,24 @@ void RicExportEclipseSectorModelUi::setCaseData(RigEclipseCaseData* caseData /*=
                                                 const cvf::Vec3i&   visibleMin /*= cvf::Vec3i::ZERO*/,
                                                 const cvf::Vec3i&   visibleMax /*= cvf::Vec3i::ZERO*/)
 {
-    m_caseData = caseData;
+    m_caseData   = caseData;
     m_visibleMin = visibleMin;
     m_visibleMax = visibleMax;
 
-    if (minI == std::numeric_limits<int>::max())
-        minI = m_visibleMin.x() + 1;
-    if (minJ == std::numeric_limits<int>::max())
-        minJ = m_visibleMin.y() + 1;
-    if (minK == std::numeric_limits<int>::max())
-        minK = m_visibleMin.z() + 1;
+    if (minI == std::numeric_limits<int>::max()) minI = m_visibleMin.x() + 1;
+    if (minJ == std::numeric_limits<int>::max()) minJ = m_visibleMin.y() + 1;
+    if (minK == std::numeric_limits<int>::max()) minK = m_visibleMin.z() + 1;
 
-    if (maxI == -std::numeric_limits<int>::max())
-        maxI = m_visibleMax.x() + 1;
-    if (maxJ == std::numeric_limits<int>::max())
-        maxJ = m_visibleMax.y() + 1;
-    if (maxK == std::numeric_limits<int>::max())
-        maxK = m_visibleMax.z() + 1;
+    if (maxI == -std::numeric_limits<int>::max()) maxI = m_visibleMax.x() + 1;
+    if (maxJ == std::numeric_limits<int>::max()) maxJ = m_visibleMax.y() + 1;
+    if (maxK == std::numeric_limits<int>::max()) maxK = m_visibleMax.z() + 1;
 
     if (selectedKeywords.v().empty())
     {
         for (QString keyword : mainKeywords())
         {
             if (caseData && caseData->results(RiaDefines::MATRIX_MODEL)
-                ->hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, keyword)))
+                                ->hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, keyword)))
             {
                 selectedKeywords.v().push_back(keyword);
             }
@@ -206,7 +206,9 @@ cvf::Vec3i RicExportEclipseSectorModelUi::max() const
 //--------------------------------------------------------------------------------------------------
 void RicExportEclipseSectorModelUi::setMin(const cvf::Vec3i& min)
 {
-    minI = min.x() + 1; minJ = min.y() + 1; minK = min.z() + 1;
+    minI = min.x() + 1;
+    minJ = min.y() + 1;
+    minK = min.z() + 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,18 +216,22 @@ void RicExportEclipseSectorModelUi::setMin(const cvf::Vec3i& min)
 //--------------------------------------------------------------------------------------------------
 void RicExportEclipseSectorModelUi::setMax(const cvf::Vec3i& max)
 {
-    maxI = max.x() + 1; maxJ = max.y() + 1; maxK = max.z() + 1;
+    maxI = max.x() + 1;
+    maxJ = max.y() + 1;
+    maxK = max.z() + 1;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicExportEclipseSectorModelUi::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+void RicExportEclipseSectorModelUi::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                          QString                    uiConfigName,
+                                                          caf::PdmUiEditorAttribute* attribute)
 {
     if (!m_caseData) return;
 
     const RigMainGrid* mainGrid = m_caseData->mainGrid();
-    cvf::Vec3i gridDimensions(int(mainGrid->cellCountI()), int(mainGrid->cellCountJ()), int(mainGrid->cellCountK()));
+    cvf::Vec3i         gridDimensions(int(mainGrid->cellCountI()), int(mainGrid->cellCountJ()), int(mainGrid->cellCountK()));
 
     caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>(attribute);
 
@@ -249,7 +255,7 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute(const caf::PdmFieldHan
     {
         if (lineEditorAttr)
         {
-            QIntValidator* validator = new QIntValidator(1, 10, nullptr);
+            QIntValidator* validator  = new QIntValidator(1, 10, nullptr);
             lineEditorAttr->validator = validator;
         }
     }
@@ -277,7 +283,7 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute(const caf::PdmFieldHan
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportEclipseSectorModelUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -289,19 +295,19 @@ void RicExportEclipseSectorModelUi::defineUiOrdering(QString uiConfigName, caf::
         exportGridFilename.uiCapability()->setUiReadOnly(!exportGrid());
         gridGroup->add(&exportInLocalCoordinates);
         exportInLocalCoordinates.uiCapability()->setUiReadOnly(!exportGrid());
-        
+
         caf::PdmUiGroup* gridBoxGroup = uiOrdering.addNewGroup("Grid Box Selection");
-        gridBoxGroup->add(&exportGridBox, { true, 4, 1 });
-        
-        gridBoxGroup->add(&minI, { true, 2, 1 });      
+        gridBoxGroup->add(&exportGridBox, {true, 4, 1});
+
+        gridBoxGroup->add(&minI, {true, 2, 1});
         gridBoxGroup->add(&minJ, false);
         gridBoxGroup->add(&minK, false);
-        
-        gridBoxGroup->add(&maxI, { true, 2, 1 });
+
+        gridBoxGroup->add(&maxI, {true, 2, 1});
         gridBoxGroup->add(&maxJ, false);
         gridBoxGroup->add(&maxK, false);
-        gridBoxGroup->add(&makeInvisibleCellsInactive, { true, 2, 1 });
-        
+        gridBoxGroup->add(&makeInvisibleCellsInactive, {true, 2, 1});
+
         minI.uiCapability()->setUiReadOnly(exportGridBox() != MANUAL_SELECTION);
         minJ.uiCapability()->setUiReadOnly(exportGridBox() != MANUAL_SELECTION);
         minK.uiCapability()->setUiReadOnly(exportGridBox() != MANUAL_SELECTION);
@@ -349,9 +355,11 @@ void RicExportEclipseSectorModelUi::defineUiOrdering(QString uiConfigName, caf::
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicExportEclipseSectorModelUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RicExportEclipseSectorModelUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                     const QVariant&            oldValue,
+                                                     const QVariant&            newValue)
 {
     if (changedField == &exportGrid)
     {
@@ -417,18 +425,18 @@ void RicExportEclipseSectorModelUi::fieldChangedByUi(const caf::PdmFieldHandle* 
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RicExportEclipseSectorModelUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RicExportEclipseSectorModelUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                                   bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
     if (fieldNeedingOptions == &selectedKeywords)
     {
-        RigCaseCellResultsData* resultData = m_caseData->results(RiaDefines::MATRIX_MODEL);
-        QList<caf::PdmOptionItemInfo> allOptions = RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard(RiaDefines::STATIC_NATIVE, resultData);        
+        RigCaseCellResultsData*       resultData = m_caseData->results(RiaDefines::MATRIX_MODEL);
+        QList<caf::PdmOptionItemInfo> allOptions =
+            RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard(RiaDefines::STATIC_NATIVE, resultData);
 
         std::set<QString> mainKeywords = this->mainKeywords();
         for (caf::PdmOptionItemInfo option : allOptions)
@@ -462,9 +470,9 @@ QList<caf::PdmOptionItemInfo>
     }
     else if (fieldNeedingOptions == &exportFaults)
     {
-        std::set<ResultExportOptions> validFaultOptions = { EXPORT_NO_RESULTS, EXPORT_TO_GRID_FILE, EXPORT_TO_SINGLE_SEPARATE_FILE };
-        if (!exportGrid())
-            validFaultOptions.erase(EXPORT_TO_GRID_FILE);
+        std::set<ResultExportOptions> validFaultOptions = {
+            EXPORT_NO_RESULTS, EXPORT_TO_GRID_FILE, EXPORT_TO_SINGLE_SEPARATE_FILE};
+        if (!exportGrid()) validFaultOptions.erase(EXPORT_TO_GRID_FILE);
         for (ResultExportOptions option : validFaultOptions)
         {
             options.push_back(caf::PdmOptionItemInfo(ResultExportOptionsEnum::uiText(option), option));
@@ -472,9 +480,9 @@ QList<caf::PdmOptionItemInfo>
     }
     else if (fieldNeedingOptions == &exportParameters)
     {
-        std::set<ResultExportOptions> validFaultOptions = { EXPORT_NO_RESULTS, EXPORT_TO_GRID_FILE, EXPORT_TO_SINGLE_SEPARATE_FILE, EXPORT_TO_SEPARATE_FILE_PER_RESULT };
-        if (!exportGrid())
-            validFaultOptions.erase(EXPORT_TO_GRID_FILE);
+        std::set<ResultExportOptions> validFaultOptions = {
+            EXPORT_NO_RESULTS, EXPORT_TO_GRID_FILE, EXPORT_TO_SINGLE_SEPARATE_FILE, EXPORT_TO_SEPARATE_FILE_PER_RESULT};
+        if (!exportGrid()) validFaultOptions.erase(EXPORT_TO_GRID_FILE);
         for (ResultExportOptions option : validFaultOptions)
         {
             options.push_back(caf::PdmOptionItemInfo(ResultExportOptionsEnum::uiText(option), option));
@@ -488,7 +496,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 std::set<QString> RicExportEclipseSectorModelUi::mainKeywords()
 {
-    return { RiaDefines::eqlnumResultName(), "FIPNUM", "NTG", "PERMX", "PERMY", "PERMZ", "PORO", "PVTNUM", "SATNUM", "SWATINIT" };
+    return {RiaDefines::eqlnumResultName(), "FIPNUM", "NTG", "PERMX", "PERMY", "PERMZ", "PORO", "PVTNUM", "SATNUM", "SWATINIT"};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -496,15 +504,14 @@ std::set<QString> RicExportEclipseSectorModelUi::mainKeywords()
 //--------------------------------------------------------------------------------------------------
 QString RicExportEclipseSectorModelUi::defaultFolder() const
 {
-    QString projectDirectory    = RiaApplication::instance()->currentProjectPath();
-    QString fallbackDirectory   = projectDirectory;
+    QString projectDirectory  = RiaApplication::instance()->currentProjectPath();
+    QString fallbackDirectory = projectDirectory;
     if (fallbackDirectory.isEmpty())
     {
         QString generalFallback = RiaApplication::instance()->lastUsedDialogDirectory("GENERAL_DATA");
-        fallbackDirectory = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("BINARY_GRID", generalFallback);
+        fallbackDirectory       = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("BINARY_GRID", generalFallback);
     }
     return RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("EXPORT_INPUT_GRID", fallbackDirectory);
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -512,9 +519,8 @@ QString RicExportEclipseSectorModelUi::defaultFolder() const
 //--------------------------------------------------------------------------------------------------
 QString RicExportEclipseSectorModelUi::defaultGridFileName() const
 {
-    
     QDir baseDir(defaultFolder());
-    return baseDir.absoluteFilePath("GRID.GRDECL");    
+    return baseDir.absoluteFilePath("GRID.GRDECL");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -565,17 +571,17 @@ void RicExportEclipseSectorModelUi::applyBoundaryDefaults()
     {
         const RigMainGrid* mainGrid = m_caseData->mainGrid();
 
-        if (maxI() > (int) mainGrid->cellCountI())
+        if (maxI() > (int)mainGrid->cellCountI())
         {
-            maxI = (int) mainGrid->cellCountI();
+            maxI = (int)mainGrid->cellCountI();
         }
-        if (maxJ() > (int) mainGrid->cellCountJ())
+        if (maxJ() > (int)mainGrid->cellCountJ())
         {
-            maxJ = (int) mainGrid->cellCountJ();
+            maxJ = (int)mainGrid->cellCountJ();
         }
-        if (maxK() > (int) mainGrid->cellCountK())
+        if (maxK() > (int)mainGrid->cellCountK())
         {
-            maxK = (int) mainGrid->cellCountK();
+            maxK = (int)mainGrid->cellCountK();
         }
     }
 }

@@ -381,8 +381,8 @@ void RiuMohrsCirclePlot::queryData(RimGeoMechView* geoMechView, size_t gridIndex
     double frictionAngleDeg = geoMechView->geoMechCase()->frictionAngleDeg();
 
     size_t i, j, k;
-    bool validIndex = femPart->getOrCreateStructGrid()->ijkFromCellIndex(elmIndex, &i, &j, &k);
-    
+    bool   validIndex = femPart->getOrCreateStructGrid()->ijkFromCellIndex(elmIndex, &i, &j, &k);
+
     CVF_ASSERT(validIndex);
     if (validIndex)
     {

@@ -2,38 +2,38 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigTimeHistoryResultAccessor.h"
 
-#include "RigResultAccessor.h"
-#include "RigResultAccessorFactory.h"
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
+#include "RigResultAccessor.h"
+#include "RigResultAccessorFactory.h"
 
 //#include <cmath> // Needed for HUGE_VAL on Linux
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigTimeHistoryResultAccessor::timeHistoryValues(RigEclipseCaseData* eclipseCaseData, 
-                                                                    RimEclipseResultDefinition* resultDefinition, 
-                                                                    size_t gridIndex, 
-                                                                    size_t cellIndex, 
-                                                                    size_t timeStepCount)
+std::vector<double> RigTimeHistoryResultAccessor::timeHistoryValues(RigEclipseCaseData*         eclipseCaseData,
+                                                                    RimEclipseResultDefinition* resultDefinition,
+                                                                    size_t                      gridIndex,
+                                                                    size_t                      cellIndex,
+                                                                    size_t                      timeStepCount)
 {
     std::vector<double> values;
 
@@ -44,7 +44,8 @@ std::vector<double> RigTimeHistoryResultAccessor::timeHistoryValues(RigEclipseCa
         // TODO: Consider rewrite RigResultAccessorFactory::createFromResultDefinition so the function always returns a valid
         // result accessor. Use hugeVal result accessor if no valid result is found
 
-        cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCaseData, gridIndex, i, resultDefinition);
+        cvf::ref<RigResultAccessor> resultAccessor =
+            RigResultAccessorFactory::createFromResultDefinition(eclipseCaseData, gridIndex, i, resultDefinition);
         if (resultAccessor.notNull())
         {
             values.push_back(resultAccessor->cellScalar(cellIndex));
@@ -59,9 +60,10 @@ std::vector<double> RigTimeHistoryResultAccessor::timeHistoryValues(RigEclipseCa
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QString RigTimeHistoryResultAccessor::geometrySelectionText(RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t cellIndex)
+QString
+    RigTimeHistoryResultAccessor::geometrySelectionText(RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t cellIndex)
 {
     QString text;
 
@@ -86,4 +88,3 @@ QString RigTimeHistoryResultAccessor::geometrySelectionText(RigEclipseCaseData* 
 
     return text;
 }
-

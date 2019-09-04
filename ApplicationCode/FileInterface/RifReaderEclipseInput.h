@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -32,8 +32,17 @@ public:
     ~RifReaderEclipseInput() override;
 
     // Virtual interface implementation
-    bool                open(const QString& fileName, RigEclipseCaseData* eclipseCase) override;
+    bool open(const QString& fileName, RigEclipseCaseData* eclipseCase) override;
 
-    bool                staticResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values ) override                      { return false; }
-    bool                dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values ) override   { return false; }
+    bool staticResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values) override
+    {
+        return false;
+    }
+    bool dynamicResult(const QString&                result,
+                       RiaDefines::PorosityModelType matrixOrFracture,
+                       size_t                        stepIndex,
+                       std::vector<double>*          values) override
+    {
+        return false;
+    }
 };

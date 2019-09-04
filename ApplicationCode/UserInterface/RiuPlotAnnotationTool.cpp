@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,11 +20,11 @@
 
 #include <QString>
 
-#include "qwt_plot.h"
 #include "cvfMath.h"
+#include "qwt_plot.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuPlotAnnotationTool::~RiuPlotAnnotationTool()
 {
@@ -32,9 +32,12 @@ RiuPlotAnnotationTool::~RiuPlotAnnotationTool()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::attachFormationNames(QwtPlot* plot, const std::vector<QString>& names, const std::vector<std::pair<double, double>> yPositions, bool showNames)
+void RiuPlotAnnotationTool::attachFormationNames(QwtPlot*                                     plot,
+                                                 const std::vector<QString>&                  names,
+                                                 const std::vector<std::pair<double, double>> yPositions,
+                                                 bool                                         showNames)
 {
     detachAllAnnotations();
 
@@ -62,7 +65,7 @@ void RiuPlotAnnotationTool::attachFormationNames(QwtPlot* plot, const std::vecto
         line->attach(m_plot);
         m_markers.push_back(std::move(line));
 
-        if ((i != names.size() - 1) && cvf::Math::abs(yPositions[i].second - yPositions[i+1].first) > delta)
+        if ((i != names.size() - 1) && cvf::Math::abs(yPositions[i].second - yPositions[i + 1].first) > delta)
         {
             QwtPlotMarker* bottomLine(new QwtPlotMarker());
             RiuPlotAnnotationTool::horizontalDashedLine(bottomLine, QString(), yPositions[i].second);
@@ -74,9 +77,11 @@ void RiuPlotAnnotationTool::attachFormationNames(QwtPlot* plot, const std::vecto
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::attachWellPicks(QwtPlot* plot, const std::vector<QString>& names, const std::vector<double> yPositions)
+void RiuPlotAnnotationTool::attachWellPicks(QwtPlot*                    plot,
+                                            const std::vector<QString>& names,
+                                            const std::vector<double>   yPositions)
 {
     detachAllAnnotations();
 
@@ -93,7 +98,7 @@ void RiuPlotAnnotationTool::attachWellPicks(QwtPlot* plot, const std::vector<QSt
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuPlotAnnotationTool::attachAnnotationLine(QwtPlot*       plot,
                                                  const QColor&  color,
@@ -109,7 +114,7 @@ void RiuPlotAnnotationTool::attachAnnotationLine(QwtPlot*       plot,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuPlotAnnotationTool::detachAllAnnotations()
 {
@@ -125,7 +130,7 @@ void RiuPlotAnnotationTool::detachAllAnnotations()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuPlotAnnotationTool::horizontalDashedLine(QwtPlotMarker* line, const QString& name, double yValue)
 {
@@ -133,9 +138,12 @@ void RiuPlotAnnotationTool::horizontalDashedLine(QwtPlotMarker* line, const QStr
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::horizontalDashedLineWithColor(QwtPlotMarker* line, const QColor& color, const QString& name, double yValue)
+void RiuPlotAnnotationTool::horizontalDashedLineWithColor(QwtPlotMarker* line,
+                                                          const QColor&  color,
+                                                          const QString& name,
+                                                          double         yValue)
 {
     QPen curvePen;
     curvePen.setStyle(Qt::DashLine);
@@ -148,4 +156,3 @@ void RiuPlotAnnotationTool::horizontalDashedLineWithColor(QwtPlotMarker* line, c
     line->setLabel(name);
     line->setLabelAlignment(Qt::AlignRight | Qt::AlignBottom);
 }
-

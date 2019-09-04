@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@
 CAF_PDM_SOURCE_INIT(RimWellPathFractureCollection, "WellPathFractureCollection");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellPathFractureCollection::RimWellPathFractureCollection(void)
 {
@@ -48,11 +48,9 @@ RimWellPathFractureCollection::RimWellPathFractureCollection(void)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimWellPathFractureCollection::~RimWellPathFractureCollection()
-{
-}
+RimWellPathFractureCollection::~RimWellPathFractureCollection() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -63,7 +61,7 @@ const RimMswCompletionParameters* RimWellPathFractureCollection::mswParameters()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathFractureCollection::addFracture(RimWellPathFracture* fracture)
 {
@@ -71,7 +69,7 @@ void RimWellPathFractureCollection::addFracture(RimWellPathFracture* fracture)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathFractureCollection::deleteFractures()
 {
@@ -87,7 +85,7 @@ void RimWellPathFractureCollection::setUnitSystemSpecificDefaults()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPathFracture*> RimWellPathFractureCollection::allFractures() const
 {
@@ -126,9 +124,11 @@ void RimWellPathFractureCollection::defineUiOrdering(QString uiConfigName, caf::
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathFractureCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimWellPathFractureCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                     const QVariant&            oldValue,
+                                                     const QVariant&            newValue)
 {
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
@@ -149,7 +149,7 @@ void RimWellPathFractureCollection::initAfterRead()
 {
     if (m_refMDType_OBSOLETE() != std::numeric_limits<int>::max())
     {
-        m_mswParameters->setReferenceMDType((RimMswCompletionParameters::ReferenceMDType) m_refMDType_OBSOLETE());
+        m_mswParameters->setReferenceMDType((RimMswCompletionParameters::ReferenceMDType)m_refMDType_OBSOLETE());
     }
 
     if (m_refMD_OBSOLETE() != std::numeric_limits<double>::infinity())

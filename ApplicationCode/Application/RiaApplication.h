@@ -97,15 +97,15 @@ public:
         EXIT_COMPLETED,
         EXIT_WITH_ERROR
     };
-    
+
 public:
-    static RiaApplication*    instance();
+    static RiaApplication* instance();
     RiaApplication();
     virtual ~RiaApplication();
 
     static const char* getVersionStringApp(bool includeCrtInfo);
     static bool        enableDevelopmentFeatures();
-    
+
     void             setActiveReservoirView(Rim3dView*);
     Rim3dView*       activeReservoirView();
     const Rim3dView* activeReservoirView() const;
@@ -144,15 +144,18 @@ public:
     QString scriptDirectories() const;
     QString scriptEditorPath() const;
 
-    QString     octavePath() const;
-    QStringList octaveArguments() const;
+    QString             octavePath() const;
+    QStringList         octaveArguments() const;
     QProcessEnvironment octaveProcessEnvironment() const;
 
     QString             pythonPath() const;
     QProcessEnvironment pythonProcessEnvironment() const;
 
     bool launchProcess(const QString& program, const QStringList& arguments, const QProcessEnvironment& processEnvironment);
-    bool launchProcessForMultipleCases(const QString& program, const QStringList& arguments, const std::vector<int>& caseIds, const QProcessEnvironment& processEnvironment);
+    bool launchProcessForMultipleCases(const QString&             program,
+                                       const QStringList&         arguments,
+                                       const std::vector<int>&    caseIds,
+                                       const QProcessEnvironment& processEnvironment);
     void terminateProcess();
     void waitForProcess() const;
 
@@ -160,7 +163,7 @@ public:
     void            applyPreferences(const RiaPreferences* oldPreferences = nullptr);
 
     QString commandLineParameterHelp();
-    void setCommandLineHelpText(const QString& commandLineHelpText);
+    void    setCommandLineHelpText(const QString& commandLineHelpText);
 
     void     setCacheDataObject(const QString& key, const QVariant& dataObject);
     QVariant cacheDataObject(const QString& key) const;
@@ -173,7 +176,7 @@ public:
     int launchUnitTests();
 
     const QString startDir() const;
-    void setStartDir(const QString& startDir);
+    void          setStartDir(const QString& startDir);
 
     static std::vector<QString> readFileListFromTextFile(QString listFileName);
 
@@ -184,11 +187,11 @@ public:
     bool initializeGrpcServer(const cvf::ProgramOptions& progOpt);
 
     // Public implementation specific overrides
-    virtual void initialize();
+    virtual void              initialize();
     virtual ApplicationStatus handleArguments(cvf::ProgramOptions* progOpt) = 0;
-    virtual int  launchUnitTestsWithConsole();
-    virtual void addToRecentFiles(const QString& fileName) {}
-    virtual void showFormattedTextInMessageBoxOrConsole(const QString& errMsg) = 0;
+    virtual int               launchUnitTestsWithConsole();
+    virtual void              addToRecentFiles(const QString& fileName) {}
+    virtual void              showFormattedTextInMessageBoxOrConsole(const QString& errMsg) = 0;
 
     virtual void launchGrpcServer() = 0;
 
@@ -200,7 +203,7 @@ protected:
     virtual void invokeProcessEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) = 0;
     virtual void onFileSuccessfullyLoaded(const QString& fileName, RiaDefines::ImportFileType fileType) {}
     virtual void onProjectBeingOpened() {}
-    virtual void onProjectOpened() = 0;
+    virtual void onProjectOpened()                            = 0;
     virtual void onProjectOpeningError(const QString& errMsg) = 0;
     virtual void onProjectBeingClosed() {}
     virtual void onProjectClosed() = 0;
@@ -223,15 +226,15 @@ protected:
 #endif
 
     // Execute for all settings
-    std::list<int> m_currentCaseIds;
-    QString        m_currentProgram;
-    QStringList    m_currentArguments;
+    std::list<int>  m_currentCaseIds;
+    QString         m_currentProgram;
+    QStringList     m_currentArguments;
     RiaPreferences* m_preferences;
 
     std::map<QString, QString> m_fileDialogDefaultDirectories;
     QString                    m_startupDefaultDirectory;
     QString                    m_commandLineHelpText;
-    QMap<QString, QVariant> m_sessionCache; // Session cache used to store username/passwords per session
+    QMap<QString, QVariant>    m_sessionCache; // Session cache used to store username/passwords per session
 
     std::list<RimCommandObject*> m_commandQueue;
     QMutex                       m_commandQueueLock;
@@ -241,6 +244,3 @@ protected:
 private:
     static RiaApplication* s_riaApplication;
 };
-
-
-

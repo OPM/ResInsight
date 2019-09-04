@@ -23,8 +23,8 @@
 #include "RicCreateMultipleFracturesOptionItemUi.h"
 #include "RicCreateMultipleFracturesUi.h"
 
-#include "RimProject.h"
 #include "RimDialogData.h"
+#include "RimProject.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafSelectionManager.h"
@@ -55,7 +55,8 @@ void RicNewOptionItemFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 void RicNewOptionItemFeature::onActionTriggered(bool isChecked)
 {
-    RiuCreateMultipleFractionsUi* multipleFractionUi = RiaApplication::instance()->project()->dialogData()->multipleFractionsData();
+    RiuCreateMultipleFractionsUi* multipleFractionUi =
+        RiaApplication::instance()->project()->dialogData()->multipleFractionsData();
     RicCreateMultipleFracturesOptionItemUi* selectedOptionItem = nullptr;
 
     {

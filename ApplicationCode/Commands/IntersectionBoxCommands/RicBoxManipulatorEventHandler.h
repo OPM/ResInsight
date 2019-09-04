@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2013-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,27 +20,26 @@
 #pragma once
 
 #include "cvfBase.h"
-#include "cvfObject.h"
 #include "cvfMatrix4.h"
+#include "cvfObject.h"
 #include "cvfVector3.h"
 
 #include <QObject>
 #include <QPointer>
 
-namespace cvf {
-    class Model;
-    class ModelBasicList;
+namespace cvf
+{
+class Model;
+class ModelBasicList;
 };
 
-
-namespace caf {
-    class BoxManipulatorPartManager;
-    class Viewer;
+namespace caf
+{
+class BoxManipulatorPartManager;
+class Viewer;
 };
 
 class QMouseEvent;
-
-
 
 //==================================================================================================
 //
@@ -60,15 +59,14 @@ public:
     void appendPartsToModel(cvf::ModelBasicList* model);
 
 signals:
-    void        notifyRedraw();
-    void        notifyUpdate(const cvf::Vec3d& origin, const cvf::Vec3d& size);
+    void notifyRedraw();
+    void notifyUpdate(const cvf::Vec3d& origin, const cvf::Vec3d& size);
 
 protected:
-    bool        eventFilter(QObject *obj, QEvent *event) override;
+    bool eventFilter(QObject* obj, QEvent* event) override;
 
 private:
-    QPointer<caf::Viewer>           m_viewer;
+    QPointer<caf::Viewer> m_viewer;
 
     cvf::ref<caf::BoxManipulatorPartManager> m_partManager;
 };
-

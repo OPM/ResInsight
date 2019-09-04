@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -27,14 +27,14 @@
 
 #include "RigWellPath.h"
 
-#include "RimWellPath.h"
-#include "RimModeledWellPath.h"
-#include "RimWellPathGeometryDef.h"
-#include "RimProject.h"
 #include "RimDialogData.h"
+#include "RimModeledWellPath.h"
+#include "RimProject.h"
+#include "RimWellPath.h"
+#include "RimWellPathGeometryDef.h"
 
-#include "cafSelectionManagerTools.h"
 #include "cafPdmUiPropertyViewDialog.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 #include <QFileDialog>
@@ -43,46 +43,44 @@
 
 #include <memory>
 
-
 CAF_CMD_SOURCE_INIT(RicExportSelectedWellPathsFeature, "RicExportSelectedWellPathsFeature");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportSelectedWellPathsFeature::exportWellPath(const RimWellPath* wellPath,
-                                                       double mdStepSize,
-                                                       const QString& folder,
-                                                       bool writeProjectInfo)
+                                                       double             mdStepSize,
+                                                       const QString&     folder,
+                                                       bool               writeProjectInfo)
 {
     auto fileName = wellPath->name() + ".dev";
-    auto filePtr = openFileForExport(folder, fileName);
-    auto stream = createOutputFileStream(*filePtr);
+    auto filePtr  = openFileForExport(folder, fileName);
+    auto stream   = createOutputFileStream(*filePtr);
 
     writeWellPathGeometryToStream(*stream, wellPath, wellPath->name(), mdStepSize, writeProjectInfo);
     filePtr->close();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream(QTextStream& stream,
+void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream(QTextStream&       stream,
                                                                       const RimWellPath* wellPath,
-                                                                      const QString& exportName,
-                                                                      double mdStepSize,
-                                                                      bool writeProjectInfo)
+                                                                      const QString&     exportName,
+                                                                      double             mdStepSize,
+                                                                      bool               writeProjectInfo)
 {
     auto wellPathGeom = wellPath->wellPathGeometry();
     if (!wellPathGeom) return;
 
-    bool useMdRkb = false;
-    double rkb = 0.0;
+    bool   useMdRkb = false;
+    double rkb      = 0.0;
     {
         const RimModeledWellPath* modeledWellPath = dynamic_cast<const RimModeledWellPath*>(wellPath);
         if (modeledWellPath)
         {
             useMdRkb = true;
-            rkb = modeledWellPath->geometryDefinition()->mdrkbAtFirstTarget();
+            rkb      = modeledWellPath->geometryDefinition()->mdrkbAtFirstTarget();
         }
     }
 
@@ -90,7 +88,7 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream(QTextStrea
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream(QTextStream&       stream,
                                                                       const RigWellPath* wellPathGeom,
@@ -103,7 +101,7 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream(QTextStrea
     if (!wellPathGeom) return;
 
     double currMd = wellPathGeom->measureDepths().front() - mdStepSize;
-    double endMd = wellPathGeom->measureDepths().back();
+    double endMd  = wellPathGeom->measureDepths().back();
 
     RifEclipseDataTableFormatter formatter(stream);
     formatter.setCommentPrefix("# ");
@@ -118,20 +116,17 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream(QTextStrea
     stream << "WELLNAME: '" << caf::Utils::makeValidFileBasename(exportName) << "'" << endl;
 
     auto numberFormat = RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 2);
-    formatter.header(
-        {
-            {"X", numberFormat, RIGHT},
-            {"Y", numberFormat, RIGHT},
-            {"TVDMSL", numberFormat, RIGHT},
-            {useMdRkb ? "MDRKB" : "MDMSL", numberFormat, RIGHT}
-        });
+    formatter.header({{"X", numberFormat, RIGHT},
+                      {"Y", numberFormat, RIGHT},
+                      {"TVDMSL", numberFormat, RIGHT},
+                      {useMdRkb ? "MDRKB" : "MDMSL", numberFormat, RIGHT}});
 
     while (currMd < endMd)
     {
         currMd += mdStepSize;
         if (currMd > endMd) currMd = endMd;
 
-        auto pt = wellPathGeom->interpolatedPointAlongWellPath(currMd);
+        auto   pt  = wellPathGeom->interpolatedPointAlongWellPath(currMd);
         double tvd = -pt.z();
 
         // Write to file
@@ -155,8 +150,7 @@ QFilePtr RicExportSelectedWellPathsFeature::openFileForExport(const QString& fol
     if (!exportFolder.exists())
     {
         bool createdPath = exportFolder.mkpath(".");
-        if (createdPath)
-            RiaLogging::info("Created export folder " + folderName);
+        if (createdPath) RiaLogging::info("Created export folder " + folderName);
     }
 
     QString  filePath = exportFolder.filePath(fileName);
@@ -170,7 +164,7 @@ QFilePtr RicExportSelectedWellPathsFeature::openFileForExport(const QString& fol
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QTextStreamPtr RicExportSelectedWellPathsFeature::createOutputFileStream(QFile& file)
 {
@@ -181,7 +175,7 @@ QTextStreamPtr RicExportSelectedWellPathsFeature::createOutputFileStream(QFile& 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportSelectedWellPathsFeature::handleAction(const std::vector<RimWellPath*>& wellPaths)
 {
@@ -190,7 +184,7 @@ void RicExportSelectedWellPathsFeature::handleAction(const std::vector<RimWellPa
         auto dialogData = openDialog();
         if (dialogData)
         {
-            auto folder = dialogData->exportFolder();
+            auto folder     = dialogData->exportFolder();
             auto mdStepSize = dialogData->mdStepSize();
             if (folder.isEmpty())
             {
@@ -201,14 +195,12 @@ void RicExportSelectedWellPathsFeature::handleAction(const std::vector<RimWellPa
             {
                 exportWellPath(wellPath, mdStepSize, folder);
             }
-
         }
-
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicExportSelectedWellPathsFeature::isCommandEnabled()
 {
@@ -218,7 +210,7 @@ bool RicExportSelectedWellPathsFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportSelectedWellPathsFeature::onActionTriggered(bool isChecked)
 {
@@ -228,7 +220,7 @@ void RicExportSelectedWellPathsFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportSelectedWellPathsFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -237,12 +229,12 @@ void RicExportSelectedWellPathsFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicExportWellPathsUi* RicExportSelectedWellPathsFeature::openDialog()
 {
-    RiaApplication* app = RiaApplication::instance();
-    RimProject* proj = app->project();
+    RiaApplication* app  = RiaApplication::instance();
+    RimProject*     proj = app->project();
 
     QString startPath = app->lastUsedDialogDirectoryWithFallbackToProjectFolder("WELL_PATH_EXPORT_DIR");
     if (startPath.isEmpty())
@@ -257,7 +249,8 @@ RicExportWellPathsUi* RicExportSelectedWellPathsFeature::openDialog()
         featureUi->setExportFolder(startPath);
     }
 
-    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, featureUi, "Export Well Paths", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    caf::PdmUiPropertyViewDialog propertyDialog(
+        nullptr, featureUi, "Export Well Paths", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     propertyDialog.resize(QSize(600, 60));
 
     if (propertyDialog.exec() == QDialog::Accepted && !featureUi->exportFolder().isEmpty())

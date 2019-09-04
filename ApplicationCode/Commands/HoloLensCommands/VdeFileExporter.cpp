@@ -18,15 +18,13 @@
 
 #include "VdeFileExporter.h"
 #include "VdeArrayDataPacket.h"
-#include "VdePacketDirectory.h"
 #include "VdeCachingHashedIdFactory.h"
+#include "VdePacketDirectory.h"
 
 #include "cvfTrace.h"
 
 #include <QDir>
 #include <QFile>
-
-
 
 //==================================================================================================
 //
@@ -38,14 +36,16 @@
 ///
 //--------------------------------------------------------------------------------------------------
 VdeFileExporter::VdeFileExporter(QString absOutputFolder)
-:   m_absOutputFolder(absOutputFolder)
+    : m_absOutputFolder(absOutputFolder)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool VdeFileExporter::exportToFile(const QString& modelMetaJsonStr, const VdePacketDirectory& packetDirectory, const std::vector<int>& packetIdsToExport)
+bool VdeFileExporter::exportToFile(const QString&            modelMetaJsonStr,
+                                   const VdePacketDirectory& packetDirectory,
+                                   const std::vector<int>&   packetIdsToExport)
 {
     cvf::Trace::show("Exporting to folder: %s", m_absOutputFolder.toLatin1().constData());
 
@@ -73,7 +73,8 @@ bool VdeFileExporter::exportToFile(const QString& modelMetaJsonStr, const VdePac
         }
     }
 
-    cvf::Trace::show("Data exported (%d packets) to folder: %s", packetIdsToExport.size(), m_absOutputFolder.toLatin1().constData());
+    cvf::Trace::show(
+        "Data exported (%d packets) to folder: %s", packetIdsToExport.size(), m_absOutputFolder.toLatin1().constData());
 
     return true;
 }
@@ -84,10 +85,10 @@ bool VdeFileExporter::exportToFile(const QString& modelMetaJsonStr, const VdePac
 bool VdeFileExporter::exportViewContents(const RimGridView& view)
 {
     VdeCachingHashedIdFactory localIdFactory;
-    VdeVizDataExtractor extractor(view, &localIdFactory);
+    VdeVizDataExtractor       extractor(view, &localIdFactory);
 
-    QString modelMetaJsonStr;
-    std::vector<int> allReferencedArrayIds;
+    QString            modelMetaJsonStr;
+    std::vector<int>   allReferencedArrayIds;
     VdePacketDirectory packetDirectory;
     extractor.extractViewContents(&modelMetaJsonStr, &allReferencedArrayIds, &packetDirectory);
 
@@ -140,4 +141,3 @@ bool VdeFileExporter::writeModelMetaJsonFile(const QString& modelMetaJsonStr, QS
 
     return true;
 }
-

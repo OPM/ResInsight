@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -32,34 +32,33 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimProject.h"
 
-
 CAF_PDM_SOURCE_INIT(RimEclipseCaseCollection, "ResInsightAnalysisModels");
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseCaseCollection::RimEclipseCaseCollection(void)
 {
     CAF_PDM_InitObject("Grid Models", ":/Cases16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&cases, "Reservoirs", "",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&cases, "Reservoirs", "", "", "", "");
     cases.uiCapability()->setUiHidden(true);
-    
-    CAF_PDM_InitFieldNoDefault(&caseGroups, "CaseGroups", "",  "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&caseGroups, "CaseGroups", "", "", "", "");
     caseGroups.uiCapability()->setUiHidden(true);
 
     m_gridCollection = new RigGridManager;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseCaseCollection::~RimEclipseCaseCollection(void)
 {
-    close();    
+    close();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCaseCollection::close()
 {
@@ -70,14 +69,14 @@ void RimEclipseCaseCollection::close()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup* RimEclipseCaseCollection::createIdenticalCaseGroupFromMainCase(RimEclipseCase* mainCase)
 {
     CVF_ASSERT(mainCase);
 
     RigEclipseCaseData* rigEclipseCase = mainCase->eclipseCaseData();
-    RigMainGrid* equalGrid = registerCaseInGridCollection(rigEclipseCase);
+    RigMainGrid*        equalGrid      = registerCaseInGridCollection(rigEclipseCase);
     CVF_ASSERT(equalGrid);
 
     RimIdenticalGridCaseGroup* group = new RimIdenticalGridCaseGroup;
@@ -95,7 +94,7 @@ RimIdenticalGridCaseGroup* RimEclipseCaseCollection::createIdenticalCaseGroupFro
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCaseCollection::removeCaseFromAllGroups(RimEclipseCase* reservoir)
 {
@@ -111,9 +110,8 @@ void RimEclipseCaseCollection::removeCaseFromAllGroups(RimEclipseCase* reservoir
     cases().removeChildObject(reservoir);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection(RigEclipseCaseData* rigEclipseCase)
 {
@@ -132,7 +130,7 @@ RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection(RigEclipseCa
         rigEclipseCase->mainGrid()->computeCachedData();
 
         rigEclipseCase->mainGrid()->calculateFaults(rigEclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL));
-  
+
         equalGrid = rigEclipseCase->mainGrid();
     }
 
@@ -142,7 +140,7 @@ RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection(RigEclipseCa
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCaseCollection::insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimEclipseCase* rimReservoir)
 {
@@ -154,21 +152,21 @@ void RimEclipseCaseCollection::insertCaseInCaseGroup(RimIdenticalGridCaseGroup* 
     caseGroup->addCase(rimReservoir);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCaseCollection::recomputeStatisticsForAllCaseGroups()
 {
     const size_t numCaseGroups = caseGroups.size();
     for (size_t caseGrpIdx = 0; caseGrpIdx < numCaseGroups; ++caseGrpIdx)
     {
-        RimIdenticalGridCaseGroup* caseGroup = caseGroups[caseGrpIdx];
-        RimCaseCollection* statisticsCaseCollection = caseGroup->statisticsCaseCollection;
-        const size_t numStatisticsCases = statisticsCaseCollection->reservoirs.size();
+        RimIdenticalGridCaseGroup* caseGroup                = caseGroups[caseGrpIdx];
+        RimCaseCollection*         statisticsCaseCollection = caseGroup->statisticsCaseCollection;
+        const size_t               numStatisticsCases       = statisticsCaseCollection->reservoirs.size();
         for (size_t caseIdx = 0; caseIdx < numStatisticsCases; caseIdx++)
         {
-            RimEclipseStatisticsCase* statisticsCase = dynamic_cast<RimEclipseStatisticsCase*>(statisticsCaseCollection->reservoirs[caseIdx]);
+            RimEclipseStatisticsCase* statisticsCase =
+                dynamic_cast<RimEclipseStatisticsCase*>(statisticsCaseCollection->reservoirs[caseIdx]);
             if (statisticsCase)
             {
                 statisticsCase->clearComputedStatistics();
@@ -177,4 +175,3 @@ void RimEclipseCaseCollection::recomputeStatisticsForAllCaseGroups()
         }
     }
 }
-

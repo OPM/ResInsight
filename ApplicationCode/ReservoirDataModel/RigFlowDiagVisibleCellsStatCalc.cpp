@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -29,17 +29,19 @@
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RigFlowDiagVisibleCellsStatCalc::RigFlowDiagVisibleCellsStatCalc(RigFlowDiagResults* resultsData,
-                                                                   const RigFlowDiagResultAddress& resVarAddr, 
-                                                                   const cvf::UByteArray* cellVisibilities)
-: m_resultsData(resultsData), m_resVarAddr(resVarAddr), m_cellVisibilities(cellVisibilities)
+RigFlowDiagVisibleCellsStatCalc::RigFlowDiagVisibleCellsStatCalc(RigFlowDiagResults*             resultsData,
+                                                                 const RigFlowDiagResultAddress& resVarAddr,
+                                                                 const cvf::UByteArray*          cellVisibilities)
+    : m_resultsData(resultsData)
+    , m_resVarAddr(resVarAddr)
+    , m_cellVisibilities(cellVisibilities)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagVisibleCellsStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max)
 {
@@ -50,7 +52,7 @@ void RigFlowDiagVisibleCellsStatCalc::minMaxCellScalarValues(size_t timeStepInde
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagVisibleCellsStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg)
 {
@@ -58,30 +60,30 @@ void RigFlowDiagVisibleCellsStatCalc::posNegClosestToZero(size_t timeStepIndex, 
     traverseElementNodes(acc, timeStepIndex);
     pos = acc.pos;
     neg = acc.neg;
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagVisibleCellsStatCalc::valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount)
 {
     SumCountAccumulator acc(valueSum, sampleCount);
     traverseElementNodes(acc, timeStepIndex);
-    valueSum = acc.valueSum;
+    valueSum    = acc.valueSum;
     sampleCount = acc.sampleCount;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RigFlowDiagVisibleCellsStatCalc::addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator)
+void RigFlowDiagVisibleCellsStatCalc::addDataToHistogramCalculator(size_t                  timeStepIndex,
+                                                                   RigHistogramCalculator& histogramCalculator)
 {
     traverseElementNodes(histogramCalculator, timeStepIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagVisibleCellsStatCalc::uniqueValues(size_t timeStepIndex, std::set<int>& values)
 {
@@ -91,7 +93,7 @@ void RigFlowDiagVisibleCellsStatCalc::uniqueValues(size_t timeStepIndex, std::se
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RigFlowDiagVisibleCellsStatCalc::timeStepCount()
 {
@@ -99,9 +101,9 @@ size_t RigFlowDiagVisibleCellsStatCalc::timeStepCount()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RigFlowDiagVisibleCellsStatCalc::mobileVolumeWeightedMean(size_t timeStepIndex, double &result)
+void RigFlowDiagVisibleCellsStatCalc::mobileVolumeWeightedMean(size_t timeStepIndex, double& result)
 {
     RimEclipseResultCase* eclCase = nullptr;
     m_resultsData->flowDiagSolution()->firstAncestorOrThisOfType(eclCase);
@@ -113,10 +115,9 @@ void RigFlowDiagVisibleCellsStatCalc::mobileVolumeWeightedMean(size_t timeStepIn
 
     caseCellResultsData->ensureKnownResultLoaded(mobPorvAddr);
     const std::vector<double>& weights = caseCellResultsData->cellScalarResults(mobPorvAddr, 0);
-    const std::vector<double>* values = m_resultsData->resultValues(m_resVarAddr, timeStepIndex);
+    const std::vector<double>* values  = m_resultsData->resultValues(m_resVarAddr, timeStepIndex);
 
     const RigActiveCellInfo* actCellInfo = m_resultsData->activeCellInfo(m_resVarAddr);
 
     RigWeightedMeanCalc::weightedMeanOverCells(&weights, values, m_cellVisibilities.p(), true, actCellInfo, true, &result);
 }
-

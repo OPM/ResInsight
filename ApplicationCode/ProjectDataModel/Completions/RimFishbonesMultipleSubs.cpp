@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,10 +21,10 @@
 #include "RiaColorTables.h"
 #include "RigFishbonesGeometry.h"
 #include "RigWellPath.h"
-#include "RimProject.h"
-#include "RimWellPath.h"
 #include "RimFishbonesCollection.h"
 #include "RimMultipleValveLocations.h"
+#include "RimProject.h"
+#include "RimWellPath.h"
 #include "RimWellPathValve.h"
 
 #include "cafPdmUiDoubleValueEditor.h"
@@ -33,67 +33,75 @@
 #include "cvfAssert.h"
 #include "cvfBoundingBox.h"
 
-#include <cstdlib>
-#include <cmath>
 #include "cvfMath.h"
-
-
+#include <cmath>
+#include <cstdlib>
 
 CAF_PDM_SOURCE_INIT(RimFishbonesMultipleSubs, "FishbonesMultipleSubs");
 
-namespace caf {
-    template<>
-    void AppEnum<RimFishbonesMultipleSubs::LocationType>::setUp()
-    {
-        addItem(RimFishbonesMultipleSubs::FB_SUB_COUNT_END,     "FB_SUB_COUNT",     "Start/End/Number of Subs");
-        addItem(RimFishbonesMultipleSubs::FB_SUB_SPACING_END,   "FB_SUB_SPACING",   "Start/End/Spacing");
-        addItem(RimFishbonesMultipleSubs::FB_SUB_USER_DEFINED,  "FB_SUB_CUSTOM",    "User Specification");
-        setDefault(RimFishbonesMultipleSubs::FB_SUB_COUNT_END);
-    }
+namespace caf
+{
+template<>
+void AppEnum<RimFishbonesMultipleSubs::LocationType>::setUp()
+{
+    addItem(RimFishbonesMultipleSubs::FB_SUB_COUNT_END, "FB_SUB_COUNT", "Start/End/Number of Subs");
+    addItem(RimFishbonesMultipleSubs::FB_SUB_SPACING_END, "FB_SUB_SPACING", "Start/End/Spacing");
+    addItem(RimFishbonesMultipleSubs::FB_SUB_USER_DEFINED, "FB_SUB_CUSTOM", "User Specification");
+    setDefault(RimFishbonesMultipleSubs::FB_SUB_COUNT_END);
+}
 
-    template<>
-    void AppEnum<RimFishbonesMultipleSubs::LateralsOrientationType>::setUp()
-    {
-        addItem(RimFishbonesMultipleSubs::FB_LATERAL_ORIENTATION_FIXED, "FB_LATERAL_ORIENTATION_FIXED",     "Fixed Angle");
-        addItem(RimFishbonesMultipleSubs::FB_LATERAL_ORIENTATION_RANDOM, "FB_LATERAL_ORIENTATION_RANDOM",   "Random Angle");
-        setDefault(RimFishbonesMultipleSubs::FB_LATERAL_ORIENTATION_RANDOM);
-    }
+template<>
+void AppEnum<RimFishbonesMultipleSubs::LateralsOrientationType>::setUp()
+{
+    addItem(RimFishbonesMultipleSubs::FB_LATERAL_ORIENTATION_FIXED, "FB_LATERAL_ORIENTATION_FIXED", "Fixed Angle");
+    addItem(RimFishbonesMultipleSubs::FB_LATERAL_ORIENTATION_RANDOM, "FB_LATERAL_ORIENTATION_RANDOM", "Random Angle");
+    setDefault(RimFishbonesMultipleSubs::FB_LATERAL_ORIENTATION_RANDOM);
+}
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 {
     CAF_PDM_InitObject("FishbonesMultipleSubs", ":/FishBoneGroup16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_isActive,                      "Active", true, "Active", "", "", "");
+    CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
     m_isActive.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_name,                 "Name", "Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_name, "Name", "Name", "", "", "");
     m_name.registerGetMethod(this, &RimFishbonesMultipleSubs::generatedName);
     m_name.uiCapability()->setUiReadOnly(true);
     m_name.xmlCapability()->setIOWritable(false);
 
     cvf::Color3f defaultColor = RiaColorTables::wellPathComponentColors()[RiaDefines::FISHBONES];
-    CAF_PDM_InitField(&fishbonesColor,                  "Color", defaultColor, "Fishbones Color", "", "", "");
+    CAF_PDM_InitField(&fishbonesColor, "Color", defaultColor, "Fishbones Color", "", "", "");
 
-    CAF_PDM_InitField(&m_lateralCountPerSub,            "LateralCountPerSub", 3,            "Laterals Per Sub", "", "", "");
-    CAF_PDM_InitField(&m_lateralLength,                 "LateralLength",  QString("11.0"),  "Length(s) [m]", "", "Specify multiple length values if the sub lengths differ", "");
+    CAF_PDM_InitField(&m_lateralCountPerSub, "LateralCountPerSub", 3, "Laterals Per Sub", "", "", "");
+    CAF_PDM_InitField(&m_lateralLength,
+                      "LateralLength",
+                      QString("11.0"),
+                      "Length(s) [m]",
+                      "",
+                      "Specify multiple length values if the sub lengths differ",
+                      "");
 
-    CAF_PDM_InitField(&m_lateralExitAngle,              "LateralExitAngle", 35.0,           "Exit Angle [deg]", "", "", "");
-    CAF_PDM_InitField(&m_lateralBuildAngle,             "LateralBuildAngle", 6.0,           "Build Angle [deg/m]", "", "", "");
+    CAF_PDM_InitField(&m_lateralExitAngle, "LateralExitAngle", 35.0, "Exit Angle [deg]", "", "", "");
+    CAF_PDM_InitField(&m_lateralBuildAngle, "LateralBuildAngle", 6.0, "Build Angle [deg/m]", "", "", "");
 
-    CAF_PDM_InitField(&m_lateralTubingDiameter,         "LateralTubingDiameter", 8.0,       "Tubing Diameter [mm]", "", "", "");
+    CAF_PDM_InitField(&m_lateralTubingDiameter, "LateralTubingDiameter", 8.0, "Tubing Diameter [mm]", "", "", "");
 
-    CAF_PDM_InitField(&m_lateralOpenHoleRoghnessFactor, "LateralOpenHoleRoghnessFactor", 0.001,   "Open Hole Roghness Factor [m]", "", "", "");
-    CAF_PDM_InitField(&m_lateralTubingRoghnessFactor,   "LateralTubingRoghnessFactor", 1e-5,      "Tubing Roghness Factor [m]", "", "", "");
+    CAF_PDM_InitField(
+        &m_lateralOpenHoleRoghnessFactor, "LateralOpenHoleRoghnessFactor", 0.001, "Open Hole Roghness Factor [m]", "", "", "");
+    CAF_PDM_InitField(
+        &m_lateralTubingRoghnessFactor, "LateralTubingRoghnessFactor", 1e-5, "Tubing Roghness Factor [m]", "", "", "");
 
-    CAF_PDM_InitField(&m_lateralInstallSuccessFraction, "LateralInstallSuccessFraction", 1.0,     "Install Success Rate [0..1]", "", "", "");
+    CAF_PDM_InitField(
+        &m_lateralInstallSuccessFraction, "LateralInstallSuccessFraction", 1.0, "Install Success Rate [0..1]", "", "", "");
 
-    CAF_PDM_InitField(&m_icdCount,                      "IcdCount", 2,                      "ICDs per Sub", "", "", "");
-    CAF_PDM_InitField(&m_icdOrificeDiameter,            "IcdOrificeDiameter", 7.0,          "ICD Orifice Diameter [mm]", "", "", "");
-    CAF_PDM_InitField(&m_icdFlowCoefficient,            "IcdFlowCoefficient", 1.5,          "ICD Flow Coefficient", "", "", "");
+    CAF_PDM_InitField(&m_icdCount, "IcdCount", 2, "ICDs per Sub", "", "", "");
+    CAF_PDM_InitField(&m_icdOrificeDiameter, "IcdOrificeDiameter", 7.0, "ICD Orifice Diameter [mm]", "", "", "");
+    CAF_PDM_InitField(&m_icdFlowCoefficient, "IcdFlowCoefficient", 1.5, "ICD Flow Coefficient", "", "", "");
 
     initialiseObsoleteFields();
     CAF_PDM_InitFieldNoDefault(&m_valveLocations, "ValveLocations", "Valve Locations", "", "", "");
@@ -102,11 +110,19 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     m_valveLocations.uiCapability()->setUiHidden(true);
     m_valveLocations.uiCapability()->setUiTreeChildrenHidden(true);
 
-    CAF_PDM_InitField(&m_subsOrientationMode,           "SubsOrientationMode", caf::AppEnum<LateralsOrientationType>(FB_LATERAL_ORIENTATION_RANDOM), "Orientation", "", "", "");
-    
-    CAF_PDM_InitFieldNoDefault(&m_installationRotationAngles, "InstallationRotationAngles", "Installation Rotation Angles [deg]", "", "", "");
+    CAF_PDM_InitField(&m_subsOrientationMode,
+                      "SubsOrientationMode",
+                      caf::AppEnum<LateralsOrientationType>(FB_LATERAL_ORIENTATION_RANDOM),
+                      "Orientation",
+                      "",
+                      "",
+                      "");
+
+    CAF_PDM_InitFieldNoDefault(
+        &m_installationRotationAngles, "InstallationRotationAngles", "Installation Rotation Angles [deg]", "", "", "");
     m_installationRotationAngles.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitField(&m_fixedInstallationRotationAngle, "FixedInstallationRotationAngle", 0.0, "  Fixed Angle [deg]", "", "", "");
+    CAF_PDM_InitField(
+        &m_fixedInstallationRotationAngle, "FixedInstallationRotationAngle", 0.0, "  Fixed Angle [deg]", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_pipeProperties, "PipeProperties", "Pipe Properties", "", "", "");
     m_pipeProperties.uiCapability()->setUiHidden(true);
@@ -118,15 +134,12 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimFishbonesMultipleSubs::~RimFishbonesMultipleSubs()
-{
-
-}
+RimFishbonesMultipleSubs::~RimFishbonesMultipleSubs() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimFishbonesMultipleSubs::isActive() const
 {
@@ -134,20 +147,20 @@ bool RimFishbonesMultipleSubs::isActive() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimFishbonesMultipleSubs::generatedName() const
 {
-    caf::PdmChildArrayField<RimFishbonesMultipleSubs*>* container = dynamic_cast<caf::PdmChildArrayField<RimFishbonesMultipleSubs*>*>(this->parentField());
+    caf::PdmChildArrayField<RimFishbonesMultipleSubs*>* container =
+        dynamic_cast<caf::PdmChildArrayField<RimFishbonesMultipleSubs*>*>(this->parentField());
     CVF_ASSERT(container);
 
     size_t index = container->index(this);
     return QString("Fishbone %1").arg(index);
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::setMeasuredDepthAndCount(double startMD, double spacing, int subCount)
 {
@@ -159,7 +172,7 @@ void RimFishbonesMultipleSubs::setMeasuredDepthAndCount(double startMD, double s
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesMultipleSubs::measuredDepth(size_t subIndex) const
 {
@@ -167,7 +180,7 @@ double RimFishbonesMultipleSubs::measuredDepth(size_t subIndex) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesMultipleSubs::rotationAngle(size_t index) const
 {
@@ -184,7 +197,7 @@ double RimFishbonesMultipleSubs::rotationAngle(size_t index) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesMultipleSubs::exitAngle() const
 {
@@ -192,7 +205,7 @@ double RimFishbonesMultipleSubs::exitAngle() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesMultipleSubs::buildAngle() const
 {
@@ -200,7 +213,7 @@ double RimFishbonesMultipleSubs::buildAngle() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesMultipleSubs::tubingDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const
 {
@@ -250,7 +263,7 @@ double RimFishbonesMultipleSubs::effectiveDiameter(RiaEclipseUnitTools::UnitSyst
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesMultipleSubs::openHoleRoughnessFactor(RiaEclipseUnitTools::UnitSystem unitSystem) const
 {
@@ -268,7 +281,7 @@ double RimFishbonesMultipleSubs::openHoleRoughnessFactor(RiaEclipseUnitTools::Un
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesMultipleSubs::icdOrificeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const
 {
@@ -276,7 +289,6 @@ double RimFishbonesMultipleSubs::icdOrificeDiameter(RiaEclipseUnitTools::UnitSys
     firstAncestorOrThisOfTypeAsserted(wellPath);
     return RimWellPathValve::convertOrificeDiameter(m_icdOrificeDiameter(), wellPath->unitSystem(), unitSystem);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -295,19 +307,19 @@ size_t RimFishbonesMultipleSubs::icdCount() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFishbonesMultipleSubs::lateralLengths() const
 {
-    QStringList items = m_lateralLength().split(' ');
-    double currentLength = 0.0;
+    QStringList items         = m_lateralLength().split(' ');
+    double      currentLength = 0.0;
 
     std::vector<double> lengths;
     for (int i = 0; i < static_cast<int>(m_lateralCountPerSub); i++)
     {
         if (i < items.size())
         {
-            bool conversionOk = false;
+            bool   conversionOk   = false;
             double candidateValue = items[i].toDouble(&conversionOk);
             if (conversionOk)
             {
@@ -328,7 +340,7 @@ void RimFishbonesMultipleSubs::geometryUpdated()
 {
     computeRotationAngles();
     computeSubLateralIndices();
-    
+
     RimFishbonesCollection* collection;
     this->firstAncestorOrThisOfTypeAsserted(collection);
     collection->recalculateStartMD();
@@ -336,11 +348,10 @@ void RimFishbonesMultipleSubs::geometryUpdated()
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
     proj->reloadCompletionTypeResultsInAllViews();
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RimFishbonesMultipleSubs::coordsForLateral(size_t subIndex, size_t lateralIndex) const
 {
@@ -356,15 +367,16 @@ std::vector<cvf::Vec3d> RimFishbonesMultipleSubs::coordsForLateral(size_t subInd
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<cvf::Vec3d, double>> RimFishbonesMultipleSubs::coordsAndMDForLateral(size_t subIndex, size_t lateralIndex) const
+std::vector<std::pair<cvf::Vec3d, double>> RimFishbonesMultipleSubs::coordsAndMDForLateral(size_t subIndex,
+                                                                                           size_t lateralIndex) const
 {
     return m_rigFishbonesGeometry->coordsForLateral(subIndex, lateralIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::recomputeLateralLocations()
 {
@@ -373,7 +385,7 @@ void RimFishbonesMultipleSubs::recomputeLateralLocations()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::setUnitSystemSpecificDefaults()
 {
@@ -383,21 +395,21 @@ void RimFishbonesMultipleSubs::setUnitSystemSpecificDefaults()
     {
         if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
         {
-            m_lateralLength = "11";
-            m_lateralBuildAngle = 6.0;
-            m_lateralTubingDiameter = 8;
+            m_lateralLength                 = "11";
+            m_lateralBuildAngle             = 6.0;
+            m_lateralTubingDiameter         = 8;
             m_lateralOpenHoleRoghnessFactor = 0.001;
-            m_lateralTubingRoghnessFactor = 1e-05;
-            m_icdOrificeDiameter = 7;
+            m_lateralTubingRoghnessFactor   = 1e-05;
+            m_icdOrificeDiameter            = 7;
         }
         else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
         {
-            m_lateralLength = "36";
-            m_lateralBuildAngle = 1.83;
-            m_lateralTubingDiameter = 0.31;
+            m_lateralLength                 = "36";
+            m_lateralBuildAngle             = 1.83;
+            m_lateralTubingDiameter         = 0.31;
             m_lateralOpenHoleRoghnessFactor = 0.0032;
-            m_lateralTubingRoghnessFactor = 3.28e-05;
-            m_icdOrificeDiameter = 0.28;
+            m_lateralTubingRoghnessFactor   = 3.28e-05;
+            m_icdOrificeDiameter            = 0.28;
         }
         m_pipeProperties->setUnitSystemSpecificDefaults();
     }
@@ -436,7 +448,7 @@ cvf::Color3f RimFishbonesMultipleSubs::defaultComponentColor() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesMultipleSubs::startMD() const
 {
@@ -450,7 +462,7 @@ double RimFishbonesMultipleSubs::startMD() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesMultipleSubs::endMD() const
 {
@@ -464,17 +476,18 @@ double RimFishbonesMultipleSubs::endMD() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                const QVariant&            oldValue,
+                                                const QVariant&            newValue)
 {
     if (changedField == &m_subsOrientationMode)
     {
         computeRotationAngles();
     }
 
-    if (changedField == &m_lateralInstallSuccessFraction ||
-        changedField == &m_lateralCountPerSub)
+    if (changedField == &m_lateralInstallSuccessFraction || changedField == &m_lateralCountPerSub)
     {
         computeSubLateralIndices();
     }
@@ -483,7 +496,7 @@ void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* chang
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimFishbonesMultipleSubs::userDescriptionField()
 {
@@ -491,7 +504,7 @@ caf::PdmFieldHandle* RimFishbonesMultipleSubs::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimFishbonesMultipleSubs::objectToggleField()
 {
@@ -499,7 +512,7 @@ caf::PdmFieldHandle* RimFishbonesMultipleSubs::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::computeRangesAndLocations()
 {
@@ -508,7 +521,7 @@ void RimFishbonesMultipleSubs::computeRangesAndLocations()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -546,11 +559,11 @@ void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUi
         group->add(&fishbonesColor);
     }
 
-    {        
+    {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("Location");
         m_valveLocations->uiOrdering(uiConfigName, *group);
     }
-    
+
     {
         caf::PdmUiGroup* lateralConfigGroup = uiOrdering.addNewGroup("Lateral Configuration");
 
@@ -559,7 +572,7 @@ void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUi
 
         lateralConfigGroup->add(&m_lateralExitAngle);
         lateralConfigGroup->add(&m_lateralBuildAngle);
-        
+
         lateralConfigGroup->add(&m_subsOrientationMode);
         if (m_subsOrientationMode == FB_LATERAL_ORIENTATION_FIXED)
         {
@@ -567,7 +580,6 @@ void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUi
         }
 
         lateralConfigGroup->add(&m_lateralInstallSuccessFraction);
-
     }
 
     {
@@ -591,7 +603,7 @@ void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::initAfterRead()
 {
@@ -605,7 +617,7 @@ void RimFishbonesMultipleSubs::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimFishbonesMultipleSubs::boundingBoxInDomainCoords() const
 {
@@ -639,7 +651,7 @@ bool RimFishbonesMultipleSubs::isEnabled() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::computeRotationAngles()
 {
@@ -654,7 +666,7 @@ void RimFishbonesMultipleSubs::computeRotationAngles()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::computeSubLateralIndices()
 {
@@ -671,28 +683,30 @@ void RimFishbonesMultipleSubs::computeSubLateralIndices()
         m_subLateralIndices.push_back(subLateralIndex);
     }
     double numLaterals = static_cast<double>(m_valveLocations->valveLocations().size() * m_lateralCountPerSub);
-    int numToRemove = static_cast<int>(std::round((1 - m_lateralInstallSuccessFraction) * numLaterals));
+    int    numToRemove = static_cast<int>(std::round((1 - m_lateralInstallSuccessFraction) * numLaterals));
     srand(m_randomSeed());
     while (numToRemove > 0)
     {
         int subIndexToRemove;
-        do {
+        do
+        {
             subIndexToRemove = rand() % m_subLateralIndices.size();
         } while (m_subLateralIndices[subIndexToRemove].lateralIndices.empty());
         int lateralIndexToRemove = rand() % m_subLateralIndices[subIndexToRemove].lateralIndices.size();
-        m_subLateralIndices[subIndexToRemove].lateralIndices.erase(m_subLateralIndices[subIndexToRemove].lateralIndices.begin() + lateralIndexToRemove);
+        m_subLateralIndices[subIndexToRemove].lateralIndices.erase(m_subLateralIndices[subIndexToRemove].lateralIndices.begin() +
+                                                                   lateralIndexToRemove);
         --numToRemove;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RimFishbonesMultipleSubs::randomValueFromRange(int min, int max)
 {
-    // See http://www.cplusplus.com/reference/cstdlib/rand/ 
+    // See http://www.cplusplus.com/reference/cstdlib/rand/
 
-    int range = abs(max - min);
+    int range               = abs(max - min);
     int randomNumberInRange = rand() % range;
 
     int randomValue = min + randomNumberInRange;
@@ -705,7 +719,13 @@ int RimFishbonesMultipleSubs::randomValueFromRange(int min, int max)
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::initialiseObsoleteFields()
 {
-    CAF_PDM_InitField(&m_subsLocationMode_OBSOLETE, "SubsLocationMode", caf::AppEnum<LocationType>(FB_SUB_UNDEFINED), "Location Defined By", "", "", "");
+    CAF_PDM_InitField(&m_subsLocationMode_OBSOLETE,
+                      "SubsLocationMode",
+                      caf::AppEnum<LocationType>(FB_SUB_UNDEFINED),
+                      "Location Defined By",
+                      "",
+                      "",
+                      "");
     m_subsLocationMode_OBSOLETE.xmlCapability()->setIOWritable(false);
 
     CAF_PDM_InitField(&m_rangeStart_OBSOLETE, "RangeStart", std::numeric_limits<double>::infinity(), "Start MD [m]", "", "", "");
@@ -714,9 +734,10 @@ void RimFishbonesMultipleSubs::initialiseObsoleteFields()
     CAF_PDM_InitField(&m_rangeEnd_OBSOLETE, "RangeEnd", std::numeric_limits<double>::infinity(), "End MD [m]", "", "", "");
     m_rangeEnd_OBSOLETE.xmlCapability()->setIOWritable(false);
 
-    CAF_PDM_InitField(&m_rangeSubSpacing_OBSOLETE, "RangeSubSpacing", std::numeric_limits<double>::infinity(), "Spacing [m]", "", "", "");
+    CAF_PDM_InitField(
+        &m_rangeSubSpacing_OBSOLETE, "RangeSubSpacing", std::numeric_limits<double>::infinity(), "Spacing [m]", "", "", "");
     m_rangeSubSpacing_OBSOLETE.xmlCapability()->setIOWritable(false);
-    
+
     CAF_PDM_InitField(&m_rangeSubCount_OBSOLETE, "RangeSubCount", -1, "Number of Subs", "", "", "");
     m_rangeSubCount_OBSOLETE.xmlCapability()->setIOWritable(false);
 
@@ -742,11 +763,11 @@ void RimFishbonesMultipleSubs::initValveLocationFromLegacyData()
     {
         locationType = RimMultipleValveLocations::VALVE_CUSTOM;
     }
-        
+
     m_valveLocations->initFields(locationType,
-                                              m_rangeStart_OBSOLETE(),
-                                              m_rangeEnd_OBSOLETE(),
-                                              m_rangeSubSpacing_OBSOLETE(),
-                                              m_rangeSubCount_OBSOLETE(),
-                                              m_locationOfSubs_OBSOLETE());
+                                 m_rangeStart_OBSOLETE(),
+                                 m_rangeEnd_OBSOLETE(),
+                                 m_rangeSubSpacing_OBSOLETE(),
+                                 m_rangeSubCount_OBSOLETE(),
+                                 m_locationOfSubs_OBSOLETE());
 }

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -31,9 +31,9 @@
 
 #include "cvfBoundingBox.h"
 
-#include "cafPdmUiTableViewEditor.h"
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT(RimUserDefinedPolylinesAnnotation, "UserDefinedPolylinesAnnotation");
@@ -54,35 +54,31 @@ RimUserDefinedPolylinesAnnotation::RimUserDefinedPolylinesAnnotation()
 
     CAF_PDM_InitFieldNoDefault(&m_targets, "Targets", "Targets", "", "", "");
     m_targets.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
-    //m_targets.uiCapability()->setUiTreeHidden(true);
+    // m_targets.uiCapability()->setUiTreeHidden(true);
     m_targets.uiCapability()->setUiTreeChildrenHidden(true);
     m_targets.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
     m_targets.uiCapability()->setCustomContextMenuEnabled(true);
 
     this->setUi3dEditorTypeName(RicPolyline3dEditor::uiEditorTypeName());
-
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimUserDefinedPolylinesAnnotation::~RimUserDefinedPolylinesAnnotation()
-{
-
-}
+RimUserDefinedPolylinesAnnotation::~RimUserDefinedPolylinesAnnotation() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigPolyLinesData> RimUserDefinedPolylinesAnnotation::polyLinesData()
 {
     cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
-    std::vector<cvf::Vec3d> line;
+    std::vector<cvf::Vec3d>    line;
     for (const RimPolylineTarget* target : m_targets)
     {
         line.push_back(target->targetPointXYZ());
     }
-    pld->setPolyLines({ line });
+    pld->setPolyLines({line});
 
     return pld;
 }
@@ -96,7 +92,7 @@ std::vector<RimPolylineTarget*> RimUserDefinedPolylinesAnnotation::activeTargets
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimUserDefinedPolylinesAnnotation::isEmpty()
 {

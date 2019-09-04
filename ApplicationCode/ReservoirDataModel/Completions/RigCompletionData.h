@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,24 +22,26 @@
 
 #include <QString>
 
-#include <cafPdmPointer.h>
 #include <cafPdmObject.h>
+#include <cafPdmPointer.h>
 
 #include <vector>
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
-enum WellConnectionState {
+enum WellConnectionState
+{
     OPEN,
     SHUT,
     AUTO,
 };
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
-enum CellDirection {
+enum CellDirection
+{
     DIR_I,
     DIR_J,
     DIR_K,
@@ -47,22 +49,28 @@ enum CellDirection {
 };
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
-struct RigCompletionMetaData {
-    RigCompletionMetaData(const QString& name, const QString& comment) : name(name), comment(comment) {}
+struct RigCompletionMetaData
+{
+    RigCompletionMetaData(const QString& name, const QString& comment)
+        : name(name)
+        , comment(comment)
+    {
+    }
 
     QString name;
     QString comment;
 };
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class RigCompletionData
 {
 public:
-    enum CompletionType {
+    enum CompletionType
+    {
         FISHBONES,
         FRACTURE,
         PERFORATION,
@@ -78,50 +86,49 @@ public:
 
     RigCompletionData(const RigCompletionData& other);
 
-    bool operator<(const RigCompletionData& other) const;
+    bool               operator<(const RigCompletionData& other) const;
     RigCompletionData& operator=(const RigCompletionData& other);
-
 
     static bool isPerforationValve(CompletionType type);
     static bool isValve(CompletionType type);
     static bool isWsegValveTypes(CompletionType type);
 
-    void        setFromFracture(double transmissibility, double skinFactor, double diameter);
-    void        setSecondOrderingValue(double orderingValue);
-    void        setDiameter(double diameter);
-    void        setTransmissibility(double transmissibility);
-    
-    void        setTransAndWPImultBackgroundDataFromFishbone(double transmissibility, 
-                                                             double skinFactor, 
-                                                             double diameter,
-                                                             CellDirection direction, 
-                                                             bool isMainBore);
+    void setFromFracture(double transmissibility, double skinFactor, double diameter);
+    void setSecondOrderingValue(double orderingValue);
+    void setDiameter(double diameter);
+    void setTransmissibility(double transmissibility);
 
-    void        setTransAndWPImultBackgroundDataFromPerforation(double transmissibility, 
-                                                                double skinFactor, 
-                                                                double diameter,
-                                                                double dFactor,
-                                                                double kh,
-                                                                CellDirection direction);
+    void setTransAndWPImultBackgroundDataFromFishbone(double        transmissibility,
+                                                      double        skinFactor,
+                                                      double        diameter,
+                                                      CellDirection direction,
+                                                      bool          isMainBore);
 
-    void        setCombinedValuesExplicitTrans(double         transmissibility,
+    void setTransAndWPImultBackgroundDataFromPerforation(double        transmissibility,
+                                                         double        skinFactor,
+                                                         double        diameter,
+                                                         double        dFactor,
+                                                         double        kh,
+                                                         CellDirection direction);
+
+    void setCombinedValuesExplicitTrans(double         transmissibility,
+                                        double         skinFactor,
+                                        double         diameter,
+                                        CellDirection  celldirection,
+                                        CompletionType completionType);
+
+    void setCombinedValuesImplicitTransWPImult(double         wpimult,
                                                double         skinFactor,
                                                double         diameter,
                                                CellDirection  celldirection,
                                                CompletionType completionType);
 
-    void        setCombinedValuesImplicitTransWPImult(double wpimult, 
-                                                      double skinFactor,
-                                                      double diameter, 
-                                                      CellDirection celldirection, 
-                                                      CompletionType completionType);
+    bool isNonDarcyFlow() const;
+    void setDFactor(double dFactor);
+    void setKh(double kh);
 
-    bool        isNonDarcyFlow() const;
-    void        setDFactor(double dFactor);
-    void        setKh(double kh);
+    void addMetadata(const QString& name, const QString& comment);
 
-    void        addMetadata(const QString& name, const QString& comment);
-    
     static double                             defaultValue();
     static bool                               isDefaultValue(double num);
     const std::vector<RigCompletionMetaData>& metadata() const;
@@ -130,7 +137,7 @@ public:
     WellConnectionState                       connectionState() const;
     double                                    saturation() const;
     double                                    transmissibility() const;
-    double                                    diameter() const; //TODO: should be ft or m
+    double                                    diameter() const; // TODO: should be ft or m
     double                                    kh() const;
     double                                    skinFactor() const;
     double                                    dFactor() const;
@@ -140,38 +147,38 @@ public:
     CompletionType                            completionType() const;
     bool                                      isMainBore() const;
 
-    double                                  firstOrderingValue() const;
-    double                                  secondOrderingValue() const;
+    double firstOrderingValue() const;
+    double secondOrderingValue() const;
 
-    void                                    setSourcePdmObject(const caf::PdmObject* object);
-    const caf::PdmObject*                   sourcePdmObject() const;
+    void                  setSourcePdmObject(const caf::PdmObject* object);
+    const caf::PdmObject* sourcePdmObject() const;
 
-    std::vector<RigCompletionMetaData>   m_metadata; 
-
-private:
-    QString                              m_wellName;
-    RigCompletionDataGridCell            m_cellIndex;
-    WellConnectionState                  m_connectionState;
-    double                               m_saturation; //TODO: remove, always use default in Eclipse?
-    double                               m_transmissibility;
-    double                               m_diameter;
-    double                               m_kh; //TODO: Remove, always use default in Eclipse?
-    double                               m_skinFactor;
-    double                               m_dFactor; //TODO: Remove, always use default in Eclipse?
-    CellDirection                        m_direction;
-
-    bool                                 m_isMainBore; //to use mainbore for Eclipse calculation
-
-    size_t                               m_count; //TODO: Remove, usage replaced by WPImult
-    double                               m_wpimult;
-
-    CompletionType                       m_completionType;
-
-    double                               m_firstOrderingValue;
-    double                               m_secondOrderingValue;
-
-    caf::PdmPointer<caf::PdmObject>      m_sourcePdmObject;
+    std::vector<RigCompletionMetaData> m_metadata;
 
 private:
-    static void                          copy(RigCompletionData& target, const RigCompletionData& from);
+    QString                   m_wellName;
+    RigCompletionDataGridCell m_cellIndex;
+    WellConnectionState       m_connectionState;
+    double        m_saturation; // TODO: remove, always use default in Eclipse?
+    double        m_transmissibility;
+    double        m_diameter;
+    double        m_kh; // TODO: Remove, always use default in Eclipse?
+    double        m_skinFactor;
+    double        m_dFactor; // TODO: Remove, always use default in Eclipse?
+    CellDirection m_direction;
+
+    bool m_isMainBore; // to use mainbore for Eclipse calculation
+
+    size_t m_count; // TODO: Remove, usage replaced by WPImult
+    double m_wpimult;
+
+    CompletionType m_completionType;
+
+    double m_firstOrderingValue;
+    double m_secondOrderingValue;
+
+    caf::PdmPointer<caf::PdmObject> m_sourcePdmObject;
+
+private:
+    static void copy(RigCompletionData& target, const RigCompletionData& from);
 };

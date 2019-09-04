@@ -95,7 +95,11 @@ public:
     std::string neighborTransDebugOutput(const RigMainGrid* mainGrid, const RigFractureGrid* fractureGrid);
     std::string condensedTransDebugOutput(const RigMainGrid* mainGrid, const RigFractureGrid* fractureGrid);
 
-    std::map<size_t, double> scaleMatrixToFracTransByMatrixWellDP(const RigActiveCellInfo* actCellInfo, double currentWellPressure, const std::vector<double>& currentMatrixPressures, double* minPressureDrop, double* maxPressureDrop);
+    std::map<size_t, double> scaleMatrixToFracTransByMatrixWellDP(const RigActiveCellInfo*   actCellInfo,
+                                                                  double                     currentWellPressure,
+                                                                  const std::vector<double>& currentMatrixPressures,
+                                                                  double*                    minPressureDrop,
+                                                                  double*                    maxPressureDrop);
 
     std::map<size_t, double> calculateFicticiousFractureToWellTransmissibilities();
     std::map<size_t, double>

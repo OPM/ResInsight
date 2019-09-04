@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -19,16 +19,16 @@
 #include "RiuSummaryCurveDefSelection.h"
 
 #include "RiaApplication.h"
+#include "RiaCurveSetDefinition.h"
 #include "RiaStdStringTools.h"
 #include "RiaSummaryCurveDefinition.h"
-#include "RiaCurveSetDefinition.h"
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
 
 #include "RimCalculatedSummaryCase.h"
-#include "RimObservedSummaryData.h"
 #include "RimObservedDataCollection.h"
+#include "RimObservedSummaryData.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCalculation.h"
@@ -46,166 +46,288 @@
 
 #include <algorithm>
 
-
-
 CAF_PDM_SOURCE_INIT(RiuSummaryCurveDefSelection, "RicSummaryAddressSelection");
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class SummaryIdentifierAndField
 {
 public:
-    SummaryIdentifierAndField() :
-        m_summaryIdentifier((RifEclipseSummaryAddress::SummaryIdentifierType)0),
-        m_pdmField(nullptr)
-    {}
+    SummaryIdentifierAndField()
+        : m_summaryIdentifier((RifEclipseSummaryAddress::SummaryIdentifierType)0)
+        , m_pdmField(nullptr)
+    {
+    }
 
-    SummaryIdentifierAndField(RifEclipseSummaryAddress::SummaryIdentifierType summaryIdentifier) :
-        m_summaryIdentifier(summaryIdentifier),
-        m_pdmField(new caf::PdmField<std::vector<QString>>())
-    {}
+    SummaryIdentifierAndField(RifEclipseSummaryAddress::SummaryIdentifierType summaryIdentifier)
+        : m_summaryIdentifier(summaryIdentifier)
+        , m_pdmField(new caf::PdmField<std::vector<QString>>())
+    {
+    }
 
-    virtual ~SummaryIdentifierAndField() { delete m_pdmField; }
+    virtual ~SummaryIdentifierAndField()
+    {
+        delete m_pdmField;
+    }
 
-    RifEclipseSummaryAddress::SummaryIdentifierType summaryIdentifier() const { return m_summaryIdentifier; }
-    caf::PdmField<std::vector<QString>>*            pdmField() { return m_pdmField; }
+    RifEclipseSummaryAddress::SummaryIdentifierType summaryIdentifier() const
+    {
+        return m_summaryIdentifier;
+    }
+    caf::PdmField<std::vector<QString>>* pdmField()
+    {
+        return m_pdmField;
+    }
 
 private:
     RifEclipseSummaryAddress::SummaryIdentifierType m_summaryIdentifier;
-    caf::PdmField<std::vector<QString>> *           m_pdmField;
+    caf::PdmField<std::vector<QString>>*            m_pdmField;
 };
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection() : m_identifierFieldsMap(
-{
-    { RifEclipseSummaryAddress::SUMMARY_FIELD, {
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
-    } },
-    { RifEclipseSummaryAddress::SUMMARY_AQUIFER, {
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_AQUIFER_NUMBER) },
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
-    } },
-    { RifEclipseSummaryAddress::SUMMARY_NETWORK, {
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
-    } },
-    { RifEclipseSummaryAddress::SUMMARY_MISC, {
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
-    } },
-    { RifEclipseSummaryAddress::SUMMARY_REGION,{
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_REGION_NUMBER) },
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
-    } },
-    { RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION,{
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_REGION_2_REGION) },
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
-    } },
-    { RifEclipseSummaryAddress::SUMMARY_WELL_GROUP,{
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_GROUP_NAME) },
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
-    } },
-    { RifEclipseSummaryAddress::SUMMARY_WELL,{
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_NAME) },
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
-    } },
-    { RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION,{
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_NAME) },
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_CELL_IJK) },
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
-    } },
-    { RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR,{
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_LGR_NAME) },
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_NAME) },
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_CELL_IJK) },
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
-    } },
-    { RifEclipseSummaryAddress::SUMMARY_WELL_LGR,{
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_LGR_NAME) },
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_NAME) },
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
-    } },
-    { RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT,{
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_NAME) },
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_SEGMENT_NUMBER) },
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
-    } },
-    { RifEclipseSummaryAddress::SUMMARY_BLOCK,{
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_CELL_IJK) },
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
-    } },
-    { RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR,{
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_LGR_NAME) },
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_CELL_IJK) },
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
-    } },
-    { RifEclipseSummaryAddress::SUMMARY_CALCULATED, {
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
-    } },
-    { RifEclipseSummaryAddress::SUMMARY_IMPORTED,{
-        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
-    } },
-})
+RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection()
+    : m_identifierFieldsMap({
+          {RifEclipseSummaryAddress::SUMMARY_FIELD,
+           {{new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME)}}},
+          {RifEclipseSummaryAddress::SUMMARY_AQUIFER,
+           {{new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_AQUIFER_NUMBER)},
+            {new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME)}}},
+          {RifEclipseSummaryAddress::SUMMARY_NETWORK,
+           {{new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME)}}},
+          {RifEclipseSummaryAddress::SUMMARY_MISC,
+           {{new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME)}}},
+          {RifEclipseSummaryAddress::SUMMARY_REGION,
+           {{new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_REGION_NUMBER)},
+            {new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME)}}},
+          {RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION,
+           {{new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_REGION_2_REGION)},
+            {new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME)}}},
+          {RifEclipseSummaryAddress::SUMMARY_WELL_GROUP,
+           {{new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_GROUP_NAME)},
+            {new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME)}}},
+          {RifEclipseSummaryAddress::SUMMARY_WELL,
+           {{new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_NAME)},
+            {new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME)}}},
+          {RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION,
+           {{new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_NAME)},
+            {new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_CELL_IJK)},
+            {new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME)}}},
+          {RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR,
+           {{new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_LGR_NAME)},
+            {new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_NAME)},
+            {new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_CELL_IJK)},
+            {new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME)}}},
+          {RifEclipseSummaryAddress::SUMMARY_WELL_LGR,
+           {{new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_LGR_NAME)},
+            {new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_NAME)},
+            {new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME)}}},
+          {RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT,
+           {{new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_NAME)},
+            {new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_SEGMENT_NUMBER)},
+            {new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME)}}},
+          {RifEclipseSummaryAddress::SUMMARY_BLOCK,
+           {{new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_CELL_IJK)},
+            {new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME)}}},
+          {RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR,
+           {{new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_LGR_NAME)},
+            {new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_CELL_IJK)},
+            {new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME)}}},
+          {RifEclipseSummaryAddress::SUMMARY_CALCULATED,
+           {{new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME)}}},
+          {RifEclipseSummaryAddress::SUMMARY_IMPORTED,
+           {{new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME)}}},
+      })
 {
     CAF_PDM_InitFieldNoDefault(&m_selectedSources, "SummaryCases", "Cases", "", "", "");
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue(false);
 
-
     CAF_PDM_InitFieldNoDefault(&m_currentSummaryCategory, "CurrentSummaryCategory", "Current Summary Category", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedSummaryCategories, "SelectedSummaryCategories", "Summary Categories", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_FIELD][0]->pdmField(), "FieldVectors", "Field vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_FIELD][0]->pdmField(),
+                               "FieldVectors",
+                               "Field vectors",
+                               "",
+                               "",
+                               "");
 
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_AQUIFER][0]->pdmField(), "Aquifers", "Aquifers", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_AQUIFER][1]->pdmField(), "AquiferVectors", "Aquifer Vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(
+        m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_AQUIFER][0]->pdmField(), "Aquifers", "Aquifers", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_AQUIFER][1]->pdmField(),
+                               "AquiferVectors",
+                               "Aquifer Vectors",
+                               "",
+                               "",
+                               "");
 
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_NETWORK][0]->pdmField(), "NetworkVectors", "Network Vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_NETWORK][0]->pdmField(),
+                               "NetworkVectors",
+                               "Network Vectors",
+                               "",
+                               "",
+                               "");
 
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_MISC][0]->pdmField(), "MiscVectors", "Misc Vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(
+        m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_MISC][0]->pdmField(), "MiscVectors", "Misc Vectors", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION][0]->pdmField(), "Regions", "Regions", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION][1]->pdmField(), "RegionsVectors", "Regions Vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(
+        m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION][0]->pdmField(), "Regions", "Regions", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION][1]->pdmField(),
+                               "RegionsVectors",
+                               "Regions Vectors",
+                               "",
+                               "",
+                               "");
 
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION][0]->pdmField(), "Region2RegionRegions", "Regions", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION][1]->pdmField(), "Region2RegionVectors", "Region2s Vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION][0]->pdmField(),
+                               "Region2RegionRegions",
+                               "Regions",
+                               "",
+                               "",
+                               "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION][1]->pdmField(),
+                               "Region2RegionVectors",
+                               "Region2s Vectors",
+                               "",
+                               "",
+                               "");
 
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_GROUP][0]->pdmField(), "WellGroupWellGroupNames", "Well groups", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_GROUP][1]->pdmField(), "WellGroupVectors", "Well Group Vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_GROUP][0]->pdmField(),
+                               "WellGroupWellGroupNames",
+                               "Well groups",
+                               "",
+                               "",
+                               "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_GROUP][1]->pdmField(),
+                               "WellGroupVectors",
+                               "Well Group Vectors",
+                               "",
+                               "",
+                               "");
 
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL][0]->pdmField(), "WellWellName", "Wells", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL][1]->pdmField(), "WellVectors", "Well Vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(
+        m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL][0]->pdmField(), "WellWellName", "Wells", "", "", "");
+    CAF_PDM_InitFieldNoDefault(
+        m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL][1]->pdmField(), "WellVectors", "Well Vectors", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][0]->pdmField(), "WellCompletionWellName", "Wells", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][1]->pdmField(), "WellCompletionIjk", "Cell IJK", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][2]->pdmField(), "WellCompletionVectors", "Well Completion Vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][0]->pdmField(),
+                               "WellCompletionWellName",
+                               "Wells",
+                               "",
+                               "",
+                               "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][1]->pdmField(),
+                               "WellCompletionIjk",
+                               "Cell IJK",
+                               "",
+                               "",
+                               "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][2]->pdmField(),
+                               "WellCompletionVectors",
+                               "Well Completion Vectors",
+                               "",
+                               "",
+                               "");
 
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][0]->pdmField(), "WellCompletionLgrLgrName", "LGR Names", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][1]->pdmField(), "WellCompletionLgrWellName", "Wells", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][2]->pdmField(), "WellCompletionLgrIjk", "Cell IJK", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][3]->pdmField(), "WellCompletionLgrVectors", "Well Completion Vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][0]->pdmField(),
+                               "WellCompletionLgrLgrName",
+                               "LGR Names",
+                               "",
+                               "",
+                               "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][1]->pdmField(),
+                               "WellCompletionLgrWellName",
+                               "Wells",
+                               "",
+                               "",
+                               "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][2]->pdmField(),
+                               "WellCompletionLgrIjk",
+                               "Cell IJK",
+                               "",
+                               "",
+                               "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][3]->pdmField(),
+                               "WellCompletionLgrVectors",
+                               "Well Completion Vectors",
+                               "",
+                               "",
+                               "");
 
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][0]->pdmField(), "WellLgrLgrName", "LGR Names", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][1]->pdmField(), "WellLgrWellName", "Wells", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][2]->pdmField(), "WellLgrVectors", "Vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][0]->pdmField(),
+                               "WellLgrLgrName",
+                               "LGR Names",
+                               "",
+                               "",
+                               "");
+    CAF_PDM_InitFieldNoDefault(
+        m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][1]->pdmField(), "WellLgrWellName", "Wells", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][2]->pdmField(),
+                               "WellLgrVectors",
+                               "Vectors",
+                               "",
+                               "",
+                               "");
 
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT][0]->pdmField(), "WellSegmentWellName", "Wells", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT][1]->pdmField(), "WellSegmentNumber", "Segments", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT][2]->pdmField(), "WellSegmentVectors", "Vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT][0]->pdmField(),
+                               "WellSegmentWellName",
+                               "Wells",
+                               "",
+                               "",
+                               "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT][1]->pdmField(),
+                               "WellSegmentNumber",
+                               "Segments",
+                               "",
+                               "",
+                               "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT][2]->pdmField(),
+                               "WellSegmentVectors",
+                               "Vectors",
+                               "",
+                               "",
+                               "");
 
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK][0]->pdmField(), "BlockIjk", "Cell IJK", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK][1]->pdmField(), "BlockVectors", "Block Vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(
+        m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK][0]->pdmField(), "BlockIjk", "Cell IJK", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK][1]->pdmField(),
+                               "BlockVectors",
+                               "Block Vectors",
+                               "",
+                               "",
+                               "");
 
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][0]->pdmField(), "BlockLgrLgrName", "LGR Names", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][1]->pdmField(), "BlockLgrIjk", "Cell IJK", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][2]->pdmField(), "BlockLgrVectors", "Block Vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][0]->pdmField(),
+                               "BlockLgrLgrName",
+                               "LGR Names",
+                               "",
+                               "",
+                               "");
+    CAF_PDM_InitFieldNoDefault(
+        m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][1]->pdmField(), "BlockLgrIjk", "Cell IJK", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][2]->pdmField(),
+                               "BlockLgrVectors",
+                               "Block Vectors",
+                               "",
+                               "",
+                               "");
 
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][0]->pdmField(), "CalculatedVectors", "Calculated Vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][0]->pdmField(),
+                               "CalculatedVectors",
+                               "Calculated Vectors",
+                               "",
+                               "",
+                               "");
 
-    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_IMPORTED][0]->pdmField(), "ImportedVectors", "Imported vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_IMPORTED][0]->pdmField(),
+                               "ImportedVectors",
+                               "Imported vectors",
+                               "",
+                               "",
+                               "");
 
     for (const auto& itemTypes : m_identifierFieldsMap)
     {
@@ -213,8 +335,8 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection() : m_identifierFieldsM
         {
             itemInputType->pdmField()->uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
 
-            itemInputType->pdmField()->uiCapability()->setUiLabelPosition(itemTypes.second.size() > 2 ?
-                                                                          caf::PdmUiItemInfo::TOP : caf::PdmUiItemInfo::HIDDEN);
+            itemInputType->pdmField()->uiCapability()->setUiLabelPosition(
+                itemTypes.second.size() > 2 ? caf::PdmUiItemInfo::TOP : caf::PdmUiItemInfo::HIDDEN);
 
             itemInputType->pdmField()->uiCapability()->setAutoAddingOptionFromValue(false);
         }
@@ -230,15 +352,15 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection() : m_identifierFieldsM
 
     m_currentSummaryCategory.uiCapability()->setUiHidden(true);
     m_multiSelectionMode = false;
-    m_hideEnsembles = false;
-    m_hideSummaryCases = false;
+    m_hideEnsembles      = false;
+    m_hideSummaryCases   = false;
 
-    m_prevCurveCount = 0;
+    m_prevCurveCount    = 0;
     m_prevCurveSetCount = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryCurveDefSelection::~RiuSummaryCurveDefSelection()
 {
@@ -252,20 +374,20 @@ RiuSummaryCurveDefSelection::~RiuSummaryCurveDefSelection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::allCurveDefinitionsFromSelection() const
 {
     std::vector<RiaSummaryCurveDefinition> curveDefVector;
-    
+
     {
         std::set<RiaSummaryCurveDefinition> curveDefinitions;
-        std::set<RifEclipseSummaryAddress> selectedAddressesFromUi = buildAddressListFromSelections();
+        std::set<RifEclipseSummaryAddress>  selectedAddressesFromUi = buildAddressListFromSelections();
 
         for (SummarySource* currSource : selectedSummarySources())
         {
             RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>(currSource);
-            RimSummaryCase* sumCase = dynamic_cast<RimSummaryCase*>(currSource);
+            RimSummaryCase*           sumCase  = dynamic_cast<RimSummaryCase*>(currSource);
 
             std::set<RifEclipseSummaryAddress> addressesFromSource;
             std::vector<RimSummaryCase*>       casesFromSource;
@@ -307,12 +429,12 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::allCurveDefi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaCurveSetDefinition> RiuSummaryCurveDefSelection::allCurveSetDefinitionsFromSelections() const
 {
     std::vector<RiaCurveSetDefinition> curveSetDefVector;
-    std::set<RiaCurveSetDefinition> curveSetDefinitions;
+    std::set<RiaCurveSetDefinition>    curveSetDefinitions;
     std::set<RifEclipseSummaryAddress> selectedAddressesFromUi = buildAddressListFromSelections();
 
     for (SummarySource* currSource : selectedSummarySources())
@@ -345,16 +467,16 @@ std::vector<RiaCurveSetDefinition> RiuSummaryCurveDefSelection::allCurveSetDefin
 std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::selection() const
 {
     std::vector<RiaSummaryCurveDefinition> curveDefSelection;
-    std::set<RifEclipseSummaryAddress> selectedAddressesFromUi = buildAddressListFromSelections();
+    std::set<RifEclipseSummaryAddress>     selectedAddressesFromUi = buildAddressListFromSelections();
     for (SummarySource* currSource : selectedSummarySources())
     {
-        RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>(currSource);
-        RimSummaryCase* sourceCase = dynamic_cast<RimSummaryCase*>(currSource);
+        RimSummaryCaseCollection* ensemble   = dynamic_cast<RimSummaryCaseCollection*>(currSource);
+        RimSummaryCase*           sourceCase = dynamic_cast<RimSummaryCase*>(currSource);
 
         if (ensemble)
         {
             std::set<RifEclipseSummaryAddress> addressUnion = ensemble->ensembleSummaryAddresses();
-            for ( const auto& addr : selectedAddressesFromUi)
+            for (const auto& addr : selectedAddressesFromUi)
             {
                 if (addressUnion.count(addr))
                 {
@@ -364,10 +486,10 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::selection() 
         }
         else
         {
-            if (!(sourceCase &&  sourceCase->summaryReader())) continue;
+            if (!(sourceCase && sourceCase->summaryReader())) continue;
 
             const std::set<RifEclipseSummaryAddress>& readerAddresses = sourceCase->summaryReader()->allResultAddresses();
-            for ( const auto& addr : selectedAddressesFromUi)
+            for (const auto& addr : selectedAddressesFromUi)
             {
                 if (readerAddresses.count(addr))
                 {
@@ -381,7 +503,7 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::selection() 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::setMultiSelectionMode(bool multiSelectionMode)
 {
@@ -389,7 +511,7 @@ void RiuSummaryCurveDefSelection::setMultiSelectionMode(bool multiSelectionMode)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::hideEnsembles(bool hide)
 {
@@ -397,7 +519,7 @@ void RiuSummaryCurveDefSelection::hideEnsembles(bool hide)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::hideSummaryCases(bool hide)
 {
@@ -405,7 +527,7 @@ void RiuSummaryCurveDefSelection::hideSummaryCases(bool hide)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::setFieldChangedHandler(const std::function<void()>& handlerFunc)
 {
@@ -413,13 +535,13 @@ void RiuSummaryCurveDefSelection::setFieldChangedHandler(const std::function<voi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::setDefaultSelection(const std::vector<SummarySource*>& defaultSources)
 {
-    RimProject* proj = RiaApplication::instance()->project();
-    auto allSumCases = proj->allSummaryCases();
-    auto allSumGroups = proj->summaryGroups();
+    RimProject* proj         = RiaApplication::instance()->project();
+    auto        allSumCases  = proj->allSummaryCases();
+    auto        allSumGroups = proj->summaryGroups();
 
     if (allSumCases.size() > 0)
     {
@@ -429,9 +551,9 @@ void RiuSummaryCurveDefSelection::setDefaultSelection(const std::vector<SummaryS
         if (selectTheseSources.empty()) selectTheseSources.push_back(allSumCases[0]);
 
         std::vector<RiaSummaryCurveDefinition> curveDefs;
-        for(SummarySource* s : selectTheseSources)
+        for (SummarySource* s : selectTheseSources)
         {
-            RimSummaryCase* sumCase = dynamic_cast<RimSummaryCase*>(s);
+            RimSummaryCase*           sumCase  = dynamic_cast<RimSummaryCase*>(s);
             RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>(s);
 
             RiaSummaryCurveDefinition curveDef(sumCase, defaultAddress, ensemble);
@@ -443,7 +565,7 @@ void RiuSummaryCurveDefSelection::setDefaultSelection(const std::vector<SummaryS
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<RiaSummaryCurveDefinition>& curveDefinitions)
 {
@@ -451,7 +573,7 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
 
     for (const auto& curveDef : curveDefinitions)
     {
-        if (!(curveDef.summaryCase() || curveDef.isEnsembleCurve()) ) continue;
+        if (!(curveDef.summaryCase() || curveDef.isEnsembleCurve())) continue;
 
         RimSummaryCase* summaryCase = curveDef.summaryCase();
 
@@ -468,8 +590,8 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
         // Select summary category if not already selected
         auto& selectedCategories = m_selectedSummaryCategories();
 
-        if (std::find(selectedCategories.begin(), selectedCategories.end(),
-                      summaryAddress.category()) == selectedCategories.end())
+        if (std::find(selectedCategories.begin(), selectedCategories.end(), summaryAddress.category()) ==
+            selectedCategories.end())
         {
             m_selectedSummaryCategories.v().push_back(summaryAddress.category());
         }
@@ -489,8 +611,8 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
         auto identifierAndFieldList = m_identifierFieldsMap[summaryAddress.category()];
         for (const auto& identifierAndField : identifierAndFieldList)
         {
-            bool isVectorField = identifierAndField->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME;
-            QString avalue = QString::fromStdString(summaryAddress.uiText(identifierAndField->summaryIdentifier()));
+            bool    isVectorField = identifierAndField->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME;
+            QString avalue        = QString::fromStdString(summaryAddress.uiText(identifierAndField->summaryIdentifier()));
             if (isVectorField && isObservedDataCase)
             {
                 avalue = avalue + QString(OBSERVED_DATA_AVALUE_POSTFIX);
@@ -507,7 +629,7 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddressesFromCalculated()
 {
@@ -528,9 +650,11 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RiuSummaryCurveDefSelection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                   const QVariant&            oldValue,
+                                                   const QVariant&            newValue)
 {
     if (changedField != &m_selectedSources && changedField != &m_selectedSummaryCategories &&
         changedField != &m_currentSummaryCategory)
@@ -552,7 +676,7 @@ void RiuSummaryCurveDefSelection::fieldChangedByUi(const caf::PdmFieldHandle* ch
         }
     }
 
-    size_t curveCount = allCurveDefinitionsFromSelection().size();
+    size_t curveCount    = allCurveDefinitionsFromSelection().size();
     size_t curveSetCount = allCurveSetDefinitionsFromSelections().size();
 
     if (m_toggleChangedHandler != nullptr)
@@ -562,22 +686,23 @@ void RiuSummaryCurveDefSelection::fieldChangedByUi(const caf::PdmFieldHandle* ch
         {
             m_toggleChangedHandler();
 
-            m_prevCurveCount = curveCount;
+            m_prevCurveCount    = curveCount;
             m_prevCurveSetCount = curveSetCount;
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                                 bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
     if (fieldNeedingOptions == &m_selectedSources)
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject*               proj = RiaApplication::instance()->project();
         std::vector<RimOilField*> oilFields;
 
         proj->allOilFields(oilFields);
@@ -670,7 +795,7 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
         sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_CALCULATED);
         sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_IMPORTED);
         // NB SUMMARY_ENSEMBLE_STATISTICS is intentionally excluded
-        //categoriesForUiDisplay.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_ENSEMBLE_STATISTICS);
+        // categoriesForUiDisplay.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_ENSEMBLE_STATISTICS);
 
         for (auto category : sortedCategoriesForUi)
         {
@@ -684,14 +809,19 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
         auto identifierAndField = lookupIdentifierAndFieldFromFieldHandle(fieldNeedingOptions);
         if (identifierAndField != nullptr)
         {
-            enum {SUM_CASES, OBS_DATA, CALCULATED_CURVES};
+            enum
+            {
+                SUM_CASES,
+                OBS_DATA,
+                CALCULATED_CURVES
+            };
 
             const int itemCount = CALCULATED_CURVES + 1;
 
             std::set<RifEclipseSummaryAddress> addrUnion[itemCount];
-            addrUnion[SUM_CASES] = findPossibleSummaryAddressesFromSelectedCases(identifierAndField);
-            addrUnion[OBS_DATA] =  findPossibleSummaryAddressesFromSelectedObservedData(identifierAndField);
-            addrUnion[CALCULATED_CURVES] =  findPossibleSummaryAddressesFromCalculated();
+            addrUnion[SUM_CASES]         = findPossibleSummaryAddressesFromSelectedCases(identifierAndField);
+            addrUnion[OBS_DATA]          = findPossibleSummaryAddressesFromSelectedObservedData(identifierAndField);
+            addrUnion[CALCULATED_CURVES] = findPossibleSummaryAddressesFromCalculated();
 
             std::set<std::string> itemNames[itemCount];
             for (int i = 0; i < itemCount; i++)
@@ -717,11 +847,11 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
                 itemNames[OBS_DATA].clear();
             }
 
-            for(int i = 0; i < itemCount; i++)
+            for (int i = 0; i < itemCount; i++)
             {
                 // Create headers only for vector fields when observed data is selected
                 bool hasObservedData = itemNames[OBS_DATA].size() > 0;
-                bool groupItems = isVectorField && hasObservedData;
+                bool groupItems      = isVectorField && hasObservedData;
                 if (groupItems)
                 {
                     QString headerText;
@@ -751,24 +881,24 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
                 {
                     switch (identifierAndField->summaryIdentifier())
                     {
-                    case RifEclipseSummaryAddress::INPUT_REGION_NUMBER:
-                    case RifEclipseSummaryAddress::INPUT_SEGMENT_NUMBER:
-                    case RifEclipseSummaryAddress::INPUT_AQUIFER_NUMBER:
-                    {
-                        std::set<int> values;
-                        for (const std::string& itemName : itemNames[i])
+                        case RifEclipseSummaryAddress::INPUT_REGION_NUMBER:
+                        case RifEclipseSummaryAddress::INPUT_SEGMENT_NUMBER:
+                        case RifEclipseSummaryAddress::INPUT_AQUIFER_NUMBER:
                         {
-                            values.insert(RiaStdStringTools::toInt(itemName));
+                            std::set<int> values;
+                            for (const std::string& itemName : itemNames[i])
+                            {
+                                values.insert(RiaStdStringTools::toInt(itemName));
+                            }
+                            for (int v : values)
+                            {
+                                itemNamesVector.push_back(std::to_string(v));
+                            }
+                            break;
                         }
-                        for (int v : values)
-                        {
-                            itemNamesVector.push_back(std::to_string(v));
-                        }
-                        break;
-                    }
-                    default:
-                        itemNamesVector.insert(itemNamesVector.end(), itemNames[i].begin(), itemNames[i].end());
-                        break;
+                        default:
+                            itemNamesVector.insert(itemNamesVector.end(), itemNames[i].begin(), itemNames[i].end());
+                            break;
                     }
                 }
 
@@ -779,7 +909,7 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
                     if (isVectorField)
                     {
                         std::string longVectorName = RiuSummaryVectorDescriptionMap::instance()->vectorLongName(itemName, true);
-                        displayName = QString::fromStdString(longVectorName);
+                        displayName                = QString::fromStdString(longVectorName);
                         displayName += QString(" (%1)").arg(QString::fromStdString(itemName));
                     }
                     else
@@ -788,8 +918,7 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
                     }
 
                     auto optionItem = caf::PdmOptionItemInfo(displayName, QString::fromStdString(itemName) + itemPostfix);
-                    if (groupItems)
-                        optionItem.setLevel(1);
+                    if (groupItems) optionItem.setLevel(1);
                     options.push_back(optionItem);
                 }
             }
@@ -800,14 +929,15 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* sourcesGroup = uiOrdering.addNewGroupWithKeyword("Sources", RiuSummaryCurveDefinitionKeywords::sources());
     sourcesGroup->add(&m_selectedSources);
 
-    caf::PdmUiGroup* itemTypesGroup = uiOrdering.addNewGroupWithKeyword("Summary Types", RiuSummaryCurveDefinitionKeywords::summaryTypes());
+    caf::PdmUiGroup* itemTypesGroup =
+        uiOrdering.addNewGroupWithKeyword("Summary Types", RiuSummaryCurveDefinitionKeywords::summaryTypes());
     itemTypesGroup->add(&m_selectedSummaryCategories);
 
     caf::PdmField<std::vector<QString>>* summaryiesField = nullptr;
@@ -926,7 +1056,7 @@ void RiuSummaryCurveDefSelection::defineUiOrdering(QString uiConfigName, caf::Pd
         summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK][1]->pdmField();
     }
     else if (sumCategory == RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR)
-    {   
+    {
         {
             caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("LGR Blocks");
             myGroup->add(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][0]->pdmField());
@@ -944,7 +1074,8 @@ void RiuSummaryCurveDefSelection::defineUiOrdering(QString uiConfigName, caf::Pd
         summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_IMPORTED][0]->pdmField();
     }
 
-    caf::PdmUiGroup* summariesGroup = uiOrdering.addNewGroupWithKeyword("Summaries", RiuSummaryCurveDefinitionKeywords::summaries());
+    caf::PdmUiGroup* summariesGroup =
+        uiOrdering.addNewGroupWithKeyword("Summaries", RiuSummaryCurveDefinitionKeywords::summaries());
     if (summaryiesField)
     {
         summariesGroup->add(summaryiesField);
@@ -954,19 +1085,20 @@ void RiuSummaryCurveDefSelection::defineUiOrdering(QString uiConfigName, caf::Pd
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddressesFromSelectedCases(const SummaryIdentifierAndField *identifierAndField)
+std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddressesFromSelectedCases(
+    const SummaryIdentifierAndField* identifierAndField)
 {
     std::vector<SummarySource*> sources;
     for (const auto& source : m_selectedSources())
     {
-        RimSummaryCase* sumCase = dynamic_cast<RimSummaryCase*>(source.p());
+        RimSummaryCase*           sumCase  = dynamic_cast<RimSummaryCase*>(source.p());
         RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>(source.p());
 
         if (sumCase)
         {
-            if(!isObservedData(sumCase)) sources.push_back(sumCase);
+            if (!isObservedData(sumCase)) sources.push_back(sumCase);
         }
         else if (ensemble)
         {
@@ -977,9 +1109,10 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddressesFromSelectedObservedData(const SummaryIdentifierAndField *identifierAndField)
+std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddressesFromSelectedObservedData(
+    const SummaryIdentifierAndField* identifierAndField)
 {
     std::vector<SummarySource*> obsData;
     for (const auto& source : m_selectedSources())
@@ -997,12 +1130,14 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 //--------------------------------------------------------------------------------------------------
 /// Returns the summary addresses that match the selected item type and input selections made in GUI
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddresses(const std::vector<SummarySource*> &selectedSources, 
-                                                                                        const SummaryIdentifierAndField *identifierAndField)
+std::set<RifEclipseSummaryAddress>
+    RiuSummaryCurveDefSelection::findPossibleSummaryAddresses(const std::vector<SummarySource*>& selectedSources,
+                                                              const SummaryIdentifierAndField*   identifierAndField)
 {
     std::set<RifEclipseSummaryAddress> addrUnion;
 
-    auto isVectorField = identifierAndField != nullptr && identifierAndField->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME;
+    auto isVectorField =
+        identifierAndField != nullptr && identifierAndField->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME;
     auto controllingIdentifierAndField = identifierAndField != nullptr ? lookupControllingField(identifierAndField) : nullptr;
     if (!isVectorField && controllingIdentifierAndField != nullptr && controllingIdentifierAndField->pdmField()->v().size() == 0)
     {
@@ -1013,7 +1148,7 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
     {
         std::set<RifEclipseSummaryAddress> allAddresses;
 
-        RimSummaryCase* currCase = dynamic_cast<RimSummaryCase*>(currSource);
+        RimSummaryCase*           currCase     = dynamic_cast<RimSummaryCase*>(currSource);
         RimSummaryCaseCollection* currEnsemble = dynamic_cast<RimSummaryCaseCollection*>(currSource);
 
         if (currCase)
@@ -1034,11 +1169,12 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
             controllingFields = buildControllingFieldList(identifierAndField);
         }
 
-        for(auto& address : allAddresses)
+        for (auto& address : allAddresses)
         {
             if (address.category() == m_currentSummaryCategory())
             {
-                bool addressSelected = applySelections ? isAddressCompatibleWithControllingFieldSelection(address, controllingFields) : true;
+                bool addressSelected =
+                    applySelections ? isAddressCompatibleWithControllingFieldSelection(address, controllingFields) : true;
                 if (addressSelected)
                 {
                     addrUnion.insert(address);
@@ -1052,10 +1188,11 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 //--------------------------------------------------------------------------------------------------
 /// Build a list of relevant selections
 //--------------------------------------------------------------------------------------------------
-std::vector<SummaryIdentifierAndField*> RiuSummaryCurveDefSelection::buildControllingFieldList(const SummaryIdentifierAndField *identifierAndField) const
+std::vector<SummaryIdentifierAndField*>
+    RiuSummaryCurveDefSelection::buildControllingFieldList(const SummaryIdentifierAndField* identifierAndField) const
 {
     std::vector<SummaryIdentifierAndField*> controllingFields;
-    const auto& identifierAndFieldList = m_identifierFieldsMap.at(m_currentSummaryCategory());
+    const auto&                             identifierAndFieldList = m_identifierFieldsMap.at(m_currentSummaryCategory());
     for (const auto& identifierAndFieldItem : identifierAndFieldList)
     {
         if (identifierAndFieldItem == identifierAndField)
@@ -1068,9 +1205,10 @@ std::vector<SummaryIdentifierAndField*> RiuSummaryCurveDefSelection::buildContro
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-SummaryIdentifierAndField* RiuSummaryCurveDefSelection::lookupIdentifierAndFieldFromFieldHandle(const caf::PdmFieldHandle* pdmFieldHandle) const
+SummaryIdentifierAndField*
+    RiuSummaryCurveDefSelection::lookupIdentifierAndFieldFromFieldHandle(const caf::PdmFieldHandle* pdmFieldHandle) const
 {
     for (const auto& itemTypes : m_identifierFieldsMap)
     {
@@ -1090,7 +1228,8 @@ SummaryIdentifierAndField* RiuSummaryCurveDefSelection::lookupIdentifierAndField
 /// Controlling means the field controlling the dependent field
 /// If the specified pdm field info is the topmost (i.e. index is 0), nullptr is returned
 //--------------------------------------------------------------------------------------------------
-SummaryIdentifierAndField* RiuSummaryCurveDefSelection::lookupControllingField(const SummaryIdentifierAndField *dependentField) const
+SummaryIdentifierAndField*
+    RiuSummaryCurveDefSelection::lookupControllingField(const SummaryIdentifierAndField* dependentField) const
 {
     for (const auto& identifierAndFieldList : m_identifierFieldsMap)
     {
@@ -1108,16 +1247,19 @@ SummaryIdentifierAndField* RiuSummaryCurveDefSelection::lookupControllingField(c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RiuSummaryCurveDefSelection::isAddressCompatibleWithControllingFieldSelection(const RifEclipseSummaryAddress &address, const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList) const
+bool RiuSummaryCurveDefSelection::isAddressCompatibleWithControllingFieldSelection(
+    const RifEclipseSummaryAddress&                address,
+    const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList) const
 {
     for (const auto& identifierAndField : identifierAndFieldList)
     {
         bool match = false;
         for (const auto& selectedText : identifierAndField->pdmField()->v())
         {
-            if (QString::compare(QString::fromStdString(address.uiText(identifierAndField->summaryIdentifier())), selectedText) == 0)
+            if (QString::compare(QString::fromStdString(address.uiText(identifierAndField->summaryIdentifier())), selectedText) ==
+                0)
             {
                 match = true;
                 break;
@@ -1134,7 +1276,7 @@ bool RiuSummaryCurveDefSelection::isAddressCompatibleWithControllingFieldSelecti
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::buildAddressListFromSelections() const
 {
@@ -1142,8 +1284,9 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::buildAddressList
     for (const auto& category : m_selectedSummaryCategories())
     {
         if (m_identifierFieldsMap.at(category).size() == 0 ||
-            category == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID) continue;
-        
+            category == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID)
+            continue;
+
         const auto& identifierAndFieldList = m_identifierFieldsMap.at(category);
         std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>> selectionStack;
         buildAddressListForCategoryRecursively(category, identifierAndFieldList.begin(), selectionStack, addressSet);
@@ -1152,12 +1295,13 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::buildAddressList
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::buildAddressListForCategoryRecursively(RifEclipseSummaryAddress::SummaryVarCategory category,
-                                                                    std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr,
-                                                                    std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath,
-                                                                    std::set<RifEclipseSummaryAddress>& addressSet) const
+void RiuSummaryCurveDefSelection::buildAddressListForCategoryRecursively(
+    RifEclipseSummaryAddress::SummaryVarCategory                                      category,
+    std::vector<SummaryIdentifierAndField*>::const_iterator                           identifierAndFieldItr,
+    std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath,
+    std::set<RifEclipseSummaryAddress>&                                               addressSet) const
 
 {
     for (const auto& identifierText : (*identifierAndFieldItr)->pdmField()->v())
@@ -1188,18 +1332,20 @@ void RiuSummaryCurveDefSelection::buildAddressListForCategoryRecursively(RifEcli
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RiuSummaryCurveDefSelection::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                        QString                    uiConfigName,
+                                                        caf::PdmUiEditorAttribute* attribute)
 {
-    caf::PdmUiTreeSelectionEditorAttribute* attrib = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*> (attribute);
+    caf::PdmUiTreeSelectionEditorAttribute* attrib = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>(attribute);
     if (attrib)
     {
         if (&m_selectedSummaryCategories == field)
         {
-            attrib->fieldToReceiveCurrentItemValue = &m_currentSummaryCategory;
-            attrib->showTextFilter = false;
-            attrib->showToggleAllCheckbox = false;
+            attrib->fieldToReceiveCurrentItemValue   = &m_currentSummaryCategory;
+            attrib->showTextFilter                   = false;
+            attrib->showToggleAllCheckbox            = false;
             attrib->setCurrentIndexWhenItemIsChecked = true;
         }
 
@@ -1209,7 +1355,7 @@ void RiuSummaryCurveDefSelection::defineEditorAttribute(const caf::PdmFieldHandl
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::resetAllFields()
 {
@@ -1225,20 +1371,20 @@ void RiuSummaryCurveDefSelection::resetAllFields()
         }
     }
 
-    m_prevCurveCount = 0;
+    m_prevCurveCount    = 0;
     m_prevCurveSetCount = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RiuSummaryCurveDefSelection::isObservedData(const RimSummaryCase *sumCase) const
+bool RiuSummaryCurveDefSelection::isObservedData(const RimSummaryCase* sumCase) const
 {
     return dynamic_cast<const RimObservedSummaryData*>(sumCase) != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<SummarySource*> RiuSummaryCurveDefSelection::selectedSummarySources() const
 {
@@ -1256,7 +1402,7 @@ std::vector<SummarySource*> RiuSummaryCurveDefSelection::selectedSummarySources(
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RiuSummaryCurveDefSelection::calculatedSummaryCase()
 {

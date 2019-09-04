@@ -306,8 +306,7 @@ void RimPerforationInterval::fieldChangedByUi(const caf::PdmFieldHandle* changed
                                               const QVariant&            oldValue,
                                               const QVariant&            newValue)
 {
-    if (changedField == &m_startMD ||
-        changedField == &m_endMD)
+    if (changedField == &m_startMD || changedField == &m_endMD)
     {
         for (RimWellPathValve* valve : m_valves())
         {

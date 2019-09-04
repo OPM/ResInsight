@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,10 +21,10 @@
 
 #include "RiaApplication.h"
 
+#include "RimGridView.h"
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimWellPath.h"
-#include "RimGridView.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
@@ -36,15 +36,12 @@
 CAF_CMD_SOURCE_INIT(RicNewWellPathIntersectionFeature, "RicNewWellPathIntersectionFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicNewWellPathIntersectionFeature::RicNewWellPathIntersectionFeature()
-{
-}
-
+RicNewWellPathIntersectionFeature::RicNewWellPathIntersectionFeature() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellPathIntersectionFeature::isCommandEnabled()
 {
@@ -52,7 +49,7 @@ bool RicNewWellPathIntersectionFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathIntersectionFeature::onActionTriggered(bool isChecked)
 {
@@ -64,13 +61,14 @@ void RicNewWellPathIntersectionFeature::onActionTriggered(bool isChecked)
     CVF_ASSERT(collection.size() == 1);
 
     RimWellPath* wellPath = collection[0];
-    
-    RicNewWellPathIntersectionFeatureCmd* cmd = new RicNewWellPathIntersectionFeatureCmd(activeView->crossSectionCollection(), wellPath);
+
+    RicNewWellPathIntersectionFeatureCmd* cmd =
+        new RicNewWellPathIntersectionFeatureCmd(activeView->crossSectionCollection(), wellPath);
     caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathIntersectionFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -79,24 +77,23 @@ void RicNewWellPathIntersectionFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicNewWellPathIntersectionFeatureCmd::RicNewWellPathIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection, RimWellPath* wellPath)
-    : CmdExecuteCommand(nullptr),
-    m_intersectionCollection(intersectionCollection),
-    m_wellPath(wellPath)
+RicNewWellPathIntersectionFeatureCmd::RicNewWellPathIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection,
+                                                                           RimWellPath*               wellPath)
+    : CmdExecuteCommand(nullptr)
+    , m_intersectionCollection(intersectionCollection)
+    , m_wellPath(wellPath)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicNewWellPathIntersectionFeatureCmd::~RicNewWellPathIntersectionFeatureCmd()
-{
-}
+RicNewWellPathIntersectionFeatureCmd::~RicNewWellPathIntersectionFeatureCmd() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicNewWellPathIntersectionFeatureCmd::name()
 {
@@ -104,7 +101,7 @@ QString RicNewWellPathIntersectionFeatureCmd::name()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathIntersectionFeatureCmd::redo()
 {
@@ -112,16 +109,14 @@ void RicNewWellPathIntersectionFeatureCmd::redo()
     CVF_ASSERT(m_wellPath);
 
     RimIntersection* intersection = new RimIntersection();
-    intersection->name = m_wellPath->name();
-    intersection->type = RimIntersection::CS_WELL_PATH;
-    intersection->wellPath = m_wellPath;
+    intersection->name            = m_wellPath->name();
+    intersection->type            = RimIntersection::CS_WELL_PATH;
+    intersection->wellPath        = m_wellPath;
 
     m_intersectionCollection->appendIntersectionAndUpdate(intersection);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellPathIntersectionFeatureCmd::undo()
-{
-}
+void RicNewWellPathIntersectionFeatureCmd::undo() {}

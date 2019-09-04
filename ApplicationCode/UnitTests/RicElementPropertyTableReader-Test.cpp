@@ -7,11 +7,10 @@
 #include <QString>
 #include <numeric>
 
-
 static const QString TEST_DATA_DIRECTORY = QString("%1/RifElementPropertyTableReader/").arg(TEST_DATA_DIR);
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RicElementPropertyTableReaderTest, BasicUsage)
 {
@@ -33,13 +32,14 @@ TEST(RicElementPropertyTableReaderTest, BasicUsage)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RicElementPropertyTableReaderTest, ParseFailed)
 {
     try
     {
-        RifElementPropertyMetadata metadata = RifElementPropertyTableReader::readMetadata(TEST_DATA_DIRECTORY + "ELASTIC_TABLE_error.inp");
+        RifElementPropertyMetadata metadata =
+            RifElementPropertyTableReader::readMetadata(TEST_DATA_DIRECTORY + "ELASTIC_TABLE_error.inp");
 
         RifElementPropertyTable table;
         RifElementPropertyTableReader::readData(&metadata, &table);

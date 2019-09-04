@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,8 @@
 
 #include "RigFemResultPosEnum.h"
 
+#include "Rim3dView.h"
+#include "RimAdvancedSnapshotExportDefinition.h"
 #include "RimCase.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
@@ -35,9 +37,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
-#include "RimAdvancedSnapshotExportDefinition.h"
 #include "RimProject.h"
-#include "Rim3dView.h"
 
 #include "RiuAdvancedSnapshotExportWidget.h"
 #include "RiuViewer.h"
@@ -50,22 +50,20 @@
 #include <QDebug>
 #include <QDir>
 
-
 CAF_CMD_SOURCE_INIT(RicAdvancedSnapshotExportFeature, "RicAdvancedSnapshotExportFeature");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicAdvancedSnapshotExportFeature::isCommandEnabled()
 {
     RimProject* proj = RiaApplication::instance()->project();
-    
+
     return proj;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicAdvancedSnapshotExportFeature::onActionTriggered(bool isChecked)
 {
@@ -101,7 +99,7 @@ void RicAdvancedSnapshotExportFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicAdvancedSnapshotExportFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -110,7 +108,7 @@ void RicAdvancedSnapshotExportFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots(const QString& folder, RimProject* project)
 {
@@ -121,7 +119,7 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots(const QString& fo
     {
         if (!snapshotPath.mkpath(".")) return;
     }
-    
+
     for (RimAdvancedSnapshotExportDefinition* msd : project->multiSnapshotDefinitions())
     {
         if (!msd->isActive()) continue;
@@ -129,14 +127,14 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots(const QString& fo
         Rim3dView* sourceView = msd->view();
         if (!sourceView) continue;
         if (!sourceView->viewer()) continue;
-        
+
         int initialFramIndex = sourceView->viewer()->currentFrameIndex();
 
-        //exportViewVariations(sourceView, msd, folder);
+        // exportViewVariations(sourceView, msd, folder);
 
         for (RimCase* rimCase : msd->additionalCases())
         {
-            RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>(rimCase);
+            RimEclipseCase* eclCase           = dynamic_cast<RimEclipseCase*>(rimCase);
             RimEclipseView* sourceEclipseView = dynamic_cast<RimEclipseView*>(sourceView);
             if (eclCase && sourceEclipseView)
             {
@@ -148,15 +146,16 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots(const QString& fo
                 exportViewVariations(copyOfEclipseView, msd, folder);
 
                 eclCase->reservoirViews().removeChildObject(copyOfEclipseView);
-                
+
                 delete copyOfEclipseView;
             }
 
-            RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(rimCase);
+            RimGeoMechCase* geomCase          = dynamic_cast<RimGeoMechCase*>(rimCase);
             RimGeoMechView* sourceGeoMechView = dynamic_cast<RimGeoMechView*>(sourceView);
             if (geomCase && sourceGeoMechView)
             {
-                RimGeoMechView* copyOfGeoMechView = dynamic_cast<RimGeoMechView*>(sourceGeoMechView->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+                RimGeoMechView* copyOfGeoMechView = dynamic_cast<RimGeoMechView*>(
+                    sourceGeoMechView->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
                 CVF_ASSERT(copyOfGeoMechView);
 
                 geomCase->geoMechViews().push_back(copyOfGeoMechView);
@@ -172,7 +171,7 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots(const QString& fo
                 exportViewVariations(copyOfGeoMechView, msd, folder);
 
                 geomCase->geoMechViews().removeChildObject(copyOfGeoMechView);
-            
+
                 delete copyOfGeoMechView;
             }
         }
@@ -182,18 +181,20 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots(const QString& fo
         sourceView->viewer()->animationControl()->setCurrentFrameOnly(initialFramIndex);
 
         sourceView->scheduleCreateDisplayModelAndRedraw();
-     }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicAdvancedSnapshotExportFeature::exportViewVariations(Rim3dView* rimView, RimAdvancedSnapshotExportDefinition* msd, const QString& folder)
+void RicAdvancedSnapshotExportFeature::exportViewVariations(Rim3dView*                           rimView,
+                                                            RimAdvancedSnapshotExportDefinition* msd,
+                                                            const QString&                       folder)
 {
     if (msd->selectedEclipseResults().size() > 0)
     {
         RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>(rimView->ownerCase());
-        
+
         RimEclipseView* copyOfView = eclCase->createCopyAndAddView(dynamic_cast<RimEclipseView*>(rimView));
 
         copyOfView->cellResult()->setResultType(msd->eclipseResultType());
@@ -208,25 +209,27 @@ void RicAdvancedSnapshotExportFeature::exportViewVariations(Rim3dView* rimView, 
         }
 
         eclCase->reservoirViews().removeChildObject(copyOfView);
-        
+
         delete copyOfView;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder(RimGridView* rimView, RimAdvancedSnapshotExportDefinition* msd, const QString& folder)
+void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder(RimGridView*                         rimView,
+                                                                    RimAdvancedSnapshotExportDefinition* msd,
+                                                                    const QString&                       folder)
 {
     RimCase* rimCase = rimView->ownerCase();
     CVF_ASSERT(rimCase);
 
-    RiuViewer* viewer = rimView->viewer();
+    RiuViewer*  viewer    = rimView->viewer();
     QStringList timeSteps = rimCase->timeStepStrings();
 
-    QString resName = resultName(rimView);
+    QString resName              = resultName(rimView);
     QString viewCaseResultString = rimCase->caseUserDescription() + "_" + rimView->name() + "_" + resName;
-    viewCaseResultString = caf::Utils::makeValidFileBasename(viewCaseResultString);
+    viewCaseResultString         = caf::Utils::makeValidFileBasename(viewCaseResultString);
 
     for (int i = msd->timeStepStart(); i <= msd->timeStepEnd(); i++)
     {
@@ -259,34 +262,34 @@ void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder(RimGridView*
             RimCellRangeFilter* rangeFilter = new RimCellRangeFilter;
             rimView->rangeFilterCollection()->rangeFilters.push_back(rangeFilter);
 
-            bool rangeFilterInitState = rimView->rangeFilterCollection()->isActive();
+            bool rangeFilterInitState                  = rimView->rangeFilterCollection()->isActive();
             rimView->rangeFilterCollection()->isActive = true;
 
             for (int sliceIndex = msd->startSliceIndex(); sliceIndex <= msd->endSliceIndex(); sliceIndex++)
             {
                 QString rangeFilterString = msd->sliceDirection().text() + "-" + QString::number(sliceIndex);
-                QString fileName = viewCaseResultString + "_" + timeStepString + "_" + rangeFilterString;
+                QString fileName          = viewCaseResultString + "_" + timeStepString + "_" + rangeFilterString;
 
                 rangeFilter->setDefaultValues();
                 if (msd->sliceDirection == RimAdvancedSnapshotExportDefinition::RANGEFILTER_I)
                 {
-                    rangeFilter->cellCountI = 1;
+                    rangeFilter->cellCountI  = 1;
                     rangeFilter->startIndexI = sliceIndex;
                 }
                 else if (msd->sliceDirection == RimAdvancedSnapshotExportDefinition::RANGEFILTER_J)
                 {
-                    rangeFilter->cellCountJ = 1;
+                    rangeFilter->cellCountJ  = 1;
                     rangeFilter->startIndexJ = sliceIndex;
                 }
                 else if (msd->sliceDirection == RimAdvancedSnapshotExportDefinition::RANGEFILTER_K)
                 {
-                    rangeFilter->cellCountK = 1;
+                    rangeFilter->cellCountK  = 1;
                     rangeFilter->startIndexK = sliceIndex;
                 }
 
                 rimView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews(rangeFilter);
                 fileName.replace(" ", "_");
-             
+
                 QString absoluteFileName = caf::Utils::constructFullFileName(folder, fileName, ".png");
 
                 RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, rimView);
@@ -301,14 +304,14 @@ void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder(RimGridView*
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicAdvancedSnapshotExportFeature::resultName(Rim3dView* rimView)
 {
     if (dynamic_cast<RimEclipseView*>(rimView))
     {
         RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(rimView);
-        
+
         return caf::Utils::makeValidFileBasename(eclView->cellResult()->resultVariableUiShortName());
     }
     else if (dynamic_cast<RimGeoMechView*>(rimView))
@@ -319,8 +322,8 @@ QString RicAdvancedSnapshotExportFeature::resultName(Rim3dView* rimView)
 
         if (cellResult)
         {
-            QString title = caf::AppEnum<RigFemResultPosEnum>(cellResult->resultPositionType()).uiText() + "_"
-                + cellResult->resultFieldUiName();
+            QString title = caf::AppEnum<RigFemResultPosEnum>(cellResult->resultPositionType()).uiText() + "_" +
+                            cellResult->resultFieldUiName();
 
             if (!cellResult->resultComponentUiName().isEmpty())
             {
@@ -333,4 +336,3 @@ QString RicAdvancedSnapshotExportFeature::resultName(Rim3dView* rimView)
 
     return "";
 }
-

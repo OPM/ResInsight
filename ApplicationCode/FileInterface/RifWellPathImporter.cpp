@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -28,14 +28,13 @@
 
 #include <QFileInfo>
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 
 #define ASCII_FILE_DEFAULT_START_INDEX 0
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifWellPathImporter::WellData RifWellPathImporter::readWellData(const QString& filePath, size_t indexInFile)
 {
@@ -52,7 +51,7 @@ RifWellPathImporter::WellData RifWellPathImporter::readWellData(const QString& f
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifWellPathImporter::WellData RifWellPathImporter::readWellData(const QString& filePath)
 {
@@ -60,7 +59,7 @@ RifWellPathImporter::WellData RifWellPathImporter::readWellData(const QString& f
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifWellPathImporter::WellMetaData RifWellPathImporter::readWellMetaData(const QString& filePath, size_t indexInFile)
 {
@@ -77,7 +76,7 @@ RifWellPathImporter::WellMetaData RifWellPathImporter::readWellMetaData(const QS
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifWellPathImporter::WellMetaData RifWellPathImporter::readWellMetaData(const QString& filePath)
 {
@@ -85,7 +84,7 @@ RifWellPathImporter::WellMetaData RifWellPathImporter::readWellMetaData(const QS
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RifWellPathImporter::wellDataCount(const QString& filePath)
 {
@@ -96,7 +95,7 @@ size_t RifWellPathImporter::wellDataCount(const QString& filePath)
     }
     else
     {
-        std::map<QString, std::vector<RifWellPathImporter::WellData> >::iterator it = m_fileNameToWellDataGroupMap.find(filePath);
+        std::map<QString, std::vector<RifWellPathImporter::WellData>>::iterator it = m_fileNameToWellDataGroupMap.find(filePath);
 
         // If we have the file in the map, assume it is already read.
         if (it != m_fileNameToWellDataGroupMap.end())
@@ -108,14 +107,15 @@ size_t RifWellPathImporter::wellDataCount(const QString& filePath)
         it = m_fileNameToWellDataGroupMap.find(filePath);
         CVF_ASSERT(it != m_fileNameToWellDataGroupMap.end());
 
-        return it->second.size();;
+        return it->second.size();
+        ;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RifWellPathImporter::isJsonFile(const QString & filePath)
+bool RifWellPathImporter::isJsonFile(const QString& filePath)
 {
     QFileInfo fileInfo(filePath);
 
@@ -130,50 +130,53 @@ bool RifWellPathImporter::isJsonFile(const QString & filePath)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RifWellPathImporter::WellMetaData RifWellPathImporter::readJsonWellMetaData(const QString & filePath)
+RifWellPathImporter::WellMetaData RifWellPathImporter::readJsonWellMetaData(const QString& filePath)
 {
     ResInsightInternalJson::JsonReader jsonReader;
-    QMap<QString, QVariant> jsonMap = jsonReader.decodeFile(filePath);
-    WellMetaData metadata;
+    QMap<QString, QVariant>            jsonMap = jsonReader.decodeFile(filePath);
+    WellMetaData                       metadata;
 
-    metadata.m_id = jsonMap["id"].toString();
-    metadata.m_name = jsonMap["name"].toString();
+    metadata.m_id           = jsonMap["id"].toString();
+    metadata.m_name         = jsonMap["name"].toString();
     metadata.m_sourceSystem = jsonMap["sourceSystem"].toString();
-    metadata.m_utmZone = jsonMap["utmZone"].toString();
-    metadata.m_updateUser = jsonMap["updateUser"].toString();
-    metadata.m_surveyType = jsonMap["surveyType"].toString();
+    metadata.m_utmZone      = jsonMap["utmZone"].toString();
+    metadata.m_updateUser   = jsonMap["updateUser"].toString();
+    metadata.m_surveyType   = jsonMap["surveyType"].toString();
 
     // Convert updateDate from the following format:
-    // "Number of milliseconds elapsed since midnight Coordinated Universal Time (UTC) 
+    // "Number of milliseconds elapsed since midnight Coordinated Universal Time (UTC)
     // of January 1, 1970, not counting leap seconds"
-    QString updateDateStr = jsonMap["updateDate"].toString().trimmed();
-    uint updateDateUint = updateDateStr.toULongLong() / 1000; // Should be within 32 bit, maximum number is 4294967295 which corresponds to year 2106
+    QString updateDateStr  = jsonMap["updateDate"].toString().trimmed();
+    uint    updateDateUint = updateDateStr.toULongLong() /
+                          1000; // Should be within 32 bit, maximum number is 4294967295 which corresponds to year 2106
     metadata.m_updateDate.setTime_t(updateDateUint);
 
     return metadata;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifWellPathImporter::WellData RifWellPathImporter::readJsonWellData(const QString& filePath)
 {
     ResInsightInternalJson::JsonReader jsonReader;
-    QMap<QString, QVariant> jsonMap = jsonReader.decodeFile(filePath);
+    QMap<QString, QVariant>            jsonMap = jsonReader.decodeFile(filePath);
 
-    double datumElevation = jsonMap["datumElevation"].toDouble();
-    QList<QVariant> pathList = jsonMap["path"].toList();
-    WellData wellData;
+    double          datumElevation = jsonMap["datumElevation"].toDouble();
+    QList<QVariant> pathList       = jsonMap["path"].toList();
+    WellData        wellData;
     wellData.m_wellPathGeometry = new RigWellPath;
     wellData.m_wellPathGeometry->setDatumElevation(datumElevation);
     wellData.m_name = jsonMap["name"].toString();
 
-    foreach(QVariant point, pathList)
+    foreach (QVariant point, pathList)
     {
         QMap<QString, QVariant> coordinateMap = point.toMap();
-        cvf::Vec3d vec3d(coordinateMap["east"].toDouble(), coordinateMap["north"].toDouble(), -(coordinateMap["tvd"].toDouble() - datumElevation));
+        cvf::Vec3d              vec3d(coordinateMap["east"].toDouble(),
+                         coordinateMap["north"].toDouble(),
+                         -(coordinateMap["tvd"].toDouble() - datumElevation));
         wellData.m_wellPathGeometry->m_wellPathPoints.push_back(vec3d);
         double measuredDepth = coordinateMap["md"].toDouble();
         wellData.m_wellPathGeometry->m_measuredDepths.push_back(measuredDepth);
@@ -182,11 +185,11 @@ RifWellPathImporter::WellData RifWellPathImporter::readJsonWellData(const QStrin
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifWellPathImporter::readAllAsciiWellData(const QString& filePath)
 {
-    std::map<QString, std::vector<RifWellPathImporter::WellData> >::iterator it = m_fileNameToWellDataGroupMap.find(filePath);
+    std::map<QString, std::vector<RifWellPathImporter::WellData>>::iterator it = m_fileNameToWellDataGroupMap.find(filePath);
 
     // If we have the file in the map, assume it is already read.
     if (it != m_fileNameToWellDataGroupMap.end())
@@ -232,7 +235,6 @@ void RifWellPathImporter::readAllAsciiWellData(const QString& filePath)
                 if (x != -999)
                 {
                     // Error in file: missing numbers at this line
-
                 }
                 stream.clear();
             }
@@ -245,8 +247,8 @@ void RifWellPathImporter::readAllAsciiWellData(const QString& filePath)
 
             std::string line;
             std::getline(stream, line, '\n');
-            // Skip possible comment lines (-- is used in eclipse, so Haakon Høgstøl considered it smart to skip these here as well)
-            // The first "-" is eaten by the stream >> x above
+            // Skip possible comment lines (-- is used in eclipse, so Haakon Høgstøl considered it smart to skip these here as
+            // well) The first "-" is eaten by the stream >> x above
             if (line.find("-") == 0 || line.find("#") == 0)
             {
                 // Comment line, just ignore
@@ -255,33 +257,34 @@ void RifWellPathImporter::readAllAsciiWellData(const QString& filePath)
             {
                 // Find the first and the last position of any quotes (and do not care to match quotes)
                 size_t quoteStartIdx = line.find_first_of("'`´’‘");
-                size_t quoteEndIdx = line.find_last_of("'`´’‘");
+                size_t quoteEndIdx   = line.find_last_of("'`´’‘");
 
                 std::string wellName;
-                bool haveAPossibleWellStart = false;
+                bool        haveAPossibleWellStart = false;
 
-                if (quoteStartIdx < line.size() -1)
+                if (quoteStartIdx < line.size() - 1)
                 {
                     // Extract the text between the quotes
-                    wellName = line.substr(quoteStartIdx + 1, quoteEndIdx - 1 - quoteStartIdx);
+                    wellName               = line.substr(quoteStartIdx + 1, quoteEndIdx - 1 - quoteStartIdx);
                     haveAPossibleWellStart = true;
                 }
                 else if (quoteStartIdx > line.length())
                 {
                     // We did not find any quotes
 
-                    // Supported alternatives are 
+                    // Supported alternatives are
                     // name <WellNameA>
                     // wellname: <WellNameA>
                     std::string lineLowerCase = line;
-                    transform(lineLowerCase.begin(), lineLowerCase.end(), lineLowerCase.begin(),
-                              [](const char c) -> char { return (char)::tolower(c); });
+                    transform(lineLowerCase.begin(), lineLowerCase.end(), lineLowerCase.begin(), [](const char c) -> char {
+                        return (char)::tolower(c);
+                    });
 
-                    std::string tokenName = "name";
+                    std::string tokenName    = "name";
                     std::size_t foundNameIdx = lineLowerCase.find(tokenName);
                     if (foundNameIdx != std::string::npos)
                     {
-                        std::string tokenColon = ":";
+                        std::string tokenColon    = ":";
                         std::size_t foundColonIdx = lineLowerCase.find(tokenColon, foundNameIdx);
                         if (foundColonIdx != std::string::npos)
                         {
@@ -301,7 +304,7 @@ void RifWellPathImporter::readAllAsciiWellData(const QString& filePath)
                         QString name = line.c_str();
                         if (!name.trimmed().isEmpty())
                         {
-                            wellName = name.trimmed().toStdString();
+                            wellName               = name.trimmed().toStdString();
                             haveAPossibleWellStart = true;
                         }
                     }
@@ -331,13 +334,13 @@ void RifWellPathImporter::readAllAsciiWellData(const QString& filePath)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifWellPathImporter::WellData RifWellPathImporter::readAsciiWellData(const QString& filePath, size_t indexInFile)
 {
     readAllAsciiWellData(filePath);
 
-    std::map<QString, std::vector<RifWellPathImporter::WellData> >::iterator it = m_fileNameToWellDataGroupMap.find(filePath);
+    std::map<QString, std::vector<RifWellPathImporter::WellData>>::iterator it = m_fileNameToWellDataGroupMap.find(filePath);
 
     CVF_ASSERT(it != m_fileNameToWellDataGroupMap.end());
 
@@ -353,16 +356,16 @@ RifWellPathImporter::WellData RifWellPathImporter::readAsciiWellData(const QStri
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RifWellPathImporter::WellMetaData RifWellPathImporter::readAsciiWellMetaData(const QString & filePath, size_t indexInFile)
+RifWellPathImporter::WellMetaData RifWellPathImporter::readAsciiWellMetaData(const QString& filePath, size_t indexInFile)
 {
     // No metadata in ASCII files
     return WellMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifWellPathImporter::clear()
 {
@@ -370,7 +373,7 @@ void RifWellPathImporter::clear()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifWellPathImporter::removeFilePath(const QString& filePath)
 {

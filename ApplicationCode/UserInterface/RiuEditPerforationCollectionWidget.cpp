@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -29,18 +29,18 @@
 #include <QAbstractItemView>
 #include <QBoxLayout>
 #include <QDialogButtonBox>
+#include <QHeaderView>
 #include <QMenu>
 #include <QTableView>
 #include <QWidget>
-#include <QHeaderView>
-
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuEditPerforationCollectionWidget::RiuEditPerforationCollectionWidget(QWidget* parent, RimPerforationCollection* perforationCollection)
-    : QDialog(parent, RiuTools::defaultDialogFlags()),
-    m_perforationCollection(perforationCollection)
+RiuEditPerforationCollectionWidget::RiuEditPerforationCollectionWidget(QWidget*                  parent,
+                                                                       RimPerforationCollection* perforationCollection)
+    : QDialog(parent, RiuTools::defaultDialogFlags())
+    , m_perforationCollection(perforationCollection)
 {
     setWindowTitle("Edit Perforation Intervals");
 
@@ -79,7 +79,7 @@ RiuEditPerforationCollectionWidget::RiuEditPerforationCollectionWidget(QWidget* 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuEditPerforationCollectionWidget::~RiuEditPerforationCollectionWidget()
 {
@@ -89,16 +89,16 @@ RiuEditPerforationCollectionWidget::~RiuEditPerforationCollectionWidget()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuEditPerforationCollectionWidget::customMenuRequested(QPoint pos)
 {
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
 
     QMenu menu;
-    menu.addAction(commandManager->action("PdmListField_AddItem","New row"));
-    menu.addAction(commandManager->action("PdmListField_DeleteItem","Delete row"));
-    
+    menu.addAction(commandManager->action("PdmListField_AddItem", "New row"));
+    menu.addAction(commandManager->action("PdmListField_DeleteItem", "Delete row"));
+
     // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
     QPoint globalPos = m_pdmTableView->tableView()->viewport()->mapToGlobal(pos);
 

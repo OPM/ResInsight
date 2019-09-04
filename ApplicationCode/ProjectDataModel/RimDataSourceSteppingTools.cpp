@@ -5,13 +5,15 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDataSourceSteppingTools::modifyCurrentIndex(caf::PdmValueField* valueField, const QList<caf::PdmOptionItemInfo>& options, int indexOffset)
+void RimDataSourceSteppingTools::modifyCurrentIndex(caf::PdmValueField*                  valueField,
+                                                    const QList<caf::PdmOptionItemInfo>& options,
+                                                    int                                  indexOffset)
 {
     if (valueField && !options.isEmpty())
     {
-        QVariant currentValue = valueField->toQVariant();
+        QVariant                              currentValue  = valueField->toQVariant();
         caf::PdmPointer<caf::PdmObjectHandle> currentHandle = currentValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
-        int currentIndex = -1;
+        int                                   currentIndex  = -1;
         for (int i = 0; i < options.size(); i++)
         {
             QVariant optionValue = options[i].value();
@@ -25,7 +27,7 @@ void RimDataSourceSteppingTools::modifyCurrentIndex(caf::PdmValueField* valueFie
                 }
             }
             else if (currentValue == optionValue)
-            {                
+            {
                 currentIndex = i;
             }
         }

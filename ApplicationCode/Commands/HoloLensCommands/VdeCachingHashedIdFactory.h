@@ -20,7 +20,6 @@
 
 #include <map>
 
-  
 //==================================================================================================
 //
 //
@@ -40,11 +39,11 @@ public:
 public:
     VdeCachingHashedIdFactory();
 
-    int     getOrCreateIdForFloatArr(ArrayRole arrayRole, const void* floatArr, size_t elementCount);
-    int     getOrCreateIdForUint32Arr(ArrayRole arrayRole, const unsigned int* uint32Arr, size_t elementCount);
-    int     getOrCreateIdForUint8Arr(ArrayRole arrayRole, const unsigned char* uint8Arr, size_t elementCount);
+    int getOrCreateIdForFloatArr(ArrayRole arrayRole, const void* floatArr, size_t elementCount);
+    int getOrCreateIdForUint32Arr(ArrayRole arrayRole, const unsigned int* uint32Arr, size_t elementCount);
+    int getOrCreateIdForUint8Arr(ArrayRole arrayRole, const unsigned char* uint8Arr, size_t elementCount);
 
-    int     lastAssignedId() const;
+    int lastAssignedId() const;
 
 private:
     enum ElementType
@@ -56,18 +55,22 @@ private:
 
     struct Key
     {
-        std::pair<uint64_t, uint64_t>   hashVal;
-        ArrayRole                       role;
-        ElementType                     elementType;
-        size_t                          elementCount;
+        std::pair<uint64_t, uint64_t> hashVal;
+        ArrayRole                     role;
+        ElementType                   elementType;
+        size_t                        elementCount;
 
         bool operator<(const Key& other) const;
     };
 
 private:
-    int     getOrCreateIdForArrOfType(ArrayRole arrayRole, ElementType elementType, size_t elementSizeInBytes, const void* data, size_t elementCount);
+    int getOrCreateIdForArrOfType(ArrayRole   arrayRole,
+                                  ElementType elementType,
+                                  size_t      elementSizeInBytes,
+                                  const void* data,
+                                  size_t      elementCount);
 
 private:
-    std::map<Key, int>              m_keyToIdMap;
-    int                             m_lastUsedId;
+    std::map<Key, int> m_keyToIdMap;
+    int                m_lastUsedId;
 };

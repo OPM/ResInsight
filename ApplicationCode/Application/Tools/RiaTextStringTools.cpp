@@ -20,9 +20,8 @@
 
 #include <QString>
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RiaTextStringTools::compare(const QString& expected, const QString& actual)
 {
@@ -40,19 +39,18 @@ bool RiaTextStringTools::compare(const QString& expected, const QString& actual)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaTextStringTools::trimAndRemoveDoubleSpaces(const QString& s)
 {
-    int length;
+    int     length;
     QString trimmed = s.trimmed();
 
-    do 
+    do
     {
-        length = trimmed.size();
+        length  = trimmed.size();
         trimmed = trimmed.replace("  ", " ");
     } while (trimmed.size() < length);
-    
+
     return trimmed;
 }
-

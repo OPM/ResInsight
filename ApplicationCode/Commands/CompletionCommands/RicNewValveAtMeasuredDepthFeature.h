@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cafCmdFeature.h"
 
 class RiuWellPathSelectionItem;
@@ -38,5 +37,3 @@ protected:
 private:
     static RiuWellPathSelectionItem* wellPathSelectionItem();
 };
-
-

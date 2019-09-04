@@ -3,22 +3,20 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
-
 
 #include "RivReachCircleAnnotationPartMgr.h"
 
@@ -29,34 +27,33 @@
 #include "RimReachCircleAnnotation.h"
 #include "RimReachCircleAnnotationInView.h"
 
-#include "RivPolylineGenerator.h"
 #include "RivPartPriority.h"
+#include "RivPolylineGenerator.h"
 #include "RivReachCircleAnnotationSourceInfo.h"
 
 #include "cafEffectGenerator.h"
 
+#include "cafDisplayCoordTransform.h"
 #include "cvfDrawableGeo.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
-#include "cafDisplayCoordTransform.h"
 
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RivReachCircleAnnotationPartMgr::RivReachCircleAnnotationPartMgr(Rim3dView* view, RimReachCircleAnnotationInView* annotationInView)
-: m_rimView(view), m_rimAnnotationInView(annotationInView)
+RivReachCircleAnnotationPartMgr::RivReachCircleAnnotationPartMgr(Rim3dView*                      view,
+                                                                 RimReachCircleAnnotationInView* annotationInView)
+    : m_rimView(view)
+    , m_rimAnnotationInView(annotationInView)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RivReachCircleAnnotationPartMgr::~RivReachCircleAnnotationPartMgr()
-{
-
-}
+RivReachCircleAnnotationPartMgr::~RivReachCircleAnnotationPartMgr() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -70,15 +67,16 @@ void RivReachCircleAnnotationPartMgr::buildParts(const caf::DisplayCoordTransfor
 
     Vec3d centerPositionInDomain = rimAnnotation->centerPoint();
 
-    auto    lineColor      = rimAnnotation->appearance()->color();
-    auto    isDashedLine   = rimAnnotation->appearance()->isDashed();
-    auto    lineThickness = rimAnnotation->appearance()->thickness();
+    auto lineColor     = rimAnnotation->appearance()->color();
+    auto isDashedLine  = rimAnnotation->appearance()->isDashed();
+    auto lineThickness = rimAnnotation->appearance()->thickness();
 
     // Circle part
     auto* collection = annotationCollection();
-    if(collection)
+    if (collection)
     {
-        std::vector<Vec3d> pointsInDomain = computeCirclePointsInDomain(collection->snapAnnotations(), collection->annotationPlaneZ());
+        std::vector<Vec3d> pointsInDomain =
+            computeCirclePointsInDomain(collection->snapAnnotations(), collection->annotationPlaneZ());
         std::vector<cvf::Vec3d> points = displayXf->transformToDisplayCoords(pointsInDomain);
 
         cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable(points);
@@ -88,8 +86,8 @@ void RivReachCircleAnnotationPartMgr::buildParts(const caf::DisplayCoordTransfor
 
         caf::MeshEffectGenerator effgen(lineColor);
         effgen.setLineWidth(lineThickness);
-        if (isDashedLine) effgen.setLineStipple(true);                      // Currently, dashed lines are not supported
-        cvf::ref<cvf::Effect>    eff = effgen.generateUnCachedEffect();
+        if (isDashedLine) effgen.setLineStipple(true); // Currently, dashed lines are not supported
+        cvf::ref<cvf::Effect> eff = effgen.generateUnCachedEffect();
 
         part->setEffect(eff.p());
         part->setPriority(RivPartPriority::PartType::MeshLines);
@@ -100,17 +98,17 @@ void RivReachCircleAnnotationPartMgr::buildParts(const caf::DisplayCoordTransfor
 
     // Center point part
     {
-        auto centerPos = displayXf->transformToDisplayCoord(rimAnnotation->centerPoint());
-        double symbolSize = 20;
-        double xMin = centerPos.x() - symbolSize / 2.0;
-        double xMax = xMin + symbolSize;
-        double yMin = centerPos.y() - symbolSize / 2.0;
-        double yMax = yMin + symbolSize;
-        double z = centerPos.z();
-        std::vector<Vec3d> line1 = { {xMin, yMin, z}, {xMax, yMax, z} };
-        std::vector<Vec3d> line2 = { {xMax, yMin, z}, {xMin, yMax, z} };
-        std::vector<std::vector<Vec3d>> symbol = { line1, line2 };
-        cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable(symbol);
+        auto                            centerPos   = displayXf->transformToDisplayCoord(rimAnnotation->centerPoint());
+        double                          symbolSize  = 20;
+        double                          xMin        = centerPos.x() - symbolSize / 2.0;
+        double                          xMax        = xMin + symbolSize;
+        double                          yMin        = centerPos.y() - symbolSize / 2.0;
+        double                          yMax        = yMin + symbolSize;
+        double                          z           = centerPos.z();
+        std::vector<Vec3d>              line1       = {{xMin, yMin, z}, {xMax, yMax, z}};
+        std::vector<Vec3d>              line2       = {{xMax, yMin, z}, {xMin, yMax, z}};
+        std::vector<std::vector<Vec3d>> symbol      = {line1, line2};
+        cvf::ref<cvf::DrawableGeo>      drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable(symbol);
 
         cvf::ref<cvf::Part> part = new cvf::Part;
         part->setDrawable(drawableGeo.p());
@@ -132,7 +130,7 @@ void RivReachCircleAnnotationPartMgr::buildParts(const caf::DisplayCoordTransfor
 //--------------------------------------------------------------------------------------------------
 void RivReachCircleAnnotationPartMgr::clearAllGeometry()
 {
-    m_circlePart  = nullptr;
+    m_circlePart      = nullptr;
     m_centerPointPart = nullptr;
 }
 
@@ -141,7 +139,7 @@ void RivReachCircleAnnotationPartMgr::clearAllGeometry()
 //--------------------------------------------------------------------------------------------------
 void RivReachCircleAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model,
                                                                         const caf::DisplayCoordTransform* displayXf,
-                                                                        const cvf::BoundingBox& boundingBox)
+                                                                        const cvf::BoundingBox&           boundingBox)
 {
     if (m_rimAnnotationInView.isNull() || !m_rimAnnotationInView->sourceAnnotation()) return;
     if (!m_rimAnnotationInView->isVisible()) return;
@@ -174,7 +172,7 @@ bool RivReachCircleAnnotationPartMgr::isCircleInBoundingBox(const cvf::BoundingB
     if (!coll) return false;
 
     auto effectiveBoundingBox = RiaBoundingBoxTools::inflate(boundingBox, 3);
-    auto points = computeCirclePointsInDomain(coll->snapAnnotations(), coll->annotationPlaneZ());
+    auto points               = computeCirclePointsInDomain(coll->snapAnnotations(), coll->annotationPlaneZ());
     for (const auto& pt : points)
     {
         if (effectiveBoundingBox.contains(pt)) return true;
@@ -189,7 +187,7 @@ std::vector<cvf::Vec3d> RivReachCircleAnnotationPartMgr::computeCirclePointsInDo
 {
     int  numPoints = 36;
     auto centerPos = m_rimAnnotationInView->sourceAnnotation()->centerPoint();
-    auto radius = m_rimAnnotationInView->sourceAnnotation()->radius();
+    auto radius    = m_rimAnnotationInView->sourceAnnotation()->radius();
 
     if (snapToPlaneZ)
     {
@@ -206,7 +204,6 @@ std::vector<cvf::Vec3d> RivReachCircleAnnotationPartMgr::computeCirclePointsInDo
     points.push_back(points.front());
     return points;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///

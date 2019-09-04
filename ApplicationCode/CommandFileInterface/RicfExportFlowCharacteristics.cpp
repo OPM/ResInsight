@@ -65,12 +65,12 @@ RicfCommandResponse RicfExportFlowCharacteristics::execute()
     }
 
     {
-        QString exportFileName = m_fileName();
+        QString   exportFileName = m_fileName();
         QFileInfo fi(exportFileName);
         if (!fi.isAbsolute())
         {
             QString relativePath = fi.path();
-            
+
             QString exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath(relativePath);
 
             QDir exportDir(exportFolder);

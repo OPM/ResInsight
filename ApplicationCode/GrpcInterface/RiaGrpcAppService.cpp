@@ -17,10 +17,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "RiaGrpcAppService.h"
 
-#include "RiaGuiApplication.h"
-#include "RiaVersionInfo.h"
 #include "RiaGrpcCallbacks.h"
 #include "RiaGrpcServer.h"
+#include "RiaGuiApplication.h"
+#include "RiaVersionInfo.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -63,11 +63,10 @@ grpc::Status RiaGrpcAppService::GetRuntimeInfo(grpc::ServerContext* context, con
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcAppService::createCallbacks()
 {
     typedef RiaGrpcAppService Self;
-    return {
-        new RiaGrpcUnaryCallback<Self, rips::Empty, rips::Version>(this, &Self::GetVersion, &Self::RequestGetVersion),
-        new RiaGrpcUnaryCallback<Self, rips::Empty, rips::Empty>(this, &Self::Exit, &Self::RequestExit),
-        new RiaGrpcUnaryCallback<Self, rips::Empty, rips::RuntimeInfo>(this, &Self::GetRuntimeInfo, &Self::RequestGetRuntimeInfo)
-    };
+    return {new RiaGrpcUnaryCallback<Self, rips::Empty, rips::Version>(this, &Self::GetVersion, &Self::RequestGetVersion),
+            new RiaGrpcUnaryCallback<Self, rips::Empty, rips::Empty>(this, &Self::Exit, &Self::RequestExit),
+            new RiaGrpcUnaryCallback<Self, rips::Empty, rips::RuntimeInfo>(
+                this, &Self::GetRuntimeInfo, &Self::RequestGetRuntimeInfo)};
 }
 
 static bool RiaGrpcAppInfoService_init =

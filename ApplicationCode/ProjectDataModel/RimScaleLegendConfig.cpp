@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -26,19 +26,19 @@
 
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseView.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleCurveSetColorManager.h"
-#include "RimEclipseView.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimIntersectionCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimViewLinker.h"
 
-#include "cafTitledOverlayFrame.h"
 #include "cafCategoryLegend.h"
 #include "cafCategoryMapper.h"
 #include "cafOverlayScaleLegend.h"
+#include "cafTitledOverlayFrame.h"
 
 #include "cafFactory.h"
 #include "cafPdmFieldCvfColor.h"
@@ -52,88 +52,105 @@
 #include "cvfScalarMapperDiscreteLog.h"
 #include "cvfqtUtils.h"
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 
 using ColorManager = RimEnsembleCurveSetColorManager;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CAF_PDM_SOURCE_INIT(RimScaleLegendConfig, "ScaleLegend");
 
-
-namespace caf {
-    template<>
-    void RimScaleLegendConfig::ColorRangeEnum::setUp()
-    {
-        addItem(RimScaleLegendConfig::NORMAL,             "NORMAL",               "Full color, Red on top");
-        addItem(RimScaleLegendConfig::OPPOSITE_NORMAL,    "OPPOSITE_NORMAL",      "Full color, Blue on top");
-        addItem(RimScaleLegendConfig::WHITE_PINK,         "WHITE_PIMK",           "White to pink");
-        addItem(RimScaleLegendConfig::PINK_WHITE,         "PINK_WHITE",           "Pink to white");
-        addItem(RimScaleLegendConfig::BLUE_WHITE_RED,     "BLUE_WHITE_RED",       "Blue, white, red");
-        addItem(RimScaleLegendConfig::RED_WHITE_BLUE,     "RED_WHITE_BLUE",       "Red, white, blue");
-        addItem(RimScaleLegendConfig::WHITE_BLACK,        "WHITE_BLACK",          "White to black");
-        addItem(RimScaleLegendConfig::BLACK_WHITE,        "BLACK_WHITE",          "Black to white");
-        addItem(RimScaleLegendConfig::CATEGORY,           "CATEGORY",             "Category colors");
-        addItem(RimScaleLegendConfig::ANGULAR,            "ANGULAR",              "Full color cyclic");
-        addItem(RimScaleLegendConfig::STIMPLAN,           "STIMPLAN",             "StimPlan colors");
-        addItem(RimScaleLegendConfig::RED_LIGHT_DARK,     "RED_DARK_LIGHT",       "Red Light to Dark");
-        addItem(RimScaleLegendConfig::GREEN_LIGHT_DARK,   "GREEN_DARK_LIGHT",     "Green Light to Dark");
-        addItem(RimScaleLegendConfig::BLUE_LIGHT_DARK,    "BLUE_DARK_LIGHT",      "Blue Light to Dark");
-        addItem(RimScaleLegendConfig::GREEN_RED,          "GREEN_RED",            "Green to Red");
-        addItem(RimScaleLegendConfig::BLUE_MAGENTA,       "BLUE_MAGENTA",         "Blue to Magenta");
-        setDefault(RimScaleLegendConfig::NORMAL);
-    }
+namespace caf
+{
+template<>
+void RimScaleLegendConfig::ColorRangeEnum::setUp()
+{
+    addItem(RimScaleLegendConfig::NORMAL, "NORMAL", "Full color, Red on top");
+    addItem(RimScaleLegendConfig::OPPOSITE_NORMAL, "OPPOSITE_NORMAL", "Full color, Blue on top");
+    addItem(RimScaleLegendConfig::WHITE_PINK, "WHITE_PIMK", "White to pink");
+    addItem(RimScaleLegendConfig::PINK_WHITE, "PINK_WHITE", "Pink to white");
+    addItem(RimScaleLegendConfig::BLUE_WHITE_RED, "BLUE_WHITE_RED", "Blue, white, red");
+    addItem(RimScaleLegendConfig::RED_WHITE_BLUE, "RED_WHITE_BLUE", "Red, white, blue");
+    addItem(RimScaleLegendConfig::WHITE_BLACK, "WHITE_BLACK", "White to black");
+    addItem(RimScaleLegendConfig::BLACK_WHITE, "BLACK_WHITE", "Black to white");
+    addItem(RimScaleLegendConfig::CATEGORY, "CATEGORY", "Category colors");
+    addItem(RimScaleLegendConfig::ANGULAR, "ANGULAR", "Full color cyclic");
+    addItem(RimScaleLegendConfig::STIMPLAN, "STIMPLAN", "StimPlan colors");
+    addItem(RimScaleLegendConfig::RED_LIGHT_DARK, "RED_DARK_LIGHT", "Red Light to Dark");
+    addItem(RimScaleLegendConfig::GREEN_LIGHT_DARK, "GREEN_DARK_LIGHT", "Green Light to Dark");
+    addItem(RimScaleLegendConfig::BLUE_LIGHT_DARK, "BLUE_DARK_LIGHT", "Blue Light to Dark");
+    addItem(RimScaleLegendConfig::GREEN_RED, "GREEN_RED", "Green to Red");
+    addItem(RimScaleLegendConfig::BLUE_MAGENTA, "BLUE_MAGENTA", "Blue to Magenta");
+    setDefault(RimScaleLegendConfig::NORMAL);
+}
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimScaleLegendConfig::RimScaleLegendConfig() 
-    :   m_globalAutoMax(cvf::UNDEFINED_DOUBLE),
-        m_globalAutoMin(cvf::UNDEFINED_DOUBLE),
-        m_localAutoMax(cvf::UNDEFINED_DOUBLE),
-        m_localAutoMin(cvf::UNDEFINED_DOUBLE),
-        m_isAllTimeStepsRangeDisabled(false)
+RimScaleLegendConfig::RimScaleLegendConfig()
+    : m_globalAutoMax(cvf::UNDEFINED_DOUBLE)
+    , m_globalAutoMin(cvf::UNDEFINED_DOUBLE)
+    , m_localAutoMax(cvf::UNDEFINED_DOUBLE)
+    , m_localAutoMin(cvf::UNDEFINED_DOUBLE)
+    , m_isAllTimeStepsRangeDisabled(false)
 {
     CAF_PDM_InitObject("Color Legend", ":/Legend.png", "", "");
-    CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Show Legend", "", "", "");    
+    CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Show Legend", "", "", "");
     m_showLegend.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitField(&m_numLevels, "NumberOfLevels", 8, "Number of Levels", "", "A hint on how many tick marks you whish.","");
-    CAF_PDM_InitField(&m_precision, "Precision", 4, "Significant Digits", "", "The number of significant digits displayed in the legend numbers","");
+    CAF_PDM_InitField(&m_numLevels, "NumberOfLevels", 8, "Number of Levels", "", "A hint on how many tick marks you whish.", "");
+    CAF_PDM_InitField(&m_precision,
+                      "Precision",
+                      4,
+                      "Significant Digits",
+                      "",
+                      "The number of significant digits displayed in the legend numbers",
+                      "");
 
-    CAF_PDM_InitField(&m_colorRangeMode, "ColorRangeMode", ColorRangeEnum(NORMAL) , "Colors", "", "", "");
-    CAF_PDM_InitField(&m_rangeMode, "RangeType", RangeModeEnum(AUTOMATIC_ALLTIMESTEPS), "Range Type", "", "Switches between automatic and user defined range on the legend", "");
+    CAF_PDM_InitField(&m_colorRangeMode, "ColorRangeMode", ColorRangeEnum(NORMAL), "Colors", "", "", "");
+    CAF_PDM_InitField(&m_rangeMode,
+                      "RangeType",
+                      RangeModeEnum(AUTOMATIC_ALLTIMESTEPS),
+                      "Range Type",
+                      "",
+                      "Switches between automatic and user defined range on the legend",
+                      "");
     CAF_PDM_InitField(&m_userDefinedMaxValue, "UserDefinedMax", 1.0, "Max", "", "Max value of the legend", "");
-    CAF_PDM_InitField(&m_userDefinedMinValue, "UserDefinedMin", 0.0, "Min", "", "Min value of the legend (if mapping is logarithmic only positive values are valid)", "");
+    CAF_PDM_InitField(&m_userDefinedMinValue,
+                      "UserDefinedMin",
+                      0.0,
+                      "Min",
+                      "",
+                      "Min value of the legend (if mapping is logarithmic only positive values are valid)",
+                      "");
     CAF_PDM_InitField(&resultVariableName, "ResultVariableUsage", QString(""), "", "", "", "");
     resultVariableName.uiCapability()->setUiHidden(true);
 
     cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
-    m_scaleLegend = new caf::OverlayScaleLegend(standardFont);
+    m_scaleLegend           = new caf::OverlayScaleLegend(standardFont);
 
     updateFieldVisibility();
     updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimScaleLegendConfig::~RimScaleLegendConfig()
-{
-
-}
+RimScaleLegendConfig::~RimScaleLegendConfig() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimScaleLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimScaleLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                            const QVariant&            oldValue,
+                                            const QVariant&            newValue)
 {
     if (changedField == &m_numLevels)
     {
         int upperLimit = std::numeric_limits<int>::max();
-        m_numLevels = cvf::Math::clamp(m_numLevels.v(), 1, upperLimit);
+        m_numLevels    = cvf::Math::clamp(m_numLevels.v(), 1, upperLimit);
     }
     else if (changedField == &m_rangeMode)
     {
@@ -144,7 +161,7 @@ void RimScaleLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
                 m_userDefinedMaxValue = roundToNumSignificantDigits(m_globalAutoMax, m_precision);
             }
             if (m_userDefinedMinValue == m_userDefinedMinValue.defaultValue() && m_globalAutoMin != cvf::UNDEFINED_DOUBLE)
-            {   
+            {
                 m_userDefinedMinValue = roundToNumSignificantDigits(m_globalAutoMin, m_precision);
             }
         }
@@ -188,89 +205,90 @@ void RimScaleLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimScaleLegendConfig::updateLegend()
 {
     double adjustedMin = cvf::UNDEFINED_DOUBLE;
     double adjustedMax = cvf::UNDEFINED_DOUBLE;
-    
-   if (m_rangeMode == AUTOMATIC_ALLTIMESTEPS)
-   {
-       adjustedMin = roundToNumSignificantDigits(m_globalAutoMin, m_precision);
-       adjustedMax = roundToNumSignificantDigits(m_globalAutoMax, m_precision);
-   }
-   else if (m_rangeMode == AUTOMATIC_CURRENT_TIMESTEP)
-   {
-       adjustedMin = roundToNumSignificantDigits(m_localAutoMin, m_precision);
-       adjustedMax = roundToNumSignificantDigits(m_localAutoMax, m_precision);
-   }
-   else
-   {
-       adjustedMin = roundToNumSignificantDigits(m_userDefinedMinValue, m_precision);
-       adjustedMax = roundToNumSignificantDigits(m_userDefinedMaxValue, m_precision);
-   }
 
-   cvf::Color3ubArray legendColors = colorArrayFromColorType(m_colorRangeMode());
+    if (m_rangeMode == AUTOMATIC_ALLTIMESTEPS)
+    {
+        adjustedMin = roundToNumSignificantDigits(m_globalAutoMin, m_precision);
+        adjustedMax = roundToNumSignificantDigits(m_globalAutoMax, m_precision);
+    }
+    else if (m_rangeMode == AUTOMATIC_CURRENT_TIMESTEP)
+    {
+        adjustedMin = roundToNumSignificantDigits(m_localAutoMin, m_precision);
+        adjustedMax = roundToNumSignificantDigits(m_localAutoMax, m_precision);
+    }
+    else
+    {
+        adjustedMin = roundToNumSignificantDigits(m_userDefinedMinValue, m_precision);
+        adjustedMax = roundToNumSignificantDigits(m_userDefinedMaxValue, m_precision);
+    }
 
-   double decadesInRange = 0;
+    cvf::Color3ubArray legendColors = colorArrayFromColorType(m_colorRangeMode());
 
-   {
-       // For linear mapping, use the max value as reference for num valid digits
-       double absRange = CVF_MAX(cvf::Math::abs(adjustedMax), cvf::Math::abs(adjustedMin));
-       decadesInRange = log10(absRange);
-   }
+    double decadesInRange = 0;
 
-   decadesInRange = cvf::Math::ceil(decadesInRange);
+    {
+        // For linear mapping, use the max value as reference for num valid digits
+        double absRange = CVF_MAX(cvf::Math::abs(adjustedMax), cvf::Math::abs(adjustedMin));
+        decadesInRange  = log10(absRange);
+    }
 
-   // Using Fixed format 
-   //caf::OverlayScaleLegend::NumberFormat nft = m_tickNumberFormat();
-   //m_scaleLegend->setTickFormat((caf::OverlayScaleLegend::NumberFormat)nft);
+    decadesInRange = cvf::Math::ceil(decadesInRange);
 
-   // Set the fixed number of digits after the decimal point to the number needed to show all the significant digits.
-   int numDecimalDigits = m_precision();
-   m_scaleLegend->setTickPrecision(cvf::Math::clamp(numDecimalDigits, 0, 20));
+    // Using Fixed format
+    // caf::OverlayScaleLegend::NumberFormat nft = m_tickNumberFormat();
+    // m_scaleLegend->setTickFormat((caf::OverlayScaleLegend::NumberFormat)nft);
 
-   RiaApplication* app = RiaApplication::instance();
-   RiaPreferences* preferences = app->preferences();
-   m_scaleLegend->enableBackground(preferences->showLegendBackground());
+    // Set the fixed number of digits after the decimal point to the number needed to show all the significant digits.
+    int numDecimalDigits = m_precision();
+    m_scaleLegend->setTickPrecision(cvf::Math::clamp(numDecimalDigits, 0, 20));
 
-   if (m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
-   {
-       m_userDefinedMaxValue.uiCapability()->setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax, 'g', m_precision) + ")");
-   }
-   else
-   {
-       m_userDefinedMaxValue.uiCapability()->setUiName(QString());
-   }
+    RiaApplication* app         = RiaApplication::instance();
+    RiaPreferences* preferences = app->preferences();
+    m_scaleLegend->enableBackground(preferences->showLegendBackground());
 
-   if (m_globalAutoMin != cvf::UNDEFINED_DOUBLE )
-   {
-       m_userDefinedMinValue.uiCapability()->setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin, 'g', m_precision) + ")");
-   }
-   else
-   {
+    if (m_globalAutoMax != cvf::UNDEFINED_DOUBLE)
+    {
+        m_userDefinedMaxValue.uiCapability()->setUiName(QString("Max ") + "(" +
+                                                        QString::number(m_globalAutoMax, 'g', m_precision) + ")");
+    }
+    else
+    {
+        m_userDefinedMaxValue.uiCapability()->setUiName(QString());
+    }
+
+    if (m_globalAutoMin != cvf::UNDEFINED_DOUBLE)
+    {
+        m_userDefinedMinValue.uiCapability()->setUiName(QString("Min ") + "(" +
+                                                        QString::number(m_globalAutoMin, 'g', m_precision) + ")");
+    }
+    else
+    {
         m_userDefinedMinValue.uiCapability()->setUiName(QString());
-   }
+    }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimScaleLegendConfig::disableAllTimeStepsRange(bool doDisable)
 {
     // If we enable AllTimesteps, and we have used current timestep, then "restore" the default
-    if (m_isAllTimeStepsRangeDisabled && !doDisable &&  m_rangeMode == AUTOMATIC_CURRENT_TIMESTEP)  m_rangeMode = AUTOMATIC_ALLTIMESTEPS;
+    if (m_isAllTimeStepsRangeDisabled && !doDisable && m_rangeMode == AUTOMATIC_CURRENT_TIMESTEP)
+        m_rangeMode = AUTOMATIC_ALLTIMESTEPS;
 
     m_isAllTimeStepsRangeDisabled = doDisable;
 
     if (doDisable && m_rangeMode == AUTOMATIC_ALLTIMESTEPS) m_rangeMode = AUTOMATIC_CURRENT_TIMESTEP;
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimScaleLegendConfig::setAutomaticRanges(double globalMin, double globalMax, double localMin, double localMax)
 {
@@ -290,7 +308,7 @@ void RimScaleLegendConfig::setAutomaticRanges(double globalMin, double globalMax
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimScaleLegendConfig::initAfterRead()
 {
@@ -303,7 +321,7 @@ caf::PdmFieldHandle* RimScaleLegendConfig::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimScaleLegendConfig::updateFieldVisibility()
 {
@@ -326,7 +344,7 @@ void RimScaleLegendConfig::updateFieldVisibility()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimScaleLegendConfig::setColorRange(ColorRangesType colorMode)
 {
@@ -335,16 +353,16 @@ void RimScaleLegendConfig::setColorRange(ColorRangesType colorMode)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimScaleLegendConfig::recreateLegend()
 {
-    // Due to possible visualization bug, we need to recreate the legend if the last viewer 
-    // has been removed, (and thus the opengl resources has been deleted) The text in 
+    // Due to possible visualization bug, we need to recreate the legend if the last viewer
+    // has been removed, (and thus the opengl resources has been deleted) The text in
     // the legend disappeared because of this, so workaround: recreate the legend when needed:
 
     cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
-    m_scaleLegend = new caf::OverlayScaleLegend(standardFont);
+    m_scaleLegend           = new caf::OverlayScaleLegend(standardFont);
 
     updateLegend();
 }
@@ -361,7 +379,7 @@ double RimScaleLegendConfig::roundToNumSignificantDigits(double domainValue, dou
     }
 
     double logDecValue = log10(absDomainValue);
-    logDecValue = cvf::Math::ceil(logDecValue);
+    logDecValue        = cvf::Math::ceil(logDecValue);
 
     double factor = pow(10.0, numSignificantDigits - logDecValue);
 
@@ -369,7 +387,7 @@ double RimScaleLegendConfig::roundToNumSignificantDigits(double domainValue, dou
     double integerPart;
     double fraction = modf(tmp, &integerPart);
 
-    if (cvf::Math::abs(fraction)>= 0.5) (integerPart >= 0) ? integerPart++: integerPart-- ;
+    if (cvf::Math::abs(fraction) >= 0.5) (integerPart >= 0) ? integerPart++ : integerPart--;
 
     double newDomainValue = integerPart / factor;
 
@@ -377,7 +395,7 @@ double RimScaleLegendConfig::roundToNumSignificantDigits(double domainValue, dou
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimScaleLegendConfig::setTitle(const QString& title)
 {
@@ -386,7 +404,7 @@ void RimScaleLegendConfig::setTitle(const QString& title)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimScaleLegendConfig::showLegend() const
 {
@@ -418,7 +436,7 @@ const caf::TitledOverlayFrame* RimScaleLegendConfig::titledOverlayFrame() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::OverlayItem* RimScaleLegendConfig::overlayItem()
 {
@@ -426,7 +444,7 @@ cvf::OverlayItem* RimScaleLegendConfig::overlayItem()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const cvf::OverlayItem* RimScaleLegendConfig::overlayItem() const
 {
@@ -442,7 +460,7 @@ RimLegendConfig::RangeModeType RimScaleLegendConfig::rangeMode() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimScaleLegendConfig::setUiValuesFromLegendConfig(const RimScaleLegendConfig* otherLegendConfig)
 {
@@ -452,65 +470,65 @@ void RimScaleLegendConfig::setUiValuesFromLegendConfig(const RimScaleLegendConfi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Color3ubArray RimScaleLegendConfig::colorArrayFromColorType(ColorRangesType colorType)
 {
     switch (colorType)
     {
-    case RimScaleLegendConfig::NORMAL:
-        return RiaColorTables::normalPaletteColors().color3ubArray();
-        break;
-    case RimScaleLegendConfig::OPPOSITE_NORMAL:
-        return RiaColorTables::normalPaletteOppositeOrderingColors().color3ubArray();
-        break;
-    case RimScaleLegendConfig::WHITE_PINK:
-        return RiaColorTables::whitePinkPaletteColors().color3ubArray();
-        break;
-    case RimScaleLegendConfig::PINK_WHITE:
-        return RiaColorTables::pinkWhitePaletteColors().color3ubArray();
-        break;
-    case RimScaleLegendConfig::WHITE_BLACK:
-        return RiaColorTables::whiteBlackPaletteColors().color3ubArray();
-        break;
-    case RimScaleLegendConfig::BLACK_WHITE:
-        return RiaColorTables::blackWhitePaletteColors().color3ubArray();
-        break;
-    case RimScaleLegendConfig::BLUE_WHITE_RED:
-        return RiaColorTables::blueWhiteRedPaletteColors().color3ubArray();
-        break;
-    case RimScaleLegendConfig::RED_WHITE_BLUE:
-        return RiaColorTables::redWhiteBluePaletteColors().color3ubArray();
-        break;
-    case RimScaleLegendConfig::CATEGORY:
-        return RiaColorTables::categoryPaletteColors().color3ubArray();
-        break;
-    case RimScaleLegendConfig::ANGULAR:
-        return RiaColorTables::angularPaletteColors().color3ubArray();
-        break;
-    case RimScaleLegendConfig::STIMPLAN:
-        return RiaColorTables::stimPlanPaletteColors().color3ubArray();
-        break;
-    default:
-        //if (ColorManager::isEnsembleColorRange(colorType)) return ColorManager::EnsembleColorRanges().at(colorType);
-        break;
+        case RimScaleLegendConfig::NORMAL:
+            return RiaColorTables::normalPaletteColors().color3ubArray();
+            break;
+        case RimScaleLegendConfig::OPPOSITE_NORMAL:
+            return RiaColorTables::normalPaletteOppositeOrderingColors().color3ubArray();
+            break;
+        case RimScaleLegendConfig::WHITE_PINK:
+            return RiaColorTables::whitePinkPaletteColors().color3ubArray();
+            break;
+        case RimScaleLegendConfig::PINK_WHITE:
+            return RiaColorTables::pinkWhitePaletteColors().color3ubArray();
+            break;
+        case RimScaleLegendConfig::WHITE_BLACK:
+            return RiaColorTables::whiteBlackPaletteColors().color3ubArray();
+            break;
+        case RimScaleLegendConfig::BLACK_WHITE:
+            return RiaColorTables::blackWhitePaletteColors().color3ubArray();
+            break;
+        case RimScaleLegendConfig::BLUE_WHITE_RED:
+            return RiaColorTables::blueWhiteRedPaletteColors().color3ubArray();
+            break;
+        case RimScaleLegendConfig::RED_WHITE_BLUE:
+            return RiaColorTables::redWhiteBluePaletteColors().color3ubArray();
+            break;
+        case RimScaleLegendConfig::CATEGORY:
+            return RiaColorTables::categoryPaletteColors().color3ubArray();
+            break;
+        case RimScaleLegendConfig::ANGULAR:
+            return RiaColorTables::angularPaletteColors().color3ubArray();
+            break;
+        case RimScaleLegendConfig::STIMPLAN:
+            return RiaColorTables::stimPlanPaletteColors().color3ubArray();
+            break;
+        default:
+            // if (ColorManager::isEnsembleColorRange(colorType)) return ColorManager::EnsembleColorRanges().at(colorType);
+            break;
     }
 
     return RiaColorTables::normalPaletteColors().color3ubArray();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimScaleLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     {
-        caf::PdmUiOrdering * formatGr = uiOrdering.addNewGroup("Format");
+        caf::PdmUiOrdering* formatGr = uiOrdering.addNewGroup("Format");
         formatGr->add(&m_numLevels);
         formatGr->add(&m_precision);
         formatGr->add(&m_colorRangeMode);
 
-        caf::PdmUiOrdering * mappingGr = uiOrdering.addNewGroup("Mapping");
+        caf::PdmUiOrdering* mappingGr = uiOrdering.addNewGroup("Mapping");
         mappingGr->add(&m_rangeMode);
         mappingGr->add(&m_userDefinedMaxValue);
         mappingGr->add(&m_userDefinedMinValue);
@@ -520,11 +538,12 @@ void RimScaleLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrde
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimScaleLegendConfig::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimScaleLegendConfig::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                          bool*                      useOptionsOnly)
 {
-    bool hasStimPlanParent = false;
+    bool hasStimPlanParent         = false;
     bool hasEnsembleCurveSetParent = false;
 
     RimStimPlanColors* stimPlanColors = nullptr;
@@ -544,10 +563,9 @@ QList<caf::PdmOptionItemInfo> RimScaleLegendConfig::calculateValueOptions(const 
         RimCellEdgeColors* eclCellEdgColors = nullptr;
         this->firstAncestorOrThisOfType(eclCellEdgColors);
 
-        if (   ( eclCellColors && eclCellColors->hasCategoryResult())
-            || ( gmCellColors && gmCellColors->hasCategoryResult())
-            || ( eclCellEdgColors && eclCellEdgColors->hasCategoryResult())
-            || ( ensembleCurveSet && ensembleCurveSet->currentEnsembleParameterType() == EnsembleParameter::TYPE_TEXT) )
+        if ((eclCellColors && eclCellColors->hasCategoryResult()) || (gmCellColors && gmCellColors->hasCategoryResult()) ||
+            (eclCellEdgColors && eclCellEdgColors->hasCategoryResult()) ||
+            (ensembleCurveSet && ensembleCurveSet->currentEnsembleParameterType() == EnsembleParameter::TYPE_TEXT))
         {
             isCategoryResult = true;
         }
@@ -573,7 +591,7 @@ QList<caf::PdmOptionItemInfo> RimScaleLegendConfig::calculateValueOptions(const 
         }
         else
         {
-            //for (const auto& col : ColorManager::EnsembleColorRanges())
+            // for (const auto& col : ColorManager::EnsembleColorRanges())
             //{
             //    rangeTypes.push_back(col.first);
             //}
@@ -586,7 +604,7 @@ QList<caf::PdmOptionItemInfo> RimScaleLegendConfig::calculateValueOptions(const 
             rangeTypes.push_back(CATEGORY);
         }
 
-        for(ColorRangesType colType: rangeTypes)
+        for (ColorRangesType colType : rangeTypes)
         {
             options.push_back(caf::PdmOptionItemInfo(ColorRangeEnum::uiText(colType), colType));
         }
@@ -596,18 +614,21 @@ QList<caf::PdmOptionItemInfo> RimScaleLegendConfig::calculateValueOptions(const 
         if (!m_isAllTimeStepsRangeDisabled)
         {
             QString uiText;
-            if(!hasEnsembleCurveSetParent) uiText = RangeModeEnum::uiText(RimScaleLegendConfig::AUTOMATIC_ALLTIMESTEPS);
-            else                           uiText = "Auto Range";
-            
+            if (!hasEnsembleCurveSetParent)
+                uiText = RangeModeEnum::uiText(RimScaleLegendConfig::AUTOMATIC_ALLTIMESTEPS);
+            else
+                uiText = "Auto Range";
+
             options.push_back(caf::PdmOptionItemInfo(uiText, RimScaleLegendConfig::AUTOMATIC_ALLTIMESTEPS));
         }
         if (!hasStimPlanParent && !hasEnsembleCurveSetParent)
         {
-            options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimScaleLegendConfig::AUTOMATIC_CURRENT_TIMESTEP), RimScaleLegendConfig::AUTOMATIC_CURRENT_TIMESTEP));
+            options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimScaleLegendConfig::AUTOMATIC_CURRENT_TIMESTEP),
+                                                     RimScaleLegendConfig::AUTOMATIC_CURRENT_TIMESTEP));
         }
-        options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimScaleLegendConfig::USER_DEFINED), RimScaleLegendConfig::USER_DEFINED));
+        options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimScaleLegendConfig::USER_DEFINED),
+                                                 RimScaleLegendConfig::USER_DEFINED));
     }
- 
+
     return options;
 }
-

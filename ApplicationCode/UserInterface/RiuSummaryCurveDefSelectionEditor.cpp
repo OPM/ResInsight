@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@
 #include <QSplitter>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryCurveDefSelectionEditor::RiuSummaryCurveDefSelectionEditor()
 {
@@ -41,7 +41,7 @@ RiuSummaryCurveDefSelectionEditor::RiuSummaryCurveDefSelectionEditor()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryCurveDefSelectionEditor::~RiuSummaryCurveDefSelectionEditor()
 {
@@ -49,7 +49,7 @@ RiuSummaryCurveDefSelectionEditor::~RiuSummaryCurveDefSelectionEditor()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryCurveDefSelection* RiuSummaryCurveDefSelectionEditor::summaryAddressSelection() const
 {
@@ -57,13 +57,15 @@ RiuSummaryCurveDefSelection* RiuSummaryCurveDefSelectionEditor::summaryAddressSe
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelectionEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const caf::PdmUiOrdering& topLevelUiOrdering, const QString& uiConfigName)
+void RiuSummaryCurveDefSelectionEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(
+    const caf::PdmUiOrdering& topLevelUiOrdering,
+    const QString&            uiConfigName)
 {
     if (!m_firstRowLeftLayout || !m_firstRowRightLayout) return;
 
-    const std::vector<caf::PdmUiItem *>& topLevelUiItems = topLevelUiOrdering.uiItems();
+    const std::vector<caf::PdmUiItem*>& topLevelUiItems = topLevelUiOrdering.uiItems();
 
     for (size_t i = 0; i < topLevelUiItems.size(); ++i)
     {
@@ -71,35 +73,34 @@ void RiuSummaryCurveDefSelectionEditor::recursivelyConfigureAndUpdateTopLevelUiO
 
         if (topLevelUiItems[i]->isUiGroup())
         {
-            caf::PdmUiGroup* group = static_cast<caf::PdmUiGroup*>(topLevelUiItems[i]);
-            auto groupBox = createGroupBoxWithContent(group, uiConfigName);
+            caf::PdmUiGroup* group    = static_cast<caf::PdmUiGroup*>(topLevelUiItems[i]);
+            auto             groupBox = createGroupBoxWithContent(group, uiConfigName);
 
-            bool isSources = group->keyword() == RiuSummaryCurveDefinitionKeywords::sources();
+            bool isSources      = group->keyword() == RiuSummaryCurveDefinitionKeywords::sources();
             bool isSummaryTypes = group->keyword() == RiuSummaryCurveDefinitionKeywords::summaryTypes();
-            bool isSummaries = group->keyword() == RiuSummaryCurveDefinitionKeywords::summaries();
+            bool isSummaries    = group->keyword() == RiuSummaryCurveDefinitionKeywords::summaries();
             bool isDynamicGroup = !isSources && !isSummaryTypes && !isSummaries;
-            bool leftColumn = isSources || isSummaryTypes;
+            bool leftColumn     = isSources || isSummaryTypes;
 
             if (isSummaryTypes || isDynamicGroup)
             {
                 groupBox->setFixedWidth(170);
             }
 
-            if(leftColumn)
+            if (leftColumn)
                 m_firstRowLeftLayout->addWidget(groupBox);
             else
                 m_firstRowRightLayout->addWidget(groupBox);
 
             // Add group boxes until summaries are detected
 
-            if (group->keyword() == RiuSummaryCurveDefinitionKeywords::summaries())
-                break;
+            if (group->keyword() == RiuSummaryCurveDefinitionKeywords::summaries()) break;
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QWidget* RiuSummaryCurveDefSelectionEditor::createWidget(QWidget* parent)
 {
@@ -109,18 +110,18 @@ QWidget* RiuSummaryCurveDefSelectionEditor::createWidget(QWidget* parent)
     mainLayout->setContentsMargins(5, 5, 5, 5);
     widget->setLayout(mainLayout);
 
-    QFrame* firstRowFrame = new QFrame(widget);
+    QFrame*      firstRowFrame  = new QFrame(widget);
     QHBoxLayout* firstRowLayout = new QHBoxLayout;
     firstRowLayout->setContentsMargins(0, 0, 0, 0);
     firstRowFrame->setLayout(firstRowLayout);
 
     QFrame* firstRowLeftFrame = new QFrame(widget);
-    m_firstRowLeftLayout = new QHBoxLayout;
+    m_firstRowLeftLayout      = new QHBoxLayout;
     m_firstRowLeftLayout->setContentsMargins(0, 0, 0, 0);
     firstRowLeftFrame->setLayout(m_firstRowLeftLayout);
 
     QFrame* firstRowRightFrame = new QFrame(widget);
-    m_firstRowRightLayout = new QHBoxLayout;
+    m_firstRowRightLayout      = new QHBoxLayout;
     m_firstRowRightLayout->setContentsMargins(0, 0, 0, 0);
     firstRowRightFrame->setLayout(m_firstRowRightLayout);
 
@@ -139,12 +140,12 @@ QWidget* RiuSummaryCurveDefSelectionEditor::createWidget(QWidget* parent)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelectionEditor::configureAndUpdateFields(int widgetStartIndex, 
-                                                                QBoxLayout* layout,
-                                                                const std::vector<caf::PdmUiItem *>& uiItems,
-                                                                const QString& uiConfigName)
+void RiuSummaryCurveDefSelectionEditor::configureAndUpdateFields(int                                 widgetStartIndex,
+                                                                 QBoxLayout*                         layout,
+                                                                 const std::vector<caf::PdmUiItem*>& uiItems,
+                                                                 const QString&                      uiConfigName)
 {
     int currentWidgetIndex = widgetStartIndex;
 
@@ -194,7 +195,8 @@ void RiuSummaryCurveDefSelectionEditor::configureAndUpdateFields(int widgetStart
 
                     if (fieldEditorWidget)
                     {
-                        fieldEditorWidget->setParent(this->widget()); // To make sure this widget has the current group box as parent.
+                        fieldEditorWidget->setParent(
+                            this->widget()); // To make sure this widget has the current group box as parent.
 
                         layout->insertWidget(currentWidgetIndex++, fieldEditorWidget);
                     }
@@ -207,10 +209,9 @@ void RiuSummaryCurveDefSelectionEditor::configureAndUpdateFields(int widgetStart
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QMinimizePanel* RiuSummaryCurveDefSelectionEditor::createGroupBoxWithContent(caf::PdmUiGroup* group,
-                                                                            const QString& uiConfigName)
+QMinimizePanel* RiuSummaryCurveDefSelectionEditor::createGroupBoxWithContent(caf::PdmUiGroup* group, const QString& uiConfigName)
 {
     QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
 

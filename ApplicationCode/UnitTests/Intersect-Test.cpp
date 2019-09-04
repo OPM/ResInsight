@@ -5,10 +5,8 @@
 #include <QString>
 
 #include "ert/ecl/ecl_file.h"
-#include "ert/ecl/ecl_kw_magic.h"
 #include "ert/ecl/ecl_kw.hpp"
-
-
+#include "ert/ecl/ecl_kw_magic.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -34,8 +32,8 @@ TEST(IntersectDataImport, DISABLED_TestImportPORV)
         {
             auto fileKeyword = ecl_file_iget_named_file_kw(ecl_file, porv_kw.data(), index);
 
-            float porvThreshold = 0.0f;
-            auto actnumFromPorv = ecl_kw_alloc_actnum(ecl_file_kw_get_kw_ptr(fileKeyword), porvThreshold);
+            float porvThreshold  = 0.0f;
+            auto  actnumFromPorv = ecl_kw_alloc_actnum(ecl_file_kw_get_kw_ptr(fileKeyword), porvThreshold);
 
             EXPECT_TRUE(actnumFromPorv != nullptr);
         }

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,24 +21,23 @@
 #include "RiaLogging.h"
 
 #include "RifEclipseSummaryTools.h"
-#include "RifReaderEclipseSummary.h"
 #include "RifReaderEclipseRft.h"
+#include "RifReaderEclipseSummary.h"
 
 #include "RimTools.h"
 
 #include <QDir>
 #include <QFileInfo>
 
-
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
-CAF_PDM_SOURCE_INIT(RimFileSummaryCase,"FileSummaryCase");
+CAF_PDM_SOURCE_INIT(RimFileSummaryCase, "FileSummaryCase");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFileSummaryCase::RimFileSummaryCase()
 {
@@ -48,15 +47,12 @@ RimFileSummaryCase::RimFileSummaryCase()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimFileSummaryCase::~RimFileSummaryCase()
-{
-
-}
+RimFileSummaryCase::~RimFileSummaryCase() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimFileSummaryCase::summaryHeaderFilename() const
 {
@@ -64,7 +60,7 @@ QString RimFileSummaryCase::summaryHeaderFilename() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimFileSummaryCase::caseName() const
 {
@@ -74,19 +70,20 @@ QString RimFileSummaryCase::caseName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimFileSummaryCase::updateFilePathsFromProjectPath(const QString & newProjectPath, const QString & oldProjectPath)
+void RimFileSummaryCase::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
     m_summaryHeaderFilename = RimTools::relocateFile(m_summaryHeaderFilename(), newProjectPath, oldProjectPath, nullptr, nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::createSummaryReaderInterface()
 {
-    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename(), m_includeRestartFiles);    
+    m_summaryFileReader =
+        RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename(), m_includeRestartFiles);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,9 +99,10 @@ void RimFileSummaryCase::createRftReaderInterface()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RimFileSummaryCase::findRelatedFilesAndCreateReader(const QString& headerFileName, bool includeRestartFiles)
+RifReaderEclipseSummary* RimFileSummaryCase::findRelatedFilesAndCreateReader(const QString& headerFileName,
+                                                                             bool           includeRestartFiles)
 {
     RifReaderEclipseSummary* summaryFileReader = new RifReaderEclipseSummary;
 
@@ -125,7 +123,7 @@ RifReaderEclipseSummary* RimFileSummaryCase::findRelatedFilesAndCreateReader(con
 RifReaderEclipseRft* RimFileSummaryCase::findRftDataAndCreateReader(const QString& headerFileName)
 {
     QFileInfo fileInfo(headerFileName);
-    QString folder = fileInfo.absolutePath();
+    QString   folder = fileInfo.absolutePath();
 
     QString   rftFileName = folder + "/" + fileInfo.completeBaseName() + ".RFT";
     QFileInfo rftFileInfo(rftFileName);
@@ -140,7 +138,7 @@ RifReaderEclipseRft* RimFileSummaryCase::findRftDataAndCreateReader(const QStrin
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimFileSummaryCase::summaryReader()
 {
@@ -156,7 +154,7 @@ RifReaderRftInterface* RimFileSummaryCase::rftReader()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::setIncludeRestartFiles(bool includeRestartFiles)
 {

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@
 CAF_CMD_SOURCE_INIT(RicOpenProjectFeature, "RicOpenProjectFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicOpenProjectFeature::isCommandEnabled()
 {
@@ -37,16 +37,17 @@ bool RicOpenProjectFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicOpenProjectFeature::onActionTriggered(bool isChecked)
 {
     RiaGuiApplication* app = RiaGuiApplication::instance();
-    
+
     if (!app->askUserToSaveModifiedProject()) return;
 
     QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
-    QString fileName = QFileDialog::getOpenFileName(nullptr, "Open ResInsight Project", defaultDir, "ResInsight project (*.rsp *.rip);;All files(*.*)");
+    QString fileName   = QFileDialog::getOpenFileName(
+        nullptr, "Open ResInsight Project", defaultDir, "ResInsight project (*.rsp *.rip);;All files(*.*)");
 
     if (fileName.isEmpty()) return;
 
@@ -60,7 +61,7 @@ void RicOpenProjectFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicOpenProjectFeature::setupActionLook(QAction* actionToSetup)
 {

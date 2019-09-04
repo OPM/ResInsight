@@ -31,13 +31,13 @@ using namespace rips;
 ///
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcPdmObjectService::GetAncestorPdmObject(grpc::ServerContext*                context,
-                                                         const rips::PdmParentObjectRequest* request,
-                                                         rips::PdmObject*                    reply)
+                                                           const rips::PdmParentObjectRequest* request,
+                                                           rips::PdmObject*                    reply)
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject*                  project = RiaApplication::instance()->project();
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
     project->descendantsIncludingThisFromClassKeyword(QString::fromStdString(request->object().class_keyword()),
-        objectsOfCurrentClass);
+                                                      objectsOfCurrentClass);
 
     caf::PdmObject* matchingObject = nullptr;
     for (caf::PdmObject* testObject : objectsOfCurrentClass)
@@ -64,9 +64,9 @@ grpc::Status RiaGrpcPdmObjectService::GetAncestorPdmObject(grpc::ServerContext* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcPdmObjectService::GetDescendantPdmObjects(grpc::ServerContext*               context,
-                                                         const rips::PdmDescendantObjectRequest* request,
-                                                         rips::PdmObjectArray*                   reply)
+grpc::Status RiaGrpcPdmObjectService::GetDescendantPdmObjects(grpc::ServerContext*                    context,
+                                                              const rips::PdmDescendantObjectRequest* request,
+                                                              rips::PdmObjectArray*                   reply)
 {
     RimProject*                  project = RiaApplication::instance()->project();
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
@@ -89,7 +89,7 @@ grpc::Status RiaGrpcPdmObjectService::GetDescendantPdmObjects(grpc::ServerContex
         for (auto pdmChild : childObjects)
         {
             rips::PdmObject* ripsChild = reply->add_objects();
-            copyPdmObjectFromCafToRips(pdmChild, ripsChild);            
+            copyPdmObjectFromCafToRips(pdmChild, ripsChild);
         }
         return grpc::Status::OK;
     }
@@ -100,8 +100,8 @@ grpc::Status RiaGrpcPdmObjectService::GetDescendantPdmObjects(grpc::ServerContex
 ///
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcPdmObjectService::GetChildPdmObjects(grpc::ServerContext*               context,
-                                                              const rips::PdmChildObjectRequest* request,
-                                                              rips::PdmObjectArray*              reply)
+                                                         const rips::PdmChildObjectRequest* request,
+                                                         rips::PdmObjectArray*              reply)
 {
     RimProject*                  project = RiaApplication::instance()->project();
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
@@ -119,7 +119,7 @@ grpc::Status RiaGrpcPdmObjectService::GetChildPdmObjects(grpc::ServerContext*   
 
     if (matchingObject)
     {
-        QString fieldName = QString::fromStdString(request->child_field());
+        QString                           fieldName = QString::fromStdString(request->child_field());
         std::vector<caf::PdmFieldHandle*> fields;
         matchingObject->fields(fields);
         for (auto field : fields)
@@ -187,9 +187,9 @@ grpc::Status RiaGrpcPdmObjectService::UpdateExistingPdmObject(grpc::ServerContex
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcPdmObjectService::CreateChildPdmObject(grpc::ServerContext*                  context,
-                                                        const rips::CreatePdmChildObjectRequest* request,
-                                                        rips::PdmObject*                         reply)
+grpc::Status RiaGrpcPdmObjectService::CreateChildPdmObject(grpc::ServerContext*                     context,
+                                                           const rips::CreatePdmChildObjectRequest* request,
+                                                           rips::PdmObject*                         reply)
 {
     RimProject*                  project = RiaApplication::instance()->project();
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
@@ -208,10 +208,9 @@ grpc::Status RiaGrpcPdmObjectService::CreateChildPdmObject(grpc::ServerContext* 
     if (matchingObject)
     {
         CAF_ASSERT(request);
-       
-        caf::PdmObject* pdmObject = emplaceChildArrayField(matchingObject,
-            QString::fromStdString(request->child_field()),
-            QString::fromStdString(request->child_class()));
+
+        caf::PdmObject* pdmObject = emplaceChildArrayField(
+            matchingObject, QString::fromStdString(request->child_field()), QString::fromStdString(request->child_class()));
         if (pdmObject)
         {
             copyPdmObjectFromCafToRips(pdmObject, reply);
@@ -228,14 +227,16 @@ grpc::Status RiaGrpcPdmObjectService::CreateChildPdmObject(grpc::ServerContext* 
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcPdmObjectService::createCallbacks()
 {
     typedef RiaGrpcPdmObjectService Self;
-    return
-    {
-        new RiaGrpcUnaryCallback<Self, PdmParentObjectRequest, PdmObject>(this, &Self::GetAncestorPdmObject, &Self::RequestGetAncestorPdmObject),
-        new RiaGrpcUnaryCallback<Self, PdmDescendantObjectRequest, PdmObjectArray>(this, &Self::GetDescendantPdmObjects, &Self::RequestGetDescendantPdmObjects),
-        new RiaGrpcUnaryCallback<Self, PdmChildObjectRequest, PdmObjectArray>(this, &Self::GetChildPdmObjects, &Self::RequestGetChildPdmObjects),
-        new RiaGrpcUnaryCallback<Self, PdmObject, Empty>(this, &Self::UpdateExistingPdmObject, &Self::RequestUpdateExistingPdmObject),
-        new RiaGrpcUnaryCallback<Self, CreatePdmChildObjectRequest, PdmObject>(this, &Self::CreateChildPdmObject, &Self::RequestCreateChildPdmObject)
-    };
+    return {new RiaGrpcUnaryCallback<Self, PdmParentObjectRequest, PdmObject>(
+                this, &Self::GetAncestorPdmObject, &Self::RequestGetAncestorPdmObject),
+            new RiaGrpcUnaryCallback<Self, PdmDescendantObjectRequest, PdmObjectArray>(
+                this, &Self::GetDescendantPdmObjects, &Self::RequestGetDescendantPdmObjects),
+            new RiaGrpcUnaryCallback<Self, PdmChildObjectRequest, PdmObjectArray>(
+                this, &Self::GetChildPdmObjects, &Self::RequestGetChildPdmObjects),
+            new RiaGrpcUnaryCallback<Self, PdmObject, Empty>(
+                this, &Self::UpdateExistingPdmObject, &Self::RequestUpdateExistingPdmObject),
+            new RiaGrpcUnaryCallback<Self, CreatePdmChildObjectRequest, PdmObject>(
+                this, &Self::CreateChildPdmObject, &Self::RequestCreateChildPdmObject)};
 }
 
 static bool RiaGrpcPdmObjectService_init =

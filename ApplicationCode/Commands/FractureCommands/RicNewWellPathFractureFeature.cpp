@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2016-2018 Statoil ASA
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -47,11 +47,10 @@
 
 #include <QAction>
 
-
 CAF_CMD_SOURCE_INIT(RicNewWellPathFractureFeature, "RicNewWellPathFractureFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double measuredDepth)
 {
@@ -77,8 +76,8 @@ void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double me
     fracture->setMeasuredDepth(measuredDepth);
     fracture->setFractureUnit(wellPath->unitSystem());
 
-    RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
-    cvf::Vec3d positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath(measuredDepth);
+    RigWellPath* wellPathGeometry   = wellPath->wellPathGeometry();
+    cvf::Vec3d   positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath(measuredDepth);
     fracture->setAnchorPosition(positionAtWellpath);
 
     RimOilField* oilfield = nullptr;
@@ -108,7 +107,7 @@ void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double me
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
 {
@@ -123,7 +122,7 @@ void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathFractureFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -132,7 +131,7 @@ void RicNewWellPathFractureFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellPathFractureFeature::isCommandEnabled()
 {
@@ -145,14 +144,14 @@ bool RicNewWellPathFractureFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellPathFractureCollection* RicNewWellPathFractureFeature::selectedWellPathFractureCollection()
 {
     std::vector<caf::PdmUiItem*> allSelectedItems;
     caf::SelectionManager::instance()->selectedItems(allSelectedItems);
     if (allSelectedItems.size() != 1u) return nullptr;
-    
+
     RimWellPathFractureCollection* objToFind = nullptr;
 
     caf::PdmUiItem* pdmUiItem = allSelectedItems.front();

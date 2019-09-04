@@ -28,7 +28,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifElementPropertyReader::RifElementPropertyReader(const std::vector<int>& elementIdxToId) : m_elementIdxToId(elementIdxToId) {}
+RifElementPropertyReader::RifElementPropertyReader(const std::vector<int>& elementIdxToId)
+    : m_elementIdxToId(elementIdxToId)
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -92,7 +95,7 @@ std::map<std::string, std::vector<float>>
     {
         return fieldAndData;
     }
-    
+
     RifElementPropertyTable table;
     RifElementPropertyTableReader::readData(&m_fieldsMetaData[fieldName], &table);
 
@@ -110,11 +113,11 @@ std::map<std::string, std::vector<float>>
         for (size_t i = 0; i < table.data.size(); i++)
         {
             const std::string& currentFieldFromFile = m_fieldsMetaData[fieldName].dataColumns[i].toStdString();
-            
+
             if (currentFieldFromFile == "MODULUS")
             {
                 const std::vector<float>& currentColumn = table.data[i];
-                std::vector<float> tempResult(currentColumn.size(), 0);
+                std::vector<float>        tempResult(currentColumn.size(), 0);
 
                 for (float resultItem : currentColumn)
                 {
@@ -159,7 +162,7 @@ std::map<std::string, std::vector<float>>
         for (size_t i = 0; i < table.data.size(); i++)
         {
             std::string currentFieldFromFile = m_fieldsMetaData[fieldName].dataColumns[i].toStdString();
-            
+
             const std::vector<float>& currentColumn = table.data[i];
 
             std::vector<float> tempResult(m_elementIdToIdx.size(), HUGE_VAL);
@@ -187,7 +190,7 @@ std::map<std::string, std::vector<float>>
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::string> RifElementPropertyReader::fieldsInFile(const std::string& fileName) const
 {

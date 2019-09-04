@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -30,18 +30,17 @@
 
 #include "cvfAssert.h"
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogTrack* destTrack, 
-                                                                  const std::vector<RimWellLogCurve*>& curves, 
-                                                                  RimWellLogCurve* curveToInsertAfter)
+void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogTrack*                     destTrack,
+                                                                  const std::vector<RimWellLogCurve*>& curves,
+                                                                  RimWellLogCurve*                     curveToInsertAfter)
 {
-    CVF_ASSERT(destTrack );
+    CVF_ASSERT(destTrack);
 
     std::set<RimWellLogTrack*> srcTracks;
-    std::set<RimWellLogPlot*> srcPlots;
+    std::set<RimWellLogPlot*>  srcPlots;
 
     for (size_t cIdx = 0; cIdx < curves.size(); cIdx++)
     {
@@ -86,11 +85,11 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogTrac
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* dstWellLogPlot, 
-                                                             const std::vector<RimWellLogTrack*>& tracksToMove, 
-                                                             RimWellLogTrack* trackToInsertAfter)
+void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot*                      dstWellLogPlot,
+                                                             const std::vector<RimWellLogTrack*>& tracksToMove,
+                                                             RimWellLogTrack*                     trackToInsertAfter)
 {
     CVF_ASSERT(dstWellLogPlot);
 
@@ -123,14 +122,12 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* dst
         (*pIt)->updateConnectedEditors();
     }
 
-
     size_t insertionStartIndex = 0;
     if (trackToInsertAfter) insertionStartIndex = dstWellLogPlot->trackIndex(trackToInsertAfter) + 1;
 
     for (size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++)
     {
         dstWellLogPlot->insertTrack(tracksToMove[tIdx], insertionStartIndex + tIdx);
-    
     }
     RiuWellLogPlot* viewWidget = dynamic_cast<RiuWellLogPlot*>(dstWellLogPlot->viewWidget());
     plotWindow->setWidthOfMdiWindow(viewWidget, viewWidget->preferredSize().width());

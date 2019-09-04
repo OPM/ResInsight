@@ -230,33 +230,35 @@ QList<caf::PdmOptionItemInfo>
         for (int i = 0; i < timeStepNames.size(); i++)
         {
             QString timeStepString = timeStepNames[i];
-            auto it = wellProductionStartStrings.find(i);
+            auto    it             = wellProductionStartStrings.find(i);
             if (it != wellProductionStartStrings.end())
             {
-                int numberOfWells = static_cast<int>(it->second.size());
+                int         numberOfWells = static_cast<int>(it->second.size());
                 QStringList wellList;
                 QStringList wellPressureList;
-                const int maxStringLength = 70;
-                QString startStringFormat(" [Start: %1]");
+                const int   maxStringLength = 70;
+                QString     startStringFormat(" [Start: %1]");
 
                 for (int w = 0; w < numberOfWells; ++w)
                 {
-                    QString wellString = it->second[w].first;
-                    QStringList candidateWellList = wellList; candidateWellList << wellString;
+                    QString     wellString        = it->second[w].first;
+                    QStringList candidateWellList = wellList;
+                    candidateWellList << wellString;
 
                     if (startStringFormat.arg(candidateWellList.join(", ")).length() < maxStringLength)
                     {
                         wellList = candidateWellList;
                     }
 
-                    QString wellStringWithPressure = QString("%1 (%2)").arg(it->second[w].first).arg(it->second[w].second);
-                    QStringList candidateWellPressureList = wellPressureList; candidateWellPressureList << wellStringWithPressure;
+                    QString     wellStringWithPressure    = QString("%1 (%2)").arg(it->second[w].first).arg(it->second[w].second);
+                    QStringList candidateWellPressureList = wellPressureList;
+                    candidateWellPressureList << wellStringWithPressure;
                     if (startStringFormat.arg(candidateWellPressureList.join(", ")).length() < maxStringLength)
                     {
                         wellPressureList = candidateWellPressureList;
                     }
                 }
-                
+
                 if (wellList.size() < numberOfWells)
                 {
                     wellList += QString("+ %1 more").arg(numberOfWells - wellList.size());
@@ -347,7 +349,7 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
                 transScalingWBHP.uiCapability()->setUiReadOnly(true);
             }
             else
-            {                
+            {
                 transScalingTimeStep.uiCapability()->setUiReadOnly(false);
                 transScalingWBHPSource.uiCapability()->setUiReadOnly(false);
                 transScalingWBHP.uiCapability()->setUiReadOnly(false);
@@ -398,9 +400,10 @@ std::map<int, std::vector<std::pair<QString, QString>>> RicExportCompletionDataS
         for (const RimWellPath* wellPath : project->allWellPaths())
         {
             int    initialWellProductionTimeStep = -1;
-            double initialWellPressure = 0.0;
-            double currentWellPressure = 0.0;
-            RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeStepFromSummaryData(caseToApply,
+            double initialWellPressure           = 0.0;
+            double currentWellPressure           = 0.0;
+            RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeStepFromSummaryData(
+                caseToApply,
                 wellPath->completions()->wellNameForExport(),
                 0,
                 &initialWellProductionTimeStep,
@@ -409,7 +412,8 @@ std::map<int, std::vector<std::pair<QString, QString>>> RicExportCompletionDataS
             if (initialWellProductionTimeStep >= 0)
             {
                 QString pressureUnits = RiaEclipseUnitTools::unitStringPressure(wellPath->unitSystem());
-                wellProductionStartStrings[initialWellProductionTimeStep].push_back(std::make_pair(wellPath->name(), QString("%1 %2").arg(initialWellPressure, 4, 'f', 1).arg(pressureUnits)));
+                wellProductionStartStrings[initialWellProductionTimeStep].push_back(
+                    std::make_pair(wellPath->name(), QString("%1 %2").arg(initialWellPressure, 4, 'f', 1).arg(pressureUnits)));
             }
         }
     }

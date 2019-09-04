@@ -1,21 +1,20 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017- Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 
 #pragma once
 
@@ -42,27 +41,24 @@ public:
     RifReaderObservedData();
     ~RifReaderObservedData() override;
 
-    bool                                open(const QString& headerFileName,
-                                             const QString& identifierName,
-                                             RifEclipseSummaryAddress::SummaryVarCategory summaryCategory);
+    bool open(const QString&                               headerFileName,
+              const QString&                               identifierName,
+              RifEclipseSummaryAddress::SummaryVarCategory summaryCategory);
 
-    const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
+    const std::vector<time_t>& timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 
-    bool                        values(const RifEclipseSummaryAddress& resultAddress,
-                                               std::vector<double>* values) const override;
+    bool values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;
 
-    std::string                         unitName(const RifEclipseSummaryAddress& resultAddress) const override;
-
+    std::string unitName(const RifEclipseSummaryAddress& resultAddress) const override;
 
     RiaEclipseUnitTools::UnitSystem unitSystem() const override;
 
 private:
-    RifEclipseSummaryAddress            address(const QString& quantity,
-                                                const QString& identifierName, 
-                                                RifEclipseSummaryAddress::SummaryVarCategory summaryCategory);
+    RifEclipseSummaryAddress address(const QString&                               quantity,
+                                     const QString&                               identifierName,
+                                     RifEclipseSummaryAddress::SummaryVarCategory summaryCategory);
 
 private:
-    std::unique_ptr<RifCsvUserDataParser>       m_asciiParser;
-    std::vector<time_t>                         m_timeSteps;
+    std::unique_ptr<RifCsvUserDataParser> m_asciiParser;
+    std::vector<time_t>                   m_timeSteps;
 };
-

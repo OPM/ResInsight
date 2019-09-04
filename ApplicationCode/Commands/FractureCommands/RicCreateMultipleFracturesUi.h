@@ -33,7 +33,7 @@ class RigMainGrid;
 
 namespace caf
 {
-    class PdmUiPropertyViewDialog;
+class PdmUiPropertyViewDialog;
 }
 
 //==================================================================================================
@@ -95,12 +95,11 @@ public:
 
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                bool*                      useOptionsOnly) override;
-    void
-                 defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget) override;
+                                                        bool*                      useOptionsOnly) override;
+    void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget) override;
     void defineEditorAttribute(const caf::PdmFieldHandle* field,
-                                       QString                    uiConfigName,
-                                       caf::PdmUiEditorAttribute* attribute) override;
+                               QString                    uiConfigName,
+                               caf::PdmUiEditorAttribute* attribute) override;
 
     QString summaryText() const;
 
@@ -112,7 +111,7 @@ private:
 
     caf::PdmProxyValueField<QString> m_fractureCreationSummary;
 
-    std::vector<RimWellPath*>       m_wellPaths;
+    std::vector<RimWellPath*> m_wellPaths;
 
     QPointer<caf::PdmUiPropertyViewDialog> m_dialog;
 };

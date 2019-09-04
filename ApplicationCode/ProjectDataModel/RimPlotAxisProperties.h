@@ -73,9 +73,9 @@ public:
     void                 setAxisInverted(bool inverted);
 
     std::vector<RimPlotAxisAnnotation*> annotations() const;
-    void appendAnnotation(RimPlotAxisAnnotation* annotation);
+    void                                appendAnnotation(RimPlotAxisAnnotation* annotation);
 
-    caf::PdmField<QString>                             customTitle;
+    caf::PdmField<QString> customTitle;
 
     caf::PdmField<double> visibleRangeMin;
     caf::PdmField<double> visibleRangeMax;
@@ -89,17 +89,16 @@ public:
 
     void setInvertedAxis(bool enable);
     void showAnnotationObjectsInProjectTree();
-    
+
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
-    void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
-                                                  const QVariant& newValue) override;
-    void                 defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                bool*                      useOptionsOnly) override;
+                                                        bool*                      useOptionsOnly) override;
 
 private:
     void updateOptionSensitivity();
@@ -117,7 +116,7 @@ private:
     caf::PdmField<QString> m_name;
     QwtPlot::Axis          m_axis;
 
-    bool                   m_enableTitleTextSettings;
+    bool m_enableTitleTextSettings;
 
     caf::PdmField<int>                                 m_titleFontSize;
     caf::PdmField<caf::AppEnum<AxisTitlePositionType>> m_titlePositionEnum;
@@ -134,8 +133,7 @@ class QwtPlotCurve;
 class RimPlotAxisLogRangeCalculator
 {
 public:
-    RimPlotAxisLogRangeCalculator(QwtPlot::Axis                           axis,
-                                  const std::vector<const QwtPlotCurve*>& qwtCurves);
+    RimPlotAxisLogRangeCalculator(QwtPlot::Axis axis, const std::vector<const QwtPlotCurve*>& qwtCurves);
 
     void computeAxisRange(double* minPositive, double* max) const;
 

@@ -105,7 +105,7 @@ double RigTransmissibilityEquations::effectiveK(double            cellPermX,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigTransmissibilityEquations::effectiveH(const cvf::Vec3d& internalCellLengths, double lateralNtg, double ntg)
 {
@@ -113,7 +113,7 @@ double RigTransmissibilityEquations::effectiveH(const cvf::Vec3d& internalCellLe
     double ly = internalCellLengths.y() * lateralNtg;
     double lz = internalCellLengths.z() * ntg;
 
-    double effH = cvf::Math::sqrt(lx*lx + ly*ly + lz*lz);
+    double effH = cvf::Math::sqrt(lx * lx + ly * ly + lz * lz);
 
     return effH;
 }

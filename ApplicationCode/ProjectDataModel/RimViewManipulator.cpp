@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,9 +20,9 @@
 
 #include "RigMainGrid.h"
 
-#include "RimEclipseView.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
+#include "RimEclipseView.h"
 
 #include "RiuViewer.h"
 
@@ -33,30 +33,31 @@
 #include "cvfScene.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimViewManipulator::applySourceViewCameraOnDestinationViews(RimGridView* sourceView, std::vector<RimGridView*>& destinationViews)
+void RimViewManipulator::applySourceViewCameraOnDestinationViews(RimGridView*               sourceView,
+                                                                 std::vector<RimGridView*>& destinationViews)
 {
-    bool setPointOfInterest = false;
+    bool       setPointOfInterest = false;
     cvf::Vec3d sourceCamUp;
     cvf::Vec3d sourceCamEye;
     cvf::Vec3d sourceCamViewRefPoint;
     cvf::Vec3d sourcePointOfInterest;
     sourceView->viewer()->mainCamera()->toLookAt(&sourceCamEye, &sourceCamViewRefPoint, &sourceCamUp);
 
-    cvf::Vec3d sourceCamGlobalEye = sourceCamEye;
+    cvf::Vec3d sourceCamGlobalEye          = sourceCamEye;
     cvf::Vec3d sourceCamGlobalViewRefPoint = sourceCamViewRefPoint;
     if (sourceView->viewer()->getNavigationPolicy() != nullptr)
     {
-        setPointOfInterest = true;
+        setPointOfInterest    = true;
         sourcePointOfInterest = sourceView->viewer()->pointOfInterest();
     }
 
     // Source bounding box in global coordinates including scaleZ
     cvf::BoundingBox sourceSceneBB = sourceView->viewer()->currentScene()->boundingBox();
     {
-        cvf::Vec3d offset = cvf::Vec3d::ZERO;
-        RimCase* sourceOwnerCase = sourceView->ownerCase();
+        cvf::Vec3d offset          = cvf::Vec3d::ZERO;
+        RimCase*   sourceOwnerCase = sourceView->ownerCase();
         if (sourceOwnerCase)
         {
             offset = sourceOwnerCase->displayModelOffset();
@@ -84,10 +85,10 @@ void RimViewManipulator::applySourceViewCameraOnDestinationViews(RimGridView* so
             destinationViewer->enableParallelProjection(!sourceView->isPerspectiveView);
 
             // Destination bounding box in global coordinates including scaleZ
-            cvf::BoundingBox destSceneBB = destinationViewer->currentScene()->boundingBox();
-            cvf::Vec3d destinationCamEye = sourceCamGlobalEye;
-            cvf::Vec3d destinationCamViewRefPoint = sourceCamGlobalViewRefPoint;
-            cvf::Vec3d offset = cvf::Vec3d::ZERO;
+            cvf::BoundingBox destSceneBB                = destinationViewer->currentScene()->boundingBox();
+            cvf::Vec3d       destinationCamEye          = sourceCamGlobalEye;
+            cvf::Vec3d       destinationCamViewRefPoint = sourceCamGlobalViewRefPoint;
+            cvf::Vec3d       offset                     = cvf::Vec3d::ZERO;
 
             RimCase* destinationOwnerCase = destinationView->ownerCase();
             if (destinationOwnerCase)
@@ -127,7 +128,7 @@ void RimViewManipulator::applySourceViewCameraOnDestinationViews(RimGridView* so
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimViewManipulator::isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB)
 {

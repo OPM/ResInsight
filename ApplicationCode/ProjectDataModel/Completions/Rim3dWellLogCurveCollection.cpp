@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,8 +20,8 @@
 
 #include "RiaColorTables.h"
 #include "Rim3dWellLogCurve.h"
-#include "RimWellPath.h"
 #include "RimProject.h"
+#include "RimWellPath.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cvfMath.h"
@@ -29,7 +29,7 @@
 CAF_PDM_SOURCE_INIT(Rim3dWellLogCurveCollection, "Rim3dWellLogCurveCollection");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogCurveCollection::Rim3dWellLogCurveCollection()
 {
@@ -38,7 +38,7 @@ Rim3dWellLogCurveCollection::Rim3dWellLogCurveCollection()
     CAF_PDM_InitField(&m_showPlot, "Show3dWellLogCurves", true, "Show 3d Well Log Curves", "", "", "");
     m_showPlot.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_planeWidthScaling, "PlaneWidthScaling", 1.0f, "Width Scaling", "", "", "");    
+    CAF_PDM_InitField(&m_planeWidthScaling, "PlaneWidthScaling", 1.0f, "Width Scaling", "", "", "");
     m_planeWidthScaling.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     CAF_PDM_InitField(&m_showGrid, "Show3dWellLogGrid", true, "Show Grid", "", "", "");
     CAF_PDM_InitField(&m_showBackground, "Show3dWellLogBackground", false, "Show Background", "", "", "");
@@ -47,7 +47,7 @@ Rim3dWellLogCurveCollection::Rim3dWellLogCurveCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogCurveCollection::~Rim3dWellLogCurveCollection()
 {
@@ -55,7 +55,7 @@ Rim3dWellLogCurveCollection::~Rim3dWellLogCurveCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool Rim3dWellLogCurveCollection::has3dWellLogCurves() const
 {
@@ -63,7 +63,7 @@ bool Rim3dWellLogCurveCollection::has3dWellLogCurves() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurveCollection::add3dWellLogCurve(Rim3dWellLogCurve* curve)
 {
@@ -77,7 +77,7 @@ void Rim3dWellLogCurveCollection::add3dWellLogCurve(Rim3dWellLogCurve* curve)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurveCollection::remove3dWellLogCurve(Rim3dWellLogCurve* curve)
 {
@@ -85,7 +85,7 @@ void Rim3dWellLogCurveCollection::remove3dWellLogCurve(Rim3dWellLogCurve* curve)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool Rim3dWellLogCurveCollection::isShowingPlot() const
 {
@@ -101,7 +101,7 @@ bool Rim3dWellLogCurveCollection::isShowingGrid() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool Rim3dWellLogCurveCollection::isShowingBackground() const
 {
@@ -117,7 +117,7 @@ float Rim3dWellLogCurveCollection::planeWidthScaling() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<Rim3dWellLogCurve*> Rim3dWellLogCurveCollection::vectorOf3dWellLogCurves() const
 {
@@ -157,22 +157,23 @@ Rim3dWellLogCurve* Rim3dWellLogCurveCollection::checkForCurveIntersection(const 
                                                                           double*           measuredDepthAtPoint,
                                                                           double*           valueAtPoint)
 {
-    double smallestDistance = std::numeric_limits<double>::max();
-    Rim3dWellLogCurve* closestCurve = nullptr;
+    double             smallestDistance = std::numeric_limits<double>::max();
+    Rim3dWellLogCurve* closestCurve     = nullptr;
     for (auto& wellLogCurve : m_3dWellLogCurves)
     {
         cvf::Vec3d closestPointOnCurve;
-        double measuredDepthAtPointOnCurve;
-        double valueAtPointOnCurve;
-        if (wellLogCurve->findClosestPointOnCurve(globalIntersection, &closestPointOnCurve, &measuredDepthAtPointOnCurve, &valueAtPointOnCurve))
+        double     measuredDepthAtPointOnCurve;
+        double     valueAtPointOnCurve;
+        if (wellLogCurve->findClosestPointOnCurve(
+                globalIntersection, &closestPointOnCurve, &measuredDepthAtPointOnCurve, &valueAtPointOnCurve))
         {
             double distance = globalIntersection.pointDistance(closestPointOnCurve);
             if (distance < smallestDistance)
             {
-                closestCurve = wellLogCurve.p();
-                *closestPoint = closestPointOnCurve;
+                closestCurve          = wellLogCurve.p();
+                *closestPoint         = closestPointOnCurve;
                 *measuredDepthAtPoint = measuredDepthAtPointOnCurve;
-                *valueAtPoint = valueAtPointOnCurve;
+                *valueAtPoint         = valueAtPointOnCurve;
             }
         }
     }
@@ -180,9 +181,11 @@ Rim3dWellLogCurve* Rim3dWellLogCurveCollection::checkForCurveIntersection(const 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogCurveCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void Rim3dWellLogCurveCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                   const QVariant&            oldValue,
+                                                   const QVariant&            newValue)
 {
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
@@ -190,7 +193,7 @@ void Rim3dWellLogCurveCollection::fieldChangedByUi(const caf::PdmFieldHandle* ch
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* Rim3dWellLogCurveCollection::objectToggleField()
 {
@@ -198,7 +201,7 @@ caf::PdmFieldHandle* Rim3dWellLogCurveCollection::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurveCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -209,9 +212,11 @@ void Rim3dWellLogCurveCollection::defineUiOrdering(QString uiConfigName, caf::Pd
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogCurveCollection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void Rim3dWellLogCurveCollection::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                        QString                    uiConfigName,
+                                                        caf::PdmUiEditorAttribute* attribute)
 {
     caf::PdmUiDoubleSliderEditorAttribute* widthAttribute = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
     if (widthAttribute)

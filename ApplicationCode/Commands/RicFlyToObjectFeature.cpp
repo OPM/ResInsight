@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -38,9 +38,8 @@
 
 CAF_CMD_SOURCE_INIT(RicFlyToObjectFeature, "RicFlyToObjectFeature");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicFlyToObjectFeature::isCommandEnabled()
 {
@@ -55,7 +54,7 @@ bool RicFlyToObjectFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicFlyToObjectFeature::onActionTriggered(bool isChecked)
 {
@@ -73,35 +72,35 @@ void RicFlyToObjectFeature::onActionTriggered(bool isChecked)
     cvf::Vec3d centerInDisplayCoords = transForm->transformToDisplayCoord(bb.center());
 
     cvf::Vec3d directionNormalToLargesExtent = cvf::Vec3d::X_AXIS;
-    double largesExtent = fabs(bb.extent().y());
+    double     largesExtent                  = fabs(bb.extent().y());
     if (fabs(bb.extent().x()) > largesExtent)
     {
-        largesExtent = fabs(bb.extent().x());
+        largesExtent                  = fabs(bb.extent().x());
         directionNormalToLargesExtent = cvf::Vec3d::Y_AXIS;
     }
 
-    cvf::Vec3d cameraEye = centerInDisplayCoords + directionNormalToLargesExtent * std::max(largesExtent, 30.0);
+    cvf::Vec3d cameraEye          = centerInDisplayCoords + directionNormalToLargesExtent * std::max(largesExtent, 30.0);
     cvf::Vec3d cameraViewRefPoint = centerInDisplayCoords;
-    cvf::Vec3d cameraUp = cvf::Vec3d::Z_AXIS;
+    cvf::Vec3d cameraUp           = cvf::Vec3d::Z_AXIS;
 
     destinationViewer->mainCamera()->setFromLookAt(cameraEye, cameraViewRefPoint, cameraUp);
 
     destinationViewer->setPointOfInterest(cameraViewRefPoint);
-    
+
     activeView->updateCurrentTimeStepAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicFlyToObjectFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Fly to Object");
-    //actionToSetup->setIcon(QIcon(":/3DView16x16.png"));
-}    
+    // actionToSetup->setIcon(QIcon(":/3DView16x16.png"));
+}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RicFlyToObjectFeature::boundingBoxForSelectedObjects()
 {
@@ -120,4 +119,3 @@ cvf::BoundingBox RicFlyToObjectFeature::boundingBoxForSelectedObjects()
 
     return bb;
 }
-

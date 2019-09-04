@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,16 +22,16 @@
 #include "RimAnnotationGroupCollection.h"
 #include "RimAnnotationTextAppearance.h"
 #include "RimCase.h"
-#include "RimProject.h"
 #include "RimGridView.h"
-#include "RimTextAnnotation.h"
-#include "RimReachCircleAnnotation.h"
-#include "RimUserDefinedPolylinesAnnotation.h"
 #include "RimPolylinesFromFileAnnotation.h"
-#include "RimTextAnnotationInView.h"
-#include "RimReachCircleAnnotationInView.h"
-#include "RimUserDefinedPolylinesAnnotationInView.h"
 #include "RimPolylinesFromFileAnnotationInView.h"
+#include "RimProject.h"
+#include "RimReachCircleAnnotation.h"
+#include "RimReachCircleAnnotationInView.h"
+#include "RimTextAnnotation.h"
+#include "RimTextAnnotationInView.h"
+#include "RimUserDefinedPolylinesAnnotation.h"
+#include "RimUserDefinedPolylinesAnnotationInView.h"
 
 #include <cvfBoundingBox.h>
 
@@ -47,19 +47,19 @@ caf::PdmObject* sourcePdmAnnotation(const caf::PdmObject* annotationInView)
     {
         return t->sourceAnnotation();
     }
-    
+
     auto c = dynamic_cast<const RimReachCircleAnnotationInView*>(annotationInView);
     if (c)
     {
         return c->sourceAnnotation();
     }
-    
+
     auto up = dynamic_cast<const RimUserDefinedPolylinesAnnotationInView*>(annotationInView);
     if (up)
     {
         return up->sourceAnnotation();
     }
-    
+
     auto pf = dynamic_cast<const RimPolylinesFromFileAnnotationInView*>(annotationInView);
     if (pf)
     {
@@ -69,11 +69,10 @@ caf::PdmObject* sourcePdmAnnotation(const caf::PdmObject* annotationInView)
     return nullptr;
 }
 
-
 CAF_PDM_SOURCE_INIT(RimAnnotationInViewCollection, "Annotations");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimAnnotationInViewCollection::RimAnnotationInViewCollection()
 {
@@ -86,19 +85,30 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
     m_annotationPlaneDepth.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LabelPosType::TOP);
 
     CAF_PDM_InitFieldNoDefault(&m_globalTextAnnotations, "TextAnnotationsInView", "Global Text Annotations", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_globalReachCircleAnnotations, "ReachCircleAnnotationsInView", "Global Reach Circle Annotations", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_globalUserDefinedPolylineAnnotations, "UserDefinedPolylinesAnnotationsInView", "Global User Defined Polylines Annotations", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_globalPolylineFromFileAnnotations, "PolylinesFromFileAnnotationsInView", "Global Polylines From File Annotations", "", "", "");
+    CAF_PDM_InitFieldNoDefault(
+        &m_globalReachCircleAnnotations, "ReachCircleAnnotationsInView", "Global Reach Circle Annotations", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_globalUserDefinedPolylineAnnotations,
+                               "UserDefinedPolylinesAnnotationsInView",
+                               "Global User Defined Polylines Annotations",
+                               "",
+                               "",
+                               "");
+    CAF_PDM_InitFieldNoDefault(&m_globalPolylineFromFileAnnotations,
+                               "PolylinesFromFileAnnotationsInView",
+                               "Global Polylines From File Annotations",
+                               "",
+                               "",
+                               "");
 
     m_globalTextAnnotations.uiCapability()->setUiHidden(true);
     m_globalReachCircleAnnotations.uiCapability()->setUiHidden(true);
     m_globalUserDefinedPolylineAnnotations.uiCapability()->setUiHidden(true);
     m_globalPolylineFromFileAnnotations.uiCapability()->setUiHidden(true);
 
-    m_globalTextAnnotations = new RimAnnotationGroupCollection();
-    m_globalReachCircleAnnotations = new RimAnnotationGroupCollection();
+    m_globalTextAnnotations                = new RimAnnotationGroupCollection();
+    m_globalReachCircleAnnotations         = new RimAnnotationGroupCollection();
     m_globalUserDefinedPolylineAnnotations = new RimAnnotationGroupCollection();
-    m_globalPolylineFromFileAnnotations = new RimAnnotationGroupCollection();
+    m_globalPolylineFromFileAnnotations    = new RimAnnotationGroupCollection();
 
     m_globalTextAnnotations->uiCapability()->setUiName("Global Text Annotations");
     m_globalReachCircleAnnotations->uiCapability()->setUiName("Global Reach Circle Annotations");
@@ -112,11 +122,9 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimAnnotationInViewCollection::~RimAnnotationInViewCollection()
-{
-}
+RimAnnotationInViewCollection::~RimAnnotationInViewCollection() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -192,12 +200,12 @@ std::vector<RimPolylinesFromFileAnnotationInView*> RimAnnotationInViewCollection
 void RimAnnotationInViewCollection::onGlobalCollectionChanged(const RimAnnotationCollection* globalCollection)
 {
     // Sync annotations from global annotation collection
-    auto globals = globalCollection->allPdmAnnotations();
-    auto locals = allGlobalPdmAnnotations();
+    auto                               globals = globalCollection->allPdmAnnotations();
+    auto                               locals  = allGlobalPdmAnnotations();
     std::vector<const caf::PdmObject*> globalAnnotationsToDelete;
-    std::set<caf::PdmObject*> globalsSet(globals.begin(), globals.end());
+    std::set<caf::PdmObject*>          globalsSet(globals.begin(), globals.end());
 
-    for(const auto local : locals)
+    for (const auto local : locals)
     {
         auto sourceAnnotation = sourcePdmAnnotation(local);
         if (globalsSet.count(sourceAnnotation) > 0)
@@ -211,7 +219,7 @@ void RimAnnotationInViewCollection::onGlobalCollectionChanged(const RimAnnotatio
     }
 
     // Remove deleted global annotations
-    for(auto a : globalAnnotationsToDelete)
+    for (auto a : globalAnnotationsToDelete)
     {
         deleteGlobalAnnotation(a);
     }
@@ -285,16 +293,17 @@ bool RimAnnotationInViewCollection::applyFontSizeToAllTextAnnotations(RiaFontCac
 void RimAnnotationInViewCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_snapAnnotations);
-    if(m_snapAnnotations())
-        uiOrdering.add(&m_annotationPlaneDepth);
+    if (m_snapAnnotations()) uiOrdering.add(&m_annotationPlaneDepth);
 
     uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimAnnotationInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                     const QVariant&            oldValue,
+                                                     const QVariant&            newValue)
 {
     if (changedField == &m_isActive)
     {
@@ -321,7 +330,7 @@ void RimAnnotationInViewCollection::defineEditorAttribute(const caf::PdmFieldHan
 
             if (rimCase)
             {
-                auto bb = rimCase->allCellsBoundingBox();
+                auto bb         = rimCase->allCellsBoundingBox();
                 attr->m_minimum = -bb.max().z();
                 attr->m_maximum = -bb.min().z();
             }
@@ -341,9 +350,14 @@ std::vector<caf::PdmObject*> RimAnnotationInViewCollection::allGlobalPdmAnnotati
 {
     std::vector<caf::PdmObject*> all;
     all.insert(all.end(), m_globalTextAnnotations->m_annotations.begin(), m_globalTextAnnotations->m_annotations.end());
-    all.insert(all.end(), m_globalReachCircleAnnotations->m_annotations.begin(), m_globalReachCircleAnnotations->m_annotations.end());
-    all.insert(all.end(), m_globalUserDefinedPolylineAnnotations->m_annotations.begin(), m_globalUserDefinedPolylineAnnotations->m_annotations.end());
-    all.insert(all.end(), m_globalPolylineFromFileAnnotations->m_annotations.begin(), m_globalPolylineFromFileAnnotations->m_annotations.end());
+    all.insert(
+        all.end(), m_globalReachCircleAnnotations->m_annotations.begin(), m_globalReachCircleAnnotations->m_annotations.end());
+    all.insert(all.end(),
+               m_globalUserDefinedPolylineAnnotations->m_annotations.begin(),
+               m_globalUserDefinedPolylineAnnotations->m_annotations.end());
+    all.insert(all.end(),
+               m_globalPolylineFromFileAnnotations->m_annotations.begin(),
+               m_globalPolylineFromFileAnnotations->m_annotations.end());
     return all;
 }
 
@@ -359,7 +373,7 @@ void RimAnnotationInViewCollection::addGlobalAnnotation(caf::PdmObject* annotati
         return;
     }
 
-    auto c = dynamic_cast< RimReachCircleAnnotation*>(annotation);
+    auto c = dynamic_cast<RimReachCircleAnnotation*>(annotation);
     if (c)
     {
         m_globalReachCircleAnnotations->addAnnotation(new RimReachCircleAnnotationInView(c));
@@ -386,7 +400,7 @@ void RimAnnotationInViewCollection::addGlobalAnnotation(caf::PdmObject* annotati
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationInViewCollection::deleteGlobalAnnotation(const caf::PdmObject* annotation)
 {
-    for(size_t i = 0; i < m_globalTextAnnotations->m_annotations.size(); i++)
+    for (size_t i = 0; i < m_globalTextAnnotations->m_annotations.size(); i++)
     {
         if (m_globalTextAnnotations->m_annotations[i] == annotation)
         {

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2013 Statoil ASA, Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -26,8 +26,8 @@
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptValueIterator>
 
-namespace ResInsightInternalJson {
-
+namespace ResInsightInternalJson
+{
 QMap<QString, QVariant> JsonReader::decodeFile(QString filePath)
 {
     QFile file;
@@ -36,10 +36,9 @@ QMap<QString, QVariant> JsonReader::decodeFile(QString filePath)
     QByteArray byteArray = file.readAll();
     file.close();
     QString jsonString(byteArray);
-    Json json;
-    return json.decode(jsonString);    
+    Json    json;
+    return json.decode(jsonString);
 }
-
 
 #if IMPL_DUMP_TO_FILE
 void JsonReader::dumpToFile(std::vector<cvf::Vec3d>& points, QString filePath)
@@ -50,7 +49,7 @@ void JsonReader::dumpToFile(std::vector<cvf::Vec3d>& points, QString filePath)
     for (size_t idx = 0; idx < points.size(); idx++)
     {
         cvf::Vec3d point = points[idx];
-        QString string;
+        QString    string;
         string.sprintf("(%0.10e, %0.10e, %0.10e)\n", point.x(), point.y(), point.z());
         QByteArray byteArray(string.toLatin1());
         file.write(byteArray);
@@ -59,8 +58,7 @@ void JsonReader::dumpToFile(std::vector<cvf::Vec3d>& points, QString filePath)
 }
 #endif
 
-
-QString Json::encode(const QMap<QString,QVariant>& map, bool prettify)
+QString Json::encode(const QMap<QString, QVariant>& map, bool prettify)
 {
     QScriptEngine engine;
     if (prettify)
@@ -73,24 +71,24 @@ QString Json::encode(const QMap<QString,QVariant>& map, bool prettify)
     }
 
     QScriptValue toString = engine.globalObject().property("toString");
-    QScriptValue obj = encodeInner(map, &engine);
+    QScriptValue obj      = encodeInner(map, &engine);
     return toString.call(obj).toString();
-
 }
 
-QMap<QString, QVariant> Json::decode(const QString &jsonStr)
+QMap<QString, QVariant> Json::decode(const QString& jsonStr)
 {
-    QScriptValue object;
+    QScriptValue  object;
     QScriptEngine engine;
     object = engine.evaluate("(" + jsonStr + ")");
     return decodeInner(object);
 }
 
-QScriptValue Json::encodeInner(const QMap<QString,QVariant> &map, QScriptEngine* engine)
+QScriptValue Json::encodeInner(const QMap<QString, QVariant>& map, QScriptEngine* engine)
 {
-    QScriptValue obj = engine->newObject();
+    QScriptValue                    obj = engine->newObject();
     QMapIterator<QString, QVariant> i(map);
-    while (i.hasNext()) {
+    while (i.hasNext())
+    {
         i.next();
         if (i.value().type() == QVariant::String)
             obj.setProperty(i.key(), i.value().toString());
@@ -106,35 +104,35 @@ QScriptValue Json::encodeInner(const QMap<QString,QVariant> &map, QScriptEngine*
     return obj;
 }
 
-
 QMap<QString, QVariant> Json::decodeInner(QScriptValue object)
 {
     QMap<QString, QVariant> map;
-    QScriptValueIterator it(object);
-    while (it.hasNext()) {
+    QScriptValueIterator    it(object);
+    while (it.hasNext())
+    {
         it.next();
         if (it.value().isArray())
-            map.insert(it.name(),QVariant(decodeInnerToList(it.value())));
+            map.insert(it.name(), QVariant(decodeInnerToList(it.value())));
         else if (it.value().isNumber())
-            map.insert(it.name(),QVariant(it.value().toNumber()));
+            map.insert(it.name(), QVariant(it.value().toNumber()));
         else if (it.value().isString())
-            map.insert(it.name(),QVariant(it.value().toString()));
+            map.insert(it.name(), QVariant(it.value().toString()));
         else if (it.value().isNull())
-            map.insert(it.name(),QVariant());
-        else if(it.value().isObject())
-            map.insert(it.name(),QVariant(decodeInner(it.value())));
+            map.insert(it.name(), QVariant());
+        else if (it.value().isObject())
+            map.insert(it.name(), QVariant(decodeInner(it.value())));
     }
     return map;
 }
 
 QList<QVariant> Json::decodeInnerToList(QScriptValue arrayValue)
 {
-    QList<QVariant> list;
+    QList<QVariant>      list;
     QScriptValueIterator it(arrayValue);
-    while (it.hasNext()) {
+    while (it.hasNext())
+    {
         it.next();
-        if (it.name() == "length")
-            continue;
+        if (it.name() == "length") continue;
 
         if (it.value().isArray())
             list.append(QVariant(decodeInnerToList(it.value())));
@@ -144,7 +142,7 @@ QList<QVariant> Json::decodeInnerToList(QScriptValue arrayValue)
             list.append(QVariant(it.value().toString()));
         else if (it.value().isNull())
             list.append(QVariant());
-        else if(it.value().isObject())
+        else if (it.value().isObject())
             list.append(QVariant(decodeInner(it.value())));
     }
     return list;

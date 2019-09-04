@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ class RimEclipseStatisticsCase;
 
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 class RimIdenticalGridCaseGroup : public caf::PdmObject
@@ -49,40 +49,39 @@ public:
     RimIdenticalGridCaseGroup();
     ~RimIdenticalGridCaseGroup() override;
 
-    caf::PdmField<QString>              name;
-    caf::PdmField<int>                  groupId;
-    caf::PdmChildField<RimCaseCollection*>   caseCollection;
-    caf::PdmChildField<RimCaseCollection*>   statisticsCaseCollection;
+    caf::PdmField<QString>                 name;
+    caf::PdmField<int>                     groupId;
+    caf::PdmChildField<RimCaseCollection*> caseCollection;
+    caf::PdmChildField<RimCaseCollection*> statisticsCaseCollection;
 
-    void                                addCase(RimEclipseCase* reservoir);
-    void                                removeCase(RimEclipseCase* reservoir);
+    void addCase(RimEclipseCase* reservoir);
+    void removeCase(RimEclipseCase* reservoir);
 
-    bool                                contains(RimEclipseCase* reservoir) const;
+    bool contains(RimEclipseCase* reservoir) const;
 
-    RimEclipseStatisticsCase*                  createAndAppendStatisticsCase();
+    RimEclipseStatisticsCase* createAndAppendStatisticsCase();
 
+    RimEclipseCase* mainCase();
+    void            loadMainCaseAndActiveCellInfo();
 
-    RimEclipseCase*                            mainCase();
-    void                                loadMainCaseAndActiveCellInfo();
+    RigMainGrid* mainGrid();
 
-    RigMainGrid*                        mainGrid();
+    RigActiveCellInfo* unionOfActiveCells(RiaDefines::PorosityModelType porosityType);
+    void               computeUnionOfActiveCells();
 
-    RigActiveCellInfo*                  unionOfActiveCells(RiaDefines::PorosityModelType porosityType);
-    void                                computeUnionOfActiveCells();
-
-    static bool                         isStatisticsCaseCollection(RimCaseCollection* rimCaseCollection);
+    static bool isStatisticsCaseCollection(RimCaseCollection* rimCaseCollection);
 
 protected:
-    caf::PdmFieldHandle*        userDescriptionField() override;
+    caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
-    void                                updateMainGridAndActiveCellsForStatisticsCases();
-    void                                clearStatisticsResults();
-    void                                clearActiveCellUnions();
+    void updateMainGridAndActiveCellsForStatisticsCases();
+    void clearStatisticsResults();
+    void clearActiveCellUnions();
 
 private:
-    RigMainGrid*                        m_mainGrid;
-    
-    cvf::ref<RigActiveCellInfo>         m_unionOfMatrixActiveCells;
-    cvf::ref<RigActiveCellInfo>         m_unionOfFractureActiveCells;
+    RigMainGrid* m_mainGrid;
+
+    cvf::ref<RigActiveCellInfo> m_unionOfMatrixActiveCells;
+    cvf::ref<RigActiveCellInfo> m_unionOfFractureActiveCells;
 };

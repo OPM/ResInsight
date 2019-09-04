@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,10 +22,10 @@
 
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
 
+#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryCrossPlot.h"
 
 #include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmDocument.h"
@@ -36,17 +36,17 @@
 
 #include <QAction>
 
-
 CAF_CMD_SOURCE_INIT(RicPasteSummaryCurveFeature, "RicPasteSummaryCurveFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RicPasteSummaryCurveFeature::copyCurveAndAddToPlot(RimSummaryCurve *sourceCurve)
+RimSummaryCurve* RicPasteSummaryCurveFeature::copyCurveAndAddToPlot(RimSummaryCurve* sourceCurve)
 {
     RimSummaryPlot* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot*>();
 
-    RimSummaryCurve* newCurve = dynamic_cast<RimSummaryCurve*>(sourceCurve->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+    RimSummaryCurve* newCurve = dynamic_cast<RimSummaryCurve*>(
+        sourceCurve->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
     CVF_ASSERT(newCurve);
 
     summaryPlot->addCurveAndUpdate(newCurve);
@@ -69,7 +69,7 @@ RimSummaryCurve* RicPasteSummaryCurveFeature::copyCurveAndAddToPlot(RimSummaryCu
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicPasteSummaryCurveFeature::isCommandEnabled()
 {
@@ -77,7 +77,7 @@ bool RicPasteSummaryCurveFeature::isCommandEnabled()
 
     RimSummaryPlot* summaryPlot = nullptr;
     destinationObject->firstAncestorOrThisOfType(summaryPlot);
-    if(!RiaSummaryTools::parentSummaryPlot(destinationObject))
+    if (!RiaSummaryTools::parentSummaryPlot(destinationObject))
     {
         return false;
     }
@@ -91,18 +91,18 @@ bool RicPasteSummaryCurveFeature::isCommandEnabled()
     {
         // Check that owner plot is correct type
         RimSummaryPlot* ownerPlot = RiaSummaryTools::parentSummaryPlot(curve);
-        
+
         if (!ownerPlot) return false;
     }
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteSummaryCurveFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<caf::PdmPointer<RimSummaryCurve> > sourceObjects = RicPasteSummaryCurveFeature::summaryCurvesOnClipboard();
+    std::vector<caf::PdmPointer<RimSummaryCurve>> sourceObjects = RicPasteSummaryCurveFeature::summaryCurvesOnClipboard();
 
     for (size_t i = 0; i < sourceObjects.size(); i++)
     {
@@ -111,7 +111,7 @@ void RicPasteSummaryCurveFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteSummaryCurveFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -121,14 +121,14 @@ void RicPasteSummaryCurveFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmPointer<RimSummaryCurve> > RicPasteSummaryCurveFeature::summaryCurvesOnClipboard()
+std::vector<caf::PdmPointer<RimSummaryCurve>> RicPasteSummaryCurveFeature::summaryCurvesOnClipboard()
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
 
-    std::vector<caf::PdmPointer<RimSummaryCurve> > typedObjects;
+    std::vector<caf::PdmPointer<RimSummaryCurve>> typedObjects;
     objectGroup.objectsByType(&typedObjects);
 
     return typedObjects;

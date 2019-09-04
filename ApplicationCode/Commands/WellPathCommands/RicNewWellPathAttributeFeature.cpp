@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@
 CAF_CMD_SOURCE_INIT(RicNewWellPathAttributeFeature, "RicNewWellPathAttributeFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellPathAttributeFeature::isCommandEnabled()
 {
@@ -54,7 +54,7 @@ bool RicNewWellPathAttributeFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathAttributeFeature::onActionTriggered(bool isChecked)
 {
@@ -67,7 +67,7 @@ void RicNewWellPathAttributeFeature::onActionTriggered(bool isChecked)
         RimWellPathAttributeCollection* attributeCollection = nullptr;
         attributes[0]->firstAncestorOrThisOfTypeAsserted(attributeCollection);
 
-        attribute = new RimWellPathAttribute;
+        attribute             = new RimWellPathAttribute;
         RimWellPath* wellPath = nullptr;
         attributeCollection->firstAncestorOrThisOfTypeAsserted(wellPath);
 
@@ -106,7 +106,7 @@ void RicNewWellPathAttributeFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathAttributeFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -116,17 +116,15 @@ void RicNewWellPathAttributeFeature::setupActionLook(QAction* actionToSetup)
     {
         actionToSetup->setText(QString("Insert New Attribute before %1").arg(attributes[0]->componentTypeLabel()));
         actionToSetup->setIcon(QIcon(":/CasingDesign16x16.png"));
-    }    
+    }
     else if (caf::SelectionManager::instance()->selectedItemOfType<RimWellPathAttributeCollection>())
     {
         actionToSetup->setText("Append New Attribute");
         actionToSetup->setIcon(QIcon(":/CasingDesign16x16.png"));
     }
-    else if(caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>())
+    else if (caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>())
     {
         actionToSetup->setText("Create Casing Design");
         actionToSetup->setIcon(QIcon(":/CasingDesign16x16.png"));
     }
 }
-
-

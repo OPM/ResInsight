@@ -60,7 +60,7 @@ void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(RimFr
     templateCollection->updateConnectedEditors();
 
     RimProject* project = RiaApplication::instance()->project();
-    
+
     project->scheduleCreateDisplayModelAndRedrawAllViews();
 
     Riu3DMainWindowTools::selectAsCurrentItem(fractureTemplate);
@@ -71,7 +71,7 @@ void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(RimFr
 //--------------------------------------------------------------------------------------------------
 RimEllipseFractureTemplate* RicNewEllipseFractureTemplateFeature::createNewTemplate()
 {
- RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
     RimOilField* oilfield = project->activeOilField();

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 -     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,14 +23,12 @@
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeOrdering.h"
 
-
 CAF_PDM_SOURCE_INIT(RimStimPlanLegendConfig, "RimStimPlanLegendConfig");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimStimPlanLegendConfig::RimStimPlanLegendConfig() 
+RimStimPlanLegendConfig::RimStimPlanLegendConfig()
 {
     CAF_PDM_InitObject("StimPlan Color Legend", ":/Legend.png", "", "");
 
@@ -42,15 +40,12 @@ RimStimPlanLegendConfig::RimStimPlanLegendConfig()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimStimPlanLegendConfig::~RimStimPlanLegendConfig()
-{
-
-}
+RimStimPlanLegendConfig::~RimStimPlanLegendConfig() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimStimPlanLegendConfig::name() const
 {
@@ -58,7 +53,7 @@ QString RimStimPlanLegendConfig::name() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanLegendConfig::setName(const QString& name)
 {
@@ -66,7 +61,7 @@ void RimStimPlanLegendConfig::setName(const QString& name)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimStimPlanLegendConfig::userDescriptionField()
 {
@@ -74,7 +69,7 @@ caf::PdmFieldHandle* RimStimPlanLegendConfig::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -84,10 +79,9 @@ void RimStimPlanLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiO
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanLegendConfig::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.skipRemainingChildren(true);
 }
-

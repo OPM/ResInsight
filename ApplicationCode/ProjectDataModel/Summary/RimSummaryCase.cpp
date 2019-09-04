@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,22 +24,22 @@
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlotCollection.h"
-#include "RimSummaryCaseCollection.h"
 
 #include "cvfAssert.h"
 
 #include <QFileInfo>
 
-CAF_PDM_ABSTRACT_SOURCE_INIT(RimSummaryCase,"SummaryCase");
+CAF_PDM_ABSTRACT_SOURCE_INIT(RimSummaryCase, "SummaryCase");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase::RimSummaryCase()
 {
-    CAF_PDM_InitObject("Summary Case",":/SummaryCase16x16.png","","");
+    CAF_PDM_InitObject("Summary Case", ":/SummaryCase16x16.png", "", "");
 
     CAF_PDM_InitField(&m_shortName, "ShortName", QString("Display Name"), "Display Name", "", "", "");
     CAF_PDM_InitField(&m_useAutoShortName, "AutoShortyName", false, "Use Auto Display Name", "", "", "");
@@ -51,15 +51,12 @@ RimSummaryCase::RimSummaryCase()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase::~RimSummaryCase()
-{
-
-}
+RimSummaryCase::~RimSummaryCase() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCase::summaryHeaderFilename() const
 {
@@ -67,7 +64,7 @@ QString RimSummaryCase::summaryHeaderFilename() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::setSummaryHeaderFileName(const QString& fileName)
 {
@@ -78,7 +75,7 @@ void RimSummaryCase::setSummaryHeaderFileName(const QString& fileName)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCase::isObservedData()
 {
@@ -86,7 +83,7 @@ bool RimSummaryCase::isObservedData()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::setCaseRealizationParameters(const std::shared_ptr<RigCaseRealizationParameters>& crlParameters)
 {
@@ -94,7 +91,7 @@ void RimSummaryCase::setCaseRealizationParameters(const std::shared_ptr<RigCaseR
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::shared_ptr<RigCaseRealizationParameters> RimSummaryCase::caseRealizationParameters() const
 {
@@ -102,7 +99,7 @@ std::shared_ptr<RigCaseRealizationParameters> RimSummaryCase::caseRealizationPar
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCase::hasCaseRealizationParameters() const
 {
@@ -110,7 +107,7 @@ bool RimSummaryCase::hasCaseRealizationParameters() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseCollection* RimSummaryCase::ensemble() const
 {
@@ -120,14 +117,14 @@ RimSummaryCaseCollection* RimSummaryCase::ensemble() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::copyFrom(const RimSummaryCase& rhs)
 {
-    m_shortName = rhs.m_shortName;
-    m_useAutoShortName = rhs.m_useAutoShortName;
+    m_shortName             = rhs.m_shortName;
+    m_useAutoShortName      = rhs.m_useAutoShortName;
     m_summaryHeaderFilename = rhs.m_summaryHeaderFilename;
-    m_isObservedData = rhs.m_isObservedData;
+    m_isObservedData        = rhs.m_isObservedData;
 
     this->updateTreeItemName();
     this->updateOptionSensitivity();
@@ -142,7 +139,7 @@ bool RimSummaryCase::operator<(const RimSummaryCase& rhs) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
@@ -162,7 +159,7 @@ void RimSummaryCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::updateOptionSensitivity()
 {
@@ -178,18 +175,18 @@ RifReaderRftInterface* RimSummaryCase::rftReader()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::updateTreeItemName()
 {
     if (caseName() != shortName())
-        this->setUiName(caseName() + " (" + shortName() +")");
+        this->setUiName(caseName() + " (" + shortName() + ")");
     else
         this->setUiName(caseName());
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCase::shortName() const
 {
@@ -210,7 +207,7 @@ RiaEclipseUnitTools::UnitSystemType RimSummaryCase::unitsSystem()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::initAfterRead()
 {
@@ -220,11 +217,11 @@ void RimSummaryCase::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::updateAutoShortName()
 {
-    if(m_useAutoShortName)
+    if (m_useAutoShortName)
     {
         RimOilField* oilField = nullptr;
         this->firstAncestorOrThisOfType(oilField);
@@ -234,8 +231,8 @@ void RimSummaryCase::updateAutoShortName()
     }
     else if (m_shortName() == QString("Display Name"))
     {
-        m_shortName =  caseName();
+        m_shortName = caseName();
     }
-    
+
     updateTreeItemName();
 }

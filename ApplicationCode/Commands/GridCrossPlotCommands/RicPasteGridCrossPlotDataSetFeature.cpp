@@ -69,7 +69,6 @@ void RicPasteGridCrossPlotDataSetFeature::onActionTriggered(bool isChecked)
                 objectToSelect = newDataSet;
             }
 
-
             RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
             crossPlot->updateAllRequiredEditors();
             crossPlot->loadDataAndUpdate();

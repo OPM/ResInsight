@@ -31,20 +31,19 @@
 #include <cctype>
 #include <string>
 
-
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-static QFile* openFile(const QString &fileName);
-static void closeFile(QFile *file);
+static QFile* openFile(const QString& fileName);
+static void   closeFile(QFile* file);
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifElementPropertyMetadata RifElementPropertyTableReader::readMetadata(const QString& fileName)
 {
-    RifElementPropertyMetadata  metadata;
-    QFile*                      file = nullptr;
+    RifElementPropertyMetadata metadata;
+    QFile*                     file = nullptr;
 
     try
     {
@@ -52,10 +51,10 @@ RifElementPropertyMetadata RifElementPropertyTableReader::readMetadata(const QSt
 
         if (file)
         {
-            QTextStream     stream(file);
-            bool            metadataBlockFound = false;
-            int             maxLinesToRead = 50;
-            int             lineNo = 0;
+            QTextStream stream(file);
+            bool        metadataBlockFound = false;
+            int         maxLinesToRead     = 50;
+            int         lineNo             = 0;
 
             while (lineNo < maxLinesToRead)
             {
@@ -83,7 +82,7 @@ RifElementPropertyMetadata RifElementPropertyTableReader::readMetadata(const QSt
             closeFile(file);
         }
     }
-    catch(...)
+    catch (...)
     {
         closeFile(file);
         throw;
@@ -95,12 +94,12 @@ RifElementPropertyMetadata RifElementPropertyTableReader::readMetadata(const QSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifElementPropertyTableReader::readData(const RifElementPropertyMetadata *metadata, RifElementPropertyTable *table)
+void RifElementPropertyTableReader::readData(const RifElementPropertyMetadata* metadata, RifElementPropertyTable* table)
 {
     CVF_ASSERT(metadata && table);
 
-    int     expectedColumnCount = (int)metadata->dataColumns.size() + 1;
-    QFile*  file = nullptr;
+    int    expectedColumnCount = (int)metadata->dataColumns.size() + 1;
+    QFile* file                = nullptr;
 
     try
     {
@@ -108,9 +107,9 @@ void RifElementPropertyTableReader::readData(const RifElementPropertyMetadata *m
 
         if (file && expectedColumnCount > 0)
         {
-            QTextStream     stream(file);
-            bool            dataBlockFound = false;
-            int             lineNo = 0;
+            QTextStream stream(file);
+            bool        dataBlockFound = false;
+            int         lineNo         = 0;
 
             // Init data vectors
             table->elementIds.clear();
@@ -124,8 +123,10 @@ void RifElementPropertyTableReader::readData(const RifElementPropertyMetadata *m
 
                 if (!dataBlockFound)
                 {
-                    if (!line.startsWith("*") && !line.startsWith(",") && cols.size() == expectedColumnCount) dataBlockFound = true;
-                    else continue;
+                    if (!line.startsWith("*") && !line.startsWith(",") && cols.size() == expectedColumnCount)
+                        dataBlockFound = true;
+                    else
+                        continue;
                 }
 
                 if (cols.size() != expectedColumnCount)
@@ -174,11 +175,11 @@ void RifElementPropertyTableReader::readData(const RifElementPropertyMetadata *m
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QFile* openFile(const QString &fileName)
+QFile* openFile(const QString& fileName)
 {
-    QFile *file;
+    QFile* file;
     file = new QFile(fileName);
     if (!file->open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -191,9 +192,9 @@ QFile* openFile(const QString &fileName)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void closeFile(QFile *file)
+void closeFile(QFile* file)
 {
     if (file)
     {

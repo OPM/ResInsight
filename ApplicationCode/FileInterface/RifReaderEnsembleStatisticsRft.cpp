@@ -78,7 +78,7 @@ std::set<RifEclipseRftAddress> RifReaderEnsembleStatisticsRft::eclipseRftAddress
 void RifReaderEnsembleStatisticsRft::values(const RifEclipseRftAddress& rftAddress, std::vector<double>* values)
 {
     CAF_ASSERT(rftAddress.wellLogChannel() == RifEclipseRftAddress::TVD ||
-			   rftAddress.wellLogChannel() == RifEclipseRftAddress::PRESSURE_MEAN ||
+               rftAddress.wellLogChannel() == RifEclipseRftAddress::PRESSURE_MEAN ||
                rftAddress.wellLogChannel() == RifEclipseRftAddress::PRESSURE_P10 ||
                rftAddress.wellLogChannel() == RifEclipseRftAddress::PRESSURE_P50 ||
                rftAddress.wellLogChannel() == RifEclipseRftAddress::PRESSURE_P90);
@@ -199,7 +199,7 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics(const RifEclipseRftAddr
 
     RiaCurveMerger<double> curveMerger;
 
-	RiaWeightedMeanCalculator<size_t> dataSetSizeCalc;
+    RiaWeightedMeanCalculator<size_t> dataSetSizeCalc;
 
     for (RimSummaryCase* summaryCase : m_summaryCaseCollection->allSummaryCases())
     {
@@ -212,7 +212,6 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics(const RifEclipseRftAddr
             reader->values(pressAddress, &pressures);
             dataSetSizeCalc.addValueAndWeight(depths.size(), 1.0);
             curveMerger.addCurveData(depths, pressures);
-
         }
     }
     curveMerger.computeInterpolatedValues(false);
@@ -222,8 +221,8 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics(const RifEclipseRftAddr
     const std::vector<double>& allDepths = curveMerger.allXValues();
     if (!allDepths.empty())
     {
-		// Make sure we end up with approximately the same amount of points as originally
-        size_t sizeMultiplier        = allDepths.size() / dataSetSizeCalc.weightedMean();
+        // Make sure we end up with approximately the same amount of points as originally
+        size_t sizeMultiplier = allDepths.size() / dataSetSizeCalc.weightedMean();
         for (size_t depthIdx = 0; depthIdx < allDepths.size(); depthIdx += sizeMultiplier)
         {
             std::vector<double> pressuresAtDepth;
@@ -236,7 +235,7 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics(const RifEclipseRftAddr
             double p10, p50, p90, mean;
             RigStatisticsMath::calculateStatisticsCurves(pressuresAtDepth, &p10, &p50, &p90, &mean);
 
-	        m_cachedValues[depthAddress].push_back(allDepths[depthIdx]);
+            m_cachedValues[depthAddress].push_back(allDepths[depthIdx]);
 
             if (p10 != HUGE_VAL) m_cachedValues[p10Address].push_back(p10);
             if (p50 != HUGE_VAL) m_cachedValues[p50Address].push_back(p50);
@@ -251,15 +250,15 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics(const RifEclipseRftAddr
 //--------------------------------------------------------------------------------------------------
 void RifReaderEnsembleStatisticsRft::clearData(const QString& wellName, const QDateTime& timeStep)
 {
-	for (auto it = m_cachedValues.begin(); it != m_cachedValues.end(); )
-	{
-		if (it->first.wellName() == wellName && it->first.timeStep() == timeStep)
-		{
+    for (auto it = m_cachedValues.begin(); it != m_cachedValues.end();)
+    {
+        if (it->first.wellName() == wellName && it->first.timeStep() == timeStep)
+        {
             it = m_cachedValues.erase(it);
-		}
-		else
-		{
+        }
+        else
+        {
             ++it;
-		}
-	}
+        }
+    }
 }

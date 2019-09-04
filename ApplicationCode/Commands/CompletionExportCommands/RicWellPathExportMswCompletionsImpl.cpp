@@ -107,8 +107,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
             !unifiedWellPathFile)
         {
             QString wellFileName =
-                QString("%1_UnifiedCompletions_MSW_%2")
-                    .arg(wellPath->name(), exportSettings.caseToApply->caseUserDescription());
+                QString("%1_UnifiedCompletions_MSW_%2").arg(wellPath->name(), exportSettings.caseToApply->caseUserDescription());
             unifiedWellPathFile = RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, wellFileName);
         }
 
@@ -122,8 +121,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
             else
             {
                 QString fileName =
-                    QString("%1_Fracture_MSW_%2")
-                        .arg(wellPath->name(), exportSettings.caseToApply->caseUserDescription());
+                    QString("%1_Fracture_MSW_%2").arg(wellPath->name(), exportSettings.caseToApply->caseUserDescription());
                 fractureExportFile = RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, fileName);
             }
             exportWellSegmentsForFractures(
@@ -140,8 +138,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
             else
             {
                 QString fileName =
-                    QString("%1_Perforation_MSW_%2")
-                        .arg(wellPath->name(), exportSettings.caseToApply->caseUserDescription());
+                    QString("%1_Perforation_MSW_%2").arg(wellPath->name(), exportSettings.caseToApply->caseUserDescription());
                 perforationsExportFile =
                     RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, fileName);
             }
@@ -162,8 +159,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
             else
             {
                 QString fileName =
-                    QString("%1_Fishbones_MSW_%2")
-                        .arg(wellPath->name(), exportSettings.caseToApply->caseUserDescription());
+                    QString("%1_Fishbones_MSW_%2").arg(wellPath->name(), exportSettings.caseToApply->caseUserDescription());
                 fishbonesExportFile = RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, fileName);
             }
             exportWellSegmentsForFishbones(exportSettings.caseToApply,
@@ -649,7 +645,7 @@ void RicWellPathExportMswCompletionsImpl::generateWsegvalvTable(RifEclipseDataTa
 
                     foundValve = true;
                 }
-                
+
                 std::shared_ptr<RicMswWsegValve> icd = std::static_pointer_cast<RicMswWsegValve>(completion);
                 if (!icd->subSegments().empty())
                 {
@@ -758,26 +754,28 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable(RifEclipseDataTa
                     tighterFormatter.add(values[AICD_DENSITY_CALIB_FLUID]);
                     tighterFormatter.add(values[AICD_VISCOSITY_CALIB_FLUID]);
                     tighterFormatter.addValueOrDefaultMarker(values[AICD_CRITICAL_WATER_IN_LIQUID_FRAC],
-                                                      RicMswExportInfo::defaultDoubleValue());
+                                                             RicMswExportInfo::defaultDoubleValue());
                     tighterFormatter.addValueOrDefaultMarker(values[AICD_EMULSION_VISC_TRANS_REGION],
-                                                      RicMswExportInfo::defaultDoubleValue());
+                                                             RicMswExportInfo::defaultDoubleValue());
                     tighterFormatter.addValueOrDefaultMarker(values[AICD_MAX_RATIO_EMULSION_VISC],
-                                                      RicMswExportInfo::defaultDoubleValue()); // 10
+                                                             RicMswExportInfo::defaultDoubleValue()); // 10
                     tighterFormatter.add(1);
                     tighterFormatter.addValueOrDefaultMarker(values[AICD_MAX_FLOW_RATE], RicMswExportInfo::defaultDoubleValue());
                     tighterFormatter.add(values[AICD_VOL_FLOW_EXP]);
                     tighterFormatter.add(values[AICD_VISOSITY_FUNC_EXP]);
                     tighterFormatter.add(aicd->isOpen() ? "OPEN" : "SHUT"); // 15
-                    tighterFormatter.addValueOrDefaultMarker(values[AICD_EXP_OIL_FRAC_DENSITY], RicMswExportInfo::defaultDoubleValue());
+                    tighterFormatter.addValueOrDefaultMarker(values[AICD_EXP_OIL_FRAC_DENSITY],
+                                                             RicMswExportInfo::defaultDoubleValue());
                     tighterFormatter.addValueOrDefaultMarker(values[AICD_EXP_WATER_FRAC_DENSITY],
-                                                      RicMswExportInfo::defaultDoubleValue());
-                    tighterFormatter.addValueOrDefaultMarker(values[AICD_EXP_GAS_FRAC_DENSITY], RicMswExportInfo::defaultDoubleValue());
+                                                             RicMswExportInfo::defaultDoubleValue());
+                    tighterFormatter.addValueOrDefaultMarker(values[AICD_EXP_GAS_FRAC_DENSITY],
+                                                             RicMswExportInfo::defaultDoubleValue());
                     tighterFormatter.addValueOrDefaultMarker(values[AICD_EXP_OIL_FRAC_VISCOSITY],
-                                                      RicMswExportInfo::defaultDoubleValue());
+                                                             RicMswExportInfo::defaultDoubleValue());
                     tighterFormatter.addValueOrDefaultMarker(values[AICD_EXP_WATER_FRAC_VISCOSITY],
-                                                      RicMswExportInfo::defaultDoubleValue()); // 20
+                                                             RicMswExportInfo::defaultDoubleValue()); // 20
                     tighterFormatter.addValueOrDefaultMarker(values[AICD_EXP_GAS_FRAC_VISCOSITY],
-                                                      RicMswExportInfo::defaultDoubleValue());
+                                                             RicMswExportInfo::defaultDoubleValue());
                     tighterFormatter.rowCompleted();
                 }
             }
@@ -1030,7 +1028,8 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generatePerforationsMswExp
         SubSegmentIntersectionInfo::spiltIntersectionSegmentsToMaxLength(wellPathGeometry, intersections, maxSegmentLength);
 
     double initialMD = 0.0;
-    if (wellPath->perforationIntervalCollection()->mswParameters()->referenceMDType() == RimMswCompletionParameters::MANUAL_REFERENCE_MD)
+    if (wellPath->perforationIntervalCollection()->mswParameters()->referenceMDType() ==
+        RimMswCompletionParameters::MANUAL_REFERENCE_MD)
     {
         initialMD = wellPath->perforationIntervalCollection()->mswParameters()->manualReferenceMD();
     }

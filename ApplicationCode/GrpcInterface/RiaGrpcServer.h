@@ -33,23 +33,24 @@ class RiaGrpcServerImpl;
 //==================================================================================================
 class RiaGrpcServer
 {
-public:    
+public:
     RiaGrpcServer(int portNumber);
     ~RiaGrpcServer();
 
-    int portNumber() const;
-    bool isRunning() const;
-    void run();
-    void runInThread();
-    size_t processAllQueuedRequests();
-    void quit();
-    static int findAvailablePortNumber(int defaultPortNumber);
+    int         portNumber() const;
+    bool        isRunning() const;
+    void        run();
+    void        runInThread();
+    size_t      processAllQueuedRequests();
+    void        quit();
+    static int  findAvailablePortNumber(int defaultPortNumber);
     static void setReceivedExitRequest();
-    static bool receivedExitRequest();    
+    static bool receivedExitRequest();
+
 private:
     void initialize();
 
 private:
     RiaGrpcServerImpl* m_serverImpl;
-    static bool s_receivedExitRequest;
+    static bool        s_receivedExitRequest;
 };

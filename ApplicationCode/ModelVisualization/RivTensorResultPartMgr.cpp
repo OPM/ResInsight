@@ -112,7 +112,7 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
 
         double min, max;
         m_rimReservoirView->tensorResults()->mappingRange(&min, &max);
-        
+
         double maxAbsResult = 1.0;
         if (min != cvf::UNDEFINED_DOUBLE && max != cvf::UNDEFINED_DOUBLE)
         {
@@ -161,26 +161,50 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
 
                     if (isDrawable(result1, m_rimReservoirView->tensorResults()->showPrincipal1()))
                     {
-                        tensorVisualizations.push_back(TensorVisualization(
-                            cvf::Vec3f(displayCoord), result1, faceNormal, isPressure(elmPrincipals[0][elmIdx]), 1, elmPrincipals[0][elmIdx]));
-                        tensorVisualizations.push_back(TensorVisualization(
-                            cvf::Vec3f(displayCoord), -result1, faceNormal, isPressure(elmPrincipals[0][elmIdx]), 1, elmPrincipals[0][elmIdx]));
+                        tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord),
+                                                                           result1,
+                                                                           faceNormal,
+                                                                           isPressure(elmPrincipals[0][elmIdx]),
+                                                                           1,
+                                                                           elmPrincipals[0][elmIdx]));
+                        tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord),
+                                                                           -result1,
+                                                                           faceNormal,
+                                                                           isPressure(elmPrincipals[0][elmIdx]),
+                                                                           1,
+                                                                           elmPrincipals[0][elmIdx]));
                     }
 
                     if (isDrawable(result2, m_rimReservoirView->tensorResults()->showPrincipal2()))
                     {
-                        tensorVisualizations.push_back(TensorVisualization(
-                            cvf::Vec3f(displayCoord), result2, faceNormal, isPressure(elmPrincipals[1][elmIdx]), 2, elmPrincipals[1][elmIdx]));
-                        tensorVisualizations.push_back(TensorVisualization(
-                            cvf::Vec3f(displayCoord), -result2, faceNormal, isPressure(elmPrincipals[1][elmIdx]), 2, elmPrincipals[1][elmIdx]));
+                        tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord),
+                                                                           result2,
+                                                                           faceNormal,
+                                                                           isPressure(elmPrincipals[1][elmIdx]),
+                                                                           2,
+                                                                           elmPrincipals[1][elmIdx]));
+                        tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord),
+                                                                           -result2,
+                                                                           faceNormal,
+                                                                           isPressure(elmPrincipals[1][elmIdx]),
+                                                                           2,
+                                                                           elmPrincipals[1][elmIdx]));
                     }
 
                     if (isDrawable(result3, m_rimReservoirView->tensorResults()->showPrincipal3()))
                     {
-                        tensorVisualizations.push_back(TensorVisualization(
-                            cvf::Vec3f(displayCoord), result3, faceNormal, isPressure(elmPrincipals[2][elmIdx]), 3, elmPrincipals[2][elmIdx]));
-                        tensorVisualizations.push_back(TensorVisualization(
-                            cvf::Vec3f(displayCoord), -result3, faceNormal, isPressure(elmPrincipals[2][elmIdx]), 3, elmPrincipals[2][elmIdx]));
+                        tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord),
+                                                                           result3,
+                                                                           faceNormal,
+                                                                           isPressure(elmPrincipals[2][elmIdx]),
+                                                                           3,
+                                                                           elmPrincipals[2][elmIdx]));
+                        tensorVisualizations.push_back(TensorVisualization(cvf::Vec3f(displayCoord),
+                                                                           -result3,
+                                                                           faceNormal,
+                                                                           isPressure(elmPrincipals[2][elmIdx]),
+                                                                           3,
+                                                                           elmPrincipals[2][elmIdx]));
                     }
                 }
             }
@@ -317,7 +341,7 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart(const std::vector<TensorV
     cvf::ScalarMapper* activeScalerMapper = nullptr;
 
     cvf::ref<cvf::ScalarMapperDiscreteLinear> discreteScalarMapper = new cvf::ScalarMapperDiscreteLinear;
-    auto vectorColors = m_rimReservoirView->tensorResults()->vectorColors();
+    auto                                      vectorColors         = m_rimReservoirView->tensorResults()->vectorColors();
     if (vectorColors == RimTensorResults::RESULT_COLORS)
     {
         activeScalerMapper = m_rimReservoirView->tensorResults()->arrowColorLegendConfig()->scalarMapper();
@@ -377,9 +401,9 @@ void RivTensorResultPartMgr::createOneColorPerPrincipalScalarMapper(const RimTen
 
     scalarMapper->setColors(arrowColors);
 
-    // Using a linear color mapper to set colors for three discrete principal numbers (1, 2, 3)    
-    // by setting the 3 + 1 interval levels so the principal numbers match the center of the intervals.    
-    std::set<double> levelValues = { 0.5, 1.5, 2.5, 3.5 };
+    // Using a linear color mapper to set colors for three discrete principal numbers (1, 2, 3)
+    // by setting the 3 + 1 interval levels so the principal numbers match the center of the intervals.
+    std::set<double> levelValues = {0.5, 1.5, 2.5, 3.5};
     scalarMapper->setLevelsFromValues(levelValues);
 }
 
@@ -547,7 +571,7 @@ std::array<cvf::Vec3f, 5> RivTensorResultPartMgr::createArrowVertices(const Tens
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::array<uint, 8> RivTensorResultPartMgr::createArrowIndices(uint startIndex) const
 {

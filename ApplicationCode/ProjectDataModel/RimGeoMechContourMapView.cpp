@@ -16,8 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGeoMechContourMapView.h"
-#include "RivContourMapProjectionPartMgr.h"
 #include "RiuViewer.h"
+#include "RivContourMapProjectionPartMgr.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCase.h"
@@ -40,11 +40,7 @@
 
 CAF_PDM_SOURCE_INIT(RimGeoMechContourMapView, "RimGeoMechContourMapView");
 
-
-const cvf::Mat4d RimGeoMechContourMapView::sm_defaultViewMatrix = cvf::Mat4d(1, 0, 0, 0,
-                                   0, 1, 0, 0,
-                                   0, 0, 1, 1000,
-                                   0, 0, 0, 1);
+const cvf::Mat4d RimGeoMechContourMapView::sm_defaultViewMatrix = cvf::Mat4d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1000, 0, 0, 0, 1);
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -258,12 +254,12 @@ void RimGeoMechContourMapView::updateGeometry()
 
         progress.setProgress(30);
     }
-    
+
     { // Step 2: generate geometry. Takes about 60% of the time.
         createContourMapGeometry();
         progress.setProgress(90);
     }
-    
+
     { // Step 3: generate drawables. About 10% of the time.
         appendContourMapProjectionToModel();
         appendContourLinesToModel();
@@ -492,5 +488,3 @@ bool RimGeoMechContourMapView::zoomChangeAboveTreshold(const cvf::Vec3d& current
     const double threshold = 0.05 * distance;
     return std::fabs(m_cameraPositionLastUpdate.z() - currentCameraPosition.z()) > threshold;
 }
-
-

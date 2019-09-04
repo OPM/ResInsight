@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -35,18 +35,17 @@
 
 #include "RiuExpressionContextMenuManager.h"
 
-#include "cafPdmUiTextEditor.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiTextEditor.h"
 
 #include <QMessageBox>
 
 #include <algorithm>
 
-
 CAF_PDM_SOURCE_INIT(RimSummaryCalculation, "RimSummaryCalculation");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculation::RimSummaryCalculation()
 {
@@ -72,7 +71,7 @@ RimSummaryCalculation::RimSummaryCalculation()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculation::setDescription(const QString& description)
 {
@@ -80,7 +79,7 @@ void RimSummaryCalculation::setDescription(const QString& description)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCalculation::description() const
 {
@@ -88,7 +87,7 @@ QString RimSummaryCalculation::description() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCalculation::isDirty() const
 {
@@ -96,7 +95,7 @@ bool RimSummaryCalculation::isDirty() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmChildArrayFieldHandle* RimSummaryCalculation::variables()
 {
@@ -104,7 +103,7 @@ caf::PdmChildArrayFieldHandle* RimSummaryCalculation::variables()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculationVariable* RimSummaryCalculation::addVariable(const QString& name)
 {
@@ -117,7 +116,7 @@ RimSummaryCalculationVariable* RimSummaryCalculation::addVariable(const QString&
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculation::deleteVariable(RimSummaryCalculationVariable* calcVariable)
 {
@@ -127,7 +126,7 @@ void RimSummaryCalculation::deleteVariable(RimSummaryCalculationVariable* calcVa
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>& RimSummaryCalculation::values() const
 {
@@ -135,7 +134,7 @@ const std::vector<double>& RimSummaryCalculation::values() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RimSummaryCalculation::timeSteps() const
 {
@@ -143,7 +142,7 @@ const std::vector<time_t>& RimSummaryCalculation::timeSteps() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculation::setExpression(const QString& expr)
 {
@@ -151,7 +150,7 @@ void RimSummaryCalculation::setExpression(const QString& expr)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCalculation::expression() const
 {
@@ -159,7 +158,7 @@ QString RimSummaryCalculation::expression() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCalculation::unitName() const
 {
@@ -167,7 +166,7 @@ QString RimSummaryCalculation::unitName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSummaryCalculation::userDescriptionField()
 {
@@ -175,7 +174,7 @@ caf::PdmFieldHandle* RimSummaryCalculation::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCalculation::parseExpression()
 {
@@ -234,7 +233,7 @@ bool RimSummaryCalculation::parseExpression()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCalculation::calculate()
 {
@@ -248,14 +247,16 @@ bool RimSummaryCalculation::calculate()
 
         if (!v->summaryCase())
         {
-            QMessageBox::warning(nullptr, "Expression Parser", QString("No summary case defined for variable : %1").arg(v->name()));
+            QMessageBox::warning(
+                nullptr, "Expression Parser", QString("No summary case defined for variable : %1").arg(v->name()));
 
             return false;
         }
 
         if (!v->summaryAddress())
         {
-            QMessageBox::warning(nullptr, "Expression Parser", QString("No summary address defined for variable : %1").arg(v->name()));
+            QMessageBox::warning(
+                nullptr, "Expression Parser", QString("No summary address defined for variable : %1").arg(v->name()));
 
             return false;
         }
@@ -286,7 +287,7 @@ bool RimSummaryCalculation::calculate()
     parser.assignVector(leftHandSideVariableName, resultValues);
 
     QString errorText;
-    bool evaluatedOk = parser.evaluate(m_expression, &errorText);
+    bool    evaluatedOk = parser.evaluate(m_expression, &errorText);
 
     if (evaluatedOk)
     {
@@ -296,19 +297,17 @@ bool RimSummaryCalculation::calculate()
         if (timeHistoryCurveMerger.validIntervalsForAllXValues().size() > 0)
         {
             size_t firstValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllXValues().front().first;
-            size_t lastValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllXValues().back().second + 1;
+            size_t lastValidTimeStep  = timeHistoryCurveMerger.validIntervalsForAllXValues().back().second + 1;
 
-            if (lastValidTimeStep > firstValidTimeStep &&
-                lastValidTimeStep <= timeHistoryCurveMerger.allXValues().size())
+            if (lastValidTimeStep > firstValidTimeStep && lastValidTimeStep <= timeHistoryCurveMerger.allXValues().size())
             {
-                std::vector<time_t> validTimeSteps(timeHistoryCurveMerger.allXValues().begin() + firstValidTimeStep, 
+                std::vector<time_t> validTimeSteps(timeHistoryCurveMerger.allXValues().begin() + firstValidTimeStep,
                                                    timeHistoryCurveMerger.allXValues().begin() + lastValidTimeStep);
-
 
                 std::vector<double> validValues(resultValues.begin() + firstValidTimeStep,
                                                 resultValues.begin() + lastValidTimeStep);
 
-                m_timesteps = validTimeSteps;
+                m_timesteps        = validTimeSteps;
                 m_calculatedValues = validValues;
             }
         }
@@ -348,7 +347,7 @@ QString RimSummaryCalculation::findLeftHandSide(const QString& expresion)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculation::attachToWidget()
 {
@@ -372,9 +371,11 @@ void RimSummaryCalculation::attachToWidget()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculation::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimSummaryCalculation::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                             const QVariant&            oldValue,
+                                             const QVariant&            newValue)
 {
     m_isDirty = true;
 
@@ -382,7 +383,7 @@ void RimSummaryCalculation::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculationVariable* RimSummaryCalculation::findByName(const QString& name) const
 {
@@ -398,7 +399,7 @@ RimSummaryCalculationVariable* RimSummaryCalculation::findByName(const QString& 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCalculation::buildCalculationName() const
 {
@@ -428,9 +429,11 @@ QString RimSummaryCalculation::buildCalculationName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculation::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimSummaryCalculation::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                  QString                    uiConfigName,
+                                                  caf::PdmUiEditorAttribute* attribute)
 {
     if (field == &m_expression)
     {
@@ -443,7 +446,7 @@ void RimSummaryCalculation::defineEditorAttribute(const caf::PdmFieldHandle* fie
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculation::updateDependentCurvesAndPlots()
 {

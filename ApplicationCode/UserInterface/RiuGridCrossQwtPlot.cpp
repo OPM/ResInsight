@@ -20,13 +20,13 @@
 #include "RiaFontCache.h"
 
 #include "RiuCvfOverlayItemWidget.h"
-#include "RiuRimQwtPlotCurve.h"
 #include "RiuQwtCurvePointTracker.h"
+#include "RiuRimQwtPlotCurve.h"
 #include "RiuWidgetDragger.h"
 
 #include "RimGridCrossPlot.h"
-#include "RimGridCrossPlotDataSet.h"
 #include "RimGridCrossPlotCurve.h"
+#include "RimGridCrossPlotDataSet.h"
 #include "RimRegularLegendConfig.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -53,12 +53,13 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot(RimViewWindow* ownerViewWindow, QWidget
     : RiuQwtPlot(ownerViewWindow, parent)
 {
     m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>(new RiuPlotAnnotationTool());
-    m_infoBox = new RiuDraggableOverlayFrame(this, canvas());    
-    
+    m_infoBox        = new RiuDraggableOverlayFrame(this, canvas());
+
     m_selectedPointMarker = new QwtPlotMarker;
 
     // QwtPlotMarker takes ownership of the symbol, it is deleted in destructor of QwtPlotMarker
-    QwtSymbol* mySymbol = new QwtSymbol(QwtSymbol::Ellipse, QBrush(QColor(255, 255, 255, 50)), QPen(Qt::black, 2.0), QSize(10, 10));
+    QwtSymbol* mySymbol =
+        new QwtSymbol(QwtSymbol::Ellipse, QBrush(QColor(255, 255, 255, 50)), QPen(Qt::black, 2.0), QSize(10, 10));
     m_selectedPointMarker->setSymbol(mySymbol);
     m_selectedPointMarker->setLabelAlignment(Qt::AlignRight | Qt::AlignVCenter);
     m_selectedPointMarker->setSpacing(3);
@@ -86,7 +87,7 @@ void RiuGridCrossQwtPlot::addOrUpdateDataSetLegend(RimGridCrossPlotDataSet* data
     auto it = m_legendWidgets.find(dataSet);
     if (it == m_legendWidgets.end() || it->second == nullptr)
     {
-        overlayWidget = new RiuCvfOverlayItemWidget(this, canvas());
+        overlayWidget            = new RiuCvfOverlayItemWidget(this, canvas());
         m_legendWidgets[dataSet] = overlayWidget;
     }
     else
@@ -165,7 +166,7 @@ void RiuGridCrossQwtPlot::updateLegendSizesToMatchPlot()
         if (pairIt != m_legendWidgets.end())
         {
             RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
-            caf::TitledOverlayFrame* overlayItem = dataSet->legendConfig()->titledOverlayFrame();
+            caf::TitledOverlayFrame* overlayItem   = dataSet->legendConfig()->titledOverlayFrame();
             applyFontSizeToOverlayItem(overlayItem);
             if (resizeOverlayItemToFitPlot(overlayItem))
             {
@@ -210,7 +211,7 @@ void RiuGridCrossQwtPlot::updateInfoBoxLayout()
 {
     RimGridCrossPlot* crossPlot = dynamic_cast<RimGridCrossPlot*>(ownerPlotDefinition());
     if (!crossPlot) return;
-    
+
     bool showInfo = false;
     if (crossPlot->showInfoBox())
     {
@@ -244,7 +245,7 @@ void RiuGridCrossQwtPlot::updateInfoBoxLayout()
             font.setPointSize(crossPlot->legendFontSize());
             m_infoBox->setFont(font);
             m_infoBox->adjustSize();
-            QRect infoRect = m_infoBox->frameGeometry();
+            QRect infoRect   = m_infoBox->frameGeometry();
             QRect canvasRect = canvas()->frameGeometry();
             infoRect.moveTop(canvasRect.top() + 4);
             infoRect.moveRight(canvasRect.right() - 4);
@@ -287,7 +288,6 @@ void RiuGridCrossQwtPlot::updateLegendLayout()
     {
         if (dataSet->isChecked() && dataSet->groupingEnabled() && dataSet->legendConfig()->showLegend())
         {
-
             auto pairIt = m_legendWidgets.find(dataSet);
             if (pairIt != m_legendWidgets.end())
             {
@@ -299,7 +299,7 @@ void RiuGridCrossQwtPlot::updateLegendLayout()
                     if (ypos + overlayWidget->height() + spacing > this->canvas()->height())
                     {
                         xpos += spacing + maxColumnWidth;
-                        ypos = startMarginY;
+                        ypos           = startMarginY;
                         maxColumnWidth = 0;
                     }
 
@@ -329,9 +329,9 @@ void RiuGridCrossQwtPlot::resizeEvent(QResizeEvent* e)
 //--------------------------------------------------------------------------------------------------
 bool RiuGridCrossQwtPlot::resizeOverlayItemToFitPlot(caf::TitledOverlayFrame* overlayItem)
 {
-    QSize       plotSize   = this->canvas()->contentsRect().size();
+    QSize       plotSize           = this->canvas()->contentsRect().size();
     cvf::Vec2ui existingRenderSize = overlayItem->renderSize();
-    cvf::Vec2ui legendSize = overlayItem->preferredSize();
+    cvf::Vec2ui legendSize         = overlayItem->preferredSize();
 
     bool sizeAltered = false;
 
@@ -444,8 +444,8 @@ bool RiuGridCrossQwtPlot::curveText(const QwtPlotCurve* curve,
 //--------------------------------------------------------------------------------------------------
 void RiuGridCrossQwtPlot::applyFontSizeToOverlayItem(caf::TitledOverlayFrame* overlayItem)
 {
-    RimGridCrossPlot*        crossPlot   = static_cast<RimGridCrossPlot*>(ownerViewWindow());
-    int                      fontSize    = crossPlot->legendFontSize();
-    cvf::ref<cvf::Font>      cafFont     = RiaFontCache::getFont(RiaFontCache::fontSizeEnumFromPointSize(fontSize));
+    RimGridCrossPlot*   crossPlot = static_cast<RimGridCrossPlot*>(ownerViewWindow());
+    int                 fontSize  = crossPlot->legendFontSize();
+    cvf::ref<cvf::Font> cafFont   = RiaFontCache::getFont(RiaFontCache::fontSizeEnumFromPointSize(fontSize));
     overlayItem->setFont(cafFont.p());
 }

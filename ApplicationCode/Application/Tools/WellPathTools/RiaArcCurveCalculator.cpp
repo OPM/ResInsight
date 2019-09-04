@@ -22,9 +22,9 @@
 #include "cvfGeometryTools.h"
 
 //--------------------------------------------------------------------------------------------------
-///                + p1 
-///           t1 // 
-///              |      + C   
+///                + p1
+///           t1 //
+///              |      + C
 ///               \
 ///                + p2
 //--------------------------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ RiaArcCurveCalculator::RiaArcCurveCalculator(cvf::Vec3d p1, cvf::Vec3d t1, cvf::
     }
 
     cvf::Vec3d p1p2 = p2 - p1;
-    cvf::Vec3d t12 = p1p2.getNormalized(&isOk);
+    cvf::Vec3d t12  = p1p2.getNormalized(&isOk);
     if (!isOk)
     {
         // p1 and p2 in the same place.
@@ -61,28 +61,28 @@ RiaArcCurveCalculator::RiaArcCurveCalculator(cvf::Vec3d p1, cvf::Vec3d t1, cvf::
 
         RiaOffshoreSphericalCoords endTangent(t1);
         m_endTangent = t1;
-        m_endAzi = endTangent.azi();
-        m_endInc = endTangent.inc();
-        m_radius = std::numeric_limits<double>::infinity();
-        m_arcAngle = 0;
-        m_arcLength = p1p2.length();
+        m_endAzi     = endTangent.azi();
+        m_endInc     = endTangent.inc();
+        m_radius     = std::numeric_limits<double>::infinity();
+        m_arcAngle   = 0;
+        m_arcLength  = p1p2.length();
         return;
     }
 
     cvf::Vec3d tr1 = (N ^ t1).getNormalized();
 
     m_radius = 0.5 * p1p2.length() / (tr1.dot(t12));
-    
+
     cvf::Vec3d C = p1 + m_radius * tr1;
 
     cvf::Vec3d nTr1 = -tr1;
-    m_arcCS = cvf::Mat4d::fromCoordSystemAxes( &nTr1, &t1, &N );
+    m_arcCS         = cvf::Mat4d::fromCoordSystemAxes(&nTr1, &t1, &N);
 
     m_arcCS.setTranslation(C);
 
     m_arcAngle = cvf::GeometryTools::getAngle(N, p1 - C, p2 - C);
 
-    m_arcLength = m_radius*m_arcAngle;
+    m_arcLength = m_radius * m_arcAngle;
 
     m_endTangent = N ^ (p2 - C).getNormalized();
 
@@ -92,13 +92,11 @@ RiaArcCurveCalculator::RiaArcCurveCalculator(cvf::Vec3d p1, cvf::Vec3d t1, cvf::
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiaArcCurveCalculator::RiaArcCurveCalculator(cvf::Vec3d p1, double azi1, double inc1, cvf::Vec3d p2)
 {
-    cvf::Vec3d t1( RiaOffshoreSphericalCoords::unitVectorFromAziInc(azi1,inc1));
+    cvf::Vec3d t1(RiaOffshoreSphericalCoords::unitVectorFromAziInc(azi1, inc1));
 
     (*this) = RiaArcCurveCalculator(p1, t1, p2);
 }
-
-

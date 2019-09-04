@@ -20,16 +20,17 @@
 #include "RimCheckableNamedObject.h"
 
 #include "cafAppEnum.h"
-#include "cvfBase.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cvfBase.h"
 
 class RimWellPathAttribute;
 
 class RimWellPathAttributeCollection : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
+
 public:
     RimWellPathAttributeCollection();
     ~RimWellPathAttributeCollection() override;
@@ -42,7 +43,9 @@ public:
 
 protected:
     void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget) override;
-    void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void defineEditorAttribute(const caf::PdmFieldHandle* field,
+                               QString                    uiConfigName,
+                               caf::PdmUiEditorAttribute* attribute) override;
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@
 #include <QFileSystemModel>
 #include <QStringListModel>
 
-class FileListModel: public QStringListModel
+class FileListModel : public QStringListModel
 {
 public:
     explicit FileListModel(QObject* parent = nullptr)
@@ -38,7 +38,7 @@ public:
     {
     }
 
-    Qt::ItemFlags flags (const QModelIndex& index) const override
+    Qt::ItemFlags flags(const QModelIndex& index) const override
     {
         if (m_isItemsEditable)
             return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
@@ -46,11 +46,11 @@ public:
             return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     }
 
-    QVariant data ( const QModelIndex & index, int role ) const override
+    QVariant data(const QModelIndex& index, int role) const override
     {
         if (role == Qt::DecorationRole)
         {
-            QFileInfo fileInfo(stringList()[index.row()]);
+            QFileInfo         fileInfo(stringList()[index.row()]);
             QFileIconProvider iconProv;
             return QVariant(iconProv.icon(fileInfo));
         }
@@ -72,27 +72,24 @@ private:
     bool m_isItemsEditable;
 };
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuMultiCaseImportDialog::RiuMultiCaseImportDialog(QWidget *parent /*= 0*/)
+RiuMultiCaseImportDialog::RiuMultiCaseImportDialog(QWidget* parent /*= 0*/)
     : QDialog(parent, RiuTools::defaultDialogFlags())
 {
     ui = new Ui::RiuMultiCaseImportDialog;
     ui->setupUi(this);
-    
+
     m_searchFolders = new FileListModel(this);
     ui->m_searchFolderList->setModel(m_searchFolders);
 
     m_eclipseGridFiles = new FileListModel(this);
     ui->m_eclipseCasesList->setModel(m_eclipseGridFiles);
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuMultiCaseImportDialog::~RiuMultiCaseImportDialog()
 {
@@ -100,11 +97,12 @@ RiuMultiCaseImportDialog::~RiuMultiCaseImportDialog()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMultiCaseImportDialog::on_m_addSearchFolderButton_clicked()
 {
-    QString selectedFolder = QFileDialog::getExistingDirectory(this, "Select an Eclipse case search folder", RiaApplication::instance()->lastUsedDialogDirectory("MULTICASEIMPORT"));
+    QString selectedFolder = QFileDialog::getExistingDirectory(
+        this, "Select an Eclipse case search folder", RiaApplication::instance()->lastUsedDialogDirectory("MULTICASEIMPORT"));
     QStringList folderNames = m_searchFolders->stringList();
 
     if (!folderNames.contains(selectedFolder))
@@ -124,12 +122,12 @@ void RiuMultiCaseImportDialog::on_m_addSearchFolderButton_clicked()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMultiCaseImportDialog::on_m_removeSearchFolderButton_clicked()
 {
-    QModelIndexList selection = ui->m_searchFolderList->selectionModel()->selectedIndexes();
-    QStringList folderNames = m_searchFolders->stringList();
+    QModelIndexList selection   = ui->m_searchFolderList->selectionModel()->selectedIndexes();
+    QStringList     folderNames = m_searchFolders->stringList();
 
     QStringList searchFoldersToRemove;
 
@@ -152,11 +150,11 @@ void RiuMultiCaseImportDialog::on_m_removeSearchFolderButton_clicked()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMultiCaseImportDialog::updateGridFileList()
 {
-    QStringList folderNames =  m_searchFolders->stringList();
+    QStringList folderNames = m_searchFolders->stringList();
     QStringList gridFileNames;
 
     // Filter the search folders to remove subfolders of existing roots'
@@ -166,7 +164,7 @@ void RiuMultiCaseImportDialog::updateGridFileList()
     for (int i = 0; i < folderNames.size(); ++i)
         for (int j = 0; j < folderNames.size(); ++j)
         {
-            if ( i != j)
+            if (i != j)
             {
                 if (folderNames[i].startsWith(folderNames[j]))
                 {
@@ -188,11 +186,10 @@ void RiuMultiCaseImportDialog::updateGridFileList()
         QString folderName = folderNames[i];
 
         appendEGRIDFilesRecursively(folderName, gridFileNames);
-    } 
+    }
 
     m_eclipseGridFiles->setStringList(gridFileNames);
 }
-
 
 void RiuMultiCaseImportDialog::appendEGRIDFilesRecursively(const QString& folderName, QStringList& gridFileNames)
 {
@@ -201,7 +198,8 @@ void RiuMultiCaseImportDialog::appendEGRIDFilesRecursively(const QString& folder
         baseDir.setFilter(QDir::Files);
 
         QStringList nameFilters;
-        nameFilters << "*.egrid" << ".EGRID";
+        nameFilters << "*.egrid"
+                    << ".EGRID";
         baseDir.setNameFilters(nameFilters);
 
         QStringList fileNames = baseDir.entryList();
@@ -215,7 +213,6 @@ void RiuMultiCaseImportDialog::appendEGRIDFilesRecursively(const QString& folder
             gridFileNames.append(absoluteFolderName);
         }
     }
-
 
     {
         QDir baseDir(folderName);
@@ -234,7 +231,7 @@ void RiuMultiCaseImportDialog::appendEGRIDFilesRecursively(const QString& folder
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QStringList RiuMultiCaseImportDialog::eclipseCaseFileNames() const
 {
@@ -242,7 +239,7 @@ QStringList RiuMultiCaseImportDialog::eclipseCaseFileNames() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMultiCaseImportDialog::on_m_removeEclipseCaseButton_clicked()
 {

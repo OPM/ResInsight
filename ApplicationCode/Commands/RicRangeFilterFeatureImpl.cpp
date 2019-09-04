@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicRangeFilterFeatureImpl::isRangeFilterCommandAvailable()
 {
@@ -44,16 +44,16 @@ bool RicRangeFilterFeatureImpl::isRangeFilterCommandAvailable()
     rangeFilterCollection->firstAncestorOrThisOfType(view);
     if (view)
     {
-       RimViewController* vc = view->viewController();    
-       if (!vc) return true;
-       return (!vc->isRangeFiltersControlled());
+        RimViewController* vc = view->viewController();
+        if (!vc) return true;
+        return (!vc->isRangeFiltersControlled());
     }
 
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicRangeFilterNewExec* RicRangeFilterFeatureImpl::createRangeFilterExecCommand()
 {
@@ -65,12 +65,12 @@ RicRangeFilterNewExec* RicRangeFilterFeatureImpl::createRangeFilterExecCommand()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilterCollection* RicRangeFilterFeatureImpl::findRangeFilterCollection()
 {
     RimCellRangeFilterCollection* rangeFilterCollection = nullptr;
-    
+
     std::vector<RimCellRangeFilter*> selectedRangeFilter;
     caf::SelectionManager::instance()->objectsByType(&selectedRangeFilter);
 
@@ -91,7 +91,7 @@ RimCellRangeFilterCollection* RicRangeFilterFeatureImpl::findRangeFilterCollecti
     {
         rangeFilterCollection = view->rangeFilterCollection();
     }
-    
+
     assert(rangeFilterCollection);
 
     return rangeFilterCollection;

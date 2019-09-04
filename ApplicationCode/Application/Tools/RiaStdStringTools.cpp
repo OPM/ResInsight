@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -19,18 +19,18 @@
 #include "RiaStdStringTools.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::string RiaStdStringTools::trimString(const std::string& s)
 {
     auto sCopy = s.substr(0, s.find_last_not_of(' ') + 1);
-    sCopy = sCopy.substr(sCopy.find_first_not_of(' '));
+    sCopy      = sCopy.substr(sCopy.find_first_not_of(' '));
 
     return sCopy;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RiaStdStringTools::isNumber(const std::string& s, char decimalPoint)
 {
@@ -46,7 +46,7 @@ bool RiaStdStringTools::isNumber(const std::string& s, char decimalPoint)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int16_t RiaStdStringTools::toInt16(const std::string& s)
 {
@@ -54,7 +54,7 @@ int16_t RiaStdStringTools::toInt16(const std::string& s)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RiaStdStringTools::toInt(const std::string& s)
 {
@@ -72,7 +72,7 @@ int RiaStdStringTools::toInt(const std::string& s)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RiaStdStringTools::toDouble(const std::string& s)
 {
@@ -85,7 +85,7 @@ double RiaStdStringTools::toDouble(const std::string& s)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RiaStdStringTools::containsAlphabetic(const std::string& s)
 {
@@ -93,7 +93,7 @@ bool RiaStdStringTools::containsAlphabetic(const std::string& s)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RiaStdStringTools::startsWithAlphabetic(const std::string& s)
 {
@@ -103,7 +103,7 @@ bool RiaStdStringTools::startsWithAlphabetic(const std::string& s)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RiaStdStringTools::endsWith(const std::string& mainStr, const std::string& toMatch)
 {
@@ -114,7 +114,7 @@ bool RiaStdStringTools::endsWith(const std::string& mainStr, const std::string& 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::string> RiaStdStringTools::splitStringBySpace(const std::string& s)
 {
@@ -126,16 +126,15 @@ std::vector<std::string> RiaStdStringTools::splitStringBySpace(const std::string
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RiaStdStringTools::findCharMatchCount(const std::string& s, char c)
 {
     size_t count = 0;
-    size_t pos = 0;
+    size_t pos   = 0;
     while ((pos = s.find_first_of(c, pos + 1)) != std::string::npos)
     {
         count++;
     }
     return count;
 }
-

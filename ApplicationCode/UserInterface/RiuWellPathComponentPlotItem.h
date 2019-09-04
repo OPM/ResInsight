@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -40,27 +40,23 @@ class RigWellLogCurveData;
 class RimWellPath;
 class QwtPlotItem;
 
-
-
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class RiuWellPathComponentPlotItem
 {
-   
 public:
-    RiuWellPathComponentPlotItem(const RimWellPath*              wellPath);
+    RiuWellPathComponentPlotItem(const RimWellPath* wellPath);
 
-    RiuWellPathComponentPlotItem(const RimWellPath*                   wellPath,
-                                 const RimWellPathComponentInterface* completion);
+    RiuWellPathComponentPlotItem(const RimWellPath* wellPath, const RimWellPathComponentInterface* completion);
 
     ~RiuWellPathComponentPlotItem();
 
     QString label() const;
     QString legendTitle() const;
 
-    void    loadDataAndUpdate(bool updateParentPlot);
+    void loadDataAndUpdate(bool updateParentPlot);
 
     RiaDefines::WellPathComponentType componentType() const;
 
@@ -80,7 +76,7 @@ public:
 private:
     void calculateColumnOffsets(const RimWellPathComponentInterface* component);
 
-    void   onLoadDataAndUpdate(bool updateParentPlot);
+    void onLoadDataAndUpdate(bool updateParentPlot);
 
     std::pair<double, double> depthsOfDepthType() const;
 
@@ -104,12 +100,12 @@ private:
                               Qt::Orientation               labelOrientation  = Qt::Horizontal,
                               bool                          drawLine          = false,
                               bool                          contrastTextColor = false);
-    void addColumnFeature(double startX,
-                          double endX,
-                          double startDepth,
-                          double endDepth,
-                          cvf::Color4f baseColor,
-                          Qt::BrushStyle brushStyle = Qt::SolidPattern);
+    void         addColumnFeature(double         startX,
+                                  double         endX,
+                                  double         startDepth,
+                                  double         endDepth,
+                                  cvf::Color4f   baseColor,
+                                  Qt::BrushStyle brushStyle = Qt::SolidPattern);
 
     QwtPlotItem* createColumnShape(double         startX,
                                    double         endX,
@@ -121,20 +117,20 @@ private:
     cvf::Color4f componentColor(float alpha = 1.0) const;
 
 private:
-    const RimWellPath*                      m_wellPath;
+    const RimWellPath* m_wellPath;
 
-    RiaDefines::WellPathComponentType       m_componentType;
-    double                                  m_startMD;
-    double                                  m_endMD;
-    std::vector<double>                     m_subMDs;
-    QString                                 m_label;
-    QString                                 m_legendTitle;
-    double                                  m_columnOffset;
-    double                                  m_maxColumnOffset;
+    RiaDefines::WellPathComponentType m_componentType;
+    double                            m_startMD;
+    double                            m_endMD;
+    std::vector<double>               m_subMDs;
+    QString                           m_label;
+    QString                           m_legendTitle;
+    double                            m_columnOffset;
+    double                            m_maxColumnOffset;
 
-    RimWellLogPlot::DepthTypeEnum           m_depthType;
-    QPointer<QwtPlot>                       m_parentQwtPlot;
-    RiuQwtPlotItemGroup                     m_combinedComponentGroup;
+    RimWellLogPlot::DepthTypeEnum m_depthType;
+    QPointer<QwtPlot>             m_parentQwtPlot;
+    RiuQwtPlotItemGroup           m_combinedComponentGroup;
 
-    bool                                    m_showLabel;    
+    bool m_showLabel;
 };

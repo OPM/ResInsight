@@ -25,9 +25,9 @@
 
 #include "cafSelectionManager.h"
 
-#include <QAction>
 #include "RicClearSourceSteppingEnsembleCurveSetFeature.h"
 #include "RimSummaryPlot.h"
+#include <QAction>
 
 CAF_CMD_SOURCE_INIT(RicSetSourceSteppingEnsembleCurveSetFeature, "RicSetSourceSteppingEnsembleCurveSetFeature");
 

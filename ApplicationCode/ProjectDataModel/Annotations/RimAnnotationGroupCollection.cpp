@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,31 +20,30 @@
 
 #include "RiaApplication.h"
 
-#include "RimTextAnnotation.h"
-#include "RimReachCircleAnnotation.h"
 #include "RimPolylinesAnnotation.h"
+#include "RimReachCircleAnnotation.h"
+#include "RimTextAnnotation.h"
 
-#include "RimProject.h"
-#include "RimGridView.h"
 #include "RimAnnotationInViewCollection.h"
+#include "RimGridView.h"
+#include "RimProject.h"
 
 #include "QMessageBox"
-#include <QString>
 #include "RiaColorTables.h"
-
+#include <QString>
 
 CAF_PDM_SOURCE_INIT(RimAnnotationGroupCollection, "RimAnnotationGroupCollection");
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString RimAnnotationGroupCollection::TEXT_ANNOTATION_UI_NAME = "Text Annotations";
-const QString RimAnnotationGroupCollection::REACH_CIRCLE_ANNOTATION_UI_NAME = "Reach Circle Annotations";
+const QString RimAnnotationGroupCollection::TEXT_ANNOTATION_UI_NAME                  = "Text Annotations";
+const QString RimAnnotationGroupCollection::REACH_CIRCLE_ANNOTATION_UI_NAME          = "Reach Circle Annotations";
 const QString RimAnnotationGroupCollection::USED_DEFINED_POLYLINE_ANNOTATION_UI_NAME = "User Defined Polyline Annotations";
-const QString RimAnnotationGroupCollection::POLYLINE_FROM_FILE_ANNOTATION_UI_NAME = "Polylines From File";
+const QString RimAnnotationGroupCollection::POLYLINE_FROM_FILE_ANNOTATION_UI_NAME    = "Polylines From File";
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimAnnotationGroupCollection::RimAnnotationGroupCollection()
 {
@@ -58,11 +57,9 @@ RimAnnotationGroupCollection::RimAnnotationGroupCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimAnnotationGroupCollection::~RimAnnotationGroupCollection()
-{
-}
+RimAnnotationGroupCollection::~RimAnnotationGroupCollection() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -106,8 +103,8 @@ std::vector<caf::PdmObject*> RimAnnotationGroupCollection::annotations() const
 ///
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationGroupCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue)
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue)
 {
     if (changedField == &m_isActive)
     {
@@ -115,7 +112,7 @@ void RimAnnotationGroupCollection::fieldChangedByUi(const caf::PdmFieldHandle* c
 
         RimAnnotationCollectionBase* coll;
         firstAncestorOrThisOfType(coll);
-        if(coll) coll->scheduleRedrawOfRelevantViews();
+        if (coll) coll->scheduleRedrawOfRelevantViews();
     }
 }
 

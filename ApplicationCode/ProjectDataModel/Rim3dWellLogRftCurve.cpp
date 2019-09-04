@@ -24,11 +24,11 @@
 
 #include "RigWellLogCurveData.h"
 
-#include "RimWellLogRftCurveNameConfig.h"
 #include "RimEclipseResultCase.h"
 #include "RimTools.h"
-#include "RimWellPath.h"
 #include "RimWellLogCurve.h"
+#include "RimWellLogRftCurveNameConfig.h"
+#include "RimWellPath.h"
 
 //==================================================================================================
 ///
@@ -67,7 +67,7 @@ Rim3dWellLogRftCurve::~Rim3dWellLogRftCurve()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogRftCurve::curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const
 {
@@ -78,8 +78,8 @@ void Rim3dWellLogRftCurve::curveValuesAndMds(std::vector<double>* values, std::v
 
     const RigWellLogCurveData* curveData = m_2dWellLogRftCurve->curveData();
 
-    //These values are for a simulation well
-    *values = curveData->xValues();
+    // These values are for a simulation well
+    *values              = curveData->xValues();
     *measuredDepthValues = curveData->measuredDepths();
 }
 
@@ -117,7 +117,8 @@ QString Rim3dWellLogRftCurve::createAutoName() const
     {
         name.push_back(m_eclipseResultCase->caseUserDescription());
     }
-    if (m_wellLogChannelName().text() != caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text(RifEclipseRftAddress::NONE))
+    if (m_wellLogChannelName().text() !=
+        caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text(RifEclipseRftAddress::NONE))
     {
         RifEclipseRftAddress::RftWellLogChannelType channelNameEnum = m_wellLogChannelName();
         name.push_back(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(channelNameEnum));
@@ -153,9 +154,10 @@ void Rim3dWellLogRftCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> Rim3dWellLogRftCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> Rim3dWellLogRftCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                          bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -172,14 +174,18 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogRftCurve::calculateValueOptions(const 
             RifReaderEclipseRft* reader = m_eclipseResultCase()->rftReader();
             if (reader)
             {
-                for (const RifEclipseRftAddress::RftWellLogChannelType& channelName : reader->availableWellLogChannels(wellName()))
+                for (const RifEclipseRftAddress::RftWellLogChannelType& channelName :
+                     reader->availableWellLogChannels(wellName()))
                 {
-                    options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(channelName), channelName));
+                    options.push_back(caf::PdmOptionItemInfo(
+                        caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(channelName), channelName));
                 }
             }
             if (options.empty())
             {
-                options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(RifEclipseRftAddress::NONE), RifEclipseRftAddress::NONE));
+                options.push_back(caf::PdmOptionItemInfo(
+                    caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(RifEclipseRftAddress::NONE),
+                    RifEclipseRftAddress::NONE));
             }
         }
     }
@@ -190,7 +196,7 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogRftCurve::calculateValueOptions(const 
             RifReaderEclipseRft* reader = m_eclipseResultCase()->rftReader();
             if (reader)
             {
-                QString dateFormat = "dd MMM yyyy";
+                QString             dateFormat = "dd MMM yyyy";
                 std::set<QDateTime> timeStamps = reader->availableTimeSteps(wellName(), m_wellLogChannelName());
                 for (const QDateTime& dt : timeStamps)
                 {
@@ -207,7 +213,7 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogRftCurve::calculateValueOptions(const 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogRftCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -225,7 +231,7 @@ void Rim3dWellLogRftCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrde
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString Rim3dWellLogRftCurve::wellName() const
 {

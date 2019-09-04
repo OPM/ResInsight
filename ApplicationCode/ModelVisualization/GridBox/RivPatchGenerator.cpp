@@ -2,43 +2,40 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-
 #include "RivPatchGenerator.h"
 
-#include "cvfGeometryUtils.h"
 #include "cvfArray.h"
-
+#include "cvfGeometryUtils.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RivPatchGenerator::RivPatchGenerator()
-:   m_origin(0, 0, 0),
-    m_axisU(cvf::Vec3d::X_AXIS),
-    m_axisV(cvf::Vec3d::Y_AXIS),
-    m_useQuads(true),
-    m_windingCCW(true)
+    : m_origin(0, 0, 0)
+    , m_axisU(cvf::Vec3d::X_AXIS)
+    , m_axisV(cvf::Vec3d::Y_AXIS)
+    , m_useQuads(true)
+    , m_windingCCW(true)
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivPatchGenerator::setOrigin(const cvf::Vec3d& origin)
 {
@@ -47,7 +44,7 @@ void RivPatchGenerator::setOrigin(const cvf::Vec3d& origin)
 
 //--------------------------------------------------------------------------------------------------
 /// Set the axes
-/// 
+///
 /// The specified axes will be normalized
 //--------------------------------------------------------------------------------------------------
 void RivPatchGenerator::setAxes(const cvf::Vec3d& axisU, const cvf::Vec3d& axisV)
@@ -57,7 +54,7 @@ void RivPatchGenerator::setAxes(const cvf::Vec3d& axisU, const cvf::Vec3d& axisV
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivPatchGenerator::setSubdivisions(const std::vector<double>& uValues, const std::vector<double>& vValues)
 {
@@ -66,7 +63,7 @@ void RivPatchGenerator::setSubdivisions(const std::vector<double>& uValues, cons
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivPatchGenerator::generate(cvf::GeometryBuilder* builder)
 {
@@ -77,7 +74,7 @@ void RivPatchGenerator::generate(cvf::GeometryBuilder* builder)
 
     cvf::Vec3fArray vertices;
     vertices.reserve(numVertices);
-    
+
     for (size_t v = 0; v < m_vValues.size(); v++)
     {
         cvf::Vec3d rowOrigo(m_origin + m_axisV * m_vValues[v]);
@@ -93,14 +90,15 @@ void RivPatchGenerator::generate(cvf::GeometryBuilder* builder)
     if (m_useQuads)
     {
         cvf::UIntArray conn;
-        cvf::GeometryUtils::tesselatePatchAsQuads(static_cast<int>(m_uValues.size()), static_cast<int>(m_vValues.size()), baseNodeIdx, m_windingCCW, &conn);
+        cvf::GeometryUtils::tesselatePatchAsQuads(
+            static_cast<int>(m_uValues.size()), static_cast<int>(m_vValues.size()), baseNodeIdx, m_windingCCW, &conn);
         builder->addQuads(conn);
     }
     else
     {
         cvf::UIntArray conn;
-        cvf::GeometryUtils::tesselatePatchAsTriangles(static_cast<int>(m_uValues.size()), static_cast<int>(m_vValues.size()), baseNodeIdx, m_windingCCW, &conn);
+        cvf::GeometryUtils::tesselatePatchAsTriangles(
+            static_cast<int>(m_uValues.size()), static_cast<int>(m_vValues.size()), baseNodeIdx, m_windingCCW, &conn);
         builder->addTriangles(conn);
     }
 }
-

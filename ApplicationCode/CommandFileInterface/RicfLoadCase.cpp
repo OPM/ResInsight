@@ -23,8 +23,8 @@
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 
-#include <QFileInfo>
 #include <QDir>
+#include <QFileInfo>
 #include <QStringList>
 
 CAF_PDM_SOURCE_INIT(RicfLoadCaseResult, "loadCaseResult");
@@ -41,15 +41,15 @@ RicfLoadCaseResult::RicfLoadCaseResult(int caseId)
 CAF_PDM_SOURCE_INIT(RicfLoadCase, "loadCase");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicfLoadCase::RicfLoadCase()
 {
-    RICF_InitField(&m_path, "path", QString(), "Path to Case File",  "", "", "");
+    RICF_InitField(&m_path, "path", QString(), "Path to Case File", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicfLoadCase::execute()
 {

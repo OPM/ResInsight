@@ -61,7 +61,7 @@ TEST(ListKeywords, ListAllObjectKeywords)
     }
 
     QString filePath = "c:/temp/ri-objectKeywords.txt";
-    //writeTextToFile(filePath, textString);
+    // writeTextToFile(filePath, textString);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,5 +108,5 @@ TEST(ListKeywords, ListAllObjectKeywordsAndFieldKeywords)
     }
 
     QString filePath = "c:/temp/ri-fieldKeywords.txt";
-    //writeTextToFile(filePath, textString);
+    // writeTextToFile(filePath, textString);
 }
