@@ -20,7 +20,7 @@
 #include "RimCheckableNamedObject.h"
 
 #include "cafAppEnum.h"
-#include "cvfBase.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"

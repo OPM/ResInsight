@@ -18,7 +18,7 @@
 
 #include "RigFractureTransmissibilityEquations.h"
 
-#include "cvfBase.h"
+
 #include "cvfMath.h"
 #include "cvfVector2.h"
 

@@ -22,7 +22,7 @@
 #include "cafPdmObject.h"
 
 // Include to make Pdm work for cvf::Color
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 class RigPolyLinesData;

@@ -23,7 +23,7 @@
 
 #include "cafEffectGenerator.h"
 
-#include "cvfBase.h"
+
 #include "cvfArray.h"
 
 namespace cvf

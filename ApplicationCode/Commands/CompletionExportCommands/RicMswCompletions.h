@@ -23,7 +23,7 @@
 
 #include "RimWellPathAicdParameters.h"
 
-#include "cvfBase.h"
+
 #include "cvfMath.h"
 
 #include <QString>

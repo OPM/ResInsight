@@ -22,7 +22,7 @@
 #include "cafPdmObject.h"
 
 #include "cafAppEnum.h"
-#include "cvfBase.h"
+
 #include "cafPdmField.h"
 
 #include <QString>

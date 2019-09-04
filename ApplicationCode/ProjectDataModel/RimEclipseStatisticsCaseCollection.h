@@ -24,7 +24,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 class RimEclipseStatisticsCase;

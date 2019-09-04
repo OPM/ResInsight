@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "cvfBase.h"
+
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableVectors.h"
 #include "cvfObject.h"

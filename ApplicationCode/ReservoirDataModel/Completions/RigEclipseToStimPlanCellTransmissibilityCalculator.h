@@ -20,7 +20,7 @@
 
 #include "RiaPorosityModel.h"
 
-#include "cvfBase.h"
+
 #include "cvfMatrix4.h"
 #include "cvfObject.h"
 

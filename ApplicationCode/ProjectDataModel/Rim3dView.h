@@ -33,7 +33,7 @@
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmFieldCvfVec3d.h"
 
-#include "cvfBase.h"
+
 #include "cvfCollection.h"
 #include "cvfObject.h"
 

@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RivWindowEdgeAxesOverlayItem.h"
 
-#include "cvfBase.h"
+
 #include "cvfOpenGL.h"
 #include "cvfOpenGLResourceManager.h"
 #include "cvfGeometryBuilderDrawableGeo.h"

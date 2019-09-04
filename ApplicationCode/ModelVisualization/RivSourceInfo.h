@@ -23,7 +23,7 @@
 #include "RivObjectSourceInfo.h"
 
 #include "cvfArray.h"
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 #include "cvfStructGridGeometryGenerator.h"

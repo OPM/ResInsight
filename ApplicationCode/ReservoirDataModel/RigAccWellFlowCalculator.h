@@ -47,7 +47,7 @@ private:
 //==================================================================================================
 
 #include <QString>
-#include "cvfBase.h"
+
 #include "cvfVector3.h"
 
 struct RigWellResultPoint;

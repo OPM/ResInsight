@@ -19,7 +19,7 @@
 
 #include "RigGridCrossPlotCurveGrouping.h"
 
-#include "cvfBase.h"
+
 #include "cvfArray.h"
 
 #include <map>

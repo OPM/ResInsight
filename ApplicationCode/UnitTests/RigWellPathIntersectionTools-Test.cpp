@@ -20,7 +20,7 @@
 
 #include "RigWellPath.h"
 
-#include "cvfBase.h"
+
 #include "cvfVector3.h"
 
 #include <vector>

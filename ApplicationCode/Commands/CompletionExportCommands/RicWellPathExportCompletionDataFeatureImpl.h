@@ -25,7 +25,7 @@
 
 #include <QFile>
 
-#include "cvfBase.h"
+
 #include "cvfVector3.h"
 #include "cvfVector2.h"
 

@@ -32,7 +32,7 @@
 #include "RiuResultQwtPlot.h"
 #include "RiuQwtPlotTools.h"
 
-#include "cvfBase.h"
+
 #include "cvfColor3.h"
 
 #include "cafCmdFeatureMenuBuilder.h"

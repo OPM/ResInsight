@@ -19,7 +19,7 @@
 #include "RigResultAccessObjectFactory.h"
 
 #include "cvfLibCore.h"
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 #include "cvfAssert.h"
 

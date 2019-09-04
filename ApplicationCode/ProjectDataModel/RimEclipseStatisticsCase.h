@@ -24,7 +24,7 @@
 
 #include "RimEclipseCase.h"
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"

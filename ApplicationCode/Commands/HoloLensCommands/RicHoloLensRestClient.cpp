@@ -18,7 +18,7 @@
 
 #include "RicHoloLensRestClient.h"
 
-#include "cvfBase.h"
+
 #include "cvfTrace.h"
 
 #include <QNetworkRequest>

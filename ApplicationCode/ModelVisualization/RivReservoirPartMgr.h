@@ -22,7 +22,7 @@
 
 #include "RivCellSetEnum.h"
 
-#include "cvfBase.h"
+
 #include "cvfArray.h"
 #include "cvfCollection.h"
 

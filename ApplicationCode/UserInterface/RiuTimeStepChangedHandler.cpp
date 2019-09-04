@@ -27,7 +27,7 @@
 
 #include "Rim3dView.h"
 
-#include "cvfBase.h"
+
 #include "cvfTrace.h"
 #include "cvfDebugTimer.h"
 

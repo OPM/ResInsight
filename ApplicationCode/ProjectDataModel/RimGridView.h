@@ -20,7 +20,7 @@
 
 #include "Rim3dView.h"
 
-#include "cvfBase.h"
+
 #include "cvfArray.h"
 
 class RimAnnotationInViewCollection;

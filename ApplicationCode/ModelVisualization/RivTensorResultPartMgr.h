@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "cvfBase.h"
+
 #include "cvfArray.h"
 #include "cvfColor3.h"
 #include "cvfObject.h"

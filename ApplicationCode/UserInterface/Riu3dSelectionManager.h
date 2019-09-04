@@ -22,7 +22,7 @@
 #include "cafPdmPointer.h"
 #include "cafPdmObject.h"
 
-#include "cvfBase.h"
+
 #include "cvfColor3.h"
 #include "cvfStructGrid.h"
 

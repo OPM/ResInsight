@@ -24,7 +24,7 @@
 #include "cafPdmField.h"
 
 #include "cvfArray.h"
-#include "cvfBase.h"
+
 
 class RimEclipseResultDefinition;
 

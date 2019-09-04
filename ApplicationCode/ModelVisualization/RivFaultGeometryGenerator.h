@@ -18,7 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 #include "cvfStructGridGeometryGenerator.h"

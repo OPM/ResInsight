@@ -22,7 +22,7 @@
 #include "RivCellSetEnum.h"
 #include "RivGeoMechPartMgr.h"
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 #include <cstddef>

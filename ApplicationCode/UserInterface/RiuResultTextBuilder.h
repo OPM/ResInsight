@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "cvfBase.h"
+
 #include "cafPdmPointer.h"
 #include "cvfStructGrid.h"
 

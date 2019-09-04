@@ -20,7 +20,7 @@
 
 #include "RigWellPathFormations.h"
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 #include <QDateTime>

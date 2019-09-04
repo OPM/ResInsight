@@ -20,7 +20,7 @@
 
 #include "RiaEclipseUnitTools.h"
 
-#include "cvfBase.h"
+
 #include "cvfVector3.h"
 #include "cvfColor3.h"
 

@@ -25,7 +25,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 class RifReaderInterface;

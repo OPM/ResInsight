@@ -19,7 +19,7 @@
 
 #include "RimPlotCurve.h"
 
-#include "cvfBase.h"
+
 #include "cvfColor3.h"
 
 #include <set>

@@ -20,7 +20,7 @@
 #pragma once
 
 #include <vector>
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 #include "cvfArray.h"
 

@@ -24,7 +24,7 @@
 
 #include "ert/ecl/ecl_util.h"
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 #include <QString>

@@ -23,7 +23,7 @@
 #include "cafPdmPointer.h"
 #include "cafDisplayCoordTransform.h"
 
-#include "cvfBase.h"
+
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
 #include "cvfModelBasicList.h"

@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaLineArcWellPathCalculator.h"
-#include "cvfBase.h"
+
 #include "cvfAssert.h"
 #include "RiaOffshoreSphericalCoords.h"
 #include "RiaJCurveCalculator.h"

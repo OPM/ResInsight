@@ -34,7 +34,7 @@
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
-#include "cvfBase.h"
+
 #include "cvfStructGrid.h"
 #include "cvfStructGridGeometryGenerator.h"
 

@@ -18,7 +18,7 @@
 
 #include "RigStatisticsMath.h"
 
-#include "cvfBase.h"
+
 #include "cvfMath.h"
 
 #include <algorithm>

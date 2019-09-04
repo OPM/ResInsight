@@ -18,7 +18,7 @@
 #pragma once
 
 #include "RigFlowDiagResultAddress.h"
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 #include "cafPdmPointer.h"
 

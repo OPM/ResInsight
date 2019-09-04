@@ -26,7 +26,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmFieldCvfVec3d.h"
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 #include "cvfVector3.h"
 

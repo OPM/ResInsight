@@ -22,7 +22,7 @@
 #include "RicfMessages.h"
 
 #include "cafAppEnum.h"
-#include "cvfBase.h"
+
 #include "cvfColor3.h"
 
 #include <QTextStream>

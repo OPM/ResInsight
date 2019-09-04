@@ -24,7 +24,7 @@
 #include <utility>
 #include <vector>
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 #include <QString>

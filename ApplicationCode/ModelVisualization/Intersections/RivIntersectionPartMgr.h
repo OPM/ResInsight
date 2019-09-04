@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "cvfBase.h"
+
 #include "cvfArray.h"
 #include "cvfColor4.h"
 #include "cvfMatrix4.h"

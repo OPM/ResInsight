@@ -33,7 +33,7 @@
 #include "Rim2dIntersectionView.h"
 #include "RimIntersection.h"
 
-#include "cvfBase.h"
+
 //#include "cvfTrace.h"
 
 #include <cmath>

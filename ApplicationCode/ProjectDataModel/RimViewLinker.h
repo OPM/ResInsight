@@ -26,7 +26,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
-#include "cvfBase.h"
+
 #include "cvfVector3.h"
 
 namespace caf
