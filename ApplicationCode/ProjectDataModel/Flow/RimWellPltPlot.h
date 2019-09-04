@@ -19,6 +19,7 @@
 
 #include "RifDataSourceForRftPltQMetaType.h"
 
+#include "RimWellLogPlot.h"
 #include "RimWellPlotTools.h"
 
 #include "cafPdmField.h"
@@ -38,7 +39,6 @@ class RimEclipseCase;
 class RimEclipseResultCase;
 class RimWellLogCurve;
 class RimWellLogFileChannel;
-class RimWellLogPlot;
 class RimWellPath;
 class RiuWellPltPlot;
 class RimWellLogTrack;
@@ -58,7 +58,7 @@ namespace caf {
 ///  
 ///  
 //==================================================================================================
-class RimWellPltPlot : public RimViewWindow
+class RimWellPltPlot : public RimWellLogPlot
 {
     CAF_PDM_HEADER_INIT;
 
@@ -68,14 +68,6 @@ public:
     RimWellPltPlot();
     ~RimWellPltPlot() override;
 
-    void                                setDescription(const QString& description);
-    QString                             description() const;
-
-    QWidget*                            viewWidget() override;
-    void                                zoomAll() override;
-
-    RimWellLogPlot*                     wellLogPlot() const;
-
     void                                setCurrentWellName(const QString& currWellName);
     
     static const char*                  plotNameFormatString();
@@ -83,14 +75,11 @@ public:
 
 protected:
     // Overridden PDM methods
-    caf::PdmFieldHandle*                userDescriptionField() override { return &m_userName; }
     void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
     QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     void                                calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
-
-    QImage                              snapshotWindowContent() override;
 
     void                                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                                defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
@@ -117,17 +106,14 @@ private:
 
     // RimViewWindow overrides
 
-    void                                updateWidgetTitleWindowTitle();
-    QWidget*                            createViewWidget(QWidget* mainWindowParent) override; 
-    void                                deleteViewWidget() override; 
+	QWidget*                            createViewWidget(QWidget* mainWindowParent) override; 
 
     void                                setPlotXAxisTitles(RimWellLogTrack* plotTrack);
 
     void                                updateFormationsOnPlot() const;
-
+    std::set<RimWellLogPlot::DepthTypeEnum> availableDepthTypes() const override;
 private:
-    caf::PdmField<bool>                             m_showPlotTitle;
-    caf::PdmField<QString>                          m_userName;
+    caf::PdmField<bool>                             m_showPlotTitle_OBSOLETE;
 
     caf::PdmField<QString>                          m_wellPathName;
 
@@ -136,9 +122,7 @@ private:
 
     caf::PdmField<std::vector<QDateTime>>           m_selectedTimeSteps;
 
-    QPointer<RiuWellPltPlot>                        m_wellLogPlotWidget;
-
-    caf::PdmChildField<RimWellLogPlot*>             m_wellLogPlot;
+    caf::PdmChildField<RimWellLogPlot*>             m_wellLogPlot_OBSOLETE;
 
     caf::PdmField<bool>                  m_useStandardConditionCurves;
     caf::PdmField<bool>                  m_useReservoirConditionCurves;

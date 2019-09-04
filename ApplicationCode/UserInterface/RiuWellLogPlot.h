@@ -51,7 +51,7 @@ public:
     ~RiuWellLogPlot() override;
 
     RimWellLogPlot*                 ownerPlotDefinition();
-    RimViewWindow*          ownerViewWindow() const override;
+    RimViewWindow*                  ownerViewWindow() const override;
 
     void                            addTrackPlot(RiuWellLogTrack* trackPlot);
     void                            insertTrackPlot(RiuWellLogTrack* trackPlot, size_t index);
@@ -60,6 +60,10 @@ public:
     void                            setDepthZoomAndReplot(double minDepth, double maxDepth);
     void                            setPlotTitle(const QString& plotTitle);
     virtual QSize                   preferredSize() const;
+
+    void                            showTitle();
+    void                            hideTitle();
+
 public slots:
     void                            updateChildrenLayout();
 
@@ -83,12 +87,12 @@ private slots:
     void                            slotSetMinDepth(int value);
     void                            scheduleUpdateChildrenLayout();
 
-private:
-    QLabel*                           m_plotTitle;
-    QScrollBar*                       m_scrollBar;
-    QList<QPointer<QwtLegend> >       m_legends;
-    QList<QPointer<RiuWellLogTrack> > m_trackPlots;
-    caf::PdmPointer<RimWellLogPlot>   m_plotDefinition;
-    QTimer*                           m_scheduleUpdateChildrenLayoutTimer;
+protected:
+    QPointer<QLabel>                 m_plotTitle;
+    QScrollBar*                      m_scrollBar;
+    QList<QPointer<QwtLegend>>       m_legends;
+    QList<QPointer<RiuWellLogTrack>> m_trackPlots;
+    caf::PdmPointer<RimWellLogPlot>  m_plotDefinition;
+    QTimer*                          m_scheduleUpdateChildrenLayoutTimer;
 };
 

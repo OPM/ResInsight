@@ -44,9 +44,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuWellPltPlot::RiuWellPltPlot(RimWellPltPlot* plotDefinition, QWidget* parent)
-    : QFrame(parent)
-    , m_plotDefinition(plotDefinition)
-
+    : RiuWellLogPlot(plotDefinition, parent)
 {
     Q_ASSERT(m_plotDefinition);
     
@@ -55,21 +53,9 @@ RiuWellPltPlot::RiuWellPltPlot(RimWellPltPlot* plotDefinition, QWidget* parent)
     this->layout()->setMargin(0);
     this->layout()->setSpacing(2);
 
-    m_titleLabel = new QLabel(this);
-    new RiuPlotObjectPicker(m_titleLabel, m_plotDefinition->wellLogPlot());
+    new RiuPlotObjectPicker(m_plotTitle, m_plotDefinition);
 
-    QFont font = m_titleLabel->font();
-    font.setPointSize(14);
-    font.setBold(true);
-    m_titleLabel->setFont(font);
-
-    // White background
-    QPalette pal = this->palette();
-    pal.setColor(QPalette::Background, Qt::white);
-    this->setAutoFillBackground(true);
-    this->setPalette(pal);
-
-    mainLayout->addWidget(m_titleLabel, 0, Qt::AlignCenter);
+    mainLayout->addWidget(m_plotTitle, 0, Qt::AlignCenter);
 
     auto plotWidgetsLayout = new QHBoxLayout();
     auto rightColumnLayout = new QVBoxLayout();
@@ -77,7 +63,7 @@ RiuWellPltPlot::RiuWellPltPlot(RimWellPltPlot* plotDefinition, QWidget* parent)
     mainLayout->addLayout(plotWidgetsLayout);
     plotWidgetsLayout->addLayout(rightColumnLayout);
     
-    QWidget* wellFlowWidget = m_plotDefinition->wellLogPlot()->createPlotWidget();
+    QWidget* wellFlowWidget = m_plotDefinition->createPlotWidget();
 
     plotWidgetsLayout->addWidget(wellFlowWidget);
 }
@@ -87,40 +73,6 @@ RiuWellPltPlot::RiuWellPltPlot(RimWellPltPlot* plotDefinition, QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 RiuWellPltPlot::~RiuWellPltPlot()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellPltPlot* RiuWellPltPlot::ownerPlotDefinition()
-{
-    return m_plotDefinition;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimViewWindow* RiuWellPltPlot::ownerViewWindow() const
-{
-    return m_plotDefinition;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellPltPlot::showTitle(const QString& title)
-{
-    m_titleLabel->show();
-
-    m_titleLabel->setText(title);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellPltPlot::hideTitle()
-{
-    m_titleLabel->hide();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,11 +96,4 @@ void RiuWellPltPlot::contextMenuEvent(QContextMenuEvent* event)
 QSize RiuWellPltPlot::sizeHint() const
 {
     return QSize(0, 0);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellPltPlot::setDefaults()
-{
 }

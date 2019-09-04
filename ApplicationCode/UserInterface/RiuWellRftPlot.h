@@ -26,6 +26,7 @@
 #include <QFrame>
 
 #include "RiuInterfaceToViewWindow.h"
+#include "RiuWellLogPlot.h"
 
 class RimWellRftPlot;
 class RiuNightchartsWidget;
@@ -41,18 +42,12 @@ namespace cvf {
 //
 //
 //==================================================================================================
-class RiuWellRftPlot : public QFrame, public RiuInterfaceToViewWindow
+class RiuWellRftPlot : public RiuWellLogPlot
 {
     Q_OBJECT;
 public:
     RiuWellRftPlot(RimWellRftPlot* plotDefinition, QWidget* parent = nullptr);
     ~RiuWellRftPlot() override;
-
-    RimWellRftPlot*                 ownerPlotDefinition();
-    RimViewWindow*          ownerViewWindow() const override;
-
-    void                            showTitle(const QString& title);
-    void                            hideTitle();
 
 protected:
     QSize                   sizeHint() const override;
@@ -60,10 +55,4 @@ protected:
 
     void                    contextMenuEvent(QContextMenuEvent *) override;
 
-private:
-    void                            setDefaults();
-
-private:
-    caf::PdmPointer<RimWellRftPlot> m_plotDefinition;
-    QPointer<QLabel> m_titleLabel;
 };

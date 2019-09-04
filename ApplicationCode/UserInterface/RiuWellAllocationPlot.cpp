@@ -44,8 +44,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefinition, QWidget* parent)
-    : QFrame(parent)
-    , m_plotDefinition(plotDefinition)
+    : RiuWellLogPlot(plotDefinition, parent)
 {
     Q_ASSERT(m_plotDefinition);
 
@@ -54,21 +53,9 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
     this->layout()->setMargin(0);
     this->layout()->setSpacing(2);
 
-    m_titleLabel = new QLabel(this);
-    new RiuPlotObjectPicker(m_titleLabel, m_plotDefinition->accumulatedWellFlowPlot());
+    new RiuPlotObjectPicker(m_plotTitle, m_plotDefinition);
 
-    QFont font = m_titleLabel->font();
-    font.setPointSize(14);
-    font.setBold(true);
-    m_titleLabel->setFont(font);
-
-    // White background
-    QPalette pal = this->palette();
-    pal.setColor(QPalette::Background, Qt::white);
-    this->setAutoFillBackground(true);
-    this->setPalette(pal);
-
-    mainLayout->addWidget(m_titleLabel, 0, Qt::AlignCenter);
+    mainLayout->addWidget(m_plotTitle, 0, Qt::AlignCenter);
 
     auto plotWidgetsLayout = new QHBoxLayout();
     auto rightColumnLayout = new QVBoxLayout();
@@ -77,7 +64,8 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
     plotWidgetsLayout->addLayout(rightColumnLayout);
     
     m_legendWidget = new RiuNightchartsWidget(this);
-    new RiuPlotObjectPicker(m_legendWidget, m_plotDefinition->plotLegend());
+    RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(m_plotDefinition.p());
+    new RiuPlotObjectPicker(m_legendWidget, wellAllocationPlot->plotLegend());
 
     caf::CmdFeatureMenuBuilder menuBuilder;
     menuBuilder << "RicShowTotalAllocationDataFeature";
@@ -86,15 +74,15 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
     rightColumnLayout->addWidget(m_legendWidget);
     m_legendWidget->showPie(false);
 
-    QWidget* totalFlowAllocationWidget = m_plotDefinition->totalWellFlowPlot()->createViewWidget(this);
-    new RiuPlotObjectPicker(totalFlowAllocationWidget, m_plotDefinition->totalWellFlowPlot());
+    QWidget* totalFlowAllocationWidget = wellAllocationPlot->totalWellFlowPlot()->createViewWidget(this);
+    new RiuPlotObjectPicker(totalFlowAllocationWidget, wellAllocationPlot->totalWellFlowPlot());
     new RiuContextMenuLauncher(totalFlowAllocationWidget, menuBuilder);
 
     rightColumnLayout->addWidget(totalFlowAllocationWidget, Qt::AlignTop);
-    rightColumnLayout->addWidget(m_plotDefinition->tofAccumulatedPhaseFractionsPlot()->createViewWidget(this), Qt::AlignTop);
+    rightColumnLayout->addWidget(wellAllocationPlot->tofAccumulatedPhaseFractionsPlot()->createViewWidget(this), Qt::AlignTop);
     rightColumnLayout->addStretch();
 
-    QWidget* wellFlowWidget = m_plotDefinition->accumulatedWellFlowPlot()->createPlotWidget();
+    QWidget* wellFlowWidget = m_plotDefinition->createPlotWidget();
 
     plotWidgetsLayout->addWidget(wellFlowWidget);
 }
@@ -105,41 +93,6 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
 RiuWellAllocationPlot::~RiuWellAllocationPlot()
 {
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellAllocationPlot* RiuWellAllocationPlot::ownerPlotDefinition()
-{
-    return m_plotDefinition;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimViewWindow* RiuWellAllocationPlot::ownerViewWindow() const
-{
-    return m_plotDefinition;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellAllocationPlot::showTitle(const QString& title)
-{
-    m_titleLabel->show();
-
-    m_titleLabel->setText(title);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellAllocationPlot::hideTitle()
-{
-    m_titleLabel->hide();
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -208,11 +161,3 @@ QSize RiuWellAllocationPlot::sizeHint() const
 {
     return QSize(0, 0);
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellAllocationPlot::setDefaults()
-{
-}
-

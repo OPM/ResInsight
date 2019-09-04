@@ -74,8 +74,8 @@ void RicNewRftPlotFeature::onActionTriggered(bool isChecked)
         rftPlot->setSimWellOrWellPathName(wellName);
 
         RimWellLogTrack* plotTrack = new RimWellLogTrack();
-        rftPlot->wellLogPlot()->addTrack(plotTrack);
-        plotTrack->setDescription(QString("Track %1").arg(rftPlot->wellLogPlot()->trackCount()));
+        rftPlot->addTrack(plotTrack);
+        plotTrack->setDescription(QString("Track %1").arg(rftPlot->trackCount()));
 
         rftPlotColl->addPlot(rftPlot);
         rftPlot->setDescription(plotName);

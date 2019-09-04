@@ -18,14 +18,14 @@
 
 #pragma once
 
-#include "qwt_plot.h"
+#include "RiuWellLogPlot.h"
 
 #include "cafPdmPointer.h"
 
+#include "qwt_plot.h"
+
 #include <QPointer>
 #include <QFrame>
-
-#include "RiuInterfaceToViewWindow.h"
 
 class RimWellAllocationPlot;
 class RiuNightchartsWidget;
@@ -41,22 +41,16 @@ namespace cvf {
 //
 //
 //==================================================================================================
-class RiuWellAllocationPlot : public QFrame, public RiuInterfaceToViewWindow
+class RiuWellAllocationPlot : public RiuWellLogPlot
 {
     Q_OBJECT;
 public:
     RiuWellAllocationPlot(RimWellAllocationPlot* plotDefinition, QWidget* parent = nullptr);
     ~RiuWellAllocationPlot() override;
 
-    RimWellAllocationPlot*          ownerPlotDefinition();
-    RimViewWindow*          ownerViewWindow() const override;
-
-    void                            showTitle(const QString& title);
-    void                            hideTitle();
     void                            showLegend(bool doShow);
     void                            addLegendItem(const QString& name, const cvf::Color3f& color, float value);
     void                            clearLegend();
-
 
 protected:
     QSize                   sizeHint() const override;
@@ -65,10 +59,5 @@ protected:
     void                    contextMenuEvent(QContextMenuEvent *) override;
 
 private:
-    void                            setDefaults();
-
-private:
-    caf::PdmPointer<RimWellAllocationPlot> m_plotDefinition;
     QPointer<RiuNightchartsWidget> m_legendWidget;
-    QPointer<QLabel> m_titleLabel;
 };
