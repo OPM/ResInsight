@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,7 @@
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimWellBoreStabilityPlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
@@ -32,31 +33,34 @@
 #include <QString>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot(bool showAfterCreation, const QString& plotDescription)
+RimWellBoreStabilityPlot*
+    RicNewWellLogPlotFeatureImpl::createWellBoreStabilityPlot( bool           showAfterCreation /*= true*/,
+                                                               const QString& plotDescription /*= QString("")*/ )
 {
     RimWellLogPlotCollection* wellLogPlotColl = wellLogPlotCollection();
-    CVF_ASSERT(wellLogPlotColl);
+    CVF_ASSERT( wellLogPlotColl );
 
     // Make sure the summary plot window is created
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
 
-    RimWellLogPlot* plot = new RimWellLogPlot();
+    RimWellBoreStabilityPlot* plot = new RimWellBoreStabilityPlot();
     plot->setAsPlotMdiWindow();
-    
-    wellLogPlotColl->wellLogPlots().push_back(plot);
 
-    if (!plotDescription.isEmpty())
+    wellLogPlotColl->wellLogPlots().push_back( plot );
+
+    if ( !plotDescription.isEmpty() )
     {
-        plot->setDescription(plotDescription);
+        plot->setDescription( plotDescription );
     }
     else
     {
-        plot->setDescription(QString("Well Log Plot %1").arg(wellLogPlotCollection()->wellLogPlots.size()));
+        plot->setDescription(
+            QString( "Well Bore Stability Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots.size() ) );
     }
 
-    if (showAfterCreation)
+    if ( showAfterCreation )
     {
         RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
     }
@@ -65,30 +69,65 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot(bool showAfterCr
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack(bool updateAfter, const QString& trackDescription, RimWellLogPlot* existingPlot)
+RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot( bool showAfterCreation, const QString& plotDescription )
+{
+    RimWellLogPlotCollection* wellLogPlotColl = wellLogPlotCollection();
+    CVF_ASSERT( wellLogPlotColl );
+
+    // Make sure the summary plot window is created
+    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
+
+    RimWellLogPlot* plot = new RimWellLogPlot();
+    plot->setAsPlotMdiWindow();
+
+    wellLogPlotColl->wellLogPlots().push_back( plot );
+
+    if ( !plotDescription.isEmpty() )
+    {
+        plot->setDescription( plotDescription );
+    }
+    else
+    {
+        plot->setDescription( QString( "Well Log Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots.size() ) );
+    }
+
+    if ( showAfterCreation )
+    {
+        RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    }
+
+    return plot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool            updateAfter,
+                                                                       const QString&  trackDescription,
+                                                                       RimWellLogPlot* existingPlot )
 {
     RimWellLogPlot* plot = existingPlot;
-    if (plot == nullptr)
+    if ( plot == nullptr )
     {
         plot = createWellLogPlot();
     }
 
     RimWellLogTrack* plotTrack = new RimWellLogTrack();
-    plot->addTrack(plotTrack);
-    if (!trackDescription.isEmpty())
+    plot->addTrack( plotTrack );
+    if ( !trackDescription.isEmpty() )
     {
-        plotTrack->setDescription(trackDescription);
+        plotTrack->setDescription( trackDescription );
     }
     else
     {
-        plotTrack->setDescription(QString("Track %1").arg(plot->trackCount()));
+        plotTrack->setDescription( QString( "Track %1" ).arg( plot->trackCount() ) );
     }
 
-    if (updateAfter)
+    if ( updateAfter )
     {
-        updateAfterCreation(plot);
+        updateAfterCreation( plot );
     }
 
     return plotTrack;
@@ -97,9 +136,9 @@ RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack(bool updat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogPlotFeatureImpl::updateAfterCreation(RimWellLogPlot* plot)
+void RicNewWellLogPlotFeatureImpl::updateAfterCreation( RimWellLogPlot* plot )
 {
-    CVF_ASSERT(plot);
+    CVF_ASSERT( plot );
     plot->loadDataAndUpdate();
     plot->updateDepthZoom();
     plot->updateConnectedEditors();
@@ -107,18 +146,18 @@ void RicNewWellLogPlotFeatureImpl::updateAfterCreation(RimWellLogPlot* plot)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlotCollection* RicNewWellLogPlotFeatureImpl::wellLogPlotCollection()
 {
     RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
+    CVF_ASSERT( project );
 
     RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
-    CVF_ASSERT(mainPlotColl);
+    CVF_ASSERT( mainPlotColl );
 
     RimWellLogPlotCollection* wellLogPlotColl = mainPlotColl->wellLogPlotCollection();
-    CVF_ASSERT(wellLogPlotColl);
+    CVF_ASSERT( wellLogPlotColl );
 
     return mainPlotColl->wellLogPlotCollection();
 }
