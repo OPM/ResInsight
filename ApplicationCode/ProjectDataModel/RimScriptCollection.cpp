@@ -131,54 +131,9 @@ void RimScriptCollection::readContentFromDisc()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimScriptCollection::pathsAndSubPaths( QStringList& pathList )
-{
-    if ( !this->directory().isEmpty() )
-    {
-        QDir myDir( this->directory() );
-        if ( myDir.isReadable() )
-        {
-            pathList.append( this->directory() );
-        }
-    }
-
-    for ( size_t i = 0; i < this->subDirectories.size(); ++i )
-    {
-        if ( this->subDirectories[i] )
-        {
-            this->subDirectories[i]->pathsAndSubPaths( pathList );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimScriptCollection* RimScriptCollection::findScriptCollection( const QString& path )
-{
-    if ( !this->directory().isEmpty() )
-    {
-        QFileInfo otherPath( path );
-        QFileInfo thisPath( directory() );
-        if ( otherPath == thisPath ) return this;
-    }
-
-    for ( size_t i = 0; i < this->subDirectories.size(); ++i )
-    {
-        RimScriptCollection* foundColl = nullptr;
-        if ( this->subDirectories[i] ) foundColl = this->subDirectories[i]->findScriptCollection( path );
-        if ( foundColl ) return foundColl;
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimScriptCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                            const QVariant&            oldValue,
-                                            const QVariant&            newValue )
+void RimScriptCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue)
 {
     if ( &directory == changedField )
     {

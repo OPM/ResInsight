@@ -50,9 +50,7 @@ public: // Pdm Fields
     caf::PdmChildArrayField<RimScriptCollection*> subDirectories;
 
 public: // Methods
-    void                 readContentFromDisc();
-    void                 pathsAndSubPaths( QStringList& pathList );
-    RimScriptCollection* findScriptCollection( const QString& path );
+    void                                        readContentFromDisc();
 
     // Overrides from PdmObject
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
