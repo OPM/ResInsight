@@ -37,6 +37,8 @@
 
 #pragma once
 
+#include "cvfBase.h"
+
 #include <vector>
 
 namespace cvf {

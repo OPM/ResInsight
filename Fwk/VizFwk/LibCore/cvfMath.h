@@ -37,6 +37,8 @@
 
 #pragma once
 
+#include "cvfBase.h"
+
 namespace cvf {
 
 
