@@ -162,7 +162,7 @@ public:
     void waitForProcess() const;
 
     RiaPreferences* preferences();
-    void            applyPreferences( const RiaPreferences* oldPreferences = nullptr );
+    void            applyPreferences();
 
     QString commandLineParameterHelp();
     void    setCommandLineHelpText( const QString& commandLineHelpText );

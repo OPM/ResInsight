@@ -56,8 +56,8 @@ void RicEditPreferencesFeature::onActionTriggered( bool isChecked )
     if ( propertyDialog.exec() == QDialog::Accepted )
     {
         // Write preferences using QSettings  and apply them to the application
-        app->applyPreferences( oldPreferences.get() );
-        app->applyGuiPreferences( oldPreferences.get() );
+        app->applyPreferences();
+        app->applyGuiPreferences(oldPreferences.get());
         app->updateGrpcServer();
     }
     else

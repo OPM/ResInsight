@@ -1105,8 +1105,8 @@ RiaPreferences* RiaApplication::preferences()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::applyPreferences( const RiaPreferences* oldPreferences )
-{
+void RiaApplication::applyPreferences()
+{    
     // The creation of a font is time consuming, so make sure you really need your own font
     // instead of using the application font
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> fontSizes = m_preferences->defaultFontSizes();
@@ -1410,7 +1410,7 @@ void RiaApplication::initialize()
     m_preferences = new RiaPreferences;
     caf::PdmSettings::readFieldsFromApplicationStore( m_preferences );
     m_preferences->initAfterReadRecursively();
-    applyPreferences( nullptr );
+    applyPreferences();
 
     // Start with a project
     m_project = new RimProject;
