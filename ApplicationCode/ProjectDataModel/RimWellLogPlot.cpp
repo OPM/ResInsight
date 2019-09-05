@@ -583,9 +583,11 @@ void RimWellLogPlot::uiOrderingForDepthAxis(caf::PdmUiOrdering& uiOrdering)
 void RimWellLogPlot::uiOrderingForPlotSettings(caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* titleAndLegendsGroup = uiOrdering.addNewGroup("Title and Legends");
-    titleAndLegendsGroup->add(&m_showTitleInPlot);
     titleAndLegendsGroup->add(&m_showTrackLegends);
     titleAndLegendsGroup->add(&m_trackLegendsHorizontal);
+    titleAndLegendsGroup->add(&m_showTitleInPlot);
+    m_nameConfig->uiOrdering("", *titleAndLegendsGroup);
+
     
 }
 
@@ -746,9 +748,6 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     m_commonDataSource->uiOrdering(uiConfigName, uiOrdering);    
     uiOrderingForDepthAxis(uiOrdering);
     uiOrderingForPlotSettings(uiOrdering);
-
-    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Plot Name");
-    m_nameConfig->uiOrdering(uiConfigName, *nameGroup);
 
     uiOrdering.skipRemainingFields(true);
 }

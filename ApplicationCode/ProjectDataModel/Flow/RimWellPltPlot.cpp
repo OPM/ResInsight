@@ -857,7 +857,7 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimViewWindow::fieldChangedByUi(changedField, oldValue, newValue);
+    RimWellLogPlot::fieldChangedByUi(changedField, oldValue, newValue);
 
     if (changedField == &m_wellPathName)
     {
