@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 #include <QDateTime>

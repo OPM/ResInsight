@@ -24,7 +24,7 @@
 #include "RivReservoirPartMgr.h"    // Must include here because of caf::FixedArray<RivReservoirPartMgr, PROPERTY_FILTERED>
 
 #include "cvfArray.h"
-#include "cvfBase.h"
+
 #include "cvfTransform.h"
 
 #include "cafPdmObject.h"

@@ -25,7 +25,7 @@
 #include "cafPdmProxyValueField.h"
 #include "RigWellLogFile.h"
 
-#include "cvfBase.h"
+
 
 #include <QDateTime>
 

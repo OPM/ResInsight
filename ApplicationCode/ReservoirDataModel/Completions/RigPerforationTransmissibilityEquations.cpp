@@ -18,7 +18,7 @@
 
 #include "RigPerforationTransmissibilityEquations.h"
 
-#include "cvfBase.h"
+
 #include "cvfMath.h"
 
 #include <cmath>

@@ -26,7 +26,7 @@
 #include "cafPdmPointer.h"
 #include "cafAppEnum.h"
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 #include "cvfArray.h"
 

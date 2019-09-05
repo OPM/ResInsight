@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "cvfBase.h"
+
 #include "cvfBoundingBox.h"
 #include "cvfVector3.h"
 

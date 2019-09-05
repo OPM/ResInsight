@@ -25,7 +25,7 @@
 #include "RimFishbonesPipeProperties.h"
 #include "RimWellPathComponentInterface.h"
 
-#include "cvfBase.h"
+
 #include "cvfVector3.h"
 #include "cvfColor3.h"
 

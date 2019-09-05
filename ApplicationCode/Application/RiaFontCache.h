@@ -19,7 +19,7 @@
 #pragma once
 
 #include "cafFixedAtlasFont.h"
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 #include <map>

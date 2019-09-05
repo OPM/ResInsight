@@ -25,7 +25,7 @@
 #include "RimCheckableNamedObject.h"
 #include "RimWellPathComponentInterface.h"
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 #include "cvfVector3.h"
 #include "cvfMatrix4.h"

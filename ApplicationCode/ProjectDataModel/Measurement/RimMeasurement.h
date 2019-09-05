@@ -19,7 +19,7 @@
 #pragma once
 
 #include "cafPdmObject.h"
-#include "cvfBase.h"
+
 #include "cvfVector3.h"
 
 #include <QPointer>

@@ -21,7 +21,7 @@
 #include "RimCheckableNamedObject.h"
 
 #include "cvfArray.h"
-#include "cvfBase.h"
+
 
 //==================================================================================================
 ///

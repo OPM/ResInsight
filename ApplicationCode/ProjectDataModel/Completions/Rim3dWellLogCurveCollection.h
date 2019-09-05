@@ -23,7 +23,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "cvfBase.h"
+
 #include "cvfVector3.h"
 
 class Rim3dWellLogCurve;

@@ -21,7 +21,7 @@
 
 #include "RiaDefines.h"
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 #include <vector>

@@ -22,7 +22,7 @@
 #include "RigTernaryResultAccessor.h"
 #include "RivTernaryResultToTextureMapper.h"
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 #include "cvfArray.h"
 

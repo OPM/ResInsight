@@ -19,7 +19,7 @@
 #pragma once
 
 #include "cafCmdFeature.h"
-#include "cvfBase.h"
+
 #include "cvfArray.h"
 #include "cvfVector3.h"
 

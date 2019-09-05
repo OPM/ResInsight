@@ -26,7 +26,7 @@
 
 #include "RiuViewer.h"
 
-#include "cvfBase.h"
+
 #include "cvfBoundingBox.h"
 #include "cvfCamera.h"
 #include "cvfMatrix4.h"

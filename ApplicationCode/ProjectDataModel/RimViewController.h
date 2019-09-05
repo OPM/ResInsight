@@ -24,7 +24,7 @@
 #include "cafPdmPtrField.h"
 #include "cafQIconProvider.h"
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 #include "RivCellSetEnum.h"

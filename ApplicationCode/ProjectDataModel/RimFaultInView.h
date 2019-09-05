@@ -23,7 +23,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
-#include "cvfBase.h"
+
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    

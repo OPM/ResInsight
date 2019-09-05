@@ -21,7 +21,7 @@
 
 #include "RimLegendConfig.h"
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 #include "cafAppEnum.h"

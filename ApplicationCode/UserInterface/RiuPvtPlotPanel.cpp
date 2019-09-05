@@ -23,7 +23,7 @@
 
 #include "RigFlowDiagSolverInterface.h"
 
-#include "cvfBase.h"
+
 #include "cvfAssert.h"
 //#include "cvfTrace.h"
 #include "cvfMath.h"

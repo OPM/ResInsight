@@ -22,7 +22,7 @@
 #include "cafPdmPointer.h"
 
 #include "cvfArray.h"
-#include "cvfBase.h"
+
 #include "cvfBoundingBox.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"

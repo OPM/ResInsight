@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 #include "cafPdmObject.h"
 #include "cafAppEnum.h"

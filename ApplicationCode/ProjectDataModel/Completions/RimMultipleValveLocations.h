@@ -22,7 +22,7 @@
 #include "cafPdmBase.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cvfBase.h"
+
 
 
 class RimMultipleValveLocations : public caf::PdmObject

@@ -26,7 +26,7 @@
 #include "cafPdmObject.h"
 
 #include "cvfArray.h"
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 // Includes to make Pdm work for cvf::Color and cvf:Mat

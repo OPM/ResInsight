@@ -22,7 +22,7 @@
 
 #include "VdeExportPart.h"
 
-#include "cvfBase.h"
+
 #include "cvfCollection.h"
 
 class QString;

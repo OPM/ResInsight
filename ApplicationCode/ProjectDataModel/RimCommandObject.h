@@ -23,7 +23,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectGroup.h"
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 

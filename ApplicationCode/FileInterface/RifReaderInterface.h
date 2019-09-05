@@ -23,7 +23,7 @@
 #include "RiaDefines.h"
 #include "RiaPorosityModel.h"
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 #include "cafPdmPointer.h"

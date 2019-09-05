@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "cvfBase.h"
+
 
 #include "cvfCollection.h"
 #include "cvfModelBasicList.h"

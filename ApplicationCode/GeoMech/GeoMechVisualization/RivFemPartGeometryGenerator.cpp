@@ -21,7 +21,7 @@
 
 #include "RigFemPart.h"
 
-#include "cvfBase.h"
+
 #include "cvfArray.h"
 #include "cvfDebugTimer.h"
 #include "cvfDrawableGeo.h"

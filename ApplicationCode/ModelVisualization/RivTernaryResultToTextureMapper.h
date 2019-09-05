@@ -23,7 +23,7 @@
 
 #include "RivTernaryScalarMapper.h"
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 #include "cvfStructGrid.h"
 #include "cvfVector2.h"

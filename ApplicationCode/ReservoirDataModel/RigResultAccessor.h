@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 #include "cvfStructGrid.h"
 

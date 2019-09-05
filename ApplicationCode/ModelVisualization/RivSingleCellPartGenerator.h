@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "cvfBase.h"
+
 #include "cvfDrawableGeo.h"
 
 namespace cvf

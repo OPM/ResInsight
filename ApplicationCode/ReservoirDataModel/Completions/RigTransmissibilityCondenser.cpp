@@ -24,7 +24,7 @@
 #include "RiaWeightedMeanCalculator.h"
 
 #include "cvfAssert.h"
-#include "cvfBase.h"
+
 #include "cvfMath.h"
 
 #include <Eigen/Core>

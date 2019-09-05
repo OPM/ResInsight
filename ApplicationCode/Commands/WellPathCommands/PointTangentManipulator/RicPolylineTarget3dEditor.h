@@ -22,7 +22,7 @@
 
 class RicPointTangentManipulator;
 
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
