@@ -615,7 +615,7 @@ void RimWellRftPlot::deleteCurvesAssosicatedWithObservedData(const RimObservedFm
 QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                     bool*                      useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> options;
+    QList<caf::PdmOptionItemInfo> options = RimWellLogPlot::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
 
     const QString simWellName = associatedSimWellName();
 

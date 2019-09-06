@@ -536,7 +536,7 @@ int RimWellAllocationPlot::timeStep()
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> options;
+    QList<caf::PdmOptionItemInfo> options = RimWellLogPlot::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
 
     if (fieldNeedingOptions == &m_wellName)
     {

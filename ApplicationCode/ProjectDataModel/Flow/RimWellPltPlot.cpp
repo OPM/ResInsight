@@ -768,7 +768,8 @@ const char* RimWellPltPlot::plotNameFormatString()
 QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                     bool*                      useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> options;
+    QList<caf::PdmOptionItemInfo> options = RimWellLogPlot::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+
     const QString                 simWellName = RimWellPlotTools::simWellName(m_wellPathName);
 
     if (fieldNeedingOptions == &m_wellPathName)
