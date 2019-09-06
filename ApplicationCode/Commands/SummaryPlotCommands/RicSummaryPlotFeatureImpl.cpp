@@ -114,8 +114,8 @@ RimSummaryCurve* RicSummaryPlotFeatureImpl::addDefaultCurveToPlot( RimSummaryPlo
 std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot( RimSummaryPlot* plot,
                                                                                  RimSummaryCase* summaryCase )
 {
-    QString curvesTextFilter = RiaApplication::instance()->preferences()->defaultSummaryCurvesTextFilter;
-    QStringList curveFilters = curvesTextFilter.split(";", QString::SkipEmptyParts);
+    QString     curvesTextFilter = RiaApplication::instance()->preferences()->defaultSummaryCurvesTextFilter;
+    QStringList curveFilters     = curvesTextFilter.split( ";", QString::SkipEmptyParts );
 
     return addCurvesFromAddressFiltersToPlot( curveFilters, plot, summaryCase, false );
 }
@@ -760,11 +760,12 @@ std::set<RifEclipseSummaryAddress>
 
         filteredSummaryAdressesFromCase( summaryAddressFilters, addrs, &filteredAdressesFromCases, &usedFilters );
 
-        for ( size_t cfIdx = 0 ; cfIdx < usedFilters.size() ; ++cfIdx )
+        for ( size_t cfIdx = 0; cfIdx < usedFilters.size(); ++cfIdx )
         {
             if ( !usedFilters[cfIdx] )
             {
-                RiaLogging::warning("Vector filter \"" + summaryAddressFilters[static_cast<int>(cfIdx)] +   "\" did not match anything in case: \"" + sumCase->caseName() + "\"");
+                RiaLogging::warning( "Vector filter \"" + summaryAddressFilters[static_cast<int>( cfIdx )] +
+                                     "\" did not match anything in case: \"" + sumCase->caseName() + "\"" );
             }
         }
     }
@@ -786,11 +787,12 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
 
     filteredSummaryAdressesFromCase( curveFilters, addrs, &curveAddressesToUse, &usedFilters );
 
-    for (size_t cfIdx = 0 ; cfIdx < usedFilters.size() ;  ++cfIdx)
+    for ( size_t cfIdx = 0; cfIdx < usedFilters.size(); ++cfIdx )
     {
         if ( !usedFilters[cfIdx] )
         {
-            RiaLogging::warning("Vector filter \"" + curveFilters[static_cast<int>(cfIdx)] +   "\" did not match anything in case: \"" + summaryCase->caseName() + "\"");
+            RiaLogging::warning( "Vector filter \"" + curveFilters[static_cast<int>( cfIdx )] +
+                                 "\" did not match anything in case: \"" + summaryCase->caseName() + "\"" );
         }
     }
 

@@ -131,9 +131,9 @@ void RimScriptCollection::readContentFromDisc()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimScriptCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue)
+void RimScriptCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                            const QVariant&            oldValue,
+                                            const QVariant&            newValue )
 {
     if ( &directory == changedField )
     {

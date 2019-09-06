@@ -1106,7 +1106,7 @@ RiaPreferences* RiaApplication::preferences()
 ///
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::applyPreferences()
-{    
+{
     // The creation of a font is time consuming, so make sure you really need your own font
     // instead of using the application font
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> fontSizes = m_preferences->defaultFontSizes();
