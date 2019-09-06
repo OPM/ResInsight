@@ -30,7 +30,7 @@
 #include <QAction>
 #include <QFileDialog>
 
-CAF_CMD_SOURCE_INIT(RicImportObservedFmuDataInMenuFeature, "RicImportObservedFmuDataInMenuFeature");
+CAF_CMD_SOURCE_INIT( RicImportObservedFmuDataInMenuFeature, "RicImportObservedFmuDataInMenuFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -48,7 +48,7 @@ bool RicImportObservedFmuDataInMenuFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportObservedFmuDataInMenuFeature::onActionTriggered(bool isChecked)
+void RicImportObservedFmuDataInMenuFeature::onActionTriggered( bool isChecked )
 {
     RicImportObservedFmuDataFeature::selectObservedDataPathInDialog();
 }
@@ -56,8 +56,8 @@ void RicImportObservedFmuDataInMenuFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportObservedFmuDataInMenuFeature::setupActionLook(QAction* actionToSetup)
+void RicImportObservedFmuDataInMenuFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/ObservedDataFile16x16.png"));
-    actionToSetup->setText("Import Observed FMU Data");
+    actionToSetup->setIcon( QIcon( ":/ObservedDataFile16x16.png" ) );
+    actionToSetup->setText( "Import Observed FMU Data" );
 }

@@ -22,98 +22,100 @@
 #include "RiaTestDataDirectory.h"
 #include "RifActiveCellsReader.h"
 
-#include "ert/ecl/ecl_grid.hpp"
 #include "ert/ecl/ecl_file.hpp"
+#include "ert/ecl/ecl_grid.hpp"
 
 #include <QDir>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST(RifActiveCellsReaderTest, BasicTest10k)
+TEST( RifActiveCellsReaderTest, BasicTest10k )
 {
-    QDir baseFolder(TEST_MODEL_DIR);
-    bool subFolderExists = baseFolder.cd("TEST10K_FLT_LGR_NNC");
-    EXPECT_TRUE(subFolderExists);
+    QDir baseFolder( TEST_MODEL_DIR );
+    bool subFolderExists = baseFolder.cd( "TEST10K_FLT_LGR_NNC" );
+    EXPECT_TRUE( subFolderExists );
 
     ecl_grid_type* mainEclGrid = nullptr;
 
     {
-        QString filename("TEST10K_FLT_LGR_NNC.EGRID");
-        QString filePath = baseFolder.absoluteFilePath(filename);
+        QString filename( "TEST10K_FLT_LGR_NNC.EGRID" );
+        QString filePath = baseFolder.absoluteFilePath( filename );
 
-        mainEclGrid = ecl_grid_alloc(RiaStringEncodingTools::toNativeEncoded(filePath).data());
+        mainEclGrid = ecl_grid_alloc( RiaStringEncodingTools::toNativeEncoded( filePath ).data() );
     }
 
     std::vector<std::vector<int>> activeCellsFromActnum;
     std::vector<std::vector<int>> activeCellsFromPorv;
     {
-        QString filename("TEST10K_FLT_LGR_NNC.EGRID");
-        QString filePath = baseFolder.absoluteFilePath(filename);
+        QString filename( "TEST10K_FLT_LGR_NNC.EGRID" );
+        QString filePath = baseFolder.absoluteFilePath( filename );
 
-        ecl_file_type* gridFile = ecl_file_open(RiaStringEncodingTools::toNativeEncoded(filePath).data(), ECL_FILE_CLOSE_STREAM);
-        activeCellsFromActnum   = RifActiveCellsReader::activeCellsFromActnumKeyword(gridFile);
-        EXPECT_EQ(2, activeCellsFromActnum.size());
-        ecl_file_close(gridFile);
+        ecl_file_type* gridFile = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( filePath ).data(),
+                                                 ECL_FILE_CLOSE_STREAM );
+        activeCellsFromActnum   = RifActiveCellsReader::activeCellsFromActnumKeyword( gridFile );
+        EXPECT_EQ( 2, activeCellsFromActnum.size() );
+        ecl_file_close( gridFile );
     }
 
     {
-        QString filename("TEST10K_FLT_LGR_NNC.INIT");
-        QString filePath = baseFolder.absoluteFilePath(filename);
+        QString filename( "TEST10K_FLT_LGR_NNC.INIT" );
+        QString filePath = baseFolder.absoluteFilePath( filename );
 
-        ecl_file_type* initFile = ecl_file_open(RiaStringEncodingTools::toNativeEncoded(filePath).data(), ECL_FILE_CLOSE_STREAM);
+        ecl_file_type* initFile = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( filePath ).data(),
+                                                 ECL_FILE_CLOSE_STREAM );
 
-        activeCellsFromPorv = RifActiveCellsReader::activeCellsFromPorvKeyword(initFile, false);
-        EXPECT_EQ(2, activeCellsFromPorv.size());
+        activeCellsFromPorv = RifActiveCellsReader::activeCellsFromPorvKeyword( initFile, false );
+        EXPECT_EQ( 2, activeCellsFromPorv.size() );
 
-        ecl_file_close(initFile);
+        ecl_file_close( initFile );
     }
 
-    for (size_t gridIndex = 0; gridIndex < activeCellsFromActnum.size(); gridIndex++)
+    for ( size_t gridIndex = 0; gridIndex < activeCellsFromActnum.size(); gridIndex++ )
     {
-        for (size_t valueIndex = 0; valueIndex < activeCellsFromActnum[gridIndex].size(); valueIndex++)
+        for ( size_t valueIndex = 0; valueIndex < activeCellsFromActnum[gridIndex].size(); valueIndex++ )
         {
             auto actnumValue = activeCellsFromActnum[gridIndex][valueIndex];
             auto porvValue   = activeCellsFromPorv[gridIndex][valueIndex];
-            if (actnumValue > 0)
+            if ( actnumValue > 0 )
             {
-                EXPECT_TRUE(porvValue > 0);
+                EXPECT_TRUE( porvValue > 0 );
             }
             else
             {
-                EXPECT_EQ(0, porvValue);
+                EXPECT_EQ( 0, porvValue );
             }
         }
     }
 
     std::vector<int> expectedActiveCellCountPerGrid;
-    expectedActiveCellCountPerGrid.push_back(8517);
-    expectedActiveCellCountPerGrid.push_back(2608);
+    expectedActiveCellCountPerGrid.push_back( 8517 );
+    expectedActiveCellCountPerGrid.push_back( 2608 );
 
-    for (int gridIndex = 0; gridIndex < static_cast<int>(activeCellsFromActnum.size()); gridIndex++)
+    for ( int gridIndex = 0; gridIndex < static_cast<int>( activeCellsFromActnum.size() ); gridIndex++ )
     {
         ecl_grid_type* currentGrid = nullptr;
-        if (gridIndex == 0)
+        if ( gridIndex == 0 )
         {
             currentGrid = mainEclGrid;
         }
         else
         {
-            currentGrid = ecl_grid_iget_lgr(mainEclGrid, gridIndex - 1);
+            currentGrid = ecl_grid_iget_lgr( mainEclGrid, gridIndex - 1 );
         }
 
         auto activeCellsForGrid = activeCellsFromActnum[gridIndex];
-        if (ecl_grid_get_global_size(currentGrid) == static_cast<int>(activeCellsForGrid.size()))
+        if ( ecl_grid_get_global_size( currentGrid ) == static_cast<int>( activeCellsForGrid.size() ) )
         {
             int expectedCellCount = expectedActiveCellCountPerGrid[gridIndex];
-            EXPECT_EQ(expectedCellCount, ecl_grid_get_nactive(currentGrid));
+            EXPECT_EQ( expectedCellCount, ecl_grid_get_nactive( currentGrid ) );
 
             int* actnum_values = activeCellsForGrid.data();
 
-            ecl_grid_reset_actnum(currentGrid, actnum_values);
-            EXPECT_EQ(expectedCellCount, ecl_grid_get_nactive(currentGrid));
+            ecl_grid_reset_actnum( currentGrid, actnum_values );
+            EXPECT_EQ( expectedCellCount, ecl_grid_get_nactive( currentGrid ) );
         }
     }
 
-    ecl_grid_free(mainEclGrid);
+    ecl_grid_free( mainEclGrid );
 }

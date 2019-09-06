@@ -28,9 +28,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuMeasurementEventFilter::RiuMeasurementEventFilter(RimMeasurement* parent)
-    : QObject(nullptr)
-    , m_parent(parent)
+RiuMeasurementEventFilter::RiuMeasurementEventFilter( RimMeasurement* parent )
+    : QObject( nullptr )
+    , m_parent( parent )
 {
 }
 
@@ -39,7 +39,7 @@ RiuMeasurementEventFilter::RiuMeasurementEventFilter(RimMeasurement* parent)
 //--------------------------------------------------------------------------------------------------
 void RiuMeasurementEventFilter::registerFilter()
 {
-    RiaGuiApplication::instance()->installEventFilter(this);
+    RiaGuiApplication::instance()->installEventFilter( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,32 +47,32 @@ void RiuMeasurementEventFilter::registerFilter()
 //--------------------------------------------------------------------------------------------------
 void RiuMeasurementEventFilter::unregisterFilter()
 {
-    RiaGuiApplication::instance()->removeEventFilter(this);
+    RiaGuiApplication::instance()->removeEventFilter( this );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuMeasurementEventFilter::eventFilter(QObject* obj, QEvent* event)
+bool RiuMeasurementEventFilter::eventFilter( QObject* obj, QEvent* event )
 {
-    if (event->type() == QEvent::KeyPress)
+    if ( event->type() == QEvent::KeyPress )
     {
-        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>( event );
 
-        if (keyEvent->key() == Qt::Key_Escape)
+        if ( keyEvent->key() == Qt::Key_Escape )
         {
-            keyEvent->setAccepted(true);
+            keyEvent->setAccepted( true );
 
             unregisterFilter();
 
-            if (m_parent)
+            if ( m_parent )
             {
-                m_parent->setMeasurementMode(RimMeasurement::MEASURE_DISABLED);
+                m_parent->setMeasurementMode( RimMeasurement::MEASURE_DISABLED );
             }
 
             return true;
         }
     }
 
-    return QObject::eventFilter(obj, event);
+    return QObject::eventFilter( obj, event );
 }

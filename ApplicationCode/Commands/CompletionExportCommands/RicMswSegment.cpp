@@ -26,24 +26,24 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswSegment::RicMswSegment(const QString& label,
-                             double         startMD,
-                             double         endMD,
-                             double         startTVD,
-                             double         endTVD,
-                             size_t         subIndex,
-                             int            segmentNumber /*= -1*/)
-    : m_label(label)
-    , m_startMD(startMD)
-    , m_endMD(endMD)
-    , m_startTVD(startTVD)
-    , m_endTVD(endTVD)
-    , m_effectiveDiameter(0.15)
-    , m_holeDiameter(RicMswExportInfo::defaultDoubleValue())
-    , m_openHoleRoughnessFactor(5.0e-5)
-    , m_skinFactor(RicMswExportInfo::defaultDoubleValue())
-    , m_subIndex(subIndex)
-    , m_segmentNumber(segmentNumber)
+RicMswSegment::RicMswSegment( const QString& label,
+                              double         startMD,
+                              double         endMD,
+                              double         startTVD,
+                              double         endTVD,
+                              size_t         subIndex,
+                              int            segmentNumber /*= -1*/ )
+    : m_label( label )
+    , m_startMD( startMD )
+    , m_endMD( endMD )
+    , m_startTVD( startTVD )
+    , m_endTVD( endTVD )
+    , m_effectiveDiameter( 0.15 )
+    , m_holeDiameter( RicMswExportInfo::defaultDoubleValue() )
+    , m_openHoleRoughnessFactor( 5.0e-5 )
+    , m_skinFactor( RicMswExportInfo::defaultDoubleValue() )
+    , m_subIndex( subIndex )
+    , m_segmentNumber( segmentNumber )
 {
 }
 
@@ -170,7 +170,7 @@ std::vector<std::shared_ptr<RicMswCompletion>>& RicMswSegment::completions()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSegment::setLabel(const QString& label)
+void RicMswSegment::setLabel( const QString& label )
 {
     m_label = label;
 }
@@ -178,7 +178,7 @@ void RicMswSegment::setLabel(const QString& label)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSegment::setEffectiveDiameter(double effectiveDiameter)
+void RicMswSegment::setEffectiveDiameter( double effectiveDiameter )
 {
     m_effectiveDiameter = effectiveDiameter;
 }
@@ -186,7 +186,7 @@ void RicMswSegment::setEffectiveDiameter(double effectiveDiameter)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSegment::setHoleDiameter(double holeDiameter)
+void RicMswSegment::setHoleDiameter( double holeDiameter )
 {
     m_holeDiameter = holeDiameter;
 }
@@ -194,7 +194,7 @@ void RicMswSegment::setHoleDiameter(double holeDiameter)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSegment::setOpenHoleRoughnessFactor(double roughnessFactor)
+void RicMswSegment::setOpenHoleRoughnessFactor( double roughnessFactor )
 {
     m_openHoleRoughnessFactor = roughnessFactor;
 }
@@ -202,7 +202,7 @@ void RicMswSegment::setOpenHoleRoughnessFactor(double roughnessFactor)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSegment::setSkinFactor(double skinFactor)
+void RicMswSegment::setSkinFactor( double skinFactor )
 {
     m_skinFactor = skinFactor;
 }
@@ -210,7 +210,7 @@ void RicMswSegment::setSkinFactor(double skinFactor)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSegment::setSegmentNumber(int segmentNumber)
+void RicMswSegment::setSegmentNumber( int segmentNumber )
 {
     m_segmentNumber = segmentNumber;
 }
@@ -218,21 +218,21 @@ void RicMswSegment::setSegmentNumber(int segmentNumber)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSegment::addCompletion(std::shared_ptr<RicMswCompletion> completion)
+void RicMswSegment::addCompletion( std::shared_ptr<RicMswCompletion> completion )
 {
-    m_completions.push_back(completion);
+    m_completions.push_back( completion );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSegment::removeCompletion(std::shared_ptr<RicMswCompletion> completion)
+void RicMswSegment::removeCompletion( std::shared_ptr<RicMswCompletion> completion )
 {
-    for (auto it = m_completions.begin(); it != m_completions.end(); ++it)
+    for ( auto it = m_completions.begin(); it != m_completions.end(); ++it )
     {
-        if ((*it) == completion)
+        if ( ( *it ) == completion )
         {
-            m_completions.erase(it);
+            m_completions.erase( it );
             break;
         }
     }
@@ -241,9 +241,9 @@ void RicMswSegment::removeCompletion(std::shared_ptr<RicMswCompletion> completio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSegment::setSourcePdmObject(const caf::PdmObject* object)
+void RicMswSegment::setSourcePdmObject( const caf::PdmObject* object )
 {
-    m_sourcePdmObject = const_cast<caf::PdmObject*>(object);
+    m_sourcePdmObject = const_cast<caf::PdmObject*>( object );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,8 +257,7 @@ const caf::PdmObject* RicMswSegment::sourcePdmObject() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicMswSegment::operator<(const RicMswSegment& rhs) const
+bool RicMswSegment::operator<( const RicMswSegment& rhs ) const
 {
     return startMD() < rhs.startMD();
 }
-

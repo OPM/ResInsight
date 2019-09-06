@@ -31,7 +31,7 @@
 #include <QAction>
 #include <QFileDialog>
 
-CAF_CMD_SOURCE_INIT(RicWellPathFormationsImportFileFeature, "RicWellPathFormationsImportFileFeature");
+CAF_CMD_SOURCE_INIT( RicWellPathFormationsImportFileFeature, "RicWellPathFormationsImportFileFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -44,43 +44,44 @@ bool RicWellPathFormationsImportFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathFormationsImportFileFeature::onActionTriggered(bool isChecked)
+void RicWellPathFormationsImportFileFeature::onActionTriggered( bool isChecked )
 {
     // Open dialog box to select well path formations files
-    RiaApplication* app = RiaApplication::instance();
-    QString         defaultDir = app->lastUsedDialogDirectory("WELLPATHFORMATIONS_DIR");
-    QStringList     wellPathFormationsFilePaths =
-        QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Well Picks", defaultDir,
-                                      "Well Picks (*.csv);;All Files (*.*)");
+    RiaApplication* app                     = RiaApplication::instance();
+    QString         defaultDir              = app->lastUsedDialogDirectory( "WELLPATHFORMATIONS_DIR" );
+    QStringList wellPathFormationsFilePaths = QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                             "Import Well Picks",
+                                                                             defaultDir,
+                                                                             "Well Picks (*.csv);;All Files (*.*)" );
 
-    if (wellPathFormationsFilePaths.size() < 1)
-        return;
+    if ( wellPathFormationsFilePaths.size() < 1 ) return;
 
     // Remember the path to next time
-    app->setLastUsedDialogDirectory("WELLPATHFORMATIONS_DIR", QFileInfo(wellPathFormationsFilePaths.last()).absolutePath());
+    app->setLastUsedDialogDirectory( "WELLPATHFORMATIONS_DIR",
+                                     QFileInfo( wellPathFormationsFilePaths.last() ).absolutePath() );
 
-    app->addWellPathFormationsToModel(wellPathFormationsFilePaths);
+    app->addWellPathFormationsToModel( wellPathFormationsFilePaths );
 
     RimProject* project = app->project();
 
-    if (project)
+    if ( project )
     {
         project->scheduleCreateDisplayModelAndRedrawAllViews();
-        if (project->mainPlotCollection())
+        if ( project->mainPlotCollection() )
         {
             project->mainPlotCollection->updatePlotsWithFormations();
         }
 
         RimOilField* oilField = project->activeOilField();
 
-        if (!oilField) return;
+        if ( !oilField ) return;
 
-        if (oilField->wellPathCollection->wellPaths().size() > 0)
+        if ( oilField->wellPathCollection->wellPaths().size() > 0 )
         {
             RimWellPath* wellPath = oilField->wellPathCollection->mostRecentlyUpdatedWellPath();
-            if (wellPath)
+            if ( wellPath )
             {
-                Riu3DMainWindowTools::selectAsCurrentItem(wellPath);
+                Riu3DMainWindowTools::selectAsCurrentItem( wellPath );
             }
         }
     }
@@ -89,8 +90,8 @@ void RicWellPathFormationsImportFileFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathFormationsImportFileFeature::setupActionLook(QAction* actionToSetup)
+void RicWellPathFormationsImportFileFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Import Well Picks");
-    actionToSetup->setIcon(QIcon(":/Formations16x16.png"));
+    actionToSetup->setText( "Import Well Picks" );
+    actionToSetup->setIcon( QIcon( ":/Formations16x16.png" ) );
 }

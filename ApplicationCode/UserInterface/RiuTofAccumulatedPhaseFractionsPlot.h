@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,6 @@
 #include <QPointer>
 #include <QWidget>
 
-
 #include "RiuInterfaceToViewWindow.h"
 
 class RimTofAccumulatedPhaseFractionsPlot;
@@ -43,26 +42,26 @@ class RiuTofAccumulatedPhaseFractionsPlot : public QwtPlot, public RiuInterfaceT
     Q_OBJECT
 
 public:
-    RiuTofAccumulatedPhaseFractionsPlot(RimTofAccumulatedPhaseFractionsPlot* plotDefinition, QWidget* parent = nullptr);
+    RiuTofAccumulatedPhaseFractionsPlot( RimTofAccumulatedPhaseFractionsPlot* plotDefinition, QWidget* parent = nullptr );
     ~RiuTofAccumulatedPhaseFractionsPlot() override;
 
-    RimTofAccumulatedPhaseFractionsPlot*                 ownerPlotDefinition();
-    RimViewWindow*          ownerViewWindow() const override;
+    RimTofAccumulatedPhaseFractionsPlot* ownerPlotDefinition();
+    RimViewWindow*                       ownerViewWindow() const override;
 
-    void                            setSamples(std::vector<double> xSamples,
-                                               std::vector<double> watValues,
-                                               std::vector<double> oilValues,
-                                               std::vector<double> gasValues,
-                                               int maxTofYears);
+    void setSamples( std::vector<double> xSamples,
+                     std::vector<double> watValues,
+                     std::vector<double> oilValues,
+                     std::vector<double> gasValues,
+                     int                 maxTofYears );
 
 protected:
-    QSize                   sizeHint() const override;
-    int                     heightForWidth(int w) const override;
+    QSize sizeHint() const override;
+    int   heightForWidth( int w ) const override;
 
 private:
-    void         setDefaults();
-    static void  setCommonPlotBehaviour(QwtPlot* plot);
-    void         setCurveColor(QwtPlotCurve* curve, QColor color);
+    void        setDefaults();
+    static void setCommonPlotBehaviour( QwtPlot* plot );
+    void        setCurveColor( QwtPlotCurve* curve, QColor color );
 
 private:
     caf::PdmPointer<RimTofAccumulatedPhaseFractionsPlot> m_plotDefinition;
@@ -76,4 +75,3 @@ private:
     std::vector<double> m_gasValues;
     std::vector<double> m_xValues;
 };
-

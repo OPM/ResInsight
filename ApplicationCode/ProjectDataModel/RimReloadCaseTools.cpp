@@ -45,39 +45,39 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimReloadCaseTools::reloadAllEclipseData(RimEclipseCase* eclipseCase)
+void RimReloadCaseTools::reloadAllEclipseData( RimEclipseCase* eclipseCase )
 {
-    reloadAllEclipseData(eclipseCase, true);
+    reloadAllEclipseData( eclipseCase, true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimReloadCaseTools::reloadAllEclipseGridData(RimEclipseCase* eclipseCase)
+void RimReloadCaseTools::reloadAllEclipseGridData( RimEclipseCase* eclipseCase )
 {
-    reloadAllEclipseData(eclipseCase, false);
+    reloadAllEclipseData( eclipseCase, false );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimReloadCaseTools::reloadAllEclipseData(RimEclipseCase* eclipseCase, bool reloadSummaryData)
+void RimReloadCaseTools::reloadAllEclipseData( RimEclipseCase* eclipseCase, bool reloadSummaryData )
 {
-    CVF_ASSERT(eclipseCase);
+    CVF_ASSERT( eclipseCase );
 
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
-    if (!eclipseCaseData) return;
+    if ( !eclipseCaseData ) return;
 
-    clearAllGridData(eclipseCaseData);
+    clearAllGridData( eclipseCaseData );
 
     eclipseCase->reloadEclipseGridFile();
 
-    updateAll3dViews(eclipseCase);
+    updateAll3dViews( eclipseCase );
 
-    if (reloadSummaryData)
+    if ( reloadSummaryData )
     {
         RimSummaryCaseMainCollection* sumCaseColl = RiaSummaryTools::summaryCaseMainCollection();
-        if (sumCaseColl)
+        if ( sumCaseColl )
         {
             sumCaseColl->loadAllSummaryCaseData();
         }
@@ -89,18 +89,18 @@ void RimReloadCaseTools::reloadAllEclipseData(RimEclipseCase* eclipseCase, bool 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimReloadCaseTools::clearAllGridData(RigEclipseCaseData* eclipseCaseData)
+void RimReloadCaseTools::clearAllGridData( RigEclipseCaseData* eclipseCaseData )
 {
-    if (!eclipseCaseData) return;
+    if ( !eclipseCaseData ) return;
 
-    RigCaseCellResultsData* matrixModelResults = eclipseCaseData->results(RiaDefines::MATRIX_MODEL);
-    if (matrixModelResults)
+    RigCaseCellResultsData* matrixModelResults = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );
+    if ( matrixModelResults )
     {
         matrixModelResults->clearAllResults();
     }
 
-    RigCaseCellResultsData* fractureModelResults = eclipseCaseData->results(RiaDefines::FRACTURE_MODEL);
-    if (fractureModelResults)
+    RigCaseCellResultsData* fractureModelResults = eclipseCaseData->results( RiaDefines::FRACTURE_MODEL );
+    if ( fractureModelResults )
     {
         fractureModelResults->clearAllResults();
     }
@@ -109,27 +109,27 @@ void RimReloadCaseTools::clearAllGridData(RigEclipseCaseData* eclipseCaseData)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimReloadCaseTools::updateAll3dViews(RimEclipseCase* eclipseCase)
+void RimReloadCaseTools::updateAll3dViews( RimEclipseCase* eclipseCase )
 {
-    if (!eclipseCase) return;
+    if ( !eclipseCase ) return;
 
-    for (RimEclipseView* reservoirView : eclipseCase->reservoirViews())
+    for ( RimEclipseView* reservoirView : eclipseCase->reservoirViews() )
     {
-        CVF_ASSERT(reservoirView);
+        CVF_ASSERT( reservoirView );
         reservoirView->loadDataAndUpdate();
         reservoirView->updateGridBoxData();
         reservoirView->updateAnnotationItems();
     }
 
-    for (RimEclipseContourMapView* contourMap : eclipseCase->contourMapCollection()->views())
+    for ( RimEclipseContourMapView* contourMap : eclipseCase->contourMapCollection()->views() )
     {
-        CVF_ASSERT(contourMap);
+        CVF_ASSERT( contourMap );
         contourMap->loadDataAndUpdate();
         contourMap->updateGridBoxData();
         contourMap->updateAnnotationItems();
     }
 
-    for (Rim2dIntersectionView* view : eclipseCase->intersectionViewCollection()->views())
+    for ( Rim2dIntersectionView* view : eclipseCase->intersectionViewCollection()->views() )
     {
         view->createDisplayModelAndRedraw();
     }
@@ -141,38 +141,38 @@ void RimReloadCaseTools::updateAll3dViews(RimEclipseCase* eclipseCase)
 void RimReloadCaseTools::updateAllPlots()
 {
     RimProject* project = RiaApplication::instance()->project();
-    if (project && project->mainPlotCollection())
+    if ( project && project->mainPlotCollection() )
     {
         RimWellLogPlotCollection* wellPlotCollection = project->mainPlotCollection()->wellLogPlotCollection();
 
-        if (wellPlotCollection)
+        if ( wellPlotCollection )
         {
-            for (RimWellLogPlot* wellLogPlot : wellPlotCollection->wellLogPlots())
+            for ( RimWellLogPlot* wellLogPlot : wellPlotCollection->wellLogPlots() )
             {
                 wellLogPlot->loadDataAndUpdate();
             }
         }
 
         RimSummaryPlotCollection* summaryPlotCollection = project->mainPlotCollection()->summaryPlotCollection();
-        if (summaryPlotCollection)
+        if ( summaryPlotCollection )
         {
-            for (RimSummaryPlot* summaryPlot : summaryPlotCollection->summaryPlots())
+            for ( RimSummaryPlot* summaryPlot : summaryPlotCollection->summaryPlots() )
             {
                 summaryPlot->loadDataAndUpdate();
             }
         }
 
         RimGridCrossPlotCollection* gridCrossPlotCollection = project->mainPlotCollection()->gridCrossPlotCollection();
-        if (gridCrossPlotCollection)
+        if ( gridCrossPlotCollection )
         {
-            for (RimGridCrossPlot* crossPlot : gridCrossPlotCollection->gridCrossPlots())
+            for ( RimGridCrossPlot* crossPlot : gridCrossPlotCollection->gridCrossPlots() )
             {
                 crossPlot->loadDataAndUpdate();
             }
         }
 
         RimFlowPlotCollection* flowPlotCollection = project->mainPlotCollection()->flowPlotCollection();
-        if (flowPlotCollection)
+        if ( flowPlotCollection )
         {
             flowPlotCollection->loadDataAndUpdate();
         }

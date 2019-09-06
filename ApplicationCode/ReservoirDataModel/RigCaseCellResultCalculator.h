@@ -29,7 +29,7 @@ class RigEclipseResultAddress;
 class RigCaseCellResultCalculator
 {
 public:
-    static bool computeDifference(RigEclipseCaseData*            destination,
-                                  RiaDefines::PorosityModelType  porosityModel,
-                                  const RigEclipseResultAddress& address);
+    static bool computeDifference( RigEclipseCaseData*            destination,
+                                   RiaDefines::PorosityModelType  porosityModel,
+                                   const RigEclipseResultAddress& address );
 };

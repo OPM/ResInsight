@@ -1,13 +1,12 @@
 #include "gtest/gtest.h"
 
-#include "RifEclipseUserDataParserTools.h"
 #include "RifColumnBasedUserDataParser.h"
-
+#include "RifEclipseUserDataParserTools.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(FixedWidthDataParser, BasicUsage)
+TEST( FixedWidthDataParser, BasicUsage )
 {
     QString data = R"(1
     -------------------------------------------------------------------------------------------------------------------------------
@@ -24,56 +23,54 @@ TEST(FixedWidthDataParser, BasicUsage)
     9-NOV-1997         0     19.38692     0.015243     14.76847     14.78372     14.65899     1.604722     14.65899     1.627147   
     )";
 
-
     std::stringstream streamData;
-    streamData.str(data.toStdString());
+    streamData.str( data.toStdString() );
 
-    std::vector<std::string> tableHeaderLines = RifEclipseUserDataParserTools::findValidHeaderLines(streamData);
+    std::vector<std::string> tableHeaderLines = RifEclipseUserDataParserTools::findValidHeaderLines( streamData );
 
-    EXPECT_EQ(size_t(4), tableHeaderLines.size());
+    EXPECT_EQ( size_t( 4 ), tableHeaderLines.size() );
 
     {
         std::string line;
-        std::getline(streamData, line);
+        std::getline( streamData, line );
 
         std::string firstDataLine = "6-NOV-1997";
-        line.find_first_of(firstDataLine);
+        line.find_first_of( firstDataLine );
 
-        EXPECT_TRUE(line.find_first_of(firstDataLine) != std::string::npos);
+        EXPECT_TRUE( line.find_first_of( firstDataLine ) != std::string::npos );
     }
 
-    auto colHeaders = RifEclipseUserDataParserTools::splitIntoColumnHeaders(tableHeaderLines);
-    EXPECT_EQ(size_t(10), colHeaders.size());
+    auto colHeaders = RifEclipseUserDataParserTools::splitIntoColumnHeaders( tableHeaderLines );
+    EXPECT_EQ( size_t( 10 ), colHeaders.size() );
 
-    EXPECT_TRUE(colHeaders[9][0].find_first_of("FGPTH")     != std::string::npos);
-    EXPECT_TRUE(colHeaders[9][1].find_first_of("SM3")       != std::string::npos);
-    EXPECT_TRUE(colHeaders[9][2].find_first_of("*10**6")    != std::string::npos);
+    EXPECT_TRUE( colHeaders[9][0].find_first_of( "FGPTH" ) != std::string::npos );
+    EXPECT_TRUE( colHeaders[9][1].find_first_of( "SM3" ) != std::string::npos );
+    EXPECT_TRUE( colHeaders[9][2].find_first_of( "*10**6" ) != std::string::npos );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(FixedWidthDataParser, ColumnData)
+TEST( FixedWidthDataParser, ColumnData )
 {
     std::vector<std::vector<std::string>> columnData;
     {
         std::vector<std::string> col;
-        col.push_back("FGPTH");
-        col.push_back("SM3");
-        col.push_back("*10**6");
+        col.push_back( "FGPTH" );
+        col.push_back( "SM3" );
+        col.push_back( "*10**6" );
 
-        columnData.push_back(col);
+        columnData.push_back( col );
     }
 
-
-    auto ci = RifEclipseUserDataParserTools::columnInfoFromColumnHeaders(columnData);
-    EXPECT_EQ(size_t(1), ci.size());
+    auto ci = RifEclipseUserDataParserTools::columnInfoFromColumnHeaders( columnData );
+    EXPECT_EQ( size_t( 1 ), ci.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(FixedWidthDataParser, DetectFixedWidth)
+TEST( FixedWidthDataParser, DetectFixedWidth )
 {
     QString data = R"(1                                                                                                                               
  -------------------------------------------------------------------------------------------------------------------------------
@@ -167,62 +164,86 @@ TEST(FixedWidthDataParser, DetectFixedWidth)
  19-NOV-1997         0            0            0            0            0            0            0            0            0     
 )";
 
-    EXPECT_TRUE(RifEclipseUserDataParserTools::isFixedWidthHeader(data.toStdString()));
+    EXPECT_TRUE( RifEclipseUserDataParserTools::isFixedWidthHeader( data.toStdString() ) );
 
-    RifColumnBasedUserDataParser parser(data);
-    auto tables = parser.tableData();
-    EXPECT_EQ(size_t(1), tables.size());
+    RifColumnBasedUserDataParser parser( data );
+    auto                         tables = parser.tableData();
+    EXPECT_EQ( size_t( 1 ), tables.size() );
 
-    EXPECT_EQ(size_t(37), tables[0].columnInfos().size());
-    EXPECT_EQ(size_t(13), tables[0].columnInfos()[0].textValues.size());
+    EXPECT_EQ( size_t( 37 ), tables[0].columnInfos().size() );
+    EXPECT_EQ( size_t( 13 ), tables[0].columnInfos()[0].textValues.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(FixedWidthDataParser, VaryingTimeStepCount)
+TEST( FixedWidthDataParser, VaryingTimeStepCount )
 {
-    QString data =
-        "1                                                                                                                               \n"
-        " -------------------------------------------------------------------------------------------------------------------------------\n"
-        " SUMMARY OF RUN NORNE_ATW2013_RFTPLT_V3 ECLIPSE 2016.2 DATESTAMP 13-DEC-2016                                                    \n"
-        " -------------------------------------------------------------------------------------------------------------------------------\n"
-        " DATE         YEARS        NEWTON       MLINEARS     DAY          MONTH        YEAR         NEWTON       TCPU         ELAPSED   \n"
-        "              YEARS                                                                                      SECONDS      SECONDS   \n"
-        "                                                                                                                                \n"
-        "                                                                                                                                \n"
-        " -------------------------------------------------------------------------------------------------------------------------------\n"
-        "  6-NOV-1997         0            0            0            6           11         1997            0     4.880000     9.720000  \n"
-        "  7-NOV-1997  0.002738            3           28            7           11         1997            3     5.240000     10.11000  \n"
-        "  8-NOV-1997  0.006556            4           42            8           11         1997            4     5.730000     10.60000  \n"
-        "1                                                                                                                               \n"
-        " -------------------------------------------------------------------------------------------------------------------------------\n"
-        " SUMMARY OF RUN NORNE_ATW2013_RFTPLT_V3 ECLIPSE 2016.2 DATESTAMP 13-DEC-2016                                                    \n"
-        " -------------------------------------------------------------------------------------------------------------------------------\n"
-        " DATE         RGIR         RGPR         RGIPG        RGIPL        RGIT         RGPT         RWIR         RWPR         RWPT      \n"
-        "              SM3/DAY      SM3/DAY      SM3          SM3          SM3          SM3          SM3/DAY      SM3/DAY      SM3       \n"
-        "                                        *10**3       *10**3       *10**3       *10**3                                           \n"
-        "                                                                                                                                \n"
-        "              1            1            1            1            1            1            1            1            1         \n"
-        " -------------------------------------------------------------------------------------------------------------------------------\n"
-        "  6-NOV-1997         0            0     5426677.     591448.1            0            0            0            0            0  \n"
-        "  7-NOV-1997         0     2396930.     5424424.     591498.1            0     2396.930            0     -21.6173     -21.6173  \n"
-        "  8-NOV-1997         0     -250487.     5423940.     591966.2            0     2047.598            0     -11124.0     -15535.3  \n"
-        "  9-NOV-1997         0     2829432.     5421400.     591952.3            0     4812.102            0     -17.8744     -15552.8  \n"
-        ;
+    QString data = "1                                                                                                  "
+                   "                             \n"
+                   " --------------------------------------------------------------------------------------------------"
+                   "-----------------------------\n"
+                   " SUMMARY OF RUN NORNE_ATW2013_RFTPLT_V3 ECLIPSE 2016.2 DATESTAMP 13-DEC-2016                       "
+                   "                             \n"
+                   " --------------------------------------------------------------------------------------------------"
+                   "-----------------------------\n"
+                   " DATE         YEARS        NEWTON       MLINEARS     DAY          MONTH        YEAR         NEWTON "
+                   "      TCPU         ELAPSED   \n"
+                   "              YEARS                                                                                "
+                   "      SECONDS      SECONDS   \n"
+                   "                                                                                                   "
+                   "                             \n"
+                   "                                                                                                   "
+                   "                             \n"
+                   " --------------------------------------------------------------------------------------------------"
+                   "-----------------------------\n"
+                   "  6-NOV-1997         0            0            0            6           11         1997            "
+                   "0     4.880000     9.720000  \n"
+                   "  7-NOV-1997  0.002738            3           28            7           11         1997            "
+                   "3     5.240000     10.11000  \n"
+                   "  8-NOV-1997  0.006556            4           42            8           11         1997            "
+                   "4     5.730000     10.60000  \n"
+                   "1                                                                                                  "
+                   "                             \n"
+                   " --------------------------------------------------------------------------------------------------"
+                   "-----------------------------\n"
+                   " SUMMARY OF RUN NORNE_ATW2013_RFTPLT_V3 ECLIPSE 2016.2 DATESTAMP 13-DEC-2016                       "
+                   "                             \n"
+                   " --------------------------------------------------------------------------------------------------"
+                   "-----------------------------\n"
+                   " DATE         RGIR         RGPR         RGIPG        RGIPL        RGIT         RGPT         RWIR   "
+                   "      RWPR         RWPT      \n"
+                   "              SM3/DAY      SM3/DAY      SM3          SM3          SM3          SM3          "
+                   "SM3/DAY      SM3/DAY      SM3       \n"
+                   "                                        *10**3       *10**3       *10**3       *10**3              "
+                   "                             \n"
+                   "                                                                                                   "
+                   "                             \n"
+                   "              1            1            1            1            1            1            1      "
+                   "      1            1         \n"
+                   " --------------------------------------------------------------------------------------------------"
+                   "-----------------------------\n"
+                   "  6-NOV-1997         0            0     5426677.     591448.1            0            0            "
+                   "0            0            0  \n"
+                   "  7-NOV-1997         0     2396930.     5424424.     591498.1            0     2396.930            "
+                   "0     -21.6173     -21.6173  \n"
+                   "  8-NOV-1997         0     -250487.     5423940.     591966.2            0     2047.598            "
+                   "0     -11124.0     -15535.3  \n"
+                   "  9-NOV-1997         0     2829432.     5421400.     591952.3            0     4812.102            "
+                   "0     -17.8744     -15552.8  \n";
 
-    RifColumnBasedUserDataParser parser(data);
-    auto tables = parser.tableData();
-    EXPECT_EQ(size_t(2), tables.size());
-    EXPECT_EQ(size_t(3), tables[0].columnInfos()[0].itemCount());
-    
-    EXPECT_EQ(size_t(4), tables[1].columnInfos()[0].itemCount());
+    RifColumnBasedUserDataParser parser( data );
+    auto                         tables = parser.tableData();
+    EXPECT_EQ( size_t( 2 ), tables.size() );
+    EXPECT_EQ( size_t( 3 ), tables[0].columnInfos()[0].itemCount() );
+
+    EXPECT_EQ( size_t( 4 ), tables[1].columnInfos()[0].itemCount() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(FixedWidthDataParser, HandlingOfStepType)
+TEST( FixedWidthDataParser, HandlingOfStepType )
 {
     QString data = R"(1                                                                                                                                  
  -------------------------------------------------------------------------------------------------------------------------------
@@ -280,18 +301,17 @@ TEST(FixedWidthDataParser, HandlingOfStepType)
  29-NOV-1997  1.335130     0.310000     0.232187           23          504     7.666667       HALF       0.032262           57     
 )";
 
-    RifColumnBasedUserDataParser parser(data);
-    auto tables = parser.tableData();
-    EXPECT_EQ(size_t(1), tables.size());
+    RifColumnBasedUserDataParser parser( data );
+    auto                         tables = parser.tableData();
+    EXPECT_EQ( size_t( 1 ), tables.size() );
 
-    EXPECT_EQ(size_t(19), tables[0].columnInfos().size());
+    EXPECT_EQ( size_t( 19 ), tables[0].columnInfos().size() );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(FixedWidthDataParser, ParsingOfHeaderWithCompletions)
+TEST( FixedWidthDataParser, ParsingOfHeaderWithCompletions )
 {
     QString data = R"(1                                                                                                                                  
 -------------------------------------------------------------------------------------------------------------------------------
@@ -321,52 +341,73 @@ TEST(FixedWidthDataParser, ParsingOfHeaderWithCompletions)
  )";
 
     std::stringstream streamData;
-    streamData.str(data.toStdString());
+    streamData.str( data.toStdString() );
 
-    std::vector<std::string> tableHeaderLines = RifEclipseUserDataParserTools::findValidHeaderLines(streamData);
+    std::vector<std::string> tableHeaderLines = RifEclipseUserDataParserTools::findValidHeaderLines( streamData );
 
-    EXPECT_EQ(size_t(4), tableHeaderLines.size());
+    EXPECT_EQ( size_t( 4 ), tableHeaderLines.size() );
 
-    auto colHeaders = RifEclipseUserDataParserTools::splitIntoColumnHeaders(tableHeaderLines);
-    EXPECT_EQ(size_t(10), colHeaders.size());
+    auto colHeaders = RifEclipseUserDataParserTools::splitIntoColumnHeaders( tableHeaderLines );
+    EXPECT_EQ( size_t( 10 ), colHeaders.size() );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(FixedWidthDataParser, DifferentStartDate)
+TEST( FixedWidthDataParser, DifferentStartDate )
 {
-    QString data =
-        "1                                                                                                                               \n"
-        " -------------------------------------------------------------------------------------------------------------------------------\n"
-        " SUMMARY OF RUN NORNE_ATW2013_RFTPLT_V3 ECLIPSE 2016.2 DATESTAMP 13-DEC-2016                                                    \n"
-        " -------------------------------------------------------------------------------------------------------------------------------\n"
-        " DATE         YEARS        NEWTON       MLINEARS     DAY          MONTH        YEAR         NEWTON       TCPU         ELAPSED   \n"
-        "              YEARS                                                                                      SECONDS      SECONDS   \n"
-        "                                                                                                                                \n"
-        "                                                                                                                                \n"
-        " -------------------------------------------------------------------------------------------------------------------------------\n"
-        "  6-NOV-1997         0            0            0            6           11         1997            0     4.880000     9.720000  \n"
-        "  7-NOV-1997  0.002738            3           28            7           11         1997            3     5.240000     10.11000  \n"
-        "  8-NOV-1997  0.006556            4           42            8           11         1997            4     5.730000     10.60000  \n"
-        "1                                                                                                                               \n"
-        " -------------------------------------------------------------------------------------------------------------------------------\n"
-        " SUMMARY OF RUN NORNE_ATW2013_RFTPLT_V3 ECLIPSE 2016.2 DATESTAMP 13-DEC-2016                                                    \n"
-        " -------------------------------------------------------------------------------------------------------------------------------\n"
-        " DATE         RGIR         RGPR         RGIPG        RGIPL        RGIT         RGPT         RWIR         RWPR         RWPT      \n"
-        "              SM3/DAY      SM3/DAY      SM3          SM3          SM3          SM3          SM3/DAY      SM3/DAY      SM3       \n"
-        "                                        *10**3       *10**3       *10**3       *10**3                                           \n"
-        "                                                                                                                                \n"
-        "              1            1            1            1            1            1            1            1            1         \n"
-        " -------------------------------------------------------------------------------------------------------------------------------\n"
-        "  7-NOV-1997         0     2396930.     5424424.     591498.1            0     2396.930            0     -21.6173     -21.6173  \n"
-        "  8-NOV-1997         0     -250487.     5423940.     591966.2            0     2047.598            0     -11124.0     -15535.3  \n"
-        "  9-NOV-1997         0     2829432.     5421400.     591952.3            0     4812.102            0     -17.8744     -15552.8  \n"
-        ;
+    QString data = "1                                                                                                  "
+                   "                             \n"
+                   " --------------------------------------------------------------------------------------------------"
+                   "-----------------------------\n"
+                   " SUMMARY OF RUN NORNE_ATW2013_RFTPLT_V3 ECLIPSE 2016.2 DATESTAMP 13-DEC-2016                       "
+                   "                             \n"
+                   " --------------------------------------------------------------------------------------------------"
+                   "-----------------------------\n"
+                   " DATE         YEARS        NEWTON       MLINEARS     DAY          MONTH        YEAR         NEWTON "
+                   "      TCPU         ELAPSED   \n"
+                   "              YEARS                                                                                "
+                   "      SECONDS      SECONDS   \n"
+                   "                                                                                                   "
+                   "                             \n"
+                   "                                                                                                   "
+                   "                             \n"
+                   " --------------------------------------------------------------------------------------------------"
+                   "-----------------------------\n"
+                   "  6-NOV-1997         0            0            0            6           11         1997            "
+                   "0     4.880000     9.720000  \n"
+                   "  7-NOV-1997  0.002738            3           28            7           11         1997            "
+                   "3     5.240000     10.11000  \n"
+                   "  8-NOV-1997  0.006556            4           42            8           11         1997            "
+                   "4     5.730000     10.60000  \n"
+                   "1                                                                                                  "
+                   "                             \n"
+                   " --------------------------------------------------------------------------------------------------"
+                   "-----------------------------\n"
+                   " SUMMARY OF RUN NORNE_ATW2013_RFTPLT_V3 ECLIPSE 2016.2 DATESTAMP 13-DEC-2016                       "
+                   "                             \n"
+                   " --------------------------------------------------------------------------------------------------"
+                   "-----------------------------\n"
+                   " DATE         RGIR         RGPR         RGIPG        RGIPL        RGIT         RGPT         RWIR   "
+                   "      RWPR         RWPT      \n"
+                   "              SM3/DAY      SM3/DAY      SM3          SM3          SM3          SM3          "
+                   "SM3/DAY      SM3/DAY      SM3       \n"
+                   "                                        *10**3       *10**3       *10**3       *10**3              "
+                   "                             \n"
+                   "                                                                                                   "
+                   "                             \n"
+                   "              1            1            1            1            1            1            1      "
+                   "      1            1         \n"
+                   " --------------------------------------------------------------------------------------------------"
+                   "-----------------------------\n"
+                   "  7-NOV-1997         0     2396930.     5424424.     591498.1            0     2396.930            "
+                   "0     -21.6173     -21.6173  \n"
+                   "  8-NOV-1997         0     -250487.     5423940.     591966.2            0     2047.598            "
+                   "0     -11124.0     -15535.3  \n"
+                   "  9-NOV-1997         0     2829432.     5421400.     591952.3            0     4812.102            "
+                   "0     -17.8744     -15552.8  \n";
 
-    RifColumnBasedUserDataParser parser(data);
-    auto tables = parser.tableData();
-    EXPECT_EQ(size_t(2), tables.size());
+    RifColumnBasedUserDataParser parser( data );
+    auto                         tables = parser.tableData();
+    EXPECT_EQ( size_t( 2 ), tables.size() );
 }
-

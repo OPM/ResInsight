@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -36,12 +36,10 @@
 #include <QFileDialog>
 #include <QFileInfo>
 
-
-
-CAF_CMD_SOURCE_INIT(RicAsciiExportWellLogPlotFeature, "RicAsciiExportWellLogPlotFeature");
+CAF_CMD_SOURCE_INIT( RicAsciiExportWellLogPlotFeature, "RicAsciiExportWellLogPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicAsciiExportWellLogPlotFeature::isCommandEnabled()
 {
@@ -49,87 +47,91 @@ bool RicAsciiExportWellLogPlotFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicAsciiExportWellLogPlotFeature::onActionTriggered(bool isChecked)
+void RicAsciiExportWellLogPlotFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
     std::vector<RimWellLogPlot*> selectedWellLogPlots;
-    caf::SelectionManager::instance()->objectsByType(&selectedWellLogPlots);
-    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder("PLOT_ASCIIEXPORT_DIR");
+    caf::SelectionManager::instance()->objectsByType( &selectedWellLogPlots );
+    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder(
+        "PLOT_ASCIIEXPORT_DIR" );
 
-    caf::ProgressInfo pi(selectedWellLogPlots.size(), QString("Exporting plot data to ASCII"));
-    size_t progress = 0;
+    caf::ProgressInfo pi( selectedWellLogPlots.size(), QString( "Exporting plot data to ASCII" ) );
+    size_t            progress = 0;
 
-    if (selectedWellLogPlots.size() == 1)
+    if ( selectedWellLogPlots.size() == 1 )
     {
-        RimWellLogPlot* wellLogPlot = selectedWellLogPlots.at(0);
-        QString defaultFileName = defaultDir + "/" + caf::Utils::makeValidFileBasename((wellLogPlot->description())) + ".ascii";
-        QString fileName = QFileDialog::getSaveFileName(nullptr, "Select File for Plot Data Export", defaultFileName, "Text File(*.ascii);;All files(*.*)");
-        if (fileName.isEmpty()) return;
-        RicAsciiExportWellLogPlotFeature::exportAsciiForWellLogPlot(fileName, wellLogPlot);
+        RimWellLogPlot* wellLogPlot     = selectedWellLogPlots.at( 0 );
+        QString         defaultFileName = defaultDir + "/" +
+                                  caf::Utils::makeValidFileBasename( ( wellLogPlot->description() ) ) + ".ascii";
+        QString fileName = QFileDialog::getSaveFileName( nullptr,
+                                                         "Select File for Plot Data Export",
+                                                         defaultFileName,
+                                                         "Text File(*.ascii);;All files(*.*)" );
+        if ( fileName.isEmpty() ) return;
+        RicAsciiExportWellLogPlotFeature::exportAsciiForWellLogPlot( fileName, wellLogPlot );
 
         progress++;
-        pi.setProgress(progress);
+        pi.setProgress( progress );
     }
-    else if (selectedWellLogPlots.size() > 1)
+    else if ( selectedWellLogPlots.size() > 1 )
     {
         std::vector<QString> fileNames;
-        for (RimWellLogPlot* wellLogPlot : selectedWellLogPlots)
+        for ( RimWellLogPlot* wellLogPlot : selectedWellLogPlots )
         {
-            QString fileName = caf::Utils::makeValidFileBasename(wellLogPlot->description()) + ".ascii";
-            fileNames.push_back(fileName);
+            QString fileName = caf::Utils::makeValidFileBasename( wellLogPlot->description() ) + ".ascii";
+            fileNames.push_back( fileName );
         }
 
         QString saveDir;
-        bool writeFiles = caf::Utils::getSaveDirectoryAndCheckOverwriteFiles(defaultDir, fileNames, &saveDir);
-        if (!writeFiles) return;
+        bool    writeFiles = caf::Utils::getSaveDirectoryAndCheckOverwriteFiles( defaultDir, fileNames, &saveDir );
+        if ( !writeFiles ) return;
 
-        RiaLogging::info(QString("Writing to directory %!").arg(saveDir));
-        for (RimWellLogPlot* wellLogPlot : selectedWellLogPlots)
+        RiaLogging::info( QString( "Writing to directory %!" ).arg( saveDir ) );
+        for ( RimWellLogPlot* wellLogPlot : selectedWellLogPlots )
         {
-            QString fileName = saveDir + "/" + caf::Utils::makeValidFileBasename(wellLogPlot->description()) + ".ascii";
-            RicAsciiExportWellLogPlotFeature::exportAsciiForWellLogPlot(fileName, wellLogPlot);
+            QString fileName = saveDir + "/" + caf::Utils::makeValidFileBasename( wellLogPlot->description() ) + ".ascii";
+            RicAsciiExportWellLogPlotFeature::exportAsciiForWellLogPlot( fileName, wellLogPlot );
 
             progress++;
-            pi.setProgress(progress);
+            pi.setProgress( progress );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicAsciiExportWellLogPlotFeature::setupActionLook(QAction* actionToSetup)
+void RicAsciiExportWellLogPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Export Plot Data to Text File");
-    actionToSetup->setIcon(QIcon(":/Save.png"));
+    actionToSetup->setText( "Export Plot Data to Text File" );
+    actionToSetup->setIcon( QIcon( ":/Save.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RicAsciiExportWellLogPlotFeature::exportAsciiForWellLogPlot(const QString& fileName, const RimWellLogPlot* wellLogPlot)
+bool RicAsciiExportWellLogPlotFeature::exportAsciiForWellLogPlot( const QString&        fileName,
+                                                                  const RimWellLogPlot* wellLogPlot )
 {
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    QFile file( fileName );
+    if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
         return false;
     }
 
-    RiaLogging::info(QString("Writing values for plot(s) to file: %1").arg(fileName));
-    
-    QTextStream out(&file);
+    RiaLogging::info( QString( "Writing values for plot(s) to file: %1" ).arg( fileName ) );
+
+    QTextStream out( &file );
 
     out << wellLogPlot->description();
     out << "\n";
     out << wellLogPlot->asciiDataForPlotExport();
     out << "\n\n";
-    
-    RiaLogging::info(QString("Competed writing values for plot(s) to file %1").arg(fileName));
+
+    RiaLogging::info( QString( "Competed writing values for plot(s) to file %1" ).arg( fileName ) );
 
     return true;
 }
-
-

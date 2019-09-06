@@ -28,11 +28,6 @@ class RicSwapGridCrossPlotDataSetAxesFeature : public caf::CmdFeature
 
 protected:
     bool isCommandEnabled() override;
-    void onActionTriggered(bool isChecked) override;
-    void setupActionLook(QAction* actionToSetup) override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };
-
-
-
-
-

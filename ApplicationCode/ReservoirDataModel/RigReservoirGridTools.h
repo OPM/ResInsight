@@ -42,30 +42,30 @@ class QString;
 class RigReservoirGridTools
 {
 public:
-    static int                             gridCount(RimCase* rimCase);
-    static const cvf::StructGridInterface* mainGrid(RimCase* rimCase);
-    static const cvf::StructGridInterface* gridByIndex(RimCase* rimCase, int gridIndex);
-    static QString                         gridName(RimCase* rimCase, int gridIndex);
+    static int                             gridCount( RimCase* rimCase );
+    static const cvf::StructGridInterface* mainGrid( RimCase* rimCase );
+    static const cvf::StructGridInterface* gridByIndex( RimCase* rimCase, int gridIndex );
+    static QString                         gridName( RimCase* rimCase, int gridIndex );
 
-    static const RigActiveCellInfo* activeCellInfo(Rim3dView* rimView);
+    static const RigActiveCellInfo* activeCellInfo( Rim3dView* rimView );
 
-    template<class InputIterator>
-    static QString globalCellIndicesToOneBasedIJKText(InputIterator first, InputIterator last, const RigMainGrid* mainGrid)
+    template <class InputIterator>
+    static QString globalCellIndicesToOneBasedIJKText( InputIterator first, InputIterator last, const RigMainGrid* mainGrid )
     {
         QString txt;
 
-        if (mainGrid)
+        if ( mainGrid )
         {
-            while (first != last)
+            while ( first != last )
             {
                 size_t globalCellIndex = *first;
                 size_t i, j, k;
-                mainGrid->ijkFromCellIndex(globalCellIndex, &i, &j, &k);
+                mainGrid->ijkFromCellIndex( globalCellIndex, &i, &j, &k );
                 i++;
                 j++;
                 k++;
 
-                QString itemText = QString("%1 %2 %3").arg(i).arg(j).arg(k);
+                QString itemText = QString( "%1 %2 %3" ).arg( i ).arg( j ).arg( k );
 
                 txt += itemText + "\n";
 
@@ -77,6 +77,6 @@ public:
     }
 
 private:
-    static RigMainGrid*          eclipseMainGrid(RimCase* rimCase);
-    static RigFemPartCollection* geoMechPartCollection(RimCase* rimCase);
+    static RigMainGrid*          eclipseMainGrid( RimCase* rimCase );
+    static RigFemPartCollection* geoMechPartCollection( RimCase* rimCase );
 };

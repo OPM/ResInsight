@@ -44,17 +44,17 @@
 
 #include <QDir>
 
-CAF_PDM_SOURCE_INIT(RicfExportVisibleCells, "exportVisibleCells");
+CAF_PDM_SOURCE_INIT( RicfExportVisibleCells, "exportVisibleCells" );
 
 namespace caf
 {
-template<>
+template <>
 void AppEnum<RicfExportVisibleCells::ExportKeyword>::setUp()
 {
-    addItem(RicfExportVisibleCells::FLUXNUM, "FLUXNUM", "FLUXNUM");
-    addItem(RicfExportVisibleCells::MULTNUM, "MULTNUM", "MULTNUM");
+    addItem( RicfExportVisibleCells::FLUXNUM, "FLUXNUM", "FLUXNUM" );
+    addItem( RicfExportVisibleCells::MULTNUM, "MULTNUM", "MULTNUM" );
 
-    setDefault(RicfExportVisibleCells::FLUXNUM);
+    setDefault( RicfExportVisibleCells::FLUXNUM );
 }
 } // namespace caf
 
@@ -63,13 +63,18 @@ void AppEnum<RicfExportVisibleCells::ExportKeyword>::setUp()
 //--------------------------------------------------------------------------------------------------
 RicfExportVisibleCells::RicfExportVisibleCells()
 {
-    RICF_InitField(&m_caseId, "caseId", -1, "Case ID", "", "", "");
-    RICF_InitField(&m_viewName, "viewName", QString(), "View Name", "", "", "");
-    RICF_InitField(
-        &m_exportKeyword, "exportKeyword", caf::AppEnum<RicfExportVisibleCells::ExportKeyword>(), "Export Keyword", "", "", "");
-    RICF_InitField(&m_visibleActiveCellsValue, "visibleActiveCellsValue", 1, "Visible Active Cells Value", "", "", "");
-    RICF_InitField(&m_hiddenActiveCellsValue, "hiddenActiveCellsValue", 0, "Hidden Active Cells Value", "", "", "");
-    RICF_InitField(&m_inactiveCellsValue, "inactiveCellsValue", 0, "Inactive Cells Value", "", "", "");
+    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    RICF_InitField( &m_viewName, "viewName", QString(), "View Name", "", "", "" );
+    RICF_InitField( &m_exportKeyword,
+                    "exportKeyword",
+                    caf::AppEnum<RicfExportVisibleCells::ExportKeyword>(),
+                    "Export Keyword",
+                    "",
+                    "",
+                    "" );
+    RICF_InitField( &m_visibleActiveCellsValue, "visibleActiveCellsValue", 1, "Visible Active Cells Value", "", "", "" );
+    RICF_InitField( &m_hiddenActiveCellsValue, "hiddenActiveCellsValue", 0, "Hidden Active Cells Value", "", "", "" );
+    RICF_InitField( &m_inactiveCellsValue, "inactiveCellsValue", 0, "Inactive Cells Value", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,32 +82,33 @@ RicfExportVisibleCells::RicfExportVisibleCells()
 //--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicfExportVisibleCells::execute()
 {
-    if (m_caseId < 0 || m_viewName().isEmpty())
+    if ( m_caseId < 0 || m_viewName().isEmpty() )
     {
-        QString error("exportVisibleCells: CaseId or view name not specified");
-        RiaLogging::error(error);
-        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+        QString error( "exportVisibleCells: CaseId or view name not specified" );
+        RiaLogging::error( error );
+        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
     }
 
-    auto eclipseView = RicfApplicationTools::viewFromCaseIdAndViewName(m_caseId, m_viewName);
-    if (!eclipseView)
+    auto eclipseView = RicfApplicationTools::viewFromCaseIdAndViewName( m_caseId, m_viewName );
+    if ( !eclipseView )
     {
-        QString error(QString("exportVisibleCells: Could not find view '%1' in case ID %2").arg(m_viewName).arg(m_caseId));
-        RiaLogging::error(error);
-        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+        QString error(
+            QString( "exportVisibleCells: Could not find view '%1' in case ID %2" ).arg( m_viewName ).arg( m_caseId ) );
+        RiaLogging::error( error );
+        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
     }
 
-    QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::CELLS);
-    if (exportFolder.isNull())
+    QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::CELLS );
+    if ( exportFolder.isNull() )
     {
-        exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("visibleCells");
+        exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "visibleCells" );
     }
 
     RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
 
     RicSaveEclipseInputVisibleCellsUi exportSettings;
-    buildExportSettings(exportFolder, &exportSettings);
-    RicSaveEclipseInputVisibleCellsFeature::executeCommand(eclipseView, exportSettings, "exportVisibleCells");
+    buildExportSettings( exportFolder, &exportSettings );
+    RicSaveEclipseInputVisibleCellsFeature::executeCommand( eclipseView, exportSettings, "exportVisibleCells" );
 
     return RicfCommandResponse();
 }
@@ -110,14 +116,15 @@ RicfCommandResponse RicfExportVisibleCells::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfExportVisibleCells::buildExportSettings(const QString& exportFolder, RicSaveEclipseInputVisibleCellsUi* exportSettings)
+void RicfExportVisibleCells::buildExportSettings( const QString&                     exportFolder,
+                                                  RicSaveEclipseInputVisibleCellsUi* exportSettings )
 {
-    QDir baseDir(exportFolder);
-    exportSettings->exportFilename = baseDir.absoluteFilePath(QString("%1.grdecl").arg(m_exportKeyword().text()));
+    QDir baseDir( exportFolder );
+    exportSettings->exportFilename = baseDir.absoluteFilePath( QString( "%1.grdecl" ).arg( m_exportKeyword().text() ) );
 
-    if (m_exportKeyword == ExportKeyword::FLUXNUM)
+    if ( m_exportKeyword == ExportKeyword::FLUXNUM )
         exportSettings->exportKeyword = RicSaveEclipseInputVisibleCellsUi::FLUXNUM;
-    else if (m_exportKeyword == ExportKeyword::MULTNUM)
+    else if ( m_exportKeyword == ExportKeyword::MULTNUM )
         exportSettings->exportKeyword = RicSaveEclipseInputVisibleCellsUi::MULTNUM;
 
     exportSettings->visibleActiveCellsValue = m_visibleActiveCellsValue;

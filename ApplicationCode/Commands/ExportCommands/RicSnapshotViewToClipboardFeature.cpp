@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -36,31 +36,30 @@
 #include <QFileInfo>
 #include <QMdiSubWindow>
 
-
-CAF_CMD_SOURCE_INIT(RicSnapshotViewToClipboardFeature, "RicSnapshotViewToClipboardFeature");
+CAF_CMD_SOURCE_INIT( RicSnapshotViewToClipboardFeature, "RicSnapshotViewToClipboardFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotViewToClipboardFeature::copyToClipboard(const QImage& image)
+void RicSnapshotViewToClipboardFeature::copyToClipboard( const QImage& image )
 {
     QClipboard* clipboard = QApplication::clipboard();
-    if (clipboard)
+    if ( clipboard )
     {
-        clipboard->setImage(image);
+        clipboard->setImage( image );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QIcon RicSnapshotViewToClipboardFeature::icon()
 {
-    return QIcon(":/SnapShot.png");
+    return QIcon( ":/SnapShot.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicSnapshotViewToClipboardFeature::text()
 {
@@ -68,7 +67,7 @@ QString RicSnapshotViewToClipboardFeature::text()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicSnapshotViewToClipboardFeature::isCommandEnabled()
 {
@@ -76,33 +75,33 @@ bool RicSnapshotViewToClipboardFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotViewToClipboardFeature::onActionTriggered(bool isChecked)
+void RicSnapshotViewToClipboardFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
     RimViewWindow* viewWindow = RiaGuiApplication::activeViewWindow();
 
-    if (viewWindow)
+    if ( viewWindow )
     {
         QClipboard* clipboard = QApplication::clipboard();
-        if (clipboard)
+        if ( clipboard )
         {
             QImage image = viewWindow->snapshotWindowContent();
-            if (!image.isNull())
+            if ( !image.isNull() )
             {
-                clipboard->setImage(image);
+                clipboard->setImage( image );
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotViewToClipboardFeature::setupActionLook(QAction* actionToSetup)
+void RicSnapshotViewToClipboardFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText(text());
-    actionToSetup->setIcon(icon());
+    actionToSetup->setText( text() );
+    actionToSetup->setIcon( icon() );
 }

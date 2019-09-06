@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -28,22 +28,19 @@ class RimEclipseCase;
 class RiuEclipseSelectionItem;
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class RimEclipseGeometrySelectionItem : public RimGeometrySelectionItem
 {
     CAF_PDM_HEADER_INIT;
+
 public:
     RimEclipseGeometrySelectionItem();
     ~RimEclipseGeometrySelectionItem() override;
 
-    void            setFromSelectionItem(const RiuEclipseSelectionItem* selectionItem);
-    void            setFromCaseGridAndIJK(RimEclipseCase* eclipseCase,
-                                          size_t gridIndex,
-                                          size_t i,
-                                          size_t j,
-                                          size_t k);
+    void    setFromSelectionItem( const RiuEclipseSelectionItem* selectionItem );
+    void    setFromCaseGridAndIJK( RimEclipseCase* eclipseCase, size_t gridIndex, size_t i, size_t j, size_t k );
     QString geometrySelectionText() const override;
 
     RimEclipseCase* eclipseCase() const;
@@ -53,8 +50,7 @@ public:
 private:
     caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
 
-    caf::PdmField<size_t> m_gridIndex;
-    caf::PdmField<size_t> m_cellIndex;
+    caf::PdmField<size_t>     m_gridIndex;
+    caf::PdmField<size_t>     m_cellIndex;
     caf::PdmField<cvf::Vec3d> m_localIntersectionPointInDisplay;
 };
-

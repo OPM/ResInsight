@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -37,78 +37,77 @@
 #include <QAction>
 #include <QFileDialog>
 
-CAF_CMD_SOURCE_INIT(RicExportFaultsFeature, "RicExportFaultsFeature");
-
-
+CAF_CMD_SOURCE_INIT( RicExportFaultsFeature, "RicExportFaultsFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicExportFaultsFeature::isCommandEnabled()
 {
     std::vector<RimFaultInView*> selectedFaults;
 
-    caf::SelectionManager::instance()->objectsByType(&selectedFaults);
+    caf::SelectionManager::instance()->objectsByType( &selectedFaults );
 
-    return (selectedFaults.size() > 0);
+    return ( selectedFaults.size() > 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicExportFaultsFeature::onActionTriggered(bool isChecked)
+void RicExportFaultsFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
     std::vector<RimFaultInView*> selectedFaults;
 
-    caf::SelectionManager::instance()->objectsByType(&selectedFaults);
+    caf::SelectionManager::instance()->objectsByType( &selectedFaults );
 
-    if (selectedFaults.size() == 0) return;
+    if ( selectedFaults.size() == 0 ) return;
 
-    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder("FAULTS");
+    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "FAULTS" );
 
-    QString selectedDir = QFileDialog::getExistingDirectory(nullptr, tr("Select Directory"), defaultDir);
+    QString selectedDir = QFileDialog::getExistingDirectory( nullptr, tr( "Select Directory" ), defaultDir );
 
-    if (selectedDir.isNull()) {
+    if ( selectedDir.isNull() )
+    {
         // Stop if folder selection was cancelled.
         return;
     }
 
-    for (RimFaultInView* rimFault : selectedFaults)
+    for ( RimFaultInView* rimFault : selectedFaults )
     {
         RimEclipseCase* eclCase = nullptr;
-        rimFault->firstAncestorOrThisOfType(eclCase);
+        rimFault->firstAncestorOrThisOfType( eclCase );
 
-        if (eclCase)
+        if ( eclCase )
         {
             QString caseName = eclCase->caseUserDescription();
 
             QString faultName = rimFault->name();
-            if (faultName == RiaDefines::undefinedGridFaultName()) faultName = "UNDEF";
-            if (faultName == RiaDefines::undefinedGridFaultWithInactiveName()) faultName = "UNDEF_IA";
+            if ( faultName == RiaDefines::undefinedGridFaultName() ) faultName = "UNDEF";
+            if ( faultName == RiaDefines::undefinedGridFaultWithInactiveName() ) faultName = "UNDEF_IA";
 
             QString baseFilename = "Fault_" + faultName + "_" + caseName;
-            baseFilename         = caf::Utils::makeValidFileBasename(baseFilename);
+            baseFilename         = caf::Utils::makeValidFileBasename( baseFilename );
 
             QString completeFilename = selectedDir + "/" + baseFilename + ".grdecl";
 
-            RifEclipseInputFileTools::saveFault(
-                completeFilename, eclCase->eclipseCaseData()->mainGrid(), rimFault->faultGeometry()->faultFaces(), faultName);
+            RifEclipseInputFileTools::saveFault( completeFilename,
+                                                 eclCase->eclipseCaseData()->mainGrid(),
+                                                 rimFault->faultGeometry()->faultFaces(),
+                                                 faultName );
         }
     }
 
-
     // Remember the path to next time
-    RiaApplication::instance()->setLastUsedDialogDirectory("FAULTS", selectedDir);
-    
+    RiaApplication::instance()->setLastUsedDialogDirectory( "FAULTS", selectedDir );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicExportFaultsFeature::setupActionLook(QAction* actionToSetup)
+void RicExportFaultsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Export Faults ...");
-    actionToSetup->setIcon(QIcon(":/Save.png"));
+    actionToSetup->setText( "Export Faults ..." );
+    actionToSetup->setIcon( QIcon( ":/Save.png" ) );
 }

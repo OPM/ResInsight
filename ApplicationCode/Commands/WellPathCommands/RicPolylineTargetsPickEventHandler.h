@@ -30,13 +30,13 @@ class RimUserDefinedPolylinesAnnotation;
 class RicPolylineTargetsPickEventHandler : public Ric3dViewPickEventHandler
 {
 public:
-    RicPolylineTargetsPickEventHandler(RimUserDefinedPolylinesAnnotation* polylineDef);
+    RicPolylineTargetsPickEventHandler( RimUserDefinedPolylinesAnnotation* polylineDef );
     ~RicPolylineTargetsPickEventHandler();
 
     void registerAsPickEventHandler() override;
 
 protected:
-    bool handle3dPickEvent(const Ric3dPickEvent& eventObject) override;
+    bool handle3dPickEvent( const Ric3dPickEvent& eventObject ) override;
     void notifyUnregistered() override;
 
 private:

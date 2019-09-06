@@ -26,15 +26,14 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeView.h"
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowTools::collapseSiblings(const caf::PdmUiItem* sourceUiItem)
+void RiuMainWindowTools::collapseSiblings( const caf::PdmUiItem* sourceUiItem )
 {
-    if (!sourceUiItem) return;
+    if ( !sourceUiItem ) return;
 
-    if (!RiaGuiApplication::isRunning()) return;
+    if ( !RiaGuiApplication::isRunning() ) return;
 
     {
         caf::PdmUiTreeView*     sourceTreeView         = nullptr;
@@ -43,41 +42,41 @@ void RiuMainWindowTools::collapseSiblings(const caf::PdmUiItem* sourceUiItem)
         {
             QModelIndex modIndex;
 
-            if (RiuMainWindow::instance())
+            if ( RiuMainWindow::instance() )
             {
-                modIndex = RiuMainWindow::instance()->projectTreeView()->findModelIndex(sourceUiItem);
+                modIndex = RiuMainWindow::instance()->projectTreeView()->findModelIndex( sourceUiItem );
             }
 
-            if (modIndex.isValid())
+            if ( modIndex.isValid() )
             {
                 sourceTreeView = RiuMainWindow::instance()->projectTreeView();
             }
             else
             {
                 RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
-                if (mpw)
+                if ( mpw )
                 {
-                    modIndex = mpw->projectTreeView()->findModelIndex(sourceUiItem);
-                    if (modIndex.isValid())
+                    modIndex = mpw->projectTreeView()->findModelIndex( sourceUiItem );
+                    if ( modIndex.isValid() )
                     {
                         sourceTreeView = mpw->projectTreeView();
                     }
                 }
             }
 
-            if (!modIndex.isValid()) return;
+            if ( !modIndex.isValid() ) return;
 
-            sourceTreeOrderingItem = static_cast<caf::PdmUiTreeOrdering*>(modIndex.internalPointer());
+            sourceTreeOrderingItem = static_cast<caf::PdmUiTreeOrdering*>( modIndex.internalPointer() );
         }
 
-        if (sourceTreeView && sourceTreeOrderingItem && sourceTreeOrderingItem->parent())
+        if ( sourceTreeView && sourceTreeOrderingItem && sourceTreeOrderingItem->parent() )
         {
-            for (int i = 0; i < sourceTreeOrderingItem->parent()->childCount(); i++)
+            for ( int i = 0; i < sourceTreeOrderingItem->parent()->childCount(); i++ )
             {
-                auto siblingTreeOrderingItem = sourceTreeOrderingItem->parent()->child(i);
-                if (siblingTreeOrderingItem != sourceTreeOrderingItem)
+                auto siblingTreeOrderingItem = sourceTreeOrderingItem->parent()->child( i );
+                if ( siblingTreeOrderingItem != sourceTreeOrderingItem )
                 {
-                    sourceTreeView->setExpanded(siblingTreeOrderingItem->activeItem(), false);
+                    sourceTreeView->setExpanded( siblingTreeOrderingItem->activeItem(), false );
                 }
             }
         }

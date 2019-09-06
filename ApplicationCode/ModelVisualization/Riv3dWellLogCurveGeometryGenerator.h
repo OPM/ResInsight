@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "cvfBase.h"
 #include "cvfDrawableGeo.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
@@ -45,15 +44,15 @@ class Riv3dWellLogCurveGeometryGenerator : public cvf::Object
 {
 public:
     typedef std::pair<cvf::Vec3d, double> PointValuePair;
-    Riv3dWellLogCurveGeometryGenerator(RimWellPath* wellPath);
+    Riv3dWellLogCurveGeometryGenerator( RimWellPath* wellPath );
 
-    void createCurveDrawables(const caf::DisplayCoordTransform* displayCoordTransform,
-                              const cvf::BoundingBox&           wellPathClipBoundingBox,
-                              const Rim3dWellLogCurve*          rim3dWellLogCurve,
-                              double                            planeOffsetFromWellPathCenter,
-                              double                            planeWidth,
-                              const std::vector<cvf::Vec3d>&    drawSurfaceVertices,
-                              int                               currentTimeStep);
+    void createCurveDrawables( const caf::DisplayCoordTransform* displayCoordTransform,
+                               const cvf::BoundingBox&           wellPathClipBoundingBox,
+                               const Rim3dWellLogCurve*          rim3dWellLogCurve,
+                               double                            planeOffsetFromWellPathCenter,
+                               double                            planeWidth,
+                               const std::vector<cvf::Vec3d>&    drawSurfaceVertices,
+                               int                               currentTimeStep );
 
     void clearCurvePointsAndGeometry();
 
@@ -61,30 +60,31 @@ public:
 
     cvf::ref<cvf::DrawableGeo> curveDrawable();
 
-    bool findClosestPointOnCurve(const cvf::Vec3d& globalIntersection,
-                                 cvf::Vec3d*       closestPoint,
-                                 double*           measuredDepthAtPoint,
-                                 double*           valueAtClosestPoint) const;
+    bool findClosestPointOnCurve( const cvf::Vec3d& globalIntersection,
+                                  cvf::Vec3d*       closestPoint,
+                                  double*           measuredDepthAtPoint,
+                                  double*           valueAtClosestPoint ) const;
 
 private:
-    void        createNewVerticesAlongTriangleEdges(const std::vector<cvf::Vec3d>& drawSurfaceVertices);
-    static void createNewVerticesAlongSegment(const cvf::Vec3d&              ptStart,
-                                              const cvf::Vec3d&              ptEnd,
-                                              const std::vector<cvf::Vec3d>& drawSurfaceVertices,
-                                              std::vector<cvf::Vec3d>*       extraVertices);
+    void        createNewVerticesAlongTriangleEdges( const std::vector<cvf::Vec3d>& drawSurfaceVertices );
+    static void createNewVerticesAlongSegment( const cvf::Vec3d&              ptStart,
+                                               const cvf::Vec3d&              ptEnd,
+                                               const std::vector<cvf::Vec3d>& drawSurfaceVertices,
+                                               std::vector<cvf::Vec3d>*       extraVertices );
 
-    static std::vector<cvf::Vec3d> projectVerticesOntoTriangles(const std::vector<cvf::Vec3d>& originalVertices, const std::vector<cvf::Vec3d>& drawSurfaceVertices);
-    static cvf::Vec3d              projectPointOntoTriangle(const cvf::Vec3d& point,
-                                                            const cvf::Vec3d& triangleVertex1,
-                                                            const cvf::Vec3d& triangleVertex2,
-                                                            const cvf::Vec3d& triangleVertex3,
-                                                            bool*             wasInsideTriangle);
-    caf::PdmPointer<RimWellPath> m_wellPath;
-    double                       m_planeWidth;
-	
-    cvf::ref<cvf::DrawableGeo>   m_curveDrawable;
-    std::vector<cvf::Vec3d>      m_curveVertices;
+    static std::vector<cvf::Vec3d> projectVerticesOntoTriangles( const std::vector<cvf::Vec3d>& originalVertices,
+                                                                 const std::vector<cvf::Vec3d>& drawSurfaceVertices );
+    static cvf::Vec3d              projectPointOntoTriangle( const cvf::Vec3d& point,
+                                                             const cvf::Vec3d& triangleVertex1,
+                                                             const cvf::Vec3d& triangleVertex2,
+                                                             const cvf::Vec3d& triangleVertex3,
+                                                             bool*             wasInsideTriangle );
+    caf::PdmPointer<RimWellPath>   m_wellPath;
+    double                         m_planeWidth;
 
-    std::vector<double>          m_curveMeasuredDepths;
-    std::vector<double>          m_curveValues;
+    cvf::ref<cvf::DrawableGeo> m_curveDrawable;
+    std::vector<cvf::Vec3d>    m_curveVertices;
+
+    std::vector<double> m_curveMeasuredDepths;
+    std::vector<double> m_curveValues;
 };

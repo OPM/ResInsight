@@ -18,16 +18,14 @@
 
 #include "VdeFileExporter.h"
 #include "VdeArrayDataPacket.h"
-#include "VdePacketDirectory.h"
 #include "VdeCachingHashedIdFactory.h"
+#include "VdePacketDirectory.h"
 
 #include "cvfTrace.h"
 
 #include <QDir>
 #include <QFile>
 
-
-
 //==================================================================================================
 //
 //
@@ -37,43 +35,47 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-VdeFileExporter::VdeFileExporter(QString absOutputFolder)
-:   m_absOutputFolder(absOutputFolder)
+VdeFileExporter::VdeFileExporter( QString absOutputFolder )
+    : m_absOutputFolder( absOutputFolder )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool VdeFileExporter::exportToFile(const QString& modelMetaJsonStr, const VdePacketDirectory& packetDirectory, const std::vector<int>& packetIdsToExport)
+bool VdeFileExporter::exportToFile( const QString&            modelMetaJsonStr,
+                                    const VdePacketDirectory& packetDirectory,
+                                    const std::vector<int>&   packetIdsToExport )
 {
-    cvf::Trace::show("Exporting to folder: %s", m_absOutputFolder.toLatin1().constData());
+    cvf::Trace::show( "Exporting to folder: %s", m_absOutputFolder.toLatin1().constData() );
 
     QString jsonFileName = m_absOutputFolder + "/modelMeta.json";
-    if (!writeModelMetaJsonFile(modelMetaJsonStr, jsonFileName))
+    if ( !writeModelMetaJsonFile( modelMetaJsonStr, jsonFileName ) )
     {
-        cvf::Trace::show("Error writing: %s", jsonFileName.toLatin1().constData());
+        cvf::Trace::show( "Error writing: %s", jsonFileName.toLatin1().constData() );
         return false;
     }
 
-    for (const int packetArrayId : packetIdsToExport)
+    for ( const int packetArrayId : packetIdsToExport )
     {
-        const VdeArrayDataPacket* dataPacket = packetDirectory.lookupPacket(packetArrayId);
-        if (!dataPacket)
+        const VdeArrayDataPacket* dataPacket = packetDirectory.lookupPacket( packetArrayId );
+        if ( !dataPacket )
         {
-            cvf::Trace::show("Error during export, no data for arrayId %d", packetArrayId);
+            cvf::Trace::show( "Error during export, no data for arrayId %d", packetArrayId );
             return false;
         }
 
-        CVF_ASSERT(packetArrayId == dataPacket->arrayId());
-        if (!writeDataPacketToFile(dataPacket->arrayId(), *dataPacket))
+        CVF_ASSERT( packetArrayId == dataPacket->arrayId() );
+        if ( !writeDataPacketToFile( dataPacket->arrayId(), *dataPacket ) )
         {
-            cvf::Trace::show("Error writing packet data to file, arrayId %d", packetArrayId);
+            cvf::Trace::show( "Error writing packet data to file, arrayId %d", packetArrayId );
             return false;
         }
     }
 
-    cvf::Trace::show("Data exported (%d packets) to folder: %s", packetIdsToExport.size(), m_absOutputFolder.toLatin1().constData());
+    cvf::Trace::show( "Data exported (%d packets) to folder: %s",
+                      packetIdsToExport.size(),
+                      m_absOutputFolder.toLatin1().constData() );
 
     return true;
 }
@@ -81,17 +83,17 @@ bool VdeFileExporter::exportToFile(const QString& modelMetaJsonStr, const VdePac
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool VdeFileExporter::exportViewContents(const RimGridView& view)
+bool VdeFileExporter::exportViewContents( const RimGridView& view )
 {
     VdeCachingHashedIdFactory localIdFactory;
-    VdeVizDataExtractor extractor(view, &localIdFactory);
+    VdeVizDataExtractor       extractor( view, &localIdFactory );
 
-    QString modelMetaJsonStr;
-    std::vector<int> allReferencedArrayIds;
+    QString            modelMetaJsonStr;
+    std::vector<int>   allReferencedArrayIds;
     VdePacketDirectory packetDirectory;
-    extractor.extractViewContents(&modelMetaJsonStr, &allReferencedArrayIds, &packetDirectory);
+    extractor.extractViewContents( &modelMetaJsonStr, &allReferencedArrayIds, &packetDirectory );
 
-    if (!exportToFile(modelMetaJsonStr, packetDirectory, allReferencedArrayIds))
+    if ( !exportToFile( modelMetaJsonStr, packetDirectory, allReferencedArrayIds ) )
     {
         return false;
     }
@@ -102,17 +104,17 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool VdeFileExporter::writeDataPacketToFile(int arrayId, const VdeArrayDataPacket& packet) const
+bool VdeFileExporter::writeDataPacketToFile( int arrayId, const VdeArrayDataPacket& packet ) const
 {
-    const QString fileName = m_absOutputFolder + QString("/arrayData_%1.bin").arg(arrayId);
+    const QString fileName = m_absOutputFolder + QString( "/arrayData_%1.bin" ).arg( arrayId );
 
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly))
+    QFile file( fileName );
+    if ( !file.open( QIODevice::WriteOnly ) )
     {
         return false;
     }
 
-    if (file.write(packet.fullPacketRawPtr(), packet.fullPacketSize()) == -1)
+    if ( file.write( packet.fullPacketRawPtr(), packet.fullPacketSize() ) == -1 )
     {
         return false;
     }
@@ -123,21 +125,20 @@ bool VdeFileExporter::writeDataPacketToFile(int arrayId, const VdeArrayDataPacke
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool VdeFileExporter::writeModelMetaJsonFile(const QString& modelMetaJsonStr, QString fileName)
+bool VdeFileExporter::writeModelMetaJsonFile( const QString& modelMetaJsonStr, QString fileName )
 {
     const QByteArray jsonByteArr = modelMetaJsonStr.toLatin1();
 
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    QFile file( fileName );
+    if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
         return false;
     }
 
-    if (file.write(jsonByteArr) == -1)
+    if ( file.write( jsonByteArr ) == -1 )
     {
         return false;
     }
 
     return true;
 }
-

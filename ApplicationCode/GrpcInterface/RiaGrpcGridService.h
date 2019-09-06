@@ -24,7 +24,9 @@
 class RiaGrpcGridService final : public rips::Grid::AsyncService, public RiaGrpcServiceInterface
 {
 public:
-    grpc::Status GetDimensions(grpc::ServerContext* context, const rips::GridRequest* request, rips::GridDimensions* reply) override;
-    
+    grpc::Status GetDimensions( grpc::ServerContext*     context,
+                                const rips::GridRequest* request,
+                                rips::GridDimensions*    reply ) override;
+
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 };

@@ -25,11 +25,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFractureCell::RigFractureCell(std::vector<cvf::Vec3d> polygon, size_t i, size_t j)
-    : m_polygon(polygon)
-    , m_i(i)
-    , m_j(j)
-    , m_conductivityValue(0.0)
+RigFractureCell::RigFractureCell( std::vector<cvf::Vec3d> polygon, size_t i, size_t j )
+    : m_polygon( polygon )
+    , m_i( i )
+    , m_j( j )
+    , m_conductivityValue( 0.0 )
 {
 }
 
@@ -76,7 +76,7 @@ bool RigFractureCell::hasNonZeroConductivity() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFractureCell::setConductivityValue(double cond)
+void RigFractureCell::setConductivityValue( double cond )
 {
     m_conductivityValue = cond;
 }
@@ -87,7 +87,7 @@ void RigFractureCell::setConductivityValue(double cond)
 double RigFractureCell::cellSizeX() const
 {
     // The polygon corners are always stored in the same order
-    if (m_polygon.size() > 1) return (m_polygon[1] - m_polygon[0]).length();
+    if ( m_polygon.size() > 1 ) return ( m_polygon[1] - m_polygon[0] ).length();
     return cvf::UNDEFINED_DOUBLE;
 }
 
@@ -96,6 +96,6 @@ double RigFractureCell::cellSizeX() const
 //--------------------------------------------------------------------------------------------------
 double RigFractureCell::cellSizeZ() const
 {
-    if (m_polygon.size() > 2) return (m_polygon[2] - m_polygon[1]).length();
+    if ( m_polygon.size() > 2 ) return ( m_polygon[2] - m_polygon[1] ).length();
     return cvf::UNDEFINED_DOUBLE;
 }

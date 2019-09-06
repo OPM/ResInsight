@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "cvfBase.h"
 #include "cvfCollection.h"
 #include "cvfVector3.h"
 
@@ -42,16 +41,16 @@ class RivWellConnectionsPartMgr;
 class RivReservoirSimWellsPartMgr : public cvf::Object
 {
 public:
-    explicit RivReservoirSimWellsPartMgr(RimEclipseView* reservoirView);
+    explicit RivReservoirSimWellsPartMgr( RimEclipseView* reservoirView );
     ~RivReservoirSimWellsPartMgr() override;
 
     void clearGeometryCache();
     void scheduleGeometryRegen();
 
-    void setScaleTransform(cvf::Transform* scaleTransform);
+    void setScaleTransform( cvf::Transform* scaleTransform );
 
-    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
-    void updatePipeResultColor(size_t frameIndex);
+    void appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model, size_t frameIndex );
+    void updatePipeResultColor( size_t frameIndex );
 
 private:
     caf::PdmPointer<RimEclipseView> m_reservoirView;

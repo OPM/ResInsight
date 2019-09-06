@@ -20,7 +20,6 @@
 
 #include "RivIntersectionBoxGeometryGenerator.h"
 
-#include "cvfBase.h"
 #include "cvfObject.h"
 
 namespace cvf
@@ -44,13 +43,13 @@ class RimIntersectionBox;
 class RivIntersectionBoxPartMgr : public cvf::Object
 {
 public:
-    explicit RivIntersectionBoxPartMgr(RimIntersectionBox* intersectionBox);
+    explicit RivIntersectionBoxPartMgr( RimIntersectionBox* intersectionBox );
 
     void applySingleColorEffect();
-    void updateCellResultColor(size_t timeStepIndex);
+    void updateCellResultColor( size_t timeStepIndex );
 
-    void appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
-    void appendMeshLinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
+    void appendNativeCrossSectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
+    void appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
 
 private:
     void updatePartEffect();

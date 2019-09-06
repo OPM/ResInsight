@@ -24,19 +24,19 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo::RigActiveCellInfo()
-    : m_reservoirActiveCellCount(0)
-    , m_reservoirCellResultCount(0)
-    , m_activeCellPositionMin(cvf::Vec3d::ZERO)
-    , m_activeCellPositionMax(cvf::Vec3d::ZERO)
+    : m_reservoirActiveCellCount( 0 )
+    , m_reservoirCellResultCount( 0 )
+    , m_activeCellPositionMin( cvf::Vec3d::ZERO )
+    , m_activeCellPositionMax( cvf::Vec3d::ZERO )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setReservoirCellCount(size_t reservoirCellCount)
+void RigActiveCellInfo::setReservoirCellCount( size_t reservoirCellCount )
 {
-    m_cellIndexToResultIndex.resize(reservoirCellCount, cvf::UNDEFINED_SIZE_T);
+    m_cellIndexToResultIndex.resize( reservoirCellCount, cvf::UNDEFINED_SIZE_T );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,14 +58,14 @@ size_t RigActiveCellInfo::reservoirCellResultCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigActiveCellInfo::isActive(size_t reservoirCellIndex) const
+bool RigActiveCellInfo::isActive( size_t reservoirCellIndex ) const
 {
-    if (m_cellIndexToResultIndex.size() == 0)
+    if ( m_cellIndexToResultIndex.size() == 0 )
     {
         return true;
     }
 
-    CVF_TIGHT_ASSERT(reservoirCellIndex < m_cellIndexToResultIndex.size());
+    CVF_TIGHT_ASSERT( reservoirCellIndex < m_cellIndexToResultIndex.size() );
 
     return m_cellIndexToResultIndex[reservoirCellIndex] != cvf::UNDEFINED_SIZE_T;
 }
@@ -73,14 +73,14 @@ bool RigActiveCellInfo::isActive(size_t reservoirCellIndex) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigActiveCellInfo::cellResultIndex(size_t reservoirCellIndex) const
+size_t RigActiveCellInfo::cellResultIndex( size_t reservoirCellIndex ) const
 {
-    if (m_cellIndexToResultIndex.size() == 0)
+    if ( m_cellIndexToResultIndex.size() == 0 )
     {
         return reservoirCellIndex;
     }
 
-    CVF_TIGHT_ASSERT(reservoirCellIndex < m_cellIndexToResultIndex.size());
+    CVF_TIGHT_ASSERT( reservoirCellIndex < m_cellIndexToResultIndex.size() );
 
     return m_cellIndexToResultIndex[reservoirCellIndex];
 }
@@ -88,13 +88,13 @@ size_t RigActiveCellInfo::cellResultIndex(size_t reservoirCellIndex) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setCellResultIndex(size_t reservoirCellIndex, size_t reservoirCellResultIndex)
+void RigActiveCellInfo::setCellResultIndex( size_t reservoirCellIndex, size_t reservoirCellResultIndex )
 {
-    CVF_TIGHT_ASSERT(reservoirCellResultIndex < m_cellIndexToResultIndex.size());
+    CVF_TIGHT_ASSERT( reservoirCellResultIndex < m_cellIndexToResultIndex.size() );
 
     m_cellIndexToResultIndex[reservoirCellIndex] = reservoirCellResultIndex;
 
-    #pragma omp critical
+#pragma omp critical
     {
         if ( reservoirCellResultIndex >= m_reservoirCellResultCount )
         {
@@ -106,19 +106,19 @@ void RigActiveCellInfo::setCellResultIndex(size_t reservoirCellIndex, size_t res
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setGridCount(size_t gridCount)
+void RigActiveCellInfo::setGridCount( size_t gridCount )
 {
-    m_perGridActiveCellInfo.resize(gridCount);
+    m_perGridActiveCellInfo.resize( gridCount );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setGridActiveCellCounts(size_t gridIndex, size_t activeCellCount)
+void RigActiveCellInfo::setGridActiveCellCounts( size_t gridIndex, size_t activeCellCount )
 {
-    CVF_ASSERT(gridIndex < m_perGridActiveCellInfo.size());
+    CVF_ASSERT( gridIndex < m_perGridActiveCellInfo.size() );
 
-    m_perGridActiveCellInfo[gridIndex].setActiveCellCount(activeCellCount);
+    m_perGridActiveCellInfo[gridIndex].setActiveCellCount( activeCellCount );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,7 +128,7 @@ void RigActiveCellInfo::computeDerivedData()
 {
     m_reservoirActiveCellCount = 0;
 
-    for (size_t i = 0; i < m_perGridActiveCellInfo.size(); i++)
+    for ( size_t i = 0; i < m_perGridActiveCellInfo.size(); i++ )
     {
         m_reservoirActiveCellCount += m_perGridActiveCellInfo[i].activeCellCount();
     }
@@ -145,7 +145,7 @@ size_t RigActiveCellInfo::reservoirActiveCellCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setIJKBoundingBox(const cvf::Vec3st& min, const cvf::Vec3st& max)
+void RigActiveCellInfo::setIJKBoundingBox( const cvf::Vec3st& min, const cvf::Vec3st& max )
 {
     m_activeCellPositionMin = min;
     m_activeCellPositionMax = max;
@@ -154,7 +154,7 @@ void RigActiveCellInfo::setIJKBoundingBox(const cvf::Vec3st& min, const cvf::Vec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::IJKBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const
+void RigActiveCellInfo::IJKBoundingBox( cvf::Vec3st& min, cvf::Vec3st& max ) const
 {
     min = m_activeCellPositionMin;
     max = m_activeCellPositionMax;
@@ -163,7 +163,7 @@ void RigActiveCellInfo::IJKBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::gridActiveCellCounts(size_t gridIndex, size_t& activeCellCount) const
+void RigActiveCellInfo::gridActiveCellCounts( size_t gridIndex, size_t& activeCellCount ) const
 {
     activeCellCount = m_perGridActiveCellInfo[gridIndex].activeCellCount();
 }
@@ -178,7 +178,7 @@ cvf::BoundingBox RigActiveCellInfo::geometryBoundingBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setGeometryBoundingBox(cvf::BoundingBox bb)
+void RigActiveCellInfo::setGeometryBoundingBox( cvf::BoundingBox bb )
 {
     m_activeCellsBoundingBox = bb;
 }
@@ -191,29 +191,29 @@ void RigActiveCellInfo::clear()
     m_perGridActiveCellInfo.clear();
     m_cellIndexToResultIndex.clear();
     m_reservoirActiveCellCount = 0;
-    m_activeCellPositionMin    = cvf::Vec3st(0, 0, 0);
-    m_activeCellPositionMax    = cvf::Vec3st(0, 0, 0);
+    m_activeCellPositionMin    = cvf::Vec3st( 0, 0, 0 );
+    m_activeCellPositionMax    = cvf::Vec3st( 0, 0, 0 );
     m_activeCellsBoundingBox.reset();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::addLgr(size_t cellCount)
+void RigActiveCellInfo::addLgr( size_t cellCount )
 {
     size_t currentGridCount          = m_perGridActiveCellInfo.size();
     size_t currentActiveCellCount    = reservoirActiveCellCount();
     size_t currentReservoirCellCount = reservoirCellCount();
 
-    setGridCount(currentGridCount + 1);
-    setGridActiveCellCounts(currentGridCount, cellCount);
-    setReservoirCellCount(currentReservoirCellCount + cellCount);
+    setGridCount( currentGridCount + 1 );
+    setGridActiveCellCounts( currentGridCount, cellCount );
+    setReservoirCellCount( currentReservoirCellCount + cellCount );
 
     computeDerivedData();
 
-    for (size_t i = 0; i < cellCount; i++)
+    for ( size_t i = 0; i < cellCount; i++ )
     {
-        setCellResultIndex(currentReservoirCellCount + i, currentActiveCellCount + i);
+        setCellResultIndex( currentReservoirCellCount + i, currentActiveCellCount + i );
     }
 }
 
@@ -229,7 +229,7 @@ bool RigActiveCellInfo::isCoarseningActive() const
 ///
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo::GridActiveCellCounts::GridActiveCellCounts()
-    : m_activeCellCount(0)
+    : m_activeCellCount( 0 )
 {
 }
 
@@ -244,7 +244,7 @@ size_t RigActiveCellInfo::GridActiveCellCounts::activeCellCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::GridActiveCellCounts::setActiveCellCount(size_t activeCellCount)
+void RigActiveCellInfo::GridActiveCellCounts::setActiveCellCount( size_t activeCellCount )
 {
     m_activeCellCount = activeCellCount;
 }

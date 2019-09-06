@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -31,25 +31,25 @@
 #include <QSplitter>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryCurveDefSelectionEditor::RiuSummaryCurveDefSelectionEditor()
 {
-    m_summaryAddressSelection = std::unique_ptr<RiuSummaryCurveDefSelection>(new RiuSummaryCurveDefSelection());
+    m_summaryAddressSelection = std::unique_ptr<RiuSummaryCurveDefSelection>( new RiuSummaryCurveDefSelection() );
 
-    this->setPdmObject(m_summaryAddressSelection.get());
+    this->setPdmObject( m_summaryAddressSelection.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryCurveDefSelectionEditor::~RiuSummaryCurveDefSelectionEditor()
 {
-    this->setPdmObject(nullptr);
+    this->setPdmObject( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryCurveDefSelection* RiuSummaryCurveDefSelectionEditor::summaryAddressSelection() const
 {
@@ -57,131 +57,131 @@ RiuSummaryCurveDefSelection* RiuSummaryCurveDefSelectionEditor::summaryAddressSe
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelectionEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const caf::PdmUiOrdering& topLevelUiOrdering, const QString& uiConfigName)
+void RiuSummaryCurveDefSelectionEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(
+    const caf::PdmUiOrdering& topLevelUiOrdering, const QString& uiConfigName )
 {
-    if (!m_firstRowLeftLayout || !m_firstRowRightLayout) return;
+    if ( !m_firstRowLeftLayout || !m_firstRowRightLayout ) return;
 
-    const std::vector<caf::PdmUiItem *>& topLevelUiItems = topLevelUiOrdering.uiItems();
+    const std::vector<caf::PdmUiItem*>& topLevelUiItems = topLevelUiOrdering.uiItems();
 
-    for (size_t i = 0; i < topLevelUiItems.size(); ++i)
+    for ( size_t i = 0; i < topLevelUiItems.size(); ++i )
     {
-        if (topLevelUiItems[i]->isUiHidden(uiConfigName)) continue;
+        if ( topLevelUiItems[i]->isUiHidden( uiConfigName ) ) continue;
 
-        if (topLevelUiItems[i]->isUiGroup())
+        if ( topLevelUiItems[i]->isUiGroup() )
         {
-            caf::PdmUiGroup* group = static_cast<caf::PdmUiGroup*>(topLevelUiItems[i]);
-            auto groupBox = createGroupBoxWithContent(group, uiConfigName);
+            caf::PdmUiGroup* group    = static_cast<caf::PdmUiGroup*>( topLevelUiItems[i] );
+            auto             groupBox = createGroupBoxWithContent( group, uiConfigName );
 
-            bool isSources = group->keyword() == RiuSummaryCurveDefinitionKeywords::sources();
+            bool isSources      = group->keyword() == RiuSummaryCurveDefinitionKeywords::sources();
             bool isSummaryTypes = group->keyword() == RiuSummaryCurveDefinitionKeywords::summaryTypes();
-            bool isSummaries = group->keyword() == RiuSummaryCurveDefinitionKeywords::summaries();
+            bool isSummaries    = group->keyword() == RiuSummaryCurveDefinitionKeywords::summaries();
             bool isDynamicGroup = !isSources && !isSummaryTypes && !isSummaries;
-            bool leftColumn = isSources || isSummaryTypes;
+            bool leftColumn     = isSources || isSummaryTypes;
 
-            if (isSummaryTypes || isDynamicGroup)
+            if ( isSummaryTypes || isDynamicGroup )
             {
-                groupBox->setFixedWidth(170);
+                groupBox->setFixedWidth( 170 );
             }
 
-            if(leftColumn)
-                m_firstRowLeftLayout->addWidget(groupBox);
+            if ( leftColumn )
+                m_firstRowLeftLayout->addWidget( groupBox );
             else
-                m_firstRowRightLayout->addWidget(groupBox);
+                m_firstRowRightLayout->addWidget( groupBox );
 
             // Add group boxes until summaries are detected
 
-            if (group->keyword() == RiuSummaryCurveDefinitionKeywords::summaries())
-                break;
+            if ( group->keyword() == RiuSummaryCurveDefinitionKeywords::summaries() ) break;
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* RiuSummaryCurveDefSelectionEditor::createWidget(QWidget* parent)
+QWidget* RiuSummaryCurveDefSelectionEditor::createWidget( QWidget* parent )
 {
-    QWidget* widget = new QWidget(parent);
+    QWidget* widget = new QWidget( parent );
 
     QVBoxLayout* mainLayout = new QVBoxLayout();
-    mainLayout->setContentsMargins(5, 5, 5, 5);
-    widget->setLayout(mainLayout);
+    mainLayout->setContentsMargins( 5, 5, 5, 5 );
+    widget->setLayout( mainLayout );
 
-    QFrame* firstRowFrame = new QFrame(widget);
+    QFrame*      firstRowFrame  = new QFrame( widget );
     QHBoxLayout* firstRowLayout = new QHBoxLayout;
-    firstRowLayout->setContentsMargins(0, 0, 0, 0);
-    firstRowFrame->setLayout(firstRowLayout);
+    firstRowLayout->setContentsMargins( 0, 0, 0, 0 );
+    firstRowFrame->setLayout( firstRowLayout );
 
-    QFrame* firstRowLeftFrame = new QFrame(widget);
-    m_firstRowLeftLayout = new QHBoxLayout;
-    m_firstRowLeftLayout->setContentsMargins(0, 0, 0, 0);
-    firstRowLeftFrame->setLayout(m_firstRowLeftLayout);
+    QFrame* firstRowLeftFrame = new QFrame( widget );
+    m_firstRowLeftLayout      = new QHBoxLayout;
+    m_firstRowLeftLayout->setContentsMargins( 0, 0, 0, 0 );
+    firstRowLeftFrame->setLayout( m_firstRowLeftLayout );
 
-    QFrame* firstRowRightFrame = new QFrame(widget);
-    m_firstRowRightLayout = new QHBoxLayout;
-    m_firstRowRightLayout->setContentsMargins(0, 0, 0, 0);
-    firstRowRightFrame->setLayout(m_firstRowRightLayout);
+    QFrame* firstRowRightFrame = new QFrame( widget );
+    m_firstRowRightLayout      = new QHBoxLayout;
+    m_firstRowRightLayout->setContentsMargins( 0, 0, 0, 0 );
+    firstRowRightFrame->setLayout( m_firstRowRightLayout );
 
-    QSplitter* rowSplitter = new QSplitter(Qt::Horizontal);
-    rowSplitter->setContentsMargins(0, 0, 0, 0);
-    rowSplitter->setHandleWidth(6);
-    rowSplitter->setStyleSheet("QSplitter::handle { image: url(:/SplitterV.png); }");
-    rowSplitter->insertWidget(0, firstRowLeftFrame);
-    rowSplitter->insertWidget(1, firstRowRightFrame);
-    rowSplitter->setSizes(QList<int>() << 1 << 1);
-    firstRowLayout->addWidget(rowSplitter);
+    QSplitter* rowSplitter = new QSplitter( Qt::Horizontal );
+    rowSplitter->setContentsMargins( 0, 0, 0, 0 );
+    rowSplitter->setHandleWidth( 6 );
+    rowSplitter->setStyleSheet( "QSplitter::handle { image: url(:/SplitterV.png); }" );
+    rowSplitter->insertWidget( 0, firstRowLeftFrame );
+    rowSplitter->insertWidget( 1, firstRowRightFrame );
+    rowSplitter->setSizes( QList<int>() << 1 << 1 );
+    firstRowLayout->addWidget( rowSplitter );
 
-    mainLayout->addWidget(rowSplitter);
+    mainLayout->addWidget( rowSplitter );
 
     return widget;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelectionEditor::configureAndUpdateFields(int widgetStartIndex, 
-                                                                QBoxLayout* layout,
-                                                                const std::vector<caf::PdmUiItem *>& uiItems,
-                                                                const QString& uiConfigName)
+void RiuSummaryCurveDefSelectionEditor::configureAndUpdateFields( int                                 widgetStartIndex,
+                                                                  QBoxLayout*                         layout,
+                                                                  const std::vector<caf::PdmUiItem*>& uiItems,
+                                                                  const QString&                      uiConfigName )
 {
     int currentWidgetIndex = widgetStartIndex;
 
-    for (size_t i = 0; i < uiItems.size(); ++i)
+    for ( size_t i = 0; i < uiItems.size(); ++i )
     {
-        if (uiItems[i]->isUiHidden(uiConfigName)) continue;
-        if (uiItems[i]->isUiGroup()) continue;
+        if ( uiItems[i]->isUiHidden( uiConfigName ) ) continue;
+        if ( uiItems[i]->isUiGroup() ) continue;
 
         {
-            caf::PdmUiFieldHandle* field = dynamic_cast<caf::PdmUiFieldHandle*>(uiItems[i]);
+            caf::PdmUiFieldHandle* field = dynamic_cast<caf::PdmUiFieldHandle*>( uiItems[i] );
 
-            caf::PdmUiFieldEditorHandle* fieldEditor = findOrCreateFieldEditor(this->widget(), field, uiConfigName);
+            caf::PdmUiFieldEditorHandle* fieldEditor = findOrCreateFieldEditor( this->widget(), field, uiConfigName );
 
-            if (fieldEditor)
+            if ( fieldEditor )
             {
                 // Place the widget(s) into the correct parent and layout
                 QWidget* fieldCombinedWidget = fieldEditor->combinedWidget();
 
-                if (fieldCombinedWidget)
+                if ( fieldCombinedWidget )
                 {
-                    fieldCombinedWidget->setParent(this->widget());
-                    layout->insertWidget(currentWidgetIndex++, fieldCombinedWidget);
+                    fieldCombinedWidget->setParent( this->widget() );
+                    layout->insertWidget( currentWidgetIndex++, fieldCombinedWidget );
                 }
                 else
                 {
-                    caf::PdmUiItemInfo::LabelPosType labelPos = field->uiLabelPosition(uiConfigName);
+                    caf::PdmUiItemInfo::LabelPosType labelPos = field->uiLabelPosition( uiConfigName );
 
                     QWidget* fieldEditorWidget = fieldEditor->editorWidget();
 
-                    if (labelPos != caf::PdmUiItemInfo::HIDDEN)
+                    if ( labelPos != caf::PdmUiItemInfo::HIDDEN )
                     {
                         QWidget* fieldLabelWidget = fieldEditor->labelWidget();
-                        if (fieldLabelWidget)
+                        if ( fieldLabelWidget )
                         {
-                            fieldLabelWidget->setParent(this->widget());
+                            fieldLabelWidget->setParent( this->widget() );
 
-                            layout->insertWidget(currentWidgetIndex++, fieldLabelWidget);
+                            layout->insertWidget( currentWidgetIndex++, fieldLabelWidget );
 
                             fieldLabelWidget->show();
                         }
@@ -189,31 +189,32 @@ void RiuSummaryCurveDefSelectionEditor::configureAndUpdateFields(int widgetStart
                     else
                     {
                         QWidget* fieldLabelWidget = fieldEditor->labelWidget();
-                        if (fieldLabelWidget) fieldLabelWidget->hide();
+                        if ( fieldLabelWidget ) fieldLabelWidget->hide();
                     }
 
-                    if (fieldEditorWidget)
+                    if ( fieldEditorWidget )
                     {
-                        fieldEditorWidget->setParent(this->widget()); // To make sure this widget has the current group box as parent.
+                        fieldEditorWidget->setParent(
+                            this->widget() ); // To make sure this widget has the current group box as parent.
 
-                        layout->insertWidget(currentWidgetIndex++, fieldEditorWidget);
+                        layout->insertWidget( currentWidgetIndex++, fieldEditorWidget );
                     }
                 }
 
-                fieldEditor->updateUi(uiConfigName);
+                fieldEditor->updateUi( uiConfigName );
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QMinimizePanel* RiuSummaryCurveDefSelectionEditor::createGroupBoxWithContent(caf::PdmUiGroup* group,
-                                                                            const QString& uiConfigName)
+QMinimizePanel* RiuSummaryCurveDefSelectionEditor::createGroupBoxWithContent( caf::PdmUiGroup* group,
+                                                                              const QString&   uiConfigName )
 {
-    QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
+    QMinimizePanel* groupBox = findOrCreateGroupBox( this->widget(), group, uiConfigName );
 
-    recursivelyConfigureAndUpdateUiOrderingInGridLayout(*group, groupBox->contentFrame(), uiConfigName);
+    recursivelyConfigureAndUpdateUiOrderingInGridLayout( *group, groupBox->contentFrame(), uiConfigName );
     return groupBox;
 }

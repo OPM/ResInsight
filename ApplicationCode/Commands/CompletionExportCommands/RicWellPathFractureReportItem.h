@@ -28,14 +28,23 @@
 class RicWellPathFractureReportItem
 {
 public:
-    RicWellPathFractureReportItem(const QString& wellPathNameForExport, const QString& fractureName, const QString& fractureTemplateName, double measuredDepth);
+    RicWellPathFractureReportItem( const QString& wellPathNameForExport,
+                                   const QString& fractureName,
+                                   const QString& fractureTemplateName,
+                                   double         measuredDepth );
 
-    void setData(double trans, size_t connCount, double area);
-    void setWidthAndConductivity(double width, double conductivity);
-    void setHeightAndHalfLength(double height, double halfLength);
-    void setAreaWeightedPermeability(double permeability);
-    void setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem);
-    void setPressureDepletionParameters(bool performPressureDepletionScaling, QString timeStepString, QString wbhpString, double userWBHP, double actualWBHP, double minPressureDrop, double maxPressureDrop);
+    void setData( double trans, size_t connCount, double area );
+    void setWidthAndConductivity( double width, double conductivity );
+    void setHeightAndHalfLength( double height, double halfLength );
+    void setAreaWeightedPermeability( double permeability );
+    void setUnitSystem( RiaEclipseUnitTools::UnitSystem unitSystem );
+    void setPressureDepletionParameters( bool    performPressureDepletionScaling,
+                                         QString timeStepString,
+                                         QString wbhpString,
+                                         double  userWBHP,
+                                         double  actualWBHP,
+                                         double  minPressureDrop,
+                                         double  maxPressureDrop );
 
     QString wellPathNameForExport() const;
     QString fractureName() const;
@@ -65,7 +74,7 @@ public:
     double  pressureDepletionMinPressureDrop() const;
     double  pressureDepletionMaxPressureDrop() const;
 
-    bool operator < (const RicWellPathFractureReportItem& other) const;
+    bool operator<( const RicWellPathFractureReportItem& other ) const;
 
 private:
     RiaEclipseUnitTools::UnitSystem m_unitSystem;

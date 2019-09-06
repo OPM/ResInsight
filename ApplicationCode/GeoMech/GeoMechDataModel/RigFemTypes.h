@@ -32,10 +32,10 @@ enum RigElementType
 class RigFemTypes
 {
 public:
-    static int        elmentNodeCount(RigElementType elmType);
-    static int        elmentFaceCount(RigElementType elmType);
-    static const int* localElmNodeIndicesForFace(RigElementType elmType, int faceIdx, int* faceNodeCount);
-    static int        oppositeFace(RigElementType elmType, int faceIdx);
-    static const int* localElmNodeToIntegrationPointMapping(RigElementType elmType);
-    static QString    elementTypeText(RigElementType elemType);
+    static int        elmentNodeCount( RigElementType elmType );
+    static int        elmentFaceCount( RigElementType elmType );
+    static const int* localElmNodeIndicesForFace( RigElementType elmType, int faceIdx, int* faceNodeCount );
+    static int        oppositeFace( RigElementType elmType, int faceIdx );
+    static const int* localElmNodeToIntegrationPointMapping( RigElementType elmType );
+    static QString    elementTypeText( RigElementType elemType );
 };

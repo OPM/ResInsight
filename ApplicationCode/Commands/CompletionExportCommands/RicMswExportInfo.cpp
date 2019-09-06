@@ -28,32 +28,30 @@
 #include <algorithm>
 #include <limits>
 
-
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswExportInfo::RicMswExportInfo(const RimWellPath*              wellPath,
-                                   RiaEclipseUnitTools::UnitSystem unitSystem,
-                                   double                          initialMD,
-                                   const QString&                  lengthAndDepthText,
-                                   const QString&                  pressureDropText)
-    : m_wellPath(wellPath)
-    , m_initialMD(initialMD)
-    , m_unitSystem(unitSystem)
-    , m_topWellBoreVolume(RicMswExportInfo::defaultDoubleValue())
-    , m_linerDiameter(RimMswCompletionParameters::defaultLinerDiameter(unitSystem))
-    , m_roughnessFactor(RimMswCompletionParameters::defaultRoughnessFactor(unitSystem))
-    , m_lengthAndDepthText(lengthAndDepthText)
-    , m_pressureDropText(pressureDropText)
-    , m_hasSubGridIntersections(false)
+RicMswExportInfo::RicMswExportInfo( const RimWellPath*              wellPath,
+                                    RiaEclipseUnitTools::UnitSystem unitSystem,
+                                    double                          initialMD,
+                                    const QString&                  lengthAndDepthText,
+                                    const QString&                  pressureDropText )
+    : m_wellPath( wellPath )
+    , m_initialMD( initialMD )
+    , m_unitSystem( unitSystem )
+    , m_topWellBoreVolume( RicMswExportInfo::defaultDoubleValue() )
+    , m_linerDiameter( RimMswCompletionParameters::defaultLinerDiameter( unitSystem ) )
+    , m_roughnessFactor( RimMswCompletionParameters::defaultRoughnessFactor( unitSystem ) )
+    , m_lengthAndDepthText( lengthAndDepthText )
+    , m_pressureDropText( pressureDropText )
+    , m_hasSubGridIntersections( false )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswExportInfo::setLinerDiameter(double linerDiameter)
+void RicMswExportInfo::setLinerDiameter( double linerDiameter )
 {
     m_linerDiameter = linerDiameter;
 }
@@ -61,7 +59,7 @@ void RicMswExportInfo::setLinerDiameter(double linerDiameter)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswExportInfo::setRoughnessFactor(double roughnessFactor)
+void RicMswExportInfo::setRoughnessFactor( double roughnessFactor )
 {
     m_roughnessFactor = roughnessFactor;
 }
@@ -69,7 +67,7 @@ void RicMswExportInfo::setRoughnessFactor(double roughnessFactor)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswExportInfo::setHasSubGridIntersections(bool subGridIntersections)
+void RicMswExportInfo::setHasSubGridIntersections( bool subGridIntersections )
 {
     m_hasSubGridIntersections = subGridIntersections;
 }
@@ -77,9 +75,9 @@ void RicMswExportInfo::setHasSubGridIntersections(bool subGridIntersections)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswExportInfo::addWellSegment(std::shared_ptr<RicMswSegment> location)
+void RicMswExportInfo::addWellSegment( std::shared_ptr<RicMswSegment> location )
 {
-    m_wellSegmentLocations.push_back(location);
+    m_wellSegmentLocations.push_back( location );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,12 +85,9 @@ void RicMswExportInfo::addWellSegment(std::shared_ptr<RicMswSegment> location)
 //--------------------------------------------------------------------------------------------------
 void RicMswExportInfo::sortLocations()
 {
-    std::sort(m_wellSegmentLocations.begin(),
-              m_wellSegmentLocations.end(),
-        [](std::shared_ptr<RicMswSegment> lhs, std::shared_ptr<RicMswSegment> rhs)
-    {
-        return *lhs < *rhs;
-    });
+    std::sort( m_wellSegmentLocations.begin(),
+               m_wellSegmentLocations.end(),
+               []( std::shared_ptr<RicMswSegment> lhs, std::shared_ptr<RicMswSegment> rhs ) { return *lhs < *rhs; } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,7 +111,7 @@ double RicMswExportInfo::initialMD() const
 //--------------------------------------------------------------------------------------------------
 double RicMswExportInfo::initialTVD() const
 {
-    return -m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath(m_initialMD).z();
+    return -m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_initialMD ).z();
 }
 
 //--------------------------------------------------------------------------------------------------

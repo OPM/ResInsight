@@ -27,7 +27,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicExportCompletionsForVisibleSimWellsFeature, "RicExportCompletionsForVisibleSimWellsFeature");
+CAF_CMD_SOURCE_INIT( RicExportCompletionsForVisibleSimWellsFeature, "RicExportCompletionsForVisibleSimWellsFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -36,7 +36,7 @@ bool RicExportCompletionsForVisibleSimWellsFeature::isCommandEnabled()
 {
     std::vector<RimSimWellInView*> simWells = visibleSimWells();
 
-    if (simWells.empty())
+    if ( simWells.empty() )
     {
         return false;
     }
@@ -47,25 +47,24 @@ bool RicExportCompletionsForVisibleSimWellsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportCompletionsForVisibleSimWellsFeature::onActionTriggered(bool isChecked)
+void RicExportCompletionsForVisibleSimWellsFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimSimWellInView*> simWells = visibleSimWells();
-    CVF_ASSERT(!simWells.empty());
+    CVF_ASSERT( !simWells.empty() );
 
     std::vector<RimWellPath*> wellPaths;
     QString                   dialogTitle = "Export Completion Data for Visible Simulation Wells";
 
-    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions(dialogTitle, wellPaths, simWells);
+    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions( dialogTitle, wellPaths, simWells );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportCompletionsForVisibleSimWellsFeature::setupActionLook(QAction* actionToSetup)
+void RicExportCompletionsForVisibleSimWellsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Export Completion Data for Visible Simulation Wells");
-    actionToSetup->setIcon(QIcon(":/ExportCompletionsSymbol16x16.png"));
-
+    actionToSetup->setText( "Export Completion Data for Visible Simulation Wells" );
+    actionToSetup->setIcon( QIcon( ":/ExportCompletionsSymbol16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,38 +76,38 @@ std::vector<RimSimWellInView*> RicExportCompletionsForVisibleSimWellsFeature::vi
 
     {
         std::vector<RimSimWellInViewCollection*> simWellCollection;
-        caf::SelectionManager::instance()->objectsByType(&simWellCollection);
+        caf::SelectionManager::instance()->objectsByType( &simWellCollection );
 
-        if (simWellCollection.empty())
+        if ( simWellCollection.empty() )
         {
             std::vector<RimSimWellInView*> selectedSimWells;
-            caf::SelectionManager::instance()->objectsByType(&selectedSimWells);
+            caf::SelectionManager::instance()->objectsByType( &selectedSimWells );
 
-            if (!selectedSimWells.empty())
+            if ( !selectedSimWells.empty() )
             {
                 RimSimWellInViewCollection* parent = nullptr;
-                selectedSimWells[0]->firstAncestorOrThisOfType(parent);
-                if (parent)
+                selectedSimWells[0]->firstAncestorOrThisOfType( parent );
+                if ( parent )
                 {
-                    simWellCollection.push_back(parent);
+                    simWellCollection.push_back( parent );
                 }
             }
         }
 
-        for (auto coll : simWellCollection)
+        for ( auto coll : simWellCollection )
         {
-            for (const auto& wellPath : coll->wells())
+            for ( const auto& wellPath : coll->wells() )
             {
-                if (wellPath->showWell())
+                if ( wellPath->showWell() )
                 {
-                    simWells.push_back(wellPath);
+                    simWells.push_back( wellPath );
                 }
             }
         }
     }
 
-    std::set<RimSimWellInView*> uniqueWellPaths(simWells.begin(), simWells.end());
-    simWells.assign(uniqueWellPaths.begin(), uniqueWellPaths.end());
+    std::set<RimSimWellInView*> uniqueWellPaths( simWells.begin(), simWells.end() );
+    simWells.assign( uniqueWellPaths.begin(), uniqueWellPaths.end() );
 
     return simWells;
 }

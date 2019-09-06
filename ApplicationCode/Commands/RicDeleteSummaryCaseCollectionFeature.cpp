@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -39,87 +39,89 @@
 #include <QAction>
 #include <QMessageBox>
 
-CAF_CMD_SOURCE_INIT(RicDeleteSummaryCaseCollectionFeature, "RicDeleteSummaryCaseCollectionFeature");
+CAF_CMD_SOURCE_INIT( RicDeleteSummaryCaseCollectionFeature, "RicDeleteSummaryCaseCollectionFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection(RimSummaryCaseCollection* caseCollection)
+void RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection( RimSummaryCaseCollection* caseCollection )
 {
     RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
-    for (RimSummaryCase* summaryCase : caseCollection->allSummaryCases())
+    for ( RimSummaryCase* summaryCase : caseCollection->allSummaryCases() )
     {
-        for (RimSummaryPlot* summaryPlot : summaryPlotColl->summaryPlots)
+        for ( RimSummaryPlot* summaryPlot : summaryPlotColl->summaryPlots )
         {
-            summaryPlot->deleteCurvesAssosiatedWithCase(summaryCase);
+            summaryPlot->deleteCurvesAssosiatedWithCase( summaryCase );
         }
     }
-    
+
     summaryPlotColl->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteSummaryCaseCollectionFeature::isCommandEnabled()
 {
     std::vector<RimSummaryCaseCollection*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
+    caf::SelectionManager::instance()->objectsByType( &selection );
 
-    selection.erase(std::remove_if(selection.begin(), selection.end(), [](RimSummaryCaseCollection* coll)
-    {
-        return dynamic_cast<RimDerivedEnsembleCaseCollection*>(coll) != nullptr;
-    }), selection.end());
-    return (selection.size() > 0);
+    selection.erase( std::remove_if( selection.begin(),
+                                     selection.end(),
+                                     []( RimSummaryCaseCollection* coll ) {
+                                         return dynamic_cast<RimDerivedEnsembleCaseCollection*>( coll ) != nullptr;
+                                     } ),
+                     selection.end() );
+    return ( selection.size() > 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
+void RicDeleteSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimSummaryCaseCollection*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-    if (selection.size() == 0) return;
+    caf::SelectionManager::instance()->objectsByType( &selection );
+    if ( selection.size() == 0 ) return;
 
     QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Question);
+    msgBox.setIcon( QMessageBox::Question );
 
     QString questionText;
-    questionText = QString("Do you also want to close the summary cases in the group?");
+    questionText = QString( "Do you also want to close the summary cases in the group?" );
 
-    msgBox.setText(questionText);
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    msgBox.setText( questionText );
+    msgBox.setStandardButtons( QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel );
 
     int ret = msgBox.exec();
 
-    if (ret == QMessageBox::Cancel)
+    if ( ret == QMessageBox::Cancel )
     {
         return;
     }
-    
-    if (ret == QMessageBox::Yes)
+
+    if ( ret == QMessageBox::Yes )
     {
-        for (RimSummaryCaseCollection* summaryCaseCollection : selection)
+        for ( RimSummaryCaseCollection* summaryCaseCollection : selection )
         {
-            RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection(summaryCaseCollection);
+            RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection( summaryCaseCollection );
         }
     }
-    else if (ret == QMessageBox::No)
+    else if ( ret == QMessageBox::No )
     {
-        for (RimSummaryCaseCollection* summaryCaseCollection : selection)
+        for ( RimSummaryCaseCollection* summaryCaseCollection : selection )
         {
-            RicDeleteSummaryCaseCollectionFeature::moveAllCasesToMainSummaryCollection(summaryCaseCollection);
+            RicDeleteSummaryCaseCollectionFeature::moveAllCasesToMainSummaryCollection( summaryCaseCollection );
         }
     }
 
     RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
-    selection[0]->firstAncestorOrThisOfTypeAsserted(summaryCaseMainCollection);
+    selection[0]->firstAncestorOrThisOfTypeAsserted( summaryCaseMainCollection );
 
-    for (RimSummaryCaseCollection* caseCollection : selection)
+    for ( RimSummaryCaseCollection* caseCollection : selection )
     {
-        summaryCaseMainCollection->removeCaseCollection(caseCollection);
+        summaryCaseMainCollection->removeCaseCollection( caseCollection );
         delete caseCollection;
     }
 
@@ -127,29 +129,30 @@ void RicDeleteSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteSummaryCaseCollectionFeature::setupActionLook(QAction* actionToSetup)
+void RicDeleteSummaryCaseCollectionFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Delete Summary Case Group/Ensemble");
-    actionToSetup->setIcon(QIcon(":/Erase.png"));
-    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
+    actionToSetup->setText( "Delete Summary Case Group/Ensemble" );
+    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteSummaryCaseCollectionFeature::moveAllCasesToMainSummaryCollection(RimSummaryCaseCollection* summaryCaseCollection)
+void RicDeleteSummaryCaseCollectionFeature::moveAllCasesToMainSummaryCollection(
+    RimSummaryCaseCollection* summaryCaseCollection )
 {
     std::vector<RimSummaryCase*> summaryCases = summaryCaseCollection->allSummaryCases();
-    if (summaryCases.size() == 0) return;
+    if ( summaryCases.size() == 0 ) return;
 
     RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
-    summaryCaseCollection->firstAncestorOrThisOfType(summaryCaseMainCollection);
+    summaryCaseCollection->firstAncestorOrThisOfType( summaryCaseMainCollection );
 
-    for (RimSummaryCase* summaryCase : summaryCases)
+    for ( RimSummaryCase* summaryCase : summaryCases )
     {
-        summaryCaseCollection->removeCase(summaryCase);
-        summaryCaseMainCollection->addCase(summaryCase);
+        summaryCaseCollection->removeCase( summaryCase );
+        summaryCaseMainCollection->addCase( summaryCase );
     }
 }

@@ -69,21 +69,21 @@ const QString commandFileFilter        = "commandfile-*";
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void logInfoTextWithTimeInSeconds(const QTime& time, const QString& msg)
+void logInfoTextWithTimeInSeconds( const QTime& time, const QString& msg )
 {
     double timeRunning = time.elapsed() / 1000.0;
 
-    QString timeText = QString("(%1 s) ").arg(timeRunning, 0, 'f', 1);
+    QString timeText = QString( "(%1 s) " ).arg( timeRunning, 0, 'f', 1 );
 
-    RiaLogging::info(timeText + msg);
+    RiaLogging::info( timeText + msg );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiaRegressionTestRunner::RiaRegressionTestRunner()
-    : m_runningRegressionTests(false)
-    , m_appendAllTestsAfterLastItemInFilter(false)
+    : m_runningRegressionTests( false )
+    , m_appendAllTestsAfterLastItemInFilter( false )
 {
 }
 
@@ -107,12 +107,12 @@ void RiaRegressionTestRunner::runRegressionTest()
 
     RiaRegressionTest regressionTestConfig;
     regressionTestConfig.readSettingsFromApplicationStore();
-    if (!regressionTestConfig.folderContainingCompareTool().isEmpty())
+    if ( !regressionTestConfig.folderContainingCompareTool().isEmpty() )
     {
         // Windows Only : The image compare tool requires current working directory to be at the folder
         // containing the image compare tool
 
-        QDir::setCurrent(regressionTestConfig.folderContainingCompareTool());
+        QDir::setCurrent( regressionTestConfig.folderContainingCompareTool() );
     }
 
     QString generatedFolderName = RegTestNames::generatedFolderName;
@@ -121,78 +121,84 @@ void RiaRegressionTestRunner::runRegressionTest()
     QString regTestProjectName  = RegTestNames::testProjectName;
     QString regTestFolderFilter = RegTestNames::testFolderFilter;
 
-    QDir testDir(m_rootPath); // If string is empty it will end up as cwd
-    testDir.setFilter(QDir::Dirs);
+    QDir testDir( m_rootPath ); // If string is empty it will end up as cwd
+    testDir.setFilter( QDir::Dirs );
     QStringList dirNameFilter;
-    dirNameFilter.append(regTestFolderFilter);
-    testDir.setNameFilters(dirNameFilter);
+    dirNameFilter.append( regTestFolderFilter );
+    testDir.setNameFilters( dirNameFilter );
 
-    QFileInfoList folderList = subDirectoriesForTestExecution(testDir);
+    QFileInfoList folderList = subDirectoriesForTestExecution( testDir );
 
     // delete diff and generated images
 
-    for (const QFileInfo& fi : folderList)
+    for ( const QFileInfo& fi : folderList )
     {
-        QDir testCaseFolder(fi.filePath());
+        QDir testCaseFolder( fi.filePath() );
 
         {
-            QDir genDir(testCaseFolder.filePath(generatedFolderName));
-            removeDirectoryWithContent(genDir);
+            QDir genDir( testCaseFolder.filePath( generatedFolderName ) );
+            removeDirectoryWithContent( genDir );
         }
 
         {
-            QDir diffDir(testCaseFolder.filePath(diffFolderName));
-            removeDirectoryWithContent(diffDir);
+            QDir diffDir( testCaseFolder.filePath( diffFolderName ) );
+            removeDirectoryWithContent( diffDir );
         }
 
         {
-            QDir generatedFiles(testCaseFolder.filePath(RegTestNames::generatedFilesFolderName));
-            removeDirectoryWithContent(generatedFiles);
+            QDir generatedFiles( testCaseFolder.filePath( RegTestNames::generatedFilesFolderName ) );
+            removeDirectoryWithContent( generatedFiles );
         }
     }
 
-    QString htmlReportFileName = generateHtmlReport(folderList, baseFolderName, generatedFolderName, diffFolderName, testDir);
+    QString htmlReportFileName = generateHtmlReport( folderList,
+                                                     baseFolderName,
+                                                     generatedFolderName,
+                                                     diffFolderName,
+                                                     testDir );
 
-    if (regressionTestConfig.openReportInBrowser())
+    if ( regressionTestConfig.openReportInBrowser() )
     {
-        QDesktopServices::openUrl(htmlReportFileName);
+        QDesktopServices::openUrl( htmlReportFileName );
     }
 
-    RiaLogging::info("--------------------------------------------------");
-    RiaLogging::info(QTime::currentTime().toString() + ": Launching regression tests");
-    RiaLogging::info("--------------------------------------------------");
+    RiaLogging::info( "--------------------------------------------------" );
+    RiaLogging::info( QTime::currentTime().toString() + ": Launching regression tests" );
+    RiaLogging::info( "--------------------------------------------------" );
 
     QTime timeStamp;
     timeStamp.start();
-    logInfoTextWithTimeInSeconds(timeStamp, "Starting regression tests\n");
+    logInfoTextWithTimeInSeconds( timeStamp, "Starting regression tests\n" );
 
-    for (const QFileInfo& folderFileInfo : folderList)
+    for ( const QFileInfo& folderFileInfo : folderList )
     {
-        QDir testCaseFolder(folderFileInfo.filePath());
+        QDir testCaseFolder( folderFileInfo.filePath() );
 
-        bool anyCommandFilesExecuted = findAndExecuteCommandFiles(testCaseFolder, regressionTestConfig, htmlReportFileName);
+        bool anyCommandFilesExecuted = findAndExecuteCommandFiles( testCaseFolder,
+                                                                   regressionTestConfig,
+                                                                   htmlReportFileName );
 
-        if (!anyCommandFilesExecuted)
+        if ( !anyCommandFilesExecuted )
         {
             QString projectFileName;
 
-            if (testCaseFolder.exists(regTestProjectName + ".rip"))
+            if ( testCaseFolder.exists( regTestProjectName + ".rip" ) )
             {
                 projectFileName = regTestProjectName + ".rip";
             }
 
-            if (testCaseFolder.exists(regTestProjectName + ".rsp"))
+            if ( testCaseFolder.exists( regTestProjectName + ".rsp" ) )
             {
                 projectFileName = regTestProjectName + ".rsp";
             }
 
-            if (!projectFileName.isEmpty())
+            if ( !projectFileName.isEmpty() )
             {
-                logInfoTextWithTimeInSeconds(timeStamp, "Initializing test :" + testCaseFolder.absolutePath());
+                logInfoTextWithTimeInSeconds( timeStamp, "Initializing test :" + testCaseFolder.absolutePath() );
 
                 RiaApplication* app = RiaApplication::instance();
 
-                app->loadProject(testCaseFolder.filePath(projectFileName));
+                app->loadProject( testCaseFolder.filePath( projectFileName ) );
 
                 // Wait until all command objects have completed
                 app->waitUntilCommandObjectsHasBeenProcessed();
@@ -201,56 +207,57 @@ void RiaRegressionTestRunner::runRegressionTest()
 
                 resizePlotWindows();
 
-                QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath(generatedFolderName);
-                RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(fullPathGeneratedFolder);
+                QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath( generatedFolderName );
+                RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder( fullPathGeneratedFolder );
 
-                RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(fullPathGeneratedFolder);
+                RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder( fullPathGeneratedFolder );
 
                 app->closeProject();
             }
             else
             {
-                RiaLogging::error("Could not find a regression test file named : " + testCaseFolder.absolutePath() + "/" +
-                                  regTestProjectName + ".rsp");
+                RiaLogging::error( "Could not find a regression test file named : " + testCaseFolder.absolutePath() +
+                                   "/" + regTestProjectName + ".rsp" );
             }
         }
 
-        QDir baseDir(testCaseFolder.filePath(baseFolderName));
-        QDir genDir(testCaseFolder.filePath(generatedFolderName));
-        QDir diffDir(testCaseFolder.filePath(diffFolderName));
-        if (!diffDir.exists()) testCaseFolder.mkdir(diffFolderName);
-        baseDir.setFilter(QDir::Files);
+        QDir baseDir( testCaseFolder.filePath( baseFolderName ) );
+        QDir genDir( testCaseFolder.filePath( generatedFolderName ) );
+        QDir diffDir( testCaseFolder.filePath( diffFolderName ) );
+        if ( !diffDir.exists() ) testCaseFolder.mkdir( diffFolderName );
+        baseDir.setFilter( QDir::Files );
         QStringList baseImageFileNames = baseDir.entryList();
 
-        for (int fIdx = 0; fIdx < baseImageFileNames.size(); ++fIdx)
+        for ( int fIdx = 0; fIdx < baseImageFileNames.size(); ++fIdx )
         {
             QString             fileName = baseImageFileNames[fIdx];
-            RiaImageFileCompare imgComparator(RegTestNames::imageCompareExeName);
-            bool                ok =
-                imgComparator.runComparison(genDir.filePath(fileName), baseDir.filePath(fileName), diffDir.filePath(fileName));
-            if (!ok)
+            RiaImageFileCompare imgComparator( RegTestNames::imageCompareExeName );
+            bool                ok = imgComparator.runComparison( genDir.filePath( fileName ),
+                                                   baseDir.filePath( fileName ),
+                                                   diffDir.filePath( fileName ) );
+            if ( !ok )
             {
                 qDebug() << "Error comparing :" << imgComparator.errorMessage() << "\n" << imgComparator.errorDetails();
             }
         }
 
-        logInfoTextWithTimeInSeconds(timeStamp, "Completed test :" + testCaseFolder.absolutePath());
+        logInfoTextWithTimeInSeconds( timeStamp, "Completed test :" + testCaseFolder.absolutePath() );
     }
 
     // Invoke git diff
 
     {
         QString    folderContainingGit = regressionTestConfig.folderContainingGitTool();
-        RiaGitDiff gitDiff(folderContainingGit);
-        gitDiff.executeDiff(m_rootPath);
+        RiaGitDiff gitDiff( folderContainingGit );
+        gitDiff.executeDiff( m_rootPath );
 
         QString diffText = gitDiff.diffOutput();
-        if (!diffText.isEmpty())
+        if ( !diffText.isEmpty() )
         {
-            QFile file(htmlReportFileName);
-            if (file.open(QIODevice::Append | QIODevice::Text))
+            QFile file( htmlReportFileName );
+            if ( file.open( QIODevice::Append | QIODevice::Text ) )
             {
-                QTextStream stream(&file);
+                QTextStream stream( &file );
 
                 QString divSectionForDiff = R"(
 <div id = "destination-elem-id"[innerHtml] = "outputHtml">
@@ -292,10 +299,10 @@ document.getElementById("destination-elem-id").innerHTML = diffHtml;
         }
     }
 
-    RiaLogging::info("\n");
-    logInfoTextWithTimeInSeconds(timeStamp, "Completed regression tests");
+    RiaLogging::info( "\n" );
+    logInfoTextWithTimeInSeconds( timeStamp, "Completed regression tests" );
 
-    QDir::setCurrent(currentApplicationPath);
+    QDir::setCurrent( currentApplicationPath );
 
     m_runningRegressionTests = false;
 }
@@ -303,15 +310,15 @@ document.getElementById("destination-elem-id").innerHTML = diffHtml;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaRegressionTestRunner::findAndExecuteCommandFiles(const QDir&              testCaseFolder,
-                                                         const RiaRegressionTest& regressionTestConfig,
-                                                         const QString&           htmlReportFileName)
+bool RiaRegressionTestRunner::findAndExecuteCommandFiles( const QDir&              testCaseFolder,
+                                                          const RiaRegressionTest& regressionTestConfig,
+                                                          const QString&           htmlReportFileName )
 {
     QStringList filterList;
     filterList << RegTestNames::commandFileFilter;
 
-    QFileInfoList commandFileEntries = testCaseFolder.entryInfoList(filterList);
-    if (commandFileEntries.empty())
+    QFileInfoList commandFileEntries = testCaseFolder.entryInfoList( filterList );
+    if ( commandFileEntries.empty() )
     {
         return false;
     }
@@ -320,53 +327,54 @@ bool RiaRegressionTestRunner::findAndExecuteCommandFiles(const QDir&            
 
     // Set current path to the folder containing the command file, as this is required when using file references
     // in the command file
-    QDir::setCurrent(testCaseFolder.path());
+    QDir::setCurrent( testCaseFolder.path() );
 
-    for (const auto& fileInfo : commandFileEntries)
+    for ( const auto& fileInfo : commandFileEntries )
     {
         QString commandFile = fileInfo.absoluteFilePath();
 
-        QFile file(commandFile);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        QFile file( commandFile );
+        if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
         {
-            RiaLogging::error("Failed to open command file : " + commandFile);
+            RiaLogging::error( "Failed to open command file : " + commandFile );
         }
         else
         {
-            QTextStream in(&file);
-            RicfCommandFileExecutor::instance()->executeCommands(in);
+            QTextStream in( &file );
+            RicfCommandFileExecutor::instance()->executeCommands( in );
         }
     }
 
-    QDir::setCurrent(currentAbsolutePath);
+    QDir::setCurrent( currentAbsolutePath );
 
     // Create diff based on generated folders
     {
         QString html;
 
-        RiaTextFileCompare textFileCompare(regressionTestConfig.folderContainingDiffTool());
+        RiaTextFileCompare textFileCompare( regressionTestConfig.folderContainingDiffTool() );
 
-        QString baseFilesFolderName      = testCaseFolder.filePath(RegTestNames::baseFilesFolderName);
-        QString generatedFilesFolderName = testCaseFolder.filePath(RegTestNames::generatedFilesFolderName);
+        QString baseFilesFolderName      = testCaseFolder.filePath( RegTestNames::baseFilesFolderName );
+        QString generatedFilesFolderName = testCaseFolder.filePath( RegTestNames::generatedFilesFolderName );
 
-        QFileInfo fib(baseFilesFolderName);
-        QFileInfo fig(generatedFilesFolderName);
+        QFileInfo fib( baseFilesFolderName );
+        QFileInfo fig( generatedFilesFolderName );
 
-        if (fib.exists() && fig.exists())
+        if ( fib.exists() && fig.exists() )
         {
             {
                 QString headerText = testCaseFolder.dirName();
 
                 html += "<table>\n";
                 html += "  <tr>\n";
-                html += "    <td colspan=\"3\" bgcolor=\"darkblue\" height=\"40\">  <b><font color=\"white\" size=\"3\"> " +
-                        headerText + " </font></b> </td>\n";
+                html +=
+                    "    <td colspan=\"3\" bgcolor=\"darkblue\" height=\"40\">  <b><font color=\"white\" size=\"3\"> " +
+                    headerText + " </font></b> </td>\n";
                 html += "  </tr>\n";
 
-                textFileCompare.runComparison(baseFilesFolderName, generatedFilesFolderName);
+                textFileCompare.runComparison( baseFilesFolderName, generatedFilesFolderName );
 
                 QString diff = textFileCompare.diffOutput();
-                if (diff.isEmpty())
+                if ( diff.isEmpty() )
                 {
                     html += "  <tr>\n";
                     html += "    <td colspan=\"3\" bgcolor=\"lightgray\"> <font color=\"green\">No text diff "
@@ -384,16 +392,16 @@ bool RiaRegressionTestRunner::findAndExecuteCommandFiles(const QDir&            
                 // Table end
                 html += "</table>\n";
 
-                if (!diff.isEmpty())
+                if ( !diff.isEmpty() )
                 {
-                    html += QString("<code> %1 </code>").arg(diff);
+                    html += QString( "<code> %1 </code>" ).arg( diff );
                 }
             }
 
-            QFile file(htmlReportFileName);
-            if (file.open(QIODevice::Append | QIODevice::Text))
+            QFile file( htmlReportFileName );
+            if ( file.open( QIODevice::Append | QIODevice::Text ) )
             {
-                QTextStream stream(&file);
+                QTextStream stream( &file );
 
                 stream << html;
             }
@@ -406,11 +414,11 @@ bool RiaRegressionTestRunner::findAndExecuteCommandFiles(const QDir&            
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaRegressionTestRunner::generateHtmlReport(const QFileInfoList& folderList,
-                                                    const QString&       baseFolderName,
-                                                    const QString&       generatedFolderName,
-                                                    const QString&       diffFolderName,
-                                                    const QDir&          testDir)
+QString RiaRegressionTestRunner::generateHtmlReport( const QFileInfoList& folderList,
+                                                     const QString&       baseFolderName,
+                                                     const QString&       generatedFolderName,
+                                                     const QString&       diffFolderName,
+                                                     const QDir&          testDir )
 {
     RiaImageCompareReporter imageCompareReporter;
 
@@ -420,32 +428,32 @@ QString RiaRegressionTestRunner::generateHtmlReport(const QFileInfoList& folderL
     {
         QSettings settings;
 
-        bool useInteractiveDiff = settings.value("showInteractiveDiffImages").toBool();
-        if (useInteractiveDiff)
+        bool useInteractiveDiff = settings.value( "showInteractiveDiffImages" ).toBool();
+        if ( useInteractiveDiff )
         {
             imageCompareReporter.showInteractiveOnly();
         }
     }
 
-    for (const QFileInfo& fi : folderList)
+    for ( const QFileInfo& fi : folderList )
     {
-        QDir testCaseFolder(fi.filePath());
+        QDir testCaseFolder( fi.filePath() );
 
         QString testFolderName            = testCaseFolder.dirName();
-        QString reportBaseFolderName      = testCaseFolder.filePath(baseFolderName);
-        QString reportGeneratedFolderName = testCaseFolder.filePath(generatedFolderName);
-        QString reportDiffFolderName      = testCaseFolder.filePath(diffFolderName);
+        QString reportBaseFolderName      = testCaseFolder.filePath( baseFolderName );
+        QString reportGeneratedFolderName = testCaseFolder.filePath( generatedFolderName );
+        QString reportDiffFolderName      = testCaseFolder.filePath( diffFolderName );
 
-        imageCompareReporter.addImageDirectoryComparisonSet(testFolderName.toStdString(),
-                                                            reportBaseFolderName.toStdString(),
-                                                            reportGeneratedFolderName.toStdString(),
-                                                            reportDiffFolderName.toStdString());
+        imageCompareReporter.addImageDirectoryComparisonSet( testFolderName.toStdString(),
+                                                             reportBaseFolderName.toStdString(),
+                                                             reportGeneratedFolderName.toStdString(),
+                                                             reportDiffFolderName.toStdString() );
     }
 
-    QString htmlReportFileName = testDir.filePath(RegTestNames::reportFileName);
+    QString htmlReportFileName = testDir.filePath( RegTestNames::reportFileName );
 
-    QString htmldiff2htmlText = diff2htmlHeaderText(m_rootPath);
-    imageCompareReporter.generateHTMLReport(htmlReportFileName.toStdString(), htmldiff2htmlText.toStdString());
+    QString htmldiff2htmlText = diff2htmlHeaderText( m_rootPath );
+    imageCompareReporter.generateHTMLReport( htmlReportFileName.toStdString(), htmldiff2htmlText.toStdString() );
 
     return htmlReportFileName;
 }
@@ -453,9 +461,9 @@ QString RiaRegressionTestRunner::generateHtmlReport(const QFileInfoList& folderL
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaRegressionTestRunner::removeDirectoryWithContent(QDir& dirToDelete)
+void RiaRegressionTestRunner::removeDirectoryWithContent( QDir& dirToDelete )
 {
-    caf::Utils::removeDirectoryAndFilesRecursively(dirToDelete.absolutePath());
+    caf::Utils::removeDirectoryAndFilesRecursively( dirToDelete.absolutePath() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -464,33 +472,33 @@ void RiaRegressionTestRunner::removeDirectoryWithContent(QDir& dirToDelete)
 void RiaRegressionTestRunner::regressionTestConfigureProject()
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if (!mainWnd) return;
+    if ( !mainWnd ) return;
 
     RimProject* proj = RiaApplication::instance()->project();
-    if (!proj) return;
+    if ( !proj ) return;
 
     std::vector<RimCase*> projectCases;
-    proj->allCases(projectCases);
+    proj->allCases( projectCases );
 
-    for (RimCase* cas : projectCases)
+    for ( RimCase* cas : projectCases )
     {
-        if (!cas) continue;
+        if ( !cas ) continue;
 
         std::vector<Rim3dView*> views = cas->views();
 
-        for (Rim3dView* riv : views)
+        for ( Rim3dView* riv : views )
         {
-            if (riv && riv->viewer())
+            if ( riv && riv->viewer() )
             {
                 // Make sure all views are maximized for snapshotting
-                QMdiSubWindow* subWnd = mainWnd->findMdiSubWindow(riv->viewer()->layoutWidget());
-                if (subWnd)
+                QMdiSubWindow* subWnd = mainWnd->findMdiSubWindow( riv->viewer()->layoutWidget() );
+                if ( subWnd )
                 {
                     subWnd->showMaximized();
                 }
 
                 // This size is set to match the regression test reference images
-                riv->viewer()->setFixedSize(RiaRegressionTestRunner::regressionDefaultImageSize());
+                riv->viewer()->setFixedSize( RiaRegressionTestRunner::regressionDefaultImageSize() );
             }
         }
     }
@@ -502,29 +510,29 @@ void RiaRegressionTestRunner::regressionTestConfigureProject()
 void RiaRegressionTestRunner::resizePlotWindows()
 {
     RimProject* proj = RiaApplication::instance()->project();
-    if (!proj) return;
+    if ( !proj ) return;
 
     RiuPlotMainWindow* plotMainWindow = RiaGuiApplication::instance()->mainPlotWindow();
-    if (!plotMainWindow) return;
+    if ( !plotMainWindow ) return;
 
     std::vector<RimViewWindow*> viewWindows;
 
-    proj->mainPlotCollection()->descendantsIncludingThisOfType(viewWindows);
+    proj->mainPlotCollection()->descendantsIncludingThisOfType( viewWindows );
 
-    for (auto viewWindow : viewWindows)
+    for ( auto viewWindow : viewWindows )
     {
-        if (viewWindow->isMdiWindow())
+        if ( viewWindow->isMdiWindow() )
         {
             QWidget* viewWidget = viewWindow->viewWidget();
 
-            if (viewWidget)
+            if ( viewWidget )
             {
-                QMdiSubWindow* mdiWindow = plotMainWindow->findMdiSubWindow(viewWidget);
-                if (mdiWindow)
+                QMdiSubWindow* mdiWindow = plotMainWindow->findMdiSubWindow( viewWidget );
+                if ( mdiWindow )
                 {
                     mdiWindow->showNormal();
 
-                    viewWidget->resize(RiaRegressionTestRunner::regressionDefaultImageSize());
+                    viewWidget->resize( RiaRegressionTestRunner::regressionDefaultImageSize() );
                 }
             }
         }
@@ -536,23 +544,23 @@ void RiaRegressionTestRunner::resizePlotWindows()
 //--------------------------------------------------------------------------------------------------
 QSize RiaRegressionTestRunner::regressionDefaultImageSize()
 {
-    return QSize(1000, 745);
+    return QSize( 1000, 745 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaRegressionTestRunner::diff2htmlHeaderText(const QString& testRootPath)
+QString RiaRegressionTestRunner::diff2htmlHeaderText( const QString& testRootPath )
 {
     QString html;
 
-    QString     oldProjPath = QDir::fromNativeSeparators(testRootPath);
-    QStringList pathFolders = oldProjPath.split("/", QString::KeepEmptyParts);
+    QString     oldProjPath = QDir::fromNativeSeparators( testRootPath );
+    QStringList pathFolders = oldProjPath.split( "/", QString::KeepEmptyParts );
 
     QString path;
-    for (const auto& f : pathFolders)
+    for ( const auto& f : pathFolders )
     {
-        if (f.compare("ProjectFiles", Qt::CaseInsensitive) == 0) break;
+        if ( f.compare( "ProjectFiles", Qt::CaseInsensitive ) == 0 ) break;
         path += f;
         path += "/";
     }
@@ -568,7 +576,7 @@ QString RiaRegressionTestRunner::diff2htmlHeaderText(const QString& testRootPath
 )";
 
         QString pathToDiff2html = path + "diff2html/dist/";
-        html                    = html.replace("dist/", pathToDiff2html);
+        html                    = html.replace( "dist/", pathToDiff2html );
     }
 
     return html;
@@ -577,9 +585,9 @@ QString RiaRegressionTestRunner::diff2htmlHeaderText(const QString& testRootPath
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QFileInfoList RiaRegressionTestRunner::subDirectoriesForTestExecution(const QDir& directory)
+QFileInfoList RiaRegressionTestRunner::subDirectoriesForTestExecution( const QDir& directory )
 {
-    if (m_testFilter.isEmpty())
+    if ( m_testFilter.isEmpty() )
     {
         QFileInfoList folderList = directory.entryInfoList();
 
@@ -591,17 +599,18 @@ QFileInfoList RiaRegressionTestRunner::subDirectoriesForTestExecution(const QDir
     QFileInfoList foldersMatchingTestFilter;
 
     QFileInfoList folderList = directory.entryInfoList();
-    for (const auto& fi : folderList)
+    for ( const auto& fi : folderList )
     {
         QString path     = fi.path();
         QString baseName = fi.baseName();
 
-        for (const auto& s : m_testFilter)
+        for ( const auto& s : m_testFilter )
         {
             QString trimmed = s.trimmed();
-            if ((m_appendAllTestsAfterLastItemInFilter && anyMatchFound) || baseName.contains(trimmed, Qt::CaseInsensitive))
+            if ( ( m_appendAllTestsAfterLastItemInFilter && anyMatchFound ) ||
+                 baseName.contains( trimmed, Qt::CaseInsensitive ) )
             {
-                foldersMatchingTestFilter.push_back(fi);
+                foldersMatchingTestFilter.push_back( fi );
                 anyMatchFound = true;
             }
         }
@@ -619,23 +628,23 @@ void RiaRegressionTestRunner::executeRegressionTests()
     testConfig.readSettingsFromApplicationStore();
 
     QString     testPath   = testConfig.regressionTestFolder();
-    QStringList testFilter = testConfig.testFilter().split(";", QString::SkipEmptyParts);
+    QStringList testFilter = testConfig.testFilter().split( ";", QString::SkipEmptyParts );
 
-    if (testConfig.appendTestsAfterTestFilter)
+    if ( testConfig.appendTestsAfterTestFilter )
     {
         m_appendAllTestsAfterLastItemInFilter = true;
     }
 
-    executeRegressionTests(testPath, testFilter);
+    executeRegressionTests( testPath, testFilter );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaRegressionTestRunner::executeRegressionTests(const QString& regressionTestPath, const QStringList& testFilter)
+void RiaRegressionTestRunner::executeRegressionTests( const QString& regressionTestPath, const QStringList& testFilter )
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if (mainWnd)
+    if ( mainWnd )
     {
         mainWnd->hideAllDockWidgets();
         mainWnd->statusBar()->close();
@@ -665,7 +674,7 @@ bool RiaRegressionTestRunner::isRunningRegressionTests() const
 //--------------------------------------------------------------------------------------------------
 bool RiaRegressionTestRunner::useOpenMPForGeometryCreation() const
 {
-    if (!m_runningRegressionTests) return false;
+    if ( !m_runningRegressionTests ) return false;
 
     return m_regressionTestSettings.useOpenMPForGeometryCreation;
 }
@@ -673,34 +682,34 @@ bool RiaRegressionTestRunner::useOpenMPForGeometryCreation() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaRegressionTestRunner::updateRegressionTest(const QString& testRootPath)
+void RiaRegressionTestRunner::updateRegressionTest( const QString& testRootPath )
 {
     // Find all sub folders
 
-    QDir testDir(testRootPath); // If string is empty it will end up as cwd
-    testDir.setFilter(QDir::Dirs);
+    QDir testDir( testRootPath ); // If string is empty it will end up as cwd
+    testDir.setFilter( QDir::Dirs );
     QStringList dirNameFilter;
-    dirNameFilter.append(RegTestNames::testFolderFilter);
-    testDir.setNameFilters(dirNameFilter);
+    dirNameFilter.append( RegTestNames::testFolderFilter );
+    testDir.setNameFilters( dirNameFilter );
 
     QFileInfoList folderList = testDir.entryInfoList();
 
-    for (const auto& fi : folderList)
+    for ( const auto& fi : folderList )
     {
-        QDir testCaseFolder(fi.filePath());
+        QDir testCaseFolder( fi.filePath() );
 
-        QDir baseDir(testCaseFolder.filePath(RegTestNames::baseFolderName));
-        removeDirectoryWithContent(baseDir);
-        testCaseFolder.mkdir(RegTestNames::baseFolderName);
+        QDir baseDir( testCaseFolder.filePath( RegTestNames::baseFolderName ) );
+        removeDirectoryWithContent( baseDir );
+        testCaseFolder.mkdir( RegTestNames::baseFolderName );
 
-        QDir genDir(testCaseFolder.filePath(RegTestNames::generatedFolderName));
+        QDir genDir( testCaseFolder.filePath( RegTestNames::generatedFolderName ) );
 
         QStringList imageFileNames = genDir.entryList();
 
-        for (int fIdx = 0; fIdx < imageFileNames.size(); ++fIdx)
+        for ( int fIdx = 0; fIdx < imageFileNames.size(); ++fIdx )
         {
             QString fileName = imageFileNames[fIdx];
-            QFile::copy(genDir.filePath(fileName), baseDir.filePath(fileName));
+            QFile::copy( genDir.filePath( fileName ), baseDir.filePath( fileName ) );
         }
     }
 }

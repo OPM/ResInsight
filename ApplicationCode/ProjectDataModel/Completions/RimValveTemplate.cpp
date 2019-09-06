@@ -23,54 +23,53 @@
 
 #include "cafPdmUiTreeOrdering.h"
 
-CAF_PDM_SOURCE_INIT(RimValveTemplate, "ValveTemplate");
-
+CAF_PDM_SOURCE_INIT( RimValveTemplate, "ValveTemplate" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimValveTemplate::RimValveTemplate()
 {
-    CAF_PDM_InitObject("Valve Template", ":/ICDValve16x16.png", "", "");
+    CAF_PDM_InitObject( "Valve Template", ":/ICDValve16x16.png", "", "" );
 
-    CAF_PDM_InitField(&m_valveTemplateUnit, "UnitSystem", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_UNKNOWN), "Units System", "", "", "");
-    m_valveTemplateUnit.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitField( &m_valveTemplateUnit,
+                       "UnitSystem",
+                       caf::AppEnum<RiaEclipseUnitTools::UnitSystem>( RiaEclipseUnitTools::UNITS_UNKNOWN ),
+                       "Units System",
+                       "",
+                       "",
+                       "" );
+    m_valveTemplateUnit.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_type, "CompletionType", "Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_type, "CompletionType", "Type", "", "", "" );
     m_type = RiaDefines::ICD;
-    CAF_PDM_InitField(&m_userLabel, "UserLabel", QString("Template"), "Name", "", "", "");
-    
-    this->setName(fullLabel());
+    CAF_PDM_InitField( &m_userLabel, "UserLabel", QString( "Template" ), "Name", "", "", "" );
 
-    CAF_PDM_InitField(&m_orificeDiameter, "OrificeDiameter", 8.0, "Orifice Diameter [mm]", "", "", "");
-    CAF_PDM_InitField(&m_flowCoefficient, "FlowCoefficient", 0.7, "Flow Coefficient", "", "", "");
+    this->setName( fullLabel() );
 
-    CAF_PDM_InitFieldNoDefault(&m_aicdParameters, "AICDParameters", "AICD Parameters", "", "", "");
+    CAF_PDM_InitField( &m_orificeDiameter, "OrificeDiameter", 8.0, "Orifice Diameter [mm]", "", "", "" );
+    CAF_PDM_InitField( &m_flowCoefficient, "FlowCoefficient", 0.7, "Flow Coefficient", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_aicdParameters, "AICDParameters", "AICD Parameters", "", "", "" );
     m_aicdParameters = new RimWellPathAicdParameters;
-    m_aicdParameters.uiCapability()->setUiTreeHidden(true);
-    m_aicdParameters.uiCapability()->setUiTreeChildrenHidden(true);
-
+    m_aicdParameters.uiCapability()->setUiTreeHidden( true );
+    m_aicdParameters.uiCapability()->setUiTreeChildrenHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimValveTemplate::~RimValveTemplate()
-{
-}
+RimValveTemplate::~RimValveTemplate() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimValveTemplate::loadDataAndUpdate()
-{
-
-}
+void RimValveTemplate::loadDataAndUpdate() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimValveTemplate::setUnitSystem(RiaEclipseUnitTools::UnitSystemType unitSystem)
+void RimValveTemplate::setUnitSystem( RiaEclipseUnitTools::UnitSystemType unitSystem )
 {
     m_valveTemplateUnit = unitSystem;
 }
@@ -80,11 +79,11 @@ void RimValveTemplate::setUnitSystem(RiaEclipseUnitTools::UnitSystemType unitSys
 //--------------------------------------------------------------------------------------------------
 void RimValveTemplate::setDefaultValuesFromUnits()
 {
-    if (m_valveTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    if ( m_valveTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC )
     {
         m_orificeDiameter = 8;
     }
-    else if (m_valveTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    else if ( m_valveTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD )
     {
         m_orificeDiameter = 0.315;
     }
@@ -101,9 +100,9 @@ RiaDefines::WellPathComponentType RimValveTemplate::type() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimValveTemplate::setType(RiaDefines::WellPathComponentType type)
+void RimValveTemplate::setType( RiaDefines::WellPathComponentType type )
 {
-    CAF_ASSERT(type == RiaDefines::ICD || type == RiaDefines::AICD || RiaDefines::ICV);
+    CAF_ASSERT( type == RiaDefines::ICD || type == RiaDefines::AICD || RiaDefines::ICV );
 
     m_type = type;
 }
@@ -153,14 +152,14 @@ QString RimValveTemplate::typeLabel() const
 //--------------------------------------------------------------------------------------------------
 QString RimValveTemplate::fullLabel() const
 {
-    QString label = QString("%1: %2").arg(typeLabel()).arg(m_userLabel());
+    QString label = QString( "%1: %2" ).arg( typeLabel() ).arg( m_userLabel() );
     return label;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimValveTemplate::setUserLabel(const QString& userLabel)
+void RimValveTemplate::setUserLabel( const QString& userLabel )
 {
     m_userLabel = userLabel;
 }
@@ -168,17 +167,17 @@ void RimValveTemplate::setUserLabel(const QString& userLabel)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimValveTemplate::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                      bool*                      useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimValveTemplate::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                       bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if (fieldNeedingOptions == &m_type)
+    if ( fieldNeedingOptions == &m_type )
     {
         std::set<RiaDefines::WellPathComponentType> supportedTypes = {RiaDefines::ICD, RiaDefines::AICD, RiaDefines::ICV};
-        for (RiaDefines::WellPathComponentType type : supportedTypes)
+        for ( RiaDefines::WellPathComponentType type : supportedTypes )
         {
-            options.push_back(caf::PdmOptionItemInfo(CompletionTypeEnum::uiText(type), type));
+            options.push_back( caf::PdmOptionItemInfo( CompletionTypeEnum::uiText( type ), type ) );
         }
     }
     return options;
@@ -187,62 +186,62 @@ QList<caf::PdmOptionItemInfo> RimValveTemplate::calculateValueOptions(const caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimValveTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimValveTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add(&m_type);
-    uiOrdering.add(&m_userLabel);
-    uiOrdering.add(&m_valveTemplateUnit);
-    if (m_type() == RiaDefines::ICV || m_type() == RiaDefines::ICD)
+    uiOrdering.add( &m_type );
+    uiOrdering.add( &m_userLabel );
+    uiOrdering.add( &m_valveTemplateUnit );
+    if ( m_type() == RiaDefines::ICV || m_type() == RiaDefines::ICD )
     {
-        if (m_valveTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
+        if ( m_valveTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC )
         {
-            m_orificeDiameter.uiCapability()->setUiName("Orifice Diameter [mm]");
+            m_orificeDiameter.uiCapability()->setUiName( "Orifice Diameter [mm]" );
         }
-        else if (m_valveTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
+        else if ( m_valveTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD )
         {
-            m_orificeDiameter.uiCapability()->setUiName("Orifice Diameter [in]");
+            m_orificeDiameter.uiCapability()->setUiName( "Orifice Diameter [in]" );
         }
     }
 
-    if (m_type() == RiaDefines::ICV || m_type() == RiaDefines::ICD)
+    if ( m_type() == RiaDefines::ICV || m_type() == RiaDefines::ICD )
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup("MSW Valve Parameters");
-        group->add(&m_orificeDiameter);
-        group->add(&m_flowCoefficient);
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "MSW Valve Parameters" );
+        group->add( &m_orificeDiameter );
+        group->add( &m_flowCoefficient );
     }
     else
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup("MSW AICD Parameters");
-        m_aicdParameters->uiOrdering(uiConfigName, *group);
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "MSW AICD Parameters" );
+        m_aicdParameters->uiOrdering( uiConfigName, *group );
     }
-  
-    bool readOnly = uiConfigName == QString("InsideValve");
-    m_type.uiCapability()->setUiReadOnly(readOnly);
-    m_userLabel.uiCapability()->setUiReadOnly(readOnly);
-    m_orificeDiameter.uiCapability()->setUiReadOnly(readOnly);
-    m_flowCoefficient.uiCapability()->setUiReadOnly(readOnly);
 
-    uiOrdering.skipRemainingFields(true);
+    bool readOnly = uiConfigName == QString( "InsideValve" );
+    m_type.uiCapability()->setUiReadOnly( readOnly );
+    m_userLabel.uiCapability()->setUiReadOnly( readOnly );
+    m_orificeDiameter.uiCapability()->setUiReadOnly( readOnly );
+    m_flowCoefficient.uiCapability()->setUiReadOnly( readOnly );
+
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimValveTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                        const QVariant&            oldValue,
-                                        const QVariant&            newValue)
+void RimValveTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                         const QVariant&            oldValue,
+                                         const QVariant&            newValue )
 {
-    if (changedField == &m_type || changedField == &m_userLabel)
+    if ( changedField == &m_type || changedField == &m_userLabel )
     {
-        this->setName(fullLabel());
+        this->setName( fullLabel() );
     }
-    if (changedField == &m_type)
+    if ( changedField == &m_type )
     {
         std::vector<caf::PdmFieldHandle*> referringFields;
-        this->referringPtrFields(referringFields);
-        for (caf::PdmFieldHandle* field : referringFields)
+        this->referringPtrFields( referringFields );
+        for ( caf::PdmFieldHandle* field : referringFields )
         {
-            RimWellPathValve* valve = dynamic_cast<RimWellPathValve*>(field->ownerObject());
+            RimWellPathValve* valve = dynamic_cast<RimWellPathValve*>( field->ownerObject() );
             valve->templateUpdated();
         }
     }
@@ -251,20 +250,19 @@ void RimValveTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimValveTemplate::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+void RimValveTemplate::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    this->setName(fullLabel());
-    if (m_type() == RiaDefines::ICV)
+    this->setName( fullLabel() );
+    if ( m_type() == RiaDefines::ICV )
     {
-        this->setUiIconFromResourceString(":/ICVValve16x16.png");
+        this->setUiIconFromResourceString( ":/ICVValve16x16.png" );
     }
-    else if (m_type() == RiaDefines::ICD)
+    else if ( m_type() == RiaDefines::ICD )
     {
-        this->setUiIconFromResourceString(":/ICDValve16x16.png");
+        this->setUiIconFromResourceString( ":/ICDValve16x16.png" );
     }
-    else if (m_type() == RiaDefines::AICD)
+    else if ( m_type() == RiaDefines::AICD )
     {
-        this->setUiIconFromResourceString(":/AICDValve16x16.png");
+        this->setUiIconFromResourceString( ":/AICDValve16x16.png" );
     }
-
 }

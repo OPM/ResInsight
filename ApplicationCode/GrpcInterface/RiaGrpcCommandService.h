@@ -28,9 +28,9 @@ namespace caf
 {
 class PdmValueField;
 class PdmObject;
-template<typename T>
+template <typename T>
 class PdmField;
-}
+} // namespace caf
 
 namespace google
 {
@@ -46,19 +46,20 @@ class RiaGrpcCallbackInterface;
 class RiaGrpcCommandService : public rips::Commands::AsyncService, public RiaGrpcServiceInterface
 {
 public:
-    grpc::Status Execute(grpc::ServerContext* context, const rips::CommandParams* request, rips::CommandReply* reply) override;
+    grpc::Status
+                                           Execute( grpc::ServerContext* context, const rips::CommandParams* request, rips::CommandReply* reply ) override;
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 
 private:
-    template<typename T>
-    static caf::PdmField<T>* dataValueField(caf::PdmValueField* valueField);
-    template<typename T>
-    static const caf::PdmField<T>* constDataValueField(const caf::PdmValueField* valueField);
-    void assignPdmFieldValue(caf::PdmValueField*                      pdmValueField,
-                             const google::protobuf::Message&         params,
-                             const google::protobuf::FieldDescriptor* paramDescriptor);
-    void assignGrpcFieldValue(google::protobuf::Message*               reply,
-                              const google::protobuf::FieldDescriptor* fieldDescriptor,
-                              const caf::PdmValueField*                pdmValueField);
-    void assignResultToReply(const caf::PdmObject* result, rips::CommandReply* reply);
+    template <typename T>
+    static caf::PdmField<T>* dataValueField( caf::PdmValueField* valueField );
+    template <typename T>
+    static const caf::PdmField<T>* constDataValueField( const caf::PdmValueField* valueField );
+    void                           assignPdmFieldValue( caf::PdmValueField*                      pdmValueField,
+                                                        const google::protobuf::Message&         params,
+                                                        const google::protobuf::FieldDescriptor* paramDescriptor );
+    void                           assignGrpcFieldValue( google::protobuf::Message*               reply,
+                                                         const google::protobuf::FieldDescriptor* fieldDescriptor,
+                                                         const caf::PdmValueField*                pdmValueField );
+    void                           assignResultToReply( const caf::PdmObject* result, rips::CommandReply* reply );
 };

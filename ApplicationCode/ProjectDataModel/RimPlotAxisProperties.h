@@ -52,13 +52,13 @@ public:
 public:
     RimPlotAxisProperties();
 
-    void                  setEnableTitleTextSettings(bool enable);
-    void                  setNameAndAxis(const QString& name, QwtPlot::Axis axis);
+    void                  setEnableTitleTextSettings( bool enable );
+    void                  setNameAndAxis( const QString& name, QwtPlot::Axis axis );
     AxisTitlePositionType titlePosition() const override;
     int                   titleFontSize() const override;
-    void                  setTitleFontSize(int fontSize) override;
+    void                  setTitleFontSize( int fontSize ) override;
     int                   valuesFontSize() const override;
-    void                  setValuesFontSize(int fontSize) override;
+    void                  setValuesFontSize( int fontSize ) override;
 
     QwtPlot::Axis        qwtPlotAxisType() const;
     QString              name() const;
@@ -68,14 +68,14 @@ public:
     bool                 showAcronym() const;
     bool                 showUnitText() const;
     bool                 isAutoZoom() const;
-    void                 setAutoZoom(bool enableAutoZoom);
+    void                 setAutoZoom( bool enableAutoZoom );
     bool                 isAxisInverted() const;
-    void                 setAxisInverted(bool inverted);
+    void                 setAxisInverted( bool inverted );
 
     std::vector<RimPlotAxisAnnotation*> annotations() const;
-    void appendAnnotation(RimPlotAxisAnnotation* annotation);
+    void                                appendAnnotation( RimPlotAxisAnnotation* annotation );
 
-    caf::PdmField<QString>                             customTitle;
+    caf::PdmField<QString> customTitle;
 
     caf::PdmField<double> visibleRangeMin;
     caf::PdmField<double> visibleRangeMax;
@@ -87,19 +87,20 @@ public:
 
     bool isActive() const;
 
-    void setInvertedAxis(bool enable);
+    void setInvertedAxis( bool enable );
     void showAnnotationObjectsInProjectTree();
-    
+
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
-    void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
-                                                  const QVariant& newValue) override;
-    void                 defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue ) override;
+    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                bool*                      useOptionsOnly) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
 private:
     void updateOptionSensitivity();
@@ -117,7 +118,7 @@ private:
     caf::PdmField<QString> m_name;
     QwtPlot::Axis          m_axis;
 
-    bool                   m_enableTitleTextSettings;
+    bool m_enableTitleTextSettings;
 
     caf::PdmField<int>                                 m_titleFontSize;
     caf::PdmField<caf::AppEnum<AxisTitlePositionType>> m_titlePositionEnum;
@@ -134,13 +135,12 @@ class QwtPlotCurve;
 class RimPlotAxisLogRangeCalculator
 {
 public:
-    RimPlotAxisLogRangeCalculator(QwtPlot::Axis                           axis,
-                                  const std::vector<const QwtPlotCurve*>& qwtCurves);
+    RimPlotAxisLogRangeCalculator( QwtPlot::Axis axis, const std::vector<const QwtPlotCurve*>& qwtCurves );
 
-    void computeAxisRange(double* minPositive, double* max) const;
+    void computeAxisRange( double* minPositive, double* max ) const;
 
 private:
-    bool curveValueRange(const QwtPlotCurve* qwtCurve, double* minPositive, double* max) const;
+    bool curveValueRange( const QwtPlotCurve* qwtCurve, double* minPositive, double* max ) const;
 
 private:
     QwtPlot::Axis                          m_axis;

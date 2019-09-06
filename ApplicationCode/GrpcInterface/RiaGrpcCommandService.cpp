@@ -23,8 +23,8 @@
 #include "RicfSetTimeStep.h"
 
 #include "cafAssert.h"
-#include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmDataValueField.h"
+#include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmValueField.h"
 #include <google/protobuf/reflection.h>
 
@@ -41,70 +41,72 @@ using namespace google::protobuf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcCommandService::Execute(grpc::ServerContext* context, const CommandParams* request, CommandReply* reply)
+grpc::Status
+    RiaGrpcCommandService::Execute( grpc::ServerContext* context, const CommandParams* request, CommandReply* reply )
 {
     auto requestDescriptor = request->GetDescriptor();
 
     CommandParams::ParamsCase paramsCase = request->params_case();
-    if (paramsCase != CommandParams::PARAMS_NOT_SET)
+    if ( paramsCase != CommandParams::PARAMS_NOT_SET )
     {
-        auto grpcOneOfMessage = requestDescriptor->FindFieldByNumber((int)paramsCase);
-        CAF_ASSERT(grpcOneOfMessage->type() == FieldDescriptor::TYPE_MESSAGE);
+        auto grpcOneOfMessage = requestDescriptor->FindFieldByNumber( (int)paramsCase );
+        CAF_ASSERT( grpcOneOfMessage->type() == FieldDescriptor::TYPE_MESSAGE );
 
-        const Message& params               = request->GetReflection()->GetMessage(*request, grpcOneOfMessage);
-        QString        grpcOneOfMessageName = QString::fromStdString(grpcOneOfMessage->name());
-        auto           pdmObjectHandle      = caf::PdmDefaultObjectFactory::instance()->create(grpcOneOfMessageName);
-        auto           commandHandle        = dynamic_cast<RicfCommandObject*>(pdmObjectHandle);
+        const Message& params               = request->GetReflection()->GetMessage( *request, grpcOneOfMessage );
+        QString        grpcOneOfMessageName = QString::fromStdString( grpcOneOfMessage->name() );
+        auto           pdmObjectHandle      = caf::PdmDefaultObjectFactory::instance()->create( grpcOneOfMessageName );
+        auto           commandHandle        = dynamic_cast<RicfCommandObject*>( pdmObjectHandle );
 
-        if (commandHandle)
+        if ( commandHandle )
         {
-            RicfMultiCaseReplace* multiCaseReplaceCommand = dynamic_cast<RicfMultiCaseReplace*>(commandHandle);
-            if (multiCaseReplaceCommand)
+            RicfMultiCaseReplace* multiCaseReplaceCommand = dynamic_cast<RicfMultiCaseReplace*>( commandHandle );
+            if ( multiCaseReplaceCommand )
             {
-                CAF_ASSERT(request->has_replacemultiplecases());
-                auto replaceMultipleCasesRequest = request->replacemultiplecases();
+                CAF_ASSERT( request->has_replacemultiplecases() );
+                auto                   replaceMultipleCasesRequest = request->replacemultiplecases();
                 std::map<int, QString> caseIdFileMap;
-                for (auto caseGridFilePair : replaceMultipleCasesRequest.casepairs())
+                for ( auto caseGridFilePair : replaceMultipleCasesRequest.casepairs() )
                 {
-                    caseIdFileMap.insert(std::make_pair(caseGridFilePair.caseid(),
-                                                        QString::fromStdString(caseGridFilePair.newgridfile())));
+                    caseIdFileMap.insert( std::make_pair( caseGridFilePair.caseid(),
+                                                          QString::fromStdString( caseGridFilePair.newgridfile() ) ) );
                 }
-                multiCaseReplaceCommand->setCaseReplacePairs(caseIdFileMap);
+                multiCaseReplaceCommand->setCaseReplacePairs( caseIdFileMap );
             }
             else
             {
                 auto subMessageDescriptor = grpcOneOfMessage->message_type();
-                int  numParameters = subMessageDescriptor->field_count();
-                for (int i = 0; i < numParameters; ++i)
+                int  numParameters        = subMessageDescriptor->field_count();
+                for ( int i = 0; i < numParameters; ++i )
                 {
-                    auto parameter = subMessageDescriptor->field(i);
-                    if (parameter)
+                    auto parameter = subMessageDescriptor->field( i );
+                    if ( parameter )
                     {
-                        QString parameterName = QString::fromStdString(parameter->name());
-                        auto    pdmValueFieldHandle = dynamic_cast<caf::PdmValueField*>(pdmObjectHandle->findField(parameterName));
-                        if (pdmValueFieldHandle)
+                        QString parameterName       = QString::fromStdString( parameter->name() );
+                        auto    pdmValueFieldHandle = dynamic_cast<caf::PdmValueField*>(
+                            pdmObjectHandle->findField( parameterName ) );
+                        if ( pdmValueFieldHandle )
                         {
-                            assignPdmFieldValue(pdmValueFieldHandle, params, parameter);
+                            assignPdmFieldValue( pdmValueFieldHandle, params, parameter );
                         }
                     }
                 }
             }
             RicfCommandResponse response = commandHandle->execute();
-            if (response.status() == RicfCommandResponse::COMMAND_ERROR)
+            if ( response.status() == RicfCommandResponse::COMMAND_ERROR )
             {
-                return grpc::Status(grpc::FAILED_PRECONDITION, response.message().toStdString());
+                return grpc::Status( grpc::FAILED_PRECONDITION, response.message().toStdString() );
             }
-            else if (response.status() == RicfCommandResponse::COMMAND_WARNING)
+            else if ( response.status() == RicfCommandResponse::COMMAND_WARNING )
             {
-                context->AddInitialMetadata("warning", response.message().toStdString());
+                context->AddInitialMetadata( "warning", response.message().toStdString() );
             }
 
-            assignResultToReply(response.result(), reply);
+            assignResultToReply( response.result(), reply );
 
             return Status::OK;
         }
     }
-    return grpc::Status(grpc::NOT_FOUND, "Command not found");
+    return grpc::Status( grpc::NOT_FOUND, "Command not found" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,115 +116,119 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcCommandService::createCallbacks()
 {
     typedef RiaGrpcCommandService Self;
 
-    return {new RiaGrpcUnaryCallback<Self, CommandParams, CommandReply>(this, &Self::Execute, &Self::RequestExecute)};
+    return {new RiaGrpcUnaryCallback<Self, CommandParams, CommandReply>( this, &Self::Execute, &Self::RequestExecute )};
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template<typename T>
-caf::PdmField<T>* RiaGrpcCommandService::dataValueField(caf::PdmValueField* valueField)
+template <typename T>
+caf::PdmField<T>* RiaGrpcCommandService::dataValueField( caf::PdmValueField* valueField )
 {
-    caf::PdmField<T>* dataValField = dynamic_cast<caf::PdmField<T>*>(valueField);
-    CAF_ASSERT(dataValField);
+    caf::PdmField<T>* dataValField = dynamic_cast<caf::PdmField<T>*>( valueField );
+    CAF_ASSERT( dataValField );
     return dataValField;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template<typename T>
-const caf::PdmField<T>* RiaGrpcCommandService::constDataValueField(const caf::PdmValueField* valueField)
+template <typename T>
+const caf::PdmField<T>* RiaGrpcCommandService::constDataValueField( const caf::PdmValueField* valueField )
 {
-    const caf::PdmField<T>* dataValField = dynamic_cast<const caf::PdmField<T>*>(valueField);
-    CAF_ASSERT(dataValField);
+    const caf::PdmField<T>* dataValField = dynamic_cast<const caf::PdmField<T>*>( valueField );
+    CAF_ASSERT( dataValField );
     return dataValField;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcCommandService::assignPdmFieldValue(caf::PdmValueField*    pdmValueField,
-                                                const Message&         params,
-                                                const FieldDescriptor* paramDescriptor)
+void RiaGrpcCommandService::assignPdmFieldValue( caf::PdmValueField*    pdmValueField,
+                                                 const Message&         params,
+                                                 const FieldDescriptor* paramDescriptor )
 {
     FieldDescriptor::Type fieldDataType = paramDescriptor->type();
     const Reflection*     reflection    = params.GetReflection();
-    
-    if (paramDescriptor->is_repeated() &&
-        fieldDataType != FieldDescriptor::TYPE_INT32 &&
-        fieldDataType != FieldDescriptor::TYPE_STRING)
+
+    if ( paramDescriptor->is_repeated() && fieldDataType != FieldDescriptor::TYPE_INT32 &&
+         fieldDataType != FieldDescriptor::TYPE_STRING )
     {
-        CAF_ASSERT(false && "Only integer and string vectors are implemented as command arguments");
+        CAF_ASSERT( false && "Only integer and string vectors are implemented as command arguments" );
     }
 
-    switch (fieldDataType)
+    switch ( fieldDataType )
     {
-        case FieldDescriptor::TYPE_BOOL: {
-            auto value = reflection->GetBool(params, paramDescriptor);
-            auto dataField = dataValueField<bool>(pdmValueField);
-            dataField->setValue(value);
+        case FieldDescriptor::TYPE_BOOL:
+        {
+            auto value     = reflection->GetBool( params, paramDescriptor );
+            auto dataField = dataValueField<bool>( pdmValueField );
+            dataField->setValue( value );
             break;
         }
-        case FieldDescriptor::TYPE_INT32: {
-            if (paramDescriptor->is_repeated())
+        case FieldDescriptor::TYPE_INT32:
+        {
+            if ( paramDescriptor->is_repeated() )
             {
-                RepeatedFieldRef<int> repeatedField =
-                    reflection->GetRepeatedFieldRef<int>(params, paramDescriptor);
-                auto dataField = dataValueField<std::vector<int>>(pdmValueField);
-                dataField->setValue(std::vector<int>(repeatedField.begin(), repeatedField.end()));
+                RepeatedFieldRef<int> repeatedField = reflection->GetRepeatedFieldRef<int>( params, paramDescriptor );
+                auto                  dataField     = dataValueField<std::vector<int>>( pdmValueField );
+                dataField->setValue( std::vector<int>( repeatedField.begin(), repeatedField.end() ) );
             }
             else
             {
-                int value = reflection->GetInt32(params, paramDescriptor);
-                auto dataField = dataValueField<int>(pdmValueField);
-                dataField->setValue(value);
+                int  value     = reflection->GetInt32( params, paramDescriptor );
+                auto dataField = dataValueField<int>( pdmValueField );
+                dataField->setValue( value );
             }
             break;
         }
-        case FieldDescriptor::TYPE_UINT32: {
-            uint value = reflection->GetUInt32(params, paramDescriptor);
-            auto dataField = dataValueField<uint>(pdmValueField);
-            dataField->setValue(value);
+        case FieldDescriptor::TYPE_UINT32:
+        {
+            uint value     = reflection->GetUInt32( params, paramDescriptor );
+            auto dataField = dataValueField<uint>( pdmValueField );
+            dataField->setValue( value );
             break;
         }
-        case FieldDescriptor::TYPE_STRING: {
-            if (paramDescriptor->is_repeated())
+        case FieldDescriptor::TYPE_STRING:
+        {
+            if ( paramDescriptor->is_repeated() )
             {
-                RepeatedFieldRef<std::string> repeatedField =
-                    reflection->GetRepeatedFieldRef<std::string>(params, paramDescriptor);
-                std::vector<QString> stringVector;
-                for (const std::string& string : repeatedField)
+                RepeatedFieldRef<std::string> repeatedField = reflection->GetRepeatedFieldRef<std::string>( params,
+                                                                                                            paramDescriptor );
+                std::vector<QString>          stringVector;
+                for ( const std::string& string : repeatedField )
                 {
-                    stringVector.push_back(QString::fromStdString(string));
+                    stringVector.push_back( QString::fromStdString( string ) );
                 }
-                auto dataField = dataValueField<std::vector<QString>>(pdmValueField);
-                dataField->setValue(stringVector);
+                auto dataField = dataValueField<std::vector<QString>>( pdmValueField );
+                dataField->setValue( stringVector );
             }
             else
             {
-                auto value = QString::fromStdString(reflection->GetString(params, paramDescriptor));
-                auto dataField = dataValueField<QString>(pdmValueField);
-                dataField->setValue(value);
+                auto value     = QString::fromStdString( reflection->GetString( params, paramDescriptor ) );
+                auto dataField = dataValueField<QString>( pdmValueField );
+                dataField->setValue( value );
             }
             break;
         }
-        case FieldDescriptor::TYPE_FLOAT: {
-            auto value = reflection->GetFloat(params, paramDescriptor);
-            auto dataField = dataValueField<float>(pdmValueField);
-            dataField->setValue(value);
+        case FieldDescriptor::TYPE_FLOAT:
+        {
+            auto value     = reflection->GetFloat( params, paramDescriptor );
+            auto dataField = dataValueField<float>( pdmValueField );
+            dataField->setValue( value );
             break;
         }
-        case FieldDescriptor::TYPE_DOUBLE: {
-            auto value = reflection->GetDouble(params, paramDescriptor);
-            auto dataField = dataValueField<double>(pdmValueField);
-            dataField->setValue(value);
+        case FieldDescriptor::TYPE_DOUBLE:
+        {
+            auto value     = reflection->GetDouble( params, paramDescriptor );
+            auto dataField = dataValueField<double>( pdmValueField );
+            dataField->setValue( value );
             break;
         }
-        case FieldDescriptor::TYPE_ENUM: {
-            auto value = reflection->GetEnumValue(params, paramDescriptor);
-            pdmValueField->setFromQVariant(QVariant(value));
+        case FieldDescriptor::TYPE_ENUM:
+        {
+            auto value = reflection->GetEnumValue( params, paramDescriptor );
+            pdmValueField->setFromQVariant( QVariant( value ) );
             break;
         }
     }
@@ -231,55 +237,64 @@ void RiaGrpcCommandService::assignPdmFieldValue(caf::PdmValueField*    pdmValueF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcCommandService::assignGrpcFieldValue(Message*                  reply,
-                                                 const FieldDescriptor*    fieldDescriptor,
-                                                 const caf::PdmValueField* pdmValueField)
+void RiaGrpcCommandService::assignGrpcFieldValue( Message*                  reply,
+                                                  const FieldDescriptor*    fieldDescriptor,
+                                                  const caf::PdmValueField* pdmValueField )
 {
-    if (fieldDescriptor->is_repeated())
+    if ( fieldDescriptor->is_repeated() )
     {
-        CAF_ASSERT(false && "Assigning vector results to Command Results is not yet implemented");
+        CAF_ASSERT( false && "Assigning vector results to Command Results is not yet implemented" );
     }
 
     FieldDescriptor::Type fieldDataType = fieldDescriptor->type();
     QVariant              qValue        = pdmValueField->toQVariant();
 
     auto reflection = reply->GetReflection();
-    switch (fieldDataType)
+    switch ( fieldDataType )
     {
-        case FieldDescriptor::TYPE_BOOL: {
-            reflection->SetBool(reply, fieldDescriptor, qValue.toBool());
+        case FieldDescriptor::TYPE_BOOL:
+        {
+            reflection->SetBool( reply, fieldDescriptor, qValue.toBool() );
             break;
         }
-        case FieldDescriptor::TYPE_INT32: {
-            reflection->SetInt32(reply, fieldDescriptor, qValue.toInt());            
+        case FieldDescriptor::TYPE_INT32:
+        {
+            reflection->SetInt32( reply, fieldDescriptor, qValue.toInt() );
             break;
         }
-        case FieldDescriptor::TYPE_UINT32: {
-            reflection->SetUInt32(reply, fieldDescriptor, qValue.toUInt());
+        case FieldDescriptor::TYPE_UINT32:
+        {
+            reflection->SetUInt32( reply, fieldDescriptor, qValue.toUInt() );
             break;
         }
-        case FieldDescriptor::TYPE_INT64: {
-            reflection->SetInt64(reply, fieldDescriptor, qValue.toLongLong());
+        case FieldDescriptor::TYPE_INT64:
+        {
+            reflection->SetInt64( reply, fieldDescriptor, qValue.toLongLong() );
             break;
         }
-        case FieldDescriptor::TYPE_UINT64: {
-            reflection->SetUInt64(reply, fieldDescriptor, qValue.toULongLong());
+        case FieldDescriptor::TYPE_UINT64:
+        {
+            reflection->SetUInt64( reply, fieldDescriptor, qValue.toULongLong() );
             break;
         }
-        case FieldDescriptor::TYPE_STRING: {
-            reflection->SetString(reply, fieldDescriptor, qValue.toString().toStdString());
+        case FieldDescriptor::TYPE_STRING:
+        {
+            reflection->SetString( reply, fieldDescriptor, qValue.toString().toStdString() );
             break;
         }
-        case FieldDescriptor::TYPE_FLOAT: {
-            reflection->SetFloat(reply, fieldDescriptor, qValue.toFloat());
+        case FieldDescriptor::TYPE_FLOAT:
+        {
+            reflection->SetFloat( reply, fieldDescriptor, qValue.toFloat() );
             break;
         }
-        case FieldDescriptor::TYPE_DOUBLE: {
-            reflection->SetDouble(reply, fieldDescriptor, qValue.toDouble());
+        case FieldDescriptor::TYPE_DOUBLE:
+        {
+            reflection->SetDouble( reply, fieldDescriptor, qValue.toDouble() );
             break;
         }
-        case FieldDescriptor::TYPE_ENUM: {
-            reflection->SetEnumValue(reply, fieldDescriptor, qValue.toInt());
+        case FieldDescriptor::TYPE_ENUM:
+        {
+            reflection->SetEnumValue( reply, fieldDescriptor, qValue.toInt() );
             break;
         }
     }
@@ -288,42 +303,42 @@ void RiaGrpcCommandService::assignGrpcFieldValue(Message*                  reply
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcCommandService::assignResultToReply(const caf::PdmObject* result, CommandReply* reply)
+void RiaGrpcCommandService::assignResultToReply( const caf::PdmObject* result, CommandReply* reply )
 {
-    if (!result)
+    if ( !result )
     {
-        reply->set_allocated_emptyresult(new Empty);
+        reply->set_allocated_emptyresult( new Empty );
         return;
     }
 
     QString resultType = result->classKeyword();
 
     auto                   replyDescriptor = reply->GetDescriptor();
-    auto                   oneofDescriptor = replyDescriptor->FindOneofByName("result");
+    auto                   oneofDescriptor = replyDescriptor->FindOneofByName( "result" );
     const FieldDescriptor* matchingOneOf   = nullptr;
-    for (int fieldIndex = 0; fieldIndex < oneofDescriptor->field_count(); ++fieldIndex)
+    for ( int fieldIndex = 0; fieldIndex < oneofDescriptor->field_count(); ++fieldIndex )
     {
-        auto fieldDescriptor = oneofDescriptor->field(fieldIndex);
-        if (fieldDescriptor->name() == resultType.toStdString())
+        auto fieldDescriptor = oneofDescriptor->field( fieldIndex );
+        if ( fieldDescriptor->name() == resultType.toStdString() )
         {
             matchingOneOf = fieldDescriptor;
             break;
         }
     }
 
-    CAF_ASSERT(matchingOneOf);
-    Message* message = reply->GetReflection()->MutableMessage(reply, matchingOneOf);
-    CAF_ASSERT(message);
+    CAF_ASSERT( matchingOneOf );
+    Message* message = reply->GetReflection()->MutableMessage( reply, matchingOneOf );
+    CAF_ASSERT( message );
     auto resultDescriptor = message->GetDescriptor();
 
-    for (int fieldIndex = 0; fieldIndex < resultDescriptor->field_count(); ++fieldIndex)
+    for ( int fieldIndex = 0; fieldIndex < resultDescriptor->field_count(); ++fieldIndex )
     {
-        auto       fieldDescriptor = resultDescriptor->field(fieldIndex);
-        const auto pdmField =
-            dynamic_cast<const caf::PdmValueField*>(result->findField(QString::fromStdString(fieldDescriptor->name())));
-        assignGrpcFieldValue(message, fieldDescriptor, pdmField);
+        auto       fieldDescriptor = resultDescriptor->field( fieldIndex );
+        const auto pdmField        = dynamic_cast<const caf::PdmValueField*>(
+            result->findField( QString::fromStdString( fieldDescriptor->name() ) ) );
+        assignGrpcFieldValue( message, fieldDescriptor, pdmField );
     }
 }
 
-static bool RiaGrpcCommandService_init =
-    RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcCommandService>(typeid(RiaGrpcCommandService).hash_code());
+static bool RiaGrpcCommandService_init = RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcCommandService>(
+    typeid( RiaGrpcCommandService ).hash_code() );

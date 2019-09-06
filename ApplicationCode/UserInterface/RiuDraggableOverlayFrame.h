@@ -27,7 +27,9 @@ class RiuDraggableOverlayFrame : public QFrame
 {
     Q_OBJECT
 public:
-    RiuDraggableOverlayFrame(QWidget* parent, QWidget* widgetToSnapTo = nullptr, const QColor& backgroundColor = QColor(255, 255, 255, 100));
+    RiuDraggableOverlayFrame( QWidget*      parent,
+                              QWidget*      widgetToSnapTo  = nullptr,
+                              const QColor& backgroundColor = QColor( 255, 255, 255, 100 ) );
     QLabel* label();
 
 protected:

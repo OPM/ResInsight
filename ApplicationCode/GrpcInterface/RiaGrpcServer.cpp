@@ -22,8 +22,8 @@
 #include "RiaDefines.h"
 
 #include "RiaGrpcCallbacks.h"
-#include "RiaGrpcServiceInterface.h"
 #include "RiaGrpcCaseService.h"
+#include "RiaGrpcServiceInterface.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigMainGrid.h"
@@ -54,26 +54,26 @@ using grpc::Status;
 class RiaGrpcServerImpl
 {
 public:
-    RiaGrpcServerImpl(int portNumber);
+    RiaGrpcServerImpl( int portNumber );
     ~RiaGrpcServerImpl();
-    int portNumber() const;
-    bool isRunning() const;
-    void run();
-    void runInThread();
-    void initialize();
+    int    portNumber() const;
+    bool   isRunning() const;
+    void   run();
+    void   runInThread();
+    void   initialize();
     size_t processAllQueuedRequests();
-    void quit();
+    void   quit();
 
 private:
     void waitForNextRequest();
-    void process(RiaGrpcCallbackInterface* method);
+    void process( RiaGrpcCallbackInterface* method );
 
 private:
     int                                                 m_portNumber;
     std::unique_ptr<grpc::ServerCompletionQueue>        m_completionQueue;
     std::unique_ptr<grpc::Server>                       m_server;
     std::list<std::shared_ptr<RiaGrpcServiceInterface>> m_services;
-    std::list<RiaGrpcCallbackInterface*>                 m_unprocessedRequests;
+    std::list<RiaGrpcCallbackInterface*>                m_unprocessedRequests;
     std::mutex                                          m_requestMutex;
     std::thread                                         m_thread;
 };
@@ -81,9 +81,10 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaGrpcServerImpl::RiaGrpcServerImpl(int portNumber)
-    : m_portNumber(portNumber)
-{}
+RiaGrpcServerImpl::RiaGrpcServerImpl( int portNumber )
+    : m_portNumber( portNumber )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -115,7 +116,7 @@ bool RiaGrpcServerImpl::isRunning() const
 void RiaGrpcServerImpl::run()
 {
     initialize();
-    while (true)
+    while ( true )
     {
         waitForNextRequest();
     }
@@ -127,40 +128,40 @@ void RiaGrpcServerImpl::run()
 void RiaGrpcServerImpl::runInThread()
 {
     initialize();
-    m_thread = std::thread(&RiaGrpcServerImpl::waitForNextRequest, this);
+    m_thread = std::thread( &RiaGrpcServerImpl::waitForNextRequest, this );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServerImpl::initialize()
-{   
-    CAF_ASSERT(m_portNumber > 0 && m_portNumber <= (int) std::numeric_limits<quint16>::max());
+{
+    CAF_ASSERT( m_portNumber > 0 && m_portNumber <= (int)std::numeric_limits<quint16>::max() );
 
-    QString serverAddress = QString("localhost:%1").arg(m_portNumber);
+    QString serverAddress = QString( "localhost:%1" ).arg( m_portNumber );
 
     ServerBuilder builder;
-    builder.AddListeningPort(serverAddress.toStdString(), grpc::InsecureServerCredentials());
+    builder.AddListeningPort( serverAddress.toStdString(), grpc::InsecureServerCredentials() );
 
-    for (auto key : RiaGrpcServiceFactory::instance()->allKeys())
+    for ( auto key : RiaGrpcServiceFactory::instance()->allKeys() )
     {
-        std::shared_ptr<RiaGrpcServiceInterface> service(RiaGrpcServiceFactory::instance()->create(key));
-        builder.RegisterService(dynamic_cast<grpc::Service*>(service.get()));
-        m_services.push_back(service);
+        std::shared_ptr<RiaGrpcServiceInterface> service( RiaGrpcServiceFactory::instance()->create( key ) );
+        builder.RegisterService( dynamic_cast<grpc::Service*>( service.get() ) );
+        m_services.push_back( service );
     }
 
     m_completionQueue = builder.AddCompletionQueue();
-    m_server = builder.BuildAndStart();
+    m_server          = builder.BuildAndStart();
 
-    CVF_ASSERT(m_server);
-    RiaLogging::info(QString("Server listening on %1").arg(serverAddress));
-    
+    CVF_ASSERT( m_server );
+    RiaLogging::info( QString( "Server listening on %1" ).arg( serverAddress ) );
+
     // Spawn new CallData instances to serve new clients.
-    for (auto service : m_services)
+    for ( auto service : m_services )
     {
-        for (auto callback : service->createCallbacks())
+        for ( auto callback : service->createCallbacks() )
         {
-            process(callback);
+            process( callback );
         }
     }
 }
@@ -173,17 +174,17 @@ size_t RiaGrpcServerImpl::processAllQueuedRequests()
     std::list<RiaGrpcCallbackInterface*> waitingRequests;
     {
         // Block only while transferring the unprocessed requests to a local function list
-        std::lock_guard<std::mutex> requestLock(m_requestMutex);
-        waitingRequests.swap(m_unprocessedRequests);
+        std::lock_guard<std::mutex> requestLock( m_requestMutex );
+        waitingRequests.swap( m_unprocessedRequests );
     }
     size_t count = waitingRequests.size();
 
     // Now free to receive new requests from client while processing the current ones.
-    while (!waitingRequests.empty())
+    while ( !waitingRequests.empty() )
     {
         RiaGrpcCallbackInterface* method = waitingRequests.front();
         waitingRequests.pop_front();
-        process(method);
+        process( method );
     }
     return count;
 }
@@ -194,11 +195,11 @@ size_t RiaGrpcServerImpl::processAllQueuedRequests()
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServerImpl::quit()
 {
-    if (m_server)
+    if ( m_server )
     {
-        RiaLogging::info("Shutting down gRPC server");
+        RiaLogging::info( "Shutting down gRPC server" );
         // Clear unhandled requests
-        while (!m_unprocessedRequests.empty())
+        while ( !m_unprocessedRequests.empty() )
         {
             RiaGrpcCallbackInterface* method = m_unprocessedRequests.front();
             m_unprocessedRequests.pop_front();
@@ -230,15 +231,15 @@ void RiaGrpcServerImpl::waitForNextRequest()
     void* tag;
     bool  ok = false;
 
-    while (m_completionQueue->Next(&tag, &ok))
+    while ( m_completionQueue->Next( &tag, &ok ) )
     {
-        std::lock_guard<std::mutex> requestLock(m_requestMutex);
-        RiaGrpcCallbackInterface* method = static_cast<RiaGrpcCallbackInterface*>(tag);
-        if (!ok)
+        std::lock_guard<std::mutex> requestLock( m_requestMutex );
+        RiaGrpcCallbackInterface*   method = static_cast<RiaGrpcCallbackInterface*>( tag );
+        if ( !ok )
         {
-            method->setNextCallState(RiaGrpcCallbackInterface::FINISH_REQUEST);
+            method->setNextCallState( RiaGrpcCallbackInterface::FINISH_REQUEST );
         }
-        m_unprocessedRequests.push_back(method);
+        m_unprocessedRequests.push_back( method );
     }
 }
 
@@ -247,39 +248,38 @@ void RiaGrpcServerImpl::waitForNextRequest()
 /// The gRPC calls triggered in the callback will see each callback pushed back onto the command queue.
 /// The call state will then determine what the callback should do next.
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServerImpl::process(RiaGrpcCallbackInterface* method)
+void RiaGrpcServerImpl::process( RiaGrpcCallbackInterface* method )
 {
-    if (method->callState() == RiaGrpcCallbackInterface::CREATE_HANDLER)
+    if ( method->callState() == RiaGrpcCallbackInterface::CREATE_HANDLER )
     {
-        method->createRequestHandler(m_completionQueue.get());
+        method->createRequestHandler( m_completionQueue.get() );
     }
-    else if (method->callState() == RiaGrpcCallbackInterface::INIT_REQUEST_STARTED)
+    else if ( method->callState() == RiaGrpcCallbackInterface::INIT_REQUEST_STARTED )
     {
         method->onInitRequestStarted();
     }
-    else if (method->callState() == RiaGrpcCallbackInterface::INIT_REQUEST_COMPLETED)
+    else if ( method->callState() == RiaGrpcCallbackInterface::INIT_REQUEST_COMPLETED )
     {
         method->onInitRequestCompleted();
     }
-    else if (method->callState() == RiaGrpcCallbackInterface::PROCESS_REQUEST)
+    else if ( method->callState() == RiaGrpcCallbackInterface::PROCESS_REQUEST )
     {
-        method->onProcessRequest();       
+        method->onProcessRequest();
     }
     else
     {
         method->onFinishRequest();
-        process(method->createNewFromThis());
+        process( method->createNewFromThis() );
         delete method;
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaGrpcServer::RiaGrpcServer(int portNumber)
+RiaGrpcServer::RiaGrpcServer( int portNumber )
 {
-    m_serverImpl = new RiaGrpcServerImpl(portNumber);
+    m_serverImpl = new RiaGrpcServerImpl( portNumber );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -295,7 +295,7 @@ RiaGrpcServer::~RiaGrpcServer()
 //--------------------------------------------------------------------------------------------------
 int RiaGrpcServer::portNumber() const
 {
-    if (m_serverImpl) return m_serverImpl->portNumber();
+    if ( m_serverImpl ) return m_serverImpl->portNumber();
 
     return 0;
 }
@@ -305,7 +305,7 @@ int RiaGrpcServer::portNumber() const
 //--------------------------------------------------------------------------------------------------
 bool RiaGrpcServer::isRunning() const
 {
-    if (m_serverImpl) return m_serverImpl->isRunning();
+    if ( m_serverImpl ) return m_serverImpl->isRunning();
 
     return false;
 }
@@ -352,43 +352,41 @@ size_t RiaGrpcServer::processAllQueuedRequests()
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServer::quit()
 {
-    if (m_serverImpl)
-        m_serverImpl->quit();
+    if ( m_serverImpl ) m_serverImpl->quit();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaGrpcServer::findAvailablePortNumber(int defaultPortNumber)
+int RiaGrpcServer::findAvailablePortNumber( int defaultPortNumber )
 {
     int startPort = 50051;
 
-    if (defaultPortNumber > 0 && defaultPortNumber < (int)std::numeric_limits<quint16>::max())
+    if ( defaultPortNumber > 0 && defaultPortNumber < (int)std::numeric_limits<quint16>::max() )
     {
         startPort = defaultPortNumber;
     }
 
-    int endPort = std::min(startPort + 100, (int)std::numeric_limits<quint16>::max());
+    int endPort = std::min( startPort + 100, (int)std::numeric_limits<quint16>::max() );
 
     QTcpServer serverTest;
-    quint16    port = static_cast<quint16>(startPort);
-    for (; port <= static_cast<quint16>(endPort); ++port)
+    quint16    port = static_cast<quint16>( startPort );
+    for ( ; port <= static_cast<quint16>( endPort ); ++port )
     {
-        if (serverTest.listen(QHostAddress::LocalHost, port))
+        if ( serverTest.listen( QHostAddress::LocalHost, port ) )
         {
-            return static_cast<int>(port);
+            return static_cast<int>( port );
         }
     }
     return -1;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServer::setReceivedExitRequest()
 {
-    RiaLogging::info("Received Exit Request");
+    RiaLogging::info( "Received Exit Request" );
     s_receivedExitRequest = true;
 }
 

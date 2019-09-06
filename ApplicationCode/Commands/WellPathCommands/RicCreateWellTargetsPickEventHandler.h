@@ -31,23 +31,27 @@ class RigWellPath;
 class RicCreateWellTargetsPickEventHandler : public Ric3dViewPickEventHandler
 {
 public:
-    RicCreateWellTargetsPickEventHandler(RimWellPathGeometryDef* wellGeometryDef);
+    RicCreateWellTargetsPickEventHandler( RimWellPathGeometryDef* wellGeometryDef );
     ~RicCreateWellTargetsPickEventHandler();
 
     void registerAsPickEventHandler() override;
 
 protected:
-    bool handle3dPickEvent(const Ric3dPickEvent& eventObject) override;
+    bool handle3dPickEvent( const Ric3dPickEvent& eventObject ) override;
     void notifyUnregistered() override;
 
 private:
-    bool calculateAzimuthAndInclinationAtMd(double             measuredDepth,
-                                            const RigWellPath* wellPathGeometry,
-                                            double*            azimuth,
-                                            double*            inclination) const;
+    bool calculateAzimuthAndInclinationAtMd( double             measuredDepth,
+                                             const RigWellPath* wellPathGeometry,
+                                             double*            azimuth,
+                                             double*            inclination ) const;
 
-    static bool isGridSourceObject(const cvf::Object* object);
-    static cvf::Vec3d findHexElementIntersection(Rim3dView* view, const RiuPickItemInfo& pickItem, const cvf::Vec3d& domainRayOrigin, const cvf::Vec3d& domainRayEnd);
+    static bool       isGridSourceObject( const cvf::Object* object );
+    static cvf::Vec3d findHexElementIntersection( Rim3dView*             view,
+                                                  const RiuPickItemInfo& pickItem,
+                                                  const cvf::Vec3d&      domainRayOrigin,
+                                                  const cvf::Vec3d&      domainRayEnd );
+
 private:
     caf::PdmPointer<RimWellPathGeometryDef> m_geometryToAddTargetsTo;
 };

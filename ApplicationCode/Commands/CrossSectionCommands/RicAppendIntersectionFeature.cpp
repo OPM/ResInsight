@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -32,10 +32,10 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicAppendIntersectionFeature, "RicAppendIntersectionFeature");
+CAF_CMD_SOURCE_INIT( RicAppendIntersectionFeature, "RicAppendIntersectionFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicAppendIntersectionFeature::isCommandEnabled()
 {
@@ -43,50 +43,48 @@ bool RicAppendIntersectionFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicAppendIntersectionFeature::onActionTriggered(bool isChecked)
+void RicAppendIntersectionFeature::onActionTriggered( bool isChecked )
 {
     std::vector<caf::PdmObjectHandle*> collection;
-    caf::SelectionManager::instance()->objectsByType(&collection);
-    CVF_ASSERT(collection.size() == 1);
+    caf::SelectionManager::instance()->objectsByType( &collection );
+    CVF_ASSERT( collection.size() == 1 );
 
     RimIntersectionCollection* intersectionCollection = nullptr;
-    collection[0]->firstAncestorOrThisOfType(intersectionCollection);
+    collection[0]->firstAncestorOrThisOfType( intersectionCollection );
 
-    CVF_ASSERT(intersectionCollection);
+    CVF_ASSERT( intersectionCollection );
 
-    RicAppendIntersectionFeatureCmd* cmd = new RicAppendIntersectionFeatureCmd(intersectionCollection);
-    caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
+    RicAppendIntersectionFeatureCmd* cmd = new RicAppendIntersectionFeatureCmd( intersectionCollection );
+    caf::CmdExecCommandManager::instance()->processExecuteCommand( cmd );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicAppendIntersectionFeature::setupActionLook(QAction* actionToSetup)
+void RicAppendIntersectionFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
-    actionToSetup->setText("New Intersection");
+    actionToSetup->setIcon( QIcon( ":/CrossSection16x16.png" ) );
+    actionToSetup->setText( "New Intersection" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicAppendIntersectionFeatureCmd::RicAppendIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection)
-    : CmdExecuteCommand(nullptr),
-    m_intersectionCollection(intersectionCollection)
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RicAppendIntersectionFeatureCmd::~RicAppendIntersectionFeatureCmd()
+RicAppendIntersectionFeatureCmd::RicAppendIntersectionFeatureCmd( RimIntersectionCollection* intersectionCollection )
+    : CmdExecuteCommand( nullptr )
+    , m_intersectionCollection( intersectionCollection )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+RicAppendIntersectionFeatureCmd::~RicAppendIntersectionFeatureCmd() {}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 QString RicAppendIntersectionFeatureCmd::name()
 {
@@ -94,30 +92,28 @@ QString RicAppendIntersectionFeatureCmd::name()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicAppendIntersectionFeatureCmd::redo()
 {
-    CVF_ASSERT(m_intersectionCollection);
+    CVF_ASSERT( m_intersectionCollection );
 
     RimIntersection* intersection = new RimIntersection();
-    intersection->name = QString("Intersection");
-    m_intersectionCollection->appendIntersectionAndUpdate(intersection);
+    intersection->name            = QString( "Intersection" );
+    m_intersectionCollection->appendIntersectionAndUpdate( intersection );
 
     RimGridView* view = nullptr;
-    m_intersectionCollection->firstAncestorOrThisOfTypeAsserted(view);
+    m_intersectionCollection->firstAncestorOrThisOfTypeAsserted( view );
 
     RimGeoMechView* geoMechView = nullptr;
-    geoMechView = dynamic_cast<RimGeoMechView*>(view);
-    if (geoMechView)
+    geoMechView                 = dynamic_cast<RimGeoMechView*>( view );
+    if ( geoMechView )
     {
-        geoMechView->tensorResults()->setShowTensors(false);
+        geoMechView->tensorResults()->setShowTensors( false );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicAppendIntersectionFeatureCmd::undo()
-{
-}
+void RicAppendIntersectionFeatureCmd::undo() {}

@@ -36,9 +36,9 @@
 #include "RiuWidgetDragger.h"
 
 #include "RiuPlotMainWindowTools.h"
-#include "RiuQwtPlotZoomer.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWheelZoomer.h"
+#include "RiuQwtPlotZoomer.h"
 #include "RiuQwtScalePicker.h"
 
 #include "RimProject.h"
@@ -47,13 +47,13 @@
 #include "cafSelectionManager.h"
 #include "cafTitledOverlayFrame.h"
 
+#include "qwt_date_scale_draw.h"
+#include "qwt_date_scale_engine.h"
 #include "qwt_interval.h"
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_panner.h"
 #include "qwt_plot_zoomer.h"
-#include "qwt_date_scale_draw.h"
-#include "qwt_date_scale_engine.h"
 #include "qwt_scale_div.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_engine.h"
@@ -62,8 +62,6 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QWheelEvent>
-
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -74,13 +72,13 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    QString curveInfoText(QwtPlotCurve* curve) override
+    QString curveInfoText( QwtPlotCurve* curve ) override
     {
-        RiuRimQwtPlotCurve* riuCurve = dynamic_cast<RiuRimQwtPlotCurve*>(curve);
+        RiuRimQwtPlotCurve* riuCurve = dynamic_cast<RiuRimQwtPlotCurve*>( curve );
         RimSummaryCurve*    sumCurve = nullptr;
-        if (riuCurve)
+        if ( riuCurve )
         {
-            sumCurve = dynamic_cast<RimSummaryCurve*>(riuCurve->ownerRimCurve());
+            sumCurve = dynamic_cast<RimSummaryCurve*>( riuCurve->ownerRimCurve() );
         }
 
         return sumCurve && sumCurve->summaryCaseY() ? sumCurve->summaryCaseY()->caseName() : "";
@@ -91,22 +89,22 @@ static EnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryQwtPlot::RiuSummaryQwtPlot(RimViewWindow* viewWindow, QWidget* parent /*= nullptr*/)
-    : RiuQwtPlot(viewWindow, parent)
+RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimViewWindow* viewWindow, QWidget* parent /*= nullptr*/ )
+    : RiuQwtPlot( viewWindow, parent )
 {
     setDefaults();
-    new RiuQwtCurvePointTracker(this, true, &ensembleCurveInfoTextProvider);
+    new RiuQwtCurvePointTracker( this, true, &ensembleCurveInfoTextProvider );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::useDateBasedTimeAxis(const QString& dateFormat,
-                                             const QString& timeFormat,
-	                                         RiaQDateTimeTools::DateFormatComponents dateComponents,
-                                             RiaQDateTimeTools::TimeFormatComponents timeComponents)
+void RiuSummaryQwtPlot::useDateBasedTimeAxis( const QString&                          dateFormat,
+                                              const QString&                          timeFormat,
+                                              RiaQDateTimeTools::DateFormatComponents dateComponents,
+                                              RiaQDateTimeTools::TimeFormatComponents timeComponents )
 {
-    RiuQwtPlotTools::enableDateBasedBottomXAxis(this, dateFormat, timeFormat, dateComponents, timeComponents);
+    RiuQwtPlotTools::enableDateBasedBottomXAxis( this, dateFormat, timeFormat, dateComponents, timeComponents );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,22 +112,21 @@ void RiuSummaryQwtPlot::useDateBasedTimeAxis(const QString& dateFormat,
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
 {
-    setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine());
-    setAxisScaleDraw(QwtPlot::xBottom, new QwtScaleDraw());
+    setAxisScaleEngine( QwtPlot::xBottom, new QwtLinearScaleEngine() );
+    setAxisScaleDraw( QwtPlot::xBottom, new QwtScaleDraw() );
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet* curveSetToShowLegendFor)
+void RiuSummaryQwtPlot::addOrUpdateEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSetToShowLegendFor )
 {
     RiuCvfOverlayItemWidget* overlayWidget = nullptr;
 
-    auto it = m_ensembleLegendWidgets.find(curveSetToShowLegendFor);
-    if (it == m_ensembleLegendWidgets.end() || it->second == nullptr)
+    auto it = m_ensembleLegendWidgets.find( curveSetToShowLegendFor );
+    if ( it == m_ensembleLegendWidgets.end() || it->second == nullptr )
     {
-        overlayWidget = new RiuCvfOverlayItemWidget(this, canvas());
+        overlayWidget                                    = new RiuCvfOverlayItemWidget( this, canvas() );
         m_ensembleLegendWidgets[curveSetToShowLegendFor] = overlayWidget;
     }
     else
@@ -137,12 +134,12 @@ void RiuSummaryQwtPlot::addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet* c
         overlayWidget = it->second;
     }
 
-    if (overlayWidget)
+    if ( overlayWidget )
     {
         caf::TitledOverlayFrame* overlayItem = curveSetToShowLegendFor->legendConfig()->titledOverlayFrame();
-        overlayItem->setRenderSize(overlayItem->preferredSize());
+        overlayItem->setRenderSize( overlayItem->preferredSize() );
 
-        overlayWidget->updateFromOverlayItem(curveSetToShowLegendFor->legendConfig()->titledOverlayFrame());
+        overlayWidget->updateFromOverlayItem( curveSetToShowLegendFor->legendConfig()->titledOverlayFrame() );
         overlayWidget->show();
     }
 
@@ -152,14 +149,14 @@ void RiuSummaryQwtPlot::addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet* c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::removeEnsembleCurveSetLegend(RimEnsembleCurveSet* curveSetToShowLegendFor)
+void RiuSummaryQwtPlot::removeEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSetToShowLegendFor )
 {
-    auto it = m_ensembleLegendWidgets.find(curveSetToShowLegendFor);
-    if (it != m_ensembleLegendWidgets.end())
+    auto it = m_ensembleLegendWidgets.find( curveSetToShowLegendFor );
+    if ( it != m_ensembleLegendWidgets.end() )
     {
-        if (it->second != nullptr) it->second->deleteLater();
+        if ( it->second != nullptr ) it->second->deleteLater();
 
-        m_ensembleLegendWidgets.erase(it);
+        m_ensembleLegendWidgets.erase( it );
     }
 
     this->updateLegendLayout();
@@ -168,34 +165,34 @@ void RiuSummaryQwtPlot::removeEnsembleCurveSetLegend(RimEnsembleCurveSet* curveS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::keyPressEvent(QKeyEvent* keyEvent)
+void RiuSummaryQwtPlot::keyPressEvent( QKeyEvent* keyEvent )
 {
-    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>(ownerPlotDefinition());
+    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( ownerPlotDefinition() );
 
-    if (summaryPlot && summaryPlot->summaryCurveCollection())
+    if ( summaryPlot && summaryPlot->summaryCurveCollection() )
     {
         RimSummaryCurveCollection* curveColl = summaryPlot->summaryCurveCollection();
-        curveColl->handleKeyPressEvent(keyEvent);
+        curveColl->handleKeyPressEvent( keyEvent );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::contextMenuEvent(QContextMenuEvent* event)
+void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
 {
     QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
 
-    caf::SelectionManager::instance()->setSelectedItem(ownerViewWindow());
+    caf::SelectionManager::instance()->setSelectedItem( ownerViewWindow() );
 
     menuBuilder << "RicShowPlotDataFeature";
 
-    menuBuilder.appendToMenu(&menu);
+    menuBuilder.appendToMenu( &menu );
 
-    if (menu.actions().size() > 0)
+    if ( menu.actions().size() > 0 )
     {
-        menu.exec(event->globalPos());
+        menu.exec( event->globalPos() );
     }
 }
 
@@ -207,12 +204,12 @@ void RiuSummaryQwtPlot::setDefaults()
     QString dateFormat = RiaApplication::instance()->preferences()->dateFormat();
     QString timeFormat = RiaApplication::instance()->preferences()->timeFormat();
 
-    useDateBasedTimeAxis(dateFormat, timeFormat);
+    useDateBasedTimeAxis( dateFormat, timeFormat );
 
     // The legend will be deleted in the destructor of the plot or when
     // another legend is inserted.
-    QwtLegend* legend = new QwtLegend(this);
-    this->insertLegend(legend, BottomLegend);
+    QwtLegend* legend = new QwtLegend( this );
+    this->insertLegend( legend, BottomLegend );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -237,16 +234,16 @@ void RiuSummaryQwtPlot::updateLegendLayout()
     int ypos           = startMarginY;
     int maxColumnWidth = 0;
 
-    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>(ownerPlotDefinition());
+    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( ownerPlotDefinition() );
 
-    if (!summaryPlot || !summaryPlot->ensembleCurveSetCollection()) return;
+    if ( !summaryPlot || !summaryPlot->ensembleCurveSetCollection() ) return;
 
-    for (RimEnsembleCurveSet* curveSet : summaryPlot->ensembleCurveSetCollection()->curveSets())
+    for ( RimEnsembleCurveSet* curveSet : summaryPlot->ensembleCurveSetCollection()->curveSets() )
     {
-        auto pairIt = m_ensembleLegendWidgets.find(curveSet);
-        if (pairIt != m_ensembleLegendWidgets.end())
+        auto pairIt = m_ensembleLegendWidgets.find( curveSet );
+        if ( pairIt != m_ensembleLegendWidgets.end() )
         {
-            if (ypos + pairIt->second->height() + spacing > this->canvas()->height())
+            if ( ypos + pairIt->second->height() + spacing > this->canvas()->height() )
             {
                 xpos += spacing + maxColumnWidth;
                 ypos           = startMarginY;
@@ -254,10 +251,10 @@ void RiuSummaryQwtPlot::updateLegendLayout()
             }
 
             RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
-            overlayWidget->move(xpos, ypos);
+            overlayWidget->move( xpos, ypos );
 
             ypos += pairIt->second->height() + spacing;
-            maxColumnWidth = std::max(maxColumnWidth, pairIt->second->width());
+            maxColumnWidth = std::max( maxColumnWidth, pairIt->second->width() );
         }
     }
 }

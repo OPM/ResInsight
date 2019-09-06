@@ -24,10 +24,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivSimWellConnectionSourceInfo::RivSimWellConnectionSourceInfo(RimSimWellInView*                         simWellInView,
-                                                               RivWellConnectionFactorGeometryGenerator* geometryGenerator)
-    : m_simWellInView(simWellInView)
-    , m_geometryGenerator(geometryGenerator)
+RivSimWellConnectionSourceInfo::RivSimWellConnectionSourceInfo( RimSimWellInView*                         simWellInView,
+                                                                RivWellConnectionFactorGeometryGenerator* geometryGenerator )
+    : m_simWellInView( simWellInView )
+    , m_geometryGenerator( geometryGenerator )
 {
 }
 
@@ -42,19 +42,19 @@ RimSimWellInView* RivSimWellConnectionSourceInfo::simWellInView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RivSimWellConnectionSourceInfo::globalCellIndexFromTriangleIndex(cvf::uint triangleIndex) const
+size_t RivSimWellConnectionSourceInfo::globalCellIndexFromTriangleIndex( cvf::uint triangleIndex ) const
 {
-    if (m_geometryGenerator.isNull()) return 0;
+    if ( m_geometryGenerator.isNull() ) return 0;
 
-    return m_geometryGenerator->globalCellIndexFromTriangleIndex(triangleIndex);
+    return m_geometryGenerator->globalCellIndexFromTriangleIndex( triangleIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RivSimWellConnectionSourceInfo::connectionFactorFromTriangleIndex(cvf::uint triangleIndex) const
+double RivSimWellConnectionSourceInfo::connectionFactorFromTriangleIndex( cvf::uint triangleIndex ) const
 {
-    if (m_geometryGenerator.isNull()) return 0.0;
+    if ( m_geometryGenerator.isNull() ) return 0.0;
 
-    return m_geometryGenerator->connectionFactor(triangleIndex);
+    return m_geometryGenerator->connectionFactor( triangleIndex );
 }

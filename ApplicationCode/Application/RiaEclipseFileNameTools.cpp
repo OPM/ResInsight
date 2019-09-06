@@ -22,17 +22,17 @@
 
 namespace caf
 {
-template<>
+template <>
 void caf::AppEnum<RiaEclipseFileNameTools::EclipseFileType>::setUp()
 {
-    addItem(RiaEclipseFileNameTools::ECLIPSE_DATA, "DATA", "Data Deck");
-    addItem(RiaEclipseFileNameTools::ECLIPSE_GRID, "GRID", "Grid");
-    addItem(RiaEclipseFileNameTools::ECLIPSE_EGRID, "EGRID", "Grid");
-    addItem(RiaEclipseFileNameTools::ECLIPSE_UNRST, "UNRST", "Unified Restart");
-    addItem(RiaEclipseFileNameTools::ECLIPSE_SMSPEC, "SMSPEC", "Summary Specification");
-    addItem(RiaEclipseFileNameTools::ECLIPSE_UNSMRY, "UNSMR", "Summary Vectors");
+    addItem( RiaEclipseFileNameTools::ECLIPSE_DATA, "DATA", "Data Deck" );
+    addItem( RiaEclipseFileNameTools::ECLIPSE_GRID, "GRID", "Grid" );
+    addItem( RiaEclipseFileNameTools::ECLIPSE_EGRID, "EGRID", "Grid" );
+    addItem( RiaEclipseFileNameTools::ECLIPSE_UNRST, "UNRST", "Unified Restart" );
+    addItem( RiaEclipseFileNameTools::ECLIPSE_SMSPEC, "SMSPEC", "Summary Specification" );
+    addItem( RiaEclipseFileNameTools::ECLIPSE_UNSMRY, "UNSMR", "Summary Vectors" );
 
-    addItem(RiaEclipseFileNameTools::RESINSIGHT_PROJECT, "rsp", "ResInsight Project");
+    addItem( RiaEclipseFileNameTools::RESINSIGHT_PROJECT, "rsp", "ResInsight Project" );
 }
 
 } // End namespace caf
@@ -40,9 +40,9 @@ void caf::AppEnum<RiaEclipseFileNameTools::EclipseFileType>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseFileNameTools::RiaEclipseFileNameTools(const QString& inputFilePath)
+RiaEclipseFileNameTools::RiaEclipseFileNameTools( const QString& inputFilePath )
 {
-    QFileInfo fi(inputFilePath);
+    QFileInfo fi( inputFilePath );
 
     m_baseName = fi.absolutePath() + "/" + fi.baseName();
 }
@@ -52,7 +52,7 @@ RiaEclipseFileNameTools::RiaEclipseFileNameTools(const QString& inputFilePath)
 //--------------------------------------------------------------------------------------------------
 QString RiaEclipseFileNameTools::findRelatedSummarySpecFile()
 {
-    return relatedFilePath(ECLIPSE_SMSPEC);
+    return relatedFilePath( ECLIPSE_SMSPEC );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,13 +60,13 @@ QString RiaEclipseFileNameTools::findRelatedSummarySpecFile()
 //--------------------------------------------------------------------------------------------------
 QString RiaEclipseFileNameTools::findRelatedGridFile()
 {
-    QString candidate = relatedFilePath(ECLIPSE_EGRID);
-    if (!candidate.isEmpty())
+    QString candidate = relatedFilePath( ECLIPSE_EGRID );
+    if ( !candidate.isEmpty() )
     {
         return candidate;
     }
 
-    return relatedFilePath(ECLIPSE_GRID);
+    return relatedFilePath( ECLIPSE_GRID );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,44 +74,44 @@ QString RiaEclipseFileNameTools::findRelatedGridFile()
 //--------------------------------------------------------------------------------------------------
 QString RiaEclipseFileNameTools::findRelatedDataFile()
 {
-    return relatedFilePath(ECLIPSE_DATA);
+    return relatedFilePath( ECLIPSE_DATA );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaEclipseFileNameTools::isProjectFile(const QString& fileName)
+bool RiaEclipseFileNameTools::isProjectFile( const QString& fileName )
 {
-    return hasMatchingSuffix(fileName, RESINSIGHT_PROJECT);
+    return hasMatchingSuffix( fileName, RESINSIGHT_PROJECT );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaEclipseFileNameTools::isGridFile(const QString& fileName)
+bool RiaEclipseFileNameTools::isGridFile( const QString& fileName )
 {
-    if (hasMatchingSuffix(fileName, ECLIPSE_EGRID))
+    if ( hasMatchingSuffix( fileName, ECLIPSE_EGRID ) )
     {
         return true;
     }
 
-    return hasMatchingSuffix(fileName, ECLIPSE_GRID);
+    return hasMatchingSuffix( fileName, ECLIPSE_GRID );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaEclipseFileNameTools::isSummarySpecFile(const QString& fileName)
+bool RiaEclipseFileNameTools::isSummarySpecFile( const QString& fileName )
 {
-    return hasMatchingSuffix(fileName, ECLIPSE_SMSPEC);
+    return hasMatchingSuffix( fileName, ECLIPSE_SMSPEC );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaEclipseFileNameTools::findBaseName(const QString& inputFilePath) const
+QString RiaEclipseFileNameTools::findBaseName( const QString& inputFilePath ) const
 {
-    QFileInfo fi(inputFilePath);
+    QFileInfo fi( inputFilePath );
 
     return fi.baseName();
 }
@@ -119,13 +119,13 @@ QString RiaEclipseFileNameTools::findBaseName(const QString& inputFilePath) cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaEclipseFileNameTools::relatedFilePath(EclipseFileType fileType) const
+QString RiaEclipseFileNameTools::relatedFilePath( EclipseFileType fileType ) const
 {
-    const QString extension        = caf::AppEnum<EclipseFileType>::text(fileType);
+    const QString extension        = caf::AppEnum<EclipseFileType>::text( fileType );
     const QString completeFilePath = m_baseName + "." + extension;
 
-    QFileInfo fi(completeFilePath);
-    if (fi.exists())
+    QFileInfo fi( completeFilePath );
+    if ( fi.exists() )
     {
         return fi.absoluteFilePath();
     }
@@ -136,13 +136,13 @@ QString RiaEclipseFileNameTools::relatedFilePath(EclipseFileType fileType) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaEclipseFileNameTools::hasMatchingSuffix(const QString& fileName, EclipseFileType fileType)
+bool RiaEclipseFileNameTools::hasMatchingSuffix( const QString& fileName, EclipseFileType fileType )
 {
-    QFileInfo fi(fileName);
+    QFileInfo fi( fileName );
 
     QString suffix = fi.completeSuffix();
 
-    if (suffix.compare(caf::AppEnum<EclipseFileType>::text(fileType), Qt::CaseInsensitive) == 0)
+    if ( suffix.compare( caf::AppEnum<EclipseFileType>::text( fileType ), Qt::CaseInsensitive ) == 0 )
     {
         return true;
     }

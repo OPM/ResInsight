@@ -26,7 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RigFemTypes::elmentNodeCount(RigElementType elmType)
+int RigFemTypes::elmentNodeCount( RigElementType elmType )
 {
     static int elementTypeCounts[3] = {8, 8, 4};
 
@@ -36,7 +36,7 @@ int RigFemTypes::elmentNodeCount(RigElementType elmType)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RigFemTypes::elmentFaceCount(RigElementType elmType)
+int RigFemTypes::elmentFaceCount( RigElementType elmType )
 {
     const static int elementFaceCounts[3] = {6, 6, 1};
 
@@ -56,35 +56,35 @@ int RigFemTypes::elmentFaceCount(RigElementType elmType)
 //  |/        |/
 //  0---------1
 
-const int* RigFemTypes::localElmNodeIndicesForFace(RigElementType elmType, int faceIdx, int* faceNodeCount)
+const int* RigFemTypes::localElmNodeIndicesForFace( RigElementType elmType, int faceIdx, int* faceNodeCount )
 {
     static const int HEX8_Faces[6][4] = {{1, 2, 6, 5}, {0, 4, 7, 3}, {3, 7, 6, 2}, {0, 1, 5, 4}, {4, 5, 6, 7}, {0, 3, 2, 1}};
-    static const int CAX4_Faces[4]    = {0, 1, 2, 3};
+    static const int CAX4_Faces[4] = {0, 1, 2, 3};
 
-    switch (elmType)
+    switch ( elmType )
     {
         case HEX8:
         case HEX8P:
-            (*faceNodeCount) = 4;
+            ( *faceNodeCount ) = 4;
             return HEX8_Faces[faceIdx];
             break;
         case CAX4:
-            (*faceNodeCount) = 4;
+            ( *faceNodeCount ) = 4;
             return CAX4_Faces;
             break;
         default:
-            assert(false); // Element type not supported
+            assert( false ); // Element type not supported
             break;
     }
 
     return CAX4_Faces;
 }
 
-int RigFemTypes::oppositeFace(RigElementType elmType, int faceIdx)
+int RigFemTypes::oppositeFace( RigElementType elmType, int faceIdx )
 {
     static const int HEX8_OppositeFaces[6] = {1, 0, 3, 2, 5, 4};
 
-    switch (elmType)
+    switch ( elmType )
     {
         case HEX8:
         case HEX8P:
@@ -94,7 +94,7 @@ int RigFemTypes::oppositeFace(RigElementType elmType, int faceIdx)
             return faceIdx;
             break;
         default:
-            assert(false); // Element type not supported
+            assert( false ); // Element type not supported
             break;
     }
 
@@ -105,11 +105,11 @@ int RigFemTypes::oppositeFace(RigElementType elmType, int faceIdx)
 ///
 //--------------------------------------------------------------------------------------------------
 
-const int* RigFemTypes::localElmNodeToIntegrationPointMapping(RigElementType elmType)
+const int* RigFemTypes::localElmNodeToIntegrationPointMapping( RigElementType elmType )
 {
     static const int HEX8_Mapping[8] = {0, 1, 3, 2, 4, 5, 7, 6};
 
-    switch (elmType)
+    switch ( elmType )
     {
         case HEX8:
         case HEX8P:
@@ -119,7 +119,7 @@ const int* RigFemTypes::localElmNodeToIntegrationPointMapping(RigElementType elm
             return HEX8_Mapping; // First four is identical to HEX8
             break;
         default:
-            assert(false); // Element type not supported
+            assert( false ); // Element type not supported
             break;
     }
 
@@ -129,11 +129,11 @@ const int* RigFemTypes::localElmNodeToIntegrationPointMapping(RigElementType elm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigFemTypes::elementTypeText(RigElementType elemType)
+QString RigFemTypes::elementTypeText( RigElementType elemType )
 {
     QString txt = "UNKNOWN_ELM_TYPE";
 
-    switch (elemType)
+    switch ( elemType )
     {
         case HEX8:
             txt = "HEX8";

@@ -32,8 +32,8 @@ public:
     std::list<QMdiSubWindow*> subWindowListSortedByPosition();
 
 protected:
-    void resizeEvent(QResizeEvent *resizeEvent) override;
-    void moveEvent(QMoveEvent *event) override;
+    void resizeEvent( QResizeEvent* resizeEvent ) override;
+    void moveEvent( QMoveEvent* event ) override;
 
     bool subWindowsAreTiled() const;
 };

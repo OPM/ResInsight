@@ -31,9 +31,9 @@
 /// Luminance is between [0, 1] so anything above 0.5 is considered in the bright half of the spectrum.
 /// However, subjectively the contrast looks better if the threshold is to 0.4 so black contrast is used a bit more often.
 //--------------------------------------------------------------------------------------------------
-bool RiaColorTools::isBrightnessAboveThreshold(cvf::Color3f backgroundColor)
+bool RiaColorTools::isBrightnessAboveThreshold( cvf::Color3f backgroundColor )
 {
-    if (relativeLuminance(backgroundColor) > 0.4)
+    if ( relativeLuminance( backgroundColor ) > 0.4 )
     {
         return true;
     }
@@ -44,27 +44,28 @@ bool RiaColorTools::isBrightnessAboveThreshold(cvf::Color3f backgroundColor)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RiaColorTools::computeOffsetColor(cvf::Color3f color, float offsetFactor)
+cvf::Color3f RiaColorTools::computeOffsetColor( cvf::Color3f color, float offsetFactor )
 {
     float gridR = 0.0;
     float gridG = 0.0;
     float gridB = 0.0;
 
-    if (isBrightnessAboveThreshold(color))
+    if ( isBrightnessAboveThreshold( color ) )
     {
-        gridR = color.r() - (color.r() * offsetFactor);
-        gridG = color.g() - (color.g() * offsetFactor);
-        gridB = color.b() - (color.b() * offsetFactor);
+        gridR = color.r() - ( color.r() * offsetFactor );
+        gridG = color.g() - ( color.g() * offsetFactor );
+        gridB = color.b() - ( color.b() * offsetFactor );
     }
     else
     {
-        gridR = color.r() + (1.0f - color.r()) * offsetFactor;
-        gridG = color.g() + (1.0f - color.g()) * offsetFactor;
-        gridB = color.b() + (1.0f - color.b()) * offsetFactor;
+        gridR = color.r() + ( 1.0f - color.r() ) * offsetFactor;
+        gridG = color.g() + ( 1.0f - color.g() ) * offsetFactor;
+        gridB = color.b() + ( 1.0f - color.b() ) * offsetFactor;
     }
 
-    return cvf::Color3f(
-        cvf::Math::clamp(gridR, 0.0f, 1.0f), cvf::Math::clamp(gridG, 0.0f, 1.0f), cvf::Math::clamp(gridB, 0.0f, 1.0f));
+    return cvf::Color3f( cvf::Math::clamp( gridR, 0.0f, 1.0f ),
+                         cvf::Math::clamp( gridG, 0.0f, 1.0f ),
+                         cvf::Math::clamp( gridB, 0.0f, 1.0f ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,7 +73,7 @@ cvf::Color3f RiaColorTools::computeOffsetColor(cvf::Color3f color, float offsetF
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RiaColorTools::darkContrastColor()
 {
-    return cvf::Color3f::fromByteColor(10, 10, 10);
+    return cvf::Color3f::fromByteColor( 10, 10, 10 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,7 +89,7 @@ cvf::Color3f RiaColorTools::brightContrastColor()
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RiaColorTools::darkContrastColorSofter()
 {
-    return cvf::Color3f::fromByteColor(30, 30, 30);
+    return cvf::Color3f::fromByteColor( 30, 30, 30 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,87 +97,84 @@ cvf::Color3f RiaColorTools::darkContrastColorSofter()
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RiaColorTools::brightContrastColorSofter()
 {
-    return cvf::Color3f::fromByteColor(200, 200, 200);
+    return cvf::Color3f::fromByteColor( 200, 200, 200 );
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RiaColorTools::contrastColor(cvf::Color3f backgroundColor, bool softerContrast)
+cvf::Color3f RiaColorTools::contrastColor( cvf::Color3f backgroundColor, bool softerContrast )
 {
-    if (isBrightnessAboveThreshold(backgroundColor))
+    if ( isBrightnessAboveThreshold( backgroundColor ) )
     {
-        if (softerContrast)
-            return darkContrastColorSofter();
+        if ( softerContrast ) return darkContrastColorSofter();
         return darkContrastColor();
     }
-    if (softerContrast)
-        return brightContrastColorSofter();
+    if ( softerContrast ) return brightContrastColorSofter();
     return brightContrastColor();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QColor RiaColorTools::toQColor(cvf::Color3f color, float alpha)
+QColor RiaColorTools::toQColor( cvf::Color3f color, float alpha )
 {
-    QColor qcolor(color.rByte(), color.gByte(), color.bByte());
-    qcolor.setAlphaF(alpha);
+    QColor qcolor( color.rByte(), color.gByte(), color.bByte() );
+    qcolor.setAlphaF( alpha );
     return qcolor;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QColor RiaColorTools::toQColor(cvf::Color4f color)
+QColor RiaColorTools::toQColor( cvf::Color4f color )
 {
-    return toQColor(color.toColor3f(), color.a());
+    return toQColor( color.toColor3f(), color.a() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RiaColorTools::fromQColorTo3f(QColor color)
+cvf::Color3f RiaColorTools::fromQColorTo3f( QColor color )
 {
-    return cvf::Color3f(color.redF(), color.greenF(), color.blueF());
+    return cvf::Color3f( color.redF(), color.greenF(), color.blueF() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RiaColorTools::blendCvfColors(const cvf::Color3f& color1,
-                                           const cvf::Color3f& color2,
-                                           int                 weight1 /*= 1*/,
-                                           int                 weight2 /*= 1*/)
+cvf::Color3f RiaColorTools::blendCvfColors( const cvf::Color3f& color1,
+                                            const cvf::Color3f& color2,
+                                            int                 weight1 /*= 1*/,
+                                            int                 weight2 /*= 1*/ )
 {
-    CVF_ASSERT(weight1 > 0 && weight2 > 0);
+    CVF_ASSERT( weight1 > 0 && weight2 > 0 );
     int weightsum = weight1 + weight2;
-    return cvf::Color3f((color1.r() * weight1 + color2.r() * weight2) / weightsum,
-                  (color1.g() * weight1 + color2.g() * weight2) / weightsum,
-                  (color1.b() * weight1 + color2.b() * weight2) / weightsum);
+    return cvf::Color3f( ( color1.r() * weight1 + color2.r() * weight2 ) / weightsum,
+                         ( color1.g() * weight1 + color2.g() * weight2 ) / weightsum,
+                         ( color1.b() * weight1 + color2.b() * weight2 ) / weightsum );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QColor RiaColorTools::blendQColors(const QColor& color1, const QColor& color2, int weight1 /*= 1*/, int weight2 /*= 1*/)
+QColor RiaColorTools::blendQColors( const QColor& color1, const QColor& color2, int weight1 /*= 1*/, int weight2 /*= 1*/ )
 {
-    CVF_ASSERT(weight1 > 0 && weight2 > 0);
+    CVF_ASSERT( weight1 > 0 && weight2 > 0 );
     int weightsum = weight1 + weight2;
-    return QColor((color1.red() * weight1 + color2.red() * weight2) / weightsum,
-                  (color1.green() * weight1 + color2.green() * weight2) / weightsum,
-                  (color1.blue() * weight1 + color2.blue() * weight2) / weightsum);
+    return QColor( ( color1.red() * weight1 + color2.red() * weight2 ) / weightsum,
+                   ( color1.green() * weight1 + color2.green() * weight2 ) / weightsum,
+                   ( color1.blue() * weight1 + color2.blue() * weight2 ) / weightsum );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-float RiaColorTools::relativeLuminance(cvf::Color3f backgroundColor)
+float RiaColorTools::relativeLuminance( cvf::Color3f backgroundColor )
 {
-    float R = calculateNonLinearColorValue(backgroundColor.r());
-    float G = calculateNonLinearColorValue(backgroundColor.g());
-    float B = calculateNonLinearColorValue(backgroundColor.b());
+    float R = calculateNonLinearColorValue( backgroundColor.r() );
+    float G = calculateNonLinearColorValue( backgroundColor.g() );
+    float B = calculateNonLinearColorValue( backgroundColor.b() );
 
     double luminance = 0.2126 * R + 0.7152 * G + 0.0722 * B;
     return luminance;
@@ -185,7 +183,7 @@ float RiaColorTools::relativeLuminance(cvf::Color3f backgroundColor)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-float RiaColorTools::calculateNonLinearColorValue(float colorFraction)
+float RiaColorTools::calculateNonLinearColorValue( float colorFraction )
 {
-    return colorFraction <= 0.03928 ? colorFraction / 12.92 : std::pow((colorFraction + 0.055) / 1.055, 2.4);
+    return colorFraction <= 0.03928 ? colorFraction / 12.92 : std::pow( ( colorFraction + 0.055 ) / 1.055, 2.4 );
 }

@@ -41,24 +41,24 @@ RicExportToSharingServerScheduler* RicExportToSharingServerScheduler::instance()
 //--------------------------------------------------------------------------------------------------
 void RicExportToSharingServerScheduler::scheduleUpdateSession()
 {
-    startTimer(0);
+    startTimer( 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportToSharingServerScheduler::startTimer(int msecs)
+void RicExportToSharingServerScheduler::startTimer( int msecs )
 {
-    if (!m_timer)
+    if ( !m_timer )
     {
-        m_timer = new QTimer(this);
-        connect(m_timer, SIGNAL(timeout()), this, SLOT(slotTriggerUpdateSessionWhenReady()));
+        m_timer = new QTimer( this );
+        connect( m_timer, SIGNAL( timeout() ), this, SLOT( slotTriggerUpdateSessionWhenReady() ) );
     }
 
-    if (!m_timer->isActive())
+    if ( !m_timer->isActive() )
     {
-        m_timer->setSingleShot(true);
-        m_timer->start(msecs);
+        m_timer->setSingleShot( true );
+        m_timer->start( msecs );
     }
 }
 
@@ -68,8 +68,8 @@ void RicExportToSharingServerScheduler::startTimer(int msecs)
 void RicExportToSharingServerScheduler::triggerUpdateSession()
 {
     auto* cmdFeature = dynamic_cast<RicHoloLensAutoExportToSharingServerFeature*>(
-        caf::CmdFeatureManager::instance()->getCommandFeature("RicHoloLensAutoExportToSharingServerFeature"));
-    if (cmdFeature)
+        caf::CmdFeatureManager::instance()->getCommandFeature( "RicHoloLensAutoExportToSharingServerFeature" ) );
+    if ( cmdFeature )
     {
         cmdFeature->triggerUpdateSession();
     }
@@ -80,9 +80,9 @@ void RicExportToSharingServerScheduler::triggerUpdateSession()
 //--------------------------------------------------------------------------------------------------
 void RicExportToSharingServerScheduler::slotTriggerUpdateSessionWhenReady()
 {
-    if (caf::ProgressState::isActive())
+    if ( caf::ProgressState::isActive() )
     {
-        startTimer(100);
+        startTimer( 100 );
         return;
     }
 

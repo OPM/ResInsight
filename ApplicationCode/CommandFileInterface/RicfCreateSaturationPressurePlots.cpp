@@ -29,14 +29,14 @@
 #include "RimProject.h"
 #include "RimSaturationPressurePlotCollection.h"
 
-CAF_PDM_SOURCE_INIT(RicfCreateSaturationPressurePlots, "createSaturationPressurePlots");
+CAF_PDM_SOURCE_INIT( RicfCreateSaturationPressurePlots, "createSaturationPressurePlots" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicfCreateSaturationPressurePlots::RicfCreateSaturationPressurePlots()
 {
-    RICF_InitField(&m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "");
+    RICF_InitField( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,45 +45,45 @@ RicfCreateSaturationPressurePlots::RicfCreateSaturationPressurePlots()
 RicfCommandResponse RicfCreateSaturationPressurePlots::execute()
 {
     std::vector<int> caseIds = m_caseIds();
-    if (caseIds.empty())
+    if ( caseIds.empty() )
     {
         RimProject* project = RiaApplication::instance()->project();
-        if (project)
+        if ( project )
         {
             auto eclipeCases = project->eclipseCases();
-            for (auto c : eclipeCases)
+            for ( auto c : eclipeCases )
             {
-                caseIds.push_back(c->caseId());
+                caseIds.push_back( c->caseId() );
             }
         }
     }
 
-    if (caseIds.empty())
+    if ( caseIds.empty() )
     {
-        QString error("createSaturationPressurePlots: No cases found");
-        RiaLogging::error(error);
-        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+        QString error( "createSaturationPressurePlots: No cases found" );
+        RiaLogging::error( error );
+        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
     }
 
     RimProject* project = RiaApplication::instance()->project();
-    if (!project)
+    if ( !project )
     {
-        QString error("No project loaded");
-        RiaLogging::error(error);
-        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+        QString error( "No project loaded" );
+        RiaLogging::error( error );
+        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
     }
 
     auto eclipeCases = project->eclipseCases();
-    for (auto c : eclipeCases)
+    for ( auto c : eclipeCases )
     {
-        auto eclipseResultCase = dynamic_cast<RimEclipseResultCase*>(c);
-        if (!eclipseResultCase) continue;
+        auto eclipseResultCase = dynamic_cast<RimEclipseResultCase*>( c );
+        if ( !eclipseResultCase ) continue;
 
-        for (auto caseId : caseIds)
+        for ( auto caseId : caseIds )
         {
-            if (c->caseId == caseId)
+            if ( c->caseId == caseId )
             {
-                RicCreateSaturationPressurePlotsFeature::createPlots(eclipseResultCase);
+                RicCreateSaturationPressurePlotsFeature::createPlots( eclipseResultCase );
             }
         }
     }

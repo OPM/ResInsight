@@ -19,7 +19,7 @@
 #pragma once
 
 #include "cafPdmObject.h"
-#include "cvfBase.h"
+
 #include "cvfVector3.h"
 
 #include <QPointer>
@@ -49,11 +49,11 @@ public:
     {
     public:
         Lengths()
-            : totalLength(0)
-            , lastSegmentLength(0)
-            , totalHorizontalLength(0)
-            , lastSegmentHorisontalLength(0)
-            , area(0)
+            : totalLength( 0 )
+            , lastSegmentLength( 0 )
+            , totalHorizontalLength( 0 )
+            , lastSegmentHorisontalLength( 0 )
+            , area( 0 )
         {
         }
 
@@ -67,10 +67,10 @@ public:
     RimMeasurement();
     ~RimMeasurement() override;
 
-    void            setMeasurementMode(MeasurementMode measureMode);
+    void            setMeasurementMode( MeasurementMode measureMode );
     MeasurementMode measurementMode() const;
 
-    void               addPointInDomainCoords(const Vec3d& pointInDomainCoord);
+    void               addPointInDomainCoords( const Vec3d& pointInDomainCoord );
     std::vector<Vec3d> pointsInDomainCoords() const;
 
     void removeAllPoints();
@@ -86,6 +86,6 @@ private:
     MeasurementMode            m_measurementMode;
     std::vector<Vec3d>         m_pointsInDomainCoords;
     caf::PdmPointer<Rim3dView> m_sourceView;
-    
+
     QPointer<RiuMeasurementEventFilter> m_eventFilter;
 };

@@ -18,7 +18,6 @@
 
 #include "RigPerforationTransmissibilityEquations.h"
 
-#include "cvfBase.h"
 #include "cvfMath.h"
 
 #include <cmath>
@@ -28,14 +27,14 @@ const double RigPerforationTransmissibilityEquations::EPSILON = 1.0e-9;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigPerforationTransmissibilityEquations::betaFactor(double intertialCoefficient,
-                                                           double effectivePermeability,
-                                                           double permeabilityScalingFactor,
-                                                           double porosity,
-                                                           double porosityScalingFactor)
+double RigPerforationTransmissibilityEquations::betaFactor( double intertialCoefficient,
+                                                            double effectivePermeability,
+                                                            double permeabilityScalingFactor,
+                                                            double porosity,
+                                                            double porosityScalingFactor )
 {
-    const double scaledEffectivePermeability = std::pow(effectivePermeability, permeabilityScalingFactor);
-    const double scaledPorosity              = std::pow(porosity, porosityScalingFactor);
+    const double scaledEffectivePermeability = std::pow( effectivePermeability, permeabilityScalingFactor );
+    const double scaledPorosity              = std::pow( porosity, porosityScalingFactor );
 
     return intertialCoefficient * scaledEffectivePermeability * scaledPorosity;
 }
@@ -43,13 +42,13 @@ double RigPerforationTransmissibilityEquations::betaFactor(double intertialCoeff
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigPerforationTransmissibilityEquations::dFactor(double unitConstant,
-                                                        double betaFactor,
-                                                        double effectivePermeability,
-                                                        double perforationLengthInCell,
-                                                        double wellRadius,
-                                                        double gasDenity,
-                                                        double gasViscosity)
+double RigPerforationTransmissibilityEquations::dFactor( double unitConstant,
+                                                         double betaFactor,
+                                                         double effectivePermeability,
+                                                         double perforationLengthInCell,
+                                                         double wellRadius,
+                                                         double gasDenity,
+                                                         double gasViscosity )
 {
     // clang-format off
     //      

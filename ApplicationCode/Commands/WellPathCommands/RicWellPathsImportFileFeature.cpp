@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -31,11 +31,10 @@
 #include <QAction>
 #include <QFileDialog>
 
-CAF_CMD_SOURCE_INIT(RicWellPathsImportFileFeature, "RicWellPathsImportFileFeature");
-
+CAF_CMD_SOURCE_INIT( RicWellPathsImportFileFeature, "RicWellPathsImportFileFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicWellPathsImportFileFeature::isCommandEnabled()
 {
@@ -43,48 +42,52 @@ bool RicWellPathsImportFileFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathsImportFileFeature::onActionTriggered(bool isChecked)
+void RicWellPathsImportFileFeature::onActionTriggered( bool isChecked )
 {
     // Open dialog box to select well path files
-    RiaApplication* app = RiaApplication::instance();
-    QString lastUsedGridFolder = app->lastUsedDialogDirectory("BINARY_GRID");
-    QString defaultDir = app->lastUsedDialogDirectoryWithFallback("WELLPATH_DIR", lastUsedGridFolder);
-    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Well Paths", defaultDir, "Well Paths (*.json *.asc *.asci *.ascii *.dev);;All Files (*.*)");
+    RiaApplication* app                = RiaApplication::instance();
+    QString         lastUsedGridFolder = app->lastUsedDialogDirectory( "BINARY_GRID" );
+    QString         defaultDir         = app->lastUsedDialogDirectoryWithFallback( "WELLPATH_DIR", lastUsedGridFolder );
+    QStringList     wellPathFilePaths =
+        QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                       "Import Well Paths",
+                                       defaultDir,
+                                       "Well Paths (*.json *.asc *.asci *.ascii *.dev);;All Files (*.*)" );
 
-    if (wellPathFilePaths.size() < 1) return;
+    if ( wellPathFilePaths.size() < 1 ) return;
 
     // Remember the path to next time
-    app->setLastUsedDialogDirectory("WELLPATH_DIR", QFileInfo(wellPathFilePaths.last()).absolutePath());
+    app->setLastUsedDialogDirectory( "WELLPATH_DIR", QFileInfo( wellPathFilePaths.last() ).absolutePath() );
 
-    app->addWellPathsToModel(wellPathFilePaths);
-   
+    app->addWellPathsToModel( wellPathFilePaths );
+
     RimProject* project = app->project();
 
-    if (project)
+    if ( project )
     {
         project->scheduleCreateDisplayModelAndRedrawAllViews();
         RimOilField* oilField = project->activeOilField();
 
-        if (!oilField) return;
+        if ( !oilField ) return;
 
-        if (oilField->wellPathCollection->wellPaths().size() > 0)
+        if ( oilField->wellPathCollection->wellPaths().size() > 0 )
         {
             RimWellPath* wellPath = oilField->wellPathCollection->mostRecentlyUpdatedWellPath();
-            if (wellPath)
+            if ( wellPath )
             {
-                Riu3DMainWindowTools::selectAsCurrentItem(wellPath);
+                Riu3DMainWindowTools::selectAsCurrentItem( wellPath );
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathsImportFileFeature::setupActionLook(QAction* actionToSetup)
+void RicWellPathsImportFileFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Import &Well Paths from File");
-    actionToSetup->setIcon(QIcon(":/Well.png"));
+    actionToSetup->setText( "Import &Well Paths from File" );
+    actionToSetup->setIcon( QIcon( ":/Well.png" ) );
 }

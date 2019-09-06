@@ -33,17 +33,17 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RifDataSourceForRftPlt::RifDataSourceForRftPlt()
-    : m_sourceType(SourceType::NONE)
+    : m_sourceType( SourceType::NONE )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt(SourceType sourceType, RimEclipseCase* eclCase)
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimEclipseCase* eclCase )
 {
-    CVF_ASSERT(sourceType == SourceType::RFT || sourceType == SourceType::GRID);
-    CVF_ASSERT(eclCase != nullptr);
+    CVF_ASSERT( sourceType == SourceType::RFT || sourceType == SourceType::GRID );
+    CVF_ASSERT( eclCase != nullptr );
 
     m_sourceType = sourceType;
     m_eclCase    = eclCase;
@@ -52,9 +52,9 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt(SourceType sourceType, RimEclipse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt(SourceType sourceType, RimWellLogFile* wellLogFile)
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimWellLogFile* wellLogFile )
 {
-    CVF_ASSERT(sourceType == SourceType::OBSERVED);
+    CVF_ASSERT( sourceType == SourceType::OBSERVED );
 
     m_sourceType  = sourceType;
     m_wellLogFile = wellLogFile;
@@ -63,9 +63,9 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt(SourceType sourceType, RimWellLog
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt(SourceType sourceType, RimSummaryCaseCollection* ensemble)
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimSummaryCaseCollection* ensemble )
 {
-    CVF_ASSERT(sourceType == SourceType::ENSEMBLE_RFT);
+    CVF_ASSERT( sourceType == SourceType::ENSEMBLE_RFT );
 
     m_sourceType = sourceType;
     m_ensemble   = ensemble;
@@ -74,11 +74,11 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt(SourceType sourceType, RimSummary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt(SourceType sourceType,
-	                                           RimSummaryCase* summaryCase,
-	                                           RimSummaryCaseCollection* ensemble)
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType                sourceType,
+                                                RimSummaryCase*           summaryCase,
+                                                RimSummaryCaseCollection* ensemble )
 {
-    CVF_ASSERT(sourceType == SourceType::SUMMARY_RFT);
+    CVF_ASSERT( sourceType == SourceType::SUMMARY_RFT );
 
     m_sourceType  = sourceType;
     m_summaryCase = summaryCase;
@@ -88,11 +88,11 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt(SourceType sourceType,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt(SourceType sourceType, RimObservedFmuRftData* observedFmuRftData)
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimObservedFmuRftData* observedFmuRftData )
 {
-    CVF_ASSERT(sourceType == SourceType::OBSERVED_FMU_RFT);
+    CVF_ASSERT( sourceType == SourceType::OBSERVED_FMU_RFT );
 
-	m_sourceType         = sourceType;
+    m_sourceType         = sourceType;
     m_observedFmuRftData = observedFmuRftData;
 }
 
@@ -117,21 +117,21 @@ RimEclipseCase* RifDataSourceForRftPlt::eclCase() const
 //--------------------------------------------------------------------------------------------------
 RifReaderRftInterface* RifDataSourceForRftPlt::rftReader() const
 {
-    if (m_sourceType == RFT)
+    if ( m_sourceType == RFT )
     {
-        auto eclResCase = dynamic_cast<RimEclipseResultCase*>(m_eclCase.p());
+        auto eclResCase = dynamic_cast<RimEclipseResultCase*>( m_eclCase.p() );
 
-        if (eclResCase) return eclResCase->rftReader();
+        if ( eclResCase ) return eclResCase->rftReader();
     }
-    else if (m_sourceType == SUMMARY_RFT)
+    else if ( m_sourceType == SUMMARY_RFT )
     {
-        if (m_summaryCase) return m_summaryCase->rftReader();
+        if ( m_summaryCase ) return m_summaryCase->rftReader();
     }
-    else if (m_sourceType == ENSEMBLE_RFT)
+    else if ( m_sourceType == ENSEMBLE_RFT )
     {
-        if (m_ensemble) return m_ensemble->rftStatisticsReader();
-	}
-	return nullptr;
+        if ( m_ensemble ) return m_ensemble->rftStatisticsReader();
+    }
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,22 +169,22 @@ RimObservedFmuRftData* RifDataSourceForRftPlt::observedFmuRftData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifDataSourceForRftPlt::sourceTypeUiText(SourceType sourceType)
+QString RifDataSourceForRftPlt::sourceTypeUiText( SourceType sourceType )
 {
-    switch (sourceType)
+    switch ( sourceType )
     {
         case SourceType::RFT:
-            return QString("RFT File Cases");
+            return QString( "RFT File Cases" );
         case SourceType::GRID:
-            return QString("Grid Cases");
+            return QString( "Grid Cases" );
         case SourceType::OBSERVED:
-            return QString("Observed Data");
+            return QString( "Observed Data" );
         case SourceType::ENSEMBLE_RFT:
-            return QString("Ensembles with RFT Data");
+            return QString( "Ensembles with RFT Data" );
         case SourceType::SUMMARY_RFT:
-            return QString("Summary case with RFT Data");
+            return QString( "Summary case with RFT Data" );
         case SourceType::OBSERVED_FMU_RFT:
-            return QString("Observed FMU data");
+            return QString( "Observed FMU data" );
     }
     return QString();
 }
@@ -192,7 +192,7 @@ QString RifDataSourceForRftPlt::sourceTypeUiText(SourceType sourceType)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool operator==(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2)
+bool operator==( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2 )
 {
     return addr1.sourceType() == addr2.sourceType() && addr1.eclCase() == addr2.eclCase() &&
            addr1.wellLogFile() == addr2.wellLogFile() && addr1.summaryCase() == addr2.summaryCase() &&
@@ -202,20 +202,20 @@ bool operator==(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QTextStream& operator<<(QTextStream& str, const RifDataSourceForRftPlt& addr)
+QTextStream& operator<<( QTextStream& str, const RifDataSourceForRftPlt& addr )
 {
     // Not implemented
-    CVF_ASSERT(false);
+    CVF_ASSERT( false );
     return str;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QTextStream& operator>>(QTextStream& str, RifDataSourceForRftPlt& source)
+QTextStream& operator>>( QTextStream& str, RifDataSourceForRftPlt& source )
 {
     // Not implemented
-    CVF_ASSERT(false);
+    CVF_ASSERT( false );
     return str;
 }
 
@@ -223,54 +223,54 @@ QTextStream& operator>>(QTextStream& str, RifDataSourceForRftPlt& source)
 /// This sort order controls the plot order in PLT plot. (Layer-wise)
 /// Observed data is supposed to be the bottom layers (first)
 //--------------------------------------------------------------------------------------------------
-bool operator<(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2)
+bool operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2 )
 {
-    if (addr1.m_sourceType != addr2.m_sourceType)
+    if ( addr1.m_sourceType != addr2.m_sourceType )
     {
         return addr1.m_sourceType < addr2.m_sourceType;
     }
 
-    if (addr1.m_sourceType == RifDataSourceForRftPlt::NONE) return false; //
+    if ( addr1.m_sourceType == RifDataSourceForRftPlt::NONE ) return false; //
 
-    if (addr1.m_sourceType == RifDataSourceForRftPlt::OBSERVED)
+    if ( addr1.m_sourceType == RifDataSourceForRftPlt::OBSERVED )
     {
-        if (addr1.wellLogFile() && addr2.wellLogFile())
+        if ( addr1.wellLogFile() && addr2.wellLogFile() )
         {
             return addr1.wellLogFile()->fileName() < addr2.wellLogFile()->fileName();
         }
         return addr1.wellLogFile() < addr2.wellLogFile();
     }
-    else if (addr1.m_sourceType == RifDataSourceForRftPlt::SUMMARY_RFT)
+    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::SUMMARY_RFT )
     {
-        if (addr1.summaryCase() && addr2.summaryCase())
+        if ( addr1.summaryCase() && addr2.summaryCase() )
         {
             return addr1.summaryCase()->caseName() < addr2.summaryCase()->caseName();
         }
-		return addr1.summaryCase() < addr2.summaryCase();
+        return addr1.summaryCase() < addr2.summaryCase();
     }
-    else if (addr1.m_sourceType == RifDataSourceForRftPlt::ENSEMBLE_RFT)
+    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::ENSEMBLE_RFT )
     {
-        if (addr1.ensemble() && addr2.ensemble())
+        if ( addr1.ensemble() && addr2.ensemble() )
         {
             return addr1.ensemble()->name() < addr2.ensemble()->name();
         }
         return addr1.ensemble() < addr2.ensemble();
     }
-	else if (addr1.m_sourceType == RifDataSourceForRftPlt::OBSERVED_FMU_RFT)
+    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::OBSERVED_FMU_RFT )
     {
-		if (addr1.observedFmuRftData() && addr2.observedFmuRftData())
-		{
+        if ( addr1.observedFmuRftData() && addr2.observedFmuRftData() )
+        {
             return addr1.observedFmuRftData()->name() < addr2.observedFmuRftData()->name();
-		}
+        }
         return addr1.observedFmuRftData() < addr2.observedFmuRftData();
-	}
+    }
     else
     {
-        if (addr1.eclCase() && addr2.eclCase())
+        if ( addr1.eclCase() && addr2.eclCase() )
         {
             return addr1.eclCase()->caseId() < addr2.eclCase()->caseId();
         }
-		return addr1.eclCase() < addr2.eclCase();
+        return addr1.eclCase() < addr2.eclCase();
     }
 }
 #if 0

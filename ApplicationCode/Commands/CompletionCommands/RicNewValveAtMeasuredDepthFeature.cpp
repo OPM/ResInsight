@@ -34,64 +34,64 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicNewValveAtMeasuredDepthFeature, "RicNewValveAtMeasuredDepthFeature");
+CAF_CMD_SOURCE_INIT( RicNewValveAtMeasuredDepthFeature, "RicNewValveAtMeasuredDepthFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewValveAtMeasuredDepthFeature::onActionTriggered(bool isChecked)
+void RicNewValveAtMeasuredDepthFeature::onActionTriggered( bool isChecked )
 {
     RiuWellPathSelectionItem* wellPathSelItem = wellPathSelectionItem();
-    CVF_ASSERT(wellPathSelItem);
+    CVF_ASSERT( wellPathSelItem );
 
     RimWellPath* wellPath = wellPathSelItem->m_wellpath;
-    CVF_ASSERT(wellPath);
+    CVF_ASSERT( wellPath );
 
-    if (!RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem(wellPath)) return;
+    if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return;
 
-    RimPerforationInterval* perfInterval = dynamic_cast<RimPerforationInterval*>(wellPathSelItem->m_wellPathComponent);
-    double                  measuredDepth       = wellPathSelItem->m_measuredDepth;
+    RimPerforationInterval* perfInterval = dynamic_cast<RimPerforationInterval*>( wellPathSelItem->m_wellPathComponent );
+    double                  measuredDepth = wellPathSelItem->m_measuredDepth;
 
     RimWellPathValve* valve = new RimWellPathValve;
-    
+
     std::vector<RimWellPathValve*> existingValves = perfInterval->valves();
-    valve->setName(QString("Valve #%1").arg(existingValves.size() + 1));
+    valve->setName( QString( "Valve #%1" ).arg( existingValves.size() + 1 ) );
 
     RimProject* project;
-    perfInterval->firstAncestorOrThisOfTypeAsserted(project);
+    perfInterval->firstAncestorOrThisOfTypeAsserted( project );
 
     std::vector<RimValveTemplate*> allValveTemplates = project->allValveTemplates();
-    if (!allValveTemplates.empty())
+    if ( !allValveTemplates.empty() )
     {
-        valve->setValveTemplate(allValveTemplates.front());
+        valve->setValveTemplate( allValveTemplates.front() );
     }
-    perfInterval->addValve(valve);
-    valve->setMeasuredDepthAndCount(measuredDepth, perfInterval->endMD() - measuredDepth, 1);
+    perfInterval->addValve( valve );
+    valve->setMeasuredDepthAndCount( measuredDepth, perfInterval->endMD() - measuredDepth, 1 );
 
     RimWellPathCollection* wellPathCollection = nullptr;
-    wellPath->firstAncestorOrThisOfTypeAsserted(wellPathCollection);
+    wellPath->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
 
     wellPathCollection->uiCapability()->updateConnectedEditors();
     wellPathCollection->scheduleRedrawAffectedViews();
 
-    Riu3DMainWindowTools::selectAsCurrentItem(valve);
+    Riu3DMainWindowTools::selectAsCurrentItem( valve );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewValveAtMeasuredDepthFeature::setupActionLook(QAction* actionToSetup)
+void RicNewValveAtMeasuredDepthFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/ICDValve16x16.png"));
-    actionToSetup->setText("Create Valve at this Depth");
+    actionToSetup->setIcon( QIcon( ":/ICDValve16x16.png" ) );
+    actionToSetup->setText( "Create Valve at this Depth" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewValveAtMeasuredDepthFeature::isCommandEnabled() 
+bool RicNewValveAtMeasuredDepthFeature::isCommandEnabled()
 {
-    if (wellPathSelectionItem() && dynamic_cast<RimPerforationInterval*>(wellPathSelectionItem()->m_wellPathComponent))
+    if ( wellPathSelectionItem() && dynamic_cast<RimPerforationInterval*>( wellPathSelectionItem()->m_wellPathComponent ) )
     {
         return true;
     }
@@ -105,10 +105,9 @@ bool RicNewValveAtMeasuredDepthFeature::isCommandEnabled()
 RiuWellPathSelectionItem* RicNewValveAtMeasuredDepthFeature::wellPathSelectionItem()
 {
     Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
-    RiuSelectionItem*      selItem       = riuSelManager->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
+    RiuSelectionItem*      selItem       = riuSelManager->selectedItem( Riu3dSelectionManager::RUI_TEMPORARY );
 
-    RiuWellPathSelectionItem* wellPathItem = dynamic_cast<RiuWellPathSelectionItem*>(selItem);
+    RiuWellPathSelectionItem* wellPathItem = dynamic_cast<RiuWellPathSelectionItem*>( selItem );
 
     return wellPathItem;
 }
-

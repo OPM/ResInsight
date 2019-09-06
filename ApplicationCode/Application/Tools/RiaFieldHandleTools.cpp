@@ -28,17 +28,17 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaFieldhandleTools::disableWriteAndSetFieldHidden(caf::PdmFieldHandle* fieldHandle)
+void RiaFieldhandleTools::disableWriteAndSetFieldHidden( caf::PdmFieldHandle* fieldHandle )
 {
-    CVF_ASSERT(fieldHandle);
+    CVF_ASSERT( fieldHandle );
 
-    if (fieldHandle->uiCapability())
+    if ( fieldHandle->uiCapability() )
     {
-        fieldHandle->uiCapability()->setUiHidden(true);
+        fieldHandle->uiCapability()->setUiHidden( true );
     }
 
-    if (fieldHandle->xmlCapability())
+    if ( fieldHandle->xmlCapability() )
     {
-        fieldHandle->xmlCapability()->setIOWritable(false);
+        fieldHandle->xmlCapability()->setIOWritable( false );
     }
 }

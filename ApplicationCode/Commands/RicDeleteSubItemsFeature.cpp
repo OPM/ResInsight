@@ -28,7 +28,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicDeleteSubItemsFeature, "RicDeleteSubItemsFeature");
+CAF_CMD_SOURCE_INIT( RicDeleteSubItemsFeature, "RicDeleteSubItemsFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -36,13 +36,13 @@ CAF_CMD_SOURCE_INIT(RicDeleteSubItemsFeature, "RicDeleteSubItemsFeature");
 bool RicDeleteSubItemsFeature::isCommandEnabled()
 {
     std::vector<caf::PdmUiItem*> items;
-    caf::SelectionManager::instance()->selectedItems(items);
+    caf::SelectionManager::instance()->selectedItems( items );
 
-    if (items.empty()) return false;
+    if ( items.empty() ) return false;
 
-    for (auto* item : items)
+    for ( auto* item : items )
     {
-        if (!RicDeleteSubItemsFeature::hasDeletableSubItems(item)) return false;
+        if ( !RicDeleteSubItemsFeature::hasDeletableSubItems( item ) ) return false;
     }
 
     return true;
@@ -51,20 +51,20 @@ bool RicDeleteSubItemsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteSubItemsFeature::onActionTriggered(bool isChecked)
+void RicDeleteSubItemsFeature::onActionTriggered( bool isChecked )
 {
     std::vector<caf::PdmUiItem*> items;
-    caf::SelectionManager::instance()->selectedItems(items);
+    caf::SelectionManager::instance()->selectedItems( items );
 
-    CVF_ASSERT(items.size() > 0);
+    CVF_ASSERT( items.size() > 0 );
 
-    for (auto item : items)
+    for ( auto item : items )
     {
-        if (!RicDeleteSubItemsFeature::hasDeletableSubItems(item)) continue;
+        if ( !RicDeleteSubItemsFeature::hasDeletableSubItems( item ) ) continue;
 
         {
-            auto collection = dynamic_cast<RimSummaryPlotCollection*>(item);
-            if (collection)
+            auto collection = dynamic_cast<RimSummaryPlotCollection*>( item );
+            if ( collection )
             {
                 collection->summaryPlots.deleteAllChildObjects();
 
@@ -73,8 +73,8 @@ void RicDeleteSubItemsFeature::onActionTriggered(bool isChecked)
         }
 
         {
-            auto collection = dynamic_cast<RimWellPathCollection*>(item);
-            if (collection)
+            auto collection = dynamic_cast<RimWellPathCollection*>( item );
+            if ( collection )
             {
                 collection->deleteAllWellPaths();
 
@@ -84,16 +84,16 @@ void RicDeleteSubItemsFeature::onActionTriggered(bool isChecked)
         }
 
         {
-            auto collection = dynamic_cast<RimWellPathFractureCollection*>(item);
-            if (collection)
+            auto collection = dynamic_cast<RimWellPathFractureCollection*>( item );
+            if ( collection )
             {
                 collection->deleteFractures();
 
                 collection->updateConnectedEditors();
 
                 RimProject* proj = nullptr;
-                collection->firstAncestorOrThisOfType(proj);
-                if (proj) proj->reloadCompletionTypeResultsInAllViews();
+                collection->firstAncestorOrThisOfType( proj );
+                if ( proj ) proj->reloadCompletionTypeResultsInAllViews();
             }
         }
     }
@@ -102,37 +102,37 @@ void RicDeleteSubItemsFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteSubItemsFeature::setupActionLook(QAction* actionToSetup)
+void RicDeleteSubItemsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Delete Sub Items");
-    actionToSetup->setIcon(QIcon(":/Erase.png"));
-    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
+    actionToSetup->setText( "Delete Sub Items" );
+    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeleteSubItemsFeature::hasDeletableSubItems(caf::PdmUiItem* uiItem)
+bool RicDeleteSubItemsFeature::hasDeletableSubItems( caf::PdmUiItem* uiItem )
 {
     {
-        auto collection = dynamic_cast<RimSummaryPlotCollection*>(uiItem);
-        if (collection && !collection->summaryPlots().empty())
+        auto collection = dynamic_cast<RimSummaryPlotCollection*>( uiItem );
+        if ( collection && !collection->summaryPlots().empty() )
         {
             return true;
         }
     }
 
     {
-        auto collection = dynamic_cast<RimWellPathCollection*>(uiItem);
-        if (collection && !collection->wellPaths().empty())
+        auto collection = dynamic_cast<RimWellPathCollection*>( uiItem );
+        if ( collection && !collection->wellPaths().empty() )
         {
             return true;
         }
     }
 
     {
-        auto collection = dynamic_cast<RimWellPathFractureCollection*>(uiItem);
-        if (collection && !collection->allFractures().empty())
+        auto collection = dynamic_cast<RimWellPathFractureCollection*>( uiItem );
+        if ( collection && !collection->allFractures().empty() )
         {
             return true;
         }

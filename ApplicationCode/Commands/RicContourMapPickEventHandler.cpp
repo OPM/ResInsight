@@ -1,26 +1,26 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicContourMapPickEventHandler.h"
-#include "RimContourMapProjection.h"
-#include "RimGeoMechContourMapView.h"
-#include "RimEclipseContourMapView.h"
 #include "Rim3dView.h"
+#include "RimContourMapProjection.h"
+#include "RimEclipseContourMapView.h"
+#include "RimGeoMechContourMapView.h"
 
 #include "RiuMainWindow.h"
 #include "RivObjectSourceInfo.h"
@@ -32,7 +32,7 @@
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicContourMapPickEventHandler* RicContourMapPickEventHandler::instance()
 {
@@ -41,43 +41,45 @@ RicContourMapPickEventHandler* RicContourMapPickEventHandler::instance()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RicContourMapPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
+bool RicContourMapPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eventObject )
 {
-    if (eventObject.m_pickItemInfos.empty()) return false;
+    if ( eventObject.m_pickItemInfos.empty() ) return false;
 
-    const RiuPickItemInfo&      firstPickedItem = eventObject.m_pickItemInfos.front();
-    const cvf::Part* firstPickedPart = firstPickedItem.pickedPart();
+    const RiuPickItemInfo& firstPickedItem = eventObject.m_pickItemInfos.front();
+    const cvf::Part*       firstPickedPart = firstPickedItem.pickedPart();
 
-    const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>(firstPickedPart->sourceInfo());
-    if (sourceInfo)
+    const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>( firstPickedPart->sourceInfo() );
+    if ( sourceInfo )
     {
-        RimContourMapProjection* contourMap = dynamic_cast<RimContourMapProjection*>(sourceInfo->object());
-        if (contourMap)
+        RimContourMapProjection* contourMap = dynamic_cast<RimContourMapProjection*>( sourceInfo->object() );
+        if ( contourMap )
         {
-            RiuMainWindow::instance()->selectAsCurrentItem(contourMap);
+            RiuMainWindow::instance()->selectAsCurrentItem( contourMap );
 
             RimGridView* view = nullptr;
-            contourMap->firstAncestorOrThisOfTypeAsserted(view);
+            contourMap->firstAncestorOrThisOfTypeAsserted( view );
 
             cvf::Vec2d pickedPoint;
-            double valueAtPoint = 0.0;
-            if (contourMap->checkForMapIntersection(firstPickedItem.globalPickedPoint(), &pickedPoint, &valueAtPoint))
+            double     valueAtPoint = 0.0;
+            if ( contourMap->checkForMapIntersection( firstPickedItem.globalPickedPoint(), &pickedPoint, &valueAtPoint ) )
             {
                 QString curveText;
-                curveText += QString("%1\n").arg(view->createAutoName());
-                curveText += QString("Picked Point X, Y: %1, %2\n").arg(pickedPoint.x(), 5, 'f', 0).arg(pickedPoint.y(), 5, 'f', 0);
-                curveText += QString("Result Type: %1\n").arg(contourMap->resultDescriptionText());
-                curveText += QString("Aggregated Value: %1\n").arg(valueAtPoint);
+                curveText += QString( "%1\n" ).arg( view->createAutoName() );
+                curveText += QString( "Picked Point X, Y: %1, %2\n" )
+                                 .arg( pickedPoint.x(), 5, 'f', 0 )
+                                 .arg( pickedPoint.y(), 5, 'f', 0 );
+                curveText += QString( "Result Type: %1\n" ).arg( contourMap->resultDescriptionText() );
+                curveText += QString( "Aggregated Value: %1\n" ).arg( valueAtPoint );
 
-                RiuMainWindow::instance()->setResultInfo(curveText);
+                RiuMainWindow::instance()->setResultInfo( curveText );
 
-                contourMap->setPickPoint(pickedPoint);
+                contourMap->setPickPoint( pickedPoint );
 
-                RimGeoMechContourMapView* geoMechContourView = dynamic_cast<RimGeoMechContourMapView*>(view);
-                RimEclipseContourMapView* eclipseContourView = dynamic_cast<RimEclipseContourMapView*>(view);
-                if (geoMechContourView)
+                RimGeoMechContourMapView* geoMechContourView = dynamic_cast<RimGeoMechContourMapView*>( view );
+                RimEclipseContourMapView* eclipseContourView = dynamic_cast<RimEclipseContourMapView*>( view );
+                if ( geoMechContourView )
                 {
                     geoMechContourView->updatePickPointAndRedraw();
                 }
@@ -87,11 +89,10 @@ bool RicContourMapPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& even
                 }
                 return true;
             }
-            contourMap->setPickPoint(cvf::Vec2d::UNDEFINED);
+            contourMap->setPickPoint( cvf::Vec2d::UNDEFINED );
             view->updateCurrentTimeStepAndRedraw();
             return true;
         }
     }
     return false;
 }
-

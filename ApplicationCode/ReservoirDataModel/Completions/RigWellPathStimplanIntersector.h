@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "cvfBase.h"
 #include "cvfMatrix4.h"
 
 #include <map>
@@ -37,9 +36,9 @@ public:
     struct WellCellIntersection
     {
         WellCellIntersection()
-            : hlength(0.0)
-            , vlength(0.0)
-            , endpointCount(0)
+            : hlength( 0.0 )
+            , vlength( 0.0 )
+            , endpointCount( 0 )
         {
         }
         double hlength;
@@ -48,22 +47,22 @@ public:
 
         double computeLength() const
         {
-            return cvf::Math::sqrt(hlength * hlength + vlength * vlength);
+            return cvf::Math::sqrt( hlength * hlength + vlength * vlength );
         }
     };
 
-    RigWellPathStimplanIntersector(const RigWellPath* wellpathGeom, const RimFracture* rimFracture);
+    RigWellPathStimplanIntersector( const RigWellPath* wellpathGeom, const RimFracture* rimFracture );
 
     const std::map<size_t, WellCellIntersection>& intersections() const;
 
 private:
     friend class RigWellPathStimplanIntersectorTester;
-    static void calculate(const cvf::Mat4d&                           fractureXf,
-                          const std::vector<cvf::Vec3d>&              wellPathPoints,
-                          double                                      wellRadius,
-                          double                                      perforationLength,
-                          const std::vector<std::vector<cvf::Vec3d>>& stpCellPolygons,
-                          std::map<size_t, WellCellIntersection>&     stimPlanCellIdxToIntersectionInfoMap);
+    static void calculate( const cvf::Mat4d&                           fractureXf,
+                           const std::vector<cvf::Vec3d>&              wellPathPoints,
+                           double                                      wellRadius,
+                           double                                      perforationLength,
+                           const std::vector<std::vector<cvf::Vec3d>>& stpCellPolygons,
+                           std::map<size_t, WellCellIntersection>&     stimPlanCellIdxToIntersectionInfoMap );
 
     std::map<size_t, WellCellIntersection> m_stimPlanCellIdxToIntersectionInfoMap;
 };
@@ -80,9 +79,13 @@ public:
         double                                                                  wellRadius,
         double                                                                  perforationLength,
         const std::vector<std::vector<cvf::Vec3d>>&                             stpCellPolygons,
-        std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection>& stimPlanCellIdxToIntersectionInfoMap)
+        std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection>& stimPlanCellIdxToIntersectionInfoMap )
     {
-        RigWellPathStimplanIntersector::calculate(
-            fractureXf, wellPathPoints, wellRadius, perforationLength, stpCellPolygons, stimPlanCellIdxToIntersectionInfoMap);
+        RigWellPathStimplanIntersector::calculate( fractureXf,
+                                                   wellPathPoints,
+                                                   wellRadius,
+                                                   perforationLength,
+                                                   stpCellPolygons,
+                                                   stimPlanCellIdxToIntersectionInfoMap );
     }
 };

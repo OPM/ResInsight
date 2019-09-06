@@ -39,7 +39,7 @@
 #include <QFile>
 #include <QTextStream>
 
-CAF_CMD_SOURCE_INIT(RicHoloLensExportToFolderFeature, "RicHoloLensExportToFolderFeature");
+CAF_CMD_SOURCE_INIT( RicHoloLensExportToFolderFeature, "RicHoloLensExportToFolderFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -52,17 +52,21 @@ bool RicHoloLensExportToFolderFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensExportToFolderFeature::onActionTriggered(bool isChecked)
+void RicHoloLensExportToFolderFeature::onActionTriggered( bool isChecked )
 {
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
 
     RicHoloLensExportToFolderUi* featureUi = RiaApplication::instance()->project()->dialogData()->holoLensExportToFolderData();
-    featureUi->setViewForExport(activeView);
+    featureUi->setViewForExport( activeView );
 
-    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, featureUi, "HoloLens - Export Data Folder", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    propertyDialog.resize(QSize(400, 330));
+    caf::PdmUiPropertyViewDialog propertyDialog( nullptr,
+                                                 featureUi,
+                                                 "HoloLens - Export Data Folder",
+                                                 "",
+                                                 QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
+    propertyDialog.resize( QSize( 400, 330 ) );
 
-    if (propertyDialog.exec() == QDialog::Accepted && !featureUi->exportFolder().isEmpty())
+    if ( propertyDialog.exec() == QDialog::Accepted && !featureUi->exportFolder().isEmpty() )
     {
         /*
         cvf::Collection<cvf::Part> allPartsColl;
@@ -106,23 +110,22 @@ void RicHoloLensExportToFolderFeature::onActionTriggered(bool isChecked)
         }
         */
 
-
         RimGridView* viewForExport = featureUi->viewForExport();
-        if (!viewForExport) return;
+        if ( !viewForExport ) return;
 
-        QDir dir(featureUi->exportFolder());
+        QDir          dir( featureUi->exportFolder() );
         const QString absOutputFolder = dir.absolutePath();
 
-        VdeFileExporter exporter(absOutputFolder);
-        exporter.exportViewContents(*viewForExport);
+        VdeFileExporter exporter( absOutputFolder );
+        exporter.exportViewContents( *viewForExport );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensExportToFolderFeature::setupActionLook(QAction* actionToSetup)
+void RicHoloLensExportToFolderFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/Save.png"));
-    actionToSetup->setText("HoloLens : Export to Folder");
+    actionToSetup->setIcon( QIcon( ":/Save.png" ) );
+    actionToSetup->setText( "HoloLens : Export to Folder" );
 }

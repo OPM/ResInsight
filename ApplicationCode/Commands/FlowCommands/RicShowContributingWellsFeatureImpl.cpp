@@ -45,21 +45,24 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RicShowContributingWellsFeatureImpl::manipulateSelectedView(RimEclipseResultCase* eclipseResultCase,
-                                                                            QString               wellName,
-                                                                            int                   timeStep)
+RimEclipseView* RicShowContributingWellsFeatureImpl::manipulateSelectedView( RimEclipseResultCase* eclipseResultCase,
+                                                                             QString               wellName,
+                                                                             int                   timeStep )
 {
-    RimEclipseView* viewToManipulate = RicSelectOrCreateViewFeatureImpl::showViewSelection(
-        eclipseResultCase, "lastUsedWellAllocationView", "ContributingWells_" + wellName, "Show Contributing Wells in View");
+    RimEclipseView* viewToManipulate =
+        RicSelectOrCreateViewFeatureImpl::showViewSelection( eclipseResultCase,
+                                                             "lastUsedWellAllocationView",
+                                                             "ContributingWells_" + wellName,
+                                                             "Show Contributing Wells in View" );
 
-    if (!viewToManipulate) return nullptr;
+    if ( !viewToManipulate ) return nullptr;
 
-    RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(viewToManipulate, wellName, timeStep);
+    RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( viewToManipulate, wellName, timeStep );
 
-    auto* feature = caf::CmdFeatureManager::instance()->getCommandFeature("RicShowMainWindowFeature");
-    feature->actionTriggered(false);
+    auto* feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicShowMainWindowFeature" );
+    feature->actionTriggered( false );
 
-    RicSelectOrCreateViewFeatureImpl::focusView(viewToManipulate);
+    RicSelectOrCreateViewFeatureImpl::focusView( viewToManipulate );
 
     return viewToManipulate;
 }
@@ -67,71 +70,74 @@ RimEclipseView* RicShowContributingWellsFeatureImpl::manipulateSelectedView(RimE
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimEclipseView* viewToModify,
-                                                                            const QString&  wellName,
-                                                                            int             timeStep)
+void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( RimEclipseView* viewToModify,
+                                                                             const QString&  wellName,
+                                                                             int             timeStep )
 {
-    CVF_ASSERT(viewToModify);
+    CVF_ASSERT( viewToModify );
 
     RimSimWellInView* selectedWell = nullptr;
 
-    for (RimSimWellInView* w : viewToModify->wellCollection()->wells())
+    for ( RimSimWellInView* w : viewToModify->wellCollection()->wells() )
     {
-        if (w->name() == wellName)
+        if ( w->name() == wellName )
         {
             selectedWell = w;
         }
     }
 
-    CVF_ASSERT(selectedWell);
+    CVF_ASSERT( selectedWell );
 
     RimEclipseResultCase* eclipseResultCase = nullptr;
-    selectedWell->firstAncestorOrThisOfTypeAsserted(eclipseResultCase);
+    selectedWell->firstAncestorOrThisOfTypeAsserted( eclipseResultCase );
 
     // Use the active flow diag solutions, or the first one as default
     RimFlowDiagSolution* flowDiagSolution = viewToModify->cellResult()->flowDiagSolution();
-    if (!flowDiagSolution)
+    if ( !flowDiagSolution )
     {
         flowDiagSolution = eclipseResultCase->defaultFlowDiagSolution();
     }
 
     // assert(flowDiagSolution);
-    CVF_ASSERT(flowDiagSolution);
+    CVF_ASSERT( flowDiagSolution );
 
-    RimFlowDiagSolution::TracerStatusType tracerStatus = flowDiagSolution->tracerStatusInTimeStep(selectedWell->name(), timeStep);
-    if (!(tracerStatus == RimFlowDiagSolution::INJECTOR || tracerStatus == RimFlowDiagSolution::PRODUCER))
+    RimFlowDiagSolution::TracerStatusType tracerStatus = flowDiagSolution->tracerStatusInTimeStep( selectedWell->name(),
+                                                                                                   timeStep );
+    if ( !( tracerStatus == RimFlowDiagSolution::INJECTOR || tracerStatus == RimFlowDiagSolution::PRODUCER ) )
     {
         return;
     }
 
-    viewToModify->setCurrentTimeStep(timeStep);
-    viewToModify->cellResult()->setResultType(RiaDefines::FLOW_DIAGNOSTICS);
-    viewToModify->cellResult()->setResultVariable("MaxFractionTracer");
-    viewToModify->cellResult()->setFlowSolution(flowDiagSolution);
+    viewToModify->setCurrentTimeStep( timeStep );
+    viewToModify->cellResult()->setResultType( RiaDefines::FLOW_DIAGNOSTICS );
+    viewToModify->cellResult()->setResultVariable( "MaxFractionTracer" );
+    viewToModify->cellResult()->setFlowSolution( flowDiagSolution );
 
-    switch (tracerStatus)
+    switch ( tracerStatus )
     {
         case RimFlowDiagSolution::PRODUCER:
-            viewToModify->cellResult()->setFlowDiagTracerSelectionType(RimEclipseResultDefinition::FLOW_TR_INJECTORS);
+            viewToModify->cellResult()->setFlowDiagTracerSelectionType( RimEclipseResultDefinition::FLOW_TR_INJECTORS );
             break;
         case RimFlowDiagSolution::INJECTOR:
-            viewToModify->cellResult()->setFlowDiagTracerSelectionType(RimEclipseResultDefinition::FLOW_TR_PRODUCERS);
+            viewToModify->cellResult()->setFlowDiagTracerSelectionType( RimEclipseResultDefinition::FLOW_TR_PRODUCERS );
             break;
 
         default:
-            CVF_ASSERT(false);
+            CVF_ASSERT( false );
             break;
     }
 
     viewToModify->cellResult()->loadDataAndUpdate();
     viewToModify->cellResult()->updateConnectedEditors();
 
-    std::vector<QString> tracerNames = findContributingTracerNames(flowDiagSolution, selectedWell->simWellData(), timeStep);
+    std::vector<QString> tracerNames = findContributingTracerNames( flowDiagSolution,
+                                                                    selectedWell->simWellData(),
+                                                                    timeStep );
 
-    for (RimSimWellInView* w : viewToModify->wellCollection()->wells())
+    for ( RimSimWellInView* w : viewToModify->wellCollection()->wells() )
     {
-        if (std::find(tracerNames.begin(), tracerNames.end(), w->name()) != tracerNames.end() ||
-            selectedWell->name() == w->name())
+        if ( std::find( tracerNames.begin(), tracerNames.end(), w->name() ) != tracerNames.end() ||
+             selectedWell->name() == w->name() )
         {
             w->showWell = true;
         }
@@ -146,21 +152,21 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
 
     RimEclipsePropertyFilterCollection* propertyFilterCollection = viewToModify->eclipsePropertyFilterCollection();
 
-    for (RimEclipsePropertyFilter* f : propertyFilterCollection->propertyFilters())
+    for ( RimEclipsePropertyFilter* f : propertyFilterCollection->propertyFilters() )
     {
         f->isActive = false;
     }
 
     RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
-    propertyFilterCollection->propertyFilters().push_back(propertyFilter);
+    propertyFilterCollection->propertyFilters().push_back( propertyFilter );
 
-    propertyFilter->resultDefinition()->setEclipseCase(viewToModify->eclipseCase());
-    propertyFilter->resultDefinition()->setTofAndSelectTracer(selectedWell->name());
+    propertyFilter->resultDefinition()->setEclipseCase( viewToModify->eclipseCase() );
+    propertyFilter->resultDefinition()->setTofAndSelectTracer( selectedWell->name() );
     propertyFilter->resultDefinition()->loadDataAndUpdate();
 
     propertyFilterCollection->updateConnectedEditors();
 
-    Riu3DMainWindowTools::setExpanded(propertyFilterCollection);
+    Riu3DMainWindowTools::setExpanded( propertyFilterCollection );
 
     viewToModify->faultCollection()->showFaultCollection = false;
     viewToModify->faultCollection()->updateConnectedEditors();
@@ -172,18 +178,17 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RicShowContributingWellsFeatureImpl::findContributingTracerNames(const RimFlowDiagSolution* flowDiagSolution,
-                                                                                      const RigSimWellData*      simWellData,
-                                                                                      int                        timeStep)
+std::vector<QString> RicShowContributingWellsFeatureImpl::findContributingTracerNames(
+    const RimFlowDiagSolution* flowDiagSolution, const RigSimWellData* simWellData, int timeStep )
 {
     std::vector<QString> tracerCellFractionValues;
 
-    if (flowDiagSolution && simWellData->hasWellResult(timeStep))
+    if ( flowDiagSolution && simWellData->hasWellResult( timeStep ) )
     {
         RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::UNDEFINED;
 
-        const RigWellResultFrame::WellProductionType prodType = simWellData->wellProductionType(timeStep);
-        if (prodType == RigWellResultFrame::PRODUCER || prodType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE)
+        const RigWellResultFrame::WellProductionType prodType = simWellData->wellProductionType( timeStep );
+        if ( prodType == RigWellResultFrame::PRODUCER || prodType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE )
         {
             requestedTracerType = RimFlowDiagSolution::INJECTOR;
         }
@@ -193,11 +198,11 @@ std::vector<QString> RicShowContributingWellsFeatureImpl::findContributingTracer
         }
 
         std::vector<QString> tracerNames = flowDiagSolution->tracerNames();
-        for (const QString& tracerName : tracerNames)
+        for ( const QString& tracerName : tracerNames )
         {
-            if (flowDiagSolution->tracerStatusInTimeStep(tracerName, timeStep) == requestedTracerType)
+            if ( flowDiagSolution->tracerStatusInTimeStep( tracerName, timeStep ) == requestedTracerType )
             {
-                tracerCellFractionValues.push_back(tracerName);
+                tracerCellFractionValues.push_back( tracerName );
             }
         }
     }

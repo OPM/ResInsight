@@ -30,12 +30,11 @@ class RicClearSourceSteppingEnsembleCurveSetFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void clearAllSourceSteppingInSummaryPlot(const RimSummaryPlot* summaryPlot);
+    static void clearAllSourceSteppingInSummaryPlot( const RimSummaryPlot* summaryPlot );
 
 protected:
     bool isCommandEnabled() override;
-    void onActionTriggered(bool isChecked) override;
+    void onActionTriggered( bool isChecked ) override;
 
-
-    void setupActionLook(QAction* actionToSetup) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

@@ -23,62 +23,73 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaProjectFileVersionTools::isCandidateVersionNewerThanOther(const QString& candidateProjectFileVersion,
-                                                               const QString& projectFileVersion)
+bool RiaProjectFileVersionTools::isCandidateVersionNewerThanOther( const QString& candidateProjectFileVersion,
+                                                                   const QString& projectFileVersion )
 {
     int candidateMajorVersion  = 0;
     int candidateMinorVersion  = 0;
     int candidatePatchNumber   = 0;
     int candidateDevelopmentId = 0;
 
-    RiaProjectFileVersionTools::decodeVersionString(candidateProjectFileVersion, &candidateMajorVersion, &candidateMinorVersion,
-                                                    &candidatePatchNumber, &candidateDevelopmentId);
+    RiaProjectFileVersionTools::decodeVersionString( candidateProjectFileVersion,
+                                                     &candidateMajorVersion,
+                                                     &candidateMinorVersion,
+                                                     &candidatePatchNumber,
+                                                     &candidateDevelopmentId );
 
     int majorVersion  = 0;
     int minorVersion  = 0;
     int patchNumber   = 0;
     int developmentId = 0;
 
-    RiaProjectFileVersionTools::decodeVersionString(projectFileVersion, &majorVersion, &minorVersion, &patchNumber,
-                                                    &developmentId);
+    RiaProjectFileVersionTools::decodeVersionString( projectFileVersion,
+                                                     &majorVersion,
+                                                     &minorVersion,
+                                                     &patchNumber,
+                                                     &developmentId );
 
-    return RiaProjectFileVersionTools::isCandidateNewerThanOther(candidateMajorVersion, candidateMinorVersion,
-                                                                 candidatePatchNumber, candidateDevelopmentId, majorVersion,
-                                                                 minorVersion, patchNumber, developmentId);
+    return RiaProjectFileVersionTools::isCandidateNewerThanOther( candidateMajorVersion,
+                                                                  candidateMinorVersion,
+                                                                  candidatePatchNumber,
+                                                                  candidateDevelopmentId,
+                                                                  majorVersion,
+                                                                  minorVersion,
+                                                                  patchNumber,
+                                                                  developmentId );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaProjectFileVersionTools::decodeVersionString(const QString& projectFileVersion, int* majorVersion, int* minorVersion,
-                                                     int* patch, int* developmentId)
+void RiaProjectFileVersionTools::decodeVersionString(
+    const QString& projectFileVersion, int* majorVersion, int* minorVersion, int* patch, int* developmentId )
 {
-    if (projectFileVersion.isEmpty()) return;
+    if ( projectFileVersion.isEmpty() ) return;
 
-    QStringList subStrings = projectFileVersion.split(".");
+    QStringList subStrings = projectFileVersion.split( "." );
 
-    if (subStrings.size() > 0)
+    if ( subStrings.size() > 0 )
     {
         *majorVersion = subStrings[0].toInt();
     }
 
-    if (subStrings.size() > 1)
+    if ( subStrings.size() > 1 )
     {
         *minorVersion = subStrings[1].toInt();
     }
 
-    if (subStrings.size() > 2)
+    if ( subStrings.size() > 2 )
     {
         QString candidate           = subStrings[2];
-        QString candidateDigitsOnly = RiaProjectFileVersionTools::stringOfDigits(candidate);
+        QString candidateDigitsOnly = RiaProjectFileVersionTools::stringOfDigits( candidate );
 
         *patch = candidateDigitsOnly.toInt();
     }
 
-    if (subStrings.size() > 3)
+    if ( subStrings.size() > 3 )
     {
         QString candidate           = subStrings.back();
-        QString candidateDigitsOnly = RiaProjectFileVersionTools::stringOfDigits(candidate);
+        QString candidateDigitsOnly = RiaProjectFileVersionTools::stringOfDigits( candidate );
 
         *developmentId = candidateDigitsOnly.toInt();
     }
@@ -87,29 +98,33 @@ void RiaProjectFileVersionTools::decodeVersionString(const QString& projectFileV
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaProjectFileVersionTools::isCandidateNewerThanOther(int candidateMajorVersion, int candidateMinorVersion,
-                                                           int candidatePatchNumber, int candidateDevelopmentId,
-                                                           int otherMajorVersion, int otherMinorVersion, int otherPatchNumber,
-                                                           int otherDevelopmentId)
+bool RiaProjectFileVersionTools::isCandidateNewerThanOther( int candidateMajorVersion,
+                                                            int candidateMinorVersion,
+                                                            int candidatePatchNumber,
+                                                            int candidateDevelopmentId,
+                                                            int otherMajorVersion,
+                                                            int otherMinorVersion,
+                                                            int otherPatchNumber,
+                                                            int otherDevelopmentId )
 {
-    if (candidateMajorVersion != otherMajorVersion)
+    if ( candidateMajorVersion != otherMajorVersion )
     {
-        return (candidateMajorVersion > otherMajorVersion);
+        return ( candidateMajorVersion > otherMajorVersion );
     }
 
-    if (candidateMinorVersion != otherMinorVersion)
+    if ( candidateMinorVersion != otherMinorVersion )
     {
-        return (candidateMinorVersion > otherMinorVersion);
+        return ( candidateMinorVersion > otherMinorVersion );
     }
 
-    if (candidatePatchNumber != otherPatchNumber)
+    if ( candidatePatchNumber != otherPatchNumber )
     {
-        return (candidatePatchNumber > otherPatchNumber);
+        return ( candidatePatchNumber > otherPatchNumber );
     }
 
-    if (candidateDevelopmentId != otherDevelopmentId)
+    if ( candidateDevelopmentId != otherDevelopmentId )
     {
-        return (candidateDevelopmentId > otherDevelopmentId);
+        return ( candidateDevelopmentId > otherDevelopmentId );
     }
 
     return false;
@@ -118,19 +133,19 @@ bool RiaProjectFileVersionTools::isCandidateNewerThanOther(int candidateMajorVer
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaProjectFileVersionTools::stringOfDigits(const QString& string)
+QString RiaProjectFileVersionTools::stringOfDigits( const QString& string )
 {
     QString digitsOnly;
 
-    for (const auto& c : string)
+    for ( const auto& c : string )
     {
-        if (c.isDigit())
+        if ( c.isDigit() )
         {
             digitsOnly += c;
         }
         else
         {
-            if (!digitsOnly.isEmpty())
+            if ( !digitsOnly.isEmpty() )
             {
                 return digitsOnly;
             }
@@ -139,4 +154,3 @@ QString RiaProjectFileVersionTools::stringOfDigits(const QString& string)
 
     return digitsOnly;
 }
-

@@ -26,26 +26,26 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 
-CAF_PDM_SOURCE_INIT(RicCreateMultipleFracturesOptionItemUi, "RiuMultipleFractionsOptions");
+CAF_PDM_SOURCE_INIT( RicCreateMultipleFracturesOptionItemUi, "RiuMultipleFractionsOptions" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicCreateMultipleFracturesOptionItemUi::RicCreateMultipleFracturesOptionItemUi()
 {
-    CAF_PDM_InitField(&m_topKOneBased, "TopKLayer", 1, "Top K Layer", "", "", "");
-    CAF_PDM_InitField(&m_baseKOneBased, "BaseKLayer", 1, "Base K Layer", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_fractureTemplate, "Template", "Template", "", "", "");
-    CAF_PDM_InitField(&m_minSpacing, "MinSpacing", 300.0, "Spacing", "", "", "");
+    CAF_PDM_InitField( &m_topKOneBased, "TopKLayer", 1, "Top K Layer", "", "", "" );
+    CAF_PDM_InitField( &m_baseKOneBased, "BaseKLayer", 1, "Base K Layer", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fractureTemplate, "Template", "Template", "", "", "" );
+    CAF_PDM_InitField( &m_minSpacing, "MinSpacing", 300.0, "Spacing", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateMultipleFracturesOptionItemUi::setValues(int                  topKOneBased,
-                                                       int                  baseKOneBased,
-                                                       RimFractureTemplate* fractureTemplate,
-                                                       double               minimumSpacing)
+void RicCreateMultipleFracturesOptionItemUi::setValues( int                  topKOneBased,
+                                                        int                  baseKOneBased,
+                                                        RimFractureTemplate* fractureTemplate,
+                                                        double               minimumSpacing )
 {
     m_topKOneBased     = topKOneBased;
     m_baseKOneBased    = baseKOneBased;
@@ -54,7 +54,7 @@ void RicCreateMultipleFracturesOptionItemUi::setValues(int                  topK
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RicCreateMultipleFracturesOptionItemUi::topKLayer() const
 {
@@ -62,7 +62,7 @@ int RicCreateMultipleFracturesOptionItemUi::topKLayer() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RicCreateMultipleFracturesOptionItemUi::baseKLayer() const
 {
@@ -88,12 +88,12 @@ double RicCreateMultipleFracturesOptionItemUi::minimumSpacing() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateMultipleFracturesOptionItemUi::isKLayerContained(int oneBasedK) const
+bool RicCreateMultipleFracturesOptionItemUi::isKLayerContained( int oneBasedK ) const
 {
-    auto minMax = std::minmax(m_topKOneBased, m_baseKOneBased);
+    auto minMax = std::minmax( m_topKOneBased, m_baseKOneBased );
 
-    if (oneBasedK < minMax.first) return false;
-    if (oneBasedK <= minMax.second) return true;
+    if ( oneBasedK < minMax.first ) return false;
+    if ( oneBasedK <= minMax.second ) return true;
 
     return false;
 }
@@ -101,22 +101,22 @@ bool RicCreateMultipleFracturesOptionItemUi::isKLayerContained(int oneBasedK) co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateMultipleFracturesOptionItemUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                                              const QVariant&            oldValue,
-                                                              const QVariant&            newValue)
+void RicCreateMultipleFracturesOptionItemUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                               const QVariant&            oldValue,
+                                                               const QVariant&            newValue )
 {
-    if (changedField == &m_topKOneBased)
+    if ( changedField == &m_topKOneBased )
     {
-        if (m_topKOneBased > m_baseKOneBased) m_baseKOneBased = m_topKOneBased;
+        if ( m_topKOneBased > m_baseKOneBased ) m_baseKOneBased = m_topKOneBased;
     }
-    else if (changedField == &m_baseKOneBased)
+    else if ( changedField == &m_baseKOneBased )
     {
-        if (m_baseKOneBased < m_topKOneBased) m_topKOneBased = m_baseKOneBased;
+        if ( m_baseKOneBased < m_topKOneBased ) m_topKOneBased = m_baseKOneBased;
     }
 
     RiuCreateMultipleFractionsUi* parent = nullptr;
-    this->firstAncestorOrThisOfType(parent);
-    if (parent)
+    this->firstAncestorOrThisOfType( parent );
+    if ( parent )
     {
         parent->updateButtonsEnableState();
         parent->updateConnectedEditors();
@@ -127,26 +127,26 @@ void RicCreateMultipleFracturesOptionItemUi::fieldChangedByUi(const caf::PdmFiel
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicCreateMultipleFracturesOptionItemUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                  bool*                      useOptionsOnly)
+    RicCreateMultipleFracturesOptionItemUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                   bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
     RimProject* proj = RiaApplication::instance()->project();
-    CVF_ASSERT(proj);
+    CVF_ASSERT( proj );
 
-    if (fieldNeedingOptions == &m_fractureTemplate)
+    if ( fieldNeedingOptions == &m_fractureTemplate )
     {
         RimOilField* oilField = proj->activeOilField();
-        if (oilField && oilField->fractureDefinitionCollection())
+        if ( oilField && oilField->fractureDefinitionCollection() )
         {
             RimFractureTemplateCollection* fracDefColl = oilField->fractureDefinitionCollection();
 
-            for (RimFractureTemplate* fracDef : fracDefColl->fractureTemplates())
+            for ( RimFractureTemplate* fracDef : fracDefColl->fractureTemplates() )
             {
                 QString displayText = fracDef->nameAndUnit();
 
-                options.push_back(caf::PdmOptionItemInfo(displayText, fracDef));
+                options.push_back( caf::PdmOptionItemInfo( displayText, fracDef ) );
             }
         }
     }

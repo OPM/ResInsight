@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -42,56 +42,58 @@
 #include <QTreeView>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuTreeViewEventFilter::RiuTreeViewEventFilter(QObject* parent)
-    : QObject(parent)
+RiuTreeViewEventFilter::RiuTreeViewEventFilter( QObject* parent )
+    : QObject( parent )
 {
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RiuTreeViewEventFilter::eventFilter(QObject *obj, QEvent *event)
+bool RiuTreeViewEventFilter::eventFilter( QObject* obj, QEvent* event )
 {
-    if (event->type() == QEvent::KeyPress)
+    if ( event->type() == QEvent::KeyPress )
     {
-        QKeyEvent* keyEvent = static_cast<QKeyEvent *>(event);
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>( event );
 
         std::vector<caf::PdmUiItem*> uiItems;
-        caf::SelectionManager::instance()->selectedItems(uiItems);
+        caf::SelectionManager::instance()->selectedItems( uiItems );
 
-        if (uiItems.size() > 0)
+        if ( uiItems.size() > 0 )
         {
             std::vector<caf::CmdFeature*> matches;
-            if (keyEvent->matches(QKeySequence::Copy))
+            if ( keyEvent->matches( QKeySequence::Copy ) )
             {
-                matches.push_back(caf::CmdFeatureManager::instance()->getCommandFeature("RicCopyReferencesToClipboardFeature"));
+                matches.push_back(
+                    caf::CmdFeatureManager::instance()->getCommandFeature( "RicCopyReferencesToClipboardFeature" ) );
             }
-            else if (keyEvent->matches(QKeySequence::Cut))
+            else if ( keyEvent->matches( QKeySequence::Cut ) )
             {
-                matches.push_back(caf::CmdFeatureManager::instance()->getCommandFeature("RicCutReferencesToClipboardFeature"));
+                matches.push_back(
+                    caf::CmdFeatureManager::instance()->getCommandFeature( "RicCutReferencesToClipboardFeature" ) );
             }
-            else if (keyEvent->matches(QKeySequence::Paste))
+            else if ( keyEvent->matches( QKeySequence::Paste ) )
             {
-                if (uiItems.size() == 1)
+                if ( uiItems.size() == 1 )
                 {
-                    matches = caf::CmdFeatureManager::instance()->commandFeaturesMatchingSubString("Paste");
+                    matches = caf::CmdFeatureManager::instance()->commandFeaturesMatchingSubString( "Paste" );
                 }
             }
-            else if (keyEvent->matches(QKeySequence::Delete))
+            else if ( keyEvent->matches( QKeySequence::Delete ) )
             {
-                matches = caf::CmdFeatureManager::instance()->commandFeaturesMatchingKeyboardShortcut(QKeySequence::Delete);
+                matches = caf::CmdFeatureManager::instance()->commandFeaturesMatchingKeyboardShortcut(
+                    QKeySequence::Delete );
             }
 
-            for (caf::CmdFeature* feature : matches)
+            for ( caf::CmdFeature* feature : matches )
             {
-                if (feature->canFeatureBeExecuted())
+                if ( feature->canFeatureBeExecuted() )
                 {
-                    feature->actionTriggered(false);
+                    feature->actionTriggered( false );
 
-                    keyEvent->setAccepted(true);
+                    keyEvent->setAccepted( true );
                     return true;
                 }
             }
@@ -99,30 +101,30 @@ bool RiuTreeViewEventFilter::eventFilter(QObject *obj, QEvent *event)
 
         // Do not toggle state if currently editing a name in the tree view
         bool toggleStateForSelection = true;
-        if (RiuMainWindow::instance()->projectTreeView() &&
-            RiuMainWindow::instance()->projectTreeView()->isTreeItemEditWidgetActive())
+        if ( RiuMainWindow::instance()->projectTreeView() &&
+             RiuMainWindow::instance()->projectTreeView()->isTreeItemEditWidgetActive() )
         {
             toggleStateForSelection = false;
         }
-        else if (RiaGuiApplication::instance()->mainPlotWindow() && 
-                 RiaGuiApplication::instance()->mainPlotWindow()->projectTreeView() &&
-                 RiaGuiApplication::instance()->mainPlotWindow()->projectTreeView()->isTreeItemEditWidgetActive())
+        else if ( RiaGuiApplication::instance()->mainPlotWindow() &&
+                  RiaGuiApplication::instance()->mainPlotWindow()->projectTreeView() &&
+                  RiaGuiApplication::instance()->mainPlotWindow()->projectTreeView()->isTreeItemEditWidgetActive() )
         {
             toggleStateForSelection = false;
         }
 
-        if (toggleStateForSelection)
+        if ( toggleStateForSelection )
         {
-            switch (keyEvent->key())
+            switch ( keyEvent->key() )
             {
                 case Qt::Key_Space:
                 case Qt::Key_Enter:
                 case Qt::Key_Return:
                 case Qt::Key_Select:
                 {
-                    RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(RicToggleItemsFeatureImpl::TOGGLE);
+                    RicToggleItemsFeatureImpl::setObjectToggleStateForSelection( RicToggleItemsFeatureImpl::TOGGLE );
 
-                    keyEvent->setAccepted(true);
+                    keyEvent->setAccepted( true );
                     return true;
                 }
             }
@@ -130,6 +132,5 @@ bool RiuTreeViewEventFilter::eventFilter(QObject *obj, QEvent *event)
     }
 
     // standard event processing
-    return QObject::eventFilter(obj, event);
+    return QObject::eventFilter( obj, event );
 }
-

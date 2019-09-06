@@ -35,12 +35,12 @@ class RicSaturationPressureUi : public caf::PdmObject
 public:
     RicSaturationPressureUi();
 
-    void            setSelectedCase(RimEclipseCase* eclipseCase);
+    void            setSelectedCase( RimEclipseCase* eclipseCase );
     RimEclipseCase* selectedCase() const;
 
 protected:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
 private:
     caf::PdmPtrField<RimEclipseCase*> m_caseToApply;

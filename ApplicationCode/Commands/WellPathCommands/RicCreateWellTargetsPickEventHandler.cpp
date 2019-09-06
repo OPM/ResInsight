@@ -29,8 +29,8 @@
 #include "RigWellPath.h"
 
 #include "Rim3dView.h"
-#include "RimGeoMechView.h"
 #include "RimEclipseView.h"
+#include "RimGeoMechView.h"
 #include "RimModeledWellPath.h"
 #include "RimWellPath.h"
 #include "RimWellPathGeometryDef.h"
@@ -55,8 +55,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicCreateWellTargetsPickEventHandler::RicCreateWellTargetsPickEventHandler(RimWellPathGeometryDef* wellGeometryDef)
-    : m_geometryToAddTargetsTo(wellGeometryDef)
+RicCreateWellTargetsPickEventHandler::RicCreateWellTargetsPickEventHandler( RimWellPathGeometryDef* wellGeometryDef )
+    : m_geometryToAddTargetsTo( wellGeometryDef )
 {
 }
 
@@ -70,7 +70,7 @@ RicCreateWellTargetsPickEventHandler::~RicCreateWellTargetsPickEventHandler() {}
 //--------------------------------------------------------------------------------------------------
 void RicCreateWellTargetsPickEventHandler::registerAsPickEventHandler()
 {
-    RiaGuiApplication::instance()->setOverrideCursor(Qt::CrossCursor);
+    RiaGuiApplication::instance()->setOverrideCursor( Qt::CrossCursor );
     Ric3dViewPickEventHandler::registerAsPickEventHandler();
 }
 
@@ -85,47 +85,53 @@ void RicCreateWellTargetsPickEventHandler::notifyUnregistered()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
+bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eventObject )
 {
-    if (m_geometryToAddTargetsTo)
+    if ( m_geometryToAddTargetsTo )
     {
         Rim3dView* rimView             = eventObject.m_view;
         cvf::Vec3d targetPointInDomain = cvf::Vec3d::ZERO;
 
         // If clicked on an other well path, snap target point to well path center line
         auto firstPickItem      = eventObject.m_pickItemInfos.front();
-        auto wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(firstPickItem.sourceInfo());
+        auto wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>( firstPickItem.sourceInfo() );
 
-        auto intersectionPointInDomain =
-            rimView->displayCoordTransform()->transformToDomainCoord(firstPickItem.globalPickedPoint());
+        auto intersectionPointInDomain = rimView->displayCoordTransform()->transformToDomainCoord(
+            firstPickItem.globalPickedPoint() );
         bool   doSetAzimuthAndInclination = false;
         double azimuth                    = 0.0;
         double inclination                = 0.0;
 
-        if (wellPathSourceInfo)
+        if ( wellPathSourceInfo )
         {
-            targetPointInDomain =
-                wellPathSourceInfo->closestPointOnCenterLine(firstPickItem.faceIdx(), intersectionPointInDomain);
+            targetPointInDomain = wellPathSourceInfo->closestPointOnCenterLine( firstPickItem.faceIdx(),
+                                                                                intersectionPointInDomain );
 
-            double md                  = wellPathSourceInfo->measuredDepth(firstPickItem.faceIdx(), intersectionPointInDomain);
-            doSetAzimuthAndInclination = calculateAzimuthAndInclinationAtMd(
-                md, wellPathSourceInfo->wellPath()->wellPathGeometry(), &azimuth, &inclination);
+            double md = wellPathSourceInfo->measuredDepth( firstPickItem.faceIdx(), intersectionPointInDomain );
+            doSetAzimuthAndInclination = calculateAzimuthAndInclinationAtMd( md,
+                                                                             wellPathSourceInfo->wellPath()
+                                                                                 ->wellPathGeometry(),
+                                                                             &azimuth,
+                                                                             &inclination );
         }
-        else if (isGridSourceObject(firstPickItem.sourceInfo()))
+        else if ( isGridSourceObject( firstPickItem.sourceInfo() ) )
         {
             targetPointInDomain        = intersectionPointInDomain;
             doSetAzimuthAndInclination = false;
 
-            cvf::Vec3d domainRayOrigin =
-                rimView->displayCoordTransform()->transformToDomainCoord(firstPickItem.globalRayOrigin());
-            cvf::Vec3d domainRayEnd = targetPointInDomain + (targetPointInDomain - domainRayOrigin);
+            cvf::Vec3d domainRayOrigin = rimView->displayCoordTransform()->transformToDomainCoord(
+                firstPickItem.globalRayOrigin() );
+            cvf::Vec3d domainRayEnd = targetPointInDomain + ( targetPointInDomain - domainRayOrigin );
 
-            cvf::Vec3d hexElementIntersection = findHexElementIntersection(rimView, firstPickItem, domainRayOrigin, domainRayEnd);
-            CVF_TIGHT_ASSERT(!hexElementIntersection.isUndefined());
-            if (!hexElementIntersection.isUndefined())
+            cvf::Vec3d hexElementIntersection = findHexElementIntersection( rimView,
+                                                                            firstPickItem,
+                                                                            domainRayOrigin,
+                                                                            domainRayEnd );
+            CVF_TIGHT_ASSERT( !hexElementIntersection.isUndefined() );
+            if ( !hexElementIntersection.isUndefined() )
             {
                 targetPointInDomain = hexElementIntersection;
-            }            
+            }
         }
         else
         {
@@ -133,21 +139,22 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent(const Ric3dPickEven
             doSetAzimuthAndInclination = false;
         }
 
-        if (!m_geometryToAddTargetsTo->firstActiveTarget())
+        if ( !m_geometryToAddTargetsTo->firstActiveTarget() )
         {
-            m_geometryToAddTargetsTo->setReferencePointXyz(targetPointInDomain);
+            m_geometryToAddTargetsTo->setReferencePointXyz( targetPointInDomain );
 
-            if (wellPathSourceInfo)
+            if ( wellPathSourceInfo )
             {
-                double mdrkbAtFirstTarget = wellPathSourceInfo->measuredDepth(firstPickItem.faceIdx(), intersectionPointInDomain);
+                double mdrkbAtFirstTarget = wellPathSourceInfo->measuredDepth( firstPickItem.faceIdx(),
+                                                                               intersectionPointInDomain );
 
-                RimModeledWellPath* modeledWellPath = dynamic_cast<RimModeledWellPath*>(wellPathSourceInfo->wellPath());
-                if (modeledWellPath)
+                RimModeledWellPath* modeledWellPath = dynamic_cast<RimModeledWellPath*>( wellPathSourceInfo->wellPath() );
+                if ( modeledWellPath )
                 {
                     mdrkbAtFirstTarget += modeledWellPath->geometryDefinition()->mdrkbAtFirstTarget();
                 }
 
-                m_geometryToAddTargetsTo->setMdrkbAtFirstTarget(mdrkbAtFirstTarget);
+                m_geometryToAddTargetsTo->setMdrkbAtFirstTarget( mdrkbAtFirstTarget );
             }
         }
 
@@ -156,17 +163,21 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent(const Ric3dPickEven
 
         RimWellPathTarget* newTarget = new RimWellPathTarget;
 
-        if (doSetAzimuthAndInclination)
+        if ( doSetAzimuthAndInclination )
         {
-            newTarget->setAsPointXYZAndTangentTarget(
-                cvf::Vec3d(relativeTagetPoint.x(), relativeTagetPoint.y(), relativeTagetPoint.z()), azimuth, inclination);
+            newTarget->setAsPointXYZAndTangentTarget( cvf::Vec3d( relativeTagetPoint.x(),
+                                                                  relativeTagetPoint.y(),
+                                                                  relativeTagetPoint.z() ),
+                                                      azimuth,
+                                                      inclination );
         }
         else
         {
-            newTarget->setAsPointTargetXYD(cvf::Vec3d(relativeTagetPoint.x(), relativeTagetPoint.y(), -relativeTagetPoint.z()));
+            newTarget->setAsPointTargetXYD(
+                cvf::Vec3d( relativeTagetPoint.x(), relativeTagetPoint.y(), -relativeTagetPoint.z() ) );
         }
 
-        m_geometryToAddTargetsTo->insertTarget(nullptr, newTarget);
+        m_geometryToAddTargetsTo->insertTarget( nullptr, newTarget );
 
         m_geometryToAddTargetsTo->updateConnectedEditors();
         m_geometryToAddTargetsTo->updateWellPathVisualization();
@@ -180,17 +191,17 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent(const Ric3dPickEven
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateWellTargetsPickEventHandler::calculateAzimuthAndInclinationAtMd(double             measuredDepth,
-                                                                              const RigWellPath* wellPathGeometry,
-                                                                              double*            azimuth,
-                                                                              double*            inclination) const
+bool RicCreateWellTargetsPickEventHandler::calculateAzimuthAndInclinationAtMd( double             measuredDepth,
+                                                                               const RigWellPath* wellPathGeometry,
+                                                                               double*            azimuth,
+                                                                               double*            inclination ) const
 {
     int  mdIndex = -1;
     auto mdList  = wellPathGeometry->measureDepths();
 
-    for (int i = 0; i < (int)mdList.size(); i++)
+    for ( int i = 0; i < (int)mdList.size(); i++ )
     {
-        if (mdList[i] > measuredDepth)
+        if ( mdList[i] > measuredDepth )
         {
             mdIndex = i - 1;
             break;
@@ -198,12 +209,12 @@ bool RicCreateWellTargetsPickEventHandler::calculateAzimuthAndInclinationAtMd(do
     }
 
     auto ptList = wellPathGeometry->wellPathPoints();
-    if (mdIndex > 0 && mdIndex < (int)ptList.size() - 2)
+    if ( mdIndex > 0 && mdIndex < (int)ptList.size() - 2 )
     {
-        auto v1 = cvf::Vec3d(ptList[mdIndex - 1]);
-        auto v2 = cvf::Vec3d(ptList[mdIndex]);
-        auto v3 = cvf::Vec3d(ptList[mdIndex + 1]);
-        auto v4 = cvf::Vec3d(ptList[mdIndex + 2]);
+        auto v1 = cvf::Vec3d( ptList[mdIndex - 1] );
+        auto v2 = cvf::Vec3d( ptList[mdIndex] );
+        auto v3 = cvf::Vec3d( ptList[mdIndex + 1] );
+        auto v4 = cvf::Vec3d( ptList[mdIndex + 2] );
 
         auto v21 = v2 - v1;
         auto v32 = v3 - v2;
@@ -213,13 +224,13 @@ bool RicCreateWellTargetsPickEventHandler::calculateAzimuthAndInclinationAtMd(do
         v32.normalize();
         v43.normalize();
 
-        auto v13mean = (v21 + v32) / 2;
-        auto v24mean = (v32 + v43) / 2;
+        auto v13mean = ( v21 + v32 ) / 2;
+        auto v24mean = ( v32 + v43 ) / 2;
 
-        double weight = (measuredDepth - mdList[mdIndex]) / (mdList[mdIndex + 1] - mdList[mdIndex]);
-        auto   vTan   = v13mean * weight + v24mean * (1 - weight);
+        double weight = ( measuredDepth - mdList[mdIndex] ) / ( mdList[mdIndex + 1] - mdList[mdIndex] );
+        auto   vTan   = v13mean * weight + v24mean * ( 1 - weight );
 
-        RiaOffshoreSphericalCoords coords(vTan);
+        RiaOffshoreSphericalCoords coords( vTan );
         *azimuth     = coords.azi();
         *inclination = coords.inc();
         return true;
@@ -233,79 +244,87 @@ bool RicCreateWellTargetsPickEventHandler::calculateAzimuthAndInclinationAtMd(do
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateWellTargetsPickEventHandler::isGridSourceObject(const cvf::Object* object)
+bool RicCreateWellTargetsPickEventHandler::isGridSourceObject( const cvf::Object* object )
 {
-    auto sourceInfo    = dynamic_cast<const RivSourceInfo*>(object);
-    auto femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(object);
+    auto sourceInfo    = dynamic_cast<const RivSourceInfo*>( object );
+    auto femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>( object );
     return sourceInfo || femSourceInfo;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection(Rim3dView* view, const RiuPickItemInfo& pickItem, const cvf::Vec3d& domainRayOrigin, const cvf::Vec3d& domainRayEnd)
+cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( Rim3dView*             view,
+                                                                             const RiuPickItemInfo& pickItem,
+                                                                             const cvf::Vec3d&      domainRayOrigin,
+                                                                             const cvf::Vec3d&      domainRayEnd )
 {
-    auto sourceInfo    = dynamic_cast<const RivSourceInfo*>(pickItem.sourceInfo());
-    auto femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(pickItem.sourceInfo());
+    auto sourceInfo    = dynamic_cast<const RivSourceInfo*>( pickItem.sourceInfo() );
+    auto femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>( pickItem.sourceInfo() );
 
-    size_t cellIndex = cvf::UNDEFINED_SIZE_T;
+    size_t                    cellIndex = cvf::UNDEFINED_SIZE_T;
     std::array<cvf::Vec3d, 8> cornerVertices;
-    if (sourceInfo)
+    if ( sourceInfo )
     {
         size_t gridIndex = sourceInfo->gridIndex();
-        if (sourceInfo->hasCellFaceMapping())
+        if ( sourceInfo->hasCellFaceMapping() )
         {
-            cellIndex = sourceInfo->m_cellFaceFromTriangleMapper->cellIndex(pickItem.faceIdx());
-            
-            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
-            if (eclipseView && eclipseView->mainGrid())
+            cellIndex = sourceInfo->m_cellFaceFromTriangleMapper->cellIndex( pickItem.faceIdx() );
+
+            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( view );
+            if ( eclipseView && eclipseView->mainGrid() )
             {
-                RigGridBase*              hitGrid = eclipseView->mainGrid()->gridByIndex(gridIndex);                
-                hitGrid->cellCornerVertices(cellIndex, cornerVertices.data());
+                RigGridBase* hitGrid = eclipseView->mainGrid()->gridByIndex( gridIndex );
+                hitGrid->cellCornerVertices( cellIndex, cornerVertices.data() );
             }
         }
     }
-    else if (femSourceInfo)
+    else if ( femSourceInfo )
     {
         size_t femPartIndex = femSourceInfo->femPartIndex();
-        if (femSourceInfo->triangleToElmMapper())
+        if ( femSourceInfo->triangleToElmMapper() )
         {
-            size_t elementIndex = femSourceInfo->triangleToElmMapper()->elementIndex(pickItem.faceIdx());
+            size_t elementIndex = femSourceInfo->triangleToElmMapper()->elementIndex( pickItem.faceIdx() );
 
-            RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(view);
-            if (geoMechView && geoMechView->femParts())
+            RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( view );
+            if ( geoMechView && geoMechView->femParts() )
             {
-                RigFemPart* femPart           = geoMechView->femParts()->part(femPartIndex);
-                RigElementType elType         = femPart->elementType(elementIndex);
+                RigFemPart*    femPart = geoMechView->femParts()->part( femPartIndex );
+                RigElementType elType  = femPart->elementType( elementIndex );
 
-                if (elType == HEX8 || elType == HEX8P)
+                if ( elType == HEX8 || elType == HEX8P )
                 {
-                    cellIndex = elementIndex;
+                    cellIndex                     = elementIndex;
                     const RigFemPartGrid* femGrid = femPart->getOrCreateStructGrid();
-                    femGrid->cellCornerVertices(cellIndex, cornerVertices.data());
+                    femGrid->cellCornerVertices( cellIndex, cornerVertices.data() );
                 }
             }
         }
     }
 
-    if (cellIndex)
+    if ( cellIndex )
     {
         std::vector<HexIntersectionInfo> intersectionInfo;
-        RigHexIntersectionTools::lineHexCellIntersection(domainRayOrigin, domainRayEnd, cornerVertices.data(), cellIndex, &intersectionInfo);
-        if (!intersectionInfo.empty())
+        RigHexIntersectionTools::lineHexCellIntersection( domainRayOrigin,
+                                                          domainRayEnd,
+                                                          cornerVertices.data(),
+                                                          cellIndex,
+                                                          &intersectionInfo );
+        if ( !intersectionInfo.empty() )
         {
             // Sort intersection on distance to ray origin
-            CVF_ASSERT(intersectionInfo.size() > 1);
-            std::sort(intersectionInfo.begin(), intersectionInfo.end(),
-                [&domainRayOrigin](const HexIntersectionInfo& lhs, const HexIntersectionInfo& rhs)
-            {
-                return (lhs.m_intersectionPoint - domainRayOrigin).lengthSquared() < (rhs.m_intersectionPoint - domainRayOrigin).lengthSquared();
-            }
-            );
-            const double eps = 1.0e-2;
-            cvf::Vec3d intersectionRay = intersectionInfo.back().m_intersectionPoint - intersectionInfo.front().m_intersectionPoint;
+            CVF_ASSERT( intersectionInfo.size() > 1 );
+            std::sort( intersectionInfo.begin(),
+                       intersectionInfo.end(),
+                       [&domainRayOrigin]( const HexIntersectionInfo& lhs, const HexIntersectionInfo& rhs ) {
+                           return ( lhs.m_intersectionPoint - domainRayOrigin ).lengthSquared() <
+                                  ( rhs.m_intersectionPoint - domainRayOrigin ).lengthSquared();
+                       } );
+            const double eps             = 1.0e-2;
+            cvf::Vec3d   intersectionRay = intersectionInfo.back().m_intersectionPoint -
+                                         intersectionInfo.front().m_intersectionPoint;
             cvf::Vec3d newPoint = intersectionInfo.front().m_intersectionPoint + intersectionRay * eps;
-            CVF_ASSERT(RigHexIntersectionTools::isPointInCell(newPoint, cornerVertices.data()));
+            CVF_ASSERT( RigHexIntersectionTools::isPointInCell( newPoint, cornerVertices.data() ) );
             return newPoint;
         }
     }

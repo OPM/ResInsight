@@ -20,7 +20,6 @@
 
 #include "cafPdmPointer.h"
 
-#include "cvfBase.h"
 #include "cvfObject.h"
 
 namespace caf
@@ -35,7 +34,7 @@ class PdmObject;
 class RivObjectSourceInfo : public cvf::Object
 {
 public:
-    RivObjectSourceInfo(caf::PdmObject* object);
+    RivObjectSourceInfo( caf::PdmObject* object );
 
     caf::PdmObject* object() const;
 

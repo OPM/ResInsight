@@ -71,17 +71,20 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivGridPartMgr::RivGridPartMgr(RivCellSetEnum cellSetType, RimEclipseCase* eclipseCase, const RigGridBase* grid, size_t gridIdx)
-    : m_surfaceGenerator(grid, RiaRegressionTestRunner::instance()->useOpenMPForGeometryCreation())
-    , m_gridIdx(gridIdx)
-    , m_grid(grid)
-    , m_surfaceFaceFilter(grid)
-    , m_opacityLevel(1.0f)
-    , m_defaultColor(cvf::Color3::WHITE)
-    , m_eclipseCase(eclipseCase)
-    , m_cellSetType(cellSetType)
+RivGridPartMgr::RivGridPartMgr( RivCellSetEnum     cellSetType,
+                                RimEclipseCase*    eclipseCase,
+                                const RigGridBase* grid,
+                                size_t             gridIdx )
+    : m_surfaceGenerator( grid, RiaRegressionTestRunner::instance()->useOpenMPForGeometryCreation() )
+    , m_gridIdx( gridIdx )
+    , m_grid( grid )
+    , m_surfaceFaceFilter( grid )
+    , m_opacityLevel( 1.0f )
+    , m_defaultColor( cvf::Color3::WHITE )
+    , m_eclipseCase( eclipseCase )
+    , m_cellSetType( cellSetType )
 {
-    CVF_ASSERT(grid);
+    CVF_ASSERT( grid );
     m_cellVisibility            = new cvf::UByteArray;
     m_surfaceFacesTextureCoords = new cvf::Vec2fArray;
 }
@@ -89,7 +92,7 @@ RivGridPartMgr::RivGridPartMgr(RivCellSetEnum cellSetType, RimEclipseCase* eclip
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGridPartMgr::setTransform(cvf::Transform* scaleTransform)
+void RivGridPartMgr::setTransform( cvf::Transform* scaleTransform )
 {
     m_scaleTransform = scaleTransform;
 }
@@ -97,62 +100,62 @@ void RivGridPartMgr::setTransform(cvf::Transform* scaleTransform)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGridPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
+void RivGridPartMgr::setCellVisibility( cvf::UByteArray* cellVisibilities )
 {
-    CVF_ASSERT(m_scaleTransform.notNull());
-    CVF_ASSERT(cellVisibilities);
+    CVF_ASSERT( m_scaleTransform.notNull() );
+    CVF_ASSERT( cellVisibilities );
 
     m_cellVisibility = cellVisibilities;
 
-    m_surfaceGenerator.setCellVisibility(cellVisibilities);
-    m_surfaceGenerator.addFaceVisibilityFilter(&m_surfaceFaceFilter);
+    m_surfaceGenerator.setCellVisibility( cellVisibilities );
+    m_surfaceGenerator.addFaceVisibilityFilter( &m_surfaceFaceFilter );
 
-    generatePartGeometry(m_surfaceGenerator);
+    generatePartGeometry( m_surfaceGenerator );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder)
+void RivGridPartMgr::generatePartGeometry( cvf::StructGridGeometryGenerator& geoBuilder )
 {
     bool useBufferObjects = true;
 
     // Surface geometry
     {
         cvf::ref<cvf::DrawableGeo> geo = geoBuilder.generateSurface();
-        if (geo.notNull())
+        if ( geo.notNull() )
         {
             geo->computeNormals();
 
-            if (useBufferObjects)
+            if ( useBufferObjects )
             {
-                geo->setRenderMode(cvf::DrawableGeo::BUFFER_OBJECT);
+                geo->setRenderMode( cvf::DrawableGeo::BUFFER_OBJECT );
             }
 
             cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName("Grid " + cvf::String(static_cast<int>(m_gridIdx)));
-            part->setDrawable(geo.p());
-            part->setTransform(m_scaleTransform.p());
+            part->setName( "Grid " + cvf::String( static_cast<int>( m_gridIdx ) ) );
+            part->setDrawable( geo.p() );
+            part->setTransform( m_scaleTransform.p() );
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivSourceInfo> si = new RivSourceInfo(m_eclipseCase, m_gridIdx);
-            si->setCellSetType(m_cellSetType);
+            cvf::ref<RivSourceInfo> si = new RivSourceInfo( m_eclipseCase, m_gridIdx );
+            si->setCellSetType( m_cellSetType );
 
             si->m_cellFaceFromTriangleMapper = geoBuilder.triangleToCellFaceMapper();
 
-            part->setSourceInfo(si.p());
+            part->setSourceInfo( si.p() );
 
             part->updateBoundingBox();
 
             // Set default effect
-            caf::SurfaceEffectGenerator geometryEffgen(cvf::Color4f(cvf::Color3f::WHITE), caf::PO_1);
+            caf::SurfaceEffectGenerator geometryEffgen( cvf::Color4f( cvf::Color3f::WHITE ), caf::PO_1 );
             cvf::ref<cvf::Effect>       geometryOnlyEffect = geometryEffgen.generateCachedEffect();
-            part->setEffect(geometryOnlyEffect.p());
-            part->setEnableMask(surfaceBit);
+            part->setEffect( geometryOnlyEffect.p() );
+            part->setEnableMask( surfaceBit );
 
-            if (m_opacityLevel < 1.0f)
+            if ( m_opacityLevel < 1.0f )
             {
-                part->setPriority(RivPartPriority::PartType::Transparent);
+                part->setPriority( RivPartPriority::PartType::Transparent );
             }
 
             m_surfaceFaces = part;
@@ -162,32 +165,32 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
     // Mesh geometry
     {
         cvf::ref<cvf::DrawableGeo> geoMesh = geoBuilder.createMeshDrawable();
-        if (geoMesh.notNull())
+        if ( geoMesh.notNull() )
         {
-            if (useBufferObjects)
+            if ( useBufferObjects )
             {
-                geoMesh->setRenderMode(cvf::DrawableGeo::BUFFER_OBJECT);
+                geoMesh->setRenderMode( cvf::DrawableGeo::BUFFER_OBJECT );
             }
 
             cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName("Grid mesh " + cvf::String(static_cast<int>(m_gridIdx)));
-            part->setDrawable(geoMesh.p());
+            part->setName( "Grid mesh " + cvf::String( static_cast<int>( m_gridIdx ) ) );
+            part->setDrawable( geoMesh.p() );
 
-            part->setTransform(m_scaleTransform.p());
+            part->setTransform( m_scaleTransform.p() );
             part->updateBoundingBox();
 
             RiaPreferences* prefs = RiaApplication::instance()->preferences();
 
             cvf::ref<cvf::Effect>    eff;
-            caf::MeshEffectGenerator effGen(prefs->defaultGridLineColors());
+            caf::MeshEffectGenerator effGen( prefs->defaultGridLineColors() );
             eff = effGen.generateCachedEffect();
 
-            part->setPriority(RivPartPriority::PartType::MeshLines);
+            part->setPriority( RivPartPriority::PartType::MeshLines );
 
-            part->setEnableMask(meshSurfaceBit);
-            part->setEffect(eff.p());
+            part->setEnableMask( meshSurfaceBit );
+            part->setEffect( eff.p() );
 
-            part->setSourceInfo(new RivMeshLinesSourceInfo(m_eclipseCase));
+            part->setSourceInfo( new RivMeshLinesSourceInfo( m_eclipseCase ) );
 
             m_surfaceGridLines = part;
         }
@@ -197,141 +200,146 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGridPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
+void RivGridPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
 {
-    CVF_ASSERT(model != nullptr);
+    CVF_ASSERT( model != nullptr );
 
-    if (m_surfaceFaces.notNull()) model->addPart(m_surfaceFaces.p());
-    if (m_surfaceGridLines.notNull()) model->addPart(m_surfaceGridLines.p());
+    if ( m_surfaceFaces.notNull() ) model->addPart( m_surfaceFaces.p() );
+    if ( m_surfaceGridLines.notNull() ) model->addPart( m_surfaceGridLines.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGridPartMgr::updateCellColor(cvf::Color4f color)
+void RivGridPartMgr::updateCellColor( cvf::Color4f color )
 {
     m_opacityLevel = color.a();
     m_defaultColor = color.toColor3f();
 
-    if (m_surfaceFaces.isNull()) return;
+    if ( m_surfaceFaces.isNull() ) return;
 
     // Set default effect
-    caf::SurfaceEffectGenerator geometryEffgen(color, caf::PO_1);
+    caf::SurfaceEffectGenerator geometryEffgen( color, caf::PO_1 );
     cvf::ref<cvf::Effect>       geometryOnlyEffect = geometryEffgen.generateCachedEffect();
-    m_surfaceFaces->setEffect(geometryOnlyEffect.p());
+    m_surfaceFaces->setEffect( geometryOnlyEffect.p() );
 
-    if (m_opacityLevel < 1.0f)
-        m_surfaceFaces->setPriority(RivPartPriority::PartType::Transparent);
+    if ( m_opacityLevel < 1.0f )
+        m_surfaceFaces->setPriority( RivPartPriority::PartType::Transparent );
     else
-        m_surfaceFaces->setPriority(RivPartPriority::PartType::BaseLevel);
+        m_surfaceFaces->setPriority( RivPartPriority::PartType::BaseLevel );
 
     // Update mesh colors as well, in case of change
-    if (m_surfaceGridLines.notNull())
+    if ( m_surfaceGridLines.notNull() )
     {
         RiaPreferences*          prefs = RiaApplication::instance()->preferences();
-        caf::MeshEffectGenerator effGen(prefs->defaultGridLineColors());
+        caf::MeshEffectGenerator effGen( prefs->defaultGridLineColors() );
         cvf::ref<cvf::Effect>    eff = effGen.generateCachedEffect();
-        m_surfaceGridLines->setEffect(eff.p());
+        m_surfaceGridLines->setEffect( eff.p() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors)
+void RivGridPartMgr::updateCellResultColor( size_t timeStepIndex, RimEclipseCellColors* cellResultColors )
 {
-    CVF_ASSERT(cellResultColors);
+    CVF_ASSERT( cellResultColors );
 
     // Outer surface
-    if (m_surfaceFaces.notNull())
+    if ( m_surfaceFaces.notNull() )
     {
         float effectiveOpacityLevel = m_opacityLevel;
 
-        if (cellResultColors->isTernarySaturationSelected())
+        if ( cellResultColors->isTernarySaturationSelected() )
         {
-            RivTernaryTextureCoordsCreator texturer(cellResultColors,
-                                                    cellResultColors->ternaryLegendConfig(),
-                                                    timeStepIndex,
-                                                    m_grid->gridIndex(),
-                                                    m_surfaceGenerator.quadToCellFaceMapper());
+            RivTernaryTextureCoordsCreator texturer( cellResultColors,
+                                                     cellResultColors->ternaryLegendConfig(),
+                                                     timeStepIndex,
+                                                     m_grid->gridIndex(),
+                                                     m_surfaceGenerator.quadToCellFaceMapper() );
 
-            texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
+            texturer.createTextureCoords( m_surfaceFacesTextureCoords.p() );
 
             const RivTernaryScalarMapper* mapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
-            RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_surfaceFaces.p(),
-                                                                   m_surfaceFacesTextureCoords.p(),
-                                                                   mapper,
-                                                                   effectiveOpacityLevel,
-                                                                   caf::FC_NONE,
-                                                                   cellResultColors->reservoirView()->isLightingDisabled());
+            RivScalarMapperUtils::applyTernaryTextureResultsToPart( m_surfaceFaces.p(),
+                                                                    m_surfaceFacesTextureCoords.p(),
+                                                                    mapper,
+                                                                    effectiveOpacityLevel,
+                                                                    caf::FC_NONE,
+                                                                    cellResultColors->reservoirView()->isLightingDisabled() );
         }
         else
         {
-            RivTextureCoordsCreator texturer(
-                cellResultColors, timeStepIndex, m_grid->gridIndex(), m_surfaceGenerator.quadToCellFaceMapper());
-            if (!texturer.isValid())
+            RivTextureCoordsCreator texturer( cellResultColors,
+                                              timeStepIndex,
+                                              m_grid->gridIndex(),
+                                              m_surfaceGenerator.quadToCellFaceMapper() );
+            if ( !texturer.isValid() )
             {
                 return;
             }
 
-            if (cellResultColors->isCompletionTypeSelected())
+            if ( cellResultColors->isCompletionTypeSelected() )
             {
                 cvf::ref<RigPipeInCellEvaluator> pipeInCellEval =
-                    RivTextureCoordsCreator::createPipeInCellEvaluator(cellResultColors, timeStepIndex, m_grid->gridIndex());
+                    RivTextureCoordsCreator::createPipeInCellEvaluator( cellResultColors,
+                                                                        timeStepIndex,
+                                                                        m_grid->gridIndex() );
                 const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 
-                texturer.setResultToTextureMapper(new RivCompletionTypeResultToTextureMapper(mapper, pipeInCellEval.p()));
+                texturer.setResultToTextureMapper(
+                    new RivCompletionTypeResultToTextureMapper( mapper, pipeInCellEval.p() ) );
                 effectiveOpacityLevel = 0.5;
             }
 
-            texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
+            texturer.createTextureCoords( m_surfaceFacesTextureCoords.p() );
 
             const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
-            RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(),
-                                                            m_surfaceFacesTextureCoords.p(),
-                                                            mapper,
-                                                            effectiveOpacityLevel,
-                                                            caf::FC_NONE,
-                                                            cellResultColors->reservoirView()->isLightingDisabled());
+            RivScalarMapperUtils::applyTextureResultsToPart( m_surfaceFaces.p(),
+                                                             m_surfaceFacesTextureCoords.p(),
+                                                             mapper,
+                                                             effectiveOpacityLevel,
+                                                             caf::FC_NONE,
+                                                             cellResultColors->reservoirView()->isLightingDisabled() );
         }
 
-        if (effectiveOpacityLevel < 1.0f)
-            m_surfaceFaces->setPriority(RivPartPriority::PartType::Transparent);
+        if ( effectiveOpacityLevel < 1.0f )
+            m_surfaceFaces->setPriority( RivPartPriority::PartType::Transparent );
         else
-            m_surfaceFaces->setPriority(RivPartPriority::PartType::BaseLevel);
+            m_surfaceFaces->setPriority( RivPartPriority::PartType::BaseLevel );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGridPartMgr::updateCellEdgeResultColor(size_t                timeStepIndex,
-                                               RimEclipseCellColors* cellResultColors,
-                                               RimCellEdgeColors*    cellEdgeResultColors)
+void RivGridPartMgr::updateCellEdgeResultColor( size_t                timeStepIndex,
+                                                RimEclipseCellColors* cellResultColors,
+                                                RimCellEdgeColors*    cellEdgeResultColors )
 {
-    if (m_surfaceFaces.notNull())
+    if ( m_surfaceFaces.notNull() )
     {
-        cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces->drawable());
-        if (dg)
+        cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>( m_surfaceFaces->drawable() );
+        if ( dg )
         {
             cvf::ref<cvf::Effect> eff =
-                RivScalarMapperUtils::createCellEdgeEffect(dg,
-                                                           m_surfaceGenerator.quadToCellFaceMapper(),
-                                                           m_grid->gridIndex(),
-                                                           timeStepIndex,
-                                                           cellResultColors,
-                                                           cellEdgeResultColors,
-                                                           m_opacityLevel,
-                                                           m_defaultColor,
-                                                           caf::FC_NONE,
-                                                           cellResultColors->reservoirView()->isLightingDisabled());
+                RivScalarMapperUtils::createCellEdgeEffect( dg,
+                                                            m_surfaceGenerator.quadToCellFaceMapper(),
+                                                            m_grid->gridIndex(),
+                                                            timeStepIndex,
+                                                            cellResultColors,
+                                                            cellEdgeResultColors,
+                                                            m_opacityLevel,
+                                                            m_defaultColor,
+                                                            caf::FC_NONE,
+                                                            cellResultColors->reservoirView()->isLightingDisabled() );
 
-            m_surfaceFaces->setEffect(eff.p());
+            m_surfaceFaces->setEffect( eff.p() );
 
-            if (m_opacityLevel < 1.0f)
-                m_surfaceFaces->setPriority(RivPartPriority::PartType::Transparent);
+            if ( m_opacityLevel < 1.0f )
+                m_surfaceFaces->setPriority( RivPartPriority::PartType::Transparent );
             else
-                m_surfaceFaces->setPriority(RivPartPriority::PartType::BaseLevel);
+                m_surfaceFaces->setPriority( RivPartPriority::PartType::BaseLevel );
         }
     }
 }
