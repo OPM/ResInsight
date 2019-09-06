@@ -149,13 +149,13 @@ private:
     QString                   m_wellName;
     RigCompletionDataGridCell m_cellIndex;
     WellConnectionState       m_connectionState;
-    double m_saturation; // TODO: remove, always use default in Eclipse?
-    double m_transmissibility;
-    double m_diameter;
-    double m_kh; // TODO: Remove, always use default in Eclipse?
-    double m_skinFactor;
-    double m_dFactor; // TODO: Remove, always use default in Eclipse?
-    CellDirection m_direction;
+    double                    m_saturation; // TODO: remove, always use default in Eclipse?
+    double                    m_transmissibility;
+    double                    m_diameter;
+    double                    m_kh; // TODO: Remove, always use default in Eclipse?
+    double                    m_skinFactor;
+    double                    m_dFactor; // TODO: Remove, always use default in Eclipse?
+    CellDirection             m_direction;
 
     bool m_isMainBore; // to use mainbore for Eclipse calculation
 

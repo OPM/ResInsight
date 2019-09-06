@@ -29,8 +29,8 @@ TEST(RigReservoirTest, WellTestErt)
 
     {
         char filename[1024] =
-"d:/Models/Statoil_multipleRealisations/MultipleRealisations/Case_with_10_timesteps/Real0/BRUGGE_0000.X0000"; ecl_file_type*
-ecl_file = ecl_file_open(filename, ECL_FILE_CLOSE_STREAM); ecl_file_close(ecl_file);
+"d:/Models/Statoil_multipleRealisations/MultipleRealisations/Case_with_10_timesteps/Real0/BRUGGE_0000.X0000";
+ecl_file_type* ecl_file = ecl_file_open(filename, ECL_FILE_CLOSE_STREAM); ecl_file_close(ecl_file);
     }
 
     {

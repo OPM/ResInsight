@@ -63,8 +63,8 @@ void RiuGridStatisticsHistogramWidget::draw( QPainter* painter, int x, int y, in
     QRect r1( x, y, width, height );
 
     // Frame around it all;
-    QColor windowColor = palette().color( QPalette::Window ); // QColor(144, 173, 208, 180);
-    QColor frameColor = palette().color( QPalette::WindowText ); // QColor(220, 240, 255, 100);
+    QColor windowColor     = palette().color( QPalette::Window ); // QColor(144, 173, 208, 180);
+    QColor frameColor      = palette().color( QPalette::WindowText ); // QColor(220, 240, 255, 100);
     QColor foregroundColor = palette().color( QPalette::Dark ); // QColor(100, 141, 189);
 
     // painter->fillRect(r1, windowColor);
