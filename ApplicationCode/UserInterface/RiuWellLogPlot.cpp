@@ -56,7 +56,6 @@ RiuWellLogPlot::RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent)
     Q_ASSERT(plotDefinition);
     m_plotDefinition = plotDefinition;
 
-
     QPalette newPalette(palette());
     newPalette.setColor(QPalette::Background, Qt::white);
     setPalette(newPalette);
@@ -430,7 +429,7 @@ void RiuWellLogPlot::placeChildWidgets(int frameHeight, int frameWidth)
     int titleHeight = 0;
     if (m_plotTitle && m_plotTitle->isVisible())
     {
-        titleHeight = m_plotTitle->height() + 10;
+        titleHeight = m_plotTitle->height() + 2;
     }
 
     int trackHeight = frameHeight - maxLegendHeight - titleHeight;
