@@ -29,7 +29,7 @@ class RimWellLogPlotNameConfig : public RimNameConfig
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellLogPlotNameConfig(const RimNameConfigHolderInterface* configHolder = nullptr);
+    RimWellLogPlotNameConfig();
 
     bool addCaseName() const;
     bool addWellName() const;

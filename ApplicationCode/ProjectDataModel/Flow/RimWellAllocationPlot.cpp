@@ -113,6 +113,8 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_tofAccumulatedPhaseFractionsPlot.uiCapability()->setUiHidden(true);
     m_tofAccumulatedPhaseFractionsPlot = new RimTofAccumulatedPhaseFractionsPlot;
 
+    m_nameConfig->setCustomName("Well Allocation Plot");
+
     this->setAsPlotMdiWindow();
 }
 

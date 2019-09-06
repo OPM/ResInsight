@@ -28,8 +28,8 @@ CAF_PDM_SOURCE_INIT(RimWellLogPlotNameConfig, "RimWellLogPlotNameConfig");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotNameConfig::RimWellLogPlotNameConfig(const RimNameConfigHolderInterface* configHolder)
-    : RimNameConfig(configHolder)
+RimWellLogPlotNameConfig::RimWellLogPlotNameConfig()
+    : RimNameConfig()
 {
     CAF_PDM_InitObject("Well Log Plot Name Generator", "", "", "");
 

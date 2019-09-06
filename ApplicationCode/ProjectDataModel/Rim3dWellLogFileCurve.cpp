@@ -46,7 +46,7 @@ Rim3dWellLogFileCurve::Rim3dWellLogFileCurve()
     CAF_PDM_InitFieldNoDefault(&m_wellLogFile, "WellLogFile", "Well Log File", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "", "", "", "");
-    m_nameConfig = new RimWellLogFileCurveNameConfig(this);
+    m_nameConfig = new RimWellLogFileCurveNameConfig();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +54,6 @@ Rim3dWellLogFileCurve::Rim3dWellLogFileCurve()
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogFileCurve::~Rim3dWellLogFileCurve()
 {
-    delete m_nameConfig;
 }
 
 //--------------------------------------------------------------------------------------------------

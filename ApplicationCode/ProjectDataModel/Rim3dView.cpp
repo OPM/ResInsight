@@ -86,7 +86,7 @@ Rim3dView::Rim3dView(void)
     CVF_ASSERT(preferences);
 
     CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "", "", "", "");
-    m_nameConfig = new RimViewNameConfig(this);
+    m_nameConfig = new RimViewNameConfig();
 
     CAF_PDM_InitField(&m_name_OBSOLETE, "UserDescription", QString(""), "Name", "", "", "");
     m_name_OBSOLETE.xmlCapability()->setIOWritable(false);

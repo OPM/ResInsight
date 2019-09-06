@@ -83,10 +83,10 @@ RimWellLogPlot::RimWellLogPlot()
     m_userName_OBSOLETE.xmlCapability()->setIOWritable(false);
 
     CAF_PDM_InitFieldNoDefault(&m_commonDataSource, "CommonDataSource", "Data Source", "", "Change the Data Source of All Curves in the Plot", "");
-    m_commonDataSource = new RimWellLogCurveCommonDataSource;
     m_commonDataSource.uiCapability()->setUiTreeHidden(true);
     m_commonDataSource.uiCapability()->setUiTreeChildrenHidden(true);
     m_commonDataSource.xmlCapability()->disableIO();
+    m_commonDataSource = new RimWellLogCurveCommonDataSource;
 
     caf::AppEnum< RimWellLogPlot::DepthTypeEnum > depthType = MEASURED_DEPTH;
     CAF_PDM_InitField(&m_depthType, "DepthType", depthType, "Type", "", "", "");
@@ -108,9 +108,9 @@ RimWellLogPlot::RimWellLogPlot()
     m_tracks.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "", "", "", "");
-    m_nameConfig = new RimWellLogPlotNameConfig(this);
     m_nameConfig.uiCapability()->setUiTreeHidden(true);
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden(true);
+    m_nameConfig = new RimWellLogPlotNameConfig();
 
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
@@ -121,7 +121,9 @@ RimWellLogPlot::RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot& RimWellLogPlot::operator=(RimWellLogPlot&& rhs)
 {
-    m_userName_OBSOLETE = rhs.m_userName_OBSOLETE();
+    // Don't copy the obsoleted m_userName_OBSOLETE
+    // It had its own implementation in the RFT/PLT/WAP plots
+
     auto dataSource = rhs.m_commonDataSource();
     rhs.m_commonDataSource.removeChildObject(dataSource);
     m_commonDataSource = dataSource;    
@@ -146,7 +148,7 @@ RimWellLogPlot& RimWellLogPlot::operator=(RimWellLogPlot&& rhs)
 
     auto nameConfig = rhs.m_nameConfig();
     rhs.m_nameConfig.removeChildObject(nameConfig);
-    m_nameConfig = nameConfig;    
+    m_nameConfig = nameConfig;
 
     m_minAvailableDepth = rhs.m_minAvailableDepth;
     m_maxAvailableDepth = rhs.m_maxAvailableDepth;
@@ -587,8 +589,6 @@ void RimWellLogPlot::uiOrderingForPlotSettings(caf::PdmUiOrdering& uiOrdering)
     titleAndLegendsGroup->add(&m_trackLegendsHorizontal);
     titleAndLegendsGroup->add(&m_showTitleInPlot);
     m_nameConfig->uiOrdering("", *titleAndLegendsGroup);
-
-    
 }
 
 //--------------------------------------------------------------------------------------------------

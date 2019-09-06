@@ -107,8 +107,6 @@ RimWellPltPlot::RimWellPltPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogPlot_OBSOLETE, "WellLog", "WellLog", "", "", "");
     m_wellLogPlot_OBSOLETE.uiCapability()->setUiHidden(true);
-    m_wellLogPlot_OBSOLETE = new RimWellLogPlot();
-    m_wellLogPlot_OBSOLETE->setDepthType(RimWellLogPlot::MEASURED_DEPTH);
     m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable(false);
 
     CAF_PDM_InitFieldNoDefault(&m_wellPathName, "WellName", "Well Name", "", "", "");
@@ -134,6 +132,8 @@ RimWellPltPlot::RimWellPltPlot()
     m_phases.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_phases = std::vector<caf::AppEnum<FlowPhase>>({FLOW_PHASE_OIL, FLOW_PHASE_GAS, FLOW_PHASE_WATER});
     m_phases.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+    m_nameConfig->setCustomName("PLT Plot");
 
     this->setAsPlotMdiWindow();
     m_doInitAfterLoad = false;

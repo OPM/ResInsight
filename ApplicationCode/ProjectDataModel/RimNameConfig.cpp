@@ -31,8 +31,7 @@ CAF_PDM_SOURCE_INIT(RimNameConfig, "RimCurveNameConfig");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimNameConfig::RimNameConfig(const RimNameConfigHolderInterface* configHolder /*= nullptr*/)
-    : m_configHolder(configHolder)
+RimNameConfig::RimNameConfig()
 {
     CAF_PDM_InitObject("Curve Name Generator", "", "", "");
 
@@ -106,7 +105,9 @@ void RimNameConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, co
 //--------------------------------------------------------------------------------------------------
 QString RimNameConfig::autoName() const
 {
-    return m_configHolder->createAutoName();
+    RimNameConfigHolderInterface* plotHolder;
+    this->firstAncestorOrThisOfTypeAsserted(plotHolder);
+    return plotHolder->createAutoName();
 }
 
 //--------------------------------------------------------------------------------------------------

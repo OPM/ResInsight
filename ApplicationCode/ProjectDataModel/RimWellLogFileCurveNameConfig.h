@@ -29,6 +29,6 @@ class RimWellLogFileCurveNameConfig : public RimNameConfig
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellLogFileCurveNameConfig(const RimNameConfigHolderInterface* configHolder = nullptr);
+    RimWellLogFileCurveNameConfig();
 };
 

@@ -74,7 +74,7 @@ const char RimWellRftPlot::PLOT_NAME_QFORMAT_STRING[] = "RFT: %1";
 RimWellRftPlot::RimWellRftPlot()
     : RimWellLogPlot()
 {
-    CAF_PDM_InitObject("Well Allocation Plot", ":/RFTPlot16x16.png", "", "");
+    CAF_PDM_InitObject("RFT Plot", ":/RFTPlot16x16.png", "", "");
 
     CAF_PDM_InitField(&m_showPlotTitle_OBSOLETE, "ShowPlotTitle", false, "Show Plot Title", "", "", "");
     m_showPlotTitle_OBSOLETE.xmlCapability()->setIOWritable(false);
@@ -84,8 +84,6 @@ RimWellRftPlot::RimWellRftPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogPlot_OBSOLETE, "WellLog", "Well Log", "", "", "");
     m_wellLogPlot_OBSOLETE.uiCapability()->setUiHidden(true);
-    m_wellLogPlot_OBSOLETE = new RimWellLogPlot();
-    m_wellLogPlot_OBSOLETE->setDepthType(RimWellLogPlot::TRUE_VERTICAL_DEPTH);
     m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable(false);
 
     m_depthType = RimWellLogPlot::TRUE_VERTICAL_DEPTH;
@@ -111,6 +109,9 @@ RimWellRftPlot::RimWellRftPlot()
     m_selectedTimeSteps.xmlCapability()->disableIO();
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue(false);
+
+    m_nameConfig->setCustomName("RFT Plot");
+    m_trackLegendsHorizontal = true;
 
     this->setAsPlotMdiWindow();
     m_isOnLoad = true;

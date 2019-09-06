@@ -114,7 +114,7 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
     m_groupingProperty->setTernaryEnabled(false);
 
     CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "Name", "", "", "");
-    m_nameConfig = new RimGridCrossPlotDataSetNameConfig(this);
+    m_nameConfig = new RimGridCrossPlotDataSetNameConfig();
     m_nameConfig.uiCapability()->setUiTreeHidden(true);
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden(true);
 
@@ -1367,8 +1367,8 @@ CAF_PDM_SOURCE_INIT(RimGridCrossPlotDataSetNameConfig, "RimGridCrossPlotCurveSet
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridCrossPlotDataSetNameConfig::RimGridCrossPlotDataSetNameConfig(RimNameConfigHolderInterface* parent)
-    : RimNameConfig(parent)
+RimGridCrossPlotDataSetNameConfig::RimGridCrossPlotDataSetNameConfig()
+    : RimNameConfig()
 {
     CAF_PDM_InitObject("Cross Plot Data Set NameGenerator", "", "", "");
 

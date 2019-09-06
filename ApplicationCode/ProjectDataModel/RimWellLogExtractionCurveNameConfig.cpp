@@ -28,8 +28,8 @@ CAF_PDM_SOURCE_INIT(RimWellLogExtractionCurveNameConfig, "RimWellLogExtractionCu
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogExtractionCurveNameConfig::RimWellLogExtractionCurveNameConfig(const RimNameConfigHolderInterface* configHolder)
-    : RimNameConfig(configHolder)
+RimWellLogExtractionCurveNameConfig::RimWellLogExtractionCurveNameConfig()
+    : RimNameConfig()
 {
     CAF_PDM_InitObject("Well Log Extraction Curve Name Generator", "", "", "");
 

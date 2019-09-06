@@ -55,7 +55,7 @@ Rim3dWellLogRftCurve::Rim3dWellLogRftCurve()
     m_2dWellLogRftCurve.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "", "", "", "");
-    m_nameConfig = new RimWellLogRftCurveNameConfig(this);
+    m_nameConfig = new RimWellLogRftCurveNameConfig();
 }
 
 //--------------------------------------------------------------------------------------------------
