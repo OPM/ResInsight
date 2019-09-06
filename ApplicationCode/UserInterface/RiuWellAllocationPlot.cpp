@@ -46,20 +46,9 @@ RiuWellAllocationPlot::RiuWellAllocationPlot( RimWellAllocationPlot* plotDefinit
 {
     Q_ASSERT( m_plotDefinition );
 
-    QVBoxLayout* mainLayout = new QVBoxLayout();
-    this->setLayout( mainLayout );
-    this->layout()->setMargin( 0 );
-    this->layout()->setSpacing( 2 );
+    auto leftColumnLayout = new QVBoxLayout();
 
-    new RiuPlotObjectPicker( m_plotTitle, m_plotDefinition );
-
-    mainLayout->addWidget( m_plotTitle, 0, Qt::AlignCenter );
-
-    auto plotWidgetsLayout = new QHBoxLayout();
-    auto rightColumnLayout = new QVBoxLayout();
-
-    mainLayout->addLayout( plotWidgetsLayout );
-    plotWidgetsLayout->addLayout( rightColumnLayout );
+    m_plotLayout->insertLayout( 0, leftColumnLayout );
 
     m_legendWidget                            = new RiuNightchartsWidget( this );
     RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>( m_plotDefinition.p() );
@@ -69,21 +58,18 @@ RiuWellAllocationPlot::RiuWellAllocationPlot( RimWellAllocationPlot* plotDefinit
     menuBuilder << "RicShowTotalAllocationDataFeature";
     new RiuContextMenuLauncher( m_legendWidget, menuBuilder );
 
-    rightColumnLayout->addWidget( m_legendWidget );
+    leftColumnLayout->addWidget( m_legendWidget );
     m_legendWidget->showPie( false );
 
-    QWidget* totalFlowAllocationWidget = wellAllocationPlot->totalWellFlowPlot()->createViewWidget( this );
+    QWidget* totalFlowAllocationWidget = wellAllocationPlot->totalWellFlowPlot()->createViewWidget( nullptr );
     new RiuPlotObjectPicker( totalFlowAllocationWidget, wellAllocationPlot->totalWellFlowPlot() );
     new RiuContextMenuLauncher( totalFlowAllocationWidget, menuBuilder );
 
-    rightColumnLayout->addWidget( totalFlowAllocationWidget, Qt::AlignTop );
-    rightColumnLayout->addWidget( wellAllocationPlot->tofAccumulatedPhaseFractionsPlot()->createViewWidget( this ),
-                                  Qt::AlignTop );
-    rightColumnLayout->addStretch();
-
-    QWidget* wellFlowWidget = m_plotDefinition->createPlotWidget();
-
-    plotWidgetsLayout->addWidget( wellFlowWidget );
+    leftColumnLayout->addWidget( totalFlowAllocationWidget, Qt::AlignTop );
+    leftColumnLayout->addWidget( wellAllocationPlot->tofAccumulatedPhaseFractionsPlot()->createViewWidget( nullptr ),
+                                 Qt::AlignTop );
+    leftColumnLayout->addStretch();
+    this->update();
 }
 
 //--------------------------------------------------------------------------------------------------

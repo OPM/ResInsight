@@ -481,7 +481,7 @@ void RimWellLogTrack::updateParentPlotLayout()
         RiuWellLogPlot* wellLogPlotViewer = dynamic_cast<RiuWellLogPlot*>( wellLogPlot->viewWidget() );
         if ( wellLogPlotViewer )
         {
-            wellLogPlotViewer->updateChildrenLayout();
+            wellLogPlotViewer->update();
         }
     }
 }

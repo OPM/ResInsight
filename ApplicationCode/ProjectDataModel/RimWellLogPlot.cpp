@@ -204,11 +204,14 @@ void RimWellLogPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         m_isAutoScaleDepthEnabled = false;
     }
-    else if ( changedField == &m_showTitleInPlot || changedField == &m_showTrackLegends ||
-              changedField == &m_trackLegendsHorizontal || changedField == &m_depthAxisGridVisibility )
+    else if ( changedField == &m_showTrackLegends || changedField == &m_trackLegendsHorizontal ||
+              changedField == &m_depthAxisGridVisibility )
     {
         updateTracks();
-        if ( m_viewer ) m_viewer->updateChildrenLayout();
+    }
+    else if ( changedField == &m_showTitleInPlot )
+    {
+        m_viewer->setTitleVisible( m_showTitleInPlot() );
     }
     else if ( changedField == &m_isAutoScaleDepthEnabled )
     {

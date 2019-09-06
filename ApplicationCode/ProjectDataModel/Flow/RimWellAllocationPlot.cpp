@@ -734,6 +734,12 @@ void RimWellAllocationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     optionGroup.add( &m_groupSmallContributions );
     optionGroup.add( &m_smallContributionsThreshold );
     m_smallContributionsThreshold.uiCapability()->setUiReadOnly( !m_groupSmallContributions() );
+
+    caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup( "Legend and Axis" );
+    legendAndAxisGroup->setCollapsedByDefault( true );
+    uiOrderingForPlotSettings( *legendAndAxisGroup );
+
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -743,7 +749,7 @@ void RimWellAllocationPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
     updateFromWell();
-    RimWellLogPlot::loadDataAndUpdate();
+    RimWellLogPlot::onLoadDataAndUpdate();
     updateFormationNamesData();
 }
 
