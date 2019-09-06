@@ -32,10 +32,10 @@ class RimSimWellFracture : public RimFracture
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSimWellFracture(void);
-    ~RimSimWellFracture(void) override;
+    RimSimWellFracture( void );
+    ~RimSimWellFracture( void ) override;
 
-    void setClosestWellCoord(cvf::Vec3d& position, size_t branchIndex);
+    void setClosestWellCoord( cvf::Vec3d& position, size_t branchIndex );
 
     void recomputeWellCenterlineCoordinates();
     void updateFracturePositionFromLocation();
@@ -59,13 +59,15 @@ public:
     bool isEnabled() const override; // RimWellPathCompletionsInterface override
 
 protected:
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void defineEditorAttribute(const caf::PdmFieldHandle* field,
-                               QString                    uiConfigName,
-                               caf::PdmUiEditorAttribute* attribute) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
 private:
     RigMainGrid* ownerCaseMainGrid() const;

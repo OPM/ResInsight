@@ -34,45 +34,45 @@
 #include <QPointF>
 #include <QVector>
 
+#include "qwt_graphic.h"
 #include "qwt_plot.h"
 #include "qwt_plot_curve.h"
-#include "qwt_graphic.h"
 
 #include <random>
 
-CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurve, "GridCrossPlotCurve");
+CAF_PDM_SOURCE_INIT( RimGridCrossPlotCurve, "GridCrossPlotCurve" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimGridCrossPlotCurve::RimGridCrossPlotCurve()
-    : m_dataSetIndex(0)
-    , m_groupIndex(0)
+    : m_dataSetIndex( 0 )
+    , m_groupIndex( 0 )
 {
-    CAF_PDM_InitObject("Cross Plot Points", ":/WellLogCurve16x16.png", "", "");
-   
-    setLineStyle(RiuQwtPlotCurve::STYLE_NONE);
-    setSymbol(RiuQwtSymbol::SYMBOL_NONE);
-    setSymbolSize(4);
+    CAF_PDM_InitObject( "Cross Plot Points", ":/WellLogCurve16x16.png", "", "" );
+
+    setLineStyle( RiuQwtPlotCurve::STYLE_NONE );
+    setSymbol( RiuQwtSymbol::SYMBOL_NONE );
+    setSymbolSize( 4 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::setGroupingInformation(int dataSetIndex, int groupIndex)
+void RimGridCrossPlotCurve::setGroupingInformation( int dataSetIndex, int groupIndex )
 {
     m_dataSetIndex = dataSetIndex;
-    m_groupIndex = groupIndex;
+    m_groupIndex   = groupIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::setSamples(const std::vector<double>& xValues, const std::vector<double>& yValues)
+void RimGridCrossPlotCurve::setSamples( const std::vector<double>& xValues, const std::vector<double>& yValues )
 {
-    CVF_ASSERT(xValues.size() == yValues.size());
+    CVF_ASSERT( xValues.size() == yValues.size() );
 
-    m_qwtPlotCurve->setSamples(&xValues[0], &yValues[0], static_cast<int>(xValues.size()));
+    m_qwtPlotCurve->setSamples( &xValues[0], &yValues[0], static_cast<int>( xValues.size() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,17 +106,17 @@ size_t RimGridCrossPlotCurve::sampleCount() const
 void RimGridCrossPlotCurve::determineLegendIcon()
 {
     RimGridCrossPlot* plot = nullptr;
-    firstAncestorOrThisOfTypeAsserted(plot);
+    firstAncestorOrThisOfTypeAsserted( plot );
     int fontSize = plot->legendFontSize();
-    m_qwtPlotCurve->setLegendIconSize(QSize(fontSize, fontSize));
+    m_qwtPlotCurve->setLegendIconSize( QSize( fontSize, fontSize ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::setBlackAndWhiteLegendIcons(bool blackAndWhite)
+void RimGridCrossPlotCurve::setBlackAndWhiteLegendIcons( bool blackAndWhite )
 {
-    m_qwtPlotCurve->setBlackAndWhiteLegendIcon(blackAndWhite);
+    m_qwtPlotCurve->setBlackAndWhiteLegendIcon( blackAndWhite );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,8 +124,8 @@ void RimGridCrossPlotCurve::setBlackAndWhiteLegendIcons(bool blackAndWhite)
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::determineSymbol()
 {
-    RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledSymbolStyle(m_dataSetIndex);
-    setSymbol(symbol);
+    RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledSymbolStyle( m_dataSetIndex );
+    setSymbol( symbol );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,18 +134,18 @@ void RimGridCrossPlotCurve::determineSymbol()
 void RimGridCrossPlotCurve::updateZoomInParentPlot()
 {
     RimGridCrossPlot* plot;
-    this->firstAncestorOrThisOfTypeAsserted(plot);
+    this->firstAncestorOrThisOfTypeAsserted( plot );
     plot->calculateZoomRangeAndUpdateQwt();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::updateLegendsInPlot() 
+void RimGridCrossPlotCurve::updateLegendsInPlot()
 {
     RimGridCrossPlot* plot = nullptr;
-    this->firstAncestorOrThisOfType(plot);
-    if (plot)
+    this->firstAncestorOrThisOfType( plot );
+    if ( plot )
     {
         plot->reattachCurvesToQwtAndReplot();
     }
@@ -163,9 +163,9 @@ QString RimGridCrossPlotCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::onLoadDataAndUpdate(bool updateParentPlot)
+void RimGridCrossPlotCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
-    if (updateParentPlot)
+    if ( updateParentPlot )
     {
         m_parentQwtPlot->replot();
     }
@@ -174,12 +174,12 @@ void RimGridCrossPlotCurve::onLoadDataAndUpdate(bool updateParentPlot)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimGridCrossPlotCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
-    RimPlotCurve::appearanceUiOrdering(*appearanceGroup);
-    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
-    nameGroup->add(&m_curveName);
-    nameGroup->add(&m_showLegend);
-    uiOrdering.skipRemainingFields(true);
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
+    RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
+    nameGroup->add( &m_curveName );
+    nameGroup->add( &m_showLegend );
+    uiOrdering.skipRemainingFields( true );
 }

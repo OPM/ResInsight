@@ -24,8 +24,8 @@
 #include <grpcpp/grpcpp.h>
 
 using grpc::CompletionQueue;
-using grpc::ServerAsyncResponseWriter;
 using grpc::ServerAsyncReader;
+using grpc::ServerAsyncResponseWriter;
 using grpc::ServerAsyncWriter;
 using grpc::ServerCompletionQueue;
 using grpc::ServerContext;
@@ -55,17 +55,17 @@ public:
     inline RiaGrpcCallbackInterface();
 
     virtual ~RiaGrpcCallbackInterface() {}
-    virtual QString                   name() const                                                 = 0;
-    virtual RiaGrpcCallbackInterface* createNewFromThis() const                                    = 0;
-    virtual void                      createRequestHandler(ServerCompletionQueue* completionQueue) = 0;
+    virtual QString                   name() const                                                   = 0;
+    virtual RiaGrpcCallbackInterface* createNewFromThis() const                                      = 0;
+    virtual void                      createRequestHandler( ServerCompletionQueue* completionQueue ) = 0;
     virtual void                      onInitRequestStarted() {}
     virtual void                      onInitRequestCompleted() {}
-    virtual void                      onProcessRequest()                                           = 0;
+    virtual void                      onProcessRequest() = 0;
     virtual void                      onFinishRequest() {}
 
     inline CallState     callState() const;
     inline const Status& status() const;
-    inline void setNextCallState(CallState state);
+    inline void          setNextCallState( CallState state );
 
 protected:
     CallState m_state;
@@ -77,11 +77,11 @@ protected:
 // Templated gRPC-callback base class
 //
 //==================================================================================================
-template<typename ServiceT, typename RequestT, typename ReplyT>
+template <typename ServiceT, typename RequestT, typename ReplyT>
 class RiaGrpcServiceCallback : public RiaGrpcCallbackInterface
 {
 public:
-    RiaGrpcServiceCallback(ServiceT* service);
+    RiaGrpcServiceCallback( ServiceT* service );
 
     QString         name() const override;
     const RequestT& request() const;
@@ -91,9 +91,9 @@ protected:
     virtual QString methodType() const = 0;
 
 protected:
-    ServiceT*     m_service;
-    RequestT      m_request;
-    ReplyT        m_reply;
+    ServiceT* m_service;
+    RequestT  m_request;
+    ReplyT    m_reply;
 };
 
 //==================================================================================================
@@ -101,21 +101,21 @@ protected:
 // Templated gRPC-callback for non-streaming services
 //
 //==================================================================================================
-template<typename ServiceT, typename RequestT, typename ReplyT>
+template <typename ServiceT, typename RequestT, typename ReplyT>
 class RiaGrpcUnaryCallback : public RiaGrpcServiceCallback<ServiceT, RequestT, ReplyT>
 {
 public:
-    typedef ServerAsyncResponseWriter<ReplyT>                                          ResponseWriterT;
-    typedef std::function<Status(ServiceT&, ServerContext*, const RequestT*, ReplyT*)> MethodImplT;
+    typedef ServerAsyncResponseWriter<ReplyT>                                            ResponseWriterT;
+    typedef std::function<Status( ServiceT&, ServerContext*, const RequestT*, ReplyT* )> MethodImplT;
     typedef std::function<
-        void(ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void*)>
+        void( ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void* )>
         MethodRequestT;
 
-    RiaGrpcUnaryCallback(ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest);
+    RiaGrpcUnaryCallback( ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest );
 
     RiaGrpcCallbackInterface* createNewFromThis() const override;
-    void                     createRequestHandler(ServerCompletionQueue* completionQueue) override;
-    void                     onProcessRequest() override;
+    void                      createRequestHandler( ServerCompletionQueue* completionQueue ) override;
+    void                      onProcessRequest() override;
 
 protected:
     virtual QString methodType() const;
@@ -138,31 +138,34 @@ private:
 // 2. grpc::Status init(const grpc::Message* request)
 //
 //==================================================================================================
-template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
+template <typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
 class RiaGrpcServerToClientStreamCallback : public RiaGrpcServiceCallback<ServiceT, RequestT, ReplyT>
 {
 public:
-    typedef ServerAsyncWriter<ReplyT>                                                                  ResponseWriterT;
-    typedef std::function<Status(ServiceT&, ServerContext*, const RequestT*, ReplyT*, StateHandlerT*)> MethodImplT;
+    typedef ServerAsyncWriter<ReplyT> ResponseWriterT;
+    typedef std::function<Status( ServiceT&, ServerContext*, const RequestT*, ReplyT*, StateHandlerT* )> MethodImplT;
     typedef std::function<
-        void(ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void*)>
+        void( ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void* )>
         MethodRequestT;
 
-    RiaGrpcServerToClientStreamCallback(ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest, StateHandlerT* stateHandler);
+    RiaGrpcServerToClientStreamCallback( ServiceT*      service,
+                                         MethodImplT    methodImpl,
+                                         MethodRequestT methodRequest,
+                                         StateHandlerT* stateHandler );
 
     RiaGrpcCallbackInterface* createNewFromThis() const override;
-    void                     createRequestHandler(ServerCompletionQueue* completionQueue) override;
-    void                     onInitRequestCompleted() override;
-    void                     onProcessRequest() override;
+    void                      createRequestHandler( ServerCompletionQueue* completionQueue ) override;
+    void                      onInitRequestCompleted() override;
+    void                      onProcessRequest() override;
 
 protected:
     virtual QString methodType() const;
 
 private:
-    ServerContext   m_context;
-    ResponseWriterT m_responder;
-    MethodImplT     m_methodImpl;
-    MethodRequestT  m_methodRequest;
+    ServerContext                  m_context;
+    ResponseWriterT                m_responder;
+    MethodImplT                    m_methodImpl;
+    MethodRequestT                 m_methodRequest;
     std::unique_ptr<StateHandlerT> m_stateHandler;
 };
 
@@ -178,33 +181,35 @@ private:
 // 3. void finish() any updates required after completion
 //
 //==================================================================================================
-template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
+template <typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
 class RiaGrpcClientToServerStreamCallback : public RiaGrpcServiceCallback<ServiceT, RequestT, ReplyT>
 {
 public:
-    typedef ServerAsyncReader<ReplyT, RequestT>                                                        RequestReaderT;
-    typedef std::function<Status(ServiceT&, ServerContext*, const RequestT*, ReplyT*, StateHandlerT*)> MethodImplT;
-    typedef std::function<
-        void(ServiceT&, ServerContext*, RequestReaderT*, CompletionQueue*, ServerCompletionQueue*, void*)>
+    typedef ServerAsyncReader<ReplyT, RequestT>                                                          RequestReaderT;
+    typedef std::function<Status( ServiceT&, ServerContext*, const RequestT*, ReplyT*, StateHandlerT* )> MethodImplT;
+    typedef std::function<void( ServiceT&, ServerContext*, RequestReaderT*, CompletionQueue*, ServerCompletionQueue*, void* )>
         MethodRequestT;
 
-    RiaGrpcClientToServerStreamCallback(ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest, StateHandlerT* stateHandler);
+    RiaGrpcClientToServerStreamCallback( ServiceT*      service,
+                                         MethodImplT    methodImpl,
+                                         MethodRequestT methodRequest,
+                                         StateHandlerT* stateHandler );
 
     RiaGrpcCallbackInterface* createNewFromThis() const override;
-    void                     createRequestHandler(ServerCompletionQueue* completionQueue) override;
-    void                     onInitRequestStarted() override;
-    void                     onInitRequestCompleted() override;
-    void                     onProcessRequest() override;
-    void                     onFinishRequest() override;
+    void                      createRequestHandler( ServerCompletionQueue* completionQueue ) override;
+    void                      onInitRequestStarted() override;
+    void                      onInitRequestCompleted() override;
+    void                      onProcessRequest() override;
+    void                      onFinishRequest() override;
 
 protected:
     virtual QString methodType() const;
 
 private:
-    ServerContext   m_context;
-    RequestReaderT  m_reader;
-    MethodImplT     m_methodImpl;
-    MethodRequestT  m_methodRequest;
+    ServerContext                  m_context;
+    RequestReaderT                 m_reader;
+    MethodImplT                    m_methodImpl;
+    MethodRequestT                 m_methodRequest;
     std::unique_ptr<StateHandlerT> m_stateHandler;
 };
 

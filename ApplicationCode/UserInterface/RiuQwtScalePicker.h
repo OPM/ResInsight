@@ -12,13 +12,13 @@ class RiuQwtScalePicker : public QObject
 {
     Q_OBJECT
 public:
-    explicit RiuQwtScalePicker(QwtPlot *plot);
-    
-    bool eventFilter( QObject *, QEvent * ) override;
+    explicit RiuQwtScalePicker( QwtPlot* plot );
+
+    bool eventFilter( QObject*, QEvent* ) override;
 
 Q_SIGNALS:
     void clicked( int axis, double value );
 
 private:
-    void mouseClicked( const QwtScaleWidget *, const QPoint & );
+    void mouseClicked( const QwtScaleWidget*, const QPoint& );
 };

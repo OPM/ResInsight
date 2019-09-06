@@ -22,5 +22,5 @@
 
 namespace RiuTools
 {
-    Qt::WindowFlags defaultDialogFlags();
+Qt::WindowFlags defaultDialogFlags();
 } // end namespace RiuTools

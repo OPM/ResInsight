@@ -43,24 +43,24 @@ public:
     Rim3dWellLogRftCurve();
     ~Rim3dWellLogRftCurve() override;
 
-    void curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const override;
+    void curveValuesAndMds( std::vector<double>* values, std::vector<double>* measuredDepthValues ) const override;
 
     QString resultPropertyString() const override;
     QString name() const override;
     QString createAutoName() const override;
 
 protected:
-    caf::PdmFieldHandle*            userDescriptionField() override;
+    caf::PdmFieldHandle* userDescriptionField() override;
 
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                  const QVariant& oldValue,
-                                  const QVariant& newValue) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
 
 private:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                bool*                      useOptionsOnly) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     QString wellName() const;
 
@@ -70,6 +70,6 @@ private:
 
     caf::PdmField<caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>> m_wellLogChannelName;
 
-    caf::PdmChildField<RimWellLogRftCurve*> m_2dWellLogRftCurve;
+    caf::PdmChildField<RimWellLogRftCurve*>           m_2dWellLogRftCurve;
     caf::PdmChildField<RimWellLogRftCurveNameConfig*> m_nameConfig;
 };

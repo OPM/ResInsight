@@ -25,17 +25,18 @@ class QwtPlot;
 class RiuQwtPlotTools
 {
 public:
-    static void setCommonPlotBehaviour(QwtPlot* plot);
-    static void setDefaultAxes(QwtPlot* plot);
-    static void enableDateBasedBottomXAxis(QwtPlot*                                plot,
-                                           const QString&                          dateFormat,
-                                           const QString&                          timeFormat,
-                                           RiaQDateTimeTools::DateFormatComponents dateComponents = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED,
-                                           RiaQDateTimeTools::TimeFormatComponents timeComponents = RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED);
+    static void setCommonPlotBehaviour( QwtPlot* plot );
+    static void setDefaultAxes( QwtPlot* plot );
+    static void enableDateBasedBottomXAxis(
+        QwtPlot*                                plot,
+        const QString&                          dateFormat,
+        const QString&                          timeFormat,
+        RiaQDateTimeTools::DateFormatComponents dateComponents = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED,
+        RiaQDateTimeTools::TimeFormatComponents timeComponents = RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED );
 
-    static QString dateTimeFormatForInterval(QwtDate::IntervalType                   interval,
-                                             const QString&                          dateFormat,
-                                             const QString&                          timeFormat,
-                                             RiaQDateTimeTools::DateFormatComponents dateComponents,
-                                             RiaQDateTimeTools::TimeFormatComponents timeComponents);
+    static QString dateTimeFormatForInterval( QwtDate::IntervalType                   interval,
+                                              const QString&                          dateFormat,
+                                              const QString&                          timeFormat,
+                                              RiaQDateTimeTools::DateFormatComponents dateComponents,
+                                              RiaQDateTimeTools::TimeFormatComponents timeComponents );
 };

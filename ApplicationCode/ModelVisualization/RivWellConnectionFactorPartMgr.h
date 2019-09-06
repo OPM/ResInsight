@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cvfObject.h"
 
 #include "cafPdmPointer.h"
@@ -40,10 +39,10 @@ class RivWellConnectionFactorGeometryGenerator;
 class RivWellConnectionFactorPartMgr : public cvf::Object
 {
 public:
-    RivWellConnectionFactorPartMgr(RimWellPath* well, RimVirtualPerforationResults* virtualPerforationResult);
+    RivWellConnectionFactorPartMgr( RimWellPath* well, RimVirtualPerforationResults* virtualPerforationResult );
     ~RivWellConnectionFactorPartMgr() override;
 
-    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
+    void appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model, size_t frameIndex );
 
 private:
     caf::PdmPointer<RimWellPath>                  m_rimWellPath;

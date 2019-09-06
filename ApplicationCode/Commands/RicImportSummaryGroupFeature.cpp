@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,8 +21,8 @@
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 
-#include "RicImportSummaryCasesFeature.h"
 #include "RicCreateSummaryCaseCollectionFeature.h"
+#include "RicImportSummaryCasesFeature.h"
 
 #include "RifSummaryCaseRestartSelector.h"
 
@@ -34,21 +34,20 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "RiuPlotMainWindow.h"
 #include "RiuMainWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
 #include <QAction>
 #include <QFileDialog>
-#include <QMessageBox>
 #include <QInputDialog>
+#include <QMessageBox>
 
-
-CAF_CMD_SOURCE_INIT(RicImportSummaryGroupFeature, "RicImportSummaryGroupFeature");
+CAF_CMD_SOURCE_INIT( RicImportSummaryGroupFeature, "RicImportSummaryGroupFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicImportSummaryGroupFeature::isCommandEnabled()
 {
@@ -56,44 +55,46 @@ bool RicImportSummaryGroupFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicImportSummaryGroupFeature::onActionTriggered(bool isChecked)
+void RicImportSummaryGroupFeature::onActionTriggered( bool isChecked )
 {
-    RiaGuiApplication* app   = RiaGuiApplication::instance();
-    QString pathCacheName = "INPUT_FILES";
-    QStringList fileNames = RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog("Import Summary Case Group", pathCacheName);
-    
-    if (fileNames.isEmpty()) return;
+    RiaGuiApplication* app           = RiaGuiApplication::instance();
+    QString            pathCacheName = "INPUT_FILES";
+    QStringList        fileNames =
+        RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog( "Import Summary Case Group",
+                                                                               pathCacheName );
+
+    if ( fileNames.isEmpty() ) return;
 
     std::vector<RimSummaryCase*> cases;
-    RicImportSummaryCasesFeature::createSummaryCasesFromFiles(fileNames, &cases, true);
+    RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, &cases, true );
 
-    RicImportSummaryCasesFeature::addSummaryCases(cases);
-    RicCreateSummaryCaseCollectionFeature::groupSummaryCases(cases, "", false);
+    RicImportSummaryCasesFeature::addSummaryCases( cases );
+    RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases, "", false );
 
     RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
-    if (mainPlotWindow && !cases.empty())
+    if ( mainPlotWindow && !cases.empty() )
     {
-        mainPlotWindow->selectAsCurrentItem(cases.back());
+        mainPlotWindow->selectAsCurrentItem( cases.back() );
 
         mainPlotWindow->updateSummaryPlotToolBar();
     }
 
     std::vector<RimCase*> allCases;
-    app->project()->allCases(allCases);
+    app->project()->allCases( allCases );
 
-    if (allCases.size() == 0)
+    if ( allCases.size() == 0 )
     {
         RiuMainWindow::instance()->close();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicImportSummaryGroupFeature::setupActionLook(QAction* actionToSetup)
+void RicImportSummaryGroupFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/SummaryGroup16x16.png"));
-    actionToSetup->setText("Import Summary Case Group");
+    actionToSetup->setIcon( QIcon( ":/SummaryGroup16x16.png" ) );
+    actionToSetup->setText( "Import Summary Case Group" );
 }

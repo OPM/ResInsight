@@ -33,13 +33,8 @@ public:
     ~RimGeoMechContourMapViewCollection() override;
 
     std::vector<RimGeoMechContourMapView*> views();
-    void                                   push_back(RimGeoMechContourMapView* contourMap);
+    void                                   push_back( RimGeoMechContourMapView* contourMap );
 
 private:
     caf::PdmChildArrayField<RimGeoMechContourMapView*> m_contourMapViews;
 };
-
-
-
-
-

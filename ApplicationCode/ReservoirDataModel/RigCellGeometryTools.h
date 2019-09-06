@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cvfVector3.h"
 
 #include "cvfBoundingBox.h"
@@ -31,29 +30,30 @@
 class RigCellGeometryTools
 {
 public:
-    static double                    calculateCellVolume(const std::array<cvf::Vec3d, 8>& hexCorners);
-    static bool                      estimateHexOverlapWithBoundingBox(const std::array<cvf::Vec3d, 8>& hexCorners,
-                                                                       const cvf::BoundingBox&          boundingBox2dExtrusion,
-                                                                       std::array<cvf::Vec3d, 8>*       overlapCorners,
-                                                                       cvf::BoundingBox*                overlapBoundingBox);
+    static double calculateCellVolume( const std::array<cvf::Vec3d, 8>& hexCorners );
+    static bool   estimateHexOverlapWithBoundingBox( const std::array<cvf::Vec3d, 8>& hexCorners,
+                                                     const cvf::BoundingBox&          boundingBox2dExtrusion,
+                                                     std::array<cvf::Vec3d, 8>*       overlapCorners,
+                                                     cvf::BoundingBox*                overlapBoundingBox );
 
-    static void createPolygonFromLineSegments(std::list<std::pair<cvf::Vec3d, cvf::Vec3d>>& intersectionLineSegments,
-                                              std::vector<std::vector<cvf::Vec3d>>&         polygons,
-                                              double                                        tolerance = 1.0e-4);
-    static void simplifyPolygon(std::vector<cvf::Vec3d>* vertices, double epsilon);
+    static void createPolygonFromLineSegments( std::list<std::pair<cvf::Vec3d, cvf::Vec3d>>& intersectionLineSegments,
+                                               std::vector<std::vector<cvf::Vec3d>>&         polygons,
+                                               double                                        tolerance = 1.0e-4 );
+    static void simplifyPolygon( std::vector<cvf::Vec3d>* vertices, double epsilon );
 
-    static void findCellLocalXYZ(const std::array<cvf::Vec3d, 8>& hexCorners,
-                                 cvf::Vec3d&                      localXdirection,
-                                 cvf::Vec3d&                      localYdirection,
-                                 cvf::Vec3d&                      localZdirection);
+    static void findCellLocalXYZ( const std::array<cvf::Vec3d, 8>& hexCorners,
+                                  cvf::Vec3d&                      localXdirection,
+                                  cvf::Vec3d&                      localYdirection,
+                                  cvf::Vec3d&                      localZdirection );
 
-    static double polygonLengthInLocalXdirWeightedByArea(const std::vector<cvf::Vec3d>& polygon2d);
+    static double polygonLengthInLocalXdirWeightedByArea( const std::vector<cvf::Vec3d>& polygon2d );
 
-    static std::vector<std::vector<cvf::Vec3d>> intersectPolygons(const std::vector<cvf::Vec3d>& polygon1,
-                                                                  const std::vector<cvf::Vec3d>& polygon2);
+    static std::vector<std::vector<cvf::Vec3d>> intersectPolygons( const std::vector<cvf::Vec3d>& polygon1,
+                                                                   const std::vector<cvf::Vec3d>& polygon2 );
 
-    static std::vector<std::vector<cvf::Vec3d>> subtractPolygons(const std::vector<cvf::Vec3d>&              sourcePolygon,
-                                                                 const std::vector<std::vector<cvf::Vec3d>>& polygonToSubtract);
+    static std::vector<std::vector<cvf::Vec3d>>
+        subtractPolygons( const std::vector<cvf::Vec3d>&              sourcePolygon,
+                          const std::vector<std::vector<cvf::Vec3d>>& polygonToSubtract );
 
     enum ZInterpolationType
     {
@@ -61,20 +61,20 @@ public:
         USE_HUGEVAL,
         USE_ZERO
     };
-    static std::vector<std::vector<cvf::Vec3d>> clipPolylineByPolygon(const std::vector<cvf::Vec3d>& polyLine,
-                                                                      const std::vector<cvf::Vec3d>& polygon,
-                                                                      ZInterpolationType             interpolType = USE_ZERO);
+    static std::vector<std::vector<cvf::Vec3d>> clipPolylineByPolygon( const std::vector<cvf::Vec3d>& polyLine,
+                                                                       const std::vector<cvf::Vec3d>& polygon,
+                                                                       ZInterpolationType interpolType = USE_ZERO );
 
-    static std::pair<cvf::Vec3d, cvf::Vec3d> getLineThroughBoundingBox(const cvf::Vec3d&       lineDirection,
-                                                                       const cvf::BoundingBox& polygonBBox,
-                                                                       const cvf::Vec3d&       pointOnLine);
+    static std::pair<cvf::Vec3d, cvf::Vec3d> getLineThroughBoundingBox( const cvf::Vec3d&       lineDirection,
+                                                                        const cvf::BoundingBox& polygonBBox,
+                                                                        const cvf::Vec3d&       pointOnLine );
 
-    static double getLengthOfPolygonAlongLine(const std::pair<cvf::Vec3d, cvf::Vec3d>& line,
-                                              const std::vector<cvf::Vec3d>&           polygon);
+    static double getLengthOfPolygonAlongLine( const std::pair<cvf::Vec3d, cvf::Vec3d>& line,
+                                               const std::vector<cvf::Vec3d>&           polygon );
 
-    static std::vector<cvf::Vec3d> unionOfPolygons(const std::vector<std::vector<cvf::Vec3d>>& polygons);
+    static std::vector<cvf::Vec3d> unionOfPolygons( const std::vector<std::vector<cvf::Vec3d>>& polygons );
 
 private:
-    static std::vector<cvf::Vec3d> ajustPolygonToAvoidIntersectionsAtVertex(const std::vector<cvf::Vec3d>& polyLine,
-                                                                            const std::vector<cvf::Vec3d>& polygon);
+    static std::vector<cvf::Vec3d> ajustPolygonToAvoidIntersectionsAtVertex( const std::vector<cvf::Vec3d>& polyLine,
+                                                                             const std::vector<cvf::Vec3d>& polygon );
 };

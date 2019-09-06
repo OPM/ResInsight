@@ -20,9 +20,9 @@
 #include "RiaEclipseUnitTools.h"
 
 #include "RimCheckableNamedObject.h"
+#include "RimValveTemplate.h"
 #include "RimWellPathAicdParameters.h"
 #include "RimWellPathComponentInterface.h"
-#include "RimValveTemplate.h"
 
 #include "cafPdmObject.h"
 
@@ -40,27 +40,27 @@ class RimWellPath;
 class RimWellPathValve : public RimCheckableNamedObject, public RimWellPathComponentInterface
 {
     CAF_PDM_HEADER_INIT;
-public:    
+
+public:
     RimWellPathValve();
     ~RimWellPathValve() override;
 
-    void                       perforationIntervalUpdated();
-    void                       setMeasuredDepthAndCount(double startMD, double spacing, int valveCount);
-    void                       multipleValveGeometryUpdated();
-    std::vector<double>        valveLocations() const;
-    double                     orificeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
-    double                     flowCoefficient() const;
-    RimValveTemplate*          valveTemplate() const;
-    void                       setValveTemplate(RimValveTemplate* valveTemplate);
-    void                       applyValveLabelAndIcon();
+    void                             perforationIntervalUpdated();
+    void                             setMeasuredDepthAndCount( double startMD, double spacing, int valveCount );
+    void                             multipleValveGeometryUpdated();
+    std::vector<double>              valveLocations() const;
+    double                           orificeDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const;
+    double                           flowCoefficient() const;
+    RimValveTemplate*                valveTemplate() const;
+    void                             setValveTemplate( RimValveTemplate* valveTemplate );
+    void                             applyValveLabelAndIcon();
     const RimWellPathAicdParameters* aicdParameters() const;
 
-    static double convertOrificeDiameter(double                          orificeDiameterUi,
-                                         RiaEclipseUnitTools::UnitSystem wellPathUnitSystem,
-                                         RiaEclipseUnitTools::UnitSystem wantedUnitSystem);
+    static double convertOrificeDiameter( double                          orificeDiameterUi,
+                                          RiaEclipseUnitTools::UnitSystem wellPathUnitSystem,
+                                          RiaEclipseUnitTools::UnitSystem wantedUnitSystem );
 
     std::vector<std::pair<double, double>> valveSegments() const;
-
 
     // Overrides from RimWellPathCompletionInterface
     bool                              isEnabled() const override;
@@ -70,14 +70,20 @@ public:
     cvf::Color3f                      defaultComponentColor() const override;
     double                            startMD() const override;
     double                            endMD() const override;
-       
-    void                              templateUpdated();
+
+    void templateUpdated();
+
 private:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void                          defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
-    void                          defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
 private:
     caf::PdmPtrField<RimValveTemplate*>            m_valveTemplate;
@@ -86,5 +92,3 @@ private:
     caf::PdmField<bool>                            m_editValveTemplate;
     caf::PdmField<bool>                            m_createValveTemplate;
 };
-
-

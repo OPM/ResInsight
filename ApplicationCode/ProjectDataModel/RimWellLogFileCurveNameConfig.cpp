@@ -19,19 +19,18 @@
 #include "RimWellLogFileCurveNameConfig.h"
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT(RimWellLogFileCurveNameConfig, "RimWellLogFileCurveNameConfig");
+CAF_PDM_SOURCE_INIT( RimWellLogFileCurveNameConfig, "RimWellLogFileCurveNameConfig" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimWellLogFileCurveNameConfig::RimWellLogFileCurveNameConfig(const RimNameConfigHolderInterface* configHolder)
-    : RimNameConfig(configHolder)
+RimWellLogFileCurveNameConfig::RimWellLogFileCurveNameConfig( const RimNameConfigHolderInterface* configHolder )
+    : RimNameConfig( configHolder )
 {
-    CAF_PDM_InitObject("Well Log File Curve Name Generator", "", "", "");
+    CAF_PDM_InitObject( "Well Log File Curve Name Generator", "", "", "" );
     m_customName = "Las Curve";
 }
-

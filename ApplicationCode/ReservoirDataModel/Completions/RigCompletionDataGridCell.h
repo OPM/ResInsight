@@ -30,11 +30,11 @@ class RigCompletionDataGridCell
 public:
     RigCompletionDataGridCell();
 
-    RigCompletionDataGridCell(size_t globalCellIndex, const RigMainGrid* mainGrid);
+    RigCompletionDataGridCell( size_t globalCellIndex, const RigMainGrid* mainGrid );
 
-    bool operator==(const RigCompletionDataGridCell& other) const;
+    bool operator==( const RigCompletionDataGridCell& other ) const;
 
-    bool operator<(const RigCompletionDataGridCell& other) const;
+    bool operator<( const RigCompletionDataGridCell& other ) const;
 
     size_t globalCellIndex() const;
 

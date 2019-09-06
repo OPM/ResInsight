@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cvfCollection.h"
 #include "cvfObject.h"
 
@@ -50,28 +49,27 @@ class RimWellPath;
 class RivWellPathsPartMgr : public cvf::Object
 {
 public:
-    explicit RivWellPathsPartMgr(Rim3dView* view);
+    explicit RivWellPathsPartMgr( Rim3dView* view );
     ~RivWellPathsPartMgr() override;
 
-    void appendStaticGeometryPartsToModel(cvf::ModelBasicList*              model,
-                                          const caf::DisplayCoordTransform* displayCoordTransform,
-                                          double                            characteristicCellSize,
-                                          const cvf::BoundingBox&           wellPathClipBoundingBox);
-
-
-    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model,
-                                           size_t                            timeStepIndex,
+    void appendStaticGeometryPartsToModel( cvf::ModelBasicList*              model,
                                            const caf::DisplayCoordTransform* displayCoordTransform,
                                            double                            characteristicCellSize,
-                                           const cvf::BoundingBox&           wellPathClipBoundingBox);
+                                           const cvf::BoundingBox&           wellPathClipBoundingBox );
 
-    void appendStaticFracturePartsToModel(cvf::ModelBasicList* model, const cvf::BoundingBox& wellPathClipBoundingBox);
+    void appendDynamicGeometryPartsToModel( cvf::ModelBasicList*              model,
+                                            size_t                            timeStepIndex,
+                                            const caf::DisplayCoordTransform* displayCoordTransform,
+                                            double                            characteristicCellSize,
+                                            const cvf::BoundingBox&           wellPathClipBoundingBox );
+
+    void appendStaticFracturePartsToModel( cvf::ModelBasicList* model, const cvf::BoundingBox& wellPathClipBoundingBox );
 
 private:
-    void                   clearGeometryCache();
-    void                   scheduleGeometryRegen();
-    void                   createPartManagersIfRequired();
-    bool                   isWellPathVisible() const;
+    void clearGeometryCache();
+    void scheduleGeometryRegen();
+    void createPartManagersIfRequired();
+    bool isWellPathVisible() const;
 
 private:
     caf::PdmPointer<Rim3dView>                  m_rimView;

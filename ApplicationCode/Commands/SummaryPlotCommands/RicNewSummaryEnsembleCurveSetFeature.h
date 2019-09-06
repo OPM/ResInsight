@@ -34,16 +34,16 @@ class RicNewSummaryEnsembleCurveSetFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void createPlotForCurveSetAndUpdate(RimSummaryCaseCollection* ensemble);
+    static void createPlotForCurveSetAndUpdate( RimSummaryCaseCollection* ensemble );
 
 protected:
     // Overrides
     bool isCommandEnabled() override;
-    void onActionTriggered(bool isChecked) override;
-    void setupActionLook(QAction* actionToSetup) override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static RimEnsembleCurveSet* addDefaultCurveSet(RimSummaryPlot* plot, RimSummaryCaseCollection* ensemble);
+    static RimEnsembleCurveSet* addDefaultCurveSet( RimSummaryPlot* plot, RimSummaryCaseCollection* ensemble );
 
 private:
     RimSummaryPlot* selectedSummaryPlot() const;

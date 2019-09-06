@@ -28,35 +28,35 @@
 //--------------------------------------------------------------------------------------------------
 /// zOffsetFactor will be multiplied by characteristic length to yield a z-offset
 //--------------------------------------------------------------------------------------------------
-RicVec3dPickEventHandler::RicVec3dPickEventHandler(caf::PdmField<cvf::Vec3d>* vectorField, double zOffsetFactor)
-    : m_vectorField(vectorField)
-    , m_zOffsetFactor(zOffsetFactor)
+RicVec3dPickEventHandler::RicVec3dPickEventHandler( caf::PdmField<cvf::Vec3d>* vectorField, double zOffsetFactor )
+    : m_vectorField( vectorField )
+    , m_zOffsetFactor( zOffsetFactor )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicVec3dPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
+bool RicVec3dPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eventObject )
 {
     const Rim3dView* rimView = eventObject.m_view;
 
     cvf::Vec3d pickedPosition = eventObject.m_pickItemInfos.front().globalPickedPoint();
 
-    RimCase* ownerCase   = nullptr;
-    rimView->firstAncestorOrThisOfType(ownerCase);
-    if (ownerCase)
+    RimCase* ownerCase = nullptr;
+    rimView->firstAncestorOrThisOfType( ownerCase );
+    if ( ownerCase )
     {
         double zPickOffset = ownerCase->characteristicCellSize() * m_zOffsetFactor;
         pickedPosition.z() += zPickOffset;
     }
 
-    cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
-    cvf::Vec3d pickedPositionInUTM = transForm->transformToDomainCoord(pickedPosition);
+    cvf::ref<caf::DisplayCoordTransform> transForm           = rimView->displayCoordTransform();
+    cvf::Vec3d                           pickedPositionInUTM = transForm->transformToDomainCoord( pickedPosition );
 
     pickedPositionInUTM.z() *= -1.0;
 
-    m_vectorField->setValueWithFieldChanged(pickedPositionInUTM);
+    m_vectorField->setValueWithFieldChanged( pickedPositionInUTM );
     return true;
 }
 
@@ -66,7 +66,7 @@ bool RicVec3dPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObje
 void RicVec3dPickEventHandler::registerAsPickEventHandler()
 {
     Ric3dViewPickEventHandler::registerAsPickEventHandler();
-    RiuViewer::setHoverCursor(Qt::CrossCursor);
+    RiuViewer::setHoverCursor( Qt::CrossCursor );
 }
 
 //--------------------------------------------------------------------------------------------------

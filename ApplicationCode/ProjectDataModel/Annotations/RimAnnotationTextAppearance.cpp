@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,31 +24,36 @@
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 
-
-CAF_PDM_SOURCE_INIT(RimAnnotationTextAppearance, "RimAnnotationTextAppearance");
+CAF_PDM_SOURCE_INIT( RimAnnotationTextAppearance, "RimAnnotationTextAppearance" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimAnnotationTextAppearance::RimAnnotationTextAppearance()
 {
-    CAF_PDM_InitObject("TextAnnotation", ":/WellCollection.png", "", "");
+    CAF_PDM_InitObject( "TextAnnotation", ":/WellCollection.png", "", "" );
 
-    auto prefs = RiaApplication::instance()->preferences();
+    auto prefs                  = RiaApplication::instance()->preferences();
     auto defaultBackgroundColor = prefs->defaultViewerBackgroundColor();
 
-    CAF_PDM_InitFieldNoDefault(&m_fontSize,          "FontSize", "Font Size", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_fontSize, "FontSize", "Font Size", "", "", "" );
     m_fontSize = prefs->defaultAnnotationFontSize();
 
-    CAF_PDM_InitField(&m_fontColor,         "FontColor", cvf::Color3f(cvf::Color3f::BLACK),  "Font Color", "", "", "");
-    CAF_PDM_InitField(&m_backgroundColor,   "BackgroundColor", defaultBackgroundColor , "Background Color", "", "", "");
-    CAF_PDM_InitField(&m_anchorLineColor,   "AnchorLineColor", cvf::Color3f(cvf::Color3f::BLACK), "Anchor Line Color", "", "", "");
+    CAF_PDM_InitField( &m_fontColor, "FontColor", cvf::Color3f( cvf::Color3f::BLACK ), "Font Color", "", "", "" );
+    CAF_PDM_InitField( &m_backgroundColor, "BackgroundColor", defaultBackgroundColor, "Background Color", "", "", "" );
+    CAF_PDM_InitField( &m_anchorLineColor,
+                       "AnchorLineColor",
+                       cvf::Color3f( cvf::Color3f::BLACK ),
+                       "Anchor Line Color",
+                       "",
+                       "",
+                       "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationTextAppearance::setFontSize(FontSize size)
+void RimAnnotationTextAppearance::setFontSize( FontSize size )
 {
     m_fontSize = size;
 }
@@ -56,7 +61,7 @@ void RimAnnotationTextAppearance::setFontSize(FontSize size)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationTextAppearance::setBackgroundColor(const cvf::Color3f& newColor)
+void RimAnnotationTextAppearance::setBackgroundColor( const cvf::Color3f& newColor )
 {
     m_backgroundColor = newColor;
 }
@@ -96,27 +101,27 @@ cvf::Color3f RimAnnotationTextAppearance::anchorLineColor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationTextAppearance::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimAnnotationTextAppearance::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add(&m_fontSize);
-    uiOrdering.add(&m_fontColor);
-    uiOrdering.add(&m_backgroundColor);
-    uiOrdering.add(&m_anchorLineColor);
+    uiOrdering.add( &m_fontSize );
+    uiOrdering.add( &m_fontColor );
+    uiOrdering.add( &m_backgroundColor );
+    uiOrdering.add( &m_anchorLineColor );
 
-    uiOrdering.skipRemainingFields(true);
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationTextAppearance::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue)
+void RimAnnotationTextAppearance::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue )
 {
     RimAnnotationCollectionBase* annColl = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(annColl);
+    this->firstAncestorOrThisOfTypeAsserted( annColl );
 
-    if (annColl)
+    if ( annColl )
     {
         annColl->scheduleRedrawOfRelevantViews();
     }

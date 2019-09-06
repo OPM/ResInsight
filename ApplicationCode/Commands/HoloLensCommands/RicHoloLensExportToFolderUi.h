@@ -34,17 +34,17 @@ class RicHoloLensExportToFolderUi : public caf::PdmObject
 public:
     RicHoloLensExportToFolderUi();
 
-    void setViewForExport(RimGridView* view);
+    void setViewForExport( RimGridView* view );
 
     QString      exportFolder() const;
     RimGridView* viewForExport() const;
 
 private:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly) override;
-    void                          defineEditorAttribute(const caf::PdmFieldHandle* field,
-                                                        QString                    uiConfigName,
-                                                        caf::PdmUiEditorAttribute* attribute) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     caf::PdmPtrField<RimGridView*> m_viewForExport;

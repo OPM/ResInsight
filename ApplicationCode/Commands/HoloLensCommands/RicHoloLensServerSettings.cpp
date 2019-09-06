@@ -18,24 +18,22 @@
 
 #include "RicHoloLensServerSettings.h"
 
-
-CAF_PDM_SOURCE_INIT(RicHoloLensServerSettings, "RicHoloLensServerSettings");
+CAF_PDM_SOURCE_INIT( RicHoloLensServerSettings, "RicHoloLensServerSettings" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicHoloLensServerSettings::RicHoloLensServerSettings()
 {
-    CAF_PDM_InitObject("HoloLens Server Settings", "", "", "");
+    CAF_PDM_InitObject( "HoloLens Server Settings", "", "", "" );
 
-    CAF_PDM_InitField(&m_serverAddress, "ServerAddress", QString(), "Server Address", "", "", "");
+    CAF_PDM_InitField( &m_serverAddress, "ServerAddress", QString(), "Server Address", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicHoloLensServerSettings::serverUrl() const
 {
     return m_serverAddress;
 }
-

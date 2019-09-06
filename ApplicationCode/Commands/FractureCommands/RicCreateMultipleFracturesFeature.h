@@ -28,8 +28,9 @@
 class RiuCreateMultipleFractionsUi;
 class RimEclipseCase;
 
-namespace caf {
-    class PdmUiPropertyViewDialog;
+namespace caf
+{
+class PdmUiPropertyViewDialog;
 }
 
 //==================================================================================================
@@ -43,9 +44,9 @@ class RicCreateMultipleFracturesFeature : public caf::CmdFeature
 public:
     RicCreateMultipleFracturesFeature() {}
 
-    void appendFractures();
-    void replaceFractures();
-    std::pair<cvf::Vec3st, cvf::Vec3st> ijkRangeForGrid(RimEclipseCase* gridCase) const;
+    void                                appendFractures();
+    void                                replaceFractures();
+    std::pair<cvf::Vec3st, cvf::Vec3st> ijkRangeForGrid( RimEclipseCase* gridCase ) const;
 
 private slots:
     void slotDeleteAndAppendFractures();
@@ -53,13 +54,13 @@ private slots:
     void slotClose();
 
 private:
-    void onActionTriggered(bool isChecked) override;
-    void setupActionLook(QAction* actionToSetup) override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
     bool isCommandEnabled() override;
 
     RiuCreateMultipleFractionsUi* multipleFractionsUi() const;
 
 private:
     QPointer<caf::PdmUiPropertyViewDialog> m_dialog;
-    QString m_copyOfObject;
+    QString                                m_copyOfObject;
 };

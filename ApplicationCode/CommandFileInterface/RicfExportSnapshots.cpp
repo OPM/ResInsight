@@ -30,17 +30,17 @@
 
 #include <QFileInfo>
 
-CAF_PDM_SOURCE_INIT(RicfExportSnapshots, "exportSnapshots");
+CAF_PDM_SOURCE_INIT( RicfExportSnapshots, "exportSnapshots" );
 
 namespace caf
 {
-template<>
+template <>
 void RicfExportSnapshots::SnapshotsTypeEnum::setUp()
 {
-    addItem(RicfExportSnapshots::ALL, "ALL", "All");
-    addItem(RicfExportSnapshots::VIEWS, "VIEWS", "Views");
-    addItem(RicfExportSnapshots::PLOTS, "PLOTS", "Plots");
-    setDefault(RicfExportSnapshots::ALL);
+    addItem( RicfExportSnapshots::ALL, "ALL", "All" );
+    addItem( RicfExportSnapshots::VIEWS, "VIEWS", "Views" );
+    addItem( RicfExportSnapshots::PLOTS, "PLOTS", "Plots" );
+    setDefault( RicfExportSnapshots::ALL );
 }
 } // namespace caf
 
@@ -49,9 +49,9 @@ void RicfExportSnapshots::SnapshotsTypeEnum::setUp()
 //--------------------------------------------------------------------------------------------------
 RicfExportSnapshots::RicfExportSnapshots()
 {
-    RICF_InitField(&m_type, "type", RicfExportSnapshots::SnapshotsTypeEnum(), "Type", "", "", "");
-    RICF_InitField(&m_prefix, "prefix", QString(), "Prefix", "", "", "");
-    RICF_InitField(&m_caseId, "caseId", -1, "Case Id", "", "", "");
+    RICF_InitField( &m_type, "type", RicfExportSnapshots::SnapshotsTypeEnum(), "Type", "", "", "" );
+    RICF_InitField( &m_prefix, "prefix", QString(), "Prefix", "", "", "" );
+    RICF_InitField( &m_caseId, "caseId", -1, "Case Id", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,30 +59,34 @@ RicfExportSnapshots::RicfExportSnapshots()
 //--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicfExportSnapshots::execute()
 {
-    if (!RiaGuiApplication::isRunning())
+    if ( !RiaGuiApplication::isRunning() )
     {
-        QString error("RicfExportSnapshot: Command cannot run without a GUI");
-        RiaLogging::error(error);
-        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+        QString error( "RicfExportSnapshot: Command cannot run without a GUI" );
+        RiaLogging::error( error );
+        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
     }
 
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    CVF_ASSERT(mainWnd);
+    CVF_ASSERT( mainWnd );
     mainWnd->hideAllDockWidgets();
     RiaGuiApplication::instance()->processEvents();
 
-    QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::SNAPSHOTS);
-    if (absolutePathToSnapshotDir.isNull())
+    QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath(
+        RicfCommandFileExecutor::SNAPSHOTS );
+    if ( absolutePathToSnapshotDir.isNull() )
     {
-        absolutePathToSnapshotDir = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("snapshots");
+        absolutePathToSnapshotDir = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath(
+            "snapshots" );
     }
-    if (m_type == RicfExportSnapshots::VIEWS || m_type == RicfExportSnapshots::ALL)
+    if ( m_type == RicfExportSnapshots::VIEWS || m_type == RicfExportSnapshots::ALL )
     {
-        RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(absolutePathToSnapshotDir, m_prefix, m_caseId());
+        RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder( absolutePathToSnapshotDir,
+                                                                              m_prefix,
+                                                                              m_caseId() );
     }
-    if (m_type == RicfExportSnapshots::PLOTS || m_type == RicfExportSnapshots::ALL)
+    if ( m_type == RicfExportSnapshots::PLOTS || m_type == RicfExportSnapshots::ALL )
     {
-        RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(absolutePathToSnapshotDir, m_prefix);
+        RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder( absolutePathToSnapshotDir, m_prefix );
     }
 
     mainWnd->loadWinGeoAndDockToolBarLayout();

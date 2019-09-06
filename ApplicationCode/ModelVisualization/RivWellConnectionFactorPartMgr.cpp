@@ -49,10 +49,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWellConnectionFactorPartMgr::RivWellConnectionFactorPartMgr(RimWellPath*                  well,
-                                                               RimVirtualPerforationResults* virtualPerforationResult)
-    : m_rimWellPath(well)
-    , m_virtualPerforationResult(virtualPerforationResult)
+RivWellConnectionFactorPartMgr::RivWellConnectionFactorPartMgr( RimWellPath*                  well,
+                                                                RimVirtualPerforationResults* virtualPerforationResult )
+    : m_rimWellPath( well )
+    , m_virtualPerforationResult( virtualPerforationResult )
 {
 }
 
@@ -64,34 +64,34 @@ RivWellConnectionFactorPartMgr::~RivWellConnectionFactorPartMgr() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
+void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model, size_t frameIndex )
 {
     m_geometryGenerator = nullptr;
 
     RimEclipseView* eclView = nullptr;
-    m_virtualPerforationResult->firstAncestorOrThisOfTypeAsserted(eclView);
+    m_virtualPerforationResult->firstAncestorOrThisOfTypeAsserted( eclView );
 
     auto coordTransform = eclView->displayCoordTransform();
 
     RimEclipseCase* eclipseCase = nullptr;
-    m_virtualPerforationResult->firstAncestorOrThisOfTypeAsserted(eclipseCase);
+    m_virtualPerforationResult->firstAncestorOrThisOfTypeAsserted( eclipseCase );
 
     const RigMainGrid* mainGrid = eclipseCase->mainGrid();
 
     const RigVirtualPerforationTransmissibilities* trans = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
-    if (!trans) return;
+    if ( !trans ) return;
 
-    auto completionsForWellPath = trans->multipleCompletionsPerEclipseCell(m_rimWellPath, frameIndex);
+    auto completionsForWellPath = trans->multipleCompletionsPerEclipseCell( m_rimWellPath, frameIndex );
 
     // Remove connection factors for parent grid, they are not supposed to be visualized, but are relevant for export
-    for (auto it = completionsForWellPath.begin(); it != completionsForWellPath.end();)
+    for ( auto it = completionsForWellPath.begin(); it != completionsForWellPath.end(); )
     {
         size_t reservoirCellIndex = it->first;
 
-        const RigCell& rigCell = mainGrid->cell(reservoirCellIndex);
-        if (rigCell.subGrid())
+        const RigCell& rigCell = mainGrid->cell( reservoirCellIndex );
+        if ( rigCell.subGrid() )
         {
-            it = completionsForWellPath.erase(it);
+            it = completionsForWellPath.erase( it );
         }
         else
         {
@@ -101,21 +101,22 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
 
     std::vector<WellPathCellIntersectionInfo> wellPathCellIntersections;
     {
-        RigEclipseWellLogExtractor* extractor = RiaExtractionTools::wellLogExtractorEclipseCase(m_rimWellPath, eclipseCase);
-        if (extractor)
+        RigEclipseWellLogExtractor* extractor = RiaExtractionTools::wellLogExtractorEclipseCase( m_rimWellPath,
+                                                                                                 eclipseCase );
+        if ( extractor )
         {
             wellPathCellIntersections = extractor->cellIntersectionInfosAlongWellPath();
         }
     }
 
     std::vector<CompletionVizData> completionVizDataItems;
-    for (const auto& completionsForCell : completionsForWellPath)
+    for ( const auto& completionsForCell : completionsForWellPath )
     {
-        if (!m_virtualPerforationResult->showConnectionFactorsOnClosedConnections())
+        if ( !m_virtualPerforationResult->showConnectionFactorsOnClosedConnections() )
         {
-            for (const auto& completion : completionsForCell.second)
+            for ( const auto& completion : completionsForCell.second )
             {
-                if (completion.connectionState() == SHUT)
+                if ( completion.connectionState() == SHUT )
                 {
                     continue;
                 }
@@ -124,10 +125,10 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
 
         bool showConnectionFactorOnWellPath = true;
         {
-            for (const auto& completion : completionsForCell.second)
+            for ( const auto& completion : completionsForCell.second )
             {
-                auto fracture = dynamic_cast<const RimFracture*>(completion.sourcePdmObject());
-                if (fracture)
+                auto fracture = dynamic_cast<const RimFracture*>( completion.sourcePdmObject() );
+                if ( fracture )
                 {
                     showConnectionFactorOnWellPath = false;
                 }
@@ -136,34 +137,34 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
 
         size_t reservoirCellIndex = completionsForCell.first;
 
-        const RigCell& rigCell = mainGrid->cell(reservoirCellIndex);
+        const RigCell& rigCell = mainGrid->cell( reservoirCellIndex );
 
         cvf::Vec3d locationInDomainCoord = rigCell.center();
         cvf::Vec3d direction             = cvf::Vec3d::X_AXIS;
 
-        if (showConnectionFactorOnWellPath)
+        if ( showConnectionFactorOnWellPath )
         {
             size_t i             = 0;
             bool   foundLocation = false;
 
-            while (!foundLocation && (i < wellPathCellIntersections.size()))
+            while ( !foundLocation && ( i < wellPathCellIntersections.size() ) )
             {
                 const WellPathCellIntersectionInfo& intersectionInfo = wellPathCellIntersections[i];
 
-                if (intersectionInfo.globCellIndex == completionsForCell.first)
+                if ( intersectionInfo.globCellIndex == completionsForCell.first )
                 {
                     double startMD = intersectionInfo.startMD;
                     double endMD   = intersectionInfo.endMD;
 
-                    double middleMD = (startMD + endMD) / 2.0;
+                    double middleMD = ( startMD + endMD ) / 2.0;
 
-                    locationInDomainCoord = m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(middleMD);
+                    locationInDomainCoord = m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( middleMD );
 
                     cvf::Vec3d p1;
                     cvf::Vec3d p2;
-                    m_rimWellPath->wellPathGeometry()->twoClosestPoints(locationInDomainCoord, &p1, &p2);
+                    m_rimWellPath->wellPathGeometry()->twoClosestPoints( locationInDomainCoord, &p1, &p2 );
 
-                    direction = (p2 - p1).getNormalized();
+                    direction = ( p2 - p1 ).getNormalized();
 
                     foundLocation = true;
                 }
@@ -172,38 +173,39 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
             }
         }
 
-        cvf::Vec3d displayCoord = coordTransform->transformToDisplayCoord(locationInDomainCoord);
+        cvf::Vec3d displayCoord = coordTransform->transformToDisplayCoord( locationInDomainCoord );
 
-        for (size_t i = 0; i < completionsForCell.second.size(); i++)
+        for ( size_t i = 0; i < completionsForCell.second.size(); i++ )
         {
             const RigCompletionData& completionData = completionsForCell.second[i];
 
             double transmissibility = completionData.transmissibility();
 
             completionVizDataItems.push_back(
-                CompletionVizData(displayCoord, direction, transmissibility, completionsForCell.first));
+                CompletionVizData( displayCoord, direction, transmissibility, completionsForCell.first ) );
         }
     }
 
-    if (!completionVizDataItems.empty())
+    if ( !completionVizDataItems.empty() )
     {
         double characteristicCellSize = eclView->ownerCase()->characteristicCellSize();
 
-        double radius = m_rimWellPath->wellPathRadius(characteristicCellSize) * m_virtualPerforationResult->geometryScaleFactor();
+        double radius = m_rimWellPath->wellPathRadius( characteristicCellSize ) *
+                        m_virtualPerforationResult->geometryScaleFactor();
         radius *= 2.0; // Enlarge the radius slightly to make the connection factor visible if geometry scale factor is set to 1.0
 
-        m_geometryGenerator = new RivWellConnectionFactorGeometryGenerator(completionVizDataItems, radius);
+        m_geometryGenerator = new RivWellConnectionFactorGeometryGenerator( completionVizDataItems, radius );
 
         auto scalarMapper = m_virtualPerforationResult->legendConfig()->scalarMapper();
 
-        cvf::ref<cvf::Part> part = m_geometryGenerator->createSurfacePart(scalarMapper, eclView->isLightingDisabled());
-        if (part.notNull())
+        cvf::ref<cvf::Part> part = m_geometryGenerator->createSurfacePart( scalarMapper, eclView->isLightingDisabled() );
+        if ( part.notNull() )
         {
-            cvf::ref<RivWellConnectionSourceInfo> sourceInfo =
-                new RivWellConnectionSourceInfo(m_rimWellPath, m_geometryGenerator.p());
-            part->setSourceInfo(sourceInfo.p());
+            cvf::ref<RivWellConnectionSourceInfo> sourceInfo = new RivWellConnectionSourceInfo( m_rimWellPath,
+                                                                                                m_geometryGenerator.p() );
+            part->setSourceInfo( sourceInfo.p() );
 
-            model->addPart(part.p());
+            model->addPart( part.p() );
         }
     }
 }

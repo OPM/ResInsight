@@ -28,17 +28,17 @@
 
 #include "cafPdmUiDoubleSliderEditor.h"
 
-CAF_PDM_SOURCE_INIT(RimWellPathFracture, "WellPathFracture");
+CAF_PDM_SOURCE_INIT( RimWellPathFracture, "WellPathFracture" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathFracture::RimWellPathFracture(void)
+RimWellPathFracture::RimWellPathFracture( void )
 {
-    CAF_PDM_InitObject("Fracture", ":/FractureSymbol16x16.png", "", "");
+    CAF_PDM_InitObject( "Fracture", ":/FractureSymbol16x16.png", "", "" );
 
-    CAF_PDM_InitField(&m_measuredDepth, "MeasuredDepth", 0.0f, "Measured Depth Location", "", "", "");
-    m_measuredDepth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    CAF_PDM_InitField( &m_measuredDepth, "MeasuredDepth", 0.0f, "Measured Depth Location", "", "", "" );
+    m_measuredDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ double RimWellPathFracture::fractureMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathFracture::setMeasuredDepth(double mdValue)
+void RimWellPathFracture::setMeasuredDepth( double mdValue )
 {
     m_measuredDepth = mdValue;
 
@@ -67,20 +67,20 @@ void RimWellPathFracture::setMeasuredDepth(double mdValue)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue)
+void RimWellPathFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                            const QVariant&            oldValue,
+                                            const QVariant&            newValue )
 {
-    RimFracture::fieldChangedByUi(changedField, oldValue, newValue);
+    RimFracture::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if (changedField == &m_measuredDepth)
+    if ( changedField == &m_measuredDepth )
     {
         updatePositionFromMeasuredDepth();
         updateAzimuthBasedOnWellAzimuthAngle();
 
         RimProject* proj = nullptr;
-        this->firstAncestorOrThisOfType(proj);
-        if (proj) proj->reloadCompletionTypeResultsInAllViews();
+        this->firstAncestorOrThisOfType( proj );
+        if ( proj ) proj->reloadCompletionTypeResultsInAllViews();
     }
 }
 
@@ -89,20 +89,20 @@ void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::updateAzimuthBasedOnWellAzimuthAngle()
 {
-    if (!fractureTemplate()) return;
+    if ( !fractureTemplate() ) return;
 
-    if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH ||
-        fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+    if ( fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH ||
+         fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH )
     {
         double wellPathAzimuth = wellAzimuthAtFracturePosition();
 
-        if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
+        if ( fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
         {
             m_azimuth = wellPathAzimuth;
         }
-        if (fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+        if ( fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH )
         {
-            if (wellPathAzimuth + 90 < 360)
+            if ( wellPathAzimuth + 90 < 360 )
                 m_azimuth = wellPathAzimuth + 90;
             else
                 m_azimuth = wellPathAzimuth - 90;
@@ -116,18 +116,18 @@ void RimWellPathFracture::updateAzimuthBasedOnWellAzimuthAngle()
 double RimWellPathFracture::wellAzimuthAtFracturePosition() const
 {
     RimWellPath* wellPath = nullptr;
-    this->firstAncestorOrThisOfType(wellPath);
-    if (!wellPath) return cvf::UNDEFINED_DOUBLE;
+    this->firstAncestorOrThisOfType( wellPath );
+    if ( !wellPath ) return cvf::UNDEFINED_DOUBLE;
 
     double wellPathAzimuth = 0.0;
 
     RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
-    if (wellPathGeometry)
+    if ( wellPathGeometry )
     {
-        wellPathAzimuth = wellPathGeometry->wellPathAzimuthAngle(fracturePosition());
+        wellPathAzimuth = wellPathGeometry->wellPathAzimuthAngle( fracturePosition() );
     }
 
-    if (wellPathAzimuth < 0) wellPathAzimuth += 360;
+    if ( wellPathAzimuth < 0 ) wellPathAzimuth += 360;
 
     return wellPathAzimuth;
 }
@@ -149,13 +149,13 @@ std::vector<cvf::Vec3d> RimWellPathFracture::perforationLengthCenterLineCoords()
     std::vector<cvf::Vec3d> wellPathCoords;
 
     RimWellPath* wellPath = nullptr;
-    this->firstAncestorOrThisOfType(wellPath);
-    if (wellPath && wellPath->wellPathGeometry())
+    this->firstAncestorOrThisOfType( wellPath );
+    if ( wellPath && wellPath->wellPathGeometry() )
     {
         double startMd = m_measuredDepth - perforationLength() / 2.0;
         double endMd   = m_measuredDepth + perforationLength() / 2.0;
 
-        auto coordsAndMd = wellPath->wellPathGeometry()->clippedPointSubset(startMd, endMd);
+        auto coordsAndMd = wellPath->wellPathGeometry()->clippedPointSubset( startMd, endMd );
 
         wellPathCoords = coordsAndMd.first;
     }
@@ -166,19 +166,19 @@ std::vector<cvf::Vec3d> RimWellPathFracture::perforationLengthCenterLineCoords()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellPathFracture::compareByWellPathNameAndMD(const RimWellPathFracture* lhs, const RimWellPathFracture* rhs)
+bool RimWellPathFracture::compareByWellPathNameAndMD( const RimWellPathFracture* lhs, const RimWellPathFracture* rhs )
 {
-    CVF_TIGHT_ASSERT(lhs && rhs);
+    CVF_TIGHT_ASSERT( lhs && rhs );
 
     RimWellPath* lhsWellPath = nullptr;
-    lhs->firstAncestorOrThisOfType(lhsWellPath);
+    lhs->firstAncestorOrThisOfType( lhsWellPath );
 
     RimWellPath* rhsWellPath = nullptr;
-    rhs->firstAncestorOrThisOfType(rhsWellPath);
+    rhs->firstAncestorOrThisOfType( rhsWellPath );
 
-    if (lhsWellPath && rhsWellPath)
+    if ( lhsWellPath && rhsWellPath )
     {
-        if (lhsWellPath->name() != rhsWellPath->name())
+        if ( lhsWellPath->name() != rhsWellPath->name() )
         {
             return lhsWellPath->name() < rhsWellPath->name();
         }
@@ -193,7 +193,7 @@ bool RimWellPathFracture::compareByWellPathNameAndMD(const RimWellPathFracture* 
 bool RimWellPathFracture::isEnabled() const
 {
     RimWellPathFractureCollection* fractureCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(fractureCollection);
+    this->firstAncestorOrThisOfTypeAsserted( fractureCollection );
 
     return fractureCollection->isChecked() && isChecked();
 }
@@ -205,98 +205,98 @@ void RimWellPathFracture::updatePositionFromMeasuredDepth()
 {
     cvf::Vec3d positionAlongWellpath = cvf::Vec3d::ZERO;
 
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
-    if (!objHandle) return;
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( this );
+    if ( !objHandle ) return;
 
     RimWellPath* wellPath = nullptr;
-    objHandle->firstAncestorOrThisOfType(wellPath);
-    if (!wellPath) return;
+    objHandle->firstAncestorOrThisOfType( wellPath );
+    if ( !wellPath ) return;
 
     RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
-    if (wellPathGeometry)
+    if ( wellPathGeometry )
     {
-        positionAlongWellpath = wellPathGeometry->interpolatedPointAlongWellPath(m_measuredDepth());
+        positionAlongWellpath = wellPathGeometry->interpolatedPointAlongWellPath( m_measuredDepth() );
     }
 
-    this->setAnchorPosition(positionAlongWellpath);
+    this->setAnchorPosition( positionAlongWellpath );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimWellPathFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimFracture::defineUiOrdering(uiConfigName, uiOrdering);
+    RimFracture::defineUiOrdering( uiConfigName, uiOrdering );
 
-    if (m_fractureTemplate())
+    if ( m_fractureTemplate() )
     {
-        uiOrdering.add(nameField(), caf::PdmUiOrdering::LayoutOptions(true, 3, 1));
-        uiOrdering.add(&m_fractureTemplate, {true, 2, 1});
-        uiOrdering.add(&m_editFractureTemplate, {false, 1, 0});
+        uiOrdering.add( nameField(), caf::PdmUiOrdering::LayoutOptions( true, 3, 1 ) );
+        uiOrdering.add( &m_fractureTemplate, {true, 2, 1} );
+        uiOrdering.add( &m_editFractureTemplate, {false, 1, 0} );
     }
     else
     {
-        uiOrdering.add(nameField());
+        uiOrdering.add( nameField() );
         {
             RimProject* project = nullptr;
-            this->firstAncestorOrThisOfTypeAsserted(project);
-            if (project->allFractureTemplates().empty())
+            this->firstAncestorOrThisOfTypeAsserted( project );
+            if ( project->allFractureTemplates().empty() )
             {
-                uiOrdering.add(&m_createEllipseFractureTemplate);
-                uiOrdering.add(&m_createStimPlanFractureTemplate, false);
+                uiOrdering.add( &m_createEllipseFractureTemplate );
+                uiOrdering.add( &m_createStimPlanFractureTemplate, false );
             }
             else
             {
-                uiOrdering.add(&m_fractureTemplate);
+                uiOrdering.add( &m_fractureTemplate );
             }
         }
     }
 
-    caf::PdmUiGroup* locationGroup = uiOrdering.addNewGroup("Location / Orientation");
-    locationGroup->add(&m_measuredDepth);
-    locationGroup->add(&m_azimuth);
-    locationGroup->add(&m_uiWellPathAzimuth);
-    locationGroup->add(&m_uiWellFractureAzimuthDiff);
-    locationGroup->add(&m_wellFractureAzimuthAngleWarning);
-    locationGroup->add(&m_dip);
-    locationGroup->add(&m_tilt);
+    caf::PdmUiGroup* locationGroup = uiOrdering.addNewGroup( "Location / Orientation" );
+    locationGroup->add( &m_measuredDepth );
+    locationGroup->add( &m_azimuth );
+    locationGroup->add( &m_uiWellPathAzimuth );
+    locationGroup->add( &m_uiWellFractureAzimuthDiff );
+    locationGroup->add( &m_wellFractureAzimuthAngleWarning );
+    locationGroup->add( &m_dip );
+    locationGroup->add( &m_tilt );
 
-    caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
-    propertyGroup->add(&m_fractureUnit);
-    propertyGroup->add(&m_stimPlanTimeIndexToPlot);
-    propertyGroup->add(&m_perforationLength);
-    propertyGroup->add(&m_perforationEfficiency);
-    propertyGroup->add(&m_wellDiameter);
+    caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup( "Properties" );
+    propertyGroup->add( &m_fractureUnit );
+    propertyGroup->add( &m_stimPlanTimeIndexToPlot );
+    propertyGroup->add( &m_perforationLength );
+    propertyGroup->add( &m_perforationEfficiency );
+    propertyGroup->add( &m_wellDiameter );
 
-    caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");
-    fractureCenterGroup->add(&m_uiAnchorPosition);
+    caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup( "Fracture Center Info" );
+    fractureCenterGroup->add( &m_uiAnchorPosition );
 
-    uiOrdering.skipRemainingFields(true);
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathFracture::defineEditorAttribute(const caf::PdmFieldHandle* field,
-                                                QString                    uiConfigName,
-                                                caf::PdmUiEditorAttribute* attribute)
+void RimWellPathFracture::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                 QString                    uiConfigName,
+                                                 caf::PdmUiEditorAttribute* attribute )
 {
-    RimFracture::defineEditorAttribute(field, uiConfigName, attribute);
+    RimFracture::defineEditorAttribute( field, uiConfigName, attribute );
 
-    if (field == &m_measuredDepth)
+    if ( field == &m_measuredDepth )
     {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
 
-        if (myAttr)
+        if ( myAttr )
         {
             RimWellPath* rimWellPath = nullptr;
-            this->firstAncestorOrThisOfType(rimWellPath);
-            if (!rimWellPath) return;
+            this->firstAncestorOrThisOfType( rimWellPath );
+            if ( !rimWellPath ) return;
 
             RigWellPath* wellPathGeo = rimWellPath->wellPathGeometry();
-            if (!wellPathGeo) return;
+            if ( !wellPathGeo ) return;
 
-            if (wellPathGeo->m_measuredDepths.size() > 2)
+            if ( wellPathGeo->m_measuredDepths.size() > 2 )
             {
                 myAttr->m_minimum = wellPathGeo->m_measuredDepths.front();
                 myAttr->m_maximum = wellPathGeo->m_measuredDepths.back();

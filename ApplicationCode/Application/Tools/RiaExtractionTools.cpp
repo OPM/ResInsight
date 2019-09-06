@@ -30,50 +30,54 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor* RiaExtractionTools::wellLogExtractorEclipseCase(RimWellPath* wellPath, RimEclipseCase* eclipseCase)
+RigEclipseWellLogExtractor* RiaExtractionTools::wellLogExtractorEclipseCase( RimWellPath*    wellPath,
+                                                                             RimEclipseCase* eclipseCase )
 {
     auto wlPlotCollection = wellLogPlotCollection();
-    if (!wlPlotCollection) return nullptr;
+    if ( !wlPlotCollection ) return nullptr;
 
-    return wlPlotCollection->findOrCreateExtractor(wellPath, eclipseCase);
+    return wlPlotCollection->findOrCreateExtractor( wellPath, eclipseCase );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGeoMechWellLogExtractor* RiaExtractionTools::wellLogExtractorGeoMechCase(RimWellPath* wellPath, RimGeoMechCase* geomCase)
+RigGeoMechWellLogExtractor* RiaExtractionTools::wellLogExtractorGeoMechCase( RimWellPath*    wellPath,
+                                                                             RimGeoMechCase* geomCase )
 {
     auto wlPlotCollection = wellLogPlotCollection();
-    if (!wlPlotCollection) return nullptr;
+    if ( !wlPlotCollection ) return nullptr;
 
-    return wlPlotCollection->findOrCreateExtractor(wellPath, geomCase);
+    return wlPlotCollection->findOrCreateExtractor( wellPath, geomCase );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateSimWellExtractor(const RimSimWellInView* simWell,
-                                                                             const RigWellPath*      wellPathGeom)
+RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateSimWellExtractor( const RimSimWellInView* simWell,
+                                                                              const RigWellPath*      wellPathGeom )
 {
     auto wlPlotCollection = wellLogPlotCollection();
-    if (!wlPlotCollection) return nullptr;
+    if ( !wlPlotCollection ) return nullptr;
 
-    if (!(simWell && wellPathGeom))
+    if ( !( simWell && wellPathGeom ) )
     {
         return nullptr;
     }
 
     RimEclipseCase* eclipseCase = nullptr;
-    simWell->firstAncestorOrThisOfType(eclipseCase);
-    if (!(eclipseCase && eclipseCase->eclipseCaseData()))
+    simWell->firstAncestorOrThisOfType( eclipseCase );
+    if ( !( eclipseCase && eclipseCase->eclipseCaseData() ) )
     {
         return nullptr;
     }
 
     QString caseUserDescription = eclipseCase->caseUserDescription();
 
-    return wlPlotCollection->findOrCreateSimWellExtractor(
-        simWell->name, caseUserDescription, wellPathGeom, eclipseCase->eclipseCaseData());
+    return wlPlotCollection->findOrCreateSimWellExtractor( simWell->name,
+                                                           caseUserDescription,
+                                                           wellPathGeom,
+                                                           eclipseCase->eclipseCaseData() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,10 +86,10 @@ RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateSimWellExtractor(con
 RimWellLogPlotCollection* RiaExtractionTools::wellLogPlotCollection()
 {
     auto proj = RiaApplication::instance()->project();
-    if (!proj) return nullptr;
+    if ( !proj ) return nullptr;
 
     auto plotCollection = proj->mainPlotCollection();
-    if (!plotCollection) return nullptr;
+    if ( !plotCollection ) return nullptr;
 
     auto wellLogPlotCollection = plotCollection->wellLogPlotCollection();
     return wellLogPlotCollection;

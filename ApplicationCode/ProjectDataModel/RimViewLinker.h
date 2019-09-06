@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,6 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
-
 
 #include "cvfVector3.h"
 
@@ -46,65 +45,68 @@ class RimCellRangeFilter;
 class RimPropertyFilter;
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class RimViewLinker : public caf::PdmObject
 {
-     CAF_PDM_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
     RimViewLinker();
     ~RimViewLinker() override;
-    
-    bool                                    isActive() const;
 
-    void                                    setMasterView(RimGridView* view);
-    RimGridView*                            masterView() const;
-    void                                    addDependentView(RimGridView* view);
-    bool                                    isFirstViewDependentOnSecondView(const RimGridView* firstView, const RimGridView* secondView) const;
-    void                                    updateDependentViews();
-    void                                    removeViewController(RimViewController* viewController);
+    bool isActive() const;
 
-    void                                    updateOverrides();
+    void         setMasterView( RimGridView* view );
+    RimGridView* masterView() const;
+    void         addDependentView( RimGridView* view );
+    bool         isFirstViewDependentOnSecondView( const RimGridView* firstView, const RimGridView* secondView ) const;
+    void         updateDependentViews();
+    void         removeViewController( RimViewController* viewController );
 
-    void                                    updateCamera(RimGridView* sourceView);
-    void                                    updateTimeStep(RimGridView* sourceView, int timeStep);
-    void                                    updateScaleZ(RimGridView* sourceView, double scaleZ);
+    void updateOverrides();
 
-    void                                    updateCellResult();
+    void updateCamera( RimGridView* sourceView );
+    void updateTimeStep( RimGridView* sourceView, int timeStep );
+    void updateScaleZ( RimGridView* sourceView, double scaleZ );
 
-    void                                    updateRangeFilters(RimCellRangeFilter* changedRangeFilter);
-    void                                    applyRangeFilterCollectionByUserChoice();
+    void updateCellResult();
 
-    void                                    updatePropertyFilters(RimPropertyFilter* changedPropertyFilter);
+    void updateRangeFilters( RimCellRangeFilter* changedRangeFilter );
+    void applyRangeFilterCollectionByUserChoice();
 
-    void                                    scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType);
-    void                                    scheduleCreateDisplayModelAndRedrawForDependentViews();
+    void updatePropertyFilters( RimPropertyFilter* changedPropertyFilter );
 
-    void                                    allViews(std::vector<RimGridView*>& views) const;
+    void scheduleGeometryRegenForDepViews( RivCellSetEnum geometryType );
+    void scheduleCreateDisplayModelAndRedrawForDependentViews();
 
-    void                                    updateUiNameAndIcon();
+    void allViews( std::vector<RimGridView*>& views ) const;
 
-    void                                    addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering) const;
+    void updateUiNameAndIcon();
 
-    static void                             findNameAndIconFromView(QString* name, caf::QIconProvider* icon, RimGridView* view);
+    void addViewControllers( caf::PdmUiTreeOrdering& uiTreeOrdering ) const;
 
-    void                                    updateCursorPosition(const RimGridView* sourceView, const cvf::Vec3d& domainCoord);
+    static void findNameAndIconFromView( QString* name, caf::QIconProvider* icon, RimGridView* view );
+
+    void updateCursorPosition( const RimGridView* sourceView, const cvf::Vec3d& domainCoord );
 
 protected:
-    caf::PdmFieldHandle*                    userDescriptionField() override  { return &m_name; }
-    void                                    initAfterRead() override;
+    caf::PdmFieldHandle* userDescriptionField() override
+    {
+        return &m_name;
+    }
+    void initAfterRead() override;
 
 private:
-    static QString                          displayNameForView(RimGridView* view);
+    static QString displayNameForView( RimGridView* view );
 
-    void                                    allViewsForCameraSync(const RimGridView* source, std::vector<RimGridView*>& views) const;
-    
-    void                                    removeOverrides();
+    void allViewsForCameraSync( const RimGridView* source, std::vector<RimGridView*>& views ) const;
+
+    void removeOverrides();
 
 private:
-    caf::PdmChildArrayField<RimViewController*>   m_viewControllers;
-    caf::PdmPtrField<RimGridView*>                m_masterView;
-    caf::PdmField<QString>                        m_name;
+    caf::PdmChildArrayField<RimViewController*> m_viewControllers;
+    caf::PdmPtrField<RimGridView*>              m_masterView;
+    caf::PdmField<QString>                      m_name;
 };

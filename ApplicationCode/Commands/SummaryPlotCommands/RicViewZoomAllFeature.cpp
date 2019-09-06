@@ -30,7 +30,7 @@
 #include <QAction>
 #include <QMdiSubWindow>
 
-CAF_CMD_SOURCE_INIT(RicViewZoomAllFeature, "RicViewZoomAllFeature");
+CAF_CMD_SOURCE_INIT( RicViewZoomAllFeature, "RicViewZoomAllFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -43,29 +43,29 @@ bool RicViewZoomAllFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicViewZoomAllFeature::onActionTriggered(bool isChecked)
+void RicViewZoomAllFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
     QWidget* topLevelWidget = RiaGuiApplication::activeWindow();
 
-    if (dynamic_cast<RiuMainWindow*>(topLevelWidget))
+    if ( dynamic_cast<RiuMainWindow*>( topLevelWidget ) )
     {
         RimViewWindow* viewWindow = RiaGuiApplication::instance()->activeReservoirView();
-        if (viewWindow)
+        if ( viewWindow )
         {
             viewWindow->zoomAll();
         }
     }
-    else if (dynamic_cast<RiuPlotMainWindow*>(topLevelWidget))
+    else if ( dynamic_cast<RiuPlotMainWindow*>( topLevelWidget ) )
     {
-        RiuPlotMainWindow*    mainPlotWindow = dynamic_cast<RiuPlotMainWindow*>(topLevelWidget);
-        QList<QMdiSubWindow*> subwindows     = mainPlotWindow->subWindowList(QMdiArea::StackingOrder);
-        if (!subwindows.empty())
+        RiuPlotMainWindow*    mainPlotWindow = dynamic_cast<RiuPlotMainWindow*>( topLevelWidget );
+        QList<QMdiSubWindow*> subwindows     = mainPlotWindow->subWindowList( QMdiArea::StackingOrder );
+        if ( !subwindows.empty() )
         {
-            RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(subwindows.back()->widget());
+            RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( subwindows.back()->widget() );
 
-            if (viewWindow)
+            if ( viewWindow )
             {
                 viewWindow->zoomAll();
             }
@@ -76,10 +76,10 @@ void RicViewZoomAllFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicViewZoomAllFeature::setupActionLook(QAction* actionToSetup)
+void RicViewZoomAllFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Zoom All");
-    actionToSetup->setToolTip("Zoom All (Ctrl+Alt+A)");
-    actionToSetup->setIcon(QIcon(":/ZoomAll16x16.png"));
-    applyShortcutWithHintToAction(actionToSetup, QKeySequence(tr("Ctrl+Alt+A")));
+    actionToSetup->setText( "Zoom All" );
+    actionToSetup->setToolTip( "Zoom All (Ctrl+Alt+A)" );
+    actionToSetup->setIcon( QIcon( ":/ZoomAll16x16.png" ) );
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence( tr( "Ctrl+Alt+A" ) ) );
 }

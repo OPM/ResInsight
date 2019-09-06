@@ -18,12 +18,9 @@
 
 #pragma once
 
-#include <QObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-
-
-
+#include <QObject>
 
 //==================================================================================================
 //
@@ -34,13 +31,13 @@ class RicHoloLensRestResponseHandler
 {
 public:
     virtual void handleSuccessfulCreateSession() = 0;
-    virtual void handleFailedCreateSession() = 0;
+    virtual void handleFailedCreateSession()     = 0;
 
-    virtual void handleSuccessfulSendMetaData(int metaDataSequenceNumber, const QByteArray& jsonServerResponseString) = 0;
+    virtual void handleSuccessfulSendMetaData( int               metaDataSequenceNumber,
+                                               const QByteArray& jsonServerResponseString ) = 0;
 
-    virtual void handleError(const QString& errMsg, const QString& url, const QString& serverData) = 0;
+    virtual void handleError( const QString& errMsg, const QString& url, const QString& serverData ) = 0;
 };
-
 
 //==================================================================================================
 //
@@ -52,39 +49,40 @@ class RicHoloLensRestClient : public QObject
     Q_OBJECT
 
 public:
-    RicHoloLensRestClient(QString serverUrl, QString sessionName, RicHoloLensRestResponseHandler* responseHandler);
+    RicHoloLensRestClient( QString serverUrl, QString sessionName, RicHoloLensRestResponseHandler* responseHandler );
 
-    void    clearResponseHandler();
+    void clearResponseHandler();
 
-    void    dbgDisableCertificateVerification();
+    void dbgDisableCertificateVerification();
 
-    void    createSession(const QByteArray& sessionPinCode);
-    void    deleteSession();
-    void    sendMetaData(int metaDataSequenceNumber, const QString& jsonMetaDataString);
-    void    sendBinaryData(const QByteArray& binaryDataArr, QByteArray dbgTagString);
+    void createSession( const QByteArray& sessionPinCode );
+    void deleteSession();
+    void sendMetaData( int metaDataSequenceNumber, const QString& jsonMetaDataString );
+    void sendBinaryData( const QByteArray& binaryDataArr, QByteArray dbgTagString );
 
 private:
-    void            addBearerAuthenticationHeaderToRequest(QNetworkRequest* request) const;
-    bool            detectAndHandleErrorReply(QString operationName, QNetworkReply* reply);
-    static QString  networkErrorCodeAsString(QNetworkReply::NetworkError nwErr);
-    static qint64   getCurrentTimeStamp_ms();
+    void           addBearerAuthenticationHeaderToRequest( QNetworkRequest* request ) const;
+    bool           detectAndHandleErrorReply( QString operationName, QNetworkReply* reply );
+    static QString networkErrorCodeAsString( QNetworkReply::NetworkError nwErr );
+    static qint64  getCurrentTimeStamp_ms();
 
 private slots:
-    void    slotCreateSessionFinished();
-    void    slotDeleteSessionFinished();
-    void    slotSendMetaDataFinished();
-    void    slotSendBinaryDataFinished();
-    void    slotDbgUploadProgress(qint64 bytesSent, qint64 bytesTotal);
+    void slotCreateSessionFinished();
+    void slotDeleteSessionFinished();
+    void slotSendMetaDataFinished();
+    void slotSendBinaryDataFinished();
+    void slotDbgUploadProgress( qint64 bytesSent, qint64 bytesTotal );
 
-    void	slotSslErrors(const QList<QSslError>& errors);
+    void slotSslErrors( const QList<QSslError>& errors );
 
 private:
-    QNetworkAccessManager               m_accessManager;
-    QString                             m_serverUrl;
-    QString                             m_sessionName;
-    RicHoloLensRestResponseHandler*     m_responseHandler;
+    QNetworkAccessManager           m_accessManager;
+    QString                         m_serverUrl;
+    QString                         m_sessionName;
+    RicHoloLensRestResponseHandler* m_responseHandler;
 
-    bool                                m_dbgDisableCertificateVerification;    // Debug option to disable certificate verification. Needed in order to work with self-signed certifiactes
+    bool m_dbgDisableCertificateVerification; // Debug option to disable certificate verification. Needed in order to
+                                              // work with self-signed certifiactes
 
-    QByteArray                          m_bearerToken;
+    QByteArray m_bearerToken;
 };

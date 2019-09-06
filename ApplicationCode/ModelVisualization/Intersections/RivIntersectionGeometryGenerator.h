@@ -2,17 +2,17 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -40,73 +40,76 @@ class RivIntersectionVertexWeights;
 
 namespace cvf
 {
-    class ScalarMapper;
-    class DrawableGeo;
-}
-
+class ScalarMapper;
+class DrawableGeo;
+} // namespace cvf
 
 class RivIntersectionGeometryGenerator : public cvf::Object
 {
 public:
-    RivIntersectionGeometryGenerator(RimIntersection* crossSection,
-                                     std::vector<std::vector<cvf::Vec3d> > &polylines, 
-                                     const cvf::Vec3d& extrusionDirection, 
-                                     const RivIntersectionHexGridInterface* grid,
-                                     bool isFlattened,
-                                     const cvf::Vec3d& flattenedPolylineStartPoint);
+    RivIntersectionGeometryGenerator( RimIntersection*                       crossSection,
+                                      std::vector<std::vector<cvf::Vec3d>>&  polylines,
+                                      const cvf::Vec3d&                      extrusionDirection,
+                                      const RivIntersectionHexGridInterface* grid,
+                                      bool                                   isFlattened,
+                                      const cvf::Vec3d&                      flattenedPolylineStartPoint );
 
     ~RivIntersectionGeometryGenerator() override;
 
-    bool                        isAnyGeometryPresent() const;
- 
+    bool isAnyGeometryPresent() const;
+
     // Generate geometry
-    cvf::ref<cvf::DrawableGeo>  generateSurface();
-    cvf::ref<cvf::DrawableGeo>  createMeshDrawable();
-    cvf::ref<cvf::DrawableGeo>  createFaultMeshDrawable();
+    cvf::ref<cvf::DrawableGeo> generateSurface();
+    cvf::ref<cvf::DrawableGeo> createMeshDrawable();
+    cvf::ref<cvf::DrawableGeo> createFaultMeshDrawable();
 
-    cvf::ref<cvf::DrawableGeo>  createLineAlongPolylineDrawable();
-    cvf::ref<cvf::DrawableGeo>  createLineAlongExtrusionLineDrawable(const std::vector<cvf::Vec3d>& extrusionLine);
-    cvf::ref<cvf::DrawableGeo>  createPointsFromPolylineDrawable();
-    cvf::ref<cvf::DrawableGeo>  createPointsFromExtrusionLineDrawable(const std::vector<cvf::Vec3d>& extrusionLine);
+    cvf::ref<cvf::DrawableGeo> createLineAlongPolylineDrawable();
+    cvf::ref<cvf::DrawableGeo> createLineAlongExtrusionLineDrawable( const std::vector<cvf::Vec3d>& extrusionLine );
+    cvf::ref<cvf::DrawableGeo> createPointsFromPolylineDrawable();
+    cvf::ref<cvf::DrawableGeo> createPointsFromExtrusionLineDrawable( const std::vector<cvf::Vec3d>& extrusionLine );
 
-    const std::vector<std::vector<cvf::Vec3d> >&     flattenedOrOffsettedPolyLines() { return m_flattenedOrOffsettedPolyLines; }
-    const std::vector<std::pair<QString, cvf::Vec3d> > & faultMeshLabelAndAnchorPositions() { return m_faultMeshLabelAndAnchorPositions; }
-    
+    const std::vector<std::vector<cvf::Vec3d>>& flattenedOrOffsettedPolyLines()
+    {
+        return m_flattenedOrOffsettedPolyLines;
+    }
+    const std::vector<std::pair<QString, cvf::Vec3d>>& faultMeshLabelAndAnchorPositions()
+    {
+        return m_faultMeshLabelAndAnchorPositions;
+    }
 
     // Mapping between cells and geometry
     const std::vector<size_t>&                       triangleToCellIndex() const;
     const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
     const cvf::Vec3fArray*                           triangleVxes() const;
 
-    RimIntersection*            crossSection() const;
+    RimIntersection* crossSection() const;
 
-    cvf::Mat4d                  unflattenTransformMatrix(const cvf::Vec3d& intersectionPointFlat);
+    cvf::Mat4d unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat );
 
 private:
-    void                        calculateArrays();
-    void                        calculateSegementTransformPrLinePoint();
-    void                        calculateFlattenedOrOffsetedPolyline();
+    void calculateArrays();
+    void calculateSegementTransformPrLinePoint();
+    void calculateFlattenedOrOffsetedPolyline();
 
-    //static size_t               indexToNextValidPoint(const std::vector<cvf::Vec3d>& polyLine,
+    // static size_t               indexToNextValidPoint(const std::vector<cvf::Vec3d>& polyLine,
     //                                                  const cvf::Vec3d extrDir,
     //                                                  size_t idxToStartOfLineSegment);
 
-    RimIntersection*                            m_crossSection;
-    cvf::cref<RivIntersectionHexGridInterface>  m_hexGrid;
-    const std::vector<std::vector<cvf::Vec3d> > m_polyLines;
-    cvf::Vec3d                                  m_extrusionDirection;
-    bool                                        m_isFlattened;
-    cvf::Vec3d                                  m_flattenedPolylineStartPoint;
-                                                
-    // Output arrays                            
-    cvf::ref<cvf::Vec3fArray>                   m_triangleVxes;
-    cvf::ref<cvf::Vec3fArray>                   m_cellBorderLineVxes;
-    cvf::ref<cvf::Vec3fArray>                   m_faultCellBorderLineVxes;
-    std::vector<size_t>                         m_triangleToCellIdxMap;
-    std::vector<RivIntersectionVertexWeights>   m_triVxToCellCornerWeights;
-    std::vector<std::vector<cvf::Vec3d> >       m_flattenedOrOffsettedPolyLines;
-    std::vector<std::vector<cvf::Mat4d> >       m_segementTransformPrLinePoint;
+    RimIntersection*                           m_crossSection;
+    cvf::cref<RivIntersectionHexGridInterface> m_hexGrid;
+    const std::vector<std::vector<cvf::Vec3d>> m_polyLines;
+    cvf::Vec3d                                 m_extrusionDirection;
+    bool                                       m_isFlattened;
+    cvf::Vec3d                                 m_flattenedPolylineStartPoint;
 
-    std::vector<std::pair<QString, cvf::Vec3d> > m_faultMeshLabelAndAnchorPositions;
+    // Output arrays
+    cvf::ref<cvf::Vec3fArray>                 m_triangleVxes;
+    cvf::ref<cvf::Vec3fArray>                 m_cellBorderLineVxes;
+    cvf::ref<cvf::Vec3fArray>                 m_faultCellBorderLineVxes;
+    std::vector<size_t>                       m_triangleToCellIdxMap;
+    std::vector<RivIntersectionVertexWeights> m_triVxToCellCornerWeights;
+    std::vector<std::vector<cvf::Vec3d>>      m_flattenedOrOffsettedPolyLines;
+    std::vector<std::vector<cvf::Mat4d>>      m_segementTransformPrLinePoint;
+
+    std::vector<std::pair<QString, cvf::Vec3d>> m_faultMeshLabelAndAnchorPositions;
 };
-

@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cvfMath.h"
 #include "cvfObject.h"
 
@@ -65,10 +64,15 @@ public:
     };
 
 public:
-    RigWellPathFormations(const std::vector<RigWellPathFormation>& formations, const QString& filePath, const QString& key);
+    RigWellPathFormations( const std::vector<RigWellPathFormation>& formations,
+                           const QString&                           filePath,
+                           const QString&                           key );
 
-    void depthAndFormationNamesUpToLevel(FormationLevel level, std::vector<QString>* names, std::vector<double>* depths,
-                                         bool includeFluids, RimWellLogPlot::DepthTypeEnum depthType) const;
+    void depthAndFormationNamesUpToLevel( FormationLevel                level,
+                                          std::vector<QString>*         names,
+                                          std::vector<double>*          depths,
+                                          bool                          includeFluids,
+                                          RimWellLogPlot::DepthTypeEnum depthType ) const;
 
     std::vector<FormationLevel> formationsLevelsPresent() const;
 
@@ -80,9 +84,9 @@ public:
 private:
     struct DepthComp
     {
-        bool operator()(const double& depth1, const double& depth2) const
+        bool operator()( const double& depth1, const double& depth2 ) const
         {
-            if (cvf::Math::abs(depth1 - depth2) < 0.1)
+            if ( cvf::Math::abs( depth1 - depth2 ) < 0.1 )
             {
                 return false;
             }
@@ -93,7 +97,11 @@ private:
     struct LevelAndName
     {
         LevelAndName() = default;
-        LevelAndName(RigWellPathFormations::FormationLevel level, QString name) : level(level), name(name) {}
+        LevelAndName( RigWellPathFormations::FormationLevel level, QString name )
+            : level( level )
+            , name( name )
+        {
+        }
 
         RigWellPathFormations::FormationLevel level;
         QString                               name;
@@ -106,23 +114,29 @@ private:
     };
 
 private:
-    void evaluateFormations(const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
-                            const FormationLevel& maxLevel, std::vector<QString>* names, std::vector<double>* depths,
-                            RimWellLogPlot::DepthTypeEnum depthType) const;
+    void evaluateFormations( const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
+                             const FormationLevel&                                               maxLevel,
+                             std::vector<QString>*                                               names,
+                             std::vector<double>*                                                depths,
+                             RimWellLogPlot::DepthTypeEnum                                       depthType ) const;
 
-    void evaluateFluids(const std::vector<RigWellPathFormation>& fluidFormations, std::vector<QString>* names,
-                        std::vector<double>* depths, RimWellLogPlot::DepthTypeEnum depthType) const;
+    void evaluateFluids( const std::vector<RigWellPathFormation>& fluidFormations,
+                         std::vector<QString>*                    names,
+                         std::vector<double>*                     depths,
+                         RimWellLogPlot::DepthTypeEnum            depthType ) const;
 
-    void evaluateFormationsForOnePosition(const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
-                                          const FormationLevel& maxLevel, const PickPosition& position,
-                                          std::map<double, LevelAndName, DepthComp>* uniqueListMaker,
-                                          RimWellLogPlot::DepthTypeEnum              depthType) const;
+    void evaluateFormationsForOnePosition( const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
+                                           const FormationLevel&                                               maxLevel,
+                                           const PickPosition&                                                 position,
+                                           std::map<double, LevelAndName, DepthComp>* uniqueListMaker,
+                                           RimWellLogPlot::DepthTypeEnum              depthType ) const;
 
-    void depthAndFormationNamesWithoutDuplicatesOnDepth(std::vector<QString>* names, std::vector<double>* measuredDepths,
-                                                        RimWellLogPlot::DepthTypeEnum depthType) const;
+    void depthAndFormationNamesWithoutDuplicatesOnDepth( std::vector<QString>*         names,
+                                                         std::vector<double>*          measuredDepths,
+                                                         RimWellLogPlot::DepthTypeEnum depthType ) const;
 
-    bool           isFluid(QString formationName);
-    FormationLevel detectLevel(QString formationName);
+    bool           isFluid( QString formationName );
+    FormationLevel detectLevel( QString formationName );
 
 private:
     QString m_filePath;

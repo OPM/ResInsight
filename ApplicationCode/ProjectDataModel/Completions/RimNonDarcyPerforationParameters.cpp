@@ -25,67 +25,72 @@
 
 namespace caf
 {
-template<>
+template <>
 void caf::AppEnum<RimNonDarcyPerforationParameters::NonDarcyFlowEnum>::setUp()
 {
-    addItem(RimNonDarcyPerforationParameters::NON_DARCY_NONE, "None", "None");
-    addItem(RimNonDarcyPerforationParameters::NON_DARCY_COMPUTED, "Computed", "Compute D-factor");
-    addItem(RimNonDarcyPerforationParameters::NON_DARCY_USER_DEFINED, "UserDefined", "User Defined D-factor");
+    addItem( RimNonDarcyPerforationParameters::NON_DARCY_NONE, "None", "None" );
+    addItem( RimNonDarcyPerforationParameters::NON_DARCY_COMPUTED, "Computed", "Compute D-factor" );
+    addItem( RimNonDarcyPerforationParameters::NON_DARCY_USER_DEFINED, "UserDefined", "User Defined D-factor" );
 
-    setDefault(RimNonDarcyPerforationParameters::NON_DARCY_NONE);
+    setDefault( RimNonDarcyPerforationParameters::NON_DARCY_NONE );
 }
 } // namespace caf
 
-CAF_PDM_SOURCE_INIT(RimNonDarcyPerforationParameters, "RimNonDarcyPerforationParameters");
+CAF_PDM_SOURCE_INIT( RimNonDarcyPerforationParameters, "RimNonDarcyPerforationParameters" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimNonDarcyPerforationParameters::RimNonDarcyPerforationParameters()
 {
-    CAF_PDM_InitObject("NonDarcyPerforationParameters", ":/CompletionsSymbol16x16.png", "", "");
+    CAF_PDM_InitObject( "NonDarcyPerforationParameters", ":/CompletionsSymbol16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_nonDarcyFlowType, "NonDarcyFlowType", "Non-Darcy Flow", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_nonDarcyFlowType, "NonDarcyFlowType", "Non-Darcy Flow", "", "", "" );
 
-    CAF_PDM_InitField(&m_userDefinedDFactor, "UserDefinedDFactor", 1.0, "D Factor", "", "", "");
+    CAF_PDM_InitField( &m_userDefinedDFactor, "UserDefinedDFactor", 1.0, "D Factor", "", "", "" );
 
-    CAF_PDM_InitField(&m_gridPermeabilityScalingFactor,
-                      "GridPermeabilityScalingFactor",
-                      1.0,
-                      "<html>Grid Permeability Scaling Factor (K<sub>r</sub>) [0..1]</html>",
-                      "",
-                      "",
-                      "");
+    CAF_PDM_InitField( &m_gridPermeabilityScalingFactor,
+                       "GridPermeabilityScalingFactor",
+                       1.0,
+                       "<html>Grid Permeability Scaling Factor (K<sub>r</sub>) [0..1]</html>",
+                       "",
+                       "",
+                       "" );
 
-    CAF_PDM_InitField(&m_wellRadius, "WellRadius", 0.108, "<html>Well Radius (r<sub>w</sub>)</html> [m]", "", "", "");
+    CAF_PDM_InitField( &m_wellRadius, "WellRadius", 0.108, "<html>Well Radius (r<sub>w</sub>)</html> [m]", "", "", "" );
 
-    CAF_PDM_InitField(&m_relativeGasDensity,
-                      "RelativeGasDensity",
-                      0.8,
-                      "<html>Relative Gas Density (&gamma;)</html>",
-                      "",
-                      "Relative density of gas at surface conditions with respect to air at STP",
-                      "");
+    CAF_PDM_InitField( &m_relativeGasDensity,
+                       "RelativeGasDensity",
+                       0.8,
+                       "<html>Relative Gas Density (&gamma;)</html>",
+                       "",
+                       "Relative density of gas at surface conditions with respect to air at STP",
+                       "" );
 
-    CAF_PDM_InitField(&m_gasViscosity,
-                      "GasViscosity",
-                      0.02,
-                      "<html>Gas Viscosity (&mu;)</html> [cP]",
-                      "",
-                      "Gas viscosity at bottom hole pressure",
-                      "");
+    CAF_PDM_InitField( &m_gasViscosity,
+                       "GasViscosity",
+                       0.02,
+                       "<html>Gas Viscosity (&mu;)</html> [cP]",
+                       "",
+                       "Gas viscosity at bottom hole pressure",
+                       "" );
 
-    CAF_PDM_InitField(&m_inertialCoefficientBeta0,
-                      "InertialCoefficientBeta0",
-                      883.90,
-                      "<html>Inertial Coefficient (&beta;<sub>0</sub>)</html> [Forch. unit]",
-                      "",
-                      "",
-                      "");
-    CAF_PDM_InitField(
-        &m_permeabilityScalingFactor, "PermeabilityScalingFactor", -1.1045, "Permeability Scaling Factor (B)", "", "", "");
+    CAF_PDM_InitField( &m_inertialCoefficientBeta0,
+                       "InertialCoefficientBeta0",
+                       883.90,
+                       "<html>Inertial Coefficient (&beta;<sub>0</sub>)</html> [Forch. unit]",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_permeabilityScalingFactor,
+                       "PermeabilityScalingFactor",
+                       -1.1045,
+                       "Permeability Scaling Factor (B)",
+                       "",
+                       "",
+                       "" );
 
-    CAF_PDM_InitField(&m_porosityScalingFactor, "PorosityScalingFactor", 0.0, "Porosity Scaling Factor (C)", "", "", "");
+    CAF_PDM_InitField( &m_porosityScalingFactor, "PorosityScalingFactor", 0.0, "Porosity Scaling Factor (C)", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,11 +173,11 @@ double RimNonDarcyPerforationParameters::porosityScalingFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimNonDarcyPerforationParameters::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                                        const QVariant&            oldValue,
-                                                        const QVariant&            newValue)
+void RimNonDarcyPerforationParameters::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                         const QVariant&            oldValue,
+                                                         const QVariant&            newValue )
 {
-    if (changedField == &m_nonDarcyFlowType)
+    if ( changedField == &m_nonDarcyFlowType )
     {
         caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
     }
@@ -181,30 +186,30 @@ void RimNonDarcyPerforationParameters::fieldChangedByUi(const caf::PdmFieldHandl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimNonDarcyPerforationParameters::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimNonDarcyPerforationParameters::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    auto nonDarcyFlowGroup = uiOrdering.addNewGroup("Non-Darcy Flow");
-    nonDarcyFlowGroup->add(&m_nonDarcyFlowType);
+    auto nonDarcyFlowGroup = uiOrdering.addNewGroup( "Non-Darcy Flow" );
+    nonDarcyFlowGroup->add( &m_nonDarcyFlowType );
 
-    if (m_nonDarcyFlowType == NON_DARCY_USER_DEFINED)
+    if ( m_nonDarcyFlowType == NON_DARCY_USER_DEFINED )
     {
-        nonDarcyFlowGroup->add(&m_userDefinedDFactor);
+        nonDarcyFlowGroup->add( &m_userDefinedDFactor );
     }
-    else if (m_nonDarcyFlowType == NON_DARCY_COMPUTED)
+    else if ( m_nonDarcyFlowType == NON_DARCY_COMPUTED )
     {
         {
-            auto group = nonDarcyFlowGroup->addNewGroup("Parameters");
-            group->add(&m_gridPermeabilityScalingFactor);
-            group->add(&m_wellRadius);
-            group->add(&m_relativeGasDensity);
-            group->add(&m_gasViscosity);
+            auto group = nonDarcyFlowGroup->addNewGroup( "Parameters" );
+            group->add( &m_gridPermeabilityScalingFactor );
+            group->add( &m_wellRadius );
+            group->add( &m_relativeGasDensity );
+            group->add( &m_gasViscosity );
         }
         {
-            auto group = nonDarcyFlowGroup->addNewGroup("<html>&beta; Factor</html>");
-            group->add(&m_inertialCoefficientBeta0);
-            group->add(&m_permeabilityScalingFactor);
-            group->add(&m_porosityScalingFactor);
+            auto group = nonDarcyFlowGroup->addNewGroup( "<html>&beta; Factor</html>" );
+            group->add( &m_inertialCoefficientBeta0 );
+            group->add( &m_permeabilityScalingFactor );
+            group->add( &m_porosityScalingFactor );
         }
     }
-    uiOrdering.skipRemainingFields(true);
+    uiOrdering.skipRemainingFields( true );
 }

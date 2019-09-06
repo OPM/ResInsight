@@ -20,33 +20,33 @@
 
 namespace caf
 {
-template<>
+template <>
 void caf::AppEnum<RimPlotCellFilter::FilterModeType>::setUp()
 {
-    addItem(RimPlotCellFilter::INCLUDE, "INCLUDE", "Include");
-    addItem(RimPlotCellFilter::EXCLUDE, "EXCLUDE", "Exclude");
-    setDefault(RimPlotCellFilter::INCLUDE);
+    addItem( RimPlotCellFilter::INCLUDE, "INCLUDE", "Include" );
+    addItem( RimPlotCellFilter::EXCLUDE, "EXCLUDE", "Exclude" );
+    setDefault( RimPlotCellFilter::INCLUDE );
 }
 } // namespace caf
 
-CAF_PDM_ABSTRACT_SOURCE_INIT(RimPlotCellFilter, "RimPlotCellFilter");
+CAF_PDM_ABSTRACT_SOURCE_INIT( RimPlotCellFilter, "RimPlotCellFilter" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimPlotCellFilter::RimPlotCellFilter()
 {
-    CAF_PDM_InitFieldNoDefault(&m_filterMode, "FilterMode", "Filter Mode", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_filterMode, "FilterMode", "Filter Mode", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCellFilter::updateCellVisibility(size_t timeStepIndex, cvf::UByteArray* cellVisibility)
+void RimPlotCellFilter::updateCellVisibility( size_t timeStepIndex, cvf::UByteArray* cellVisibility )
 {
-    if (isChecked())
+    if ( isChecked() )
     {
-        updateCellVisibilityFromFilter(timeStepIndex, cellVisibility);
+        updateCellVisibilityFromFilter( timeStepIndex, cellVisibility );
     }
 }
 

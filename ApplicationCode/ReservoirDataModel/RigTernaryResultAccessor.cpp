@@ -2,17 +2,17 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,17 +24,16 @@
 #include <cmath> // Needed for HUGE_VAL on Linux
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RigTernaryResultAccessor::RigTernaryResultAccessor()
-{
-
-}
+RigTernaryResultAccessor::RigTernaryResultAccessor() {}
 
 //--------------------------------------------------------------------------------------------------
 /// Requires at least two data objects present, asserts if more than one data accessor is nullptr
 //--------------------------------------------------------------------------------------------------
-void RigTernaryResultAccessor::setTernaryResultAccessors(RigResultAccessor* soil, RigResultAccessor* sgas, RigResultAccessor* swat)
+void RigTernaryResultAccessor::setTernaryResultAccessors( RigResultAccessor* soil,
+                                                          RigResultAccessor* sgas,
+                                                          RigResultAccessor* swat )
 {
     m_soilAccessor = soil;
     m_sgasAccessor = sgas;
@@ -44,22 +43,22 @@ void RigTernaryResultAccessor::setTernaryResultAccessors(RigResultAccessor* soil
 //--------------------------------------------------------------------------------------------------
 /// If only swat is present, soil is set to (1.0 - swat) and sgas to 0
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2d RigTernaryResultAccessor::cellScalar(size_t gridLocalCellIndex) const
+cvf::Vec2d RigTernaryResultAccessor::cellScalar( size_t gridLocalCellIndex ) const
 {
     double soil = 0.0;
     double sgas = 0.0;
 
-    if (m_soilAccessor.notNull())
-    { 
-        soil = m_soilAccessor->cellScalar(gridLocalCellIndex);
+    if ( m_soilAccessor.notNull() )
+    {
+        soil = m_soilAccessor->cellScalar( gridLocalCellIndex );
 
-        if (m_sgasAccessor.notNull())
+        if ( m_sgasAccessor.notNull() )
         {
-            sgas = m_sgasAccessor->cellScalar(gridLocalCellIndex);
+            sgas = m_sgasAccessor->cellScalar( gridLocalCellIndex );
         }
-        else if (m_swatAccessor.notNull())
+        else if ( m_swatAccessor.notNull() )
         {
-            sgas = 1.0 - soil - m_swatAccessor->cellScalar(gridLocalCellIndex);
+            sgas = 1.0 - soil - m_swatAccessor->cellScalar( gridLocalCellIndex );
         }
         else
         {
@@ -68,60 +67,61 @@ cvf::Vec2d RigTernaryResultAccessor::cellScalar(size_t gridLocalCellIndex) const
     }
     else
     {
-        if (m_sgasAccessor.notNull())
+        if ( m_sgasAccessor.notNull() )
         {
-            sgas = m_sgasAccessor->cellScalar(gridLocalCellIndex);
+            sgas = m_sgasAccessor->cellScalar( gridLocalCellIndex );
 
-            if (m_swatAccessor.notNull())
+            if ( m_swatAccessor.notNull() )
             {
-                soil = 1.0 - sgas - m_swatAccessor->cellScalar(gridLocalCellIndex);
+                soil = 1.0 - sgas - m_swatAccessor->cellScalar( gridLocalCellIndex );
             }
             else
             {
                 soil = 1.0 - sgas;
             }
         }
-        else if (m_swatAccessor.notNull())
+        else if ( m_swatAccessor.notNull() )
         {
-            soil = 1.0 - m_swatAccessor->cellScalar(gridLocalCellIndex);
+            soil = 1.0 - m_swatAccessor->cellScalar( gridLocalCellIndex );
         }
     }
 
-    return cvf::Vec2d(soil, sgas);
+    return cvf::Vec2d( soil, sgas );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2d RigTernaryResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const
+cvf::Vec2d RigTernaryResultAccessor::cellFaceScalar( size_t                             gridLocalCellIndex,
+                                                     cvf::StructGridInterface::FaceType faceId ) const
 {
-    return cellScalar(gridLocalCellIndex);
+    return cellScalar( gridLocalCellIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2d RigTernaryResultAccessor::cellScalarGlobIdx(size_t globCellIndex) const
+cvf::Vec2d RigTernaryResultAccessor::cellScalarGlobIdx( size_t globCellIndex ) const
 {
     double soil = 0.0;
     double sgas = 0.0;
 
-    if (m_soilAccessor.notNull())
+    if ( m_soilAccessor.notNull() )
     {
-        soil = m_soilAccessor->cellScalarGlobIdx(globCellIndex);
+        soil = m_soilAccessor->cellScalarGlobIdx( globCellIndex );
 
-        if (soil == HUGE_VAL)
+        if ( soil == HUGE_VAL )
         {
-            return cvf::Vec2d(HUGE_VAL, HUGE_VAL);
+            return cvf::Vec2d( HUGE_VAL, HUGE_VAL );
         }
 
-        if (m_sgasAccessor.notNull())
+        if ( m_sgasAccessor.notNull() )
         {
-            sgas = m_sgasAccessor->cellScalarGlobIdx(globCellIndex);
+            sgas = m_sgasAccessor->cellScalarGlobIdx( globCellIndex );
         }
-        else if (m_swatAccessor.notNull())
+        else if ( m_swatAccessor.notNull() )
         {
-            sgas = 1.0 - soil - m_swatAccessor->cellScalarGlobIdx(globCellIndex);
+            sgas = 1.0 - soil - m_swatAccessor->cellScalarGlobIdx( globCellIndex );
         }
         else
         {
@@ -130,35 +130,35 @@ cvf::Vec2d RigTernaryResultAccessor::cellScalarGlobIdx(size_t globCellIndex) con
     }
     else
     {
-        if (m_sgasAccessor.notNull())
+        if ( m_sgasAccessor.notNull() )
         {
-            sgas = m_sgasAccessor->cellScalarGlobIdx(globCellIndex);
+            sgas = m_sgasAccessor->cellScalarGlobIdx( globCellIndex );
 
-            if (sgas == HUGE_VAL)
+            if ( sgas == HUGE_VAL )
             {
-                return cvf::Vec2d(HUGE_VAL, HUGE_VAL);
+                return cvf::Vec2d( HUGE_VAL, HUGE_VAL );
             }
 
-            if (m_swatAccessor.notNull())
+            if ( m_swatAccessor.notNull() )
             {
-                soil = 1.0 - sgas - m_swatAccessor->cellScalarGlobIdx(globCellIndex);
+                soil = 1.0 - sgas - m_swatAccessor->cellScalarGlobIdx( globCellIndex );
             }
             else
             {
                 soil = 1.0 - sgas;
             }
         }
-        else if (m_swatAccessor.notNull())
+        else if ( m_swatAccessor.notNull() )
         {
-            double swat = m_swatAccessor->cellScalarGlobIdx(globCellIndex);
-            if (swat == HUGE_VAL)
+            double swat = m_swatAccessor->cellScalarGlobIdx( globCellIndex );
+            if ( swat == HUGE_VAL )
             {
-                return cvf::Vec2d(HUGE_VAL, HUGE_VAL);
+                return cvf::Vec2d( HUGE_VAL, HUGE_VAL );
             }
 
-            soil = 1.0 - m_swatAccessor->cellScalarGlobIdx(globCellIndex);
+            soil = 1.0 - m_swatAccessor->cellScalarGlobIdx( globCellIndex );
         }
     }
 
-    return cvf::Vec2d(soil, sgas);
+    return cvf::Vec2d( soil, sgas );
 }

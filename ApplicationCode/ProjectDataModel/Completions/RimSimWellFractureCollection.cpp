@@ -21,17 +21,17 @@
 #include "RimSimWellFracture.h"
 #include "cafPdmObject.h"
 
-CAF_PDM_SOURCE_INIT(RimSimWellFractureCollection, "SimWellFractureCollection");
+CAF_PDM_SOURCE_INIT( RimSimWellFractureCollection, "SimWellFractureCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSimWellFractureCollection::RimSimWellFractureCollection(void)
+RimSimWellFractureCollection::RimSimWellFractureCollection( void )
 {
-    CAF_PDM_InitObject("Fractures", ":/FractureLayout16x16.png", "", "");
+    CAF_PDM_InitObject( "Fractures", ":/FractureLayout16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&simwellFractures, "Fractures", "", "", "", "");
-    simwellFractures.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &simwellFractures, "Fractures", "", "", "", "" );
+    simwellFractures.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ void RimSimWellFractureCollection::deleteFractures()
 //--------------------------------------------------------------------------------------------------
 void RimSimWellFractureCollection::recomputeSimWellCenterlines()
 {
-    for (RimSimWellFracture* frac : simwellFractures())
+    for ( RimSimWellFracture* frac : simwellFractures() )
     {
         frac->recomputeWellCenterlineCoordinates();
     }

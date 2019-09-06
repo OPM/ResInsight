@@ -29,7 +29,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicCreateGridCrossPlotDataSetFeature, "RicCreateGridCrossPlotDataSetFeature");
+CAF_CMD_SOURCE_INIT( RicCreateGridCrossPlotDataSetFeature, "RicCreateGridCrossPlotDataSetFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -42,22 +42,22 @@ bool RicCreateGridCrossPlotDataSetFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateGridCrossPlotDataSetFeature::onActionTriggered(bool isChecked)
+void RicCreateGridCrossPlotDataSetFeature::onActionTriggered( bool isChecked )
 {
     RimGridCrossPlot* crossPlot = caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlot>();
 
     RimGridCrossPlotDataSet* dataSet = crossPlot->createDataSet();
-    dataSet->loadDataAndUpdate(true);
-    
+    dataSet->loadDataAndUpdate( true );
+
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
-    RiuPlotMainWindowTools::selectAsCurrentItem(dataSet);
+    RiuPlotMainWindowTools::selectAsCurrentItem( dataSet );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateGridCrossPlotDataSetFeature::setupActionLook(QAction* actionToSetup)
+void RicCreateGridCrossPlotDataSetFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Create Data Set");
-    actionToSetup->setIcon(QIcon(":/WellLogCurve16x16.png"));
+    actionToSetup->setText( "Create Data Set" );
+    actionToSetup->setIcon( QIcon( ":/WellLogCurve16x16.png" ) );
 }

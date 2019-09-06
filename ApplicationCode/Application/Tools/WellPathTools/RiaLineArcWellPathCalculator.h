@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cvfVector3.h"
 
 #include <vector>
@@ -29,36 +28,44 @@ public:
     struct WellTarget
     {
         cvf::Vec3d targetPointXYZ;
-        bool isTangentConstrained;
-        double azimuth;
-        double inclination;
+        bool       isTangentConstrained;
+        double     azimuth;
+        double     inclination;
 
         double radius1;
         double radius2;
     };
 
-    RiaLineArcWellPathCalculator(const cvf::Vec3d& referencePointXyz, 
-                                 const std::vector<RiaLineArcWellPathCalculator::WellTarget>& targets);
+    RiaLineArcWellPathCalculator( const cvf::Vec3d&                                            referencePointXyz,
+                                  const std::vector<RiaLineArcWellPathCalculator::WellTarget>& targets );
 
     struct WellTargetStatus
     {
-        bool hasDerivedTangent;
+        bool   hasDerivedTangent;
         double resultAzimuth;
         double resultInclination;
 
-        bool hasOverriddenRadius1;
+        bool   hasOverriddenRadius1;
         double resultRadius1;
-        bool hasOverriddenRadius2;
+        bool   hasOverriddenRadius2;
         double resultRadius2;
     };
 
-    cvf::Vec3d                           startTangent() const { return m_startTangent; }
-    const std::vector<cvf::Vec3d>&       lineArcEndpoints() const { return m_lineArcEndpoints;} 
-    const std::vector<WellTargetStatus>& targetStatuses() const { return m_targetStatuses;}
- 
+    cvf::Vec3d startTangent() const
+    {
+        return m_startTangent;
+    }
+    const std::vector<cvf::Vec3d>& lineArcEndpoints() const
+    {
+        return m_lineArcEndpoints;
+    }
+    const std::vector<WellTargetStatus>& targetStatuses() const
+    {
+        return m_targetStatuses;
+    }
+
 private:
     cvf::Vec3d                    m_startTangent;
     std::vector<cvf::Vec3d>       m_lineArcEndpoints;
     std::vector<WellTargetStatus> m_targetStatuses;
 };
-

@@ -31,61 +31,60 @@
 #include <cctype>
 #include <string>
 
-
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-static QFile* openFile(const QString &fileName);
-static void closeFile(QFile *file);
+static QFile* openFile( const QString& fileName );
+static void   closeFile( QFile* file );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RifElementPropertyMetadata RifElementPropertyTableReader::readMetadata(const QString& fileName)
+RifElementPropertyMetadata RifElementPropertyTableReader::readMetadata( const QString& fileName )
 {
-    RifElementPropertyMetadata  metadata;
-    QFile*                      file = nullptr;
+    RifElementPropertyMetadata metadata;
+    QFile*                     file = nullptr;
 
     try
     {
-        file = openFile(fileName);
+        file = openFile( fileName );
 
-        if (file)
+        if ( file )
         {
-            QTextStream     stream(file);
-            bool            metadataBlockFound = false;
-            int             maxLinesToRead = 50;
-            int             lineNo = 0;
+            QTextStream stream( file );
+            bool        metadataBlockFound = false;
+            int         maxLinesToRead     = 50;
+            int         lineNo             = 0;
 
-            while (lineNo < maxLinesToRead)
+            while ( lineNo < maxLinesToRead )
             {
                 QString line = stream.readLine();
                 lineNo++;
 
-                if (line.toUpper().startsWith("*DISTRIBUTION TABLE"))
+                if ( line.toUpper().startsWith( "*DISTRIBUTION TABLE" ) )
                 {
                     metadataBlockFound = true;
                     continue;
                 }
 
-                if (!metadataBlockFound) continue;
+                if ( !metadataBlockFound ) continue;
 
-                QStringList cols = RifFileParseTools::splitLineAndTrim(line, ",");
+                QStringList cols = RifFileParseTools::splitLineAndTrim( line, "," );
 
                 metadata.fileName = fileName;
-                for (QString s : cols)
+                for ( QString s : cols )
                 {
-                    metadata.dataColumns.push_back(s);
+                    metadata.dataColumns.push_back( s );
                 }
                 break;
             }
 
-            closeFile(file);
+            closeFile( file );
         }
     }
-    catch(...)
+    catch ( ... )
     {
-        closeFile(file);
+        closeFile( file );
         throw;
     }
 
@@ -95,68 +94,73 @@ RifElementPropertyMetadata RifElementPropertyTableReader::readMetadata(const QSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifElementPropertyTableReader::readData(const RifElementPropertyMetadata *metadata, RifElementPropertyTable *table)
+void RifElementPropertyTableReader::readData( const RifElementPropertyMetadata* metadata, RifElementPropertyTable* table )
 {
-    CVF_ASSERT(metadata && table);
+    CVF_ASSERT( metadata && table );
 
-    int     expectedColumnCount = (int)metadata->dataColumns.size() + 1;
-    QFile*  file = nullptr;
+    int    expectedColumnCount = (int)metadata->dataColumns.size() + 1;
+    QFile* file                = nullptr;
 
     try
     {
-        file = openFile(metadata->fileName);
+        file = openFile( metadata->fileName );
 
-        if (file && expectedColumnCount > 0)
+        if ( file && expectedColumnCount > 0 )
         {
-            QTextStream     stream(file);
-            bool            dataBlockFound = false;
-            int             lineNo = 0;
+            QTextStream stream( file );
+            bool        dataBlockFound = false;
+            int         lineNo         = 0;
 
             // Init data vectors
             table->elementIds.clear();
-            table->data = std::vector<std::vector<float>>(metadata->dataColumns.size());
+            table->data = std::vector<std::vector<float>>( metadata->dataColumns.size() );
 
-            while (!stream.atEnd())
+            while ( !stream.atEnd() )
             {
                 QString     line = stream.readLine();
-                QStringList cols = RifFileParseTools::splitLineAndTrim(line, ",");
+                QStringList cols = RifFileParseTools::splitLineAndTrim( line, "," );
                 lineNo++;
 
-                if (!dataBlockFound)
+                if ( !dataBlockFound )
                 {
-                    if (!line.startsWith("*") && !line.startsWith(",") && cols.size() == expectedColumnCount) dataBlockFound = true;
-                    else continue;
+                    if ( !line.startsWith( "*" ) && !line.startsWith( "," ) && cols.size() == expectedColumnCount )
+                        dataBlockFound = true;
+                    else
+                        continue;
                 }
 
-                if (cols.size() != expectedColumnCount)
+                if ( cols.size() != expectedColumnCount )
                 {
-                    throw FileParseException(QString("Number of columns mismatch at %1:%2").arg(metadata->fileName).arg(lineNo));
+                    throw FileParseException(
+                        QString( "Number of columns mismatch at %1:%2" ).arg( metadata->fileName ).arg( lineNo ) );
                 }
 
-                for (int c = 0; c < expectedColumnCount; c++)
+                for ( int c = 0; c < expectedColumnCount; c++ )
                 {
                     bool parseOk;
 
-                    if (c == 0)
+                    if ( c == 0 )
                     {
                         // Remove elementId column prefix
-                        QStringList parts = cols[0].split(".");
+                        QStringList parts = cols[0].split( "." );
 
-                        int elementId = parts.last().toInt(&parseOk);
-                        if (!parseOk)
+                        int elementId = parts.last().toInt( &parseOk );
+                        if ( !parseOk )
                         {
-                            throw FileParseException(QString("Parse failed at %1:%2").arg(metadata->fileName).arg(lineNo));
+                            throw FileParseException(
+                                QString( "Parse failed at %1:%2" ).arg( metadata->fileName ).arg( lineNo ) );
                         }
-                        table->elementIds.push_back(elementId);
+                        table->elementIds.push_back( elementId );
                     }
                     else
                     {
-                        float value = cols[c].toFloat(&parseOk);
-                        if (!parseOk)
+                        float value = cols[c].toFloat( &parseOk );
+                        if ( !parseOk )
                         {
-                            throw FileParseException(QString("Parse failed at %1:%2").arg(metadata->fileName).arg(lineNo));
+                            throw FileParseException(
+                                QString( "Parse failed at %1:%2" ).arg( metadata->fileName ).arg( lineNo ) );
                         }
-                        table->data[c - 1].push_back(value);
+                        table->data[c - 1].push_back( value );
                     }
                 }
             }
@@ -164,25 +168,25 @@ void RifElementPropertyTableReader::readData(const RifElementPropertyMetadata *m
             table->hasData = true;
         }
 
-        closeFile(file);
+        closeFile( file );
     }
-    catch (...)
+    catch ( ... )
     {
-        closeFile(file);
+        closeFile( file );
         throw;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QFile* openFile(const QString &fileName)
+QFile* openFile( const QString& fileName )
 {
-    QFile *file;
-    file = new QFile(fileName);
-    if (!file->open(QIODevice::ReadOnly | QIODevice::Text))
+    QFile* file;
+    file = new QFile( fileName );
+    if ( !file->open( QIODevice::ReadOnly | QIODevice::Text ) )
     {
-        RiaLogging::error(QString("Failed to open %1").arg(fileName));
+        RiaLogging::error( QString( "Failed to open %1" ).arg( fileName ) );
 
         delete file;
         return nullptr;
@@ -191,11 +195,11 @@ QFile* openFile(const QString &fileName)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void closeFile(QFile *file)
+void closeFile( QFile* file )
 {
-    if (file)
+    if ( file )
     {
         file->close();
         delete file;

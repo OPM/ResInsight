@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,10 +22,10 @@
 
 #include "RicPasteSummaryCurveFeature.h"
 
+#include "RiaSummaryTools.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RiaSummaryTools.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
@@ -41,40 +41,39 @@
 
 #include <QAction>
 
-
-CAF_CMD_SOURCE_INIT(RicDuplicateSummaryCurveFeature, "RicDuplicateSummaryCurveFeature");
+CAF_CMD_SOURCE_INIT( RicDuplicateSummaryCurveFeature, "RicDuplicateSummaryCurveFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicDuplicateSummaryCurveFeature::isCommandEnabled()
 {
     RimSummaryPlot* selectedPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot*>();
-    return (selectedPlot && !RiaSummaryTools::isSummaryCrossPlot(selectedPlot));
+    return ( selectedPlot && !RiaSummaryTools::isSummaryCrossPlot( selectedPlot ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicDuplicateSummaryCurveFeature::onActionTriggered(bool isChecked)
+void RicDuplicateSummaryCurveFeature::onActionTriggered( bool isChecked )
 {
     RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
+    CVF_ASSERT( project );
 
     RimSummaryCurve* curve = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCurve*>();
-    if (curve)
+    if ( curve )
     {
-        RimSummaryCurve* newCurve = RicPasteSummaryCurveFeature::copyCurveAndAddToPlot(curve);
+        RimSummaryCurve* newCurve = RicPasteSummaryCurveFeature::copyCurveAndAddToPlot( curve );
         RiuPlotMainWindowTools::showPlotMainWindow();
-        RiuPlotMainWindowTools::selectAsCurrentItem(newCurve);
+        RiuPlotMainWindowTools::selectAsCurrentItem( newCurve );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicDuplicateSummaryCurveFeature::setupActionLook(QAction* actionToSetup)
+void RicDuplicateSummaryCurveFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Duplicate Summary Curve");
-    actionToSetup->setIcon(QIcon(":/SummaryCurve16x16.png"));
+    actionToSetup->setText( "Duplicate Summary Curve" );
+    actionToSetup->setIcon( QIcon( ":/SummaryCurve16x16.png" ) );
 }

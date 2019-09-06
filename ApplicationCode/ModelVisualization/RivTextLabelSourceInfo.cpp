@@ -21,16 +21,18 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivTextLabelSourceInfo::RivTextLabelSourceInfo(caf::PdmObject* pdmObject, const cvf::String& text, const cvf::Vec3f& position)
-    : RivObjectSourceInfo(pdmObject)
-    , m_text(text)
-    , m_positionDisplayCoord(position)
+RivTextLabelSourceInfo::RivTextLabelSourceInfo( caf::PdmObject*    pdmObject,
+                                                const cvf::String& text,
+                                                const cvf::Vec3f&  position )
+    : RivObjectSourceInfo( pdmObject )
+    , m_text( text )
+    , m_positionDisplayCoord( position )
 
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::String RivTextLabelSourceInfo::text() const
 {
@@ -38,7 +40,7 @@ cvf::String RivTextLabelSourceInfo::text() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3f RivTextLabelSourceInfo::textPositionDisplayCoord() const
 {

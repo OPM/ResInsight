@@ -18,35 +18,33 @@
 #include "RimWellPathAttributeCollection.h"
 
 #include "RimProject.h"
-#include "RimWellPathAttribute.h"
 #include "RimWellLogTrack.h"
+#include "RimWellPathAttribute.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
-CAF_PDM_SOURCE_INIT(RimWellPathAttributeCollection, "WellPathAttributes");
+CAF_PDM_SOURCE_INIT( RimWellPathAttributeCollection, "WellPathAttributes" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellPathAttributeCollection::RimWellPathAttributeCollection()
 {
-    CAF_PDM_InitObject("Casing Design", ":/CasingDesign16x16", "", "");
+    CAF_PDM_InitObject( "Casing Design", ":/CasingDesign16x16", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_attributes, "Attributes", "Casing Design Attributes", "", "", "");
-    m_attributes.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
-    m_attributes.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
-    m_attributes.uiCapability()->setCustomContextMenuEnabled(true);
-    this->setName("Casing Design");
+    CAF_PDM_InitFieldNoDefault( &m_attributes, "Attributes", "Casing Design Attributes", "", "", "" );
+    m_attributes.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    m_attributes.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_attributes.uiCapability()->setCustomContextMenuEnabled( true );
+    this->setName( "Casing Design" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathAttributeCollection::~RimWellPathAttributeCollection()
-{
-}
+RimWellPathAttributeCollection::~RimWellPathAttributeCollection() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -55,8 +53,8 @@ void RimWellPathAttributeCollection::updateAllReferringTracks()
 {
     std::vector<RimWellLogTrack*> wellLogTracks;
 
-    this->objectsWithReferringPtrFieldsOfType(wellLogTracks);
-    for (RimWellLogTrack* track : wellLogTracks)
+    this->objectsWithReferringPtrFieldsOfType( wellLogTracks );
+    for ( RimWellLogTrack* track : wellLogTracks )
     {
         track->loadDataAndUpdate();
     }
@@ -70,9 +68,9 @@ std::vector<RimWellPathAttribute*> RimWellPathAttributeCollection::attributes() 
 {
     std::vector<RimWellPathAttribute*> attrs;
 
-    for (auto attr : m_attributes)
+    for ( auto attr : m_attributes )
     {
-        attrs.push_back(attr.p());
+        attrs.push_back( attr.p() );
     }
     return attrs;
 }
@@ -80,13 +78,13 @@ std::vector<RimWellPathAttribute*> RimWellPathAttributeCollection::attributes() 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathAttributeCollection::insertAttribute(RimWellPathAttribute* insertBefore, RimWellPathAttribute* attribute)
+void RimWellPathAttributeCollection::insertAttribute( RimWellPathAttribute* insertBefore, RimWellPathAttribute* attribute )
 {
-    size_t index = m_attributes.index(insertBefore);
-    if (index < m_attributes.size())
-        m_attributes.insert(index, attribute);
+    size_t index = m_attributes.index( insertBefore );
+    if ( index < m_attributes.size() )
+        m_attributes.insert( index, attribute );
     else
-        m_attributes.push_back(attribute);
+        m_attributes.push_back( attribute );
 
     this->updateAllReferringTracks();
 }
@@ -94,10 +92,10 @@ void RimWellPathAttributeCollection::insertAttribute(RimWellPathAttribute* inser
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathAttributeCollection::deleteAttribute(RimWellPathAttribute* attributeToDelete)
+void RimWellPathAttributeCollection::deleteAttribute( RimWellPathAttribute* attributeToDelete )
 {
-    m_attributes.removeChildObject(attributeToDelete);
-    delete attributeToDelete;    
+    m_attributes.removeChildObject( attributeToDelete );
+    delete attributeToDelete;
 
     this->updateAllReferringTracks();
 }
@@ -114,9 +112,9 @@ void RimWellPathAttributeCollection::deleteAllAttributes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathAttributeCollection::defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu,
-                                                    QMenu*                     menu,
-                                                    QWidget*                   fieldEditorWidget)
+void RimWellPathAttributeCollection::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu,
+                                                              QMenu*                     menu,
+                                                              QWidget*                   fieldEditorWidget )
 {
     caf::CmdFeatureMenuBuilder menuBuilder;
 
@@ -124,22 +122,24 @@ void RimWellPathAttributeCollection::defineCustomContextMenu(const caf::PdmField
     menuBuilder << "Separator";
     menuBuilder << "RicDeleteWellPathAttributeFeature";
 
-    menuBuilder.appendToMenu(menu);
+    menuBuilder.appendToMenu( menu );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathAttributeCollection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimWellPathAttributeCollection::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                            QString                    uiConfigName,
+                                                            caf::PdmUiEditorAttribute* attribute )
 {
-    if (field == &m_attributes)
+    if ( field == &m_attributes )
     {
-        auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>(attribute);
-        if (tvAttribute)
+        auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
+        if ( tvAttribute )
         {
-            tvAttribute->resizePolicy = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
+            tvAttribute->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
             tvAttribute->alwaysEnforceResizePolicy = true;
-            tvAttribute->minimumHeight = 300;
+            tvAttribute->minimumHeight             = 300;
         }
     }
 }
@@ -147,31 +147,31 @@ void RimWellPathAttributeCollection::defineEditorAttribute(const caf::PdmFieldHa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathAttributeCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimWellPathAttributeCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add(&m_attributes);
+    uiOrdering.add( &m_attributes );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathAttributeCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+void RimWellPathAttributeCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
+                                                           QString                 uiConfigName /*= ""*/ )
 {
-    uiTreeOrdering.skipRemainingChildren(true);
+    uiTreeOrdering.skipRemainingChildren( true );
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathAttributeCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                                      const QVariant&            oldValue,
-                                                      const QVariant&            newValue)
+void RimWellPathAttributeCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                       const QVariant&            oldValue,
+                                                       const QVariant&            newValue )
 {
-    if (changedField == this->objectToggleField())
+    if ( changedField == this->objectToggleField() )
     {
         RimProject* proj;
-        this->firstAncestorOrThisOfTypeAsserted(proj);
+        this->firstAncestorOrThisOfTypeAsserted( proj );
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
         this->updateAllReferringTracks();
     }

@@ -43,20 +43,20 @@
 #include <QAction>
 #include <QMessageBox>
 
-CAF_CMD_SOURCE_INIT(RicCreateSaturationPressurePlotsFeature, "RicCreateSaturationPressurePlotsFeature");
+CAF_CMD_SOURCE_INIT( RicCreateSaturationPressurePlotsFeature, "RicCreateSaturationPressurePlotsFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSaturationPressurePlot*>
-    RicCreateSaturationPressurePlotsFeature::createPlots(RimEclipseResultCase* eclipseResultCase)
+    RicCreateSaturationPressurePlotsFeature::createPlots( RimEclipseResultCase* eclipseResultCase )
 {
     std::vector<RimSaturationPressurePlot*> plots;
 
-    if (!eclipseResultCase)
+    if ( !eclipseResultCase )
     {
         RiaLogging::error(
-            "RicCreateSaturationPressurePlotsFeature:: No case specified for creation of saturation pressure plots");
+            "RicCreateSaturationPressurePlotsFeature:: No case specified for creation of saturation pressure plots" );
 
         return plots;
     }
@@ -65,32 +65,32 @@ std::vector<RimSaturationPressurePlot*>
 
     RimSaturationPressurePlotCollection* collection = project->mainPlotCollection()->saturationPressurePlotCollection();
 
-    if (eclipseResultCase && eclipseResultCase->ensureReservoirCaseIsOpen())
+    if ( eclipseResultCase && eclipseResultCase->ensureReservoirCaseIsOpen() )
     {
         eclipseResultCase->ensureDeckIsParsedForEquilData();
 
         RigEclipseCaseData* eclipseCaseData = eclipseResultCase->eclipseCaseData();
 
         bool requiredInputDataPresent = false;
-        if (!eclipseCaseData->equilData().empty())
+        if ( !eclipseCaseData->equilData().empty() )
         {
-            if (eclipseCaseData && eclipseCaseData->results(RiaDefines::MATRIX_MODEL))
+            if ( eclipseCaseData && eclipseCaseData->results( RiaDefines::MATRIX_MODEL ) )
             {
-                RigCaseCellResultsData* resultData = eclipseCaseData->results(RiaDefines::MATRIX_MODEL);
+                RigCaseCellResultsData* resultData = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );
 
-                if (resultData->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PRESSURE")) &&
-                    resultData->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PDEW")) &&
-                    resultData->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PBUB")))
+                if ( resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PRESSURE" ) ) &&
+                     resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PDEW" ) ) &&
+                     resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PBUB" ) ) )
                 {
                     requiredInputDataPresent = true;
                 }
             }
         }
 
-        if (requiredInputDataPresent)
+        if ( requiredInputDataPresent )
         {
-            plots = collection->createSaturationPressurePlots(eclipseResultCase);
-            for (auto plot : plots)
+            plots = collection->createSaturationPressurePlots( eclipseResultCase );
+            for ( auto plot : plots )
             {
                 plot->loadDataAndUpdate();
                 plot->zoomAll();
@@ -113,7 +113,7 @@ bool RicCreateSaturationPressurePlotsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateSaturationPressurePlotsFeature::onActionTriggered(bool isChecked)
+void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked )
 {
     RimProject* project = RiaApplication::instance()->project();
 
@@ -123,46 +123,48 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered(bool isChecked)
     {
         RiaApplication*       app = RiaApplication::instance();
         std::vector<RimCase*> cases;
-        app->project()->allCases(cases);
-        for (auto* rimCase : cases)
+        app->project()->allCases( cases );
+        for ( auto* rimCase : cases )
         {
-            auto erc = dynamic_cast<RimEclipseResultCase*>(rimCase);
-            if (erc)
+            auto erc = dynamic_cast<RimEclipseResultCase*>( rimCase );
+            if ( erc )
             {
-                eclipseCases.push_back(erc);
+                eclipseCases.push_back( erc );
             }
         }
     }
 
     RimEclipseResultCase* eclipseResultCase = nullptr;
 
-    if (!eclipseCases.empty())
+    if ( !eclipseCases.empty() )
     {
-        if (eclipseCases.size() == 1)
+        if ( eclipseCases.size() == 1 )
         {
             eclipseResultCase = eclipseCases[0];
         }
         else
         {
             RicSaturationPressureUi saturationPressureUi;
-            saturationPressureUi.setSelectedCase(eclipseCases[0]);
+            saturationPressureUi.setSelectedCase( eclipseCases[0] );
 
             RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
 
-            caf::PdmUiPropertyViewDialog propertyDialog(
-                plotwindow, &saturationPressureUi, "Select Case to create Pressure Saturation plots", "");
+            caf::PdmUiPropertyViewDialog propertyDialog( plotwindow,
+                                                         &saturationPressureUi,
+                                                         "Select Case to create Pressure Saturation plots",
+                                                         "" );
 
-            if (propertyDialog.exec() == QDialog::Accepted)
+            if ( propertyDialog.exec() == QDialog::Accepted )
             {
-                eclipseResultCase = dynamic_cast<RimEclipseResultCase*>(saturationPressureUi.selectedCase());
+                eclipseResultCase = dynamic_cast<RimEclipseResultCase*>( saturationPressureUi.selectedCase() );
             }
         }
     }
 
     caf::PdmObject* objectToSelect = nullptr;
 
-    std::vector<RimSaturationPressurePlot*> plots = createPlots(eclipseResultCase);
-    if (plots.empty())
+    std::vector<RimSaturationPressurePlot*> plots = createPlots( eclipseResultCase );
+    if ( plots.empty() )
     {
         QString text = "No plots generated.\n\n";
         text += "Data required to generate saturation/pressure plots:\n";
@@ -172,9 +174,9 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered(bool isChecked)
         text += "If this is a two phase run (Oil/water or Gas/Water) or if both VAPOIL ";
         text += "and DISGAS are disabled, saturation pressure are not valid.";
 
-        QMessageBox::warning(nullptr, "Saturation Pressure Plots", text);
+        QMessageBox::warning( nullptr, "Saturation Pressure Plots", text );
 
-        RiaLogging::warning(text);
+        RiaLogging::warning( text );
     }
     else
     {
@@ -184,17 +186,17 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered(bool isChecked)
     collection->updateAllRequiredEditors();
     RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
 
-    if (objectToSelect)
+    if ( objectToSelect )
     {
-        RiuPlotMainWindowTools::selectAsCurrentItem(objectToSelect);
+        RiuPlotMainWindowTools::selectAsCurrentItem( objectToSelect );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateSaturationPressurePlotsFeature::setupActionLook(QAction* actionToSetup)
+void RicCreateSaturationPressurePlotsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Create Saturation Pressure Plots");
-    actionToSetup->setIcon(QIcon(":/SummaryXPlotsLight16x16.png"));
+    actionToSetup->setText( "Create Saturation Pressure Plots" );
+    actionToSetup->setIcon( QIcon( ":/SummaryXPlotsLight16x16.png" ) );
 }

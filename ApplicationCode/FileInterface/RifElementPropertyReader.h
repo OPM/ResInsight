@@ -20,7 +20,6 @@
 
 #include "RifElementPropertyTableReader.h"
 
-
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
@@ -36,24 +35,24 @@
 class RifElementPropertyReader : public cvf::Object
 {
 public:
-    RifElementPropertyReader(const std::vector<int>& elementIdxToId);
+    RifElementPropertyReader( const std::vector<int>& elementIdxToId );
     ~RifElementPropertyReader() override;
 
-    void addFile(const std::string& fileName);
-    void removeFile(const std::string& fileName);
+    void addFile( const std::string& fileName );
+    void removeFile( const std::string& fileName );
 
     std::vector<std::string> scalarElementFields() const;
 
-    std::map<std::string, std::vector<float>> readAllElementPropertiesInFileContainingField(const std::string& fieldName);
+    std::map<std::string, std::vector<float>> readAllElementPropertiesInFileContainingField( const std::string& fieldName );
 
-    std::vector<std::string> fieldsInFile(const std::string& fileName) const;
+    std::vector<std::string> fieldsInFile( const std::string& fileName ) const;
 
 private:
-    void makeElementIdToIdxMap();
+    void        makeElementIdToIdxMap();
     static void outputWarningAboutWrongFileData();
 
 private:
     std::map<std::string, RifElementPropertyMetadata> m_fieldsMetaData;
-    std::vector<int> m_elementIdxToId;
-    std::unordered_map<int, int> m_elementIdToIdx;
+    std::vector<int>                                  m_elementIdxToId;
+    std::unordered_map<int, int>                      m_elementIdToIdx;
 };

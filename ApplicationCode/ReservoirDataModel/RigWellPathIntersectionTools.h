@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cvfBoundingBox.h"
 #include "cvfVector3.h"
 
@@ -36,23 +35,24 @@ struct WellPathCellIntersectionInfo;
 class RigWellPathIntersectionTools
 {
 public:
-    static std::vector<WellPathCellIntersectionInfo> findCellIntersectionInfosAlongPath(const RigEclipseCaseData*      caseData,
-                                                                                        const std::vector<cvf::Vec3d>& pathCoords,
-                                                                                        const std::vector<double>&     pathMds);
+    static std::vector<WellPathCellIntersectionInfo>
+        findCellIntersectionInfosAlongPath( const RigEclipseCaseData*      caseData,
+                                            const std::vector<cvf::Vec3d>& pathCoords,
+                                            const std::vector<double>&     pathMds );
 
-    static std::set<size_t> findIntersectedGlobalCellIndicesForWellPath(const RigEclipseCaseData* caseData,
-                                                                        const RigWellPath*        wellPath);
+    static std::set<size_t> findIntersectedGlobalCellIndicesForWellPath( const RigEclipseCaseData* caseData,
+                                                                         const RigWellPath*        wellPath );
 
-    static std::set<size_t> findIntersectedGlobalCellIndices(const RigEclipseCaseData*      caseData,
-                                                             const std::vector<cvf::Vec3d>& coords,
-                                                             const std::vector<double>&     measuredDepths = {});
+    static std::set<size_t> findIntersectedGlobalCellIndices( const RigEclipseCaseData*      caseData,
+                                                              const std::vector<cvf::Vec3d>& coords,
+                                                              const std::vector<double>&     measuredDepths = {} );
 
-    static cvf::Vec3d calculateLengthInCell(const std::array<cvf::Vec3d, 8>& hexCorners,
-                                            const cvf::Vec3d&                startPoint,
-                                            const cvf::Vec3d&                endPoint);
+    static cvf::Vec3d calculateLengthInCell( const std::array<cvf::Vec3d, 8>& hexCorners,
+                                             const cvf::Vec3d&                startPoint,
+                                             const cvf::Vec3d&                endPoint );
 
-    static cvf::Vec3d calculateLengthInCell(const RigMainGrid* grid,
-                                            size_t             cellIndex,
-                                            const cvf::Vec3d&  startPoint,
-                                            const cvf::Vec3d&  endPoint);
+    static cvf::Vec3d calculateLengthInCell( const RigMainGrid* grid,
+                                             size_t             cellIndex,
+                                             const cvf::Vec3d&  startPoint,
+                                             const cvf::Vec3d&  endPoint );
 };

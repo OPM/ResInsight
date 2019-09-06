@@ -22,7 +22,6 @@
 
 #include "VdeExportPart.h"
 
-
 #include "cvfCollection.h"
 
 class QString;
@@ -39,14 +38,14 @@ class Part;
 class RicHoloLensExportImpl
 {
 public:
-    static std::vector<VdeExportPart> partsForExport(const RimGridView& view);
-    static std::vector<std::pair<cvf::Vec3f, cvf::String>> labelsForExport(const RimGridView& view);
+    static std::vector<VdeExportPart>                      partsForExport( const RimGridView& view );
+    static std::vector<std::pair<cvf::Vec3f, cvf::String>> labelsForExport( const RimGridView& view );
 
 private:
-    static void    appendTextureImage(VdeExportPart& exportPart, cvf::Part* part);
-    static QString gridCellSetTypeText(RivCellSetEnum cellSetType);
+    static void    appendTextureImage( VdeExportPart& exportPart, cvf::Part* part );
+    static QString gridCellSetTypeText( RivCellSetEnum cellSetType );
 
-    static bool isGrid(const cvf::Part* part);
-    static bool isPipe(const cvf::Part* part);
-    static bool isMeshLines(const cvf::Part* part);
+    static bool isGrid( const cvf::Part* part );
+    static bool isPipe( const cvf::Part* part );
+    static bool isMeshLines( const cvf::Part* part );
 };

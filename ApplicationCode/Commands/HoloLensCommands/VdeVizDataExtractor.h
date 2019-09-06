@@ -18,12 +18,11 @@
 
 #pragma once
 
-
-#include "cvfColor3.h"
 #include "cvfArray.h"
-#include "cvfVector3.h"
+#include "cvfColor3.h"
 #include "cvfString.h"
 #include "cvfTextureImage.h"
+#include "cvfVector3.h"
 
 #include <QString>
 
@@ -36,8 +35,6 @@ class VdeCachingHashedIdFactory;
 
 class RimGridView;
 
-
-  
 //==================================================================================================
 //
 //
@@ -45,26 +42,26 @@ class RimGridView;
 //==================================================================================================
 struct VdeMesh
 {
-    QString                         meshSourceObjTypeStr;
-    QString                         meshSourceObjName;
+    QString meshSourceObjTypeStr;
+    QString meshSourceObjName;
 
-    cvf::Color3f                    color;
-    float                           opacity;
-    QString                         cullFaceModeStr;   // front, back or none (or empty)
+    cvf::Color3f color;
+    float        opacity;
+    QString      cullFaceModeStr; // front, back or none (or empty)
 
-    int                             verticesPerPrimitive;
-    cvf::cref<cvf::Vec3fArray>      vertexArr;
-    cvf::cref<cvf::Vec2fArray>      texCoordArr;
-    std::vector<cvf::uint>          connArr;
-    cvf::cref<cvf::TextureImage>    texImage;
+    int                          verticesPerPrimitive;
+    cvf::cref<cvf::Vec3fArray>   vertexArr;
+    cvf::cref<cvf::Vec2fArray>   texCoordArr;
+    std::vector<cvf::uint>       connArr;
+    cvf::cref<cvf::TextureImage> texImage;
 
     VdeMesh()
-    :   color(1,1,1),
-        opacity(1),
-        verticesPerPrimitive(-1)
-    {}
+        : color( 1, 1, 1 )
+        , opacity( 1 )
+        , verticesPerPrimitive( -1 )
+    {
+    }
 };
-
 
 //==================================================================================================
 //
@@ -79,13 +76,13 @@ struct VdeMeshArrayIds
     int texCoordsArrId;
 
     VdeMeshArrayIds()
-    :   vertexArrId(-1),
-        connArrId(-1),
-        texImageArrId(-1),
-        texCoordsArrId(-1)
-    {}
+        : vertexArrId( -1 )
+        , connArrId( -1 )
+        , texImageArrId( -1 )
+        , texCoordsArrId( -1 )
+    {
+    }
 };
-
 
 //==================================================================================================
 //
@@ -95,17 +92,21 @@ struct VdeMeshArrayIds
 class VdeVizDataExtractor
 {
 public:
-    VdeVizDataExtractor(const RimGridView& view, VdeCachingHashedIdFactory* cachingIdFactory);
+    VdeVizDataExtractor( const RimGridView& view, VdeCachingHashedIdFactory* cachingIdFactory );
 
-    void    extractViewContents(QString* modelMetaJsonStr, std::vector<int>* allReferencedArrayIds, VdePacketDirectory* packetDirectory);
-
-private:
-    static std::vector<std::unique_ptr<VdeMesh> >   buildMeshArray(const std::vector<VdeExportPart>& exportPartsArr);
-    static std::unique_ptr<VdeMesh>                 createMeshFromExportPart(const VdeExportPart& exportPart);
-    static QString                                  createModelMetaJsonString(const std::vector<std::unique_ptr<VdeMesh> >& meshArr, const std::vector<VdeMeshArrayIds>& meshContentIdsArr, const std::vector<std::pair<cvf::Vec3f, cvf::String> >& labelAndPositionsArr);
-    static void                                     debugComparePackets(const VdeArrayDataPacket& packetA, const VdeArrayDataPacket& packetB);
+    void extractViewContents( QString*            modelMetaJsonStr,
+                              std::vector<int>*   allReferencedArrayIds,
+                              VdePacketDirectory* packetDirectory );
 
 private:
-    const RimGridView&          m_view;
-    VdeCachingHashedIdFactory*  m_cachingIdFactory;
+    static std::vector<std::unique_ptr<VdeMesh>> buildMeshArray( const std::vector<VdeExportPart>& exportPartsArr );
+    static std::unique_ptr<VdeMesh>              createMeshFromExportPart( const VdeExportPart& exportPart );
+    static QString createModelMetaJsonString( const std::vector<std::unique_ptr<VdeMesh>>&           meshArr,
+                                              const std::vector<VdeMeshArrayIds>&                    meshContentIdsArr,
+                                              const std::vector<std::pair<cvf::Vec3f, cvf::String>>& labelAndPositionsArr );
+    static void    debugComparePackets( const VdeArrayDataPacket& packetA, const VdeArrayDataPacket& packetB );
+
+private:
+    const RimGridView&         m_view;
+    VdeCachingHashedIdFactory* m_cachingIdFactory;
 };

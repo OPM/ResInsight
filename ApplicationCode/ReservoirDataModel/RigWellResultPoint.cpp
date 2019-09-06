@@ -19,25 +19,25 @@
 #include "RigWellResultPoint.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigWellResultPoint::RigWellResultPoint()
-    : m_gridIndex(cvf::UNDEFINED_SIZE_T)
-    , m_gridCellIndex(cvf::UNDEFINED_SIZE_T)
-    , m_isOpen(false)
-    , m_ertBranchId(-1)
-    , m_ertSegmentId(-1)
-    , m_bottomPosition(cvf::Vec3d::UNDEFINED)
-    , m_flowRate(0.0)
-    , m_oilRate(0.0)
-    , m_gasRate(0.0)
-    , m_waterRate(0.0)
-    , m_connectionFactor(0.0)
+    : m_gridIndex( cvf::UNDEFINED_SIZE_T )
+    , m_gridCellIndex( cvf::UNDEFINED_SIZE_T )
+    , m_isOpen( false )
+    , m_ertBranchId( -1 )
+    , m_ertSegmentId( -1 )
+    , m_bottomPosition( cvf::Vec3d::UNDEFINED )
+    , m_flowRate( 0.0 )
+    , m_oilRate( 0.0 )
+    , m_gasRate( 0.0 )
+    , m_waterRate( 0.0 )
+    , m_connectionFactor( 0.0 )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RigWellResultPoint::isPointValid() const
 {
@@ -45,7 +45,7 @@ bool RigWellResultPoint::isPointValid() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RigWellResultPoint::isCell() const
 {
@@ -53,7 +53,7 @@ bool RigWellResultPoint::isCell() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RigWellResultPoint::isValid() const
 {
@@ -61,27 +61,22 @@ bool RigWellResultPoint::isValid() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RigWellResultPoint::isEqual(const RigWellResultPoint& other) const
+bool RigWellResultPoint::isEqual( const RigWellResultPoint& other ) const
 {
-    return (   m_gridIndex      == other.m_gridIndex
-            && m_gridCellIndex  == other.m_gridCellIndex
-            && m_isOpen         == other.m_isOpen
-            && m_ertBranchId    == other.m_ertBranchId
-            && m_ertSegmentId   == other.m_ertSegmentId
-            && m_flowRate       == other.m_flowRate
-            && m_oilRate        == other.m_oilRate
-            && m_gasRate        == other.m_gasRate
-            && m_waterRate      == other.m_waterRate);
+    return ( m_gridIndex == other.m_gridIndex && m_gridCellIndex == other.m_gridCellIndex &&
+             m_isOpen == other.m_isOpen && m_ertBranchId == other.m_ertBranchId &&
+             m_ertSegmentId == other.m_ertSegmentId && m_flowRate == other.m_flowRate && m_oilRate == other.m_oilRate &&
+             m_gasRate == other.m_gasRate && m_waterRate == other.m_waterRate );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigWellResultPoint::flowRate() const
 {
-    if (isCell() && m_isOpen)
+    if ( isCell() && m_isOpen )
     {
         return m_flowRate;
     }
@@ -92,11 +87,11 @@ double RigWellResultPoint::flowRate() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigWellResultPoint::oilRate() const
 {
-    if (isCell() && m_isOpen)
+    if ( isCell() && m_isOpen )
     {
         return m_oilRate;
     }
@@ -107,11 +102,11 @@ double RigWellResultPoint::oilRate() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigWellResultPoint::gasRate() const
 {
-    if (isCell() && m_isOpen)
+    if ( isCell() && m_isOpen )
     {
         return m_gasRate;
     }
@@ -122,11 +117,11 @@ double RigWellResultPoint::gasRate() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigWellResultPoint::waterRate() const
 {
-    if (isCell() && m_isOpen)
+    if ( isCell() && m_isOpen )
     {
         return m_waterRate;
     }
@@ -137,10 +132,9 @@ double RigWellResultPoint::waterRate() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigWellResultPoint::connectionFactor() const
 {
     return m_connectionFactor;
 }
-

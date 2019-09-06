@@ -32,23 +32,23 @@ class QStringList;
 class RicSummaryPlotFeatureImpl
 {
 public:
-    static RimSummaryCurve*              addDefaultCurveToPlot(RimSummaryPlot* plot, RimSummaryCase* summaryCase);
-    static std::vector<RimSummaryCurve*> addDefaultCurvesToPlot(RimSummaryPlot* plot, RimSummaryCase* summaryCase);
-    static void ensureAtLeastOnePlot(RimSummaryPlotCollection* summaryPlotCollection, RimSummaryCase* summaryCase);
-    static void createDefaultSummaryPlot(RimSummaryCase* summaryCase);
+    static RimSummaryCurve*              addDefaultCurveToPlot( RimSummaryPlot* plot, RimSummaryCase* summaryCase );
+    static std::vector<RimSummaryCurve*> addDefaultCurvesToPlot( RimSummaryPlot* plot, RimSummaryCase* summaryCase );
+    static void ensureAtLeastOnePlot( RimSummaryPlotCollection* summaryPlotCollection, RimSummaryCase* summaryCase );
+    static void createDefaultSummaryPlot( RimSummaryCase* summaryCase );
 
-    static void createSummaryPlotsFromArgumentLine(const QStringList& arguments);
+    static void createSummaryPlotsFromArgumentLine( const QStringList& arguments );
 
 private:
-    static std::vector<RimSummaryCurve*> addCurvesFromAddressFiltersToPlot(const QStringList& curveFilters,
-                                                                           RimSummaryPlot*    plot,
-                                                                           RimSummaryCase*    summaryCase,
-                                                                           bool               addHistoryCurves);
+    static std::vector<RimSummaryCurve*> addCurvesFromAddressFiltersToPlot( const QStringList& curveFilters,
+                                                                            RimSummaryPlot*    plot,
+                                                                            RimSummaryCase*    summaryCase,
+                                                                            bool               addHistoryCurves );
     static std::set<RifEclipseSummaryAddress>
-                applySummaryAddressFiltersToCases(const std::vector<RimSummaryCase*>& summaryCasesToUse,
-                                                  const QStringList&                  summaryAddressFilters);
-    static void filteredSummaryAdressesFromCase(const QStringList&                        curveFilters,
-                                                const std::set<RifEclipseSummaryAddress>& allAddressesInCase,
-                                                std::set<RifEclipseSummaryAddress>*       setToInsertFilteredAddressesIn,
-                                                std::vector<bool>*                        usedFilters);
+                applySummaryAddressFiltersToCases( const std::vector<RimSummaryCase*>& summaryCasesToUse,
+                                                   const QStringList&                  summaryAddressFilters );
+    static void filteredSummaryAdressesFromCase( const QStringList&                        curveFilters,
+                                                 const std::set<RifEclipseSummaryAddress>& allAddressesInCase,
+                                                 std::set<RifEclipseSummaryAddress>* setToInsertFilteredAddressesIn,
+                                                 std::vector<bool>*                  usedFilters );
 };

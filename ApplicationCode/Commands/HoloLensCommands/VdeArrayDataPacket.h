@@ -19,10 +19,9 @@
 #pragma once
 
 #include <cstddef>
-#include <vector>
-#include <string>
 #include <memory>
-
+#include <string>
+#include <vector>
 
 //==================================================================================================
 //
@@ -43,44 +42,55 @@ public:
 public:
     VdeArrayDataPacket();
 
-    bool                                        isValid() const;
-    int                                         arrayId() const;
+    bool isValid() const;
+    int  arrayId() const;
 
-    ElementType                                 elementType() const;
-    size_t                                      elementSize() const;
-    size_t                                      elementCount() const;
-    const char*                                 arrayData() const;
+    ElementType elementType() const;
+    size_t      elementSize() const;
+    size_t      elementCount() const;
+    const char* arrayData() const;
 
-    unsigned short                              imageWidth() const;
-    unsigned short                              imageHeight() const;
-    unsigned char                               imageComponentCount() const;
+    unsigned short imageWidth() const;
+    unsigned short imageHeight() const;
+    unsigned char  imageComponentCount() const;
 
-    size_t                                      fullPacketSize() const;
-    const char*                                 fullPacketRawPtr() const;
+    size_t      fullPacketSize() const;
+    const char* fullPacketRawPtr() const;
 
-    static std::unique_ptr<VdeArrayDataPacket>  fromFloat32Arr(int arrayId, const float* srcArr, size_t srcArrElementCount);
-    static std::unique_ptr<VdeArrayDataPacket>  fromUint32Arr(int arrayId, const unsigned int* srcArr, size_t srcArrElementCount);
-    static std::unique_ptr<VdeArrayDataPacket>  fromUint8ImageRGBArr(int arrayId, unsigned short imageWidth, unsigned short imageHeight, const unsigned char* srcArr, size_t srcArrElementCount);
+    static std::unique_ptr<VdeArrayDataPacket>
+        fromFloat32Arr( int arrayId, const float* srcArr, size_t srcArrElementCount );
+    static std::unique_ptr<VdeArrayDataPacket>
+                                               fromUint32Arr( int arrayId, const unsigned int* srcArr, size_t srcArrElementCount );
+    static std::unique_ptr<VdeArrayDataPacket> fromUint8ImageRGBArr( int                  arrayId,
+                                                                     unsigned short       imageWidth,
+                                                                     unsigned short       imageHeight,
+                                                                     const unsigned char* srcArr,
+                                                                     size_t               srcArrElementCount );
 
-    static VdeArrayDataPacket                   fromRawPacketBuffer(const char* rawPacketBuffer, size_t bufferSize, std::string* errString);
+    static VdeArrayDataPacket fromRawPacketBuffer( const char* rawPacketBuffer, size_t bufferSize, std::string* errString );
 
 private:
-    bool            assign(int arrayId, ElementType elementType, size_t elementCount, unsigned short imageWidth, unsigned short imageHeight, unsigned char imageCompCount, const char* arrayDataPtr, size_t arrayDataSizeInBytes);
-    static size_t   sizeOfElement(ElementType elementType);
+    bool          assign( int            arrayId,
+                          ElementType    elementType,
+                          size_t         elementCount,
+                          unsigned short imageWidth,
+                          unsigned short imageHeight,
+                          unsigned char  imageCompCount,
+                          const char*    arrayDataPtr,
+                          size_t         arrayDataSizeInBytes );
+    static size_t sizeOfElement( ElementType elementType );
 
 private:
-    int                 m_arrayId;
-    ElementType         m_elementType;
-    size_t              m_elementCount;
+    int         m_arrayId;
+    ElementType m_elementType;
+    size_t      m_elementCount;
 
-    unsigned short      m_imageWidth;
-    unsigned short      m_imageHeight;
-    unsigned char       m_imageComponentCount;
+    unsigned short m_imageWidth;
+    unsigned short m_imageHeight;
+    unsigned char  m_imageComponentCount;
 
-    std::vector<char>   m_packetBytes;
+    std::vector<char> m_packetBytes;
 };
-
-
 
 //==================================================================================================
 //
@@ -90,17 +100,16 @@ private:
 class VdeBufferReader
 {
 public:
-    VdeBufferReader(const char* buffer, size_t bufferSize);
+    VdeBufferReader( const char* buffer, size_t bufferSize );
 
-    unsigned int    getUint32(size_t byteOffset) const;
-    unsigned short  getUint16(size_t byteOffset) const;
-    unsigned char   getUint8(size_t byteOffset) const;
+    unsigned int   getUint32( size_t byteOffset ) const;
+    unsigned short getUint16( size_t byteOffset ) const;
+    unsigned char  getUint8( size_t byteOffset ) const;
 
 private:
-    const char*     m_buffer;
-    const size_t    m_bufferSize;
+    const char*  m_buffer;
+    const size_t m_bufferSize;
 };
-
 
 //==================================================================================================
 //
@@ -110,14 +119,13 @@ private:
 class VdeBufferWriter
 {
 public:
-    VdeBufferWriter(char* buffer, size_t bufferSize);
+    VdeBufferWriter( char* buffer, size_t bufferSize );
 
-    void    setUint32(size_t byteOffset, unsigned int val);
-    void    setUint16(size_t byteOffset, unsigned short val);
-    void    setUint8(size_t byteOffset, unsigned char val);
+    void setUint32( size_t byteOffset, unsigned int val );
+    void setUint16( size_t byteOffset, unsigned short val );
+    void setUint8( size_t byteOffset, unsigned char val );
 
 private:
-    char*           m_buffer;
-    const size_t    m_bufferSize;
+    char*        m_buffer;
+    const size_t m_bufferSize;
 };
-

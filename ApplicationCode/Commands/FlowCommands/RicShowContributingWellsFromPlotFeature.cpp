@@ -28,17 +28,17 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicShowContributingWellsFromPlotFeature, "RicShowContributingWellsFromPlotFeature");
+CAF_CMD_SOURCE_INIT( RicShowContributingWellsFromPlotFeature, "RicShowContributingWellsFromPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RicShowContributingWellsFromPlotFeature::isCommandEnabled()
 {
-    RimWellAllocationPlot* wellAllocationPlot =
-        dynamic_cast<RimWellAllocationPlot*>(RiaGuiApplication::instance()->activePlotWindow());
+    RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(
+        RiaGuiApplication::instance()->activePlotWindow() );
 
-    if (wellAllocationPlot) return true;
+    if ( wellAllocationPlot ) return true;
 
     return false;
 }
@@ -46,26 +46,26 @@ bool RicShowContributingWellsFromPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicShowContributingWellsFromPlotFeature::onActionTriggered(bool isChecked)
+void RicShowContributingWellsFromPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimWellAllocationPlot* wellAllocationPlot =
-        dynamic_cast<RimWellAllocationPlot*>(RiaGuiApplication::instance()->activePlotWindow());
+    RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(
+        RiaGuiApplication::instance()->activePlotWindow() );
 
-    if (!wellAllocationPlot) return;
+    if ( !wellAllocationPlot ) return;
 
     int     timeStep = wellAllocationPlot->timeStep();
     QString wellName = wellAllocationPlot->wellName();
 
     RimEclipseResultCase* wellAllocationResultCase = wellAllocationPlot->rimCase();
 
-    RicShowContributingWellsFeatureImpl::manipulateSelectedView(wellAllocationResultCase, wellName, timeStep);
+    RicShowContributingWellsFeatureImpl::manipulateSelectedView( wellAllocationResultCase, wellName, timeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicShowContributingWellsFromPlotFeature::setupActionLook(QAction* actionToSetup)
+void RicShowContributingWellsFromPlotFeature::setupActionLook( QAction* actionToSetup )
 {
     // actionToSetup->setIcon(QIcon(":/new_icon16x16.png"));
-    actionToSetup->setText("Show Contributing Wells");
+    actionToSetup->setText( "Show Contributing Wells" );
 }

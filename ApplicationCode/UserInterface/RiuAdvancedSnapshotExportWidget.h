@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,8 +22,9 @@
 
 class RimProject;
 
-namespace caf {
-    class PdmUiTableView;
+namespace caf
+{
+class PdmUiTableView;
 }
 
 class QWidget;
@@ -33,16 +34,16 @@ class RiuAdvancedSnapshotExportWidget : public QDialog
 {
     Q_OBJECT
 public:
-    RiuAdvancedSnapshotExportWidget(QWidget* parent, RimProject* project);
+    RiuAdvancedSnapshotExportWidget( QWidget* parent, RimProject* project );
     ~RiuAdvancedSnapshotExportWidget() override;
 
-    void addSnapshotItemFromActiveView();
-    void addEmptySnapshotItems(size_t itemCount);
-    void setExportFolder(const QString& folder);
+    void    addSnapshotItemFromActiveView();
+    void    addEmptySnapshotItems( size_t itemCount );
+    void    setExportFolder( const QString& folder );
     QString exportFolder() const;
 
 private slots:
-    void customMenuRequested(QPoint pos);
+    void customMenuRequested( QPoint pos );
     void addSnapshotItem();
     void deleteAllSnapshotItems();
     void exportSnapshots();

@@ -23,16 +23,16 @@
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RigCellGeometryTools.h"
-#include "RigGeoMechCaseData.h"
 #include "RigFemPart.h"
-#include "RigFemPartGrid.h"
 #include "RigFemPartCollection.h"
+#include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
+#include "RigGeoMechCaseData.h"
 #include "RigHexIntersectionTools.h"
 
 #include "RimCellRangeFilterCollection.h"
-#include "RimGeoMechContourMapView.h"
 #include "RimGeoMechCellColors.h"
+#include "RimGeoMechContourMapView.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 
 #include "RivFemElmVisibilityCalculator.h"
@@ -47,25 +47,32 @@
 #include "cvfStructGridGeometryGenerator.h"
 #include "cvfVector3.h"
 
+#include <QDebug>
 #include <algorithm>
 #include <array>
 #include <omp.h>
-#include <QDebug>
 
-CAF_PDM_SOURCE_INIT(RimGeoMechContourMapProjection, "RimGeoMechContourMapProjection");
+CAF_PDM_SOURCE_INIT( RimGeoMechContourMapProjection, "RimGeoMechContourMapProjection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechContourMapProjection::RimGeoMechContourMapProjection()
 {
-    CAF_PDM_InitObject("RimContourMapProjection", ":/2DMapProjection16x16.png", "", "");
-    CAF_PDM_InitField(&m_limitToPorePressureRegions, "LimitToPorRegion", true, "Limit to Pore Pressure regions", "", "", "");
-    CAF_PDM_InitField(&m_applyPPRegionLimitVertically, "VerticalLimit", false, "Apply Limit Vertically", "", "", "");
-    CAF_PDM_InitField(&m_paddingAroundPorePressureRegion, "PaddingAroundPorRegion", 0.0, "Horizontal Padding around PP regions", "", "", "");
-    m_paddingAroundPorePressureRegion.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
-    setName("Map Projection");
-    nameField()->uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitObject( "RimContourMapProjection", ":/2DMapProjection16x16.png", "", "" );
+    CAF_PDM_InitField( &m_limitToPorePressureRegions, "LimitToPorRegion", true, "Limit to Pore Pressure regions", "", "", "" );
+    CAF_PDM_InitField( &m_applyPPRegionLimitVertically, "VerticalLimit", false, "Apply Limit Vertically", "", "", "" );
+    CAF_PDM_InitField( &m_paddingAroundPorePressureRegion,
+                       "PaddingAroundPorRegion",
+                       0.0,
+                       "Horizontal Padding around PP regions",
+                       "",
+                       "",
+                       "" );
+    m_paddingAroundPorePressureRegion.uiCapability()->setUiEditorTypeName(
+        caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    setName( "Map Projection" );
+    nameField()->uiCapability()->setUiReadOnly( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +85,7 @@ RimGeoMechContourMapProjection::~RimGeoMechContourMapProjection() {}
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechContourMapProjection::resultDescriptionText() const
 {
-    QString resultText = QString("%1, %2").arg(resultAggregationText()).arg(view()->cellResult()->resultFieldUiName());
+    QString resultText = QString( "%1, %2" ).arg( resultAggregationText() ).arg( view()->cellResult()->resultFieldUiName() );
     return resultText;
 }
 
@@ -97,28 +104,28 @@ void RimGeoMechContourMapProjection::updateLegend()
 {
     RimGeoMechCellColors* cellColors = view()->cellResult();
 
-    double minVal = minValue(m_aggregatedResults);
-    double maxVal = maxValue(m_aggregatedResults);
+    double minVal = minValue( m_aggregatedResults );
+    double maxVal = maxValue( m_aggregatedResults );
 
     std::pair<double, double> minmaxValAllTimeSteps = minmaxValuesAllTimeSteps();
 
-    legendConfig()->setAutomaticRanges(minmaxValAllTimeSteps.first, minmaxValAllTimeSteps.second, minVal, maxVal);
+    legendConfig()->setAutomaticRanges( minmaxValAllTimeSteps.first, minmaxValAllTimeSteps.second, minVal, maxVal );
 
-    QString projectionLegendText = QString("Map Projection\n%1").arg(m_resultAggregation().uiText());
-    if (cellColors->resultAddress().isValid())
+    QString projectionLegendText = QString( "Map Projection\n%1" ).arg( m_resultAggregation().uiText() );
+    if ( cellColors->resultAddress().isValid() )
     {
-        projectionLegendText += QString("\nResult: %1").arg(cellColors->resultFieldUiName());
-        if (!cellColors->resultComponentUiName().isEmpty())
+        projectionLegendText += QString( "\nResult: %1" ).arg( cellColors->resultFieldUiName() );
+        if ( !cellColors->resultComponentUiName().isEmpty() )
         {
-            projectionLegendText += QString(", %1").arg(cellColors->resultComponentUiName());
+            projectionLegendText += QString( ", %1" ).arg( cellColors->resultComponentUiName() );
         }
     }
     else
     {
-        projectionLegendText += QString("\nNo Result Selected");
+        projectionLegendText += QString( "\nNo Result Selected" );
     }
 
-    legendConfig()->setTitle(projectionLegendText);
+    legendConfig()->setTitle( projectionLegendText );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,18 +133,22 @@ void RimGeoMechContourMapProjection::updateLegend()
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::UByteArray> RimGeoMechContourMapProjection::getCellVisibility() const
 {
-    cvf::ref<cvf::UByteArray> cellGridIdxVisibility = new cvf::UByteArray(m_femPart->elementCount());
-    RivFemElmVisibilityCalculator::computeAllVisible(cellGridIdxVisibility.p(), m_femPart.p());
+    cvf::ref<cvf::UByteArray> cellGridIdxVisibility = new cvf::UByteArray( m_femPart->elementCount() );
+    RivFemElmVisibilityCalculator::computeAllVisible( cellGridIdxVisibility.p(), m_femPart.p() );
 
-    if (view()->rangeFilterCollection()->isActive())
+    if ( view()->rangeFilterCollection()->isActive() )
     {
         cvf::CellRangeFilter cellRangeFilter;
-        view()->rangeFilterCollection()->compoundCellRangeFilter(&cellRangeFilter, 0);
-        RivFemElmVisibilityCalculator::computeRangeVisibility(cellGridIdxVisibility.p(), m_femPart.p(), cellRangeFilter);
+        view()->rangeFilterCollection()->compoundCellRangeFilter( &cellRangeFilter, 0 );
+        RivFemElmVisibilityCalculator::computeRangeVisibility( cellGridIdxVisibility.p(), m_femPart.p(), cellRangeFilter );
     }
-    if (view()->propertyFilterCollection()->isActive())
+    if ( view()->propertyFilterCollection()->isActive() )
     {
-        RivFemElmVisibilityCalculator::computePropertyVisibility(cellGridIdxVisibility.p(), m_femPart.p(), view()->currentTimeStep(), cellGridIdxVisibility.p(), view()->geoMechPropertyFilterCollection());
+        RivFemElmVisibilityCalculator::computePropertyVisibility( cellGridIdxVisibility.p(),
+                                                                  m_femPart.p(),
+                                                                  view()->currentTimeStep(),
+                                                                  cellGridIdxVisibility.p(),
+                                                                  view()->geoMechPropertyFilterCollection() );
     }
 
     return cellGridIdxVisibility;
@@ -146,41 +157,42 @@ cvf::ref<cvf::UByteArray> RimGeoMechContourMapProjection::getCellVisibility() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RimGeoMechContourMapProjection::calculateExpandedPorBarBBox(int timeStep) const
+cvf::BoundingBox RimGeoMechContourMapProjection::calculateExpandedPorBarBBox( int timeStep ) const
 {
-    RigFemResultAddress porBarAddr(
-        RigFemResultPosEnum::RIG_ELEMENT_NODAL, "POR-Bar", view()->cellResult()->resultComponentName().toStdString());
+    RigFemResultAddress          porBarAddr( RigFemResultPosEnum::RIG_ELEMENT_NODAL,
+                                    "POR-Bar",
+                                    view()->cellResult()->resultComponentName().toStdString() );
     RigGeoMechCaseData*          caseData         = geoMechCase()->geoMechData();
     RigFemPartResultsCollection* resultCollection = caseData->femPartResults();
 
-    const std::vector<float>& resultValues = resultCollection->resultValues(porBarAddr, 0, timeStep);
+    const std::vector<float>& resultValues = resultCollection->resultValues( porBarAddr, 0, timeStep );
 
     cvf::BoundingBox boundingBox;
-    for (int i = 0; i < m_femPart->elementCount(); ++i)
+    for ( int i = 0; i < m_femPart->elementCount(); ++i )
     {
-        size_t resValueIdx = m_femPart->elementNodeResultIdx((int)i, 0);
-        CVF_ASSERT(resValueIdx < resultValues.size());
+        size_t resValueIdx = m_femPart->elementNodeResultIdx( (int)i, 0 );
+        CVF_ASSERT( resValueIdx < resultValues.size() );
         double scalarValue   = resultValues[resValueIdx];
         bool   validPorValue = scalarValue != std::numeric_limits<double>::infinity();
 
-        if (validPorValue)
+        if ( validPorValue )
         {
             std::array<cvf::Vec3d, 8> hexCorners;
-            m_femPartGrid->cellCornerVertices(i, hexCorners.data());
-            for (size_t c = 0; c < 8; ++c)
+            m_femPartGrid->cellCornerVertices( i, hexCorners.data() );
+            for ( size_t c = 0; c < 8; ++c )
             {
-                boundingBox.add(hexCorners[c]);
+                boundingBox.add( hexCorners[c] );
             }
         }
     }
-    cvf::Vec3d boxMin = boundingBox.min();
-    cvf::Vec3d boxMax = boundingBox.max();
+    cvf::Vec3d boxMin    = boundingBox.min();
+    cvf::Vec3d boxMax    = boundingBox.max();
     cvf::Vec3d boxExtent = boundingBox.extent();
     boxMin.x() -= boxExtent.x() * 0.5 * m_paddingAroundPorePressureRegion();
     boxMin.y() -= boxExtent.y() * 0.5 * m_paddingAroundPorePressureRegion();
     boxMax.x() += boxExtent.x() * 0.5 * m_paddingAroundPorePressureRegion();
     boxMax.y() += boxExtent.y() * 0.5 * m_paddingAroundPorePressureRegion();
-    return cvf::BoundingBox(boxMin, boxMax);
+    return cvf::BoundingBox( boxMin, boxMax );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,29 +201,29 @@ cvf::BoundingBox RimGeoMechContourMapProjection::calculateExpandedPorBarBBox(int
 void RimGeoMechContourMapProjection::updateGridInformation()
 {
     RimGeoMechCase* geoMechCase = this->geoMechCase();
-    m_femPart                   = geoMechCase->geoMechData()->femParts()->part(0);    
+    m_femPart                   = geoMechCase->geoMechData()->femParts()->part( 0 );
     m_femPartGrid               = m_femPart->getOrCreateStructGrid();
     m_sampleSpacing             = m_relativeSampleSpacing * geoMechCase->characteristicCellSize();
     m_femPart->ensureIntersectionSearchTreeIsBuilt();
 
     m_gridBoundingBox = geoMechCase->activeCellsBoundingBox();
 
-    if (m_limitToPorePressureRegions)
+    if ( m_limitToPorePressureRegions )
     {
-        m_expandedBoundingBox = calculateExpandedPorBarBBox(view()->currentTimeStep());
+        m_expandedBoundingBox = calculateExpandedPorBarBBox( view()->currentTimeStep() );
     }
     else
     {
         m_expandedBoundingBox = m_gridBoundingBox;
     }
-    cvf::Vec3d minExpandedPoint = m_expandedBoundingBox.min() - cvf::Vec3d(gridEdgeOffset(), gridEdgeOffset(), 0.0);
-    cvf::Vec3d maxExpandedPoint = m_expandedBoundingBox.max() + cvf::Vec3d(gridEdgeOffset(), gridEdgeOffset(), 0.0);
-    if (m_limitToPorePressureRegions && !m_applyPPRegionLimitVertically)
+    cvf::Vec3d minExpandedPoint = m_expandedBoundingBox.min() - cvf::Vec3d( gridEdgeOffset(), gridEdgeOffset(), 0.0 );
+    cvf::Vec3d maxExpandedPoint = m_expandedBoundingBox.max() + cvf::Vec3d( gridEdgeOffset(), gridEdgeOffset(), 0.0 );
+    if ( m_limitToPorePressureRegions && !m_applyPPRegionLimitVertically )
     {
         minExpandedPoint.z() = m_gridBoundingBox.min().z();
         maxExpandedPoint.z() = m_gridBoundingBox.max().z();
     }
-    m_expandedBoundingBox = cvf::BoundingBox(minExpandedPoint, maxExpandedPoint);
+    m_expandedBoundingBox = cvf::BoundingBox( minExpandedPoint, maxExpandedPoint );
 
     m_mapSize = calculateMapSize();
 
@@ -220,7 +232,7 @@ void RimGeoMechContourMapProjection::updateGridInformation()
     cvf::Vec3d maxPoint   = m_expandedBoundingBox.max();
     maxPoint.x()          = minPoint.x() + m_mapSize.x() * m_sampleSpacing;
     maxPoint.y()          = minPoint.y() + m_mapSize.y() * m_sampleSpacing;
-    m_expandedBoundingBox = cvf::BoundingBox(minPoint, maxPoint);
+    m_expandedBoundingBox = cvf::BoundingBox( minPoint, maxPoint );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,31 +240,31 @@ void RimGeoMechContourMapProjection::updateGridInformation()
 //--------------------------------------------------------------------------------------------------
 std::vector<bool> RimGeoMechContourMapProjection::getMapCellVisibility()
 {
-    cvf::Vec2ui nCellsIJ = numberOfElementsIJ();
-    std::vector<std::vector<unsigned int>> distanceImage (nCellsIJ.x(), std::vector<unsigned int>(nCellsIJ.y(), 0u));
+    cvf::Vec2ui                            nCellsIJ = numberOfElementsIJ();
+    std::vector<std::vector<unsigned int>> distanceImage( nCellsIJ.x(), std::vector<unsigned int>( nCellsIJ.y(), 0u ) );
 
-    std::vector<bool> mapCellVisibility;
+    std::vector<bool>   mapCellVisibility;
     RigFemResultAddress resAddr = view()->cellResult()->resultAddress();
-    
-    if (m_limitToPorePressureRegions)
-    {
-        resAddr = RigFemResultAddress(RigFemResultPosEnum::RIG_ELEMENT_NODAL, "POR-Bar", "");
-    }
-    
-    std::vector<double> cellResults = generateResultsFromAddress(resAddr, mapCellVisibility, view()->currentTimeStep());
 
-    mapCellVisibility.resize(numberOfCells(), true);
-    CVF_ASSERT(mapCellVisibility.size() == cellResults.size());
-        
+    if ( m_limitToPorePressureRegions )
+    {
+        resAddr = RigFemResultAddress( RigFemResultPosEnum::RIG_ELEMENT_NODAL, "POR-Bar", "" );
+    }
+
+    std::vector<double> cellResults = generateResultsFromAddress( resAddr, mapCellVisibility, view()->currentTimeStep() );
+
+    mapCellVisibility.resize( numberOfCells(), true );
+    CVF_ASSERT( mapCellVisibility.size() == cellResults.size() );
+
     {
         cvf::BoundingBox validResBoundingBox;
-        for (size_t cellIndex = 0; cellIndex < cellResults.size(); ++cellIndex)
+        for ( size_t cellIndex = 0; cellIndex < cellResults.size(); ++cellIndex )
         {
-            cvf::Vec2ui ij = ijFromCellIndex(cellIndex);
-            if (cellResults[cellIndex] != std::numeric_limits<double>::infinity())
+            cvf::Vec2ui ij = ijFromCellIndex( cellIndex );
+            if ( cellResults[cellIndex] != std::numeric_limits<double>::infinity() )
             {
                 distanceImage[ij.x()][ij.y()] = 1u;
-                validResBoundingBox.add(cvf::Vec3d(cellCenterPosition(ij.x(), ij.y()), 0.0));
+                validResBoundingBox.add( cvf::Vec3d( cellCenterPosition( ij.x(), ij.y() ), 0.0 ) );
             }
             else
             {
@@ -260,20 +272,20 @@ std::vector<bool> RimGeoMechContourMapProjection::getMapCellVisibility()
             }
         }
 
-        if (m_limitToPorePressureRegions && m_paddingAroundPorePressureRegion > 0.0)
+        if ( m_limitToPorePressureRegions && m_paddingAroundPorePressureRegion > 0.0 )
         {
-            RiaImageTools::distanceTransform2d(distanceImage);
+            RiaImageTools::distanceTransform2d( distanceImage );
 
-            cvf::Vec3d porExtent = validResBoundingBox.extent();
-            double radius = std::max(porExtent.x(), porExtent.y()) * 0.25;
-            double expansion = m_paddingAroundPorePressureRegion * radius;
-            size_t cellPadding = std::ceil(expansion / m_sampleSpacing);
-            for (size_t cellIndex = 0; cellIndex < cellResults.size(); ++cellIndex)
+            cvf::Vec3d porExtent   = validResBoundingBox.extent();
+            double     radius      = std::max( porExtent.x(), porExtent.y() ) * 0.25;
+            double     expansion   = m_paddingAroundPorePressureRegion * radius;
+            size_t     cellPadding = std::ceil( expansion / m_sampleSpacing );
+            for ( size_t cellIndex = 0; cellIndex < cellResults.size(); ++cellIndex )
             {
-                if (!mapCellVisibility[cellIndex])
+                if ( !mapCellVisibility[cellIndex] )
                 {
-                    cvf::Vec2ui ij = ijFromCellIndex(cellIndex);
-                    if (distanceImage[ij.x()][ij.y()] < cellPadding * cellPadding)
+                    cvf::Vec2ui ij = ijFromCellIndex( cellIndex );
+                    if ( distanceImage[ij.x()][ij.y()] < cellPadding * cellPadding )
                     {
                         mapCellVisibility[cellIndex] = true;
                     }
@@ -295,12 +307,12 @@ std::vector<double> RimGeoMechContourMapProjection::retrieveParameterWeights()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimGeoMechContourMapProjection::generateResults(int timeStep)
+std::vector<double> RimGeoMechContourMapProjection::generateResults( int timeStep )
 {
-    RimGeoMechCellColors* cellColors  = view()->cellResult();
-    RigFemResultAddress resultAddress = cellColors->resultAddress();
-    
-    std::vector<double> aggregatedResults = generateResultsFromAddress(resultAddress, m_mapCellVisibility, timeStep);
+    RimGeoMechCellColors* cellColors    = view()->cellResult();
+    RigFemResultAddress   resultAddress = cellColors->resultAddress();
+
+    std::vector<double> aggregatedResults = generateResultsFromAddress( resultAddress, m_mapCellVisibility, timeStep );
 
     return aggregatedResults;
 }
@@ -308,43 +320,45 @@ std::vector<double> RimGeoMechContourMapProjection::generateResults(int timeStep
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimGeoMechContourMapProjection::generateResultsFromAddress(RigFemResultAddress resultAddress, const std::vector<bool>& mapCellVisibility, int timeStep)
+std::vector<double> RimGeoMechContourMapProjection::generateResultsFromAddress( RigFemResultAddress      resultAddress,
+                                                                                const std::vector<bool>& mapCellVisibility,
+                                                                                int                      timeStep )
 {
     RigGeoMechCaseData*          caseData         = geoMechCase()->geoMechData();
     RigFemPartResultsCollection* resultCollection = caseData->femPartResults();
     size_t                       nCells           = numberOfCells();
-    std::vector<double>          aggregatedResults = std::vector<double>(nCells, std::numeric_limits<double>::infinity());
+    std::vector<double> aggregatedResults = std::vector<double>( nCells, std::numeric_limits<double>::infinity() );
 
     bool wasInvalid = false;
-    if (!resultAddress.isValid())
+    if ( !resultAddress.isValid() )
     {
-        wasInvalid = true;
-        resultAddress = RigFemResultAddress(RigFemResultPosEnum::RIG_ELEMENT_NODAL, "POR-Bar", "");
+        wasInvalid    = true;
+        resultAddress = RigFemResultAddress( RigFemResultPosEnum::RIG_ELEMENT_NODAL, "POR-Bar", "" );
     }
 
-    if (resultAddress.fieldName == "PP")
+    if ( resultAddress.fieldName == "PP" )
     {
         resultAddress.fieldName = "POR-Bar"; // More likely to be in memory than POR
     }
-    if (resultAddress.fieldName == "POR-Bar")
+    if ( resultAddress.fieldName == "POR-Bar" )
     {
         resultAddress.resultPosType = RIG_ELEMENT_NODAL;
     }
-    else if (resultAddress.resultPosType == RIG_FORMATION_NAMES)
+    else if ( resultAddress.resultPosType == RIG_FORMATION_NAMES )
     {
         resultAddress.resultPosType = RIG_ELEMENT_NODAL; // formation indices are stored per element node result.
     }
 
-    std::vector<float> resultValuesF = resultCollection->resultValues(resultAddress, 0, timeStep);
-    std::vector<double> resultValues = gridCellValues(resultAddress, resultValuesF);
+    std::vector<float>  resultValuesF = resultCollection->resultValues( resultAddress, 0, timeStep );
+    std::vector<double> resultValues  = gridCellValues( resultAddress, resultValuesF );
 
-    if (wasInvalid)
+    if ( wasInvalid )
     {
         // For invalid result addresses we just use the POR-Bar result to get the reservoir region
         // And display a dummy 0-result in the region.
-        for (double& value : resultValues)
+        for ( double& value : resultValues )
         {
-            if (value != std::numeric_limits<double>::infinity())
+            if ( value != std::numeric_limits<double>::infinity() )
             {
                 value = 0.0;
             }
@@ -352,12 +366,12 @@ std::vector<double> RimGeoMechContourMapProjection::generateResultsFromAddress(R
     }
 
 #pragma omp parallel for
-    for (int index = 0; index < static_cast<int>(nCells); ++index)
+    for ( int index = 0; index < static_cast<int>( nCells ); ++index )
     {
-        if (mapCellVisibility.empty() || mapCellVisibility[index])
+        if ( mapCellVisibility.empty() || mapCellVisibility[index] )
         {
-            cvf::Vec2ui ij = ijFromCellIndex(index);
-            aggregatedResults[index] = calculateValueInMapCell(ij.x(), ij.y(), resultValues);
+            cvf::Vec2ui ij           = ijFromCellIndex( index );
+            aggregatedResults[index] = calculateValueInMapCell( ij.x(), ij.y(), resultValues );
         }
     }
 
@@ -372,13 +386,13 @@ bool RimGeoMechContourMapProjection::resultVariableChanged() const
     RimGeoMechCellColors* cellColors = view()->cellResult();
     RigFemResultAddress   resAddr    = cellColors->resultAddress();
 
-    if (resAddr.fieldName == "PP")
+    if ( resAddr.fieldName == "PP" )
     {
         resAddr.fieldName = "POR-Bar"; // More likely to be in memory than POR
     }
-    if (resAddr.fieldName == "POR-Bar") resAddr.resultPosType = RIG_ELEMENT_NODAL;
+    if ( resAddr.fieldName == "POR-Bar" ) resAddr.resultPosType = RIG_ELEMENT_NODAL;
 
-    return !(m_currentResultAddr == resAddr);
+    return !( m_currentResultAddr == resAddr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -400,37 +414,36 @@ RimGridView* RimGeoMechContourMapProjection::baseView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RimGeoMechContourMapProjection::findIntersectingCells(const cvf::BoundingBox& bbox) const
+std::vector<size_t> RimGeoMechContourMapProjection::findIntersectingCells( const cvf::BoundingBox& bbox ) const
 {
     std::vector<size_t> allCellIndices;
-    m_femPart->findIntersectingCellsWithExistingSearchTree(bbox, &allCellIndices);
+    m_femPart->findIntersectingCellsWithExistingSearchTree( bbox, &allCellIndices );
     return allCellIndices;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimGeoMechContourMapProjection::kLayer(size_t globalCellIdx) const
+size_t RimGeoMechContourMapProjection::kLayer( size_t globalCellIdx ) const
 {
     size_t i, j, k;
-    m_femPartGrid->ijkFromCellIndex(globalCellIdx, &i, &j, &k);
+    m_femPartGrid->ijkFromCellIndex( globalCellIdx, &i, &j, &k );
     return k;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimGeoMechContourMapProjection::calculateOverlapVolume(size_t                  globalCellIdx,
-                                                              const cvf::BoundingBox& bbox) const
+double RimGeoMechContourMapProjection::calculateOverlapVolume( size_t globalCellIdx, const cvf::BoundingBox& bbox ) const
 {
     std::array<cvf::Vec3d, 8> hexCorners;
-    m_femPartGrid->cellCornerVertices(globalCellIdx, hexCorners.data());
+    m_femPartGrid->cellCornerVertices( globalCellIdx, hexCorners.data() );
 
     cvf::BoundingBox          overlapBBox;
     std::array<cvf::Vec3d, 8> overlapCorners;
-    if (RigCellGeometryTools::estimateHexOverlapWithBoundingBox(hexCorners, bbox, &overlapCorners, &overlapBBox))
+    if ( RigCellGeometryTools::estimateHexOverlapWithBoundingBox( hexCorners, bbox, &overlapCorners, &overlapBBox ) )
     {
-        double overlapVolume = RigCellGeometryTools::calculateCellVolume(overlapCorners);
+        double overlapVolume = RigCellGeometryTools::calculateCellVolume( overlapCorners );
         return overlapVolume;
     }
     return 0.0;
@@ -439,29 +452,30 @@ double RimGeoMechContourMapProjection::calculateOverlapVolume(size_t            
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimGeoMechContourMapProjection::calculateRayLengthInCell(size_t            globalCellIdx,
-                                                                const cvf::Vec3d& highestPoint,
-                                                                const cvf::Vec3d& lowestPoint) const
+double RimGeoMechContourMapProjection::calculateRayLengthInCell( size_t            globalCellIdx,
+                                                                 const cvf::Vec3d& highestPoint,
+                                                                 const cvf::Vec3d& lowestPoint ) const
 {
     std::array<cvf::Vec3d, 8> hexCorners;
 
     const std::vector<cvf::Vec3f>& nodeCoords    = m_femPart->nodes().coordinates;
-    const int*                     cornerIndices = m_femPart->connectivities(globalCellIdx);
+    const int*                     cornerIndices = m_femPart->connectivities( globalCellIdx );
 
-    hexCorners[0] = cvf::Vec3d(nodeCoords[cornerIndices[0]]);
-    hexCorners[1] = cvf::Vec3d(nodeCoords[cornerIndices[1]]);
-    hexCorners[2] = cvf::Vec3d(nodeCoords[cornerIndices[2]]);
-    hexCorners[3] = cvf::Vec3d(nodeCoords[cornerIndices[3]]);
-    hexCorners[4] = cvf::Vec3d(nodeCoords[cornerIndices[4]]);
-    hexCorners[5] = cvf::Vec3d(nodeCoords[cornerIndices[5]]);
-    hexCorners[6] = cvf::Vec3d(nodeCoords[cornerIndices[6]]);
-    hexCorners[7] = cvf::Vec3d(nodeCoords[cornerIndices[7]]);
+    hexCorners[0] = cvf::Vec3d( nodeCoords[cornerIndices[0]] );
+    hexCorners[1] = cvf::Vec3d( nodeCoords[cornerIndices[1]] );
+    hexCorners[2] = cvf::Vec3d( nodeCoords[cornerIndices[2]] );
+    hexCorners[3] = cvf::Vec3d( nodeCoords[cornerIndices[3]] );
+    hexCorners[4] = cvf::Vec3d( nodeCoords[cornerIndices[4]] );
+    hexCorners[5] = cvf::Vec3d( nodeCoords[cornerIndices[5]] );
+    hexCorners[6] = cvf::Vec3d( nodeCoords[cornerIndices[6]] );
+    hexCorners[7] = cvf::Vec3d( nodeCoords[cornerIndices[7]] );
 
     std::vector<HexIntersectionInfo> intersections;
 
-    if (RigHexIntersectionTools::lineHexCellIntersection(highestPoint, lowestPoint, hexCorners.data(), 0, &intersections))
+    if ( RigHexIntersectionTools::lineHexCellIntersection( highestPoint, lowestPoint, hexCorners.data(), 0, &intersections ) )
     {
-        double lengthInCell = (intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint).length();
+        double lengthInCell = ( intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint )
+                                  .length();
         return lengthInCell;
     }
     return 0.0;
@@ -470,10 +484,10 @@ double RimGeoMechContourMapProjection::calculateRayLengthInCell(size_t          
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimGeoMechContourMapProjection::getParameterWeightForCell(size_t                     globalCellIdx,
-                                                                 const std::vector<double>& parameterWeights) const
+double RimGeoMechContourMapProjection::getParameterWeightForCell( size_t                     globalCellIdx,
+                                                                  const std::vector<double>& parameterWeights ) const
 {
-    if (parameterWeights.empty()) return 1.0;
+    if ( parameterWeights.empty() ) return 1.0;
 
     return parameterWeights[globalCellIdx];
 }
@@ -481,39 +495,41 @@ double RimGeoMechContourMapProjection::getParameterWeightForCell(size_t         
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimGeoMechContourMapProjection::gridCellValues(RigFemResultAddress resAddr, std::vector<float>& resultValues) const
+std::vector<double> RimGeoMechContourMapProjection::gridCellValues( RigFemResultAddress resAddr,
+                                                                    std::vector<float>& resultValues ) const
 {
-    std::vector<double> gridCellValues(m_femPart->elementCount(), std::numeric_limits<double>::infinity());
-    for (size_t globalCellIdx = 0; globalCellIdx < static_cast<size_t>(m_femPart->elementCount()); ++globalCellIdx)
+    std::vector<double> gridCellValues( m_femPart->elementCount(), std::numeric_limits<double>::infinity() );
+    for ( size_t globalCellIdx = 0; globalCellIdx < static_cast<size_t>( m_femPart->elementCount() ); ++globalCellIdx )
     {
-        RigElementType elmType = m_femPart->elementType(globalCellIdx);
-        if (!(elmType == HEX8 || elmType == HEX8P)) continue;
+        RigElementType elmType = m_femPart->elementType( globalCellIdx );
+        if ( !( elmType == HEX8 || elmType == HEX8P ) ) continue;
 
-        if (resAddr.resultPosType == RIG_ELEMENT)
+        if ( resAddr.resultPosType == RIG_ELEMENT )
         {
-            gridCellValues[globalCellIdx] = static_cast<double>(resultValues[globalCellIdx]);
+            gridCellValues[globalCellIdx] = static_cast<double>( resultValues[globalCellIdx] );
         }
-        else if (resAddr.resultPosType == RIG_ELEMENT_NODAL)
+        else if ( resAddr.resultPosType == RIG_ELEMENT_NODAL )
         {
             RiaWeightedMeanCalculator<float> cellAverage;
-            for (int i = 0; i < 8; ++i)
+            for ( int i = 0; i < 8; ++i )
             {
-                size_t gridResultValueIdx =
-                    m_femPart->resultValueIdxFromResultPosType(resAddr.resultPosType, static_cast<int>(globalCellIdx), i);
-                cellAverage.addValueAndWeight(resultValues[gridResultValueIdx], 1.0);
+                size_t gridResultValueIdx = m_femPart->resultValueIdxFromResultPosType( resAddr.resultPosType,
+                                                                                        static_cast<int>( globalCellIdx ),
+                                                                                        i );
+                cellAverage.addValueAndWeight( resultValues[gridResultValueIdx], 1.0 );
             }
 
-            gridCellValues[globalCellIdx] = static_cast<double>(cellAverage.weightedMean());
+            gridCellValues[globalCellIdx] = static_cast<double>( cellAverage.weightedMean() );
         }
         else
         {
             RiaWeightedMeanCalculator<float> cellAverage;
-            const int*                       elmNodeIndices = m_femPart->connectivities(globalCellIdx);
-            for (int i = 0; i < 8; ++i)
+            const int*                       elmNodeIndices = m_femPart->connectivities( globalCellIdx );
+            for ( int i = 0; i < 8; ++i )
             {
-                cellAverage.addValueAndWeight(resultValues[elmNodeIndices[i]], 1.0);
+                cellAverage.addValueAndWeight( resultValues[elmNodeIndices[i]], 1.0 );
             }
-            gridCellValues[globalCellIdx] = static_cast<double>(cellAverage.weightedMean());
+            gridCellValues[globalCellIdx] = static_cast<double>( cellAverage.weightedMean() );
         }
     }
     return gridCellValues;
@@ -525,7 +541,7 @@ std::vector<double> RimGeoMechContourMapProjection::gridCellValues(RigFemResultA
 RimGeoMechCase* RimGeoMechContourMapProjection::geoMechCase() const
 {
     RimGeoMechCase* geoMechCase = nullptr;
-    firstAncestorOrThisOfType(geoMechCase);
+    firstAncestorOrThisOfType( geoMechCase );
     return geoMechCase;
 }
 
@@ -535,20 +551,20 @@ RimGeoMechCase* RimGeoMechContourMapProjection::geoMechCase() const
 RimGeoMechContourMapView* RimGeoMechContourMapProjection::view() const
 {
     RimGeoMechContourMapView* view = nullptr;
-    firstAncestorOrThisOfTypeAsserted(view);
+    firstAncestorOrThisOfTypeAsserted( view );
     return view;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                                      const QVariant&            oldValue,
-                                                      const QVariant&            newValue)
+void RimGeoMechContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                       const QVariant&            oldValue,
+                                                       const QVariant&            newValue )
 {
-    RimContourMapProjection::fieldChangedByUi(changedField, oldValue, newValue);
-    if (changedField == &m_limitToPorePressureRegions || changedField == &m_applyPPRegionLimitVertically ||
-        changedField == &m_paddingAroundPorePressureRegion)
+    RimContourMapProjection::fieldChangedByUi( changedField, oldValue, newValue );
+    if ( changedField == &m_limitToPorePressureRegions || changedField == &m_applyPPRegionLimitVertically ||
+         changedField == &m_paddingAroundPorePressureRegion )
     {
         clearGridMapping();
     }
@@ -558,11 +574,12 @@ void RimGeoMechContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle*
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimGeoMechContourMapProjection::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+    RimGeoMechContourMapProjection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                           bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if (fieldNeedingOptions == &m_resultAggregation)
+    if ( fieldNeedingOptions == &m_resultAggregation )
     {
         std::vector<ResultAggregationEnum> validOptions = {RESULTS_TOP_VALUE,
                                                            RESULTS_MEAN_VALUE,
@@ -572,9 +589,9 @@ QList<caf::PdmOptionItemInfo>
                                                            RESULTS_MAX_VALUE,
                                                            RESULTS_SUM};
 
-        for (ResultAggregationEnum option : validOptions)
+        for ( ResultAggregationEnum option : validOptions )
         {
-            options.push_back(caf::PdmOptionItemInfo(ResultAggregation::uiText(option), option));
+            options.push_back( caf::PdmOptionItemInfo( ResultAggregation::uiText( option ), option ) );
         }
     }
     return options;
@@ -583,35 +600,34 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapProjection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimGeoMechContourMapProjection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimContourMapProjection::defineUiOrdering(uiConfigName, uiOrdering);
-    caf::PdmUiGroup* group = uiOrdering.addNewGroup("Map Boundaries");
-    group->add(&m_limitToPorePressureRegions);
-    group->add(&m_applyPPRegionLimitVertically);
-    group->add(&m_paddingAroundPorePressureRegion);
-    m_applyPPRegionLimitVertically.uiCapability()->setUiReadOnly(!m_limitToPorePressureRegions());
-    m_paddingAroundPorePressureRegion.uiCapability()->setUiReadOnly(!m_limitToPorePressureRegions());
+    RimContourMapProjection::defineUiOrdering( uiConfigName, uiOrdering );
+    caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Map Boundaries" );
+    group->add( &m_limitToPorePressureRegions );
+    group->add( &m_applyPPRegionLimitVertically );
+    group->add( &m_paddingAroundPorePressureRegion );
+    m_applyPPRegionLimitVertically.uiCapability()->setUiReadOnly( !m_limitToPorePressureRegions() );
+    m_paddingAroundPorePressureRegion.uiCapability()->setUiReadOnly( !m_limitToPorePressureRegions() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapProjection::defineEditorAttribute(const caf::PdmFieldHandle* field,
-                                                           QString                    uiConfigName,
-                                                           caf::PdmUiEditorAttribute* attribute)
+void RimGeoMechContourMapProjection::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                            QString                    uiConfigName,
+                                                            caf::PdmUiEditorAttribute* attribute )
 {
-    RimContourMapProjection::defineEditorAttribute(field, uiConfigName, attribute);
-    if (field == &m_paddingAroundPorePressureRegion)
+    RimContourMapProjection::defineEditorAttribute( field, uiConfigName, attribute );
+    if ( field == &m_paddingAroundPorePressureRegion )
     {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
-        if (myAttr)
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        if ( myAttr )
         {
-            myAttr->m_minimum = 0.0;
-            myAttr->m_maximum = 2.0;
-            myAttr->m_sliderTickCount = 4;
+            myAttr->m_minimum                       = 0.0;
+            myAttr->m_maximum                       = 2.0;
+            myAttr->m_sliderTickCount               = 4;
             myAttr->m_delaySliderUpdateUntilRelease = true;
         }
     }
 }
-

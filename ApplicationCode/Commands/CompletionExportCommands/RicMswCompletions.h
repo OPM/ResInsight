@@ -23,7 +23,6 @@
 
 #include "RimWellPathAicdParameters.h"
 
-
 #include "cvfMath.h"
 
 #include <QString>
@@ -32,31 +31,31 @@
 class RimWellPathValve;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class RicMswCompletion
 {
 public:
-    RicMswCompletion(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    RicMswCompletion( const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT );
 
-    virtual RigCompletionData::CompletionType    completionType() const = 0;
+    virtual RigCompletionData::CompletionType completionType() const = 0;
 
-    const QString&                       label() const;
-    size_t                               index() const;
-    int                                  branchNumber() const;
-    void                                 setBranchNumber(int branchNumber);
+    const QString& label() const;
+    size_t         index() const;
+    int            branchNumber() const;
+    void           setBranchNumber( int branchNumber );
 
-    void                                 addSubSegment(std::shared_ptr<RicMswSubSegment> subSegment);
+    void addSubSegment( std::shared_ptr<RicMswSubSegment> subSegment );
 
     std::vector<std::shared_ptr<RicMswSubSegment>>&       subSegments();
     const std::vector<std::shared_ptr<RicMswSubSegment>>& subSegments() const;
 
-    void                                 setLabel(const QString& label);
+    void setLabel( const QString& label );
 
 private:
-    QString                              m_label;
-    size_t                               m_index;
-    int                                  m_branchNumber;
+    QString m_label;
+    size_t  m_index;
+    int     m_branchNumber;
 
     std::vector<std::shared_ptr<RicMswSubSegment>> m_subSegments;
 };
@@ -64,11 +63,15 @@ private:
 class RicMswFishbones : public RicMswCompletion
 {
 public:
-    RicMswFishbones(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT)
-        : RicMswCompletion(label, index, branchNumber)
-    {}
+    RicMswFishbones( const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT )
+        : RicMswCompletion( label, index, branchNumber )
+    {
+    }
 
-    RigCompletionData::CompletionType completionType() const override { return RigCompletionData::FISHBONES; }
+    RigCompletionData::CompletionType completionType() const override
+    {
+        return RigCompletionData::FISHBONES;
+    }
 };
 
 //==================================================================================================
@@ -77,7 +80,7 @@ public:
 class RicMswFracture : public RicMswCompletion
 {
 public:
-    RicMswFracture(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    RicMswFracture( const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT );
     RigCompletionData::CompletionType completionType() const override;
 };
 
@@ -87,7 +90,7 @@ public:
 class RicMswPerforation : public RicMswCompletion
 {
 public:
-    RicMswPerforation(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    RicMswPerforation( const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT );
     RigCompletionData::CompletionType completionType() const override;
 };
 
@@ -97,7 +100,7 @@ public:
 class RicMswValve : public RicMswCompletion
 {
 public:
-    RicMswValve(const QString& label, const RimWellPathValve* wellPathValve);
+    RicMswValve( const QString& label, const RimWellPathValve* wellPathValve );
 
     virtual ~RicMswValve() {}
 
@@ -113,15 +116,16 @@ private:
 class RicMswWsegValve : public RicMswValve
 {
 public:
-    RicMswWsegValve(const QString& label, const RimWellPathValve* wellPathValve);
+    RicMswWsegValve( const QString& label, const RimWellPathValve* wellPathValve );
 
     double flowCoefficient() const;
     double area() const;
-    void   setFlowCoefficient(double icdFlowCoefficient);
-    void   setArea(double icdArea);
+    void   setFlowCoefficient( double icdFlowCoefficient );
+    void   setArea( double icdArea );
+
 private:
-    double                  m_flowCoefficient;
-    double                  m_area;
+    double m_flowCoefficient;
+    double m_area;
 };
 
 //==================================================================================================
@@ -130,7 +134,7 @@ private:
 class RicMswFishbonesICD : public RicMswWsegValve
 {
 public:
-    RicMswFishbonesICD(const QString& label, const RimWellPathValve* wellPathValve);
+    RicMswFishbonesICD( const QString& label, const RimWellPathValve* wellPathValve );
     RigCompletionData::CompletionType completionType() const override;
 };
 
@@ -140,7 +144,7 @@ public:
 class RicMswPerforationICD : public RicMswWsegValve
 {
 public:
-    RicMswPerforationICD(const QString& label, const RimWellPathValve* wellPathValve);
+    RicMswPerforationICD( const QString& label, const RimWellPathValve* wellPathValve );
     RigCompletionData::CompletionType completionType() const override;
 };
 
@@ -150,7 +154,7 @@ public:
 class RicMswPerforationICV : public RicMswWsegValve
 {
 public:
-    RicMswPerforationICV(const QString& label, const RimWellPathValve* wellPathValve);
+    RicMswPerforationICV( const QString& label, const RimWellPathValve* wellPathValve );
     RigCompletionData::CompletionType completionType() const override;
 };
 
@@ -160,15 +164,15 @@ public:
 class RicMswPerforationAICD : public RicMswValve
 {
 public:
-    RicMswPerforationAICD(const QString& label, const RimWellPathValve* wellPathValve);
+    RicMswPerforationAICD( const QString& label, const RimWellPathValve* wellPathValve );
     RigCompletionData::CompletionType completionType() const override;
 
     bool   isValid() const;
-    void   setIsValid(bool valid);
+    void   setIsValid( bool valid );
     bool   isOpen() const;
-    void   setIsOpen(bool deviceOpen);
+    void   setIsOpen( bool deviceOpen );
     double length() const;
-    void   setLength(double length);
+    void   setLength( double length );
 
     const std::array<double, AICD_NUM_PARAMS>& values() const;
     std::array<double, AICD_NUM_PARAMS>&       values();

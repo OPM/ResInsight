@@ -27,7 +27,7 @@ class RicfCreateGridCaseGroupResult : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RicfCreateGridCaseGroupResult(int caseGroupId = -1, const QString& caseGroupName = "");
+    RicfCreateGridCaseGroupResult( int caseGroupId = -1, const QString& caseGroupName = "" );
 
 public:
     caf::PdmField<int>     caseGroupId;

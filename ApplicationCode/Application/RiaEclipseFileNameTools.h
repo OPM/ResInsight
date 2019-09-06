@@ -43,21 +43,21 @@ public:
     };
 
 public:
-    explicit RiaEclipseFileNameTools(const QString& fileName);
+    explicit RiaEclipseFileNameTools( const QString& fileName );
 
     QString findRelatedGridFile();
     QString findRelatedSummarySpecFile();
     QString findRelatedDataFile();
 
-    static bool isProjectFile(const QString& fileName);
-    static bool isGridFile(const QString& fileName);
-    static bool isSummarySpecFile(const QString& fileName);
+    static bool isProjectFile( const QString& fileName );
+    static bool isGridFile( const QString& fileName );
+    static bool isSummarySpecFile( const QString& fileName );
 
 private:
-    QString findBaseName(const QString& inputFilePath) const;
-    QString relatedFilePath(EclipseFileType fileType) const;
+    QString findBaseName( const QString& inputFilePath ) const;
+    QString relatedFilePath( EclipseFileType fileType ) const;
 
-    static bool hasMatchingSuffix(const QString& fileName, EclipseFileType fileType);
+    static bool hasMatchingSuffix( const QString& fileName, EclipseFileType fileType );
 
 private:
     QString m_baseName;

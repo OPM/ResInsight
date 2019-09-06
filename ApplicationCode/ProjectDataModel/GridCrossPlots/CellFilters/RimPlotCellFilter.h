@@ -22,7 +22,6 @@
 
 #include "cvfArray.h"
 
-
 //==================================================================================================
 ///
 //==================================================================================================
@@ -40,11 +39,11 @@ public:
 public:
     RimPlotCellFilter();
 
-    void           updateCellVisibility(size_t timeStepIndex, cvf::UByteArray* cellVisibility);
+    void           updateCellVisibility( size_t timeStepIndex, cvf::UByteArray* cellVisibility );
     FilterModeType filterMode() const;
 
 protected:
-    virtual void updateCellVisibilityFromFilter(size_t timeStepIndex, cvf::UByteArray* cellVisibility) = 0;
+    virtual void updateCellVisibilityFromFilter( size_t timeStepIndex, cvf::UByteArray* cellVisibility ) = 0;
 
 private:
     caf::PdmField<caf::AppEnum<FilterModeType>> m_filterMode;

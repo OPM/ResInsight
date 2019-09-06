@@ -22,7 +22,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicHoloLensCreateDummyFiledBackedSessionFeature, "RicHoloLensCreateDummyFiledBackedSessionFeature");
+CAF_CMD_SOURCE_INIT( RicHoloLensCreateDummyFiledBackedSessionFeature, "RicHoloLensCreateDummyFiledBackedSessionFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -35,19 +35,19 @@ bool RicHoloLensCreateDummyFiledBackedSessionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensCreateDummyFiledBackedSessionFeature::onActionTriggered(bool isChecked)
+void RicHoloLensCreateDummyFiledBackedSessionFeature::onActionTriggered( bool isChecked )
 {
     RicHoloLensSessionManager::instance()->createDummyFileBackedSession();
-    
+
     RicHoloLensSessionManager::refreshToolbarState();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensCreateDummyFiledBackedSessionFeature::setupActionLook(QAction* actionToSetup)
+void RicHoloLensCreateDummyFiledBackedSessionFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/HoloLensConnect24x24.png"));
+    actionToSetup->setIcon( QIcon( ":/HoloLensConnect24x24.png" ) );
 
-    actionToSetup->setText("Create File-Backed Dummy-Session");
+    actionToSetup->setText( "Create File-Backed Dummy-Session" );
 }

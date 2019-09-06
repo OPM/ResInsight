@@ -33,39 +33,39 @@
 
 #include "CellFilters/RimPlotCellPropertyFilter.h"
 
-CAF_PDM_SOURCE_INIT(RimSaturationPressurePlot, "RimSaturationPressurePlot");
+CAF_PDM_SOURCE_INIT( RimSaturationPressurePlot, "RimSaturationPressurePlot" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimSaturationPressurePlot::RimSaturationPressurePlot()
 {
-    CAF_PDM_InitObject("Saturation Pressure Plot", ":/SummaryXPlotLight16x16.png", "", "");
+    CAF_PDM_InitObject( "Saturation Pressure Plot", ":/SummaryXPlotLight16x16.png", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion(RiaDefines::PorosityModelType porosityModel,
-                                                               RimEclipseResultCase*         eclipseResultCase,
-                                                               int                           zeroBasedEquilRegionIndex)
+void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::PorosityModelType porosityModel,
+                                                                RimEclipseResultCase*         eclipseResultCase,
+                                                                int zeroBasedEquilRegionIndex )
 {
-    CVF_ASSERT(eclipseResultCase && eclipseResultCase->eclipseCaseData());
+    CVF_ASSERT( eclipseResultCase && eclipseResultCase->eclipseCaseData() );
 
     auto equilData = eclipseResultCase->eclipseCaseData()->equilData();
-    if (zeroBasedEquilRegionIndex >= (int) equilData.size())
+    if ( zeroBasedEquilRegionIndex >= (int)equilData.size() )
     {
-        RiaLogging::error("Invalid equilibrium region index");
+        RiaLogging::error( "Invalid equilibrium region index" );
         return;
     }
 
-    setShowInfoBox(false);
+    setShowInfoBox( false );
     nameConfig()->addDataSetNames = false;
 
     QString caseName  = eclipseResultCase->caseUserDescription();
-    QString plotTitle = QString("%1 - EQLNUM %2").arg(caseName).arg(zeroBasedEquilRegionIndex + 1);
+    QString plotTitle = QString( "%1 - EQLNUM %2" ).arg( caseName ).arg( zeroBasedEquilRegionIndex + 1 );
 
-    nameConfig()->setCustomName(plotTitle);
+    nameConfig()->setCustomName( plotTitle );
 
     auto eq = equilData[zeroBasedEquilRegionIndex];
 
@@ -76,112 +76,118 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion(RiaDefines::Poros
         // Blue PRESSURE curve with data for specified EQLNUM value
 
         RimGridCrossPlotDataSet* curveSet = createDataSet();
-        curveSet->configureForPressureSaturationCurves(eclipseResultCase, "PRESSURE");
+        curveSet->configureForPressureSaturationCurves( eclipseResultCase, "PRESSURE" );
 
-        cvf::Color3f curveColor = RiaColorTables::summaryCurveBluePaletteColors().cycledColor3f(0);
-        curveSet->setCustomColor(curveColor);
+        cvf::Color3f curveColor = RiaColorTables::summaryCurveBluePaletteColors().cycledColor3f( 0 );
+        curveSet->setCustomColor( curveColor );
 
-        RimPlotCellPropertyFilter* cellFilter =
-            createEquilibriumRegionPropertyFilter(eclipseResultCase, zeroBasedEquilRegionIndex);
+        RimPlotCellPropertyFilter* cellFilter = createEquilibriumRegionPropertyFilter( eclipseResultCase,
+                                                                                       zeroBasedEquilRegionIndex );
 
-        curveSet->addCellFilter(cellFilter);
+        curveSet->addCellFilter( cellFilter );
     }
 
     {
         // Red dew pressure (PDEW) curve with data for specified EQLNUM value, filtered on depth by gasOilContact
 
         RimGridCrossPlotDataSet* curveSet = createDataSet();
-        curveSet->configureForPressureSaturationCurves(eclipseResultCase, "PDEW");
+        curveSet->configureForPressureSaturationCurves( eclipseResultCase, "PDEW" );
 
-        cvf::Color3f curveColor = RiaColorTables::summaryCurveRedPaletteColors().cycledColor3f(0);
-        curveSet->setCustomColor(curveColor);
+        cvf::Color3f curveColor = RiaColorTables::summaryCurveRedPaletteColors().cycledColor3f( 0 );
+        curveSet->setCustomColor( curveColor );
 
-        RimPlotCellPropertyFilter* cellFilter =
-            createEquilibriumRegionPropertyFilter(eclipseResultCase, zeroBasedEquilRegionIndex);
-        curveSet->addCellFilter(cellFilter);
+        RimPlotCellPropertyFilter* cellFilter = createEquilibriumRegionPropertyFilter( eclipseResultCase,
+                                                                                       zeroBasedEquilRegionIndex );
+        curveSet->addCellFilter( cellFilter );
 
         {
-            RigCaseCellResultsData* caseCellResultsData = eclipseResultCase->eclipseCaseData()->results(porosityModel);
-            if (caseCellResultsData)
+            RigCaseCellResultsData* caseCellResultsData = eclipseResultCase->eclipseCaseData()->results( porosityModel );
+            if ( caseCellResultsData )
             {
-                RigEclipseResultAddress depthResultAddress(RiaDefines::STATIC_NATIVE, "DEPTH");
+                RigEclipseResultAddress depthResultAddress( RiaDefines::STATIC_NATIVE, "DEPTH" );
 
                 double minDepth = 0.0;
                 double maxDepth = 0.0;
-                caseCellResultsData->minMaxCellScalarValues(depthResultAddress, minDepth, maxDepth);
+                caseCellResultsData->minMaxCellScalarValues( depthResultAddress, minDepth, maxDepth );
 
                 maxDepth = gasOilContactDepth;
 
-                RimPlotCellPropertyFilter* depthCellFilter = createDepthPropertyFilter(eclipseResultCase, minDepth, maxDepth);
+                RimPlotCellPropertyFilter* depthCellFilter = createDepthPropertyFilter( eclipseResultCase,
+                                                                                        minDepth,
+                                                                                        maxDepth );
 
-                curveSet->addCellFilter(depthCellFilter);
+                curveSet->addCellFilter( depthCellFilter );
             }
         }
     }
 
     {
-        // Green bubble point pressure (PBUB) curve with data for specified EQLNUM value, filtered on depth between gasOilContact
-        // and waterOilContactDepth
+        // Green bubble point pressure (PBUB) curve with data for specified EQLNUM value, filtered on depth between
+        // gasOilContact and waterOilContactDepth
 
         RimGridCrossPlotDataSet* curveSet = createDataSet();
-        curveSet->configureForPressureSaturationCurves(eclipseResultCase, "PBUB");
+        curveSet->configureForPressureSaturationCurves( eclipseResultCase, "PBUB" );
 
-        cvf::Color3f curveColor = RiaColorTables::summaryCurveGreenPaletteColors().cycledColor3f(0);
-        curveSet->setCustomColor(curveColor);
+        cvf::Color3f curveColor = RiaColorTables::summaryCurveGreenPaletteColors().cycledColor3f( 0 );
+        curveSet->setCustomColor( curveColor );
 
         {
             RimPlotCellPropertyFilter* cellFilter = new RimPlotCellPropertyFilter();
             {
                 RimEclipseResultDefinition* resultDefinition = new RimEclipseResultDefinition();
-                resultDefinition->setEclipseCase(eclipseResultCase);
-                resultDefinition->setResultType(RiaDefines::STATIC_NATIVE);
-                resultDefinition->setResultVariable(RiaDefines::eqlnumResultName());
+                resultDefinition->setEclipseCase( eclipseResultCase );
+                resultDefinition->setResultType( RiaDefines::STATIC_NATIVE );
+                resultDefinition->setResultVariable( RiaDefines::eqlnumResultName() );
 
-                cellFilter->setResultDefinition(resultDefinition);
+                cellFilter->setResultDefinition( resultDefinition );
             }
 
-            cellFilter->setValueRange(zeroBasedEquilRegionIndex + 1, zeroBasedEquilRegionIndex + 1);
+            cellFilter->setValueRange( zeroBasedEquilRegionIndex + 1, zeroBasedEquilRegionIndex + 1 );
 
-            curveSet->addCellFilter(cellFilter);
+            curveSet->addCellFilter( cellFilter );
         }
 
         {
-            RigCaseCellResultsData* caseCellResultsData = eclipseResultCase->eclipseCaseData()->results(porosityModel);
-            if (caseCellResultsData)
+            RigCaseCellResultsData* caseCellResultsData = eclipseResultCase->eclipseCaseData()->results( porosityModel );
+            if ( caseCellResultsData )
             {
-                RigEclipseResultAddress depthResultAddress(RiaDefines::STATIC_NATIVE, "DEPTH");
+                RigEclipseResultAddress depthResultAddress( RiaDefines::STATIC_NATIVE, "DEPTH" );
 
                 double minDepth = 0.0;
                 double maxDepth = 0.0;
-                caseCellResultsData->minMaxCellScalarValues(depthResultAddress, minDepth, maxDepth);
+                caseCellResultsData->minMaxCellScalarValues( depthResultAddress, minDepth, maxDepth );
 
                 minDepth = gasOilContactDepth;
                 maxDepth = waterOilContactDepth;
 
-                RimPlotCellPropertyFilter* depthCellFilter = createDepthPropertyFilter(eclipseResultCase, minDepth, maxDepth);
+                RimPlotCellPropertyFilter* depthCellFilter = createDepthPropertyFilter( eclipseResultCase,
+                                                                                        minDepth,
+                                                                                        maxDepth );
 
-                curveSet->addCellFilter(depthCellFilter);
+                curveSet->addCellFilter( depthCellFilter );
             }
         }
     }
 
     RimPlotAxisProperties* yAxisProps = yAxisProperties();
 
-    yAxisProps->setInvertedAxis(true);
+    yAxisProps->setInvertedAxis( true );
 
     {
         RimPlotAxisAnnotation* annotation = new RimPlotAxisAnnotation;
-        annotation->setEquilibriumData(
-            eclipseResultCase, zeroBasedEquilRegionIndex, RimPlotAxisAnnotation::PL_EQUIL_GAS_OIL_CONTACT);
+        annotation->setEquilibriumData( eclipseResultCase,
+                                        zeroBasedEquilRegionIndex,
+                                        RimPlotAxisAnnotation::PL_EQUIL_GAS_OIL_CONTACT );
 
-        yAxisProps->appendAnnotation(annotation);
+        yAxisProps->appendAnnotation( annotation );
     }
     {
         RimPlotAxisAnnotation* annotation = new RimPlotAxisAnnotation;
-        annotation->setEquilibriumData(
-            eclipseResultCase, zeroBasedEquilRegionIndex, RimPlotAxisAnnotation::PL_EQUIL_WATER_OIL_CONTACT);
+        annotation->setEquilibriumData( eclipseResultCase,
+                                        zeroBasedEquilRegionIndex,
+                                        RimPlotAxisAnnotation::PL_EQUIL_WATER_OIL_CONTACT );
 
-        yAxisProps->appendAnnotation(annotation);
+        yAxisProps->appendAnnotation( annotation );
     }
 }
 
@@ -207,19 +213,19 @@ QString RimSaturationPressurePlot::xAxisParameterString() const
 ///
 //--------------------------------------------------------------------------------------------------
 RimPlotCellPropertyFilter*
-    RimSaturationPressurePlot::createEquilibriumRegionPropertyFilter(RimEclipseResultCase* eclipseResultCase,
-                                                                     int                   zeroBasedEquilRegionIndex)
+    RimSaturationPressurePlot::createEquilibriumRegionPropertyFilter( RimEclipseResultCase* eclipseResultCase,
+                                                                      int                   zeroBasedEquilRegionIndex )
 {
     RimPlotCellPropertyFilter* cellFilter = new RimPlotCellPropertyFilter();
 
     RimEclipseResultDefinition* resultDefinition = new RimEclipseResultDefinition();
-    resultDefinition->setEclipseCase(eclipseResultCase);
-    resultDefinition->setResultType(RiaDefines::STATIC_NATIVE);
-    resultDefinition->setResultVariable(RiaDefines::eqlnumResultName());
+    resultDefinition->setEclipseCase( eclipseResultCase );
+    resultDefinition->setResultType( RiaDefines::STATIC_NATIVE );
+    resultDefinition->setResultVariable( RiaDefines::eqlnumResultName() );
 
-    cellFilter->setResultDefinition(resultDefinition);
+    cellFilter->setResultDefinition( resultDefinition );
 
-    cellFilter->setValueRange(zeroBasedEquilRegionIndex + 1, zeroBasedEquilRegionIndex + 1);
+    cellFilter->setValueRange( zeroBasedEquilRegionIndex + 1, zeroBasedEquilRegionIndex + 1 );
 
     return cellFilter;
 }
@@ -227,20 +233,20 @@ RimPlotCellPropertyFilter*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlotCellPropertyFilter* RimSaturationPressurePlot::createDepthPropertyFilter(RimEclipseResultCase* eclipseResultCase,
-                                                                                double                minDepth,
-                                                                                double                maxDepth)
+RimPlotCellPropertyFilter* RimSaturationPressurePlot::createDepthPropertyFilter( RimEclipseResultCase* eclipseResultCase,
+                                                                                 double                minDepth,
+                                                                                 double                maxDepth )
 {
     RimPlotCellPropertyFilter* depthCellFilter = new RimPlotCellPropertyFilter();
 
     RimEclipseResultDefinition* resultDefinition = new RimEclipseResultDefinition();
-    resultDefinition->setEclipseCase(eclipseResultCase);
-    resultDefinition->setResultType(RiaDefines::STATIC_NATIVE);
-    resultDefinition->setResultVariable("DEPTH");
+    resultDefinition->setEclipseCase( eclipseResultCase );
+    resultDefinition->setResultType( RiaDefines::STATIC_NATIVE );
+    resultDefinition->setResultVariable( "DEPTH" );
 
-    depthCellFilter->setResultDefinition(resultDefinition);
+    depthCellFilter->setResultDefinition( resultDefinition );
 
-    depthCellFilter->setValueRange(minDepth, maxDepth);
+    depthCellFilter->setValueRange( minDepth, maxDepth );
 
     return depthCellFilter;
 }

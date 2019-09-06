@@ -30,7 +30,7 @@
 #include <QAction>
 #include <QPushButton>
 
-CAF_CMD_SOURCE_INIT(RicHoloLensCreateSessionFeature, "RicHoloLensCreateSessionFeature");
+CAF_CMD_SOURCE_INIT( RicHoloLensCreateSessionFeature, "RicHoloLensCreateSessionFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -43,26 +43,30 @@ bool RicHoloLensCreateSessionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensCreateSessionFeature::onActionTriggered(bool isChecked)
+void RicHoloLensCreateSessionFeature::onActionTriggered( bool isChecked )
 {
     RicHoloLensCreateSessionUi createSessionUi;
 
-    caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &createSessionUi, "HoloLens - Create Session", "");
-    propertyDialog.resize(QSize(400, 330));
+    caf::PdmUiPropertyViewDialog propertyDialog( RiuMainWindow::instance(),
+                                                 &createSessionUi,
+                                                 "HoloLens - Create Session",
+                                                 "" );
+    propertyDialog.resize( QSize( 400, 330 ) );
 
     {
         QDialogButtonBox* dialogButtonBox = propertyDialog.dialogButtonBox();
         dialogButtonBox->clear();
 
-        QPushButton* pushButton = dialogButtonBox->addButton("Create Session", QDialogButtonBox::ActionRole);
-        connect(pushButton, SIGNAL(clicked()), &propertyDialog, SLOT(accept()));
+        QPushButton* pushButton = dialogButtonBox->addButton( "Create Session", QDialogButtonBox::ActionRole );
+        connect( pushButton, SIGNAL( clicked() ), &propertyDialog, SLOT( accept() ) );
     }
 
     int ret = propertyDialog.exec();
-    if (ret == QDialog::Accepted)
+    if ( ret == QDialog::Accepted )
     {
-        RicHoloLensSessionManager::instance()->createSession(
-            createSessionUi.serverUrl(), createSessionUi.sessionName(), createSessionUi.sessionPinCode());
+        RicHoloLensSessionManager::instance()->createSession( createSessionUi.serverUrl(),
+                                                              createSessionUi.sessionName(),
+                                                              createSessionUi.sessionPinCode() );
     }
 
     RicHoloLensSessionManager::refreshToolbarState();
@@ -71,9 +75,9 @@ void RicHoloLensCreateSessionFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensCreateSessionFeature::setupActionLook(QAction* actionToSetup)
+void RicHoloLensCreateSessionFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/HoloLensConnect24x24.png"));
+    actionToSetup->setIcon( QIcon( ":/HoloLensConnect24x24.png" ) );
 
-    actionToSetup->setText("Connect to HoloLens Server");
+    actionToSetup->setText( "Connect to HoloLens Server" );
 }

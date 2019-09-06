@@ -2,27 +2,27 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicNewStatisticsCaseFeature.h"
 
+#include "RimCaseCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseStatisticsCaseCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimCaseCollection.h"
 #include "RimProject.h"
 
 #include "RiaApplication.h"
@@ -32,10 +32,10 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicNewStatisticsCaseFeature, "RicNewStatisticsCaseFeature");
+CAF_CMD_SOURCE_INIT( RicNewStatisticsCaseFeature, "RicNewStatisticsCaseFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewStatisticsCaseFeature::isCommandEnabled()
 {
@@ -43,48 +43,48 @@ bool RicNewStatisticsCaseFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewStatisticsCaseFeature::onActionTriggered(bool isChecked)
+void RicNewStatisticsCaseFeature::onActionTriggered( bool isChecked )
 {
     caf::PdmUiItem* uiItem = selectedValidUIItem();
-    if (uiItem)
+    if ( uiItem )
     {
-        RimEclipseStatisticsCase* newCase = addStatisticalCalculation(uiItem);
-        if (newCase)
+        RimEclipseStatisticsCase* newCase = addStatisticalCalculation( uiItem );
+        if ( newCase )
         {
-            Riu3DMainWindowTools::selectAsCurrentItem(newCase);
+            Riu3DMainWindowTools::selectAsCurrentItem( newCase );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewStatisticsCaseFeature::setupActionLook(QAction* actionToSetup)
+void RicNewStatisticsCaseFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("New Statistics Case");
+    actionToSetup->setText( "New Statistics Case" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmUiItem* RicNewStatisticsCaseFeature::selectedValidUIItem()
 {
     std::vector<RimEclipseStatisticsCaseCollection*> statisticsCaseCollections;
-    caf::SelectionManager::instance()->objectsByType(&statisticsCaseCollections);
+    caf::SelectionManager::instance()->objectsByType( &statisticsCaseCollections );
 
-    if (statisticsCaseCollections.size() > 0)
+    if ( statisticsCaseCollections.size() > 0 )
     {
         return statisticsCaseCollections[0];
     }
 
     std::vector<RimCaseCollection*> caseCollections;
-    caf::SelectionManager::instance()->objectsByType(&caseCollections);
+    caf::SelectionManager::instance()->objectsByType( &caseCollections );
 
-    if (caseCollections.size() > 0)
+    if ( caseCollections.size() > 0 )
     {
-        if (RimIdenticalGridCaseGroup::isStatisticsCaseCollection(caseCollections[0]))
+        if ( RimIdenticalGridCaseGroup::isStatisticsCaseCollection( caseCollections[0] ) )
         {
             return caseCollections[0];
         }
@@ -94,28 +94,28 @@ caf::PdmUiItem* RicNewStatisticsCaseFeature::selectedValidUIItem()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimEclipseStatisticsCase* RicNewStatisticsCaseFeature::addStatisticalCalculation(caf::PdmUiItem* uiItem)
+RimEclipseStatisticsCase* RicNewStatisticsCaseFeature::addStatisticalCalculation( caf::PdmUiItem* uiItem )
 {
     RimIdenticalGridCaseGroup* caseGroup = nullptr;
 
-    if (dynamic_cast<RimEclipseStatisticsCase*>(uiItem))
+    if ( dynamic_cast<RimEclipseStatisticsCase*>( uiItem ) )
     {
-        RimEclipseStatisticsCase* currentObject = dynamic_cast<RimEclipseStatisticsCase*>(uiItem);
-        caseGroup = currentObject->parentStatisticsCaseCollection()->parentCaseGroup();
+        RimEclipseStatisticsCase* currentObject = dynamic_cast<RimEclipseStatisticsCase*>( uiItem );
+        caseGroup                               = currentObject->parentStatisticsCaseCollection()->parentCaseGroup();
     }
-    else if (dynamic_cast<RimCaseCollection*>(uiItem))
+    else if ( dynamic_cast<RimCaseCollection*>( uiItem ) )
     {
-        RimCaseCollection* statColl = dynamic_cast<RimCaseCollection*>(uiItem);
-        caseGroup = statColl->parentCaseGroup();
+        RimCaseCollection* statColl = dynamic_cast<RimCaseCollection*>( uiItem );
+        caseGroup                   = statColl->parentCaseGroup();
     }
 
-    if (caseGroup)
+    if ( caseGroup )
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject*               proj          = RiaApplication::instance()->project();
         RimEclipseStatisticsCase* createdObject = caseGroup->createAndAppendStatisticsCase();
-        proj->assignCaseIdToCase(createdObject);
+        proj->assignCaseIdToCase( createdObject );
 
         caseGroup->updateConnectedEditors();
         return createdObject;

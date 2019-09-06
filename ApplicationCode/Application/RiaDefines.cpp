@@ -24,108 +24,108 @@
 
 namespace caf
 {
-template<>
+template <>
 void caf::AppEnum<RiaDefines::ResultCatType>::setUp()
 {
-    addItem(RiaDefines::DYNAMIC_NATIVE, "DYNAMIC_NATIVE", "Dynamic");
-    addItem(RiaDefines::STATIC_NATIVE, "STATIC_NATIVE", "Static");
-    addItem(RiaDefines::SOURSIMRL, "SOURSIMRL", "SourSimRL");
-    addItem(RiaDefines::GENERATED, "GENERATED", "Generated");
-    addItem(RiaDefines::INPUT_PROPERTY, "INPUT_PROPERTY", "Input Property");
-    addItem(RiaDefines::FORMATION_NAMES, "FORMATION_NAMES", "Formation Names");
-    addItem(RiaDefines::FLOW_DIAGNOSTICS, "FLOW_DIAGNOSTICS", "Flow Diagnostics");
-    addItem(RiaDefines::INJECTION_FLOODING, "INJECTION_FLOODING", "Injection Flooding");
-    setDefault(RiaDefines::DYNAMIC_NATIVE);
+    addItem( RiaDefines::DYNAMIC_NATIVE, "DYNAMIC_NATIVE", "Dynamic" );
+    addItem( RiaDefines::STATIC_NATIVE, "STATIC_NATIVE", "Static" );
+    addItem( RiaDefines::SOURSIMRL, "SOURSIMRL", "SourSimRL" );
+    addItem( RiaDefines::GENERATED, "GENERATED", "Generated" );
+    addItem( RiaDefines::INPUT_PROPERTY, "INPUT_PROPERTY", "Input Property" );
+    addItem( RiaDefines::FORMATION_NAMES, "FORMATION_NAMES", "Formation Names" );
+    addItem( RiaDefines::FLOW_DIAGNOSTICS, "FLOW_DIAGNOSTICS", "Flow Diagnostics" );
+    addItem( RiaDefines::INJECTION_FLOODING, "INJECTION_FLOODING", "Injection Flooding" );
+    setDefault( RiaDefines::DYNAMIC_NATIVE );
 }
 
-template<>
+template <>
 void caf::AppEnum<RiaDefines::DepthUnitType>::setUp()
 {
-    addItem(RiaDefines::UNIT_METER, "UNIT_METER", "Meter");
-    addItem(RiaDefines::UNIT_FEET, "UNIT_FEET", "Feet");
-    addItem(RiaDefines::UNIT_NONE, "UNIT_NONE", "None");
+    addItem( RiaDefines::UNIT_METER, "UNIT_METER", "Meter" );
+    addItem( RiaDefines::UNIT_FEET, "UNIT_FEET", "Feet" );
+    addItem( RiaDefines::UNIT_NONE, "UNIT_NONE", "None" );
 
-    setDefault(RiaDefines::UNIT_METER);
+    setDefault( RiaDefines::UNIT_METER );
 }
 
-template<>
+template <>
 void caf::AppEnum<RiaDefines::PlotAxis>::setUp()
 {
-    addItem(RiaDefines::PLOT_AXIS_LEFT, "PLOT_AXIS_LEFT", "Left");
-    addItem(RiaDefines::PLOT_AXIS_RIGHT, "PLOT_AXIS_RIGHT", "Right");
+    addItem( RiaDefines::PLOT_AXIS_LEFT, "PLOT_AXIS_LEFT", "Left" );
+    addItem( RiaDefines::PLOT_AXIS_RIGHT, "PLOT_AXIS_RIGHT", "Right" );
 
-    setDefault(RiaDefines::PLOT_AXIS_LEFT);
+    setDefault( RiaDefines::PLOT_AXIS_LEFT );
 }
 
-template<>
+template <>
 void caf::AppEnum<RiaDefines::WellPathComponentType>::setUp()
 {
-    addItem(RiaDefines::WELL_PATH, "WELL_PATH", "Well Path");
-    addItem(RiaDefines::PERFORATION_INTERVAL, "PERFORATION_INTERVAL", "Perforation Interval");
-    addItem(RiaDefines::FISHBONES, "FISHBONES", "Fishbones");
-    addItem(RiaDefines::FRACTURE, "FRACTURE", "Fracture");
-    addItem(RiaDefines::ICD, "ICD", "ICD");
-    addItem(RiaDefines::AICD, "AICD", "AICD");
-    addItem(RiaDefines::ICV, "ICV", "ICV");
-    addItem(RiaDefines::CASING, "CASING", "Casing");
-    addItem(RiaDefines::LINER, "LINER", "Liner");
-    addItem(RiaDefines::PACKER, "PACKER", "Packer");
-    addItem(RiaDefines::UNDEFINED_COMPONENT, "UNDEFINED", "Undefined Component");
-    setDefault(RiaDefines::WELL_PATH);
+    addItem( RiaDefines::WELL_PATH, "WELL_PATH", "Well Path" );
+    addItem( RiaDefines::PERFORATION_INTERVAL, "PERFORATION_INTERVAL", "Perforation Interval" );
+    addItem( RiaDefines::FISHBONES, "FISHBONES", "Fishbones" );
+    addItem( RiaDefines::FRACTURE, "FRACTURE", "Fracture" );
+    addItem( RiaDefines::ICD, "ICD", "ICD" );
+    addItem( RiaDefines::AICD, "AICD", "AICD" );
+    addItem( RiaDefines::ICV, "ICV", "ICV" );
+    addItem( RiaDefines::CASING, "CASING", "Casing" );
+    addItem( RiaDefines::LINER, "LINER", "Liner" );
+    addItem( RiaDefines::PACKER, "PACKER", "Packer" );
+    addItem( RiaDefines::UNDEFINED_COMPONENT, "UNDEFINED", "Undefined Component" );
+    setDefault( RiaDefines::WELL_PATH );
 }
 
-template<>
+template <>
 void caf::AppEnum<RiaDefines::MeshModeType>::setUp()
 {
-    addItem(RiaDefines::FULL_MESH, "FULL_MESH", "All");
-    addItem(RiaDefines::FAULTS_MESH, "FAULTS_MESH", "Faults only");
-    addItem(RiaDefines::NO_MESH, "NO_MESH", "None");
-    setDefault(RiaDefines::FULL_MESH);
+    addItem( RiaDefines::FULL_MESH, "FULL_MESH", "All" );
+    addItem( RiaDefines::FAULTS_MESH, "FAULTS_MESH", "Faults only" );
+    addItem( RiaDefines::NO_MESH, "NO_MESH", "None" );
+    setDefault( RiaDefines::FULL_MESH );
 }
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaDefines::isPerCellFaceResult(const QString& resultName)
+bool RiaDefines::isPerCellFaceResult( const QString& resultName )
 {
-    if (resultName.compare(RiaDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+    if ( resultName.compare( RiaDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive ) == 0 )
     {
         return true;
     }
-    else if (resultName.compare(RiaDefines::combinedMultResultName(), Qt::CaseInsensitive) == 0)
+    else if ( resultName.compare( RiaDefines::combinedMultResultName(), Qt::CaseInsensitive ) == 0 )
     {
         return true;
     }
-    else if (resultName.compare(RiaDefines::ternarySaturationResultName(), Qt::CaseInsensitive) == 0)
+    else if ( resultName.compare( RiaDefines::ternarySaturationResultName(), Qt::CaseInsensitive ) == 0 )
     {
         return true;
     }
-    else if (resultName.compare(RiaDefines::combinedRiTranResultName(), Qt::CaseInsensitive) == 0)
+    else if ( resultName.compare( RiaDefines::combinedRiTranResultName(), Qt::CaseInsensitive ) == 0 )
     {
         return true;
     }
-    else if (resultName.compare(RiaDefines::combinedRiMultResultName(), Qt::CaseInsensitive) == 0)
+    else if ( resultName.compare( RiaDefines::combinedRiMultResultName(), Qt::CaseInsensitive ) == 0 )
     {
         return true;
     }
-    else if (resultName.compare(RiaDefines::combinedRiAreaNormTranResultName(), Qt::CaseInsensitive) == 0)
+    else if ( resultName.compare( RiaDefines::combinedRiAreaNormTranResultName(), Qt::CaseInsensitive ) == 0 )
     {
         return true;
     }
-    else if (resultName.compare(RiaDefines::combinedWaterFluxResultName(), Qt::CaseInsensitive) == 0)
+    else if ( resultName.compare( RiaDefines::combinedWaterFluxResultName(), Qt::CaseInsensitive ) == 0 )
     {
         return true;
     }
-    else if (resultName.compare(RiaDefines::combinedOilFluxResultName(), Qt::CaseInsensitive) == 0)
+    else if ( resultName.compare( RiaDefines::combinedOilFluxResultName(), Qt::CaseInsensitive ) == 0 )
     {
         return true;
     }
-    else if (resultName.compare(RiaDefines::combinedGasFluxResultName(), Qt::CaseInsensitive) == 0)
+    else if ( resultName.compare( RiaDefines::combinedGasFluxResultName(), Qt::CaseInsensitive ) == 0 )
     {
         return true;
     }
-    else if (resultName.endsWith("IJK"))
+    else if ( resultName.endsWith( "IJK" ) )
     {
         return true;
     }
@@ -136,9 +136,9 @@ bool RiaDefines::isPerCellFaceResult(const QString& resultName)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaDefines::isNativeCategoryResult(const QString& resultName)
+bool RiaDefines::isNativeCategoryResult( const QString& resultName )
 {
-    return resultName.endsWith("NUM");
+    return resultName.endsWith( "NUM" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -500,29 +500,29 @@ double RiaDefines::maximumDefaultValuePlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName(const QString& fileName)
+RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName( const QString& fileName )
 {
-    if (fileName.endsWith("EGRID", Qt::CaseInsensitive))
+    if ( fileName.endsWith( "EGRID", Qt::CaseInsensitive ) )
     {
         return ECLIPSE_EGRID_FILE;
     }
-    else if (fileName.endsWith("GRID", Qt::CaseInsensitive))
+    else if ( fileName.endsWith( "GRID", Qt::CaseInsensitive ) )
     {
         return ECLIPSE_GRID_FILE;
     }
-    else if (fileName.endsWith("GRDECL", Qt::CaseInsensitive))
+    else if ( fileName.endsWith( "GRDECL", Qt::CaseInsensitive ) )
     {
         return ECLIPSE_INPUT_FILE;
     }
-    else if (fileName.endsWith("SMSPEC", Qt::CaseInsensitive))
+    else if ( fileName.endsWith( "SMSPEC", Qt::CaseInsensitive ) )
     {
         return ECLIPSE_SUMMARY_FILE;
     }
-    else if (fileName.endsWith("ODB", Qt::CaseInsensitive))
+    else if ( fileName.endsWith( "ODB", Qt::CaseInsensitive ) )
     {
         return GEOMECH_ODB_FILE;
     }
-    else if (fileName.endsWith(".rsp", Qt::CaseInsensitive) || fileName.endsWith(".rip", Qt::CaseInsensitive))
+    else if ( fileName.endsWith( ".rsp", Qt::CaseInsensitive ) || fileName.endsWith( ".rip", Qt::CaseInsensitive ) )
     {
         return RESINSIGHT_PROJECT_FILE;
     }
@@ -532,29 +532,29 @@ RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName(const QString&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::defaultDirectoryLabel(RiaDefines::ImportFileType fileType)
+QString RiaDefines::defaultDirectoryLabel( RiaDefines::ImportFileType fileType )
 {
     QString defaultDirLabel;
 
-    if (fileType == ANY_ECLIPSE_FILE)
+    if ( fileType == ANY_ECLIPSE_FILE )
     {
         defaultDirLabel = "GENERAL_DATA";
     }
-    else if (fileType & ECLIPSE_RESULT_GRID)
+    else if ( fileType & ECLIPSE_RESULT_GRID )
     {
         defaultDirLabel = "BINARY_GRID";
     }
-    else if (fileType & ECLIPSE_INPUT_FILE)
+    else if ( fileType & ECLIPSE_INPUT_FILE )
     {
         defaultDirLabel = "INPUT_FILES";
     }
-    else if (fileType & ECLIPSE_SUMMARY_FILE)
+    else if ( fileType & ECLIPSE_SUMMARY_FILE )
     {
         // TODO: Summary files used "INPUT_FILES" as last used directory.
         // Check if this is correct.
         defaultDirLabel = "INPUT_FILES";
     }
-    else if (fileType & GEOMECH_ODB_FILE)
+    else if ( fileType & GEOMECH_ODB_FILE )
     {
         defaultDirLabel = "GEOMECH_MODEL";
     }

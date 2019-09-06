@@ -31,25 +31,25 @@
 
 #include <QAction>
 
-CAF_PDM_SOURCE_INIT(RicfCreateStatisticsCaseResult, "createStatisticsCaseResult");
+CAF_PDM_SOURCE_INIT( RicfCreateStatisticsCaseResult, "createStatisticsCaseResult" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCreateStatisticsCaseResult::RicfCreateStatisticsCaseResult(int caseId /*= -1*/)
+RicfCreateStatisticsCaseResult::RicfCreateStatisticsCaseResult( int caseId /*= -1*/ )
 {
-    CAF_PDM_InitObject("statistics_case_result", "", "", "");
-    CAF_PDM_InitField(&this->caseId, "caseId", caseId, "", "", "", "");
+    CAF_PDM_InitObject( "statistics_case_result", "", "", "" );
+    CAF_PDM_InitField( &this->caseId, "caseId", caseId, "", "", "", "" );
 }
 
-CAF_PDM_SOURCE_INIT(RicfCreateStatisticsCase, "createStatisticsCase");
+CAF_PDM_SOURCE_INIT( RicfCreateStatisticsCase, "createStatisticsCase" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicfCreateStatisticsCase::RicfCreateStatisticsCase()
 {
-    RICF_InitField(&m_caseGroupId, "caseGroupId", -1, "Case Group Id", "", "", "");
+    RICF_InitField( &m_caseGroupId, "caseGroupId", -1, "Case Group Id", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,18 +60,18 @@ RicfCommandResponse RicfCreateStatisticsCase::execute()
     RimProject* project = RiaApplication::instance()->project();
 
     std::vector<RimIdenticalGridCaseGroup*> gridCaseGroups;
-    project->descendantsIncludingThisOfType(gridCaseGroups);
-    for (auto gridCaseGroup : gridCaseGroups)
+    project->descendantsIncludingThisOfType( gridCaseGroups );
+    for ( auto gridCaseGroup : gridCaseGroups )
     {
-        if (gridCaseGroup->groupId() == m_caseGroupId())
+        if ( gridCaseGroup->groupId() == m_caseGroupId() )
         {
             RimEclipseStatisticsCase* createdObject = gridCaseGroup->createAndAppendStatisticsCase();
-            project->assignCaseIdToCase(createdObject);
+            project->assignCaseIdToCase( createdObject );
             gridCaseGroup->updateConnectedEditors();
             RicfCommandResponse response;
-            response.setResult(new RicfCreateStatisticsCaseResult(createdObject->caseId()));
+            response.setResult( new RicfCreateStatisticsCaseResult( createdObject->caseId() ) );
             return response;
         }
     }
-    return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, "Could not find grid case group");
+    return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, "Could not find grid case group" );
 }

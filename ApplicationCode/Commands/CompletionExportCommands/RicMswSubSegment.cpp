@@ -21,14 +21,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswSubSegmentCellIntersection::RicMswSubSegmentCellIntersection(const QString&     gridName,
-                                                                   size_t             globalCellIndex,
-                                                                   const cvf::Vec3st& gridLocalCellIJK,
-                                                                   const cvf::Vec3d&  lengthsInCell)
-    : m_gridName(gridName)
-    , m_globalCellIndex(globalCellIndex)
-    , m_gridLocalCellIJK(gridLocalCellIJK)
-    , m_lengthsInCell(lengthsInCell)
+RicMswSubSegmentCellIntersection::RicMswSubSegmentCellIntersection( const QString&     gridName,
+                                                                    size_t             globalCellIndex,
+                                                                    const cvf::Vec3st& gridLocalCellIJK,
+                                                                    const cvf::Vec3d&  lengthsInCell )
+    : m_gridName( gridName )
+    , m_globalCellIndex( globalCellIndex )
+    , m_gridLocalCellIJK( gridLocalCellIJK )
+    , m_lengthsInCell( lengthsInCell )
 {
 }
 
@@ -67,13 +67,13 @@ const cvf::Vec3d& RicMswSubSegmentCellIntersection::lengthsInCell() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswSubSegment::RicMswSubSegment(double startMD, double endMD, double startTVD, double endTVD)
-    : m_startMD(startMD)
-    , m_endMD(endMD)
-    , m_startTVD(startTVD)
-    , m_endTVD(endTVD)
-    , m_segmentNumber(-1)
-    , m_attachedSegmentNumber(-1)
+RicMswSubSegment::RicMswSubSegment( double startMD, double endMD, double startTVD, double endTVD )
+    : m_startMD( startMD )
+    , m_endMD( endMD )
+    , m_startTVD( startTVD )
+    , m_endTVD( endTVD )
+    , m_segmentNumber( -1 )
+    , m_attachedSegmentNumber( -1 )
 {
 }
 
@@ -144,7 +144,7 @@ int RicMswSubSegment::attachedSegmentNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSubSegment::setSegmentNumber(int segmentNumber)
+void RicMswSubSegment::setSegmentNumber( int segmentNumber )
 {
     m_segmentNumber = segmentNumber;
 }
@@ -152,7 +152,7 @@ void RicMswSubSegment::setSegmentNumber(int segmentNumber)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSubSegment::setAttachedSegmentNumber(int attachedSegmentNumber)
+void RicMswSubSegment::setAttachedSegmentNumber( int attachedSegmentNumber )
 {
     m_attachedSegmentNumber = attachedSegmentNumber;
 }
@@ -160,9 +160,9 @@ void RicMswSubSegment::setAttachedSegmentNumber(int attachedSegmentNumber)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSubSegment::addIntersection(std::shared_ptr<RicMswSubSegmentCellIntersection> intersection)
+void RicMswSubSegment::addIntersection( std::shared_ptr<RicMswSubSegmentCellIntersection> intersection )
 {
-    m_intersections.push_back(intersection);
+    m_intersections.push_back( intersection );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,5 +180,3 @@ std::vector<std::shared_ptr<RicMswSubSegmentCellIntersection>>& RicMswSubSegment
 {
     return m_intersections;
 }
-
-

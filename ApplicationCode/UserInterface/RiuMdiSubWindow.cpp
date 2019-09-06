@@ -36,12 +36,12 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuMdiSubWindow::RiuMdiSubWindow(QWidget* parent /*= 0*/, Qt::WindowFlags flags /*= 0*/)
-    : QMdiSubWindow(parent, flags)
-    , m_normalWindowGeometry(QRect())
-    , m_blockTilingChanges(false)
+RiuMdiSubWindow::RiuMdiSubWindow( QWidget* parent /*= 0*/, Qt::WindowFlags flags /*= 0*/ )
+    : QMdiSubWindow( parent, flags )
+    , m_normalWindowGeometry( QRect() )
+    , m_blockTilingChanges( false )
 {
-    setWindowIcon(QIcon(":/Window16x16.png"));
+    setWindowIcon( QIcon( ":/Window16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ RimMdiWindowGeometry RiuMdiSubWindow::windowGeometry() const
     RimMdiWindowGeometry geo;
 
     int mainWinID = 0;
-    if (window() == RiaGuiApplication::instance()->mainPlotWindow())
+    if ( window() == RiaGuiApplication::instance()->mainPlotWindow() )
     {
         mainWinID = 1;
     }
@@ -70,7 +70,7 @@ RimMdiWindowGeometry RiuMdiSubWindow::windowGeometry() const
 
     // Save normal/non-maximized size and position so this can be restored
     QRect currentGeometry = frameGeometry();
-    if (isMaximized() && !m_normalWindowGeometry.isNull())
+    if ( isMaximized() && !m_normalWindowGeometry.isNull() )
     {
         currentGeometry = m_normalWindowGeometry;
     }
@@ -83,11 +83,10 @@ RimMdiWindowGeometry RiuMdiSubWindow::windowGeometry() const
     return geo;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMdiSubWindow::blockTilingChanges(bool block)
+void RiuMdiSubWindow::blockTilingChanges( bool block )
 {
     m_blockTilingChanges = block;
 }
@@ -95,78 +94,78 @@ void RiuMdiSubWindow::blockTilingChanges(bool block)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMdiSubWindow::closeEvent(QCloseEvent* event)
+void RiuMdiSubWindow::closeEvent( QCloseEvent* event )
 {
     QWidget* mainWidget = widget();
 
-	RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(mainWidget);
-    if (!viewWindow)
+    RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( mainWidget );
+    if ( !viewWindow )
     {
         RiuViewer* viewer = mainWidget->findChild<RiuViewer*>();
-        if (viewer)
+        if ( viewer )
         {
             viewWindow = viewer->ownerViewWindow();
         }
     }
 
-    if (viewWindow)
+    if ( viewWindow )
     {
-        viewWindow->setMdiWindowGeometry(windowGeometry());
+        viewWindow->setMdiWindowGeometry( windowGeometry() );
         viewWindow->handleMdiWindowClosed();
         event->accept();
     }
     else
     {
-        QMdiSubWindow::closeEvent(event);
+        QMdiSubWindow::closeEvent( event );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMdiSubWindow::resizeEvent(QResizeEvent* resizeEvent)
+void RiuMdiSubWindow::resizeEvent( QResizeEvent* resizeEvent )
 {
-    if (!isMaximized())
+    if ( !isMaximized() )
     {
         m_normalWindowGeometry = frameGeometry();
     }
 
-    if (!m_blockTilingChanges)
+    if ( !m_blockTilingChanges )
     {
-        if (window() == RiaGuiApplication::instance()->mainWindow())
+        if ( window() == RiaGuiApplication::instance()->mainWindow() )
         {
-            RiaGuiApplication::instance()->mainWindow()->storeSubWindowTiling(false);
+            RiaGuiApplication::instance()->mainWindow()->storeSubWindowTiling( false );
         }
-        else if (window() == RiaGuiApplication::instance()->mainPlotWindow())
+        else if ( window() == RiaGuiApplication::instance()->mainPlotWindow() )
         {
-            RiaGuiApplication::instance()->mainPlotWindow()->storeSubWindowTiling(false);
+            RiaGuiApplication::instance()->mainPlotWindow()->storeSubWindowTiling( false );
         }
     }
 
-    QMdiSubWindow::resizeEvent(resizeEvent);
+    QMdiSubWindow::resizeEvent( resizeEvent );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMdiSubWindow::moveEvent(QMoveEvent* moveEvent)
+void RiuMdiSubWindow::moveEvent( QMoveEvent* moveEvent )
 {
-    if (!isMaximized())
+    if ( !isMaximized() )
     {
         m_normalWindowGeometry = frameGeometry();
     }
-    
-    if (!m_blockTilingChanges)
+
+    if ( !m_blockTilingChanges )
     {
-        if (window() == RiaGuiApplication::instance()->mainWindow())
+        if ( window() == RiaGuiApplication::instance()->mainWindow() )
         {
-            RiaGuiApplication::instance()->mainWindow()->storeSubWindowTiling(false);
+            RiaGuiApplication::instance()->mainWindow()->storeSubWindowTiling( false );
         }
-        else if (window() == RiaGuiApplication::instance()->mainPlotWindow())
+        else if ( window() == RiaGuiApplication::instance()->mainPlotWindow() )
         {
-            RiaGuiApplication::instance()->mainPlotWindow()->storeSubWindowTiling(false);
+            RiaGuiApplication::instance()->mainPlotWindow()->storeSubWindowTiling( false );
         }
     }
 
-    QMdiSubWindow::moveEvent(moveEvent);
+    QMdiSubWindow::moveEvent( moveEvent );
 }

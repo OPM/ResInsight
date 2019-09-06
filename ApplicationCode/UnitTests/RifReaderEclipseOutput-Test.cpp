@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,17 +22,17 @@
 
 #include "RigEclipseCaseData.h"
 
-#include <ert/ecl/ecl_file.h>
 #include "ert/ecl/ecl_kw_magic.h"
+#include <ert/ecl/ecl_file.h>
 
 #include "RiaStringEncodingTools.h"
 #include "RiaTestDataDirectory.h"
-#include "RifReaderEclipseOutput.h"
 #include "RifEclipseOutputFileTools.h"
-#include "RigEclipseCaseData.h"
-#include "RigCaseCellResultsData.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
+#include "RifReaderEclipseOutput.h"
 #include "RifReaderSettings.h"
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
 #include "RimEclipseResultCase.h"
 
 #include <QDebug>
@@ -43,83 +43,81 @@
 using namespace RiaDefines;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RigReservoirTest, BasicTest10k)
+TEST( RigReservoirTest, BasicTest10k )
 {
-    QDir baseFolder(TEST_MODEL_DIR);
-    bool subFolderExists = baseFolder.cd("TEST10K_FLT_LGR_NNC");
-    EXPECT_TRUE(subFolderExists);
-    QString filename("TEST10K_FLT_LGR_NNC.EGRID");
-    QString filePath = baseFolder.absoluteFilePath(filename);
-    EXPECT_TRUE(QFile::exists(filePath));
+    QDir baseFolder( TEST_MODEL_DIR );
+    bool subFolderExists = baseFolder.cd( "TEST10K_FLT_LGR_NNC" );
+    EXPECT_TRUE( subFolderExists );
+    QString filename( "TEST10K_FLT_LGR_NNC.EGRID" );
+    QString filePath = baseFolder.absoluteFilePath( filename );
+    EXPECT_TRUE( QFile::exists( filePath ) );
 
-    std::unique_ptr<RimEclipseResultCase> resultCase(new RimEclipseResultCase);
-    cvf::ref<RigEclipseCaseData>          reservoir = new RigEclipseCaseData(resultCase.get());
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          reservoir = new RigEclipseCaseData( resultCase.get() );
 
     {
-        RigCaseCellResultsData* cellData = reservoir->results(MATRIX_MODEL);
+        RigCaseCellResultsData* cellData = reservoir->results( MATRIX_MODEL );
 
-        QStringList staticResults = cellData->resultNames(STATIC_NATIVE);
-        EXPECT_EQ(0, staticResults.size());
-        //qDebug() << "Static results\n" << staticResults;
+        QStringList staticResults = cellData->resultNames( STATIC_NATIVE );
+        EXPECT_EQ( 0, staticResults.size() );
+        // qDebug() << "Static results\n" << staticResults;
 
-        QStringList dynamicResults = cellData->resultNames(DYNAMIC_NATIVE);
-        EXPECT_EQ(0, dynamicResults.size());
-        //qDebug() << "Dynamic results\n" << dynamicResults;
+        QStringList dynamicResults = cellData->resultNames( DYNAMIC_NATIVE );
+        EXPECT_EQ( 0, dynamicResults.size() );
+        // qDebug() << "Dynamic results\n" << dynamicResults;
 
-        int numTimeSteps = static_cast<int>(cellData->maxTimeStepCount());
-        EXPECT_EQ(0, numTimeSteps);
-
+        int numTimeSteps = static_cast<int>( cellData->maxTimeStepCount() );
+        EXPECT_EQ( 0, numTimeSteps );
     }
 
     {
         cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
-        bool result = readerInterfaceEcl->open(filePath, reservoir.p());
-        EXPECT_TRUE(result);
-        int numTimeSteps = static_cast<int>(readerInterfaceEcl->allTimeSteps().size());
-        EXPECT_EQ(9, numTimeSteps);
+        bool                             result             = readerInterfaceEcl->open( filePath, reservoir.p() );
+        EXPECT_TRUE( result );
+        int numTimeSteps = static_cast<int>( readerInterfaceEcl->allTimeSteps().size() );
+        EXPECT_EQ( 9, numTimeSteps );
     }
 
     {
-        RigCaseCellResultsData* cellData = reservoir->results(MATRIX_MODEL);
+        RigCaseCellResultsData* cellData = reservoir->results( MATRIX_MODEL );
 
-        QStringList staticResults = cellData->resultNames(STATIC_NATIVE);
-        EXPECT_EQ(44, staticResults.size());
-        //qDebug() << "Static results\n" << staticResults;
+        QStringList staticResults = cellData->resultNames( STATIC_NATIVE );
+        EXPECT_EQ( 44, staticResults.size() );
+        // qDebug() << "Static results\n" << staticResults;
 
-        QStringList dynamicResults = cellData->resultNames(DYNAMIC_NATIVE);
-        EXPECT_EQ(23, dynamicResults.size());
-        //qDebug() << "Dynamic results\n" << dynamicResults;
+        QStringList dynamicResults = cellData->resultNames( DYNAMIC_NATIVE );
+        EXPECT_EQ( 23, dynamicResults.size() );
+        // qDebug() << "Dynamic results\n" << dynamicResults;
 
-        int numTimeSteps = static_cast<int>(cellData->maxTimeStepCount());
-        EXPECT_EQ(9, numTimeSteps);
-    }    
+        int numTimeSteps = static_cast<int>( cellData->maxTimeStepCount() );
+        EXPECT_EQ( 9, numTimeSteps );
+    }
 }
 
-TEST(RigReservoirTest, BasicTest10kRestart)
+TEST( RigReservoirTest, BasicTest10kRestart )
 {
     RifEclipseUnifiedRestartFileAccess unrstAccess;
 
-    QDir baseFolder(TEST_MODEL_DIR);
-    bool subFolderExists = baseFolder.cd("TEST10K_FLT_LGR_NNC");
-    EXPECT_TRUE(subFolderExists);
-    QString filename("TEST10K_FLT_LGR_NNC.UNRST");
-    QString filePath = baseFolder.absoluteFilePath(filename);
-    EXPECT_TRUE(QFile::exists(filePath));
+    QDir baseFolder( TEST_MODEL_DIR );
+    bool subFolderExists = baseFolder.cd( "TEST10K_FLT_LGR_NNC" );
+    EXPECT_TRUE( subFolderExists );
+    QString filename( "TEST10K_FLT_LGR_NNC.UNRST" );
+    QString filePath = baseFolder.absoluteFilePath( filename );
+    EXPECT_TRUE( QFile::exists( filePath ) );
 
     QStringList filenames;
     filenames << filePath;
-    unrstAccess.setRestartFiles(filenames);
+    unrstAccess.setRestartFiles( filenames );
 
-
-    QStringList resultNames;
+    QStringList         resultNames;
     std::vector<size_t> dataItemCount;
 
-    unrstAccess.resultNames(&resultNames, &dataItemCount);
+    unrstAccess.resultNames( &resultNames, &dataItemCount );
 
-    EXPECT_EQ(resultNames.size(), (int) dataItemCount.size());
-    EXPECT_EQ(83, resultNames.size());
+    EXPECT_EQ( resultNames.size(), (int)dataItemCount.size() );
+    EXPECT_EQ( 83, resultNames.size() );
 
     /* for (int i = 0; i < resultNames.size(); i++)
     {
@@ -127,7 +125,7 @@ TEST(RigReservoirTest, BasicTest10kRestart)
     } */
 
     auto reportNums = unrstAccess.reportNumbers();
-    EXPECT_EQ((size_t) 9, reportNums.size());
+    EXPECT_EQ( (size_t)9, reportNums.size() );
 
     /* for (auto reportNum : reportNums)
     {
@@ -135,70 +133,69 @@ TEST(RigReservoirTest, BasicTest10kRestart)
     } */
 }
 
-TEST(RigReservoirTest, BasicTest10k_NativeECL)
+TEST( RigReservoirTest, BasicTest10k_NativeECL )
 {
-    QDir baseFolder(TEST_MODEL_DIR);
-    bool subFolderExists = baseFolder.cd("TEST10K_FLT_LGR_NNC");
-    EXPECT_TRUE(subFolderExists);
-    QString filename("TEST10K_FLT_LGR_NNC.EGRID");
-    QString filePath = baseFolder.absoluteFilePath(filename);
-    EXPECT_TRUE(QFile::exists(filePath));
+    QDir baseFolder( TEST_MODEL_DIR );
+    bool subFolderExists = baseFolder.cd( "TEST10K_FLT_LGR_NNC" );
+    EXPECT_TRUE( subFolderExists );
+    QString filename( "TEST10K_FLT_LGR_NNC.EGRID" );
+    QString filePath = baseFolder.absoluteFilePath( filename );
+    EXPECT_TRUE( QFile::exists( filePath ) );
 
-    ecl_grid_type* grid = ecl_grid_alloc(RiaStringEncodingTools::toNativeEncoded(filePath).data());
-    EXPECT_TRUE(grid);
+    ecl_grid_type* grid = ecl_grid_alloc( RiaStringEncodingTools::toNativeEncoded( filePath ).data() );
+    EXPECT_TRUE( grid );
 
-    QString subDir("RifReaderEclipseOutput");
-    QDir dataDir(TEST_DATA_DIR);
-    dataDir.mkdir(subDir);
-    dataDir.cd(subDir);
-    QString outFilePath = dataDir.absoluteFilePath("TEST10K_FLT_LGR_NNC_OUT.GRDECL");
+    QString subDir( "RifReaderEclipseOutput" );
+    QDir    dataDir( TEST_DATA_DIR );
+    dataDir.mkdir( subDir );
+    dataDir.cd( subDir );
+    QString outFilePath = dataDir.absoluteFilePath( "TEST10K_FLT_LGR_NNC_OUT.GRDECL" );
 
 #ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning(disable : 4996)
+#pragma warning( push )
+#pragma warning( disable : 4996 )
 #endif
-    FILE* filePtr = fopen(RiaStringEncodingTools::toNativeEncoded(outFilePath).data(), "w");
-    EXPECT_TRUE(filePtr != nullptr);
-    ecl_grid_fprintf_grdecl(grid, filePtr);
-    fclose(filePtr);
-    EXPECT_TRUE(QFile::exists(outFilePath));
+    FILE* filePtr = fopen( RiaStringEncodingTools::toNativeEncoded( outFilePath ).data(), "w" );
+    EXPECT_TRUE( filePtr != nullptr );
+    ecl_grid_fprintf_grdecl( grid, filePtr );
+    fclose( filePtr );
+    EXPECT_TRUE( QFile::exists( outFilePath ) );
 
 #ifdef _WIN32
-    QString expectedMd5(QByteArray::fromHex("e993b85140568f13f4c3849604700a0f"));
+    QString expectedMd5( QByteArray::fromHex( "e993b85140568f13f4c3849604700a0f" ) );
 #else
-    QString expectedMd5(QByteArray::fromHex("274e44fe51299c1f9ca6645c384e237d"));
+    QString expectedMd5( QByteArray::fromHex( "274e44fe51299c1f9ca6645c384e237d" ) );
 #endif
-    QByteArray generatedMd5 = RifEclipseOutputFileTools::md5sum(outFilePath);
+    QByteArray generatedMd5 = RifEclipseOutputFileTools::md5sum( outFilePath );
 
     // Enable to produce text string so expectedMd5 can be updated
     // Qt4 doesn't take a parameter for toHex()
-    //qDebug() << expectedMd5.toLatin1().toHex(0) << "     " << generatedMd5.toHex(0);
-    EXPECT_TRUE(generatedMd5 == expectedMd5);
+    // qDebug() << expectedMd5.toLatin1().toHex(0) << "     " << generatedMd5.toHex(0);
+    EXPECT_TRUE( generatedMd5 == expectedMd5 );
 
 #ifdef _MSC_VER
-#pragma warning(pop)
+#pragma warning( pop )
 #endif
 }
 
-
-TEST(RigReservoirTest, Test10k_ReadThenWriteToECL)
+TEST( RigReservoirTest, Test10k_ReadThenWriteToECL )
 {
-    QDir baseFolder(TEST_MODEL_DIR);
-    bool subFolderExists = baseFolder.cd("TEST10K_FLT_LGR_NNC");
-    EXPECT_TRUE(subFolderExists);
-    QString filename("TEST10K_FLT_LGR_NNC.EGRID");
-    QString filePath = baseFolder.absoluteFilePath(filename);
-    EXPECT_TRUE(QFile::exists(filePath));
+    QDir baseFolder( TEST_MODEL_DIR );
+    bool subFolderExists = baseFolder.cd( "TEST10K_FLT_LGR_NNC" );
+    EXPECT_TRUE( subFolderExists );
+    QString filename( "TEST10K_FLT_LGR_NNC.EGRID" );
+    QString filePath = baseFolder.absoluteFilePath( filename );
+    EXPECT_TRUE( QFile::exists( filePath ) );
 
-    std::unique_ptr<RimEclipseResultCase> resultCase(new RimEclipseResultCase);
-    resultCase->setGridFileName(filePath);
-    resultCase->importGridAndResultMetaData(false);
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    resultCase->setGridFileName( filePath );
+    resultCase->importGridAndResultMetaData( false );
 
-    QString subDir("RifReaderEclipseOutput");
-    QDir    dataDir(TEST_DATA_DIR);
-    dataDir.mkdir(subDir);
-    dataDir.cd(subDir);
-    QString outFilePath = dataDir.absoluteFilePath("TEST10K_FLT_LGR_NNC_OUT_FROM_RES.GRDECL");
+    QString subDir( "RifReaderEclipseOutput" );
+    QDir    dataDir( TEST_DATA_DIR );
+    dataDir.mkdir( subDir );
+    dataDir.cd( subDir );
+    QString outFilePath = dataDir.absoluteFilePath( "TEST10K_FLT_LGR_NNC_OUT_FROM_RES.GRDECL" );
 
     /* bool worked = RifReaderEclipseOutput::saveEclipseGrid(outFilePath, resultCase->eclipseCaseData());
     EXPECT_TRUE(worked);
@@ -558,30 +555,27 @@ TEST(RigReservoirTest, WellTest)
     EXPECT_TRUE(mainGridWellCells->size() == reservoir->mainGrid()->cellCount());
 }
 
-
-
 #endif
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(DISABLED_RigReservoirTest, WellTest)
+TEST( DISABLED_RigReservoirTest, WellTest )
 {
     cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
-    cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData(nullptr);
+    cvf::ref<RigEclipseCaseData>     reservoir          = new RigEclipseCaseData( nullptr );
 
     // Location of test dataset received from Håkon Høgstøl in July 2011 with 10k active cells
 #ifdef WIN32
-    QString filename("d:/Models/Statoil/soursim/PKMUNK_NOV_TEST_SS.GRID");
-    QString sourSim("d:/Models/Statoil/soursim/result.sourres.00001");
+    QString filename( "d:/Models/Statoil/soursim/PKMUNK_NOV_TEST_SS.GRID" );
+    QString sourSim( "d:/Models/Statoil/soursim/result.sourres.00001" );
 #else
-    QString filename("/mnt/hgfs/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.EGRID");
-    QString sourSim("d:/Models/Statoil/soursim/result.sourres");
+    QString filename( "/mnt/hgfs/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.EGRID" );
+    QString sourSim( "d:/Models/Statoil/soursim/result.sourres" );
 #endif
 
-    bool result = readerInterfaceEcl->open(filename, reservoir.p());
-    EXPECT_TRUE(result);
+    bool result = readerInterfaceEcl->open( filename, reservoir.p() );
+    EXPECT_TRUE( result );
 
-    readerInterfaceEcl->setHdf5FileName(sourSim);
+    readerInterfaceEcl->setHdf5FileName( sourSim );
 }
-

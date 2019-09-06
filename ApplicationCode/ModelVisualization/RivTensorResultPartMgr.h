@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cvfArray.h"
 #include "cvfColor3.h"
 #include "cvfObject.h"
@@ -48,21 +47,26 @@ class RigFemPart;
 class RivTensorResultPartMgr : public cvf::Object
 {
 public:
-    RivTensorResultPartMgr(RimGeoMechView* reservoirView);
+    RivTensorResultPartMgr( RimGeoMechView* reservoirView );
     ~RivTensorResultPartMgr() override;
 
-    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex) const;
+    void appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model, size_t frameIndex ) const;
 
 private:
     struct TensorVisualization
     {
-        TensorVisualization(cvf::Vec3f vertex, cvf::Vec3f result, cvf::Vec3f faceNormal, bool isPressure, int princial, float principalValue)
-            : vertex(vertex)
-            , result(result)
-            , faceNormal(faceNormal)
-            , isPressure(isPressure)
-            , principalNumber(princial)
-            , principalValue(principalValue) {};
+        TensorVisualization( cvf::Vec3f vertex,
+                             cvf::Vec3f result,
+                             cvf::Vec3f faceNormal,
+                             bool       isPressure,
+                             int        princial,
+                             float      principalValue )
+            : vertex( vertex )
+            , result( result )
+            , faceNormal( faceNormal )
+            , isPressure( isPressure )
+            , principalNumber( princial )
+            , principalValue( principalValue ){};
 
         cvf::Vec3f vertex;
         cvf::Vec3f result;
@@ -73,36 +77,37 @@ private:
     };
 
 private:
-    static void calculateElementTensors(const RigFemPart&              part,
-                                        const std::vector<caf::Ten3f>& vertexTensors,
-                                        std::vector<caf::Ten3f>*       elmTensors);
+    static void calculateElementTensors( const RigFemPart&              part,
+                                         const std::vector<caf::Ten3f>& vertexTensors,
+                                         std::vector<caf::Ten3f>*       elmTensors );
 
-    static void calculatePrincipalsAndDirections(const std::vector<caf::Ten3f>&          tensors,
-                                                 std::array<std::vector<float>, 3>*      principals,
-                                                 std::vector<std::array<cvf::Vec3f, 3>>* principalDirections);
+    static void calculatePrincipalsAndDirections( const std::vector<caf::Ten3f>&          tensors,
+                                                  std::array<std::vector<float>, 3>*      principals,
+                                                  std::vector<std::array<cvf::Vec3f, 3>>* principalDirections );
 
-    static cvf::Vec3f calculateFaceNormal(const RigFemPartNodes&     nodes,
-                                          const std::vector<size_t>& quadVerticesToNodeIdxMapping,
-                                          int                        quadVertex);
+    static cvf::Vec3f calculateFaceNormal( const RigFemPartNodes&     nodes,
+                                           const std::vector<size_t>& quadVerticesToNodeIdxMapping,
+                                           int                        quadVertex );
 
-    cvf::ref<cvf::Part> createPart(const std::vector<TensorVisualization>& tensorVisualizations) const;
+    cvf::ref<cvf::Part> createPart( const std::vector<TensorVisualization>& tensorVisualizations ) const;
 
-    static void createOneColorPerPrincipalScalarMapper(const RimTensorResults::TensorColors& colorSet, cvf::ScalarMapperDiscreteLinear* scalarMapper);
-    static void createOneColorPerPrincipalTextureCoords(cvf::Vec2fArray*                        textureCoords,
-                                                        const std::vector<TensorVisualization>& tensorVisualizations,
-                                                        const cvf::ScalarMapper*                mapper);
+    static void createOneColorPerPrincipalScalarMapper( const RimTensorResults::TensorColors& colorSet,
+                                                        cvf::ScalarMapperDiscreteLinear*      scalarMapper );
+    static void createOneColorPerPrincipalTextureCoords( cvf::Vec2fArray*                        textureCoords,
+                                                         const std::vector<TensorVisualization>& tensorVisualizations,
+                                                         const cvf::ScalarMapper*                mapper );
 
-    static void createResultColorTextureCoords(cvf::Vec2fArray*                        textureCoords,
-                                               const std::vector<TensorVisualization>& tensorVisualizations,
-                                               const cvf::ScalarMapper*                mapper);
+    static void createResultColorTextureCoords( cvf::Vec2fArray*                        textureCoords,
+                                                const std::vector<TensorVisualization>& tensorVisualizations,
+                                                const cvf::ScalarMapper*                mapper );
 
-    static bool isTensorAddress(RigFemResultAddress address);
-    static bool isValid(cvf::Vec3f resultVector);
-    static bool isPressure(float principalValue);
-    bool        isDrawable(cvf::Vec3f resultVector, bool showPrincipal) const;
+    static bool isTensorAddress( RigFemResultAddress address );
+    static bool isValid( cvf::Vec3f resultVector );
+    static bool isPressure( float principalValue );
+    bool        isDrawable( cvf::Vec3f resultVector, bool showPrincipal ) const;
 
-    std::array<cvf::Vec3f, 5>   createArrowVertices(const TensorVisualization &tensorVisualization) const;
-    std::array<uint, 8>         createArrowIndices(uint startIndex) const;
+    std::array<cvf::Vec3f, 5> createArrowVertices( const TensorVisualization& tensorVisualization ) const;
+    std::array<uint, 8>       createArrowIndices( uint startIndex ) const;
 
 private:
     caf::PdmPointer<RimGeoMechView> m_rimReservoirView;

@@ -23,28 +23,30 @@
 #include "RimProject.h"
 #include "RimValveTemplate.h"
 
-CAF_PDM_SOURCE_INIT(RimValveTemplateCollection, "ValveTemplateCollection");
-
+CAF_PDM_SOURCE_INIT( RimValveTemplateCollection, "ValveTemplateCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimValveTemplateCollection::RimValveTemplateCollection()
 {
-    CAF_PDM_InitObject("Valve Templates", ":/ICDValve16x16.png", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_valveDefinitions, "ValveDefinitions",  "", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_defaultUnitsForValveTemplates, "ValveUnits", "Default unit system for valve templates", "", "", "");
+    CAF_PDM_InitObject( "Valve Templates", ":/ICDValve16x16.png", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_valveDefinitions, "ValveDefinitions", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_defaultUnitsForValveTemplates,
+                                "ValveUnits",
+                                "Default unit system for valve templates",
+                                "",
+                                "",
+                                "" );
     m_defaultUnitsForValveTemplates = RiaEclipseUnitTools::UNITS_METRIC;
-    m_valveDefinitions.uiCapability()->setUiHidden(true);
-    addDefaultValveTemplates();    
+    m_valveDefinitions.uiCapability()->setUiHidden( true );
+    addDefaultValveTemplates();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimValveTemplateCollection::~RimValveTemplateCollection()
-{
-}
+RimValveTemplateCollection::~RimValveTemplateCollection() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -52,9 +54,9 @@ RimValveTemplateCollection::~RimValveTemplateCollection()
 std::vector<RimValveTemplate*> RimValveTemplateCollection::valveTemplates() const
 {
     std::vector<RimValveTemplate*> templates;
-    for (auto& templ : m_valveDefinitions)
+    for ( auto& templ : m_valveDefinitions )
     {
-        templates.push_back(templ);
+        templates.push_back( templ );
     }
     return templates;
 }
@@ -62,17 +64,17 @@ std::vector<RimValveTemplate*> RimValveTemplateCollection::valveTemplates() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimValveTemplateCollection::addValveTemplate(RimValveTemplate* valveTemplate)
+void RimValveTemplateCollection::addValveTemplate( RimValveTemplate* valveTemplate )
 {
-    m_valveDefinitions.push_back(valveTemplate);
+    m_valveDefinitions.push_back( valveTemplate );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimValveTemplateCollection::removeAndDeleteValveTemplate(RimValveTemplate* valveTemplate)
+void RimValveTemplateCollection::removeAndDeleteValveTemplate( RimValveTemplate* valveTemplate )
 {
-    m_valveDefinitions.removeChildObject(valveTemplate);
+    m_valveDefinitions.removeChildObject( valveTemplate );
     delete valveTemplate;
 }
 
@@ -92,7 +94,7 @@ void RimValveTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
     RimProject* proj = RiaApplication::instance()->project();
 
     auto commonUnitSystem = proj->commonUnitSystemForAllCases();
-    if (commonUnitSystem != RiaEclipseUnitTools::UNITS_UNKNOWN)
+    if ( commonUnitSystem != RiaEclipseUnitTools::UNITS_UNKNOWN )
     {
         m_defaultUnitsForValveTemplates = commonUnitSystem;
     }
@@ -104,18 +106,18 @@ void RimValveTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
 void RimValveTemplateCollection::addDefaultValveTemplates()
 {
     RimValveTemplate* aicd = new RimValveTemplate;
-    aicd->setType(RiaDefines::AICD);
-    aicd->setUserLabel("Valve Template #1");
+    aicd->setType( RiaDefines::AICD );
+    aicd->setUserLabel( "Valve Template #1" );
 
     RimValveTemplate* icd = new RimValveTemplate;
-    icd->setType(RiaDefines::ICD);
-    icd->setUserLabel("Valve Template #2");
+    icd->setType( RiaDefines::ICD );
+    icd->setUserLabel( "Valve Template #2" );
 
     RimValveTemplate* icv = new RimValveTemplate;
-    icv->setType(RiaDefines::ICV);
-    icv->setUserLabel("Valve Template #3");
+    icv->setType( RiaDefines::ICV );
+    icv->setUserLabel( "Valve Template #3" );
 
-    addValveTemplate(aicd);
-    addValveTemplate(icd);
-    addValveTemplate(icv);
+    addValveTemplate( aicd );
+    addValveTemplate( icd );
+    addValveTemplate( icv );
 }

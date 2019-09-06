@@ -28,5 +28,3 @@ public:
     RiuMdiMaximizeWindowGuard();
     ~RiuMdiMaximizeWindowGuard();
 };
-
-

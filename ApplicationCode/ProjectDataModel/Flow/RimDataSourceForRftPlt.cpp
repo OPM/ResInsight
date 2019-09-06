@@ -29,22 +29,22 @@
 
 namespace caf
 {
-template<>
+template <>
 void caf::AppEnum<RifDataSourceForRftPlt::SourceType>::setUp()
 {
-    addItem(RifDataSourceForRftPlt::SourceType::RFT, "RFT", "RFT Cases");
-    addItem(RifDataSourceForRftPlt::SourceType::GRID, "GRID", "Grid Cases");
-    addItem(RifDataSourceForRftPlt::SourceType::OBSERVED, "OBSERVED", "Observed Data");
-    addItem(RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT, "ENSEMBLE", "Ensembles with RFT Data");
-    addItem(RifDataSourceForRftPlt::SourceType::OBSERVED_FMU_RFT, "OBSERVED_FMU", "Observed FMU Data");
-    setDefault(RifDataSourceForRftPlt::SourceType::NONE);
+    addItem( RifDataSourceForRftPlt::SourceType::RFT, "RFT", "RFT Cases" );
+    addItem( RifDataSourceForRftPlt::SourceType::GRID, "GRID", "Grid Cases" );
+    addItem( RifDataSourceForRftPlt::SourceType::OBSERVED, "OBSERVED", "Observed Data" );
+    addItem( RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT, "ENSEMBLE", "Ensembles with RFT Data" );
+    addItem( RifDataSourceForRftPlt::SourceType::OBSERVED_FMU_RFT, "OBSERVED_FMU", "Observed FMU Data" );
+    setDefault( RifDataSourceForRftPlt::SourceType::NONE );
 }
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CAF_PDM_SOURCE_INIT(RimDataSourceForRftPlt, "RftAddress");
+CAF_PDM_SOURCE_INIT( RimDataSourceForRftPlt, "RftAddress" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -57,16 +57,16 @@ RimDataSourceForRftPlt::RimDataSourceForRftPlt()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimDataSourceForRftPlt::RimDataSourceForRftPlt(const RifDataSourceForRftPlt& addr)
+RimDataSourceForRftPlt::RimDataSourceForRftPlt( const RifDataSourceForRftPlt& addr )
 {
     InitPdmObject();
-    setAddress(addr);
+    setAddress( addr );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDataSourceForRftPlt::setAddress(const RifDataSourceForRftPlt& address)
+void RimDataSourceForRftPlt::setAddress( const RifDataSourceForRftPlt& address )
 {
     m_sourceType         = address.sourceType();
     m_eclCase            = address.eclCase();
@@ -80,17 +80,17 @@ void RimDataSourceForRftPlt::setAddress(const RifDataSourceForRftPlt& address)
 //--------------------------------------------------------------------------------------------------
 RifDataSourceForRftPlt RimDataSourceForRftPlt::address() const
 {
-    switch(m_sourceType())
+    switch ( m_sourceType() )
     {
         case RifDataSourceForRftPlt::OBSERVED:
-            return RifDataSourceForRftPlt(m_sourceType(), m_wellLogFile);
+            return RifDataSourceForRftPlt( m_sourceType(), m_wellLogFile );
         case RifDataSourceForRftPlt::RFT:
         case RifDataSourceForRftPlt::GRID:
-            return RifDataSourceForRftPlt(m_sourceType(), m_eclCase);
+            return RifDataSourceForRftPlt( m_sourceType(), m_eclCase );
         case RifDataSourceForRftPlt::ENSEMBLE_RFT:
-            return RifDataSourceForRftPlt(m_sourceType(), m_ensemble);
+            return RifDataSourceForRftPlt( m_sourceType(), m_ensemble );
         case RifDataSourceForRftPlt::OBSERVED_FMU_RFT:
-            return RifDataSourceForRftPlt(m_sourceType(), m_observedFmuRftData);
+            return RifDataSourceForRftPlt( m_sourceType(), m_observedFmuRftData );
         default:
             break;
     }
@@ -102,17 +102,17 @@ RifDataSourceForRftPlt RimDataSourceForRftPlt::address() const
 //--------------------------------------------------------------------------------------------------
 void RimDataSourceForRftPlt::InitPdmObject()
 {
-    CAF_PDM_InitFieldNoDefault(&m_sourceType, "SourceType", "Source Type", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_eclCase, "EclipseCase", "Eclipse Case", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_wellLogFile, "WellLogFile", "Well Log File", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_ensemble, "Ensemble", "Ensemble", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_observedFmuRftData, "ObservedFmuRftData", "Observed FMU Data", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_sourceType, "SourceType", "Source Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_eclCase, "EclipseCase", "Eclipse Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogFile, "WellLogFile", "Well Log File", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_observedFmuRftData, "ObservedFmuRftData", "Observed FMU Data", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimDataSourceForRftPlt& RimDataSourceForRftPlt::operator=(const RimDataSourceForRftPlt& other)
+RimDataSourceForRftPlt& RimDataSourceForRftPlt::operator=( const RimDataSourceForRftPlt& other )
 {
     m_sourceType         = other.m_sourceType();
     m_eclCase            = other.m_eclCase();

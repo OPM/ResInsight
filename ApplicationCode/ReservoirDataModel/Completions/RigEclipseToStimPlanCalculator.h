@@ -22,7 +22,6 @@
 
 #include "RigEclipseToStimPlanCellTransmissibilityCalculator.h"
 
-
 #include "cvfMatrix4.h"
 
 #include <map>
@@ -40,15 +39,15 @@ class RimFracture;
 class RigEclipseToStimPlanCalculator
 {
 public:
-    explicit RigEclipseToStimPlanCalculator(const RimEclipseCase*  caseToApply,
-                                            cvf::Mat4d             fractureTransform,
-                                            double                 skinFactor,
-                                            double                 cDarcy,
-                                            const RigFractureGrid& fractureGrid,
-                                            const RimFracture*     fracture);
+    explicit RigEclipseToStimPlanCalculator( const RimEclipseCase*  caseToApply,
+                                             cvf::Mat4d             fractureTransform,
+                                             double                 skinFactor,
+                                             double                 cDarcy,
+                                             const RigFractureGrid& fractureGrid,
+                                             const RimFracture*     fracture );
 
-    void appendDataToTransmissibilityCondenser(bool                          useFiniteConductivityInFracture,
-                                               RigTransmissibilityCondenser* condenser) const;
+    void appendDataToTransmissibilityCondenser( bool                          useFiniteConductivityInFracture,
+                                                RigTransmissibilityCondenser* condenser ) const;
 
     // Returns the area intersecting eclipse cells open for flow, from both active and inactive cells
     // Truncated parts of the fracture are not included

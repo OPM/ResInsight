@@ -51,7 +51,7 @@ public:
 
     RicExportCarfinUi* exportCarfin() const;
     QString            exportCarfinDataAsString() const;
-    void               setExportCarfinDataFromString(const QString& data);
+    void               setExportCarfinDataFromString( const QString& data );
 
     RicExportCompletionDataSettingsUi* exportCompletionData() const;
 
