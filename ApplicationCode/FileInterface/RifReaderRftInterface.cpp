@@ -17,21 +17,20 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RifReaderRftInterface.h"
 
-
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseRftAddress> RifReaderRftInterface::eclipseRftAddresses(const QString& wellName, const QDateTime& timeStep)
+std::set<RifEclipseRftAddress> RifReaderRftInterface::eclipseRftAddresses( const QString&   wellName,
+                                                                           const QDateTime& timeStep )
 {
     std::set<RifEclipseRftAddress> matchingAddresses;
     std::set<RifEclipseRftAddress> allAddresses = this->eclipseRftAddresses();
-	for (const RifEclipseRftAddress& address : allAddresses)
-	{
-		if (address.wellName() == wellName && address.timeStep() == timeStep)
-		{
-            matchingAddresses.insert(address);
-		}
-	}
+    for ( const RifEclipseRftAddress& address : allAddresses )
+    {
+        if ( address.wellName() == wellName && address.timeStep() == timeStep )
+        {
+            matchingAddresses.insert( address );
+        }
+    }
     return matchingAddresses;
 }

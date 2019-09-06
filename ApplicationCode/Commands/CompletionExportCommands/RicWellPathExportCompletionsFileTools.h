@@ -31,12 +31,11 @@ public:
     class OpenFileException
     {
     public:
-        OpenFileException(const QString& message);
+        OpenFileException( const QString& message );
         QString message;
     };
 
-    static std::shared_ptr<QFile> openFileForExport(const QString& folderName, const QString& fileName);
-    static std::shared_ptr<QFile> openFileForExport(const QString& fullFileName);
-    static const RimWellPath* findWellPathFromExportName(const QString& wellNameForExport);
-  
+    static std::shared_ptr<QFile> openFileForExport( const QString& folderName, const QString& fileName );
+    static std::shared_ptr<QFile> openFileForExport( const QString& fullFileName );
+    static const RimWellPath*     findWellPathFromExportName( const QString& wellNameForExport );
 };

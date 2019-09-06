@@ -28,7 +28,7 @@ namespace caf
 {
 class PdmObject;
 class PdmValueField;
-}
+} // namespace caf
 
 namespace rips
 {
@@ -46,18 +46,18 @@ class RiaGrpcServiceInterface
 {
 public:
     virtual std::vector<RiaGrpcCallbackInterface*> createCallbacks() = 0;
-    virtual ~RiaGrpcServiceInterface() = default;
-    static RimCase* findCase(int caseId);
-    static size_t numberOfMessagesForByteCount(size_t messageSize, size_t byteCount = 64 * 1024u);
+    virtual ~RiaGrpcServiceInterface()                               = default;
+    static RimCase* findCase( int caseId );
+    static size_t   numberOfMessagesForByteCount( size_t messageSize, size_t byteCount = 64 * 1024u );
 
-    static void copyPdmObjectFromCafToRips(const caf::PdmObject* source, rips::PdmObject* destination);
-    static void copyPdmObjectFromRipsToCaf(const rips::PdmObject* source, caf::PdmObject* destination);
+    static void copyPdmObjectFromCafToRips( const caf::PdmObject* source, rips::PdmObject* destination );
+    static void copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObject* destination );
 
-    static void assignFieldValue(const QString& stringValue, caf::PdmValueField* field);
+    static void assignFieldValue( const QString& stringValue, caf::PdmValueField* field );
 
-    static caf::PdmObject* emplaceChildArrayField(caf::PdmObject* parent, const QString& fieldLabel, const QString& classKeyword);
+    static caf::PdmObject*
+        emplaceChildArrayField( caf::PdmObject* parent, const QString& fieldLabel, const QString& classKeyword );
 };
 
 #include "cafFactory.h"
 typedef caf::Factory<RiaGrpcServiceInterface, size_t> RiaGrpcServiceFactory;
-

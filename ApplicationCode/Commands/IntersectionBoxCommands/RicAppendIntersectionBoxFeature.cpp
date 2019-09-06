@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -19,9 +19,9 @@
 #include "RicAppendIntersectionBoxFeature.h"
 
 #include "RimCase.h"
+#include "RimGridView.h"
 #include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
-#include "RimGridView.h"
 #include "Riu3DMainWindowTools.h"
 
 #include "cafCmdExecCommandManager.h"
@@ -31,67 +31,66 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicAppendIntersectionBoxFeature, "RicAppendIntersectionBoxFeature");
+CAF_CMD_SOURCE_INIT( RicAppendIntersectionBoxFeature, "RicAppendIntersectionBoxFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicAppendIntersectionBoxFeature::isCommandEnabled()
 {
     RimIntersectionCollection* coll = RicAppendIntersectionBoxFeature::intersectionCollection();
-    if (coll) return true;
+    if ( coll ) return true;
 
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicAppendIntersectionBoxFeature::onActionTriggered(bool isChecked)
+void RicAppendIntersectionBoxFeature::onActionTriggered( bool isChecked )
 {
     RimIntersectionCollection* coll = RicAppendIntersectionBoxFeature::intersectionCollection();
 
-    if (coll)
+    if ( coll )
     {
         RimIntersectionBox* intersectionBox = new RimIntersectionBox();
-        intersectionBox->name = QString("Intersection Box");
+        intersectionBox->name               = QString( "Intersection Box" );
 
-        coll->appendIntersectionBoxAndUpdate(intersectionBox);
+        coll->appendIntersectionBoxAndUpdate( intersectionBox );
 
         intersectionBox->setToDefaultSizeBox();
 
         coll->updateConnectedEditors();
-        Riu3DMainWindowTools::selectAsCurrentItem(intersectionBox);
+        Riu3DMainWindowTools::selectAsCurrentItem( intersectionBox );
 
         RimGridView* rimView = nullptr;
-        coll->firstAncestorOrThisOfTypeAsserted(rimView);
-        rimView->showGridCells(false);
+        coll->firstAncestorOrThisOfTypeAsserted( rimView );
+        rimView->showGridCells( false );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicAppendIntersectionBoxFeature::setupActionLook(QAction* actionToSetup)
+void RicAppendIntersectionBoxFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/IntersectionBox16x16.png"));
-    actionToSetup->setText("New Intersection Box");
+    actionToSetup->setIcon( QIcon( ":/IntersectionBox16x16.png" ) );
+    actionToSetup->setText( "New Intersection Box" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimIntersectionCollection* RicAppendIntersectionBoxFeature::intersectionCollection()
 {
     RimIntersectionCollection* intersectionBoxColl = nullptr;
 
     std::vector<caf::PdmObjectHandle*> selectedObjects;
-    caf::SelectionManager::instance()->objectsByType(&selectedObjects);
-    if (selectedObjects.size() == 1)
+    caf::SelectionManager::instance()->objectsByType( &selectedObjects );
+    if ( selectedObjects.size() == 1 )
     {
-        selectedObjects[0]->firstAncestorOrThisOfType(intersectionBoxColl);
+        selectedObjects[0]->firstAncestorOrThisOfType( intersectionBoxColl );
     }
 
     return intersectionBoxColl;
 }
-

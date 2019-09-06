@@ -1,31 +1,28 @@
 #include "RimEclipseContourMapViewCollection.h"
 
-#include "RimEclipseContourMapView.h"
 #include "RimCase.h"
+#include "RimEclipseContourMapView.h"
 
-CAF_PDM_SOURCE_INIT(RimEclipseContourMapViewCollection, "Eclipse2dViewCollection");
+CAF_PDM_SOURCE_INIT( RimEclipseContourMapViewCollection, "Eclipse2dViewCollection" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseContourMapViewCollection::RimEclipseContourMapViewCollection()
 {
-    CAF_PDM_InitObject("Contour Maps", ":/2DMaps16x16.png", "", "");
+    CAF_PDM_InitObject( "Contour Maps", ":/2DMaps16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_contourMapViews, "EclipseViews", "Contour Maps", ":/CrossSection16x16.png", "", "");
-    m_contourMapViews.uiCapability()->setUiTreeHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_contourMapViews, "EclipseViews", "Contour Maps", ":/CrossSection16x16.png", "", "" );
+    m_contourMapViews.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimEclipseContourMapViewCollection::~RimEclipseContourMapViewCollection()
-{
-
-}
+RimEclipseContourMapViewCollection::~RimEclipseContourMapViewCollection() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseContourMapView*> RimEclipseContourMapViewCollection::views()
 {
@@ -35,8 +32,7 @@ std::vector<RimEclipseContourMapView*> RimEclipseContourMapViewCollection::views
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapViewCollection::push_back(RimEclipseContourMapView* contourMap)
+void RimEclipseContourMapViewCollection::push_back( RimEclipseContourMapView* contourMap )
 {
-    m_contourMapViews.push_back(contourMap);
+    m_contourMapViews.push_back( contourMap );
 }
-

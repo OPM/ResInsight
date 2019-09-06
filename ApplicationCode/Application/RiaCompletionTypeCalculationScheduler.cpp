@@ -20,8 +20,8 @@
 
 #include "RiaApplication.h"
 
-#include "RigEclipseCaseData.h"
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
@@ -37,8 +37,8 @@
 #include <QTimer>
 #include <QTreeView>
 
-#include <set>
 #include "cafProgressState.h"
+#include <set>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -58,39 +58,41 @@ void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAnd
     std::vector<RimEclipseCase*> eclipseCases =
         RiaApplication::instance()->project()->activeOilField()->analysisModels->cases().childObjects();
 
-    scheduleRecalculateCompletionTypeAndRedrawAllViews(eclipseCases);
+    scheduleRecalculateCompletionTypeAndRedrawAllViews( eclipseCases );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawAllViews(RimEclipseCase* eclipseCase)
+void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawAllViews( RimEclipseCase* eclipseCase )
 {
     std::vector<RimEclipseCase*> eclipseCases;
-    eclipseCases.push_back(eclipseCase);
+    eclipseCases.push_back( eclipseCase );
 
-    scheduleRecalculateCompletionTypeAndRedrawAllViews(eclipseCases);
+    scheduleRecalculateCompletionTypeAndRedrawAllViews( eclipseCases );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawAllViews(
-    const std::vector<RimEclipseCase*>& eclipseCases)
+    const std::vector<RimEclipseCase*>& eclipseCases )
 {
-    for (RimEclipseCase* eclipseCase : eclipseCases)
+    for ( RimEclipseCase* eclipseCase : eclipseCases )
     {
-        CVF_ASSERT(eclipseCase);
+        CVF_ASSERT( eclipseCase );
 
-        if (eclipseCase->eclipseCaseData())
+        if ( eclipseCase->eclipseCaseData() )
         {
-            eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->clearScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
+            eclipseCase->eclipseCaseData()
+                ->results( RiaDefines::MATRIX_MODEL )
+                ->clearScalarResult( RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName() );
 
             // Delete virtual perforation transmissibilities, as these are the basis for the computation of completion type
-            eclipseCase->eclipseCaseData()->setVirtualPerforationTransmissibilities(nullptr);
+            eclipseCase->eclipseCaseData()->setVirtualPerforationTransmissibilities( nullptr );
         }
 
-        m_eclipseCasesToRecalculate.push_back(eclipseCase);
+        m_eclipseCasesToRecalculate.push_back( eclipseCase );
     }
 
     startTimer();
@@ -107,19 +109,19 @@ void RiaCompletionTypeCalculationScheduler::slotRecalculateCompletionType()
         return;
     }
 
-    std::set<RimEclipseCase*> uniqueCases(m_eclipseCasesToRecalculate.begin(), m_eclipseCasesToRecalculate.end());
+    std::set<RimEclipseCase*> uniqueCases( m_eclipseCasesToRecalculate.begin(), m_eclipseCasesToRecalculate.end() );
 
     Rim3dView*  activeView = RiaApplication::instance()->activeReservoirView();
     QModelIndex mi         = RiuMainWindow::instance()->projectTreeView()->treeView()->currentIndex();
 
-    for (RimEclipseCase* eclipseCase : uniqueCases)
+    for ( RimEclipseCase* eclipseCase : uniqueCases )
     {
-        if (eclipseCase)
+        if ( eclipseCase )
         {
-            for (const auto& w : eclipseCase->views())
+            for ( const auto& w : eclipseCase->views() )
             {
-                RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(w);
-                if (eclView)
+                RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( w );
+                if ( eclView )
                 {
                     eclView->calculateCompletionTypeAndRedrawIfRequired();
                 }
@@ -132,15 +134,15 @@ void RiaCompletionTypeCalculationScheduler::slotRecalculateCompletionType()
     // Recalculation of completion type causes active view to be set to potentially a different view
     // Also current index in project tree is changed. Restore both to initial state.
 
-    if (activeView && activeView->viewer())
+    if ( activeView && activeView->viewer() )
     {
-        RiaApplication::instance()->setActiveReservoirView(activeView);
-        RiuMainWindow::instance()->setActiveViewer(activeView->viewer()->layoutWidget());
+        RiaApplication::instance()->setActiveReservoirView( activeView );
+        RiuMainWindow::instance()->setActiveViewer( activeView->viewer()->layoutWidget() );
     }
 
-    if (mi.isValid())
+    if ( mi.isValid() )
     {
-        RiuMainWindow::instance()->projectTreeView()->treeView()->setCurrentIndex(mi);
+        RiuMainWindow::instance()->projectTreeView()->treeView()->setCurrentIndex( mi );
     }
 }
 
@@ -157,12 +159,12 @@ RiaCompletionTypeCalculationScheduler::~RiaCompletionTypeCalculationScheduler()
 //--------------------------------------------------------------------------------------------------
 void RiaCompletionTypeCalculationScheduler::startTimer()
 {
-    if (!m_recalculateCompletionTypeTimer)
+    if ( !m_recalculateCompletionTypeTimer )
     {
-        m_recalculateCompletionTypeTimer = new QTimer(this);
-        m_recalculateCompletionTypeTimer->setSingleShot(true);
-        connect(m_recalculateCompletionTypeTimer, SIGNAL(timeout()), this, SLOT(slotRecalculateCompletionType()));
+        m_recalculateCompletionTypeTimer = new QTimer( this );
+        m_recalculateCompletionTypeTimer->setSingleShot( true );
+        connect( m_recalculateCompletionTypeTimer, SIGNAL( timeout() ), this, SLOT( slotRecalculateCompletionType() ) );
     }
 
-    m_recalculateCompletionTypeTimer->start(1500);
+    m_recalculateCompletionTypeTimer->start( 1500 );
 }

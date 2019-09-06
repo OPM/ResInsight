@@ -24,40 +24,40 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigCompletionDataGridCell::RigCompletionDataGridCell()
-    : m_globalCellIndex(0)
-    , m_lgrName("")
-    , m_gridIndex(0)
-    , m_localCellIndexI(0)
-    , m_localCellIndexJ(0)
-    , m_localCellIndexK(0)
+    : m_globalCellIndex( 0 )
+    , m_lgrName( "" )
+    , m_gridIndex( 0 )
+    , m_localCellIndexI( 0 )
+    , m_localCellIndexJ( 0 )
+    , m_localCellIndexK( 0 )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigCompletionDataGridCell::RigCompletionDataGridCell(size_t globalCellIndex, const RigMainGrid* mainGrid)
-    : m_globalCellIndex(globalCellIndex)
+RigCompletionDataGridCell::RigCompletionDataGridCell( size_t globalCellIndex, const RigMainGrid* mainGrid )
+    : m_globalCellIndex( globalCellIndex )
 {
-    if (mainGrid)
+    if ( mainGrid )
     {
         size_t             gridLocalCellIndex;
-        const RigGridBase* grid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(globalCellIndex, &gridLocalCellIndex);
+        const RigGridBase* grid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( globalCellIndex, &gridLocalCellIndex );
 
-        if (grid)
+        if ( grid )
         {
             size_t i = 0;
             size_t j = 0;
             size_t k = 0;
-            grid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);
+            grid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
 
             m_localCellIndexI = i;
             m_localCellIndexJ = j;
             m_localCellIndexK = k;
 
-            if (grid != mainGrid)
+            if ( grid != mainGrid )
             {
-                m_lgrName = QString::fromStdString(grid->gridName());
+                m_lgrName = QString::fromStdString( grid->gridName() );
             }
 
             m_gridIndex = grid->gridIndex();
@@ -68,7 +68,7 @@ RigCompletionDataGridCell::RigCompletionDataGridCell(size_t globalCellIndex, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigCompletionDataGridCell::operator==(const RigCompletionDataGridCell& other) const
+bool RigCompletionDataGridCell::operator==( const RigCompletionDataGridCell& other ) const
 {
     return m_globalCellIndex == other.m_globalCellIndex;
 }
@@ -76,13 +76,13 @@ bool RigCompletionDataGridCell::operator==(const RigCompletionDataGridCell& othe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigCompletionDataGridCell::operator<(const RigCompletionDataGridCell& other) const
+bool RigCompletionDataGridCell::operator<( const RigCompletionDataGridCell& other ) const
 {
-    if (m_gridIndex != other.m_gridIndex) return m_gridIndex < other.m_gridIndex;
+    if ( m_gridIndex != other.m_gridIndex ) return m_gridIndex < other.m_gridIndex;
 
-    if (m_localCellIndexI != other.m_localCellIndexI) return m_localCellIndexI < other.m_localCellIndexI;
-    if (m_localCellIndexJ != other.m_localCellIndexJ) return m_localCellIndexJ < other.m_localCellIndexJ;
-    if (m_localCellIndexK != other.m_localCellIndexK) return m_localCellIndexK < other.m_localCellIndexK;
+    if ( m_localCellIndexI != other.m_localCellIndexI ) return m_localCellIndexI < other.m_localCellIndexI;
+    if ( m_localCellIndexJ != other.m_localCellIndexJ ) return m_localCellIndexJ < other.m_localCellIndexJ;
+    if ( m_localCellIndexK != other.m_localCellIndexK ) return m_localCellIndexK < other.m_localCellIndexK;
 
     return m_globalCellIndex < other.m_globalCellIndex;
 }
@@ -124,7 +124,8 @@ size_t RigCompletionDataGridCell::localCellIndexK() const
 //--------------------------------------------------------------------------------------------------
 QString RigCompletionDataGridCell::oneBasedLocalCellIndexString() const
 {
-    QString text = QString("[%1, %2, %3]").arg(m_localCellIndexI + 1).arg(m_localCellIndexJ + 1).arg(m_localCellIndexK + 1);
+    QString text =
+        QString( "[%1, %2, %3]" ).arg( m_localCellIndexI + 1 ).arg( m_localCellIndexJ + 1 ).arg( m_localCellIndexK + 1 );
 
     return text;
 }

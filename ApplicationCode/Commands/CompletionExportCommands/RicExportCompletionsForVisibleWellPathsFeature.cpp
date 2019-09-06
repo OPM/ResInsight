@@ -24,44 +24,44 @@
 
 #include "RiuPlotMainWindow.h"
 
-#include "RimWellPath.h"
 #include "RimProject.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicExportCompletionsForVisibleWellPathsFeature, "RicExportCompletionsForVisibleWellPathsFeature");
+CAF_CMD_SOURCE_INIT( RicExportCompletionsForVisibleWellPathsFeature, "RicExportCompletionsForVisibleWellPathsFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RicExportCompletionsForVisibleWellPathsFeature::isCommandEnabled()
 {
-    bool foundWellPathCollection = false;
+    bool                         foundWellPathCollection = false;
     std::vector<caf::PdmObject*> selectedObjects;
-    caf::SelectionManager::instance()->objectsByType(&selectedObjects);
-    for (caf::PdmObject* object : selectedObjects)
+    caf::SelectionManager::instance()->objectsByType( &selectedObjects );
+    for ( caf::PdmObject* object : selectedObjects )
     {
         RimWellPathCollection* wellPathCollection;
-        
-        object->firstAncestorOrThisOfType(wellPathCollection);
-        if (wellPathCollection)
+
+        object->firstAncestorOrThisOfType( wellPathCollection );
+        if ( wellPathCollection )
         {
             foundWellPathCollection = true;
             break;
         }
     }
-    
-    if (!foundWellPathCollection)
+
+    if ( !foundWellPathCollection )
     {
         return false;
     }
 
     std::vector<RimWellPath*> wellPaths = visibleWellPaths();
 
-    if (wellPaths.empty())
+    if ( wellPaths.empty() )
     {
         return false;
     }
@@ -72,25 +72,24 @@ bool RicExportCompletionsForVisibleWellPathsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportCompletionsForVisibleWellPathsFeature::onActionTriggered(bool isChecked)
+void RicExportCompletionsForVisibleWellPathsFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimWellPath*> wellPaths = visibleWellPaths();
-    CVF_ASSERT(wellPaths.size() > 0);
+    CVF_ASSERT( wellPaths.size() > 0 );
 
     std::vector<RimSimWellInView*> simWells;
     QString                        dialogTitle = "Export Completion Data for Visible Well Paths";
 
-    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions(dialogTitle, wellPaths, simWells);
+    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions( dialogTitle, wellPaths, simWells );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportCompletionsForVisibleWellPathsFeature::setupActionLook(QAction* actionToSetup)
+void RicExportCompletionsForVisibleWellPathsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Export Completion Data for Visible Well Paths");
-    actionToSetup->setIcon(QIcon(":/ExportCompletionsSymbol16x16.png"));
-
+    actionToSetup->setText( "Export Completion Data for Visible Well Paths" );
+    actionToSetup->setIcon( QIcon( ":/ExportCompletionsSymbol16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,55 +101,54 @@ std::vector<RimWellPath*> RicExportCompletionsForVisibleWellPathsFeature::visibl
 
     {
         std::vector<RimWellPathCollection*> wellPathCollections;
-        caf::SelectionManager::instance()->objectsByType(&wellPathCollections);
+        caf::SelectionManager::instance()->objectsByType( &wellPathCollections );
 
-        if (wellPathCollections.empty())
+        if ( wellPathCollections.empty() )
         {
             std::vector<RimWellPath*> selectedWellPaths;
-            caf::SelectionManager::instance()->objectsByType(&selectedWellPaths);
+            caf::SelectionManager::instance()->objectsByType( &selectedWellPaths );
 
-            if (!selectedWellPaths.empty())
+            if ( !selectedWellPaths.empty() )
             {
                 RimWellPathCollection* parent = nullptr;
-                selectedWellPaths[0]->firstAncestorOrThisOfType(parent);
-                if (parent)
+                selectedWellPaths[0]->firstAncestorOrThisOfType( parent );
+                if ( parent )
                 {
-                    wellPathCollections.push_back(parent);
+                    wellPathCollections.push_back( parent );
                 }
             }
         }
 
-        if (!wellPathCollections.empty())
+        if ( !wellPathCollections.empty() )
         {
-            for (auto wellPathCollection : wellPathCollections)
+            for ( auto wellPathCollection : wellPathCollections )
             {
-                for (const auto& wellPath : wellPathCollection->wellPaths())
+                for ( const auto& wellPath : wellPathCollection->wellPaths() )
                 {
-                    if (wellPath->showWellPath())
+                    if ( wellPath->showWellPath() )
                     {
-                        wellPaths.push_back(wellPath);
+                        wellPaths.push_back( wellPath );
                     }
                 }
             }
         }
         else
         {
-            // No well path or well path collection selected 
+            // No well path or well path collection selected
 
             auto allWellPaths = RiaApplication::instance()->project()->allWellPaths();
-            for (const auto& w : allWellPaths)
+            for ( const auto& w : allWellPaths )
             {
-                if (w->showWellPath())
+                if ( w->showWellPath() )
                 {
-                    wellPaths.push_back(w);
+                    wellPaths.push_back( w );
                 }
             }
-
         }
     }
 
-    std::set<RimWellPath*> uniqueWellPaths(wellPaths.begin(), wellPaths.end());
-    wellPaths.assign(uniqueWellPaths.begin(), uniqueWellPaths.end());
+    std::set<RimWellPath*> uniqueWellPaths( wellPaths.begin(), wellPaths.end() );
+    wellPaths.assign( uniqueWellPaths.begin(), uniqueWellPaths.end() );
 
     return wellPaths;
 }

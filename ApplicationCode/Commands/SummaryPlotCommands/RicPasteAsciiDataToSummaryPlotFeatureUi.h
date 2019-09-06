@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,52 +22,50 @@
 
 #include "RifCsvUserDataParser.h"
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
 #include "cafAppEnum.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
 
-#include <QString>
 #include <QLocale>
+#include <QString>
 
 #include <memory>
 
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class AsciiDataParseOptions
 {
 public:
     AsciiDataParseOptions()
-        : useCustomDateTimeFormat(false)
-        , assumeNumericDataColumns(false)
-        , curveSymbolSkipDistance(0.0f)
+        : useCustomDateTimeFormat( false )
+        , assumeNumericDataColumns( false )
+        , curveSymbolSkipDistance( 0.0f )
     {
     }
 
-    QString                 plotTitle;
-    QString                 curvePrefix;
-    QString                 decimalSeparator;
-    QLocale                 locale;
+    QString plotTitle;
+    QString curvePrefix;
+    QString decimalSeparator;
+    QLocale locale;
 
-    bool                    useCustomDateTimeFormat;
-    QString                 dateFormat;
-    QString                 timeFormat;
-    QString                 fallbackDateTimeFormat;
-    QString                 dateTimeFormat;
-    QString                 cellSeparator;
-    QString                 timeSeriesColumnName;
+    bool    useCustomDateTimeFormat;
+    QString dateFormat;
+    QString timeFormat;
+    QString fallbackDateTimeFormat;
+    QString dateTimeFormat;
+    QString cellSeparator;
+    QString timeSeriesColumnName;
 
-    bool                    assumeNumericDataColumns;
+    bool assumeNumericDataColumns;
 
-    RiuQwtPlotCurve::LineStyleEnum   curveLineStyle;
-    RiuQwtSymbol::PointSymbolEnum curveSymbol;
-    float                         curveSymbolSkipDistance;
+    RiuQwtPlotCurve::LineStyleEnum curveLineStyle;
+    RiuQwtSymbol::PointSymbolEnum  curveSymbol;
+    float                          curveSymbolSkipDistance;
 };
 
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class RicPasteAsciiDataToSummaryPlotFeatureUi : public caf::PdmObject
 {
@@ -126,44 +124,49 @@ public:
 public:
     RicPasteAsciiDataToSummaryPlotFeatureUi();
 
-    void    setUiModeImport(const QString& fileName);
-    void    setUiModePasteText(const QString& text);
+    void setUiModeImport( const QString& fileName );
+    void setUiModePasteText( const QString& text );
 
-    UiMode  uiModeImport() const;
-    const AsciiDataParseOptions    parseOptions() const;
-    void    createNewPlot();
+    UiMode                      uiModeImport() const;
+    const AsciiDataParseOptions parseOptions() const;
+    void                        createNewPlot();
 
-    static DateFormat dateFormatFromString(const QString& dateString);
+    static DateFormat dateFormatFromString( const QString& dateString );
 
 protected:
-    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
-    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue ) override;
 
 private:
-    void    initialize(RifCsvUserDataParser* parser);
-    void    updatePreviewTextAndDateFormat();
+    void initialize( RifCsvUserDataParser* parser );
+    void updatePreviewTextAndDateFormat();
 
 private:
-    UiMode                                                      m_uiMode;
+    UiMode m_uiMode;
 
-    caf::PdmField<QString>                                      m_plotTitle;
-    caf::PdmField<QString>                                      m_curvePrefix;
-    caf::PdmField<DecimalSeparatorEnum>                         m_decimalSeparator;
-    caf::PdmField<DateFormatEnum>                               m_dateFormat;
-    caf::PdmField<TimeFormatEnum>                               m_timeFormat;
-    caf::PdmField<bool>                                         m_useCustomDateFormat;
-    caf::PdmField<QString>                                      m_customDateTimeFormat;
-    caf::PdmField<CellSeparatorEnum>                            m_cellSeparator;
-    caf::PdmField<QString>                                      m_timeSeriesColumnName;
+    caf::PdmField<QString>              m_plotTitle;
+    caf::PdmField<QString>              m_curvePrefix;
+    caf::PdmField<DecimalSeparatorEnum> m_decimalSeparator;
+    caf::PdmField<DateFormatEnum>       m_dateFormat;
+    caf::PdmField<TimeFormatEnum>       m_timeFormat;
+    caf::PdmField<bool>                 m_useCustomDateFormat;
+    caf::PdmField<QString>              m_customDateTimeFormat;
+    caf::PdmField<CellSeparatorEnum>    m_cellSeparator;
+    caf::PdmField<QString>              m_timeSeriesColumnName;
 
-    caf::PdmField<caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>>    m_curveLineStyle;
+    caf::PdmField<caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>> m_curveLineStyle;
     caf::PdmField<caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>>  m_curveSymbol;
     caf::PdmField<float>                                        m_curveSymbolSkipDistance;
 
-    bool                                                        m_createNewPlot;
-    caf::PdmField<QString>                                      m_previewText;
+    bool                   m_createNewPlot;
+    caf::PdmField<QString> m_previewText;
 
-    std::unique_ptr<RifCsvUserDataParser>                       m_parser;
+    std::unique_ptr<RifCsvUserDataParser> m_parser;
 };

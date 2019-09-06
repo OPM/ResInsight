@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -25,9 +25,8 @@ class Rim3dView;
 class QObject;
 class RiuMeasurementViewEventFilter;
 
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class RicToggleMeasurementModeFeature : public caf::CmdFeature
 {
@@ -38,12 +37,12 @@ class RicToggleMeasurementModeFeature : public caf::CmdFeature
 protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
-    void setupActionLook(QAction* actionToSetup) override;
+    void setupActionLook( QAction* actionToSetup ) override;
     bool isCommandChecked() override;
 
 protected:
     RimMeasurement* measurement() const;
-    Rim3dView* activeView() const;
+    Rim3dView*      activeView() const;
 
 private:
     void refreshPolyMeasuremeantActionLook();
@@ -57,11 +56,10 @@ class RicTogglePolyMeasurementModeFeature : public RicToggleMeasurementModeFeatu
     CAF_CMD_HEADER_INIT;
 
 protected:
-    void onActionTriggered(bool isChecked) override;
-    void setupActionLook(QAction* actionToSetup) override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
     bool isCommandChecked() override;
 
 private:
     void refreshMeasurementActionLook();
-
 };

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,8 +24,8 @@
 #include "RimFishbonesCollection.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
-#include "RimWellPathCompletions.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathCompletions.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -34,14 +34,14 @@
 #include <QAction>
 #include <QFileDialog>
 
-CAF_CMD_SOURCE_INIT(RicWellPathImportCompletionsFileFeature, "RicWellPathImportCompletionsFileFeature");
+CAF_CMD_SOURCE_INIT( RicWellPathImportCompletionsFileFeature, "RicWellPathImportCompletionsFileFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicWellPathImportCompletionsFileFeature::isCommandEnabled()
 {
-    if (RicWellPathImportCompletionsFileFeature::selectedWellPathCollection() != nullptr)
+    if ( RicWellPathImportCompletionsFileFeature::selectedWellPathCollection() != nullptr )
     {
         return true;
     }
@@ -50,65 +50,70 @@ bool RicWellPathImportCompletionsFileFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathImportCompletionsFileFeature::onActionTriggered(bool isChecked)
+void RicWellPathImportCompletionsFileFeature::onActionTriggered( bool isChecked )
 {
-    RimFishboneWellPathCollection* fishbonesWellPathCollection = RicWellPathImportCompletionsFileFeature::selectedWellPathCollection();
-    CVF_ASSERT(fishbonesWellPathCollection);
+    RimFishboneWellPathCollection* fishbonesWellPathCollection =
+        RicWellPathImportCompletionsFileFeature::selectedWellPathCollection();
+    CVF_ASSERT( fishbonesWellPathCollection );
 
     // Open dialog box to select well path files
-    RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->lastUsedDialogDirectory("WELLPATH_DIR");
-    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Fishbone Laterals", defaultDir, "Well Path Laterals (*.json *.asc *.asci *.ascii *.dev);;All Files (*.*)");
+    RiaApplication* app        = RiaApplication::instance();
+    QString         defaultDir = app->lastUsedDialogDirectory( "WELLPATH_DIR" );
+    QStringList     wellPathFilePaths =
+        QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                       "Import Fishbone Laterals",
+                                       defaultDir,
+                                       "Well Path Laterals (*.json *.asc *.asci *.ascii *.dev);;All Files (*.*)" );
 
-    if (wellPathFilePaths.size() < 1) return;
+    if ( wellPathFilePaths.size() < 1 ) return;
 
     // Remember the path to next time
-    app->setLastUsedDialogDirectory("WELLPATH_DIR", QFileInfo(wellPathFilePaths.last()).absolutePath());
+    app->setLastUsedDialogDirectory( "WELLPATH_DIR", QFileInfo( wellPathFilePaths.last() ).absolutePath() );
 
-    fishbonesWellPathCollection->importCompletionsFromFile(wellPathFilePaths);
+    fishbonesWellPathCollection->importCompletionsFromFile( wellPathFilePaths );
 
     RimWellPathCollection* wellPathCollection;
-    fishbonesWellPathCollection->firstAncestorOrThisOfType(wellPathCollection);
-    if (wellPathCollection)
+    fishbonesWellPathCollection->firstAncestorOrThisOfType( wellPathCollection );
+    if ( wellPathCollection )
     {
         wellPathCollection->updateConnectedEditors();
     }
 
-    if (app->project())
+    if ( app->project() )
     {
         app->project()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathImportCompletionsFileFeature::setupActionLook(QAction* actionToSetup)
+void RicWellPathImportCompletionsFileFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Import Fishbone Laterals");
-    actionToSetup->setIcon(QIcon(":/FishBoneGroupFromFile16x16.png"));
+    actionToSetup->setText( "Import Fishbone Laterals" );
+    actionToSetup->setIcon( QIcon( ":/FishBoneGroupFromFile16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFishboneWellPathCollection* RicWellPathImportCompletionsFileFeature::selectedWellPathCollection()
 {
     RimFishbonesCollection* objToFind = nullptr;
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
-    if (objHandle)
+    caf::PdmUiItem*         pdmUiItem = caf::SelectionManager::instance()->selectedItem();
+    caf::PdmObjectHandle*   objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
+    if ( objHandle )
     {
-        objHandle->firstAncestorOrThisOfType(objToFind);
+        objHandle->firstAncestorOrThisOfType( objToFind );
     }
 
-    if (objToFind == nullptr)
+    if ( objToFind == nullptr )
     {
         std::vector<RimWellPath*> wellPaths;
-        caf::SelectionManager::instance()->objectsByType(&wellPaths);
-        if (!wellPaths.empty())
+        caf::SelectionManager::instance()->objectsByType( &wellPaths );
+        if ( !wellPaths.empty() )
         {
             return wellPaths[0]->fishbonesCollection()->wellPathCollection();
         }

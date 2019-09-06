@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017- Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -33,60 +33,53 @@
 #include <QTextStream>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RifCsvUserData::RifCsvUserData()
-{
-    
-}
+RifCsvUserData::RifCsvUserData() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RifCsvUserData::~RifCsvUserData()
-{
-
-}
+RifCsvUserData::~RifCsvUserData() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserData::parse(const QString& fileName, const AsciiDataParseOptions& parseOptions, QString* errorText)
+bool RifCsvUserData::parse( const QString& fileName, const AsciiDataParseOptions& parseOptions, QString* errorText )
 {
     m_allResultAddresses.clear();
     m_mapFromAddressToResultIndex.clear();
 
-    m_parser = std::unique_ptr<RifCsvUserDataFileParser>(new RifCsvUserDataFileParser(fileName, errorText));
-    if (!m_parser->parse(parseOptions))
+    m_parser = std::unique_ptr<RifCsvUserDataFileParser>( new RifCsvUserDataFileParser( fileName, errorText ) );
+    if ( !m_parser->parse( parseOptions ) )
     {
-        RiaLogging::error(QString("Failed to parse file"));
+        RiaLogging::error( QString( "Failed to parse file" ) );
         return false;
     }
 
     buildTimeStepsAndMappings();
 
     return true;
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserData::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const
+bool RifCsvUserData::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
 {
-    auto search = m_mapFromAddressToResultIndex.find(resultAddress);
-    if (search != m_mapFromAddressToResultIndex.end())
+    auto search = m_mapFromAddressToResultIndex.find( resultAddress );
+    if ( search != m_mapFromAddressToResultIndex.end() )
     {
         size_t columnIndex = search->second;
 
-        const Column* ci = m_parser->columnInfo(columnIndex);
-        if (!ci) return false;
+        const Column* ci = m_parser->columnInfo( columnIndex );
+        if ( !ci ) return false;
 
         values->clear();
-        values->reserve(ci->values.size());
-        for (double val : ci->values)
+        values->reserve( ci->values.size() );
+        for ( double val : ci->values )
         {
-            values->push_back(val);
+            values->push_back( val );
         }
     }
 
@@ -94,16 +87,16 @@ bool RifCsvUserData::values(const RifEclipseSummaryAddress& resultAddress, std::
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifCsvUserData::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
+const std::vector<time_t>& RifCsvUserData::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
     // First, check whether date time values exist for the current address
-    auto search = m_mapFromAddressToResultIndex.find(resultAddress);
-    if (search != m_mapFromAddressToResultIndex.end())
+    auto search = m_mapFromAddressToResultIndex.find( resultAddress );
+    if ( search != m_mapFromAddressToResultIndex.end() )
     {
-        size_t index = m_mapFromAddressToResultIndex.at(resultAddress);
-        if (!m_parser->tableData().columnInfos()[index].dateTimeValues.empty())
+        size_t index = m_mapFromAddressToResultIndex.at( resultAddress );
+        if ( !m_parser->tableData().columnInfos()[index].dateTimeValues.empty() )
         {
             return m_parser->tableData().columnInfos()[index].dateTimeValues;
         }
@@ -111,7 +104,7 @@ const std::vector<time_t>& RifCsvUserData::timeSteps(const RifEclipseSummaryAddr
 
     // Then check for a separate date time column
     int index = m_parser->tableData().dateTimeColumnIndex();
-    if (index >= 0)
+    if ( index >= 0 )
     {
         return m_parser->tableData().columnInfos()[index].dateTimeValues;
     }
@@ -121,17 +114,17 @@ const std::vector<time_t>& RifCsvUserData::timeSteps(const RifEclipseSummaryAddr
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::string RifCsvUserData::unitName(const RifEclipseSummaryAddress& resultAddress) const
+std::string RifCsvUserData::unitName( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    auto search = m_mapFromAddressToResultIndex.find(resultAddress);
-    if (search != m_mapFromAddressToResultIndex.end())
+    auto search = m_mapFromAddressToResultIndex.find( resultAddress );
+    if ( search != m_mapFromAddressToResultIndex.end() )
     {
         size_t columnIndex = search->second;
 
-        const Column* ci = m_parser->columnInfo(columnIndex);
-        if (ci)
+        const Column* ci = m_parser->columnInfo( columnIndex );
+        if ( ci )
         {
             return ci->unitName;
         }
@@ -149,21 +142,21 @@ RiaEclipseUnitTools::UnitSystem RifCsvUserData::unitSystem() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifCsvUserData::buildTimeStepsAndMappings()
 {
     auto tableData = m_parser->tableData();
 
-    for (size_t columnIndex = 0; columnIndex < tableData.columnInfos().size(); columnIndex++)
+    for ( size_t columnIndex = 0; columnIndex < tableData.columnInfos().size(); columnIndex++ )
     {
         const Column& ci = tableData.columnInfos()[columnIndex];
-        if (ci.dataType == Column::NUMERIC)
+        if ( ci.dataType == Column::NUMERIC )
         {
             RifEclipseSummaryAddress sumAddress = ci.summaryAddress;
 
-            m_allResultAddresses.insert(sumAddress);
-            if (sumAddress.isErrorResult())  m_allErrorAddresses.insert(sumAddress);
+            m_allResultAddresses.insert( sumAddress );
+            if ( sumAddress.isErrorResult() ) m_allErrorAddresses.insert( sumAddress );
 
             m_mapFromAddressToResultIndex[sumAddress] = columnIndex;
         }

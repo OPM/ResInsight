@@ -56,16 +56,16 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivIntersectionBoxPartMgr::RivIntersectionBoxPartMgr(RimIntersectionBox* intersectionBox)
-    : m_rimIntersectionBox(intersectionBox)
-    , m_defaultColor(cvf::Color3::WHITE)
+RivIntersectionBoxPartMgr::RivIntersectionBoxPartMgr( RimIntersectionBox* intersectionBox )
+    : m_rimIntersectionBox( intersectionBox )
+    , m_defaultColor( cvf::Color3::WHITE )
 {
-    CVF_ASSERT(m_rimIntersectionBox);
+    CVF_ASSERT( m_rimIntersectionBox );
 
     m_intersectionBoxFacesTextureCoords = new cvf::Vec2fArray;
 
     cvf::ref<RivIntersectionHexGridInterface> hexGrid = createHexGridInterface();
-    m_intersectionBoxGenerator = new RivIntersectionBoxGeometryGenerator(m_rimIntersectionBox, hexGrid.p());
+    m_intersectionBoxGenerator = new RivIntersectionBoxGeometryGenerator( m_rimIntersectionBox, hexGrid.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,139 +80,156 @@ void RivIntersectionBoxPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxPartMgr::updateCellResultColor(size_t timeStepIndex)
+void RivIntersectionBoxPartMgr::updateCellResultColor( size_t timeStepIndex )
 {
-    if (!m_intersectionBoxGenerator->isAnyGeometryPresent()) return;
+    if ( !m_intersectionBoxGenerator->isAnyGeometryPresent() ) return;
 
     RimEclipseView* eclipseView;
-    m_rimIntersectionBox->firstAncestorOrThisOfType(eclipseView);
+    m_rimIntersectionBox->firstAncestorOrThisOfType( eclipseView );
 
-    if (eclipseView)
+    if ( eclipseView )
     {
         RimEclipseCellColors* cellResultColors = eclipseView->cellResult();
-        CVF_ASSERT(cellResultColors);
+        CVF_ASSERT( cellResultColors );
 
         // CrossSections
-        if (m_intersectionBoxFaces.notNull())
+        if ( m_intersectionBoxFaces.notNull() )
         {
-            if (cellResultColors->isTernarySaturationSelected())
+            if ( cellResultColors->isTernarySaturationSelected() )
             {
-                RivTernaryTextureCoordsCreator texturer(
-                    cellResultColors, cellResultColors->ternaryLegendConfig()->scalarMapper(), timeStepIndex);
+                RivTernaryTextureCoordsCreator texturer( cellResultColors,
+                                                         cellResultColors->ternaryLegendConfig()->scalarMapper(),
+                                                         timeStepIndex );
 
-                texturer.createTextureCoords(m_intersectionBoxFacesTextureCoords.p(),
-                                             m_intersectionBoxGenerator->triangleToCellIndex());
+                texturer.createTextureCoords( m_intersectionBoxFacesTextureCoords.p(),
+                                              m_intersectionBoxGenerator->triangleToCellIndex() );
 
                 const RivTernaryScalarMapper* mapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
-                RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_intersectionBoxFaces.p(),
-                                                                       m_intersectionBoxFacesTextureCoords.p(),
-                                                                       mapper,
-                                                                       1.0,
-                                                                       caf::FC_NONE,
-                                                                       eclipseView->isLightingDisabled());
+                RivScalarMapperUtils::applyTernaryTextureResultsToPart( m_intersectionBoxFaces.p(),
+                                                                        m_intersectionBoxFacesTextureCoords.p(),
+                                                                        mapper,
+                                                                        1.0,
+                                                                        caf::FC_NONE,
+                                                                        eclipseView->isLightingDisabled() );
             }
             else
             {
-                CVF_ASSERT(m_intersectionBoxGenerator.notNull());
+                CVF_ASSERT( m_intersectionBoxGenerator.notNull() );
 
                 const cvf::ScalarMapper*    mapper = cellResultColors->legendConfig()->scalarMapper();
                 cvf::ref<RigResultAccessor> resultAccessor;
 
-                if (RiaDefines::isPerCellFaceResult(cellResultColors->resultVariable()))
+                if ( RiaDefines::isPerCellFaceResult( cellResultColors->resultVariable() ) )
                 {
                     resultAccessor = new RigHugeValResultAccessor;
                 }
                 else
                 {
-                    resultAccessor = RigResultAccessorFactory::createFromResultDefinition(
-                        cellResultColors->reservoirView()->eclipseCase()->eclipseCaseData(), 0, timeStepIndex, cellResultColors);
+                    resultAccessor = RigResultAccessorFactory::createFromResultDefinition( cellResultColors
+                                                                                               ->reservoirView()
+                                                                                               ->eclipseCase()
+                                                                                               ->eclipseCaseData(),
+                                                                                           0,
+                                                                                           timeStepIndex,
+                                                                                           cellResultColors );
                 }
 
-                RivIntersectionPartMgr::calculateEclipseTextureCoordinates(m_intersectionBoxFacesTextureCoords.p(),
-                                                                           m_intersectionBoxGenerator->triangleToCellIndex(),
-                                                                           resultAccessor.p(),
-                                                                           mapper);
+                RivIntersectionPartMgr::calculateEclipseTextureCoordinates( m_intersectionBoxFacesTextureCoords.p(),
+                                                                            m_intersectionBoxGenerator->triangleToCellIndex(),
+                                                                            resultAccessor.p(),
+                                                                            mapper );
 
-                RivScalarMapperUtils::applyTextureResultsToPart(m_intersectionBoxFaces.p(),
-                                                                m_intersectionBoxFacesTextureCoords.p(),
-                                                                mapper,
-                                                                1.0,
-                                                                caf::FC_NONE,
-                                                                eclipseView->isLightingDisabled());
+                RivScalarMapperUtils::applyTextureResultsToPart( m_intersectionBoxFaces.p(),
+                                                                 m_intersectionBoxFacesTextureCoords.p(),
+                                                                 mapper,
+                                                                 1.0,
+                                                                 caf::FC_NONE,
+                                                                 eclipseView->isLightingDisabled() );
             }
         }
     }
 
     RimGeoMechView* geoView;
-    m_rimIntersectionBox->firstAncestorOrThisOfType(geoView);
+    m_rimIntersectionBox->firstAncestorOrThisOfType( geoView );
 
-    if (geoView)
+    if ( geoView )
     {
         RimGeoMechCellColors* cellResultColors = geoView->cellResult();
         RigGeoMechCaseData*   caseData         = cellResultColors->ownerCaseData();
 
-        if (!caseData) return;
+        if ( !caseData ) return;
 
         RigFemResultAddress resVarAddress = cellResultColors->resultAddress();
 
         const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 
-        if (resVarAddress.resultPosType == RIG_ELEMENT)
+        if ( resVarAddress.resultPosType == RIG_ELEMENT )
         {
-            const std::vector<float>& resultValues =
-                caseData->femPartResults()->resultValues(resVarAddress, 0, (int)timeStepIndex);
+            const std::vector<float>&  resultValues      = caseData->femPartResults()->resultValues( resVarAddress,
+                                                                                               0,
+                                                                                               (int)timeStepIndex );
             const std::vector<size_t>& triangleToCellIdx = m_intersectionBoxGenerator->triangleToCellIndex();
 
-            RivIntersectionPartMgr::calculateElementBasedGeoMechTextureCoords(
-                m_intersectionBoxFacesTextureCoords.p(), resultValues, triangleToCellIdx, mapper);
+            RivIntersectionPartMgr::calculateElementBasedGeoMechTextureCoords( m_intersectionBoxFacesTextureCoords.p(),
+                                                                               resultValues,
+                                                                               triangleToCellIdx,
+                                                                               mapper );
         }
-        else if (resVarAddress.resultPosType == RIG_ELEMENT_NODAL_FACE)
+        else if ( resVarAddress.resultPosType == RIG_ELEMENT_NODAL_FACE )
         {
             // Special direction sensitive result calculation
             const cvf::Vec3fArray* triangelVxes = m_intersectionBoxGenerator->triangleVxes();
 
-            if (resVarAddress.componentName == "Pazi" || resVarAddress.componentName == "Pinc")
+            if ( resVarAddress.componentName == "Pazi" || resVarAddress.componentName == "Pinc" )
             {
-                RivIntersectionPartMgr::calculatePlaneAngleTextureCoords(
-                    m_intersectionBoxFacesTextureCoords.p(), triangelVxes, resVarAddress, mapper);
+                RivIntersectionPartMgr::calculatePlaneAngleTextureCoords( m_intersectionBoxFacesTextureCoords.p(),
+                                                                          triangelVxes,
+                                                                          resVarAddress,
+                                                                          mapper );
             }
             else
             {
                 const std::vector<RivIntersectionVertexWeights>& vertexWeights =
                     m_intersectionBoxGenerator->triangleVxToCellCornerInterpolationWeights();
 
-                RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords(m_intersectionBoxFacesTextureCoords.p(),
-                                                                              triangelVxes,
-                                                                              vertexWeights,
-                                                                              caseData,
-                                                                              resVarAddress,
-                                                                              (int)timeStepIndex,
-                                                                              mapper);
+                RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords( m_intersectionBoxFacesTextureCoords.p(),
+                                                                               triangelVxes,
+                                                                               vertexWeights,
+                                                                               caseData,
+                                                                               resVarAddress,
+                                                                               (int)timeStepIndex,
+                                                                               mapper );
             }
         }
         else
         {
             // Do a "Hack" to show elm nodal and not nodal POR results
-            if (resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar")
+            if ( resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar" )
                 resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
 
-            const std::vector<float>& resultValues =
-                caseData->femPartResults()->resultValues(resVarAddress, 0, (int)timeStepIndex);
-            RigFemPart*                                      femPart              = caseData->femParts()->part(0);
-            bool                                             isElementNodalResult = !(resVarAddress.resultPosType == RIG_NODAL);
+            const std::vector<float>& resultValues         = caseData->femPartResults()->resultValues( resVarAddress,
+                                                                                               0,
+                                                                                               (int)timeStepIndex );
+            RigFemPart*               femPart              = caseData->femParts()->part( 0 );
+            bool                      isElementNodalResult = !( resVarAddress.resultPosType == RIG_NODAL );
             const std::vector<RivIntersectionVertexWeights>& vertexWeights =
                 m_intersectionBoxGenerator->triangleVxToCellCornerInterpolationWeights();
 
-            RivIntersectionPartMgr::calculateNodeOrElementNodeBasedGeoMechTextureCoords(
-                m_intersectionBoxFacesTextureCoords.p(), vertexWeights, resultValues, isElementNodalResult, femPart, mapper);
+            RivIntersectionPartMgr::calculateNodeOrElementNodeBasedGeoMechTextureCoords( m_intersectionBoxFacesTextureCoords
+                                                                                             .p(),
+                                                                                         vertexWeights,
+                                                                                         resultValues,
+                                                                                         isElementNodalResult,
+                                                                                         femPart,
+                                                                                         mapper );
         }
 
-        RivScalarMapperUtils::applyTextureResultsToPart(m_intersectionBoxFaces.p(),
-                                                        m_intersectionBoxFacesTextureCoords.p(),
-                                                        mapper,
-                                                        1.0,
-                                                        caf::FC_NONE,
-                                                        geoView->isLightingDisabled());
+        RivScalarMapperUtils::applyTextureResultsToPart( m_intersectionBoxFaces.p(),
+                                                         m_intersectionBoxFacesTextureCoords.p(),
+                                                         mapper,
+                                                         1.0,
+                                                         caf::FC_NONE,
+                                                         geoView->isLightingDisabled() );
     }
 }
 
@@ -225,26 +242,26 @@ void RivIntersectionBoxPartMgr::generatePartGeometry()
     // Surface geometry
     {
         cvf::ref<cvf::DrawableGeo> geo = m_intersectionBoxGenerator->generateSurface();
-        if (geo.notNull())
+        if ( geo.notNull() )
         {
             geo->computeNormals();
 
-            if (useBufferObjects)
+            if ( useBufferObjects )
             {
-                geo->setRenderMode(cvf::DrawableGeo::BUFFER_OBJECT);
+                geo->setRenderMode( cvf::DrawableGeo::BUFFER_OBJECT );
             }
 
             cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName("Intersection Box");
-            part->setDrawable(geo.p());
+            part->setName( "Intersection Box" );
+            part->setDrawable( geo.p() );
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivIntersectionBoxSourceInfo> si = new RivIntersectionBoxSourceInfo(m_intersectionBoxGenerator.p());
-            part->setSourceInfo(si.p());
+            cvf::ref<RivIntersectionBoxSourceInfo> si = new RivIntersectionBoxSourceInfo( m_intersectionBoxGenerator.p() );
+            part->setSourceInfo( si.p() );
 
             part->updateBoundingBox();
-            part->setEnableMask(intersectionCellFaceBit);
-            part->setPriority(RivPartPriority::PartType::Intersection);
+            part->setEnableMask( intersectionCellFaceBit );
+            part->setPriority( RivPartPriority::PartType::Intersection );
 
             m_intersectionBoxFaces = part;
         }
@@ -253,22 +270,22 @@ void RivIntersectionBoxPartMgr::generatePartGeometry()
     // Mesh geometry
     {
         cvf::ref<cvf::DrawableGeo> geoMesh = m_intersectionBoxGenerator->createMeshDrawable();
-        if (geoMesh.notNull())
+        if ( geoMesh.notNull() )
         {
-            if (useBufferObjects)
+            if ( useBufferObjects )
             {
-                geoMesh->setRenderMode(cvf::DrawableGeo::BUFFER_OBJECT);
+                geoMesh->setRenderMode( cvf::DrawableGeo::BUFFER_OBJECT );
             }
 
             cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName("Intersection box mesh");
-            part->setDrawable(geoMesh.p());
+            part->setName( "Intersection box mesh" );
+            part->setDrawable( geoMesh.p() );
 
             part->updateBoundingBox();
-            part->setEnableMask(intersectionCellMeshBit);
-            part->setPriority(RivPartPriority::PartType::MeshLines);
+            part->setEnableMask( intersectionCellMeshBit );
+            part->setPriority( RivPartPriority::PartType::MeshLines );
 
-            part->setSourceInfo(new RivMeshLinesSourceInfo(m_rimIntersectionBox));
+            part->setSourceInfo( new RivMeshLinesSourceInfo( m_rimIntersectionBox ) );
 
             m_intersectionBoxGridLines = part;
         }
@@ -283,59 +300,60 @@ void RivIntersectionBoxPartMgr::generatePartGeometry()
 void RivIntersectionBoxPartMgr::updatePartEffect()
 {
     // Set deCrossSection effect
-    caf::SurfaceEffectGenerator geometryEffgen(m_defaultColor, caf::PO_1);
+    caf::SurfaceEffectGenerator geometryEffgen( m_defaultColor, caf::PO_1 );
 
     cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateCachedEffect();
 
-    if (m_intersectionBoxFaces.notNull())
+    if ( m_intersectionBoxFaces.notNull() )
     {
-        m_intersectionBoxFaces->setEffect(geometryOnlyEffect.p());
+        m_intersectionBoxFaces->setEffect( geometryOnlyEffect.p() );
     }
 
     // Update mesh colors as well, in case of change
     // RiaPreferences* prefs = RiaApplication::instance()->preferences();
 
     cvf::ref<cvf::Effect>    eff;
-    caf::MeshEffectGenerator CrossSectionEffGen(cvf::Color3::WHITE); // prefs->defaultCrossSectionGridLineColors());
+    caf::MeshEffectGenerator CrossSectionEffGen( cvf::Color3::WHITE ); // prefs->defaultCrossSectionGridLineColors());
     eff = CrossSectionEffGen.generateCachedEffect();
 
-    if (m_intersectionBoxGridLines.notNull())
+    if ( m_intersectionBoxGridLines.notNull() )
     {
-        m_intersectionBoxGridLines->setEffect(eff.p());
+        m_intersectionBoxGridLines->setEffect( eff.p() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxPartMgr::appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
+void RivIntersectionBoxPartMgr::appendNativeCrossSectionFacesToModel( cvf::ModelBasicList* model,
+                                                                      cvf::Transform*      scaleTransform )
 {
-    if (m_intersectionBoxFaces.isNull() && m_intersectionBoxGridLines.isNull())
+    if ( m_intersectionBoxFaces.isNull() && m_intersectionBoxGridLines.isNull() )
     {
         generatePartGeometry();
     }
 
-    if (m_intersectionBoxFaces.notNull())
+    if ( m_intersectionBoxFaces.notNull() )
     {
-        m_intersectionBoxFaces->setTransform(scaleTransform);
-        model->addPart(m_intersectionBoxFaces.p());
+        m_intersectionBoxFaces->setTransform( scaleTransform );
+        model->addPart( m_intersectionBoxFaces.p() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
+void RivIntersectionBoxPartMgr::appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
-    if (m_intersectionBoxFaces.isNull() && m_intersectionBoxGridLines.isNull())
+    if ( m_intersectionBoxFaces.isNull() && m_intersectionBoxGridLines.isNull() )
     {
         generatePartGeometry();
     }
 
-    if (m_intersectionBoxGridLines.notNull())
+    if ( m_intersectionBoxGridLines.notNull() )
     {
-        m_intersectionBoxGridLines->setTransform(scaleTransform);
-        model->addPart(m_intersectionBoxGridLines.p());
+        m_intersectionBoxGridLines->setTransform( scaleTransform );
+        model->addPart( m_intersectionBoxGridLines.p() );
     }
 }
 
@@ -345,21 +363,22 @@ void RivIntersectionBoxPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* 
 cvf::ref<RivIntersectionHexGridInterface> RivIntersectionBoxPartMgr::createHexGridInterface()
 {
     RimEclipseView* eclipseView;
-    m_rimIntersectionBox->firstAncestorOrThisOfType(eclipseView);
-    if (eclipseView)
+    m_rimIntersectionBox->firstAncestorOrThisOfType( eclipseView );
+    if ( eclipseView )
     {
         RigMainGrid* grid = eclipseView->mainGrid();
 
-        return new RivEclipseIntersectionGrid(
-            grid, eclipseView->currentActiveCellInfo(), m_rimIntersectionBox->showInactiveCells());
+        return new RivEclipseIntersectionGrid( grid,
+                                               eclipseView->currentActiveCellInfo(),
+                                               m_rimIntersectionBox->showInactiveCells() );
     }
 
     RimGeoMechView* geoView;
-    m_rimIntersectionBox->firstAncestorOrThisOfType(geoView);
-    if (geoView)
+    m_rimIntersectionBox->firstAncestorOrThisOfType( geoView );
+    if ( geoView )
     {
-        RigFemPart* femPart = geoView->femParts()->part(0);
-        return new RivFemIntersectionGrid(femPart);
+        RigFemPart* femPart = geoView->femParts()->part( 0 );
+        return new RivFemIntersectionGrid( femPart );
     }
 
     return nullptr;

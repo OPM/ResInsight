@@ -24,19 +24,19 @@
 class RigPerforationTransmissibilityEquations
 {
 public:
-    static double betaFactor(double intertialCoefficient,
-                             double effectivePermeability,
-                             double permeabilityScalingFactor,
-                             double porosity,
-                             double porosityScalingFactor);
+    static double betaFactor( double intertialCoefficient,
+                              double effectivePermeability,
+                              double permeabilityScalingFactor,
+                              double porosity,
+                              double porosityScalingFactor );
 
-    static double dFactor(double unitConstant,
-                          double betaFactor,
-                          double effectivePermeability,
-                          double perforationLengthInCell,
-                          double wellRadius,
-                          double gasDensity,
-                          double gasViscosity);
+    static double dFactor( double unitConstant,
+                           double betaFactor,
+                           double effectivePermeability,
+                           double perforationLengthInCell,
+                           double wellRadius,
+                           double gasDensity,
+                           double gasViscosity );
 
 private:
     static const double EPSILON;

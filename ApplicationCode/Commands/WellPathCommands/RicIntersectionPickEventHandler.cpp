@@ -39,44 +39,45 @@ RicIntersectionPickEventHandler* RicIntersectionPickEventHandler::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicIntersectionPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
+bool RicIntersectionPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eventObject )
 {
     std::vector<RimIntersection*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
+    caf::SelectionManager::instance()->objectsByType( &selection );
 
-    if (selection.size() == 1)
+    if ( selection.size() == 1 )
     {
         {
             RimIntersection* intersection = selection[0];
 
             RimGridView* gridView = nullptr;
-            intersection->firstAncestorOrThisOfTypeAsserted(gridView);
+            intersection->firstAncestorOrThisOfTypeAsserted( gridView );
 
-            if (RiaApplication::instance()->activeGridView() != gridView)
+            if ( RiaApplication::instance()->activeGridView() != gridView )
             {
                 return false;
             }
 
-            cvf::ref<caf::DisplayCoordTransform> transForm = gridView->displayCoordTransform();
-            cvf::Vec3d domainCoord = transForm->transformToDomainCoord(eventObject.m_pickItemInfos.front().globalPickedPoint());
+            cvf::ref<caf::DisplayCoordTransform> transForm   = gridView->displayCoordTransform();
+            cvf::Vec3d                           domainCoord = transForm->transformToDomainCoord(
+                eventObject.m_pickItemInfos.front().globalPickedPoint() );
 
-            if (intersection->inputPolyLineFromViewerEnabled())
+            if ( intersection->inputPolyLineFromViewerEnabled() )
             {
-                intersection->appendPointToPolyLine(domainCoord);
-
-                // Further Ui processing is stopped when true is returned
-                return true;
-            }
-            else if (intersection->inputExtrusionPointsFromViewerEnabled())
-            {
-                intersection->appendPointToExtrusionDirection(domainCoord);
+                intersection->appendPointToPolyLine( domainCoord );
 
                 // Further Ui processing is stopped when true is returned
                 return true;
             }
-            else if (intersection->inputTwoAzimuthPointsFromViewerEnabled())
+            else if ( intersection->inputExtrusionPointsFromViewerEnabled() )
             {
-                intersection->appendPointToAzimuthLine(domainCoord);
+                intersection->appendPointToExtrusionDirection( domainCoord );
+
+                // Further Ui processing is stopped when true is returned
+                return true;
+            }
+            else if ( intersection->inputTwoAzimuthPointsFromViewerEnabled() )
+            {
+                intersection->appendPointToAzimuthLine( domainCoord );
 
                 // Further Ui processing is stopped when true is returned
                 return true;

@@ -2,250 +2,409 @@
 
 #include "RifColumnBasedUserData.h"
 #include "RifColumnBasedUserDataParser.h"
-#include "RifKeywordVectorParser.h"
-#include "RifEclipseUserDataParserTools.h"
 #include "RifCsvUserDataParser.h"
+#include "RifEclipseUserDataParserTools.h"
+#include "RifKeywordVectorParser.h"
 #include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
-#include <vector>
-#include <QTextStream>
-#include <QDebug>
-#include "RifEclipseUserDataKeywordTools.h"
 #include "RiaQDateTimeTools.h"
+#include "RifEclipseUserDataKeywordTools.h"
+#include <QDebug>
+#include <QTextStream>
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedAsciiParserTest, TestDateFormatYyyymmddWithDash)
+TEST( RifColumnBasedAsciiParserTest, TestDateFormatYyyymmddWithDash )
 {
     AsciiDataParseOptions parseOptions;
-    parseOptions.dateFormat = "yyyy-MM-dd";
-    parseOptions.cellSeparator = "\t";
-    parseOptions.locale = QLocale::Norwegian;
+    parseOptions.dateFormat           = "yyyy-MM-dd";
+    parseOptions.cellSeparator        = "\t";
+    parseOptions.locale               = QLocale::Norwegian;
     parseOptions.timeSeriesColumnName = "Date";
 
-    QString data;
-    QTextStream out(&data);
-    out << "Date"       << "\t" << "Oil" << "\t" << "PW" << "\n";
-    out << "1993-02-23" << "\t" << "10"  << "\t" << "1"  << "\n";
-    out << "1993-06-15" << "\t" << "20"  << "\t" << "2"  << "\n";
-    out << "1994-02-26" << "\t" << "30"  << "\t" << "3"  << "\n";
-    out << "1994-05-23" << "\t" << "40"  << "\t" << "4"  << "\n";
+    QString     data;
+    QTextStream out( &data );
+    out << "Date"
+        << "\t"
+        << "Oil"
+        << "\t"
+        << "PW"
+        << "\n";
+    out << "1993-02-23"
+        << "\t"
+        << "10"
+        << "\t"
+        << "1"
+        << "\n";
+    out << "1993-06-15"
+        << "\t"
+        << "20"
+        << "\t"
+        << "2"
+        << "\n";
+    out << "1994-02-26"
+        << "\t"
+        << "30"
+        << "\t"
+        << "3"
+        << "\n";
+    out << "1994-05-23"
+        << "\t"
+        << "40"
+        << "\t"
+        << "4"
+        << "\n";
 
-    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser(data);
-    ASSERT_TRUE(parser.parse(parseOptions));
-    ASSERT_TRUE(parser.dateTimeColumn() != nullptr);
+    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser( data );
+    ASSERT_TRUE( parser.parse( parseOptions ) );
+    ASSERT_TRUE( parser.dateTimeColumn() != nullptr );
 
     std::vector<QDateTime> timeSteps = parser.dateTimeColumn()->qDateTimeValues();
 
-    ASSERT_EQ(size_t(4), timeSteps.size());
-    EXPECT_EQ("1993-02-23", timeSteps[0].toString(parseOptions.dateFormat).toStdString());
-    EXPECT_EQ("1993-06-15", timeSteps[1].toString(parseOptions.dateFormat).toStdString());
-    EXPECT_EQ("1994-02-26", timeSteps[2].toString(parseOptions.dateFormat).toStdString());
-    EXPECT_EQ("1994-05-23", timeSteps[3].toString(parseOptions.dateFormat).toStdString());
+    ASSERT_EQ( size_t( 4 ), timeSteps.size() );
+    EXPECT_EQ( "1993-02-23", timeSteps[0].toString( parseOptions.dateFormat ).toStdString() );
+    EXPECT_EQ( "1993-06-15", timeSteps[1].toString( parseOptions.dateFormat ).toStdString() );
+    EXPECT_EQ( "1994-02-26", timeSteps[2].toString( parseOptions.dateFormat ).toStdString() );
+    EXPECT_EQ( "1994-05-23", timeSteps[3].toString( parseOptions.dateFormat ).toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedAsciiParserTest, TestDateFormatYymmddWithDot)
+TEST( RifColumnBasedAsciiParserTest, TestDateFormatYymmddWithDot )
 {
     AsciiDataParseOptions parseOptions;
-    parseOptions.dateFormat = "yy.MM.dd";
-    parseOptions.cellSeparator = "\t";
-    parseOptions.locale = QLocale::Norwegian;
+    parseOptions.dateFormat           = "yy.MM.dd";
+    parseOptions.cellSeparator        = "\t";
+    parseOptions.locale               = QLocale::Norwegian;
     parseOptions.timeSeriesColumnName = "Date";
 
-    QString data;
-    QTextStream out(&data);
-    out << "Date"     << "\t" << "Oil" << "\t" << "PW" << "\n";
-    out << "93.02.23" << "\t" << "10"  << "\t" << "1"  << "\n";
-    out << "93.06.15" << "\t" << "20"  << "\t" << "2"  << "\n";
-    out << "94.02.26" << "\t" << "30"  << "\t" << "3"  << "\n";
-    out << "94.05.23" << "\t" << "40"  << "\t" << "4"  << "\n";
+    QString     data;
+    QTextStream out( &data );
+    out << "Date"
+        << "\t"
+        << "Oil"
+        << "\t"
+        << "PW"
+        << "\n";
+    out << "93.02.23"
+        << "\t"
+        << "10"
+        << "\t"
+        << "1"
+        << "\n";
+    out << "93.06.15"
+        << "\t"
+        << "20"
+        << "\t"
+        << "2"
+        << "\n";
+    out << "94.02.26"
+        << "\t"
+        << "30"
+        << "\t"
+        << "3"
+        << "\n";
+    out << "94.05.23"
+        << "\t"
+        << "40"
+        << "\t"
+        << "4"
+        << "\n";
 
-    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser(data);
+    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser( data );
 
-    ASSERT_TRUE(parser.parse(parseOptions));
-    ASSERT_TRUE(parser.dateTimeColumn() != nullptr);
+    ASSERT_TRUE( parser.parse( parseOptions ) );
+    ASSERT_TRUE( parser.dateTimeColumn() != nullptr );
 
     std::vector<QDateTime> timeSteps = parser.dateTimeColumn()->qDateTimeValues();
 
-    ASSERT_EQ(size_t(4), timeSteps.size());
-    EXPECT_EQ("93.02.23", timeSteps[0].toString(parseOptions.dateFormat).toStdString());
+    ASSERT_EQ( size_t( 4 ), timeSteps.size() );
+    EXPECT_EQ( "93.02.23", timeSteps[0].toString( parseOptions.dateFormat ).toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedAsciiParserTest, TestDateFormatDdmmyyWithDot)
+TEST( RifColumnBasedAsciiParserTest, TestDateFormatDdmmyyWithDot )
 {
     AsciiDataParseOptions parseOptions;
-    parseOptions.dateFormat = "dd.MM.yy";
-    parseOptions.cellSeparator = "\t";
-    parseOptions.locale = QLocale::Norwegian;
+    parseOptions.dateFormat           = "dd.MM.yy";
+    parseOptions.cellSeparator        = "\t";
+    parseOptions.locale               = QLocale::Norwegian;
     parseOptions.timeSeriesColumnName = "Date";
 
-    QString data;
-    QTextStream out(&data);
-    out << "Date"     << "\t" << "Oil" << "\t" << "PW" << "\n";
-    out << "23.02.93" << "\t" << "10"  << "\t" << "1"  << "\n";
-    out << "15.06.93" << "\t" << "20"  << "\t" << "2"  << "\n";
-    out << "26.02.94" << "\t" << "30"  << "\t" << "3"  << "\n";
-    out << "23.05.94" << "\t" << "40"  << "\t" << "4"  << "\n";
+    QString     data;
+    QTextStream out( &data );
+    out << "Date"
+        << "\t"
+        << "Oil"
+        << "\t"
+        << "PW"
+        << "\n";
+    out << "23.02.93"
+        << "\t"
+        << "10"
+        << "\t"
+        << "1"
+        << "\n";
+    out << "15.06.93"
+        << "\t"
+        << "20"
+        << "\t"
+        << "2"
+        << "\n";
+    out << "26.02.94"
+        << "\t"
+        << "30"
+        << "\t"
+        << "3"
+        << "\n";
+    out << "23.05.94"
+        << "\t"
+        << "40"
+        << "\t"
+        << "4"
+        << "\n";
 
-    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser(data);
-    ASSERT_TRUE(parser.parse(parseOptions));
-    ASSERT_TRUE(parser.dateTimeColumn() != nullptr);
+    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser( data );
+    ASSERT_TRUE( parser.parse( parseOptions ) );
+    ASSERT_TRUE( parser.dateTimeColumn() != nullptr );
 
     std::vector<QDateTime> timeSteps = parser.dateTimeColumn()->qDateTimeValues();
 
-    ASSERT_EQ(size_t(4), timeSteps.size());
-    EXPECT_EQ("23.02.93", timeSteps[0].toString(parseOptions.dateFormat).toStdString());
+    ASSERT_EQ( size_t( 4 ), timeSteps.size() );
+    EXPECT_EQ( "23.02.93", timeSteps[0].toString( parseOptions.dateFormat ).toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedAsciiParserTest, TestDecimalLocaleNorwegian)
+TEST( RifColumnBasedAsciiParserTest, TestDecimalLocaleNorwegian )
 {
     AsciiDataParseOptions parseOptions;
-    parseOptions.dateFormat = "yy.MM.dd";
-    parseOptions.cellSeparator = "\t";
-    parseOptions.decimalSeparator = ",";
-    parseOptions.locale = QLocale::Norwegian;
+    parseOptions.dateFormat           = "yy.MM.dd";
+    parseOptions.cellSeparator        = "\t";
+    parseOptions.decimalSeparator     = ",";
+    parseOptions.locale               = QLocale::Norwegian;
     parseOptions.timeSeriesColumnName = "Date";
 
-    QString data;
-    QTextStream out(&data);
-    out << "Date" << "\t" << "Oil" << "\t" << "PW" << "\n";
-    out << "93.02.23" << "\t" << "10,1" << "\t" << "1,0" << "\n";
-    out << "93.06.15" << "\t" << "20,40" << "\t" << "2,33" << "\n";
-    out << "94.02.26" << "\t" << "30,2" << "\t" << "3,09" << "\n";
-    out << "94.05.23" << "\t" << "40,8" << "\t" << "4,44" << "\n";
+    QString     data;
+    QTextStream out( &data );
+    out << "Date"
+        << "\t"
+        << "Oil"
+        << "\t"
+        << "PW"
+        << "\n";
+    out << "93.02.23"
+        << "\t"
+        << "10,1"
+        << "\t"
+        << "1,0"
+        << "\n";
+    out << "93.06.15"
+        << "\t"
+        << "20,40"
+        << "\t"
+        << "2,33"
+        << "\n";
+    out << "94.02.26"
+        << "\t"
+        << "30,2"
+        << "\t"
+        << "3,09"
+        << "\n";
+    out << "94.05.23"
+        << "\t"
+        << "40,8"
+        << "\t"
+        << "4,44"
+        << "\n";
 
-    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser(data);
+    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser( data );
 
-    ASSERT_TRUE(parser.parse(parseOptions));
-    ASSERT_TRUE(parser.columnInfo(1) != nullptr);
-    ASSERT_TRUE(parser.columnInfo(2) != nullptr);
+    ASSERT_TRUE( parser.parse( parseOptions ) );
+    ASSERT_TRUE( parser.columnInfo( 1 ) != nullptr );
+    ASSERT_TRUE( parser.columnInfo( 2 ) != nullptr );
 
-    std::vector<double> oilValues = parser.columnInfo(1)->values;
-    std::vector<double> pwValues = parser.columnInfo(2)->values;
+    std::vector<double> oilValues = parser.columnInfo( 1 )->values;
+    std::vector<double> pwValues  = parser.columnInfo( 2 )->values;
 
-    ASSERT_EQ(size_t(4), oilValues.size());
-    EXPECT_EQ(10.1, oilValues[0]);
-    EXPECT_EQ(20.40, oilValues[1]);
-    EXPECT_EQ(30.2, oilValues[2]);
-    EXPECT_EQ(40.8, oilValues[3]);
+    ASSERT_EQ( size_t( 4 ), oilValues.size() );
+    EXPECT_EQ( 10.1, oilValues[0] );
+    EXPECT_EQ( 20.40, oilValues[1] );
+    EXPECT_EQ( 30.2, oilValues[2] );
+    EXPECT_EQ( 40.8, oilValues[3] );
 
-    ASSERT_EQ(size_t(4), pwValues.size());
-    EXPECT_EQ(1.0, pwValues[0]);
-    EXPECT_EQ(1, pwValues[0]);
-    EXPECT_EQ(2.33, pwValues[1]);
-    EXPECT_EQ(3.09, pwValues[2]);
-    EXPECT_EQ(4.44, pwValues[3]);
+    ASSERT_EQ( size_t( 4 ), pwValues.size() );
+    EXPECT_EQ( 1.0, pwValues[0] );
+    EXPECT_EQ( 1, pwValues[0] );
+    EXPECT_EQ( 2.33, pwValues[1] );
+    EXPECT_EQ( 3.09, pwValues[2] );
+    EXPECT_EQ( 4.44, pwValues[3] );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedAsciiParserTest, TestDecimalLocaleC)
+TEST( RifColumnBasedAsciiParserTest, TestDecimalLocaleC )
 {
     AsciiDataParseOptions parseOptions;
-    parseOptions.dateFormat = "yy.MM.dd";
-    parseOptions.cellSeparator = "\t";
-    parseOptions.locale = QLocale::c();
+    parseOptions.dateFormat           = "yy.MM.dd";
+    parseOptions.cellSeparator        = "\t";
+    parseOptions.locale               = QLocale::c();
     parseOptions.timeSeriesColumnName = "Date";
 
-    QString data;
-    QTextStream out(&data);
-    out << "Date"     << "\t" << "Oil"   << "\t" << "PW"   << "\t" << "H2S"  << "\n";
-    out << "93.02.23" << "\t" << "10.1"  << "\t" << "1.0"  << "\t" << "0.2"  << "\n";
-    out << "93.06.15" << "\t" << "20.40" << "\t" << "2.33" << "\t" << "2.13" << "\n";
-    out << "94.02.26" << "\t" << "30.2"  << "\t" << "3.09" << "\t" << "2.1"  << "\n";
-    out << "94.05.23" << "\t" << "40.8"  << "\t" << "4.44" << "\t" << "1.0"  << "\n";
+    QString     data;
+    QTextStream out( &data );
+    out << "Date"
+        << "\t"
+        << "Oil"
+        << "\t"
+        << "PW"
+        << "\t"
+        << "H2S"
+        << "\n";
+    out << "93.02.23"
+        << "\t"
+        << "10.1"
+        << "\t"
+        << "1.0"
+        << "\t"
+        << "0.2"
+        << "\n";
+    out << "93.06.15"
+        << "\t"
+        << "20.40"
+        << "\t"
+        << "2.33"
+        << "\t"
+        << "2.13"
+        << "\n";
+    out << "94.02.26"
+        << "\t"
+        << "30.2"
+        << "\t"
+        << "3.09"
+        << "\t"
+        << "2.1"
+        << "\n";
+    out << "94.05.23"
+        << "\t"
+        << "40.8"
+        << "\t"
+        << "4.44"
+        << "\t"
+        << "1.0"
+        << "\n";
 
-    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser(data);
+    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser( data );
 
-    ASSERT_TRUE(parser.parse(parseOptions));
-    ASSERT_TRUE(parser.columnInfo(1) != nullptr);
-    ASSERT_TRUE(parser.columnInfo(2) != nullptr);
-    ASSERT_TRUE(parser.columnInfo(3) != nullptr);
+    ASSERT_TRUE( parser.parse( parseOptions ) );
+    ASSERT_TRUE( parser.columnInfo( 1 ) != nullptr );
+    ASSERT_TRUE( parser.columnInfo( 2 ) != nullptr );
+    ASSERT_TRUE( parser.columnInfo( 3 ) != nullptr );
 
-    std::vector<double> oilValues = parser.columnInfo(1)->values;
-    std::vector<double> pwValues = parser.columnInfo(2)->values;
-    std::vector<double> h2sValues = parser.columnInfo(3)->values;
+    std::vector<double> oilValues = parser.columnInfo( 1 )->values;
+    std::vector<double> pwValues  = parser.columnInfo( 2 )->values;
+    std::vector<double> h2sValues = parser.columnInfo( 3 )->values;
 
-    ASSERT_EQ(size_t(4), oilValues.size());
-    EXPECT_EQ(10.1, oilValues[0]);
-    EXPECT_EQ(20.40, oilValues[1]);
-    EXPECT_EQ(30.2, oilValues[2]);
-    EXPECT_EQ(40.8, oilValues[3]);
+    ASSERT_EQ( size_t( 4 ), oilValues.size() );
+    EXPECT_EQ( 10.1, oilValues[0] );
+    EXPECT_EQ( 20.40, oilValues[1] );
+    EXPECT_EQ( 30.2, oilValues[2] );
+    EXPECT_EQ( 40.8, oilValues[3] );
 
-    ASSERT_EQ(size_t(4), pwValues.size());
-    EXPECT_EQ(1.0, pwValues[0]);
-    EXPECT_EQ(2.33, pwValues[1]);
-    EXPECT_EQ(3.09, pwValues[2]);
-    EXPECT_EQ(4.44, pwValues[3]);
+    ASSERT_EQ( size_t( 4 ), pwValues.size() );
+    EXPECT_EQ( 1.0, pwValues[0] );
+    EXPECT_EQ( 2.33, pwValues[1] );
+    EXPECT_EQ( 3.09, pwValues[2] );
+    EXPECT_EQ( 4.44, pwValues[3] );
 
-    ASSERT_EQ(size_t(4), h2sValues.size());
-    EXPECT_EQ(0.2, h2sValues[0]);
-    EXPECT_EQ(2.13, h2sValues[1]);
-    EXPECT_EQ(2.1, h2sValues[2]);
-    EXPECT_EQ(1.0, h2sValues[3]);
+    ASSERT_EQ( size_t( 4 ), h2sValues.size() );
+    EXPECT_EQ( 0.2, h2sValues[0] );
+    EXPECT_EQ( 2.13, h2sValues[1] );
+    EXPECT_EQ( 2.1, h2sValues[2] );
+    EXPECT_EQ( 1.0, h2sValues[3] );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedAsciiParserTest, TestCellSeparatorComma)
+TEST( RifColumnBasedAsciiParserTest, TestCellSeparatorComma )
 {
     AsciiDataParseOptions parseOptions;
-    parseOptions.dateFormat = "yy.MM.dd";
-    parseOptions.cellSeparator = ",";
-    parseOptions.locale = QLocale::c();
+    parseOptions.dateFormat           = "yy.MM.dd";
+    parseOptions.cellSeparator        = ",";
+    parseOptions.locale               = QLocale::c();
     parseOptions.timeSeriesColumnName = "Date";
 
-    QString data;
-    QTextStream out(&data);
+    QString     data;
+    QTextStream out( &data );
 
-    out << "Date"     << "," << "Oil"   << "," << "PW"   << "\n";
-    out << "93.02.23" << "," << "10.1"  << "," << "1.0"  << "\n";
-    out << "93.06.15" << "," << "20.40" << "," << "2.33" << "\n";
-    out << "94.02.26" << "," << "30.2"  << "," << "3.09" << "\n";
-    out << "94.05.23" << "," << "40.8"  << "," << "4.44" << "\n";
+    out << "Date"
+        << ","
+        << "Oil"
+        << ","
+        << "PW"
+        << "\n";
+    out << "93.02.23"
+        << ","
+        << "10.1"
+        << ","
+        << "1.0"
+        << "\n";
+    out << "93.06.15"
+        << ","
+        << "20.40"
+        << ","
+        << "2.33"
+        << "\n";
+    out << "94.02.26"
+        << ","
+        << "30.2"
+        << ","
+        << "3.09"
+        << "\n";
+    out << "94.05.23"
+        << ","
+        << "40.8"
+        << ","
+        << "4.44"
+        << "\n";
 
-    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser(data);
+    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser( data );
 
-    ASSERT_TRUE(parser.parse(parseOptions));
-    ASSERT_TRUE(parser.columnInfo(1) != nullptr);
-    ASSERT_TRUE(parser.columnInfo(2) != nullptr);
+    ASSERT_TRUE( parser.parse( parseOptions ) );
+    ASSERT_TRUE( parser.columnInfo( 1 ) != nullptr );
+    ASSERT_TRUE( parser.columnInfo( 2 ) != nullptr );
 
-    std::vector<double> oilValues = parser.columnInfo(1)->values;
-    std::vector<double> pwValues = parser.columnInfo(2)->values;
+    std::vector<double> oilValues = parser.columnInfo( 1 )->values;
+    std::vector<double> pwValues  = parser.columnInfo( 2 )->values;
 
-    ASSERT_EQ(size_t(4), oilValues.size());
-    EXPECT_EQ(10.1, oilValues[0]);
-    EXPECT_EQ(20.40, oilValues[1]);
-    EXPECT_EQ(30.2, oilValues[2]);
-    EXPECT_EQ(40.8, oilValues[3]);
+    ASSERT_EQ( size_t( 4 ), oilValues.size() );
+    EXPECT_EQ( 10.1, oilValues[0] );
+    EXPECT_EQ( 20.40, oilValues[1] );
+    EXPECT_EQ( 30.2, oilValues[2] );
+    EXPECT_EQ( 40.8, oilValues[3] );
 
-    ASSERT_EQ(size_t(4), pwValues.size());
-    EXPECT_EQ(1.0, pwValues[0]);
-    EXPECT_EQ(2.33, pwValues[1]);
-    EXPECT_EQ(3.09, pwValues[2]);
-    EXPECT_EQ(4.44, pwValues[3]);
+    ASSERT_EQ( size_t( 4 ), pwValues.size() );
+    EXPECT_EQ( 1.0, pwValues[0] );
+    EXPECT_EQ( 2.33, pwValues[1] );
+    EXPECT_EQ( 3.09, pwValues[2] );
+    EXPECT_EQ( 4.44, pwValues[3] );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifRsmspecParserToolsTest, TestSplitLineToDoubles)
+TEST( RifRsmspecParserToolsTest, TestSplitLineToDoubles )
 {
-
-    QString data;
-    QTextStream out(&data);
+    QString     data;
+    QTextStream out( &data );
 
     out << "   1   0.0   0.0   0.0   0.0   0.0\n";
     out << "   2   0.0   0.0   0.0   0.0   0.0\n";
@@ -259,34 +418,33 @@ TEST(RifRsmspecParserToolsTest, TestSplitLineToDoubles)
     out << "   10   0.0   0.0   0.0   0.0   0.0\n";
 
     std::stringstream streamData;
-    streamData.str(data.toStdString());
+    streamData.str( data.toStdString() );
     std::string line;
 
-    std::vector< std::vector<double> > table;
+    std::vector<std::vector<double>> table;
 
-    while (std::getline(streamData, line))
+    while ( std::getline( streamData, line ) )
     {
-        std::vector<double> values = RifEclipseUserDataParserTools::splitLineToDoubles(line);
-        table.push_back(values);
+        std::vector<double> values = RifEclipseUserDataParserTools::splitLineToDoubles( line );
+        table.push_back( values );
     }
 
-    ASSERT_EQ(size_t(10), table.size());
-    ASSERT_EQ(size_t(6), table[0].size());
-    ASSERT_EQ(size_t(6), table[3].size());
+    ASSERT_EQ( size_t( 10 ), table.size() );
+    ASSERT_EQ( size_t( 6 ), table[0].size() );
+    ASSERT_EQ( size_t( 6 ), table[3].size() );
 
-    EXPECT_EQ(size_t(1), table[0][0]);
-    EXPECT_EQ(0.0, table[5][2]);
-    EXPECT_EQ(size_t(279), table[7][3]);
+    EXPECT_EQ( size_t( 1 ), table[0][0] );
+    EXPECT_EQ( 0.0, table[5][2] );
+    EXPECT_EQ( size_t( 279 ), table[7][3] );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedRsmspecParserTest, TestTwoPages)
+TEST( RifColumnBasedRsmspecParserTest, TestTwoPages )
 {
-
-    QString data;
-    QTextStream out(&data);
+    QString     data;
+    QTextStream out( &data );
 
     out << "PAGE 1\n";
     out << "ORIGIN    OP-1_TR\n";
@@ -323,29 +481,27 @@ TEST(RifColumnBasedRsmspecParserTest, TestTwoPages)
     out << "1709    2004.055    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12\n";
     out << "\n";
 
-    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
+    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser( data );
 
     auto tables = parser.tableData();
-    ASSERT_EQ(size_t(2), tables.size());
-    EXPECT_EQ("1 1 2000", tables[0].startDate());
-    EXPECT_EQ("OP-1_TR", tables[0].origin());
+    ASSERT_EQ( size_t( 2 ), tables.size() );
+    EXPECT_EQ( "1 1 2000", tables[0].startDate() );
+    EXPECT_EQ( "OP-1_TR", tables[0].origin() );
 
-    EXPECT_EQ("1 1 2000", tables[1].startDate());
-    EXPECT_EQ("OP-2_TR", tables[1].origin());
+    EXPECT_EQ( "1 1 2000", tables[1].startDate() );
+    EXPECT_EQ( "OP-2_TR", tables[1].origin() );
 
-    ASSERT_EQ(size_t(8), tables.at(0).columnInfos().size());
-    EXPECT_EQ(1.0E-12, tables.at(0).columnInfos().at(4).values[0]);
+    ASSERT_EQ( size_t( 8 ), tables.at( 0 ).columnInfos().size() );
+    EXPECT_EQ( 1.0E-12, tables.at( 0 ).columnInfos().at( 4 ).values[0] );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
+TEST( RifColumnBasedRsmspecParserTest, TestTableValues )
 {
-
-    QString data;
-    QTextStream out(&data);
+    QString     data;
+    QTextStream out( &data );
 
     out << "1\n";
     out << "---------------------------------------\n";
@@ -387,48 +543,48 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
     out << "   4  0.0  0.0  370  0.0  0.0\n";
     out << "\n";
 
-    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
+    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser( data );
 
     auto tables = parser.tableData();
-    ASSERT_EQ(size_t(2), tables.size());
-    
-    ASSERT_EQ(size_t(6), tables.at(0).columnInfos().size());
-    ASSERT_EQ(size_t(6), tables.at(1).columnInfos().size());
+    ASSERT_EQ( size_t( 2 ), tables.size() );
 
-    ASSERT_EQ(size_t(18), tables.at(0).columnInfos().at(0).values.size());
-    ASSERT_EQ(size_t(4), tables.at(1).columnInfos().at(0).values.size());
+    ASSERT_EQ( size_t( 6 ), tables.at( 0 ).columnInfos().size() );
+    ASSERT_EQ( size_t( 6 ), tables.at( 1 ).columnInfos().size() );
 
-    EXPECT_EQ(0.0, tables.at(0).columnInfos().at(1).values.at(6));
-    EXPECT_EQ(282.0, tables.at(0).columnInfos().at(3).values.at(6));
+    ASSERT_EQ( size_t( 18 ), tables.at( 0 ).columnInfos().at( 0 ).values.size() );
+    ASSERT_EQ( size_t( 4 ), tables.at( 1 ).columnInfos().at( 0 ).values.size() );
 
-    EXPECT_EQ(3.0, tables.at(1).columnInfos().at(0).values.at(2));
-    EXPECT_EQ(370.0, tables.at(1).columnInfos().at(3).values.at(3));
+    EXPECT_EQ( 0.0, tables.at( 0 ).columnInfos().at( 1 ).values.at( 6 ) );
+    EXPECT_EQ( 282.0, tables.at( 0 ).columnInfos().at( 3 ).values.at( 6 ) );
 
-    EXPECT_EQ("WOPR", tables.at(0).columnInfos().at(1).summaryAddress.quantityName());
-    EXPECT_EQ("P-15P", tables.at(0).columnInfos().at(5).summaryAddress.wellName());
-    EXPECT_EQ("P-9P", tables.at(1).columnInfos().at(1).summaryAddress.wellName());
-    EXPECT_NE("P-9P", tables.at(1).columnInfos().at(0).summaryAddress.wellName());
+    EXPECT_EQ( 3.0, tables.at( 1 ).columnInfos().at( 0 ).values.at( 2 ) );
+    EXPECT_EQ( 370.0, tables.at( 1 ).columnInfos().at( 3 ).values.at( 3 ) );
+
+    EXPECT_EQ( "WOPR", tables.at( 0 ).columnInfos().at( 1 ).summaryAddress.quantityName() );
+    EXPECT_EQ( "P-15P", tables.at( 0 ).columnInfos().at( 5 ).summaryAddress.wellName() );
+    EXPECT_EQ( "P-9P", tables.at( 1 ).columnInfos().at( 1 ).summaryAddress.wellName() );
+    EXPECT_NE( "P-9P", tables.at( 1 ).columnInfos().at( 0 ).summaryAddress.wellName() );
 
     RifColumnBasedUserData userData;
-    userData.parse(data);
+    userData.parse( data );
 
-    RifEclipseSummaryAddress adr(RifEclipseSummaryAddress::SUMMARY_WELL, "WOPR", -1, -1, "", "P-15P", -1, "", -1, -1, -1, -1, false);
-   
-    QDateTime firstTimeStep = RiaQDateTimeTools::addDays(RiaQDateTimeTools::epoch(), 1.0);
-    auto timeSteps = userData.timeSteps(adr);
-    EXPECT_EQ(size_t(18), timeSteps.size());
+    RifEclipseSummaryAddress
+        adr( RifEclipseSummaryAddress::SUMMARY_WELL, "WOPR", -1, -1, "", "P-15P", -1, "", -1, -1, -1, -1, false );
 
-    EXPECT_EQ(firstTimeStep.toTime_t(), timeSteps[0]);
+    QDateTime firstTimeStep = RiaQDateTimeTools::addDays( RiaQDateTimeTools::epoch(), 1.0 );
+    auto      timeSteps     = userData.timeSteps( adr );
+    EXPECT_EQ( size_t( 18 ), timeSteps.size() );
+
+    EXPECT_EQ( firstTimeStep.toTime_t(), timeSteps[0] );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedRsmspecParserTest, TestTableMissingWellNames)
+TEST( RifColumnBasedRsmspecParserTest, TestTableMissingWellNames )
 {
-
-    QString data;
-    QTextStream out(&data);
+    QString     data;
+    QTextStream out( &data );
 
     out << "1\n";
     out << "---------------------------------------\n";
@@ -456,21 +612,21 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableMissingWellNames)
     out << "   17   0.0   0.0   0.0   0.0   0.0\n";
     out << "   18   0.0   0.0   0.0   0.0   0.0\n";
 
-    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
+    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser( data );
 
     auto tables = parser.tableData();
 
     // Missing header line with well name, returning empty table
-    ASSERT_EQ(size_t(0), tables.size());
+    ASSERT_EQ( size_t( 0 ), tables.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedRsmspecParserTest, TestTableValuesHeaderWithSpaces)
+TEST( RifColumnBasedRsmspecParserTest, TestTableValuesHeaderWithSpaces )
 {
-    QString data;
-    QTextStream out(&data);
+    QString     data;
+    QTextStream out( &data );
 
     out << "1\n";
     out << " -----------------------------------------\n";
@@ -507,21 +663,20 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValuesHeaderWithSpaces)
     out << " 13-DEC-1997  0.101750           0        \n";
     out << " 15-DEC-1997  0.107001           0        \n";
     out << " 17-DEC-1997  0.112252           0        \n";
-    
-    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
+
+    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser( data );
 
     auto tables = parser.tableData();
-    ASSERT_EQ(size_t(1), tables.size());
+    ASSERT_EQ( size_t( 1 ), tables.size() );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedRsmspecParserTest, TestTableDateOnly)
+TEST( RifColumnBasedRsmspecParserTest, TestTableDateOnly )
 {
-    QString data;
-    QTextStream out(&data);
+    QString     data;
+    QTextStream out( &data );
 
     out << "1\n";
     out << " -----------------------------------------\n";
@@ -559,19 +714,19 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableDateOnly)
     out << " 15-DEC-1997       0        \n";
     out << " 17-DEC-1997       0        \n";
 
-    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
+    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser( data );
 
     auto tables = parser.tableData();
-    ASSERT_EQ(size_t(1), tables.size());
+    ASSERT_EQ( size_t( 1 ), tables.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifKeywordBasedRsmspecParserTest, TestKeywordBasedVectorsValues)
+TEST( RifKeywordBasedRsmspecParserTest, TestKeywordBasedVectorsValues )
 {
-    QString data;
-    QTextStream out(&data);
+    QString     data;
+    QTextStream out( &data );
 
     out << "----------------------------------------------\n";
     out << "-- GOR data S-1AH\n";
@@ -630,28 +785,28 @@ TEST(RifKeywordBasedRsmspecParserTest, TestKeywordBasedVectorsValues)
     out << "\n";
     out << "\n";
 
-    RifKeywordVectorParser parser(data);
+    RifKeywordVectorParser parser( data );
 
     std::vector<KeywordBasedVector> vectors = parser.keywordBasedVectors();
 
-    EXPECT_TRUE(RifKeywordVectorParser::canBeParsed(data));
+    EXPECT_TRUE( RifKeywordVectorParser::canBeParsed( data ) );
 
-    ASSERT_EQ(size_t(4), vectors.size());
+    ASSERT_EQ( size_t( 4 ), vectors.size() );
 
-    ASSERT_LE(size_t(1), vectors[0].header.size());
-    EXPECT_EQ("VECTOR S-1AH-GOR", vectors[0].header.at(0));
+    ASSERT_LE( size_t( 1 ), vectors[0].header.size() );
+    EXPECT_EQ( "VECTOR S-1AH-GOR", vectors[0].header.at( 0 ) );
 
-    ASSERT_LE(size_t(3), vectors[0].values.size());
-    EXPECT_EQ(335.9894, vectors[0].values[2]);
+    ASSERT_LE( size_t( 3 ), vectors[0].values.size() );
+    EXPECT_EQ( 335.9894, vectors[0].values[2] );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifKeywordBasedRsmspecParserTest, TestCannotBeParsed)
+TEST( RifKeywordBasedRsmspecParserTest, TestCannotBeParsed )
 {
-    QString data;
-    QTextStream out(&data);
+    QString     data;
+    QTextStream out( &data );
 
     out << "----------------------------------------------\n";
     out << "-- GOR data S-1AH\n";
@@ -661,21 +816,20 @@ TEST(RifKeywordBasedRsmspecParserTest, TestCannotBeParsed)
     out << "330.6601\n";
     out << "335.9894\n";
 
-    RifKeywordVectorParser parser(data);
+    RifKeywordVectorParser parser( data );
 
     std::vector<KeywordBasedVector> vectors = parser.keywordBasedVectors();
 
-    EXPECT_FALSE(RifKeywordVectorParser::canBeParsed(data));
+    EXPECT_FALSE( RifKeywordVectorParser::canBeParsed( data ) );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifKeywordBasedRsmspecParserTest, TestShutins)
+TEST( RifKeywordBasedRsmspecParserTest, TestShutins )
 {
-    QString data;
-    QTextStream out(&data);
+    QString     data;
+    QTextStream out( &data );
 
     out << "-- Created running the command shutin_pressures\n";
     out << "\n";
@@ -709,32 +863,28 @@ TEST(RifKeywordBasedRsmspecParserTest, TestShutins)
     out << "3493     2015.55    219.0    -- Measured\n";
     out << "\n";
 
-
-
-    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
+    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser( data );
 
     auto tables = parser.tableData();
-    ASSERT_EQ(size_t(1), tables.size());
-    ASSERT_EQ(size_t(3), tables[0].columnInfos().size());
-    ASSERT_EQ(size_t(18), tables.at(0).columnInfos().at(2).values.size());
+    ASSERT_EQ( size_t( 1 ), tables.size() );
+    ASSERT_EQ( size_t( 3 ), tables[0].columnInfos().size() );
+    ASSERT_EQ( size_t( 18 ), tables.at( 0 ).columnInfos().at( 2 ).values.size() );
 
-    EXPECT_EQ(2014.39, tables.at(0).columnInfos().at(1).values[2]);
+    EXPECT_EQ( 2014.39, tables.at( 0 ).columnInfos().at( 1 ).values[2] );
 
-    EXPECT_EQ("WOPR", tables.at(0).columnInfos().at(2).summaryAddress.quantityName());
+    EXPECT_EQ( "WOPR", tables.at( 0 ).columnInfos().at( 2 ).summaryAddress.quantityName() );
 
-    EXPECT_EQ("OP-1", tables.at(0).columnInfos().at(2).summaryAddress.wellName());
-    EXPECT_NE("OP-1", tables.at(0).columnInfos().at(1).summaryAddress.wellName());
+    EXPECT_EQ( "OP-1", tables.at( 0 ).columnInfos().at( 2 ).summaryAddress.wellName() );
+    EXPECT_NE( "OP-1", tables.at( 0 ).columnInfos().at( 1 ).summaryAddress.wellName() );
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifKeywordBasedRsmspecParserTest, TestTimeSteps)
+TEST( RifKeywordBasedRsmspecParserTest, TestTimeSteps )
 {
-    QString data;
-    QTextStream out(&data);
+    QString     data;
+    QTextStream out( &data );
 
     out << "-- Created running the command shutin_pressures\n";
     out << "\n";
@@ -768,149 +918,149 @@ TEST(RifKeywordBasedRsmspecParserTest, TestTimeSteps)
     out << "3493     2015.55    219.0    -- Measured\n";
     out << "\n";
 
-    std::string quantityName = "WOPR";
-    std::vector< std::string > headerColumn;
-    headerColumn.push_back("OP-1");
+    std::string              quantityName = "WOPR";
+    std::vector<std::string> headerColumn;
+    headerColumn.push_back( "OP-1" );
 
-    RifEclipseSummaryAddress address = RifEclipseUserDataKeywordTools::makeAndFillAddress(quantityName, headerColumn);
+    RifEclipseSummaryAddress address = RifEclipseUserDataKeywordTools::makeAndFillAddress( quantityName, headerColumn );
 
     RifColumnBasedUserData columnBasedUserdata;
 
-    columnBasedUserdata.parse(data);
-    std::vector<time_t> timeSteps = columnBasedUserdata.timeSteps(address);
+    columnBasedUserdata.parse( data );
+    std::vector<time_t> timeSteps = columnBasedUserdata.timeSteps( address );
 
-    QDateTime firstDate = RiaQDateTimeTools::fromYears(2014.32);
+    QDateTime firstDate = RiaQDateTimeTools::fromYears( 2014.32 );
 
-    EXPECT_TRUE(firstDate == QDateTime::fromTime_t(timeSteps[0]));
+    EXPECT_TRUE( firstDate == QDateTime::fromTime_t( timeSteps[0] ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifKeywordBasedRsmspecParserTest, TestAddressCreation)
+TEST( RifKeywordBasedRsmspecParserTest, TestAddressCreation )
 {
-    std::string quantityName = "LCABC";
-    std::vector< std::string > headerColumn;
-    headerColumn.push_back("wellName");
-    headerColumn.push_back("lgrName");
-    headerColumn.push_back("12 14 16");
+    std::string              quantityName = "LCABC";
+    std::vector<std::string> headerColumn;
+    headerColumn.push_back( "wellName" );
+    headerColumn.push_back( "lgrName" );
+    headerColumn.push_back( "12 14 16" );
 
-    RifEclipseSummaryAddress address = RifEclipseUserDataKeywordTools::makeAndFillAddress(quantityName, headerColumn);
+    RifEclipseSummaryAddress address = RifEclipseUserDataKeywordTools::makeAndFillAddress( quantityName, headerColumn );
 
-    EXPECT_TRUE(address.isValid());
-    EXPECT_EQ(address.category(), RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR);
-    EXPECT_EQ(address.uiText(), "LCABC:lgrName:wellName:12, 14, 16");
+    EXPECT_TRUE( address.isValid() );
+    EXPECT_EQ( address.category(), RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR );
+    EXPECT_EQ( address.uiText(), "LCABC:lgrName:wellName:12, 14, 16" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedRsmspecParserTest, IsTableData)
+TEST( RifColumnBasedRsmspecParserTest, IsTableData )
 {
     {
-        std::string line("  6-NOV-1997       0        ");
-        EXPECT_TRUE(RifEclipseUserDataParserTools::isValidTableData(2, line));
+        std::string line( "  6-NOV-1997       0        " );
+        EXPECT_TRUE( RifEclipseUserDataParserTools::isValidTableData( 2, line ) );
     }
 
     {
-        std::string line("  DATE BARSA        ");
-        EXPECT_FALSE(RifEclipseUserDataParserTools::isValidTableData(2, line));
+        std::string line( "  DATE BARSA        " );
+        EXPECT_FALSE( RifEclipseUserDataParserTools::isValidTableData( 2, line ) );
     }
 
     {
-        std::string line("  1.2       0        ");
-        EXPECT_TRUE(RifEclipseUserDataParserTools::isValidTableData(2, line));
-    }
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedRsmspecParserTest, HasOnlyValidDoubleValues)
-{
-    {
-        std::vector<double> doubleValues;
-        std::string line("  6-NOV-1997       0        ");
-        std::vector<std::string> words = RifEclipseUserDataParserTools::splitLineAndRemoveComments(line);
-        
-        EXPECT_FALSE(RifEclipseUserDataParserTools::hasOnlyValidDoubleValues(words, &doubleValues));
+        std::string line( "  1.2       0        " );
+        EXPECT_TRUE( RifEclipseUserDataParserTools::isValidTableData( 2, line ) );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedRsmspecParserTest, TestParsingOfDateString)
+TEST( RifColumnBasedRsmspecParserTest, HasOnlyValidDoubleValues )
 {
     {
-        QString txt = "22.12.1900";
-        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df = RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+        std::vector<double>      doubleValues;
+        std::string              line( "  6-NOV-1997       0        " );
+        std::vector<std::string> words = RifEclipseUserDataParserTools::splitLineAndRemoveComments( line );
 
-        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_DDMMYYYY_DOT_SEPARATED, df);
+        EXPECT_FALSE( RifEclipseUserDataParserTools::hasOnlyValidDoubleValues( words, &doubleValues ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifColumnBasedRsmspecParserTest, TestParsingOfDateString )
+{
+    {
+        QString                                             txt = "22.12.1900";
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df = RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(
+            txt );
+
+        EXPECT_EQ( RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_DDMMYYYY_DOT_SEPARATED, df );
     }
 
     {
         QString                                             txt = "22-12-1900";
-        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df =
-            RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df = RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(
+            txt );
 
-        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_DDMMYYYY_DASH_SEPARATED, df);
+        EXPECT_EQ( RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_DDMMYYYY_DASH_SEPARATED, df );
     }
 
     {
         QString                                             txt = "22/12/1900";
-        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df =
-            RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df = RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(
+            txt );
 
-        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_DDMMYYYY_SLASH_SEPARATED, df);
+        EXPECT_EQ( RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_DDMMYYYY_SLASH_SEPARATED, df );
     }
 
     {
         QString                                             txt = "1900.12.24";
-        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df =
-            RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df = RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(
+            txt );
 
-        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_YYYYMMDD_DOT_SEPARATED, df);
+        EXPECT_EQ( RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_YYYYMMDD_DOT_SEPARATED, df );
     }
 
     {
         QString                                             txt = "1900-12-24";
-        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df =
-            RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df = RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(
+            txt );
 
-        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_YYYYMMDD_DASH_SEPARATED, df);
+        EXPECT_EQ( RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_YYYYMMDD_DASH_SEPARATED, df );
     }
 
     {
         QString                                             txt = "1900/12/24";
-        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df =
-            RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df = RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(
+            txt );
 
-        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_YYYYMMDD_SLASH_SEPARATED, df);
+        EXPECT_EQ( RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_YYYYMMDD_SLASH_SEPARATED, df );
     }
 
     {
         QString                                             txt = "12/22/1900";
-        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df =
-            RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df = RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(
+            txt );
 
-        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_MMDDYYYY_SLASH_SEPARATED, df);
+        EXPECT_EQ( RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_MMDDYYYY_SLASH_SEPARATED, df );
     }
 
     {
         QString                                             txt = "22/12/1900";
-        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df =
-            RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df = RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(
+            txt );
 
-        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_DDMMYYYY_SLASH_SEPARATED, df);
+        EXPECT_EQ( RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_DDMMYYYY_SLASH_SEPARATED, df );
     }
 
     {
         QString                                             txt = "12/22/30";
-        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df =
-            RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df = RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(
+            txt );
 
-        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_MMDDYY_SLASH_SEPARATED, df);
+        EXPECT_EQ( RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_MMDDYY_SLASH_SEPARATED, df );
     }
 }

@@ -26,5 +26,5 @@ class PdmUiItem;
 class RiuMainWindowTools
 {
 public:
-    static void collapseSiblings(const caf::PdmUiItem* uiItem);
+    static void collapseSiblings( const caf::PdmUiItem* uiItem );
 };

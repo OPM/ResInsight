@@ -36,34 +36,34 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicNewEllipseFractureTemplateFeature, "RicNewEllipseFractureTemplateFeature");
+CAF_CMD_SOURCE_INIT( RicNewEllipseFractureTemplateFeature, "RicNewEllipseFractureTemplateFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewEllipseFractureTemplateFeature::createNewTemplateForFractureAndUpdate(RimFracture* fracture)
+void RicNewEllipseFractureTemplateFeature::createNewTemplateForFractureAndUpdate( RimFracture* fracture )
 {
     RimEllipseFractureTemplate* fractureTemplate = createNewTemplate();
-    fracture->setFractureTemplate(fractureTemplate);
-    selectFractureTemplateAndUpdate(fractureTemplate);
+    fracture->setFractureTemplate( fractureTemplate );
+    selectFractureTemplateAndUpdate( fractureTemplate );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(RimFractureTemplate* fractureTemplate)
+void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate( RimFractureTemplate* fractureTemplate )
 {
     fractureTemplate->loadDataAndUpdate();
 
     RimFractureTemplateCollection* templateCollection = nullptr;
-    fractureTemplate->firstAncestorOrThisOfTypeAsserted(templateCollection);
+    fractureTemplate->firstAncestorOrThisOfTypeAsserted( templateCollection );
     templateCollection->updateConnectedEditors();
 
     RimProject* project = RiaApplication::instance()->project();
-    
+
     project->scheduleCreateDisplayModelAndRedrawAllViews();
 
-    Riu3DMainWindowTools::selectAsCurrentItem(fractureTemplate);
+    Riu3DMainWindowTools::selectAsCurrentItem( fractureTemplate );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,15 +71,15 @@ void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(RimFr
 //--------------------------------------------------------------------------------------------------
 RimEllipseFractureTemplate* RicNewEllipseFractureTemplateFeature::createNewTemplate()
 {
- RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
+    RimProject* project = RiaApplication::instance()->project();
+    CVF_ASSERT( project );
 
     RimOilField* oilfield = project->activeOilField();
-    if (oilfield == nullptr) return nullptr;
+    if ( oilfield == nullptr ) return nullptr;
 
     RimFractureTemplateCollection* fracDefColl = oilfield->fractureDefinitionCollection();
 
-    if (fracDefColl)
+    if ( fracDefColl )
     {
         return fracDefColl->addDefaultEllipseTemplate();
     }
@@ -89,19 +89,19 @@ RimEllipseFractureTemplate* RicNewEllipseFractureTemplateFeature::createNewTempl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewEllipseFractureTemplateFeature::onActionTriggered(bool isChecked)
+void RicNewEllipseFractureTemplateFeature::onActionTriggered( bool isChecked )
 {
     RimEllipseFractureTemplate* ellipseFractureTemplate = createNewTemplate();
-    selectFractureTemplateAndUpdate(ellipseFractureTemplate);
+    selectFractureTemplateAndUpdate( ellipseFractureTemplate );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewEllipseFractureTemplateFeature::setupActionLook(QAction* actionToSetup)
+void RicNewEllipseFractureTemplateFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/FractureTemplate16x16.png"));
-    actionToSetup->setText("New Ellipse Fracture Template");
+    actionToSetup->setIcon( QIcon( ":/FractureTemplate16x16.png" ) );
+    actionToSetup->setText( "New Ellipse Fracture Template" );
 }
 
 //--------------------------------------------------------------------------------------------------

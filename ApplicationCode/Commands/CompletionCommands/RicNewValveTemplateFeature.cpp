@@ -21,10 +21,10 @@
 #include "RiaApplication.h"
 
 #include "RimEclipseView.h"
-#include "RimValveTemplate.h"
-#include "RimValveTemplateCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimValveTemplate.h"
+#include "RimValveTemplateCollection.h"
 #include "RimWellPathValve.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -35,18 +35,18 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicNewValveTemplateFeature, "RicNewValveTemplateFeature");
+CAF_CMD_SOURCE_INIT( RicNewValveTemplateFeature, "RicNewValveTemplateFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewValveTemplateFeature::selectValveTemplateAndUpdate(RimValveTemplate*           valveTemplate)
+void RicNewValveTemplateFeature::selectValveTemplateAndUpdate( RimValveTemplate* valveTemplate )
 {
     valveTemplate->loadDataAndUpdate();
 
     RimValveTemplateCollection* templateCollection = nullptr;
-    valveTemplate->firstAncestorOrThisOfType(templateCollection);
-    if (templateCollection)
+    valveTemplate->firstAncestorOrThisOfType( templateCollection );
+    if ( templateCollection )
     {
         templateCollection->updateConnectedEditors();
     }
@@ -54,27 +54,27 @@ void RicNewValveTemplateFeature::selectValveTemplateAndUpdate(RimValveTemplate* 
     RimProject* project = RiaApplication::instance()->project();
 
     std::vector<Rim3dView*> views;
-    project->allVisibleViews(views);
+    project->allVisibleViews( views );
 
-    for (Rim3dView* view : views)
+    for ( Rim3dView* view : views )
     {
-        if (dynamic_cast<RimEclipseView*>(view))
+        if ( dynamic_cast<RimEclipseView*>( view ) )
         {
             view->updateConnectedEditors();
         }
     }
 
-    Riu3DMainWindowTools::selectAsCurrentItem(valveTemplate);
+    Riu3DMainWindowTools::selectAsCurrentItem( valveTemplate );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewValveTemplateFeature::createNewValveTemplateForValveAndUpdate(RimWellPathValve* valve)
+void RicNewValveTemplateFeature::createNewValveTemplateForValveAndUpdate( RimWellPathValve* valve )
 {
     RimValveTemplate* valveTemplate = createNewValveTemplate();
-    valve->setValveTemplate(valveTemplate);
-    selectValveTemplateAndUpdate(valveTemplate);
+    valve->setValveTemplate( valveTemplate );
+    selectValveTemplateAndUpdate( valveTemplate );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,20 +83,20 @@ void RicNewValveTemplateFeature::createNewValveTemplateForValveAndUpdate(RimWell
 RimValveTemplate* RicNewValveTemplateFeature::createNewValveTemplate()
 {
     RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
+    CVF_ASSERT( project );
 
     RimOilField* oilfield = project->activeOilField();
-    if (oilfield == nullptr) return nullptr;
+    if ( oilfield == nullptr ) return nullptr;
 
     RimValveTemplateCollection* valveTemplateColl = oilfield->valveTemplateCollection();
 
-    if (valveTemplateColl)
+    if ( valveTemplateColl )
     {
         RimValveTemplate* valveTemplate = new RimValveTemplate();
-        QString           userLabel = QString("Valve Template #%1").arg(valveTemplateColl->valveTemplates().size() + 1);
-        valveTemplate->setUserLabel(userLabel);
-        valveTemplateColl->addValveTemplate(valveTemplate);
-        valveTemplate->setUnitSystem(valveTemplateColl->defaultUnitSystemType());
+        QString userLabel = QString( "Valve Template #%1" ).arg( valveTemplateColl->valveTemplates().size() + 1 );
+        valveTemplate->setUserLabel( userLabel );
+        valveTemplateColl->addValveTemplate( valveTemplate );
+        valveTemplate->setUnitSystem( valveTemplateColl->defaultUnitSystemType() );
         valveTemplate->setDefaultValuesFromUnits();
         return valveTemplate;
     }
@@ -106,22 +106,22 @@ RimValveTemplate* RicNewValveTemplateFeature::createNewValveTemplate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewValveTemplateFeature::onActionTriggered(bool isChecked)
+void RicNewValveTemplateFeature::onActionTriggered( bool isChecked )
 {
     RimValveTemplate* valveTemplate = createNewValveTemplate();
-    if (valveTemplate)
+    if ( valveTemplate )
     {
-        selectValveTemplateAndUpdate(valveTemplate);
+        selectValveTemplateAndUpdate( valveTemplate );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewValveTemplateFeature::setupActionLook(QAction* actionToSetup)
+void RicNewValveTemplateFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/ICDValve16x16.png"));
-    actionToSetup->setText("New Valve Template");
+    actionToSetup->setIcon( QIcon( ":/ICDValve16x16.png" ) );
+    actionToSetup->setText( "New Valve Template" );
 }
 
 //--------------------------------------------------------------------------------------------------

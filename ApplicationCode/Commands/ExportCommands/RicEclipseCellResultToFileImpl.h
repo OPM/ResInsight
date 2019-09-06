@@ -34,30 +34,30 @@ class RigResultAccessor;
 class RicEclipseCellResultToFileImpl
 {
 public:
-    static bool writePropertyToTextFile(const QString&      fileName,
-                                        RigEclipseCaseData* eclipseCase,
-                                        size_t              timeStep,
-                                        const QString&      resultName,
-                                        const QString&      eclipseKeyword,
-                                        const double        undefinedValue,
-                                        QString*            errorMsg);
+    static bool writePropertyToTextFile( const QString&      fileName,
+                                         RigEclipseCaseData* eclipseCase,
+                                         size_t              timeStep,
+                                         const QString&      resultName,
+                                         const QString&      eclipseKeyword,
+                                         const double        undefinedValue,
+                                         QString*            errorMsg );
 
-    static bool writeBinaryResultToTextFile(const QString&              fileName,
-                                            RigEclipseCaseData*         eclipseCase,
-                                            size_t                      timeStep,
-                                            RimEclipseResultDefinition* resultDefinition,
-                                            const QString&              eclipseKeyword,
-                                            const double                undefinedValue,
-                                            const QString&              logPrefix,
-                                            QString*                    errorMsg);
+    static bool writeBinaryResultToTextFile( const QString&              fileName,
+                                             RigEclipseCaseData*         eclipseCase,
+                                             size_t                      timeStep,
+                                             RimEclipseResultDefinition* resultDefinition,
+                                             const QString&              eclipseKeyword,
+                                             const double                undefinedValue,
+                                             const QString&              logPrefix,
+                                             QString*                    errorMsg );
 
-    static bool writeResultToTextFile(const QString&      fileName,
-                                      RigEclipseCaseData* eclipseCase,
-                                      RigResultAccessor*  resultAccessor,
-                                      const QString&      eclipseKeyword,
-                                      const double        undefinedValue,
-                                      const QString&      logPrefix,
-                                      QString*            errorMsg);
+    static bool writeResultToTextFile( const QString&      fileName,
+                                       RigEclipseCaseData* eclipseCase,
+                                       RigResultAccessor*  resultAccessor,
+                                       const QString&      eclipseKeyword,
+                                       const double        undefinedValue,
+                                       const QString&      logPrefix,
+                                       QString*            errorMsg );
 
-    static void writeDataToTextFile(QFile* file, const QString& eclipseKeyword, const std::vector<double>& resultData);
+    static void writeDataToTextFile( QFile* file, const QString& eclipseKeyword, const std::vector<double>& resultData );
 };

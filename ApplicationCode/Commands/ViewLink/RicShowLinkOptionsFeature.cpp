@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,8 +20,8 @@
 #include "RicShowLinkOptionsFeature.h"
 
 #include "RiaApplication.h"
-#include "RimProject.h"
 #include "Rim3dView.h"
+#include "RimProject.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "Riu3DMainWindowTools.h"
@@ -30,20 +30,19 @@
 
 #include <QAction>
 
-
-CAF_CMD_SOURCE_INIT(RicShowLinkOptionsFeature, "RicShowLinkOptionsFeature");
+CAF_CMD_SOURCE_INIT( RicShowLinkOptionsFeature, "RicShowLinkOptionsFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicShowLinkOptionsFeature::isCommandEnabled()
 {
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-    if (!activeView) return false;
+    if ( !activeView ) return false;
 
     RimViewController* viewController = activeView->viewController();
-   
-    if (viewController)
+
+    if ( viewController )
     {
         return true;
     }
@@ -52,23 +51,22 @@ bool RicShowLinkOptionsFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicShowLinkOptionsFeature::onActionTriggered(bool isChecked)
+void RicShowLinkOptionsFeature::onActionTriggered( bool isChecked )
 {
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-    if (!activeView) return;
+    if ( !activeView ) return;
 
     RimViewController* viewController = activeView->viewController();
 
-    Riu3DMainWindowTools::selectAsCurrentItem(viewController);
+    Riu3DMainWindowTools::selectAsCurrentItem( viewController );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicShowLinkOptionsFeature::setupActionLook(QAction* actionToSetup)
+void RicShowLinkOptionsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Show Link Options");
+    actionToSetup->setText( "Show Link Options" );
 }
-

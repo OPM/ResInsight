@@ -25,29 +25,26 @@
 
 #include "cvfAssert.h"
 
-CAF_PDM_SOURCE_INIT(RimCompletionTemplateCollection, "CompletionTemplateCollection");
+CAF_PDM_SOURCE_INIT( RimCompletionTemplateCollection, "CompletionTemplateCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimCompletionTemplateCollection::RimCompletionTemplateCollection()
 {
-    CAF_PDM_InitObject("Completion Templates", ":/CompletionsSymbol16x16.png", "", "");
+    CAF_PDM_InitObject( "Completion Templates", ":/CompletionsSymbol16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_fractureTemplates, "FractureTemplates", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_fractureTemplates, "FractureTemplates", "", "", "", "" );
     m_fractureTemplates = new RimFractureTemplateCollection;
     m_fractureTemplates->addDefaultEllipseTemplate();
-    CAF_PDM_InitFieldNoDefault(&m_valveTemplates, "ValveTemplates", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_valveTemplates, "ValveTemplates", "", "", "", "" );
     m_valveTemplates = new RimValveTemplateCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCompletionTemplateCollection::~RimCompletionTemplateCollection()
-{
-
-}
+RimCompletionTemplateCollection::~RimCompletionTemplateCollection() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -93,18 +90,19 @@ void RimCompletionTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCompletionTemplateCollection::setFractureTemplateCollection(RimFractureTemplateCollection* fractureTemplateCollection)
+void RimCompletionTemplateCollection::setFractureTemplateCollection( RimFractureTemplateCollection* fractureTemplateCollection )
 {
-    CVF_ASSERT(!m_fractureTemplates->fractureTemplates().empty());
+    CVF_ASSERT( !m_fractureTemplates->fractureTemplates().empty() );
     m_fractureTemplates = fractureTemplateCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCompletionTemplateCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+void RimCompletionTemplateCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
+                                                            QString                 uiConfigName /*= ""*/ )
 {
-    uiTreeOrdering.add(m_fractureTemplates);
-    uiTreeOrdering.add(m_valveTemplates);
-    uiTreeOrdering.skipRemainingChildren(true);
+    uiTreeOrdering.add( m_fractureTemplates );
+    uiTreeOrdering.add( m_valveTemplates );
+    uiTreeOrdering.skipRemainingChildren( true );
 }

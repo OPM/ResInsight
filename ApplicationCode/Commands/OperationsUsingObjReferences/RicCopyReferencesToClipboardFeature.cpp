@@ -44,7 +44,7 @@
 #include <QApplication>
 #include <QClipboard>
 
-CAF_CMD_SOURCE_INIT(RicCopyReferencesToClipboardFeature, "RicCopyReferencesToClipboardFeature");
+CAF_CMD_SOURCE_INIT( RicCopyReferencesToClipboardFeature, "RicCopyReferencesToClipboardFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -57,46 +57,47 @@ bool RicCopyReferencesToClipboardFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCopyReferencesToClipboardFeature::onActionTriggered(bool isChecked)
+void RicCopyReferencesToClipboardFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
-    if (!isAnyCopyableObjectSelected()) return;
+    if ( !isAnyCopyableObjectSelected() ) return;
 
     std::vector<QString> referenceList;
 
     std::vector<caf::PdmObject*> selectedFormationNamesCollObjs;
-    caf::SelectionManager::instance()->objectsByType(&selectedFormationNamesCollObjs);
+    caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesCollObjs );
 
-    for (caf::PdmObject* pdmObject : selectedFormationNamesCollObjs)
+    for ( caf::PdmObject* pdmObject : selectedFormationNamesCollObjs )
     {
-        if (RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(pdmObject))
+        if ( RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported( pdmObject ) )
         {
-            QString itemRef =
-                caf::PdmReferenceHelper::referenceFromRootToObject(caf::SelectionManager::instance()->pdmRootObject(), pdmObject);
+            QString itemRef = caf::PdmReferenceHelper::referenceFromRootToObject( caf::SelectionManager::instance()
+                                                                                      ->pdmRootObject(),
+                                                                                  pdmObject );
 
-            referenceList.push_back(itemRef);
+            referenceList.push_back( itemRef );
         }
     }
 
     MimeDataWithReferences* myObject = new MimeDataWithReferences;
-    myObject->setReferences(referenceList);
+    myObject->setReferences( referenceList );
 
     QClipboard* clipboard = QApplication::clipboard();
-    if (clipboard)
+    if ( clipboard )
     {
-        clipboard->setMimeData(myObject);
+        clipboard->setMimeData( myObject );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCopyReferencesToClipboardFeature::setupActionLook(QAction* actionToSetup)
+void RicCopyReferencesToClipboardFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Copy");
-    actionToSetup->setIcon(QIcon(":/Copy.png"));
-    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Copy);
+    actionToSetup->setText( "Copy" );
+    actionToSetup->setIcon( QIcon( ":/Copy.png" ) );
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence::Copy );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,11 +106,11 @@ void RicCopyReferencesToClipboardFeature::setupActionLook(QAction* actionToSetup
 bool RicCopyReferencesToClipboardFeature::isAnyCopyableObjectSelected()
 {
     std::vector<caf::PdmObject*> selectedFormationNamesCollObjs;
-    caf::SelectionManager::instance()->objectsByType(&selectedFormationNamesCollObjs);
+    caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesCollObjs );
 
-    for (caf::PdmObject* pdmObject : selectedFormationNamesCollObjs)
+    for ( caf::PdmObject* pdmObject : selectedFormationNamesCollObjs )
     {
-        if (RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(pdmObject))
+        if ( RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported( pdmObject ) )
         {
             return true;
         }
@@ -121,58 +122,58 @@ bool RicCopyReferencesToClipboardFeature::isAnyCopyableObjectSelected()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(caf::PdmObject* pdmObject)
+bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported( caf::PdmObject* pdmObject )
 {
     RimWellAllocationPlot* wellAllocPlot = nullptr;
     RimWellRftPlot*        rftPlot       = nullptr;
-    pdmObject->firstAncestorOrThisOfType(wellAllocPlot);
-    pdmObject->firstAncestorOrThisOfType(rftPlot);
+    pdmObject->firstAncestorOrThisOfType( wellAllocPlot );
+    pdmObject->firstAncestorOrThisOfType( rftPlot );
 
-    if (dynamic_cast<RimGeoMechView*>(pdmObject))
+    if ( dynamic_cast<RimGeoMechView*>( pdmObject ) )
     {
         return true;
     }
-    else if (dynamic_cast<RimEclipseView*>(pdmObject))
+    else if ( dynamic_cast<RimEclipseView*>( pdmObject ) )
     {
         return true;
     }
-    else if (dynamic_cast<RimEclipseCase*>(pdmObject))
+    else if ( dynamic_cast<RimEclipseCase*>( pdmObject ) )
     {
         return true;
     }
-    else if (dynamic_cast<RimIntersection*>(pdmObject))
+    else if ( dynamic_cast<RimIntersection*>( pdmObject ) )
     {
         return true;
     }
-    else if (dynamic_cast<RimIntersectionBox*>(pdmObject))
+    else if ( dynamic_cast<RimIntersectionBox*>( pdmObject ) )
     {
         return true;
     }
-    else if (dynamic_cast<RimSummaryPlot*>(pdmObject))
+    else if ( dynamic_cast<RimSummaryPlot*>( pdmObject ) )
     {
         return true;
     }
-    else if (dynamic_cast<RimPlotCurve*>(pdmObject) && !dynamic_cast<RimGridCrossPlotCurve*>(pdmObject))
+    else if ( dynamic_cast<RimPlotCurve*>( pdmObject ) && !dynamic_cast<RimGridCrossPlotCurve*>( pdmObject ) )
     {
-        if (!rftPlot) return true;
+        if ( !rftPlot ) return true;
     }
-    else if (dynamic_cast<RimWellLogTrack*>(pdmObject))
+    else if ( dynamic_cast<RimWellLogTrack*>( pdmObject ) )
     {
-        if (!wellAllocPlot && !rftPlot) return true;
+        if ( !wellAllocPlot && !rftPlot ) return true;
     }
-    else if (dynamic_cast<RimWellLogPlot*>(pdmObject))
+    else if ( dynamic_cast<RimWellLogPlot*>( pdmObject ) )
     {
-        if (!wellAllocPlot && !rftPlot) return true;
+        if ( !wellAllocPlot && !rftPlot ) return true;
     }
-    else if (dynamic_cast<RimFractureTemplate*>(pdmObject))
-    {
-        return true;
-    }
-    else if (dynamic_cast<RimEnsembleCurveSet*>(pdmObject))
+    else if ( dynamic_cast<RimFractureTemplate*>( pdmObject ) )
     {
         return true;
     }
-    else if (dynamic_cast<RimGridCrossPlotDataSet*>(pdmObject))
+    else if ( dynamic_cast<RimEnsembleCurveSet*>( pdmObject ) )
+    {
+        return true;
+    }
+    else if ( dynamic_cast<RimGridCrossPlotDataSet*>( pdmObject ) )
     {
         return true;
     }

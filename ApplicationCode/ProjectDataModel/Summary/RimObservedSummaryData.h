@@ -37,7 +37,7 @@ public:
     RimObservedSummaryData();
 
     QString caseName() const override;
-    void    updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
+    void    updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
 
     QString                                      identifierName() const;
     RifEclipseSummaryAddress::SummaryVarCategory summaryCategory() const;
@@ -48,9 +48,11 @@ protected:
     QString customWellName() const;
 
 private:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly) override;
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue ) override;
 
 private:
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>> m_summaryCategory;

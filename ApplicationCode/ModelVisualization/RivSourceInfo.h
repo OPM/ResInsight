@@ -23,7 +23,7 @@
 #include "RivObjectSourceInfo.h"
 
 #include "cvfArray.h"
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 #include "cvfStructGridGeometryGenerator.h"
@@ -35,14 +35,14 @@
 class RivSourceInfo : public RivObjectSourceInfo
 {
 public:
-    explicit RivSourceInfo(caf::PdmObject* pdmObject, size_t gridIndex);
+    explicit RivSourceInfo( caf::PdmObject* pdmObject, size_t gridIndex );
 
     size_t gridIndex() const;
     bool   hasCellFaceMapping() const;
     bool   hasNNCIndices() const;
 
     RivCellSetEnum cellSetType() const;
-    void           setCellSetType(RivCellSetEnum cellSetType);
+    void           setCellSetType( RivCellSetEnum cellSetType );
 
 public:
     cvf::cref<cvf::StuctGridTriangleToCellFaceMapper> m_cellFaceFromTriangleMapper;

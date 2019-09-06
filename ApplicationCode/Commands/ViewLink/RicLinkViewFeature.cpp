@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -27,30 +27,31 @@
 #include "RimEclipseContourMapView.h"
 #include "RimGridView.h"
 #include "RimProject.h"
-#include "RimViewLinkerCollection.h"
 #include "RimViewLinker.h"
+#include "RimViewLinkerCollection.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicLinkViewFeature, "RicLinkViewFeature");
+CAF_CMD_SOURCE_INIT( RicLinkViewFeature, "RicLinkViewFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicLinkViewFeature::isCommandEnabled()
 {
-    std::vector<caf::PdmUiItem*> allSelectedItems;
-    std::vector<RimGridView*> selectedGridViews;
+    std::vector<caf::PdmUiItem*>           allSelectedItems;
+    std::vector<RimGridView*>              selectedGridViews;
     std::vector<RimEclipseContourMapView*> selectedContourMaps;
 
-    caf::SelectionManager::instance()->selectedItems(allSelectedItems);
-    caf::SelectionManager::instance()->objectsByType(&selectedGridViews);
-    caf::SelectionManager::instance()->objectsByType(&selectedContourMaps);
+    caf::SelectionManager::instance()->selectedItems( allSelectedItems );
+    caf::SelectionManager::instance()->objectsByType( &selectedGridViews );
+    caf::SelectionManager::instance()->objectsByType( &selectedContourMaps );
     size_t selectedRegularGridViews = selectedGridViews.size() - selectedContourMaps.size();
 
-    if (selectedGridViews.size() > 1u && selectedRegularGridViews >= 1u && allSelectedItems.size() == selectedGridViews.size())
+    if ( selectedGridViews.size() > 1u && selectedRegularGridViews >= 1u &&
+         allSelectedItems.size() == selectedGridViews.size() )
     {
         return true;
     }
@@ -58,20 +59,20 @@ bool RicLinkViewFeature::isCommandEnabled()
     {
         // Link only the active view to an existing view link collection.
         Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-        if (!activeView) return false;
+        if ( !activeView ) return false;
 
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject*    proj       = RiaApplication::instance()->project();
         RimViewLinker* viewLinker = proj->viewLinkerCollection->viewLinker();
 
-        if (!viewLinker) return false;
+        if ( !viewLinker ) return false;
 
         RimViewController* viewController = activeView->viewController();
 
-        if (viewController)
+        if ( viewController )
         {
             return false;
         }
-        else if (!activeView->isMasterView())
+        else if ( !activeView->isMasterView() )
         {
             return true;
         }
@@ -80,48 +81,47 @@ bool RicLinkViewFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicLinkViewFeature::onActionTriggered(bool isChecked)
+void RicLinkViewFeature::onActionTriggered( bool isChecked )
 {
     std::vector<caf::PdmUiItem*> allSelectedItems;
-    std::vector<RimGridView*> selectedGridViews;
+    std::vector<RimGridView*>    selectedGridViews;
 
-    caf::SelectionManager::instance()->selectedItems(allSelectedItems);
-    caf::SelectionManager::instance()->objectsByType(&selectedGridViews);
+    caf::SelectionManager::instance()->selectedItems( allSelectedItems );
+    caf::SelectionManager::instance()->objectsByType( &selectedGridViews );
 
-    if (selectedGridViews.size() > 1u && allSelectedItems.size() == selectedGridViews.size())
+    if ( selectedGridViews.size() > 1u && allSelectedItems.size() == selectedGridViews.size() )
     {
-        RicLinkVisibleViewsFeature::linkViews(selectedGridViews);
+        RicLinkVisibleViewsFeature::linkViews( selectedGridViews );
     }
     else
     {
-        Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-        RimGridView* gridView = dynamic_cast<RimGridView*>(activeView);
-        if (gridView)
+        Rim3dView*   activeView = RiaApplication::instance()->activeReservoirView();
+        RimGridView* gridView   = dynamic_cast<RimGridView*>( activeView );
+        if ( gridView )
         {
             std::vector<RimGridView*> views;
-            views.push_back(gridView);
-            RicLinkVisibleViewsFeature::linkViews(views);
+            views.push_back( gridView );
+            RicLinkVisibleViewsFeature::linkViews( views );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicLinkViewFeature::setupActionLook(QAction* actionToSetup)
+void RicLinkViewFeature::setupActionLook( QAction* actionToSetup )
 {
     std::vector<RimGridView*> selectedGridViews;
-    caf::SelectionManager::instance()->objectsByType(&selectedGridViews);
-    if (selectedGridViews.size() > 1u)
+    caf::SelectionManager::instance()->objectsByType( &selectedGridViews );
+    if ( selectedGridViews.size() > 1u )
     {
-        actionToSetup->setText("Link Selected Views");
+        actionToSetup->setText( "Link Selected Views" );
     }
     else
     {
-        actionToSetup->setText("Link View");
+        actionToSetup->setText( "Link View" );
     }
-    actionToSetup->setIcon(QIcon(":/chain.png"));
+    actionToSetup->setIcon( QIcon( ":/chain.png" ) );
 }
-

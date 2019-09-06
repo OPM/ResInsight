@@ -33,7 +33,7 @@ class RigMainGrid;
 
 namespace caf
 {
-    class PdmUiPropertyViewDialog;
+class PdmUiPropertyViewDialog;
 }
 
 //==================================================================================================
@@ -42,14 +42,14 @@ namespace caf
 class LocationForNewFracture
 {
 public:
-    LocationForNewFracture(RimFractureTemplate* fractureTemplate, RimWellPath* wellPath, double measuredDepth)
-        : fractureTemplate(fractureTemplate)
-        , wellPath(wellPath)
-        , measuredDepth(measuredDepth)
+    LocationForNewFracture( RimFractureTemplate* fractureTemplate, RimWellPath* wellPath, double measuredDepth )
+        : fractureTemplate( fractureTemplate )
+        , wellPath( wellPath )
+        , measuredDepth( measuredDepth )
     {
     }
 
-    bool operator<(const LocationForNewFracture& loc) const
+    bool operator<( const LocationForNewFracture& loc ) const
     {
         return measuredDepth < loc.measuredDepth;
     }
@@ -72,20 +72,20 @@ public:
 
     RiuCreateMultipleFractionsUi();
 
-    void setParentDialog(QPointer<caf::PdmUiPropertyViewDialog> dialog);
-    void setValues(RimEclipseCase* eclipseCase, double minimumDistanceFromWellTip, int maxFracturesPerWell);
+    void setParentDialog( QPointer<caf::PdmUiPropertyViewDialog> dialog );
+    void setValues( RimEclipseCase* eclipseCase, double minimumDistanceFromWellTip, int maxFracturesPerWell );
     void resetValues();
 
     std::vector<RicCreateMultipleFracturesOptionItemUi*> options() const;
 
-    void insertOptionItem(RicCreateMultipleFracturesOptionItemUi* insertAfterThisObject,
-                          RicCreateMultipleFracturesOptionItemUi* objectToInsert);
+    void insertOptionItem( RicCreateMultipleFracturesOptionItemUi* insertAfterThisObject,
+                           RicCreateMultipleFracturesOptionItemUi* objectToInsert );
 
-    void deleteOptionItem(RicCreateMultipleFracturesOptionItemUi* optionsItem);
+    void deleteOptionItem( RicCreateMultipleFracturesOptionItemUi* optionsItem );
 
     void clearOptions();
 
-    void addWellPath(RimWellPath* wellPath);
+    void addWellPath( RimWellPath* wellPath );
 
     void clearWellPaths();
 
@@ -94,13 +94,14 @@ public:
     void updateButtonsEnableState();
 
 private:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                bool*                      useOptionsOnly) override;
-    void
-                 defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget) override;
-    void defineEditorAttribute(const caf::PdmFieldHandle* field,
-                                       QString                    uiConfigName,
-                                       caf::PdmUiEditorAttribute* attribute) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+    void                          defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu,
+                                                           QMenu*                     menu,
+                                                           QWidget*                   fieldEditorWidget ) override;
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
 
     QString summaryText() const;
 
@@ -112,7 +113,7 @@ private:
 
     caf::PdmProxyValueField<QString> m_fractureCreationSummary;
 
-    std::vector<RimWellPath*>       m_wellPaths;
+    std::vector<RimWellPath*> m_wellPaths;
 
     QPointer<caf::PdmUiPropertyViewDialog> m_dialog;
 };

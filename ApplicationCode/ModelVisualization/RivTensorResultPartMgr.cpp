@@ -55,7 +55,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivTensorResultPartMgr::RivTensorResultPartMgr(RimGeoMechView* reservoirView)
+RivTensorResultPartMgr::RivTensorResultPartMgr( RimGeoMechView* reservoirView )
 {
     m_rimReservoirView = reservoirView;
 }
@@ -68,155 +68,181 @@ RivTensorResultPartMgr::~RivTensorResultPartMgr() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex) const
+void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model, size_t frameIndex ) const
 {
-    CVF_ASSERT(model);
+    CVF_ASSERT( model );
 
-    if (m_rimReservoirView.isNull()) return;
-    if (!m_rimReservoirView->geoMechCase()) return;
-    if (!m_rimReservoirView->geoMechCase()->geoMechData()) return;
+    if ( m_rimReservoirView.isNull() ) return;
+    if ( !m_rimReservoirView->geoMechCase() ) return;
+    if ( !m_rimReservoirView->geoMechCase()->geoMechData() ) return;
 
-    if (!m_rimReservoirView->tensorResults()->showTensors()) return;
+    if ( !m_rimReservoirView->tensorResults()->showTensors() ) return;
 
     RigFemPartCollection* femParts = m_rimReservoirView->femParts();
-    if (!femParts) return;
+    if ( !femParts ) return;
 
     std::vector<TensorVisualization> tensorVisualizations;
 
     RigFemResultAddress address = m_rimReservoirView->tensorResults()->selectedTensorResult();
-    if (!isTensorAddress(address)) return;
+    if ( !isTensorAddress( address ) ) return;
 
     RigFemPartResultsCollection* resultCollection = m_rimReservoirView->geoMechCase()->geoMechData()->femPartResults();
-    if (!resultCollection) return;
+    if ( !resultCollection ) return;
 
-    for (int partIdx = 0; partIdx < femParts->partCount(); partIdx++)
+    for ( int partIdx = 0; partIdx < femParts->partCount(); partIdx++ )
     {
-        std::vector<caf::Ten3f> vertexTensors = resultCollection->tensors(address, partIdx, (int)frameIndex);
+        std::vector<caf::Ten3f> vertexTensors = resultCollection->tensors( address, partIdx, (int)frameIndex );
 
-        const RigFemPart*       part = femParts->part(partIdx);
+        const RigFemPart*       part = femParts->part( partIdx );
         std::vector<caf::Ten3f> elmTensors;
 
-        calculateElementTensors(*part, vertexTensors, &elmTensors);
+        calculateElementTensors( *part, vertexTensors, &elmTensors );
 
         std::array<std::vector<float>, 3>      elmPrincipals;
         std::vector<std::array<cvf::Vec3f, 3>> elmPrincipalDirections;
 
-        calculatePrincipalsAndDirections(elmTensors, &elmPrincipals, &elmPrincipalDirections);
+        calculatePrincipalsAndDirections( elmTensors, &elmPrincipals, &elmPrincipalDirections );
 
-        std::vector<RivGeoMechPartMgrCache::Key> partKeys =
-            m_rimReservoirView->vizLogic()->keysToVisiblePartMgrs((int)frameIndex);
+        std::vector<RivGeoMechPartMgrCache::Key> partKeys = m_rimReservoirView->vizLogic()->keysToVisiblePartMgrs(
+            (int)frameIndex );
 
         RigFemPartNodes nodes = part->nodes();
 
-        float arrowConstantScaling = 0.5 * m_rimReservoirView->tensorResults()->sizeScale() * part->characteristicElementSize();
+        float arrowConstantScaling = 0.5 * m_rimReservoirView->tensorResults()->sizeScale() *
+                                     part->characteristicElementSize();
 
         double min, max;
-        m_rimReservoirView->tensorResults()->mappingRange(&min, &max);
-        
+        m_rimReservoirView->tensorResults()->mappingRange( &min, &max );
+
         double maxAbsResult = 1.0;
-        if (min != cvf::UNDEFINED_DOUBLE && max != cvf::UNDEFINED_DOUBLE)
+        if ( min != cvf::UNDEFINED_DOUBLE && max != cvf::UNDEFINED_DOUBLE )
         {
-            maxAbsResult = std::max(cvf::Math::abs(max), cvf::Math::abs(min));
+            maxAbsResult = std::max( cvf::Math::abs( max ), cvf::Math::abs( min ) );
         }
 
         float arrowResultScaling = arrowConstantScaling / maxAbsResult;
 
         cvf::ref<RivGeoMechPartMgrCache> partMgrCache = m_rimReservoirView->vizLogic()->partMgrCache();
 
-        for (const RivGeoMechPartMgrCache::Key& partKey : partKeys)
+        for ( const RivGeoMechPartMgrCache::Key& partKey : partKeys )
         {
-            const RivGeoMechPartMgr* partMgr = partMgrCache->partMgr(partKey);
-            for (auto mgr : partMgr->femPartMgrs())
+            const RivGeoMechPartMgr* partMgr = partMgrCache->partMgr( partKey );
+            for ( auto mgr : partMgr->femPartMgrs() )
             {
                 const RivFemPartGeometryGenerator* surfaceGenerator     = mgr->surfaceGenerator();
                 const std::vector<size_t>& quadVerticesToNodeIdxMapping = surfaceGenerator->quadVerticesToNodeIdxMapping();
-                const std::vector<size_t>& quadVerticesToElmIdx         = surfaceGenerator->quadVerticesToGlobalElmIdx();
+                const std::vector<size_t>& quadVerticesToElmIdx = surfaceGenerator->quadVerticesToGlobalElmIdx();
 
-                for (int quadVertex = 0; quadVertex < static_cast<int>(quadVerticesToNodeIdxMapping.size()); quadVertex += 4)
+                for ( int quadVertex = 0; quadVertex < static_cast<int>( quadVerticesToNodeIdxMapping.size() );
+                      quadVertex += 4 )
                 {
-                    cvf::Vec3f center = nodes.coordinates.at(quadVerticesToNodeIdxMapping[quadVertex]) +
-                                        nodes.coordinates.at(quadVerticesToNodeIdxMapping[quadVertex + 2]);
+                    cvf::Vec3f center = nodes.coordinates.at( quadVerticesToNodeIdxMapping[quadVertex] ) +
+                                        nodes.coordinates.at( quadVerticesToNodeIdxMapping[quadVertex + 2] );
 
-                    cvf::Vec3d displayCoord =
-                        m_rimReservoirView->displayCoordTransform()->transformToDisplayCoord(cvf::Vec3d(center / 2));
+                    cvf::Vec3d displayCoord = m_rimReservoirView->displayCoordTransform()->transformToDisplayCoord(
+                        cvf::Vec3d( center / 2 ) );
 
-                    cvf::Vec3f faceNormal = calculateFaceNormal(nodes, quadVerticesToNodeIdxMapping, quadVertex);
+                    cvf::Vec3f faceNormal = calculateFaceNormal( nodes, quadVerticesToNodeIdxMapping, quadVertex );
 
                     size_t elmIdx = quadVerticesToElmIdx[quadVertex];
 
                     cvf::Vec3f result1, result2, result3;
 
-                    if (m_rimReservoirView->tensorResults()->scaleMethod() == RimTensorResults::RESULT)
+                    if ( m_rimReservoirView->tensorResults()->scaleMethod() == RimTensorResults::RESULT )
                     {
-                        result1.set(elmPrincipalDirections[elmIdx][0] * arrowResultScaling * elmPrincipals[0][elmIdx]);
-                        result2.set(elmPrincipalDirections[elmIdx][1] * arrowResultScaling * elmPrincipals[1][elmIdx]);
-                        result3.set(elmPrincipalDirections[elmIdx][2] * arrowResultScaling * elmPrincipals[2][elmIdx]);
+                        result1.set( elmPrincipalDirections[elmIdx][0] * arrowResultScaling * elmPrincipals[0][elmIdx] );
+                        result2.set( elmPrincipalDirections[elmIdx][1] * arrowResultScaling * elmPrincipals[1][elmIdx] );
+                        result3.set( elmPrincipalDirections[elmIdx][2] * arrowResultScaling * elmPrincipals[2][elmIdx] );
                     }
                     else
                     {
-                        result1.set(elmPrincipalDirections[elmIdx][0] * arrowConstantScaling);
-                        result2.set(elmPrincipalDirections[elmIdx][1] * arrowConstantScaling);
-                        result3.set(elmPrincipalDirections[elmIdx][2] * arrowConstantScaling);
+                        result1.set( elmPrincipalDirections[elmIdx][0] * arrowConstantScaling );
+                        result2.set( elmPrincipalDirections[elmIdx][1] * arrowConstantScaling );
+                        result3.set( elmPrincipalDirections[elmIdx][2] * arrowConstantScaling );
                     }
 
-                    if (isDrawable(result1, m_rimReservoirView->tensorResults()->showPrincipal1()))
+                    if ( isDrawable( result1, m_rimReservoirView->tensorResults()->showPrincipal1() ) )
                     {
-                        tensorVisualizations.push_back(TensorVisualization(
-                            cvf::Vec3f(displayCoord), result1, faceNormal, isPressure(elmPrincipals[0][elmIdx]), 1, elmPrincipals[0][elmIdx]));
-                        tensorVisualizations.push_back(TensorVisualization(
-                            cvf::Vec3f(displayCoord), -result1, faceNormal, isPressure(elmPrincipals[0][elmIdx]), 1, elmPrincipals[0][elmIdx]));
+                        tensorVisualizations.push_back( TensorVisualization( cvf::Vec3f( displayCoord ),
+                                                                             result1,
+                                                                             faceNormal,
+                                                                             isPressure( elmPrincipals[0][elmIdx] ),
+                                                                             1,
+                                                                             elmPrincipals[0][elmIdx] ) );
+                        tensorVisualizations.push_back( TensorVisualization( cvf::Vec3f( displayCoord ),
+                                                                             -result1,
+                                                                             faceNormal,
+                                                                             isPressure( elmPrincipals[0][elmIdx] ),
+                                                                             1,
+                                                                             elmPrincipals[0][elmIdx] ) );
                     }
 
-                    if (isDrawable(result2, m_rimReservoirView->tensorResults()->showPrincipal2()))
+                    if ( isDrawable( result2, m_rimReservoirView->tensorResults()->showPrincipal2() ) )
                     {
-                        tensorVisualizations.push_back(TensorVisualization(
-                            cvf::Vec3f(displayCoord), result2, faceNormal, isPressure(elmPrincipals[1][elmIdx]), 2, elmPrincipals[1][elmIdx]));
-                        tensorVisualizations.push_back(TensorVisualization(
-                            cvf::Vec3f(displayCoord), -result2, faceNormal, isPressure(elmPrincipals[1][elmIdx]), 2, elmPrincipals[1][elmIdx]));
+                        tensorVisualizations.push_back( TensorVisualization( cvf::Vec3f( displayCoord ),
+                                                                             result2,
+                                                                             faceNormal,
+                                                                             isPressure( elmPrincipals[1][elmIdx] ),
+                                                                             2,
+                                                                             elmPrincipals[1][elmIdx] ) );
+                        tensorVisualizations.push_back( TensorVisualization( cvf::Vec3f( displayCoord ),
+                                                                             -result2,
+                                                                             faceNormal,
+                                                                             isPressure( elmPrincipals[1][elmIdx] ),
+                                                                             2,
+                                                                             elmPrincipals[1][elmIdx] ) );
                     }
 
-                    if (isDrawable(result3, m_rimReservoirView->tensorResults()->showPrincipal3()))
+                    if ( isDrawable( result3, m_rimReservoirView->tensorResults()->showPrincipal3() ) )
                     {
-                        tensorVisualizations.push_back(TensorVisualization(
-                            cvf::Vec3f(displayCoord), result3, faceNormal, isPressure(elmPrincipals[2][elmIdx]), 3, elmPrincipals[2][elmIdx]));
-                        tensorVisualizations.push_back(TensorVisualization(
-                            cvf::Vec3f(displayCoord), -result3, faceNormal, isPressure(elmPrincipals[2][elmIdx]), 3, elmPrincipals[2][elmIdx]));
+                        tensorVisualizations.push_back( TensorVisualization( cvf::Vec3f( displayCoord ),
+                                                                             result3,
+                                                                             faceNormal,
+                                                                             isPressure( elmPrincipals[2][elmIdx] ),
+                                                                             3,
+                                                                             elmPrincipals[2][elmIdx] ) );
+                        tensorVisualizations.push_back( TensorVisualization( cvf::Vec3f( displayCoord ),
+                                                                             -result3,
+                                                                             faceNormal,
+                                                                             isPressure( elmPrincipals[2][elmIdx] ),
+                                                                             3,
+                                                                             elmPrincipals[2][elmIdx] ) );
                     }
                 }
             }
         }
     }
 
-    if (!tensorVisualizations.empty())
+    if ( !tensorVisualizations.empty() )
     {
-        cvf::ref<cvf::Part> partIdx = createPart(tensorVisualizations);
-        model->addPart(partIdx.p());
+        cvf::ref<cvf::Part> partIdx = createPart( tensorVisualizations );
+        model->addPart( partIdx.p() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivTensorResultPartMgr::calculateElementTensors(const RigFemPart&              part,
-                                                     const std::vector<caf::Ten3f>& vertexTensors,
-                                                     std::vector<caf::Ten3f>*       elmTensors)
+void RivTensorResultPartMgr::calculateElementTensors( const RigFemPart&              part,
+                                                      const std::vector<caf::Ten3f>& vertexTensors,
+                                                      std::vector<caf::Ten3f>*       elmTensors )
 {
-    CVF_ASSERT(elmTensors);
+    CVF_ASSERT( elmTensors );
 
     size_t elmCount = part.elementCount();
-    elmTensors->resize(elmCount);
+    elmTensors->resize( elmCount );
 
-    for (int elmIdx = 0; elmIdx < static_cast<int>(elmCount); elmIdx++)
+    for ( int elmIdx = 0; elmIdx < static_cast<int>( elmCount ); elmIdx++ )
     {
-        if (RigFemTypes::elmentNodeCount(part.elementType(elmIdx)) == 8)
+        if ( RigFemTypes::elmentNodeCount( part.elementType( elmIdx ) ) == 8 )
         {
-            caf::Ten3f tensorSumOfElmNodes = vertexTensors[part.elementNodeResultIdx(elmIdx, 0)];
-            for (int i = 1; i < 8; i++)
+            caf::Ten3f tensorSumOfElmNodes = vertexTensors[part.elementNodeResultIdx( elmIdx, 0 )];
+            for ( int i = 1; i < 8; i++ )
             {
-                tensorSumOfElmNodes = tensorSumOfElmNodes + vertexTensors[part.elementNodeResultIdx(elmIdx, i)];
+                tensorSumOfElmNodes = tensorSumOfElmNodes + vertexTensors[part.elementNodeResultIdx( elmIdx, i )];
             }
 
-            (*elmTensors)[elmIdx] = tensorSumOfElmNodes * (1.0 / 8.0);
+            ( *elmTensors )[elmIdx] = tensorSumOfElmNodes * ( 1.0 / 8.0 );
         }
     }
 }
@@ -224,92 +250,92 @@ void RivTensorResultPartMgr::calculateElementTensors(const RigFemPart&          
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivTensorResultPartMgr::calculatePrincipalsAndDirections(const std::vector<caf::Ten3f>&          tensors,
-                                                              std::array<std::vector<float>, 3>*      principals,
-                                                              std::vector<std::array<cvf::Vec3f, 3>>* principalDirections)
+void RivTensorResultPartMgr::calculatePrincipalsAndDirections( const std::vector<caf::Ten3f>&          tensors,
+                                                               std::array<std::vector<float>, 3>*      principals,
+                                                               std::vector<std::array<cvf::Vec3f, 3>>* principalDirections )
 {
-    CVF_ASSERT(principals);
-    CVF_ASSERT(principalDirections);
+    CVF_ASSERT( principals );
+    CVF_ASSERT( principalDirections );
 
     size_t elmCount = tensors.size();
 
-    (*principals)[0].resize(elmCount);
-    (*principals)[1].resize(elmCount);
-    (*principals)[2].resize(elmCount);
+    ( *principals )[0].resize( elmCount );
+    ( *principals )[1].resize( elmCount );
+    ( *principals )[2].resize( elmCount );
 
-    (*principalDirections).resize(elmCount);
+    ( *principalDirections ).resize( elmCount );
 
-    for (size_t nIdx = 0; nIdx < elmCount; ++nIdx)
+    for ( size_t nIdx = 0; nIdx < elmCount; ++nIdx )
     {
         cvf::Vec3f principalDirs[3];
-        cvf::Vec3f principalValues = tensors[nIdx].calculatePrincipals(principalDirs);
+        cvf::Vec3f principalValues = tensors[nIdx].calculatePrincipals( principalDirs );
 
-        (*principals)[0][nIdx] = principalValues[0];
-        (*principals)[1][nIdx] = principalValues[1];
-        (*principals)[2][nIdx] = principalValues[2];
+        ( *principals )[0][nIdx] = principalValues[0];
+        ( *principals )[1][nIdx] = principalValues[1];
+        ( *principals )[2][nIdx] = principalValues[2];
 
-        (*principalDirections)[nIdx][0] = principalDirs[0];
-        (*principalDirections)[nIdx][1] = principalDirs[1];
-        (*principalDirections)[nIdx][2] = principalDirs[2];
+        ( *principalDirections )[nIdx][0] = principalDirs[0];
+        ( *principalDirections )[nIdx][1] = principalDirs[1];
+        ( *principalDirections )[nIdx][2] = principalDirs[2];
     }
 }
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3f RivTensorResultPartMgr::calculateFaceNormal(const RigFemPartNodes&     nodes,
-                                                       const std::vector<size_t>& quadVerticesToNodeIdxMapping,
-                                                       int                        quadVertex)
+cvf::Vec3f RivTensorResultPartMgr::calculateFaceNormal( const RigFemPartNodes&     nodes,
+                                                        const std::vector<size_t>& quadVerticesToNodeIdxMapping,
+                                                        int                        quadVertex )
 {
-    cvf::Vec3f diag1 = nodes.coordinates.at(quadVerticesToNodeIdxMapping[quadVertex]) -
-                       nodes.coordinates.at(quadVerticesToNodeIdxMapping[quadVertex + 2]);
+    cvf::Vec3f diag1 = nodes.coordinates.at( quadVerticesToNodeIdxMapping[quadVertex] ) -
+                       nodes.coordinates.at( quadVerticesToNodeIdxMapping[quadVertex + 2] );
 
-    cvf::Vec3f diag2 = nodes.coordinates.at(quadVerticesToNodeIdxMapping[quadVertex + 1]) -
-                       nodes.coordinates.at(quadVerticesToNodeIdxMapping[quadVertex + 3]);
+    cvf::Vec3f diag2 = nodes.coordinates.at( quadVerticesToNodeIdxMapping[quadVertex + 1] ) -
+                       nodes.coordinates.at( quadVerticesToNodeIdxMapping[quadVertex + 3] );
 
-    return (diag1 ^ diag2).getNormalized();
+    return ( diag1 ^ diag2 ).getNormalized();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart(const std::vector<TensorVisualization>& tensorVisualizations) const
+cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart( const std::vector<TensorVisualization>& tensorVisualizations ) const
 {
     std::vector<uint> indices;
-    indices.reserve(tensorVisualizations.size() * 5);
+    indices.reserve( tensorVisualizations.size() * 5 );
 
     std::vector<cvf::Vec3f> vertices;
-    vertices.reserve(tensorVisualizations.size() * 5);
+    vertices.reserve( tensorVisualizations.size() * 5 );
 
     uint counter = 0;
-    for (TensorVisualization tensor : tensorVisualizations)
+    for ( TensorVisualization tensor : tensorVisualizations )
     {
-        for (const cvf::Vec3f& vertex : createArrowVertices(tensor))
+        for ( const cvf::Vec3f& vertex : createArrowVertices( tensor ) )
         {
-            vertices.push_back(vertex);
+            vertices.push_back( vertex );
         }
 
-        for (const uint& index : createArrowIndices(counter))
+        for ( const uint& index : createArrowIndices( counter ) )
         {
-            indices.push_back(index);
+            indices.push_back( index );
         }
 
         counter += 5;
     }
 
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINES);
-    cvf::ref<cvf::UIntArray>               indexArray  = new cvf::UIntArray(indices);
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
+    cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray( indices );
 
     cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
 
-    indexedUInt->setIndices(indexArray.p());
-    drawable->addPrimitiveSet(indexedUInt.p());
+    indexedUInt->setIndices( indexArray.p() );
+    drawable->addPrimitiveSet( indexedUInt.p() );
 
-    cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(vertices);
-    drawable->setVertexArray(vertexArray.p());
+    cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray( vertices );
+    drawable->setVertexArray( vertexArray.p() );
 
-    cvf::ref<cvf::Vec2fArray> lineTexCoords = const_cast<cvf::Vec2fArray*>(drawable->textureCoordArray());
+    cvf::ref<cvf::Vec2fArray> lineTexCoords = const_cast<cvf::Vec2fArray*>( drawable->textureCoordArray() );
 
-    if (lineTexCoords.isNull())
+    if ( lineTexCoords.isNull() )
     {
         lineTexCoords = new cvf::Vec2fArray;
     }
@@ -317,36 +343,36 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart(const std::vector<TensorV
     cvf::ScalarMapper* activeScalerMapper = nullptr;
 
     cvf::ref<cvf::ScalarMapperDiscreteLinear> discreteScalarMapper = new cvf::ScalarMapperDiscreteLinear;
-    auto vectorColors = m_rimReservoirView->tensorResults()->vectorColors();
-    if (vectorColors == RimTensorResults::RESULT_COLORS)
+    auto                                      vectorColors = m_rimReservoirView->tensorResults()->vectorColors();
+    if ( vectorColors == RimTensorResults::RESULT_COLORS )
     {
         activeScalerMapper = m_rimReservoirView->tensorResults()->arrowColorLegendConfig()->scalarMapper();
 
-        createResultColorTextureCoords(lineTexCoords.p(), tensorVisualizations, activeScalerMapper);
+        createResultColorTextureCoords( lineTexCoords.p(), tensorVisualizations, activeScalerMapper );
     }
     else
     {
         activeScalerMapper = discreteScalarMapper.p();
 
-        createOneColorPerPrincipalScalarMapper(vectorColors, discreteScalarMapper.p());
-        createOneColorPerPrincipalTextureCoords(lineTexCoords.p(), tensorVisualizations, discreteScalarMapper.p());
+        createOneColorPerPrincipalScalarMapper( vectorColors, discreteScalarMapper.p() );
+        createOneColorPerPrincipalTextureCoords( lineTexCoords.p(), tensorVisualizations, discreteScalarMapper.p() );
     }
 
-    caf::ScalarMapperEffectGenerator surfEffGen(activeScalerMapper, caf::PO_1);
+    caf::ScalarMapperEffectGenerator surfEffGen( activeScalerMapper, caf::PO_1 );
 
-    if (m_rimReservoirView && m_rimReservoirView->isLightingDisabled())
+    if ( m_rimReservoirView && m_rimReservoirView->isLightingDisabled() )
     {
-        surfEffGen.disableLighting(true);
+        surfEffGen.disableLighting( true );
     }
 
-    caf::ScalarMapperMeshEffectGenerator meshEffGen(activeScalerMapper);
+    caf::ScalarMapperMeshEffectGenerator meshEffGen( activeScalerMapper );
     cvf::ref<cvf::Effect>                scalarMapperMeshEffect = meshEffGen.generateUnCachedEffect();
 
-    drawable->setTextureCoordArray(lineTexCoords.p());
+    drawable->setTextureCoordArray( lineTexCoords.p() );
 
     cvf::ref<cvf::Part> part = new cvf::Part;
-    part->setDrawable(drawable.p());
-    part->setEffect(scalarMapperMeshEffect.p());
+    part->setDrawable( drawable.p() );
+    part->setEffect( scalarMapperMeshEffect.p() );
 
     return part;
 }
@@ -354,54 +380,55 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart(const std::vector<TensorV
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivTensorResultPartMgr::createOneColorPerPrincipalScalarMapper(const RimTensorResults::TensorColors& colorSet,
-                                                                    cvf::ScalarMapperDiscreteLinear*      scalarMapper)
+void RivTensorResultPartMgr::createOneColorPerPrincipalScalarMapper( const RimTensorResults::TensorColors& colorSet,
+                                                                     cvf::ScalarMapperDiscreteLinear* scalarMapper )
 {
-    CVF_ASSERT(scalarMapper);
+    CVF_ASSERT( scalarMapper );
 
     cvf::Color3ubArray arrowColors;
-    arrowColors.resize(3);
+    arrowColors.resize( 3 );
 
-    if (colorSet == RimTensorResults::WHITE_GRAY_BLACK)
+    if ( colorSet == RimTensorResults::WHITE_GRAY_BLACK )
     {
         arrowColors = RiaColorTables::tensorWhiteGrayBlackPaletteColors().color3ubArray();
     }
-    else if (colorSet == RimTensorResults::ORANGE_BLUE_WHITE)
+    else if ( colorSet == RimTensorResults::ORANGE_BLUE_WHITE )
     {
         arrowColors = RiaColorTables::tensorOrangeBlueWhitePaletteColors().color3ubArray();
     }
-    else if (colorSet == RimTensorResults::MAGENTA_BROWN_GRAY)
+    else if ( colorSet == RimTensorResults::MAGENTA_BROWN_GRAY )
     {
         arrowColors = RiaColorTables::tensorsMagentaBrownGrayPaletteColors().color3ubArray();
     }
 
-    scalarMapper->setColors(arrowColors);
+    scalarMapper->setColors( arrowColors );
 
-    // Using a linear color mapper to set colors for three discrete principal numbers (1, 2, 3)    
-    // by setting the 3 + 1 interval levels so the principal numbers match the center of the intervals.    
-    std::set<double> levelValues = { 0.5, 1.5, 2.5, 3.5 };
-    scalarMapper->setLevelsFromValues(levelValues);
+    // Using a linear color mapper to set colors for three discrete principal numbers (1, 2, 3)
+    // by setting the 3 + 1 interval levels so the principal numbers match the center of the intervals.
+    std::set<double> levelValues = {0.5, 1.5, 2.5, 3.5};
+    scalarMapper->setLevelsFromValues( levelValues );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivTensorResultPartMgr::createOneColorPerPrincipalTextureCoords(cvf::Vec2fArray*                        textureCoords,
-                                                                     const std::vector<TensorVisualization>& tensorVisualizations,
-                                                                     const cvf::ScalarMapper*                mapper)
+void RivTensorResultPartMgr::createOneColorPerPrincipalTextureCoords(
+    cvf::Vec2fArray*                        textureCoords,
+    const std::vector<TensorVisualization>& tensorVisualizations,
+    const cvf::ScalarMapper*                mapper )
 {
-    CVF_ASSERT(textureCoords);
-    CVF_ASSERT(mapper);
+    CVF_ASSERT( textureCoords );
+    CVF_ASSERT( mapper );
 
     size_t vertexCount = tensorVisualizations.size() * 5;
-    if (textureCoords->size() != vertexCount) textureCoords->reserve(vertexCount);
+    if ( textureCoords->size() != vertexCount ) textureCoords->reserve( vertexCount );
 
-    for (auto tensor : tensorVisualizations)
+    for ( auto tensor : tensorVisualizations )
     {
-        for (size_t vxIdx = 0; vxIdx < 5; ++vxIdx)
+        for ( size_t vxIdx = 0; vxIdx < 5; ++vxIdx )
         {
-            cvf::Vec2f texCoord = mapper->mapToTextureCoord(tensor.principalNumber);
-            textureCoords->add(texCoord);
+            cvf::Vec2f texCoord = mapper->mapToTextureCoord( tensor.principalNumber );
+            textureCoords->add( texCoord );
         }
     }
 }
@@ -409,22 +436,22 @@ void RivTensorResultPartMgr::createOneColorPerPrincipalTextureCoords(cvf::Vec2fA
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivTensorResultPartMgr::createResultColorTextureCoords(cvf::Vec2fArray*                        textureCoords,
-                                                            const std::vector<TensorVisualization>& tensorVisualizations,
-                                                            const cvf::ScalarMapper*                mapper)
+void RivTensorResultPartMgr::createResultColorTextureCoords( cvf::Vec2fArray*                        textureCoords,
+                                                             const std::vector<TensorVisualization>& tensorVisualizations,
+                                                             const cvf::ScalarMapper*                mapper )
 {
-    CVF_ASSERT(textureCoords);
-    CVF_ASSERT(mapper);
+    CVF_ASSERT( textureCoords );
+    CVF_ASSERT( mapper );
 
     size_t vertexCount = tensorVisualizations.size() * 5;
-    if (textureCoords->size() != vertexCount) textureCoords->reserve(vertexCount);
+    if ( textureCoords->size() != vertexCount ) textureCoords->reserve( vertexCount );
 
-    for (auto tensor : tensorVisualizations)
+    for ( auto tensor : tensorVisualizations )
     {
-        for (size_t vxIdx = 0; vxIdx < 5; ++vxIdx)
+        for ( size_t vxIdx = 0; vxIdx < 5; ++vxIdx )
         {
-            cvf::Vec2f texCoord = mapper->mapToTextureCoord(tensor.principalValue);
-            textureCoords->add(texCoord);
+            cvf::Vec2f texCoord = mapper->mapToTextureCoord( tensor.principalValue );
+            textureCoords->add( texCoord );
         }
     }
 }
@@ -432,13 +459,13 @@ void RivTensorResultPartMgr::createResultColorTextureCoords(cvf::Vec2fArray*    
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RivTensorResultPartMgr::isTensorAddress(RigFemResultAddress address)
+bool RivTensorResultPartMgr::isTensorAddress( RigFemResultAddress address )
 {
-    if (!(address.resultPosType == RIG_ELEMENT_NODAL || address.resultPosType == RIG_INTEGRATION_POINT))
+    if ( !( address.resultPosType == RIG_ELEMENT_NODAL || address.resultPosType == RIG_INTEGRATION_POINT ) )
     {
         return false;
     }
-    if (!(address.fieldName == "SE" || address.fieldName == "ST" || address.fieldName == "NE"))
+    if ( !( address.fieldName == "SE" || address.fieldName == "ST" || address.fieldName == "NE" ) )
     {
         return false;
     }
@@ -449,23 +476,24 @@ bool RivTensorResultPartMgr::isTensorAddress(RigFemResultAddress address)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RivTensorResultPartMgr::isValid(cvf::Vec3f resultVector)
+bool RivTensorResultPartMgr::isValid( cvf::Vec3f resultVector )
 {
     // nan
-    if (resultVector.x() != resultVector.x() || resultVector.y() != resultVector.y() || resultVector.z() != resultVector.z())
+    if ( resultVector.x() != resultVector.x() || resultVector.y() != resultVector.y() ||
+         resultVector.z() != resultVector.z() )
     {
         return false;
     }
 
     // inf
-    if (resultVector.x() == HUGE_VAL || resultVector.y() == HUGE_VAL || resultVector.z() == HUGE_VAL ||
-        resultVector.x() == -HUGE_VAL || resultVector.y() == -HUGE_VAL || resultVector.z() == -HUGE_VAL)
+    if ( resultVector.x() == HUGE_VAL || resultVector.y() == HUGE_VAL || resultVector.z() == HUGE_VAL ||
+         resultVector.x() == -HUGE_VAL || resultVector.y() == -HUGE_VAL || resultVector.z() == -HUGE_VAL )
     {
         return false;
     }
 
     // zero
-    if (resultVector == cvf::Vec3f::ZERO)
+    if ( resultVector == cvf::Vec3f::ZERO )
     {
         return false;
     }
@@ -476,9 +504,9 @@ bool RivTensorResultPartMgr::isValid(cvf::Vec3f resultVector)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RivTensorResultPartMgr::isPressure(float principalValue)
+bool RivTensorResultPartMgr::isPressure( float principalValue )
 {
-    if (principalValue >= 0)
+    if ( principalValue >= 0 )
     {
         return true;
     }
@@ -489,19 +517,19 @@ bool RivTensorResultPartMgr::isPressure(float principalValue)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RivTensorResultPartMgr::isDrawable(cvf::Vec3f resultVector, bool showPrincipal) const
+bool RivTensorResultPartMgr::isDrawable( cvf::Vec3f resultVector, bool showPrincipal ) const
 {
-    if (!showPrincipal)
+    if ( !showPrincipal )
     {
         return false;
     }
 
-    if (!isValid(resultVector))
+    if ( !isValid( resultVector ) )
     {
         return false;
     }
 
-    if (resultVector.length() <= m_rimReservoirView->tensorResults()->threshold())
+    if ( resultVector.length() <= m_rimReservoirView->tensorResults()->threshold() )
     {
         return false;
     }
@@ -512,14 +540,14 @@ bool RivTensorResultPartMgr::isDrawable(cvf::Vec3f resultVector, bool showPrinci
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::array<cvf::Vec3f, 5> RivTensorResultPartMgr::createArrowVertices(const TensorVisualization& tensorVisualization) const
+std::array<cvf::Vec3f, 5> RivTensorResultPartMgr::createArrowVertices( const TensorVisualization& tensorVisualization ) const
 {
     std::array<cvf::Vec3f, 5> vertices;
 
     cvf::Vec3f headTop;
     cvf::Vec3f shaftStart;
 
-    if (tensorVisualization.isPressure)
+    if ( tensorVisualization.isPressure )
     {
         headTop    = tensorVisualization.vertex;
         shaftStart = tensorVisualization.vertex + tensorVisualization.result;
@@ -532,7 +560,7 @@ std::array<cvf::Vec3f, 5> RivTensorResultPartMgr::createArrowVertices(const Tens
 
     float headWidth = 0.05 * tensorVisualization.result.length();
 
-    cvf::Vec3f headBottom = headTop - (headTop - shaftStart) * 0.2f;
+    cvf::Vec3f headBottom = headTop - ( headTop - shaftStart ) * 0.2f;
 
     cvf::Vec3f headBottomDirection = tensorVisualization.result ^ tensorVisualization.faceNormal;
     cvf::Vec3f arrowBottomSegment  = headBottomDirection.getNormalized() * headWidth;
@@ -547,9 +575,9 @@ std::array<cvf::Vec3f, 5> RivTensorResultPartMgr::createArrowVertices(const Tens
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::array<uint, 8> RivTensorResultPartMgr::createArrowIndices(uint startIndex) const
+std::array<uint, 8> RivTensorResultPartMgr::createArrowIndices( uint startIndex ) const
 {
     std::array<uint, 8> indices;
 

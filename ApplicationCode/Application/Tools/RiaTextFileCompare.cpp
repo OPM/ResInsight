@@ -25,8 +25,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaTextFileCompare::RiaTextFileCompare(const QString& pathToDiffTool)
-    : m_pathToDiffTool(pathToDiffTool)
+RiaTextFileCompare::RiaTextFileCompare( const QString& pathToDiffTool )
+    : m_pathToDiffTool( pathToDiffTool )
 {
     reset();
 }
@@ -50,12 +50,12 @@ void RiaTextFileCompare::reset()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaTextFileCompare::runComparison(const QString& baseFolder, const QString& generatedFolder)
+bool RiaTextFileCompare::runComparison( const QString& baseFolder, const QString& generatedFolder )
 {
     reset();
 
     QString fullFilePath = "diff";
-    if (!m_pathToDiffTool.isEmpty())
+    if ( !m_pathToDiffTool.isEmpty() )
     {
         fullFilePath = m_pathToDiffTool + "/" + fullFilePath;
     }
@@ -64,15 +64,16 @@ bool RiaTextFileCompare::runComparison(const QString& baseFolder, const QString&
     // See https://docs.freebsd.org/info/diff/diff.info.diff_Options.html
     QString args = "-r -u --strip-trailing-cr";
 
-    QString completeCommand = QString("\"%1\" %2 %3 %4").arg(fullFilePath).arg(baseFolder).arg(generatedFolder).arg(args);
+    QString completeCommand =
+        QString( "\"%1\" %2 %3 %4" ).arg( fullFilePath ).arg( baseFolder ).arg( generatedFolder ).arg( args );
 
     // Launch process and wait
     QProcess proc;
-    proc.start(completeCommand);
-    proc.waitForFinished(30000);
+    proc.start( completeCommand );
+    proc.waitForFinished( 30000 );
 
     QProcess::ProcessError procError = proc.error();
-    if (procError != QProcess::UnknownError)
+    if ( procError != QProcess::UnknownError )
     {
         m_lastError    = SEVERE_ERROR;
         m_errorMsg     = "Error running 'diff' tool process";
@@ -83,11 +84,11 @@ bool RiaTextFileCompare::runComparison(const QString& baseFolder, const QString&
     QByteArray stdErr       = proc.readAllStandardError();
     int        procExitCode = proc.exitCode();
 
-    if (procExitCode == 0)
+    if ( procExitCode == 0 )
     {
         return true;
     }
-    else if (procExitCode == 1)
+    else if ( procExitCode == 1 )
     {
         QByteArray stdOut = proc.readAllStandardOutput();
         m_diffOutput      = stdOut;

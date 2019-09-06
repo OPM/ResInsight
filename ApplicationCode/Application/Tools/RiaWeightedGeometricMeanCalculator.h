@@ -26,11 +26,11 @@ class RiaWeightedGeometricMeanCalculator
 public:
     RiaWeightedGeometricMeanCalculator();
 
-    void addValueAndWeight(double value, double weight);
+    void addValueAndWeight( double value, double weight );
 
     double weightedMean() const;
     double aggregatedWeight() const;
-    bool  validAggregatedWeight() const;
+    bool   validAggregatedWeight() const;
 
 private:
     double m_aggregatedWeightedValue;

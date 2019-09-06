@@ -29,12 +29,12 @@ class RimEclipseResultCase;
 class RicSelectOrCreateViewFeatureImpl
 {
 public:
-    static RimEclipseView* showViewSelection(RimEclipseResultCase* resultCase,
-                                             const QString&        lastUsedViewKey,
-                                             const QString&        newViewName,
-                                             const QString&        dialogTitle);
-    static void            focusView(RimEclipseView* view);
+    static RimEclipseView* showViewSelection( RimEclipseResultCase* resultCase,
+                                              const QString&        lastUsedViewKey,
+                                              const QString&        newViewName,
+                                              const QString&        dialogTitle );
+    static void            focusView( RimEclipseView* view );
 
 private:
-    static RimEclipseView* getDefaultSelectedView(RimEclipseResultCase* resultCase, const QString& lastUsedViewKey);
+    static RimEclipseView* getDefaultSelectedView( RimEclipseResultCase* resultCase, const QString& lastUsedViewKey );
 };

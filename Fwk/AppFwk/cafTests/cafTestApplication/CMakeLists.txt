@@ -111,5 +111,9 @@ endif(CEE_USE_QT5)
 
 # cotire
 if (COMMAND caf_apply_cotire)
+  set_source_files_properties (qrc_textedit.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
+  set_source_files_properties (qrc_cafCommandFeatures.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
+  set_source_files_properties (qrc_cafAnimControl.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
+
   caf_apply_cotire("${PROJECT_NAME}")
 endif()

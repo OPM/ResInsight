@@ -31,11 +31,10 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RivWellConnectionFactorGeometryGenerator::RivWellConnectionFactorGeometryGenerator(
-    std::vector<CompletionVizData>& completionVizData,
-    float                           radius)
-    : m_completionVizData(completionVizData)
-    , m_radius(radius)
-    , m_trianglesPerConnection(0)
+    std::vector<CompletionVizData>& completionVizData, float radius )
+    : m_completionVizData( completionVizData )
+    , m_radius( radius )
+    , m_trianglesPerConnection( 0 )
 {
 }
 
@@ -45,48 +44,49 @@ RivWellConnectionFactorGeometryGenerator::RivWellConnectionFactorGeometryGenerat
 RivWellConnectionFactorGeometryGenerator::~RivWellConnectionFactorGeometryGenerator() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivWellConnectionFactorGeometryGenerator::createSurfacePart(const cvf::ScalarMapper* scalarMapper, bool disableLighting)
+cvf::ref<cvf::Part> RivWellConnectionFactorGeometryGenerator::createSurfacePart( const cvf::ScalarMapper* scalarMapper,
+                                                                                 bool disableLighting )
 {
-    if (!scalarMapper) return nullptr;
+    if ( !scalarMapper ) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> drawable = createSurfaceGeometry();
-    if (drawable.notNull())
+    if ( drawable.notNull() )
     {
         cvf::ref<cvf::Part> part = new cvf::Part;
-        part->setDrawable(drawable.p());
+        part->setDrawable( drawable.p() );
 
         // Compute texture coords
         cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray();
         {
-            textureCoords->reserve(drawable->vertexArray()->size());
+            textureCoords->reserve( drawable->vertexArray()->size() );
             size_t verticesPerItem = drawable->vertexArray()->size() / m_completionVizData.size();
 
-            textureCoords->setAll(cvf::Vec2f(0.5f, 1.0f));
+            textureCoords->setAll( cvf::Vec2f( 0.5f, 1.0f ) );
 
-            for (const auto& item : m_completionVizData)
+            for ( const auto& item : m_completionVizData )
             {
-                cvf::Vec2f textureCoord = cvf::Vec2f(0.5f, 1.0f);
-                if (item.m_connectionFactor != HUGE_VAL)
+                cvf::Vec2f textureCoord = cvf::Vec2f( 0.5f, 1.0f );
+                if ( item.m_connectionFactor != HUGE_VAL )
                 {
-                    textureCoord = scalarMapper->mapToTextureCoord(item.m_connectionFactor);
+                    textureCoord = scalarMapper->mapToTextureCoord( item.m_connectionFactor );
                 }
 
-                for (size_t i = 0; i < verticesPerItem; i++)
+                for ( size_t i = 0; i < verticesPerItem; i++ )
                 {
-                    textureCoords->add(textureCoord);
+                    textureCoords->add( textureCoord );
                 }
             }
         }
 
-        drawable->setTextureCoordArray(textureCoords.p());
+        drawable->setTextureCoordArray( textureCoords.p() );
 
-        caf::ScalarMapperEffectGenerator effGen(scalarMapper, caf::PO_1);
-        effGen.disableLighting(disableLighting);
+        caf::ScalarMapperEffectGenerator effGen( scalarMapper, caf::PO_1 );
+        effGen.disableLighting( disableLighting );
 
         cvf::ref<cvf::Effect> eff = effGen.generateCachedEffect();
-        part->setEffect(eff.p());
+        part->setEffect( eff.p() );
 
         return part;
     }
@@ -102,8 +102,10 @@ cvf::ref<cvf::DrawableGeo> RivWellConnectionFactorGeometryGenerator::createSurfa
     std::vector<cvf::Vec3f> verticesForOneObject;
     std::vector<cvf::uint>  indicesForOneObject;
 
-    RivWellConnectionFactorGeometryGenerator::createSimplifiedStarGeometry(
-        &verticesForOneObject, &indicesForOneObject, m_radius, m_radius * 0.3f);
+    RivWellConnectionFactorGeometryGenerator::createSimplifiedStarGeometry( &verticesForOneObject,
+                                                                            &indicesForOneObject,
+                                                                            m_radius,
+                                                                            m_radius * 0.3f );
 
     m_trianglesPerConnection = indicesForOneObject.size() / 3;
 
@@ -112,43 +114,43 @@ cvf::ref<cvf::DrawableGeo> RivWellConnectionFactorGeometryGenerator::createSurfa
 
     auto indexCount  = m_completionVizData.size() * indicesForOneObject.size();
     auto vertexCount = m_completionVizData.size() * verticesForOneObject.size();
-    indices->reserve(indexCount);
-    vertices->reserve(vertexCount);
+    indices->reserve( indexCount );
+    vertices->reserve( vertexCount );
 
-    for (const auto& item : m_completionVizData)
+    for ( const auto& item : m_completionVizData )
     {
-        auto rotMatrix = rotationMatrixBetweenVectors(cvf::Vec3d::Y_AXIS, item.m_direction);
+        auto rotMatrix = rotationMatrixBetweenVectors( cvf::Vec3d::Y_AXIS, item.m_direction );
 
-        cvf::uint indexOffset = static_cast<cvf::uint>(vertices->size());
+        cvf::uint indexOffset = static_cast<cvf::uint>( vertices->size() );
 
-        for (const auto& v : verticesForOneObject)
+        for ( const auto& v : verticesForOneObject )
         {
-            auto rotatedPoint = v.getTransformedPoint(rotMatrix);
+            auto rotatedPoint = v.getTransformedPoint( rotMatrix );
 
-            vertices->add(cvf::Vec3f(item.m_anchor) + rotatedPoint);
+            vertices->add( cvf::Vec3f( item.m_anchor ) + rotatedPoint );
         }
 
-        for (const auto& i : indicesForOneObject)
+        for ( const auto& i : indicesForOneObject )
         {
-            indices->add(i + indexOffset);
+            indices->add( i + indexOffset );
         }
     }
 
     cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
-    drawable->setVertexArray(vertices.p());
+    drawable->setVertexArray( vertices.p() );
 
-    drawable->addPrimitiveSet(new cvf::PrimitiveSetIndexedUInt(cvf::PT_TRIANGLES, indices.p()));
+    drawable->addPrimitiveSet( new cvf::PrimitiveSetIndexedUInt( cvf::PT_TRIANGLES, indices.p() ) );
     drawable->computeNormals();
 
     return drawable;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-double RivWellConnectionFactorGeometryGenerator::connectionFactor(cvf::uint triangleIndex) const
+double RivWellConnectionFactorGeometryGenerator::connectionFactor( cvf::uint triangleIndex ) const
 {
-    size_t connectionIndex = mapFromTriangleToConnectionIndex(triangleIndex);
+    size_t connectionIndex = mapFromTriangleToConnectionIndex( triangleIndex );
 
     return m_completionVizData[connectionIndex].m_connectionFactor;
 }
@@ -156,19 +158,19 @@ double RivWellConnectionFactorGeometryGenerator::connectionFactor(cvf::uint tria
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RivWellConnectionFactorGeometryGenerator::globalCellIndexFromTriangleIndex(cvf::uint triangleIndex) const
+size_t RivWellConnectionFactorGeometryGenerator::globalCellIndexFromTriangleIndex( cvf::uint triangleIndex ) const
 {
-    size_t connectionIndex = mapFromTriangleToConnectionIndex(triangleIndex);
+    size_t connectionIndex = mapFromTriangleToConnectionIndex( triangleIndex );
 
     return m_completionVizData[connectionIndex].m_globalCellIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-size_t RivWellConnectionFactorGeometryGenerator::mapFromTriangleToConnectionIndex(cvf::uint triangleIndex) const
+size_t RivWellConnectionFactorGeometryGenerator::mapFromTriangleToConnectionIndex( cvf::uint triangleIndex ) const
 {
-    if (m_trianglesPerConnection == 0) return 0;
+    if ( m_trianglesPerConnection == 0 ) return 0;
 
     size_t connectionIndex = triangleIndex / m_trianglesPerConnection;
 
@@ -179,7 +181,8 @@ size_t RivWellConnectionFactorGeometryGenerator::mapFromTriangleToConnectionInde
 /// Taken from OverlayNavigationCube::computeNewUpVector
 /// Consider move to geometry util class
 //--------------------------------------------------------------------------------------------------
-cvf::Mat4f RivWellConnectionFactorGeometryGenerator::rotationMatrixBetweenVectors(const cvf::Vec3d& v1, const cvf::Vec3d& v2)
+cvf::Mat4f RivWellConnectionFactorGeometryGenerator::rotationMatrixBetweenVectors( const cvf::Vec3d& v1,
+                                                                                   const cvf::Vec3d& v2 )
 {
     using namespace cvf;
 
@@ -187,11 +190,11 @@ cvf::Mat4f RivWellConnectionFactorGeometryGenerator::rotationMatrixBetweenVector
     rotAxis.normalize();
 
     // Guard acos against out-of-domain input
-    const double dotProduct = Math::clamp(v1 * v2, -1.0, 1.0);
-    const double angle      = Math::acos(dotProduct);
-    Mat4d        rotMat     = Mat4d::fromRotation(rotAxis, angle);
+    const double dotProduct = Math::clamp( v1 * v2, -1.0, 1.0 );
+    const double angle      = Math::acos( dotProduct );
+    Mat4d        rotMat     = Mat4d::fromRotation( rotAxis, angle );
 
-    Mat4f myMat(rotMat);
+    Mat4f myMat( rotMat );
 
     return myMat;
 }
@@ -199,10 +202,10 @@ cvf::Mat4f RivWellConnectionFactorGeometryGenerator::rotationMatrixBetweenVector
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivWellConnectionFactorGeometryGenerator::createStarGeometry(std::vector<cvf::Vec3f>* vertices,
-                                                                  std::vector<cvf::uint>*  indices,
-                                                                  float                    radius,
-                                                                  float                    thickness)
+void RivWellConnectionFactorGeometryGenerator::createStarGeometry( std::vector<cvf::Vec3f>* vertices,
+                                                                   std::vector<cvf::uint>*  indices,
+                                                                   float                    radius,
+                                                                   float                    thickness )
 {
     auto p0 = cvf::Vec3f::Z_AXIS * radius;
     auto p2 = cvf::Vec3f::X_AXIS * -radius;
@@ -211,8 +214,8 @@ void RivWellConnectionFactorGeometryGenerator::createStarGeometry(std::vector<cv
 
     float innerFactor = 5.0f;
 
-    auto p1 = (p0 + p2) / innerFactor;
-    auto p3 = (p2 + p4) / innerFactor;
+    auto p1 = ( p0 + p2 ) / innerFactor;
+    auto p3 = ( p2 + p4 ) / innerFactor;
 
     auto p5 = -p1;
     auto p7 = -p3;
@@ -220,93 +223,93 @@ void RivWellConnectionFactorGeometryGenerator::createStarGeometry(std::vector<cv
     auto p8 = cvf::Vec3f::Y_AXIS * thickness;
     auto p9 = -p8;
 
-    vertices->push_back(p0);
-    vertices->push_back(p1);
-    vertices->push_back(p2);
-    vertices->push_back(p3);
-    vertices->push_back(p4);
-    vertices->push_back(p5);
-    vertices->push_back(p6);
-    vertices->push_back(p7);
-    vertices->push_back(p8);
-    vertices->push_back(p9);
+    vertices->push_back( p0 );
+    vertices->push_back( p1 );
+    vertices->push_back( p2 );
+    vertices->push_back( p3 );
+    vertices->push_back( p4 );
+    vertices->push_back( p5 );
+    vertices->push_back( p6 );
+    vertices->push_back( p7 );
+    vertices->push_back( p8 );
+    vertices->push_back( p9 );
 
     // Top
-    indices->push_back(0);
-    indices->push_back(1);
-    indices->push_back(8);
+    indices->push_back( 0 );
+    indices->push_back( 1 );
+    indices->push_back( 8 );
 
-    indices->push_back(0);
-    indices->push_back(8);
-    indices->push_back(7);
+    indices->push_back( 0 );
+    indices->push_back( 8 );
+    indices->push_back( 7 );
 
-    indices->push_back(0);
-    indices->push_back(9);
-    indices->push_back(1);
+    indices->push_back( 0 );
+    indices->push_back( 9 );
+    indices->push_back( 1 );
 
-    indices->push_back(0);
-    indices->push_back(7);
-    indices->push_back(9);
+    indices->push_back( 0 );
+    indices->push_back( 7 );
+    indices->push_back( 9 );
 
     // Left
-    indices->push_back(2);
-    indices->push_back(3);
-    indices->push_back(8);
+    indices->push_back( 2 );
+    indices->push_back( 3 );
+    indices->push_back( 8 );
 
-    indices->push_back(2);
-    indices->push_back(8);
-    indices->push_back(1);
+    indices->push_back( 2 );
+    indices->push_back( 8 );
+    indices->push_back( 1 );
 
-    indices->push_back(2);
-    indices->push_back(9);
-    indices->push_back(3);
+    indices->push_back( 2 );
+    indices->push_back( 9 );
+    indices->push_back( 3 );
 
-    indices->push_back(2);
-    indices->push_back(1);
-    indices->push_back(9);
+    indices->push_back( 2 );
+    indices->push_back( 1 );
+    indices->push_back( 9 );
 
     // Bottom
-    indices->push_back(4);
-    indices->push_back(5);
-    indices->push_back(8);
+    indices->push_back( 4 );
+    indices->push_back( 5 );
+    indices->push_back( 8 );
 
-    indices->push_back(4);
-    indices->push_back(8);
-    indices->push_back(3);
+    indices->push_back( 4 );
+    indices->push_back( 8 );
+    indices->push_back( 3 );
 
-    indices->push_back(4);
-    indices->push_back(9);
-    indices->push_back(5);
+    indices->push_back( 4 );
+    indices->push_back( 9 );
+    indices->push_back( 5 );
 
-    indices->push_back(4);
-    indices->push_back(3);
-    indices->push_back(9);
+    indices->push_back( 4 );
+    indices->push_back( 3 );
+    indices->push_back( 9 );
 
     // Right
-    indices->push_back(6);
-    indices->push_back(7);
-    indices->push_back(8);
+    indices->push_back( 6 );
+    indices->push_back( 7 );
+    indices->push_back( 8 );
 
-    indices->push_back(6);
-    indices->push_back(8);
-    indices->push_back(5);
+    indices->push_back( 6 );
+    indices->push_back( 8 );
+    indices->push_back( 5 );
 
-    indices->push_back(6);
-    indices->push_back(9);
-    indices->push_back(7);
+    indices->push_back( 6 );
+    indices->push_back( 9 );
+    indices->push_back( 7 );
 
-    indices->push_back(6);
-    indices->push_back(5);
-    indices->push_back(9);
+    indices->push_back( 6 );
+    indices->push_back( 5 );
+    indices->push_back( 9 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivWellConnectionFactorGeometryGenerator::createSimplifiedStarGeometry(std::vector<cvf::Vec3f>* vertices,
-                                                                            std::vector<cvf::uint>*  indices,
-                                                                            float                    radius,
-                                                                            float                    thickness)
+void RivWellConnectionFactorGeometryGenerator::createSimplifiedStarGeometry( std::vector<cvf::Vec3f>* vertices,
+                                                                             std::vector<cvf::uint>*  indices,
+                                                                             float                    radius,
+                                                                             float                    thickness )
 {
     // Suggested improvement
     // As the nodes are duplicated, it will be possible create only vertices and then use DrawableGeo::setFromTriangleVertexArray
@@ -327,32 +330,32 @@ void RivWellConnectionFactorGeometryGenerator::createSimplifiedStarGeometry(std:
     auto p10 = p1;
     auto p11 = -p5;
 
-    vertices->push_back(p0);
-    vertices->push_back(p1);
-    vertices->push_back(p2);
-    vertices->push_back(p3);
-    vertices->push_back(p4);
-    vertices->push_back(p5);
-    vertices->push_back(p6);
-    vertices->push_back(p7);
-    vertices->push_back(p8);
-    vertices->push_back(p9);
-    vertices->push_back(p10);
-    vertices->push_back(p11);
+    vertices->push_back( p0 );
+    vertices->push_back( p1 );
+    vertices->push_back( p2 );
+    vertices->push_back( p3 );
+    vertices->push_back( p4 );
+    vertices->push_back( p5 );
+    vertices->push_back( p6 );
+    vertices->push_back( p7 );
+    vertices->push_back( p8 );
+    vertices->push_back( p9 );
+    vertices->push_back( p10 );
+    vertices->push_back( p11 );
 
-    indices->push_back(0);
-    indices->push_back(1);
-    indices->push_back(2);
+    indices->push_back( 0 );
+    indices->push_back( 1 );
+    indices->push_back( 2 );
 
-    indices->push_back(3);
-    indices->push_back(4);
-    indices->push_back(5);
+    indices->push_back( 3 );
+    indices->push_back( 4 );
+    indices->push_back( 5 );
 
-    indices->push_back(6);
-    indices->push_back(7);
-    indices->push_back(8);
+    indices->push_back( 6 );
+    indices->push_back( 7 );
+    indices->push_back( 8 );
 
-    indices->push_back(9);
-    indices->push_back(10);
-    indices->push_back(11);
+    indices->push_back( 9 );
+    indices->push_back( 10 );
+    indices->push_back( 11 );
 }

@@ -26,15 +26,15 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigFractureGrid::RigFractureGrid()
-    : m_iCellCount(0)
-    , m_jCellCount(0)
+    : m_iCellCount( 0 )
+    , m_jCellCount( 0 )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFractureGrid::setFractureCells(std::vector<RigFractureCell> fractureCells)
+void RigFractureGrid::setFractureCells( std::vector<RigFractureCell> fractureCells )
 {
     m_fractureCells = fractureCells;
 }
@@ -42,7 +42,7 @@ void RigFractureGrid::setFractureCells(std::vector<RigFractureCell> fractureCell
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFractureGrid::setWellCenterFractureCellIJ(std::pair<size_t, size_t> wellCenterFractureCellIJ)
+void RigFractureGrid::setWellCenterFractureCellIJ( std::pair<size_t, size_t> wellCenterFractureCellIJ )
 {
     m_wellCenterFractureCellIJ = wellCenterFractureCellIJ;
 }
@@ -50,7 +50,7 @@ void RigFractureGrid::setWellCenterFractureCellIJ(std::pair<size_t, size_t> well
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFractureGrid::setICellCount(size_t iCellCount)
+void RigFractureGrid::setICellCount( size_t iCellCount )
 {
     m_iCellCount = iCellCount;
 }
@@ -58,7 +58,7 @@ void RigFractureGrid::setICellCount(size_t iCellCount)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFractureGrid::setJCellCount(size_t jCellCount)
+void RigFractureGrid::setJCellCount( size_t jCellCount )
 {
     m_jCellCount = jCellCount;
 }
@@ -74,7 +74,7 @@ const std::vector<RigFractureCell>& RigFractureGrid::fractureCells() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigFractureGrid::getGlobalIndexFromIJ(size_t i, size_t j) const
+size_t RigFractureGrid::getGlobalIndexFromIJ( size_t i, size_t j ) const
 {
     return i * m_jCellCount + j;
 }
@@ -82,9 +82,9 @@ size_t RigFractureGrid::getGlobalIndexFromIJ(size_t i, size_t j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigFractureCell& RigFractureGrid::cellFromIndex(size_t index) const
+const RigFractureCell& RigFractureGrid::cellFromIndex( size_t index ) const
 {
-    if (index < m_fractureCells.size())
+    if ( index < m_fractureCells.size() )
     {
         const RigFractureCell& cell = m_fractureCells[index];
         return cell;
@@ -92,8 +92,8 @@ const RigFractureCell& RigFractureGrid::cellFromIndex(size_t index) const
     else
     {
         // TODO: Better error handling?
-        RiaLogging::error(QString("Requesting non-existent StimPlanCell"));
-        RiaLogging::error(QString("Returning cell 0, results will be invalid"));
+        RiaLogging::error( QString( "Requesting non-existent StimPlanCell" ) );
+        RiaLogging::error( QString( "Returning cell 0, results will be invalid" ) );
         const RigFractureCell& cell = m_fractureCells[0];
         return cell;
     }

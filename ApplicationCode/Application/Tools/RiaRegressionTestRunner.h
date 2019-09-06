@@ -35,13 +35,13 @@ class RiaRegressionTestRunner
 public:
     static RiaRegressionTestRunner* instance();
 
-    void executeRegressionTests(const QString& regressionTestPath, const QStringList& testFilter);
+    void executeRegressionTests( const QString& regressionTestPath, const QStringList& testFilter );
     void executeRegressionTests();
 
     bool isRunningRegressionTests() const;
     bool useOpenMPForGeometryCreation() const;
 
-    static void updateRegressionTest(const QString& testRootPath);
+    static void updateRegressionTest( const QString& testRootPath );
     static void regressionTestConfigureProject();
 
 private:
@@ -49,21 +49,21 @@ private:
 
     void runRegressionTest();
 
-    bool findAndExecuteCommandFiles(const QDir&              testCaseFolder,
-                                    const RiaRegressionTest& regressionTestConfig,
-                                    const QString&           htmlReportFileName);
+    bool findAndExecuteCommandFiles( const QDir&              testCaseFolder,
+                                     const RiaRegressionTest& regressionTestConfig,
+                                     const QString&           htmlReportFileName );
 
-    QString generateHtmlReport(const QFileInfoList& folderList,
-                               const QString&       baseFolderName,
-                               const QString&       generatedFolderName,
-                               const QString&       diffFolderName,
-                               const QDir&          testDir);
+    QString generateHtmlReport( const QFileInfoList& folderList,
+                                const QString&       baseFolderName,
+                                const QString&       generatedFolderName,
+                                const QString&       diffFolderName,
+                                const QDir&          testDir );
 
-    static void    removeDirectoryWithContent(QDir& dirToDelete);
+    static void    removeDirectoryWithContent( QDir& dirToDelete );
     static void    resizePlotWindows();
     static QSize   regressionDefaultImageSize();
-    static QString diff2htmlHeaderText(const QString& testRootPath);
-    QFileInfoList  subDirectoriesForTestExecution(const QDir& directory);
+    static QString diff2htmlHeaderText( const QString& testRootPath );
+    QFileInfoList  subDirectoriesForTestExecution( const QDir& directory );
 
 private:
     QString           m_rootPath;

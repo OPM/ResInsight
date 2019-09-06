@@ -21,9 +21,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseRftAddress::RifEclipseRftAddress(QString wellName, QDateTime timeStep, RftWellLogChannelType wellLogChannelName)
-    : m_wellName(wellName)
-    , m_wellLogChannel(wellLogChannelName)
+RifEclipseRftAddress::RifEclipseRftAddress( QString wellName, QDateTime timeStep, RftWellLogChannelType wellLogChannelName )
+    : m_wellName( wellName )
+    , m_wellLogChannel( wellLogChannelName )
 {
     m_timeStep = timeStep;
 }
@@ -31,11 +31,11 @@ RifEclipseRftAddress::RifEclipseRftAddress(QString wellName, QDateTime timeStep,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool operator==(const RifEclipseRftAddress& first, const RifEclipseRftAddress& second)
+bool operator==( const RifEclipseRftAddress& first, const RifEclipseRftAddress& second )
 {
-    if (first.wellName() != second.wellName()) return false;
-    if (first.timeStep() != second.timeStep()) return false;
-    if (first.wellLogChannel() != second.wellLogChannel()) return false;
+    if ( first.wellName() != second.wellName() ) return false;
+    if ( first.timeStep() != second.timeStep() ) return false;
+    if ( first.wellLogChannel() != second.wellLogChannel() ) return false;
 
     return true;
 }
@@ -43,11 +43,12 @@ bool operator==(const RifEclipseRftAddress& first, const RifEclipseRftAddress& s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool operator<(const RifEclipseRftAddress& first, const RifEclipseRftAddress& second)
+bool operator<( const RifEclipseRftAddress& first, const RifEclipseRftAddress& second )
 {
-    if (first.wellName() != second.wellName()) return (first.wellName() < second.wellName());
-    if (first.timeStep() != second.timeStep()) return (first.timeStep() < second.timeStep());
-    if (first.wellLogChannel() != second.wellLogChannel()) return (first.wellLogChannel() < second.wellLogChannel());
+    if ( first.wellName() != second.wellName() ) return ( first.wellName() < second.wellName() );
+    if ( first.timeStep() != second.timeStep() ) return ( first.timeStep() < second.timeStep() );
+    if ( first.wellLogChannel() != second.wellLogChannel() )
+        return ( first.wellLogChannel() < second.wellLogChannel() );
 
     return false;
 }

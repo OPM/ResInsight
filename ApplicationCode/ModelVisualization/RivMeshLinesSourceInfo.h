@@ -27,5 +27,5 @@
 class RivMeshLinesSourceInfo : public RivObjectSourceInfo
 {
 public:
-    explicit RivMeshLinesSourceInfo(caf::PdmObject* pdmObject);
+    explicit RivMeshLinesSourceInfo( caf::PdmObject* pdmObject );
 };

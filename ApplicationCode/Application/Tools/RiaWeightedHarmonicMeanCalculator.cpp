@@ -26,17 +26,17 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiaWeightedHarmonicMeanCalculator::RiaWeightedHarmonicMeanCalculator()
-    : m_aggregatedWeightedValue(0.0)
-    , m_aggregatedWeight(0.0)
+    : m_aggregatedWeightedValue( 0.0 )
+    , m_aggregatedWeight( 0.0 )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaWeightedHarmonicMeanCalculator::addValueAndWeight(double value, double weight)
+void RiaWeightedHarmonicMeanCalculator::addValueAndWeight( double value, double weight )
 {
-    CVF_ASSERT(weight > 1.0e-12 && std::abs(value) > 1.0e-12);
+    CVF_ASSERT( weight > 1.0e-12 && std::abs( value ) > 1.0e-12 );
 
     m_aggregatedWeightedValue += weight / value;
     m_aggregatedWeight += weight;
@@ -46,12 +46,12 @@ void RiaWeightedHarmonicMeanCalculator::addValueAndWeight(double value, double w
 ///
 //--------------------------------------------------------------------------------------------------
 double RiaWeightedHarmonicMeanCalculator::weightedMean() const
-{    
-    if (validAggregatedWeight())
+{
+    if ( validAggregatedWeight() )
     {
         return m_aggregatedWeight / m_aggregatedWeightedValue;
     }
-    CVF_ASSERT(false);
+    CVF_ASSERT( false );
     return 0.0;
 }
 

@@ -56,160 +56,161 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridView& view)
+std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport( const RimGridView& view )
 {
     std::vector<VdeExportPart> exportParts;
 
     RimEclipseCase* rimEclipseCase = nullptr;
-    view.firstAncestorOrThisOfType(rimEclipseCase);
+    view.firstAncestorOrThisOfType( rimEclipseCase );
 
-    if (view.viewer())
+    if ( view.viewer() )
     {
         auto visibleParts = view.viewer()->visibleParts();
 
-        for (auto& visiblePart : visibleParts)
+        for ( auto& visiblePart : visibleParts )
         {
-            if (RicHoloLensExportImpl::isGrid(visiblePart.p()))
+            if ( RicHoloLensExportImpl::isGrid( visiblePart.p() ) )
             {
-                VdeExportPart exportPart(visiblePart.p());
-                exportPart.setSourceObjectType(VdeExportPart::OBJ_TYPE_GRID);
+                VdeExportPart exportPart( visiblePart.p() );
+                exportPart.setSourceObjectType( VdeExportPart::OBJ_TYPE_GRID );
 
-                if (rimEclipseCase && rimEclipseCase->mainGrid())
+                if ( rimEclipseCase && rimEclipseCase->mainGrid() )
                 {
-                    if (rimEclipseCase->mainGrid()->isFaceNormalsOutwards())
+                    if ( rimEclipseCase->mainGrid()->isFaceNormalsOutwards() )
                     {
-                        exportPart.setWinding(VdeExportPart::COUNTERCLOCKWISE);
+                        exportPart.setWinding( VdeExportPart::COUNTERCLOCKWISE );
                     }
                     else
                     {
-                        exportPart.setWinding(VdeExportPart::CLOCKWISE);
+                        exportPart.setWinding( VdeExportPart::CLOCKWISE );
                     }
                 }
 
                 {
-                    auto* sourceInfo = dynamic_cast<RivSourceInfo*>(visiblePart->sourceInfo());
-                    if (sourceInfo)
+                    auto* sourceInfo = dynamic_cast<RivSourceInfo*>( visiblePart->sourceInfo() );
+                    if ( sourceInfo )
                     {
-                        RimFaultInView* faultInView = dynamic_cast<RimFaultInView*>(sourceInfo->object());
-                        if (faultInView)
+                        RimFaultInView* faultInView = dynamic_cast<RimFaultInView*>( sourceInfo->object() );
+                        if ( faultInView )
                         {
-                            exportPart.setSourceObjectName(faultInView->name());
-                            exportPart.setColor(faultInView->faultColor());
+                            exportPart.setSourceObjectName( faultInView->name() );
+                            exportPart.setColor( faultInView->faultColor() );
                         }
 
-                        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(sourceInfo->object());
-                        if (eclipseCase)
+                        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( sourceInfo->object() );
+                        if ( eclipseCase )
                         {
                             QString nameOfObject   = rimEclipseCase->gridFileName();
-                            auto    gridSourceInfo = dynamic_cast<const RivSourceInfo*>(visiblePart->sourceInfo());
-                            if (gridSourceInfo)
+                            auto    gridSourceInfo = dynamic_cast<const RivSourceInfo*>( visiblePart->sourceInfo() );
+                            if ( gridSourceInfo )
                             {
                                 size_t gridIndex = gridSourceInfo->gridIndex();
 
-                                nameOfObject += " Grid " + QString::number(gridIndex);
+                                nameOfObject += " Grid " + QString::number( gridIndex );
                             }
 
-                            const RimEclipseView* eclipseView = dynamic_cast<const RimEclipseView*>(&view);
-                            if (eclipseView)
+                            const RimEclipseView* eclipseView = dynamic_cast<const RimEclipseView*>( &view );
+                            if ( eclipseView )
                             {
-                                cvf::Color4f color = eclipseView->colorFromCellCategory(sourceInfo->cellSetType());
-                                exportPart.setColor(color.toColor3f());
-                                exportPart.setOpacity(color.a());
+                                cvf::Color4f color = eclipseView->colorFromCellCategory( sourceInfo->cellSetType() );
+                                exportPart.setColor( color.toColor3f() );
+                                exportPart.setOpacity( color.a() );
 
-                                QString text = RicHoloLensExportImpl::gridCellSetTypeText(sourceInfo->cellSetType());
-                                exportPart.setSourceObjectCellSetType(text);
+                                QString text = RicHoloLensExportImpl::gridCellSetTypeText( sourceInfo->cellSetType() );
+                                exportPart.setSourceObjectCellSetType( text );
                             }
 
-                            exportPart.setSourceObjectName(nameOfObject);
+                            exportPart.setSourceObjectName( nameOfObject );
                         }
                     }
                 }
 
                 {
-                    auto femPartPickInfo = dynamic_cast<RivFemPickSourceInfo*>(visiblePart->sourceInfo());
-                    if (femPartPickInfo)
+                    auto femPartPickInfo = dynamic_cast<RivFemPickSourceInfo*>( visiblePart->sourceInfo() );
+                    if ( femPartPickInfo )
                     {
-                        exportPart.setColor(RivGeoMechVizLogic::staticCellColor());
+                        exportPart.setColor( RivGeoMechVizLogic::staticCellColor() );
                     }
                 }
 
-                if (visiblePart->effect())
+                if ( visiblePart->effect() )
                 {
                     const cvf::RenderStateCullFace* renderStateCullFace = dynamic_cast<const cvf::RenderStateCullFace*>(
-                        visiblePart->effect()->renderStateOfType(cvf::RenderState::CULL_FACE));
-                    if (renderStateCullFace)
+                        visiblePart->effect()->renderStateOfType( cvf::RenderState::CULL_FACE ) );
+                    if ( renderStateCullFace )
                     {
-                        // The logic below that inverts the culling mode simply does not make sense. We should be able to just utilize the cull mode set
-                        // in the render state. The proper solution is probably to put more effort into correctly determining the winding in further up 
-                        // in this function, but currently there is no clear way to accomplish this.
-                        if (renderStateCullFace->mode() == cvf::RenderStateCullFace::BACK)
+                        // The logic below that inverts the culling mode simply does not make sense. We should be able
+                        // to just utilize the cull mode set in the render state. The proper solution is probably to put
+                        // more effort into correctly determining the winding in further up in this function, but
+                        // currently there is no clear way to accomplish this.
+                        if ( renderStateCullFace->mode() == cvf::RenderStateCullFace::BACK )
                         {
-                            exportPart.setCullFace(VdeExportPart::CF_FRONT);
+                            exportPart.setCullFace( VdeExportPart::CF_FRONT );
                         }
-                        else if (renderStateCullFace->mode() == cvf::RenderStateCullFace::FRONT)
+                        else if ( renderStateCullFace->mode() == cvf::RenderStateCullFace::FRONT )
                         {
-                            exportPart.setCullFace(VdeExportPart::CF_BACK);
+                            exportPart.setCullFace( VdeExportPart::CF_BACK );
                         }
                     }
                 }
 
-                appendTextureImage(exportPart, visiblePart.p());
+                appendTextureImage( exportPart, visiblePart.p() );
 
-                exportParts.push_back(exportPart);
+                exportParts.push_back( exportPart );
             }
-            else if (RicHoloLensExportImpl::isPipe(visiblePart.p()))
+            else if ( RicHoloLensExportImpl::isPipe( visiblePart.p() ) )
             {
-                VdeExportPart exportPart(visiblePart.p());
-                exportPart.setSourceObjectType(VdeExportPart::OBJ_TYPE_PIPE);
+                VdeExportPart exportPart( visiblePart.p() );
+                exportPart.setSourceObjectType( VdeExportPart::OBJ_TYPE_PIPE );
 
-                auto simWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>(visiblePart->sourceInfo());
-                if (simWellSourceInfo)
+                auto simWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>( visiblePart->sourceInfo() );
+                if ( simWellSourceInfo )
                 {
                     auto simWell = simWellSourceInfo->well();
-                    if (simWell)
+                    if ( simWell )
                     {
-                        exportPart.setSourceObjectName(simWell->name());
-                        exportPart.setColor(simWell->wellPipeColor());
+                        exportPart.setSourceObjectName( simWell->name() );
+                        exportPart.setColor( simWell->wellPipeColor() );
                     }
                 }
 
-                auto wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(visiblePart->sourceInfo());
-                if (wellPathSourceInfo)
+                auto wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>( visiblePart->sourceInfo() );
+                if ( wellPathSourceInfo )
                 {
                     RimWellPath* wellPath = wellPathSourceInfo->wellPath();
-                    if (wellPath)
+                    if ( wellPath )
                     {
-                        exportPart.setSourceObjectName(wellPath->name());
-                        exportPart.setColor(wellPath->wellPathColor());
+                        exportPart.setSourceObjectName( wellPath->name() );
+                        exportPart.setColor( wellPath->wellPathColor() );
                     }
                 }
 
-                appendTextureImage(exportPart, visiblePart.p());
+                appendTextureImage( exportPart, visiblePart.p() );
 
-                exportParts.push_back(exportPart);
+                exportParts.push_back( exportPart );
             }
-            else if (RicHoloLensExportImpl::isMeshLines(visiblePart.p()))
+            else if ( RicHoloLensExportImpl::isMeshLines( visiblePart.p() ) )
             {
-                VdeExportPart exportPart(visiblePart.p());
-                exportPart.setSourceObjectType(VdeExportPart::OBJ_TYPE_GRID);
+                VdeExportPart exportPart( visiblePart.p() );
+                exportPart.setSourceObjectType( VdeExportPart::OBJ_TYPE_GRID );
 
                 cvf::Color3f lineColor = RiaApplication::instance()->preferences()->defaultGridLineColors();
 
-                auto linesSourceInfo = dynamic_cast<const RivMeshLinesSourceInfo*>(visiblePart->sourceInfo());
-                if (linesSourceInfo)
+                auto linesSourceInfo = dynamic_cast<const RivMeshLinesSourceInfo*>( visiblePart->sourceInfo() );
+                if ( linesSourceInfo )
                 {
-                    if (dynamic_cast<RimFaultInView*>(linesSourceInfo->object()))
+                    if ( dynamic_cast<RimFaultInView*>( linesSourceInfo->object() ) )
                     {
                         lineColor = RiaApplication::instance()->preferences()->defaultFaultGridLineColors();
                     }
                 }
 
-                exportPart.setColor(lineColor);
-                exportPart.setRole(VdeExportPart::MESH_LINES);
+                exportPart.setColor( lineColor );
+                exportPart.setRole( VdeExportPart::MESH_LINES );
 
-                appendTextureImage(exportPart, visiblePart.p());
+                appendTextureImage( exportPart, visiblePart.p() );
 
-                exportParts.push_back(exportPart);
+                exportParts.push_back( exportPart );
             }
         }
     }
@@ -220,18 +221,18 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<cvf::Vec3f, cvf::String>> RicHoloLensExportImpl::labelsForExport(const RimGridView& view)
+std::vector<std::pair<cvf::Vec3f, cvf::String>> RicHoloLensExportImpl::labelsForExport( const RimGridView& view )
 {
     std::vector<std::pair<cvf::Vec3f, cvf::String>> labelAndPositions;
 
     auto visibleParts = view.viewer()->visibleParts();
 
-    for (auto& visiblePart : visibleParts)
+    for ( auto& visiblePart : visibleParts )
     {
-        const RivTextLabelSourceInfo* textLabel = dynamic_cast<const RivTextLabelSourceInfo*>(visiblePart->sourceInfo());
-        if (textLabel)
+        const RivTextLabelSourceInfo* textLabel = dynamic_cast<const RivTextLabelSourceInfo*>( visiblePart->sourceInfo() );
+        if ( textLabel )
         {
-            labelAndPositions.push_back(std::make_pair(textLabel->textPositionDisplayCoord(), textLabel->text()));
+            labelAndPositions.push_back( std::make_pair( textLabel->textPositionDisplayCoord(), textLabel->text() ) );
         }
     }
 
@@ -241,34 +242,34 @@ std::vector<std::pair<cvf::Vec3f, cvf::String>> RicHoloLensExportImpl::labelsFor
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensExportImpl::appendTextureImage(VdeExportPart& exportPart, cvf::Part* part)
+void RicHoloLensExportImpl::appendTextureImage( VdeExportPart& exportPart, cvf::Part* part )
 {
-    if (part && part->effect())
+    if ( part && part->effect() )
     {
         {
             auto textureBindings = dynamic_cast<cvf::RenderStateTextureBindings*>(
-                part->effect()->renderStateOfType(cvf::RenderState::TEXTURE_BINDINGS));
+                part->effect()->renderStateOfType( cvf::RenderState::TEXTURE_BINDINGS ) );
 
-            if (textureBindings && textureBindings->bindingCount() > 0)
+            if ( textureBindings && textureBindings->bindingCount() > 0 )
             {
-                cvf::Texture* textureBinding = textureBindings->texture(0);
-                if (textureBinding)
+                cvf::Texture* textureBinding = textureBindings->texture( 0 );
+                if ( textureBinding )
                 {
-                    exportPart.setTextureImage(textureBinding->image());
+                    exportPart.setTextureImage( textureBinding->image() );
                 }
             }
         }
 
         {
             auto textureMappingFF = dynamic_cast<cvf::RenderStateTextureMapping_FF*>(
-                part->effect()->renderStateOfType(cvf::RenderState::TEXTURE_MAPPING_FF));
+                part->effect()->renderStateOfType( cvf::RenderState::TEXTURE_MAPPING_FF ) );
 
-            if (textureMappingFF && textureMappingFF->texture())
+            if ( textureMappingFF && textureMappingFF->texture() )
             {
                 auto* texture = textureMappingFF->texture();
-                if (texture)
+                if ( texture )
                 {
-                    exportPart.setTextureImage(texture->image());
+                    exportPart.setTextureImage( texture->image() );
                 }
             }
         }
@@ -278,9 +279,9 @@ void RicHoloLensExportImpl::appendTextureImage(VdeExportPart& exportPart, cvf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicHoloLensExportImpl::gridCellSetTypeText(RivCellSetEnum cellSetType)
+QString RicHoloLensExportImpl::gridCellSetTypeText( RivCellSetEnum cellSetType )
 {
-    switch (cellSetType)
+    switch ( cellSetType )
     {
         case OVERRIDDEN_CELL_VISIBILITY:
             return "OVERRIDDEN_CELL_VISIBILITY";
@@ -334,40 +335,40 @@ QString RicHoloLensExportImpl::gridCellSetTypeText(RivCellSetEnum cellSetType)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHoloLensExportImpl::isGrid(const cvf::Part* part)
+bool RicHoloLensExportImpl::isGrid( const cvf::Part* part )
 {
-    if (!part) return false;
+    if ( !part ) return false;
 
     auto sourceInfo = part->sourceInfo();
 
     {
         {
-            auto sourceInfoOfType = dynamic_cast<const RivSourceInfo*>(sourceInfo);
-            if (sourceInfoOfType)
+            auto sourceInfoOfType = dynamic_cast<const RivSourceInfo*>( sourceInfo );
+            if ( sourceInfoOfType )
             {
                 return true;
             }
         }
 
         {
-            auto sourceInfoOfType = dynamic_cast<const RivIntersectionSourceInfo*>(sourceInfo);
-            if (sourceInfoOfType)
+            auto sourceInfoOfType = dynamic_cast<const RivIntersectionSourceInfo*>( sourceInfo );
+            if ( sourceInfoOfType )
             {
                 return true;
             }
         }
 
         {
-            auto sourceInfoOfType = dynamic_cast<const RivIntersectionBoxSourceInfo*>(sourceInfo);
-            if (sourceInfoOfType)
+            auto sourceInfoOfType = dynamic_cast<const RivIntersectionBoxSourceInfo*>( sourceInfo );
+            if ( sourceInfoOfType )
             {
                 return true;
             }
         }
 
         {
-            auto sourceInfoOfType = dynamic_cast<const RivFemPickSourceInfo*>(sourceInfo);
-            if (sourceInfoOfType)
+            auto sourceInfoOfType = dynamic_cast<const RivFemPickSourceInfo*>( sourceInfo );
+            if ( sourceInfoOfType )
             {
                 return true;
             }
@@ -380,23 +381,23 @@ bool RicHoloLensExportImpl::isGrid(const cvf::Part* part)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHoloLensExportImpl::isPipe(const cvf::Part* part)
+bool RicHoloLensExportImpl::isPipe( const cvf::Part* part )
 {
-    if (!part) return false;
+    if ( !part ) return false;
 
     auto sourceInfo = part->sourceInfo();
 
     {
-        auto simWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>(sourceInfo);
-        if (simWellSourceInfo)
+        auto simWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>( sourceInfo );
+        if ( simWellSourceInfo )
         {
             return true;
         }
     }
 
     {
-        auto wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(sourceInfo);
-        if (wellPathSourceInfo)
+        auto wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>( sourceInfo );
+        if ( wellPathSourceInfo )
         {
             return true;
         }
@@ -408,15 +409,15 @@ bool RicHoloLensExportImpl::isPipe(const cvf::Part* part)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHoloLensExportImpl::isMeshLines(const cvf::Part* part)
+bool RicHoloLensExportImpl::isMeshLines( const cvf::Part* part )
 {
-    if (!part) return false;
+    if ( !part ) return false;
 
     auto sourceInfo = part->sourceInfo();
 
     {
-        auto linesSourceInfo = dynamic_cast<const RivMeshLinesSourceInfo*>(sourceInfo);
-        if (linesSourceInfo)
+        auto linesSourceInfo = dynamic_cast<const RivMeshLinesSourceInfo*>( sourceInfo );
+        if ( linesSourceInfo )
         {
             return true;
         }

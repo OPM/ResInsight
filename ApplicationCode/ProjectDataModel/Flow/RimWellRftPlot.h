@@ -73,7 +73,7 @@ public:
     RimWellRftPlot();
     ~RimWellRftPlot() override;
 
-    void    setDescription(const QString& description);
+    void    setDescription( const QString& description );
     QString description() const;
 
     QWidget* viewWidget() override;
@@ -82,7 +82,7 @@ public:
     RimWellLogPlot* wellLogPlot() const;
 
     const QString& simWellOrWellPathName() const;
-    void           setSimWellOrWellPathName(const QString& currWellName);
+    void           setSimWellOrWellPathName( const QString& currWellName );
 
     int branchIndex() const;
 
@@ -90,7 +90,7 @@ public:
 
     static const char* plotNameFormatString();
 
-	void deleteCurvesAssosicatedWithObservedData(const RimObservedFmuRftData* observedFmuRftData);
+    void deleteCurvesAssosicatedWithObservedData( const RimObservedFmuRftData* observedFmuRftData );
 
 protected:
     // Overridden PDM methods
@@ -98,49 +98,51 @@ protected:
     {
         return &m_userName;
     }
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
     QImage snapshotWindowContent() override;
 
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
 
 private:
-    void calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
+    void calculateValueOptionsForWells( QList<caf::PdmOptionItemInfo>& options );
     void updateEditorsFromCurves();
     void updateWidgetTitleWindowTitle();
     void syncCurvesFromUiSelection();
     void assignWellPathToExtractionCurves();
 
-    RimObservedFmuRftData* findObservedFmuData(const QString& wellPathName, const QDateTime& timeStep) const;
+    RimObservedFmuRftData* findObservedFmuData( const QString& wellPathName, const QDateTime& timeStep ) const;
 
     std::set<RiaRftPltCurveDefinition> selectedCurveDefs() const;
     std::set<RiaRftPltCurveDefinition> curveDefsFromCurves() const;
 
-    void updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>& allCurveDefs,
-                            const std::set<RiaRftPltCurveDefinition>& curveDefsToAdd,
-                            const std::set<RimWellLogCurve*>&         curvesToDelete);
+    void updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition>& allCurveDefs,
+                             const std::set<RiaRftPltCurveDefinition>& curveDefsToAdd,
+                             const std::set<RimWellLogCurve*>&         curvesToDelete );
 
     std::vector<RifDataSourceForRftPlt> selectedSourcesExpanded() const;
 
     // RimViewWindow overrides
 
-    QWidget* createViewWidget(QWidget* mainWindowParent) override;
+    QWidget* createViewWidget( QWidget* mainWindowParent ) override;
     void     deleteViewWidget() override;
 
-    void applyCurveAppearance(RimWellLogCurve* newCurve);
+    void applyCurveAppearance( RimWellLogCurve* newCurve );
 
     void    updateFormationsOnPlot() const;
     QString associatedSimWellName() const;
 
-    static RiuQwtSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress(const RifEclipseRftAddress& address);
-    static RiuQwtSymbol::LabelPosition   statisticsLabelPosFromAddress(const RifEclipseRftAddress& address);
+    static RiuQwtSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseRftAddress& address );
+    static RiuQwtSymbol::LabelPosition   statisticsLabelPosFromAddress( const RifEclipseRftAddress& address );
 
-    void defineCurveColorsAndSymbols(const std::set<RiaRftPltCurveDefinition>& allCurveDefs);
+    void defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveDefinition>& allCurveDefs );
 
 private:
     caf::PdmField<bool>    m_showPlotTitle;
@@ -160,7 +162,7 @@ private:
 
     QPointer<RiuWellRftPlot> m_wellLogPlotWidget;
 
-	std::map<RifDataSourceForRftPlt, cvf::Color3f>     m_dataSourceColors;
+    std::map<RifDataSourceForRftPlt, cvf::Color3f>     m_dataSourceColors;
     std::map<QDateTime, RiuQwtSymbol::PointSymbolEnum> m_timeStepSymbols;
-    bool m_isOnLoad;
+    bool                                               m_isOnLoad;
 };

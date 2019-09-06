@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,11 +21,11 @@
 #include "RiaApplication.h"
 
 #include "RimContextCommandBuilder.h"
+#include "RimTofAccumulatedPhaseFractionsPlot.h"
 #include "RimTotalWellAllocationPlot.h"
-#include "RimWellRftPlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-#include "RimTofAccumulatedPhaseFractionsPlot.h"
+#include "RimWellRftPlot.h"
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuNightchartsWidget.h"
@@ -38,59 +38,55 @@
 #include <QLabel>
 #include <QMenu>
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuWellRftPlot::RiuWellRftPlot(RimWellRftPlot* plotDefinition, QWidget* parent)
-    : QFrame(parent)
-    , m_plotDefinition(plotDefinition)
+RiuWellRftPlot::RiuWellRftPlot( RimWellRftPlot* plotDefinition, QWidget* parent )
+    : QFrame( parent )
+    , m_plotDefinition( plotDefinition )
 
 {
-    Q_ASSERT(m_plotDefinition);
-    
-    QVBoxLayout* mainLayout = new QVBoxLayout();
-    this->setLayout(mainLayout);
-    this->layout()->setMargin(0);
-    this->layout()->setSpacing(2);
+    Q_ASSERT( m_plotDefinition );
 
-    m_titleLabel = new QLabel(this);
-    new RiuPlotObjectPicker(m_titleLabel, m_plotDefinition->wellLogPlot());
+    QVBoxLayout* mainLayout = new QVBoxLayout();
+    this->setLayout( mainLayout );
+    this->layout()->setMargin( 0 );
+    this->layout()->setSpacing( 2 );
+
+    m_titleLabel = new QLabel( this );
+    new RiuPlotObjectPicker( m_titleLabel, m_plotDefinition->wellLogPlot() );
 
     QFont font = m_titleLabel->font();
-    font.setPointSize(14);
-    font.setBold(true);
-    m_titleLabel->setFont(font);
+    font.setPointSize( 14 );
+    font.setBold( true );
+    m_titleLabel->setFont( font );
 
     // White background
     QPalette pal = this->palette();
-    pal.setColor(QPalette::Background, Qt::white);
-    this->setAutoFillBackground(true);
-    this->setPalette(pal);
+    pal.setColor( QPalette::Background, Qt::white );
+    this->setAutoFillBackground( true );
+    this->setPalette( pal );
 
-    mainLayout->addWidget(m_titleLabel, 0, Qt::AlignCenter);
+    mainLayout->addWidget( m_titleLabel, 0, Qt::AlignCenter );
 
     auto plotWidgetsLayout = new QHBoxLayout();
     auto rightColumnLayout = new QVBoxLayout();
 
-    mainLayout->addLayout(plotWidgetsLayout);
-    plotWidgetsLayout->addLayout(rightColumnLayout);
-    
+    mainLayout->addLayout( plotWidgetsLayout );
+    plotWidgetsLayout->addLayout( rightColumnLayout );
+
     QWidget* wellFlowWidget = m_plotDefinition->wellLogPlot()->createPlotWidget();
 
-    plotWidgetsLayout->addWidget(wellFlowWidget);
+    plotWidgetsLayout->addWidget( wellFlowWidget );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuWellRftPlot::~RiuWellRftPlot()
-{
-}
+RiuWellRftPlot::~RiuWellRftPlot() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellRftPlot* RiuWellRftPlot::ownerPlotDefinition()
 {
@@ -98,7 +94,7 @@ RimWellRftPlot* RiuWellRftPlot::ownerPlotDefinition()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimViewWindow* RiuWellRftPlot::ownerViewWindow() const
 {
@@ -106,17 +102,17 @@ RimViewWindow* RiuWellRftPlot::ownerViewWindow() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuWellRftPlot::showTitle(const QString& title)
+void RiuWellRftPlot::showTitle( const QString& title )
 {
     m_titleLabel->show();
 
-    m_titleLabel->setText(title);
+    m_titleLabel->setText( title );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuWellRftPlot::hideTitle()
 {
@@ -124,31 +120,27 @@ void RiuWellRftPlot::hideTitle()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuWellRftPlot::minimumSizeHint() const
 {
-    return QSize(0, 100);
+    return QSize( 0, 100 );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuWellRftPlot::contextMenuEvent(QContextMenuEvent* event)
-{
-}
+void RiuWellRftPlot::contextMenuEvent( QContextMenuEvent* event ) {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuWellRftPlot::sizeHint() const
 {
-    return QSize(0, 0);
+    return QSize( 0, 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuWellRftPlot::setDefaults()
-{
-}
+void RiuWellRftPlot::setDefaults() {}

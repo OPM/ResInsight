@@ -29,24 +29,22 @@ class RimWellLogPlotNameConfig : public RimNameConfig
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellLogPlotNameConfig(const RimNameConfigHolderInterface* configHolder = nullptr);
+    RimWellLogPlotNameConfig( const RimNameConfigHolderInterface* configHolder = nullptr );
 
     bool addCaseName() const;
     bool addWellName() const;
     bool addTimeStep() const;
     bool addAirGap() const;
     bool addWaterDepth() const;
-    void enableAllAutoNameTags(bool enable) override;
+    void enableAllAutoNameTags( bool enable ) override;
 
 protected:
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    caf::PdmField<bool>              m_addCaseName;
-    caf::PdmField<bool>              m_addWellName;
-    caf::PdmField<bool>              m_addTimestep;
-    caf::PdmField<bool>              m_addAirGap;
-    caf::PdmField<bool>              m_addWaterDepth;
+    caf::PdmField<bool> m_addCaseName;
+    caf::PdmField<bool> m_addWellName;
+    caf::PdmField<bool> m_addTimestep;
+    caf::PdmField<bool> m_addAirGap;
+    caf::PdmField<bool> m_addWaterDepth;
 };
-
-

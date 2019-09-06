@@ -27,5 +27,5 @@ class Rim3dView;
 class RiaOptionItemFactory
 {
 public:
-    static void appendOptionItemFromViewNameAndCaseName(Rim3dView* view, QList<caf::PdmOptionItemInfo>* optionItems);
+    static void appendOptionItemFromViewNameAndCaseName( Rim3dView* view, QList<caf::PdmOptionItemInfo>* optionItems );
 };

@@ -34,91 +34,108 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseCellResultToFileImpl::writePropertyToTextFile(const QString&      fileName,
-                                                             RigEclipseCaseData* eclipseCase,
-                                                             size_t              timeStep,
-                                                             const QString&      resultName,
-                                                             const QString&      eclipseKeyword,
-                                                             const double        undefinedValue,
-                                                             QString*            errorMsg)
+bool RicEclipseCellResultToFileImpl::writePropertyToTextFile( const QString&      fileName,
+                                                              RigEclipseCaseData* eclipseCase,
+                                                              size_t              timeStep,
+                                                              const QString&      resultName,
+                                                              const QString&      eclipseKeyword,
+                                                              const double        undefinedValue,
+                                                              QString*            errorMsg )
 {
-    CVF_TIGHT_ASSERT(eclipseCase);
-    if (!eclipseCase) return false;
+    CVF_TIGHT_ASSERT( eclipseCase );
+    if ( !eclipseCase ) return false;
 
     cvf::ref<RigResultAccessor> resultAccessor =
-        RigResultAccessorFactory::createFromResultAddress(eclipseCase, 0, RiaDefines::MATRIX_MODEL, timeStep, RigEclipseResultAddress(resultName));
-    if (resultAccessor.isNull())
+        RigResultAccessorFactory::createFromResultAddress( eclipseCase,
+                                                           0,
+                                                           RiaDefines::MATRIX_MODEL,
+                                                           timeStep,
+                                                           RigEclipseResultAddress( resultName ) );
+    if ( resultAccessor.isNull() )
     {
         return false;
     }
 
-    return writeResultToTextFile(
-        fileName, eclipseCase, resultAccessor.p(), eclipseKeyword, undefinedValue, "writePropertyToTextFile", errorMsg);
+    return writeResultToTextFile( fileName,
+                                  eclipseCase,
+                                  resultAccessor.p(),
+                                  eclipseKeyword,
+                                  undefinedValue,
+                                  "writePropertyToTextFile",
+                                  errorMsg );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseCellResultToFileImpl::writeBinaryResultToTextFile(const QString&              fileName,
-                                                                 RigEclipseCaseData*         eclipseCase,
-                                                                 size_t                      timeStep,
-                                                                 RimEclipseResultDefinition* resultDefinition,
-                                                                 const QString&              eclipseKeyword,
-                                                                 const double                undefinedValue,
-                                                                 const QString&              logPrefix,
-                                                                 QString*                    errorMsg)
+bool RicEclipseCellResultToFileImpl::writeBinaryResultToTextFile( const QString&              fileName,
+                                                                  RigEclipseCaseData*         eclipseCase,
+                                                                  size_t                      timeStep,
+                                                                  RimEclipseResultDefinition* resultDefinition,
+                                                                  const QString&              eclipseKeyword,
+                                                                  const double                undefinedValue,
+                                                                  const QString&              logPrefix,
+                                                                  QString*                    errorMsg )
 {
-    CVF_TIGHT_ASSERT(eclipseCase);
+    CVF_TIGHT_ASSERT( eclipseCase );
 
-    cvf::ref<RigResultAccessor> resultAccessor =
-        RigResultAccessorFactory::createFromResultDefinition(eclipseCase, 0, timeStep, resultDefinition);
-    if (resultAccessor.isNull())
+    cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition( eclipseCase,
+                                                                                                       0,
+                                                                                                       timeStep,
+                                                                                                       resultDefinition );
+    if ( resultAccessor.isNull() )
     {
         return false;
     }
 
-    return writeResultToTextFile(fileName, eclipseCase, resultAccessor.p(), eclipseKeyword, undefinedValue, logPrefix, errorMsg);
+    return writeResultToTextFile( fileName,
+                                  eclipseCase,
+                                  resultAccessor.p(),
+                                  eclipseKeyword,
+                                  undefinedValue,
+                                  logPrefix,
+                                  errorMsg );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseCellResultToFileImpl::writeResultToTextFile(const QString&      fileName,
-                                                           RigEclipseCaseData* eclipseCase,
-                                                           RigResultAccessor*  resultAccessor,
-                                                           const QString&      eclipseKeyword,
-                                                           const double        undefinedValue,
-                                                           const QString&      logPrefix,
-                                                           QString*            errorMsg)
+bool RicEclipseCellResultToFileImpl::writeResultToTextFile( const QString&      fileName,
+                                                            RigEclipseCaseData* eclipseCase,
+                                                            RigResultAccessor*  resultAccessor,
+                                                            const QString&      eclipseKeyword,
+                                                            const double        undefinedValue,
+                                                            const QString&      logPrefix,
+                                                            QString*            errorMsg )
 {
-    CAF_ASSERT(errorMsg != nullptr);
+    CAF_ASSERT( errorMsg != nullptr );
 
-    if (!resultAccessor)
+    if ( !resultAccessor )
     {
-        *errorMsg = QString(logPrefix + QString(" : : Could not access result data for '%1'").arg(fileName));
+        *errorMsg = QString( logPrefix + QString( " : : Could not access result data for '%1'" ).arg( fileName ) );
         return false;
     }
 
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    QFile file( fileName );
+    if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
-        *errorMsg = QString(logPrefix + QString(" : Could not open file '%1'. Do the folder exist?").arg(fileName));
+        *errorMsg = QString( logPrefix + QString( " : Could not open file '%1'. Do the folder exist?" ).arg( fileName ) );
         return false;
     }
 
     std::vector<double> resultData;
-    for (size_t i = 0; i < eclipseCase->mainGrid()->cellCount(); i++)
+    for ( size_t i = 0; i < eclipseCase->mainGrid()->cellCount(); i++ )
     {
-        double resultValue = resultAccessor->cellScalar(i);
-        if (resultValue == HUGE_VAL)
+        double resultValue = resultAccessor->cellScalar( i );
+        if ( resultValue == HUGE_VAL )
         {
             resultValue = undefinedValue;
         }
 
-        resultData.push_back(resultValue);
+        resultData.push_back( resultValue );
     }
 
-    writeDataToTextFile(&file, eclipseKeyword, resultData);
+    writeDataToTextFile( &file, eclipseKeyword, resultData );
 
     return true;
 }
@@ -126,32 +143,32 @@ bool RicEclipseCellResultToFileImpl::writeResultToTextFile(const QString&      f
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicEclipseCellResultToFileImpl::writeDataToTextFile(QFile*                     file,
-                                                         const QString&             eclipseKeyword,
-                                                         const std::vector<double>& resultData)
+void RicEclipseCellResultToFileImpl::writeDataToTextFile( QFile*                     file,
+                                                          const QString&             eclipseKeyword,
+                                                          const std::vector<double>& resultData )
 {
-    QTextStream textstream(file);
+    QTextStream textstream( file );
     textstream << "\n";
     textstream << "-- Exported from ResInsight"
                << "\n";
-    textstream << eclipseKeyword << "\n" << right << qSetFieldWidth(16);
+    textstream << eclipseKeyword << "\n" << right << qSetFieldWidth( 16 );
 
-    caf::ProgressInfo pi(resultData.size(), QString("Writing data to file %1").arg(file->fileName()));
+    caf::ProgressInfo pi( resultData.size(), QString( "Writing data to file %1" ).arg( file->fileName() ) );
     size_t            progressSteps = resultData.size() / 20;
 
     size_t i;
-    for (i = 0; i < resultData.size(); i++)
+    for ( i = 0; i < resultData.size(); i++ )
     {
         textstream << resultData[i];
 
-        if ((i + 1) % 5 == 0)
+        if ( ( i + 1 ) % 5 == 0 )
         {
             textstream << "\n";
         }
 
-        if (i % progressSteps == 0)
+        if ( i % progressSteps == 0 )
         {
-            pi.setProgress(i);
+            pi.setProgress( i );
         }
     }
 

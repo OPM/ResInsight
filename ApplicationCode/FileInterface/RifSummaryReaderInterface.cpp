@@ -41,22 +41,22 @@ const std::set<RifEclipseSummaryAddress>& RifSummaryReaderInterface::allErrorAdd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifSummaryReaderInterface::errorAddress(const RifEclipseSummaryAddress& resultAddress) const
+RifEclipseSummaryAddress RifSummaryReaderInterface::errorAddress( const RifEclipseSummaryAddress& resultAddress ) const
 {
     RifEclipseSummaryAddress errAddr = resultAddress;
     errAddr.setAsErrorResult();
 
-    return m_allErrorAddresses.find(errAddr) != m_allErrorAddresses.end() ? errAddr : RifEclipseSummaryAddress();
+    return m_allErrorAddresses.find( errAddr ) != m_allErrorAddresses.end() ? errAddr : RifEclipseSummaryAddress();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifSummaryReaderInterface::hasAddress(const RifEclipseSummaryAddress& resultAddress) const
+bool RifSummaryReaderInterface::hasAddress( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    for (const RifEclipseSummaryAddress& summaryAddress : m_allResultAddresses)
+    for ( const RifEclipseSummaryAddress& summaryAddress : m_allResultAddresses )
     {
-        if (summaryAddress == resultAddress)
+        if ( summaryAddress == resultAddress )
         {
             return true;
         }

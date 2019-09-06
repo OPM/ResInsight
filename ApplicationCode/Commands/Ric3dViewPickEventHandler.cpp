@@ -25,7 +25,7 @@
 //--------------------------------------------------------------------------------------------------
 void Ric3dViewPickEventHandler::registerAsPickEventHandler()
 {
-    RiuViewerCommands::setPickEventHandler(this);
+    RiuViewerCommands::setPickEventHandler( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -33,18 +33,18 @@ void Ric3dViewPickEventHandler::registerAsPickEventHandler()
 //--------------------------------------------------------------------------------------------------
 void Ric3dViewPickEventHandler::unregisterAsPickEventHandler()
 {
-    RiuViewerCommands::removePickEventHandlerIfActive(this);
+    RiuViewerCommands::removePickEventHandlerIfActive( this );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Override from caf::PickEventHandler. Translates to a 3d Pick event.
 //--------------------------------------------------------------------------------------------------
-bool Ric3dViewPickEventHandler::handlePickEvent(const caf::PickEvent& eventObject)
+bool Ric3dViewPickEventHandler::handlePickEvent( const caf::PickEvent& eventObject )
 {
-    const Ric3dPickEvent* eventObject3d = dynamic_cast<const Ric3dPickEvent*>(&eventObject);
-    if (eventObject3d != nullptr)
+    const Ric3dPickEvent* eventObject3d = dynamic_cast<const Ric3dPickEvent*>( &eventObject );
+    if ( eventObject3d != nullptr )
     {
-        return handle3dPickEvent(*eventObject3d);
+        return handle3dPickEvent( *eventObject3d );
     }
     return false;
 }

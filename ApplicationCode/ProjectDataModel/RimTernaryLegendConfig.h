@@ -2,17 +2,17 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,6 @@
 
 #include "RimLegendConfig.h"
 
-#include "cvfBase.h"
 #include "cvfObject.h"
 
 #include "cafAppEnum.h"
@@ -32,12 +31,12 @@ class RivTernaryScalarMapper;
 
 namespace cvf
 {
-    class OverlayItem;
+class OverlayItem;
 }
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class RimTernaryLegendConfig : public RimLegendConfig
 {
@@ -55,58 +54,61 @@ public:
     RimTernaryLegendConfig();
     ~RimTernaryLegendConfig() override;
 
-    void setUiValuesFromLegendConfig(const RimTernaryLegendConfig* otherLegendConfig);
-    void setAutomaticRanges(TernaryArrayIndex ternaryIndex, double globalMin, double globalMax, double localMin, double localMax);
+    void setUiValuesFromLegendConfig( const RimTernaryLegendConfig* otherLegendConfig );
+    void setAutomaticRanges(
+        TernaryArrayIndex ternaryIndex, double globalMin, double globalMax, double localMin, double localMax );
 
     void                           recreateLegend();
     bool                           showLegend() const;
-    void                           setTitle(const QString& title);
+    void                           setTitle( const QString& title );
     const RivTernaryScalarMapper*  scalarMapper() const;
     const caf::TitledOverlayFrame* titledOverlayFrame() const override;
     caf::TitledOverlayFrame*       titledOverlayFrame() override;
 
 private:
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void defineEditorAttribute(const caf::PdmFieldHandle* field,
-                               QString                    uiConfigName,
-                               caf::PdmUiEditorAttribute* attribute) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue ) override;
+    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                QString                    uiConfigName,
+                                                caf::PdmUiEditorAttribute* attribute ) override;
     caf::PdmFieldHandle* objectToggleField() override;
 
     void   updateLegend();
     void   updateLabelText();
-    double roundToNumSignificantDigits(double value, double precision);
+    double roundToNumSignificantDigits( double value, double precision );
 
-    void ternaryRanges(double& soilLower,
-                       double& soilUpper,
-                       double& sgasLower,
-                       double& sgasUpper,
-                       double& swatLower,
-                       double& swatUpper) const;
+    void ternaryRanges( double& soilLower,
+                        double& soilUpper,
+                        double& sgasLower,
+                        double& sgasUpper,
+                        double& swatLower,
+                        double& swatUpper ) const;
 
 private:
-    caf::PdmField<int>              precision;
-    caf::PdmField<RangeModeEnum>    rangeMode;
+    caf::PdmField<int>           precision;
+    caf::PdmField<RangeModeEnum> rangeMode;
 
-    caf::PdmField<double>           userDefinedMaxValueSoil;
-    caf::PdmField<double>           userDefinedMinValueSoil;
-    caf::PdmField<double>           userDefinedMaxValueSgas;
-    caf::PdmField<double>           userDefinedMinValueSgas;
-    caf::PdmField<double>           userDefinedMaxValueSwat;
-    caf::PdmField<double>           userDefinedMinValueSwat;
+    caf::PdmField<double> userDefinedMaxValueSoil;
+    caf::PdmField<double> userDefinedMinValueSoil;
+    caf::PdmField<double> userDefinedMaxValueSgas;
+    caf::PdmField<double> userDefinedMinValueSgas;
+    caf::PdmField<double> userDefinedMaxValueSwat;
+    caf::PdmField<double> userDefinedMinValueSwat;
 
-    caf::PdmField<bool>             applyLocalMinMax;
-    caf::PdmField<bool>             applyGlobalMinMax;
-    caf::PdmField<bool>             applyFullRangeMinMax;
-    caf::PdmField<QString>          ternaryRangeSummary;
+    caf::PdmField<bool>    applyLocalMinMax;
+    caf::PdmField<bool>    applyGlobalMinMax;
+    caf::PdmField<bool>    applyFullRangeMinMax;
+    caf::PdmField<QString> ternaryRangeSummary;
 
-    caf::PdmField<bool>             m_showLegend;
+    caf::PdmField<bool> m_showLegend;
 
-    std::vector<double>             m_globalAutoMax;
-    std::vector<double>             m_globalAutoMin;
-    std::vector<double>             m_localAutoMax;
-    std::vector<double>             m_localAutoMin;
+    std::vector<double> m_globalAutoMax;
+    std::vector<double> m_globalAutoMin;
+    std::vector<double> m_localAutoMax;
+    std::vector<double> m_localAutoMin;
 
-    cvf::ref<RivTernarySaturationOverlayItem>   m_legend;
-    cvf::ref<RivTernaryScalarMapper>            m_scalarMapper;
+    cvf::ref<RivTernarySaturationOverlayItem> m_legend;
+    cvf::ref<RivTernaryScalarMapper>          m_scalarMapper;
 };

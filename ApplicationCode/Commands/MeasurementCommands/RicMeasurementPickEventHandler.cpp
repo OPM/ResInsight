@@ -50,8 +50,8 @@ RicMeasurementPickEventHandler* RicMeasurementPickEventHandler::instance()
 //--------------------------------------------------------------------------------------------------
 void RicMeasurementPickEventHandler::registerAsPickEventHandler()
 {
-    RiuViewer::setHoverCursor(Qt::CrossCursor);
-    RiuViewerCommands::setPickEventHandler(RicMeasurementPickEventHandler::instance());
+    RiuViewer::setHoverCursor( Qt::CrossCursor );
+    RiuViewerCommands::setPickEventHandler( RicMeasurementPickEventHandler::instance() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,21 +60,21 @@ void RicMeasurementPickEventHandler::registerAsPickEventHandler()
 void RicMeasurementPickEventHandler::unregisterAsPickEventHandler()
 {
     RiuViewer::clearHoverCursor();
-    RiuViewerCommands::removePickEventHandlerIfActive(RicMeasurementPickEventHandler::instance());
+    RiuViewerCommands::removePickEventHandlerIfActive( RicMeasurementPickEventHandler::instance() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicMeasurementPickEventHandler::RicMeasurementPickEventHandler()
-    : m_polyLineModeEnabled(false)
+    : m_polyLineModeEnabled( false )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMeasurementPickEventHandler::enablePolyLineMode(bool polyLineModeEnabled)
+void RicMeasurementPickEventHandler::enablePolyLineMode( bool polyLineModeEnabled )
 {
     m_polyLineModeEnabled = polyLineModeEnabled;
 }
@@ -82,17 +82,17 @@ void RicMeasurementPickEventHandler::enablePolyLineMode(bool polyLineModeEnabled
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicMeasurementPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
+bool RicMeasurementPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eventObject )
 {
     auto measurement = RiaApplication::instance()->project()->measurement();
 
-    if (measurement && measurement->measurementMode())
+    if ( measurement && measurement->measurementMode() )
     {
         const RiuPickItemInfo* firstGeometryPickInfo = nullptr;
-        for (const auto& info : eventObject.m_pickItemInfos)
+        for ( const auto& info : eventObject.m_pickItemInfos )
         {
             auto partCandidate = info.pickedPart();
-            if (!firstGeometryPickInfo && partCandidate->priority() != RivPartPriority::PartType::Text)
+            if ( !firstGeometryPickInfo && partCandidate->priority() != RivPartPriority::PartType::Text )
             {
                 firstGeometryPickInfo = &info;
             }
@@ -100,25 +100,25 @@ bool RicMeasurementPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eve
 
         Rim3dView* rimView = RiaApplication::instance()->activeReservoirView();
 
-        if (firstGeometryPickInfo && rimView)
+        if ( firstGeometryPickInfo && rimView )
         {
             cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
 
-            cvf::Vec3d domainCoord = transForm->transformToDomainCoord(firstGeometryPickInfo->globalPickedPoint());
+            cvf::Vec3d domainCoord = transForm->transformToDomainCoord( firstGeometryPickInfo->globalPickedPoint() );
 
             bool isControlButtonDown = QApplication::keyboardModifiers() & Qt::ControlModifier;
 
             bool isPolyLineMode = m_polyLineModeEnabled != isControlButtonDown;
 
-            if (!isPolyLineMode)
+            if ( !isPolyLineMode )
             {
-                if (measurement->pointsInDomainCoords().size() > 1)
+                if ( measurement->pointsInDomainCoords().size() > 1 )
                 {
                     measurement->removeAllPoints();
                 }
             }
 
-            measurement->addPointInDomainCoords(domainCoord);
+            measurement->addPointInDomainCoords( domainCoord );
         }
 
         // Further Ui processing is stopped when true is returned

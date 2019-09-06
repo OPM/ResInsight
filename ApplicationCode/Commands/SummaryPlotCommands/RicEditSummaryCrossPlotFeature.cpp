@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -28,62 +28,59 @@
 #include "cafSelectionManager.h"
 #include "cvfAssert.h"
 
-#include <QAction>
 #include "RimSummaryPlot.h"
+#include <QAction>
 
-
-CAF_CMD_SOURCE_INIT(RicEditSummaryCrossPlotFeature, "RicEditSummaryCrossPlotFeature");
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RicEditSummaryCrossPlotFeature::RicEditSummaryCrossPlotFeature()
-{
-}
+CAF_CMD_SOURCE_INIT( RicEditSummaryCrossPlotFeature, "RicEditSummaryCrossPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+RicEditSummaryCrossPlotFeature::RicEditSummaryCrossPlotFeature() {}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RicEditSummaryCrossPlotFeature::closeDialogAndResetTargetPlot()
 {
     auto dialog = RicEditSummaryCrossPlotFeature::curveCreatorDialog();
 
-    if (dialog && dialog->isVisible())
+    if ( dialog && dialog->isVisible() )
     {
         dialog->hide();
     }
 
-    dialog->updateFromSummaryPlot(nullptr);
+    dialog->updateFromSummaryPlot( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreatorDialog* RicEditSummaryCrossPlotFeature::curveCreatorDialog()
 {
-    static RicSummaryCurveCreatorDialog* singletonDialog = new RicSummaryCurveCreatorDialog(nullptr);
+    static RicSummaryCurveCreatorDialog* singletonDialog = new RicSummaryCurveCreatorDialog( nullptr );
 
     return singletonDialog;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicEditSummaryCrossPlotFeature::isCommandEnabled()
 {
-    if (selectedSummaryPlot()) return true;
+    if ( selectedSummaryPlot() ) return true;
 
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicEditSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
+void RicEditSummaryCrossPlotFeature::onActionTriggered( bool isChecked )
 {
     auto dialog = RicEditSummaryCrossPlotFeature::curveCreatorDialog();
 
-    if (!dialog->isVisible())
+    if ( !dialog->isVisible() )
     {
         dialog->show();
     }
@@ -93,32 +90,32 @@ void RicEditSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
     }
 
     // Set target plot
-    if (selectedSummaryPlot())
+    if ( selectedSummaryPlot() )
     {
-        //dialog->updateFromSummaryPlot(selectedSummaryPlot());
+        // dialog->updateFromSummaryPlot(selectedSummaryPlot());
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicEditSummaryCrossPlotFeature::setupActionLook(QAction* actionToSetup)
+void RicEditSummaryCrossPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Edit Summary Plot");
-    actionToSetup->setIcon(QIcon(":/SummaryXPlotLight16x16.png"));
+    actionToSetup->setText( "Edit Summary Plot" );
+    actionToSetup->setIcon( QIcon( ":/SummaryXPlotLight16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicEditSummaryCrossPlotFeature::selectedSummaryPlot() const
 {
     RimSummaryPlot* sumPlot = nullptr;
 
-    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
-    if (selObj)
+    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
+    if ( selObj )
     {
-        selObj->firstAncestorOrThisOfType(sumPlot);
+        selObj->firstAncestorOrThisOfType( sumPlot );
     }
 
     return sumPlot;

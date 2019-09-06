@@ -36,10 +36,10 @@ public:
     };
 
 public:
-    explicit RiaTextFileCompare(const QString& pathToDiffTool);
+    explicit RiaTextFileCompare( const QString& pathToDiffTool );
     ~RiaTextFileCompare();
 
-    bool      runComparison(const QString& baseFolder, const QString& generatedFolder);
+    bool      runComparison( const QString& baseFolder, const QString& generatedFolder );
     ErrorType error() const;
     QString   errorMessage() const;
     QString   errorDetails() const;

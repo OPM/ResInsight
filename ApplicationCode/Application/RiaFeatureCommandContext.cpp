@@ -33,7 +33,7 @@ RiaFeatureCommandContext::~RiaFeatureCommandContext() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaFeatureCommandContext::setObject(QObject* object)
+void RiaFeatureCommandContext::setObject( QObject* object )
 {
     m_pointerToQObject = object;
 }
@@ -51,9 +51,9 @@ QObject* RiaFeatureCommandContext::object() const
 //--------------------------------------------------------------------------------------------------
 QString RiaFeatureCommandContext::titleString() const
 {
-    if (m_pointerToQObject)
+    if ( m_pointerToQObject )
     {
-        QVariant variant = m_pointerToQObject->property(titleStringIdentifier().data());
+        QVariant variant = m_pointerToQObject->property( titleStringIdentifier().data() );
 
         return variant.toString();
     }
@@ -66,9 +66,9 @@ QString RiaFeatureCommandContext::titleString() const
 //--------------------------------------------------------------------------------------------------
 QString RiaFeatureCommandContext::contentString() const
 {
-    if (m_pointerToQObject)
+    if ( m_pointerToQObject )
     {
-        QVariant variant = m_pointerToQObject->property(contentStringIdentifier().data());
+        QVariant variant = m_pointerToQObject->property( contentStringIdentifier().data() );
 
         return variant.toString();
     }
@@ -104,9 +104,9 @@ RiaFeatureCommandContext* RiaFeatureCommandContext::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaFeatureCommandContextHelper::RiaFeatureCommandContextHelper(QObject* externalObject)
+RiaFeatureCommandContextHelper::RiaFeatureCommandContextHelper( QObject* externalObject )
 {
-    RiaFeatureCommandContext::instance()->setObject(externalObject);
+    RiaFeatureCommandContext::instance()->setObject( externalObject );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,20 +114,20 @@ RiaFeatureCommandContextHelper::RiaFeatureCommandContextHelper(QObject* external
 //--------------------------------------------------------------------------------------------------
 RiaFeatureCommandContextHelper::~RiaFeatureCommandContextHelper()
 {
-    RiaFeatureCommandContext::instance()->setObject(nullptr);
+    RiaFeatureCommandContext::instance()->setObject( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaFeatureCommandContextTextHelper::RiaFeatureCommandContextTextHelper(const QString& title, const QString& text)
+RiaFeatureCommandContextTextHelper::RiaFeatureCommandContextTextHelper( const QString& title, const QString& text )
 {
     m_object = new QObject;
 
-    m_object->setProperty(RiaFeatureCommandContext::titleStringIdentifier().data(), title);
-    m_object->setProperty(RiaFeatureCommandContext::contentStringIdentifier().data(), text);
+    m_object->setProperty( RiaFeatureCommandContext::titleStringIdentifier().data(), title );
+    m_object->setProperty( RiaFeatureCommandContext::contentStringIdentifier().data(), text );
 
-    RiaFeatureCommandContext::instance()->setObject(m_object);
+    RiaFeatureCommandContext::instance()->setObject( m_object );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ RiaFeatureCommandContextTextHelper::RiaFeatureCommandContextTextHelper(const QSt
 //--------------------------------------------------------------------------------------------------
 RiaFeatureCommandContextTextHelper::~RiaFeatureCommandContextTextHelper()
 {
-    if (m_object)
+    if ( m_object )
     {
         m_object->deleteLater();
         m_object = nullptr;

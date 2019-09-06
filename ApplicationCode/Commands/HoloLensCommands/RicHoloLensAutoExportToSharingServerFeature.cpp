@@ -27,20 +27,20 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicHoloLensAutoExportToSharingServerFeature, "RicHoloLensAutoExportToSharingServerFeature");
+CAF_CMD_SOURCE_INIT( RicHoloLensAutoExportToSharingServerFeature, "RicHoloLensAutoExportToSharingServerFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicHoloLensAutoExportToSharingServerFeature::RicHoloLensAutoExportToSharingServerFeature()
-    : m_isActive(false)
+    : m_isActive( false )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensAutoExportToSharingServerFeature::setActive(bool enable)
+void RicHoloLensAutoExportToSharingServerFeature::setActive( bool enable )
 {
     m_isActive = enable;
 }
@@ -50,7 +50,7 @@ void RicHoloLensAutoExportToSharingServerFeature::setActive(bool enable)
 //--------------------------------------------------------------------------------------------------
 bool RicHoloLensAutoExportToSharingServerFeature::isActive() const
 {
-    if (isSessionValid())
+    if ( isSessionValid() )
     {
         return m_isActive;
     }
@@ -63,18 +63,18 @@ bool RicHoloLensAutoExportToSharingServerFeature::isActive() const
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensAutoExportToSharingServerFeature::triggerUpdateSession()
 {
-    if (m_isActive && isSessionValid())
+    if ( m_isActive && isSessionValid() )
     {
         RimGridView* activeView = RiaApplication::instance()->activeGridView();
-        if (!activeView)
+        if ( !activeView )
         {
-            RiaLogging::error("No active view");
+            RiaLogging::error( "No active view" );
             return;
         }
 
         RicHoloLensSession* session = RicHoloLensSessionManager::instance()->session();
 
-        session->updateSessionDataFromView(*activeView);
+        session->updateSessionDataFromView( *activeView );
     }
 }
 
@@ -89,24 +89,24 @@ bool RicHoloLensAutoExportToSharingServerFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensAutoExportToSharingServerFeature::onActionTriggered(bool isChecked)
+void RicHoloLensAutoExportToSharingServerFeature::onActionTriggered( bool isChecked )
 {
     m_isActive = !m_isActive;
-    
-    if (!isSessionValid())
+
+    if ( !isSessionValid() )
     {
-        RiaLogging::error("No valid HoloLens session present");
+        RiaLogging::error( "No valid HoloLens session present" );
         m_isActive = false;
     }
 
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
-    if (!activeView)
+    if ( !activeView )
     {
-        RiaLogging::error("No active view");
+        RiaLogging::error( "No active view" );
         m_isActive = false;
     }
 
-    if (m_isActive)
+    if ( m_isActive )
     {
         triggerUpdateSession();
     }
@@ -115,12 +115,12 @@ void RicHoloLensAutoExportToSharingServerFeature::onActionTriggered(bool isCheck
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensAutoExportToSharingServerFeature::setupActionLook(QAction* actionToSetup)
+void RicHoloLensAutoExportToSharingServerFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/HoloLensSendContinously24x24.png"));
+    actionToSetup->setIcon( QIcon( ":/HoloLensSendContinously24x24.png" ) );
 
-    actionToSetup->setText("Export to HoloLens Server Continuously");
-    actionToSetup->setCheckable(true);
+    actionToSetup->setText( "Export to HoloLens Server Continuously" );
+    actionToSetup->setCheckable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ bool RicHoloLensAutoExportToSharingServerFeature::isCommandChecked()
 bool RicHoloLensAutoExportToSharingServerFeature::isSessionValid() const
 {
     RicHoloLensSession* session = RicHoloLensSessionManager::instance()->session();
-    if (session && session->isSessionValid())
+    if ( session && session->isSessionValid() )
     {
         return true;
     }

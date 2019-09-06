@@ -19,31 +19,30 @@
 #include "RiaViewRedrawScheduler.h"
 #include "Rim3dView.h"
 
-#include <QTimer>
 #include <QCoreApplication>
+#include <QTimer>
 
-#include <set>
 #include "cafProgressState.h"
+#include <set>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiaViewRedrawScheduler* RiaViewRedrawScheduler::instance()
 {
-    static RiaViewRedrawScheduler theInstance; 
-    
+    static RiaViewRedrawScheduler theInstance;
+
     return &theInstance;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaViewRedrawScheduler::clearViewsScheduledForUpdate()
 {
-    if (m_resViewUpdateTimer)
+    if ( m_resViewUpdateTimer )
     {
-        while (m_resViewUpdateTimer->isActive())
+        while ( m_resViewUpdateTimer->isActive() )
         {
             QCoreApplication::processEvents();
         }
@@ -51,39 +50,37 @@ void RiaViewRedrawScheduler::clearViewsScheduledForUpdate()
     m_resViewsToUpdate.clear();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// Schedule a creation of the Display model and redraw of the reservoir view
 /// The redraw will happen as soon as the event loop is entered
 //--------------------------------------------------------------------------------------------------
-void RiaViewRedrawScheduler::scheduleDisplayModelUpdateAndRedraw(Rim3dView* resViewToUpdate)
+void RiaViewRedrawScheduler::scheduleDisplayModelUpdateAndRedraw( Rim3dView* resViewToUpdate )
 {
-    m_resViewsToUpdate.push_back(resViewToUpdate);
+    m_resViewsToUpdate.push_back( resViewToUpdate );
 
-    startTimer(0);
+    startTimer( 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiaViewRedrawScheduler::startTimer(int msecs)
+void RiaViewRedrawScheduler::startTimer( int msecs )
 {
-    if (!m_resViewUpdateTimer) 
+    if ( !m_resViewUpdateTimer )
     {
-        m_resViewUpdateTimer = new QTimer(this);
-        connect(m_resViewUpdateTimer, SIGNAL(timeout()), this, SLOT(slotUpdateAndRedrawScheduledViewsWhenReady()));
+        m_resViewUpdateTimer = new QTimer( this );
+        connect( m_resViewUpdateTimer, SIGNAL( timeout() ), this, SLOT( slotUpdateAndRedrawScheduledViewsWhenReady() ) );
     }
 
-    if (!m_resViewUpdateTimer->isActive())
+    if ( !m_resViewUpdateTimer->isActive() )
     {
-        m_resViewUpdateTimer->setSingleShot(true);
-        m_resViewUpdateTimer->start(msecs);
+        m_resViewUpdateTimer->setSingleShot( true );
+        m_resViewUpdateTimer->start( msecs );
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaViewRedrawScheduler::updateAndRedrawScheduledViews()
 {
@@ -93,29 +90,31 @@ void RiaViewRedrawScheduler::updateAndRedrawScheduledViews()
     std::set<Rim3dView*> independent3DViewsToUpdate;
     std::set<Rim3dView*> dependent3DViewsToUpdate;
 
-    for (size_t i = 0; i < m_resViewsToUpdate.size(); ++i)
+    for ( size_t i = 0; i < m_resViewsToUpdate.size(); ++i )
     {
-        if (!m_resViewsToUpdate[i]) continue;
+        if ( !m_resViewsToUpdate[i] ) continue;
 
-        if (m_resViewsToUpdate[i]->viewController())
-            dependent3DViewsToUpdate.insert(m_resViewsToUpdate[i]);
+        if ( m_resViewsToUpdate[i]->viewController() )
+            dependent3DViewsToUpdate.insert( m_resViewsToUpdate[i] );
         else
-            independent3DViewsToUpdate.insert(m_resViewsToUpdate[i]);
+            independent3DViewsToUpdate.insert( m_resViewsToUpdate[i] );
     }
 
-    for (std::set<Rim3dView*>::iterator it = independent3DViewsToUpdate.begin(); it != independent3DViewsToUpdate.end(); ++it )
+    for ( std::set<Rim3dView*>::iterator it = independent3DViewsToUpdate.begin(); it != independent3DViewsToUpdate.end();
+          ++it )
     {
-        if (*it)
+        if ( *it )
         {
-            (*it)->createDisplayModelAndRedraw();
+            ( *it )->createDisplayModelAndRedraw();
         }
     }
 
-    for (std::set<Rim3dView*>::iterator it = dependent3DViewsToUpdate.begin(); it != dependent3DViewsToUpdate.end(); ++it)
+    for ( std::set<Rim3dView*>::iterator it = dependent3DViewsToUpdate.begin(); it != dependent3DViewsToUpdate.end();
+          ++it )
     {
-        if (*it)
+        if ( *it )
         {
-            (*it)->createDisplayModelAndRedraw();
+            ( *it )->createDisplayModelAndRedraw();
         }
     }
 
@@ -123,13 +122,13 @@ void RiaViewRedrawScheduler::updateAndRedrawScheduledViews()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaViewRedrawScheduler::slotUpdateAndRedrawScheduledViewsWhenReady()
 {
     if ( caf::ProgressState::isActive() )
     {
-        startTimer(100);
+        startTimer( 100 );
         return;
     }
 
@@ -137,7 +136,7 @@ void RiaViewRedrawScheduler::slotUpdateAndRedrawScheduledViewsWhenReady()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiaViewRedrawScheduler::~RiaViewRedrawScheduler()
 {

@@ -29,16 +29,17 @@
 class RifReaderRftInterface
 {
 public:
-    std::set<RifEclipseRftAddress>         eclipseRftAddresses(const QString& wellName, const QDateTime& timeStep);
-    virtual std::set<RifEclipseRftAddress> eclipseRftAddresses()                                                       = 0;
-    virtual void                           values(const RifEclipseRftAddress& rftAddress, std::vector<double>* values) = 0;
+    std::set<RifEclipseRftAddress>         eclipseRftAddresses( const QString& wellName, const QDateTime& timeStep );
+    virtual std::set<RifEclipseRftAddress> eclipseRftAddresses()                               = 0;
+    virtual void values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) = 0;
 
     virtual std::set<QDateTime>
-                                                                  availableTimeSteps(const QString&                                              wellName,
-                                                                                     const std::set<RifEclipseRftAddress::RftWellLogChannelType> relevantChannels) = 0;
-    virtual std::set<QDateTime>                                   availableTimeSteps(const QString& wellName) = 0;
-    virtual std::set<QDateTime>                                   availableTimeSteps(const QString&                                     wellName,
-                                                                                     const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName) = 0;
-    virtual std::set<RifEclipseRftAddress::RftWellLogChannelType> availableWellLogChannels(const QString& wellName) = 0;
-    virtual std::set<QString>                                     wellNames()                                       = 0;
+                                availableTimeSteps( const QString&                                              wellName,
+                                                    const std::set<RifEclipseRftAddress::RftWellLogChannelType> relevantChannels ) = 0;
+    virtual std::set<QDateTime> availableTimeSteps( const QString& wellName ) = 0;
+    virtual std::set<QDateTime>
+                                                                  availableTimeSteps( const QString&                                     wellName,
+                                                                                      const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName ) = 0;
+    virtual std::set<RifEclipseRftAddress::RftWellLogChannelType> availableWellLogChannels( const QString& wellName ) = 0;
+    virtual std::set<QString>                                     wellNames() = 0;
 };

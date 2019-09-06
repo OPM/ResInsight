@@ -33,48 +33,49 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicWellPathExportCompletionsFileTools::OpenFileException::OpenFileException(const QString& message)
-    : message(message)
+RicWellPathExportCompletionsFileTools::OpenFileException::OpenFileException( const QString& message )
+    : message( message )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFileForExport(const QString& fullFileName)
+std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFileForExport( const QString& fullFileName )
 {
-    std::pair<QString, QString> folderAndFileName = RiaFilePathTools::toFolderAndFileName(fullFileName);
-    return openFileForExport(folderAndFileName.first, folderAndFileName.second);
+    std::pair<QString, QString> folderAndFileName = RiaFilePathTools::toFolderAndFileName( fullFileName );
+    return openFileForExport( folderAndFileName.first, folderAndFileName.second );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFileForExport(const QString& folderName, const QString& fileName)
+std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFileForExport( const QString& folderName,
+                                                                                 const QString& fileName )
 {
-    QString validFileName = caf::Utils::makeValidFileBasename(fileName);
+    QString validFileName = caf::Utils::makeValidFileBasename( fileName );
 
-    QDir exportFolder = QDir(folderName);
-    if (!exportFolder.exists())
+    QDir exportFolder = QDir( folderName );
+    if ( !exportFolder.exists() )
     {
-        bool createdPath = exportFolder.mkpath(".");
-        if (createdPath)
-            RiaLogging::info("Created export folder " + folderName);
+        bool createdPath = exportFolder.mkpath( "." );
+        if ( createdPath )
+            RiaLogging::info( "Created export folder " + folderName );
         else
         {
-            auto errorMessage = QString("Selected output folder does not exist, and could not be created.");
-            RiaLogging::error(errorMessage);
-            throw OpenFileException(errorMessage);
+            auto errorMessage = QString( "Selected output folder does not exist, and could not be created." );
+            RiaLogging::error( errorMessage );
+            throw OpenFileException( errorMessage );
         }
     }
 
-    QString  filePath = exportFolder.filePath(validFileName);
-    std::shared_ptr<QFile> exportFile(new QFile(filePath));
-    if (!exportFile->open(QIODevice::WriteOnly | QIODevice::Text))
+    QString                filePath = exportFolder.filePath( validFileName );
+    std::shared_ptr<QFile> exportFile( new QFile( filePath ) );
+    if ( !exportFile->open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
-        auto errorMessage = QString("Export Completions Data: Could not open the file: %1").arg(filePath);
-        RiaLogging::error(errorMessage);
-        throw OpenFileException(errorMessage);
+        auto errorMessage = QString( "Export Completions Data: Could not open the file: %1" ).arg( filePath );
+        RiaLogging::error( errorMessage );
+        throw OpenFileException( errorMessage );
     }
     return exportFile;
 }
@@ -82,14 +83,13 @@ std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFileForExport(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimWellPath* RicWellPathExportCompletionsFileTools::findWellPathFromExportName(const QString& wellNameForExport)
+const RimWellPath* RicWellPathExportCompletionsFileTools::findWellPathFromExportName( const QString& wellNameForExport )
 {
     auto allWellPaths = RiaApplication::instance()->project()->allWellPaths();
 
-    for (const auto wellPath : allWellPaths)
+    for ( const auto wellPath : allWellPaths )
     {
-        if (wellPath->completions()->wellNameForExport() == wellNameForExport) return wellPath;
+        if ( wellPath->completions()->wellNameForExport() == wellNameForExport ) return wellPath;
     }
     return nullptr;
 }
-

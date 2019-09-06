@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2016-2018 Statoil ASA
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -47,96 +47,95 @@
 
 #include <QAction>
 
-
-CAF_CMD_SOURCE_INIT(RicNewWellPathFractureFeature, "RicNewWellPathFractureFeature");
+CAF_CMD_SOURCE_INIT( RicNewWellPathFractureFeature, "RicNewWellPathFractureFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double measuredDepth)
+void RicNewWellPathFractureFeature::addFracture( RimWellPath* wellPath, double measuredDepth )
 {
-    CVF_ASSERT(wellPath);
+    CVF_ASSERT( wellPath );
 
-    if (!RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem(wellPath)) return;
+    if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return;
 
     RimWellPathFractureCollection* fractureCollection = wellPath->fractureCollection();
-    CVF_ASSERT(fractureCollection);
+    CVF_ASSERT( fractureCollection );
 
-    if (fractureCollection->allFractures().empty())
+    if ( fractureCollection->allFractures().empty() )
     {
-        RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
-        if (activeView)
+        RimEclipseView* activeView = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeReservoirView() );
+        if ( activeView )
         {
             activeView->fractureColors()->setDefaultResultName();
         }
     }
 
     RimWellPathFracture* fracture = new RimWellPathFracture();
-    fractureCollection->addFracture(fracture);
+    fractureCollection->addFracture( fracture );
 
-    fracture->setMeasuredDepth(measuredDepth);
-    fracture->setFractureUnit(wellPath->unitSystem());
+    fracture->setMeasuredDepth( measuredDepth );
+    fracture->setFractureUnit( wellPath->unitSystem() );
 
-    RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
-    cvf::Vec3d positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath(measuredDepth);
-    fracture->setAnchorPosition(positionAtWellpath);
+    RigWellPath* wellPathGeometry   = wellPath->wellPathGeometry();
+    cvf::Vec3d   positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath( measuredDepth );
+    fracture->setAnchorPosition( positionAtWellpath );
 
     RimOilField* oilfield = nullptr;
-    fractureCollection->firstAncestorOrThisOfType(oilfield);
-    if (!oilfield) return;
+    fractureCollection->firstAncestorOrThisOfType( oilfield );
+    if ( !oilfield ) return;
 
-    fracture->setName(RicFractureNameGenerator::nameForNewFracture());
+    fracture->setName( RicFractureNameGenerator::nameForNewFracture() );
 
     auto unitSet = wellPath->unitSystem();
-    fracture->setFractureUnit(unitSet);
+    fracture->setFractureUnit( unitSet );
 
-    RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection()->firstFractureOfUnit(unitSet);
-    if (fracDef)
+    RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection()->firstFractureOfUnit( unitSet );
+    if ( fracDef )
     {
-        fracture->setFractureTemplate(fracDef);
+        fracture->setFractureTemplate( fracDef );
     }
 
     RimProject* project = nullptr;
-    fractureCollection->firstAncestorOrThisOfType(project);
-    if (project)
+    fractureCollection->firstAncestorOrThisOfType( project );
+    if ( project )
     {
         project->reloadCompletionTypeResultsInAllViews();
         project->updateAllRequiredEditors();
     }
 
-    Riu3DMainWindowTools::selectAsCurrentItem(fracture);
+    Riu3DMainWindowTools::selectAsCurrentItem( fracture );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
+void RicNewWellPathFractureFeature::onActionTriggered( bool isChecked )
 {
     RimWellPathFractureCollection* fractureColl = RicNewWellPathFractureFeature::selectedWellPathFractureCollection();
-    if (!fractureColl) return;
+    if ( !fractureColl ) return;
 
     RimWellPath* wellPath = nullptr;
-    fractureColl->firstAncestorOrThisOfTypeAsserted(wellPath);
+    fractureColl->firstAncestorOrThisOfTypeAsserted( wellPath );
 
     double defaultMeasuredDepth = 0.0f;
-    RicNewWellPathFractureFeature::addFracture(wellPath, defaultMeasuredDepth);
+    RicNewWellPathFractureFeature::addFracture( wellPath, defaultMeasuredDepth );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellPathFractureFeature::setupActionLook(QAction* actionToSetup)
+void RicNewWellPathFractureFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/FractureSymbol16x16.png"));
-    actionToSetup->setText("Create Fracture");
+    actionToSetup->setIcon( QIcon( ":/FractureSymbol16x16.png" ) );
+    actionToSetup->setText( "Create Fracture" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellPathFractureFeature::isCommandEnabled()
 {
-    if (selectedWellPathFractureCollection())
+    if ( selectedWellPathFractureCollection() )
     {
         return true;
     }
@@ -145,34 +144,35 @@ bool RicNewWellPathFractureFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellPathFractureCollection* RicNewWellPathFractureFeature::selectedWellPathFractureCollection()
 {
     std::vector<caf::PdmUiItem*> allSelectedItems;
-    caf::SelectionManager::instance()->selectedItems(allSelectedItems);
-    if (allSelectedItems.size() != 1u) return nullptr;
-    
+    caf::SelectionManager::instance()->selectedItems( allSelectedItems );
+    if ( allSelectedItems.size() != 1u ) return nullptr;
+
     RimWellPathFractureCollection* objToFind = nullptr;
 
     caf::PdmUiItem* pdmUiItem = allSelectedItems.front();
 
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
-    if (objHandle)
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
+    if ( objHandle )
     {
-        objHandle->firstAncestorOrThisOfType(objToFind);
+        objHandle->firstAncestorOrThisOfType( objToFind );
     }
 
-    if (objToFind == nullptr)
+    if ( objToFind == nullptr )
     {
         std::vector<RimWellPath*> wellPaths;
-        caf::SelectionManager::instance()->objectsByType(&wellPaths);
-        if (!wellPaths.empty())
+        caf::SelectionManager::instance()->objectsByType( &wellPaths );
+        if ( !wellPaths.empty() )
         {
             return wellPaths[0]->fractureCollection();
         }
-        RimWellPathCompletions* completions = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletions>();
-        if (completions)
+        RimWellPathCompletions* completions = caf::SelectionManager::instance()
+                                                  ->selectedItemOfType<RimWellPathCompletions>();
+        if ( completions )
         {
             return completions->fractureCollection();
         }

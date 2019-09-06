@@ -20,18 +20,17 @@
 
 #include <QString>
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RiaTextStringTools::compare(const QString& expected, const QString& actual)
+bool RiaTextStringTools::compare( const QString& expected, const QString& actual )
 {
     // Suggestions for improvement
     // 1. report line number for first change
     // 2. report line numbers for all changes
     // 3. add support for compare with content of a text file on disk
 
-    if (expected.compare(actual) == 0)
+    if ( expected.compare( actual ) == 0 )
     {
         return true;
     }
@@ -40,19 +39,18 @@ bool RiaTextStringTools::compare(const QString& expected, const QString& actual)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QString RiaTextStringTools::trimAndRemoveDoubleSpaces(const QString& s)
+QString RiaTextStringTools::trimAndRemoveDoubleSpaces( const QString& s )
 {
-    int length;
+    int     length;
     QString trimmed = s.trimmed();
 
-    do 
+    do
     {
-        length = trimmed.size();
-        trimmed = trimmed.replace("  ", " ");
-    } while (trimmed.size() < length);
-    
+        length  = trimmed.size();
+        trimmed = trimmed.replace( "  ", " " );
+    } while ( trimmed.size() < length );
+
     return trimmed;
 }
-

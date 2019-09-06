@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cafPdmPointer.h"
 
 #include <QObject>
@@ -33,13 +32,13 @@ class RiuMeasurementEventFilter : public QObject
 {
     Q_OBJECT
 public:
-    explicit RiuMeasurementEventFilter(RimMeasurement* parent);
+    explicit RiuMeasurementEventFilter( RimMeasurement* parent );
 
     void registerFilter();
     void unregisterFilter();
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *event) override;
+    bool eventFilter( QObject* obj, QEvent* event ) override;
 
 private:
     caf::PdmPointer<RimMeasurement> m_parent;

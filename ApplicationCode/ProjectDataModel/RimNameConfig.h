@@ -30,7 +30,11 @@ class RimNameConfigHolderInterface
 {
 public:
     virtual QString createAutoName() const = 0;
-    void            updateHolder() { performAutoNameUpdate(); }
+    void            updateHolder()
+    {
+        performAutoNameUpdate();
+    }
+
 protected:
     virtual void performAutoNameUpdate() {}
 };
@@ -44,22 +48,24 @@ class RimNameConfig : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimNameConfig(const RimNameConfigHolderInterface* configHolder = nullptr);
+    RimNameConfig( const RimNameConfigHolderInterface* configHolder = nullptr );
     ~RimNameConfig() override;
-    QString                          customName() const;
-    void                             setCustomName(const QString& name);    
-    virtual void                     enableAllAutoNameTags(bool enable) {}
+    QString      customName() const;
+    void         setCustomName( const QString& name );
+    virtual void enableAllAutoNameTags( bool enable ) {}
 
-    caf::PdmFieldHandle*             nameField();
-    QString                          name() const;
-    void                             uiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    caf::PdmFieldHandle* nameField();
+    QString              name() const;
+    void                 uiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
 protected:
-    void                             defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void                             fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    QString                          autoName() const;
-    virtual void                     updateAllSettings();
-    void                             initAfterRead() override;
+    void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void         fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                   const QVariant&            oldValue,
+                                   const QVariant&            newValue ) override;
+    QString      autoName() const;
+    virtual void updateAllSettings();
+    void         initAfterRead() override;
 
 protected:
     caf::PdmField<bool>              m_isUsingAutoName_OBSOLETE;
@@ -68,5 +74,3 @@ protected:
 
     const RimNameConfigHolderInterface* m_configHolder;
 };
-
-

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,36 +24,35 @@
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
-
-CAF_PDM_SOURCE_INIT(RimSummaryCalculationCollection, "RimSummaryCalculationCollection");
+CAF_PDM_SOURCE_INIT( RimSummaryCalculationCollection, "RimSummaryCalculationCollection" );
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculationCollection::RimSummaryCalculationCollection()
 {
-    CAF_PDM_InitObject("Calculation Collection", ":/chain.png", "", "");
+    CAF_PDM_InitObject( "Calculation Collection", ":/chain.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_calcuations, "Calculations", "Calculations", "", "", "");
-    m_calcuations.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault( &m_calcuations, "Calculations", "Calculations", "", "", "" );
+    m_calcuations.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault(&m_calcuationSummaryCase, "CalculationsSummaryCase", "Calculations Summary Case", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_calcuationSummaryCase, "CalculationsSummaryCase", "Calculations Summary Case", "", "", "" );
     m_calcuationSummaryCase.xmlCapability()->disableIO();
     m_calcuationSummaryCase = new RimCalculatedSummaryCase;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculation* RimSummaryCalculationCollection::addCalculation()
 {
     RimSummaryCalculation* calculation = new RimSummaryCalculation;
 
-    QString varName = QString("Calculation_%1").arg(m_calcuations.size() + 1);
-    calculation->setDescription(varName);
-    calculation->setExpression(varName + " := x + y");
+    QString varName = QString( "Calculation_%1" ).arg( m_calcuations.size() + 1 );
+    calculation->setDescription( varName );
+    calculation->setExpression( varName + " := x + y" );
     calculation->parseExpression();
 
-    m_calcuations.push_back(calculation);
+    m_calcuations.push_back( calculation );
 
     rebuildCaseMetaData();
 
@@ -61,33 +60,33 @@ RimSummaryCalculation* RimSummaryCalculationCollection::addCalculation()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCalculation* RimSummaryCalculationCollection::addCalculationCopy(const RimSummaryCalculation* sourceCalculation)
+RimSummaryCalculation* RimSummaryCalculationCollection::addCalculationCopy( const RimSummaryCalculation* sourceCalculation )
 {
     RimSummaryCalculation* calcCopy = dynamic_cast<RimSummaryCalculation*>(
-        sourceCalculation->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
-    CVF_ASSERT(calcCopy);
+        sourceCalculation->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    CVF_ASSERT( calcCopy );
 
     std::set<QString> calcNames;
-    for (const auto& calc : m_calcuations)
+    for ( const auto& calc : m_calcuations )
     {
-        calcNames.insert(calc->findLeftHandSide(calc->expression()));
+        calcNames.insert( calc->findLeftHandSide( calc->expression() ) );
     }
 
-    QString expression = calcCopy->expression();
-    QString currVarName = calcCopy->findLeftHandSide(expression);
+    QString expression  = calcCopy->expression();
+    QString currVarName = calcCopy->findLeftHandSide( expression );
 
     QString newVarName = currVarName;
-    while (calcNames.count(newVarName) > 0)
+    while ( calcNames.count( newVarName ) > 0 )
     {
         newVarName += "_copy";
     }
 
-    expression.replace(currVarName, newVarName);
-    calcCopy->setExpression(expression);
+    expression.replace( currVarName, newVarName );
+    calcCopy->setExpression( expression );
 
-    m_calcuations.push_back(calcCopy);
+    m_calcuations.push_back( calcCopy );
 
     calcCopy->resolveReferencesRecursively();
     rebuildCaseMetaData();
@@ -97,11 +96,11 @@ RimSummaryCalculation* RimSummaryCalculationCollection::addCalculationCopy(const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculationCollection::deleteCalculation(RimSummaryCalculation* calculation)
+void RimSummaryCalculationCollection::deleteCalculation( RimSummaryCalculation* calculation )
 {
-    m_calcuations.removeChildObject(calculation);
+    m_calcuations.removeChildObject( calculation );
 
     rebuildCaseMetaData();
 
@@ -109,7 +108,7 @@ void RimSummaryCalculationCollection::deleteCalculation(RimSummaryCalculation* c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCalculation*> RimSummaryCalculationCollection::calculations() const
 {
@@ -117,7 +116,7 @@ std::vector<RimSummaryCalculation*> RimSummaryCalculationCollection::calculation
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RimSummaryCalculationCollection::calculationSummaryCase()
 {
@@ -125,7 +124,7 @@ RimSummaryCase* RimSummaryCalculationCollection::calculationSummaryCase()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculationCollection::deleteAllContainedObjects()
 {
@@ -135,7 +134,7 @@ void RimSummaryCalculationCollection::deleteAllContainedObjects()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculationCollection::rebuildCaseMetaData()
 {
@@ -143,10 +142,9 @@ void RimSummaryCalculationCollection::rebuildCaseMetaData()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculationCollection::initAfterRead()
 {
     rebuildCaseMetaData();
 }
-

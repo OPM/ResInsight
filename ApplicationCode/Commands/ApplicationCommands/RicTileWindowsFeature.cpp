@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -26,15 +26,15 @@
 #include <QAction>
 #include <QApplication>
 
-CAF_CMD_SOURCE_INIT(RicTileWindowsFeature, "RicTileWindowsFeature");
+CAF_CMD_SOURCE_INIT( RicTileWindowsFeature, "RicTileWindowsFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicTileWindowsFeature::isCommandEnabled()
 {
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
-    if (mainWindow)
+    if ( mainWindow )
     {
         return mainWindow->isAnyMdiSubWindowVisible();
     }
@@ -43,16 +43,16 @@ bool RicTileWindowsFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicTileWindowsFeature::onActionTriggered(bool isChecked)
+void RicTileWindowsFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
-    if (mainWindow)
+    if ( mainWindow )
     {
-        if (!mainWindow->subWindowsAreTiled())
+        if ( !mainWindow->subWindowsAreTiled() )
         {
             mainWindow->tileSubWindows();
         }
@@ -64,38 +64,36 @@ void RicTileWindowsFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicTileWindowsFeature::setupActionLook(QAction* actionToSetup)
+void RicTileWindowsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Tile Windows");
-    actionToSetup->setIcon(QIcon(":/TileWindows24x24.png"));
-    actionToSetup->setCheckable(true);
+    actionToSetup->setText( "Tile Windows" );
+    actionToSetup->setIcon( QIcon( ":/TileWindows24x24.png" ) );
+    actionToSetup->setCheckable( true );
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RicTileWindowsFeature::isCommandChecked()
 {
-    if (RiaGuiApplication::instance()->mainWindow())
+    if ( RiaGuiApplication::instance()->mainWindow() )
     {
         return RiaGuiApplication::instance()->mainWindow()->subWindowsAreTiled();
     }
     return false;
 }
 
-CAF_CMD_SOURCE_INIT(RicTilePlotWindowsFeature, "RicTilePlotWindowsFeature");
+CAF_CMD_SOURCE_INIT( RicTilePlotWindowsFeature, "RicTilePlotWindowsFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicTilePlotWindowsFeature::isCommandEnabled()
 {
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-    if (mainPlotWindow)
+    if ( mainPlotWindow )
     {
         return mainPlotWindow->isAnyMdiSubWindowVisible();
     }
@@ -104,14 +102,14 @@ bool RicTilePlotWindowsFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicTilePlotWindowsFeature::onActionTriggered(bool isChecked)
+void RicTilePlotWindowsFeature::onActionTriggered( bool isChecked )
 {
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-    if (mainPlotWindow)
+    if ( mainPlotWindow )
     {
-        if (!mainPlotWindow->subWindowsAreTiled())
+        if ( !mainPlotWindow->subWindowsAreTiled() )
         {
             mainPlotWindow->tileSubWindows();
         }
@@ -123,13 +121,13 @@ void RicTilePlotWindowsFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicTilePlotWindowsFeature::setupActionLook(QAction* actionToSetup)
+void RicTilePlotWindowsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Tile Windows");
-    actionToSetup->setIcon(QIcon(":/TileWindows24x24.png"));
-    actionToSetup->setCheckable(true);
+    actionToSetup->setText( "Tile Windows" );
+    actionToSetup->setIcon( QIcon( ":/TileWindows24x24.png" ) );
+    actionToSetup->setCheckable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,7 +135,7 @@ void RicTilePlotWindowsFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicTilePlotWindowsFeature::isCommandChecked()
 {
-    if (RiaGuiApplication::instance()->mainPlotWindow())
+    if ( RiaGuiApplication::instance()->mainPlotWindow() )
     {
         return RiaGuiApplication::instance()->mainPlotWindow()->subWindowsAreTiled();
     }

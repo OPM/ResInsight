@@ -20,11 +20,9 @@
 
 class RicHoloLensSession;
 
-
-
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 class RicHoloLensSessionObserver
@@ -39,5 +37,5 @@ public:
 
 public:
     virtual ~RicHoloLensSessionObserver() {}
-    virtual void handleSessionNotification(const RicHoloLensSession* session, Notification notification) = 0;
+    virtual void handleSessionNotification( const RicHoloLensSession* session, Notification notification ) = 0;
 };

@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -36,10 +36,10 @@
 
 #include <iostream>
 
-CAF_CMD_SOURCE_INIT(RicExecuteScriptFeature, "RicExecuteScriptFeature");
+CAF_CMD_SOURCE_INIT( RicExecuteScriptFeature, "RicExecuteScriptFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicExecuteScriptFeature::isCommandEnabled()
 {
@@ -48,12 +48,12 @@ bool RicExecuteScriptFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicExecuteScriptFeature::onActionTriggered(bool isChecked)
+void RicExecuteScriptFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
-    CVF_ASSERT(selection.size() > 0);
+    CVF_ASSERT( selection.size() > 0 );
 
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
     mainWindow->showProcessMonitorDockPanel();
@@ -61,58 +61,58 @@ void RicExecuteScriptFeature::onActionTriggered(bool isChecked)
     RimCalcScript* calcScript = selection[0];
 
     RiaApplication* app = RiaApplication::instance();
-    if (calcScript->scriptType() == RimCalcScript::OCTAVE)
+    if ( calcScript->scriptType() == RimCalcScript::OCTAVE )
     {
         QString octavePath = app->octavePath();
-        if (!octavePath.isEmpty())
+        if ( !octavePath.isEmpty() )
         {
-            QStringList arguments = RimCalcScript::createCommandLineArguments(calcScript->absoluteFileName());
-            RiaApplication::instance()->launchProcess(octavePath, arguments, app->octaveProcessEnvironment());
+            QStringList arguments = RimCalcScript::createCommandLineArguments( calcScript->absoluteFileName() );
+            RiaApplication::instance()->launchProcess( octavePath, arguments, app->octaveProcessEnvironment() );
         }
     }
-    else if (calcScript->scriptType() == RimCalcScript::PYTHON)
+    else if ( calcScript->scriptType() == RimCalcScript::PYTHON )
     {
         QString pythonPath = app->pythonPath();
-        if (!pythonPath.isEmpty())
+        if ( !pythonPath.isEmpty() )
         {
-            QStringList arguments = RimCalcScript::createCommandLineArguments(calcScript->absoluteFileName());
-            QProcessEnvironment penv = app->pythonProcessEnvironment();
+            QStringList         arguments = RimCalcScript::createCommandLineArguments( calcScript->absoluteFileName() );
+            QProcessEnvironment penv      = app->pythonProcessEnvironment();
 
             RiuProcessMonitor* processMonitor = RiuMainWindow::instance()->processMonitor();
-            if (RiaApplication::instance()->preferences()->showPythonDebugInfo() && processMonitor)
+            if ( RiaApplication::instance()->preferences()->showPythonDebugInfo() && processMonitor )
             {
                 QStringList debugInfo;
                 debugInfo << "----- Launching Python interpreter -----";
                 debugInfo << "Python interpreter path: " + pythonPath;
                 debugInfo << "Using arguments: ";
-                for (QString argument : arguments)
+                for ( QString argument : arguments )
                 {
                     debugInfo << "*  " + argument;
                 }
                 QStringList envList = penv.toStringList();
                 debugInfo << "Using environment: ";
-                for (QString envVariable : envList)
+                for ( QString envVariable : envList )
                 {
                     debugInfo << "*  " + envVariable;
                 }
 
                 debugInfo << "------------------------------------";
 
-                for (QString debugString : debugInfo)
+                for ( QString debugString : debugInfo )
                 {
                     std::cout << debugString.toStdString() << std::endl;
-                    processMonitor->addStringToLog(debugString + "\n");
+                    processMonitor->addStringToLog( debugString + "\n" );
                 }
             }
-            RiaApplication::instance()->launchProcess(pythonPath, arguments, penv);
+            RiaApplication::instance()->launchProcess( pythonPath, arguments, penv );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicExecuteScriptFeature::setupActionLook(QAction* actionToSetup)
+void RicExecuteScriptFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Execute");
+    actionToSetup->setText( "Execute" );
 }

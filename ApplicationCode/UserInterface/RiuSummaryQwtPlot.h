@@ -39,26 +39,26 @@ class RiuSummaryQwtPlot : public RiuQwtPlot
     Q_OBJECT;
 
 public:
-    RiuSummaryQwtPlot(RimViewWindow* ownerViewWindow, QWidget* parent = nullptr);
+    RiuSummaryQwtPlot( RimViewWindow* ownerViewWindow, QWidget* parent = nullptr );
 
-    void
-        useDateBasedTimeAxis(const QString&                          dateFormat,
-                             const QString&                          timeFormat,
-                             RiaQDateTimeTools::DateFormatComponents dateComponents = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED,
-                             RiaQDateTimeTools::TimeFormatComponents timeComponents = RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED);
+    void useDateBasedTimeAxis(
+        const QString&                          dateFormat,
+        const QString&                          timeFormat,
+        RiaQDateTimeTools::DateFormatComponents dateComponents = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED,
+        RiaQDateTimeTools::TimeFormatComponents timeComponents = RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED );
 
     void useTimeBasedTimeAxis();
 
-    void addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet* curveSetToShowLegendFor);
-    void removeEnsembleCurveSetLegend(RimEnsembleCurveSet* curveSetToShowLegendFor);
+    void addOrUpdateEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSetToShowLegendFor );
+    void removeEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSetToShowLegendFor );
 
 protected:
-    void keyPressEvent(QKeyEvent*) override;
-    void contextMenuEvent(QContextMenuEvent*) override;
+    void keyPressEvent( QKeyEvent* ) override;
+    void contextMenuEvent( QContextMenuEvent* ) override;
     void setDefaults();
     void updateLayout() override;
-private:
-    void updateLegendLayout();
-    std::map<caf::PdmPointer<RimEnsembleCurveSet>, QPointer<RiuCvfOverlayItemWidget>> m_ensembleLegendWidgets;
 
+private:
+    void                                                                              updateLegendLayout();
+    std::map<caf::PdmPointer<RimEnsembleCurveSet>, QPointer<RiuCvfOverlayItemWidget>> m_ensembleLegendWidgets;
 };

@@ -30,7 +30,7 @@ class RimEclipseCase;
 class RimCompletionCellIntersectionCalc
 {
 public:
-    static void calculateCompletionTypeResult(RimEclipseCase*      eclipseCase,
-                                              std::vector<double>& completionTypeCellResult,
-                                              size_t               timeStep);
+    static void calculateCompletionTypeResult( RimEclipseCase*      eclipseCase,
+                                               std::vector<double>& completionTypeCellResult,
+                                               size_t               timeStep );
 };
