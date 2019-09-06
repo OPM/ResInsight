@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -38,93 +38,106 @@ class RimWellAllocationPlotLegend;
 class RimWellLogTrack;
 class RiuWellAllocationPlot;
 
-namespace cvf {
-    class Color3f;
+namespace cvf
+{
+class Color3f;
 }
 
-namespace caf {
-    class PdmOptionItemInfo;
+namespace caf
+{
+class PdmOptionItemInfo;
 }
-
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class RimWellAllocationPlot : public RimWellLogPlot
 {
     CAF_PDM_HEADER_INIT;
+
 public:
-    enum FlowType { ACCUMULATED, INFLOW};
+    enum FlowType
+    {
+        ACCUMULATED,
+        INFLOW
+    };
 
 public:
     RimWellAllocationPlot();
     ~RimWellAllocationPlot() override;
 
-    void                                            setFromSimulationWell(RimSimWellInView* simWell);
+    void setFromSimulationWell( RimSimWellInView* simWell );
 
-    RimTotalWellAllocationPlot*                     totalWellFlowPlot();
-    RimTofAccumulatedPhaseFractionsPlot*            tofAccumulatedPhaseFractionsPlot();
-    caf::PdmObject*                                 plotLegend();
-    RimEclipseResultCase*                           rimCase();
-    int                                             timeStep();
+    RimTotalWellAllocationPlot*          totalWellFlowPlot();
+    RimTofAccumulatedPhaseFractionsPlot* tofAccumulatedPhaseFractionsPlot();
+    caf::PdmObject*                      plotLegend();
+    RimEclipseResultCase*                rimCase();
+    int                                  timeStep();
 
-    QString                                         wellName() const;
+    QString wellName() const;
 
-    void                                            removeFromMdiAreaAndDeleteViewWidget();
+    void removeFromMdiAreaAndDeleteViewWidget();
 
-    void                                            showPlotLegend(bool doShow);
+    void showPlotLegend( bool doShow );
+
 protected:
     // Overridden PDM methods
-    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
 
-    std::set<QString>                               findSortedWellNames();
+    std::set<QString> findSortedWellNames();
 
-    QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
     void initAfterRead() override;
 
 private:
-    void                                            updateFromWell();
+    void updateFromWell();
 
-    std::map<QString, const std::vector<double> *>  findRelevantTracerCellFractions(const RigSimWellData* simWellData);
+    std::map<QString, const std::vector<double>*> findRelevantTracerCellFractions( const RigSimWellData* simWellData );
 
-    void                                            updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTrack);
+    void updateWellFlowPlotXAxisTitle( RimWellLogTrack* plotTrack );
 
-    void                                            addStackedCurve(const QString& tracerName, 
-                                                                    const std::vector<double>& depthValues, 
-                                                                    const std::vector<double>& accFlow, 
-                                                                    RimWellLogTrack* plotTrack);
-    
-    static QString                                  wellStatusTextForTimeStep(const QString& wellName, const RimEclipseResultCase* eclipseResultCase, size_t timeStep);
+    void addStackedCurve( const QString&             tracerName,
+                          const std::vector<double>& depthValues,
+                          const std::vector<double>& accFlow,
+                          RimWellLogTrack*           plotTrack );
 
-    QWidget*                                        createViewWidget(QWidget* mainWindowParent) override; 
+    static QString wellStatusTextForTimeStep( const QString&              wellName,
+                                              const RimEclipseResultCase* eclipseResultCase,
+                                              size_t                      timeStep );
 
-    cvf::Color3f                                    getTracerColor(const QString& tracerName);
+    QWidget* createViewWidget( QWidget* mainWindowParent ) override;
 
-    void                                            updateFormationNamesData() const;
-    std::set<RiaDefines::DepthUnitType>             availableDepthUnits() const override;
-    std::set<RimWellLogPlot::DepthTypeEnum>         availableDepthTypes() const override;
-    void                                            onDepthTypeChanged() override;
+    cvf::Color3f getTracerColor( const QString& tracerName );
 
-    RiuWellAllocationPlot*                          allocationPlotWidget() const;
+    void                                    updateFormationNamesData() const;
+    std::set<RiaDefines::DepthUnitType>     availableDepthUnits() const override;
+    std::set<RimWellLogPlot::DepthTypeEnum> availableDepthTypes() const override;
+    void                                    onDepthTypeChanged() override;
+
+    RiuWellAllocationPlot* allocationPlotWidget() const;
+
 private:
-    caf::PdmField<bool>                             m_branchDetection;
+    caf::PdmField<bool> m_branchDetection;
 
-    caf::PdmPtrField<RimEclipseResultCase*>         m_case;
-    caf::PdmField<QString>                          m_wellName;
-    caf::PdmField<int>                              m_timeStep;
-    caf::PdmPtrField<RimFlowDiagSolution*>          m_flowDiagSolution;
-    caf::PdmField<bool>                             m_groupSmallContributions;
-    caf::PdmField<double>                           m_smallContributionsThreshold;
-    caf::PdmField<caf::AppEnum<FlowType> >          m_flowType;
+    caf::PdmPtrField<RimEclipseResultCase*> m_case;
+    caf::PdmField<QString>                  m_wellName;
+    caf::PdmField<int>                      m_timeStep;
+    caf::PdmPtrField<RimFlowDiagSolution*>  m_flowDiagSolution;
+    caf::PdmField<bool>                     m_groupSmallContributions;
+    caf::PdmField<double>                   m_smallContributionsThreshold;
+    caf::PdmField<caf::AppEnum<FlowType>>   m_flowType;
 
-    caf::PdmChildField<RimTotalWellAllocationPlot*> m_totalWellAllocationPlot;
-    caf::PdmChildField<RimWellAllocationPlotLegend*> m_wellAllocationPlotLegend;
+    caf::PdmChildField<RimTotalWellAllocationPlot*>          m_totalWellAllocationPlot;
+    caf::PdmChildField<RimWellAllocationPlotLegend*>         m_wellAllocationPlotLegend;
     caf::PdmChildField<RimTofAccumulatedPhaseFractionsPlot*> m_tofAccumulatedPhaseFractionsPlot;
 
-    caf::PdmChildField<RimWellLogPlot*>             m_accumulatedWellFlowPlot_OBSOLETE;
-    caf::PdmField<bool>                             m_showPlotTitle_OBSOLETE;
+    caf::PdmChildField<RimWellLogPlot*> m_accumulatedWellFlowPlot_OBSOLETE;
+    caf::PdmField<bool>                 m_showPlotTitle_OBSOLETE;
 };

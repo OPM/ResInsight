@@ -31,4 +31,3 @@ class RimWellLogFileCurveNameConfig : public RimNameConfig
 public:
     RimWellLogFileCurveNameConfig();
 };
-

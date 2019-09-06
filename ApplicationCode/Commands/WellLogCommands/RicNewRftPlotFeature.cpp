@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017  Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -37,18 +37,17 @@
 
 #include <vector>
 
-
-CAF_CMD_SOURCE_INIT(RicNewRftPlotFeature, "RicNewRftPlotFeature");
+CAF_CMD_SOURCE_INIT( RicNewRftPlotFeature, "RicNewRftPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewRftPlotFeature::isCommandEnabled()
 {
     RimRftPlotCollection* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimRftPlotCollection*>();
-    if (simWell) return true;
-    
-    if (selectedWellName().isEmpty())
+    if ( simWell ) return true;
+
+    if ( selectedWellName().isEmpty() )
     {
         return false;
     }
@@ -57,58 +56,58 @@ bool RicNewRftPlotFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewRftPlotFeature::onActionTriggered(bool isChecked)
+void RicNewRftPlotFeature::onActionTriggered( bool isChecked )
 {
     RimProject* proj = RiaApplication::instance()->project();
 
     RimRftPlotCollection* rftPlotColl = proj->mainPlotCollection()->rftPlotCollection();
-    if (rftPlotColl)
+    if ( rftPlotColl )
     {
         QString wellName = selectedWellName();
 
-        QString plotName = QString(RimWellRftPlot::plotNameFormatString()).arg(wellName);
+        QString plotName = QString( RimWellRftPlot::plotNameFormatString() ).arg( wellName );
 
         RimWellRftPlot* rftPlot = new RimWellRftPlot();
-        rftPlot->setSimWellOrWellPathName(wellName);
+        rftPlot->setSimWellOrWellPathName( wellName );
 
         RimWellLogTrack* plotTrack = new RimWellLogTrack();
-        rftPlot->addTrack(plotTrack);
-        plotTrack->setDescription(QString("Track %1").arg(rftPlot->trackCount()));
+        rftPlot->addTrack( plotTrack );
+        plotTrack->setDescription( QString( "Track %1" ).arg( rftPlot->trackCount() ) );
 
-        rftPlotColl->addPlot(rftPlot);
-        rftPlot->setDescription(plotName);
+        rftPlotColl->addPlot( rftPlot );
+        rftPlot->setDescription( plotName );
 
         rftPlot->applyInitialSelections();
         rftPlot->loadDataAndUpdate();
         rftPlotColl->updateConnectedEditors();
 
         RiuPlotMainWindowTools::showPlotMainWindow();
-        RiuPlotMainWindowTools::setExpanded(plotTrack);
-        RiuPlotMainWindowTools::selectAsCurrentItem(rftPlot);
+        RiuPlotMainWindowTools::setExpanded( plotTrack );
+        RiuPlotMainWindowTools::selectAsCurrentItem( rftPlot );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewRftPlotFeature::setupActionLook(QAction* actionToSetup)
+void RicNewRftPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("New RFT Plot");
-    actionToSetup->setIcon(QIcon(":/FlowCharPlot16x16.png"));
+    actionToSetup->setText( "New RFT Plot" );
+    actionToSetup->setIcon( QIcon( ":/FlowCharPlot16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicNewRftPlotFeature::selectedWellName()
 {
     RimSimWellInView* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>();
-    if (simWell) return simWell->name();
+    if ( simWell ) return simWell->name();
 
     RimWellPath* rimWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>();
-    if (rimWellPath) return rimWellPath->name();
+    if ( rimWellPath ) return rimWellPath->name();
 
     return QString();
 }

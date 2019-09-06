@@ -19,31 +19,31 @@
 #include "RimWellLogExtractionCurveNameConfig.h"
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT(RimWellLogExtractionCurveNameConfig, "RimWellLogExtractionCurveNameConfig");
+CAF_PDM_SOURCE_INIT( RimWellLogExtractionCurveNameConfig, "RimWellLogExtractionCurveNameConfig" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellLogExtractionCurveNameConfig::RimWellLogExtractionCurveNameConfig()
     : RimNameConfig()
 {
-    CAF_PDM_InitObject("Well Log Extraction Curve Name Generator", "", "", "");
+    CAF_PDM_InitObject( "Well Log Extraction Curve Name Generator", "", "", "" );
 
-    CAF_PDM_InitField(&m_addCaseName, "AddCaseName", true, "Add Case Name", "", "", "");
-    CAF_PDM_InitField(&m_addProperty, "AddProperty", true, "Add Property Type", "", "", "");
-    CAF_PDM_InitField(&m_addWellName, "AddWellName", true, "Add Well Name", "", "", "");
-    CAF_PDM_InitField(&m_addTimestep, "AddTimeStep", true, "Add Time Step", "", "", "");
-    CAF_PDM_InitField(&m_addDate,     "AddDate",     true, "Add Date", "", "", "");
+    CAF_PDM_InitField( &m_addCaseName, "AddCaseName", true, "Add Case Name", "", "", "" );
+    CAF_PDM_InitField( &m_addProperty, "AddProperty", true, "Add Property Type", "", "", "" );
+    CAF_PDM_InitField( &m_addWellName, "AddWellName", true, "Add Well Name", "", "", "" );
+    CAF_PDM_InitField( &m_addTimestep, "AddTimeStep", true, "Add Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_addDate, "AddDate", true, "Add Date", "", "", "" );
 
     m_customName = "Log Extraction";
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogExtractionCurveNameConfig::addCaseName() const
 {
@@ -51,7 +51,7 @@ bool RimWellLogExtractionCurveNameConfig::addCaseName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogExtractionCurveNameConfig::addProperty() const
 {
@@ -59,7 +59,7 @@ bool RimWellLogExtractionCurveNameConfig::addProperty() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogExtractionCurveNameConfig::addWellName() const
 {
@@ -67,7 +67,7 @@ bool RimWellLogExtractionCurveNameConfig::addWellName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogExtractionCurveNameConfig::addTimeStep() const
 {
@@ -75,7 +75,7 @@ bool RimWellLogExtractionCurveNameConfig::addTimeStep() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogExtractionCurveNameConfig::addDate() const
 {
@@ -85,7 +85,7 @@ bool RimWellLogExtractionCurveNameConfig::addDate() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurveNameConfig::enableAllAutoNameTags(bool enable)
+void RimWellLogExtractionCurveNameConfig::enableAllAutoNameTags( bool enable )
 {
     m_addCaseName = enable;
     m_addProperty = enable;
@@ -97,12 +97,12 @@ void RimWellLogExtractionCurveNameConfig::enableAllAutoNameTags(bool enable)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurveNameConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimWellLogExtractionCurveNameConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimNameConfig::defineUiOrdering(uiConfigName, uiOrdering);
-    uiOrdering.add(&m_addCaseName);
-    uiOrdering.add(&m_addProperty);
-    uiOrdering.add(&m_addWellName);
-    uiOrdering.add(&m_addTimestep);
-    uiOrdering.add(&m_addDate);
+    RimNameConfig::defineUiOrdering( uiConfigName, uiOrdering );
+    uiOrdering.add( &m_addCaseName );
+    uiOrdering.add( &m_addProperty );
+    uiOrdering.add( &m_addWellName );
+    uiOrdering.add( &m_addTimestep );
+    uiOrdering.add( &m_addDate );
 }

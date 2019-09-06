@@ -20,9 +20,9 @@
 
 #include "RigWellLogFile.h"
 
-#include "RimWellLogFileCurveNameConfig.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
+#include "RimWellLogFileCurveNameConfig.h"
 #include "RimWellPath.h"
 
 #include <QFileInfo>
@@ -32,29 +32,27 @@
 ///
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT(Rim3dWellLogFileCurve, "Rim3dWellLogFileCurve");
+CAF_PDM_SOURCE_INIT( Rim3dWellLogFileCurve, "Rim3dWellLogFileCurve" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogFileCurve::Rim3dWellLogFileCurve()
 {
-    CAF_PDM_InitObject("3d Well Log File Curve", ":/WellLogCurve16x16.png", "", "");
+    CAF_PDM_InitObject( "3d Well Log File Curve", ":/WellLogCurve16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_wellLogChannelName, "CurveWellLogChannel", "Well Log Channel", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "CurveWellLogChannel", "Well Log Channel", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_wellLogFile, "WellLogFile", "Well Log File", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_wellLogFile, "WellLogFile", "Well Log File", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "", "", "", "" );
     m_nameConfig = new RimWellLogFileCurveNameConfig();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim3dWellLogFileCurve::~Rim3dWellLogFileCurve()
-{
-}
+Rim3dWellLogFileCurve::~Rim3dWellLogFileCurve() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -62,18 +60,18 @@ Rim3dWellLogFileCurve::~Rim3dWellLogFileCurve()
 void Rim3dWellLogFileCurve::setDefaultFileCurveDataInfo()
 {
     RimWellPath* wellPath = nullptr;
-    firstAncestorOrThisOfType(wellPath);
+    firstAncestorOrThisOfType( wellPath );
 
-    if (wellPath && !wellPath->wellLogFiles().empty())
+    if ( wellPath && !wellPath->wellLogFiles().empty() )
     {
         m_wellLogFile = wellPath->wellLogFiles()[0];
     }
 
-    if (m_wellLogFile)
+    if ( m_wellLogFile )
     {
         std::vector<RimWellLogFileChannel*> fileLogs = m_wellLogFile->wellLogChannels();
 
-        if (!fileLogs.empty())
+        if ( !fileLogs.empty() )
         {
             m_wellLogChannelName = fileLogs[0]->name();
         }
@@ -83,17 +81,17 @@ void Rim3dWellLogFileCurve::setDefaultFileCurveDataInfo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogFileCurve::curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const
+void Rim3dWellLogFileCurve::curveValuesAndMds( std::vector<double>* values, std::vector<double>* measuredDepthValues ) const
 {
-    CAF_ASSERT(values != nullptr);
-    CAF_ASSERT(measuredDepthValues != nullptr);
+    CAF_ASSERT( values != nullptr );
+    CAF_ASSERT( measuredDepthValues != nullptr );
 
-    if (m_wellLogFile)
+    if ( m_wellLogFile )
     {
         RigWellLogFile* wellLogFile = m_wellLogFile->wellLogFileData();
-        if (wellLogFile)
+        if ( wellLogFile )
         {
-            *values              = wellLogFile->values(m_wellLogChannelName);
+            *values              = wellLogFile->values( m_wellLogChannelName );
             *measuredDepthValues = wellLogFile->depthValues();
         }
     }
@@ -121,49 +119,48 @@ QString Rim3dWellLogFileCurve::name() const
 QString Rim3dWellLogFileCurve::createAutoName() const
 {
     QStringList name;
-    QString unit;
-    bool channelNameAvailable = false;
+    QString     unit;
+    bool        channelNameAvailable = false;
 
     RimWellPath* wellPath;
-    this->firstAncestorOrThisOfType(wellPath);
+    this->firstAncestorOrThisOfType( wellPath );
 
-    if (wellPath)
+    if ( wellPath )
     {
-        name.push_back(wellPath->name());
-        name.push_back("LAS");
+        name.push_back( wellPath->name() );
+        name.push_back( "LAS" );
 
-        if (!m_wellLogChannelName().isEmpty())
+        if ( !m_wellLogChannelName().isEmpty() )
         {
-            name.push_back(m_wellLogChannelName);
+            name.push_back( m_wellLogChannelName );
             channelNameAvailable = true;
         }
 
         RigWellLogFile* wellLogFile = m_wellLogFile ? m_wellLogFile->wellLogFileData() : nullptr;
 
-        if (wellLogFile)
+        if ( wellLogFile )
         {
-            if (channelNameAvailable)
+            if ( channelNameAvailable )
             {
-             /*   RimWellLogPlot* wellLogPlot;
-                firstAncestorOrThisOfType(wellLogPlot);
-                CVF_ASSERT(wellLogPlot);
-                QString unitName = wellLogFile->wellLogChannelUnitString(m_wellLogChannelName, wellLogPlot->depthUnit());
+                /*   RimWellLogPlot* wellLogPlot;
+                   firstAncestorOrThisOfType(wellLogPlot);
+                   CVF_ASSERT(wellLogPlot);
+                   QString unitName = wellLogFile->wellLogChannelUnitString(m_wellLogChannelName, wellLogPlot->depthUnit());
 
-                if (!unitName.isEmpty())
-                {
-                    name.back() += QString(" [%1]").arg(unitName);
-                } */
+                   if (!unitName.isEmpty())
+                   {
+                       name.back() += QString(" [%1]").arg(unitName);
+                   } */
             }
 
             QString date = wellLogFile->date();
-            if (!date.isEmpty())
+            if ( !date.isEmpty() )
             {
-                name.push_back(wellLogFile->date());
+                name.push_back( wellLogFile->date() );
             }
-
         }
 
-        return name.join(", ");
+        return name.join( ", " );
     }
 
     return "Empty curve";
@@ -180,59 +177,59 @@ caf::PdmFieldHandle* Rim3dWellLogFileCurve::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                             const QVariant&            oldValue,
-                                             const QVariant&            newValue)
+void Rim3dWellLogFileCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                              const QVariant&            oldValue,
+                                              const QVariant&            newValue )
 {
-    if (changedField == &m_wellLogFile || changedField == &m_wellLogChannelName)
+    if ( changedField == &m_wellLogFile || changedField == &m_wellLogChannelName )
     {
         this->resetMinMaxValuesAndUpdateUI();
     }
-    Rim3dWellLogCurve::fieldChangedByUi(changedField, oldValue, newValue);
+    Rim3dWellLogCurve::fieldChangedByUi( changedField, oldValue, newValue );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> Rim3dWellLogFileCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                           bool*                      useOptionsOnly)
+QList<caf::PdmOptionItemInfo>
+    Rim3dWellLogFileCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    options = Rim3dWellLogCurve::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+    options = Rim3dWellLogCurve::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
 
-    if (!options.empty()) return options;
+    if ( !options.empty() ) return options;
 
-    if (fieldNeedingOptions == &m_wellLogChannelName)
+    if ( fieldNeedingOptions == &m_wellLogChannelName )
     {
-        if (m_wellLogFile)
+        if ( m_wellLogFile )
         {
             std::vector<RimWellLogFileChannel*> fileLogs = m_wellLogFile->wellLogChannels();
 
-            for (size_t i = 0; i < fileLogs.size(); i++)
+            for ( size_t i = 0; i < fileLogs.size(); i++ )
             {
                 QString wellLogChannelName = fileLogs[i]->name();
-                options.push_back(caf::PdmOptionItemInfo(wellLogChannelName, wellLogChannelName));
+                options.push_back( caf::PdmOptionItemInfo( wellLogChannelName, wellLogChannelName ) );
             }
         }
 
-        if (options.size() == 0)
+        if ( options.size() == 0 )
         {
-            options.push_back(caf::PdmOptionItemInfo("None", "None"));
+            options.push_back( caf::PdmOptionItemInfo( "None", "None" ) );
         }
     }
 
-    if (fieldNeedingOptions == &m_wellLogFile)
+    if ( fieldNeedingOptions == &m_wellLogFile )
     {
         RimWellPath* wellPath = nullptr;
-        firstAncestorOrThisOfType(wellPath);
+        firstAncestorOrThisOfType( wellPath );
 
-        if (wellPath && !wellPath->wellLogFiles().empty())
+        if ( wellPath && !wellPath->wellLogFiles().empty() )
         {
-            for (RimWellLogFile* const wellLogFile : wellPath->wellLogFiles())
+            for ( RimWellLogFile* const wellLogFile : wellPath->wellLogFiles() )
             {
-                QFileInfo fileInfo(wellLogFile->fileName());
-                options.push_back(caf::PdmOptionItemInfo(fileInfo.baseName(), wellLogFile));
+                QFileInfo fileInfo( wellLogFile->fileName() );
+                options.push_back( caf::PdmOptionItemInfo( fileInfo.baseName(), wellLogFile ) );
             }
         }
     }
@@ -243,16 +240,16 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogFileCurve::calculateValueOptions(const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void Rim3dWellLogFileCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Curve Data");
-    curveDataGroup->add(&m_wellLogFile);
-    curveDataGroup->add(&m_wellLogChannelName);
+    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Curve Data" );
+    curveDataGroup->add( &m_wellLogFile );
+    curveDataGroup->add( &m_wellLogChannelName );
 
-    Rim3dWellLogCurve::configurationUiOrdering(uiOrdering);
+    Rim3dWellLogCurve::configurationUiOrdering( uiOrdering );
 
-    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
-    m_nameConfig->uiOrdering(uiConfigName, *nameGroup);
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
+    m_nameConfig->uiOrdering( uiConfigName, *nameGroup );
 
-    uiOrdering.skipRemainingFields(true);
+    uiOrdering.skipRemainingFields( true );
 }

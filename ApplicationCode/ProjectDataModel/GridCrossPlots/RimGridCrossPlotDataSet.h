@@ -17,8 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RigGridCrossPlotCurveGrouping.h"
 #include "RigEclipseCrossPlotDataExtractor.h"
+#include "RigGridCrossPlotCurveGrouping.h"
 
 #include "RimCheckableNamedObject.h"
 #include "RimNameConfig.h"
@@ -31,7 +31,7 @@
 #include "cafPdmPtrField.h"
 
 // Include to make Pdm work for cvf::Color
-#include "cafPdmFieldCvfColor.h"    
+#include "cafPdmFieldCvfColor.h"
 
 #include <cvfArray.h>
 
@@ -66,7 +66,7 @@ public:
     caf::PdmField<bool> addGrouping;
 
 protected:
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 };
 
 //==================================================================================================
@@ -92,9 +92,9 @@ public:
     RimGridCrossPlotDataSet();
     ~RimGridCrossPlotDataSet() = default;
 
-    void    setCellFilterView(RimGridView* cellFilterView);
-    void    loadDataAndUpdate(bool updateParentPlot);
-    void    setParentQwtPlotNoReplot(QwtPlot* parent);
+    void    setCellFilterView( RimGridView* cellFilterView );
+    void    loadDataAndUpdate( bool updateParentPlot );
+    void    setParentQwtPlotNoReplot( QwtPlot* parent );
     QString xAxisName() const;
     QString yAxisName() const;
     QString infoText() const;
@@ -105,66 +105,69 @@ public:
     QString groupParameter() const;
     void    detachAllCurves();
     void    cellFilterViewUpdated();
-    
+
     RimRegularLegendConfig* legendConfig() const;
 
-    std::vector< RimGridCrossPlotCurve*> curves() const;
+    std::vector<RimGridCrossPlotCurve*> curves() const;
 
-    QString              caseNameString() const;
-    QString              axisVariableString() const;
-    QString              timeStepString() const;
+    QString caseNameString() const;
+    QString axisVariableString() const;
+    QString timeStepString() const;
 
     std::map<NameComponents, QString> nameComponents() const;
 
-    void updateCurveNames(size_t dataSetIndex, size_t dataSetCount);
+    void updateCurveNames( size_t dataSetIndex, size_t dataSetCount );
     void updateLegendRange();
     void updateLegendIcons();
     bool groupingByCategoryResult() const;
     bool groupingEnabled() const;
-    void swapAxisProperties(bool updatePlot);
-    void exportFormattedData(RifEclipseDataTableFormatter& formatter) const;
+    void swapAxisProperties( bool updatePlot );
+    void exportFormattedData( RifEclipseDataTableFormatter& formatter ) const;
 
     bool isXAxisLogarithmic() const;
     bool isYAxisLogarithmic() const;
 
-    void configureForPressureSaturationCurves(RimEclipseResultCase* eclipseResultCase, const QString& dynamicResultName);
-    void addCellFilter(RimPlotCellFilter* cellFilter);
-    void setCustomColor(const cvf::Color3f color);
+    void configureForPressureSaturationCurves( RimEclipseResultCase* eclipseResultCase, const QString& dynamicResultName );
+    void addCellFilter( RimPlotCellFilter* cellFilter );
+    void setCustomColor( const cvf::Color3f color );
     void destroyCurves();
 
     size_t visibleCurveCount() const;
-    size_t sampleCount() const;    
+    size_t sampleCount() const;
 
 protected:
     void initAfterRead() override;
-    void onLoadDataAndUpdate(bool updateParentPlot);
+    void onLoadDataAndUpdate( bool updateParentPlot );
 
-    void assignCurveDataGroups(const RigEclipseCrossPlotResult& result);
-    void createCurves(const RigEclipseCrossPlotResult& result);
-    void fillCurveDataInExistingCurves(const RigEclipseCrossPlotResult& result);
-    QString createGroupName(size_t curveIndex) const;
+    void    assignCurveDataGroups( const RigEclipseCrossPlotResult& result );
+    void    createCurves( const RigEclipseCrossPlotResult& result );
+    void    fillCurveDataInExistingCurves( const RigEclipseCrossPlotResult& result );
+    QString createGroupName( size_t curveIndex ) const;
 
-    std::map<int, cvf::UByteArray> calculateCellVisibility(RimEclipseCase* eclipseCase) const;
+    std::map<int, cvf::UByteArray> calculateCellVisibility( RimEclipseCase* eclipseCase ) const;
 
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void childFieldChangedByUi(const caf::PdmFieldHandle* changedChildField) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly) override;
-    void triggerPlotNameUpdateAndReplot();
-    void updateDataSetName();
-    void performAutoNameUpdate() override;
-    void setDefaults();
-    void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+    void                          triggerPlotNameUpdateAndReplot();
+    void                          updateDataSetName();
+    void                          performAutoNameUpdate() override;
+    void                          setDefaults();
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
 
-    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
     bool hasMultipleTimeSteps() const;
-    void filterInvalidCurveValues(RigEclipseCrossPlotResult* result);
+    void filterInvalidCurveValues( RigEclipseCrossPlotResult* result );
 
 private:
-   
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;
     caf::PdmPtrField<RimGridView*>                  m_cellFilterView;
@@ -177,10 +180,10 @@ private:
 
     caf::PdmChildArrayField<RimGridCrossPlotCurve*> m_crossPlotCurves;
 
-    std::map<int, RigEclipseCrossPlotResult>        m_groupedResults;
-    
-    caf::PdmField<bool>                             m_useCustomColor;
-    caf::PdmField<cvf::Color3f>                     m_customColor;
-    caf::PdmChildField<RimPlotCellFilterCollection*> m_plotCellFilterCollection;;
-    
+    std::map<int, RigEclipseCrossPlotResult> m_groupedResults;
+
+    caf::PdmField<bool>                              m_useCustomColor;
+    caf::PdmField<cvf::Color3f>                      m_customColor;
+    caf::PdmChildField<RimPlotCellFilterCollection*> m_plotCellFilterCollection;
+    ;
 };
