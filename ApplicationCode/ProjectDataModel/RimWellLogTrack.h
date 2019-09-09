@@ -82,10 +82,10 @@ public:
     };
     enum WidthScaleFactor
     {
-        EXTRA_NARROW_TRACK = 2,
-        NARROW_TRACK       = 3,
-        NORMAL_TRACK       = 4,
-        WIDE_TRACK         = 6,
+        EXTRA_NARROW_TRACK = 3,
+        NARROW_TRACK       = 4,
+        NORMAL_TRACK       = 5,
+        WIDE_TRACK         = 7,
         EXTRA_WIDE_TRACK   = 10
     };
 

@@ -211,6 +211,7 @@ void RimWellLogPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
               changedField == &m_depthAxisGridVisibility )
     {
         updateTracks();
+        if ( m_viewer ) m_viewer->updateChildrenLayout();
     }
     else if ( changedField == &m_showTitleInPlot )
     {

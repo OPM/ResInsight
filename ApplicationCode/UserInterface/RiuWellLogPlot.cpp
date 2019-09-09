@@ -57,6 +57,8 @@ RiuWellLogPlot::RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent 
     m_plotDefinition = plotDefinition;
 
     m_layout = new QVBoxLayout( this );
+    m_layout->setMargin( 0 );
+    m_layout->setSpacing( 2 );
 
     m_plotTitle = createTitleLabel();
     m_layout->addWidget( m_plotTitle );
@@ -69,6 +71,8 @@ RiuWellLogPlot::RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent 
     m_plotLayout->addWidget( m_plotFrame, 1 );
 
     m_trackLayout = new QGridLayout( m_plotFrame );
+    m_trackLayout->setMargin( 0 );
+    m_trackLayout->setSpacing( 2 );
 
     QPalette newPalette( palette() );
     newPalette.setColor( QPalette::Background, Qt::white );
@@ -192,7 +196,7 @@ void RiuWellLogPlot::setDepthZoomAndReplot( double minDepth, double maxDepth )
 void RiuWellLogPlot::setPlotTitle( const QString& plotTitle )
 {
     m_plotTitle->setText( plotTitle );
-    this->update();
+    this->updateChildrenLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -224,7 +228,60 @@ QSize RiuWellLogPlot::preferredSize() const
 void RiuWellLogPlot::setTitleVisible( bool visible )
 {
     m_plotTitle->setVisible( visible );
+    this->updateChildrenLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::updateChildrenLayout()
+{
+    int trackCount            = m_trackPlots.size();
+    int numTracksAlreadyShown = 0;
+    for ( int tIdx = 0; tIdx < trackCount; ++tIdx )
+    {
+        if ( m_plotDefinition->areTrackLegendsVisible() && m_trackPlots[tIdx]->isVisible() )
+        {
+            int legendColumns = 1;
+            if ( m_plotDefinition->areTrackLegendsHorizontal() )
+            {
+                legendColumns = 0; // unlimited
+            }
+            m_legends[tIdx]->setMaxColumns( legendColumns );
+            m_legends[tIdx]->show();
+
+            m_trackPlots[tIdx]->enableDepthAxisLabelsAndTitle( numTracksAlreadyShown == 0 );
+            numTracksAlreadyShown++;
+        }
+        else
+        {
+            m_legends[tIdx]->hide();
+        }
+        RiuWellLogTrack* riuTrack = m_trackPlots[tIdx];
+        m_trackLayout->setColumnStretch( tIdx, riuTrack->widthScaleFactor() );
+    }
+
+    alignCanvasTops();
     this->update();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::showEvent( QShowEvent* )
+{
+    updateChildrenLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::changeEvent( QEvent* event )
+{
+    if ( event->type() == QEvent::WindowStateChange )
+    {
+        updateChildrenLayout();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -251,17 +308,17 @@ void RiuWellLogPlot::contextMenuEvent( QContextMenuEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QSize RiuWellLogPlot::sizeHint() const
+void RiuWellLogPlot::keyPressEvent( QKeyEvent* keyEvent )
 {
-    return QSize( 1, 1 );
+    m_plotDefinition->handleKeyPressEvent( keyEvent );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::keyPressEvent( QKeyEvent* keyEvent )
+QSize RiuWellLogPlot::sizeHint() const
 {
-    m_plotDefinition->handleKeyPressEvent( keyEvent );
+    return QSize( 1, 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -300,6 +357,45 @@ void RiuWellLogPlot::updateScrollBar( double minDepth, double maxDepth )
         m_scrollBar->setVisible( true );
     }
     m_scrollBar->blockSignals( false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::alignCanvasTops()
+{
+    CVF_ASSERT( m_legends.size() == m_trackPlots.size() );
+
+    int maxCanvasOffset = 0;
+    for ( int tIdx = 0; tIdx < m_trackPlots.size(); ++tIdx )
+    {
+        if ( m_trackPlots[tIdx]->isVisible() )
+        {
+            // Hack to align QWT plots. See below.
+            QRectF canvasRect    = m_trackPlots[tIdx]->plotLayout()->canvasRect();
+            int    canvasMargins = m_trackPlots[tIdx]->plotLayout()->canvasMargin( QwtPlot::xTop );
+            maxCanvasOffset      = std::max( maxCanvasOffset, static_cast<int>( canvasRect.top() + canvasMargins ) );
+        }
+    }
+
+    for ( int tIdx = 0; tIdx < m_trackPlots.size(); ++tIdx )
+    {
+        if ( m_trackPlots[tIdx]->isVisible() )
+        {
+            // Hack to align QWT plots which doesn't have an x-axis with the other tracks.
+            // Since they are missing the axis, QWT will shift them upwards.
+            // So we shift the plot downwards and resize to match the others.
+            // TODO: Look into subclassing QwtPlotLayout instead.
+            QRectF canvasRect     = m_trackPlots[tIdx]->plotLayout()->canvasRect();
+            int    canvasMargins  = m_trackPlots[tIdx]->plotLayout()->canvasMargin( QwtPlot::xTop );
+            int    myCanvasOffset = static_cast<int>( canvasRect.top() ) + canvasMargins;
+            int    canvasShift    = std::max( 0, maxCanvasOffset - myCanvasOffset );
+
+            QMargins margins = m_trackPlots[tIdx]->contentsMargins();
+            margins.setTop( margins.top() + canvasShift );
+            m_trackPlots[tIdx]->setContentsMargins( margins );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

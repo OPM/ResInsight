@@ -67,19 +67,22 @@ public:
 
     void setTitleVisible( bool visible );
 
-protected:
-    void  contextMenuEvent( QContextMenuEvent* ) override;
-    QSize sizeHint() const override;
+public slots:
+    void updateChildrenLayout();
 
+protected:
+    void showEvent( QShowEvent* ) override;
+    void changeEvent( QEvent* event ) override;
+    void contextMenuEvent( QContextMenuEvent* ) override;
     void keyPressEvent( QKeyEvent* keyEvent ) override;
+
+    QSize sizeHint() const override;
 
     QLabel* createTitleLabel() const;
 
 private:
     void updateScrollBar( double minDepth, double maxDepth );
-    // std::map<int, int> calculateTrackWidthsToMatchFrame( int frameWidth ) const;
-    // void               placeChildWidgets( int frameHeight, int frameWidth );
-    // void               positionTitle( int frameWidth );
+    void alignCanvasTops();
 
 private slots:
     void slotSetMinDepth( int value );
