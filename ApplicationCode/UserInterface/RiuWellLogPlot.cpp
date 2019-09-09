@@ -80,10 +80,15 @@ RiuWellLogPlot::RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent 
 
     setAutoFillBackground( true );
 
-    m_scrollBar = new QScrollBar( m_plotFrame );
+    m_scrollBarLayout = new QVBoxLayout;
+    m_scrollBarLayout->setContentsMargins( 0, 50, 0, 0 );
+    m_plotLayout->addLayout( m_scrollBarLayout );
+
+    m_scrollBar = new QScrollBar( nullptr );
     m_scrollBar->setOrientation( Qt::Vertical );
     m_scrollBar->setVisible( true );
-    m_plotLayout->addWidget( m_scrollBar, 0 );
+
+    m_scrollBarLayout->addWidget( m_scrollBar, 0 );
 
     new RiuPlotObjectPicker( m_plotTitle, m_plotDefinition );
 
@@ -353,7 +358,6 @@ void RiuWellLogPlot::updateScrollBar( double minDepth, double maxDepth )
         m_scrollBar->setRange( (int)availableMinDepth, (int)( ( availableMaxDepth - visibleDepth ) ) );
         m_scrollBar->setPageStep( (int)visibleDepth );
         m_scrollBar->setValue( (int)minDepth );
-
         m_scrollBar->setVisible( true );
     }
     m_scrollBar->blockSignals( false );
@@ -395,6 +399,12 @@ void RiuWellLogPlot::alignCanvasTops()
             margins.setTop( margins.top() + canvasShift );
             m_trackPlots[tIdx]->setContentsMargins( margins );
         }
+    }
+
+    if ( m_trackLayout->columnCount() > 0 && m_trackLayout->rowCount() > 0 )
+    {
+        int legendHeight = m_trackLayout->cellRect( 0, 0 ).height();
+        m_scrollBarLayout->setContentsMargins( 0, legendHeight, 0, 0 );
     }
 }
 

@@ -93,6 +93,7 @@ protected:
     QPointer<QFrame>                 m_plotFrame;
     QPointer<QGridLayout>            m_trackLayout;
     QPointer<QLabel>                 m_plotTitle;
+    QPointer<QVBoxLayout>            m_scrollBarLayout;
     QScrollBar*                      m_scrollBar;
     QList<QPointer<QwtLegend>>       m_legends;
     QList<QPointer<RiuWellLogTrack>> m_trackPlots;
