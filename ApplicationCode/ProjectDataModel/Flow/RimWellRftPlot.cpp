@@ -955,7 +955,6 @@ void RimWellRftPlot::initAfterRead()
     {
         RimWellLogPlot& wellLogPlot = dynamic_cast<RimWellLogPlot&>( *this );
         wellLogPlot                 = std::move( *m_wellLogPlot_OBSOLETE.value() );
-        m_wellLogPlot_OBSOLETE      = nullptr;
     }
     if ( m_showPlotTitle_OBSOLETE() && !m_showTitleInPlot() )
     {
