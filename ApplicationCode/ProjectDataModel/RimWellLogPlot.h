@@ -132,6 +132,9 @@ public:
     void                             handleKeyPressEvent( QKeyEvent* keyEvent );
     RimWellLogCurveCommonDataSource* commonDataSource() const;
 
+    void setAvailableDepthUnits( const std::set<RiaDefines::DepthUnitType>& depthUnits );
+    void setAvailableDepthTypes( const std::set<RimWellLogPlot::DepthTypeEnum>& depthTypes );
+
 protected:
     void performAutoNameUpdate() override;
 
@@ -158,10 +161,8 @@ private:
     void recreateTrackPlots();
     void detachAllCurves();
 
-    virtual std::set<RiaDefines::DepthUnitType>     availableDepthUnits() const;
-    virtual std::set<RimWellLogPlot::DepthTypeEnum> availableDepthTypes() const;
-    void                                            updatePlotTitle();
-    virtual void                                    onDepthTypeChanged();
+    void         updatePlotTitle();
+    virtual void onDepthTypeChanged();
 
 protected:
     caf::PdmField<QString>                               m_userName_OBSOLETE;
@@ -180,6 +181,9 @@ protected:
     caf::PdmField<bool> m_trackLegendsHorizontal;
 
     caf::PdmChildField<RimWellLogPlotNameConfig*> m_nameConfig;
+
+    std::set<RiaDefines::DepthUnitType>     m_availableDepthUnits;
+    std::set<RimWellLogPlot::DepthTypeEnum> m_availableDepthTypes;
 
     double m_minAvailableDepth;
     double m_maxAvailableDepth;

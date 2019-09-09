@@ -116,6 +116,9 @@ RimWellLogPlot::RimWellLogPlot()
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden( true );
     m_nameConfig = new RimWellLogPlotNameConfig();
 
+    m_availableDepthUnits = {RiaDefines::UNIT_METER, RiaDefines::UNIT_FEET};
+    m_availableDepthTypes = {MEASURED_DEPTH, TRUE_VERTICAL_DEPTH};
+
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
 }
@@ -247,7 +250,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogPlot::calculateValueOptions( const caf::
         {
             DepthTypeEnum enumVal = DepthAppEnum::fromIndex( i );
 
-            if ( availableDepthTypes().count( enumVal ) )
+            if ( m_availableDepthTypes.count( enumVal ) )
             {
                 options.push_back( caf::PdmOptionItemInfo( DepthAppEnum::uiText( enumVal ), enumVal ) );
             }
@@ -256,7 +259,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogPlot::calculateValueOptions( const caf::
     else if ( fieldNeedingOptions == &m_depthUnit )
     {
         using UnitAppEnum = caf::AppEnum<RiaDefines::DepthUnitType>;
-        for ( auto depthUnit : availableDepthUnits() )
+        for ( auto depthUnit : m_availableDepthUnits )
         {
             options.push_back( caf::PdmOptionItemInfo( UnitAppEnum::uiText( depthUnit ), depthUnit ) );
         }
@@ -573,12 +576,12 @@ void RimWellLogPlot::uiOrderingForDepthAxis( caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup( "Depth Axis" );
 
-    if ( availableDepthTypes().size() > 1u )
+    if ( m_availableDepthTypes.size() > 1u )
     {
         gridGroup->add( &m_depthType );
     }
 
-    if ( availableDepthUnits().size() > 1u )
+    if ( m_availableDepthUnits.size() > 1u )
     {
         gridGroup->add( &m_depthUnit );
     }
@@ -736,6 +739,22 @@ void RimWellLogPlot::handleKeyPressEvent( QKeyEvent* keyEvent )
 RimWellLogCurveCommonDataSource* RimWellLogPlot::commonDataSource() const
 {
     return m_commonDataSource;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::setAvailableDepthUnits( const std::set<RiaDefines::DepthUnitType>& depthUnits )
+{
+    m_availableDepthUnits = depthUnits;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::setAvailableDepthTypes( const std::set<DepthTypeEnum>& depthTypes )
+{
+    m_availableDepthTypes = depthTypes;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1083,22 +1102,6 @@ void RimWellLogPlot::setDepthUnit( RiaDefines::DepthUnitType depthUnit )
     m_depthUnit = depthUnit;
 
     updateTracks();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::set<RiaDefines::DepthUnitType> RimWellLogPlot::availableDepthUnits() const
-{
-    return {RiaDefines::UNIT_METER, RiaDefines::UNIT_FEET};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::set<RimWellLogPlot::DepthTypeEnum> RimWellLogPlot::availableDepthTypes() const
-{
-    return {MEASURED_DEPTH, TRUE_VERTICAL_DEPTH};
 }
 
 //--------------------------------------------------------------------------------------------------

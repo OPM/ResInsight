@@ -138,6 +138,8 @@ RimWellPltPlot::RimWellPltPlot()
     this->setAsPlotMdiWindow();
     m_doInitAfterLoad = false;
     m_isOnLoad        = true;
+
+    setAvailableDepthTypes( {RimWellLogPlot::MEASURED_DEPTH} );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,14 +247,6 @@ void RimWellPltPlot::updateFormationsOnPlot() const
 
         trackByIndex( 0 )->setAndUpdateWellPathFormationNamesData( formationNamesCase, wellPath );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::set<RimWellLogPlot::DepthTypeEnum> RimWellPltPlot::availableDepthTypes() const
-{
-    return {RimWellLogPlot::MEASURED_DEPTH};
 }
 
 //--------------------------------------------------------------------------------------------------

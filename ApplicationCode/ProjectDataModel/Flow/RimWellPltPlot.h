@@ -113,8 +113,7 @@ private:
 
     void setPlotXAxisTitles( RimWellLogTrack* plotTrack );
 
-    void                                    updateFormationsOnPlot() const;
-    std::set<RimWellLogPlot::DepthTypeEnum> availableDepthTypes() const override;
+    void updateFormationsOnPlot() const;
 
 private:
     caf::PdmField<bool> m_showPlotTitle_OBSOLETE;
