@@ -48,8 +48,9 @@ class RimNameConfig : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimNameConfig( const RimNameConfigHolderInterface* configHolder = nullptr );
+    RimNameConfig();
     ~RimNameConfig() override;
+
     QString      customName() const;
     void         setCustomName( const QString& name );
     virtual void enableAllAutoNameTags( bool enable ) {}
@@ -71,6 +72,4 @@ protected:
     caf::PdmField<bool>              m_isUsingAutoName_OBSOLETE;
     caf::PdmField<QString>           m_customName;
     caf::PdmProxyValueField<QString> m_autoName;
-
-    const RimNameConfigHolderInterface* m_configHolder;
 };

@@ -28,8 +28,8 @@ CAF_PDM_SOURCE_INIT( RimViewNameConfig, "RimViewNameConfig" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimViewNameConfig::RimViewNameConfig( const RimNameConfigHolderInterface* configHolder )
-    : RimNameConfig( configHolder )
+RimViewNameConfig::RimViewNameConfig()
+    : RimNameConfig()
     , m_hideCaseNameField( false )
     , m_hideAggregationTypeField( false )
     , m_hidePropertyField( false )

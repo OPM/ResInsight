@@ -26,12 +26,9 @@
 
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
-#include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogTrack.h"
-#include "RimWellPltPlot.h"
-#include "RimWellRftPlot.h"
 
 #include "RiuPlotMainWindow.h"
 #include "RiuWellLogPlot.h"
@@ -90,10 +87,10 @@ RimWellLogPlot::RimWellLogPlot()
                                 "",
                                 "Change the Data Source of All Curves in the Plot",
                                 "" );
-    m_commonDataSource = new RimWellLogCurveCommonDataSource;
     m_commonDataSource.uiCapability()->setUiTreeHidden( true );
     m_commonDataSource.uiCapability()->setUiTreeChildrenHidden( true );
     m_commonDataSource.xmlCapability()->disableIO();
+    m_commonDataSource = new RimWellLogCurveCommonDataSource;
 
     caf::AppEnum<RimWellLogPlot::DepthTypeEnum> depthType = MEASURED_DEPTH;
     CAF_PDM_InitField( &m_depthType, "DepthType", depthType, "Type", "", "", "" );
@@ -115,12 +112,54 @@ RimWellLogPlot::RimWellLogPlot()
     m_tracks.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "", "", "", "" );
-    m_nameConfig = new RimWellLogPlotNameConfig( this );
     m_nameConfig.uiCapability()->setUiTreeHidden( true );
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden( true );
+    m_nameConfig = new RimWellLogPlotNameConfig();
+
+    m_availableDepthUnits = {RiaDefines::UNIT_METER, RiaDefines::UNIT_FEET};
+    m_availableDepthTypes = {MEASURED_DEPTH, TRUE_VERTICAL_DEPTH};
 
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Move-assignment operator. Argument has to be passed with std::move()
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlot& RimWellLogPlot::operator=( RimWellLogPlot&& rhs )
+{
+    // Don't copy the obsoleted m_userName_OBSOLETE
+    // It had its own implementation in the RFT/PLT/WAP plots
+
+    auto dataSource = rhs.m_commonDataSource();
+    rhs.m_commonDataSource.removeChildObject( dataSource );
+    m_commonDataSource = dataSource;
+
+    m_depthType               = rhs.m_depthType();
+    m_depthUnit               = rhs.m_depthUnit();
+    m_minVisibleDepth         = rhs.m_minVisibleDepth();
+    m_maxVisibleDepth         = rhs.m_maxVisibleDepth();
+    m_depthAxisGridVisibility = rhs.m_depthAxisGridVisibility();
+    m_isAutoScaleDepthEnabled = rhs.m_isAutoScaleDepthEnabled();
+    m_showTitleInPlot         = rhs.m_showTitleInPlot();
+    m_showTrackLegends        = rhs.m_showTrackLegends();
+    m_trackLegendsHorizontal  = rhs.m_trackLegendsHorizontal();
+
+    // Move all tracks
+    std::vector<RimWellLogTrack*> tracks = rhs.m_tracks.childObjects();
+    rhs.m_tracks.clear();
+    for ( RimWellLogTrack* track : tracks )
+    {
+        m_tracks.push_back( track );
+    }
+
+    auto nameConfig = rhs.m_nameConfig();
+    rhs.m_nameConfig.removeChildObject( nameConfig );
+    m_nameConfig = nameConfig;
+
+    m_minAvailableDepth = rhs.m_minAvailableDepth;
+    m_maxAvailableDepth = rhs.m_maxAvailableDepth;
+    return *this;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,11 +207,15 @@ void RimWellLogPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         m_isAutoScaleDepthEnabled = false;
     }
-    else if ( changedField == &m_showTitleInPlot || changedField == &m_showTrackLegends ||
-              changedField == &m_trackLegendsHorizontal || changedField == &m_depthAxisGridVisibility )
+    else if ( changedField == &m_showTrackLegends || changedField == &m_trackLegendsHorizontal ||
+              changedField == &m_depthAxisGridVisibility )
     {
         updateTracks();
         if ( m_viewer ) m_viewer->updateChildrenLayout();
+    }
+    else if ( changedField == &m_showTitleInPlot )
+    {
+        m_viewer->setTitleVisible( m_showTitleInPlot() );
     }
     else if ( changedField == &m_isAutoScaleDepthEnabled )
     {
@@ -180,17 +223,7 @@ void RimWellLogPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_depthType )
     {
-        RimWellAllocationPlot* wellAllocPlot;
-        firstAncestorOrThisOfType( wellAllocPlot );
-        if ( wellAllocPlot )
-        {
-            wellAllocPlot->loadDataAndUpdate();
-        }
-        else if ( isRftPlotChild() )
-        {
-            rftPlot()->loadDataAndUpdate();
-        }
-
+        onDepthTypeChanged();
         updateTracks();
         updateDepthZoom();
     }
@@ -200,21 +233,7 @@ void RimWellLogPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateDepthZoom();
     }
 
-    RimWellRftPlot* rftPlot( nullptr );
-    this->firstAncestorOrThisOfType( rftPlot );
-
-    if ( rftPlot )
-    {
-        rftPlot->updateConnectedEditors();
-    }
-
-    RimWellPltPlot* pltPlot( nullptr );
-    this->firstAncestorOrThisOfType( pltPlot );
-
-    if ( pltPlot )
-    {
-        pltPlot->updateConnectedEditors();
-    }
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,7 +251,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogPlot::calculateValueOptions( const caf::
         {
             DepthTypeEnum enumVal = DepthAppEnum::fromIndex( i );
 
-            if ( m_disabledDepthTypes.count( enumVal ) == 0 )
+            if ( m_availableDepthTypes.count( enumVal ) )
             {
                 options.push_back( caf::PdmOptionItemInfo( DepthAppEnum::uiText( enumVal ), enumVal ) );
             }
@@ -241,9 +260,10 @@ QList<caf::PdmOptionItemInfo> RimWellLogPlot::calculateValueOptions( const caf::
     else if ( fieldNeedingOptions == &m_depthUnit )
     {
         using UnitAppEnum = caf::AppEnum<RiaDefines::DepthUnitType>;
-        options.push_back(
-            caf::PdmOptionItemInfo( UnitAppEnum::uiText( RiaDefines::UNIT_METER ), RiaDefines::UNIT_METER ) );
-        options.push_back( caf::PdmOptionItemInfo( UnitAppEnum::uiText( RiaDefines::UNIT_FEET ), RiaDefines::UNIT_FEET ) );
+        for ( auto depthUnit : m_availableDepthUnits )
+        {
+            options.push_back( caf::PdmOptionItemInfo( UnitAppEnum::uiText( depthUnit ), depthUnit ) );
+        }
     }
     else if ( fieldNeedingOptions == &m_trackLegendsHorizontal )
     {
@@ -315,7 +335,7 @@ void RimWellLogPlot::removeTrack( RimWellLogTrack* track )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogTrack* RimWellLogPlot::trackByIndex( size_t index )
+RimWellLogTrack* RimWellLogPlot::trackByIndex( size_t index ) const
 {
     return m_tracks[index];
 }
@@ -469,19 +489,7 @@ void RimWellLogPlot::enableAllAutoNameTags( bool enable )
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogPlot::asciiDataForPlotExport() const
 {
-    QString out;
-
-    RimWellAllocationPlot* wellAllocPlot = nullptr;
-    this->firstAncestorOrThisOfType( wellAllocPlot );
-    if ( wellAllocPlot )
-    {
-        out += wellAllocPlot->description();
-    }
-    else
-    {
-        out += description();
-    }
-    out += "\n";
+    QString out = description() + "\n";
 
     for ( RimWellLogTrack* track : m_tracks )
     {
@@ -565,58 +573,20 @@ QString RimWellLogPlot::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellRftPlot* RimWellLogPlot::rftPlot() const
-{
-    RimWellRftPlot* rftPlot;
-    firstAncestorOrThisOfType( rftPlot );
-    return rftPlot;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimWellLogPlot::isRftPlotChild() const
-{
-    return rftPlot() != nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellPltPlot* RimWellLogPlot::pltPlot() const
-{
-    RimWellPltPlot* pltPlot;
-    firstAncestorOrThisOfType( pltPlot );
-    return pltPlot;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimWellLogPlot::isPltPlotChild() const
-{
-    return pltPlot() != nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::uiOrderingForDepthAxis( caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup( "Depth Axis" );
 
-    if ( !pltPlot() )
+    if ( m_availableDepthTypes.size() > 1u )
     {
         gridGroup->add( &m_depthType );
     }
 
-    RimWellAllocationPlot* wap;
-    firstAncestorOrThisOfType( wap );
-
-    if ( !wap )
+    if ( m_availableDepthUnits.size() > 1u )
     {
         gridGroup->add( &m_depthUnit );
     }
+
     gridGroup->add( &m_minVisibleDepth );
     gridGroup->add( &m_maxVisibleDepth );
     gridGroup->add( &m_depthAxisGridVisibility );
@@ -628,9 +598,10 @@ void RimWellLogPlot::uiOrderingForDepthAxis( caf::PdmUiOrdering& uiOrdering )
 void RimWellLogPlot::uiOrderingForPlotSettings( caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* titleAndLegendsGroup = uiOrdering.addNewGroup( "Title and Legends" );
-    titleAndLegendsGroup->add( &m_showTitleInPlot );
     titleAndLegendsGroup->add( &m_showTrackLegends );
     titleAndLegendsGroup->add( &m_trackLegendsHorizontal );
+    titleAndLegendsGroup->add( &m_showTitleInPlot );
+    m_nameConfig->uiOrdering( "", *titleAndLegendsGroup );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -774,6 +745,22 @@ RimWellLogCurveCommonDataSource* RimWellLogPlot::commonDataSource() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::setAvailableDepthUnits( const std::set<RiaDefines::DepthUnitType>& depthUnits )
+{
+    m_availableDepthUnits = depthUnits;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::setAvailableDepthTypes( const std::set<DepthTypeEnum>& depthTypes )
+{
+    m_availableDepthTypes = depthTypes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::depthZoomMinMax( double* minimumDepth, double* maximumDepth ) const
 {
     *minimumDepth = m_minVisibleDepth;
@@ -788,9 +775,6 @@ void RimWellLogPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     m_commonDataSource->uiOrdering( uiConfigName, uiOrdering );
     uiOrderingForDepthAxis( uiOrdering );
     uiOrderingForPlotSettings( uiOrdering );
-
-    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Plot Name" );
-    m_nameConfig->uiOrdering( uiConfigName, *nameGroup );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -820,8 +804,6 @@ void RimWellLogPlot::updateTracks( bool autoScaleXAxis )
 {
     if ( m_showWindow )
     {
-        updateDisabledDepthTypes();
-
         for ( size_t tIdx = 0; tIdx < m_tracks.size(); ++tIdx )
         {
             m_tracks[tIdx]->loadDataAndUpdate();
@@ -1126,40 +1108,6 @@ void RimWellLogPlot::setDepthUnit( RiaDefines::DepthUnitType depthUnit )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::updateDisabledDepthTypes()
-{
-    m_disabledDepthTypes.clear();
-    RimWellAllocationPlot* wap;
-    firstAncestorOrThisOfType( wap );
-    if ( wap )
-    {
-        m_disabledDepthTypes.insert( MEASURED_DEPTH );
-        if ( m_disabledDepthTypes.count( m_depthType() ) )
-        {
-            m_depthType = CONNECTION_NUMBER;
-        }
-    }
-    else if ( isRftPlotChild() )
-    {
-        m_disabledDepthTypes.insert( PSEUDO_LENGTH );
-        m_disabledDepthTypes.insert( CONNECTION_NUMBER );
-    }
-    else if ( isPltPlotChild() )
-    {
-        m_disabledDepthTypes.insert( TRUE_VERTICAL_DEPTH );
-        m_disabledDepthTypes.insert( PSEUDO_LENGTH );
-        m_disabledDepthTypes.insert( CONNECTION_NUMBER );
-    }
-    else
-    {
-        m_disabledDepthTypes.insert( PSEUDO_LENGTH );
-        m_disabledDepthTypes.insert( CONNECTION_NUMBER );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::updatePlotTitle()
 {
     if ( m_viewer )
@@ -1168,3 +1116,8 @@ void RimWellLogPlot::updatePlotTitle()
     }
     updateMdiWindowTitle();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Default empty implementation
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::onDepthTypeChanged() {}

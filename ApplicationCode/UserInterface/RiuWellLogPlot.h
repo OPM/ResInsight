@@ -23,6 +23,9 @@
 
 #include "cafPdmPointer.h"
 
+#include <QFrame>
+#include <QGridLayout>
+#include <QHBoxLayout>
 #include <QList>
 #include <QPointer>
 #include <QWidget>
@@ -48,6 +51,7 @@ class RiuWellLogPlot : public QWidget, public RiuInterfaceToViewWindow
 
 public:
     RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent = nullptr );
+
     ~RiuWellLogPlot() override;
 
     RimWellLogPlot* ownerPlotDefinition();
@@ -60,33 +64,38 @@ public:
     void          setDepthZoomAndReplot( double minDepth, double maxDepth );
     void          setPlotTitle( const QString& plotTitle );
     virtual QSize preferredSize() const;
+
+    void setTitleVisible( bool visible );
+
 public slots:
     void updateChildrenLayout();
 
 protected:
-    void  resizeEvent( QResizeEvent* event ) override;
-    void  showEvent( QShowEvent* ) override;
-    void  changeEvent( QEvent* ) override;
-    void  contextMenuEvent( QContextMenuEvent* ) override;
-    QSize sizeHint() const override;
-
+    void showEvent( QShowEvent* ) override;
+    void changeEvent( QEvent* event ) override;
+    void contextMenuEvent( QContextMenuEvent* ) override;
     void keyPressEvent( QKeyEvent* keyEvent ) override;
 
+    QSize sizeHint() const override;
+
+    QLabel* createTitleLabel() const;
+
 private:
-    void               updateScrollBar( double minDepth, double maxDepth );
-    std::map<int, int> calculateTrackWidthsToMatchFrame( int frameWidth ) const;
-    void               placeChildWidgets( int frameHeight, int frameWidth );
-    void               positionTitle( int frameWidth );
+    void updateScrollBar( double minDepth, double maxDepth );
+    void alignCanvasTops();
 
 private slots:
     void slotSetMinDepth( int value );
-    void scheduleUpdateChildrenLayout();
 
-private:
-    QLabel*                          m_plotTitle;
+protected:
+    QPointer<QVBoxLayout>            m_layout;
+    QPointer<QHBoxLayout>            m_plotLayout;
+    QPointer<QFrame>                 m_plotFrame;
+    QPointer<QGridLayout>            m_trackLayout;
+    QPointer<QLabel>                 m_plotTitle;
+    QPointer<QVBoxLayout>            m_scrollBarLayout;
     QScrollBar*                      m_scrollBar;
     QList<QPointer<QwtLegend>>       m_legends;
     QList<QPointer<RiuWellLogTrack>> m_trackPlots;
     caf::PdmPointer<RimWellLogPlot>  m_plotDefinition;
-    QTimer*                          m_scheduleUpdateChildrenLayoutTimer;
 };

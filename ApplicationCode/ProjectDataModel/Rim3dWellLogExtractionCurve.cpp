@@ -85,7 +85,7 @@ Rim3dWellLogExtractionCurve::Rim3dWellLogExtractionCurve()
     m_geomResultDefinition->setAddWellPathDerivedResults( true );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "", "", "", "" );
-    m_nameConfig = new RimWellLogExtractionCurveNameConfig( this );
+    m_nameConfig = new RimWellLogExtractionCurveNameConfig();
 }
 
 //--------------------------------------------------------------------------------------------------

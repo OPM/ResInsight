@@ -57,8 +57,6 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPlotTools.h"
 
-#include "RiuWellPltPlot.h"
-
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafVecIjk.h"
@@ -100,18 +98,16 @@ const char RimWellPltPlot::PLOT_NAME_QFORMAT_STRING[] = "PLT: %1";
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellPltPlot::RimWellPltPlot()
+    : RimWellLogPlot()
 {
     CAF_PDM_InitObject( "Well Allocation Plot", ":/WellFlowPlot16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_userName, "PlotDescription", QString( "PLT Plot" ), "Name", "", "", "" );
-    m_userName.uiCapability()->setUiReadOnly( true );
+    CAF_PDM_InitField( &m_showPlotTitle_OBSOLETE, "ShowPlotTitle", false, "Show Plot Title", "", "", "" );
+    m_showPlotTitle_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "" );
-
-    CAF_PDM_InitFieldNoDefault( &m_wellLogPlot, "WellLog", "WellLog", "", "", "" );
-    m_wellLogPlot.uiCapability()->setUiHidden( true );
-    m_wellLogPlot = new RimWellLogPlot();
-    m_wellLogPlot->setDepthType( RimWellLogPlot::MEASURED_DEPTH );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "WellLog", "", "", "" );
+    m_wellLogPlot_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_wellPathName, "WellName", "Well Name", "", "", "" );
 
@@ -137,9 +133,13 @@ RimWellPltPlot::RimWellPltPlot()
     m_phases = std::vector<caf::AppEnum<FlowPhase>>( {FLOW_PHASE_OIL, FLOW_PHASE_GAS, FLOW_PHASE_WATER} );
     m_phases.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
+    m_nameConfig->setCustomName( "PLT Plot" );
+
     this->setAsPlotMdiWindow();
     m_doInitAfterLoad = false;
     m_isOnLoad        = true;
+
+    setAvailableDepthTypes( {RimWellLogPlot::MEASURED_DEPTH} );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,18 +150,6 @@ RimWellPltPlot::~RimWellPltPlot()
     removeMdiWindowFromMdiArea();
 
     deleteViewWidget();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPltPlot::deleteViewWidget()
-{
-    if ( m_wellLogPlotWidget )
-    {
-        m_wellLogPlotWidget->deleteLater();
-        m_wellLogPlotWidget = nullptr;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -238,12 +226,12 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::updateFormationsOnPlot() const
 {
-    if ( m_wellLogPlot->trackCount() > 0 )
+    if ( trackCount() > 0 )
     {
         RimProject*  proj     = RiaApplication::instance()->project();
         RimWellPath* wellPath = proj->wellPathByName( m_wellPathName );
 
-        RimCase* formationNamesCase = m_wellLogPlot->trackByIndex( 0 )->formationNamesCase();
+        RimCase* formationNamesCase = trackByIndex( 0 )->formationNamesCase();
 
         if ( !formationNamesCase )
         {
@@ -257,27 +245,7 @@ void RimWellPltPlot::updateFormationsOnPlot() const
             }
         }
 
-        m_wellLogPlot->trackByIndex( 0 )->setAndUpdateWellPathFormationNamesData( formationNamesCase, wellPath );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPltPlot::updateWidgetTitleWindowTitle()
-{
-    updateMdiWindowTitle();
-
-    if ( m_wellLogPlotWidget )
-    {
-        if ( m_showPlotTitle )
-        {
-            m_wellLogPlotWidget->showTitle( m_userName );
-        }
-        else
-        {
-            m_wellLogPlotWidget->hideTitle();
-        }
+        trackByIndex( 0 )->setAndUpdateWellPathFormationNamesData( formationNamesCase, wellPath );
     }
 }
 
@@ -515,7 +483,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::syncCurvesFromUiSelection()
 {
-    RimWellLogTrack*                          plotTrack = m_wellLogPlot->trackByIndex( 0 );
+    RimWellLogTrack*                          plotTrack = trackByIndex( 0 );
     const std::set<RiaRftPltCurveDefinition>& curveDefs = selectedCurveDefs();
 
     setPlotXAxisTitles( plotTrack );
@@ -729,8 +697,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         curveGroupId++;
     }
 
-    updateWidgetTitleWindowTitle();
-    m_wellLogPlot->loadDataAndUpdate();
+    RimWellLogPlot::onLoadDataAndUpdate();
     plotTrack->calculateXZoomRange();
 }
 
@@ -790,30 +757,6 @@ std::vector<RifDataSourceForRftPlt> RimWellPltPlot::selectedSourcesExpanded() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RimWellPltPlot::viewWidget()
-{
-    return m_wellLogPlotWidget;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPltPlot::zoomAll()
-{
-    m_wellLogPlot()->zoomAll();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellLogPlot* RimWellPltPlot::wellLogPlot() const
-{
-    return m_wellLogPlot();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::setCurrentWellName( const QString& currWellName )
 {
     m_wellPathName = currWellName;
@@ -833,8 +776,9 @@ const char* RimWellPltPlot::plotNameFormatString()
 QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                      bool*                      useOptionsOnly )
 {
-    QList<caf::PdmOptionItemInfo> options;
-    const QString                 simWellName = RimWellPlotTools::simWellName( m_wellPathName );
+    QList<caf::PdmOptionItemInfo> options = RimWellLogPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+
+    const QString simWellName = RimWellPlotTools::simWellName( m_wellPathName );
 
     if ( fieldNeedingOptions == &m_wellPathName )
     {
@@ -930,7 +874,7 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            oldValue,
                                        const QVariant&            newValue )
 {
-    RimViewWindow::fieldChangedByUi( changedField, oldValue, newValue );
+    RimWellLogPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
     if ( changedField == &m_wellPathName )
     {
@@ -939,7 +883,7 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
     if ( changedField == &m_wellPathName )
     {
-        RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex( 0 );
+        RimWellLogTrack* const plotTrack = trackByIndex( 0 );
         plotTrack->deleteAllCurves();
         m_selectedSources.v().clear();
         m_selectedTimeSteps.v().clear();
@@ -977,9 +921,9 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateFormationsOnPlot();
         syncSourcesIoFieldFromGuiField();
         syncCurvesFromUiSelection();
-        m_wellLogPlot->updateDepthZoom();
+        updateDepthZoom();
 
-        RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex( 0 );
+        RimWellLogTrack* const plotTrack = trackByIndex( 0 );
         plotTrack->calculateXZoomRangeAndUpdateQwt();
     }
 
@@ -987,9 +931,9 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
          changedField == &m_phases )
     {
         syncCurvesFromUiSelection();
-        m_wellLogPlot->updateDepthZoom();
+        updateDepthZoom();
 
-        RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex( 0 );
+        RimWellLogTrack* const plotTrack = trackByIndex( 0 );
         plotTrack->calculateXZoomRangeAndUpdateQwt();
     }
 }
@@ -1005,27 +949,10 @@ void RimWellPltPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimWellPltPlot::snapshotWindowContent()
-{
-    QImage image;
-
-    if ( m_wellLogPlotWidget )
-    {
-        QPixmap pix = QPixmap::grabWidget( m_wellLogPlotWidget );
-        image       = pix.toImage();
-    }
-
-    return image;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     const QString simWellName = RimWellPlotTools::simWellName( m_wellPathName );
 
-    uiOrdering.add( &m_userName );
     uiOrdering.add( &m_wellPathName );
 
     caf::PdmUiGroup* sourcesGroup = uiOrdering.addNewGroupWithKeyword( "Sources", "Sources" );
@@ -1040,20 +967,20 @@ void RimWellPltPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     flowGroup->add( &m_phases );
 
-    if ( m_wellLogPlot && m_wellLogPlot->trackCount() > 0 )
+    if ( trackCount() > 0 )
     {
-        RimWellLogTrack* track = m_wellLogPlot->trackByIndex( 0 );
+        RimWellLogTrack* track = trackByIndex( 0 );
 
         track->uiOrderingForRftPltFormations( uiOrdering );
 
         caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup( "Legend and Axis" );
         legendAndAxisGroup->setCollapsedByDefault( true );
 
-        m_wellLogPlot->uiOrderingForPlotSettings( *legendAndAxisGroup );
+        uiOrderingForPlotSettings( *legendAndAxisGroup );
 
         track->uiOrderingForXAxisSettings( *legendAndAxisGroup );
 
-        m_wellLogPlot->uiOrderingForDepthAxis( *legendAndAxisGroup );
+        uiOrderingForDepthAxis( *legendAndAxisGroup );
     }
 
     uiOrdering.skipRemainingFields( true );
@@ -1081,6 +1008,19 @@ void RimWellPltPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
 void RimWellPltPlot::initAfterRead()
 {
     RimViewWindow::initAfterRead();
+
+    if ( m_wellLogPlot_OBSOLETE )
+    {
+        RimWellLogPlot& wellLogPlot = dynamic_cast<RimWellLogPlot&>( *this );
+        wellLogPlot                 = std::move( *m_wellLogPlot_OBSOLETE.value() );
+    }
+
+    if ( m_showPlotTitle_OBSOLETE() && !m_showTitleInPlot() )
+    {
+        m_showTitleInPlot = m_showPlotTitle_OBSOLETE();
+    }
+
+    RimWellLogPlot::initAfterRead();
 
     // Postpone init until data has been loaded
     m_doInitAfterLoad = true;
@@ -1145,24 +1085,6 @@ void RimWellPltPlot::calculateValueOptionsForWells( QList<caf::PdmOptionItemInfo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPltPlot::setDescription( const QString& description )
-{
-    m_userName = description;
-
-    updateWidgetTitleWindowTitle();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimWellPltPlot::description() const
-{
-    return m_userName();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::onLoadDataAndUpdate()
 {
     if ( m_doInitAfterLoad )
@@ -1173,9 +1095,9 @@ void RimWellPltPlot::onLoadDataAndUpdate()
 
     if ( m_isOnLoad )
     {
-        if ( m_wellLogPlot->trackCount() > 0 )
+        if ( trackCount() > 0 )
         {
-            m_wellLogPlot->trackByIndex( 0 )->setShowFormations( true );
+            trackByIndex( 0 )->setShowFormations( true );
         }
         m_isOnLoad = false;
     }
@@ -1183,14 +1105,4 @@ void RimWellPltPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     updateFormationsOnPlot();
     syncCurvesFromUiSelection();
-    m_wellLogPlot->loadDataAndUpdate();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* RimWellPltPlot::createViewWidget( QWidget* mainWindowParent )
-{
-    m_wellLogPlotWidget = new RiuWellPltPlot( this, mainWindowParent );
-    return m_wellLogPlotWidget;
 }

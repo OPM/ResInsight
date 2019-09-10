@@ -121,6 +121,10 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_tofAccumulatedPhaseFractionsPlot = new RimTofAccumulatedPhaseFractionsPlot;
 
     this->setAsPlotMdiWindow();
+
+    m_accumulatedWellFlowPlot->setAvailableDepthUnits( {} );
+    m_accumulatedWellFlowPlot->setAvailableDepthTypes(
+        {RimWellLogPlot::CONNECTION_NUMBER, RimWellLogPlot::TRUE_VERTICAL_DEPTH, RimWellLogPlot::PSEUDO_LENGTH} );
 }
 
 //--------------------------------------------------------------------------------------------------

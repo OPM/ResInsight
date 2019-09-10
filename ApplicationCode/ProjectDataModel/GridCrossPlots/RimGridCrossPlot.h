@@ -40,7 +40,7 @@ class RimGridCrossPlotNameConfig : public RimNameConfig
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimGridCrossPlotNameConfig( RimNameConfigHolderInterface* holder = nullptr );
+    RimGridCrossPlotNameConfig();
 
 public:
     caf::PdmField<bool> addDataSetNames;

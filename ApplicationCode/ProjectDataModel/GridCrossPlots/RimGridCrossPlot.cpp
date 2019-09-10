@@ -61,6 +61,7 @@ RimGridCrossPlot::RimGridCrossPlot()
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "Name Config", "", "", "" );
     m_nameConfig.uiCapability()->setUiTreeHidden( true );
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden( true );
+    m_nameConfig = new RimGridCrossPlotNameConfig();
 
     CAF_PDM_InitFieldNoDefault( &m_xAxisProperties, "xAxisProperties", "X Axis", "", "", "" );
     m_xAxisProperties.uiCapability()->setUiTreeHidden( true );
@@ -76,8 +77,6 @@ RimGridCrossPlot::RimGridCrossPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_crossPlotDataSets, "CrossPlotCurve", "Cross Plot Data Set", "", "", "" );
     m_crossPlotDataSets.uiCapability()->setUiHidden( true );
-
-    m_nameConfig = new RimGridCrossPlotNameConfig( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -963,8 +962,8 @@ CAF_PDM_SOURCE_INIT( RimGridCrossPlotNameConfig, "RimGridCrossPlotNameConfig" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridCrossPlotNameConfig::RimGridCrossPlotNameConfig( RimNameConfigHolderInterface* holder /*= nullptr*/ )
-    : RimNameConfig( holder )
+RimGridCrossPlotNameConfig::RimGridCrossPlotNameConfig()
+    : RimNameConfig()
 {
     CAF_PDM_InitObject( "Cross Plot Name Generator", "", "", "" );
 

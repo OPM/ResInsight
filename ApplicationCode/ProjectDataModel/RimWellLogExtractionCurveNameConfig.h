@@ -29,7 +29,7 @@ class RimWellLogExtractionCurveNameConfig : public RimNameConfig
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellLogExtractionCurveNameConfig( const RimNameConfigHolderInterface* configHolder = nullptr );
+    RimWellLogExtractionCurveNameConfig();
 
     bool addCaseName() const;
     bool addProperty() const;

@@ -53,7 +53,6 @@
 #include "RimWellPltPlot.h"
 
 #include "RiuWellLogTrack.h"
-#include "RiuWellRftPlot.h"
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -73,20 +72,21 @@ const char RimWellRftPlot::PLOT_NAME_QFORMAT_STRING[] = "RFT: %1";
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellRftPlot::RimWellRftPlot()
+    : RimWellLogPlot()
 {
-    CAF_PDM_InitObject( "Well Allocation Plot", ":/RFTPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "RFT Plot", ":/RFTPlot16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_userName, "PlotDescription", QString( "RFT Plot" ), "Name", "", "", "" );
-    m_userName.uiCapability()->setUiReadOnly( true );
+    CAF_PDM_InitField( &m_showPlotTitle_OBSOLETE, "ShowPlotTitle", false, "Show Plot Title", "", "", "" );
+    m_showPlotTitle_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "" );
     CAF_PDM_InitField( &m_showStatisticsCurves, "ShowStatisticsCurves", true, "Show Statistics Curves", "", "", "" );
     CAF_PDM_InitField( &m_showEnsembleCurves, "ShowEnsembleCurves", true, "Show Ensemble Curves", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogPlot, "WellLog", "Well Log", "", "", "" );
-    m_wellLogPlot.uiCapability()->setUiHidden( true );
-    m_wellLogPlot = new RimWellLogPlot();
-    m_wellLogPlot->setDepthType( RimWellLogPlot::TRUE_VERTICAL_DEPTH );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "Well Log", "", "", "" );
+    m_wellLogPlot_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
+
+    m_depthType = RimWellLogPlot::TRUE_VERTICAL_DEPTH;
 
     CAF_PDM_InitFieldNoDefault( &m_wellPathNameOrSimWellName, "WellName", "Well Name", "", "", "" );
     CAF_PDM_InitField( &m_branchIndex, "BranchIndex", 0, "Branch Index", "", "", "" );
@@ -110,6 +110,9 @@ RimWellRftPlot::RimWellRftPlot()
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue( false );
 
+    m_nameConfig->setCustomName( "RFT Plot" );
+    m_trackLegendsHorizontal = true;
+
     this->setAsPlotMdiWindow();
     m_isOnLoad = true;
 }
@@ -122,18 +125,6 @@ RimWellRftPlot::~RimWellRftPlot()
     removeMdiWindowFromMdiArea();
 
     deleteViewWidget();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::deleteViewWidget()
-{
-    if ( m_wellLogPlotWidget )
-    {
-        m_wellLogPlotWidget->deleteLater();
-        m_wellLogPlotWidget = nullptr;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,7 +144,7 @@ void RimWellRftPlot::applyCurveAppearance( RimWellLogCurve* newCurve )
         if ( m_showStatisticsCurves )
         {
             cvf::Color3f backgroundColor = RiaColorTools::fromQColorTo3f(
-                m_wellLogPlot->trackByIndex( 0 )->viewer()->canvasBackground().color() );
+                trackByIndex( 0 )->viewer()->canvasBackground().color() );
             currentColor = RiaColorTools::blendCvfColors( backgroundColor, currentColor, 2, 1 );
         }
     }
@@ -184,12 +175,12 @@ void RimWellRftPlot::applyCurveAppearance( RimWellLogCurve* newCurve )
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::updateFormationsOnPlot() const
 {
-    if ( m_wellLogPlot->trackCount() > 0 )
+    if ( trackCount() > 0 )
     {
         RimProject*  proj     = RiaApplication::instance()->project();
         RimWellPath* wellPath = proj->wellPathByName( m_wellPathNameOrSimWellName );
 
-        RimCase* formationNamesCase = m_wellLogPlot->trackByIndex( 0 )->formationNamesCase();
+        RimCase* formationNamesCase = trackByIndex( 0 )->formationNamesCase();
 
         if ( !formationNamesCase )
         {
@@ -205,14 +196,14 @@ void RimWellRftPlot::updateFormationsOnPlot() const
 
         if ( wellPath )
         {
-            m_wellLogPlot->trackByIndex( 0 )->setAndUpdateWellPathFormationNamesData( formationNamesCase, wellPath );
+            trackByIndex( 0 )->setAndUpdateWellPathFormationNamesData( formationNamesCase, wellPath );
         }
         else
         {
-            m_wellLogPlot->trackByIndex( 0 )->setAndUpdateSimWellFormationNamesAndBranchData( formationNamesCase,
-                                                                                              associatedSimWellName(),
-                                                                                              m_branchIndex,
-                                                                                              m_branchDetection );
+            trackByIndex( 0 )->setAndUpdateSimWellFormationNamesAndBranchData( formationNamesCase,
+                                                                               associatedSimWellName(),
+                                                                               m_branchIndex,
+                                                                               m_branchDetection );
         }
     }
 }
@@ -312,29 +303,9 @@ void RimWellRftPlot::updateEditorsFromCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::updateWidgetTitleWindowTitle()
-{
-    updateMdiWindowTitle();
-
-    if ( m_wellLogPlotWidget )
-    {
-        if ( m_showPlotTitle )
-        {
-            m_wellLogPlotWidget->showTitle( m_userName );
-        }
-        else
-        {
-            m_wellLogPlotWidget->hideTitle();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::syncCurvesFromUiSelection()
 {
-    RimWellLogTrack* plotTrack = m_wellLogPlot->trackByIndex( 0 );
+    RimWellLogTrack* plotTrack = trackByIndex( 0 );
 
     const std::set<RiaRftPltCurveDefinition>& allCurveDefs    = selectedCurveDefs();
     const std::set<RiaRftPltCurveDefinition>& curveDefsInPlot = curveDefsFromCurves();
@@ -396,7 +367,7 @@ std::set<RiaRftPltCurveDefinition> RimWellRftPlot::curveDefsFromCurves() const
 {
     std::set<RiaRftPltCurveDefinition> curveDefs;
 
-    RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex( 0 );
+    RimWellLogTrack* const plotTrack = trackByIndex( 0 );
     for ( RimWellLogCurve* const curve : plotTrack->curvesVector() )
     {
         curveDefs.insert( RimWellPlotTools::curveDefFromCurve( curve ) );
@@ -412,7 +383,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                                          const std::set<RimWellLogCurve*>&         curvesToDelete )
 {
     const QString          simWellName = associatedSimWellName();
-    RimWellLogTrack* const plotTrack   = m_wellLogPlot->trackByIndex( 0 );
+    RimWellLogTrack* const plotTrack   = trackByIndex( 0 );
 
     // Delete curves
     plotTrack->deleteAllCurves();
@@ -564,15 +535,15 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
         }
     }
 
-    if ( m_wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH )
+    if ( depthType() == RimWellLogPlot::MEASURED_DEPTH )
     {
         assignWellPathToExtractionCurves();
     }
 
-    m_wellLogPlot->loadDataAndUpdate();
+    RimWellLogPlot::onLoadDataAndUpdate();
     if ( plotTrack->curveCount() )
     {
-        m_wellLogPlot->zoomAll();
+        zoomAll();
     }
 }
 
@@ -596,30 +567,6 @@ std::vector<RifDataSourceForRftPlt> RimWellRftPlot::selectedSourcesExpanded() co
             sources.push_back( addr );
     }
     return sources;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* RimWellRftPlot::viewWidget()
-{
-    return m_wellLogPlotWidget;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::zoomAll()
-{
-    m_wellLogPlot()->zoomAll();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellLogPlot* RimWellRftPlot::wellLogPlot() const
-{
-    return m_wellLogPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -663,7 +610,7 @@ const char* RimWellRftPlot::plotNameFormatString()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::deleteCurvesAssosicatedWithObservedData( const RimObservedFmuRftData* observedFmuRftData )
 {
-    for ( auto track : m_wellLogPlot->tracks() )
+    for ( auto track : tracks() )
     {
         auto curves = track->curvesVector();
         for ( auto curve : curves )
@@ -684,7 +631,7 @@ void RimWellRftPlot::deleteCurvesAssosicatedWithObservedData( const RimObservedF
 QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                      bool*                      useOptionsOnly )
 {
-    QList<caf::PdmOptionItemInfo> options;
+    QList<caf::PdmOptionItemInfo> options = RimWellLogPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
 
     const QString simWellName = associatedSimWellName();
 
@@ -797,7 +744,7 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            oldValue,
                                        const QVariant&            newValue )
 {
-    RimViewWindow::fieldChangedByUi( changedField, oldValue, newValue );
+    RimWellLogPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
     if ( changedField == &m_wellPathNameOrSimWellName )
     {
@@ -805,7 +752,7 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         m_branchIndex = 0;
 
-        RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex( 0 );
+        RimWellLogTrack* const plotTrack = trackByIndex( 0 );
         if ( plotTrack )
         {
             plotTrack->deleteAllCurves();
@@ -834,7 +781,7 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         syncCurvesFromUiSelection();
     }
 
-    else if ( changedField == &m_showPlotTitle )
+    else if ( changedField == &m_showTitleInPlot )
     {
         // m_wellLogPlot->setShowDescription(m_showPlotTitle);
     }
@@ -851,25 +798,8 @@ void RimWellRftPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimWellRftPlot::snapshotWindowContent()
-{
-    QImage image;
-
-    if ( m_wellLogPlotWidget )
-    {
-        QPixmap pix = QPixmap::grabWidget( m_wellLogPlotWidget );
-        image       = pix.toImage();
-    }
-
-    return image;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_userName );
     uiOrdering.add( &m_wellPathNameOrSimWellName );
     uiOrdering.add( &m_showStatisticsCurves );
     uiOrdering.add( &m_showEnsembleCurves );
@@ -897,20 +827,18 @@ void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     caf::PdmUiGroup* timeStepsGroup = uiOrdering.addNewGroupWithKeyword( "Time Steps", "TimeSteps" );
     timeStepsGroup->add( &m_selectedTimeSteps );
 
-    if ( m_wellLogPlot && m_wellLogPlot->trackCount() > 0 )
+    if ( trackCount() > 0 )
     {
-        RimWellLogTrack* track = m_wellLogPlot->trackByIndex( 0 );
+        RimWellLogTrack* track = trackByIndex( 0 );
 
         track->uiOrderingForRftPltFormations( uiOrdering );
 
         caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup( "Legend and Axis" );
         legendAndAxisGroup->setCollapsedByDefault( true );
 
-        m_wellLogPlot->uiOrderingForPlotSettings( *legendAndAxisGroup );
-
+        uiOrderingForPlotSettings( *legendAndAxisGroup );
         track->uiOrderingForXAxisSettings( *legendAndAxisGroup );
-
-        m_wellLogPlot->uiOrderingForDepthAxis( *legendAndAxisGroup );
+        uiOrderingForDepthAxis( *legendAndAxisGroup );
     }
 
     uiOrdering.skipRemainingFields( true );
@@ -993,31 +921,13 @@ void RimWellRftPlot::calculateValueOptionsForWells( QList<caf::PdmOptionItemInfo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::setDescription( const QString& description )
-{
-    m_userName = description;
-
-    updateWidgetTitleWindowTitle();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimWellRftPlot::description() const
-{
-    return m_userName();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::onLoadDataAndUpdate()
 {
     if ( m_isOnLoad )
     {
-        if ( m_wellLogPlot->trackCount() > 0 )
+        if ( trackCount() > 0 )
         {
-            m_wellLogPlot->trackByIndex( 0 )->setShowFormations( true );
+            trackByIndex( 0 )->setShowFormations( true );
         }
 
         m_isOnLoad = false;
@@ -1026,17 +936,32 @@ void RimWellRftPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     updateFormationsOnPlot();
 
-    if ( m_wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH )
+    if ( depthType() == RimWellLogPlot::MEASURED_DEPTH )
     {
         assignWellPathToExtractionCurves();
     }
 
-    m_wellLogPlot->loadDataAndUpdate();
+    RimWellLogPlot::onLoadDataAndUpdate();
 
     updateEditorsFromCurves();
-    updateWidgetTitleWindowTitle();
+}
 
-    // applyInitialSelections();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::initAfterRead()
+{
+    if ( m_wellLogPlot_OBSOLETE )
+    {
+        RimWellLogPlot& wellLogPlot = dynamic_cast<RimWellLogPlot&>( *this );
+        wellLogPlot                 = std::move( *m_wellLogPlot_OBSOLETE.value() );
+    }
+    if ( m_showPlotTitle_OBSOLETE() && !m_showTitleInPlot() )
+    {
+        m_showTitleInPlot = m_showPlotTitle_OBSOLETE();
+    }
+
+    RimWellLogPlot::initAfterRead();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1049,7 +974,7 @@ void RimWellRftPlot::assignWellPathToExtractionCurves()
 
     if ( wellPath )
     {
-        for ( RimWellLogCurve* curve : m_wellLogPlot->trackByIndex( 0 )->curvesVector() )
+        for ( RimWellLogCurve* curve : trackByIndex( 0 )->curvesVector() )
         {
             auto extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( curve );
             if ( extractionCurve )
@@ -1059,16 +984,6 @@ void RimWellRftPlot::assignWellPathToExtractionCurves()
             }
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* RimWellRftPlot::createViewWidget( QWidget* mainWindowParent )
-{
-    m_wellLogPlotWidget = new RiuWellRftPlot( this, mainWindowParent );
-
-    return m_wellLogPlotWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1153,6 +1068,14 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::onDepthTypeChanged()
+{
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

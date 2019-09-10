@@ -31,11 +31,11 @@
 
 #include <QPointer>
 
+#include <set>
+
 class RimWellLogCurveCommonDataSource;
 class RiuWellLogPlot;
 class RimWellLogTrack;
-class RimWellRftPlot;
-class RimWellPltPlot;
 class QKeyEvent;
 
 //==================================================================================================
@@ -68,6 +68,8 @@ public:
     RimWellLogPlot();
     ~RimWellLogPlot() override;
 
+    RimWellLogPlot& operator=( RimWellLogPlot&& rhs );
+
     QWidget* createPlotWidget();
     QWidget* viewWidget() override;
 
@@ -93,14 +95,14 @@ public:
 
     void   addTrack( RimWellLogTrack* track );
     void   insertTrack( RimWellLogTrack* track, size_t index );
-    size_t trackCount()
+    size_t trackCount() const
     {
         return m_tracks.size();
     }
 
     void                          removeTrack( RimWellLogTrack* track );
     size_t                        trackIndex( const RimWellLogTrack* track ) const;
-    RimWellLogTrack*              trackByIndex( size_t index );
+    RimWellLogTrack*              trackByIndex( size_t index ) const;
     size_t                        firstVisibleTrackIndex() const;
     std::vector<RimWellLogTrack*> tracks() const;
     void                          updateTracks( bool autoScaleXAxis = false );
@@ -122,11 +124,6 @@ public:
 
     QString asciiDataForPlotExport() const;
 
-    RimWellRftPlot* rftPlot() const;
-    bool            isRftPlotChild() const;
-    RimWellPltPlot* pltPlot() const;
-    bool            isPltPlotChild() const;
-
     void uiOrderingForDepthAxis( caf::PdmUiOrdering& uiOrdering );
     void uiOrderingForPlotSettings( caf::PdmUiOrdering& uiOrdering );
 
@@ -134,6 +131,9 @@ public:
 
     void                             handleKeyPressEvent( QKeyEvent* keyEvent );
     RimWellLogCurveCommonDataSource* commonDataSource() const;
+
+    void setAvailableDepthUnits( const std::set<RiaDefines::DepthUnitType>& depthUnits );
+    void setAvailableDepthTypes( const std::set<RimWellLogPlot::DepthTypeEnum>& depthTypes );
 
 protected:
     void performAutoNameUpdate() override;
@@ -161,17 +161,16 @@ private:
     void recreateTrackPlots();
     void detachAllCurves();
 
-    void updateDisabledDepthTypes();
-    void updatePlotTitle();
+    void         updatePlotTitle();
+    virtual void onDepthTypeChanged();
 
-private:
+protected:
     caf::PdmField<QString>                               m_userName_OBSOLETE;
     caf::PdmChildField<RimWellLogCurveCommonDataSource*> m_commonDataSource;
     caf::PdmChildArrayField<RimWellLogTrack*>            m_tracks;
 
     caf::PdmField<caf::AppEnum<DepthTypeEnum>>             m_depthType;
     caf::PdmField<caf::AppEnum<RiaDefines::DepthUnitType>> m_depthUnit;
-    std::set<RimWellLogPlot::DepthTypeEnum>                m_disabledDepthTypes;
     caf::PdmField<double>                                  m_minVisibleDepth;
     caf::PdmField<double>                                  m_maxVisibleDepth;
     caf::PdmField<AxisGridEnum>                            m_depthAxisGridVisibility;
@@ -182,6 +181,9 @@ private:
     caf::PdmField<bool> m_trackLegendsHorizontal;
 
     caf::PdmChildField<RimWellLogPlotNameConfig*> m_nameConfig;
+
+    std::set<RiaDefines::DepthUnitType>     m_availableDepthUnits;
+    std::set<RimWellLogPlot::DepthTypeEnum> m_availableDepthTypes;
 
     double m_minAvailableDepth;
     double m_maxAvailableDepth;
