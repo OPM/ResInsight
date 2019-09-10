@@ -749,7 +749,8 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
             hexCorners[6] = cvf::Vec3d( nodeCoords[cornerIndices[6]] );
             hexCorners[7] = cvf::Vec3d( nodeCoords[cornerIndices[7]] );
 
-            // int intersectionCount = RigHexIntersector::lineHexCellIntersection(p1, p2, hexCorners, closeCells[ccIdx], &intersections);
+            // int intersectionCount = RigHexIntersector::lineHexCellIntersection(p1, p2, hexCorners, closeCells[ccIdx],
+            // &intersections);
             RigHexIntersectionTools::lineHexCellIntersection( p1, p2, hexCorners, closeCells[ccIdx], &intersections );
         }
 
