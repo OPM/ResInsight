@@ -21,6 +21,7 @@
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimWellBoreStabilityPlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
@@ -30,6 +31,42 @@
 #include "cvfAssert.h"
 
 #include <QString>
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellBoreStabilityPlot*
+    RicNewWellLogPlotFeatureImpl::createWellBoreStabilityPlot( bool           showAfterCreation /*= true*/,
+                                                               const QString& plotDescription /*= QString("")*/ )
+{
+    RimWellLogPlotCollection* wellLogPlotColl = wellLogPlotCollection();
+    CVF_ASSERT( wellLogPlotColl );
+
+    // Make sure the summary plot window is created
+    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
+
+    RimWellBoreStabilityPlot* plot = new RimWellBoreStabilityPlot();
+    plot->setAsPlotMdiWindow();
+
+    wellLogPlotColl->wellLogPlots().push_back( plot );
+
+    if ( !plotDescription.isEmpty() )
+    {
+        plot->setDescription( plotDescription );
+    }
+    else
+    {
+        plot->setDescription(
+            QString( "Well Bore Stability Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots.size() ) );
+    }
+
+    if ( showAfterCreation )
+    {
+        RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    }
+
+    return plot;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

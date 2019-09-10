@@ -55,5 +55,6 @@ public:
     static void                   wellPathWithFormations( std::vector<RimWellPath*>* wellPaths );
     static void                   caseOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void                   eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
+    static void                   geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static RimWellPathCollection* wellPathCollection();
 };

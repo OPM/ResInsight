@@ -30,11 +30,11 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
+#include "RimWellBoreStabilityPlot.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogFileCurve.h"
-#include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
@@ -104,8 +104,9 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered( bool isChecked )
 
     caf::ProgressInfo progInfo( 100, "Creating Well Bore Stability Plot" );
 
-    RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
-    RimWellLogPlot* plot        = RicNewWellLogPlotFeatureImpl::createWellLogPlot( false, "Well Bore Stability" );
+    RimGeoMechCase*           geoMechCase = geoMechView->geoMechCase();
+    RimWellBoreStabilityPlot* plot        = RicNewWellLogPlotFeatureImpl::createWellBoreStabilityPlot( false,
+                                                                                                "Well Bore Stability" );
 
     {
         auto task = progInfo.task( "Creating formation track", 2 );
@@ -158,9 +159,9 @@ void RicNewWellBoreStabilityPlotFeature::setupActionLook( QAction* actionToSetup
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellBoreStabilityPlotFeature::createFormationTrack( RimWellLogPlot* plot,
-                                                               RimWellPath*    wellPath,
-                                                               RimGeoMechCase* geoMechCase )
+void RicNewWellBoreStabilityPlotFeature::createFormationTrack( RimWellBoreStabilityPlot* plot,
+                                                               RimWellPath*              wellPath,
+                                                               RimGeoMechCase*           geoMechCase )
 {
     RimWellLogTrack* formationTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Formations", plot );
     formationTrack->setFormationWellPath( wellPath );
@@ -173,9 +174,9 @@ void RicNewWellBoreStabilityPlotFeature::createFormationTrack( RimWellLogPlot* p
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack( RimWellLogPlot* plot,
-                                                                RimWellPath*    wellPath,
-                                                                RimGeoMechCase* geoMechCase )
+void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack( RimWellBoreStabilityPlot* plot,
+                                                                RimWellPath*              wellPath,
+                                                                RimGeoMechCase*           geoMechCase )
 {
     RimWellLogTrack* casingShoeTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Well Design", plot );
     casingShoeTrack->setWidthScaleFactor( RimWellLogTrack::NARROW_TRACK );
@@ -193,9 +194,9 @@ void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack( RimWellLogPlot* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellLogPlot* plot,
-                                                                     RimWellPath*    wellPath,
-                                                                     RimGeoMechView* geoMechView )
+void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBoreStabilityPlot* plot,
+                                                                     RimWellPath*              wellPath,
+                                                                     RimGeoMechView*           geoMechView )
 {
     RimWellLogTrack* stabilityCurvesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false,
                                                                                                   "Stability Curves",
@@ -242,9 +243,9 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellLogP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellLogPlot* plot,
-                                                            RimWellPath*    wellPath,
-                                                            RimGeoMechView* geoMechView )
+void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStabilityPlot* plot,
+                                                            RimWellPath*              wellPath,
+                                                            RimGeoMechView*           geoMechView )
 {
     RimWellLogTrack*     wellPathAnglesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false,
                                                                                                  "Well Path Angles",

@@ -22,7 +22,7 @@
 
 class RimGeoMechCase;
 class RimGeoMechView;
-class RimWellLogPlot;
+class RimWellBoreStabilityPlot;
 class RimWellPath;
 
 //==================================================================================================
@@ -39,8 +39,8 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    void createFormationTrack( RimWellLogPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase );
-    void createCasingShoeTrack( RimWellLogPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase );
-    void createStabilityCurvesTrack( RimWellLogPlot* plot, RimWellPath* wellPath, RimGeoMechView* geoMechCase );
-    void createAnglesTrack( RimWellLogPlot* plot, RimWellPath* wellPath, RimGeoMechView* geoMechView );
+    void createFormationTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase );
+    void createCasingShoeTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase );
+    void createStabilityCurvesTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechView* geoMechCase );
+    void createAnglesTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechView* geoMechView );
 };

@@ -48,6 +48,17 @@ class BoundingBox;
 class RigGeoMechWellLogExtractor : public RigWellLogExtractor
 {
 public:
+    enum WbsParameterSource
+    {
+        AUTO,
+        GRID, // Only relevant for Pore Pressure
+        LAS_FILE,
+        ELEMENT_PROPERTY_TABLE,
+        USER_DEFINED, // Not relevant for Pore Pressure
+        HYDROSTATIC_PP // Only relevant for Pore Pressure
+    };
+
+public:
     RigGeoMechWellLogExtractor( RigGeoMechCaseData* aCase,
                                 const RigWellPath*  wellpath,
                                 const std::string&  wellCaseErrorMsgName );
@@ -59,6 +70,16 @@ public:
     void setWellLogMdAndMudWeightKgPerM3( const std::vector<std::pair<double, double>>& mudWeightKgPerM3 );
     void setWellLogMdAndUcsBar( const std::vector<std::pair<double, double>>& ucsValues );
     void setWellLogMdAndPoissonRatio( const std::vector<std::pair<double, double>>& poissonRatio );
+
+    static std::set<WbsParameterSource> supportedSourcesForPorePressure();
+    static std::set<WbsParameterSource> supportedSourcesForPoissonRatio();
+    static std::set<WbsParameterSource> supportedSourcesForUcs();
+
+    void setWbsParameters( WbsParameterSource porePressureSource,
+                           WbsParameterSource poissonRatioSource,
+                           WbsParameterSource ucsSource,
+                           double             userDefinedPoissonRatio,
+                           double             userDefinedUcs );
 
 private:
     enum WellPathTangentCalculation
@@ -72,6 +93,7 @@ private:
                                           double                    hydroStaticPorePressureBar,
                                           double                    effectiveDepthMeters,
                                           const std::vector<float>& poreElementPressuresPascal ) const;
+
     float calculatePoissonRatio( int64_t intersectionIdx, const std::vector<float>& poissonRatios ) const;
     float calculateUcs( int64_t intersectionIdx, const std::vector<float>& ucsValuesPascal ) const;
 
@@ -112,6 +134,12 @@ private:
     std::vector<std::pair<double, double>> m_wellLogMdAndMudWeightKgPerM3;
     std::vector<std::pair<double, double>> m_wellLogMdAndUcsBar;
     std::vector<std::pair<double, double>> m_wellLogMdAndPoissonRatios;
+
+    WbsParameterSource m_porePressureSource;
+    WbsParameterSource m_poissonRatioSource;
+    WbsParameterSource m_ucsSource;
+    double             m_userDefinedPoissonRatio;
+    double             m_userDefinedUcs;
 
     static const double UNIT_WEIGHT_OF_WATER;
 };

@@ -46,6 +46,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimTools.h"
+#include "RimWellBoreStabilityPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
@@ -408,6 +409,16 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
             tvDepthValues       = geomExtractor->cellIntersectionTVDs();
 
             findAndLoadWbsParametersFromLasFiles( m_wellPath(), geomExtractor.p() );
+            RimWellBoreStabilityPlot* wbsPlot;
+            this->firstAncestorOrThisOfType( wbsPlot );
+            if ( wbsPlot )
+            {
+                geomExtractor->setWbsParameters( wbsPlot->porePressureSource(),
+                                                 wbsPlot->poissonRatioSource(),
+                                                 wbsPlot->ucsSource(),
+                                                 wbsPlot->userDefinedPoissonRatio(),
+                                                 wbsPlot->userDefinedUcs() );
+            }
 
             geomExtractor->setRkbDiff( rkbDiff() );
 

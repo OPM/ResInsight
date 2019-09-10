@@ -24,6 +24,7 @@
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"
+#include "RimGeoMechCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellLogFile.h"
@@ -326,6 +327,31 @@ void RimTools::eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
         {
             RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( c );
             if ( eclipseCase )
+            {
+                options->push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
+{
+    CVF_ASSERT( options );
+    if ( !options ) return;
+
+    RimProject* proj = RiaApplication::instance()->project();
+    if ( proj )
+    {
+        std::vector<RimCase*> cases;
+        proj->allCases( cases );
+
+        for ( RimCase* c : cases )
+        {
+            RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>( c );
+            if ( geoMechCase )
             {
                 options->push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
             }
