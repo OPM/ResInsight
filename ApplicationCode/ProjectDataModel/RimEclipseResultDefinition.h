@@ -106,6 +106,9 @@ public:
     QString diffResultUiShortName() const;
     QString diffResultUiShortNameHTML() const;
 
+    int timeLapseBaseTimeStep() const;
+    int caseDiffIndex() const;
+
     void                    loadResult();
     RigEclipseResultAddress eclipseResultAddress() const;
     void                    setFromEclipseResultAddress( const RigEclipseResultAddress& resultAddress );
