@@ -98,16 +98,19 @@ public:
     QString                         diffResultUiShortName() const;
     QString                         diffResultUiShortNameHTML() const;
 
-    void                            loadResult();
-    RigEclipseResultAddress         eclipseResultAddress() const;
-    void                            setFromEclipseResultAddress(const RigEclipseResultAddress& resultAddress);
-    bool                            hasStaticResult() const;
-    bool                            hasDynamicResult() const;
-    bool                            hasResult() const;
-    bool                            isTernarySaturationSelected() const;
-    bool                            isCompletionTypeSelected() const;
-    bool                            hasCategoryResult() const;
-    bool                            isFlowDiagOrInjectionFlooding() const;
+    int timeLapseBaseTimeStep() const;
+    int caseDiffIndex() const;
+
+    void                    loadResult();
+    RigEclipseResultAddress eclipseResultAddress() const;
+    void                    setFromEclipseResultAddress( const RigEclipseResultAddress& resultAddress );
+    bool                    hasStaticResult() const;
+    bool                    hasDynamicResult() const;
+    bool                    hasResult() const;
+    bool                    isTernarySaturationSelected() const;
+    bool                    isCompletionTypeSelected() const;
+    bool                    hasCategoryResult() const;
+    bool                    isFlowDiagOrInjectionFlooding() const;
 
     RigCaseCellResultsData*         currentGridCellResults() const;
 

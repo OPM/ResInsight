@@ -971,6 +971,26 @@ QString RimEclipseResultDefinition::diffResultUiShortNameHTML() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimEclipseResultDefinition::timeLapseBaseTimeStep() const
+{
+    return m_timeLapseBaseTimestep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimEclipseResultDefinition::caseDiffIndex() const
+{
+    if ( m_differenceCase )
+    {
+        return m_differenceCase->caseId();
+    }
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::loadResult()
 {
     ensureProcessingOfObsoleteFields();
