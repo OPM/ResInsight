@@ -127,6 +127,18 @@ void AppEnum<RimWellLogTrack::WidthScaleFactor>::setUp()
     addItem( RimWellLogTrack::EXTRA_WIDE_TRACK, "EXTRA_WIDE_TRACK", "Extra wide" );
     setDefault( RimWellLogTrack::NORMAL_TRACK );
 }
+
+template <>
+void AppEnum<RiuPlotAnnotationTool::FormationDisplay>::setUp()
+{
+    addItem( RiuPlotAnnotationTool::NONE, "NONE", "None" );
+    addItem( RiuPlotAnnotationTool::DARK_LINES, "DARK_LINES", "Dark Lines" );
+    addItem( RiuPlotAnnotationTool::COLORED_LINES, "COLORED_LINES", "Colored Lines" );
+    addItem( RiuPlotAnnotationTool::COLOR_SHADING, "COLOR_SHADING", "Color Shading" );
+    addItem( RiuPlotAnnotationTool::COLOR_SHADING_AND_LINES, "SHADING_AND_LINES", "Color Shading and Lines" );
+    setDefault( RiuPlotAnnotationTool::NONE );
+}
+
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -161,7 +173,9 @@ RimWellLogTrack::RimWellLogTrack()
     m_majorTickInterval.uiCapability()->setUiHidden( true );
     m_minorTickInterval.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_showFormations, "ShowFormations", false, "Show Lines", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_formationDisplay, "FormationDisplay", "Show Formations", "", "", "" );
+    CAF_PDM_InitField( &m_showFormations_OBSOLETE, "ShowFormations", false, "Show Lines", "", "", "" );
+    m_showFormations_OBSOLETE.xmlCapability()->setIOWritable( false );
     CAF_PDM_InitField( &m_showFormationLabels, "ShowFormationLabels", true, "Show Labels", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_formationSource, "FormationSource", "Source", "", "", "" );
@@ -354,7 +368,7 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         m_wellLogTrackPlotWidget->replot();
     }
-    else if ( changedField == &m_showFormations || changedField == &m_formationSource )
+    else if ( changedField == &m_formationDisplay || changedField == &m_formationSource )
     {
         if ( changedField == &m_formationSource && m_formationSource == WELL_PICK_FILTER )
         {
@@ -785,13 +799,13 @@ void RimWellLogTrack::loadDataAndUpdate( bool updateParentPlotAndToolbars )
         curves[cIdx]->loadDataAndUpdate( false );
     }
 
-    if ( m_showFormations )
+    if ( m_formationDisplay == RiuPlotAnnotationTool::NONE )
     {
-        setFormationFieldsUiReadOnly( false );
+        setFormationFieldsUiReadOnly( true );
     }
     else
     {
-        setFormationFieldsUiReadOnly( true );
+        setFormationFieldsUiReadOnly( false );
     }
 
     if ( m_wellLogTrackPlotWidget )
@@ -836,7 +850,7 @@ void RimWellLogTrack::setAndUpdateWellPathFormationNamesData( RimCase* rimCase, 
 
     updateConnectedEditors();
 
-    if ( m_showFormations )
+    if ( m_formationDisplay != RiuPlotAnnotationTool::NONE )
     {
         updateFormationNamesOnPlot();
     }
@@ -868,7 +882,7 @@ void RimWellLogTrack::setAndUpdateSimWellFormationNamesData( RimCase* rimCase, c
 
     updateConnectedEditors();
 
-    if ( m_showFormations )
+    if ( m_formationDisplay != RiuPlotAnnotationTool::NONE )
     {
         updateFormationNamesOnPlot();
     }
@@ -1205,7 +1219,7 @@ void RimWellLogTrack::setXAxisGridVisibility( RimWellLogPlot::AxisGridVisibility
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setShowFormations( bool on )
 {
-    m_showFormations = on;
+    m_showFormations_OBSOLETE = on;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1213,7 +1227,7 @@ void RimWellLogTrack::setShowFormations( bool on )
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogTrack::showFormations() const
 {
-    return m_showFormations;
+    return m_showFormations_OBSOLETE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1281,7 +1295,7 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     uiOrdering.add( &m_userName );
     caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup( "Zonation/Formation Names" );
 
-    formationGroup->add( &m_showFormations );
+    formationGroup->add( &m_formationDisplay );
     formationGroup->add( &m_showFormationLabels );
 
     if ( !m_formationsForCaseWithSimWellOnly )
@@ -1343,6 +1357,17 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     trackSettingsGroup->add( &m_widthScaleFactor );
 
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::initAfterRead()
+{
+    if ( m_showFormations_OBSOLETE() && m_formationDisplay() == RiuPlotAnnotationTool::NONE )
+    {
+        m_formationDisplay = RiuPlotAnnotationTool::COLORED_LINES;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1509,7 +1534,7 @@ void RimWellLogTrack::uiOrderingForRftPltFormations( caf::PdmUiOrdering& uiOrder
 {
     caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup( "Zonation/Formation Names" );
     formationGroup->setCollapsedByDefault( true );
-    formationGroup->add( &m_showFormations );
+    formationGroup->add( &m_formationDisplay );
     formationGroup->add( &m_formationSource );
     if ( m_formationSource == CASE )
     {
@@ -1728,7 +1753,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 {
     removeFormationNames();
 
-    if ( m_showFormations == false ) return;
+    if ( m_formationDisplay == RiuPlotAnnotationTool::NONE ) return;
 
     if ( m_annotationTool == nullptr )
     {
@@ -1807,7 +1832,14 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                    &formationNamesToPlot,
                                                    &yValues );
 
-        m_annotationTool->attachFormationNames( this->viewer(), formationNamesToPlot, yValues, m_showFormationLabels() );
+        std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
+
+        m_annotationTool->attachFormationNames( this->viewer(),
+                                                formationNamesToPlot,
+                                                xRange,
+                                                yValues,
+                                                m_formationDisplay(),
+                                                m_showFormationLabels() );
     }
     else if ( m_formationSource() == WELL_PICK_FILTER )
     {

@@ -22,6 +22,7 @@
 #include "RimWellLogPlot.h"
 
 #include "RigWellPathFormations.h"
+#include "RiuPlotAnnotationTool.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -40,7 +41,6 @@ class RimWellPathAttributeCollection;
 class RimWellFlowRateCurve;
 class RimWellLogCurve;
 class RimWellPath;
-class RiuPlotAnnotationTool;
 class RiuWellPathComponentPlotItem;
 class RiuWellLogTrack;
 class RigEclipseWellLogExtractor;
@@ -177,6 +177,7 @@ private:
     caf::PdmFieldHandle* objectToggleField() override;
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                 initAfterRead() override;
 
     void computeAndSetXRangeMinForLogarithmicScale();
 
@@ -228,27 +229,29 @@ private:
     caf::PdmField<double>                       m_majorTickInterval;
     caf::PdmField<double>                       m_minorTickInterval;
 
-    caf::PdmField<bool>                                                m_showFormations;
-    caf::PdmField<bool>                                                m_showFormationLabels;
-    caf::PdmField<caf::AppEnum<FormationSource>>                       m_formationSource;
-    caf::PdmPtrField<RimCase*>                                         m_formationCase;
-    caf::PdmField<caf::AppEnum<TrajectoryType>>                        m_formationTrajectoryType;
-    caf::PdmPtrField<RimWellPath*>                                     m_formationWellPathForSourceCase;
-    caf::PdmPtrField<RimWellPath*>                                     m_formationWellPathForSourceWellPath;
-    caf::PdmField<QString>                                             m_formationSimWellName;
-    caf::PdmField<int>                                                 m_formationBranchIndex;
-    caf::PdmField<caf::AppEnum<RigWellPathFormations::FormationLevel>> m_formationLevel;
-    caf::PdmField<bool>                                                m_showformationFluids;
-    caf::PdmField<caf::AppEnum<WidthScaleFactor>>                      m_widthScaleFactor;
-    caf::PdmField<bool>                                                m_formationBranchDetection;
-    caf::PdmField<bool>                                                m_showWellPathAttributes;
-    caf::PdmField<bool>                                                m_showWellPathCompletions;
-    caf::PdmField<bool>                                                m_showWellPathComponentsBothSides;
-    caf::PdmField<bool>                                                m_showWellPathComponentLabels;
-    caf::PdmField<bool>                                                m_wellPathAttributesInLegend;
-    caf::PdmField<bool>                                                m_wellPathCompletionsInLegend;
-    caf::PdmPtrField<RimWellPath*>                                     m_wellPathComponentSource;
-    caf::PdmPtrField<RimWellPathAttributeCollection*>                  m_wellPathAttributeCollection;
+    caf::PdmField<caf::AppEnum<RiuPlotAnnotationTool::FormationDisplay>> m_formationDisplay;
+    caf::PdmField<bool>                                                  m_showFormationLabels;
+    caf::PdmField<caf::AppEnum<FormationSource>>                         m_formationSource;
+    caf::PdmPtrField<RimCase*>                                           m_formationCase;
+    caf::PdmField<caf::AppEnum<TrajectoryType>>                          m_formationTrajectoryType;
+    caf::PdmPtrField<RimWellPath*>                                       m_formationWellPathForSourceCase;
+    caf::PdmPtrField<RimWellPath*>                                       m_formationWellPathForSourceWellPath;
+    caf::PdmField<QString>                                               m_formationSimWellName;
+    caf::PdmField<int>                                                   m_formationBranchIndex;
+    caf::PdmField<caf::AppEnum<RigWellPathFormations::FormationLevel>>   m_formationLevel;
+    caf::PdmField<bool>                                                  m_showformationFluids;
+    caf::PdmField<caf::AppEnum<WidthScaleFactor>>                        m_widthScaleFactor;
+    caf::PdmField<bool>                                                  m_formationBranchDetection;
+    caf::PdmField<bool>                                                  m_showWellPathAttributes;
+    caf::PdmField<bool>                                                  m_showWellPathCompletions;
+    caf::PdmField<bool>                                                  m_showWellPathComponentsBothSides;
+    caf::PdmField<bool>                                                  m_showWellPathComponentLabels;
+    caf::PdmField<bool>                                                  m_wellPathAttributesInLegend;
+    caf::PdmField<bool>                                                  m_wellPathCompletionsInLegend;
+    caf::PdmPtrField<RimWellPath*>                                       m_wellPathComponentSource;
+    caf::PdmPtrField<RimWellPathAttributeCollection*>                    m_wellPathAttributeCollection;
+
+    caf::PdmField<bool> m_showFormations_OBSOLETE;
 
     std::vector<std::unique_ptr<RiuWellPathComponentPlotItem>> m_wellPathAttributePlotObjects;
 

@@ -31,12 +31,24 @@ class QwtPlot;
 class RiuPlotAnnotationTool
 {
 public:
+    enum FormationDisplay
+    {
+        NONE                    = 0x00,
+        DARK_LINES              = 0x01,
+        COLORED_LINES           = 0x02,
+        COLOR_SHADING           = 0x04,
+        COLOR_SHADING_AND_LINES = 0x05
+    };
+
+public:
     RiuPlotAnnotationTool(){};
     ~RiuPlotAnnotationTool();
 
     void attachFormationNames( QwtPlot*                                     plot,
                                const std::vector<QString>&                  names,
+                               const std::pair<double, double>              xRange,
                                const std::vector<std::pair<double, double>> yPositions,
+                               FormationDisplay                             formationDisplay,
                                bool                                         showNames = true );
     void attachWellPicks( QwtPlot* plot, const std::vector<QString>& names, const std::vector<double> yPositions );
 
@@ -46,10 +58,10 @@ public:
 
 private:
     static void horizontalDashedLine( QwtPlotMarker* line, const QString& name, double yValue );
-    static void
-        horizontalDashedLineWithColor( QwtPlotMarker* line, const QColor& color, const QString& name, double yValue );
+    static void horizontalDashedLineWithColor(
+        QwtPlotMarker* line, const QColor& color, const QColor& textColor, const QString& name, double yValue );
 
 private:
-    QPointer<QwtPlot>           m_plot;
-    std::vector<QwtPlotMarker*> m_markers;
+    QPointer<QwtPlot>         m_plot;
+    std::vector<QwtPlotItem*> m_markers;
 };
