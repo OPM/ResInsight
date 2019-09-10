@@ -142,15 +142,6 @@ void RiuWellLogPlot::insertTrackPlot( RiuWellLogTrack* trackPlot, size_t index )
     legend->contentsWidget()->layout()->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
     m_legends.insert( static_cast<int>( index ), legend );
 
-    m_trackLayout->addWidget( legend, 0, static_cast<int>( index ) );
-    m_trackLayout->addWidget( trackPlot, 1, static_cast<int>( index ) );
-    m_trackLayout->setRowStretch( 1, 1 );
-
-    if ( !m_plotDefinition->areTrackLegendsVisible() )
-    {
-        legend->hide();
-    }
-
     trackPlot->updateLegend();
 
     if ( trackPlot->isRimTrackVisible() )
@@ -161,6 +152,8 @@ void RiuWellLogPlot::insertTrackPlot( RiuWellLogTrack* trackPlot, size_t index )
     {
         trackPlot->hide();
     }
+
+    updateChildrenLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,6 +172,8 @@ void RiuWellLogPlot::removeTrackPlot( RiuWellLogTrack* trackPlot )
     QwtLegend* legend = m_legends[trackIdx];
     m_legends.removeAt( trackIdx );
     delete legend;
+
+    updateChildrenLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -241,6 +236,8 @@ void RiuWellLogPlot::setTitleVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::updateChildrenLayout()
 {
+    reinsertTracks();
+
     int trackCount            = m_trackPlots.size();
     int numTracksAlreadyShown = 0;
     for ( int tIdx = 0; tIdx < trackCount; ++tIdx )
@@ -265,9 +262,9 @@ void RiuWellLogPlot::updateChildrenLayout()
         RiuWellLogTrack* riuTrack = m_trackPlots[tIdx];
         m_trackLayout->setColumnStretch( tIdx, riuTrack->widthScaleFactor() );
     }
-
     alignCanvasTops();
     this->update();
+    this->repaint();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -405,6 +402,29 @@ void RiuWellLogPlot::alignCanvasTops()
     {
         int legendHeight = m_trackLayout->cellRect( 0, 0 ).height();
         m_scrollBarLayout->setContentsMargins( 0, legendHeight, 0, 0 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::reinsertTracks()
+{
+    int visibleIndex = 0;
+    for ( int tIdx = 0; tIdx < m_trackPlots.size(); ++tIdx )
+    {
+        if ( m_trackPlots[tIdx]->isVisible() )
+        {
+            m_trackLayout->addWidget( m_legends[tIdx], 0, static_cast<int>( visibleIndex ) );
+            m_trackLayout->addWidget( m_trackPlots[tIdx], 1, static_cast<int>( visibleIndex ) );
+            m_trackLayout->setRowStretch( 1, 1 );
+
+            if ( !m_plotDefinition->areTrackLegendsVisible() )
+            {
+                m_legends[tIdx]->hide();
+            }
+            visibleIndex++;
+        }
     }
 }
 
