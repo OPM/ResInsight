@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "cafColorTable.h"
+
 #include "qwt_plot_marker.h"
 
 #include <memory>
@@ -49,6 +51,8 @@ public:
                                const std::pair<double, double>              xRange,
                                const std::vector<std::pair<double, double>> yPositions,
                                FormationDisplay                             formationDisplay,
+                               const caf::ColorTable&                       colorTable,
+                               int                                          shadingAlphaByte,
                                bool                                         showNames = true );
     void attachWellPicks( QwtPlot* plot, const std::vector<QString>& names, const std::vector<double> yPositions );
 

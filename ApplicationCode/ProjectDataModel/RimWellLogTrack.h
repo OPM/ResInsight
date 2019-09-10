@@ -24,6 +24,8 @@
 #include "RigWellPathFormations.h"
 #include "RiuPlotAnnotationTool.h"
 
+#include "RimRegularLegendConfig.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -178,6 +180,9 @@ private:
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                 initAfterRead() override;
+    void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                QString                    uiConfigName,
+                                                caf::PdmUiEditorAttribute* attribute ) override;
 
     void computeAndSetXRangeMinForLogarithmicScale();
 
@@ -230,6 +235,8 @@ private:
     caf::PdmField<double>                       m_minorTickInterval;
 
     caf::PdmField<caf::AppEnum<RiuPlotAnnotationTool::FormationDisplay>> m_formationDisplay;
+    caf::PdmField<RimRegularLegendConfig::ColorRangeEnum>                m_colorShadingPalette;
+    caf::PdmField<int>                                                   m_colorShadingTransparency;
     caf::PdmField<bool>                                                  m_showFormationLabels;
     caf::PdmField<caf::AppEnum<FormationSource>>                         m_formationSource;
     caf::PdmPtrField<RimCase*>                                           m_formationCase;
