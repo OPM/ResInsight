@@ -46,35 +46,37 @@ class RiuMohrsCirclePlot : public RiuDockedQwtPlot
     Q_OBJECT
 
 public:
-    RiuMohrsCirclePlot(QWidget* parent);
+    RiuMohrsCirclePlot( QWidget* parent );
     ~RiuMohrsCirclePlot() override;
 
-    void appendSelection(const RiuSelectionItem* selectionItem);
+    void appendSelection( const RiuSelectionItem* selectionItem );
     void clearPlot();
 
-    void updateOnTimeStepChanged(Rim3dView* changedView);
+    void updateOnTimeStepChanged( Rim3dView* changedView );
 
 private:
     struct MohrsCirclesInfo
     {
-        MohrsCirclesInfo(cvf::Vec3f      principals,
-                         size_t          gridIndex,
-                         size_t          elmIndex,
-                         size_t          i,
-                         size_t          j,
-                         size_t          k,
-                         RimGeoMechView* view,
-                         double          factorOfSafety,
-                         cvf::Color3ub   color)
-            : principals(principals)
-            , gridIndex(gridIndex)
-            , elmIndex(elmIndex)
-            , i(i)
-            , j(j)
-            , k(k)
-            , view(view)
-            , factorOfSafety(factorOfSafety)
-            , color(color) {}
+        MohrsCirclesInfo( cvf::Vec3f      principals,
+                          size_t          gridIndex,
+                          size_t          elmIndex,
+                          size_t          i,
+                          size_t          j,
+                          size_t          k,
+                          RimGeoMechView* view,
+                          double          factorOfSafety,
+                          cvf::Color3ub   color )
+            : principals( principals )
+            , gridIndex( gridIndex )
+            , elmIndex( elmIndex )
+            , i( i )
+            , j( j )
+            , k( k )
+            , view( view )
+            , factorOfSafety( factorOfSafety )
+            , color( color )
+        {
+        }
 
         cvf::Vec3f      principals;
         size_t          gridIndex;
@@ -88,20 +90,20 @@ private:
 private:
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
-    void  resizeEvent(QResizeEvent* e) override;
+    void  resizeEvent( QResizeEvent* e ) override;
 
-    void idealAxesEndPoints(double* xMin, double* xMax, double* yMax) const;
+    void idealAxesEndPoints( double* xMin, double* xMax, double* yMax ) const;
 
-    void addMohrCircles(const MohrsCirclesInfo& mohrsCirclesInfo);
+    void addMohrCircles( const MohrsCirclesInfo& mohrsCirclesInfo );
     void deleteCircles();
 
-    void addEnvelopeCurve(const cvf::Vec3f& principals, RimGeoMechView* view);
+    void addEnvelopeCurve( const cvf::Vec3f& principals, RimGeoMechView* view );
     void deleteEnvelopes();
 
-    void queryData(RimGeoMechView* geoMechView, size_t gridIndex, size_t elmIndex, const cvf::Color3ub& color);
+    void queryData( RimGeoMechView* geoMechView, size_t gridIndex, size_t elmIndex, const cvf::Color3ub& color );
     void updatePlot();
 
-    void addMohrsCirclesInfo(const MohrsCirclesInfo& mohrsCircleInfo);
+    void addMohrsCirclesInfo( const MohrsCirclesInfo& mohrsCircleInfo );
 
     void updateTransparentCurvesOnPrincipals();
 
@@ -109,11 +111,11 @@ private:
     double smallestPrincipal() const;
     double largestPrincipal() const;
 
-    static bool isValidPrincipals(const cvf::Vec3f& principals);
+    static bool isValidPrincipals( const cvf::Vec3f& principals );
 
-    static float calculateFOS(const cvf::Vec3f& principals, double frictionAngle, double cohesion);
+    static float calculateFOS( const cvf::Vec3f& principals, double frictionAngle, double cohesion );
 
-    QColor envelopeColor(RimGeoMechView* view);
+    QColor envelopeColor( RimGeoMechView* view );
 
     void deletePlotItems();
 

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017  Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -41,58 +41,57 @@
 
 #include <vector>
 
-
-CAF_CMD_SOURCE_INIT(RicNewWellLogRftCurveFeature, "RicNewWellLogRftCurveFeature");
+CAF_CMD_SOURCE_INIT( RicNewWellLogRftCurveFeature, "RicNewWellLogRftCurveFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogRftCurveFeature::isCommandEnabled()
 {
-    if (RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()) return false;
-    if (caf::SelectionManager::instance()->selectedItemOfType<RimWellLogTrack>() != nullptr)
+    if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;
+    if ( caf::SelectionManager::instance()->selectedItemOfType<RimWellLogTrack>() != nullptr )
     {
         return true;
     }
 
-    int branchIdx;
-    RimSimWellInView* simulationWell = RicWellLogTools::selectedSimulationWell(&branchIdx);
+    int               branchIdx;
+    RimSimWellInView* simulationWell = RicWellLogTools::selectedSimulationWell( &branchIdx );
 
-    if (simulationWell != nullptr)
+    if ( simulationWell != nullptr )
     {
-        return RicWellLogTools::wellHasRftData(simulationWell->name());
+        return RicWellLogTools::wellHasRftData( simulationWell->name() );
     }
 
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogRftCurveFeature::onActionTriggered(bool isChecked)
+void RicNewWellLogRftCurveFeature::onActionTriggered( bool isChecked )
 {
     RimWellLogTrack* wellLogPlotTrack = caf::SelectionManager::instance()->selectedItemOfType<RimWellLogTrack>();
-    if (wellLogPlotTrack)
+    if ( wellLogPlotTrack )
     {
         int branchIdx;
-        RicWellLogTools::addRftCurve(wellLogPlotTrack, RicWellLogTools::selectedSimulationWell(&branchIdx));
+        RicWellLogTools::addRftCurve( wellLogPlotTrack, RicWellLogTools::selectedSimulationWell( &branchIdx ) );
     }
     else
     {
-        int branchIndex = -1;
-        RimSimWellInView* simWell = RicWellLogTools::selectedSimulationWell(&branchIndex);
-        if (simWell)
+        int               branchIndex = -1;
+        RimSimWellInView* simWell     = RicWellLogTools::selectedSimulationWell( &branchIndex );
+        if ( simWell )
         {
-            RimWellLogTrack* newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
-            RimWellLogRftCurve* plotCurve = RicWellLogTools::addRftCurve(newWellLogPlotTrack, simWell);
+            RimWellLogTrack*    newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
+            RimWellLogRftCurve* plotCurve           = RicWellLogTools::addRftCurve( newWellLogPlotTrack, simWell );
 
-            plotCurve->loadDataAndUpdate(true);
+            plotCurve->loadDataAndUpdate( true );
 
             RimWellLogPlot* plot = nullptr;
-            newWellLogPlotTrack->firstAncestorOrThisOfType(plot);
-            if (plot && plotCurve->curveData())
+            newWellLogPlotTrack->firstAncestorOrThisOfType( plot );
+            if ( plot && plotCurve->curveData() )
             {
-                plot->setDepthUnit(plotCurve->curveData()->depthUnit());
+                plot->setDepthUnit( plotCurve->curveData()->depthUnit() );
             }
 
             plotCurve->updateConnectedEditors();
@@ -101,10 +100,10 @@ void RicNewWellLogRftCurveFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogRftCurveFeature::setupActionLook(QAction* actionToSetup)
+void RicNewWellLogRftCurveFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("New Well Log RFT Curve");
-    actionToSetup->setIcon(QIcon(":/WellLogCurve16x16.png"));
+    actionToSetup->setText( "New Well Log RFT Curve" );
+    actionToSetup->setIcon( QIcon( ":/WellLogCurve16x16.png" ) );
 }

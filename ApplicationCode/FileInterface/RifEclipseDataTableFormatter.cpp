@@ -22,31 +22,31 @@
 
 #include <limits>
 
-#define MAX_ECLIPSE_DATA_ROW_WIDTH 132  // Maximum eclipse data row width
+#define MAX_ECLIPSE_DATA_ROW_WIDTH 132 // Maximum eclipse data row width
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseDataTableFormatter::RifEclipseDataTableFormatter(QTextStream& out)
-    : m_out(out)
-    , m_colSpacing(5)
-    , m_tableRowPrependText("   ")
-    , m_tableRowAppendText(" /")
-    , m_commentPrefix("-- ")
-    , m_maxDataRowWidth(MAX_ECLIPSE_DATA_ROW_WIDTH)
+RifEclipseDataTableFormatter::RifEclipseDataTableFormatter( QTextStream& out )
+    : m_out( out )
+    , m_colSpacing( 5 )
+    , m_tableRowPrependText( "   " )
+    , m_tableRowAppendText( " /" )
+    , m_commentPrefix( "-- " )
+    , m_maxDataRowWidth( MAX_ECLIPSE_DATA_ROW_WIDTH )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseDataTableFormatter::RifEclipseDataTableFormatter(const RifEclipseDataTableFormatter& rhs)
-    : m_out(rhs.m_out)
-    , m_colSpacing(rhs.m_colSpacing)
-    , m_tableRowPrependText(rhs.m_tableRowPrependText)
-    , m_tableRowAppendText(rhs.m_tableRowAppendText)
-    , m_commentPrefix(rhs.m_commentPrefix)
-    , m_maxDataRowWidth(rhs.m_maxDataRowWidth)
+RifEclipseDataTableFormatter::RifEclipseDataTableFormatter( const RifEclipseDataTableFormatter& rhs )
+    : m_out( rhs.m_out )
+    , m_colSpacing( rhs.m_colSpacing )
+    , m_tableRowPrependText( rhs.m_tableRowPrependText )
+    , m_tableRowAppendText( rhs.m_tableRowAppendText )
+    , m_commentPrefix( rhs.m_commentPrefix )
+    , m_maxDataRowWidth( rhs.m_maxDataRowWidth )
 {
 }
 
@@ -55,8 +55,8 @@ RifEclipseDataTableFormatter::RifEclipseDataTableFormatter(const RifEclipseDataT
 //--------------------------------------------------------------------------------------------------
 RifEclipseDataTableFormatter::~RifEclipseDataTableFormatter()
 {
-    CVF_ASSERT(m_buffer.empty());
-    CVF_ASSERT(m_columns.empty());
+    CVF_ASSERT( m_buffer.empty() );
+    CVF_ASSERT( m_columns.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ int RifEclipseDataTableFormatter::columnSpacing() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseDataTableFormatter::setColumnSpacing(int spacing)
+void RifEclipseDataTableFormatter::setColumnSpacing( int spacing )
 {
     m_colSpacing = spacing;
 }
@@ -94,7 +94,7 @@ QString RifEclipseDataTableFormatter::tableRowAppendText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseDataTableFormatter::setTableRowPrependText(const QString& text)
+void RifEclipseDataTableFormatter::setTableRowPrependText( const QString& text )
 {
     m_tableRowPrependText = text;
 }
@@ -102,7 +102,7 @@ void RifEclipseDataTableFormatter::setTableRowPrependText(const QString& text)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseDataTableFormatter::setTableRowLineAppendText(const QString& text)
+void RifEclipseDataTableFormatter::setTableRowLineAppendText( const QString& text )
 {
     m_tableRowAppendText = text;
 }
@@ -118,7 +118,7 @@ QString RifEclipseDataTableFormatter::commentPrefix() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseDataTableFormatter::setCommentPrefix(const QString& commentPrefix)
+void RifEclipseDataTableFormatter::setCommentPrefix( const QString& commentPrefix )
 {
     m_commentPrefix = commentPrefix;
 }
@@ -144,41 +144,41 @@ int RifEclipseDataTableFormatter::maxDataRowWidth() const
 //--------------------------------------------------------------------------------------------------
 void RifEclipseDataTableFormatter::outputBuffer()
 {
-    if (!m_columns.empty() && !isAllHeadersEmpty(m_columns))
+    if ( !m_columns.empty() && !isAllHeadersEmpty( m_columns ) )
     {
         m_out << m_commentPrefix;
-        for (size_t i = 0u; i < m_columns.size(); ++i)
-        {       
-            m_out << formatColumn(m_columns[i].title, i);
+        for ( size_t i = 0u; i < m_columns.size(); ++i )
+        {
+            m_out << formatColumn( m_columns[i].title, i );
         }
         m_out << "\n";
     }
 
-    for (auto line : m_buffer)
+    for ( auto line : m_buffer )
     {
-        if (line.lineType == COMMENT)
+        if ( line.lineType == COMMENT )
         {
-            outputComment(line);
+            outputComment( line );
         }
-        else if (line.lineType == HORIZONTAL_LINE)
+        else if ( line.lineType == HORIZONTAL_LINE )
         {
-            outputHorizontalLine(line);
+            outputHorizontalLine( line );
         }
-        else if (line.lineType == CONTENTS)
+        else if ( line.lineType == CONTENTS )
         {
-            QString lineText = m_tableRowPrependText;
-            bool isComment = m_tableRowPrependText.startsWith(m_commentPrefix);
-            QString appendText = (line.appendTextSet ? line.appendText : m_tableRowAppendText);
+            QString lineText   = m_tableRowPrependText;
+            bool    isComment  = m_tableRowPrependText.startsWith( m_commentPrefix );
+            QString appendText = ( line.appendTextSet ? line.appendText : m_tableRowAppendText );
 
-            for (size_t i = 0; i < line.data.size(); ++i)
+            for ( size_t i = 0; i < line.data.size(); ++i )
             {
-                QString column = formatColumn(line.data[i], i);
+                QString column      = formatColumn( line.data[i], i );
                 QString newLineText = lineText + column;
-                if (i == line.data.size() - 1)
+                if ( i == line.data.size() - 1 )
                 {
                     newLineText += appendText;
                 }
-                if (!isComment && newLineText.length() > maxDataRowWidth())
+                if ( !isComment && newLineText.length() > maxDataRowWidth() )
                 {
                     m_out << lineText << "\n";
                     lineText = m_tableRowPrependText;
@@ -196,45 +196,45 @@ void RifEclipseDataTableFormatter::outputBuffer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseDataTableFormatter::outputComment(RifEclipseOutputTableLine& comment)
+void RifEclipseDataTableFormatter::outputComment( RifEclipseOutputTableLine& comment )
 {
     m_out << m_commentPrefix << comment.data[0] << "\n";
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseDataTableFormatter::outputHorizontalLine(RifEclipseOutputTableLine& comment)
+void RifEclipseDataTableFormatter::outputHorizontalLine( RifEclipseOutputTableLine& comment )
 {
-    if (comment.lineType == HORIZONTAL_LINE)
+    if ( comment.lineType == HORIZONTAL_LINE )
     {
         int charCount = tableWidth();
 
         QChar fillChar = ' ';
-        if (!comment.data.empty())
+        if ( !comment.data.empty() )
         {
             QString firstString = comment.data[0];
-            if (!firstString.isEmpty())
+            if ( !firstString.isEmpty() )
             {
                 fillChar = firstString[0];
             }
         }
 
         QString str;
-        str.fill(fillChar, charCount);
+        str.fill( fillChar, charCount );
 
         m_out << m_commentPrefix << str << "\n";
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseDataTableFormatter::isAllHeadersEmpty(const std::vector<RifEclipseOutputTableColumn>& headers)
+bool RifEclipseDataTableFormatter::isAllHeadersEmpty( const std::vector<RifEclipseOutputTableColumn>& headers )
 {
-    for (auto& header : headers)
+    for ( auto& header : headers )
     {
-        if (!header.title.isEmpty()) return false;
+        if ( !header.title.isEmpty() ) return false;
     }
     return true;
 }
@@ -253,24 +253,24 @@ void RifEclipseDataTableFormatter::tableCompleted()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseDataTableFormatter::tableCompleted(const QString& appendText, bool appendNewline)
+void RifEclipseDataTableFormatter::tableCompleted( const QString& appendText, bool appendNewline )
 {
     outputBuffer();
 
     // Output an "empty" line after a finished table
-    if (!appendText.isEmpty() || appendNewline)
+    if ( !appendText.isEmpty() || appendNewline )
     {
-        m_out << m_tableRowPrependText << appendText << (appendNewline ? "\n" : "");
+        m_out << m_tableRowPrependText << appendText << ( appendNewline ? "\n" : "" );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::keyword(const QString& keyword)
+RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::keyword( const QString& keyword )
 {
-    CVF_ASSERT(m_buffer.empty());
-    CVF_ASSERT(m_columns.empty());
+    CVF_ASSERT( m_buffer.empty() );
+    CVF_ASSERT( m_columns.empty() );
     m_out << keyword << "\n";
     return *this;
 }
@@ -278,14 +278,14 @@ RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::keyword(const QStrin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::header(const std::vector<RifEclipseOutputTableColumn> header)
+RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::header( const std::vector<RifEclipseOutputTableColumn> header )
 {
     outputBuffer();
     m_columns = header;
 
-    for (size_t colNumber = 0u; colNumber < m_columns.size(); ++colNumber)
+    for ( size_t colNumber = 0u; colNumber < m_columns.size(); ++colNumber )
     {
-        m_columns[colNumber].width = measure(m_columns[colNumber].title);
+        m_columns[colNumber].width = measure( m_columns[colNumber].title );
     }
     return *this;
 }
@@ -293,19 +293,19 @@ RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::header(const std::ve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::comment(const QString& comment)
+RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::comment( const QString& comment )
 {
     RifEclipseOutputTableLine line;
-    line.data.push_back(comment);
-    line.lineType = COMMENT;
+    line.data.push_back( comment );
+    line.lineType      = COMMENT;
     line.appendTextSet = false;
-    if (m_columns.empty())
+    if ( m_columns.empty() )
     {
-        outputComment(line);
+        outputComment( line );
     }
     else
     {
-        m_buffer.push_back(line);
+        m_buffer.push_back( line );
     }
     return *this;
 }
@@ -313,21 +313,21 @@ RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::comment(const QStrin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::addHorizontalLine(const QChar& character)
+RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::addHorizontalLine( const QChar& character )
 {
     RifEclipseOutputTableLine line;
-    QString data;
+    QString                   data;
     data += character;
-    line.data.push_back(data);
-    line.lineType = HORIZONTAL_LINE;
+    line.data.push_back( data );
+    line.lineType      = HORIZONTAL_LINE;
     line.appendTextSet = false;
-    if (m_columns.empty())
+    if ( m_columns.empty() )
     {
-        outputComment(line);
+        outputComment( line );
     }
     else
     {
-        m_buffer.push_back(line);
+        m_buffer.push_back( line );
     }
     return *this;
 }
@@ -335,77 +335,77 @@ RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::addHorizontalLine(co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::add(const QString& str)
+RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::add( const QString& str )
 {
     size_t column = m_lineBuffer.size();
-    CVF_ASSERT(column < m_columns.size());
-    m_columns[column].width = std::max(measure(str), m_columns[column].width);
-    m_lineBuffer.push_back(str);
+    CVF_ASSERT( column < m_columns.size() );
+    m_columns[column].width = std::max( measure( str ), m_columns[column].width );
+    m_lineBuffer.push_back( str );
     return *this;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::add(double num)
+RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::add( double num )
 {
     size_t column = m_lineBuffer.size();
-    CVF_ASSERT(column < m_columns.size());
-    m_columns[column].width = std::max(measure(num, m_columns[column].doubleFormat), m_columns[column].width);
-    m_lineBuffer.push_back(format(num, m_columns[column].doubleFormat));
+    CVF_ASSERT( column < m_columns.size() );
+    m_columns[column].width = std::max( measure( num, m_columns[column].doubleFormat ), m_columns[column].width );
+    m_lineBuffer.push_back( format( num, m_columns[column].doubleFormat ) );
     return *this;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::add(int num)
+RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::add( int num )
 {
     size_t column = m_lineBuffer.size();
-    CVF_ASSERT(column < m_columns.size());
-    m_columns[column].width = std::max(measure(num), m_columns[column].width);
-    m_lineBuffer.push_back(format(num));
+    CVF_ASSERT( column < m_columns.size() );
+    m_columns[column].width = std::max( measure( num ), m_columns[column].width );
+    m_lineBuffer.push_back( format( num ) );
     return *this;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::add(size_t num)
+RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::add( size_t num )
 {
     size_t column = m_lineBuffer.size();
-    CVF_ASSERT(column < m_columns.size());
-    m_columns[column].width = std::max(measure(num), m_columns[column].width);
-    m_lineBuffer.push_back(format(num));
+    CVF_ASSERT( column < m_columns.size() );
+    m_columns[column].width = std::max( measure( num ), m_columns[column].width );
+    m_lineBuffer.push_back( format( num ) );
     return *this;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::addOneBasedCellIndex(size_t zeroBasedIndex)
+RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::addOneBasedCellIndex( size_t zeroBasedIndex )
 {
     size_t column = m_lineBuffer.size();
-    CVF_ASSERT(column < m_columns.size());
+    CVF_ASSERT( column < m_columns.size() );
 
     // Increase index by 1 to use Eclipse 1-based cell index instead of ResInsight 0-based
     zeroBasedIndex++;
 
-    m_columns[column].width = std::max(measure(zeroBasedIndex), m_columns[column].width);
-    m_lineBuffer.push_back(format(zeroBasedIndex));
+    m_columns[column].width = std::max( measure( zeroBasedIndex ), m_columns[column].width );
+    m_lineBuffer.push_back( format( zeroBasedIndex ) );
     return *this;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Add default marker if the value equals the defaultValue, otherwise add value.
 //--------------------------------------------------------------------------------------------------
-RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::addValueOrDefaultMarker(double value, double defaultValue)
+RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::addValueOrDefaultMarker( double value, double defaultValue )
 {
-    if (value == defaultValue)
+    if ( value == defaultValue )
     {
-        return add(QString("1*"));
+        return add( QString( "1*" ) );
     }
-    return add(value);
+    return add( value );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -414,31 +414,31 @@ RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::addValueOrDefaultMar
 void RifEclipseDataTableFormatter::rowCompleted()
 {
     RifEclipseOutputTableLine line;
-    line.data = m_lineBuffer;
-    line.lineType = CONTENTS;
+    line.data          = m_lineBuffer;
+    line.lineType      = CONTENTS;
     line.appendTextSet = false;
-    m_buffer.push_back(line);
+    m_buffer.push_back( line );
     m_lineBuffer.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseDataTableFormatter::rowCompleted(const QString& appendText)
+void RifEclipseDataTableFormatter::rowCompleted( const QString& appendText )
 {
     RifEclipseOutputTableLine line;
-    line.data     = m_lineBuffer;
-    line.lineType = CONTENTS;
+    line.data          = m_lineBuffer;
+    line.lineType      = CONTENTS;
     line.appendTextSet = true;
-    line.appendText = appendText;
-    m_buffer.push_back(line);
+    line.appendText    = appendText;
+    m_buffer.push_back( line );
     m_lineBuffer.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RifEclipseDataTableFormatter::measure(const QString str)
+int RifEclipseDataTableFormatter::measure( const QString str )
 {
     return str.length();
 }
@@ -446,37 +446,37 @@ int RifEclipseDataTableFormatter::measure(const QString str)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RifEclipseDataTableFormatter::measure(double num, RifEclipseOutputTableDoubleFormatting doubleFormat)
+int RifEclipseDataTableFormatter::measure( double num, RifEclipseOutputTableDoubleFormatting doubleFormat )
 {
-    return format(num, doubleFormat).length();
+    return format( num, doubleFormat ).length();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RifEclipseDataTableFormatter::measure(int num)
+int RifEclipseDataTableFormatter::measure( int num )
 {
-    return format(num).length();
+    return format( num ).length();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RifEclipseDataTableFormatter::measure(size_t num)
+int RifEclipseDataTableFormatter::measure( size_t num )
 {
-    return format(num).length();
+    return format( num ).length();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RifEclipseDataTableFormatter::tableWidth() const
 {
     int characterCount = m_tableRowPrependText.length();
 
-    for (size_t i = 0u; i < m_columns.size(); ++i)
+    for ( size_t i = 0u; i < m_columns.size(); ++i )
     {
-        characterCount += formatColumn(" ", i).size();
+        characterCount += formatColumn( " ", i ).size();
     }
     characterCount += m_tableRowAppendText.length();
 
@@ -486,52 +486,52 @@ int RifEclipseDataTableFormatter::tableWidth() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifEclipseDataTableFormatter::format(double num, RifEclipseOutputTableDoubleFormatting doubleFormat)
+QString RifEclipseDataTableFormatter::format( double num, RifEclipseOutputTableDoubleFormatting doubleFormat )
 {
-    switch (doubleFormat.format)
+    switch ( doubleFormat.format )
     {
         case RifEclipseOutputTableDoubleFormat::RIF_FLOAT:
-            return QString("%1").arg(num, 0, 'f', doubleFormat.precision);
+            return QString( "%1" ).arg( num, 0, 'f', doubleFormat.precision );
         case RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC:
-            return QString("%1").arg(num, 0, 'E');
+            return QString( "%1" ).arg( num, 0, 'E' );
         case RifEclipseOutputTableDoubleFormat::RIF_CONSISE:
-            return QString::number(num, 'g', doubleFormat.precision);
+            return QString::number( num, 'g', doubleFormat.precision );
         default:
-            return QString("%1");
+            return QString( "%1" );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifEclipseDataTableFormatter::format(int num)
+QString RifEclipseDataTableFormatter::format( int num )
 {
-    return QString("%1").arg(num);
+    return QString( "%1" ).arg( num );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifEclipseDataTableFormatter::format(size_t num)
+QString RifEclipseDataTableFormatter::format( size_t num )
 {
-    return QString("%1").arg(num);
+    return QString( "%1" ).arg( num );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifEclipseDataTableFormatter::formatColumn(const QString str, size_t columnIndex) const
+QString RifEclipseDataTableFormatter::formatColumn( const QString str, size_t columnIndex ) const
 {
     const RifEclipseOutputTableColumn& column = m_columns[columnIndex];
-    
-    if (column.alignment == LEFT)
+
+    if ( column.alignment == LEFT )
     {
-        int colSpacing = (columnIndex == m_columns.size() - 1) ? 0 : m_colSpacing;
-        return str.leftJustified(column.width + colSpacing, ' ');
+        int colSpacing = ( columnIndex == m_columns.size() - 1 ) ? 0 : m_colSpacing;
+        return str.leftJustified( column.width + colSpacing, ' ' );
     }
     else
     {
-        int colSpacing = (columnIndex == 0) ? 0 : m_colSpacing;
-        return str.rightJustified(column.width + colSpacing, ' ');
+        int colSpacing = ( columnIndex == 0 ) ? 0 : m_colSpacing;
+        return str.rightJustified( column.width + colSpacing, ' ' );
     }
 }

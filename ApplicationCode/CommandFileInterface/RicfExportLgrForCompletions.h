@@ -27,7 +27,6 @@
 
 class RimWellPath;
 
-
 //==================================================================================================
 //
 //
@@ -37,7 +36,7 @@ class RicfExportLgrForCompletions : public RicfCommandObject
 {
     CAF_PDM_HEADER_INIT;
 
-//    typedef caf::AppEnum<Lgr::SplitType> LgrSplitType;
+    //    typedef caf::AppEnum<Lgr::SplitType> LgrSplitType;
 
 public:
     RicfExportLgrForCompletions();

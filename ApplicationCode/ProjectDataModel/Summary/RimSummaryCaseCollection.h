@@ -19,8 +19,8 @@
 #pragma once
 
 #include "RiaEclipseUnitTools.h"
-#include "RifEclipseSummaryAddress.h"
 #include "RifEclipseRftAddress.h"
+#include "RifEclipseSummaryAddress.h"
 #include "RifReaderEnsembleStatisticsRft.h"
 
 #include "cafPdmChildArrayField.h"
@@ -38,43 +38,63 @@ class RifReaderEnsembleStatisticsRft;
 class RimSummaryCase;
 
 //==================================================================================================
-///  
+///
 //==================================================================================================
 class EnsembleParameter
 {
 public:
     typedef std::pair<QString, EnsembleParameter> NameParameterPair;
 
-    enum Type { TYPE_NONE, TYPE_NUMERIC, TYPE_TEXT };
-    enum Bins { LOW_VARIATION, MEDIUM_VARIATION, HIGH_VARIATION, NR_OF_VARIATION_BINS };
-    QString                 name;
-    Type                    type;
-    std::vector<QVariant>   values;
-    double                  minValue;
-    double                  maxValue;
-    int                     variationBin;
+    enum Type
+    {
+        TYPE_NONE,
+        TYPE_NUMERIC,
+        TYPE_TEXT
+    };
+    enum Bins
+    {
+        LOW_VARIATION,
+        MEDIUM_VARIATION,
+        HIGH_VARIATION,
+        NR_OF_VARIATION_BINS
+    };
+    QString               name;
+    Type                  type;
+    std::vector<QVariant> values;
+    double                minValue;
+    double                maxValue;
+    int                   variationBin;
 
-    EnsembleParameter() :
-        type(TYPE_NONE),
-        minValue(std::numeric_limits<double>::infinity()),
-        maxValue(-std::numeric_limits<double>::infinity()),
-        variationBin(static_cast<int>(MEDIUM_VARIATION))
-    {}
+    EnsembleParameter()
+        : type( TYPE_NONE )
+        , minValue( std::numeric_limits<double>::infinity() )
+        , maxValue( -std::numeric_limits<double>::infinity() )
+        , variationBin( static_cast<int>( MEDIUM_VARIATION ) )
+    {
+    }
 
-    bool isValid() const { return !name.isEmpty() && type != TYPE_NONE; }
-    bool isNumeric() const { return type == TYPE_NUMERIC; }
-    bool isText() const { return type == TYPE_TEXT; }
+    bool isValid() const
+    {
+        return !name.isEmpty() && type != TYPE_NONE;
+    }
+    bool isNumeric() const
+    {
+        return type == TYPE_NUMERIC;
+    }
+    bool isText() const
+    {
+        return type == TYPE_TEXT;
+    }
     double normalizedStdDeviation() const;
 
-    static void sortByBinnedVariation(std::vector<NameParameterPair>& parameterVector);
+    static void sortByBinnedVariation( std::vector<NameParameterPair>& parameterVector );
 
 private:
     double stdDeviation() const;
-
 };
 
 //==================================================================================================
-///  
+///
 //==================================================================================================
 class RimSummaryCaseCollection : public caf::PdmObject
 {
@@ -84,49 +104,52 @@ public:
     RimSummaryCaseCollection();
     ~RimSummaryCaseCollection() override;
 
-    void                            removeCase(RimSummaryCase* summaryCase);
-    void                            addCase(RimSummaryCase* summaryCase, bool updateCurveSets = true);
-    virtual std::vector<RimSummaryCase*> allSummaryCases() const;
-    void                            setName(const QString& name);
-    QString                         name() const;
-    bool                            isEnsemble() const;
-    void                            setAsEnsemble(bool isEnsemble);
+    void                                       removeCase( RimSummaryCase* summaryCase );
+    void                                       addCase( RimSummaryCase* summaryCase, bool updateCurveSets = true );
+    virtual std::vector<RimSummaryCase*>       allSummaryCases() const;
+    void                                       setName( const QString& name );
+    QString                                    name() const;
+    bool                                       isEnsemble() const;
+    void                                       setAsEnsemble( bool isEnsemble );
     virtual std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const;
-    std::set<QString>               wellsWithRftData() const;
-    std::set<QDateTime>             rftTimeStepsForWell(const QString& wellName) const;
-    RifReaderRftInterface*          rftStatisticsReader();
+    std::set<QString>                          wellsWithRftData() const;
+    std::set<QDateTime>                        rftTimeStepsForWell( const QString& wellName ) const;
+    RifReaderRftInterface*                     rftStatisticsReader();
 
-    EnsembleParameter               ensembleParameter(const QString& paramName) const;
-    void                            calculateEnsembleParametersIntersectionHash();
-    void                            clearEnsembleParametersHashes();
+    EnsembleParameter ensembleParameter( const QString& paramName ) const;
+    void              calculateEnsembleParametersIntersectionHash();
+    void              clearEnsembleParametersHashes();
 
-    void                            loadDataAndUpdate();
+    void loadDataAndUpdate();
 
-    static bool                     validateEnsembleCases(const std::vector<RimSummaryCase*> cases);
-    bool                            operator<(const RimSummaryCaseCollection& rhs) const;
+    static bool validateEnsembleCases( const std::vector<RimSummaryCase*> cases );
+    bool        operator<( const RimSummaryCaseCollection& rhs ) const;
 
     RiaEclipseUnitTools::UnitSystem unitSystem() const;
-private:
-    caf::PdmFieldHandle*            userDescriptionField() override;
-    QString                         nameAndItemCount() const;
-    void                            updateIcon();
 
-    void                    initAfterRead() override;
-    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+private:
+    caf::PdmFieldHandle* userDescriptionField() override;
+    QString              nameAndItemCount() const;
+    void                 updateIcon();
+
+    void initAfterRead() override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
 
 protected:
-    virtual void                    onLoadDataAndUpdate();
-    void                            updateReferringCurveSets();
-    void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void                            setNameAsReadOnly();
+    virtual void onLoadDataAndUpdate();
+    void         updateReferringCurveSets();
+    void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void         setNameAsReadOnly();
 
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
 
 private:
-    caf::PdmField<QString>                            m_name;
-    caf::PdmProxyValueField<QString>                  m_nameAndItemCount;
-    caf::PdmField<bool>                               m_isEnsemble;
-    cvf::ref<RifReaderEnsembleStatisticsRft>          m_statisticsEclipseRftReader;
+    caf::PdmField<QString>                   m_name;
+    caf::PdmProxyValueField<QString>         m_nameAndItemCount;
+    caf::PdmField<bool>                      m_isEnsemble;
+    cvf::ref<RifReaderEnsembleStatisticsRft> m_statisticsEclipseRftReader;
 
-    size_t                                   m_commonAddressCount;      // if different address count among cases, set to 0
+    size_t m_commonAddressCount; // if different address count among cases, set to 0
 };

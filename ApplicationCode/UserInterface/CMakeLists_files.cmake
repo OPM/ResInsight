@@ -58,8 +58,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuFemTimeHistoryResultAccessor.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuEditPerforationCollectionWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuAdvancedSnapshotExportWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellAllocationPlot.h
-${CMAKE_CURRENT_LIST_DIR}/RiuWellRftPlot.h
-${CMAKE_CURRENT_LIST_DIR}/RiuWellPltPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuFlowCharacteristicsPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuNightchartsWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMessagePanel.h
@@ -144,8 +142,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuFemTimeHistoryResultAccessor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuEditPerforationCollectionWidget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuAdvancedSnapshotExportWidget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellAllocationPlot.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuWellRftPlot.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuWellPltPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuFlowCharacteristicsPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuNightchartsWidget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMessagePanel.cpp
@@ -210,8 +206,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuCvfOverlayItemWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuEditPerforationCollectionWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuAdvancedSnapshotExportWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellAllocationPlot.h
-${CMAKE_CURRENT_LIST_DIR}/RiuWellRftPlot.h
-${CMAKE_CURRENT_LIST_DIR}/RiuWellPltPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuFlowCharacteristicsPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuNightchartsWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMessagePanel.h

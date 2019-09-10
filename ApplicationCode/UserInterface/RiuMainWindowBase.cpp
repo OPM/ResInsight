@@ -39,21 +39,21 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiuMainWindowBase::RiuMainWindowBase()
-    : m_projectTreeView(nullptr)
-    , m_allowActiveViewChangeFromSelection(true)
-    , m_showFirstVisibleWindowMaximized(true)
-    , m_blockSlotSubWindowActivated(false)
+    : m_projectTreeView( nullptr )
+    , m_allowActiveViewChangeFromSelection( true )
+    , m_showFirstVisibleWindowMaximized( true )
+    , m_blockSlotSubWindowActivated( false )
 {
-    setDockNestingEnabled(true);
+    setDockNestingEnabled( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMdiWindowGeometry RiuMainWindowBase::windowGeometryForViewer(QWidget* viewer)
+RimMdiWindowGeometry RiuMainWindowBase::windowGeometryForViewer( QWidget* viewer )
 {
-    RiuMdiSubWindow* mdiWindow = dynamic_cast<RiuMdiSubWindow*>(findMdiSubWindow(viewer));
-    if (mdiWindow)
+    RiuMdiSubWindow* mdiWindow = dynamic_cast<RiuMdiSubWindow*>( findMdiSubWindow( viewer ) );
+    if ( mdiWindow )
     {
         return mdiWindow->windowGeometry();
     }
@@ -70,16 +70,16 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
     // Company and appname set through QCoreApplication
     QSettings settings;
 
-    QVariant winGeo = settings.value(QString("%1/winGeometry").arg(registryFolderName()));
-    QVariant layout = settings.value(QString("%1/dockAndToolBarLayout").arg(registryFolderName()));
+    QVariant winGeo = settings.value( QString( "%1/winGeometry" ).arg( registryFolderName() ) );
+    QVariant layout = settings.value( QString( "%1/dockAndToolBarLayout" ).arg( registryFolderName() ) );
 
-    if (winGeo.isValid())
+    if ( winGeo.isValid() )
     {
-        if (restoreGeometry(winGeo.toByteArray()))
+        if ( restoreGeometry( winGeo.toByteArray() ) )
         {
-            if (layout.isValid())
+            if ( layout.isValid() )
             {
-                restoreState(layout.toByteArray(), 0);
+                restoreState( layout.toByteArray(), 0 );
             }
         }
     }
@@ -90,7 +90,7 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString mainWindowDockWidgetSettingsKey(const QString& settingsFolderName)
+QString mainWindowDockWidgetSettingsKey( const QString& settingsFolderName )
 {
     QString key = settingsFolderName + "/dockWindowVisibilies";
 
@@ -106,19 +106,19 @@ void RiuMainWindowBase::saveWinGeoAndDockToolBarLayout()
     QSettings settings;
 
     QByteArray winGeo = saveGeometry();
-    settings.setValue(QString("%1/winGeometry").arg(registryFolderName()), winGeo);
+    settings.setValue( QString( "%1/winGeometry" ).arg( registryFolderName() ), winGeo );
 
-    QByteArray layout = saveState(0);
-    settings.setValue(QString("%1/dockAndToolBarLayout").arg(registryFolderName()), layout);
+    QByteArray layout = saveState( 0 );
+    settings.setValue( QString( "%1/dockAndToolBarLayout" ).arg( registryFolderName() ), layout );
 
-    settings.setValue(QString("%1/isMaximized").arg(registryFolderName()), isMaximized());
+    settings.setValue( QString( "%1/isMaximized" ).arg( registryFolderName() ), isMaximized() );
 
-    if (this->isVisible())
+    if ( this->isVisible() )
     {
-        QVariant dockWindowVisibilities = RiuDockWidgetTools::dockWidgetsVisibility(this);
-        QString  key                    = mainWindowDockWidgetSettingsKey(registryFolderName());
+        QVariant dockWindowVisibilities = RiuDockWidgetTools::dockWidgetsVisibility( this );
+        QString  key                    = mainWindowDockWidgetSettingsKey( registryFolderName() );
 
-        settings.setValue(key, dockWindowVisibilities);
+        settings.setValue( key, dockWindowVisibilities );
     }
 }
 
@@ -129,12 +129,12 @@ void RiuMainWindowBase::storeDefaultDockWidgetVisibilitiesIfRequired()
 {
     QSettings settings;
 
-    QString key = mainWindowDockWidgetSettingsKey(registryFolderName());
+    QString key = mainWindowDockWidgetSettingsKey( registryFolderName() );
 
-    if (!settings.contains(key))
+    if ( !settings.contains( key ) )
     {
         QVariant dockWidgetVisibilities = RiuDockWidgetTools::defaultDockWidgetVisibilities();
-        settings.setValue(key, dockWidgetVisibilities);
+        settings.setValue( key, dockWidgetVisibilities );
     }
 }
 
@@ -146,10 +146,10 @@ void RiuMainWindowBase::restoreDockWidgetVisibilities()
     // Company and appname set through QCoreApplication
     QSettings settings;
 
-    QString key = mainWindowDockWidgetSettingsKey(registryFolderName());
+    QString key = mainWindowDockWidgetSettingsKey( registryFolderName() );
 
-    QVariant dockWindowVisibilities = settings.value(key);
-    RiuDockWidgetTools::applyDockWidgetVisibilities(this, dockWindowVisibilities.toMap());
+    QVariant dockWindowVisibilities = settings.value( key );
+    RiuDockWidgetTools::applyDockWidgetVisibilities( this, dockWindowVisibilities.toMap() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -162,8 +162,8 @@ void RiuMainWindowBase::showWindow()
 
     showNormal();
 
-    QVariant isMax = settings.value(QString("%1/isMaximized").arg(registryFolderName()), false);
-    if (isMax.toBool())
+    QVariant isMax = settings.value( QString( "%1/isMaximized" ).arg( registryFolderName() ), false );
+    if ( isMax.toBool() )
     {
         showMaximized();
     }
@@ -176,9 +176,9 @@ void RiuMainWindowBase::hideAllDockWidgets()
 {
     QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
 
-    for (QDockWidget* dock : dockWidgets)
+    for ( QDockWidget* dock : dockWidgets )
     {
-        if (dock)
+        if ( dock )
         {
             dock->hide();
         }
@@ -190,25 +190,25 @@ void RiuMainWindowBase::hideAllDockWidgets()
 //--------------------------------------------------------------------------------------------------
 QString RiuMainWindowBase::registryFolderName()
 {
-    QString versionName(STRPRODUCTVER);
-    QString regFolder = QString("%1_Qt%2/%3").arg(versionName).arg(QT_VERSION_STR).arg(mainWindowName());
+    QString versionName( STRPRODUCTVER );
+    QString regFolder = QString( "%1_Qt%2/%3" ).arg( versionName ).arg( QT_VERSION_STR ).arg( mainWindowName() );
     return regFolder;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::selectAsCurrentItem(const caf::PdmObject* object, bool allowActiveViewChange)
+void RiuMainWindowBase::selectAsCurrentItem( const caf::PdmObject* object, bool allowActiveViewChange )
 {
     m_allowActiveViewChangeFromSelection = allowActiveViewChange;
-    m_projectTreeView->selectAsCurrentItem(object);
+    m_projectTreeView->selectAsCurrentItem( object );
     m_allowActiveViewChangeFromSelection = true;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::enableShowFirstVisibleMdiWindowMaximized(bool enable)
+void RiuMainWindowBase::enableShowFirstVisibleMdiWindowMaximized( bool enable )
 {
     m_showFirstVisibleWindowMaximized = enable;
 }
@@ -216,7 +216,7 @@ void RiuMainWindowBase::enableShowFirstVisibleMdiWindowMaximized(bool enable)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::setBlockSlotSubWindowActivated(bool block)
+void RiuMainWindowBase::setBlockSlotSubWindowActivated( bool block )
 {
     m_blockSlotSubWindowActivated = block;
 }
@@ -232,35 +232,35 @@ bool RiuMainWindowBase::blockSlotSubWindowActivated() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::removeViewerFromMdiArea(QMdiArea* mdiArea, QWidget* viewer)
+void RiuMainWindowBase::removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* viewer )
 {
     bool wasMaximized = viewer && viewer->isMaximized();
 
-    QMdiSubWindow* subWindowBeingClosed      = findMdiSubWindow(viewer);
+    QMdiSubWindow* subWindowBeingClosed      = findMdiSubWindow( viewer );
     bool           removedSubWindowWasActive = false;
-    if (subWindowBeingClosed->isActiveWindow())
+    if ( subWindowBeingClosed->isActiveWindow() )
     {
         // If we are removing the active window, we will need a new active window
         // Start by making the window inactive so Qt doesn't pick the active window itself
-        mdiArea->setActiveSubWindow(nullptr);
+        mdiArea->setActiveSubWindow( nullptr );
         removedSubWindowWasActive = true;
     }
-    mdiArea->removeSubWindow(subWindowBeingClosed);
+    mdiArea->removeSubWindow( subWindowBeingClosed );
 
-    QList<QMdiSubWindow*> subWindowList = mdiArea->subWindowList(QMdiArea::ActivationHistoryOrder);
-    if (!subWindowList.empty())
+    QList<QMdiSubWindow*> subWindowList = mdiArea->subWindowList( QMdiArea::ActivationHistoryOrder );
+    if ( !subWindowList.empty() )
     {
-        if (removedSubWindowWasActive)
+        if ( removedSubWindowWasActive )
         {
-            mdiArea->setActiveSubWindow(nullptr);
+            mdiArea->setActiveSubWindow( nullptr );
             // Make the last activated window the current activated one
-            mdiArea->setActiveSubWindow(subWindowList.back());
+            mdiArea->setActiveSubWindow( subWindowList.back() );
         }
-        if (wasMaximized && mdiArea->currentSubWindow())
+        if ( wasMaximized && mdiArea->currentSubWindow() )
         {
             mdiArea->currentSubWindow()->showMaximized();
         }
-        else if (subWindowsAreTiled())
+        else if ( subWindowsAreTiled() )
         {
             tileSubWindows();
         }
@@ -270,9 +270,9 @@ void RiuMainWindowBase::removeViewerFromMdiArea(QMdiArea* mdiArea, QWidget* view
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
+void RiuMainWindowBase::setExpanded( const caf::PdmUiItem* uiItem, bool expanded )
 {
-    m_projectTreeView->setExpanded(uiItem, expanded);
+    m_projectTreeView->setExpanded( uiItem, expanded );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -281,12 +281,12 @@ void RiuMainWindowBase::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
 {
-    if (!sender()) return;
+    if ( !sender() ) return;
 
-    auto dockWidget = dynamic_cast<QDockWidget*>(sender()->parent());
-    if (dockWidget)
+    auto dockWidget = dynamic_cast<QDockWidget*>( sender()->parent() );
+    if ( dockWidget )
     {
-        if (dockWidget->isVisible())
+        if ( dockWidget->isVisible() )
         {
             // Raise the dock widget to make it visible if the widget is part of a tab widget
             dockWidget->raise();
@@ -297,46 +297,48 @@ void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::addViewerToMdiArea(QMdiArea*     mdiArea,
-                                           QWidget*      viewer,
-                                           const QPoint& subWindowPos,
-                                           const QSize&  subWindowSize)
+void RiuMainWindowBase::addViewerToMdiArea( QMdiArea*     mdiArea,
+                                            QWidget*      viewer,
+                                            const QPoint& subWindowPos,
+                                            const QSize&  subWindowSize )
 {
-    RiuMdiSubWindow* subWin =
-        new RiuMdiSubWindow(nullptr, Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
-    subWin->setAttribute(Qt::WA_DeleteOnClose); // Make sure the contained widget is destroyed when the MDI window is closed
-    subWin->setWidget(viewer);
+    RiuMdiSubWindow* subWin = new RiuMdiSubWindow( nullptr,
+                                                   Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint |
+                                                       Qt::WindowMaximizeButtonHint );
+    subWin->setAttribute(
+        Qt::WA_DeleteOnClose ); // Make sure the contained widget is destroyed when the MDI window is closed
+    subWin->setWidget( viewer );
 
     bool initialStateTiled     = subWindowsAreTiled();
     bool initialStateMaximized = false;
 
-    if (m_showFirstVisibleWindowMaximized && mdiArea->subWindowList().empty())
+    if ( m_showFirstVisibleWindowMaximized && mdiArea->subWindowList().empty() )
     {
         // Show first 3D view maximized
         initialStateMaximized = true;
     }
 
-    if (mdiArea->currentSubWindow() && mdiArea->currentSubWindow()->isMaximized())
+    if ( mdiArea->currentSubWindow() && mdiArea->currentSubWindow()->isMaximized() )
     {
         initialStateMaximized = true;
     }
 
-    mdiArea->addSubWindow(subWin);
+    mdiArea->addSubWindow( subWin );
 
-    if (subWindowPos.x() > -1)
+    if ( subWindowPos.x() > -1 )
     {
-        subWin->move(subWindowPos);
+        subWin->move( subWindowPos );
     }
-    subWin->resize(subWindowSize);
+    subWin->resize( subWindowSize );
 
-    if (initialStateMaximized)
+    if ( initialStateMaximized )
     {
         subWin->showMaximized();
     }
     else
     {
         subWin->showNormal();
-        if (initialStateTiled)
+        if ( initialStateTiled )
         {
             tileSubWindows();
         }

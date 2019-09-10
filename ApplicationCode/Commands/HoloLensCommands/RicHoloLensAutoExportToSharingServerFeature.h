@@ -30,15 +30,15 @@ class RicHoloLensAutoExportToSharingServerFeature : public caf::CmdFeature
 public:
     RicHoloLensAutoExportToSharingServerFeature();
 
-    void setActive(bool enable);
+    void setActive( bool enable );
     bool isActive() const;
 
     void triggerUpdateSession();
 
 private:
     bool isCommandEnabled() override;
-    void onActionTriggered(bool isChecked) override;
-    void setupActionLook(QAction* actionToSetup) override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
     bool isCommandChecked() override;
 
     bool isSessionValid() const;

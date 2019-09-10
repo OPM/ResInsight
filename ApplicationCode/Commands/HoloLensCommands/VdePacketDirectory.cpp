@@ -20,7 +20,6 @@
 
 #include <algorithm>
 
-
 //==================================================================================================
 //
 //
@@ -30,26 +29,24 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-VdePacketDirectory::VdePacketDirectory()
+VdePacketDirectory::VdePacketDirectory() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void VdePacketDirectory::addPacket( std::unique_ptr<VdeArrayDataPacket> packet )
 {
+    const int id        = packet->arrayId();
+    m_idToPacketMap[id] = std::move( packet );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void VdePacketDirectory::addPacket(std::unique_ptr<VdeArrayDataPacket> packet)
+const VdeArrayDataPacket* VdePacketDirectory::lookupPacket( int arrayId ) const
 {
-    const int id = packet->arrayId();
-    m_idToPacketMap[id] = std::move(packet);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const VdeArrayDataPacket* VdePacketDirectory::lookupPacket(int arrayId) const
-{
-    IdToPacketMap_T::const_iterator it = m_idToPacketMap.find(arrayId);
-    if (it == m_idToPacketMap.end())
+    IdToPacketMap_T::const_iterator it = m_idToPacketMap.find( arrayId );
+    if ( it == m_idToPacketMap.end() )
     {
         return nullptr;
     }
@@ -68,18 +65,18 @@ void VdePacketDirectory::clear()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void VdePacketDirectory::pruneUnreferencedPackets(const std::vector<int>& packetIdsInUseArr)
+void VdePacketDirectory::pruneUnreferencedPackets( const std::vector<int>& packetIdsInUseArr )
 {
-    std::vector<int> sortedPacketsIdsInUse(packetIdsInUseArr);
-    std::sort(sortedPacketsIdsInUse.begin(), sortedPacketsIdsInUse.end());
+    std::vector<int> sortedPacketsIdsInUse( packetIdsInUseArr );
+    std::sort( sortedPacketsIdsInUse.begin(), sortedPacketsIdsInUse.end() );
 
     IdToPacketMap_T::const_iterator it = m_idToPacketMap.cbegin();
-    while (it != m_idToPacketMap.cend()) 
+    while ( it != m_idToPacketMap.cend() )
     {
         const int packetId = it->first;
-        if (!std::binary_search(sortedPacketsIdsInUse.begin(), sortedPacketsIdsInUse.end(), packetId))
+        if ( !std::binary_search( sortedPacketsIdsInUse.begin(), sortedPacketsIdsInUse.end(), packetId ) )
         {
-            it = m_idToPacketMap.erase(it);
+            it = m_idToPacketMap.erase( it );
         }
         else
         {
@@ -91,21 +88,21 @@ void VdePacketDirectory::pruneUnreferencedPackets(const std::vector<int>& packet
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool VdePacketDirectory::getPacketsAsCombinedBuffer(const std::vector<int>& packetIdsToGet, QByteArray* combinedPacketArr) const
+bool VdePacketDirectory::getPacketsAsCombinedBuffer( const std::vector<int>& packetIdsToGet,
+                                                     QByteArray*             combinedPacketArr ) const
 {
-    for (const int arrayId : packetIdsToGet)
+    for ( const int arrayId : packetIdsToGet )
     {
-        IdToPacketMap_T::const_iterator it = m_idToPacketMap.find(arrayId);
-        if (it == m_idToPacketMap.end())
+        IdToPacketMap_T::const_iterator it = m_idToPacketMap.find( arrayId );
+        if ( it == m_idToPacketMap.end() )
         {
             return false;
         }
 
         const VdeArrayDataPacket& packet = *it->second;
-        *combinedPacketArr += QByteArray::fromRawData(packet.fullPacketRawPtr(), static_cast<int>(packet.fullPacketSize()));
+        *combinedPacketArr += QByteArray::fromRawData( packet.fullPacketRawPtr(),
+                                                       static_cast<int>( packet.fullPacketSize() ) );
     }
 
     return true;
 }
-
-

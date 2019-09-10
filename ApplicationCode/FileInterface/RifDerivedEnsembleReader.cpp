@@ -28,14 +28,14 @@ const std::vector<time_t> RifDerivedEnsembleReader::EMPTY_TIME_STEPS_VECTOR;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDerivedEnsembleReader::RifDerivedEnsembleReader(RimDerivedEnsembleCase*    derivedCase,
-                                                   RifSummaryReaderInterface* sourceSummaryReader1)
+RifDerivedEnsembleReader::RifDerivedEnsembleReader( RimDerivedEnsembleCase*    derivedCase,
+                                                    RifSummaryReaderInterface* sourceSummaryReader1 )
 {
-    CVF_ASSERT(derivedCase);
+    CVF_ASSERT( derivedCase );
 
     m_derivedCase = derivedCase;
 
-    if (sourceSummaryReader1)
+    if ( sourceSummaryReader1 )
     {
         // TODO: This is assuming that the addresses of both reader interfaces are equal
         m_allResultAddresses = sourceSummaryReader1->allResultAddresses();
@@ -46,39 +46,39 @@ RifDerivedEnsembleReader::RifDerivedEnsembleReader(RimDerivedEnsembleCase*    de
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifDerivedEnsembleReader::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
+const std::vector<time_t>& RifDerivedEnsembleReader::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    if (!resultAddress.isValid()) return EMPTY_TIME_STEPS_VECTOR;
-    if (m_derivedCase->needsCalculation(resultAddress))
+    if ( !resultAddress.isValid() ) return EMPTY_TIME_STEPS_VECTOR;
+    if ( m_derivedCase->needsCalculation( resultAddress ) )
     {
-        m_derivedCase->calculate(resultAddress);
+        m_derivedCase->calculate( resultAddress );
     }
-    return m_derivedCase->timeSteps(resultAddress);
+    return m_derivedCase->timeSteps( resultAddress );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifDerivedEnsembleReader::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const
+bool RifDerivedEnsembleReader::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
 {
-    if (!resultAddress.isValid()) return false;
+    if ( !resultAddress.isValid() ) return false;
 
-    if (m_derivedCase->needsCalculation(resultAddress))
+    if ( m_derivedCase->needsCalculation( resultAddress ) )
     {
-        m_derivedCase->calculate(resultAddress);
+        m_derivedCase->calculate( resultAddress );
     }
-    auto dataValues = m_derivedCase->values(resultAddress);
+    auto dataValues = m_derivedCase->values( resultAddress );
     values->clear();
-    values->reserve(dataValues.size());
-    for (auto val : dataValues)
-        values->push_back(val);
+    values->reserve( dataValues.size() );
+    for ( auto val : dataValues )
+        values->push_back( val );
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RifDerivedEnsembleReader::unitName(const RifEclipseSummaryAddress& resultAddress) const
+std::string RifDerivedEnsembleReader::unitName( const RifEclipseSummaryAddress& resultAddress ) const
 {
     return "";
 }

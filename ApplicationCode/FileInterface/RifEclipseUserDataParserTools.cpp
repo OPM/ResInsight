@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-  Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -35,47 +35,45 @@
 #include <numeric>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUserDataParserTools::isLineSkippable(const std::string& line)
+bool RifEclipseUserDataParserTools::isLineSkippable( const std::string& line )
 {
-    std::size_t found = line.find_first_not_of(" ");
-    if (found == std::string::npos)
+    std::size_t found = line.find_first_not_of( " " );
+    if ( found == std::string::npos )
     {
         // Line with only spaces
 
         return true;
     }
 
-    if (line[found] == '-')
+    if ( line[found] == '-' )
     {
         // Comments start with -
 
         return true;
     }
 
-    if (line[found] == '1' &&
-        found == 0 &&
-        line.find_first_not_of("1 ", 1) == std::string::npos)
+    if ( line[found] == '1' && found == 0 && line.find_first_not_of( "1 ", 1 ) == std::string::npos )
     {
         // Single 1 at start of file
 
         return true;
     }
 
-    std::string str(line);
+    std::string str( line );
 
-    if (str.find("SUMMARY") < str.size())
+    if ( str.find( "SUMMARY" ) < str.size() )
     {
         return true;
     }
 
-    if (str.find("PAGE") < str.size())
+    if ( str.find( "PAGE" ) < str.size() )
     {
         return true;
     }
 
-    if (str.find("NULL") < str.size())
+    if ( str.find( "NULL" ) < str.size() )
     {
         return true;
     }
@@ -84,11 +82,11 @@ bool RifEclipseUserDataParserTools::isLineSkippable(const std::string& line)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUserDataParserTools::isAComment(const std::string& word)
+bool RifEclipseUserDataParserTools::isAComment( const std::string& word )
 {
-    if (word.find("--") != std::string::npos)
+    if ( word.find( "--" ) != std::string::npos )
     {
         return true;
     }
@@ -96,19 +94,18 @@ bool RifEclipseUserDataParserTools::isAComment(const std::string& word)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifEclipseUserDataParserTools::splitLineAndRemoveComments(const std::string& line)
+std::vector<std::string> RifEclipseUserDataParserTools::splitLineAndRemoveComments( const std::string& line )
 {
-    std::istringstream iss(line);
-    std::vector<std::string> words{ std::istream_iterator<std::string>{iss},
-        std::istream_iterator<std::string>{} };
+    std::istringstream       iss( line );
+    std::vector<std::string> words{std::istream_iterator<std::string>{iss}, std::istream_iterator<std::string>{}};
 
-    for(auto wordsIterator = words.begin(); wordsIterator != words.end(); ++wordsIterator)
+    for ( auto wordsIterator = words.begin(); wordsIterator != words.end(); ++wordsIterator )
     {
-        if (isAComment(*wordsIterator))
+        if ( isAComment( *wordsIterator ) )
         {
-            words.erase(wordsIterator, words.end());
+            words.erase( wordsIterator, words.end() );
             break;
         }
     }
@@ -117,29 +114,32 @@ std::vector<std::string> RifEclipseUserDataParserTools::splitLineAndRemoveCommen
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUserDataParserTools::keywordParser(const std::string& line, std::string& origin, std::string& dateFormat, std::string& startDate)
+bool RifEclipseUserDataParserTools::keywordParser( const std::string& line,
+                                                   std::string&       origin,
+                                                   std::string&       dateFormat,
+                                                   std::string&       startDate )
 {
-    std::vector<std::string> words = splitLineAndRemoveComments(line);
-    if (words.size() < 2) return false;
+    std::vector<std::string> words = splitLineAndRemoveComments( line );
+    if ( words.size() < 2 ) return false;
 
-    if (words[0] == "ORIGIN")
+    if ( words[0] == "ORIGIN" )
     {
         origin = words[1];
         return true;
     }
-    else if (words[0] == "STARTDATE")
+    else if ( words[0] == "STARTDATE" )
     {
-        words.erase(words.begin());
+        words.erase( words.begin() );
 
-        for (size_t i = 0; i < words.size(); i++)
+        for ( size_t i = 0; i < words.size(); i++ )
         {
             std::string s = words[i];
 
             startDate += s;
 
-            if (i < words.size() - 1)
+            if ( i < words.size() - 1 )
             {
                 startDate += " ";
             }
@@ -147,7 +147,7 @@ bool RifEclipseUserDataParserTools::keywordParser(const std::string& line, std::
 
         return true;
     }
-    else if (words[0] == "DATEFORMAT")
+    else if ( words[0] == "DATEFORMAT" )
     {
         dateFormat = words[1];
         return true;
@@ -156,23 +156,23 @@ bool RifEclipseUserDataParserTools::keywordParser(const std::string& line, std::
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RifEclipseUserDataParserTools::splitLineToDoubles(const std::string& line)
+std::vector<double> RifEclipseUserDataParserTools::splitLineToDoubles( const std::string& line )
 {
     std::vector<double> values;
 
-    QString s = QString::fromStdString(line);
+    QString s = QString::fromStdString( line );
 
-    QStringList words = s.split(" ");
+    QStringList words = s.split( " " );
 
     bool ok = false;
-    for (auto w : words)
+    for ( auto w : words )
     {
-        double val = w.toDouble(&ok);
-        if (ok)
+        double val = w.toDouble( &ok );
+        if ( ok )
         {
-            values.push_back(val);
+            values.push_back( val );
         }
     }
 
@@ -180,15 +180,15 @@ std::vector<double> RifEclipseUserDataParserTools::splitLineToDoubles(const std:
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUserDataParserTools::isANumber(const std::string& line)
+bool RifEclipseUserDataParserTools::isANumber( const std::string& line )
 {
     try
     {
-        std::stod(line);
+        std::stod( line );
     }
-    catch (...)
+    catch ( ... )
     {
         return false;
     }
@@ -196,31 +196,26 @@ bool RifEclipseUserDataParserTools::isANumber(const std::string& line)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifEclipseUserDataParserTools::headerReader(std::stringstream& streamData, std::string& line)
+std::vector<std::string> RifEclipseUserDataParserTools::headerReader( std::stringstream& streamData, std::string& line )
 {
     std::vector<std::string> header;
 
-    while (!isANumber(line) && !streamData.eof())
+    while ( !isANumber( line ) && !streamData.eof() )
     {
-        header.push_back(line);
-        std::getline(streamData, line);
+        header.push_back( line );
+        std::getline( streamData, line );
     }
     return header;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUserDataParserTools::hasTimeUnit(const std::string& word)
+bool RifEclipseUserDataParserTools::hasTimeUnit( const std::string& word )
 {
-    if (word == "DAYS" ||
-        word == "DAY" ||
-        word == "YEARS" ||
-        word == "YEAR" ||
-        word == "DATE" ||
-        word == "DATES")
+    if ( word == "DAYS" || word == "DAY" || word == "YEARS" || word == "YEAR" || word == "DATE" || word == "DATES" )
     {
         return true;
     }
@@ -229,22 +224,23 @@ bool RifEclipseUserDataParserTools::hasTimeUnit(const std::string& word)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUserDataParserTools::hasOnlyValidDoubleValues(const std::vector<std::string>& words, std::vector<double>* doubleValues)
+bool RifEclipseUserDataParserTools::hasOnlyValidDoubleValues( const std::vector<std::string>& words,
+                                                              std::vector<double>*            doubleValues )
 {
     bool onlyValidValues = true;
 
-    for (const auto& word : words)
+    for ( const auto& word : words )
     {
-        if (word.find_first_not_of("0123456789.eE-+") != std::string::npos)
+        if ( word.find_first_not_of( "0123456789.eE-+" ) != std::string::npos )
         {
             onlyValidValues = false;
         }
         else
         {
-            double doubleVal = RiaStdStringTools::toDouble(word);
-            doubleValues->push_back(doubleVal);
+            double doubleVal = RiaStdStringTools::toDouble( word );
+            doubleValues->push_back( doubleVal );
         }
     }
 
@@ -252,28 +248,28 @@ bool RifEclipseUserDataParserTools::hasOnlyValidDoubleValues(const std::vector<s
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUserDataParserTools::isValidTableData(size_t columnCount, const std::string& line)
+bool RifEclipseUserDataParserTools::isValidTableData( size_t columnCount, const std::string& line )
 {
-    std::vector<std::string> words = splitLineAndRemoveComments(line);
+    std::vector<std::string> words = splitLineAndRemoveComments( line );
 
-    if (words.size() != columnCount) return false;
+    if ( words.size() != columnCount ) return false;
 
     std::vector<double> doubleValues;
-    RifEclipseUserDataParserTools::hasOnlyValidDoubleValues(words, &doubleValues);
-    if (doubleValues.size() == columnCount) return true;
+    RifEclipseUserDataParserTools::hasOnlyValidDoubleValues( words, &doubleValues );
+    if ( doubleValues.size() == columnCount ) return true;
 
     size_t columnsWithDate = 0;
-    for (auto w : words)
+    for ( auto w : words )
     {
-        if (RiaDateStringParser::parseDateString(w).isValid())
+        if ( RiaDateStringParser::parseDateString( w ).isValid() )
         {
             columnsWithDate++;
         }
     }
 
-    if (columnsWithDate == 1 && doubleValues.size() == columnCount - 1)
+    if ( columnsWithDate == 1 && doubleValues.size() == columnCount - 1 )
     {
         return true;
     }
@@ -282,192 +278,192 @@ bool RifEclipseUserDataParserTools::isValidTableData(size_t columnCount, const s
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-TableData RifEclipseUserDataParserTools::tableDataFromText(std::stringstream& streamData, std::vector<std::string>* errorText)
+TableData RifEclipseUserDataParserTools::tableDataFromText( std::stringstream&        streamData,
+                                                            std::vector<std::string>* errorText )
 {
     TableData emptyTable;
 
-    std::string origin = "";
+    std::string origin     = "";
     std::string dateFormat = "";
-    std::string startDate = "";
+    std::string startDate  = "";
 
     std::string firstLine;
-    std::getline(streamData, firstLine);
+    std::getline( streamData, firstLine );
 
-    while (isLineSkippable(firstLine) || keywordParser(firstLine, origin, dateFormat, startDate))
+    while ( isLineSkippable( firstLine ) || keywordParser( firstLine, origin, dateFormat, startDate ) )
     {
-        if (!streamData.good())
+        if ( !streamData.good() )
         {
             // End of file
             return emptyTable;
         }
 
-        std::getline(streamData, firstLine);
+        std::getline( streamData, firstLine );
     }
 
-    std::vector<std::string> quantityNames = splitLineAndRemoveComments(firstLine);
-    size_t columnCount = quantityNames.size();
+    std::vector<std::string> quantityNames = splitLineAndRemoveComments( firstLine );
+    size_t                   columnCount   = quantityNames.size();
 
-    if (columnCount == 0)
+    if ( columnCount == 0 )
     {
-        if (errorText) errorText->push_back("No quantities detected in table");
+        if ( errorText ) errorText->push_back( "No quantities detected in table" );
 
         return emptyTable;
     }
 
-    std::vector< std::vector< std::string > > allHeaderRows;
+    std::vector<std::vector<std::string>> allHeaderRows;
 
     {
         std::stringstream::pos_type posAtStartOfFirstLine = streamData.tellg();
 
         std::string secondLine;
-        std::getline(streamData, firstLine);
+        std::getline( streamData, firstLine );
 
         std::stringstream::pos_type posAtStartOfSecondLine = streamData.tellg();
-        std::getline(streamData, secondLine);
+        std::getline( streamData, secondLine );
 
         bool header = true;
-        while (header)
+        while ( header )
         {
-            if (isValidTableData(columnCount, firstLine) &&
-                isValidTableData(columnCount, secondLine))
+            if ( isValidTableData( columnCount, firstLine ) && isValidTableData( columnCount, secondLine ) )
             {
                 header = false;
                 break;
             }
             else
             {
-                std::vector<std::string> words = splitLineAndRemoveComments(firstLine);
-                if (words.size() > 0)
+                std::vector<std::string> words = splitLineAndRemoveComments( firstLine );
+                if ( words.size() > 0 )
                 {
-                    allHeaderRows.push_back(words);
+                    allHeaderRows.push_back( words );
                 }
             }
 
             posAtStartOfFirstLine = posAtStartOfSecondLine;
-            firstLine = secondLine;
+            firstLine             = secondLine;
 
             posAtStartOfSecondLine = streamData.tellg();
-            std::getline(streamData, secondLine);
+            std::getline( streamData, secondLine );
 
-            if (!streamData.good())
+            if ( !streamData.good() )
             {
                 header = false;
             }
         }
 
-        streamData.seekg(posAtStartOfFirstLine);
+        streamData.seekg( posAtStartOfFirstLine );
     }
 
-    std::vector<std::string> unitNames;
-    std::vector<double> scaleFactors;
-    std::vector< std::vector< std::string > > headerRows;
+    std::vector<std::string>              unitNames;
+    std::vector<double>                   scaleFactors;
+    std::vector<std::vector<std::string>> headerRows;
 
-    for (const auto& rowWords : allHeaderRows)
+    for ( const auto& rowWords : allHeaderRows )
     {
         bool excludeFromHeader = false;
 
-        if (rowWords.size() == columnCount)
+        if ( rowWords.size() == columnCount )
         {
-            if (unitNames.size() == 0)
+            if ( unitNames.size() == 0 )
             {
-                for (const std::string& word : rowWords)
+                for ( const std::string& word : rowWords )
                 {
-                    if (hasTimeUnit(word))
+                    if ( hasTimeUnit( word ) )
                     {
-                        unitNames = rowWords;
+                        unitNames         = rowWords;
                         excludeFromHeader = true;
                     }
                 }
             }
 
-            if (scaleFactors.size() == 0)
+            if ( scaleFactors.size() == 0 )
             {
                 std::vector<double> values;
 
-                if (hasOnlyValidDoubleValues(rowWords, &values))
+                if ( hasOnlyValidDoubleValues( rowWords, &values ) )
                 {
-                    scaleFactors = values;
+                    scaleFactors      = values;
                     excludeFromHeader = true;
                 }
             }
         }
 
-        if (!excludeFromHeader)
+        if ( !excludeFromHeader )
         {
-            headerRows.push_back(rowWords);
+            headerRows.push_back( rowWords );
         }
     }
 
-    if (columnCount != unitNames.size())
+    if ( columnCount != unitNames.size() )
     {
-        if (errorText) errorText->push_back("Number of quantities is different from number of units");
+        if ( errorText ) errorText->push_back( "Number of quantities is different from number of units" );
 
         return emptyTable;
     }
-
 
     std::vector<Column> columnInfos;
 
     // Create string vectors for each column
     {
-        std::vector<std::string> parserErrors;
-        std::vector<std::vector<std::string>> tableHeaderText = RifEclipseUserDataKeywordTools::buildColumnHeaderText(quantityNames, headerRows, &parserErrors);
-        if (parserErrors.size() > 0)
+        std::vector<std::string>              parserErrors;
+        std::vector<std::vector<std::string>> tableHeaderText =
+            RifEclipseUserDataKeywordTools::buildColumnHeaderText( quantityNames, headerRows, &parserErrors );
+        if ( parserErrors.size() > 0 )
         {
-            if (errorText) errorText->insert(errorText->end(), parserErrors.begin(), parserErrors.end());
-            
+            if ( errorText ) errorText->insert( errorText->end(), parserErrors.begin(), parserErrors.end() );
+
             return emptyTable;
         }
 
-
         // For each column header, create rif adress and date time
-        for (size_t i = 0; i < tableHeaderText.size(); i++)
+        for ( size_t i = 0; i < tableHeaderText.size(); i++ )
         {
             auto columnText = tableHeaderText[i];
-            if (columnText.size() == 0)
+            if ( columnText.size() == 0 )
             {
-                if (errorText) errorText->push_back("Detected column with no content");
+                if ( errorText ) errorText->push_back( "Detected column with no content" );
                 continue;
             }
 
             std::string quantity = columnText[0];
-            std::string unit = unitNames[i];
+            std::string unit     = unitNames[i];
 
             std::vector<std::string> columnHeader;
 
-            if (columnText.size() > 1) columnHeader.insert(columnHeader.begin(), columnText.begin() + 1, columnText.end());
+            if ( columnText.size() > 1 )
+                columnHeader.insert( columnHeader.begin(), columnText.begin() + 1, columnText.end() );
 
-            RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress(quantity, columnHeader);
+            RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress( quantity, columnHeader );
 
-            Column ci = Column::createColumnInfoFromRsmData(quantity, unit, adr);
+            Column ci = Column::createColumnInfoFromRsmData( quantity, unit, adr );
 
-            columnInfos.push_back(ci);
+            columnInfos.push_back( ci );
         }
     }
 
-    return TableData(origin, startDate, columnInfos);
+    return TableData( origin, startDate, columnInfos );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUserDataParserTools::isFixedWidthHeader(const std::string& lines)
+bool RifEclipseUserDataParserTools::isFixedWidthHeader( const std::string& lines )
 {
-    std::stringstream streamData(lines);
+    std::stringstream streamData( lines );
 
-    std::vector<std::string> headerLines = RifEclipseUserDataParserTools::findValidHeaderLines(streamData);
-    if (headerLines.size() > 1)
+    std::vector<std::string> headerLines = RifEclipseUserDataParserTools::findValidHeaderLines( streamData );
+    if ( headerLines.size() > 1 )
     {
-        std::vector<size_t> firstLine = RifEclipseUserDataParserTools::columnIndexForWords(headerLines[0]);
+        std::vector<size_t> firstLine = RifEclipseUserDataParserTools::columnIndexForWords( headerLines[0] );
 
-        for (auto line : headerLines)
+        for ( auto line : headerLines )
         {
-            std::vector<size_t> columnIndicesForLine = RifEclipseUserDataParserTools::columnIndexForWords(line);
-            for (auto index : columnIndicesForLine)
+            std::vector<size_t> columnIndicesForLine = RifEclipseUserDataParserTools::columnIndexForWords( line );
+            for ( auto index : columnIndicesForLine )
             {
-                if (std::find(firstLine.begin(), firstLine.end(), index) == firstLine.end())
+                if ( std::find( firstLine.begin(), firstLine.end(), index ) == firstLine.end() )
                 {
                     return false;
                 }
@@ -481,95 +477,96 @@ bool RifEclipseUserDataParserTools::isFixedWidthHeader(const std::string& lines)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<Column> RifEclipseUserDataParserTools::columnInfoForFixedColumnWidth(std::stringstream& streamData)
+std::vector<Column> RifEclipseUserDataParserTools::columnInfoForFixedColumnWidth( std::stringstream& streamData )
 {
-    auto headerLines = RifEclipseUserDataParserTools::findValidHeaderLines(streamData);
+    auto headerLines = RifEclipseUserDataParserTools::findValidHeaderLines( streamData );
 
-    auto columnHeaders = RifEclipseUserDataParserTools::splitIntoColumnHeaders(headerLines);
+    auto columnHeaders = RifEclipseUserDataParserTools::splitIntoColumnHeaders( headerLines );
 
-    return RifEclipseUserDataParserTools::columnInfoFromColumnHeaders(columnHeaders);
+    return RifEclipseUserDataParserTools::columnInfoFromColumnHeaders( columnHeaders );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifEclipseUserDataParserTools::findValidHeaderLines(std::stringstream& streamData)
+std::vector<std::string> RifEclipseUserDataParserTools::findValidHeaderLines( std::stringstream& streamData )
 {
     std::vector<std::string> headerLines;
 
     std::stringstream::pos_type posAtTableDataStart = streamData.tellg();
 
-    size_t columnCount = 0;
+    size_t      columnCount = 0;
     std::string line;
-    bool continueParsing = true;
-    bool hasStepType = false;
-    size_t minimunRequiredExtraHeaderLines = 0;
+    bool        continueParsing                 = true;
+    bool        hasStepType                     = false;
+    size_t      minimunRequiredExtraHeaderLines = 0;
 
-    while (continueParsing)
+    while ( continueParsing )
     {
         posAtTableDataStart = streamData.tellg();
 
-        if (!std::getline(streamData, line))
+        if ( !std::getline( streamData, line ) )
         {
             continueParsing = false;
         }
         else
         {
-            if (!RifEclipseUserDataParserTools::isLineSkippable(line))
+            if ( !RifEclipseUserDataParserTools::isLineSkippable( line ) )
             {
-                auto words = RifEclipseUserDataParserTools::splitLineAndRemoveComments(line);
+                auto words = RifEclipseUserDataParserTools::splitLineAndRemoveComments( line );
 
-                if (!hasStepType)
+                if ( !hasStepType )
                 {
-                    for (size_t i = 0; i < words.size(); i++)
+                    for ( size_t i = 0; i < words.size(); i++ )
                     {
-                        if (RifEclipseUserDataKeywordTools::isStepType(words[i]))
+                        if ( RifEclipseUserDataKeywordTools::isStepType( words[i] ) )
                         {
                             hasStepType = true;
                         }
                     }
                 }
 
-                if (isUnitText(line))
+                if ( isUnitText( line ) )
                 {
                     minimunRequiredExtraHeaderLines += 1;
                 }
 
-                if (isScalingText(line))
+                if ( isScalingText( line ) )
                 {
                     minimunRequiredExtraHeaderLines += 1;
                 }
 
-                if (columnCount == 0)
+                if ( columnCount == 0 )
                 {
                     // Fist line with valid header data defines the number of columns
 
                     columnCount = words.size();
 
-                    minimunRequiredExtraHeaderLines = RifEclipseUserDataKeywordTools::computeRequiredHeaderLineCount(words);
+                    minimunRequiredExtraHeaderLines = RifEclipseUserDataKeywordTools::computeRequiredHeaderLineCount(
+                        words );
 
-                    headerLines.push_back(line);
+                    headerLines.push_back( line );
                 }
-                else if (headerLines.size() < minimunRequiredExtraHeaderLines)
+                else if ( headerLines.size() < minimunRequiredExtraHeaderLines )
                 {
-                    headerLines.push_back(line);
+                    headerLines.push_back( line );
                 }
                 else
                 {
-                    std::vector<double> doubleValues = RifEclipseUserDataParserTools::splitLineToDoubles(line);
+                    std::vector<double> doubleValues = RifEclipseUserDataParserTools::splitLineToDoubles( line );
 
-                    if (doubleValues.size() < columnCount && words.size() < columnCount)
+                    if ( doubleValues.size() < columnCount && words.size() < columnCount )
                     {
-                        if (hasStepType && (words.size() + 1 == columnCount))
+                        if ( hasStepType && ( words.size() + 1 == columnCount ) )
                         {
                             continueParsing = false;
                         }
                         else
                         {
                             // Consider a line with double values less than column count as a table header
-                            headerLines.push_back(line);
+                            headerLines.push_back( line );
                         }
                     }
                     else
@@ -581,56 +578,56 @@ std::vector<std::string> RifEclipseUserDataParserTools::findValidHeaderLines(std
         }
     }
 
-    streamData.seekg(posAtTableDataStart);
+    streamData.seekg( posAtTableDataStart );
 
     return headerLines;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<std::string>> RifEclipseUserDataParserTools::splitIntoColumnHeaders(const std::vector<std::string>& headerLines)
+std::vector<std::vector<std::string>>
+    RifEclipseUserDataParserTools::splitIntoColumnHeaders( const std::vector<std::string>& headerLines )
 {
     std::vector<std::vector<std::string>> headerLinesPerColumn;
 
-    if (headerLines.size() > 0)
+    if ( headerLines.size() > 0 )
     {
-        std::vector<size_t> columnOffsets = RifEclipseUserDataParserTools::columnIndexForWords(headerLines[0]);
+        std::vector<size_t> columnOffsets = RifEclipseUserDataParserTools::columnIndexForWords( headerLines[0] );
 
-        if (columnOffsets.size() > 0)
+        if ( columnOffsets.size() > 0 )
         {
-            headerLinesPerColumn.resize(columnOffsets.size());
+            headerLinesPerColumn.resize( columnOffsets.size() );
 
-            for (auto headerLine : headerLines)
+            for ( auto headerLine : headerLines )
             {
-                for (size_t i = 0; i < columnOffsets.size(); i++)
+                for ( size_t i = 0; i < columnOffsets.size(); i++ )
                 {
                     size_t colStart = columnOffsets[i];
 
                     size_t columnWidth = std::string::npos;
-                    if (i < columnOffsets.size() - 1)
+                    if ( i < columnOffsets.size() - 1 )
                     {
                         columnWidth = columnOffsets[i + 1] - colStart;
                     }
                     else
                     {
-                        if (headerLine.size() > colStart)
+                        if ( headerLine.size() > colStart )
                         {
                             columnWidth = headerLine.size() - colStart;
                         }
                     }
 
                     std::string subString;
-                    if (columnWidth != std::string::npos &&
-                        colStart < headerLine.size() &&
-                        colStart + columnWidth <= headerLine.size())
+                    if ( columnWidth != std::string::npos && colStart < headerLine.size() &&
+                         colStart + columnWidth <= headerLine.size() )
                     {
-                        subString = headerLine.substr(colStart, columnWidth);
+                        subString = headerLine.substr( colStart, columnWidth );
                     }
 
-                    subString = trimString(subString);
+                    subString = trimString( subString );
 
-                    headerLinesPerColumn[i].push_back(subString);
+                    headerLinesPerColumn[i].push_back( subString );
                 }
             }
         }
@@ -640,161 +637,161 @@ std::vector<std::vector<std::string>> RifEclipseUserDataParserTools::splitIntoCo
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<Column> RifEclipseUserDataParserTools::columnInfoFromColumnHeaders(const std::vector<std::vector<std::string>>& columnData)
+std::vector<Column>
+    RifEclipseUserDataParserTools::columnInfoFromColumnHeaders( const std::vector<std::vector<std::string>>& columnData )
 {
     std::vector<Column> table;
 
-    bool isUnitsDetected = false;
+    bool isUnitsDetected   = false;
     bool isScalingDetected = false;
 
-    for (auto columnLines : columnData)
+    for ( auto columnLines : columnData )
     {
-        if (columnLines.size() > 1 && isUnitText(columnLines[1]))
+        if ( columnLines.size() > 1 && isUnitText( columnLines[1] ) )
         {
             isUnitsDetected = true;
         }
 
-        if (columnLines.size() > 2 && isScalingText(columnLines[2]))
+        if ( columnLines.size() > 2 && isScalingText( columnLines[2] ) )
         {
             isScalingDetected = true;
         }
     }
 
-    for (auto columnLines : columnData)
+    for ( auto columnLines : columnData )
     {
-        if (columnLines.size() == 0) continue;
+        if ( columnLines.size() == 0 ) continue;
 
         std::string quantity = columnLines[0];
         std::string unit;
 
         size_t startIndex = 1;
 
-        if (isUnitsDetected)
+        if ( isUnitsDetected )
         {
             unit = columnLines[1];
 
             startIndex = 2;
         }
 
-        if (isScalingDetected)
+        if ( isScalingDetected )
         {
-            //std::string scaling = columnLines[2];
+            // std::string scaling = columnLines[2];
 
             startIndex = 3;
         }
 
         std::vector<std::string> restOfHeader;
-        for (size_t i = startIndex; i < columnLines.size(); i++)
+        for ( size_t i = startIndex; i < columnLines.size(); i++ )
         {
-            restOfHeader.push_back(columnLines[i]);
+            restOfHeader.push_back( columnLines[i] );
         }
 
-        RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress(quantity, restOfHeader);
+        RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress( quantity, restOfHeader );
 
-        Column ci = Column::createColumnInfoFromRsmData(quantity, unit, adr);
+        Column ci = Column::createColumnInfoFromRsmData( quantity, unit, adr );
 
-        table.push_back(ci);
+        table.push_back( ci );
     }
 
     return table;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RifEclipseUserDataParserTools::columnIndexForWords(const std::string& line)
+std::vector<size_t> RifEclipseUserDataParserTools::columnIndexForWords( const std::string& line )
 {
     std::vector<size_t> columnOffsets;
 
-    std::size_t offset = line.find_first_not_of(" ");
-    while (offset != std::string::npos)
+    std::size_t offset = line.find_first_not_of( " " );
+    while ( offset != std::string::npos )
     {
-        columnOffsets.push_back(offset);
+        columnOffsets.push_back( offset );
 
-        offset = line.find_first_of(" ", offset);
-        offset = line.find_first_not_of(" ", offset);
+        offset = line.find_first_of( " ", offset );
+        offset = line.find_first_not_of( " ", offset );
     }
 
     return columnOffsets;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<TableData> RifEclipseUserDataParserTools::mergeEqualTimeSteps(const std::vector<TableData>& tables)
+std::vector<TableData> RifEclipseUserDataParserTools::mergeEqualTimeSteps( const std::vector<TableData>& tables )
 {
-    if (tables.size() < 2)
+    if ( tables.size() < 2 )
     {
         return tables;
     }
 
-    if (tables[0].columnInfos().size() == 0) return tables;
+    if ( tables[0].columnInfos().size() == 0 ) return tables;
 
     QDateTime firstTableStartTime;
-    for (auto c : tables[0].columnInfos())
+    for ( auto c : tables[0].columnInfos() )
     {
-        if (c.summaryAddress.quantityName() == "DATE")
+        if ( c.summaryAddress.quantityName() == "DATE" )
         {
-            if (c.itemCount() > 0)
+            if ( c.itemCount() > 0 )
             {
-                firstTableStartTime = RiaDateStringParser::parseDateString(c.textValues[0]);
+                firstTableStartTime = RiaDateStringParser::parseDateString( c.textValues[0] );
             }
         }
     }
 
-    if (!firstTableStartTime.isValid())
+    if ( !firstTableStartTime.isValid() )
     {
         return tables;
     }
 
     std::vector<TableData> largeTables;
 
-    largeTables.push_back(tables[0]);
+    largeTables.push_back( tables[0] );
 
-    TableData& firstTable = largeTables[0];
-    size_t itemsInFirstTable = tables[0].columnInfos()[0].itemCount();
+    TableData& firstTable        = largeTables[0];
+    size_t     itemsInFirstTable = tables[0].columnInfos()[0].itemCount();
 
-    for (size_t i = 1; i < tables.size(); i++)
+    for ( size_t i = 1; i < tables.size(); i++ )
     {
         bool isDatesEqual = true;
 
-        if (firstTableStartTime.isValid())
+        if ( firstTableStartTime.isValid() )
         {
             QDateTime tableFirstTime;
-            for (auto& c : tables[i].columnInfos())
+            for ( auto& c : tables[i].columnInfos() )
             {
-                if (c.summaryAddress.quantityName() == "DATE")
+                if ( c.summaryAddress.quantityName() == "DATE" )
                 {
-                    if (c.itemCount() > 0)
+                    if ( c.itemCount() > 0 )
                     {
-                        tableFirstTime = RiaDateStringParser::parseDateString(c.textValues[0]);
+                        tableFirstTime = RiaDateStringParser::parseDateString( c.textValues[0] );
                     }
                 }
             }
 
-            if (firstTableStartTime != tableFirstTime)
+            if ( firstTableStartTime != tableFirstTime )
             {
                 isDatesEqual = false;
             }
         }
 
-        if (tables[i].columnInfos().size() > 0 &&
-            tables[i].columnInfos()[0].itemCount() == itemsInFirstTable &&
-            isDatesEqual)
+        if ( tables[i].columnInfos().size() > 0 && tables[i].columnInfos()[0].itemCount() == itemsInFirstTable &&
+             isDatesEqual )
         {
-            for (auto& c : tables[i].columnInfos())
+            for ( auto& c : tables[i].columnInfos() )
             {
-                if (c.summaryAddress.quantityName() != "DATE")
+                if ( c.summaryAddress.quantityName() != "DATE" )
                 {
-                    firstTable.columnInfos().push_back(c);
+                    firstTable.columnInfos().push_back( c );
                 }
             }
         }
         else
         {
-            largeTables.push_back(tables[i]);
+            largeTables.push_back( tables[i] );
         }
     }
 
@@ -802,43 +799,43 @@ std::vector<TableData> RifEclipseUserDataParserTools::mergeEqualTimeSteps(const 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::string RifEclipseUserDataParserTools::trimString(const std::string& s)
+std::string RifEclipseUserDataParserTools::trimString( const std::string& s )
 {
-    auto sCopy = s.substr(0, s.find_last_not_of(' ') + 1);
-    if (sCopy.size() > 0)
+    auto sCopy = s.substr( 0, s.find_last_not_of( ' ' ) + 1 );
+    if ( sCopy.size() > 0 )
     {
-        sCopy = sCopy.substr(sCopy.find_first_not_of(' '));
+        sCopy = sCopy.substr( sCopy.find_first_not_of( ' ' ) );
     }
 
     return sCopy;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUserDataParserTools::isUnitText(const std::string& word)
+bool RifEclipseUserDataParserTools::isUnitText( const std::string& word )
 {
-    if (hasTimeUnit(word)) return true;
+    if ( hasTimeUnit( word ) ) return true;
 
-    if (word.find("BARSA") != std::string::npos) return true;
-    if (word.find("SM3") != std::string::npos) return true;
-    if (word.find("RM3") != std::string::npos) return true;
+    if ( word.find( "BARSA" ) != std::string::npos ) return true;
+    if ( word.find( "SM3" ) != std::string::npos ) return true;
+    if ( word.find( "RM3" ) != std::string::npos ) return true;
 
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUserDataParserTools::isScalingText(const std::string& word)
+bool RifEclipseUserDataParserTools::isScalingText( const std::string& word )
 {
-    return word.find_first_of('*') != std::string::npos;
+    return word.find_first_of( '*' ) != std::string::npos;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::string Column::columnName() const
 {
@@ -846,31 +843,37 @@ std::string Column::columnName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t Column::itemCount() const
 {
-    switch (dataType)
+    switch ( dataType )
     {
-    case NUMERIC:   return values.size();
-    case TEXT:      return textValues.size();
-    case DATETIME:  return dateTimeValues.size();
-    default:        return 0;
+        case NUMERIC:
+            return values.size();
+        case TEXT:
+            return textValues.size();
+        case DATETIME:
+            return dateTimeValues.size();
+        default:
+            return 0;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Column Column::createColumnInfoFromRsmData(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& addr)
+Column Column::createColumnInfoFromRsmData( const std::string&              quantity,
+                                            const std::string&              unit,
+                                            const RifEclipseSummaryAddress& addr )
 {
-    Column ci(addr, unit);
+    Column ci( addr, unit );
 
-    if (RifEclipseUserDataKeywordTools::isDate(quantity))
+    if ( RifEclipseUserDataKeywordTools::isDate( quantity ) )
     {
         ci.dataType = TEXT;
     }
-    else if (RifEclipseUserDataKeywordTools::isStepType(quantity))
+    else if ( RifEclipseUserDataKeywordTools::isStepType( quantity ) )
     {
         ci.dataType = TEXT;
     }
@@ -882,26 +885,27 @@ Column Column::createColumnInfoFromRsmData(const std::string& quantity, const st
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Column Column::createColumnInfoFromCsvData(const RifEclipseSummaryAddress& addr, const std::string& unit)
+Column Column::createColumnInfoFromCsvData( const RifEclipseSummaryAddress& addr, const std::string& unit )
 {
-    Column col(addr, unit);
+    Column col( addr, unit );
     return col;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> Column::qDateTimeValues() const
 {
     std::vector<QDateTime> output;
-    for (auto t : dateTimeValues) output.push_back(RiaQDateTimeTools::fromTime_t(t));
+    for ( auto t : dateTimeValues )
+        output.push_back( RiaQDateTimeTools::fromTime_t( t ) );
     return output;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int TableData::dateTimeColumnIndex() const
 {
@@ -909,22 +913,22 @@ int TableData::dateTimeColumnIndex() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime TableData::findFirstDate() const
 {
     QDateTime dt = RiaQDateTimeTools::epoch();
 
-    for (auto ci : m_columnInfos)
+    for ( auto ci : m_columnInfos )
     {
-        if (RifEclipseUserDataKeywordTools::isDate(ci.summaryAddress.quantityName()))
+        if ( RifEclipseUserDataKeywordTools::isDate( ci.summaryAddress.quantityName() ) )
         {
-            if (ci.itemCount() > 0)
+            if ( ci.itemCount() > 0 )
             {
                 std::string firstDateString = ci.textValues[0];
 
-                QDateTime candidate = RiaDateStringParser::parseDateString(firstDateString);
-                if (candidate.isValid())
+                QDateTime candidate = RiaDateStringParser::parseDateString( firstDateString );
+                if ( candidate.isValid() )
                 {
                     dt = candidate;
                 }

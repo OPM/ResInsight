@@ -29,17 +29,17 @@
 
 #include "cafPdmUiEditorHandle.h"
 
-CAF_PDM_SOURCE_INIT(RimEclipsePropertyFilterCollection, "CellPropertyFilters");
+CAF_PDM_SOURCE_INIT( RimEclipsePropertyFilterCollection, "CellPropertyFilters" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilterCollection::RimEclipsePropertyFilterCollection()
 {
-    CAF_PDM_InitObject("Property Filters", ":/CellFilter_Values.png", "", "");
+    CAF_PDM_InitObject( "Property Filters", ":/CellFilter_Values.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&propertyFilters, "PropertyFilters", "Property Filters", "", "", "");
-    propertyFilters.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &propertyFilters, "PropertyFilters", "Property Filters", "", "", "" );
+    propertyFilters.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ RimEclipsePropertyFilterCollection::~RimEclipsePropertyFilterCollection()
 RimEclipseView* RimEclipsePropertyFilterCollection::reservoirView()
 {
     RimEclipseView* eclipseView = nullptr;
-    firstAncestorOrThisOfType(eclipseView);
+    firstAncestorOrThisOfType( eclipseView );
 
     return eclipseView;
 }
@@ -66,11 +66,11 @@ RimEclipseView* RimEclipsePropertyFilterCollection::reservoirView()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilterCollection::loadAndInitializePropertyFilters()
 {
-    for (RimEclipsePropertyFilter* propertyFilter : propertyFilters)
+    for ( RimEclipsePropertyFilter* propertyFilter : propertyFilters )
     {
-        propertyFilter->resultDefinition()->setEclipseCase(reservoirView()->eclipseCase());
+        propertyFilter->resultDefinition()->setEclipseCase( reservoirView()->eclipseCase() );
         propertyFilter->initAfterRead();
-        if (isActive() && propertyFilter->isActive())
+        if ( isActive() && propertyFilter->isActive() )
         {
             propertyFilter->resultDefinition()->loadResult();
             propertyFilter->computeResultValueRange();
@@ -91,11 +91,11 @@ void RimEclipsePropertyFilterCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipsePropertyFilterCollection::hasActiveFilters() const
 {
-    if (!isActive) return false;
+    if ( !isActive ) return false;
 
-    for (RimEclipsePropertyFilter* propertyFilter : propertyFilters)
+    for ( RimEclipsePropertyFilter* propertyFilter : propertyFilters )
     {
-        if (propertyFilter->isActive() && propertyFilter->resultDefinition()->hasResult()) return true;
+        if ( propertyFilter->isActive() && propertyFilter->resultDefinition()->hasResult() ) return true;
     }
 
     return false;
@@ -106,11 +106,11 @@ bool RimEclipsePropertyFilterCollection::hasActiveFilters() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipsePropertyFilterCollection::hasActiveDynamicFilters() const
 {
-    if (!isActive) return false;
+    if ( !isActive ) return false;
 
-    for (RimEclipsePropertyFilter* propertyFilter : propertyFilters)
+    for ( RimEclipsePropertyFilter* propertyFilter : propertyFilters )
     {
-        if (propertyFilter->isActive() && propertyFilter->resultDefinition()->hasDynamicResult()) return true;
+        if ( propertyFilter->isActive() && propertyFilter->resultDefinition()->hasDynamicResult() ) return true;
     }
 
     return false;
@@ -121,12 +121,13 @@ bool RimEclipsePropertyFilterCollection::hasActiveDynamicFilters() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipsePropertyFilterCollection::isUsingFormationNames() const
 {
-    if (!isActive) return false;
+    if ( !isActive ) return false;
 
-    for (RimEclipsePropertyFilter* propertyFilter : propertyFilters)
+    for ( RimEclipsePropertyFilter* propertyFilter : propertyFilters )
     {
-        if (propertyFilter->isActive() && propertyFilter->resultDefinition()->resultType() == RiaDefines::FORMATION_NAMES &&
-            propertyFilter->resultDefinition()->resultVariable() != RiaDefines::undefinedResultName())
+        if ( propertyFilter->isActive() &&
+             propertyFilter->resultDefinition()->resultType() == RiaDefines::FORMATION_NAMES &&
+             propertyFilter->resultDefinition()->resultVariable() != RiaDefines::undefinedResultName() )
             return true;
     }
 
@@ -141,24 +142,25 @@ void RimEclipsePropertyFilterCollection::updateIconState()
     bool activeIcon = true;
 
     RimEclipseView* view = nullptr;
-    this->firstAncestorOrThisOfType(view);
-    if (view)
+    this->firstAncestorOrThisOfType( view );
+    if ( view )
     {
         RimViewController* viewController = view->viewController();
-        if (viewController && (viewController->isPropertyFilterOveridden() || viewController->isVisibleCellsOveridden()))
+        if ( viewController &&
+             ( viewController->isPropertyFilterOveridden() || viewController->isVisibleCellsOveridden() ) )
         {
             activeIcon = false;
         }
     }
 
-    if (!isActive)
+    if ( !isActive )
     {
         activeIcon = false;
     }
 
-    updateUiIconFromState(activeIcon);
+    updateUiIconFromState( activeIcon );
 
-    for (RimEclipsePropertyFilter* cellFilter : propertyFilters)
+    for ( RimEclipsePropertyFilter* cellFilter : propertyFilters )
     {
         cellFilter->updateActiveState();
         cellFilter->updateIconState();
@@ -170,7 +172,7 @@ void RimEclipsePropertyFilterCollection::updateIconState()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilterCollection::updateFromCurrentTimeStep()
 {
-    for (RimEclipsePropertyFilter* cellFilter : propertyFilters())
+    for ( RimEclipsePropertyFilter* cellFilter : propertyFilters() )
     {
         cellFilter->updateFromCurrentTimeStep();
     }

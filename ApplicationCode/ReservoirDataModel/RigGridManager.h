@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "cvfBase.h"
 #include "cvfCollection.h"
 #include "cvfObject.h"
 
@@ -30,24 +29,24 @@ class RigEclipseCaseData;
 class RigGridManager : public cvf::Object
 {
 public:
-    void addCase(RigEclipseCaseData* eclipseCase);
+    void addCase( RigEclipseCaseData* eclipseCase );
 
-    void removeCase(RigEclipseCaseData* eclipseCase);
+    void removeCase( RigEclipseCaseData* eclipseCase );
 
-    RigMainGrid* findEqualGrid(RigMainGrid* candidateGrid);
+    RigMainGrid* findEqualGrid( RigMainGrid* candidateGrid );
 
     void clear();
 
-    static bool isEqual(RigMainGrid* gridA, RigMainGrid* gridB);
-    static bool isMainGridDimensionsEqual(RigMainGrid* gridA, RigMainGrid* gridB);
-    static bool isGridDimensionsEqual(const std::vector<std::vector<int>>& mainCaseGridDimensions,
-                                      const std::vector<std::vector<int>>& caseGridDimensions);
+    static bool isEqual( RigMainGrid* gridA, RigMainGrid* gridB );
+    static bool isMainGridDimensionsEqual( RigMainGrid* gridA, RigMainGrid* gridB );
+    static bool isGridDimensionsEqual( const std::vector<std::vector<int>>& mainCaseGridDimensions,
+                                       const std::vector<std::vector<int>>& caseGridDimensions );
 
 private:
     class CaseToGridMap : public cvf::Object
     {
     public:
-        CaseToGridMap(RigEclipseCaseData* eclipseCase, RigMainGrid* mainGrid);
+        CaseToGridMap( RigEclipseCaseData* eclipseCase, RigMainGrid* mainGrid );
 
         RigEclipseCaseData* m_eclipseCase;
         RigMainGrid*        m_mainGrid;

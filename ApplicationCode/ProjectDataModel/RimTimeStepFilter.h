@@ -1,25 +1,25 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017  Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#include "cafPdmObject.h"
 #include "cafPdmField.h"
+#include "cafPdmObject.h"
 
 #include <vector>
 
@@ -28,7 +28,7 @@ class RimEclipseResultCase;
 class RimGeoMechCase;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class RimTimeStepFilter : public caf::PdmObject
 {
@@ -48,31 +48,37 @@ public:
 public:
     RimTimeStepFilter();
 
-    void                    clearFilteredTimeSteps();
+    void clearFilteredTimeSteps();
 
-    void                    setTimeStepsFromFile(const std::vector<QDateTime>& timeSteps);
-    void                    setTimeStepsFromFile(const std::vector<std::pair<QString, QDateTime>>& timeSteps);
-    std::vector<size_t>     filteredTimeSteps() const;
-    bool                    updateFilteredTimeStepsFromUi();
+    void                setTimeStepsFromFile( const std::vector<QDateTime>& timeSteps );
+    void                setTimeStepsFromFile( const std::vector<std::pair<QString, QDateTime>>& timeSteps );
+    std::vector<size_t> filteredTimeSteps() const;
+    bool                updateFilteredTimeStepsFromUi();
+
 private:
-    std::vector<std::pair<QString, QDateTime>>  allTimeSteps() const;
-    std::vector<int>        filteredTimeStepIndicesFromUi() const;
+    std::vector<std::pair<QString, QDateTime>> allTimeSteps() const;
+    std::vector<int>                           filteredTimeStepIndicesFromUi() const;
 
-    void                    updateFieldVisibility();
-    RimEclipseResultCase*   parentEclipseResultCase() const;
-    RimGeoMechCase*         parentGeoMechCase() const;
+    void                  updateFieldVisibility();
+    RimEclipseResultCase* parentEclipseResultCase() const;
+    RimGeoMechCase*       parentGeoMechCase() const;
 
     // PDM overrides
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
-    caf::PdmField< caf::AppEnum< TimeStepFilterTypeEnum > > m_filterType;
-    
-    caf::PdmField< std::vector<int> >   m_filteredTimeSteps;
-    caf::PdmField< std::vector<int> >   m_filteredTimeStepsUi;
+    caf::PdmField<caf::AppEnum<TimeStepFilterTypeEnum>> m_filterType;
+
+    caf::PdmField<std::vector<int>>     m_filteredTimeSteps;
+    caf::PdmField<std::vector<int>>     m_filteredTimeStepsUi;
     caf::PdmField<int>                  m_firstTimeStep;
     caf::PdmField<int>                  m_lastTimeStep;
     caf::PdmField<int>                  m_interval;

@@ -68,7 +68,9 @@ public:
 private:
     // Overridden PDM methods
     caf::PdmFieldHandle* objectToggleField() override;
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue ) override;
 
 private:
     caf::PdmChildField<RimWellLogPlotCollection*>            m_wellLogPlotCollection;

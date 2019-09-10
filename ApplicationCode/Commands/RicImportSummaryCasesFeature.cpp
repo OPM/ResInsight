@@ -53,7 +53,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-CAF_CMD_SOURCE_INIT(RicImportSummaryCasesFeature, "RicImportSummaryCasesFeature");
+CAF_CMD_SOURCE_INIT( RicImportSummaryCasesFeature, "RicImportSummaryCasesFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -72,38 +72,38 @@ bool RicImportSummaryCasesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportSummaryCasesFeature::onActionTriggered(bool isChecked)
+void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
 {
-    RiaGuiApplication* app        = RiaGuiApplication::instance();
-    QString         pathCacheName = "INPUT_FILES";
-    QStringList     fileNames     = runRecursiveSummaryCaseFileSearchDialog("Import Summary Cases", pathCacheName);
+    RiaGuiApplication* app           = RiaGuiApplication::instance();
+    QString            pathCacheName = "INPUT_FILES";
+    QStringList        fileNames     = runRecursiveSummaryCaseFileSearchDialog( "Import Summary Cases", pathCacheName );
 
     std::vector<RimSummaryCase*> cases;
-    if (!fileNames.isEmpty()) createSummaryCasesFromFiles(fileNames, &cases);
+    if ( !fileNames.isEmpty() ) createSummaryCasesFromFiles( fileNames, &cases );
 
-    addSummaryCases(cases);
-    if (!cases.empty())
+    addSummaryCases( cases );
+    if ( !cases.empty() )
     {
-        RicSummaryPlotFeatureImpl::createDefaultSummaryPlot(cases.front());
+        RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( cases.front() );
     }
 
-    addCasesToGroupIfRelevant(cases);
+    addCasesToGroupIfRelevant( cases );
 
-    for (const auto& rimCase : cases)
-        app->addToRecentFiles(rimCase->summaryHeaderFilename());
+    for ( const auto& rimCase : cases )
+        app->addToRecentFiles( rimCase->summaryHeaderFilename() );
 
     RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
-    if (mainPlotWindow && !cases.empty())
+    if ( mainPlotWindow && !cases.empty() )
     {
-        mainPlotWindow->selectAsCurrentItem(cases.back());
+        mainPlotWindow->selectAsCurrentItem( cases.back() );
 
         mainPlotWindow->updateSummaryPlotToolBar();
     }
 
     std::vector<RimCase*> allCases;
-    app->project()->allCases(allCases);
+    app->project()->allCases( allCases );
 
-    if (allCases.size() == 0)
+    if ( allCases.size() == 0 )
     {
         RiuMainWindow::instance()->close();
     }
@@ -112,42 +112,42 @@ void RicImportSummaryCasesFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportSummaryCasesFeature::setupActionLook(QAction* actionToSetup)
+void RicImportSummaryCasesFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/SummaryCases16x16.png"));
-    actionToSetup->setText("Import Summary Cases Recursively");
+    actionToSetup->setIcon( QIcon( ":/SummaryCases16x16.png" ) );
+    actionToSetup->setText( "Import Summary Cases Recursively" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(const QStringList&            fileNames,
-                                                                     bool doCreateDefaultPlot,
-                                                                     std::vector<RimSummaryCase*>* newCases)
+bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( const QStringList&            fileNames,
+                                                                      bool                          doCreateDefaultPlot,
+                                                                      std::vector<RimSummaryCase*>* newCases )
 {
     RiaGuiApplication* app = RiaGuiApplication::instance();
 
     std::vector<RimSummaryCase*>  temp;
     std::vector<RimSummaryCase*>* cases = newCases ? newCases : &temp;
-    if (createSummaryCasesFromFiles(fileNames, cases))
+    if ( createSummaryCasesFromFiles( fileNames, cases ) )
     {
-        addSummaryCases(*cases);
-        if (!cases->empty() && doCreateDefaultPlot)
+        addSummaryCases( *cases );
+        if ( !cases->empty() && doCreateDefaultPlot )
         {
-            RicSummaryPlotFeatureImpl::createDefaultSummaryPlot(cases->back());
+            RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( cases->back() );
         }
 
         RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
-        if (mainPlotWindow && !cases->empty())
+        if ( mainPlotWindow && !cases->empty() )
         {
-            mainPlotWindow->selectAsCurrentItem(cases->back());
+            mainPlotWindow->selectAsCurrentItem( cases->back() );
             mainPlotWindow->updateSummaryPlotToolBar();
 
             // Close main window if there are no eclipse cases imported
             std::vector<RimCase*> allCases;
-            app->project()->allCases(allCases);
+            app->project()->allCases( allCases );
 
-            if (allCases.size() == 0)
+            if ( allCases.size() == 0 )
             {
                 RiuMainWindow::instance()->close();
             }
@@ -161,35 +161,36 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(const QStri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles(const QStringList&            fileNames,
-                                                               std::vector<RimSummaryCase*>* newCases,
-                                                               bool                          ensembleOrGroup)
+bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles( const QStringList&            fileNames,
+                                                                std::vector<RimSummaryCase*>* newCases,
+                                                                bool                          ensembleOrGroup )
 {
-    RiaApplication*               app  = RiaApplication::instance();
-    RimProject*                   proj = app->project();
-    RimSummaryCaseMainCollection* sumCaseColl =
-        proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
+    RiaApplication*               app         = RiaApplication::instance();
+    RimProject*                   proj        = app->project();
+    RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField()
+                                                    ? proj->activeOilField()->summaryCaseMainCollection()
+                                                    : nullptr;
 
-    if (newCases) newCases->clear();
-    if (!sumCaseColl) return false;
+    if ( newCases ) newCases->clear();
+    if ( !sumCaseColl ) return false;
 
     RifSummaryCaseRestartSelector fileSelector;
-    fileSelector.setEnsembleOrGroupMode(ensembleOrGroup);
-    fileSelector.determineFilesToImportFromSummaryFiles(fileNames);
+    fileSelector.setEnsembleOrGroupMode( ensembleOrGroup );
+    fileSelector.determineFilesToImportFromSummaryFiles( fileNames );
 
     std::vector<RifSummaryCaseFileResultInfo> importFileInfos = fileSelector.summaryFileInfos();
 
-    if (!importFileInfos.empty())
+    if ( !importFileInfos.empty() )
     {
-        std::vector<RimSummaryCase*> sumCases = sumCaseColl->createSummaryCasesFromFileInfos(importFileInfos, true);
-        if (newCases) newCases->insert(newCases->end(), sumCases.begin(), sumCases.end());
+        std::vector<RimSummaryCase*> sumCases = sumCaseColl->createSummaryCasesFromFileInfos( importFileInfos, true );
+        if ( newCases ) newCases->insert( newCases->end(), sumCases.begin(), sumCases.end() );
     }
 
-    if (fileSelector.foundErrors())
+    if ( fileSelector.foundErrors() )
     {
         QString errorMessage = fileSelector.createCombinedErrorMessage();
-        RiaLogging::error(errorMessage);
-        QMessageBox::warning(nullptr, QString("Problem Importing Summary Case File(s)"), errorMessage);
+        RiaLogging::error( errorMessage );
+        QMessageBox::warning( nullptr, QString( "Problem Importing Summary Case File(s)" ), errorMessage );
     }
 
     return true;
@@ -198,13 +199,14 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles(const QStringList
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportSummaryCasesFeature::addSummaryCases(const std::vector<RimSummaryCase*> cases)
+void RicImportSummaryCasesFeature::addSummaryCases( const std::vector<RimSummaryCase*> cases )
 {
-    RiaApplication*               app  = RiaApplication::instance();
-    RimProject*                   proj = app->project();
-    RimSummaryCaseMainCollection* sumCaseColl =
-        proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
-    sumCaseColl->addCases(cases);
+    RiaApplication*               app         = RiaApplication::instance();
+    RimProject*                   proj        = app->project();
+    RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField()
+                                                    ? proj->activeOilField()->summaryCaseMainCollection()
+                                                    : nullptr;
+    sumCaseColl->addCases( cases );
 
     sumCaseColl->updateAllRequiredEditors();
 }
@@ -212,22 +214,22 @@ void RicImportSummaryCasesFeature::addSummaryCases(const std::vector<RimSummaryC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportSummaryCasesFeature::addCasesToGroupIfRelevant(const std::vector<RimSummaryCase*> cases)
+void RicImportSummaryCasesFeature::addCasesToGroupIfRelevant( const std::vector<RimSummaryCase*> cases )
 {
     std::vector<RimSummaryCaseCollection*> selectedColl = caf::selectedObjectsByTypeStrict<RimSummaryCaseCollection*>();
 
-    if (selectedColl.size() == 1)
+    if ( selectedColl.size() == 1 )
     {
         RimSummaryCaseCollection*     coll = selectedColl.front();
         RimSummaryCaseMainCollection* mainColl;
-        coll->firstAncestorOrThisOfType(mainColl);
+        coll->firstAncestorOrThisOfType( mainColl );
 
-        if (mainColl)
+        if ( mainColl )
         {
-            for (const auto sumCase : cases)
+            for ( const auto sumCase : cases )
             {
-                mainColl->removeCase(sumCase);
-                selectedColl.front()->addCase(sumCase);
+                mainColl->removeCase( sumCase );
+                selectedColl.front()->addCase( sumCase );
             }
             mainColl->updateConnectedEditors();
         }
@@ -237,23 +239,28 @@ void RicImportSummaryCasesFeature::addCasesToGroupIfRelevant(const std::vector<R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog(const QString& dialogTitle,
-                                                                                  const QString& pathCacheName)
+QStringList RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog( const QString& dialogTitle,
+                                                                                   const QString& pathCacheName )
 {
     RiaApplication* app        = RiaApplication::instance();
-    QString         defaultDir = app->lastUsedDialogDirectory(pathCacheName);
+    QString         defaultDir = app->lastUsedDialogDirectory( pathCacheName );
 
-    RicRecursiveFileSearchDialogResult result = RicRecursiveFileSearchDialog::runRecursiveSearchDialog(
-        nullptr, dialogTitle, defaultDir, m_pathFilter, m_fileNameFilter, QStringList(".SMSPEC"));
+    RicRecursiveFileSearchDialogResult result =
+        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
+                                                                dialogTitle,
+                                                                defaultDir,
+                                                                m_pathFilter,
+                                                                m_fileNameFilter,
+                                                                QStringList( ".SMSPEC" ) );
 
     // Remember filters
     m_pathFilter     = result.pathFilter;
     m_fileNameFilter = result.fileNameFilter;
 
-    if (!result.ok) return QStringList();
+    if ( !result.ok ) return QStringList();
 
     // Remember the path to next time
-    app->setLastUsedDialogDirectory(pathCacheName, QFileInfo(result.rootDir).absoluteFilePath());
+    app->setLastUsedDialogDirectory( pathCacheName, QFileInfo( result.rootDir ).absoluteFilePath() );
 
     return result.files;
 }

@@ -39,9 +39,9 @@ public:
     RimGridInfo();
     ~RimGridInfo() override {}
 
-    void    setName(const QString& name);
-    void    setEclipseGridIndex(int index);
-    void    setActive(bool active);
+    void    setName( const QString& name );
+    void    setEclipseGridIndex( int index );
+    void    setActive( bool active );
     bool    isActive() const;
     QString name() const;
     int     eclipseGridIndex() const;
@@ -50,8 +50,10 @@ public:
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue ) override;
+    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
     caf::PdmField<bool>    m_isActive;
@@ -71,15 +73,17 @@ public:
     ~RimGridInfoCollection() override {}
 
     bool                      isActive() const;
-    void                      addGridInfo(RimGridInfo * gridInfo);
+    void                      addGridInfo( RimGridInfo* gridInfo );
     void                      clear();
-    bool                      containsGrid(const QString& gridName) const;
-    void                      deleteGridInfo(const QString& gridName);
+    bool                      containsGrid( const QString& gridName ) const;
+    void                      deleteGridInfo( const QString& gridName );
     std::vector<RimGridInfo*> gridInfos() const;
     caf::PdmFieldHandle*      objectToggleField() override;
 
 protected:
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
 
 private:
     caf::PdmField<bool>                   m_isActive;
@@ -98,21 +102,23 @@ public:
     RimGridCollection();
     ~RimGridCollection() override;
 
-    void                setActive(bool active);
+    void                setActive( bool active );
     bool                isActive() const;
     std::vector<size_t> indicesToVisibleGrids() const;
 
     caf::PdmFieldHandle* objectToggleField() override;
     void                 syncFromMainEclipseGrid();
-    void                 setMainGridActive(bool active);
+    void                 setMainGridActive( bool active );
 
     static const QString persistentGridUiName();
     static const QString temporaryGridUiName();
 
 protected:
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
     void initAfterRead() override;
-    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
 private:
     const RigMainGrid* mainEclipseGrid() const;

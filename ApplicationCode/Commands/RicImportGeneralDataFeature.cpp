@@ -36,66 +36,66 @@
 
 using namespace RiaDefines;
 
-CAF_CMD_SOURCE_INIT(RicImportGeneralDataFeature, "RicImportGeneralDataFeature");
+CAF_CMD_SOURCE_INIT( RicImportGeneralDataFeature, "RicImportGeneralDataFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicImportGeneralDataFeature::OpenCaseResults
-    RicImportGeneralDataFeature::openEclipseFilesFromFileNames(const QStringList& fileNames, 
-                                                               bool doCreateDefaultPlot)
+    RicImportGeneralDataFeature::openEclipseFilesFromFileNames( const QStringList& fileNames, bool doCreateDefaultPlot )
 {
-    CVF_ASSERT(!fileNames.empty());
+    CVF_ASSERT( !fileNames.empty() );
 
-    QString defaultDir = QFileInfo(fileNames.last()).absolutePath();
+    QString defaultDir = QFileInfo( fileNames.last() ).absolutePath();
 
     QStringList eclipseCaseFiles;
     QStringList eclipseInputFiles;
     QStringList eclipseSummaryFiles;
 
-    for (const QString& fileName : fileNames)
+    for ( const QString& fileName : fileNames )
     {
-        if (obtainFileTypeFromFileName(fileName) & (ECLIPSE_GRID_FILE | ECLIPSE_EGRID_FILE))
+        if ( obtainFileTypeFromFileName( fileName ) & ( ECLIPSE_GRID_FILE | ECLIPSE_EGRID_FILE ) )
         {
-            eclipseCaseFiles.push_back(fileName);
+            eclipseCaseFiles.push_back( fileName );
         }
-        else if (obtainFileTypeFromFileName(fileName) & ECLIPSE_INPUT_FILE)
+        else if ( obtainFileTypeFromFileName( fileName ) & ECLIPSE_INPUT_FILE )
         {
-            eclipseInputFiles.push_back(fileName);
+            eclipseInputFiles.push_back( fileName );
         }
-        else if (obtainFileTypeFromFileName(fileName) & ECLIPSE_SUMMARY_FILE)
+        else if ( obtainFileTypeFromFileName( fileName ) & ECLIPSE_SUMMARY_FILE )
         {
-            eclipseSummaryFiles.push_back(fileName);
+            eclipseSummaryFiles.push_back( fileName );
         }
     }
 
     OpenCaseResults results;
-    if (!eclipseCaseFiles.empty())
+    if ( !eclipseCaseFiles.empty() )
     {
-        if (!openEclipseCaseFromFileNames(eclipseCaseFiles))
+        if ( !openEclipseCaseFromFileNames( eclipseCaseFiles ) )
         {
             return OpenCaseResults();
         }
         results.eclipseCaseFiles = eclipseCaseFiles;
-        RiaApplication::instance()->setLastUsedDialogDirectory(defaultDirectoryLabel(ECLIPSE_EGRID_FILE), defaultDir);
+        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ECLIPSE_EGRID_FILE ), defaultDir );
     }
-    if (!eclipseInputFiles.empty())
+    if ( !eclipseInputFiles.empty() )
     {
-        if (!openInputEclipseCaseFromFileNames(eclipseInputFiles))
+        if ( !openInputEclipseCaseFromFileNames( eclipseInputFiles ) )
         {
             return OpenCaseResults();
         }
         results.eclipseInputFiles = eclipseInputFiles;
-        RiaApplication::instance()->setLastUsedDialogDirectory(defaultDirectoryLabel(ECLIPSE_INPUT_FILE), defaultDir);
+        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ECLIPSE_INPUT_FILE ), defaultDir );
     }
-    if (!eclipseSummaryFiles.empty())
+    if ( !eclipseSummaryFiles.empty() )
     {
-        if (!openSummaryCaseFromFileNames(eclipseSummaryFiles, doCreateDefaultPlot))
+        if ( !openSummaryCaseFromFileNames( eclipseSummaryFiles, doCreateDefaultPlot ) )
         {
             return OpenCaseResults();
         }
         results.eclipseSummaryFiles = eclipseSummaryFiles;
-        RiaApplication::instance()->setLastUsedDialogDirectory(defaultDirectoryLabel(ECLIPSE_SUMMARY_FILE), defaultDir);
+        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ECLIPSE_SUMMARY_FILE ),
+                                                                defaultDir );
     }
     return results;
 }
@@ -103,22 +103,22 @@ RicImportGeneralDataFeature::OpenCaseResults
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RicImportGeneralDataFeature::fileNamesFromCaseNames(const QStringList& caseNames)
+QStringList RicImportGeneralDataFeature::fileNamesFromCaseNames( const QStringList& caseNames )
 {
     QStringList fileNames;
     {
-        for (const auto& caseName : caseNames)
+        for ( const auto& caseName : caseNames )
         {
-            if (caseName.lastIndexOf(".") != -1)
+            if ( caseName.lastIndexOf( "." ) != -1 )
             {
-                QFileInfo fi(caseName);
-                fileNames.push_back(fi.absoluteFilePath());
+                QFileInfo fi( caseName );
+                fileNames.push_back( fi.absoluteFilePath() );
             }
             else
             {
-                RiaEclipseFileNameTools nameTool(caseName);
+                RiaEclipseFileNameTools nameTool( caseName );
                 QString                 filenameWithExtension = nameTool.findRelatedGridFile();
-                fileNames.push_back(filenameWithExtension);
+                fileNames.push_back( filenameWithExtension );
             }
         }
     }
@@ -137,87 +137,90 @@ bool RicImportGeneralDataFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportGeneralDataFeature::onActionTriggered(bool isChecked)
+void RicImportGeneralDataFeature::onActionTriggered( bool isChecked )
 {
-    openFileDialog(ANY_ECLIPSE_FILE);
+    openFileDialog( ANY_ECLIPSE_FILE );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportGeneralDataFeature::setupActionLook(QAction* actionToSetup)
+void RicImportGeneralDataFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/Case48x48.png"));
-    actionToSetup->setText("Import Eclipse Files");
+    actionToSetup->setIcon( QIcon( ":/Case48x48.png" ) );
+    actionToSetup->setText( "Import Eclipse Files" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportGeneralDataFeature::openFileDialog(ImportFileType fileTypes)
+void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
 {
-    QString eclipseGridFilePattern("*.GRID");
-    QString eclipseEGridFilePattern("*.EGRID");
-    QString eclipseInputFilePattern("*.GRDECL");
-    QString eclipseSummaryFilePattern("*.SMSPEC");
+    QString eclipseGridFilePattern( "*.GRID" );
+    QString eclipseEGridFilePattern( "*.EGRID" );
+    QString eclipseInputFilePattern( "*.GRDECL" );
+    QString eclipseSummaryFilePattern( "*.SMSPEC" );
 
     QStringList filePatternTexts;
-    if (fileTypes == ANY_ECLIPSE_FILE)
+    if ( fileTypes == ANY_ECLIPSE_FILE )
     {
-        filePatternTexts += QString("Eclipse Files (%1 %2 %3 %4)")
-                                .arg(eclipseGridFilePattern)
-                                .arg(eclipseEGridFilePattern)
-                                .arg(eclipseInputFilePattern)
-                                .arg(eclipseSummaryFilePattern);
+        filePatternTexts += QString( "Eclipse Files (%1 %2 %3 %4)" )
+                                .arg( eclipseGridFilePattern )
+                                .arg( eclipseEGridFilePattern )
+                                .arg( eclipseInputFilePattern )
+                                .arg( eclipseSummaryFilePattern );
     }
-    if (fileTypes & ECLIPSE_GRID_FILE)
+    if ( fileTypes & ECLIPSE_GRID_FILE )
     {
-        filePatternTexts += QString("Eclipse Grid Files (%1)").arg(eclipseGridFilePattern);
+        filePatternTexts += QString( "Eclipse Grid Files (%1)" ).arg( eclipseGridFilePattern );
     }
-    if (fileTypes & ECLIPSE_EGRID_FILE)
+    if ( fileTypes & ECLIPSE_EGRID_FILE )
     {
-        filePatternTexts += QString("Eclipse EGrid Files (%1)").arg(eclipseEGridFilePattern);
+        filePatternTexts += QString( "Eclipse EGrid Files (%1)" ).arg( eclipseEGridFilePattern );
     }
-    if (fileTypes & ECLIPSE_INPUT_FILE)
+    if ( fileTypes & ECLIPSE_INPUT_FILE )
     {
-        filePatternTexts += QString("Eclipse Input Files and Input Properties (%1)").arg(eclipseInputFilePattern);
+        filePatternTexts += QString( "Eclipse Input Files and Input Properties (%1)" ).arg( eclipseInputFilePattern );
     }
-    if (fileTypes & ECLIPSE_SUMMARY_FILE)
+    if ( fileTypes & ECLIPSE_SUMMARY_FILE )
     {
-        filePatternTexts += QString("Eclipse Summary File (%1)").arg(eclipseSummaryFilePattern);
-    }
-
-    QString fullPattern = filePatternTexts.join(";;");
-
-    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectory(defaultDirectoryLabel(fileTypes));
-
-    QStringList fileNames =
-        QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Data File", defaultDir, fullPattern);
-
-    if (fileNames.empty()) return;
-
-    if (fileTypes == ANY_ECLIPSE_FILE)
-    {
-        RiaApplication::instance()->setLastUsedDialogDirectory(defaultDirectoryLabel(ANY_ECLIPSE_FILE), fileNames.front());
+        filePatternTexts += QString( "Eclipse Summary File (%1)" ).arg( eclipseSummaryFilePattern );
     }
 
-    if (!openEclipseFilesFromFileNames(fileNames, true))
+    QString fullPattern = filePatternTexts.join( ";;" );
+
+    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectory( defaultDirectoryLabel( fileTypes ) );
+
+    QStringList fileNames = QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                           "Import Data File",
+                                                           defaultDir,
+                                                           fullPattern );
+
+    if ( fileNames.empty() ) return;
+
+    if ( fileTypes == ANY_ECLIPSE_FILE )
     {
-        RiaLogging::error(QString("Failed to open file names: %1").arg(fileNames.join(", ")));
+        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ANY_ECLIPSE_FILE ),
+                                                                fileNames.front() );
+    }
+
+    if ( !openEclipseFilesFromFileNames( fileNames, true ) )
+    {
+        RiaLogging::error( QString( "Failed to open file names: %1" ).arg( fileNames.join( ", " ) ) );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames(const QStringList& fileNames)
+bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames( const QStringList& fileNames )
 {
     RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;
-    if (RiaImportEclipseCaseTools::openEclipseCasesFromFile(fileNames, &newCaseFiles))
+    if ( RiaImportEclipseCaseTools::openEclipseCasesFromFile( fileNames, &newCaseFiles ) )
     {
-        for (const auto newCaseFileAndId : newCaseFiles)
+        for ( const auto newCaseFileAndId : newCaseFiles )
         {
-            RiaApplication::instance()->addToRecentFiles(newCaseFileAndId.first);
+            RiaApplication::instance()->addToRecentFiles( newCaseFileAndId.first );
         }
         return true;
     }
@@ -227,12 +230,12 @@ bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames(const QStringList
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGeneralDataFeature::openInputEclipseCaseFromFileNames(const QStringList& fileNames)
+bool RicImportGeneralDataFeature::openInputEclipseCaseFromFileNames( const QStringList& fileNames )
 {
     QString fileContainingGrid;
-    if (RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames(fileNames, &fileContainingGrid))
+    if ( RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( fileNames, &fileContainingGrid ) )
     {
-        RiaApplication::instance()->addToRecentFiles(fileContainingGrid);
+        RiaApplication::instance()->addToRecentFiles( fileContainingGrid );
         return true;
     }
     return false;
@@ -241,16 +244,15 @@ bool RicImportGeneralDataFeature::openInputEclipseCaseFromFileNames(const QStrin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGeneralDataFeature::openSummaryCaseFromFileNames(const QStringList& fileNames, 
-                                                               bool doCreateDefaultPlot)
+bool RicImportGeneralDataFeature::openSummaryCaseFromFileNames( const QStringList& fileNames, bool doCreateDefaultPlot )
 {
     std::vector<RimSummaryCase*> newCases;
-    if (RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(fileNames, doCreateDefaultPlot, &newCases))
+    if ( RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( fileNames, doCreateDefaultPlot, &newCases ) )
     {
-        RicImportSummaryCasesFeature::addCasesToGroupIfRelevant(newCases);
-        for (const RimSummaryCase* newCase : newCases)
+        RicImportSummaryCasesFeature::addCasesToGroupIfRelevant( newCases );
+        for ( const RimSummaryCase* newCase : newCases )
         {
-            RiaApplication::instance()->addToRecentFiles(newCase->summaryHeaderFilename());
+            RiaApplication::instance()->addToRecentFiles( newCase->summaryHeaderFilename() );
         }
         return true;
     }

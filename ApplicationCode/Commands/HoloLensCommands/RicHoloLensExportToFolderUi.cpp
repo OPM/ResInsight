@@ -28,25 +28,25 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiOrdering.h"
 
-CAF_PDM_SOURCE_INIT(RicHoloLensExportToFolderUi, "RicHoloLensExportToFolderUi");
+CAF_PDM_SOURCE_INIT( RicHoloLensExportToFolderUi, "RicHoloLensExportToFolderUi" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicHoloLensExportToFolderUi::RicHoloLensExportToFolderUi()
 {
-    CAF_PDM_InitObject("Resample LAS curves for export", "", "", "");
+    CAF_PDM_InitObject( "Resample LAS curves for export", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_viewForExport, "ViewForExport", "View", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_viewForExport, "ViewForExport", "View", "", "", "" );
 
-    CAF_PDM_InitField(&m_exportFolder, "ExportFolder", QString(), "Export Folder", "", "", "");
-    m_exportFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    CAF_PDM_InitField( &m_exportFolder, "ExportFolder", QString(), "Export Folder", "", "", "" );
+    m_exportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensExportToFolderUi::setViewForExport(RimGridView* view)
+void RicHoloLensExportToFolderUi::setViewForExport( RimGridView* view )
 {
     m_viewForExport = view;
 }
@@ -70,19 +70,20 @@ RimGridView* RicHoloLensExportToFolderUi::viewForExport() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RicHoloLensExportToFolderUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                                 bool*                      useOptionsOnly)
+QList<caf::PdmOptionItemInfo>
+    RicHoloLensExportToFolderUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                        bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if (fieldNeedingOptions == &m_viewForExport)
+    if ( fieldNeedingOptions == &m_viewForExport )
     {
         std::vector<RimGridView*> visibleViews;
-        RiaApplication::instance()->project()->allVisibleGridViews(visibleViews);
+        RiaApplication::instance()->project()->allVisibleGridViews( visibleViews );
 
-        for (RimGridView* v : visibleViews)
+        for ( RimGridView* v : visibleViews )
         {
-            RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName(v, &options);
+            RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( v, &options );
         }
     }
 
@@ -92,14 +93,14 @@ QList<caf::PdmOptionItemInfo> RicHoloLensExportToFolderUi::calculateValueOptions
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensExportToFolderUi::defineEditorAttribute(const caf::PdmFieldHandle* field,
-                                                        QString                    uiConfigName,
-                                                        caf::PdmUiEditorAttribute* attribute)
+void RicHoloLensExportToFolderUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute )
 {
-    if (field == &m_exportFolder)
+    if ( field == &m_exportFolder )
     {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
-        if (myAttr)
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
+        if ( myAttr )
         {
             myAttr->m_selectDirectory = true;
         }

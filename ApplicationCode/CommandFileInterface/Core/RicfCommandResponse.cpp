@@ -17,15 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicfCommandResponse.h"
 
-
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse::RicfCommandResponse(Status status, const QString& message)
-    : m_status(COMMAND_OK)
+RicfCommandResponse::RicfCommandResponse( Status status, const QString& message )
+    : m_status( COMMAND_OK )
 {
-    updateStatus(status, message);
+    updateStatus( status, message );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -41,7 +39,7 @@ RicfCommandResponse::Status RicfCommandResponse::status() const
 //--------------------------------------------------------------------------------------------------
 QString RicfCommandResponse::message() const
 {
-    return m_messages.join("\n");
+    return m_messages.join( "\n" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +53,7 @@ caf::PdmObject* RicfCommandResponse::result() const
 //--------------------------------------------------------------------------------------------------
 /// Takes ownership of the result object
 //--------------------------------------------------------------------------------------------------
-void RicfCommandResponse::setResult(caf::PdmObject* result)
+void RicfCommandResponse::setResult( caf::PdmObject* result )
 {
     m_result = result;
 }
@@ -63,25 +61,24 @@ void RicfCommandResponse::setResult(caf::PdmObject* result)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfCommandResponse::updateStatus(Status status, const QString& message)
+void RicfCommandResponse::updateStatus( Status status, const QString& message )
 {
-    m_status = std::max(m_status, status);
-    if (!message.isEmpty())
-    m_messages.push_back(QString("%1:%2").arg(statusLabel(status)).arg(message));
+    m_status = std::max( m_status, status );
+    if ( !message.isEmpty() ) m_messages.push_back( QString( "%1:%2" ).arg( statusLabel( status ) ).arg( message ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicfCommandResponse::statusLabel(Status status)
+QString RicfCommandResponse::statusLabel( Status status )
 {
-    switch (status)
+    switch ( status )
     {
-    case COMMAND_WARNING:
-        return "WARNING";
-    case COMMAND_ERROR:
-        return "ERROR";
-    default:
-        return "";
+        case COMMAND_WARNING:
+            return "WARNING";
+        case COMMAND_ERROR:
+            return "ERROR";
+        default:
+            return "";
     }
 }

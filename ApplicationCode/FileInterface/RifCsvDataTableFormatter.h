@@ -28,13 +28,13 @@
 class RifCsvDataTableFormatter
 {
 public:
-    RifCsvDataTableFormatter(QTextStream& out, const QString fieldSeparator = ",");
+    RifCsvDataTableFormatter( QTextStream& out, const QString fieldSeparator = "," );
 
-    RifCsvDataTableFormatter& header(const std::vector<RifEclipseOutputTableColumn>& tableHeader);
-    RifCsvDataTableFormatter& add(const QString& str);
-    RifCsvDataTableFormatter& add(double num);
-    RifCsvDataTableFormatter& add(int num);
-    RifCsvDataTableFormatter& add(size_t num);
+    RifCsvDataTableFormatter& header( const std::vector<RifEclipseOutputTableColumn>& tableHeader );
+    RifCsvDataTableFormatter& add( const QString& str );
+    RifCsvDataTableFormatter& add( double num );
+    RifCsvDataTableFormatter& add( int num );
+    RifCsvDataTableFormatter& add( size_t num );
     void                      rowCompleted();
     void                      tableCompleted();
 

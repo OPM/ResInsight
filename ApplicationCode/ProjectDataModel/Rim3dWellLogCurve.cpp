@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -31,61 +31,71 @@
 #include <algorithm>
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 
-CAF_PDM_ABSTRACT_SOURCE_INIT(Rim3dWellLogCurve, "Rim3dWellLogCurve");
+CAF_PDM_ABSTRACT_SOURCE_INIT( Rim3dWellLogCurve, "Rim3dWellLogCurve" );
 
 namespace caf
 {
-    template<>
-    void AppEnum< Rim3dWellLogCurve::DrawPlane >::setUp()
-    {
-        addItem(Rim3dWellLogCurve::VERTICAL_ABOVE, "VERTICAL_ABOVE", "Above");
-        addItem(Rim3dWellLogCurve::VERTICAL_CENTER, "VERTICAL_CENTER", "Centered - Vertical");
-        addItem(Rim3dWellLogCurve::VERTICAL_BELOW, "VERTICAL_BELOW", "Below");
-        addItem(Rim3dWellLogCurve::HORIZONTAL_LEFT, "HORIZONTAL_LEFT", "Left");
-        addItem(Rim3dWellLogCurve::HORIZONTAL_CENTER, "HORIZONTAL_CENTER", "Centered - Horizontal");
-        addItem(Rim3dWellLogCurve::HORIZONTAL_RIGHT, "HORIZONTAL_RIGHT", "Right");
-        setDefault(Rim3dWellLogCurve::VERTICAL_ABOVE);
-    }
-
+template <>
+void AppEnum<Rim3dWellLogCurve::DrawPlane>::setUp()
+{
+    addItem( Rim3dWellLogCurve::VERTICAL_ABOVE, "VERTICAL_ABOVE", "Above" );
+    addItem( Rim3dWellLogCurve::VERTICAL_CENTER, "VERTICAL_CENTER", "Centered - Vertical" );
+    addItem( Rim3dWellLogCurve::VERTICAL_BELOW, "VERTICAL_BELOW", "Below" );
+    addItem( Rim3dWellLogCurve::HORIZONTAL_LEFT, "HORIZONTAL_LEFT", "Left" );
+    addItem( Rim3dWellLogCurve::HORIZONTAL_CENTER, "HORIZONTAL_CENTER", "Centered - Horizontal" );
+    addItem( Rim3dWellLogCurve::HORIZONTAL_RIGHT, "HORIZONTAL_RIGHT", "Right" );
+    setDefault( Rim3dWellLogCurve::VERTICAL_ABOVE );
 }
 
+} // namespace caf
+
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogCurve::Rim3dWellLogCurve()
-    : m_minCurveDataValue(-std::numeric_limits<float>::infinity())
-    , m_maxCurveDataValue(std::numeric_limits<float>::infinity())
+    : m_minCurveDataValue( -std::numeric_limits<float>::infinity() )
+    , m_maxCurveDataValue( std::numeric_limits<float>::infinity() )
 {
-    CAF_PDM_InitObject("3d Well Log Curve", ":/WellLogCurve16x16.png", "", "");
+    CAF_PDM_InitObject( "3d Well Log Curve", ":/WellLogCurve16x16.png", "", "" );
 
-    CAF_PDM_InitField(&m_showCurve, "Show3dWellLogCurve", true, "Show 3d Well Log Curve", "", "", "");
-    m_showCurve.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitField(&m_minCurveUIValue, "MinCurveValue", -std::numeric_limits<float>::infinity(), "Minimum Curve Value", "", "Clip curve values below this.", "");
-    CAF_PDM_InitField(&m_maxCurveUIValue, "MaxCurveValue", std::numeric_limits<float>::infinity(), "Maximum Curve Value", "", "Clip curve values above this.", "");
+    CAF_PDM_InitField( &m_showCurve, "Show3dWellLogCurve", true, "Show 3d Well Log Curve", "", "", "" );
+    m_showCurve.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &m_minCurveUIValue,
+                       "MinCurveValue",
+                       -std::numeric_limits<float>::infinity(),
+                       "Minimum Curve Value",
+                       "",
+                       "Clip curve values below this.",
+                       "" );
+    CAF_PDM_InitField( &m_maxCurveUIValue,
+                       "MaxCurveValue",
+                       std::numeric_limits<float>::infinity(),
+                       "Maximum Curve Value",
+                       "",
+                       "Clip curve values above this.",
+                       "" );
 
-    CAF_PDM_InitField(&m_drawPlane, "DrawPlane", DrawPlaneEnum(VERTICAL_ABOVE), "Draw Plane", "", "", "");
-    CAF_PDM_InitField(&m_color, "CurveColor", cvf::Color3f(0.0f, 0.0f, 0.0f), "Curve Color", "", "", "");
-    this->uiCapability()->setUiTreeChildrenHidden(true);
+    CAF_PDM_InitField( &m_drawPlane, "DrawPlane", DrawPlaneEnum( VERTICAL_ABOVE ), "Draw Plane", "", "", "" );
+    CAF_PDM_InitField( &m_color, "CurveColor", cvf::Color3f( 0.0f, 0.0f, 0.0f ), "Curve Color", "", "", "" );
+    this->uiCapability()->setUiTreeChildrenHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Rim3dWellLogCurve::~Rim3dWellLogCurve()
-{
-}
+Rim3dWellLogCurve::~Rim3dWellLogCurve() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::updateCurveIn3dView()
 {
     RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted(proj);
+    this->firstAncestorOrThisOfTypeAsserted( proj );
     proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 
@@ -100,9 +110,9 @@ Rim3dWellLogCurve::DrawPlane Rim3dWellLogCurve::drawPlane() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double Rim3dWellLogCurve::drawPlaneAngle(Rim3dWellLogCurve::DrawPlane drawPlane)
+double Rim3dWellLogCurve::drawPlaneAngle( Rim3dWellLogCurve::DrawPlane drawPlane )
 {
-    switch (drawPlane)
+    switch ( drawPlane )
     {
         case HORIZONTAL_LEFT:
         case HORIZONTAL_CENTER:
@@ -120,7 +130,7 @@ double Rim3dWellLogCurve::drawPlaneAngle(Rim3dWellLogCurve::DrawPlane drawPlane)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f Rim3dWellLogCurve::color() const
 {
@@ -128,7 +138,7 @@ cvf::Color3f Rim3dWellLogCurve::color() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool Rim3dWellLogCurve::isShowingCurve() const
 {
@@ -138,9 +148,11 @@ bool Rim3dWellLogCurve::isShowingCurve() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogCurve::curveValuesAndMdsAtTimeStep(std::vector<double>* values, std::vector<double>* measuredDepthValues, int timeStep) const
+void Rim3dWellLogCurve::curveValuesAndMdsAtTimeStep( std::vector<double>* values,
+                                                     std::vector<double>* measuredDepthValues,
+                                                     int                  timeStep ) const
 {
-    return this->curveValuesAndMds(values, measuredDepthValues);
+    return this->curveValuesAndMds( values, measuredDepthValues );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,29 +165,29 @@ std::pair<double, double> Rim3dWellLogCurve::findCurveValueRange()
 
     std::vector<double> values;
     std::vector<double> measuredDepths;
-    this->curveValuesAndMds(&values, &measuredDepths);
+    this->curveValuesAndMds( &values, &measuredDepths );
 
-    for (double value : values)
+    for ( double value : values )
     {
-        if (RiaCurveDataTools::isValidValue(value, false))
+        if ( RiaCurveDataTools::isValidValue( value, false ) )
         {
-            foundMinValue = std::min(foundMinValue, value);
-            foundMaxValue = std::max(foundMaxValue, value);
+            foundMinValue = std::min( foundMinValue, value );
+            foundMaxValue = std::max( foundMaxValue, value );
         }
     }
-    return std::make_pair(foundMinValue, foundMaxValue);
+    return std::make_pair( foundMinValue, foundMaxValue );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogCurve::setColor(const cvf::Color3f& color)
+void Rim3dWellLogCurve::setColor( const cvf::Color3f& color )
 {
     m_color = color;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 float Rim3dWellLogCurve::minCurveUIValue() const
 {
@@ -183,7 +195,7 @@ float Rim3dWellLogCurve::minCurveUIValue() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 float Rim3dWellLogCurve::maxCurveUIValue() const
 {
@@ -191,7 +203,7 @@ float Rim3dWellLogCurve::maxCurveUIValue() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* Rim3dWellLogCurve::objectToggleField()
 {
@@ -199,13 +211,15 @@ caf::PdmFieldHandle* Rim3dWellLogCurve::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void Rim3dWellLogCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                          const QVariant&            oldValue,
+                                          const QVariant&            newValue )
 {
     RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted(proj);
-    if (changedField == &m_showCurve)
+    this->firstAncestorOrThisOfTypeAsserted( proj );
+    if ( changedField == &m_showCurve )
     {
         proj->reloadCompletionTypeResultsInAllViews();
     }
@@ -216,31 +230,33 @@ void Rim3dWellLogCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogCurve::configurationUiOrdering(caf::PdmUiOrdering& uiOrdering)
+void Rim3dWellLogCurve::configurationUiOrdering( caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* configurationGroup = uiOrdering.addNewGroup("Curve Appearance");
-    configurationGroup->add(&m_drawPlane);
-    configurationGroup->add(&m_color);
-    configurationGroup->add(&m_maxCurveUIValue);
-    configurationGroup->add(&m_minCurveUIValue);
+    caf::PdmUiGroup* configurationGroup = uiOrdering.addNewGroup( "Curve Appearance" );
+    configurationGroup->add( &m_drawPlane );
+    configurationGroup->add( &m_color );
+    configurationGroup->add( &m_maxCurveUIValue );
+    configurationGroup->add( &m_minCurveUIValue );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogCurve::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void Rim3dWellLogCurve::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                               QString                    uiConfigName,
+                                               caf::PdmUiEditorAttribute* attribute )
 {
-    if (m_minCurveDataValue == -std::numeric_limits<float>::infinity() &&
-        m_maxCurveDataValue == std::numeric_limits<float>::infinity())
+    if ( m_minCurveDataValue == -std::numeric_limits<float>::infinity() &&
+         m_maxCurveDataValue == std::numeric_limits<float>::infinity() )
     {
-    	this->resetMinMaxValues();
+        this->resetMinMaxValues();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::initAfterRead()
 {
@@ -248,7 +264,7 @@ void Rim3dWellLogCurve::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::resetMinMaxValuesAndUpdateUI()
 {
@@ -259,14 +275,17 @@ void Rim3dWellLogCurve::resetMinMaxValuesAndUpdateUI()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Rim3dWellLogCurve::findClosestPointOnCurve(const cvf::Vec3d& globalIntersection,
-                                                cvf::Vec3d*       closestPoint,
-                                                double*           measuredDepthAtPoint,
-                                                double*           valueAtPoint) const
+bool Rim3dWellLogCurve::findClosestPointOnCurve( const cvf::Vec3d& globalIntersection,
+                                                 cvf::Vec3d*       closestPoint,
+                                                 double*           measuredDepthAtPoint,
+                                                 double*           valueAtPoint ) const
 {
-    if (m_geometryGenerator.notNull())
+    if ( m_geometryGenerator.notNull() )
     {
-        return m_geometryGenerator->findClosestPointOnCurve(globalIntersection, closestPoint, measuredDepthAtPoint, valueAtPoint);
+        return m_geometryGenerator->findClosestPointOnCurve( globalIntersection,
+                                                             closestPoint,
+                                                             measuredDepthAtPoint,
+                                                             valueAtPoint );
     }
     return false;
 }
@@ -274,7 +293,7 @@ bool Rim3dWellLogCurve::findClosestPointOnCurve(const cvf::Vec3d& globalIntersec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogCurve::setGeometryGenerator(Riv3dWellLogCurveGeometryGenerator* generator)
+void Rim3dWellLogCurve::setGeometryGenerator( Riv3dWellLogCurveGeometryGenerator* generator )
 {
     m_geometryGenerator = generator;
 }
@@ -288,7 +307,7 @@ cvf::ref<Riv3dWellLogCurveGeometryGenerator> Rim3dWellLogCurve::geometryGenerato
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::resetMinMaxValues()
 {
@@ -300,6 +319,6 @@ void Rim3dWellLogCurve::resetMinMaxValues()
     m_minCurveUIValue = m_minCurveDataValue;
     m_maxCurveUIValue = m_maxCurveDataValue;
 
-    m_minCurveUIValue.uiCapability()->setUiName(QString("Minimum Curve Value (%1)").arg(m_minCurveDataValue));
-    m_maxCurveUIValue.uiCapability()->setUiName(QString("Maximum Curve Value (%1)").arg(m_maxCurveDataValue));
+    m_minCurveUIValue.uiCapability()->setUiName( QString( "Minimum Curve Value (%1)" ).arg( m_minCurveDataValue ) );
+    m_maxCurveUIValue.uiCapability()->setUiName( QString( "Maximum Curve Value (%1)" ).arg( m_maxCurveDataValue ) );
 }

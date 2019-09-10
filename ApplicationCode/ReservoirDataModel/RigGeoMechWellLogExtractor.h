@@ -25,7 +25,6 @@
 
 #include "cafTensor3.h"
 
-#include "cvfBase.h"
 #include "cvfMath.h"
 #include "cvfObject.h"
 #include "cvfStructGrid.h"

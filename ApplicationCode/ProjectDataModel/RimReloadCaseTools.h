@@ -28,14 +28,14 @@ class RimReloadCaseTools
 {
 public:
     // Reload all eclipse data, both grid and summary
-    static void reloadAllEclipseData(RimEclipseCase* eclipseCase);
-    
+    static void reloadAllEclipseData( RimEclipseCase* eclipseCase );
+
     // Reload grid data, but not summary
-    static void reloadAllEclipseGridData(RimEclipseCase* eclipseCase);
+    static void reloadAllEclipseGridData( RimEclipseCase* eclipseCase );
 
 private:
-    static void reloadAllEclipseData(RimEclipseCase* eclipseCase, bool reloadSummaryData);
-    static void clearAllGridData(RigEclipseCaseData* eclipseCaseData);
-    static void updateAll3dViews(RimEclipseCase* eclipseCase);
+    static void reloadAllEclipseData( RimEclipseCase* eclipseCase, bool reloadSummaryData );
+    static void clearAllGridData( RigEclipseCaseData* eclipseCaseData );
+    static void updateAll3dViews( RimEclipseCase* eclipseCase );
     static void updateAllPlots();
 };

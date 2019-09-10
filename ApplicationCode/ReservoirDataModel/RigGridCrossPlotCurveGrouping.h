@@ -24,4 +24,3 @@ enum RigGridCrossPlotCurveGrouping
     GROUP_BY_FORMATION,
     GROUP_BY_RESULT
 };
-

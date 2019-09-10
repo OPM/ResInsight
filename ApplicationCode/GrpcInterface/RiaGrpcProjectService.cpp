@@ -27,46 +27,48 @@ using namespace rips;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Status RiaGrpcProjectService::GetCurrentCase(ServerContext* context, const rips::Empty* request, rips::CaseRequest* reply)
+Status RiaGrpcProjectService::GetCurrentCase( ServerContext* context, const rips::Empty* request, rips::CaseRequest* reply )
 {
     RimGridView* view = RiaApplication::instance()->activeGridView();
-    if (view)
+    if ( view )
     {
         RimCase* currentCase = view->ownerCase();
-        if (currentCase)
+        if ( currentCase )
         {
-            reply->set_id(currentCase->caseId());
+            reply->set_id( currentCase->caseId() );
             return Status::OK;
         }
     }
-    return Status(grpc::NOT_FOUND, "No current case found");
+    return Status( grpc::NOT_FOUND, "No current case found" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Status RiaGrpcProjectService::GetSelectedCases(ServerContext* context, const rips::Empty* request, rips::CaseInfoArray* reply)
+Status RiaGrpcProjectService::GetSelectedCases( ServerContext*       context,
+                                                const rips::Empty*   request,
+                                                rips::CaseInfoArray* reply )
 {
     std::vector<RimCase*> cases;
-    caf::SelectionManager::instance()->objectsByType(&cases);
+    caf::SelectionManager::instance()->objectsByType( &cases );
 
-    if (cases.empty())
+    if ( cases.empty() )
     {
-        return Status(grpc::NOT_FOUND, "No cases selected");
+        return Status( grpc::NOT_FOUND, "No cases selected" );
     }
 
-    for (RimCase* rimCase : cases)
+    for ( RimCase* rimCase : cases )
     {
         qint64  caseId      = rimCase->caseId();
         qint64  caseGroupId = -1;
         QString caseName, caseType;
-        RiaSocketTools::getCaseInfoFromCase(rimCase, caseId, caseName, caseType, caseGroupId);
+        RiaSocketTools::getCaseInfoFromCase( rimCase, caseId, caseName, caseType, caseGroupId );
 
         rips::CaseInfo* caseInfo = reply->add_data();
-        caseInfo->set_id(caseId);
-        caseInfo->set_group_id(caseGroupId);
-        caseInfo->set_name(caseName.toStdString());
-        caseInfo->set_type(caseType.toStdString());
+        caseInfo->set_id( caseId );
+        caseInfo->set_group_id( caseGroupId );
+        caseInfo->set_name( caseName.toStdString() );
+        caseInfo->set_type( caseType.toStdString() );
     }
     return Status::OK;
 }
@@ -74,50 +76,54 @@ Status RiaGrpcProjectService::GetSelectedCases(ServerContext* context, const rip
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status
-    RiaGrpcProjectService::GetAllCaseGroups(grpc::ServerContext* context, const rips::Empty* request, rips::CaseGroups* reply)
+grpc::Status RiaGrpcProjectService::GetAllCaseGroups( grpc::ServerContext* context,
+                                                      const rips::Empty*   request,
+                                                      rips::CaseGroups*    reply )
 {
-    RimProject*               proj = RiaApplication::instance()->project();
-    RimEclipseCaseCollection* analysisModels =
-        (proj && proj->activeOilField()) ? proj->activeOilField()->analysisModels() : nullptr;
-    if (analysisModels)
+    RimProject*               proj           = RiaApplication::instance()->project();
+    RimEclipseCaseCollection* analysisModels = ( proj && proj->activeOilField() )
+                                                   ? proj->activeOilField()->analysisModels()
+                                                   : nullptr;
+    if ( analysisModels )
     {
-        for (RimIdenticalGridCaseGroup* cg : analysisModels->caseGroups())
+        for ( RimIdenticalGridCaseGroup* cg : analysisModels->caseGroups() )
         {
             rips::CaseGroup* caseGroup = reply->add_case_groups();
-            caseGroup->set_id(cg->groupId());
-            caseGroup->set_name(cg->name().toStdString());
+            caseGroup->set_id( cg->groupId() );
+            caseGroup->set_name( cg->name().toStdString() );
         }
         return Status::OK;
     }
-    return Status(grpc::NOT_FOUND, "No case groups found");
+    return Status( grpc::NOT_FOUND, "No case groups found" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcProjectService::GetAllCases(grpc::ServerContext* context, const rips::Empty* request, rips::CaseInfoArray* reply)
+grpc::Status RiaGrpcProjectService::GetAllCases( grpc::ServerContext* context,
+                                                 const rips::Empty*   request,
+                                                 rips::CaseInfoArray* reply )
 {
     std::vector<RimCase*> cases;
-    RiaApplication::instance()->project()->allCases(cases);
+    RiaApplication::instance()->project()->allCases( cases );
 
-    if (cases.empty())
+    if ( cases.empty() )
     {
-        return Status(grpc::NOT_FOUND, "No cases found");
+        return Status( grpc::NOT_FOUND, "No cases found" );
     }
 
-    for (RimCase* rimCase : cases)
+    for ( RimCase* rimCase : cases )
     {
         qint64  caseId      = rimCase->caseId();
         qint64  caseGroupId = -1;
         QString caseName, caseType;
-        RiaSocketTools::getCaseInfoFromCase(rimCase, caseId, caseName, caseType, caseGroupId);
+        RiaSocketTools::getCaseInfoFromCase( rimCase, caseId, caseName, caseType, caseGroupId );
 
         rips::CaseInfo* caseInfo = reply->add_data();
-        caseInfo->set_id(caseId);
-        caseInfo->set_group_id(caseGroupId);
-        caseInfo->set_name(caseName.toStdString());
-        caseInfo->set_type(caseType.toStdString());
+        caseInfo->set_id( caseId );
+        caseInfo->set_group_id( caseGroupId );
+        caseInfo->set_name( caseName.toStdString() );
+        caseInfo->set_type( caseType.toStdString() );
     }
     return Status::OK;
 }
@@ -125,69 +131,73 @@ grpc::Status RiaGrpcProjectService::GetAllCases(grpc::ServerContext* context, co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status
-    RiaGrpcProjectService::GetCasesInGroup(grpc::ServerContext* context, const rips::CaseGroup* request, rips::CaseInfoArray* reply)
+grpc::Status RiaGrpcProjectService::GetCasesInGroup( grpc::ServerContext*   context,
+                                                     const rips::CaseGroup* request,
+                                                     rips::CaseInfoArray*   reply )
 {
-    RimProject*               proj = RiaApplication::instance()->project();
-    RimEclipseCaseCollection* analysisModels =
-        (proj && proj->activeOilField()) ? proj->activeOilField()->analysisModels() : nullptr;
-    if (analysisModels)
+    RimProject*               proj           = RiaApplication::instance()->project();
+    RimEclipseCaseCollection* analysisModels = ( proj && proj->activeOilField() )
+                                                   ? proj->activeOilField()->analysisModels()
+                                                   : nullptr;
+    if ( analysisModels )
     {
         int                        groupId   = request->id();
         RimIdenticalGridCaseGroup* caseGroup = nullptr;
 
-        for (size_t i = 0; i < analysisModels->caseGroups().size(); i++)
+        for ( size_t i = 0; i < analysisModels->caseGroups().size(); i++ )
         {
             RimIdenticalGridCaseGroup* cg = analysisModels->caseGroups()[i];
 
-            if (groupId == cg->groupId())
+            if ( groupId == cg->groupId() )
             {
                 caseGroup = cg;
             }
         }
 
         std::vector<RimCase*> cases;
-        if (caseGroup)
+        if ( caseGroup )
         {
-            for (size_t i = 0; i < caseGroup->statisticsCaseCollection()->reservoirs.size(); i++)
+            for ( size_t i = 0; i < caseGroup->statisticsCaseCollection()->reservoirs.size(); i++ )
             {
-                cases.push_back(caseGroup->statisticsCaseCollection()->reservoirs[i]);
+                cases.push_back( caseGroup->statisticsCaseCollection()->reservoirs[i] );
             }
 
-            for (size_t i = 0; i < caseGroup->caseCollection()->reservoirs.size(); i++)
+            for ( size_t i = 0; i < caseGroup->caseCollection()->reservoirs.size(); i++ )
             {
-                cases.push_back(caseGroup->caseCollection()->reservoirs[i]);
+                cases.push_back( caseGroup->caseCollection()->reservoirs[i] );
             }
         }
-        if (!cases.empty())
+        if ( !cases.empty() )
         {
-            for (RimCase* rimCase : cases)
+            for ( RimCase* rimCase : cases )
             {
                 qint64  caseId      = rimCase->caseId();
                 qint64  caseGroupId = -1;
                 QString caseName, caseType;
-                RiaSocketTools::getCaseInfoFromCase(rimCase, caseId, caseName, caseType, caseGroupId);
+                RiaSocketTools::getCaseInfoFromCase( rimCase, caseId, caseName, caseType, caseGroupId );
 
                 rips::CaseInfo* caseInfo = reply->add_data();
-                caseInfo->set_id(caseId);
-                caseInfo->set_group_id(caseGroupId);
-                caseInfo->set_name(caseName.toStdString());
-                caseInfo->set_type(caseType.toStdString());
+                caseInfo->set_id( caseId );
+                caseInfo->set_group_id( caseGroupId );
+                caseInfo->set_name( caseName.toStdString() );
+                caseInfo->set_type( caseType.toStdString() );
             }
         }
     }
-    return Status(grpc::NOT_FOUND, "No cases found");
+    return Status( grpc::NOT_FOUND, "No cases found" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcProjectService::GetPdmObject(grpc::ServerContext* context, const rips::Empty* request, rips::PdmObject* reply)
+grpc::Status RiaGrpcProjectService::GetPdmObject( grpc::ServerContext* context,
+                                                  const rips::Empty*   request,
+                                                  rips::PdmObject*     reply )
 {
     RimProject* project = RiaApplication::instance()->project();
-    if (project)
+    if ( project )
     {
-        copyPdmObjectFromCafToRips(project, reply);
+        copyPdmObjectFromCafToRips( project, reply );
     }
     return grpc::Status::OK;
 }
@@ -199,14 +209,19 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcProjectService::createCallbacks()
 {
     typedef RiaGrpcProjectService Self;
 
-    return {
-        new RiaGrpcUnaryCallback<Self, Empty, CaseRequest>(this, &Self::GetCurrentCase, &Self::RequestGetCurrentCase),
-        new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>(this, &Self::GetSelectedCases, &Self::RequestGetSelectedCases),
-        new RiaGrpcUnaryCallback<Self, Empty, CaseGroups>(this, &Self::GetAllCaseGroups, &Self::RequestGetAllCaseGroups),
-        new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>(this, &Self::GetAllCases, &Self::RequestGetAllCases),
-        new RiaGrpcUnaryCallback<Self, CaseGroup, CaseInfoArray>(this, &Self::GetCasesInGroup, &Self::RequestGetCasesInGroup),
-        new RiaGrpcUnaryCallback<Self, Empty, PdmObject>(this, &Self::GetPdmObject, &Self::RequestGetPdmObject) };
+    return {new RiaGrpcUnaryCallback<Self, Empty, CaseRequest>( this, &Self::GetCurrentCase, &Self::RequestGetCurrentCase ),
+            new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>( this,
+                                                                  &Self::GetSelectedCases,
+                                                                  &Self::RequestGetSelectedCases ),
+            new RiaGrpcUnaryCallback<Self, Empty, CaseGroups>( this,
+                                                               &Self::GetAllCaseGroups,
+                                                               &Self::RequestGetAllCaseGroups ),
+            new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>( this, &Self::GetAllCases, &Self::RequestGetAllCases ),
+            new RiaGrpcUnaryCallback<Self, CaseGroup, CaseInfoArray>( this,
+                                                                      &Self::GetCasesInGroup,
+                                                                      &Self::RequestGetCasesInGroup ),
+            new RiaGrpcUnaryCallback<Self, Empty, PdmObject>( this, &Self::GetPdmObject, &Self::RequestGetPdmObject )};
 }
 
-static bool RiaGrpcProjectService_init =
-    RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcProjectService>(typeid(RiaGrpcProjectService).hash_code());
+static bool RiaGrpcProjectService_init = RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcProjectService>(
+    typeid( RiaGrpcProjectService ).hash_code() );

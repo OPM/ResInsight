@@ -18,17 +18,15 @@
 
 #pragma once
 
-#include "cvfBase.h"
 #include "cvfVector3.h"
 
 class RiaSCurveCalculator
 {
 public:
-    RiaSCurveCalculator( cvf::Vec3d p1, double azi1, double inc1, double r1,
-                         cvf::Vec3d p2, double azi2, double inc2, double r2 );
+    RiaSCurveCalculator(
+        cvf::Vec3d p1, double azi1, double inc1, double r1, cvf::Vec3d p2, double azi2, double inc2, double r2 );
 
-    RiaSCurveCalculator( cvf::Vec3d p1, cvf::Vec3d q1,
-                         cvf::Vec3d p2, cvf::Vec3d q2 );
+    RiaSCurveCalculator( cvf::Vec3d p1, cvf::Vec3d q1, cvf::Vec3d p2, cvf::Vec3d q2 );
 
     enum CurveStatus
     {
@@ -40,38 +38,75 @@ public:
         FAILED_INPUT_OVERLAP,
         FAILED_ARC_OVERLAP
     };
-    enum SolveStatus 
+    enum SolveStatus
     {
         NOT_SOLVED,
-        CONVERGED, 
+        CONVERGED,
         FAILED_MAX_LENGTH_ALONG_TANGENT_REACHED,
         FAILED_MAX_TANGENT_STEP_REACHED,
         FAILED_MAX_ITERATIONS_REACHED
     };
 
-    bool       isOk()                const { return m_isCalculationOK;     }
-    CurveStatus curveStatus()        const { return m_ctrlPpointCurveStatus;}
-    SolveStatus solveStatus()        const { return m_solveStatus;}
+    bool isOk() const
+    {
+        return m_isCalculationOK;
+    }
+    CurveStatus curveStatus() const
+    {
+        return m_ctrlPpointCurveStatus;
+    }
+    SolveStatus solveStatus() const
+    {
+        return m_solveStatus;
+    }
 
-    cvf::Vec3d firstArcEndpoint()    const { return m_firstArcEndpoint;    }
-    cvf::Vec3d secondArcStartpoint() const { return m_secondArcStartpoint; }
-    cvf::Vec3d firstCenter()         const { return m_c1;                  }
-    cvf::Vec3d secondCenter()        const { return m_c2;                  }
-    cvf::Vec3d firstNormal()         const { return m_n1;                  }
-    cvf::Vec3d secondNormal()        const { return m_n2;                  }
-    double     firstRadius()         const { return m_r1;                  }
-    double     secondRadius()        const { return m_r2;                  }
+    cvf::Vec3d firstArcEndpoint() const
+    {
+        return m_firstArcEndpoint;
+    }
+    cvf::Vec3d secondArcStartpoint() const
+    {
+        return m_secondArcStartpoint;
+    }
+    cvf::Vec3d firstCenter() const
+    {
+        return m_c1;
+    }
+    cvf::Vec3d secondCenter() const
+    {
+        return m_c2;
+    }
+    cvf::Vec3d firstNormal() const
+    {
+        return m_n1;
+    }
+    cvf::Vec3d secondNormal() const
+    {
+        return m_n2;
+    }
+    double firstRadius() const
+    {
+        return m_r1;
+    }
+    double secondRadius() const
+    {
+        return m_r2;
+    }
 
     void dump() const;
 
-
-    static RiaSCurveCalculator fromTangentsAndLength(cvf::Vec3d p1, double azi1, double inc1, double lengthToQ1,
-                                                     cvf::Vec3d p2, double azi2, double inc2, double lengthToQ2 );
+    static RiaSCurveCalculator fromTangentsAndLength( cvf::Vec3d p1,
+                                                      double     azi1,
+                                                      double     inc1,
+                                                      double     lengthToQ1,
+                                                      cvf::Vec3d p2,
+                                                      double     azi2,
+                                                      double     inc2,
+                                                      double     lengthToQ2 );
 
 private:
-    void initializeByFinding_q1q2( cvf::Vec3d p1, double azi1, double inc1, double r1,
-                                      cvf::Vec3d p2, double azi2, double inc2, double r2 );
-
+    void initializeByFinding_q1q2(
+        cvf::Vec3d p1, double azi1, double inc1, double r1, cvf::Vec3d p2, double azi2, double inc2, double r2 );
 
     bool m_isCalculationOK;
 
@@ -86,6 +121,6 @@ private:
     cvf::Vec3d m_c2;
     cvf::Vec3d m_n1;
     cvf::Vec3d m_n2;
-    double     m_r1; 
+    double     m_r1;
     double     m_r2;
 };

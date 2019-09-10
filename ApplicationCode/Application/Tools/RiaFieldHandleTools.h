@@ -30,5 +30,5 @@ class PdmFieldHandle;
 class RiaFieldhandleTools
 {
 public:
-    static void disableWriteAndSetFieldHidden(caf::PdmFieldHandle* fieldHandle);
+    static void disableWriteAndSetFieldHidden( caf::PdmFieldHandle* fieldHandle );
 };

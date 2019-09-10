@@ -24,10 +24,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivSourceInfo::RivSourceInfo(caf::PdmObject* pdmObject, size_t gridIndex)
-    : RivObjectSourceInfo(pdmObject)
-    , m_gridIndex(gridIndex)
-    , m_cellSetType(ALL_CELLS)
+RivSourceInfo::RivSourceInfo( caf::PdmObject* pdmObject, size_t gridIndex )
+    : RivObjectSourceInfo( pdmObject )
+    , m_gridIndex( gridIndex )
+    , m_cellSetType( ALL_CELLS )
 {
 }
 
@@ -66,7 +66,7 @@ RivCellSetEnum RivSourceInfo::cellSetType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivSourceInfo::setCellSetType(RivCellSetEnum cellSetEnum)
+void RivSourceInfo::setCellSetType( RivCellSetEnum cellSetEnum )
 {
     m_cellSetType = cellSetEnum;
 }

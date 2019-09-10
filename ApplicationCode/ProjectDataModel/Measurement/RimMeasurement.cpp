@@ -27,18 +27,18 @@
 #include "RiuMeasurementEventFilter.h"
 #include "RiuViewerCommands.h"
 
-#include "cvfGeometryTools.h"
 #include "RiuMainWindow.h"
+#include "cvfGeometryTools.h"
 
-CAF_PDM_SOURCE_INIT(RimMeasurement, "RimMeasurement");
+CAF_PDM_SOURCE_INIT( RimMeasurement, "RimMeasurement" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimMeasurement::RimMeasurement()
-    : m_measurementMode(MEASURE_DISABLED)
+    : m_measurementMode( MEASURE_DISABLED )
 {
-    CAF_PDM_InitObject("Measurement", ":/TextAnnotation16x16.png", "", "");
+    CAF_PDM_InitObject( "Measurement", ":/TextAnnotation16x16.png", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,15 +49,15 @@ RimMeasurement::~RimMeasurement() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMeasurement::setMeasurementMode(MeasurementMode measurementMode)
+void RimMeasurement::setMeasurementMode( MeasurementMode measurementMode )
 {
     m_measurementMode = measurementMode;
 
-    if (m_measurementMode != MEASURE_DISABLED)
+    if ( m_measurementMode != MEASURE_DISABLED )
     {
         RicMeasurementPickEventHandler::instance()->registerAsPickEventHandler();
-        RicMeasurementPickEventHandler::instance()->enablePolyLineMode(m_measurementMode == MEASURE_POLYLINE);
-        m_eventFilter = new RiuMeasurementEventFilter(this);
+        RicMeasurementPickEventHandler::instance()->enablePolyLineMode( m_measurementMode == MEASURE_POLYLINE );
+        m_eventFilter = new RiuMeasurementEventFilter( this );
         m_eventFilter->registerFilter();
     }
     else
@@ -65,7 +65,7 @@ void RimMeasurement::setMeasurementMode(MeasurementMode measurementMode)
         RicMeasurementPickEventHandler::instance()->unregisterAsPickEventHandler();
         removeAllPoints();
 
-        if (m_eventFilter)
+        if ( m_eventFilter )
         {
             m_eventFilter->unregisterFilter();
             m_eventFilter->deleteLater();
@@ -87,16 +87,16 @@ RimMeasurement::MeasurementMode RimMeasurement::measurementMode() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMeasurement::addPointInDomainCoords(const Vec3d& domainCoord)
+void RimMeasurement::addPointInDomainCoords( const Vec3d& domainCoord )
 {
     auto activeView = RiaApplication::instance()->activeReservoirView();
 
-    if (m_sourceView.p() != activeView)
+    if ( m_sourceView.p() != activeView )
     {
         removeAllPoints();
     }
 
-    m_pointsInDomainCoords.push_back(domainCoord);
+    m_pointsInDomainCoords.push_back( domainCoord );
     m_sourceView = activeView;
 
     updateView();
@@ -128,23 +128,23 @@ QString RimMeasurement::label() const
 
     QString text;
 
-    if (m_pointsInDomainCoords.size() > 2)
+    if ( m_pointsInDomainCoords.size() > 2 )
     {
-        text = QString("Segment Length: %1\nSegment Horizontal Length: %2\n")
-                   .arg(lengths.lastSegmentLength)
-                   .arg(lengths.lastSegmentHorisontalLength);
+        text = QString( "Segment Length: %1\nSegment Horizontal Length: %2\n" )
+                   .arg( lengths.lastSegmentLength )
+                   .arg( lengths.lastSegmentHorisontalLength );
 
-        text += QString("Total Length: %1\nTotal Horizontal Length: %2\n")
-                    .arg(lengths.totalLength)
-                    .arg(lengths.totalHorizontalLength);
+        text += QString( "Total Length: %1\nTotal Horizontal Length: %2\n" )
+                    .arg( lengths.totalLength )
+                    .arg( lengths.totalHorizontalLength );
 
-        text += QString("\nHorizontal Area : %1").arg(lengths.area);
+        text += QString( "\nHorizontal Area : %1" ).arg( lengths.area );
     }
     else
     {
-        text = QString("Length: %1\nHorizontal Length: %2\n")
-                   .arg(lengths.lastSegmentLength)
-                   .arg(lengths.lastSegmentHorisontalLength);
+        text = QString( "Length: %1\nHorizontal Length: %2\n" )
+                   .arg( lengths.lastSegmentLength )
+                   .arg( lengths.lastSegmentHorisontalLength );
     }
 
     return text;
@@ -157,16 +157,16 @@ RimMeasurement::Lengths RimMeasurement::calculateLenghts() const
 {
     Lengths lengths;
 
-    for (size_t p = 1; p < m_pointsInDomainCoords.size(); p++)
+    for ( size_t p = 1; p < m_pointsInDomainCoords.size(); p++ )
     {
         const auto& p0 = m_pointsInDomainCoords[p - 1];
         const auto& p1 = m_pointsInDomainCoords[p];
 
-        lengths.lastSegmentLength = (p1 - p0).length();
+        lengths.lastSegmentLength = ( p1 - p0 ).length();
 
-        const auto& p1_horiz = cvf::Vec3d(p1.x(), p1.y(), p0.z());
+        const auto& p1_horiz = cvf::Vec3d( p1.x(), p1.y(), p0.z() );
 
-        lengths.lastSegmentHorisontalLength = (p1_horiz - p0).length();
+        lengths.lastSegmentHorisontalLength = ( p1_horiz - p0 ).length();
 
         lengths.totalLength += lengths.lastSegmentLength;
         lengths.totalHorizontalLength += lengths.lastSegmentHorisontalLength;
@@ -174,16 +174,16 @@ RimMeasurement::Lengths RimMeasurement::calculateLenghts() const
 
     {
         std::vector<Vec3d> pointsProjectedInZPlane;
-        for (const auto& p : m_pointsInDomainCoords)
+        for ( const auto& p : m_pointsInDomainCoords )
         {
             auto pointInZ = p;
             pointInZ.z()  = 0.0;
-            pointsProjectedInZPlane.push_back(pointInZ);
+            pointsProjectedInZPlane.push_back( pointInZ );
         }
 
-        Vec3d area = cvf::GeometryTools::polygonAreaNormal3D(pointsProjectedInZPlane);
+        Vec3d area = cvf::GeometryTools::polygonAreaNormal3D( pointsProjectedInZPlane );
 
-        lengths.area = cvf::Math::abs(area.z());
+        lengths.area = cvf::Math::abs( area.z() );
     }
 
     return lengths;
@@ -194,7 +194,7 @@ RimMeasurement::Lengths RimMeasurement::calculateLenghts() const
 //--------------------------------------------------------------------------------------------------
 void RimMeasurement::updateView() const
 {
-    if (m_sourceView)
+    if ( m_sourceView )
     {
         m_sourceView->updateMeasurement();
     }

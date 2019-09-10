@@ -28,7 +28,7 @@ namespace rips
 {
 class CaseRequest;
 class PdmObject;
-}
+} // namespace rips
 
 class RiaGrpcCallbackInterface;
 class RigCell;
@@ -43,23 +43,24 @@ class RimEclipseCase;
 class RiaActiveCellInfoStateHandler
 {
     typedef grpc::Status Status;
+
 public:
     RiaActiveCellInfoStateHandler();
 
-    Status init(const rips::CellInfoRequest* request);
-    Status assignNextActiveCellInfoData(rips::CellInfo* cellInfo);
-    void   assignCellInfoData(rips::CellInfo* cellInfo, const std::vector<RigCell>& reservoirCells, size_t cellIdx);
-    Status assignReply(rips::CellInfoArray* reply);
+    Status init( const rips::CellInfoRequest* request );
+    Status assignNextActiveCellInfoData( rips::CellInfo* cellInfo );
+    void   assignCellInfoData( rips::CellInfo* cellInfo, const std::vector<RigCell>& reservoirCells, size_t cellIdx );
+    Status assignReply( rips::CellInfoArray* reply );
     RigActiveCellInfo*          activeCellInfo() const;
     const std::vector<RigCell>& reservoirCells() const;
 
 protected:
-    const rips::CellInfoRequest* m_request;
-    RimEclipseCase*                    m_eclipseCase;
-    RiaDefines::PorosityModelType      m_porosityModel;
-    RigActiveCellInfo*                 m_activeCellInfo;
-    std::vector<size_t>                m_globalCoarseningBoxIndexStart;
-    size_t                             m_currentCellIdx;
+    const rips::CellInfoRequest*  m_request;
+    RimEclipseCase*               m_eclipseCase;
+    RiaDefines::PorosityModelType m_porosityModel;
+    RigActiveCellInfo*            m_activeCellInfo;
+    std::vector<size_t>           m_globalCoarseningBoxIndexStart;
+    size_t                        m_currentCellIdx;
 };
 
 //==================================================================================================
@@ -70,15 +71,24 @@ protected:
 class RiaGrpcCaseService final : public rips::Case::AsyncService, public RiaGrpcServiceInterface
 {
 public:
-    grpc::Status GetGridCount(grpc::ServerContext* context, const rips::CaseRequest* request, rips::GridCount* reply) override;    
-    grpc::Status GetCellCount(grpc::ServerContext* context, const rips::CellInfoRequest* request, rips::CellCount* reply) override;
-    grpc::Status GetTimeSteps(grpc::ServerContext* context, const rips::CaseRequest* request, rips::TimeStepDates* reply) override;
-    grpc::Status GetDaysSinceStart(grpc::ServerContext* context, const rips::CaseRequest* request, rips::DaysSinceStart* reply) override;
-    grpc::Status GetCaseInfo(grpc::ServerContext* context, const rips::CaseRequest* request, rips::CaseInfo* reply) override;
-    grpc::Status GetPdmObject(grpc::ServerContext* context, const rips::CaseRequest* request, rips::PdmObject* reply) override;
-    grpc::Status GetCellInfoForActiveCells(grpc::ServerContext*               context,
-                                           const rips::CellInfoRequest* request,
-                                           rips::CellInfoArray*         reply,
-                                           RiaActiveCellInfoStateHandler*     stateHandler);    
+    grpc::Status
+                 GetGridCount( grpc::ServerContext* context, const rips::CaseRequest* request, rips::GridCount* reply ) override;
+    grpc::Status GetCellCount( grpc::ServerContext*         context,
+                               const rips::CellInfoRequest* request,
+                               rips::CellCount*             reply ) override;
+    grpc::Status GetTimeSteps( grpc::ServerContext*     context,
+                               const rips::CaseRequest* request,
+                               rips::TimeStepDates*     reply ) override;
+    grpc::Status GetDaysSinceStart( grpc::ServerContext*     context,
+                                    const rips::CaseRequest* request,
+                                    rips::DaysSinceStart*    reply ) override;
+    grpc::Status
+        GetCaseInfo( grpc::ServerContext* context, const rips::CaseRequest* request, rips::CaseInfo* reply ) override;
+    grpc::Status
+                                           GetPdmObject( grpc::ServerContext* context, const rips::CaseRequest* request, rips::PdmObject* reply ) override;
+    grpc::Status                           GetCellInfoForActiveCells( grpc::ServerContext*           context,
+                                                                      const rips::CellInfoRequest*   request,
+                                                                      rips::CellInfoArray*           reply,
+                                                                      RiaActiveCellInfoStateHandler* stateHandler );
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 };

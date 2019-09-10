@@ -19,31 +19,31 @@
 #include "RimWellLogPlotNameConfig.h"
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT(RimWellLogPlotNameConfig, "RimWellLogPlotNameConfig");
+CAF_PDM_SOURCE_INIT( RimWellLogPlotNameConfig, "RimWellLogPlotNameConfig" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotNameConfig::RimWellLogPlotNameConfig(const RimNameConfigHolderInterface* configHolder)
-    : RimNameConfig(configHolder)
+RimWellLogPlotNameConfig::RimWellLogPlotNameConfig()
+    : RimNameConfig()
 {
-    CAF_PDM_InitObject("Well Log Plot Name Generator", "", "", "");
+    CAF_PDM_InitObject( "Well Log Plot Name Generator", "", "", "" );
 
-    CAF_PDM_InitField(&m_addCaseName,   "AddCaseName",   false, "Add Case Name",   "", "", "");
-    CAF_PDM_InitField(&m_addWellName,   "AddWellName",   false, "Add Well Name",   "", "", "");
-    CAF_PDM_InitField(&m_addTimestep,   "AddTimeStep",   false, "Add Time Step",   "", "", "");
-    CAF_PDM_InitField(&m_addAirGap,     "AddAirGap",     false, "Add Air Gap",     "", "", "");
-    CAF_PDM_InitField(&m_addWaterDepth, "AddWaterDepth", false, "Add Water Depth", "", "", "");
+    CAF_PDM_InitField( &m_addCaseName, "AddCaseName", false, "Add Case Name", "", "", "" );
+    CAF_PDM_InitField( &m_addWellName, "AddWellName", false, "Add Well Name", "", "", "" );
+    CAF_PDM_InitField( &m_addTimestep, "AddTimeStep", false, "Add Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_addAirGap, "AddAirGap", false, "Add Air Gap", "", "", "" );
+    CAF_PDM_InitField( &m_addWaterDepth, "AddWaterDepth", false, "Add Water Depth", "", "", "" );
 
     m_customName = "Well Log Plot";
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogPlotNameConfig::addCaseName() const
 {
@@ -51,7 +51,7 @@ bool RimWellLogPlotNameConfig::addCaseName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogPlotNameConfig::addWellName() const
 {
@@ -59,7 +59,7 @@ bool RimWellLogPlotNameConfig::addWellName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogPlotNameConfig::addTimeStep() const
 {
@@ -85,7 +85,7 @@ bool RimWellLogPlotNameConfig::addWaterDepth() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotNameConfig::enableAllAutoNameTags(bool enable)
+void RimWellLogPlotNameConfig::enableAllAutoNameTags( bool enable )
 {
     m_addCaseName   = enable;
     m_addWellName   = enable;
@@ -97,13 +97,12 @@ void RimWellLogPlotNameConfig::enableAllAutoNameTags(bool enable)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotNameConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimWellLogPlotNameConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimNameConfig::defineUiOrdering(uiConfigName, uiOrdering);
-    uiOrdering.add(&m_addCaseName);
-    uiOrdering.add(&m_addWellName);
-    uiOrdering.add(&m_addTimestep);
-    uiOrdering.add(&m_addAirGap);
-    uiOrdering.add(&m_addWaterDepth);
+    RimNameConfig::defineUiOrdering( uiConfigName, uiOrdering );
+    uiOrdering.add( &m_addCaseName );
+    uiOrdering.add( &m_addWellName );
+    uiOrdering.add( &m_addTimestep );
+    uiOrdering.add( &m_addAirGap );
+    uiOrdering.add( &m_addWaterDepth );
 }
-

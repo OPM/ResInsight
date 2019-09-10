@@ -28,15 +28,15 @@
 class RigEquil
 {
 public:
-    explicit RigEquil(double datumDepth,
-                      double datuDepthPressure,
-                      double waterOilContactDepth,
-                      double waterOilContactCapillaryPressure,
-                      double gasOilContactDepth,
-                      double gasOilContactCapillaryPressure,
-                      bool   liveOilInitConstantRs,
-                      bool   wetGasInitConstantRv,
-                      int    initializationTargetAccuracy);
+    explicit RigEquil( double datumDepth,
+                       double datuDepthPressure,
+                       double waterOilContactDepth,
+                       double waterOilContactCapillaryPressure,
+                       double gasOilContactDepth,
+                       double gasOilContactCapillaryPressure,
+                       bool   liveOilInitConstantRs,
+                       bool   wetGasInitConstantRv,
+                       int    initializationTargetAccuracy );
 
     double datumDepth() const;
     double datumDepthPressure() const;
@@ -50,7 +50,7 @@ public:
     int  initializationTargetAccuracy() const;
 
     static RigEquil defaultObject();
-    static RigEquil parseString(const QString& keywordData);
+    static RigEquil parseString( const QString& keywordData );
 
 private:
     double datum_depth;

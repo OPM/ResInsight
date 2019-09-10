@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "cvfBase.h"
 #include "cvfMatrix4.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
@@ -37,11 +36,11 @@ class ScalarMapper;
 //--------------------------------------------------------------------------------------------------
 struct CompletionVizData
 {
-    CompletionVizData(const cvf::Vec3d& anchor, const cvf::Vec3d& direction, double connectionFactor, size_t globalCellIndex)
-        : m_anchor(anchor)
-        , m_direction(direction)
-        , m_connectionFactor(connectionFactor)
-        , m_globalCellIndex(globalCellIndex)
+    CompletionVizData( const cvf::Vec3d& anchor, const cvf::Vec3d& direction, double connectionFactor, size_t globalCellIndex )
+        : m_anchor( anchor )
+        , m_direction( direction )
+        , m_connectionFactor( connectionFactor )
+        , m_globalCellIndex( globalCellIndex )
     {
     }
 
@@ -57,26 +56,28 @@ struct CompletionVizData
 class RivWellConnectionFactorGeometryGenerator : public cvf::Object
 {
 public:
-    RivWellConnectionFactorGeometryGenerator(std::vector<CompletionVizData>& completionVizData, float radius);
+    RivWellConnectionFactorGeometryGenerator( std::vector<CompletionVizData>& completionVizData, float radius );
     ~RivWellConnectionFactorGeometryGenerator() override;
 
-    cvf::ref<cvf::Part> createSurfacePart(const cvf::ScalarMapper* scalarMapper, bool disableLighting);
+    cvf::ref<cvf::Part> createSurfacePart( const cvf::ScalarMapper* scalarMapper, bool disableLighting );
 
-    double connectionFactor(cvf::uint triangleIndex) const;
-    size_t globalCellIndexFromTriangleIndex(cvf::uint triangleIndex) const;
+    double connectionFactor( cvf::uint triangleIndex ) const;
+    size_t globalCellIndexFromTriangleIndex( cvf::uint triangleIndex ) const;
 
 private:
-    size_t mapFromTriangleToConnectionIndex(cvf::uint triangleIndex) const;
+    size_t                     mapFromTriangleToConnectionIndex( cvf::uint triangleIndex ) const;
     cvf::ref<cvf::DrawableGeo> createSurfaceGeometry();
 
-    static cvf::Mat4f rotationMatrixBetweenVectors(const cvf::Vec3d& v1, const cvf::Vec3d& v2);
-    static void
-        createStarGeometry(std::vector<cvf::Vec3f>* vertices, std::vector<cvf::uint>* indices, float radius, float thickness);
+    static cvf::Mat4f rotationMatrixBetweenVectors( const cvf::Vec3d& v1, const cvf::Vec3d& v2 );
+    static void       createStarGeometry( std::vector<cvf::Vec3f>* vertices,
+                                          std::vector<cvf::uint>*  indices,
+                                          float                    radius,
+                                          float                    thickness );
 
-    static void createSimplifiedStarGeometry(std::vector<cvf::Vec3f>* vertices,
-                                             std::vector<cvf::uint>*  indices,
-                                             float                    radius,
-                                             float                    thickness);
+    static void createSimplifiedStarGeometry( std::vector<cvf::Vec3f>* vertices,
+                                              std::vector<cvf::uint>*  indices,
+                                              float                    radius,
+                                              float                    thickness );
 
 private:
     std::vector<CompletionVizData> m_completionVizData;

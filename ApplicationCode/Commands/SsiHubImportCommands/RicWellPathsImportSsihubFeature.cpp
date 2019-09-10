@@ -32,7 +32,7 @@
 #include <QFile>
 #include <QMessageBox>
 
-CAF_CMD_SOURCE_INIT(RicWellPathsImportSsihubFeature, "RicWellPathsImportSsihubFeature");
+CAF_CMD_SOURCE_INIT( RicWellPathsImportSsihubFeature, "RicWellPathsImportSsihubFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -45,34 +45,35 @@ bool RicWellPathsImportSsihubFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
+void RicWellPathsImportSsihubFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app = RiaApplication::instance();
-    if (!app->project()) return;
+    if ( !app->project() ) return;
 
-    if (!app->isProjectSavedToDisc())
+    if ( !app->isProjectSavedToDisc() )
     {
         RiaGuiApplication* guiApp = RiaGuiApplication::instance();
-        if (guiApp)
+        if ( guiApp )
         {
-            QMessageBox msgBox(guiApp->mainWindow());
-            msgBox.setIcon(QMessageBox::Question);
+            QMessageBox msgBox( guiApp->mainWindow() );
+            msgBox.setIcon( QMessageBox::Question );
 
-            QString questionText = QString("Import of well paths will be stored as a part of a ResInsight project file. Please "
-                                           "save the project to file before importing well paths.");
+            QString questionText = QString(
+                "Import of well paths will be stored as a part of a ResInsight project file. Please "
+                "save the project to file before importing well paths." );
 
-            msgBox.setText(questionText);
-            msgBox.setInformativeText("Do you want to save the project?");
-            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            msgBox.setText( questionText );
+            msgBox.setInformativeText( "Do you want to save the project?" );
+            msgBox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
 
             int ret = msgBox.exec();
-            if (ret == QMessageBox::Yes)
+            if ( ret == QMessageBox::Yes )
             {
                 guiApp->saveProject();
             }
         }
 
-        if (!app->isProjectSavedToDisc())
+        if ( !app->isProjectSavedToDisc() )
         {
             return;
         }
@@ -83,16 +84,18 @@ void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
 
     QString wellPathsFolderPath = RimTools::getCacheRootDirectoryPathFromProject();
     wellPathsFolderPath += "_wellpaths";
-    QDir::root().mkpath(wellPathsFolderPath);
+    QDir::root().mkpath( wellPathsFolderPath );
 
-    if (!app->project()->wellPathImport()) return;
+    if ( !app->project()->wellPathImport() ) return;
 
     // Keep a copy of the import settings, and restore if cancel is pressed in the import wizard
     QString copyOfOriginalObject = app->project()->wellPathImport()->writeObjectToXmlString();
 
-    if (!app->preferences()) return;
-    RiuWellImportWizard wellImportwizard(
-        app->preferences()->ssihubAddress, wellPathsFolderPath, app->project()->wellPathImport(), RiuMainWindow::instance());
+    if ( !app->preferences() ) return;
+    RiuWellImportWizard wellImportwizard( app->preferences()->ssihubAddress,
+                                          wellPathsFolderPath,
+                                          app->project()->wellPathImport(),
+                                          RiuMainWindow::instance() );
 
     // Get password/username from application cache
     {
@@ -101,34 +104,35 @@ void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
         QString ssihubUsername = "admin";
         QString ssihubPassword = "resinsight";
 #else
-        QString ssihubUsername = app->cacheDataObject("ssihub_username").toString();
+        QString ssihubUsername = app->cacheDataObject( "ssihub_username" ).toString();
         QString ssihubPassword;
 #endif
-        wellImportwizard.setCredentials(ssihubUsername, ssihubPassword);
+        wellImportwizard.setCredentials( ssihubUsername, ssihubPassword );
     }
 
-    if (QDialog::Accepted == wellImportwizard.exec())
+    if ( QDialog::Accepted == wellImportwizard.exec() )
     {
         QStringList wellPaths = wellImportwizard.absoluteFilePathsToWellPaths();
-        if (wellPaths.size() > 0)
+        if ( wellPaths.size() > 0 )
         {
-            app->addWellPathsToModel(wellPaths);
+            app->addWellPathsToModel( wellPaths );
             app->project()->scheduleCreateDisplayModelAndRedrawAllViews();
         }
 
-        app->setCacheDataObject("ssihub_username", wellImportwizard.field("username"));
+        app->setCacheDataObject( "ssihub_username", wellImportwizard.field( "username" ) );
     }
     else
     {
-        app->project()->wellPathImport()->readObjectFromXmlString(copyOfOriginalObject, caf::PdmDefaultObjectFactory::instance());
+        app->project()->wellPathImport()->readObjectFromXmlString( copyOfOriginalObject,
+                                                                   caf::PdmDefaultObjectFactory::instance() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathsImportSsihubFeature::setupActionLook(QAction* actionToSetup)
+void RicWellPathsImportSsihubFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Import Well Paths from &SSI-hub");
-    actionToSetup->setIcon(QIcon(":/WellCollection.png"));
+    actionToSetup->setText( "Import Well Paths from &SSI-hub" );
+    actionToSetup->setIcon( QIcon( ":/WellCollection.png" ) );
 }

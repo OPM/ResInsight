@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -31,21 +31,25 @@ class QwtPlot;
 class RiuPlotAnnotationTool
 {
 public:
-    RiuPlotAnnotationTool() {};
+    RiuPlotAnnotationTool(){};
     ~RiuPlotAnnotationTool();
 
-    void attachFormationNames(QwtPlot* plot, const std::vector<QString>& names, const std::vector<std::pair<double, double>> yPositions, bool showNames = true);
-    void attachWellPicks(QwtPlot* plot, const std::vector<QString>& names, const std::vector<double> yPositions);
-    
-    void attachAnnotationLine(QwtPlot* plot, const QColor& color, const QString& annotationText, const double yPosition);
+    void attachFormationNames( QwtPlot*                                     plot,
+                               const std::vector<QString>&                  names,
+                               const std::vector<std::pair<double, double>> yPositions,
+                               bool                                         showNames = true );
+    void attachWellPicks( QwtPlot* plot, const std::vector<QString>& names, const std::vector<double> yPositions );
+
+    void attachAnnotationLine( QwtPlot* plot, const QColor& color, const QString& annotationText, const double yPosition );
 
     void detachAllAnnotations();
 
 private:
-    static void horizontalDashedLine(QwtPlotMarker* line, const QString& name, double yValue);
-    static void horizontalDashedLineWithColor(QwtPlotMarker* line, const QColor& color, const QString& name, double yValue);
+    static void horizontalDashedLine( QwtPlotMarker* line, const QString& name, double yValue );
+    static void
+        horizontalDashedLineWithColor( QwtPlotMarker* line, const QColor& color, const QString& name, double yValue );
 
 private:
-    QPointer<QwtPlot> m_plot;
+    QPointer<QwtPlot>           m_plot;
     std::vector<QwtPlotMarker*> m_markers;
 };

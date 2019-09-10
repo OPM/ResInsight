@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfPart.h"
 #include "cvfTextureImage.h"
@@ -58,17 +57,17 @@ public:
     };
 
 public:
-    VdeExportPart(cvf::Part* part);
+    VdeExportPart( cvf::Part* part );
 
-    void setTextureImage(const cvf::TextureImage* textureImage);
-    void setSourceObjectType(SourceObjectType sourceObjectType);
-    void setSourceObjectName(const QString& sourceObjectName);
-    void setSourceObjectCellSetType(const QString& sourceObjectCellSetType);
-    void setColor(const cvf::Color3f& color);
-    void setOpacity(float opacity);
-    void setWinding(Winding winding);
-    void setCullFace(CullFace cullFace);
-    void setRole(Role role);
+    void setTextureImage( const cvf::TextureImage* textureImage );
+    void setSourceObjectType( SourceObjectType sourceObjectType );
+    void setSourceObjectName( const QString& sourceObjectName );
+    void setSourceObjectCellSetType( const QString& sourceObjectCellSetType );
+    void setColor( const cvf::Color3f& color );
+    void setOpacity( float opacity );
+    void setWinding( Winding winding );
+    void setCullFace( CullFace cullFace );
+    void setRole( Role role );
 
     const cvf::Part*         part() const;
     const cvf::TextureImage* textureImage() const;

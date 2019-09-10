@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016      Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -38,30 +38,34 @@
 #include "cafPdmUiCheckBoxTristateEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 
-CAF_PDM_SOURCE_INIT(RimWellLogCurveCommonDataSource, "ChangeDataSourceFeatureUi");
+CAF_PDM_SOURCE_INIT( RimWellLogCurveCommonDataSource, "ChangeDataSourceFeatureUi" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
 {
-    CAF_PDM_InitObject("Change Data Source", "", "", "");
+    CAF_PDM_InitObject( "Change Data Source", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_case, "CurveCase", "Case", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_trajectoryType, "TrajectoryType", "Trajectory Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_trajectoryType, "TrajectoryType", "Trajectory Type", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_wellPath, "CurveWellPath", "Well Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Name", "", "", "" );
 
-    CAF_PDM_InitField(&m_simWellName, "SimulationWellName", QString("None"), "Well Name", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_branchDetection, "BranchDetection", "Branch Detection", "",
-        "Compute branches based on how simulation well cells are organized", "");    
+    CAF_PDM_InitField( &m_simWellName, "SimulationWellName", QString( "None" ), "Well Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_branchDetection,
+                                "BranchDetection",
+                                "Branch Detection",
+                                "",
+                                "Compute branches based on how simulation well cells are organized",
+                                "" );
     m_branchDetection.v() = caf::Tristate::State::PartiallyTrue;
-    m_branchDetection.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
-    CAF_PDM_InitField(&m_branchIndex, "Branch", -1, "Branch Index", "", "", "");
+    m_branchDetection.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_branchIndex, "Branch", -1, "Branch Index", "", "", "" );
 
-    CAF_PDM_InitField(&m_timeStep, "CurveTimeStep", -1, "Time Step", "", "", "");
+    CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", -1, "Time Step", "", "", "" );
 
-    m_case = nullptr;
+    m_case     = nullptr;
     m_wellPath = nullptr;
 }
 
@@ -76,7 +80,7 @@ RimCase* RimWellLogCurveCommonDataSource::caseToApply() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::setCaseToApply(RimCase* val)
+void RimWellLogCurveCommonDataSource::setCaseToApply( RimCase* val )
 {
     m_case = val;
 }
@@ -92,7 +96,7 @@ int RimWellLogCurveCommonDataSource::trajectoryTypeToApply() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::setTrajectoryTypeToApply(int val)
+void RimWellLogCurveCommonDataSource::setTrajectoryTypeToApply( int val )
 {
     m_trajectoryType = val;
 }
@@ -108,7 +112,7 @@ RimWellPath* RimWellLogCurveCommonDataSource::wellPathToApply() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::setWellPathToApply(RimWellPath* val)
+void RimWellLogCurveCommonDataSource::setWellPathToApply( RimWellPath* val )
 {
     m_wellPath = val;
 }
@@ -116,7 +120,7 @@ void RimWellLogCurveCommonDataSource::setWellPathToApply(RimWellPath* val)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::setBranchIndexToApply(int val)
+void RimWellLogCurveCommonDataSource::setBranchIndexToApply( int val )
 {
     m_branchIndex = val;
 }
@@ -124,7 +128,7 @@ void RimWellLogCurveCommonDataSource::setBranchIndexToApply(int val)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::setBranchDetectionToApply(caf::Tristate::State val)
+void RimWellLogCurveCommonDataSource::setBranchDetectionToApply( caf::Tristate::State val )
 {
     m_branchDetection.v() = val;
 }
@@ -140,7 +144,7 @@ QString RimWellLogCurveCommonDataSource::simWellNameToApply() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::setSimWellNameToApply(const QString& val)
+void RimWellLogCurveCommonDataSource::setSimWellNameToApply( const QString& val )
 {
     m_simWellName = val;
 }
@@ -156,7 +160,7 @@ int RimWellLogCurveCommonDataSource::timeStepToApply() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::setTimeStepToApply(int val)
+void RimWellLogCurveCommonDataSource::setTimeStepToApply( int val )
 {
     m_timeStep = val;
 }
@@ -166,19 +170,20 @@ void RimWellLogCurveCommonDataSource::setTimeStepToApply(int val)
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::resetDefaultOptions()
 {
-    setCaseToApply(nullptr);
-    setTrajectoryTypeToApply(-1);
-    setWellPathToApply(nullptr);
-    setBranchIndexToApply(-1);
-    setBranchDetectionToApply(caf::Tristate::State::PartiallyTrue);
-    setSimWellNameToApply(QString(""));
-    setTimeStepToApply(-1);
+    setCaseToApply( nullptr );
+    setTrajectoryTypeToApply( -1 );
+    setWellPathToApply( nullptr );
+    setBranchIndexToApply( -1 );
+    setBranchDetectionToApply( caf::Tristate::State::PartiallyTrue );
+    setSimWellNameToApply( QString( "" ) );
+    setTimeStepToApply( -1 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::updateDefaultOptions(const std::vector<RimWellLogCurve*>& curves, const std::vector<RimWellLogTrack*>& tracks)
+void RimWellLogCurveCommonDataSource::updateDefaultOptions( const std::vector<RimWellLogCurve*>& curves,
+                                                            const std::vector<RimWellLogTrack*>& tracks )
 {
     // Reset all options in the UI
     resetDefaultOptions();
@@ -191,76 +196,75 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions(const std::vector<Rim
     std::set<int>          uniqueTimeSteps;
     std::set<bool>         uniqueBranchDetection;
     std::set<int>          uniqueBranchIndex;
-    for (RimWellLogCurve* curve : curves)
+    for ( RimWellLogCurve* curve : curves )
     {
-        if (!curve->isCurveVisible())
+        if ( !curve->isCurveVisible() )
         {
             continue;
         }
-        RimWellLogExtractionCurve* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>(curve);
-        RimWellLogFileCurve*       fileCurve       = dynamic_cast<RimWellLogFileCurve*>(curve);
-        if (extractionCurve)
+        RimWellLogExtractionCurve* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( curve );
+        RimWellLogFileCurve*       fileCurve       = dynamic_cast<RimWellLogFileCurve*>( curve );
+        if ( extractionCurve )
         {
-            uniqueCases.insert(extractionCurve->rimCase());
-            uniqueTrajectoryTypes.insert(static_cast<int>(extractionCurve->trajectoryType()));
-            uniqueWellPaths.insert(extractionCurve->wellPath());
-            uniqueWellNames.insert(extractionCurve->wellName());
-            uniqueTimeSteps.insert(extractionCurve->currentTimeStep());
-            uniqueBranchDetection.insert(extractionCurve->branchDetection());
-            uniqueBranchIndex.insert(extractionCurve->branchIndex());
+            uniqueCases.insert( extractionCurve->rimCase() );
+            uniqueTrajectoryTypes.insert( static_cast<int>( extractionCurve->trajectoryType() ) );
+            uniqueWellPaths.insert( extractionCurve->wellPath() );
+            uniqueWellNames.insert( extractionCurve->wellName() );
+            uniqueTimeSteps.insert( extractionCurve->currentTimeStep() );
+            uniqueBranchDetection.insert( extractionCurve->branchDetection() );
+            uniqueBranchIndex.insert( extractionCurve->branchIndex() );
         }
-        else if (fileCurve)
+        else if ( fileCurve )
         {
-            uniqueWellPaths.insert(fileCurve->wellPath());
-            uniqueWellNames.insert(fileCurve->wellName());
+            uniqueWellPaths.insert( fileCurve->wellPath() );
+            uniqueWellNames.insert( fileCurve->wellName() );
         }
     }
-    for (RimWellLogTrack* track : tracks)
+    for ( RimWellLogTrack* track : tracks )
     {
-        if (track->showWellPathAttributes())
+        if ( track->showWellPathAttributes() )
         {
-            uniqueTrajectoryTypes.insert(static_cast<int>(RimWellLogExtractionCurve::WELL_PATH));
-            uniqueWellPaths.insert(track->wellPathAttributeSource());
+            uniqueTrajectoryTypes.insert( static_cast<int>( RimWellLogExtractionCurve::WELL_PATH ) );
+            uniqueWellPaths.insert( track->wellPathAttributeSource() );
         }
-        if (track->showFormations())
+        if ( track->showFormations() )
         {
-            uniqueCases.insert(track->formationNamesCase());
-            uniqueWellPaths.insert(track->formationWellPath());
+            uniqueCases.insert( track->formationNamesCase() );
+            uniqueWellPaths.insert( track->formationWellPath() );
         }
     }
 
-    
-    if (uniqueCases.size() == 1u)
+    if ( uniqueCases.size() == 1u )
     {
-        setCaseToApply(*uniqueCases.begin());
+        setCaseToApply( *uniqueCases.begin() );
     }
 
-    if (uniqueTrajectoryTypes.size() == 1u)
+    if ( uniqueTrajectoryTypes.size() == 1u )
     {
         m_trajectoryType = *uniqueTrajectoryTypes.begin();
 
-        if (uniqueWellPaths.size() == 1u)
+        if ( uniqueWellPaths.size() == 1u )
         {
-            setWellPathToApply(*uniqueWellPaths.begin());
+            setWellPathToApply( *uniqueWellPaths.begin() );
         }
-        if (uniqueBranchIndex.size() == 1u)
+        if ( uniqueBranchIndex.size() == 1u )
         {
-            setBranchIndexToApply(*uniqueBranchIndex.begin());
+            setBranchIndexToApply( *uniqueBranchIndex.begin() );
         }
-        if (uniqueBranchDetection.size() == 1u)
+        if ( uniqueBranchDetection.size() == 1u )
         {
-            setBranchDetectionToApply(*uniqueBranchDetection.begin() == true ?
-                caf::Tristate::State::True : caf::Tristate::State::False);
+            setBranchDetectionToApply( *uniqueBranchDetection.begin() == true ? caf::Tristate::State::True
+                                                                              : caf::Tristate::State::False );
         }
-        if (uniqueWellNames.size() == 1u)
+        if ( uniqueWellNames.size() == 1u )
         {
-            setSimWellNameToApply(*uniqueWellNames.begin());
+            setSimWellNameToApply( *uniqueWellNames.begin() );
         }
     }
 
-    if (uniqueTimeSteps.size() == 1u)
+    if ( uniqueTimeSteps.size() == 1u )
     {
-        setTimeStepToApply(*uniqueTimeSteps.begin());
+        setTimeStepToApply( *uniqueTimeSteps.begin() );
     }
 }
 
@@ -270,142 +274,144 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions(const std::vector<Rim
 void RimWellLogCurveCommonDataSource::updateDefaultOptions()
 {
     RimWellLogPlot* parentPlot = nullptr;
-    this->firstAncestorOrThisOfType(parentPlot);
-    if (parentPlot)
+    this->firstAncestorOrThisOfType( parentPlot );
+    if ( parentPlot )
     {
         std::vector<RimWellLogCurve*> curves;
-        parentPlot->descendantsIncludingThisOfType(curves);
+        parentPlot->descendantsIncludingThisOfType( curves );
 
         std::vector<RimWellLogTrack*> tracks;
-        parentPlot->descendantsIncludingThisOfType(tracks);
-        
-        this->updateDefaultOptions(curves, tracks);
+        parentPlot->descendantsIncludingThisOfType( tracks );
+
+        this->updateDefaultOptions( curves, tracks );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::updateCurvesAndTracks(std::vector<RimWellLogCurve*>& curves, std::vector<RimWellLogTrack*>& tracks)
+void RimWellLogCurveCommonDataSource::updateCurvesAndTracks( std::vector<RimWellLogCurve*>& curves,
+                                                             std::vector<RimWellLogTrack*>& tracks )
 {
     std::set<RimWellLogPlot*> plots;
-    for (RimWellLogCurve* curve : curves)
+    for ( RimWellLogCurve* curve : curves )
     {
-        if (!curve->isCurveVisible())
+        if ( !curve->isCurveVisible() )
         {
             continue;
         }
-        RimWellLogFileCurve*       fileCurve = dynamic_cast<RimWellLogFileCurve*>(curve);
-        RimWellLogExtractionCurve* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>(curve);
-        if (fileCurve)
+        RimWellLogFileCurve*       fileCurve       = dynamic_cast<RimWellLogFileCurve*>( curve );
+        RimWellLogExtractionCurve* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( curve );
+        if ( fileCurve )
         {
-            if (wellPathToApply() != nullptr)
+            if ( wellPathToApply() != nullptr )
             {
-                fileCurve->setWellPath(wellPathToApply());
-                if (!fileCurve->wellLogChannelName().isEmpty())
+                fileCurve->setWellPath( wellPathToApply() );
+                if ( !fileCurve->wellLogChannelName().isEmpty() )
                 {
-                    RimWellLogFile* logFile = wellPathToApply()->firstWellLogFileMatchingChannelName(fileCurve->wellLogChannelName());
-                    fileCurve->setWellLogFile(logFile);
+                    RimWellLogFile* logFile = wellPathToApply()->firstWellLogFileMatchingChannelName(
+                        fileCurve->wellLogChannelName() );
+                    fileCurve->setWellLogFile( logFile );
                     RimWellLogPlot* parentPlot = nullptr;
-                    fileCurve->firstAncestorOrThisOfTypeAsserted(parentPlot);
-                    plots.insert(parentPlot);
+                    fileCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
+                    plots.insert( parentPlot );
                 }
             }
         }
-        else if (extractionCurve)
+        else if ( extractionCurve )
         {
             bool updatedSomething = false;
-            if (caseToApply() != nullptr)
+            if ( caseToApply() != nullptr )
             {
-                extractionCurve->setCase(caseToApply());
+                extractionCurve->setCase( caseToApply() );
                 updatedSomething = true;
             }
 
-            if (wellPathToApply() != nullptr)
+            if ( wellPathToApply() != nullptr )
             {
-                extractionCurve->setWellPath(wellPathToApply());
+                extractionCurve->setWellPath( wellPathToApply() );
                 updatedSomething = true;
             }
 
-            if (m_trajectoryType() != -1)
+            if ( m_trajectoryType() != -1 )
             {
-                extractionCurve->setTrajectoryType(static_cast<RimWellLogExtractionCurve::TrajectoryType>(m_trajectoryType()));
-                if (m_trajectoryType() == (int)RimWellLogExtractionCurve::SIMULATION_WELL)
+                extractionCurve->setTrajectoryType(
+                    static_cast<RimWellLogExtractionCurve::TrajectoryType>( m_trajectoryType() ) );
+                if ( m_trajectoryType() == (int)RimWellLogExtractionCurve::SIMULATION_WELL )
                 {
+                    if ( m_branchDetection().isTrue() )
+                    {
+                        extractionCurve->setBranchDetection( true );
+                    }
+                    else if ( m_branchDetection().isFalse() )
+                    {
+                        extractionCurve->setBranchDetection( false );
+                    }
 
-                    if (m_branchDetection().isTrue())
+                    if ( m_branchIndex() != -1 )
                     {
-                        extractionCurve->setBranchDetection(true);
+                        extractionCurve->setBranchIndex( m_branchIndex() );
                     }
-                    else if (m_branchDetection().isFalse())
+                    if ( m_simWellName() != QString( "" ) )
                     {
-                        extractionCurve->setBranchDetection(false);
-                    }
-
-                    if (m_branchIndex() != -1)
-                    {
-                        extractionCurve->setBranchIndex(m_branchIndex());
-                    }
-                    if (m_simWellName() != QString(""))
-                    {
-                        extractionCurve->setWellName(m_simWellName());
+                        extractionCurve->setWellName( m_simWellName() );
                     }
                 }
                 updatedSomething = true;
             }
 
-            if (timeStepToApply() != -1)
+            if ( timeStepToApply() != -1 )
             {
-                extractionCurve->setCurrentTimeStep(timeStepToApply());
+                extractionCurve->setCurrentTimeStep( timeStepToApply() );
                 updatedSomething = true;
             }
-            
-            if (updatedSomething)
+
+            if ( updatedSomething )
             {
                 RimWellLogPlot* parentPlot = nullptr;
-                extractionCurve->firstAncestorOrThisOfTypeAsserted(parentPlot);
-                plots.insert(parentPlot);
+                extractionCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
+                plots.insert( parentPlot );
                 curve->updateConnectedEditors();
             }
         }
     }
 
-    for (RimWellLogTrack* track : tracks)
+    for ( RimWellLogTrack* track : tracks )
     {
         bool updatedSomething = false;
-        if (caseToApply() != nullptr)
+        if ( caseToApply() != nullptr )
         {
-            if (track->showFormations())
+            if ( track->showFormations() )
             {
-                track->setFormationCase(caseToApply());
+                track->setFormationCase( caseToApply() );
                 updatedSomething = true;
             }
         }
 
-        if (wellPathToApply() != nullptr)
+        if ( wellPathToApply() != nullptr )
         {
-            if (track->showWellPathAttributes())
+            if ( track->showWellPathAttributes() )
             {
-                track->setWellPathAttributesSource(wellPathToApply());
+                track->setWellPathAttributesSource( wellPathToApply() );
                 updatedSomething = true;
             }
-            if (track->showFormations())
+            if ( track->showFormations() )
             {
-                track->setFormationWellPath(wellPathToApply());
+                track->setFormationWellPath( wellPathToApply() );
                 updatedSomething = true;
             }
         }
 
-        if (updatedSomething)
+        if ( updatedSomething )
         {
             RimWellLogPlot* parentPlot = nullptr;
-            track->firstAncestorOrThisOfTypeAsserted(parentPlot);
-            plots.insert(parentPlot);
+            track->firstAncestorOrThisOfTypeAsserted( parentPlot );
+            plots.insert( parentPlot );
             track->updateConnectedEditors();
         }
     }
 
-    for (RimWellLogPlot* plot : plots)
+    for ( RimWellLogPlot* plot : plots )
     {
         plot->loadDataAndUpdate();
     }
@@ -417,16 +423,16 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks(std::vector<RimWellL
 void RimWellLogCurveCommonDataSource::updateCurvesAndTracks()
 {
     RimWellLogPlot* parentPlot = nullptr;
-    this->firstAncestorOrThisOfType(parentPlot);
-    if (parentPlot)
+    this->firstAncestorOrThisOfType( parentPlot );
+    if ( parentPlot )
     {
         std::vector<RimWellLogCurve*> curves;
-        parentPlot->descendantsIncludingThisOfType(curves);
+        parentPlot->descendantsIncludingThisOfType( curves );
 
         std::vector<RimWellLogTrack*> tracks;
-        parentPlot->descendantsIncludingThisOfType(tracks);
+        parentPlot->descendantsIncludingThisOfType( tracks );
 
-        this->updateCurvesAndTracks(curves, tracks);
+        this->updateCurvesAndTracks( curves, tracks );
     }
 }
 
@@ -435,7 +441,7 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::applyPrevCase()
 {
-    modifyCurrentIndex(&m_case, -1);
+    modifyCurrentIndex( &m_case, -1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -443,7 +449,7 @@ void RimWellLogCurveCommonDataSource::applyPrevCase()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::applyNextCase()
 {
-    modifyCurrentIndex(&m_case, 1);
+    modifyCurrentIndex( &m_case, 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -451,14 +457,14 @@ void RimWellLogCurveCommonDataSource::applyNextCase()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::applyPrevWell()
 {
-    if (m_trajectoryType() == RimWellLogExtractionCurve::WELL_PATH)
+    if ( m_trajectoryType() == RimWellLogExtractionCurve::WELL_PATH )
     {
-        modifyCurrentIndex(&m_wellPath, -1);
+        modifyCurrentIndex( &m_wellPath, -1 );
     }
-    else if (m_trajectoryType() == RimWellLogExtractionCurve::SIMULATION_WELL)
+    else if ( m_trajectoryType() == RimWellLogExtractionCurve::SIMULATION_WELL )
     {
-        modifyCurrentIndex(&m_simWellName, -1);
-    }    
+        modifyCurrentIndex( &m_simWellName, -1 );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -466,13 +472,13 @@ void RimWellLogCurveCommonDataSource::applyPrevWell()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::applyNextWell()
 {
-    if (m_trajectoryType() == RimWellLogExtractionCurve::WELL_PATH)
+    if ( m_trajectoryType() == RimWellLogExtractionCurve::WELL_PATH )
     {
-        modifyCurrentIndex(&m_wellPath, 1);
+        modifyCurrentIndex( &m_wellPath, 1 );
     }
-    else if (m_trajectoryType() == RimWellLogExtractionCurve::SIMULATION_WELL)
+    else if ( m_trajectoryType() == RimWellLogExtractionCurve::SIMULATION_WELL )
     {
-        modifyCurrentIndex(&m_simWellName, 1);
+        modifyCurrentIndex( &m_simWellName, 1 );
     }
 }
 
@@ -481,7 +487,7 @@ void RimWellLogCurveCommonDataSource::applyNextWell()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::applyPrevTimeStep()
 {
-    modifyCurrentIndex(&m_timeStep, -1);
+    modifyCurrentIndex( &m_timeStep, -1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -489,27 +495,27 @@ void RimWellLogCurveCommonDataSource::applyPrevTimeStep()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::applyNextTimeStep()
 {
-    modifyCurrentIndex(&m_timeStep, 1);
+    modifyCurrentIndex( &m_timeStep, 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmFieldHandle *> RimWellLogCurveCommonDataSource::fieldsToShowInToolbar()
+std::vector<caf::PdmFieldHandle*> RimWellLogCurveCommonDataSource::fieldsToShowInToolbar()
 {
     updateDefaultOptions();
 
     std::vector<caf::PdmFieldHandle*> fieldsToDisplay;
-    fieldsToDisplay.push_back(&m_case);
-    if (trajectoryTypeToApply() == RimWellLogExtractionCurve::WELL_PATH)
+    fieldsToDisplay.push_back( &m_case );
+    if ( trajectoryTypeToApply() == RimWellLogExtractionCurve::WELL_PATH )
     {
-        fieldsToDisplay.push_back(&m_wellPath);
+        fieldsToDisplay.push_back( &m_wellPath );
     }
-    else if (trajectoryTypeToApply() == RimWellLogExtractionCurve::SIMULATION_WELL)
+    else if ( trajectoryTypeToApply() == RimWellLogExtractionCurve::SIMULATION_WELL )
     {
-        fieldsToDisplay.push_back(&m_simWellName);
+        fieldsToDisplay.push_back( &m_simWellName );
     }
-    fieldsToDisplay.push_back(&m_timeStep);
+    fieldsToDisplay.push_back( &m_timeStep );
 
     return fieldsToDisplay;
 }
@@ -517,14 +523,16 @@ std::vector<caf::PdmFieldHandle *> RimWellLogCurveCommonDataSource::fieldsToShow
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimWellLogCurveCommonDataSource::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                        const QVariant&            oldValue,
+                                                        const QVariant&            newValue )
 {
     RimWellLogPlot* parentPlot = nullptr;
-    this->firstAncestorOrThisOfType(parentPlot);
+    this->firstAncestorOrThisOfType( parentPlot );
 
-    if (changedField == &m_branchDetection)
+    if ( changedField == &m_branchDetection )
     {
-        if (m_branchDetection().isPartiallyTrue())
+        if ( m_branchDetection().isPartiallyTrue() )
         {
             // The Tristate is cycled from false -> partially true -> true
             // Partially true is used for "Mixed state" and is not settable by the user so cycle on to true.
@@ -536,103 +544,104 @@ void RimWellLogCurveCommonDataSource::fieldChangedByUi(const caf::PdmFieldHandle
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellLogCurveCommonDataSource::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo>
+    RimWellLogCurveCommonDataSource::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                            bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
     this->updateDefaultOptions();
 
-    if (fieldNeedingOptions == &m_case)
+    if ( fieldNeedingOptions == &m_case )
     {
-        RimTools::caseOptionItems(&options);
+        RimTools::caseOptionItems( &options );
 
-        if (caseToApply() == nullptr)
+        if ( caseToApply() == nullptr )
         {
-            options.push_front(caf::PdmOptionItemInfo("Mixed Cases", nullptr));
+            options.push_front( caf::PdmOptionItemInfo( "Mixed Cases", nullptr ) );
         }
     }
-    else if (fieldNeedingOptions == &m_trajectoryType)
+    else if ( fieldNeedingOptions == &m_trajectoryType )
     {
-        if (m_trajectoryType() == -1)
+        if ( m_trajectoryType() == -1 )
         {
-            options.push_back(caf::PdmOptionItemInfo("Mixed Trajectory Types", -1));
+            options.push_back( caf::PdmOptionItemInfo( "Mixed Trajectory Types", -1 ) );
         }
         std::vector<RimWellLogExtractionCurve::TrajectoryType> trajectoryTypes =
-            { RimWellLogExtractionCurve::WELL_PATH, RimWellLogExtractionCurve::SIMULATION_WELL };
-        for (RimWellLogExtractionCurve::TrajectoryType trajectoryType : trajectoryTypes)
+            {RimWellLogExtractionCurve::WELL_PATH, RimWellLogExtractionCurve::SIMULATION_WELL};
+        for ( RimWellLogExtractionCurve::TrajectoryType trajectoryType : trajectoryTypes )
         {
-            caf::PdmOptionItemInfo item(caf::AppEnum<RimWellLogExtractionCurve::TrajectoryType>::uiText(trajectoryType),
-                                        static_cast<int>(trajectoryType));
-            options.push_back(item);
+            caf::PdmOptionItemInfo item( caf::AppEnum<RimWellLogExtractionCurve::TrajectoryType>::uiText( trajectoryType ),
+                                         static_cast<int>( trajectoryType ) );
+            options.push_back( item );
         }
     }
-    else if (fieldNeedingOptions == &m_wellPath)
+    else if ( fieldNeedingOptions == &m_wellPath )
     {
-        RimTools::wellPathOptionItems(&options);
-        if (wellPathToApply() == nullptr)
+        RimTools::wellPathOptionItems( &options );
+        if ( wellPathToApply() == nullptr )
         {
-            options.push_front(caf::PdmOptionItemInfo("Mixed Well Paths", nullptr));
+            options.push_front( caf::PdmOptionItemInfo( "Mixed Well Paths", nullptr ) );
         }
-
     }
-    else if (fieldNeedingOptions == &m_timeStep)
+    else if ( fieldNeedingOptions == &m_timeStep )
     {
         QStringList timeStepNames;
 
-        if (m_case)
+        if ( m_case )
         {
             timeStepNames = m_case->timeStepStrings();
         }
 
-        for (int i = 0; i < timeStepNames.size(); i++)
+        for ( int i = 0; i < timeStepNames.size(); i++ )
         {
-            options.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
+            options.push_back( caf::PdmOptionItemInfo( timeStepNames[i], i ) );
         }
 
-        if (timeStepToApply() == -1)
+        if ( timeStepToApply() == -1 )
         {
-            options.push_front(caf::PdmOptionItemInfo("Mixed Time Steps", -1));
+            options.push_front( caf::PdmOptionItemInfo( "Mixed Time Steps", -1 ) );
         }
     }
-    else if (fieldNeedingOptions == &m_simWellName)
+    else if ( fieldNeedingOptions == &m_simWellName )
     {
-        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case());
-        if (eclipseCase)
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
+        if ( eclipseCase )
         {
             std::set<QString> sortedWellNames = eclipseCase->sortedSimWellNames();
 
-            caf::QIconProvider simWellIcon(":/Well.png");
-            for (const QString& wname : sortedWellNames)
+            caf::QIconProvider simWellIcon( ":/Well.png" );
+            for ( const QString& wname : sortedWellNames )
             {
-                options.push_back(caf::PdmOptionItemInfo(wname, wname, false, simWellIcon));
+                options.push_back( caf::PdmOptionItemInfo( wname, wname, false, simWellIcon ) );
             }
 
-            if (options.size() == 0)
+            if ( options.size() == 0 )
             {
-                options.push_front(caf::PdmOptionItemInfo("None", "None"));
+                options.push_front( caf::PdmOptionItemInfo( "None", "None" ) );
             }
 
-            if (m_simWellName == QString(""))
+            if ( m_simWellName == QString( "" ) )
             {
-                options.push_front(caf::PdmOptionItemInfo("Mixed Well Names", ""));
+                options.push_front( caf::PdmOptionItemInfo( "Mixed Well Names", "" ) );
             }
         }
     }
-    else if (fieldNeedingOptions == &m_branchIndex)
+    else if ( fieldNeedingOptions == &m_branchIndex )
     {
         bool hasCommonBranchDetection = !m_branchDetection().isPartiallyTrue();
-        if (hasCommonBranchDetection)
+        if ( hasCommonBranchDetection )
         {
             bool doBranchDetection = m_branchDetection().isTrue();
-            auto branches = RiaSimWellBranchTools::simulationWellBranches(m_simWellName, doBranchDetection);
+            auto branches          = RiaSimWellBranchTools::simulationWellBranches( m_simWellName, doBranchDetection );
 
-            options = RiaSimWellBranchTools::valueOptionsForBranchIndexField(branches);
+            options = RiaSimWellBranchTools::valueOptionsForBranchIndexField( branches );
 
-            if (m_branchIndex() == -1)
+            if ( m_branchIndex() == -1 )
             {
-                options.push_front(caf::PdmOptionItemInfo("Mixed Branches", -1));
+                options.push_front( caf::PdmOptionItemInfo( "Mixed Branches", -1 ) );
             }
         }
     }
@@ -641,36 +650,36 @@ QList<caf::PdmOptionItemInfo> RimWellLogCurveCommonDataSource::calculateValueOpt
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimWellLogCurveCommonDataSource::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     updateDefaultOptions();
 
-    caf::PdmUiGroup* group = uiOrdering.addNewGroup("Data Source");
-    group->add(&m_case);
+    caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Data Source" );
+    group->add( &m_case );
 
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case());
-    if (eclipseCase)
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
+    if ( eclipseCase )
     {
-        group->add(&m_trajectoryType);
-        if (trajectoryTypeToApply() == RimWellLogExtractionCurve::WELL_PATH)
+        group->add( &m_trajectoryType );
+        if ( trajectoryTypeToApply() == RimWellLogExtractionCurve::WELL_PATH )
         {
-            group->add(&m_wellPath);
+            group->add( &m_wellPath );
         }
-        else if (trajectoryTypeToApply() == RimWellLogExtractionCurve::SIMULATION_WELL)
+        else if ( trajectoryTypeToApply() == RimWellLogExtractionCurve::SIMULATION_WELL )
         {
-            group->add(&m_simWellName);
-            if (RiaSimWellBranchTools::simulationWellBranches(m_simWellName(), true).size() > 1)
+            group->add( &m_simWellName );
+            if ( RiaSimWellBranchTools::simulationWellBranches( m_simWellName(), true ).size() > 1 )
             {
-                group->add(&m_branchDetection);
+                group->add( &m_branchDetection );
                 bool hasCommonBranchDetection = !m_branchDetection().isPartiallyTrue();
-                if (hasCommonBranchDetection)
+                if ( hasCommonBranchDetection )
                 {
                     bool doBranchDetection = m_branchDetection().isTrue();
-                    if (RiaSimWellBranchTools::simulationWellBranches(m_simWellName(), doBranchDetection).size() > 1)
+                    if ( RiaSimWellBranchTools::simulationWellBranches( m_simWellName(), doBranchDetection ).size() > 1 )
                     {
-                        group->add(&m_branchIndex);
+                        group->add( &m_branchIndex );
                     }
                 }
             }
@@ -678,46 +687,43 @@ void RimWellLogCurveCommonDataSource::defineUiOrdering(QString uiConfigName, caf
     }
     else
     {
-        group->add(&m_wellPath);
+        group->add( &m_wellPath );
     }
-    group->add(&m_timeStep);
-    uiOrdering.skipRemainingFields(true);
+    group->add( &m_timeStep );
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::defineEditorAttribute(const caf::PdmFieldHandle* field,
-                                                            QString                    uiConfigName,
-                                                            caf::PdmUiEditorAttribute* attribute)
+void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                             QString                    uiConfigName,
+                                                             caf::PdmUiEditorAttribute* attribute )
 {
-    caf::PdmUiComboBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>(attribute);
-    if (myAttr)
+    caf::PdmUiComboBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
+    if ( myAttr )
     {
-        if (field == &m_case ||
-            field == &m_simWellName ||
-            field == &m_wellPath ||
-            field == &m_timeStep)
+        if ( field == &m_case || field == &m_simWellName || field == &m_wellPath || field == &m_timeStep )
         {
             myAttr->showPreviousAndNextButtons = true;
         }
 
         QString modifierText;
 
-        if (field == &m_case)
+        if ( field == &m_case )
         {
-            modifierText = ("(Shift+");
+            modifierText = ( "(Shift+" );
         }
-        else if (field == &m_wellPath || field == &m_simWellName)
+        else if ( field == &m_wellPath || field == &m_simWellName )
         {
-            modifierText = ("(Ctrl+");
+            modifierText = ( "(Ctrl+" );
         }
-        else if (field == &m_timeStep)
+        else if ( field == &m_timeStep )
         {
-            modifierText = ("(");
+            modifierText = ( "(" );
         }
 
-        if (!modifierText.isEmpty())
+        if ( !modifierText.isEmpty() )
         {
             myAttr->nextButtonText = "Next " + modifierText + "PgDown)";
             myAttr->prevButtonText = "Previous " + modifierText + "PgUp)";
@@ -728,9 +734,9 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute(const caf::PdmFieldH
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::modifyCurrentIndex(caf::PdmValueField* field, int indexOffset)
+void RimWellLogCurveCommonDataSource::modifyCurrentIndex( caf::PdmValueField* field, int indexOffset )
 {
-    bool useOptionsOnly;
-    QList<caf::PdmOptionItemInfo> options = calculateValueOptions(field, &useOptionsOnly);
-    RimDataSourceSteppingTools::modifyCurrentIndex(field, options, indexOffset);    
+    bool                          useOptionsOnly;
+    QList<caf::PdmOptionItemInfo> options = calculateValueOptions( field, &useOptionsOnly );
+    RimDataSourceSteppingTools::modifyCurrentIndex( field, options, indexOffset );
 }

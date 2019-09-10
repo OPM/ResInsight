@@ -39,44 +39,45 @@ Ric3dWellLogCurvePickEventHandler* Ric3dWellLogCurvePickEventHandler::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Ric3dWellLogCurvePickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
+bool Ric3dWellLogCurvePickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eventObject )
 {
-    if (eventObject.m_pickItemInfos.empty()) return false;
+    if ( eventObject.m_pickItemInfos.empty() ) return false;
 
     const auto&      firstPickedItem = eventObject.m_pickItemInfos.front();
-    const cvf::Part* firstPickedPart            = firstPickedItem.pickedPart();
+    const cvf::Part* firstPickedPart = firstPickedItem.pickedPart();
 
-    const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>(firstPickedPart->sourceInfo());
-    if (sourceInfo)
+    const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>( firstPickedPart->sourceInfo() );
+    if ( sourceInfo )
     {
-        Rim3dWellLogCurveCollection* curveCollection = dynamic_cast<Rim3dWellLogCurveCollection*>(sourceInfo->object());
-        if (curveCollection)
+        Rim3dWellLogCurveCollection* curveCollection = dynamic_cast<Rim3dWellLogCurveCollection*>( sourceInfo->object() );
+        if ( curveCollection )
         {
             RimWellPath* wellPath;
-            curveCollection->firstAncestorOrThisOfTypeAsserted(wellPath);
-            QString wellPathName = wellPath->name();
-            cvf::Vec3d closestPoint;
-            double measuredDepthAtPoint;
-            double valueAtPoint;
-            Rim3dWellLogCurve* curve = curveCollection->checkForCurveIntersection( firstPickedItem.globalPickedPoint(), 
-                                                                                  &closestPoint, 
-                                                                                  &measuredDepthAtPoint, 
-                                                                                  &valueAtPoint);
-            if (curve)
+            curveCollection->firstAncestorOrThisOfTypeAsserted( wellPath );
+            QString            wellPathName = wellPath->name();
+            cvf::Vec3d         closestPoint;
+            double             measuredDepthAtPoint;
+            double             valueAtPoint;
+            Rim3dWellLogCurve* curve = curveCollection->checkForCurveIntersection( firstPickedItem.globalPickedPoint(),
+                                                                                   &closestPoint,
+                                                                                   &measuredDepthAtPoint,
+                                                                                   &valueAtPoint );
+            if ( curve )
             {
-                RiuMainWindow::instance()->selectAsCurrentItem(curve);
+                RiuMainWindow::instance()->selectAsCurrentItem( curve );
 
                 QString curveText;
-                curveText += QString("Curve name : %1\n").arg(curve->name());;
-                curveText += QString("Well path name: %1\n").arg(wellPathName);
-                curveText += QString("Measured depth: %1\n").arg(measuredDepthAtPoint);
-                curveText += QString("%1 at depth: %2\n").arg(curve->resultPropertyString()).arg(valueAtPoint);
+                curveText += QString( "Curve name : %1\n" ).arg( curve->name() );
+                ;
+                curveText += QString( "Well path name: %1\n" ).arg( wellPathName );
+                curveText += QString( "Measured depth: %1\n" ).arg( measuredDepthAtPoint );
+                curveText += QString( "%1 at depth: %2\n" ).arg( curve->resultPropertyString() ).arg( valueAtPoint );
 
-                RiuMainWindow::instance()->setResultInfo(curveText);
+                RiuMainWindow::instance()->setResultInfo( curveText );
             }
             else
             {
-                RiuMainWindow::instance()->selectAsCurrentItem(curveCollection);
+                RiuMainWindow::instance()->selectAsCurrentItem( curveCollection );
             }
             return true;
         }

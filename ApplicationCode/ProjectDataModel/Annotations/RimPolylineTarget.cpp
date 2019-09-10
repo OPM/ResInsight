@@ -1,61 +1,57 @@
 #include "RimPolylineTarget.h"
 #include "RimModeledWellPath.h"
 
-#include <cmath>
 #include "RimUserDefinedPolylinesAnnotation.h"
 #include "cafPdmUiCheckBoxEditor.h"
+#include <cmath>
 
-CAF_PDM_SOURCE_INIT(RimPolylineTarget, "PolylineTarget");
+CAF_PDM_SOURCE_INIT( RimPolylineTarget, "PolylineTarget" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimPolylineTarget::RimPolylineTarget()
-    : m_isFullUpdateEnabled(true)
+    : m_isFullUpdateEnabled( true )
 {
-    
-    CAF_PDM_InitField(&m_isEnabled, "IsEnabled", true, "", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_targetPointXyd, "TargetPointXyd", "Point", "", "", "");
+    CAF_PDM_InitField( &m_isEnabled, "IsEnabled", true, "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_targetPointXyd, "TargetPointXyd", "Point", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimPolylineTarget::~RimPolylineTarget()
-{
-
-}
+RimPolylineTarget::~RimPolylineTarget() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimPolylineTarget::isEnabled() const
 {
-    return m_isEnabled;    
+    return m_isEnabled;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineTarget::setAsPointTargetXYD(const cvf::Vec3d& point)
+void RimPolylineTarget::setAsPointTargetXYD( const cvf::Vec3d& point )
 {
-    m_targetPointXyd = point; 
+    m_targetPointXyd = point;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineTarget::setAsPointXYZ(const cvf::Vec3d& point)
+void RimPolylineTarget::setAsPointXYZ( const cvf::Vec3d& point )
 {
-    m_targetPointXyd = cvf::Vec3d(point.x(), point.y(), -point.z());
+    m_targetPointXyd = cvf::Vec3d( point.x(), point.y(), -point.z() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimPolylineTarget::targetPointXYZ() const
 {
-    cvf::Vec3d xyzPoint(m_targetPointXyd());
+    cvf::Vec3d xyzPoint( m_targetPointXyd() );
     xyzPoint.z() = -xyzPoint.z();
     return xyzPoint;
 }
@@ -69,36 +65,39 @@ caf::PdmUiFieldHandle* RimPolylineTarget::targetPointUiCapability()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineTarget::enableFullUpdate(bool enable)
+void RimPolylineTarget::enableFullUpdate( bool enable )
 {
     m_isFullUpdateEnabled = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimPolylineTarget::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimPolylineTarget::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                        bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
     return options;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineTarget::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimPolylineTarget::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                          const QVariant&            oldValue,
+                                          const QVariant&            newValue )
 {
     RimUserDefinedPolylinesAnnotation* polyline;
-    firstAncestorOrThisOfTypeAsserted(polyline);
+    firstAncestorOrThisOfTypeAsserted( polyline );
     polyline->updateVisualization();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineTarget::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimPolylineTarget::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    m_targetPointXyd.uiCapability()->setUiReadOnly(m_isEnabled());
+    m_targetPointXyd.uiCapability()->setUiReadOnly( m_isEnabled() );
 }

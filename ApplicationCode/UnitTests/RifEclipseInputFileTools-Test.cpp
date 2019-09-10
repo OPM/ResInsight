@@ -11,7 +11,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST(RifEclipseInputFileToolsTest, FaultFaces)
+TEST( RifEclipseInputFileToolsTest, FaultFaces )
 {
     {
         QStringList faceTexts;
@@ -25,10 +25,10 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
                   << "i+";
 
         cvf::StructGridInterface::FaceEnum faceType;
-        foreach (QString text, faceTexts)
+        foreach ( QString text, faceTexts )
         {
-            faceType = RifEclipseInputFileTools::faceEnumFromText(text);
-            EXPECT_EQ(cvf::StructGridInterface::POS_I, faceType);
+            faceType = RifEclipseInputFileTools::faceEnumFromText( text );
+            EXPECT_EQ( cvf::StructGridInterface::POS_I, faceType );
         }
     }
 
@@ -40,10 +40,10 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
                   << "i-";
 
         cvf::StructGridInterface::FaceEnum faceType;
-        foreach (QString text, faceTexts)
+        foreach ( QString text, faceTexts )
         {
-            faceType = RifEclipseInputFileTools::faceEnumFromText(text);
-            EXPECT_EQ(cvf::StructGridInterface::NEG_I, faceType);
+            faceType = RifEclipseInputFileTools::faceEnumFromText( text );
+            EXPECT_EQ( cvf::StructGridInterface::NEG_I, faceType );
         }
     }
 
@@ -59,10 +59,10 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
                   << "j+";
 
         cvf::StructGridInterface::FaceEnum faceType;
-        foreach (QString text, faceTexts)
+        foreach ( QString text, faceTexts )
         {
-            faceType = RifEclipseInputFileTools::faceEnumFromText(text);
-            EXPECT_EQ(cvf::StructGridInterface::POS_J, faceType);
+            faceType = RifEclipseInputFileTools::faceEnumFromText( text );
+            EXPECT_EQ( cvf::StructGridInterface::POS_J, faceType );
         }
     }
 
@@ -74,10 +74,10 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
                   << "j-";
 
         cvf::StructGridInterface::FaceEnum faceType;
-        foreach (QString text, faceTexts)
+        foreach ( QString text, faceTexts )
         {
-            faceType = RifEclipseInputFileTools::faceEnumFromText(text);
-            EXPECT_EQ(cvf::StructGridInterface::NEG_J, faceType);
+            faceType = RifEclipseInputFileTools::faceEnumFromText( text );
+            EXPECT_EQ( cvf::StructGridInterface::NEG_J, faceType );
         }
     }
 
@@ -93,10 +93,10 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
                   << "k+";
 
         cvf::StructGridInterface::FaceEnum faceType;
-        foreach (QString text, faceTexts)
+        foreach ( QString text, faceTexts )
         {
-            faceType = RifEclipseInputFileTools::faceEnumFromText(text);
-            EXPECT_EQ(cvf::StructGridInterface::POS_K, faceType);
+            faceType = RifEclipseInputFileTools::faceEnumFromText( text );
+            EXPECT_EQ( cvf::StructGridInterface::POS_K, faceType );
         }
     }
 
@@ -108,10 +108,10 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
                   << "k-";
 
         cvf::StructGridInterface::FaceEnum faceType;
-        foreach (QString text, faceTexts)
+        foreach ( QString text, faceTexts )
         {
-            faceType = RifEclipseInputFileTools::faceEnumFromText(text);
-            EXPECT_EQ(cvf::StructGridInterface::NEG_K, faceType);
+            faceType = RifEclipseInputFileTools::faceEnumFromText( text );
+            EXPECT_EQ( cvf::StructGridInterface::NEG_K, faceType );
         }
     }
 
@@ -124,10 +124,10 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
                   << " y /";
 
         cvf::StructGridInterface::FaceEnum faceType;
-        foreach (QString text, faceTexts)
+        foreach ( QString text, faceTexts )
         {
-            faceType = RifEclipseInputFileTools::faceEnumFromText(text);
-            EXPECT_NE(cvf::StructGridInterface::NO_FACE, faceType);
+            faceType = RifEclipseInputFileTools::faceEnumFromText( text );
+            EXPECT_NE( cvf::StructGridInterface::NO_FACE, faceType );
         }
     }
 
@@ -139,10 +139,10 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
                   << "   +k-  ";
 
         cvf::StructGridInterface::FaceEnum faceType;
-        foreach (QString text, faceTexts)
+        foreach ( QString text, faceTexts )
         {
-            faceType = RifEclipseInputFileTools::faceEnumFromText(text);
-            EXPECT_EQ(cvf::StructGridInterface::NO_FACE, faceType);
+            faceType = RifEclipseInputFileTools::faceEnumFromText( text );
+            EXPECT_EQ( cvf::StructGridInterface::NO_FACE, faceType );
         }
     }
 
@@ -155,10 +155,10 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
                   << " i+  ";
 
         cvf::StructGridInterface::FaceEnum faceType;
-        foreach (QString text, faceTexts)
+        foreach ( QString text, faceTexts )
         {
-            faceType = RifEclipseInputFileTools::faceEnumFromText(text);
-            EXPECT_EQ(cvf::StructGridInterface::POS_I, faceType);
+            faceType = RifEclipseInputFileTools::faceEnumFromText( text );
+            EXPECT_EQ( cvf::StructGridInterface::POS_I, faceType );
         }
     }
 }
@@ -166,23 +166,23 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST(RifEclipseInputFileToolsTest, EquilData)
+TEST( RifEclipseInputFileToolsTest, EquilData )
 {
-    static const QString testDataRootFolder = QString("%1/ParsingOfDataKeywords/").arg(TEST_DATA_DIR);
+    static const QString testDataRootFolder = QString( "%1/ParsingOfDataKeywords/" ).arg( TEST_DATA_DIR );
 
     {
         QString fileName = testDataRootFolder + "simulation/MY_CASE.DATA";
 
-        QFile data(fileName);
-        if (!data.open(QFile::ReadOnly))
+        QFile data( fileName );
+        if ( !data.open( QFile::ReadOnly ) )
         {
             return;
         }
 
         std::vector<std::pair<QString, QString>> pathAliasDefinitions;
-        RifEclipseInputFileTools::parseAndReadPathAliasKeyword(fileName, &pathAliasDefinitions);
+        RifEclipseInputFileTools::parseAndReadPathAliasKeyword( fileName, &pathAliasDefinitions );
 
-        const QString        keyword("EQUIL");
+        const QString        keyword( "EQUIL" );
         const QString        keywordToStopParsing;
         const qint64         startPositionInFile = 0;
         QStringList          keywordContent;
@@ -190,20 +190,20 @@ TEST(RifEclipseInputFileToolsTest, EquilData)
         bool                 isStopParsingKeywordDetected = false;
         const QString        includeStatementAbsolutePathPrefix;
 
-        RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(keyword,
-                                                                                  keywordToStopParsing,
-                                                                                  data,
-                                                                                  startPositionInFile,
-                                                                                  pathAliasDefinitions,
-                                                                                  &keywordContent,
-                                                                                  &fileNamesContainingKeyword,
-                                                                                  &isStopParsingKeywordDetected,
-                                                                                  includeStatementAbsolutePathPrefix);
-        EXPECT_EQ((int)10, keywordContent.size());
+        RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( keyword,
+                                                                                   keywordToStopParsing,
+                                                                                   data,
+                                                                                   startPositionInFile,
+                                                                                   pathAliasDefinitions,
+                                                                                   &keywordContent,
+                                                                                   &fileNamesContainingKeyword,
+                                                                                   &isStopParsingKeywordDetected,
+                                                                                   includeStatementAbsolutePathPrefix );
+        EXPECT_EQ( (int)10, keywordContent.size() );
 
-        for (const auto& s : keywordContent)
+        for ( const auto& s : keywordContent )
         {
-            RigEquil equilRec = RigEquil::parseString(s);
+            RigEquil equilRec = RigEquil::parseString( s );
             // qDebug() << s;
         }
     }
@@ -212,23 +212,23 @@ TEST(RifEclipseInputFileToolsTest, EquilData)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST(RifEclipseInputFileToolsTest, FaultData)
+TEST( RifEclipseInputFileToolsTest, FaultData )
 {
-    static const QString testDataRootFolder = QString("%1/ParsingOfDataKeywords/").arg(TEST_DATA_DIR);
+    static const QString testDataRootFolder = QString( "%1/ParsingOfDataKeywords/" ).arg( TEST_DATA_DIR );
 
     {
         QString fileName = testDataRootFolder + "simulation/MY_CASE.DATA";
 
-        QFile data(fileName);
-        if (!data.open(QFile::ReadOnly))
+        QFile data( fileName );
+        if ( !data.open( QFile::ReadOnly ) )
         {
             return;
         }
 
         std::vector<std::pair<QString, QString>> pathAliasDefinitions;
-        RifEclipseInputFileTools::parseAndReadPathAliasKeyword(fileName, &pathAliasDefinitions);
+        RifEclipseInputFileTools::parseAndReadPathAliasKeyword( fileName, &pathAliasDefinitions );
 
-        const QString        keyword("FAULTS");
+        const QString        keyword( "FAULTS" );
         const QString        keywordToStopParsing;
         const qint64         startPositionInFile = 0;
         QStringList          keywordContent;
@@ -236,17 +236,17 @@ TEST(RifEclipseInputFileToolsTest, FaultData)
         bool                 isStopParsingKeywordDetected = false;
         const QString        includeStatementAbsolutePathPrefix;
 
-        RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(keyword,
-                                                                                  keywordToStopParsing,
-                                                                                  data,
-                                                                                  startPositionInFile,
-                                                                                  pathAliasDefinitions,
-                                                                                  &keywordContent,
-                                                                                  &fileNamesContainingKeyword,
-                                                                                  &isStopParsingKeywordDetected,
-                                                                                  includeStatementAbsolutePathPrefix);
+        RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( keyword,
+                                                                                   keywordToStopParsing,
+                                                                                   data,
+                                                                                   startPositionInFile,
+                                                                                   pathAliasDefinitions,
+                                                                                   &keywordContent,
+                                                                                   &fileNamesContainingKeyword,
+                                                                                   &isStopParsingKeywordDetected,
+                                                                                   includeStatementAbsolutePathPrefix );
 
-        EXPECT_EQ((int)1041, keywordContent.size());
+        EXPECT_EQ( (int)1041, keywordContent.size() );
 
         /*
                 for (const auto& s : keywordContent)
@@ -260,20 +260,20 @@ TEST(RifEclipseInputFileToolsTest, FaultData)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST(RifEclipseInputFileToolsTest, StopAtKeyword)
+TEST( RifEclipseInputFileToolsTest, StopAtKeyword )
 {
-    static const QString testDataRootFolder = QString("%1/ParsingOfDataKeywords/").arg(TEST_DATA_DIR);
+    static const QString testDataRootFolder = QString( "%1/ParsingOfDataKeywords/" ).arg( TEST_DATA_DIR );
     QString              fileName           = testDataRootFolder + "simulation/MY_CASE_2.DATA";
 
-    QFile data(fileName);
-    if (!data.open(QFile::ReadOnly))
+    QFile data( fileName );
+    if ( !data.open( QFile::ReadOnly ) )
     {
         return;
     }
 
     {
-        const QString                            keyword("FAULTS");
-        const QString                            keywordToStopParsing("EDIT");
+        const QString                            keyword( "FAULTS" );
+        const QString                            keywordToStopParsing( "EDIT" );
         const qint64                             startPositionInFile = 0;
         std::vector<std::pair<QString, QString>> pathAliasDefinitions;
         QStringList                              keywordContent;
@@ -281,23 +281,23 @@ TEST(RifEclipseInputFileToolsTest, StopAtKeyword)
         bool                                     isStopParsingKeywordDetected = false;
         const QString                            includeStatementAbsolutePathPrefix;
 
-        RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(keyword,
-                                                                                  keywordToStopParsing,
-                                                                                  data,
-                                                                                  startPositionInFile,
-                                                                                  pathAliasDefinitions,
-                                                                                  &keywordContent,
-                                                                                  &fileNamesContainingKeyword,
-                                                                                  &isStopParsingKeywordDetected,
-                                                                                  includeStatementAbsolutePathPrefix);
+        RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( keyword,
+                                                                                   keywordToStopParsing,
+                                                                                   data,
+                                                                                   startPositionInFile,
+                                                                                   pathAliasDefinitions,
+                                                                                   &keywordContent,
+                                                                                   &fileNamesContainingKeyword,
+                                                                                   &isStopParsingKeywordDetected,
+                                                                                   includeStatementAbsolutePathPrefix );
 
-        EXPECT_TRUE(isStopParsingKeywordDetected);
-        EXPECT_TRUE(keywordContent.isEmpty());
+        EXPECT_TRUE( isStopParsingKeywordDetected );
+        EXPECT_TRUE( keywordContent.isEmpty() );
     }
 
     {
-        const QString                            keyword("EQUIL");
-        const QString                            keywordToStopParsing("SCHEDULE");
+        const QString                            keyword( "EQUIL" );
+        const QString                            keywordToStopParsing( "SCHEDULE" );
         const qint64                             startPositionInFile = 0;
         std::vector<std::pair<QString, QString>> pathAliasDefinitions;
         QStringList                              keywordContent;
@@ -305,16 +305,16 @@ TEST(RifEclipseInputFileToolsTest, StopAtKeyword)
         bool                                     isStopParsingKeywordDetected = false;
         const QString                            includeStatementAbsolutePathPrefix;
 
-        RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(keyword,
-                                                                                  keywordToStopParsing,
-                                                                                  data,
-                                                                                  startPositionInFile,
-                                                                                  pathAliasDefinitions,
-                                                                                  &keywordContent,
-                                                                                  &fileNamesContainingKeyword,
-                                                                                  &isStopParsingKeywordDetected,
-                                                                                  includeStatementAbsolutePathPrefix);
-        EXPECT_TRUE(isStopParsingKeywordDetected);
-        EXPECT_TRUE(keywordContent.isEmpty());
+        RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( keyword,
+                                                                                   keywordToStopParsing,
+                                                                                   data,
+                                                                                   startPositionInFile,
+                                                                                   pathAliasDefinitions,
+                                                                                   &keywordContent,
+                                                                                   &fileNamesContainingKeyword,
+                                                                                   &isStopParsingKeywordDetected,
+                                                                                   includeStatementAbsolutePathPrefix );
+        EXPECT_TRUE( isStopParsingKeywordDetected );
+        EXPECT_TRUE( keywordContent.isEmpty() );
     }
 }

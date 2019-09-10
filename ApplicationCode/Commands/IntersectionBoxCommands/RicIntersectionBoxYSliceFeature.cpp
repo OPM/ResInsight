@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,9 +21,9 @@
 #include "RiaApplication.h"
 
 #include "RimCase.h"
+#include "RimGridView.h"
 #include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
-#include "RimGridView.h"
 
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
@@ -35,10 +35,10 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicIntersectionBoxYSliceFeature, "RicIntersectionBoxYSliceFeature");
+CAF_CMD_SOURCE_INIT( RicIntersectionBoxYSliceFeature, "RicIntersectionBoxYSliceFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicIntersectionBoxYSliceFeature::isCommandEnabled()
 {
@@ -46,32 +46,32 @@ bool RicIntersectionBoxYSliceFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicIntersectionBoxYSliceFeature::onActionTriggered(bool isChecked)
+void RicIntersectionBoxYSliceFeature::onActionTriggered( bool isChecked )
 {
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
-    if (activeView)
+    if ( activeView )
     {
         RimIntersectionCollection* coll = activeView->crossSectionCollection();
-        CVF_ASSERT(coll);
+        CVF_ASSERT( coll );
 
         RimIntersectionBox* intersectionBox = new RimIntersectionBox();
-        intersectionBox->name = QString("Y-slice (Intersection box)");
+        intersectionBox->name               = QString( "Y-slice (Intersection box)" );
 
-        coll->appendIntersectionBoxAndUpdate(intersectionBox);
+        coll->appendIntersectionBoxAndUpdate( intersectionBox );
 
         cvf::Vec3d domainCoord = activeView->viewer()->lastPickPositionInDomainCoords();
-        intersectionBox->setToDefaultSizeSlice(RimIntersectionBox::PLANE_STATE_Y, domainCoord);
+        intersectionBox->setToDefaultSizeSlice( RimIntersectionBox::PLANE_STATE_Y, domainCoord );
 
         coll->updateConnectedEditors();
-        RiuMainWindow::instance()->selectAsCurrentItem(intersectionBox);
+        RiuMainWindow::instance()->selectAsCurrentItem( intersectionBox );
 
         RimGridView* rimView = nullptr;
-        coll->firstAncestorOrThisOfType(rimView);
-        if (rimView)
+        coll->firstAncestorOrThisOfType( rimView );
+        if ( rimView )
         {
-            rimView->showGridCells(false);
+            rimView->showGridCells( false );
             RiuMainWindow::instance()->refreshDrawStyleActions();
 
             rimView->scheduleCreateDisplayModelAndRedraw();
@@ -80,11 +80,10 @@ void RicIntersectionBoxYSliceFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicIntersectionBoxYSliceFeature::setupActionLook(QAction* actionToSetup)
+void RicIntersectionBoxYSliceFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/IntersectionYPlane16x16.png"));
-    actionToSetup->setText("Y-slice Intersection Box");
+    actionToSetup->setIcon( QIcon( ":/IntersectionYPlane16x16.png" ) );
+    actionToSetup->setText( "Y-slice Intersection Box" );
 }
-

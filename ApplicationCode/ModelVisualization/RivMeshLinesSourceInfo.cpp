@@ -23,7 +23,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivMeshLinesSourceInfo::RivMeshLinesSourceInfo(caf::PdmObject* object)
-    : RivObjectSourceInfo(object)
+RivMeshLinesSourceInfo::RivMeshLinesSourceInfo( caf::PdmObject* object )
+    : RivObjectSourceInfo( object )
 {
 }

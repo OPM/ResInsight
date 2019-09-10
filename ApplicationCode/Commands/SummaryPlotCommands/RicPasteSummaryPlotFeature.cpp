@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -26,37 +26,35 @@
 #include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmDocument.h"
 #include "cafPdmObjectGroup.h"
-#include "cafPdmObjectGroup.h"
 #include "cafSelectionManagerTools.h"
 
 #include "cvfAssert.h"
 
 #include <QAction>
 
-
-CAF_CMD_SOURCE_INIT(RicPasteSummaryPlotFeature, "RicPasteSummaryPlotFeature");
-
+CAF_CMD_SOURCE_INIT( RicPasteSummaryPlotFeature, "RicPasteSummaryPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicPasteSummaryPlotFeature::copyPlotAndAddToCollection(RimSummaryPlot *sourcePlot)
+void RicPasteSummaryPlotFeature::copyPlotAndAddToCollection( RimSummaryPlot* sourcePlot )
 {
     RimSummaryPlotCollection* plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlotCollection*>();
 
-    if (plotColl)
+    if ( plotColl )
     {
-        RimSummaryPlot* newSummaryPlot = dynamic_cast<RimSummaryPlot*>(sourcePlot->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
-        CVF_ASSERT(newSummaryPlot);
+        RimSummaryPlot* newSummaryPlot = dynamic_cast<RimSummaryPlot*>(
+            sourcePlot->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+        CVF_ASSERT( newSummaryPlot );
 
-        plotColl->summaryPlots.push_back(newSummaryPlot);
+        plotColl->summaryPlots.push_back( newSummaryPlot );
 
         // Resolve references after object has been inserted into the data model
         newSummaryPlot->resolveReferencesRecursively();
         newSummaryPlot->initAfterReadRecursively();
 
-        QString nameOfCopy = QString("Copy of ") + newSummaryPlot->description();
-        newSummaryPlot->setDescription(nameOfCopy);
+        QString nameOfCopy = QString( "Copy of " ) + newSummaryPlot->description();
+        newSummaryPlot->setDescription( nameOfCopy );
 
         plotColl->updateConnectedEditors();
 
@@ -65,15 +63,16 @@ void RicPasteSummaryPlotFeature::copyPlotAndAddToCollection(RimSummaryPlot *sour
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicPasteSummaryPlotFeature::isCommandEnabled()
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
+        caf::SelectionManager::instance()->selectedItem() );
 
     RimSummaryPlotCollection* plotColl = nullptr;
-    destinationObject->firstAncestorOrThisOfType(plotColl);
-    if (!plotColl)
+    destinationObject->firstAncestorOrThisOfType( plotColl );
+    if ( !plotColl )
     {
         return false;
     }
@@ -82,39 +81,38 @@ bool RicPasteSummaryPlotFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicPasteSummaryPlotFeature::onActionTriggered(bool isChecked)
+void RicPasteSummaryPlotFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<caf::PdmPointer<RimSummaryPlot> > sourceObjects = RicPasteSummaryPlotFeature::summaryPlots();
+    std::vector<caf::PdmPointer<RimSummaryPlot>> sourceObjects = RicPasteSummaryPlotFeature::summaryPlots();
 
-    for (size_t i = 0; i < sourceObjects.size(); i++)
+    for ( size_t i = 0; i < sourceObjects.size(); i++ )
     {
-        copyPlotAndAddToCollection(sourceObjects[i]);
+        copyPlotAndAddToCollection( sourceObjects[i] );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicPasteSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
+void RicPasteSummaryPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Paste Summary Plot");
+    actionToSetup->setText( "Paste Summary Plot" );
 
-    RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
+    RicPasteFeatureImpl::setIconAndShortcuts( actionToSetup );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmPointer<RimSummaryPlot> > RicPasteSummaryPlotFeature::summaryPlots()
+std::vector<caf::PdmPointer<RimSummaryPlot>> RicPasteSummaryPlotFeature::summaryPlots()
 {
     caf::PdmObjectGroup objectGroup;
-    RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
+    RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
-    std::vector<caf::PdmPointer<RimSummaryPlot> > typedObjects;
-    objectGroup.objectsByType(&typedObjects);
+    std::vector<caf::PdmPointer<RimSummaryPlot>> typedObjects;
+    objectGroup.objectsByType( &typedObjects );
 
     return typedObjects;
 }
-

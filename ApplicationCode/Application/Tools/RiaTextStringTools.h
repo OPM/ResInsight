@@ -21,10 +21,10 @@
 class QString;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 namespace RiaTextStringTools
 {
-bool        compare(const QString& expected, const QString& actual);
-QString     trimAndRemoveDoubleSpaces(const QString& s);
-}
+bool    compare( const QString& expected, const QString& actual );
+QString trimAndRemoveDoubleSpaces( const QString& s );
+} // namespace RiaTextStringTools

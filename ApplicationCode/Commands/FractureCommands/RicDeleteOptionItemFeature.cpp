@@ -25,24 +25,24 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicDeleteOptionItemFeature, "RicDeleteOptionItemFeature");
+CAF_CMD_SOURCE_INIT( RicDeleteOptionItemFeature, "RicDeleteOptionItemFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteOptionItemFeature::onActionTriggered(bool isChecked)
+void RicDeleteOptionItemFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RicCreateMultipleFracturesOptionItemUi*> optionItems;
-    caf::SelectionManager::instance()->objectsByType(&optionItems, caf::SelectionManager::FIRST_LEVEL);
+    caf::SelectionManager::instance()->objectsByType( &optionItems, caf::SelectionManager::FIRST_LEVEL );
 
-    if (!optionItems.empty())
+    if ( !optionItems.empty() )
     {
         RiuCreateMultipleFractionsUi* multipleFractionUi = nullptr;
-        optionItems[0]->firstAncestorOrThisOfTypeAsserted(multipleFractionUi);
+        optionItems[0]->firstAncestorOrThisOfTypeAsserted( multipleFractionUi );
 
-        for (auto optionItem : optionItems)
+        for ( auto optionItem : optionItems )
         {
-            multipleFractionUi->deleteOptionItem(optionItem);
+            multipleFractionUi->deleteOptionItem( optionItem );
         }
 
         multipleFractionUi->updateConnectedEditors();
@@ -52,9 +52,9 @@ void RicDeleteOptionItemFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteOptionItemFeature::setupActionLook(QAction* actionToSetup)
+void RicDeleteOptionItemFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Delete Option Items");
+    actionToSetup->setText( "Delete Option Items" );
     // actionToSetup->setIcon(QIcon(":/FractureTemplate16x16.png"));
 }
 
@@ -64,7 +64,7 @@ void RicDeleteOptionItemFeature::setupActionLook(QAction* actionToSetup)
 bool RicDeleteOptionItemFeature::isCommandEnabled()
 {
     std::vector<RicCreateMultipleFracturesOptionItemUi*> optionItems;
-    caf::SelectionManager::instance()->objectsByType(&optionItems, caf::SelectionManager::FIRST_LEVEL);
+    caf::SelectionManager::instance()->objectsByType( &optionItems, caf::SelectionManager::FIRST_LEVEL );
 
     return !optionItems.empty();
 }

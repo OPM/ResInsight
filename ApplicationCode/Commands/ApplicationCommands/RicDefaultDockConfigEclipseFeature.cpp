@@ -22,7 +22,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicDefaultDockConfigEclipseFeature, "RicDefaultDockConfigEclipseFeature");
+CAF_CMD_SOURCE_INIT( RicDefaultDockConfigEclipseFeature, "RicDefaultDockConfigEclipseFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -35,7 +35,7 @@ bool RicDefaultDockConfigEclipseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDefaultDockConfigEclipseFeature::onActionTriggered(bool isChecked)
+void RicDefaultDockConfigEclipseFeature::onActionTriggered( bool isChecked )
 {
     RiuDockWidgetTools::setVisibleDockingWindowsForEclipse();
 }
@@ -43,12 +43,12 @@ void RicDefaultDockConfigEclipseFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDefaultDockConfigEclipseFeature::setupActionLook(QAction* actionToSetup)
+void RicDefaultDockConfigEclipseFeature::setupActionLook( QAction* actionToSetup )
 {
     QString menuText = "Default Window Visibility";
 #ifdef USE_ODB_API
     menuText += " (Eclipse)";
 #endif
 
-    actionToSetup->setText(menuText);
+    actionToSetup->setText( menuText );
 }

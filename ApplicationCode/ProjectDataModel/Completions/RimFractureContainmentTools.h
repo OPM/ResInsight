@@ -30,28 +30,29 @@ class RimEclipseCase;
 class RimFractureContainmentTools
 {
 public:
-    static std::set<size_t> reservoirCellIndicesOpenForFlow(const RimEclipseCase* eclipseCase, const RimFracture* fracture);
+    static std::set<size_t> reservoirCellIndicesOpenForFlow( const RimEclipseCase* eclipseCase,
+                                                             const RimFracture*    fracture );
 
 private:
-    static std::set<size_t> getCellsIntersectingFracturePlane(const RigMainGrid* mainGrid, const RimFracture* fracture);
+    static std::set<size_t> getCellsIntersectingFracturePlane( const RigMainGrid* mainGrid, const RimFracture* fracture );
 
-    static void appendNeighborCellForFace(const std::set<size_t>&            allFracturedCells,
-                                          const RigMainGrid*                 mainGrid,
-                                          size_t                             currentCell,
-                                          cvf::StructGridInterface::FaceType face,
-                                          std::set<size_t>&                  connectedCells,
-                                          double                             maximumFaultThrow);
+    static void appendNeighborCellForFace( const std::set<size_t>&            allFracturedCells,
+                                           const RigMainGrid*                 mainGrid,
+                                           size_t                             currentCell,
+                                           cvf::StructGridInterface::FaceType face,
+                                           std::set<size_t>&                  connectedCells,
+                                           double                             maximumFaultThrow );
 
-    static void checkFaultAndAppendNeighborCell(const std::set<size_t>&            allFracturedCells,
-                                                const RigMainGrid*                 mainGrid,
-                                                size_t                             currentCell,
-                                                cvf::StructGridInterface::FaceType face,
-                                                std::set<size_t>&                  connectedCells,
-                                                double                             maximumFaultThrow);
+    static void checkFaultAndAppendNeighborCell( const std::set<size_t>&            allFracturedCells,
+                                                 const RigMainGrid*                 mainGrid,
+                                                 size_t                             currentCell,
+                                                 cvf::StructGridInterface::FaceType face,
+                                                 std::set<size_t>&                  connectedCells,
+                                                 double                             maximumFaultThrow );
 
-    static void appendNeighborCells(const std::set<size_t>& allFracturedCells,
-                                    const RigMainGrid*      mainGrid,
-                                    size_t                  currentCell,
-                                    std::set<size_t>&       connectedCells,
-                                    double                  maximumFaultThrow);
+    static void appendNeighborCells( const std::set<size_t>& allFracturedCells,
+                                     const RigMainGrid*      mainGrid,
+                                     size_t                  currentCell,
+                                     std::set<size_t>&       connectedCells,
+                                     double                  maximumFaultThrow );
 };

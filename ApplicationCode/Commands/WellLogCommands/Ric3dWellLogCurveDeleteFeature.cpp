@@ -29,7 +29,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(Ric3dWellLogCurveDeleteFeature, "Ric3dWellLogCurveDeleteFeature");
+CAF_CMD_SOURCE_INIT( Ric3dWellLogCurveDeleteFeature, "Ric3dWellLogCurveDeleteFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -37,9 +37,9 @@ CAF_CMD_SOURCE_INIT(Ric3dWellLogCurveDeleteFeature, "Ric3dWellLogCurveDeleteFeat
 bool Ric3dWellLogCurveDeleteFeature::isCommandEnabled()
 {
     std::vector<Rim3dWellLogCurve*> objects;
-    caf::SelectionManager::instance()->objectsByType(&objects);
+    caf::SelectionManager::instance()->objectsByType( &objects );
 
-    if (objects.size() > 0)
+    if ( objects.size() > 0 )
     {
         return true;
     }
@@ -50,22 +50,22 @@ bool Ric3dWellLogCurveDeleteFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Ric3dWellLogCurveDeleteFeature::onActionTriggered(bool isChecked)
+void Ric3dWellLogCurveDeleteFeature::onActionTriggered( bool isChecked )
 {
     std::vector<Rim3dWellLogCurve*> objects;
-    caf::SelectionManager::instance()->objectsByType(&objects);
+    caf::SelectionManager::instance()->objectsByType( &objects );
 
-    if (objects.size() == 0) return;
+    if ( objects.size() == 0 ) return;
 
     Rim3dWellLogCurve* firstCurve = objects[0];
 
     Rim3dWellLogCurveCollection* curveCollection = nullptr;
-    firstCurve->firstAncestorOrThisOfType(curveCollection);
-    if (!curveCollection) return;
+    firstCurve->firstAncestorOrThisOfType( curveCollection );
+    if ( !curveCollection ) return;
 
-    for (Rim3dWellLogCurve* curve : objects)
+    for ( Rim3dWellLogCurve* curve : objects )
     {
-        curveCollection->remove3dWellLogCurve(curve);
+        curveCollection->remove3dWellLogCurve( curve );
         delete curve;
     }
     curveCollection->redrawAffectedViewsAndEditors();
@@ -74,9 +74,9 @@ void Ric3dWellLogCurveDeleteFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Ric3dWellLogCurveDeleteFeature::setupActionLook(QAction* actionToSetup)
+void Ric3dWellLogCurveDeleteFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Delete 3D Well Log Curve(s)");
-    actionToSetup->setIcon(QIcon(":/Erase.png"));
-    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
+    actionToSetup->setText( "Delete 3D Well Log Curve(s)" );
+    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
 }

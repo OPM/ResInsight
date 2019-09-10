@@ -34,21 +34,23 @@ public:
     ~RimFractureContainment() override;
 
     bool isEnabled() const;
-    bool isEclipseCellOpenForFlow(const RigMainGrid*      mainGrid,
-                                  size_t                  globalCellIndex,
-                                  const std::set<size_t>& reservoirCellIndicesOpenForFlow) const;
+    bool isEclipseCellOpenForFlow( const RigMainGrid*      mainGrid,
+                                   size_t                  globalCellIndex,
+                                   const std::set<size_t>& reservoirCellIndicesOpenForFlow ) const;
 
-    void setTopKLayer(int topKLayer);
+    void setTopKLayer( int topKLayer );
     int  topKLayer() const;
 
-    void setBaseKLayer(int baseKLayer);
+    void setBaseKLayer( int baseKLayer );
     int  baseKLayer() const;
 
     double minimumFaultThrow() const; // Negative value means do not test for fault throw
 
 private:
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
 
 private:
     caf::PdmField<bool> m_useContainment;

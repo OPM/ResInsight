@@ -26,17 +26,22 @@
 #include "RimEclipseResultCase.h"
 #include "RimSaturationPressurePlot.h"
 
-CAF_PDM_SOURCE_INIT(RimSaturationPressurePlotCollection, "RimSaturationPressurePlotCollection");
+CAF_PDM_SOURCE_INIT( RimSaturationPressurePlotCollection, "RimSaturationPressurePlotCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimSaturationPressurePlotCollection::RimSaturationPressurePlotCollection()
 {
-    CAF_PDM_InitObject("Saturation Pressure Plots", ":/SummaryXPlotsLight16x16.png", "", "");
+    CAF_PDM_InitObject( "Saturation Pressure Plots", ":/SummaryXPlotsLight16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_saturationPressurePlots, "SaturationPressurePlots", "Saturation Pressure Plots", "", "", "");
-    m_saturationPressurePlots.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_saturationPressurePlots,
+                                "SaturationPressurePlots",
+                                "Saturation Pressure Plots",
+                                "",
+                                "",
+                                "" );
+    m_saturationPressurePlots.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,50 +53,50 @@ RimSaturationPressurePlotCollection::~RimSaturationPressurePlotCollection() {}
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSaturationPressurePlot*>
-    RimSaturationPressurePlotCollection::createSaturationPressurePlots(RimEclipseResultCase* eclipseResultCase)
+    RimSaturationPressurePlotCollection::createSaturationPressurePlots( RimEclipseResultCase* eclipseResultCase )
 {
     std::vector<RimSaturationPressurePlot*> generatedPlots;
 
-    if (!eclipseResultCase) return generatedPlots;
+    if ( !eclipseResultCase ) return generatedPlots;
 
     RigEclipseCaseData* eclipseCaseData = eclipseResultCase->eclipseCaseData();
-    if (!eclipseCaseData) return generatedPlots;
+    if ( !eclipseCaseData ) return generatedPlots;
 
-    auto results = eclipseCaseData->results(RiaDefines::MATRIX_MODEL);
+    auto results = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );
 
     std::set<int> eqlnumRegionIdsFound;
     {
-        RigEclipseResultAddress resAdr(RiaDefines::STATIC_NATIVE, RiaDefines::eqlnumResultName());
-        if (results->hasResultEntry(resAdr))
+        RigEclipseResultAddress resAdr( RiaDefines::STATIC_NATIVE, RiaDefines::eqlnumResultName() );
+        if ( results->hasResultEntry( resAdr ) )
         {
-            results->ensureKnownResultLoaded(resAdr);
+            results->ensureKnownResultLoaded( resAdr );
 
-            auto vals = results->uniqueCellScalarValues(resAdr);
-            for (auto v : vals)
+            auto vals = results->uniqueCellScalarValues( resAdr );
+            for ( auto v : vals )
             {
-                eqlnumRegionIdsFound.insert(v);
+                eqlnumRegionIdsFound.insert( v );
             }
         }
     }
 
     eclipseResultCase->ensureDeckIsParsedForEquilData();
     std::vector<RigEquil> equilData = eclipseCaseData->equilData();
-    for (size_t i = 0; i < equilData.size(); i++)
+    for ( size_t i = 0; i < equilData.size(); i++ )
     {
-        int zeroBasedEquilibriumRegion = static_cast<int>(i);
+        int zeroBasedEquilibriumRegion = static_cast<int>( i );
 
-        if (eqlnumRegionIdsFound.find(zeroBasedEquilibriumRegion + 1) != eqlnumRegionIdsFound.end())
+        if ( eqlnumRegionIdsFound.find( zeroBasedEquilibriumRegion + 1 ) != eqlnumRegionIdsFound.end() )
         {
             RimSaturationPressurePlot* plot = new RimSaturationPressurePlot();
             plot->setAsPlotMdiWindow();
 
-            // As discussed with Liv Merete, it is not any use for creation of different plots for matrix/fracture. For now, use
-            // hardcoded value for MATRIX
-            plot->assignCaseAndEquilibriumRegion(RiaDefines::MATRIX_MODEL, eclipseResultCase, zeroBasedEquilibriumRegion);
+            // As discussed with Liv Merete, it is not any use for creation of different plots for matrix/fracture. For
+            // now, use hardcoded value for MATRIX
+            plot->assignCaseAndEquilibriumRegion( RiaDefines::MATRIX_MODEL, eclipseResultCase, zeroBasedEquilibriumRegion );
 
-            m_saturationPressurePlots.push_back(plot);
+            m_saturationPressurePlots.push_back( plot );
 
-            generatedPlots.push_back(plot);
+            generatedPlots.push_back( plot );
         }
     }
 

@@ -22,17 +22,17 @@
 class RiuQwtPlotZoomer : public QwtPlotZoomer
 {
 public:
-    RiuQwtPlotZoomer(QWidget* canvas, bool doReplot = true)
-        : QwtPlotZoomer(canvas, doReplot)
+    RiuQwtPlotZoomer( QWidget* canvas, bool doReplot = true )
+        : QwtPlotZoomer( canvas, doReplot )
     {
     }
 
     bool isActiveAndValid() const
     {
-        if (!isActive()) return false;
+        if ( !isActive() ) return false;
 
         auto currentSelection = selection();
-        return accept(currentSelection);
+        return accept( currentSelection );
     }
 
 protected:
@@ -41,17 +41,17 @@ protected:
         return QwtPlotZoomer::minZoomSize() / 10.0e6;
     }
 
-    bool accept(QPolygon& pa) const override
+    bool accept( QPolygon& pa ) const override
     {
-        if (pa.count() < 2) return false;
+        if ( pa.count() < 2 ) return false;
 
-        QRect rect = QRect(pa[0], pa[int(pa.count()) - 1]);
+        QRect rect = QRect( pa[0], pa[int( pa.count() ) - 1] );
         rect       = rect.normalized();
 
         // This size is larger than the minSize value in the base class
         const int minSize = 10;
-        if (rect.width() < minSize && rect.height() < minSize) return false;
+        if ( rect.width() < minSize && rect.height() < minSize ) return false;
 
-        return QwtPlotZoomer::accept(pa);
+        return QwtPlotZoomer::accept( pa );
     }
 };
