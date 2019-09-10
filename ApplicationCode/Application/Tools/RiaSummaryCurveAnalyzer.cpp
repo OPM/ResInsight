@@ -282,6 +282,9 @@ void RiaSummaryCurveAnalyzer::clear()
     m_wellCompletions.clear();
     m_wellSegmentNumbers.clear();
     m_blocks.clear();
+
+    m_quantitiesNoMatchingHistory.clear();
+    m_quantitiesWithMatchingHistory.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
