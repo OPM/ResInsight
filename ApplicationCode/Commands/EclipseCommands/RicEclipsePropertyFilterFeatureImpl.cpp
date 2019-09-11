@@ -119,7 +119,11 @@ void RicEclipsePropertyFilterFeatureImpl::setDefaults( RimEclipsePropertyFilter*
     propertyFilter->firstAncestorOrThisOfTypeAsserted( reservoirView );
 
     propertyFilter->resultDefinition()->setEclipseCase( reservoirView->eclipseCase() );
-    propertyFilter->resultDefinition()->simpleCopy( reservoirView->cellResult() );
+
+    if ( !RiaDefines::isPerCellFaceResult( reservoirView->cellResult()->resultVariable() ) )
+    {
+        propertyFilter->resultDefinition()->simpleCopy( reservoirView->cellResult() );
+    }
 
     propertyFilter->resultDefinition()->loadResult();
     propertyFilter->setToDefaultValues();
