@@ -1,8 +1,6 @@
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,15 +18,30 @@
 
 #pragma once
 
-#include <cvfBoundingBox.h>
+#include "cafCmdFeature.h"
+
+class RimSummaryCase;
+class RimWellPath;
 
 //==================================================================================================
-//
-//
-//
+///
 //==================================================================================================
-class RiaBoundingBoxTools
+class RicCreatePlotFromSelectionFeature : public caf::CmdFeature
 {
+    CAF_CMD_HEADER_INIT;
+
 public:
-    static cvf::BoundingBox inflate( const cvf::BoundingBox& boundingBox, double factor );
+    RicCreatePlotFromSelectionFeature();
+
+protected:
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    RimSummaryPlot* createPlotFromTemplateFile( const QString& fileName ) const;
+
+private:
+    std::vector<RimSummaryCase*> selectedSummaryCases() const;
+    std::vector<RimWellPath*>    selectedWellPaths() const;
 };

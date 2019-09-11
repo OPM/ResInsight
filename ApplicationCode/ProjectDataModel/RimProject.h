@@ -66,6 +66,7 @@ class RimFractureTemplate;
 class RimValveTemplateCollection;
 class RimValveTemplate;
 class RimCompletionTemplateCollection;
+class RimPlotTemplateFolderItem;
 
 namespace caf
 {
@@ -104,6 +105,7 @@ public:
     caf::PdmField<QString> plotWindowCurrentModelIndexPath;
 
     void setScriptDirectories( const QString& scriptDirectories );
+    void setPlotTemplateFolders( const QStringList& plotTemplateFolders );
 
     QString projectFileVersionString() const;
     bool    isProjectFileVersionEqualOrOlderThan( const QString& otherProjectFileVersion ) const;
@@ -172,6 +174,8 @@ public:
     RiaEclipseUnitTools::UnitSystemType commonUnitSystemForAllCases() const;
     RimMeasurement*                     measurement() const;
 
+    RimPlotTemplateFolderItem* rootPlotTemlateItem() const;
+
 protected:
     // Overridden methods
     void initAfterRead() override;
@@ -186,7 +190,8 @@ private:
 private:
     caf::PdmField<QString> m_projectFileVersionString;
 
-    caf::PdmChildField<RimDialogData*> m_dialogData;
+    caf::PdmChildField<RimDialogData*>             m_dialogData;
+    caf::PdmChildField<RimPlotTemplateFolderItem*> m_plotTemplateFolderItem;
 
     caf::PdmField<bool> m_show3DWindow;
     caf::PdmField<bool> m_showPlotWindow;

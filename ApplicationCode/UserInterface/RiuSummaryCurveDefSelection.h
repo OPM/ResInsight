@@ -76,13 +76,14 @@ private:
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute ) override;
 
-    std::set<RifEclipseSummaryAddress> findPossibleSummaryAddresses( const std::vector<SummarySource*>& selectedSources,
-                                                                     const SummaryIdentifierAndField* identifierAndField );
     std::set<RifEclipseSummaryAddress>
-        findPossibleSummaryAddressesFromSelectedCases( const SummaryIdentifierAndField* identifierAndField );
+        findPossibleSummaryAddresses( const std::vector<SummarySource*>& selectedSources,
+                                      const SummaryIdentifierAndField*   identifierAndField ) const;
     std::set<RifEclipseSummaryAddress>
-                                       findPossibleSummaryAddressesFromSelectedObservedData( const SummaryIdentifierAndField* identifierAndField );
-    std::set<RifEclipseSummaryAddress> findPossibleSummaryAddressesFromCalculated();
+        findPossibleSummaryAddressesFromSelectedCases( const SummaryIdentifierAndField* identifierAndField ) const;
+    std::set<RifEclipseSummaryAddress>
+                                       findPossibleSummaryAddressesFromSelectedObservedData( const SummaryIdentifierAndField* identifierAndField ) const;
+    std::set<RifEclipseSummaryAddress> findPossibleSummaryAddressesFromCalculated() const;
 
     std::vector<SummaryIdentifierAndField*>
                                buildControllingFieldList( const SummaryIdentifierAndField* identifierAndField ) const;
@@ -104,6 +105,11 @@ private:
 
     std::vector<SummarySource*> selectedSummarySources() const;
     static RimSummaryCase*      calculatedSummaryCase();
+
+    void appendOptionItemsForSources( QList<caf::PdmOptionItemInfo>& options ) const;
+    void appendOptionItemsForCategories( QList<caf::PdmOptionItemInfo>& options ) const;
+    void appendOptionItemsForSubCategoriesAndVectors( QList<caf::PdmOptionItemInfo>& options,
+                                                      SummaryIdentifierAndField*     identifierAndField ) const;
 
 private:
     caf::PdmPtrArrayField<SummarySource*> m_selectedSources;

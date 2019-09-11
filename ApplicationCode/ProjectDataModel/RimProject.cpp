@@ -30,6 +30,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 
+#include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "RimAdvancedSnapshotExportDefinition.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
@@ -191,6 +192,10 @@ RimProject::RimProject( void )
 
     mainPlotCollection = new RimMainPlotCollection();
 
+    CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolderItem, "PlotTemplateCollection", "Plot Templates", "", "", "" );
+    m_plotTemplateFolderItem = new RimPlotTemplateFolderItem();
+    m_plotTemplateFolderItem.xmlCapability()->disableIO();
+
     // For now, create a default first oilfield that contains the rest of the project
     oilFields.push_back( new RimOilField );
 
@@ -351,6 +356,17 @@ void RimProject::setScriptDirectories( const QString& scriptDirectories )
             scriptCollection->subDirectories.push_back( sharedScriptLocation );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::setPlotTemplateFolders( const QStringList& plotTemplateFolders )
+{
+    if ( m_plotTemplateFolderItem() ) delete m_plotTemplateFolderItem();
+    m_plotTemplateFolderItem = new RimPlotTemplateFolderItem();
+
+    m_plotTemplateFolderItem->createRootFolderItemsFromFolderPaths( plotTemplateFolders );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1158,6 +1174,14 @@ RimMeasurement* RimProject::measurement() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimPlotTemplateFolderItem* RimProject::rootPlotTemlateItem() const
+{
+    return m_plotTemplateFolderItem;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProject::reloadCompletionTypeResultsForEclipseCase( RimEclipseCase* eclipseCase )
 {
     std::vector<Rim3dView*> views = eclipseCase->views();
@@ -1237,6 +1261,8 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                 itemCollection->add( mainPlotCollection->saturationPressurePlotCollection() );
             }
         }
+
+        uiTreeOrdering.add( m_plotTemplateFolderItem() );
     }
     else
     {

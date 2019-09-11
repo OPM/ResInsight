@@ -330,7 +330,7 @@ void RicSummaryCurveCreator::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 
     syncPreviewCurvesFromUiSelection();
 
-    m_summaryCurveSelectionEditor->updateUi();
+    m_summaryCurveSelectionEditor->updateUi( uiConfigName );
 }
 
 //--------------------------------------------------------------------------------------------------

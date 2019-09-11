@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,15 +18,24 @@
 
 #pragma once
 
-#include <cvfBoundingBox.h>
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
 
 //==================================================================================================
-//
-//
-//
+///
+///
 //==================================================================================================
-class RiaBoundingBoxTools
+class RimPlotTemplateFileItem : public caf::PdmObject
 {
+    CAF_PDM_HEADER_INIT;
+
 public:
-    static cvf::BoundingBox inflate( const cvf::BoundingBox& boundingBox, double factor );
+    RimPlotTemplateFileItem();
+    ~RimPlotTemplateFileItem() override;
+
+    void    setFilePath( const QString& filePath );
+    QString absoluteFilePath() const;
+
+private:
+    caf::PdmField<QString> m_absoluteFileName;
 };

@@ -124,6 +124,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     ProjectDataModel/Annotations/CMakeLists_files.cmake
     ProjectDataModel/Completions/CMakeLists_files.cmake
     ProjectDataModel/Measurement/CMakeLists_files.cmake
+    ProjectDataModel/PlotTemplates/CMakeLists_files.cmake
     
     GeoMech/GeoMechVisualization/CMakeLists_files.cmake
     
@@ -157,6 +158,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/ViewLink/CMakeLists_files.cmake
     Commands/WellLogCommands/CMakeLists_files.cmake
     Commands/WellPathCommands/CMakeLists_files.cmake
+    Commands/PlotTemplateCommands/CMakeLists_files.cmake
 
     CommandFileInterface/CMakeLists_files.cmake
     CommandFileInterface/Core/CMakeLists_files.cmake
