@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 #include "RiaSummaryTools.h"
 
 #include "RicCreatePlotFromSelectionFeature.h"
