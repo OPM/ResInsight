@@ -25,6 +25,8 @@
 
 #include "SummaryPlotCommands/RicSummaryCurveCreator.h"
 
+#include "PlotTemplates/RimPlotTemplateFileItem.h"
+#include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "RimAsciiDataCurve.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -193,6 +195,8 @@ RimSummaryPlot::RimSummaryPlot()
 
     CAF_PDM_InitField( &m_isAutoZoom_OBSOLETE, "AutoZoom", true, "Auto Zoom", "", "", "" );
     RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_isAutoZoom_OBSOLETE );
+
+    CAF_PDM_InitFieldNoDefault( &m_plotTemplate, "PlotTemplate", "Template", "", "", "" );
 
     m_isCrossPlot = false;
 
@@ -1234,6 +1238,27 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlot::calculateValueOptions( const caf::
             options.push_back( caf::PdmOptionItemInfo( text, value ) );
         }
     }
+    else if ( fieldNeedingOptions == &m_plotTemplate )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+        auto rootPlotTemplate = RiaApplication::instance()->project()->rootPlotTemlateItem();
+        if ( rootPlotTemplate )
+        {
+            std::vector<caf::PdmObject*> allTemplates;
+            {
+                RimPlotTemplateFileItem fileItem;
+                rootPlotTemplate->descendantsIncludingThisFromClassKeyword( fileItem.classKeyword(), allTemplates );
+            }
+
+            for ( auto t : allTemplates )
+            {
+                caf::PdmOptionItemInfo optionItem( t->uiName(), t );
+                options.push_back( optionItem );
+            }
+        }
+    }
+
     return options;
 }
 
@@ -1552,6 +1577,8 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     m_userDefinedPlotTitle.uiCapability()->setUiReadOnly( m_useAutoPlotTitle );
 
+    uiOrdering.add( &m_plotTemplate );
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -1840,6 +1867,22 @@ caf::PdmObject* RimSummaryPlot::findRimPlotObjectFromQwtCurve( const QwtPlotCurv
 void RimSummaryPlot::showLegend( bool enable )
 {
     m_showLegend = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::setPlotTemplate( RimPlotTemplateFileItem* plotTemplate )
+{
+    m_plotTemplate = plotTemplate;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlotTemplateFileItem* RimSummaryPlot::plotTemplate() const
+{
+    return m_plotTemplate();
 }
 
 //--------------------------------------------------------------------------------------------------

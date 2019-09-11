@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-
 #include "RiaDefines.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaSummaryCurveDefinition.h"
@@ -30,6 +28,10 @@
 #include "RimViewWindow.h"
 
 #include "qwt_plot_textlabel.h"
+
+#include "cafPdmChildArrayField.h"
+#include "cafPdmPtrField.h"
+
 #include <QPointer>
 
 #include <memory>
@@ -49,6 +51,7 @@ class RimPlotAxisPropertiesInterface;
 class RimPlotAxisProperties;
 class RiuSummaryQwtPlot;
 class RimSummaryPlotNameHelper;
+class RimPlotTemplateFileItem;
 
 class QwtInterval;
 class QwtPlotCurve;
@@ -145,6 +148,9 @@ public:
     bool isNormalizationEnabled();
     void showLegend( bool enable );
 
+    void                     setPlotTemplate( RimPlotTemplateFileItem* plotTemplate );
+    RimPlotTemplateFileItem* plotTemplate() const;
+
 public:
     // Rim2dPlotInterface overrides
     void            updateAxisScaling() override;
@@ -222,6 +228,8 @@ private:
 
     caf::PdmChildField<RimPlotAxisProperties*>        m_bottomAxisProperties;
     caf::PdmChildField<RimSummaryTimeAxisProperties*> m_timeAxisProperties;
+
+    caf::PdmPtrField<RimPlotTemplateFileItem*> m_plotTemplate;
 
     QPointer<RiuSummaryQwtPlot>       m_qwtPlot;
     std::unique_ptr<QwtPlotTextLabel> m_plotInfoLabel;

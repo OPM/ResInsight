@@ -301,6 +301,17 @@ RiaPreferences::RiaPreferences( void )
     CAF_PDM_InitFieldNoDefault( &m_timeFormat, "timeFormat", "Time Format", "", "", "" );
     m_timeFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_timeFormat = RiaQDateTimeTools::supportedTimeFormats().front();
+
+    CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolders, "plotTemplateFolders", "Plot Template Folder(s)", "", "", "" );
+    m_plotTemplateFolders.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_searchPlotTemplateFoldersRecursively,
+                       "SearchPlotTemplateFoldersRecursively",
+                       true,
+                       "Search Plot Templates Recursively",
+                       "",
+                       "",
+                       "" );
+    m_searchPlotTemplateFoldersRecursively.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -320,7 +331,7 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
 {
     m_readerSettings->defineEditorAttribute( field, uiConfigName, attribute );
 
-    if ( field == &scriptDirectories )
+    if ( field == &scriptDirectories || field == &m_plotTemplateFolders )
     {
         caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
         if ( myAttr )
@@ -334,7 +345,8 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
               field == &m_appendClassNameToUiText || field == &m_appendFieldKeywordToToolTipText ||
               field == &m_showTestToolbar || field == &m_includeFractureDebugInfoFile ||
               field == &showLasCurveWithoutTvdWarning || field == &holoLensDisableCertificateVerification ||
-              field == &m_showProjectChangedDialog || field == &showLegendBackground )
+              field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
+              field == &showLegendBackground )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -422,6 +434,10 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         uiOrdering.add( &defaultSummaryHistoryCurveStyle );
         uiOrdering.add( &m_dateFormat );
         uiOrdering.add( &m_timeFormat );
+
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Plot Templates" );
+        group->add( &m_plotTemplateFolders );
+        group->add( &m_searchPlotTemplateFoldersRecursively );
     }
     else if ( uiConfigName == RiaPreferences::tabNameScripting() )
     {
@@ -671,6 +687,33 @@ const QString& RiaPreferences::dateFormat() const
 const QString& RiaPreferences::timeFormat() const
 {
     return m_timeFormat();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::searchPlotTemplateFoldersRecursively() const
+{
+    return m_searchPlotTemplateFoldersRecursively();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RiaPreferences::plotTemplateFolders() const
+{
+    QStringList filteredFolders;
+    QStringList pathList = m_plotTemplateFolders().split( ';' );
+    for ( const auto& path : pathList )
+    {
+        QDir dir( path );
+        if ( !path.isEmpty() && dir.exists() && dir.isReadable() )
+        {
+            filteredFolders.push_back( path );
+        }
+    }
+
+    return filteredFolders;
 }
 
 //--------------------------------------------------------------------------------------------------
