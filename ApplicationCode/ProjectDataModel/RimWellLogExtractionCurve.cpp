@@ -225,7 +225,7 @@ void RimWellLogExtractionCurve::setPropertiesFromView( Rim3dView* view )
     }
     else if ( geomCase )
     {
-        m_geomResultDefinition->setResultAddress( RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "" ) );
+        m_geomResultDefinition->setResultAddress( RigFemResultAddress( RIG_NODAL, "POR", "" ) );
     }
 
     clearGeneratedSimWellPaths();
