@@ -25,6 +25,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
+#include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
@@ -178,23 +179,90 @@ RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve( RimWellLogTrack*
 
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
     curve->setColor( curveColor );
-    if ( wellPath )
-    {
-        curve->setWellPath( wellPath );
-        plotTrack->setFormationWellPath( wellPath );
-        plotTrack->setFormationTrajectoryType( RimWellLogTrack::WELL_PATH );
-    }
-    if ( simWell )
-    {
-        curve->setFromSimulationWellName( simWell->name(), branchIndex, useBranchDetection );
-        plotTrack->setFormationSimWellName( simWell->name() );
-        plotTrack->setFormationBranchIndex( branchIndex );
-        plotTrack->setFormationTrajectoryType( RimWellLogTrack::SIMULATION_WELL );
-    }
+
+    RimCase*        caseToApply = nullptr;
+    RimWellLogPlot* plot        = nullptr;
+    plotTrack->firstAncestorOrThisOfTypeAsserted( plot );
+    RimWellLogCurveCommonDataSource* commonDataSource = plot->commonDataSource();
 
     if ( view )
     {
-        plotTrack->setFormationCase( view->ownerCase() );
+        caseToApply = view->ownerCase();
+    }
+    else if ( commonDataSource->caseToApply() )
+    {
+        caseToApply = commonDataSource->caseToApply();
+    }
+    else if ( plotTrack->formationNamesCase() )
+    {
+        caseToApply = plotTrack->formationNamesCase();
+    }
+    else
+    {
+        std::vector<RimCase*> allCases;
+        RiaApplication::instance()->project()->allCases( allCases );
+        if ( !allCases.empty() ) caseToApply = allCases.front();
+    }
+
+    QString ownerSimWellName;
+    if ( !wellPath )
+    {
+        if ( commonDataSource->wellPathToApply() )
+        {
+            wellPath = commonDataSource->wellPathToApply();
+        }
+        else if ( plotTrack->formationWellPath() )
+        {
+            wellPath = plotTrack->formationWellPath();
+        }
+        else
+        {
+            auto allWellPaths = RiaApplication::instance()->project()->allWellPaths();
+            if ( !allWellPaths.empty() )
+            {
+                wellPath = allWellPaths.front();
+            }
+        }
+    }
+    if ( !simWell )
+    {
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( caseToApply );
+        if ( eclipseCase )
+        {
+            if ( !commonDataSource->simWellNameToApply().isEmpty() )
+            {
+                ownerSimWellName = commonDataSource->simWellNameToApply();
+            }
+            else if ( !plotTrack->formationSimWellName().isEmpty() )
+            {
+                ownerSimWellName = plotTrack->formationSimWellName();
+            }
+            else
+            {
+                auto allSimWells = eclipseCase->sortedSimWellNames();
+                if ( !allSimWells.empty() )
+                {
+                    ownerSimWellName = *allSimWells.begin();
+                }
+            }
+        }
+    }
+
+    if ( simWell || !ownerSimWellName.isEmpty() )
+    {
+        QString simWellName = simWell ? simWell->name() : ownerSimWellName;
+        curve->setFromSimulationWellName( simWellName, branchIndex, useBranchDetection );
+    }
+
+    if ( wellPath )
+    {
+        curve->setWellPath( wellPath );
+        curve->setTrajectoryType( RimWellLogExtractionCurve::WELL_PATH );
+    }
+
+    if ( caseToApply )
+    {
+        curve->setCase( caseToApply );
     }
 
     curve->setPropertiesFromView( view );
@@ -212,7 +280,6 @@ RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve( RimWellLogTrack*
         // Make sure the summary plot window is visible
         RiuPlotMainWindowTools::showPlotMainWindow();
     }
-
     return curve;
 }
 

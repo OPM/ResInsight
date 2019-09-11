@@ -166,7 +166,7 @@ void RicNewWellBoreStabilityPlotFeature::createFormationTrack( RimWellBoreStabil
     RimWellLogTrack* formationTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Formations", plot );
     formationTrack->setFormationWellPath( wellPath );
     formationTrack->setFormationCase( geoMechCase );
-    formationTrack->setShowFormations( true );
+    formationTrack->setShowFormations( RiuPlotAnnotationTool::COLOR_SHADING_AND_LINES );
     formationTrack->setVisibleXRange( 0.0, 0.0 );
     formationTrack->setWidthScaleFactor( RimWellLogTrack::NARROW_TRACK );
 }
@@ -182,7 +182,7 @@ void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack( RimWellBoreStabi
     casingShoeTrack->setWidthScaleFactor( RimWellLogTrack::NARROW_TRACK );
     casingShoeTrack->setFormationWellPath( wellPath );
     casingShoeTrack->setFormationCase( geoMechCase );
-    casingShoeTrack->setShowFormations( true );
+    casingShoeTrack->setShowFormations( RiuPlotAnnotationTool::DARK_LINES );
     casingShoeTrack->setShowFormationLabels( false );
     casingShoeTrack->setShowWellPathAttributes( true );
     casingShoeTrack->setWellPathAttributesSource( wellPath );
@@ -207,7 +207,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
     stabilityCurvesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     stabilityCurvesTrack->setFormationWellPath( wellPath );
     stabilityCurvesTrack->setFormationCase( geoMechView->geoMechCase() );
-    stabilityCurvesTrack->setShowFormations( true );
+    stabilityCurvesTrack->setShowFormations( RiuPlotAnnotationTool::NONE );
     stabilityCurvesTrack->setShowFormationLabels( false );
 
     std::vector<QString> resultNames = RiaDefines::wellPathStabilityResultNames();
@@ -227,8 +227,13 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
     {
         const QString&             resultName = resultNames[i];
         RigFemResultAddress        resAddr( RIG_WELLPATH_DERIVED, resultName.toStdString(), "" );
-        RimWellLogExtractionCurve* curve =
-            RicWellLogTools::addExtractionCurve( stabilityCurvesTrack, geoMechView, wellPath, nullptr, 0, false, false );
+        RimWellLogExtractionCurve* curve = RicWellLogTools::addExtractionCurve( stabilityCurvesTrack,
+                                                                                geoMechView,
+                                                                                wellPath,
+                                                                                nullptr,
+                                                                                -1,
+                                                                                false,
+                                                                                false );
         curve->setGeoMechResultAddress( resAddr );
         curve->setCurrentTimeStep( geoMechView->currentTimeStep() );
         curve->setCustomName( resultName );
@@ -263,7 +268,7 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
         const QString&             resultName = resultNames[i];
         RigFemResultAddress        resAddr( RIG_WELLPATH_DERIVED, resultName.toStdString(), "" );
         RimWellLogExtractionCurve* curve =
-            RicWellLogTools::addExtractionCurve( wellPathAnglesTrack, geoMechView, wellPath, nullptr, 0, false, false );
+            RicWellLogTools::addExtractionCurve( wellPathAnglesTrack, geoMechView, wellPath, nullptr, -1, false, false );
         curve->setGeoMechResultAddress( resAddr );
         curve->setCurrentTimeStep( geoMechView->currentTimeStep() );
         curve->setCustomName( resultName );
@@ -293,6 +298,6 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
     wellPathAnglesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     wellPathAnglesTrack->setFormationWellPath( wellPath );
     wellPathAnglesTrack->setFormationCase( geoMechView->geoMechCase() );
-    wellPathAnglesTrack->setShowFormations( true );
+    wellPathAnglesTrack->setShowFormations( RiuPlotAnnotationTool::NONE );
     wellPathAnglesTrack->setShowFormationLabels( false );
 }

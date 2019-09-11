@@ -70,6 +70,7 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered( bool isChecked )
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return;
 
+    RimWellLogPlot*  wellLogPlot      = caf::SelectionManager::instance()->selectedItemOfType<RimWellLogPlot>();
     RimWellLogTrack* wellLogPlotTrack = caf::SelectionManager::instance()->selectedItemOfType<RimWellLogTrack>();
     if ( wellLogPlotTrack )
     {
@@ -77,10 +78,10 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered( bool isChecked )
     }
     else
     {
-        RimWellPath*      wellPath    = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>();
-        int               branchIndex = -1;
-        RimSimWellInView* simWell     = RicWellLogTools::selectedSimulationWell( &branchIndex );
-
+        RimWellPath*                wellPath    = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>();
+        int                         branchIndex = -1;
+        RimSimWellInView*           simWell     = RicWellLogTools::selectedSimulationWell( &branchIndex );
+        Rim3dView*                  view        = RiaApplication::instance()->activeReservoirView();
         bool                        useBranchDetection = true;
         RimSimWellInViewCollection* simWellColl        = nullptr;
         if ( simWell )
@@ -91,11 +92,29 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered( bool isChecked )
 
         if ( wellPath || simWell )
         {
-            RimWellLogTrack* newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
+            RimWellLogTrack* newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( true,
+                                                                                                         "",
+                                                                                                         wellLogPlot );
+            if ( wellPath )
+            {
+                newWellLogPlotTrack->setFormationWellPath( wellPath );
+                newWellLogPlotTrack->setFormationTrajectoryType( RimWellLogTrack::WELL_PATH );
+            }
+            else
+            {
+                newWellLogPlotTrack->setFormationSimWellName( simWell->name() );
+                newWellLogPlotTrack->setFormationTrajectoryType( RimWellLogTrack::SIMULATION_WELL );
+                newWellLogPlotTrack->setFormationBranchIndex( branchIndex );
+                newWellLogPlotTrack->setFormationBranchDetection( useBranchDetection );
+            }
+
+            if ( view )
+            {
+                newWellLogPlotTrack->setFormationCase( view->ownerCase() );
+            }
 
             RimWellLogExtractionCurve* plotCurve = RicWellLogTools::addExtractionCurve( newWellLogPlotTrack,
-                                                                                        RiaApplication::instance()
-                                                                                            ->activeReservoirView(),
+                                                                                        view,
                                                                                         wellPath,
                                                                                         simWell,
                                                                                         branchIndex,
@@ -103,11 +122,10 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered( bool isChecked )
 
             plotCurve->loadDataAndUpdate( true );
 
-            RimWellLogPlot* plot = nullptr;
-            newWellLogPlotTrack->firstAncestorOrThisOfType( plot );
-            if ( plot && plotCurve->curveData() )
+            newWellLogPlotTrack->firstAncestorOrThisOfType( wellLogPlot );
+            if ( wellLogPlot && plotCurve->curveData() )
             {
-                plot->setDepthUnit( plotCurve->curveData()->depthUnit() );
+                wellLogPlot->setDepthUnit( plotCurve->curveData()->depthUnit() );
             }
 
             plotCurve->updateConnectedEditors();

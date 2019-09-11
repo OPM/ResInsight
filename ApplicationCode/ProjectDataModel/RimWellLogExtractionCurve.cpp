@@ -96,7 +96,7 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Name", "", "", "" );
     m_wellPath.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_simWellName, "SimulationWellName", QString( "None" ), "Well Name", "", "", "" );
+    CAF_PDM_InitField( &m_simWellName, "SimulationWellName", QString( "" ), "Well Name", "", "", "" );
     CAF_PDM_InitField( &m_branchDetection,
                        "BranchDetection",
                        true,
@@ -195,7 +195,10 @@ RimCase* RimWellLogExtractionCurve::rimCase() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::setPropertiesFromView( Rim3dView* view )
 {
-    m_case = view ? view->ownerCase() : nullptr;
+    if ( view )
+    {
+        m_case = view->ownerCase();
+    }
 
     RimGeoMechCase* geomCase    = dynamic_cast<RimGeoMechCase*>( m_case.value() );
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
@@ -209,12 +212,20 @@ void RimWellLogExtractionCurve::setPropertiesFromView( Rim3dView* view )
 
         m_timeStep = eclipseView->currentTimeStep();
     }
+    else if ( eclipseCase )
+    {
+        m_eclipseResultDefinition->setResultVariable( "SOIL" );
+    }
 
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( view );
     if ( geoMechView )
     {
         m_geomResultDefinition->setResultAddress( geoMechView->cellResultResultDefinition()->resultAddress() );
         m_timeStep = geoMechView->currentTimeStep();
+    }
+    else if ( geomCase )
+    {
+        m_geomResultDefinition->setResultAddress( RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "" ) );
     }
 
     clearGeneratedSimWellPaths();
@@ -276,7 +287,7 @@ void RimWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* cha
         clampTimestep();
 
         auto wellNameSet = sortedSimWellNames();
-        if ( !wellNameSet.count( m_simWellName() ) ) m_simWellName = "None";
+        if ( !wellNameSet.count( m_simWellName() ) ) m_simWellName = "";
 
         clearGeneratedSimWellPaths();
 
@@ -584,14 +595,10 @@ QList<caf::PdmOptionItemInfo>
     if ( fieldNeedingOptions == &m_wellPath )
     {
         RimTools::wellPathOptionItems( &options );
-
-        options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
     else if ( fieldNeedingOptions == &m_case )
     {
         RimTools::caseOptionItems( &options );
-
-        options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
     else if ( fieldNeedingOptions == &m_timeStep )
     {
@@ -615,11 +622,6 @@ QList<caf::PdmOptionItemInfo>
         for ( const QString& wname : sortedWellNames )
         {
             options.push_back( caf::PdmOptionItemInfo( wname, wname, false, simWellIcon ) );
-        }
-
-        if ( options.size() == 0 )
-        {
-            options.push_front( caf::PdmOptionItemInfo( "None", "None" ) );
         }
     }
     else if ( fieldNeedingOptions == &m_branchIndex )
