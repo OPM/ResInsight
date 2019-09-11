@@ -746,7 +746,7 @@ QList<caf::PdmOptionItemInfo>
     {
         appendOptionItemsForCategories( options );
     }
-    else if ( fieldNeedingOptions == &m_currentSummaryCategory )
+    else
     {
         // Lookup item type input field
         auto identifierAndField = lookupIdentifierAndFieldFromFieldHandle( fieldNeedingOptions );
