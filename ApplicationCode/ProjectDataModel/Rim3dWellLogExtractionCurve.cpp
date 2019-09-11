@@ -439,11 +439,13 @@ void Rim3dWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* c
             m_geomResultDefinition->setGeoMechCase( geoMechCase );
         }
 
-        this->resetMinMaxValuesAndUpdateUI();
+        this->resetMinMaxValues();
+        this->updateConnectedEditors();
     }
     else if ( changedField == &m_timeStep )
     {
-        this->resetMinMaxValuesAndUpdateUI();
+        this->resetMinMaxValues();
+        this->updateConnectedEditors();
     }
     Rim3dWellLogCurve::fieldChangedByUi( changedField, oldValue, newValue );
 }

@@ -379,19 +379,9 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
         }
     }
 
-    if ( propFilter )
-    {
-        propFilter->updateConnectedEditors();
-    }
-
-    if ( curve )
-    {
-        curve->updateConnectedEditors();
-    }
-
     if ( rim3dWellLogCurve )
     {
-        rim3dWellLogCurve->resetMinMaxValuesAndUpdateUI();
+        rim3dWellLogCurve->resetMinMaxValues();
     }
 }
 

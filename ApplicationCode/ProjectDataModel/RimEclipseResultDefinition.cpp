@@ -435,7 +435,7 @@ void RimEclipseResultDefinition::updateAnyFieldHasChanged()
     this->firstAncestorOrThisOfType( rim3dWellLogCurve );
     if ( rim3dWellLogCurve )
     {
-        rim3dWellLogCurve->resetMinMaxValuesAndUpdateUI();
+        rim3dWellLogCurve->resetMinMaxValues();
     }
 
     RimEclipseContourMapProjection* contourMap = nullptr;
