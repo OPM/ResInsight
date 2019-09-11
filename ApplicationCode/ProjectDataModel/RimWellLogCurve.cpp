@@ -33,6 +33,8 @@
 
 #include "qwt_symbol.h"
 
+#include <algorithm>
+
 // NB! Special macro for pure virtual class
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimWellLogCurve, "WellLogPlotCurve" );
 
@@ -55,9 +57,16 @@ RimWellLogCurve::~RimWellLogCurve() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogCurve::valueRange( double* minimumValue, double* maximumValue ) const
+bool RimWellLogCurve::xValueRangeInData( double* minimumValue, double* maximumValue ) const
 {
-    return xValueRange( minimumValue, maximumValue );
+    if ( m_curveData->xValues().empty() )
+    {
+        return false;
+    }
+    auto minMaxIteratorPair = std::minmax_element( m_curveData->xValues().begin(), m_curveData->xValues().end() );
+    *minimumValue           = *( minMaxIteratorPair.first );
+    *maximumValue           = *( minMaxIteratorPair.second );
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

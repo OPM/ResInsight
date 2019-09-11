@@ -38,7 +38,7 @@ public:
     RimWellLogCurve();
     ~RimWellLogCurve() override;
 
-    bool valueRange( double* minimumValue, double* maximumValue ) const;
+    bool xValueRangeInData( double* minimumValue, double* maximumValue ) const;
 
     const RigWellLogCurveData* curveData() const;
 

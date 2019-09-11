@@ -89,6 +89,7 @@ public:
 protected:
     QString createCurveAutoName() override;
     void    onLoadDataAndUpdate( bool updateParentPlot ) override;
+    void    extractData( bool* isUsingPseudoLength );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,

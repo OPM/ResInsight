@@ -225,7 +225,7 @@ void RimWellLogExtractionCurve::setPropertiesFromView( Rim3dView* view )
     }
     else if ( geomCase )
     {
-        m_geomResultDefinition->setResultAddress( RigFemResultAddress( RIG_NODAL, "POR", "" ) );
+        m_geomResultDefinition->setResultAddress( RigFemResultAddress( RIG_ELEMENT, "POR", "" ) );
     }
 
     clearGeneratedSimWellPaths();
@@ -332,123 +332,10 @@ void RimWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
-    this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
-
     if ( isCurveVisible() )
     {
-        // Make sure we have set correct case data into the result definitions.
         bool isUsingPseudoLength = false;
-
-        RimGeoMechCase* geomCase    = dynamic_cast<RimGeoMechCase*>( m_case.value() );
-        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
-        m_eclipseResultDefinition->setEclipseCase( eclipseCase );
-        m_geomResultDefinition->setGeoMechCase( geomCase );
-
-        clampBranchIndex();
-
-        RimMainPlotCollection* mainPlotCollection;
-        this->firstAncestorOrThisOfTypeAsserted( mainPlotCollection );
-
-        RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
-
-        cvf::ref<RigEclipseWellLogExtractor> eclExtractor;
-
-        if ( eclipseCase )
-        {
-            if ( m_trajectoryType == WELL_PATH )
-            {
-                eclExtractor = wellLogCollection->findOrCreateExtractor( m_wellPath, eclipseCase );
-            }
-            else
-            {
-                std::vector<const RigWellPath*> simWellBranches =
-                    RiaSimWellBranchTools::simulationWellBranches( m_simWellName, m_branchDetection );
-                if ( m_branchIndex >= 0 && m_branchIndex < static_cast<int>( simWellBranches.size() ) )
-                {
-                    auto wellBranch = simWellBranches[m_branchIndex];
-                    eclExtractor    = wellLogCollection->findOrCreateSimWellExtractor( m_simWellName,
-                                                                                    eclipseCase->caseUserDescription(),
-                                                                                    wellBranch,
-                                                                                    eclipseCase->eclipseCaseData() );
-                    if ( eclExtractor.notNull() )
-                    {
-                        m_wellPathsWithExtractors.push_back( wellBranch );
-                    }
-
-                    isUsingPseudoLength = true;
-                }
-            }
-        }
-        cvf::ref<RigGeoMechWellLogExtractor> geomExtractor = wellLogCollection->findOrCreateExtractor( m_wellPath,
-                                                                                                       geomCase );
-
-        std::vector<double> values;
-        std::vector<double> measuredDepthValues;
-        std::vector<double> tvDepthValues;
-
-        RiaDefines::DepthUnitType depthUnit = RiaDefines::UNIT_METER;
-
-        if ( eclExtractor.notNull() && eclipseCase )
-        {
-            measuredDepthValues = eclExtractor->cellIntersectionMDs();
-            tvDepthValues       = eclExtractor->cellIntersectionTVDs();
-
-            m_eclipseResultDefinition->loadResult();
-
-            cvf::ref<RigResultAccessor> resAcc =
-                RigResultAccessorFactory::createFromResultDefinition( eclipseCase->eclipseCaseData(),
-                                                                      0,
-                                                                      m_timeStep,
-                                                                      m_eclipseResultDefinition );
-
-            if ( resAcc.notNull() )
-            {
-                eclExtractor->curveData( resAcc.p(), &values );
-            }
-
-            RiaEclipseUnitTools::UnitSystem eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
-            if ( eclipseUnitsType == RiaEclipseUnitTools::UNITS_FIELD )
-            {
-                // See https://github.com/OPM/ResInsight/issues/538
-
-                depthUnit = RiaDefines::UNIT_FEET;
-            }
-        }
-        else if ( geomExtractor.notNull() ) // geomExtractor
-        {
-            measuredDepthValues = geomExtractor->cellIntersectionMDs();
-            tvDepthValues       = geomExtractor->cellIntersectionTVDs();
-
-            findAndLoadWbsParametersFromLasFiles( m_wellPath(), geomExtractor.p() );
-            RimWellBoreStabilityPlot* wbsPlot;
-            this->firstAncestorOrThisOfType( wbsPlot );
-            if ( wbsPlot )
-            {
-                geomExtractor->setWbsParameters( wbsPlot->porePressureSource(),
-                                                 wbsPlot->poissonRatioSource(),
-                                                 wbsPlot->ucsSource(),
-                                                 wbsPlot->userDefinedPoissonRatio(),
-                                                 wbsPlot->userDefinedUcs() );
-            }
-
-            geomExtractor->setRkbDiff( rkbDiff() );
-
-            m_geomResultDefinition->loadResult();
-            geomExtractor->curveData( m_geomResultDefinition->resultAddress(), m_timeStep, &values );
-        }
-
-        m_curveData = new RigWellLogCurveData;
-        if ( values.size() && measuredDepthValues.size() )
-        {
-            if ( !tvDepthValues.size() )
-            {
-                m_curveData->setValuesAndMD( values, measuredDepthValues, depthUnit, true );
-            }
-            else
-            {
-                m_curveData->setValuesWithTVD( values, measuredDepthValues, tvDepthValues, depthUnit, true );
-            }
-        }
+        extractData( &isUsingPseudoLength );
 
         RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
 
@@ -475,6 +362,8 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         m_qwtPlotCurve->setLineSegmentStartStopIndices( m_curveData->polylineStartStopIndices() );
 
+        this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
+
         if ( isUsingPseudoLength )
         {
             RimWellLogTrack* wellLogTrack;
@@ -498,6 +387,125 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
         if ( m_parentQwtPlot )
         {
             m_parentQwtPlot->replot();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::extractData( bool* isUsingPseudoLength )
+{
+    CAF_ASSERT( isUsingPseudoLength );
+
+    // Make sure we have set correct case data into the result definitions.
+    RimGeoMechCase* geomCase    = dynamic_cast<RimGeoMechCase*>( m_case.value() );
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
+    m_eclipseResultDefinition->setEclipseCase( eclipseCase );
+    m_geomResultDefinition->setGeoMechCase( geomCase );
+
+    clampBranchIndex();
+
+    RimMainPlotCollection* mainPlotCollection;
+    this->firstAncestorOrThisOfTypeAsserted( mainPlotCollection );
+
+    RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
+
+    cvf::ref<RigEclipseWellLogExtractor> eclExtractor;
+
+    if ( eclipseCase )
+    {
+        if ( m_trajectoryType == WELL_PATH )
+        {
+            eclExtractor = wellLogCollection->findOrCreateExtractor( m_wellPath, eclipseCase );
+        }
+        else
+        {
+            std::vector<const RigWellPath*> simWellBranches =
+                RiaSimWellBranchTools::simulationWellBranches( m_simWellName, m_branchDetection );
+            if ( m_branchIndex >= 0 && m_branchIndex < static_cast<int>( simWellBranches.size() ) )
+            {
+                auto wellBranch = simWellBranches[m_branchIndex];
+                eclExtractor    = wellLogCollection->findOrCreateSimWellExtractor( m_simWellName,
+                                                                                eclipseCase->caseUserDescription(),
+                                                                                wellBranch,
+                                                                                eclipseCase->eclipseCaseData() );
+                if ( eclExtractor.notNull() )
+                {
+                    m_wellPathsWithExtractors.push_back( wellBranch );
+                }
+
+                *isUsingPseudoLength = true;
+            }
+        }
+    }
+    cvf::ref<RigGeoMechWellLogExtractor> geomExtractor = wellLogCollection->findOrCreateExtractor( m_wellPath, geomCase );
+
+    std::vector<double> values;
+    std::vector<double> measuredDepthValues;
+    std::vector<double> tvDepthValues;
+
+    RiaDefines::DepthUnitType depthUnit = RiaDefines::UNIT_METER;
+
+    if ( eclExtractor.notNull() && eclipseCase )
+    {
+        measuredDepthValues = eclExtractor->cellIntersectionMDs();
+        tvDepthValues       = eclExtractor->cellIntersectionTVDs();
+
+        m_eclipseResultDefinition->loadResult();
+
+        cvf::ref<RigResultAccessor> resAcc =
+            RigResultAccessorFactory::createFromResultDefinition( eclipseCase->eclipseCaseData(),
+                                                                  0,
+                                                                  m_timeStep,
+                                                                  m_eclipseResultDefinition );
+
+        if ( resAcc.notNull() )
+        {
+            eclExtractor->curveData( resAcc.p(), &values );
+        }
+
+        RiaEclipseUnitTools::UnitSystem eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
+        if ( eclipseUnitsType == RiaEclipseUnitTools::UNITS_FIELD )
+        {
+            // See https://github.com/OPM/ResInsight/issues/538
+
+            depthUnit = RiaDefines::UNIT_FEET;
+        }
+    }
+    else if ( geomExtractor.notNull() ) // geomExtractor
+    {
+        measuredDepthValues = geomExtractor->cellIntersectionMDs();
+        tvDepthValues       = geomExtractor->cellIntersectionTVDs();
+
+        findAndLoadWbsParametersFromLasFiles( m_wellPath(), geomExtractor.p() );
+        RimWellBoreStabilityPlot* wbsPlot;
+        this->firstAncestorOrThisOfType( wbsPlot );
+        if ( wbsPlot )
+        {
+            geomExtractor->setWbsParameters( wbsPlot->porePressureSource(),
+                                             wbsPlot->poissonRatioSource(),
+                                             wbsPlot->ucsSource(),
+                                             wbsPlot->userDefinedPoissonRatio(),
+                                             wbsPlot->userDefinedUcs() );
+        }
+
+        geomExtractor->setRkbDiff( rkbDiff() );
+
+        m_geomResultDefinition->loadResult();
+        geomExtractor->curveData( m_geomResultDefinition->resultAddress(), m_timeStep, &values );
+    }
+
+    m_curveData = new RigWellLogCurveData;
+    if ( values.size() && measuredDepthValues.size() )
+    {
+        if ( !tvDepthValues.size() )
+        {
+            m_curveData->setValuesAndMD( values, measuredDepthValues, depthUnit, true );
+        }
+        else
+        {
+            m_curveData->setValuesWithTVD( values, measuredDepthValues, tvDepthValues, depthUnit, true );
         }
     }
 }

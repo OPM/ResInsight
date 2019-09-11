@@ -649,7 +649,7 @@ void RimPlotCurve::loadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPlotCurve::xValueRange( double* minimumValue, double* maximumValue ) const
+bool RimPlotCurve::xValueRangeInQwt( double* minimumValue, double* maximumValue ) const
 {
     CVF_ASSERT( minimumValue && maximumValue );
     CVF_ASSERT( m_qwtPlotCurve );
@@ -668,7 +668,7 @@ bool RimPlotCurve::xValueRange( double* minimumValue, double* maximumValue ) con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPlotCurve::yValueRange( double* minimumValue, double* maximumValue ) const
+bool RimPlotCurve::yValueRangeInQwt( double* minimumValue, double* maximumValue ) const
 {
     CVF_ASSERT( minimumValue && maximumValue );
     CVF_ASSERT( m_qwtPlotCurve );
