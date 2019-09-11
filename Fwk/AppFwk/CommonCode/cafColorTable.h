@@ -34,43 +34,44 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
-#include "cvfBase.h"
 #include "cvfArray.h"
+#include "cvfBase.h"
 
 #include <vector>
 
-
 class QColor;
 
-
-namespace caf {
-
+namespace caf
+{
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 class ColorTable
 {
 public:
     explicit ColorTable(const std::vector<cvf::Color3ub>& colors);
+    explicit ColorTable(const cvf::Color3ubArray& colors);
 
-    cvf::Color3f        cycledColor3f(size_t itemIndex) const;
-    cvf::Color3ub       cycledColor3ub(size_t itemIndex) const;
-    QColor              cycledQColor(size_t itemIndex) const;
+    cvf::Color3f  cycledColor3f(size_t itemIndex) const;
+    cvf::Color3ub cycledColor3ub(size_t itemIndex) const;
+    QColor        cycledQColor(size_t itemIndex) const;
 
-    cvf::Color3ubArray  color3ubArray() const;
-    cvf::Color3fArray   color3fArray() const;
+    cvf::Color3ubArray color3ubArray() const;
+    cvf::Color3fArray  color3fArray() const;
 
-    size_t              size() const;
+    size_t size() const;
 
-    static cvf::Color3ub        fromQColor(const QColor& color);
-    static cvf::Color3ubArray   interpolateColorArray(const cvf::Color3ubArray& colorArray, size_t targetColorCount); 
+    ColorTable inverted() const;
+
+    static cvf::Color3ub      fromQColor(const QColor& color);
+    static cvf::Color3ubArray interpolateColorArray(const cvf::Color3ubArray& colorArray, size_t targetColorCount);
+
 private:
     const std::vector<cvf::Color3ub> m_colors;
 };
 
-}
+} // namespace caf

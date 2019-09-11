@@ -144,7 +144,8 @@ public:
     const caf::TitledOverlayFrame* titledOverlayFrame() const override;
     caf::TitledOverlayFrame*       titledOverlayFrame() override;
 
-    RangeModeType rangeMode() const;
+    RangeModeType             rangeMode() const;
+    static cvf::Color3ubArray colorArrayFromColorType( ColorRangesType colorType );
 
 private:
     void                 setNamedCategories( const std::vector<QString>& categoryNames, bool inverse );
@@ -163,8 +164,6 @@ private:
     double roundToNumSignificantDigits( double value, double precision );
 
     friend class RimViewLinker;
-
-    static cvf::Color3ubArray colorArrayFromColorType( ColorRangesType colorType );
 
     caf::OverlayScalarMapperLegend* getOrCreateScalarMapperLegend();
     caf::CategoryLegend*            getOrCreateCategoryLegend();

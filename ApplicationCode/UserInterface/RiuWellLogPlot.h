@@ -83,7 +83,7 @@ protected:
 private:
     void updateScrollBar( double minDepth, double maxDepth );
     void alignCanvasTops();
-
+    void reinsertTracks();
 private slots:
     void slotSetMinDepth( int value );
 

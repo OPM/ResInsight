@@ -71,6 +71,8 @@
 #include "RiuWellPathComponentPlotItem.h"
 
 #include "RiuQwtLinearScaleEngine.h"
+
+#include "cafPdmUiSliderEditor.h"
 #include "cvfAssert.h"
 
 #define RI_LOGPLOTTRACK_MINX_DEFAULT -10.0
@@ -127,6 +129,18 @@ void AppEnum<RimWellLogTrack::WidthScaleFactor>::setUp()
     addItem( RimWellLogTrack::EXTRA_WIDE_TRACK, "EXTRA_WIDE_TRACK", "Extra wide" );
     setDefault( RimWellLogTrack::NORMAL_TRACK );
 }
+
+template <>
+void AppEnum<RiuPlotAnnotationTool::FormationDisplay>::setUp()
+{
+    addItem( RiuPlotAnnotationTool::NONE, "NONE", "None" );
+    addItem( RiuPlotAnnotationTool::DARK_LINES, "DARK_LINES", "Dark Lines" );
+    addItem( RiuPlotAnnotationTool::COLORED_LINES, "COLORED_LINES", "Colored Lines" );
+    addItem( RiuPlotAnnotationTool::COLOR_SHADING, "COLOR_SHADING", "Color Shading" );
+    addItem( RiuPlotAnnotationTool::COLOR_SHADING_AND_LINES, "SHADING_AND_LINES", "Color Shading and Lines" );
+    setDefault( RiuPlotAnnotationTool::NONE );
+}
+
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -161,7 +175,16 @@ RimWellLogTrack::RimWellLogTrack()
     m_majorTickInterval.uiCapability()->setUiHidden( true );
     m_minorTickInterval.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_showFormations, "ShowFormations", false, "Show Lines", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_formationDisplay, "FormationDisplay", "Show Formations", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_colorShadingPalette, "ColorShadingPalette", "Colors", "", "", "" );
+    m_colorShadingPalette = RimRegularLegendConfig::CATEGORY;
+
+    CAF_PDM_InitField( &m_colorShadingTransparency, "ColorShadingTransparency", 50, "Color Transparency", "", "", "" );
+    m_colorShadingTransparency.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_showFormations_OBSOLETE, "ShowFormations", false, "Show Lines", "", "", "" );
+    m_showFormations_OBSOLETE.xmlCapability()->setIOWritable( false );
     CAF_PDM_InitField( &m_showFormationLabels, "ShowFormationLabels", true, "Show Labels", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_formationSource, "FormationSource", "Source", "", "", "" );
@@ -354,7 +377,8 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         m_wellLogTrackPlotWidget->replot();
     }
-    else if ( changedField == &m_showFormations || changedField == &m_formationSource )
+    else if ( changedField == &m_formationDisplay || changedField == &m_formationSource ||
+              changedField == &m_colorShadingTransparency || changedField == &m_colorShadingPalette )
     {
         if ( changedField == &m_formationSource && m_formationSource == WELL_PICK_FILTER )
         {
@@ -636,6 +660,27 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions( const caf:
         RimTools::wellPathOptionItems( &options );
         options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
+    else if ( fieldNeedingOptions == &m_colorShadingPalette )
+    {
+        std::vector<RimRegularLegendConfig::ColorRangesType> rangeTypes;
+        rangeTypes.push_back( RimRegularLegendConfig::NORMAL );
+        rangeTypes.push_back( RimRegularLegendConfig::OPPOSITE_NORMAL );
+        rangeTypes.push_back( RimRegularLegendConfig::WHITE_PINK );
+        rangeTypes.push_back( RimRegularLegendConfig::PINK_WHITE );
+        rangeTypes.push_back( RimRegularLegendConfig::BLUE_WHITE_RED );
+        rangeTypes.push_back( RimRegularLegendConfig::RED_WHITE_BLUE );
+        rangeTypes.push_back( RimRegularLegendConfig::WHITE_BLACK );
+        rangeTypes.push_back( RimRegularLegendConfig::BLACK_WHITE );
+        rangeTypes.push_back( RimRegularLegendConfig::ANGULAR );
+        rangeTypes.push_back( RimRegularLegendConfig::CATEGORY );
+
+        for ( RimRegularLegendConfig::ColorRangesType colType : rangeTypes )
+        {
+            options.push_back(
+                caf::PdmOptionItemInfo( RimRegularLegendConfig::ColorRangeEnum::uiText( colType ), colType ) );
+        }
+    }
+
     return options;
 }
 
@@ -785,13 +830,13 @@ void RimWellLogTrack::loadDataAndUpdate( bool updateParentPlotAndToolbars )
         curves[cIdx]->loadDataAndUpdate( false );
     }
 
-    if ( m_showFormations )
+    if ( m_formationDisplay == RiuPlotAnnotationTool::NONE )
     {
-        setFormationFieldsUiReadOnly( false );
+        setFormationFieldsUiReadOnly( true );
     }
     else
     {
-        setFormationFieldsUiReadOnly( true );
+        setFormationFieldsUiReadOnly( false );
     }
 
     if ( m_wellLogTrackPlotWidget )
@@ -836,7 +881,7 @@ void RimWellLogTrack::setAndUpdateWellPathFormationNamesData( RimCase* rimCase, 
 
     updateConnectedEditors();
 
-    if ( m_showFormations )
+    if ( m_formationDisplay != RiuPlotAnnotationTool::NONE )
     {
         updateFormationNamesOnPlot();
     }
@@ -868,7 +913,7 @@ void RimWellLogTrack::setAndUpdateSimWellFormationNamesData( RimCase* rimCase, c
 
     updateConnectedEditors();
 
-    if ( m_showFormations )
+    if ( m_formationDisplay != RiuPlotAnnotationTool::NONE )
     {
         updateFormationNamesOnPlot();
     }
@@ -1205,7 +1250,7 @@ void RimWellLogTrack::setXAxisGridVisibility( RimWellLogPlot::AxisGridVisibility
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setShowFormations( bool on )
 {
-    m_showFormations = on;
+    m_showFormations_OBSOLETE = on;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1213,7 +1258,7 @@ void RimWellLogTrack::setShowFormations( bool on )
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogTrack::showFormations() const
 {
-    return m_showFormations;
+    return m_showFormations_OBSOLETE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1281,7 +1326,16 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     uiOrdering.add( &m_userName );
     caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup( "Zonation/Formation Names" );
 
-    formationGroup->add( &m_showFormations );
+    formationGroup->add( &m_formationDisplay );
+    if ( m_formationDisplay() & RiuPlotAnnotationTool::COLOR_SHADING ||
+         m_formationDisplay() & RiuPlotAnnotationTool::COLORED_LINES )
+    {
+        formationGroup->add( &m_colorShadingPalette );
+        if ( m_formationDisplay() & RiuPlotAnnotationTool::COLOR_SHADING )
+        {
+            formationGroup->add( &m_colorShadingTransparency );
+        }
+    }
     formationGroup->add( &m_showFormationLabels );
 
     if ( !m_formationsForCaseWithSimWellOnly )
@@ -1343,6 +1397,35 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     trackSettingsGroup->add( &m_widthScaleFactor );
 
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::initAfterRead()
+{
+    if ( m_showFormations_OBSOLETE() && m_formationDisplay() == RiuPlotAnnotationTool::NONE )
+    {
+        m_formationDisplay = RiuPlotAnnotationTool::COLORED_LINES;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                             QString                    uiConfigName,
+                                             caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_colorShadingTransparency )
+    {
+        auto sliderAttrib = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
+        if ( sliderAttrib )
+        {
+            sliderAttrib->m_minimum = 0;
+            sliderAttrib->m_maximum = 100;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1509,7 +1592,7 @@ void RimWellLogTrack::uiOrderingForRftPltFormations( caf::PdmUiOrdering& uiOrder
 {
     caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup( "Zonation/Formation Names" );
     formationGroup->setCollapsedByDefault( true );
-    formationGroup->add( &m_showFormations );
+    formationGroup->add( &m_formationDisplay );
     formationGroup->add( &m_formationSource );
     if ( m_formationSource == CASE )
     {
@@ -1728,7 +1811,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 {
     removeFormationNames();
 
-    if ( m_showFormations == false ) return;
+    if ( m_formationDisplay == RiuPlotAnnotationTool::NONE ) return;
 
     if ( m_annotationTool == nullptr )
     {
@@ -1807,7 +1890,18 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                    &formationNamesToPlot,
                                                    &yValues );
 
-        m_annotationTool->attachFormationNames( this->viewer(), formationNamesToPlot, yValues, m_showFormationLabels() );
+        std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
+
+        caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
+
+        m_annotationTool->attachFormationNames( this->viewer(),
+                                                formationNamesToPlot,
+                                                xRange,
+                                                yValues,
+                                                m_formationDisplay(),
+                                                colorTable,
+                                                ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
+                                                m_showFormationLabels() );
     }
     else if ( m_formationSource() == WELL_PICK_FILTER )
     {
