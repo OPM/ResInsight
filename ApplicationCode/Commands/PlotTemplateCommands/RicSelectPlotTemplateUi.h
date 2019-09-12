@@ -1,6 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2019-     Equinor ASA
+//  Copyright (C) 2017     Statoil ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,31 +18,29 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmPtrArrayField.h"
 
-class RimSummaryCase;
-class RimSummaryPlot;
-class RimWellPath;
+class RimPlotTemplateFileItem;
+class RimPlotTemplateFolderItem;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicCreatePlotFromSelectionFeature : public caf::CmdFeature
+class RicSelectPlotTemplateUi : public caf::PdmObject
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
-    RicCreatePlotFromSelectionFeature();
+    RicSelectPlotTemplateUi();
 
-protected:
-    bool isCommandEnabled() override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+    std::vector<RimPlotTemplateFileItem*> selectedPlotTemplates();
 
 private:
-    RimSummaryPlot* createPlotFromTemplateFile( const QString& fileName ) const;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
 private:
-    std::vector<RimSummaryCase*> selectedSummaryCases() const;
-    std::vector<RimWellPath*>    selectedWellPaths() const;
+    caf::PdmPtrArrayField<RimPlotTemplateFileItem*> m_selectedPlotTemplates;
 };

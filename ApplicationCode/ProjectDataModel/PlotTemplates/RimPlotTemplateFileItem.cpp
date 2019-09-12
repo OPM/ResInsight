@@ -34,7 +34,7 @@ CAF_PDM_SOURCE_INIT( RimPlotTemplateFileItem, "PlotTemplateFileItem" );
 //--------------------------------------------------------------------------------------------------
 RimPlotTemplateFileItem::RimPlotTemplateFileItem()
 {
-    CAF_PDM_InitObject( "PlotTemplateFileItem", ":/OctaveScriptFile16x16.png", "Calc Script", "" );
+    CAF_PDM_InitObject( "PlotTemplateFileItem", ":/SummaryTemplate16x16.png", "Plot Template", "" );
 
     CAF_PDM_InitField( &m_absoluteFileName, "AbsolutePath", QString(), "Location", "", "", "" );
     m_absoluteFileName.uiCapability()->setUiReadOnly( true );

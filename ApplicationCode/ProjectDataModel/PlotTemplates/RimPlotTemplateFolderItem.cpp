@@ -77,6 +77,15 @@ std::vector<RimPlotTemplateFolderItem*> RimPlotTemplateFolderItem::subFolders() 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotTemplateFolderItem::appendOptionItemsForPlotTemplates( QList<caf::PdmOptionItemInfo>& options,
+                                                                   RimPlotTemplateFolderItem*     templateFolderItem )
+{
+    appendOptionItemsForPlotTemplatesRecursively( options, templateFolderItem, 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotTemplateFolderItem::setFolderPath( const QString& path )
 {
     m_folderName.v().setPath( path );
@@ -173,6 +182,37 @@ void RimPlotTemplateFolderItem::defineEditorAttribute( const caf::PdmFieldHandle
         {
             myAttr->m_selectDirectory = true;
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotTemplateFolderItem::appendOptionItemsForPlotTemplatesRecursively(
+    QList<caf::PdmOptionItemInfo>& options, RimPlotTemplateFolderItem* templateFolderItem, int menuLevel )
+{
+    {
+        auto subFolders = templateFolderItem->subFolders();
+        for ( auto sub : subFolders )
+        {
+            caf::PdmOptionItemInfo optionInfo = caf::PdmOptionItemInfo::createHeader( sub->uiName(), true );
+            optionInfo.setLevel( menuLevel );
+            options.push_back( optionInfo );
+
+            appendOptionItemsForPlotTemplatesRecursively( options, sub, menuLevel + 1 );
+        }
+    }
+
+    caf::QIconProvider templateIcon( ":/SummaryTemplate16x16.png" );
+
+    auto files = templateFolderItem->fileNames();
+    for ( auto file : files )
+    {
+        caf::PdmOptionItemInfo optionInfo( file->uiName(), file, false, templateIcon );
+
+        optionInfo.setLevel( menuLevel );
+
+        options.push_back( optionInfo );
     }
 }
 

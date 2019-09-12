@@ -93,7 +93,7 @@ void RicSavePlotTemplateFeature::onActionTriggered( bool isChecked )
 void RicSavePlotTemplateFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Save As Plot Template" );
-    // actionToSetup->setIcon( QIcon( ":/SummaryPlotLight16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

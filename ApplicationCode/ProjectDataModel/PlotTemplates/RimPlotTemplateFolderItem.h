@@ -46,6 +46,9 @@ public:
     std::vector<RimPlotTemplateFileItem*>   fileNames() const;
     std::vector<RimPlotTemplateFolderItem*> subFolders() const;
 
+    static void appendOptionItemsForPlotTemplates( QList<caf::PdmOptionItemInfo>& options,
+                                                   RimPlotTemplateFolderItem*     templateFolderItem );
+
 private:
     void searchForFileAndFolderNames();
     void setFolderPath( const QString& path );
@@ -59,6 +62,10 @@ private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
+
+    static void appendOptionItemsForPlotTemplatesRecursively( QList<caf::PdmOptionItemInfo>& options,
+                                                              RimPlotTemplateFolderItem*     templateFolderItem,
+                                                              int                            menuLevel );
 
 private:
     caf::PdmField<caf::FilePath>                        m_folderName;

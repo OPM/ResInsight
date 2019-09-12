@@ -16,12 +16,15 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "RicCreatePlotFromSelectionFeature.h"
+
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaSummaryTools.h"
 
-#include "RicCreatePlotFromSelectionFeature.h"
+#include "RicSelectPlotTemplateUi.h"
 
+#include "PlotTemplates/RimPlotTemplateFileItem.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -30,7 +33,10 @@
 #include "RimSummaryPlotCollection.h"
 #include "RimWellPath.h"
 
+#include "RiuPlotMainWindow.h"
+
 #include "cafPdmObject.h"
+#include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -60,76 +66,92 @@ bool RicCreatePlotFromSelectionFeature::isCommandEnabled()
 void RicCreatePlotFromSelectionFeature::onActionTriggered( bool isChecked )
 {
     {
-        auto sumCases = selectedSummaryCases();
-        if ( sumCases.size() == 2 )
+        RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
+
+        RicSelectPlotTemplateUi ui;
+
+        caf::PdmUiPropertyViewDialog propertyDialog( plotwindow,
+                                                     &ui,
+                                                     "Select Case to create Pressure Saturation plots",
+                                                     "" );
+
+        if ( propertyDialog.exec() != QDialog::Accepted ) return;
+
+        if ( ui.selectedPlotTemplates().empty() ) return;
+
+        QString fileName = ui.selectedPlotTemplates().front()->absoluteFilePath();
         {
-            QString fileName = "d:/projects/ri-plot-templates/one_well_two_cases.rpt";
-
-            RimSummaryPlot* newSummaryPlot = createPlotFromTemplateFile( fileName );
-            if ( newSummaryPlot )
+            auto sumCases = selectedSummaryCases();
+            if ( sumCases.size() == 2 )
             {
-                RimSummaryPlotCollection* plotColl =
-                    RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+                //            QString fileName = "d:/projects/ri-plot-templates/one_well_two_cases.rpt";
 
-                plotColl->summaryPlots.push_back( newSummaryPlot );
-
-                // Resolve references after object has been inserted into the data model
-                newSummaryPlot->resolveReferencesRecursively();
-                newSummaryPlot->initAfterReadRecursively();
-
-                QString nameOfCopy = QString( "Copy of " ) + newSummaryPlot->description();
-                newSummaryPlot->setDescription( nameOfCopy );
-
-                auto summaryCurves = newSummaryPlot->summaryCurves();
-                if ( summaryCurves.size() == sumCases.size() )
+                RimSummaryPlot* newSummaryPlot = createPlotFromTemplateFile( fileName );
+                if ( newSummaryPlot )
                 {
-                    for ( size_t i = 0; i < summaryCurves.size(); i++ )
+                    RimSummaryPlotCollection* plotColl =
+                        RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+
+                    plotColl->summaryPlots.push_back( newSummaryPlot );
+
+                    // Resolve references after object has been inserted into the data model
+                    newSummaryPlot->resolveReferencesRecursively();
+                    newSummaryPlot->initAfterReadRecursively();
+
+                    QString nameOfCopy = QString( "Copy of " ) + newSummaryPlot->description();
+                    newSummaryPlot->setDescription( nameOfCopy );
+
+                    auto summaryCurves = newSummaryPlot->summaryCurves();
+                    if ( summaryCurves.size() == sumCases.size() )
                     {
-                        auto sumCase = sumCases[i];
-                        summaryCurves[i]->setSummaryCaseY( sumCase );
+                        for ( size_t i = 0; i < summaryCurves.size(); i++ )
+                        {
+                            auto sumCase = sumCases[i];
+                            summaryCurves[i]->setSummaryCaseY( sumCase );
+                        }
                     }
+
+                    plotColl->updateConnectedEditors();
+
+                    newSummaryPlot->loadDataAndUpdate();
                 }
-
-                plotColl->updateConnectedEditors();
-
-                newSummaryPlot->loadDataAndUpdate();
             }
         }
-    }
 
-    {
-        auto wellPaths = selectedWellPaths();
-        if ( wellPaths.size() == 2 )
         {
-            QString         fileName       = "d:/projects/ri-plot-templates/one_well_two_cases.rpt";
-            RimSummaryPlot* newSummaryPlot = createPlotFromTemplateFile( fileName );
-            if ( newSummaryPlot )
+            auto wellPaths = selectedWellPaths();
+            if ( wellPaths.size() == 2 )
             {
-                RimSummaryPlotCollection* plotColl = RiaSummaryTools::summaryPlotCollection();
-
-                plotColl->summaryPlots.push_back( newSummaryPlot );
-
-                // Resolve references after object has been inserted into the data model
-                newSummaryPlot->resolveReferencesRecursively();
-                newSummaryPlot->initAfterReadRecursively();
-
-                QString nameOfCopy = QString( "Copy of " ) + newSummaryPlot->description();
-                newSummaryPlot->setDescription( nameOfCopy );
-
-                auto summaryCurves = newSummaryPlot->summaryCurves();
-                if ( summaryCurves.size() == wellPaths.size() )
+                // QString         fileName       = "d:/projects/ri-plot-templates/one_well_two_cases.rpt";
+                RimSummaryPlot* newSummaryPlot = createPlotFromTemplateFile( fileName );
+                if ( newSummaryPlot )
                 {
-                    for ( size_t i = 0; i < summaryCurves.size(); i++ )
+                    RimSummaryPlotCollection* plotColl = RiaSummaryTools::summaryPlotCollection();
+
+                    plotColl->summaryPlots.push_back( newSummaryPlot );
+
+                    // Resolve references after object has been inserted into the data model
+                    newSummaryPlot->resolveReferencesRecursively();
+                    newSummaryPlot->initAfterReadRecursively();
+
+                    QString nameOfCopy = QString( "Copy of " ) + newSummaryPlot->description();
+                    newSummaryPlot->setDescription( nameOfCopy );
+
+                    auto summaryCurves = newSummaryPlot->summaryCurves();
+                    if ( summaryCurves.size() == wellPaths.size() )
                     {
-                        auto wellPath = wellPaths[i];
+                        for ( size_t i = 0; i < summaryCurves.size(); i++ )
+                        {
+                            auto wellPath = wellPaths[i];
 
-                        summaryCurves[i]->summaryAddressY().setWellName( wellPath->name().toStdString() );
+                            summaryCurves[i]->summaryAddressY().setWellName( wellPath->name().toStdString() );
+                        }
                     }
+
+                    plotColl->updateConnectedEditors();
+
+                    newSummaryPlot->loadDataAndUpdate();
                 }
-
-                plotColl->updateConnectedEditors();
-
-                newSummaryPlot->loadDataAndUpdate();
             }
         }
     }
@@ -141,7 +163,7 @@ void RicCreatePlotFromSelectionFeature::onActionTriggered( bool isChecked )
 void RicCreatePlotFromSelectionFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Create Plot from Template" );
-    // actionToSetup->setIcon( QIcon( ":/SummaryPlotLight16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
