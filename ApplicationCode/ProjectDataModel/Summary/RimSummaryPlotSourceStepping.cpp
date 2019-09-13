@@ -583,12 +583,12 @@ std::vector<RifSummaryReaderInterface*> RimSummaryPlotSourceStepping::summaryRea
     {
         for ( auto curve : curveCollection->curves() )
         {
-            if ( isYAxisStepping() && curve->summaryCaseY() )
+            if (isYAxisStepping() && curve->summaryCaseY() && curve->summaryCaseY()->summaryReader())
             {
                 readers.push_back( curve->summaryCaseY()->summaryReader() );
             }
 
-            if ( isXAxisStepping() && curve->summaryCaseX() )
+            if (isXAxisStepping() && curve->summaryCaseX() && curve->summaryCaseX()->summaryReader())
             {
                 readers.push_back( curve->summaryCaseX()->summaryReader() );
             }
@@ -604,7 +604,7 @@ std::vector<RifSummaryReaderInterface*> RimSummaryPlotSourceStepping::summaryRea
         {
             for ( auto curve : curveSet->curves() )
             {
-                if ( isYAxisStepping() && curve->summaryCaseY() )
+                if (isYAxisStepping() && curve->summaryCaseY() && curve->summaryCaseY()->summaryReader())
                 {
                     readers.push_back( curve->summaryCaseY()->summaryReader() );
                 }

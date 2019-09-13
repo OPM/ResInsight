@@ -452,7 +452,7 @@ void RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeS
         {
             RimSummaryCase* summaryCase = mainCollection->findSummaryCaseFromEclipseResultCase( resultCase );
 
-            if ( summaryCase )
+            if (summaryCase && summaryCase->summaryReader())
             {
                 std::vector<double> values;
                 if ( summaryCase->summaryReader()->values( wbhpPressureAddress, &values ) )

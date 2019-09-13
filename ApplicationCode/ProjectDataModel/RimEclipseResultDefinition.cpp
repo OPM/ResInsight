@@ -36,9 +36,11 @@
 #include "Rim3dView.h"
 #include "Rim3dWellLogCurve.h"
 #include "RimCellEdgeColors.h"
+#include "RimContourMapProjection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapProjection.h"
+#include "RimEclipseContourMapView.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultCase.h"
@@ -307,14 +309,28 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
         loadDataAndUpdate();
     }
 
+    RimEclipseContourMapView* contourMapView = nullptr;
+    this->firstAncestorOrThisOfType( contourMapView );
+
     if ( &m_differenceCase == changedField )
     {
         m_timeLapseBaseTimestep = RigEclipseResultAddress::noTimeLapseValue();
+
+        if ( contourMapView )
+        {
+            contourMapView->contourMapProjection()->updatedWeightingResult();
+        }
+
         loadDataAndUpdate();
     }
 
     if ( &m_timeLapseBaseTimestep == changedField )
     {
+        if ( contourMapView )
+        {
+            contourMapView->contourMapProjection()->updatedWeightingResult();
+        }
+
         loadDataAndUpdate();
     }
 

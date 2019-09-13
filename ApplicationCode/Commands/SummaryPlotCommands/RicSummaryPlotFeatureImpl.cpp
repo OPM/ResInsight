@@ -63,7 +63,7 @@
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurve* RicSummaryPlotFeatureImpl::addDefaultCurveToPlot( RimSummaryPlot* plot, RimSummaryCase* summaryCase )
 {
-    if ( plot )
+    if ( plot && summaryCase && summaryCase->summaryReader() )
     {
         RifEclipseSummaryAddress defaultAddressToUse;
 
@@ -486,9 +486,6 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                     {
                         RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
 
-                        curveSet->setSummaryCaseCollection( ensemble );
-                        curveSet->setSummaryAddress( addr );
-
                         if ( ensembleColoringStyle == PARAMETER || ensembleColoringStyle == LOG_PARAMETER )
                         {
                             curveSet->setColorMode( RimEnsembleCurveSet::BY_ENSEMBLE_PARAM );
@@ -779,6 +776,9 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
     const QStringList& curveFilters, RimSummaryPlot* plot, RimSummaryCase* summaryCase, bool addHistoryCurves )
 {
     std::vector<RimSummaryCurve*> createdCurves;
+
+    if ( !plot ) return createdCurves;
+    if ( !summaryCase || !summaryCase->summaryReader() ) return createdCurves;
 
     std::set<RifEclipseSummaryAddress> curveAddressesToUse;
 
