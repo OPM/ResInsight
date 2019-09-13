@@ -19,6 +19,7 @@
 #include "RimSummaryPlotFilterTextCurveSetEditor.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RifSummaryReaderInterface.h"
