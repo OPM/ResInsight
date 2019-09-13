@@ -276,7 +276,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryCaseCollection::ensembleSummaryAddr
        }
    }
 
-   if (maxAddrIndex >= 0)
+   if (maxAddrIndex >= 0 && m_cases[maxAddrIndex]->summaryReader())
    {
        const std::set<RifEclipseSummaryAddress>& addrs = m_cases[maxAddrIndex]->summaryReader()->allResultAddresses();
        addresses.insert(addrs.begin(), addrs.end());
