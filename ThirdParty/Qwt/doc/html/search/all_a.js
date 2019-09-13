@@ -4,12 +4,11 @@ var searchData=
   ['key',['key',['../class_qwt_event_pattern_1_1_key_pattern.html#af13072b058c3abbb591450b82f049dd6',1,'QwtEventPattern::KeyPattern']]],
   ['keyabort',['KeyAbort',['../class_qwt_event_pattern.html#a8fb57ceb9982d5583a1bf568e37d3007a5b73ad3186285f5aaf2030a50a3fb5a4',1,'QwtEventPattern']]],
   ['keydown',['KeyDown',['../class_qwt_event_pattern.html#a8fb57ceb9982d5583a1bf568e37d3007a00c2d782ca962ee6bcda1c4a3649d1e7',1,'QwtEventPattern']]],
-  ['keyfactor',['keyFactor',['../class_qwt_magnifier.html#a98706c848275b06d2830a8dbe053c9a3',1,'QwtMagnifier']]],
+  ['keyfactor',['keyFactor',['../class_qwt_magnifier.html#ae29e88684303d3bf587e9b5338267111',1,'QwtMagnifier']]],
   ['keyhome',['KeyHome',['../class_qwt_event_pattern.html#a8fb57ceb9982d5583a1bf568e37d3007a4cba7de2850f874988cbaa38a236ecb2',1,'QwtEventPattern']]],
   ['keyleft',['KeyLeft',['../class_qwt_event_pattern.html#a8fb57ceb9982d5583a1bf568e37d3007abaf3cd86d773c8e47a2c670b65d6ec95',1,'QwtEventPattern']]],
-  ['keymatch',['keyMatch',['../class_qwt_event_pattern.html#ab4be2d84b3d73ff05d6c19f6fd9f75bc',1,'QwtEventPattern::keyMatch(KeyPatternCode, const QKeyEvent *) const '],['../class_qwt_event_pattern.html#ac2748e712cbfa8ce9eb12a3364b862de',1,'QwtEventPattern::keyMatch(const KeyPattern &amp;, const QKeyEvent *) const ']]],
-  ['keypattern',['KeyPattern',['../class_qwt_event_pattern_1_1_key_pattern.html',1,'QwtEventPattern']]],
-  ['keypattern',['KeyPattern',['../class_qwt_event_pattern_1_1_key_pattern.html#ac52d2d39d519c750194462c8da4c8ec2',1,'QwtEventPattern::KeyPattern::KeyPattern()'],['../class_qwt_event_pattern.html#a3c8dfef92d0808da60d0f7b094ba7f26',1,'QwtEventPattern::keyPattern() const '],['../class_qwt_event_pattern.html#a9d8ea5b5ffea570c1fed4c8ca8e5cfff',1,'QwtEventPattern::keyPattern()']]],
+  ['keymatch',['keyMatch',['../class_qwt_event_pattern.html#a737a72838595ae3a99779f2254abcfc8',1,'QwtEventPattern::keyMatch(KeyPatternCode, const QKeyEvent *) const'],['../class_qwt_event_pattern.html#ac5029b310936997cf3268d1ae4fe14fe',1,'QwtEventPattern::keyMatch(const KeyPattern &amp;, const QKeyEvent *) const']]],
+  ['keypattern',['KeyPattern',['../class_qwt_event_pattern_1_1_key_pattern.html',1,'QwtEventPattern::KeyPattern'],['../class_qwt_event_pattern_1_1_key_pattern.html#ac52d2d39d519c750194462c8da4c8ec2',1,'QwtEventPattern::KeyPattern::KeyPattern()'],['../class_qwt_event_pattern.html#a6aac201f048e4bddea53920fe70579a4',1,'QwtEventPattern::keyPattern() const'],['../class_qwt_event_pattern.html#a9d8ea5b5ffea570c1fed4c8ca8e5cfff',1,'QwtEventPattern::keyPattern()']]],
   ['keypatterncode',['KeyPatternCode',['../class_qwt_event_pattern.html#a8fb57ceb9982d5583a1bf568e37d3007',1,'QwtEventPattern']]],
   ['keypatterncount',['KeyPatternCount',['../class_qwt_event_pattern.html#a8fb57ceb9982d5583a1bf568e37d3007aca9b018d7ae0f2342779e91df7ddcdd3',1,'QwtEventPattern']]],
   ['keypressevent',['keyPressEvent',['../class_qwt_abstract_slider.html#ab6d1105f82e8a44ea75661135ba88c85',1,'QwtAbstractSlider::keyPressEvent()'],['../class_qwt_arrow_button.html#a17612daa99344272c4de1313a5c67b02',1,'QwtArrowButton::keyPressEvent()'],['../class_qwt_compass.html#ad4f31e6837ea045834fe67d192a4209d',1,'QwtCompass::keyPressEvent()'],['../class_qwt_counter.html#aafdc19bff96fcafc4b8ed8e3bf7bf07b',1,'QwtCounter::keyPressEvent()'],['../class_qwt_legend_label.html#a801059fdc196563ca28fd22fb3675024',1,'QwtLegendLabel::keyPressEvent()'],['../class_qwt_wheel.html#a29c6b09213126e9e14c853e13108e262',1,'QwtWheel::keyPressEvent()']]],
@@ -20,7 +19,7 @@ var searchData=
   ['keyselect2',['KeySelect2',['../class_qwt_event_pattern.html#a8fb57ceb9982d5583a1bf568e37d3007acfd4f64d5b3b29214e51afcc56ea7eaf',1,'QwtEventPattern']]],
   ['keyundo',['KeyUndo',['../class_qwt_event_pattern.html#a8fb57ceb9982d5583a1bf568e37d3007a76cf851373169fbc588109c1eccca33a',1,'QwtEventPattern']]],
   ['keyup',['KeyUp',['../class_qwt_event_pattern.html#a8fb57ceb9982d5583a1bf568e37d3007a010af73c06629f6c53daf69fad5b6efe',1,'QwtEventPattern']]],
-  ['knobrect',['knobRect',['../class_qwt_knob.html#ad4bf9ef0988ac377577b21319e498231',1,'QwtKnob']]],
-  ['knobstyle',['knobStyle',['../class_qwt_knob.html#a6f8ec8b610b500990dff31f370cab8ba',1,'QwtKnob::knobStyle() const '],['../class_qwt_knob.html#addd00357b45752377aec83a3ab7208be',1,'QwtKnob::KnobStyle()']]],
-  ['knobwidth',['knobWidth',['../class_qwt_knob.html#aa9470eed740c7175c7ccfc4406eb5fc2',1,'QwtKnob']]]
+  ['knobrect',['knobRect',['../class_qwt_knob.html#a92a018fb577c278050a468c166e098ce',1,'QwtKnob']]],
+  ['knobstyle',['knobStyle',['../class_qwt_knob.html#aacbe6dd0b03e522476880a8e94f09393',1,'QwtKnob::knobStyle() const'],['../class_qwt_knob.html#addd00357b45752377aec83a3ab7208be',1,'QwtKnob::KnobStyle()']]],
+  ['knobwidth',['knobWidth',['../class_qwt_knob.html#a602b71c9be4861afdc50326b2f2a1b8b',1,'QwtKnob']]]
 ];

@@ -2,9 +2,9 @@ var class_qwt_series_data =
 [
     [ "QwtSeriesData", "class_qwt_series_data.html#a3f075340d18fb112a342d74716eb8d9c", null ],
     [ "~QwtSeriesData", "class_qwt_series_data.html#a841a56f909879d599a385b9c3d046745", null ],
-    [ "boundingRect", "class_qwt_series_data.html#afc38837db1c8b4a302938a00341a484d", null ],
-    [ "sample", "class_qwt_series_data.html#a302fb1409d00615601c7806bb4fbe2da", null ],
+    [ "boundingRect", "class_qwt_series_data.html#aedb969ba51a27d88d26ad7f7cb1c2c7f", null ],
+    [ "sample", "class_qwt_series_data.html#ae8650d16c07c58f01897ab48658a3266", null ],
     [ "setRectOfInterest", "class_qwt_series_data.html#a391b4601a7454b2f9582fbc2662d108e", null ],
-    [ "size", "class_qwt_series_data.html#af18b57ccc6d9e0354662e53b41397a13", null ],
+    [ "size", "class_qwt_series_data.html#a3cfe5b26fc55a887ac85b0103ae80a3e", null ],
     [ "d_boundingRect", "class_qwt_series_data.html#a24fbbcb0baa0c728117d2e6764d00414", null ]
 ];

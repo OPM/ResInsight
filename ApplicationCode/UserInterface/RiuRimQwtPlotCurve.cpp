@@ -22,7 +22,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuRimQwtPlotCurve::RiuRimQwtPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title /*= QString::null*/ )
+RiuRimQwtPlotCurve::RiuRimQwtPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title /*= QString()*/ )
     : RiuQwtPlotCurve( title )
     , m_ownerRimCurve( ownerRimCurve )
 {

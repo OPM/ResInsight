@@ -12,14 +12,14 @@ var class_qwt_column_symbol =
     ] ],
     [ "QwtColumnSymbol", "class_qwt_column_symbol.html#a78d6b04908f7f814cdc07c3ae704b329", null ],
     [ "~QwtColumnSymbol", "class_qwt_column_symbol.html#a4ca8a7cb15c23be659f3bdcdb50ae20c", null ],
-    [ "draw", "class_qwt_column_symbol.html#a647960f89c1f2f8524789d7ad90482d8", null ],
-    [ "drawBox", "class_qwt_column_symbol.html#a7f7951e3c38927c25f21dd8c3d47372a", null ],
-    [ "frameStyle", "class_qwt_column_symbol.html#a9e13ae8a8b07556ee2de672c7067606a", null ],
-    [ "lineWidth", "class_qwt_column_symbol.html#afe6850ba90ade0fdf61edd203e49206d", null ],
-    [ "palette", "class_qwt_column_symbol.html#afe13154e29f882e77fedf8bbc3280f7e", null ],
-    [ "setFrameStyle", "class_qwt_column_symbol.html#a80826051d63efaf033868f05404ef565", null ],
+    [ "draw", "class_qwt_column_symbol.html#aaa1579b1bae6833a6f3b745a420f779d", null ],
+    [ "drawBox", "class_qwt_column_symbol.html#a48690c0e9e9b41e804e66e8e6e9dfae6", null ],
+    [ "frameStyle", "class_qwt_column_symbol.html#af0a3e56063279ec73d54fac84364933a", null ],
+    [ "lineWidth", "class_qwt_column_symbol.html#a687a3626a5ae7de940c9c9d43f3a85ff", null ],
+    [ "palette", "class_qwt_column_symbol.html#ada9f004632ac934465827b011592882e", null ],
+    [ "setFrameStyle", "class_qwt_column_symbol.html#ab3a4b0daecba43da34328adadbd9f7b2", null ],
     [ "setLineWidth", "class_qwt_column_symbol.html#af9348444ae2c21d3bcaff3217fc694fc", null ],
     [ "setPalette", "class_qwt_column_symbol.html#a7d2b17a4b8aef7ae098fd42bc663527b", null ],
     [ "setStyle", "class_qwt_column_symbol.html#a3e2c72514fdc2e857ee2a34bc9f96e93", null ],
-    [ "style", "class_qwt_column_symbol.html#a3cf6f4e696a6df0936160d6bdb8e6b25", null ]
+    [ "style", "class_qwt_column_symbol.html#afbe377dd5ea28a56df9f2bbe4ddff3c4", null ]
 ];

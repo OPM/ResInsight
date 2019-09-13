@@ -200,7 +200,7 @@ void Plot::populate()
 
         QDateTime dt( QDate( 2010, 1, 1 ) );
         dt = dt.addDays( 77 * ( i + 1 ) );
-        
+
         marker->setValue( QwtDate::toDouble( dt ), 0.0 );
 
         marker->setItemAttribute( QwtPlotItem::Legend, true );

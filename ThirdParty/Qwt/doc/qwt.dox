@@ -90,6 +90,7 @@ to control or display values, arrays, or ranges of type double.
 
   <a href="http://qwtpolar.sourceforge.net">QwtPolar</a>, a polar plot widget.\n
   <a href="http://qwtplot3d.sourceforge.net">QwtPlot3D</a>, an OpenGL 3D plot widget.\n
+  <a href="https://github.com/GauiStori/PyQt-Qwt">PyQt-Qwt</a>, Python PyQt wrapper for Qwt.\n
 
   \section donations Donations
 

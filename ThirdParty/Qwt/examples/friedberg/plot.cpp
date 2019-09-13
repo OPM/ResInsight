@@ -29,7 +29,7 @@ public:
     virtual void updateScaleDiv( const QwtScaleDiv &xScaleDiv,
         const QwtScaleDiv &yScaleDiv )
     {
-        QwtScaleDiv scaleDiv( xScaleDiv.lowerBound(), 
+        QwtScaleDiv scaleDiv( xScaleDiv.lowerBound(),
             xScaleDiv.upperBound() );
 
         scaleDiv.setTicks( QwtScaleDiv::MinorTick,
@@ -136,7 +136,7 @@ QwtScaleDiv Plot::yearScaleDiv() const
     for ( int i = 0; i < 12; i++ )
         majorTicks += i * 30 + 15;
 
-    QwtScaleDiv scaleDiv( mediumTicks.first(), mediumTicks.last() + 1, 
+    QwtScaleDiv scaleDiv( mediumTicks.first(), mediumTicks.last() + 1,
         minorTicks, mediumTicks, majorTicks );
     return scaleDiv;
 }

@@ -18,7 +18,7 @@ public:
 
     void setSettings( const Settings &);
     Settings settings() const;
-    
+
 Q_SIGNALS:
     void edited();
 

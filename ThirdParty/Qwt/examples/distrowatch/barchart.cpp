@@ -40,7 +40,7 @@ public:
         {
             lbl = d_labels[ index ];
         }
-            
+
         return lbl;
     }
 
@@ -83,7 +83,7 @@ public:
             c = d_colors[ index ];
 
         symbol->setPalette( c );
-    
+
         return symbol;
     }
 
@@ -104,7 +104,7 @@ private:
 BarChart::BarChart( QWidget *parent ):
     QwtPlot( parent )
 {
-    const struct 
+    const struct
     {
         const char *distro;
         const int hits;
@@ -147,7 +147,7 @@ BarChart::BarChart( QWidget *parent ):
         d_distros += pageHits[ i ].distro;
         samples += pageHits[ i ].hits;
 
-        d_barChartItem->addDistro( 
+        d_barChartItem->addDistro(
             pageHits[ i ].distro, pageHits[ i ].color );
     }
 

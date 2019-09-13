@@ -25,7 +25,7 @@ void MainWindow::setSamples( int numPoints )
     for ( int i = 0; i < numPoints; i++ )
     {
         const double x = randomValue() * 24.0 + 1.0;
-        const double y = ::log( 10.0 * ( x - 1.0 ) + 1.0 ) 
+        const double y = ::log( 10.0 * ( x - 1.0 ) + 1.0 )
             * ( randomValue() * 0.5 + 0.9 );
 
         samples += QPointF( x, y );

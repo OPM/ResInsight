@@ -138,7 +138,7 @@ private:
         d_rgbMax = d_rgbTable[ d_hue2 % 360 ];
     }
 
-    int d_hue1, d_hue2, d_saturation, d_value; 
+    int d_hue1, d_hue2, d_saturation, d_value;
     QRgb d_rgbMin, d_rgbMax, d_rgbTable[360];
 };
 
@@ -218,7 +218,7 @@ void Plot::showContour( bool on )
 void Plot::showSpectrogram( bool on )
 {
     d_spectrogram->setDisplayMode( QwtPlotSpectrogram::ImageMode, on );
-    d_spectrogram->setDefaultContourPen( 
+    d_spectrogram->setDefaultContourPen(
         on ? QPen( Qt::black, 0 ) : QPen( Qt::NoPen ) );
 
     replot();

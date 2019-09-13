@@ -21,7 +21,7 @@ SliderTab::SliderTab( QWidget *parent ):
     mainLayout->addLayout( hLayout, 10 );
 }
 
-QBoxLayout *SliderTab::createLayout( 
+QBoxLayout *SliderTab::createLayout(
     Qt::Orientation orientation, QWidget *widget )
 {
     QBoxLayout *layout =

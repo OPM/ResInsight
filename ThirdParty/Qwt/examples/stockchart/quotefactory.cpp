@@ -830,7 +830,7 @@ QVector<QwtOHLCSample> QuoteFactory::samples2010( Stock stock )
     {
         const t_Data2010 &ohlc = data[ i ];
 
-        samples += QwtOHLCSample( 
+        samples += QwtOHLCSample(
             QwtDate::toDouble( year2010.addDays( ohlc.day ) ),
             ohlc.open, ohlc.high, ohlc.low, ohlc.close );
     }
