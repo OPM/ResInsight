@@ -38,6 +38,7 @@ protected:
                                                     const QVariant&            oldValue,
                                                     const QVariant&            newValue ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    virtual void                  setupBeforeSave() override;
 
 private:
     static void appendOptionItemsForSources( QList<caf::PdmOptionItemInfo>& options,
@@ -45,9 +46,10 @@ private:
                                              bool                           hideEnsembles );
 
     std::vector<SummarySource*> selectedSummarySources() const;
+    QString                     curveFilterTextWithoutOutdatedLabel() const;
 
     caf::PdmPtrArrayField<SummarySource*> m_selectedSources;
     caf::PdmField<QString>                m_curveFilterText;
 
-    bool m_isFieldRecentlyChangedFromGui; 
+    bool m_isFieldRecentlyChangedFromGui;
 };

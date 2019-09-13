@@ -127,3 +127,22 @@ size_t RimEclipseGeometrySelectionItem::cellIndex() const
 {
     return m_cellIndex;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3st RimEclipseGeometrySelectionItem::cellIJK() const
+{
+    cvf::Vec3st IJK( -1, -1, -1 );
+
+    if ( m_cellIndex != cvf::UNDEFINED_SIZE_T )
+    {
+        if ( m_eclipseCase && m_eclipseCase->eclipseCaseData() && m_eclipseCase->eclipseCaseData()->grid( m_gridIndex ) )
+        {
+            m_eclipseCase->eclipseCaseData()->grid( m_gridIndex )->ijkFromCellIndex( m_cellIndex, &IJK[0], &IJK[1], &IJK[2] );
+        }
+    }
+
+    return IJK;
+}
+

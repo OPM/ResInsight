@@ -46,6 +46,7 @@ public:
     RimEclipseCase* eclipseCase() const;
     size_t          gridIndex() const;
     size_t          cellIndex() const;
+    cvf::Vec3st     cellIJK() const;   
 
 private:
     caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
