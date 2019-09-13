@@ -1,0 +1,418 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2019- Statoil ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RimSummaryPlotFilterTextCurveSetEditor.h"
+
+#include "RiaApplication.h"
+#include "RiaSummaryCurveDefinition.h"
+
+#include "RifSummaryReaderInterface.h"
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RimEclipseCase.h"
+#include "RimEnsembleCurveSet.h"
+#include "RimEnsembleCurveSetCollection.h"
+#include "RimGridSummaryCase.h"
+#include "RimGridTimeHistoryCurve.h"
+#include "RimObservedDataCollection.h"
+#include "RimObservedSummaryData.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimSummaryCalculationCollection.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryCurve.h"
+#include "RimSummaryCurveCollection.h"
+#include "RimSummaryPlot.h"
+#include "RiuSummaryCurveDefSelection.h"
+
+#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
+#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
+
+#include "cafPdmUiTextEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
+
+#include <QRegularExpression>
+
+CAF_PDM_SOURCE_INIT( RimSummaryPlotFilterTextCurveSetEditor, "SummaryPlotFilterTextCurveSetEditor" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlotFilterTextCurveSetEditor::RimSummaryPlotFilterTextCurveSetEditor()
+    : m_isFieldRecentlyChangedFromGui(false)
+{
+    CAF_PDM_InitObject( "Curve Set Filter Text", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_curveFilterText, "CurveFilterText", "Curve Filter Text", "", "", "" );
+    m_curveFilterText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    //m_curveFilterText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SummaryCases", "Sources", "", "", "" );
+    m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
+    m_selectedSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlotFilterTextCurveSetEditor::~RimSummaryPlotFilterTextCurveSetEditor() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                               const QVariant&            oldValue,
+                                                               const QVariant&            newValue )
+{
+    RimSummaryPlot* parentPlot;
+    this->firstAncestorOrThisOfType( parentPlot );
+
+    if ( parentPlot )
+    {
+        // Remove all curves, Create new ones
+
+        parentPlot->ensembleCurveSetCollection()->deleteAllCurveSets();
+        parentPlot->deleteAllSummaryCurves();
+        parentPlot->deleteAllGridTimeHistoryCurves();
+
+        std::set<RiaSummaryCurveDefinition> curveDefinitions;
+
+        QStringList       allCurveAddressFilters = m_curveFilterText().split( QRegExp( "\\s+" ) , QString::SkipEmptyParts);
+        std::vector<bool> accumulatedUsedFilters( allCurveAddressFilters.size(), false );
+
+        for ( SummarySource* currSource : selectedSummarySources() )
+        {
+            RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>( currSource );
+            RimSummaryCase*           sumCase  = dynamic_cast<RimSummaryCase*>( currSource );
+
+            std::set<RifEclipseSummaryAddress> allAddressesFromSource;
+
+            if ( ensemble )
+            {
+                auto addresses = ensemble->ensembleSummaryAddresses();
+                allAddressesFromSource.insert( addresses.begin(), addresses.end() );
+            }
+            else if ( sumCase )
+            {
+                RifSummaryReaderInterface* reader = sumCase ? sumCase->summaryReader() : nullptr;
+                if ( reader )
+                {
+                    allAddressesFromSource.insert( reader->allResultAddresses().begin(), reader->allResultAddresses().end() );
+                }
+            }
+
+            std::vector<bool>                  usedFilters;
+            std::set<RifEclipseSummaryAddress> filteredAddressesFromSource;
+            RicSummaryPlotFeatureImpl::filteredSummaryAdressesFromCase( allCurveAddressFilters,
+                                                                        allAddressesFromSource,
+                                                                        &filteredAddressesFromSource,
+                                                                        &usedFilters );
+
+            for ( size_t fIdx = 0; fIdx < accumulatedUsedFilters.size(); ++fIdx )
+            {
+                accumulatedUsedFilters[fIdx] = accumulatedUsedFilters[fIdx] || usedFilters[fIdx];
+            }
+
+            for ( const auto& filteredAddress : filteredAddressesFromSource )
+            {
+                curveDefinitions.insert( RiaSummaryCurveDefinition( sumCase, filteredAddress, ensemble ) );
+            }
+        }
+
+        // Find potensial grid result addresses
+
+        QRegularExpression gridAddressPattern( "^[A-Z]+:[0-9]+,[0-9]+,[0-9]+$" );
+        QStringList gridResultAddressFilters;
+
+        for ( int filterIdx = 0; filterIdx < allCurveAddressFilters.size(); ++filterIdx )
+        {
+            if ( !accumulatedUsedFilters[filterIdx] )
+            {
+                const QString& unusedAddressFilter = allCurveAddressFilters[filterIdx];
+                if ( gridAddressPattern.match( unusedAddressFilter ).hasMatch() )
+                {
+                    gridResultAddressFilters.push_back( unusedAddressFilter );
+                }
+                else
+                {
+                    RiaLogging::warning( "No summary or restart vectors matched \"" + unusedAddressFilter + "\"" );
+                }
+            }
+        }
+
+        // Create Summary curves and Ensemble curvesets:
+
+        for (const RiaSummaryCurveDefinition& curveDef: curveDefinitions)
+        {
+            if ( curveDef.isEnsembleCurve() )
+            {
+                RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
+
+                curveSet->setSummaryCaseCollection( curveDef.ensemble() );
+                curveSet->setSummaryAddress( curveDef.summaryAddress() );
+
+                parentPlot->ensembleCurveSetCollection()->addCurveSet( curveSet );
+            }
+            else           
+            {
+                RimSummaryCurve* newCurve = new RimSummaryCurve();
+                parentPlot->addCurveNoUpdate( newCurve );
+                if ( curveDef.summaryCase() )
+                {
+                    newCurve->setSummaryCaseY( curveDef.summaryCase()  );
+                }
+                newCurve->setSummaryAddressYAndApplyInterpolation( curveDef.summaryAddress()  );
+            }
+        }
+
+        // create Grid time history curves
+        {
+            std::vector<RimEclipseCase*> gridCasesToPlotFrom;
+
+            for ( SummarySource* currSource : selectedSummarySources() )
+            {
+                RimGridSummaryCase* gridSumCase = dynamic_cast<RimGridSummaryCase*>( currSource );
+                if ( gridSumCase )
+                {
+                    RimEclipseCase* eclCase = gridSumCase->associatedEclipseCase();
+
+                    if ( eclCase )
+                    {
+                        gridCasesToPlotFrom.push_back( eclCase );
+                    }
+                }
+            }
+
+            bool isEnsembleMode  = gridCasesToPlotFrom.size() > 1;
+            int  curveColorIndex = 0;
+
+            for ( const QString& gridAddressFilter : gridResultAddressFilters )
+            {
+                std::vector<RigGridCellResultAddress> cellResAddrs =
+                    RigGridCellResultAddress::createGridCellAddressesFromFilter( gridAddressFilter );
+
+                for ( RigGridCellResultAddress cellResAddr : cellResAddrs )
+                {
+                    for ( RimEclipseCase* eclCase : gridCasesToPlotFrom )
+                    {
+                        RigCaseCellResultsData* gridCellResults = eclCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL );
+                        if ( !( gridCellResults && gridCellResults->resultInfo( cellResAddr.eclipseResultAddress ) ) )
+                        {
+                            RiaLogging::warning( "Could not find a restart result property with name: \"" +
+                                                 cellResAddr.eclipseResultAddress.m_resultName + "\"" );
+                            continue;
+                        }
+
+                        RimGridTimeHistoryCurve* newCurve = new RimGridTimeHistoryCurve();
+                        newCurve->setFromEclipseCellAndResult( eclCase,
+                                                               cellResAddr.gridIndex,
+                                                               cellResAddr.i,
+                                                               cellResAddr.j,
+                                                               cellResAddr.k,
+                                                               cellResAddr.eclipseResultAddress );
+                        newCurve->setLineThickness( 2 );
+                        newCurve->setColor( RicWellLogPlotCurveFeatureImpl::curveColorFromTable( curveColorIndex ) );
+
+                        if ( !isEnsembleMode ) ++curveColorIndex;
+
+                        parentPlot->addGridTimeHistoryCurveNoUpdate( newCurve );
+                    }
+                    if ( isEnsembleMode ) ++curveColorIndex;
+                }
+            }
+        }
+
+        parentPlot->applyDefaultCurveAppearances();
+        parentPlot->loadDataAndUpdate();
+
+        m_isFieldRecentlyChangedFromGui = true;
+
+        parentPlot->updateConnectedEditors();
+    }
+
+    m_isFieldRecentlyChangedFromGui = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotFilterTextCurveSetEditor::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    if(!m_isFieldRecentlyChangedFromGui)
+    {
+        // Sync gui from existing curves
+
+        RimSummaryPlot* parentPlot;
+        this->firstAncestorOrThisOfType( parentPlot );
+        std::set<SummarySource*> sourcesFromExistingCurves;
+        if ( parentPlot )
+        {
+
+            std::vector<RimEnsembleCurveSet*> ensembleCurveSets = parentPlot->ensembleCurveSetCollection()->curveSets();
+            for (auto ensCurvSet: ensembleCurveSets)
+            {
+                sourcesFromExistingCurves.insert(ensCurvSet->summaryCaseCollection());
+            }
+
+            std::vector<RimSummaryCurve*> sumCurves = parentPlot->summaryCurveCollection()->curves();
+            for (auto sumCurve: sumCurves)
+            {
+                sourcesFromExistingCurves.insert(sumCurve->summaryCaseY());
+            }
+
+
+            std::vector<RimGridTimeHistoryCurve*> gridTimeHistoryCurves = parentPlot->gridTimeHistoryCurves();
+            for (auto grCurve: gridTimeHistoryCurves)
+            {
+                RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>(grCurve->gridCase());
+                if (eclCase)
+                {
+                    sourcesFromExistingCurves.insert(eclCase);
+                }
+            }
+        }
+        
+        std::vector<caf::PdmPointer<SummarySource>> usedSources(sourcesFromExistingCurves.begin(), sourcesFromExistingCurves.end());
+
+        m_selectedSources.clear(); 
+        m_selectedSources.setValue(usedSources);
+
+    }
+
+    m_isFieldRecentlyChangedFromGui = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo>
+    RimSummaryPlotFilterTextCurveSetEditor::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                   bool*                      useOptionsOnly )
+{
+    QList<caf::PdmOptionItemInfo> options;
+    if ( fieldNeedingOptions == &m_selectedSources )
+    {
+        appendOptionItemsForSources( options, false, false );
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotFilterTextCurveSetEditor::appendOptionItemsForSources( QList<caf::PdmOptionItemInfo>& options,
+                                                                          bool hideSummaryCases,
+                                                                          bool hideEnsembles )
+{
+    RimProject* proj = RiaApplication::instance()->project();
+
+    std::vector<RimOilField*> oilFields;
+
+    proj->allOilFields( oilFields );
+    for ( RimOilField* oilField : oilFields )
+    {
+        RimSummaryCaseMainCollection* sumCaseMainColl = oilField->summaryCaseMainCollection();
+        if ( sumCaseMainColl )
+        {
+            if ( !hideSummaryCases )
+            {
+                // Top level cases
+                for ( const auto& sumCase : sumCaseMainColl->topLevelSummaryCases() )
+                {
+                    options.push_back( caf::PdmOptionItemInfo( sumCase->caseName(), sumCase ) );
+                }
+            }
+
+            // Ensembles
+            if ( !hideEnsembles )
+            {
+                bool ensembleHeaderCreated = false;
+                for ( const auto& sumCaseColl : sumCaseMainColl->summaryCaseCollections() )
+                {
+                    if ( !sumCaseColl->isEnsemble() ) continue;
+
+                    if ( !ensembleHeaderCreated )
+                    {
+                        options.push_back( caf::PdmOptionItemInfo::createHeader( "Ensembles", true ) );
+                        ensembleHeaderCreated = true;
+                    }
+
+                    auto optionItem = caf::PdmOptionItemInfo( sumCaseColl->name(), sumCaseColl );
+                    optionItem.setLevel( 1 );
+                    options.push_back( optionItem );
+                }
+            }
+
+            if ( !hideSummaryCases )
+            {
+                // Grouped cases
+                for ( const auto& sumCaseColl : sumCaseMainColl->summaryCaseCollections() )
+                {
+                    if ( sumCaseColl->isEnsemble() ) continue;
+
+                    options.push_back( caf::PdmOptionItemInfo::createHeader( sumCaseColl->name(), true ) );
+
+                    for ( const auto& sumCase : sumCaseColl->allSummaryCases() )
+                    {
+                        auto optionItem = caf::PdmOptionItemInfo( sumCase->caseName(), sumCase );
+                        optionItem.setLevel( 1 );
+                        options.push_back( optionItem );
+                    }
+                }
+
+                // Observed data
+                auto observedDataColl = oilField->observedDataCollection();
+                if ( observedDataColl->allObservedSummaryData().size() > 0 )
+                {
+                    options.push_back( caf::PdmOptionItemInfo::createHeader( "Observed Data", true ) );
+
+                    for ( const auto& obsData : observedDataColl->allObservedSummaryData() )
+                    {
+                        auto optionItem = caf::PdmOptionItemInfo( obsData->caseName(), obsData );
+                        optionItem.setLevel( 1 );
+                        options.push_back( optionItem );
+                    }
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<SummarySource*> RimSummaryPlotFilterTextCurveSetEditor::selectedSummarySources() const
+{
+    std::vector<SummarySource*> sources;
+
+    for ( const auto& source : m_selectedSources )
+    {
+        sources.push_back( source );
+    }
+
+    // Always add the summary case for calculated curves as this case is not displayed in UI
+    sources.push_back( RiaApplication::instance()->project()->calculationCollection()->calculationSummaryCase() );
+
+    return sources;
+}
+

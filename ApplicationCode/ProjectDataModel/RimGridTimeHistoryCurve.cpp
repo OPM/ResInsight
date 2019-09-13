@@ -311,6 +311,26 @@ QString RimGridTimeHistoryCurve::caseName() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimCase* RimGridTimeHistoryCurve::gridCase() const
+{
+    RimEclipseGeometrySelectionItem* eclTopItem = eclipseGeomSelectionItem();
+    if ( eclTopItem && eclTopItem->eclipseCase() )
+    {
+        return eclTopItem->eclipseCase();
+    }
+
+    RimGeoMechGeometrySelectionItem* geoMechTopItem = geoMechGeomSelectionItem();
+    if ( geoMechTopItem && geoMechTopItem->geoMechCase() )
+    {
+        return geoMechTopItem->geoMechCase();
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimGridTimeHistoryCurve::createCurveAutoName()
