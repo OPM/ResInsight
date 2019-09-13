@@ -293,7 +293,7 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
 
         if ( summaryCase )
         {
-            m_titleCaseName = summaryCase->caseName();
+            m_titleCaseName = summaryCase->shortName();
         }
     }
     else if ( ensembleCases.size() == 1 && summaryCases.empty() )
