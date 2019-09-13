@@ -146,7 +146,11 @@ QWidget* RicSummaryCurveCreatorSplitterUi::createWidget( QWidget* parent )
 
     m_firstColumnSplitter->insertWidget( 0, firstRowFrame );
     m_firstColumnSplitter->insertWidget( 1, secondRowFrame );
-    m_firstColumnSplitter->setSizes( QList<int>() << 1 << 2 );
+
+    const int firstRowPixelHeight  = 500;
+    const int secondRowPixelHeight = 300;
+
+    m_firstColumnSplitter->setSizes( QList<int>() << firstRowPixelHeight << secondRowPixelHeight );
 
     m_layout->addWidget( m_firstColumnSplitter );
 
