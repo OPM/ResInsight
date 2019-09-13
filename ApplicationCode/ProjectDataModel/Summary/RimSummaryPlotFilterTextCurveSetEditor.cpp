@@ -60,9 +60,18 @@ RimSummaryPlotFilterTextCurveSetEditor::RimSummaryPlotFilterTextCurveSetEditor()
 {
     CAF_PDM_InitObject( "Curve Set Filter Text", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_curveFilterText, "CurveFilterText", "Curve Filter Text", "", "", "" );
+    // clang-format off
+    QString filterTextToolTip =
+        "A space separated list of vector addresses in the syntax: <vectorshortname>[:<item>[:<subitem>[:i,j,k]]]\n"
+        "Wildcards can also be used. Examples:\n"
+        "  \"WOPT:*\" One total oil production curve for each well.\n"
+        "  \"FOPT FWPT\" Two curves with oil and water total production.\n"
+        "  \"BPR:15,28,*\" (no space) Oil phase pressure for all blocks along k as separate curves.\n";
+    // clang-format on
+
+    CAF_PDM_InitFieldNoDefault( &m_curveFilterText, "CurveFilterText", "Curve Filter Text", "", filterTextToolTip, "" );
     m_curveFilterText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    //m_curveFilterText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
+    // m_curveFilterText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SummaryCases", "Sources", "", "", "" );
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
