@@ -106,8 +106,8 @@ void Plot::insertCurve()
 {
     static int counter = 1;
 
-    const char *colors[] = 
-    { 
+    const char *colors[] =
+    {
         "LightSalmon",
         "SteelBlue",
         "Yellow",
@@ -146,12 +146,12 @@ void Plot::applySettings( const Settings &settings )
                 d_externalLegend = new QwtLegend();
                 d_externalLegend->setWindowTitle("Plot Legend");
 
-                connect( 
-                    this, 
-                    SIGNAL( legendDataChanged( const QVariant &, 
+                connect(
+                    this,
+                    SIGNAL( legendDataChanged( const QVariant &,
                         const QList<QwtLegendData> & ) ),
-                    d_externalLegend, 
-                    SLOT( updateLegend( const QVariant &, 
+                    d_externalLegend,
+                    SLOT( updateLegend( const QVariant &,
                         const QList<QwtLegendData> & ) ) );
 
                 d_externalLegend->show();
@@ -165,10 +165,10 @@ void Plot::applySettings( const Settings &settings )
             delete d_externalLegend;
             d_externalLegend = NULL;
 
-            if ( legend() == NULL || 
+            if ( legend() == NULL ||
                 plotLayout()->legendPosition() != settings.legend.position )
             {
-                insertLegend( new QwtLegend(), 
+                insertLegend( new QwtLegend(),
                     QwtPlot::LegendPosition( settings.legend.position ) );
             }
         }
@@ -193,7 +193,7 @@ void Plot::applySettings( const Settings &settings )
         d_legendItem->setAlignment( Qt::Alignment( settings.legendItem.alignment ) );
         d_legendItem->setBackgroundMode(
             QwtPlotLegendItem::BackgroundMode( settings.legendItem.backgroundMode ) );
-        if ( settings.legendItem.backgroundMode == 
+        if ( settings.legendItem.backgroundMode ==
             QwtPlotLegendItem::ItemBackground )
         {
             d_legendItem->setBorderRadius( 4 );
@@ -227,7 +227,7 @@ void Plot::applySettings( const Settings &settings )
             QwtPlotItem* curve = curveList.takeFirst();
             delete curve;
         }
-        
+
         for ( int i = curveList.size(); i < settings.curve.numCurves; i++ )
             insertCurve();
     }

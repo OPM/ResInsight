@@ -11,7 +11,7 @@ class WheelBox: public QWidget
 {
     Q_OBJECT
 public:
-    WheelBox( Qt::Orientation, 
+    WheelBox( Qt::Orientation,
         int type, QWidget *parent = NULL );
 
 private Q_SLOTS:

@@ -63,10 +63,10 @@ QwtSlider *SliderBox::createSlider( int sliderType ) const
             slider->setGroove( false );
             slider->setSpacing( 0 );
             slider->setHandleSize( QSize( 30, 16 ) );
-            slider->setScale( 10.0, -10.0 ); 
-            slider->setTotalSteps( 8 ); 
-            slider->setSingleSteps( 1 ); 
-            slider->setPageSteps( 1 ); 
+            slider->setScale( 10.0, -10.0 );
+            slider->setTotalSteps( 8 );
+            slider->setSingleSteps( 1 );
+            slider->setPageSteps( 1 );
             slider->setWrapping( true );
             break;
         }

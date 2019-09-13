@@ -139,7 +139,7 @@ QwtCompass *CompassGrid::createCompass( int pos )
                 map.insert( d, label );
             }
 
-            QwtCompassScaleDraw *scaleDraw = 
+            QwtCompassScaleDraw *scaleDraw =
                 new QwtCompassScaleDraw( map );
             scaleDraw->enableComponent( QwtAbstractScaleDraw::Ticks, true );
             scaleDraw->enableComponent( QwtAbstractScaleDraw::Labels, true );

@@ -20,7 +20,7 @@ public:
         curve.numCurves = 0;
         curve.title = "Curve";
     }
-    
+
     struct
     {
         bool isEnabled;
@@ -34,9 +34,9 @@ public:
         int alignment;
         int backgroundMode;
         int size;
-        
+
     } legendItem;
-    
+
     struct
     {
         int numCurves;

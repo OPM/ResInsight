@@ -100,8 +100,8 @@ private:
 };
 
 class Curve3: public Curve
-{       
-public: 
+{
+public:
     Curve3()
     {
         setStyle( QwtPlotCurve::Lines );
@@ -120,7 +120,7 @@ public:
         transform.scale( 2.0, 2.0 );
 
         setTransformation( transform );
-    }   
+    }
 
 private:
     virtual QPolygonF points( double phase ) const
@@ -136,11 +136,11 @@ private:
 
         return points;
     }
-};  
+};
 
 class Curve4: public Curve
-{       
-public: 
+{
+public:
     Curve4()
     {
         setStyle( QwtPlotCurve::Lines );
@@ -154,7 +154,7 @@ public:
         transform.scale( 1.5, 1.5 );
 
         setTransformation( transform );
-    }   
+    }
 
 private:
     virtual QPolygonF points( double phase ) const
@@ -189,14 +189,14 @@ private:
             QPointF p( qCos( angle ), qSin( angle ) );
             if ( i % 2 )
                 p *= 0.4;
-            
+
             d_points += p;
         }
     }
 
 private:
     mutable QPolygonF d_points;
-};  
+};
 
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent)

@@ -7,8 +7,6 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #ifndef QWT_MATHML_TEXT_ENGINE_H
 #define QWT_MATHML_TEXT_ENGINE_H 1
 
@@ -19,11 +17,12 @@
 
   To enable MathML support the following code needs to be added to the
   application:
-  \verbatim
-#include <qwt_mathml_text_engine.h>
 
-QwtText::setTextEngine(QwtText::MathMLText, new QwtMathMLTextEngine());
-  \endverbatim
+  \code
+    #include <qwt_mathml_text_engine.h>
+
+    QwtText::setTextEngine( QwtText::MathMLText, new QwtMathMLTextEngine() );
+  \endcode
 
   \sa QwtTextEngine, QwtText::setTextEngine
   \warning Unfortunately the MathML renderer doesn't support rotating of texts.

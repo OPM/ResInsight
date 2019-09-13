@@ -18,7 +18,7 @@ Plot::Plot( QWidget *parent ):
     plotLayout()->setAlignCanvasToScales( true );
 
     initAxis( QwtPlot::yLeft, "Local Time", Qt::LocalTime );
-    initAxis( QwtPlot::yRight, 
+    initAxis( QwtPlot::yRight,
         "Coordinated Universal Time ( UTC )", Qt::UTC );
 
     QwtPlotPanner *panner = new QwtPlotPanner( canvas() );
@@ -45,7 +45,7 @@ Plot::Plot( QWidget *parent ):
     grid->attach( this );
 }
 
-void Plot::initAxis( int axis, 
+void Plot::initAxis( int axis,
     const QString& title, Qt::TimeSpec timeSpec )
 {
     setAxisTitle( axis, title );
@@ -77,7 +77,7 @@ void Plot::applySettings( const Settings &settings )
 
 void Plot::applyAxisSettings( int axis, const Settings &settings )
 {
-    QwtDateScaleEngine *scaleEngine = 
+    QwtDateScaleEngine *scaleEngine =
         static_cast<QwtDateScaleEngine *>( axisScaleEngine( axis ) );
 
     scaleEngine->setMaxWeeks( settings.maxWeeks );
@@ -85,6 +85,6 @@ void Plot::applyAxisSettings( int axis, const Settings &settings )
     setAxisMaxMajor( axis, settings.maxMajorSteps );
 
 
-    setAxisScale( axis, QwtDate::toDouble( settings.startDateTime ), 
+    setAxisScale( axis, QwtDate::toDouble( settings.startDateTime ),
         QwtDate::toDouble( settings.endDateTime ) );
 }

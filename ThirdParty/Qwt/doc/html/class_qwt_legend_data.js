@@ -13,13 +13,13 @@ var class_qwt_legend_data =
     ] ],
     [ "QwtLegendData", "class_qwt_legend_data.html#a519e4f01583d051e4b2458ab9dfcb196", null ],
     [ "~QwtLegendData", "class_qwt_legend_data.html#a56608cc97875e7b3dd9340decd5231cb", null ],
-    [ "hasRole", "class_qwt_legend_data.html#ae615eb3d1a3d88cc25dc0ed6dea70a72", null ],
-    [ "icon", "class_qwt_legend_data.html#a3a4e20d33c2eb8bec1e8ef9b943de74c", null ],
-    [ "isValid", "class_qwt_legend_data.html#a4f77fc2e39d6187fb58aeb964049b4c6", null ],
-    [ "mode", "class_qwt_legend_data.html#a7cd0c8df579edddf8abfe6c7a87af07f", null ],
+    [ "hasRole", "class_qwt_legend_data.html#abfa62dcccd380d9ba41cd24923c1155f", null ],
+    [ "icon", "class_qwt_legend_data.html#aea7d1ab69cc1cab86a949b48b92a71b4", null ],
+    [ "isValid", "class_qwt_legend_data.html#aa4965e8711b0b4cb899b673fe8525392", null ],
+    [ "mode", "class_qwt_legend_data.html#a08a30173e015c7e743ae257f9ceb4736", null ],
     [ "setValue", "class_qwt_legend_data.html#a1be4b4cf3c1df733744633ea6c02346a", null ],
     [ "setValues", "class_qwt_legend_data.html#a68c3bc398c541f345a12fa9321ad52ed", null ],
-    [ "title", "class_qwt_legend_data.html#a23d0faa63f590c1f0c3ee7c9479410cf", null ],
-    [ "value", "class_qwt_legend_data.html#a73016050ce489f85018025ec5a268387", null ],
-    [ "values", "class_qwt_legend_data.html#aeecadb69ee0e384b34f4b39a2131924e", null ]
+    [ "title", "class_qwt_legend_data.html#af8a49f7a6cc6991815f3163b21d70d44", null ],
+    [ "value", "class_qwt_legend_data.html#a6d7b579487291f78d9cc26b59b53e32f", null ],
+    [ "values", "class_qwt_legend_data.html#ad7a22d8fd13cce97d49eef4f48b897f7", null ]
 ];

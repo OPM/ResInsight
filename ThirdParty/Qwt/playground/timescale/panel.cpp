@@ -18,7 +18,7 @@ Panel::Panel( QWidget *parent ):
     d_endDateTime = new QDateTimeEdit();
     d_endDateTime->setDisplayFormat( "M/d/yyyy h:mm AP :zzz" );
     d_endDateTime->setCalendarPopup( true );
-    
+
     d_maxMajorSteps = new QSpinBox();
     d_maxMajorSteps->setRange( 0, 50 );
 
@@ -76,7 +76,7 @@ void Panel::setSettings( const Settings &settings )
     d_maxMajorSteps->setValue( settings.maxMajorSteps );
     d_maxMinorSteps->setValue( settings.maxMinorSteps );
     d_maxWeeks->setValue( settings.maxWeeks );
-        
+
     blockSignals( false );
 }
 

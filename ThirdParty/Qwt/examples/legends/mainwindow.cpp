@@ -24,7 +24,7 @@ MainWindow::MainWindow( QWidget *parent ):
 
     settings.curve.numCurves = 4;
     settings.curve.title = "Curve";
-    
+
     d_panel = new Panel();
     d_panel->setSettings( settings );
 
