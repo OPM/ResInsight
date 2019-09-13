@@ -513,18 +513,21 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 if ( plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE )
                 {
                     auto reader = summaryCaseY()->summaryReader();
-                    if (reader)
+                    if ( reader )
                     {
-                        auto errAddress = reader->errorAddress(summaryAddressY());
-                        if (errAddress.isValid())
+                        auto errAddress = reader->errorAddress( summaryAddressY() );
+                        if ( errAddress.isValid() )
                         {
                             std::vector<double> errValues;
-                            reader->values(errAddress, &errValues);
-                            m_qwtPlotCurve->setSamplesFromTimeTAndYValues(curveTimeStepsY, curveValuesY, errValues, isLogCurve);
+                            reader->values( errAddress, &errValues );
+                            m_qwtPlotCurve->setSamplesFromTimeTAndYValues( curveTimeStepsY,
+                                                                           curveValuesY,
+                                                                           errValues,
+                                                                           isLogCurve );
                         }
                         else
                         {
-                            m_qwtPlotCurve->setSamplesFromTimeTAndYValues(curveTimeStepsY, curveValuesY, isLogCurve);
+                            m_qwtPlotCurve->setSamplesFromTimeTAndYValues( curveTimeStepsY, curveValuesY, isLogCurve );
                         }
                     }
                 }
