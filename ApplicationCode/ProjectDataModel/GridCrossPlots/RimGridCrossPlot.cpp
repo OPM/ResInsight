@@ -151,7 +151,7 @@ QImage RimGridCrossPlot::snapshotWindowContent()
 
     if ( m_qwtPlot )
     {
-        QPixmap pix = QPixmap::grabWidget( m_qwtPlot );
+        QPixmap pix = m_qwtPlot->grab();
         image       = pix.toImage();
     }
 

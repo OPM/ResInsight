@@ -604,7 +604,7 @@ QImage RimFlowCharacteristicsPlot::snapshotWindowContent()
 
     if ( m_flowCharPlotWidget )
     {
-        QPixmap pix = QPixmap::grabWidget( m_flowCharPlotWidget );
+        QPixmap pix = m_flowCharPlotWidget->grab();
         image       = pix.toImage();
     }
 

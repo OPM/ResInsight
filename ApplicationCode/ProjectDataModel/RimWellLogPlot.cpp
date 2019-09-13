@@ -284,7 +284,7 @@ QImage RimWellLogPlot::snapshotWindowContent()
 
     if ( m_viewer )
     {
-        QPixmap pix = QPixmap::grabWidget( m_viewer );
+        QPixmap pix = m_viewer->grab();
         image       = pix.toImage();
     }
 

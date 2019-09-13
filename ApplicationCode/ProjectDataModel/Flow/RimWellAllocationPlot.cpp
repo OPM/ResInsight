@@ -782,7 +782,7 @@ QImage RimWellAllocationPlot::snapshotWindowContent()
 
     if ( m_wellAllocationPlotWidget )
     {
-        QPixmap pix = QPixmap::grabWidget( m_wellAllocationPlotWidget );
+        QPixmap pix = m_wellAllocationPlotWidget->grab();
         image       = pix.toImage();
     }
 

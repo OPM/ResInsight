@@ -126,7 +126,8 @@ void RicGridStatisticsDialog::updateFromRimView( RimGridView* rimView )
 //--------------------------------------------------------------------------------------------------
 QImage RicGridStatisticsDialog::screenShotImage()
 {
-    QPixmap shot = QPixmap::grabWidget( m_mainViewWidget, m_mainViewWidget->rect() );
+    QPixmap shot = m_mainViewWidget->grab();
+
     return shot.toImage();
 }
 
