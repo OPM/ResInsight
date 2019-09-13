@@ -165,8 +165,9 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles( const QStringLis
                                                                 std::vector<RimSummaryCase*>* newCases,
                                                                 bool                          ensembleOrGroup )
 {
-    RiaApplication*               app         = RiaApplication::instance();
-    RimProject*                   proj        = app->project();
+    RiaApplication* app  = RiaApplication::instance();
+    RimProject*     proj = app->project();
+
     RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField()
                                                     ? proj->activeOilField()->summaryCaseMainCollection()
                                                     : nullptr;
