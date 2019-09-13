@@ -260,7 +260,7 @@ QString RifEclipseOutputFileTools::firstFileNameOfType( const QStringList& fileS
         }
     }
 
-    return QString::null;
+    return QString();
 }
 
 //--------------------------------------------------------------------------------------------------

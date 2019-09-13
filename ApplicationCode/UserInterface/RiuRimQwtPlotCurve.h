@@ -26,7 +26,7 @@ class RimPlotCurve;
 class RiuRimQwtPlotCurve : public RiuQwtPlotCurve
 {
 public:
-    explicit RiuRimQwtPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title = QString::null );
+    explicit RiuRimQwtPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title = QString() );
 
     RimPlotCurve*       ownerRimCurve();
     const RimPlotCurve* ownerRimCurve() const;
