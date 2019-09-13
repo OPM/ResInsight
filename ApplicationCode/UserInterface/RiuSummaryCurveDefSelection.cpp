@@ -423,7 +423,7 @@ void RiuSummaryCurveDefSelection::setDefaultSelection(const std::vector<SummaryS
 
     if (allSumCases.size() > 0)
     {
-        RifEclipseSummaryAddress defaultAddress = RifEclipseSummaryAddress::fieldAddress("FOPT");
+        RifEclipseSummaryAddress defaultAddress;
 
         std::vector<SummarySource*> selectTheseSources = defaultSources;
         if (selectTheseSources.empty()) selectTheseSources.push_back(allSumCases[0]);
@@ -456,11 +456,6 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
         RimSummaryCase* summaryCase = curveDef.summaryCase();
 
         RifEclipseSummaryAddress summaryAddress = curveDef.summaryAddress();
-        if (summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_INVALID)
-        {
-            // If we have an invalid address, set the default address to Field
-            summaryAddress = RifEclipseSummaryAddress::fieldAddress(summaryAddress.quantityName());
-        }
 
         // Ignore ensemble statistics curves
         if (summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS) continue;
@@ -471,7 +466,15 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
         if (std::find(selectedCategories.begin(), selectedCategories.end(),
                       summaryAddress.category()) == selectedCategories.end())
         {
-            m_selectedSummaryCategories.v().push_back(summaryAddress.category());
+            if ( summaryAddress.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
+            {
+                m_selectedSummaryCategories.v().push_back( summaryAddress.category() );
+            }
+            else
+            {
+                // Use field category as fall back category to avoid an empty list of vectors
+                summaryAddress = RifEclipseSummaryAddress::fieldAddress( "" );
+            }
         }
 
         // Select case if not already selected
