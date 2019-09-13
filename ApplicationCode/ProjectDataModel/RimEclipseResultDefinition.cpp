@@ -52,6 +52,8 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimViewLinker.h"
 #include "RimWellLogExtractionCurve.h"
+#include "RimContourMapProjection.h"
+#include "RimEclipseContourMapView.h"
 
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
@@ -286,14 +288,28 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         loadDataAndUpdate();
     }
 
+    RimEclipseContourMapView* contourMapView = nullptr;
+    this->firstAncestorOrThisOfType(contourMapView);
+
     if (&m_differenceCase == changedField)
     {
         m_timeLapseBaseTimestep = RigEclipseResultAddress::noTimeLapseValue();
+
+        if (contourMapView)
+        {
+            contourMapView->contourMapProjection()->updatedWeightingResult();
+        }
+    
         loadDataAndUpdate();
     }
 
     if (&m_timeLapseBaseTimestep == changedField)
     {
+        if (contourMapView)
+        {
+            contourMapView->contourMapProjection()->updatedWeightingResult();
+        }
+
         loadDataAndUpdate();
     }
 
