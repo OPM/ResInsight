@@ -52,6 +52,7 @@ class RimPlotAxisProperties;
 class RiuSummaryQwtPlot;
 class RimSummaryPlotNameHelper;
 class RimPlotTemplateFileItem;
+class RimSummaryPlotFilterTextCurveSetEditor;
 
 class QwtInterval;
 class QwtPlotCurve;
@@ -82,10 +83,14 @@ public:
     void deleteCurves( const std::vector<RimSummaryCurve*>& curves );
 
     void deleteCurvesAssosiatedWithCase( RimSummaryCase* summaryCase );
+    void deleteAllGridTimeHistoryCurves();
 
     RimEnsembleCurveSetCollection* ensembleCurveSetCollection() const;
 
     void addGridTimeHistoryCurve( RimGridTimeHistoryCurve* curve );
+    void addGridTimeHistoryCurveNoUpdate( RimGridTimeHistoryCurve* curve );
+ 
+    std::vector<RimGridTimeHistoryCurve*> gridTimeHistoryCurves() const;
 
     void addAsciiDataCruve( RimAsciiDataCurve* curve );
 
@@ -230,6 +235,8 @@ private:
     caf::PdmChildField<RimSummaryTimeAxisProperties*> m_timeAxisProperties;
 
     caf::PdmPtrField<RimPlotTemplateFileItem*> m_plotTemplate;
+
+    caf::PdmChildField<RimSummaryPlotFilterTextCurveSetEditor*> m_textCurveSetEditor;
 
     QPointer<RiuSummaryQwtPlot>       m_qwtPlot;
     std::unique_ptr<QwtPlotTextLabel> m_plotInfoLabel;

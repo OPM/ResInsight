@@ -39,16 +39,59 @@ public:
 
     static void createSummaryPlotsFromArgumentLine( const QStringList& arguments );
 
+    static void filteredSummaryAdressesFromCase( const QStringList&                        curveFilters,
+                                                 const std::set<RifEclipseSummaryAddress>& allAddressesInCase,
+                                                 std::set<RifEclipseSummaryAddress>* setToInsertFilteredAddressesIn,
+                                                 std::vector<bool>*                  usedFilters );
+
 private:
     static std::vector<RimSummaryCurve*> addCurvesFromAddressFiltersToPlot( const QStringList& curveFilters,
                                                                             RimSummaryPlot*    plot,
                                                                             RimSummaryCase*    summaryCase,
                                                                             bool               addHistoryCurves );
+
     static std::set<RifEclipseSummaryAddress>
-                applySummaryAddressFiltersToCases( const std::vector<RimSummaryCase*>& summaryCasesToUse,
-                                                   const QStringList&                  summaryAddressFilters );
-    static void filteredSummaryAdressesFromCase( const QStringList&                        curveFilters,
-                                                 const std::set<RifEclipseSummaryAddress>& allAddressesInCase,
-                                                 std::set<RifEclipseSummaryAddress>* setToInsertFilteredAddressesIn,
-                                                 std::vector<bool>*                  usedFilters );
+        applySummaryAddressFiltersToCases( const std::vector<RimSummaryCase*>& summaryCasesToUse,
+                                           const QStringList&                  summaryAddressFilters );
+
+    static void splitAddressFiltersInGridAndSummary( RimSummaryCase*    summaryBaseCases,
+                                                     const QStringList& allCurveAddressFilters,
+                                                     QStringList*       summaryAddressFilters,
+                                                     QStringList*       gridResultAddressFilters );
+};
+
+#include "RigEclipseResultAddress.h"
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class RigGridCellResultAddress
+{
+public:
+    RigGridCellResultAddress()
+        : gridIndex( -1 )
+        , i( -1 )
+        , j( -1 )
+        , k( -1 )
+    {
+    }
+
+    RigGridCellResultAddress(
+        size_t gridIndex, size_t i, size_t j, size_t k, const RigEclipseResultAddress& eclipseResultAddress )
+        : gridIndex( gridIndex )
+        , i( i )
+        , j( j )
+        , k( k )
+        , eclipseResultAddress( eclipseResultAddress )
+    {
+    }
+
+    static std::vector<RigGridCellResultAddress> createGridCellAddressesFromFilter( const QString& text );
+    // Using zero based ijk
+
+    size_t                  gridIndex;
+    size_t                  i;
+    size_t                  j;
+    size_t                  k;
+    RigEclipseResultAddress eclipseResultAddress;
 };

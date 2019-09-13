@@ -41,6 +41,7 @@
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryTimeAxisProperties.h"
+#include "RimSummaryPlotFilterTextCurveSetEditor.h"
 
 #include "RiuPlotMainWindowTools.h"
 #include "RiuSummaryQwtPlot.h"
@@ -138,7 +139,7 @@ RimSummaryPlot::RimSummaryPlot()
 {
     CAF_PDM_InitObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_userDefinedPlotTitle, "PlotDescription", QString( "Summary Plot" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_userDefinedPlotTitle, "PlotDescription", QString( "Summary Plot" ), "Title", "", "", "" );
     CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Plot Title", "", "", "" );
     m_showPlotTitle.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Legend", "", "", "" );
@@ -147,7 +148,7 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitField( &m_legendFontSize, "LegendFontSize", 11, "Legend Font Size", "", "", "" );
     m_showLegend.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Name", "", "", "" );
+    CAF_PDM_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title", "", "", "" );
     m_useAutoPlotTitle.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves", "", "", "" );
@@ -197,6 +198,10 @@ RimSummaryPlot::RimSummaryPlot()
     RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_isAutoZoom_OBSOLETE );
 
     CAF_PDM_InitFieldNoDefault( &m_plotTemplate, "PlotTemplate", "Template", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_textCurveSetEditor, "SummaryPlotFilterTextCurveSetEditor", "Text Filter Curve Creator", "", "", "" );
+    m_textCurveSetEditor.uiCapability()->setUiTreeHidden( true );
+    m_textCurveSetEditor = new RimSummaryPlotFilterTextCurveSetEditor;
 
     m_isCrossPlot = false;
 
@@ -1189,6 +1194,28 @@ void RimSummaryPlot::addGridTimeHistoryCurve( RimGridTimeHistoryCurve* curve )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::addGridTimeHistoryCurveNoUpdate(RimGridTimeHistoryCurve* curve)
+{
+    CVF_ASSERT( curve );
+
+    m_gridTimeHistoryCurves.push_back( curve );
+    if ( m_qwtPlot )
+    {
+        curve->setParentQwtPlotNoReplot( m_qwtPlot );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimGridTimeHistoryCurve*> RimSummaryPlot::gridTimeHistoryCurves() const
+{
+    return m_gridTimeHistoryCurves.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::addAsciiDataCruve( RimAsciiDataCurve* curve )
@@ -1511,6 +1538,14 @@ std::set<RimPlotAxisPropertiesInterface*> RimSummaryPlot::allPlotAxes() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::deleteAllGridTimeHistoryCurves()
+{
+    m_gridTimeHistoryCurves.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::setDescription( const QString& description )
@@ -1563,21 +1598,28 @@ void RimSummaryPlot::setAsCrossPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_showPlotTitle );
-    uiOrdering.add( &m_useAutoPlotTitle );
-    uiOrdering.add( &m_userDefinedPlotTitle );
-    uiOrdering.add( &m_showLegend );
+    caf::PdmUiGroup* mainOptions = uiOrdering.addNewGroup("General Plot Options");
 
-    if ( m_showLegend() )
+    mainOptions->add( &m_showPlotTitle );
+    if ( m_showPlotTitle )
     {
-        uiOrdering.add( &m_legendFontSize );
+        mainOptions->add(&m_useAutoPlotTitle);
+        mainOptions->add(&m_userDefinedPlotTitle);
     }
-
-    uiOrdering.add( &m_normalizeCurveYValues );
-
     m_userDefinedPlotTitle.uiCapability()->setUiReadOnly( m_useAutoPlotTitle );
 
-    uiOrdering.add( &m_plotTemplate );
+    mainOptions->add( &m_showLegend );
+    if ( m_showLegend() )
+    {
+        mainOptions->add( &m_legendFontSize );
+    }
+
+    mainOptions->add( &m_normalizeCurveYValues );
+    mainOptions->add( &m_plotTemplate );
+
+    caf::PdmUiGroup* textCurveFilterGroup = uiOrdering.addNewGroup("Text-Based Curve Creation");
+
+    m_textCurveSetEditor->uiOrdering(uiConfigName, *textCurveFilterGroup);
 
     uiOrdering.skipRemainingFields( true );
 }

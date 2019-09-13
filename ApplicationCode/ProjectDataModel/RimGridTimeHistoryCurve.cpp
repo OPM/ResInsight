@@ -45,6 +45,7 @@
 #include "RiuQwtPlotCurve.h"
 
 #include "qwt_plot.h"
+#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 CAF_PDM_SOURCE_INIT( RimGridTimeHistoryCurve, "GridTimeHistoryCurve" );
 
@@ -167,6 +168,30 @@ void RimGridTimeHistoryCurve::setFromEclipseCellAndResult(
     RimEclipseGeometrySelectionItem* geomSelectionItem = new RimEclipseGeometrySelectionItem;
     m_geometrySelectionItem                            = geomSelectionItem;
     geomSelectionItem->setFromCaseGridAndIJK( eclCase, gridIdx, i, j, k );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigGridCellResultAddress RimGridTimeHistoryCurve::resultAddress()
+{
+    RimEclipseGeometrySelectionItem* eclipseGeomSelectionItem = dynamic_cast<RimEclipseGeometrySelectionItem*>(
+        m_geometrySelectionItem.value() );
+
+    if ( m_eclipseResultDefinition && eclipseGeomSelectionItem )
+    {
+        cvf::Vec3st IJK = eclipseGeomSelectionItem->cellIJK();
+
+        return RigGridCellResultAddress( eclipseGeomSelectionItem->gridIndex(),
+                                         IJK[0],
+                                         IJK[1],
+                                         IJK[2],
+                                         m_eclipseResultDefinition->eclipseResultAddress() );
+    }
+
+    // Todo: support geomech stuff
+
+    return RigGridCellResultAddress();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -308,6 +333,26 @@ QString RimGridTimeHistoryCurve::caseName() const
     }
 
     return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimCase* RimGridTimeHistoryCurve::gridCase() const
+{
+    RimEclipseGeometrySelectionItem* eclTopItem = eclipseGeomSelectionItem();
+    if ( eclTopItem && eclTopItem->eclipseCase() )
+    {
+        return eclTopItem->eclipseCase();
+    }
+
+    RimGeoMechGeometrySelectionItem* geoMechTopItem = geoMechGeomSelectionItem();
+    if ( geoMechTopItem && geoMechTopItem->geoMechCase() )
+    {
+        return geoMechTopItem->geoMechCase();
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

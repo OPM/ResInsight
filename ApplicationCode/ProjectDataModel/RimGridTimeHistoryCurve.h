@@ -26,6 +26,7 @@
 #include "cafPdmPtrField.h"
 
 #include <memory>
+#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 class RigMainGrid;
 class RimEclipseCase;
@@ -37,6 +38,7 @@ class RimGeometrySelectionItem;
 class RiuFemTimeHistoryResultAccessor;
 class RiuSelectionItem;
 class RigEclipseResultAddress;
+class RimCase;
 
 //==================================================================================================
 ///
@@ -61,8 +63,11 @@ public:
     std::vector<time_t> timeStepValues() const;
     std::vector<double> daysSinceSimulationStart() const;
 
+    RigGridCellResultAddress resultAddress();
+
     QString quantityName() const;
     QString caseName() const;
+    RimCase* gridCase() const;
 
 protected:
     QString createCurveAutoName() override;
