@@ -9,7 +9,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  ${CEE_STRICT_CXX_FLAGS}")
 # For now, disable warning about unknown pragmas locally here (due to usage of OpenMP)
 # Probably need to do this more centralized whenever we use OpenMP more extensively
 if (CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -Wno-unknown-pragmas")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-deprecated -Wno-deprecated-declarations")
 endif()
 
 # For now, remove pedantic flag for OSX since it clashes with glew
