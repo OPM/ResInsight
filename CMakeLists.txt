@@ -164,10 +164,6 @@ mark_as_advanced(FORCE RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
     if(MSVC)
         if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
-	        add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
-        
-            include_directories(${RESINSIGHT_HDF5_DIR}/include)
-        
 	        list(APPEND EXTERNAL_LINK_LIBRARIES
                 ${RESINSIGHT_HDF5_DIR}/lib/hdf5.lib
                 ${RESINSIGHT_HDF5_DIR}/lib/hdf5_cpp.lib
@@ -181,10 +177,6 @@ if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
     else()
         find_package(HDF5 COMPONENTS CXX)
         if (HDF5_FOUND)
-	        add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
-		    add_definitions(${HDF5_DEFINITIONS})
-		    include_directories(${HDF5_INCLUDE_DIRS})
-
 		    list(APPEND EXTERNAL_LINK_LIBRARIES
 		        ${HDF5_LIBRARIES}
 		    )
@@ -197,7 +189,6 @@ if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
 	        if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
 		        message( STATUS "Bundling of HDF5 libraries is enabled" )
 	        endif() # RESINSIGHT_HDF5_BUNDLE_LIBRARIES
-
 
         else()
             message( WARNING "Use of HDF5 is enabled, but no HDF5 is found." )
@@ -293,11 +284,6 @@ add_subdirectory(ThirdParty/expressionparser)
 list(APPEND THIRD_PARTY_LIBRARIES
     expressionparser
 )
-
-################################################################################
-# Eigen
-################################################################################
-include_directories(SYSTEM ThirdParty/Eigen-Subset)
 
 ################################################################################
 # clipper

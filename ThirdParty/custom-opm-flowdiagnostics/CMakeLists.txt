@@ -2,6 +2,10 @@ cmake_minimum_required (VERSION 2.8)
 
 project (custom-opm-flowdiagnostics)
 
+if (CMAKE_COMPILER_IS_GNUCXX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations")
+endif()
+
 include_directories(
     opm-flowdiagnostics
 )

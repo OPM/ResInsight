@@ -2,6 +2,10 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (ApplicationCode)
 
+if (CMAKE_COMPILER_IS_GNUCXX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations")
+endif()
+
 # Open GL
 find_package( OpenGL )
 
@@ -75,6 +79,11 @@ include_directories(
     ${CMAKE_BINARY_DIR}/Generated
     ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+################################################################################
+# Eigen
+################################################################################
+include_directories(SYSTEM ${ResInsight_SOURCE_DIR}/ThirdParty/Eigen-Subset)
 
 #############################################################################
 # Defining all the source (and header) files
@@ -232,9 +241,21 @@ if (RESINSIGHT_FOUND_HDF5)
         FileInterface/RifHdf5Reader.cpp
     )
 
+    add_definitions(-DUSE_HDF5)
+
+    if(MSVC)
+	    add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
+
+        include_directories(${RESINSIGHT_HDF5_DIR}/include)
+    else()
+	    add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
+		add_definitions(${HDF5_DEFINITIONS})
+
+		include_directories(${HDF5_INCLUDE_DIRS})
+    endif() # MSVC
+
     source_group( "FileInterface" FILES FileInterface/RifHdf5Reader.h FileInterface/RifHdf5Reader.cpp )
 
-    add_definitions(-DUSE_HDF5)
 endif()
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
