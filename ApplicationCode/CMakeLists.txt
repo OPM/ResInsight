@@ -237,9 +237,21 @@ if (RESINSIGHT_FOUND_HDF5)
         FileInterface/RifHdf5Reader.cpp
     )
 
+    add_definitions(-DUSE_HDF5)
+
+    if(MSVC)
+	    add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
+
+        include_directories(${RESINSIGHT_HDF5_DIR}/include)
+    else()
+	    add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
+		add_definitions(${HDF5_DEFINITIONS})
+
+		include_directories(${HDF5_INCLUDE_DIRS})
+    endif() # MSVC
+
     source_group( "FileInterface" FILES FileInterface/RifHdf5Reader.h FileInterface/RifHdf5Reader.cpp )
 
-    add_definitions(-DUSE_HDF5)
 endif()
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
