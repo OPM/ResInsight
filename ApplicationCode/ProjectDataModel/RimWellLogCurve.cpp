@@ -19,6 +19,7 @@
 
 #include "RimWellLogCurve.h"
 
+#include "RiaCurveDataTools.h"
 #include "RigWellLogCurveData.h"
 
 #include "RimWellLogPlot.h"
@@ -59,13 +60,28 @@ RimWellLogCurve::~RimWellLogCurve() {}
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogCurve::xValueRangeInData( double* minimumValue, double* maximumValue ) const
 {
+    CAF_ASSERT( minimumValue && maximumValue );
+
+    if ( !( minimumValue && maximumValue ) )
+    {
+        return false;
+    }
     if ( m_curveData->xValues().empty() )
     {
         return false;
     }
-    auto minMaxIteratorPair = std::minmax_element( m_curveData->xValues().begin(), m_curveData->xValues().end() );
-    *minimumValue           = *( minMaxIteratorPair.first );
-    *maximumValue           = *( minMaxIteratorPair.second );
+
+    *minimumValue = std::numeric_limits<double>::infinity();
+    *maximumValue = -std::numeric_limits<double>::infinity();
+
+    for ( double xValue : m_curveData->xValues() )
+    {
+        if ( RiaCurveDataTools::isValidValue( xValue, false ) )
+        {
+            *minimumValue = std::min( *minimumValue, xValue );
+            *maximumValue = std::max( *maximumValue, xValue );
+        }
+    }
     return true;
 }
 
