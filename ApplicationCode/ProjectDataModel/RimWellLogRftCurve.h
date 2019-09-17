@@ -47,6 +47,15 @@ class RimWellLogRftCurve : public RimWellLogCurve
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum DerivedMDSource
+    {
+        NO_SOURCE,
+        PSEUDO_LENGTH,
+        WELL_PATH,
+        OBSERVED_DATA
+    };
+
+public:
     RimWellLogRftCurve();
     ~RimWellLogRftCurve() override;
 
@@ -98,8 +107,11 @@ private:
     std::vector<double> xValues();
     std::vector<double> tvDepthValues();
     std::vector<double> measuredDepthValues();
-    std::vector<double>
-        interpolatedMeasuredDepthValuesFromWellPathOrObservedData( const std::vector<double>& tvDepthValues );
+
+    bool deriveMeasuredDepthValuesFromWellPath( const std::vector<double>& tvDepthValues,
+                                                std::vector<double>&       derivedMDValues );
+    bool deriveMeasuredDepthFromObservedData( const std::vector<double>& tvDepthValues,
+                                              std::vector<double>&       derivedMDValues );
 
 private:
     caf::PdmPtrField<RimEclipseResultCase*>     m_eclipseResultCase;
@@ -112,7 +124,6 @@ private:
     caf::PdmField<bool>                         m_branchDetection;
 
     std::map<size_t, size_t>                                                 m_idxInWellPathToIdxInRftFile;
-    bool                                                                     m_isUsingPseudoLength;
-    bool                                                                     m_derivingMDFromObservedData;
+    DerivedMDSource                                                          m_derivedMDSource;
     caf::PdmField<caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>> m_wellLogChannelName;
 };
