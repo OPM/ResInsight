@@ -221,6 +221,12 @@ QString RimWellRftPlot::associatedSimWellName() const
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::applyInitialSelections()
 {
+    std::map<QString, QStringList> wellSources = findWellSources();
+    if ( m_wellPathNameOrSimWellName == "None" && !wellSources.empty() )
+    {
+        m_wellPathNameOrSimWellName = wellSources.begin()->first;
+    }
+
     std::vector<RifDataSourceForRftPlt> sourcesToSelect;
     const QString                       simWellName = associatedSimWellName();
 
@@ -637,7 +643,20 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions( const caf::
 
     if ( fieldNeedingOptions == &m_wellPathNameOrSimWellName )
     {
-        calculateValueOptionsForWells( options );
+        options.push_back( caf::PdmOptionItemInfo( "None", "None" ) );
+
+        std::map<QString, QStringList> wellSources = findWellSources();
+        for ( const auto& wellName : wellSources )
+        {
+            const QStringList& tags   = wellName.second;
+            QString            uiText = wellName.first;
+            if ( !tags.empty() )
+            {
+                uiText += QString( " (%1)" ).arg( wellName.second.join( ", " ) );
+            }
+
+            options.push_back( caf::PdmOptionItemInfo( uiText, wellName.first ) );
+        }
     }
     else if ( fieldNeedingOptions == &m_selectedSources )
     {
@@ -847,17 +866,16 @@ void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::calculateValueOptionsForWells( QList<caf::PdmOptionItemInfo>& options )
+std::map<QString, QStringList> RimWellRftPlot::findWellSources()
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    std::map<QString /*value*/, QStringList /*uitext*/> wellNames;
 
-    options.push_back( caf::PdmOptionItemInfo( "None", "None" ) );
+    RimProject* proj = RiaApplication::instance()->project();
 
     if ( proj != nullptr )
     {
-        const std::vector<QString>                          simWellNames = proj->simulationWellNames();
-        std::set<QString>                                   simWellsAssociatedWithWellPath;
-        std::map<QString /*value*/, QStringList /*uitext*/> wellNames;
+        const std::vector<QString> simWellNames = proj->simulationWellNames();
+        std::set<QString>          simWellsAssociatedWithWellPath;
 
         // Observed wells
         for ( RimWellPath* const wellPath : proj->allWellPaths() )
@@ -903,19 +921,8 @@ void RimWellRftPlot::calculateValueOptionsForWells( QList<caf::PdmOptionItemInfo
                 }
             }
         }
-
-        for ( const auto& wellName : wellNames )
-        {
-            const QStringList& tags   = wellName.second;
-            QString            uiText = wellName.first;
-            if ( !tags.empty() )
-            {
-                uiText += QString( " (%1)" ).arg( wellName.second.join( ", " ) );
-            }
-
-            options.push_back( caf::PdmOptionItemInfo( uiText, wellName.first ) );
-        }
     }
+    return wellNames;
 }
 
 //--------------------------------------------------------------------------------------------------
