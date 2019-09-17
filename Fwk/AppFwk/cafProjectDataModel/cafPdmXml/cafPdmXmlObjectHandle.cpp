@@ -165,6 +165,8 @@ PdmObjectHandle* PdmXmlObjectHandle::readUnknownObjectFromXmlString(const QStrin
     QString classKeyword = inputStream.name().toString(); 
     PdmObjectHandle* newObject = objectFactory->create(classKeyword);
 
+    if (!newObject) return nullptr;
+
     xmlObj(newObject)->readFields(inputStream, objectFactory);
 
     return newObject;
@@ -180,6 +182,8 @@ PdmObjectHandle* PdmXmlObjectHandle::copyByXmlSerialization(PdmObjectFactory* ob
     QString xmlString = this->writeObjectToXmlString();
 
     PdmObjectHandle* objectCopy = PdmXmlObjectHandle::readUnknownObjectFromXmlString(xmlString, objectFactory);
+    if (!objectCopy) return nullptr;
+
     objectCopy->xmlCapability()->initAfterReadRecursively();
 
     return objectCopy;
@@ -195,6 +199,8 @@ caf::PdmObjectHandle* PdmXmlObjectHandle::copyAndCastByXmlSerialization(const QS
     QString xmlString = this->writeObjectToXmlString();
 
     PdmObjectHandle* upgradedObject = objectFactory->create(destinationClassKeyword);
+    if (!upgradedObject) return nullptr;
+    
     QXmlStreamReader inputStream(xmlString);
 
     QXmlStreamReader::TokenType tt;
