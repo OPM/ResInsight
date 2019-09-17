@@ -88,7 +88,7 @@ public:
 
     float minCurveUIValue() const;
     float maxCurveUIValue() const;
-    void  resetMinMaxValuesAndUpdateUI();
+    void  resetMinMaxValues();
     bool  findClosestPointOnCurve( const cvf::Vec3d& globalIntersection,
                                    cvf::Vec3d*       closestPoint,
                                    double*           measuredDepthAtPoint,
@@ -107,9 +107,6 @@ protected:
                                                 QString                    uiConfigName,
                                                 caf::PdmUiEditorAttribute* attribute ) override;
     void                 initAfterRead() override;
-
-private:
-    void resetMinMaxValues();
 
 protected:
     caf::PdmField<DrawPlaneEnum>                 m_drawPlane;
