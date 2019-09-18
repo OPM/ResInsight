@@ -115,7 +115,7 @@ QString RiaSummaryCurveDefinition::curveDefinitionText() const
 {
     QString caseName;
     if (summaryCase())
-        caseName = summaryCase()->caseName();
+        caseName = summaryCase()->shortName();
     else if (ensemble())
         caseName = ensemble()->name();
 

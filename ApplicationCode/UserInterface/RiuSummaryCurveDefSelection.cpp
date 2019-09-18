@@ -594,7 +594,7 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
                     // Top level cases
                     for (const auto& sumCase : sumCaseMainColl->topLevelSummaryCases())
                     {
-                        options.push_back(caf::PdmOptionItemInfo(sumCase->caseName(), sumCase));
+                        options.push_back(caf::PdmOptionItemInfo(sumCase->shortName(), sumCase));
                     }
                 }
 
@@ -629,7 +629,7 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
 
                         for (const auto& sumCase : sumCaseColl->allSummaryCases())
                         {
-                            auto optionItem = caf::PdmOptionItemInfo(sumCase->caseName(), sumCase);
+                            auto optionItem = caf::PdmOptionItemInfo(sumCase->shortName(), sumCase);
                             optionItem.setLevel(1);
                             options.push_back(optionItem);
                         }
@@ -643,7 +643,7 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
 
                         for (const auto& obsData : observedDataColl->allObservedData())
                         {
-                            auto optionItem = caf::PdmOptionItemInfo(obsData->caseName(), obsData);
+                            auto optionItem = caf::PdmOptionItemInfo(obsData->shortName(), obsData);
                             optionItem.setLevel(1);
                             options.push_back(optionItem);
                         }

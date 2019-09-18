@@ -195,7 +195,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
         auto summaryCases = RimSummaryPlotSourceStepping::summaryCasesForSourceStepping();
         for (auto sumCase : summaryCases)
         {
-            options.append(caf::PdmOptionItemInfo(sumCase->caseName(), sumCase));
+            options.append(caf::PdmOptionItemInfo(sumCase->shortName(), sumCase));
         }
 
         return options;

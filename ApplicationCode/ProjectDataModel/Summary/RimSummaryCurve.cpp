@@ -382,7 +382,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
 
         for (RimSummaryCase* rimCase : cases)
         {
-            options.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), rimCase));
+            options.push_back(caf::PdmOptionItemInfo(rimCase->shortName(), rimCase));
         }
 
         if (options.size() > 0)
