@@ -252,9 +252,8 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
 
     readAndAddWellPaths( wellPathArray );
 
-    RimProject* proj;
-    firstAncestorOrThisOfTypeAsserted( proj );
-    proj->reloadCompletionTypeResultsInAllViews();
+    scheduleRedrawAffectedViews();
+    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -501,6 +500,7 @@ void RimWellPathCollection::deleteAllWellPaths()
     wellPaths.deleteAllChildObjects();
 
     m_wellPathImporter->clear();
+    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -587,6 +587,7 @@ void RimWellPathCollection::removeWellPath( RimWellPath* wellPath )
             m_wellPathImporter->removeFilePath( fileWellPath->filepath() );
         }
     }
+    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -111,6 +111,11 @@ RimWellRftPlot::RimWellRftPlot()
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue( false );
 
+    CAF_PDM_InitFieldNoDefault( &m_wellPathCollection, "WellPathCollection", "Well Path Collection", "", "", "" );
+    m_wellPathCollection.uiCapability()->setUiHidden( true );
+    m_wellPathCollection.xmlCapability()->disableIO();
+    m_wellPathCollection = RiaApplication::instance()->project()->activeOilField()->wellPathCollection();
+
     m_nameConfig->setCustomName( "RFT Plot" );
     m_trackLegendsHorizontal = true;
 
