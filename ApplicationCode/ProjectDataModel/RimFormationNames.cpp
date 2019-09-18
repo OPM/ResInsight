@@ -313,4 +313,10 @@ void RimFormationNames::readFmuFormationNameFile( QTextStream& stream, QString* 
             }
         }
     }
+
+    // Append previous formation at the end of the stream
+    if ( !currentFormationName.isEmpty() )
+    {
+        m_formationNamesData->appendFormationRange( currentFormationName, startK - 1, endK - 1 );
+    }
 }
