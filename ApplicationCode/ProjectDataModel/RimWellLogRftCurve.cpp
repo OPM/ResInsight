@@ -81,6 +81,7 @@ void caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::setUp()
     addItem( RifEclipseRftAddress::PRESSURE_P50, "PRESSURE_P50", "P50: Pressure" );
     addItem( RifEclipseRftAddress::PRESSURE_P90, "PRESSURE_P90", "P90: Pressure" );
     addItem( RifEclipseRftAddress::PRESSURE_MEAN, "PRESSURE_MEAN", "Mean: Pressure" );
+    addItem( RifEclipseRftAddress::PRESSURE_ERROR, "PRESSURE_ERROR", "Error: Pressure" );
     setDefault( RifEclipseRftAddress::NONE );
 }
 } // namespace caf
@@ -379,6 +380,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         std::vector<double> measuredDepthVector = measuredDepthValues();
         std::vector<double> tvDepthVector       = tvDepthValues();
         std::vector<double> values              = xValues();
+        std::vector<double> errors              = errorValues();
 
         if ( values.empty() || values.size() != tvDepthVector.size() )
         {
@@ -441,10 +443,12 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH )
         {
-            m_qwtPlotCurve->setSamples( m_curveData->xPlotValues().data(),
-                                        m_curveData->measuredDepthPlotValues( displayUnit ).data(),
-                                        static_cast<int>( m_curveData->xPlotValues().size() ) );
-
+            m_qwtPlotCurve->showErrorBars( true );
+            m_qwtPlotCurve->setSamplesFromXValuesAndYValues( m_curveData->xPlotValues(),
+                                                             m_curveData->measuredDepthPlotValues( displayUnit ),
+                                                             errors,
+                                                             false,
+                                                             RiuQwtPlotCurve::ERROR_Y_AXIS );
             RimWellLogTrack* wellLogTrack;
             firstAncestorOrThisOfType( wellLogTrack );
             CVF_ASSERT( wellLogTrack );
@@ -472,9 +476,12 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         }
         else
         {
-            m_qwtPlotCurve->setSamples( m_curveData->xPlotValues().data(),
-                                        m_curveData->trueDepthPlotValues( displayUnit ).data(),
-                                        static_cast<int>( m_curveData->xPlotValues().size() ) );
+            m_qwtPlotCurve->showErrorBars( true );
+            m_qwtPlotCurve->setSamplesFromXValuesAndYValues( m_curveData->xPlotValues(),
+                                                             m_curveData->trueDepthPlotValues( displayUnit ),
+                                                             errors,
+                                                             false,
+                                                             RiuQwtPlotCurve::ERROR_Y_AXIS );
         }
 
         m_qwtPlotCurve->setLineSegmentStartStopIndices( m_curveData->polylineStartStopIndices() );
@@ -831,6 +838,22 @@ std::vector<double> RimWellLogRftCurve::xValues()
     {
         return values;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimWellLogRftCurve::errorValues()
+{
+    RifReaderRftInterface* reader = rftReader();
+    std::vector<double>    errorValues;
+
+    if ( reader )
+    {
+        RifEclipseRftAddress errorAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::PRESSURE_ERROR );
+        reader->values( errorAddress, &errorValues );
+    }
+    return errorValues;
 }
 
 //--------------------------------------------------------------------------------------------------

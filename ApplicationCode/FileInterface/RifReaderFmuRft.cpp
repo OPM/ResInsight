@@ -162,9 +162,11 @@ std::set<RifEclipseRftAddress> RifReaderFmuRft::eclipseRftAddresses()
                 RifEclipseRftAddress tvdAddress( wellName, dateTime, RifEclipseRftAddress::TVD );
                 RifEclipseRftAddress mdAddress( wellName, dateTime, RifEclipseRftAddress::MD );
                 RifEclipseRftAddress pressureAddress( wellName, dateTime, RifEclipseRftAddress::PRESSURE );
+                RifEclipseRftAddress pressureErrorAddress( wellName, dateTime, RifEclipseRftAddress::PRESSURE_ERROR );
                 allAddresses.insert( tvdAddress );
                 allAddresses.insert( mdAddress );
                 allAddresses.insert( pressureAddress );
+                allAddresses.insert( pressureErrorAddress );
             }
         }
     }
@@ -201,6 +203,9 @@ void RifReaderFmuRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                     break;
                 case RifEclipseRftAddress::PRESSURE:
                     values->push_back( observation.pressure );
+                    break;
+                case RifEclipseRftAddress::PRESSURE_ERROR:
+                    values->push_back( observation.pressureError );
                     break;
                 default:
                     CAF_ASSERT( false && "Wrong channel type sent to Fmu RFT reader" );
