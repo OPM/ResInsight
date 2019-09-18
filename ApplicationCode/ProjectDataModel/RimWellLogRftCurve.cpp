@@ -680,7 +680,7 @@ RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
     RimWellPath* wellPath = proj->wellPathFromSimWellName( m_wellName() );
     eclExtractor          = wellLogCollection->findOrCreateExtractor( wellPath, m_eclipseResultCase );
 
-    if ( !eclExtractor )
+    if ( !eclExtractor && m_eclipseResultCase )
     {
         QString                         simWellName = RimWellPlotTools::simWellName( m_wellName );
         std::vector<const RigWellPath*> wellPaths   = RiaSimWellBranchTools::simulationWellBranches( simWellName,
