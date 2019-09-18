@@ -42,6 +42,7 @@ class RimEclipseResultCase;
 class RimWellLogCurve;
 class RimWellLogFileChannel;
 class RimWellPath;
+class RimWellPathCollection;
 class RiuWellRftPlot;
 class RigEclipseCaseData;
 class RiaRftPltCurveDefinition;
@@ -138,6 +139,8 @@ private:
     caf::PdmField<std::vector<RifDataSourceForRftPlt>> m_selectedSources;
 
     caf::PdmField<std::vector<QDateTime>> m_selectedTimeSteps;
+
+    caf::PdmPtrField<RimWellPathCollection*> m_wellPathCollection;
 
     caf::PdmField<bool>                 m_showPlotTitle_OBSOLETE;
     caf::PdmChildField<RimWellLogPlot*> m_wellLogPlot_OBSOLETE;
