@@ -105,6 +105,7 @@ private:
     std::vector<size_t> sortedIndicesInRftFile();
 
     std::vector<double> xValues();
+    std::vector<double> errorValues();
     std::vector<double> tvDepthValues();
     std::vector<double> measuredDepthValues();
 

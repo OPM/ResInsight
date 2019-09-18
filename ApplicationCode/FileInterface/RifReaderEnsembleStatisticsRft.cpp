@@ -82,7 +82,8 @@ void RifReaderEnsembleStatisticsRft::values( const RifEclipseRftAddress& rftAddr
                 rftAddress.wellLogChannel() == RifEclipseRftAddress::PRESSURE_MEAN ||
                 rftAddress.wellLogChannel() == RifEclipseRftAddress::PRESSURE_P10 ||
                 rftAddress.wellLogChannel() == RifEclipseRftAddress::PRESSURE_P50 ||
-                rftAddress.wellLogChannel() == RifEclipseRftAddress::PRESSURE_P90 );
+                rftAddress.wellLogChannel() == RifEclipseRftAddress::PRESSURE_P90 ||
+                rftAddress.wellLogChannel() == RifEclipseRftAddress::PRESSURE_ERROR );
 
     auto it = m_cachedValues.find( rftAddress );
     if ( it == m_cachedValues.end() )

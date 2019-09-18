@@ -46,7 +46,8 @@ public:
         PRESSURE_P10,
         PRESSURE_P50,
         PRESSURE_P90,
-        PRESSURE_MEAN
+        PRESSURE_MEAN,
+        PRESSURE_ERROR
     };
 
 public:
