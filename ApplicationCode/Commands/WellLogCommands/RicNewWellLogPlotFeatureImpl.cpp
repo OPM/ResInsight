@@ -19,12 +19,18 @@
 
 #include "RicNewWellLogPlotFeatureImpl.h"
 
+#include "RiaApplication.h"
+
+#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimWellBoreStabilityPlot.h"
+#include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
+#include "RimWellPath.h"
 
 #include "RiaGuiApplication.h"
 
@@ -114,6 +120,48 @@ RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool     
         plot = createWellLogPlot();
     }
 
+    RimCase*     caseToApply     = nullptr;
+    RimWellPath* wellPathToApply = nullptr;
+    QString      simWellToApply;
+
+    RimWellLogCurveCommonDataSource* commonDataSource = plot->commonDataSource();
+    caseToApply                                       = commonDataSource->caseToApply();
+    wellPathToApply                                   = commonDataSource->wellPathToApply();
+    simWellToApply                                    = commonDataSource->simWellNameToApply();
+    caf::Tristate branchDetectionToApply              = commonDataSource->branchDetectionToApply();
+    int           branchIndexToApply                  = commonDataSource->branchIndexToApply();
+
+    if ( !caseToApply )
+    {
+        std::vector<RimCase*> allCases;
+        RiaApplication::instance()->project()->allCases( allCases );
+        if ( !allCases.empty() )
+        {
+            caseToApply = allCases.front();
+        }
+    }
+
+    if ( !wellPathToApply && caseToApply )
+    {
+        auto allWellPaths = RiaApplication::instance()->project()->allWellPaths();
+        if ( !allWellPaths.empty() )
+        {
+            wellPathToApply = allWellPaths.front();
+        }
+    }
+    if ( simWellToApply.isEmpty() && caseToApply )
+    {
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( caseToApply );
+        if ( eclipseCase )
+        {
+            auto allSimWells = eclipseCase->sortedSimWellNames();
+            if ( !allSimWells.empty() )
+            {
+                simWellToApply = *allSimWells.begin();
+            }
+        }
+    }
+
     RimWellLogTrack* plotTrack = new RimWellLogTrack();
     plot->addTrack( plotTrack );
     if ( !trackDescription.isEmpty() )
@@ -123,6 +171,40 @@ RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool     
     else
     {
         plotTrack->setDescription( QString( "Track %1" ).arg( plot->trackCount() ) );
+    }
+
+    if ( caseToApply )
+    {
+        plotTrack->setFormationCase( caseToApply );
+    }
+
+    if ( wellPathToApply )
+    {
+        plotTrack->setFormationWellPath( wellPathToApply );
+    }
+
+    if ( !simWellToApply.isEmpty() )
+    {
+        plotTrack->setFormationSimWellName( simWellToApply );
+    }
+
+    if ( wellPathToApply )
+    {
+        plotTrack->setFormationTrajectoryType( RimWellLogTrack::WELL_PATH );
+    }
+    else if ( !simWellToApply.isEmpty() )
+    {
+        plotTrack->setFormationTrajectoryType( RimWellLogTrack::SIMULATION_WELL );
+    }
+
+    if ( !branchDetectionToApply.isPartiallyTrue() )
+    {
+        plotTrack->setFormationBranchDetection( branchDetectionToApply.isTrue() );
+    }
+
+    if ( branchIndexToApply >= 0 )
+    {
+        plotTrack->setFormationBranchIndex( branchIndexToApply );
     }
 
     if ( updateAfter )

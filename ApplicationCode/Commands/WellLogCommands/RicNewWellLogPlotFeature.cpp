@@ -25,6 +25,7 @@
 
 #include "RimProject.h"
 #include "RimWellLogCurve.h"
+#include "RimWellLogExtractionCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
@@ -51,8 +52,12 @@ bool RicNewWellLogPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
-    RicWellLogTools::addExtractionCurve( plotTrack, nullptr, nullptr, nullptr, -1, true );
+    RimWellLogTrack*           plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
+    RimWellLogExtractionCurve* curve = RicWellLogTools::addExtractionCurve( plotTrack, nullptr, nullptr, nullptr, -1, true );
+    curve->loadDataAndUpdate( true );
+    RimWellLogPlot* plot = nullptr;
+    plotTrack->firstAncestorOrThisOfTypeAsserted( plot );
+    plot->zoomAll();
 }
 
 //--------------------------------------------------------------------------------------------------

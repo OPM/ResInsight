@@ -42,18 +42,21 @@ class RimWellLogCurveCommonDataSource : public caf::PdmObject
 public:
     RimWellLogCurveCommonDataSource();
 
-    RimCase*     caseToApply() const;
-    void         setCaseToApply( RimCase* val );
-    int          trajectoryTypeToApply() const;
-    void         setTrajectoryTypeToApply( int val );
-    RimWellPath* wellPathToApply() const;
-    void         setWellPathToApply( RimWellPath* val );
-    void         setBranchIndexToApply( int val );
-    void         setBranchDetectionToApply( caf::Tristate::State val );
-    QString      simWellNameToApply() const;
-    void         setSimWellNameToApply( const QString& val );
-    int          timeStepToApply() const;
-    void         setTimeStepToApply( int val );
+    RimCase*      caseToApply() const;
+    void          setCaseToApply( RimCase* val );
+    int           trajectoryTypeToApply() const;
+    void          setTrajectoryTypeToApply( int val );
+    RimWellPath*  wellPathToApply() const;
+    void          setWellPathToApply( RimWellPath* val );
+    int           branchIndexToApply() const;
+    void          setBranchIndexToApply( int val );
+    caf::Tristate branchDetectionToApply() const;
+    void          setBranchDetectionToApply( caf::Tristate::State val );
+
+    QString simWellNameToApply() const;
+    void    setSimWellNameToApply( const QString& val );
+    int     timeStepToApply() const;
+    void    setTimeStepToApply( int val );
 
     void resetDefaultOptions();
     void updateDefaultOptions( const std::vector<RimWellLogCurve*>& curves, const std::vector<RimWellLogTrack*>& tracks );
@@ -90,4 +93,12 @@ private:
     caf::PdmField<int>             m_branchIndex;
     caf::PdmField<caf::Tristate>   m_branchDetection;
     caf::PdmField<int>             m_timeStep;
+
+    std::set<RimCase*>     m_uniqueCases;
+    std::set<int>          m_uniqueTrajectoryTypes;
+    std::set<RimWellPath*> m_uniqueWellPaths;
+    std::set<QString>      m_uniqueWellNames;
+    std::set<int>          m_uniqueTimeSteps;
+    std::set<bool>         m_uniqueBranchDetection;
+    std::set<int>          m_uniqueBranchIndices;
 };

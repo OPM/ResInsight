@@ -50,8 +50,8 @@ public:
 
     void loadDataAndUpdate( bool updateParentPlot );
 
-    virtual bool xValueRange( double* minimumValue, double* maximumValue ) const;
-    virtual bool yValueRange( double* minimumValue, double* maximumValue ) const;
+    virtual bool xValueRangeInQwt( double* minimumValue, double* maximumValue ) const;
+    virtual bool yValueRangeInQwt( double* minimumValue, double* maximumValue ) const;
 
     void          setParentQwtPlotAndReplot( QwtPlot* plot );
     void          setParentQwtPlotNoReplot( QwtPlot* plot );

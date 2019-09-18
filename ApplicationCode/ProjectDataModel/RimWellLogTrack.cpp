@@ -289,11 +289,6 @@ void RimWellLogTrack::simWellOptionItems( QList<caf::PdmOptionItemInfo>* options
     {
         options->push_back( caf::PdmOptionItemInfo( wname, wname, false, simWellIcon ) );
     }
-
-    if ( options->size() == 0 )
-    {
-        options->push_front( caf::PdmOptionItemInfo( "None", "None" ) );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -606,18 +601,14 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions( const caf:
     if ( fieldNeedingOptions == &m_formationWellPathForSourceCase )
     {
         RimTools::wellPathOptionItems( &options );
-        options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
     else if ( fieldNeedingOptions == &m_formationWellPathForSourceWellPath )
     {
         RimTools::wellPathWithFormationsOptionItems( &options );
-        options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
     else if ( fieldNeedingOptions == &m_formationCase )
     {
         RimTools::caseOptionItems( &options );
-
-        options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
     else if ( fieldNeedingOptions == &m_formationSimWellName )
     {
@@ -769,7 +760,7 @@ void RimWellLogTrack::availableDepthRange( double* minimumDepth, double* maximum
         double minCurveDepth = HUGE_VAL;
         double maxCurveDepth = -HUGE_VAL;
 
-        if ( curve->isCurveVisible() && curve->yValueRange( &minCurveDepth, &maxCurveDepth ) )
+        if ( curve->isCurveVisible() && curve->yValueRangeInQwt( &minCurveDepth, &maxCurveDepth ) )
         {
             if ( minCurveDepth < minDepth )
             {
@@ -989,9 +980,41 @@ void RimWellLogTrack::setFormationSimWellName( const QString& simWellName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimWellLogTrack::formationSimWellName() const
+{
+    return m_formationSimWellName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setFormationBranchDetection( bool branchDetection )
+{
+    m_formationBranchDetection = branchDetection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogTrack::formationBranchDetection() const
+{
+    return m_formationBranchDetection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setFormationBranchIndex( int branchIndex )
 {
     m_formationBranchIndex = branchIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimWellLogTrack::formationBranchIndex() const
+{
+    return m_formationBranchIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1005,6 +1028,14 @@ void RimWellLogTrack::setFormationCase( RimCase* rimCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimCase* RimWellLogTrack::formationNamesCase() const
+{
+    return m_formationCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setFormationTrajectoryType( TrajectoryType trajectoryType )
 {
     m_formationTrajectoryType = trajectoryType;
@@ -1013,9 +1044,9 @@ void RimWellLogTrack::setFormationTrajectoryType( TrajectoryType trajectoryType 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCase* RimWellLogTrack::formationNamesCase() const
+RimWellLogTrack::TrajectoryType RimWellLogTrack::formationTrajectoryType() const
 {
-    return m_formationCase();
+    return m_formationTrajectoryType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1144,7 +1175,7 @@ void RimWellLogTrack::calculateXZoomRange()
         if ( curve->isCurveVisible() )
         {
             visibleCurves++;
-            if ( curve->xValueRange( &minCurveValue, &maxCurveValue ) )
+            if ( curve->xValueRangeInData( &minCurveValue, &maxCurveValue ) )
             {
                 if ( minCurveValue < minValue )
                 {
@@ -1248,9 +1279,9 @@ void RimWellLogTrack::setXAxisGridVisibility( RimWellLogPlot::AxisGridVisibility
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setShowFormations( bool on )
+void RimWellLogTrack::setShowFormations( RiuPlotAnnotationTool::FormationDisplay formationDisplay )
 {
-    m_showFormations_OBSOLETE = on;
+    m_formationDisplay = formationDisplay;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1258,7 +1289,7 @@ void RimWellLogTrack::setShowFormations( bool on )
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogTrack::showFormations() const
 {
-    return m_showFormations_OBSOLETE;
+    return m_formationDisplay() != RiuPlotAnnotationTool::NONE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1324,23 +1355,23 @@ RimWellLogCurve* RimWellLogTrack::curveDefinitionFromCurve( const QwtPlotCurve* 
 void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_userName );
-    caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup( "Zonation/Formation Names" );
+    caf::PdmUiGroup* annotationGroup = uiOrdering.addNewGroup( "Regions/Annotations" );
 
-    formationGroup->add( &m_formationDisplay );
+    annotationGroup->add( &m_formationDisplay );
     if ( m_formationDisplay() & RiuPlotAnnotationTool::COLOR_SHADING ||
          m_formationDisplay() & RiuPlotAnnotationTool::COLORED_LINES )
     {
-        formationGroup->add( &m_colorShadingPalette );
+        annotationGroup->add( &m_colorShadingPalette );
         if ( m_formationDisplay() & RiuPlotAnnotationTool::COLOR_SHADING )
         {
-            formationGroup->add( &m_colorShadingTransparency );
+            annotationGroup->add( &m_colorShadingTransparency );
         }
     }
-    formationGroup->add( &m_showFormationLabels );
+    annotationGroup->add( &m_showFormationLabels );
 
     if ( !m_formationsForCaseWithSimWellOnly )
     {
-        formationGroup->add( &m_formationSource );
+        annotationGroup->add( &m_formationSource );
     }
     else
     {
@@ -1349,23 +1380,23 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 
     if ( m_formationSource() == CASE )
     {
-        formationGroup->add( &m_formationCase );
+        annotationGroup->add( &m_formationCase );
 
         if ( !m_formationsForCaseWithSimWellOnly )
         {
-            formationGroup->add( &m_formationTrajectoryType );
+            annotationGroup->add( &m_formationTrajectoryType );
 
             if ( m_formationTrajectoryType() == WELL_PATH )
             {
-                formationGroup->add( &m_formationWellPathForSourceCase );
+                annotationGroup->add( &m_formationWellPathForSourceCase );
             }
         }
 
         if ( m_formationsForCaseWithSimWellOnly || m_formationTrajectoryType() == SIMULATION_WELL )
         {
-            formationGroup->add( &m_formationSimWellName );
+            annotationGroup->add( &m_formationSimWellName );
 
-            RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName( formationGroup,
+            RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName( annotationGroup,
                                                                                        m_formationSimWellName,
                                                                                        m_formationBranchDetection,
                                                                                        m_formationBranchIndex );
@@ -1373,11 +1404,11 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     }
     else if ( m_formationSource() == WELL_PICK_FILTER )
     {
-        formationGroup->add( &m_formationWellPathForSourceWellPath );
+        annotationGroup->add( &m_formationWellPathForSourceWellPath );
         if ( m_formationWellPathForSourceWellPath() )
         {
-            formationGroup->add( &m_formationLevel );
-            formationGroup->add( &m_showformationFluids );
+            annotationGroup->add( &m_formationLevel );
+            annotationGroup->add( &m_showformationFluids );
         }
     }
 
@@ -1653,7 +1684,7 @@ RigEclipseWellLogExtractor* RimWellLogTrack::createSimWellExtractor( RimWellLogP
 
     if ( wellPaths.size() == 0 ) return nullptr;
 
-    CVF_ASSERT( branchIndex < static_cast<int>( wellPaths.size() ) );
+    CVF_ASSERT( branchIndex >= 0 && branchIndex < static_cast<int>( wellPaths.size() ) );
 
     return ( wellLogCollection->findOrCreateSimWellExtractor( simWellName,
                                                               QString( "Find or create sim well extractor" ),

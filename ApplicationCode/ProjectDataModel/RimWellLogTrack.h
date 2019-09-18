@@ -108,13 +108,18 @@ public:
     int     widthScaleFactor() const;
     void    setWidthScaleFactor( WidthScaleFactor scaleFactor );
 
-    void         setFormationWellPath( RimWellPath* wellPath );
-    RimWellPath* formationWellPath() const;
-    void         setFormationSimWellName( const QString& simWellName );
-    void         setFormationBranchIndex( int branchIndex );
-    void         setFormationCase( RimCase* rimCase );
-    void         setFormationTrajectoryType( TrajectoryType trajectoryType );
-    RimCase*     formationNamesCase() const;
+    void           setFormationWellPath( RimWellPath* wellPath );
+    RimWellPath*   formationWellPath() const;
+    void           setFormationSimWellName( const QString& simWellName );
+    QString        formationSimWellName() const;
+    void           setFormationBranchDetection( bool branchDetection );
+    bool           formationBranchDetection() const;
+    void           setFormationBranchIndex( int branchIndex );
+    int            formationBranchIndex() const;
+    void           setFormationCase( RimCase* rimCase );
+    RimCase*       formationNamesCase() const;
+    void           setFormationTrajectoryType( TrajectoryType trajectoryType );
+    TrajectoryType formationTrajectoryType() const;
 
     void recreateViewer();
     void detachAllCurves();
@@ -140,7 +145,7 @@ public:
     void setVisibleXRange( double minValue, double maxValue );
     void setTickIntervals( double majorTickInterval, double minorTickInterval );
     void setXAxisGridVisibility( RimWellLogPlot::AxisGridVisibility gridLines );
-    void setShowFormations( bool on );
+    void setShowFormations( RiuPlotAnnotationTool::FormationDisplay formationDisplay );
     bool showFormations() const;
     void setShowFormationLabels( bool on );
 

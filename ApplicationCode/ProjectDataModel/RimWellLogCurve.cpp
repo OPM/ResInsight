@@ -19,6 +19,7 @@
 
 #include "RimWellLogCurve.h"
 
+#include "RiaCurveDataTools.h"
 #include "RigWellLogCurveData.h"
 
 #include "RimWellLogPlot.h"
@@ -32,6 +33,8 @@
 #include "cvfAssert.h"
 
 #include "qwt_symbol.h"
+
+#include <algorithm>
 
 // NB! Special macro for pure virtual class
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimWellLogCurve, "WellLogPlotCurve" );
@@ -55,9 +58,31 @@ RimWellLogCurve::~RimWellLogCurve() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogCurve::valueRange( double* minimumValue, double* maximumValue ) const
+bool RimWellLogCurve::xValueRangeInData( double* minimumValue, double* maximumValue ) const
 {
-    return xValueRange( minimumValue, maximumValue );
+    CAF_ASSERT( minimumValue && maximumValue );
+
+    if ( !( minimumValue && maximumValue ) )
+    {
+        return false;
+    }
+    if ( m_curveData->xValues().empty() )
+    {
+        return false;
+    }
+
+    *minimumValue = std::numeric_limits<double>::infinity();
+    *maximumValue = -std::numeric_limits<double>::infinity();
+
+    for ( double xValue : m_curveData->xValues() )
+    {
+        if ( RiaCurveDataTools::isValidValue( xValue, false ) )
+        {
+            *minimumValue = std::min( *minimumValue, xValue );
+            *maximumValue = std::max( *maximumValue, xValue );
+        }
+    }
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
