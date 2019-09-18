@@ -22,6 +22,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaSimWellBranchTools.h"
+#include "RiaStatisticsTools.h"
 
 #include "RifEclipseRftAddress.h"
 #include "RifReaderEclipseRft.h"
@@ -76,10 +77,10 @@ void caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::setUp()
     addItem( RifEclipseRftAddress::ORAT, "ORAT", "Oil Flow" );
     addItem( RifEclipseRftAddress::GRAT, "GRAT", "Gas flow" );
     addItem( RifEclipseRftAddress::MD, "MD", "Measured Depth" );
-    addItem( RifEclipseRftAddress::PRESSURE_P10, "PRESSURE_P10", "Pressure P10" );
-    addItem( RifEclipseRftAddress::PRESSURE_P50, "PRESSURE_P50", "Pressure P50" );
-    addItem( RifEclipseRftAddress::PRESSURE_P90, "PRESSURE_P90", "Pressure P90" );
-    addItem( RifEclipseRftAddress::PRESSURE_MEAN, "PRESSURE_MEAN", "Pressure Mean" );
+    addItem( RifEclipseRftAddress::PRESSURE_P10, "PRESSURE_P10", "P10: Pressure" );
+    addItem( RifEclipseRftAddress::PRESSURE_P50, "PRESSURE_P50", "P50: Pressure" );
+    addItem( RifEclipseRftAddress::PRESSURE_P90, "PRESSURE_P90", "P90: Pressure" );
+    addItem( RifEclipseRftAddress::PRESSURE_MEAN, "PRESSURE_MEAN", "Mean: Pressure" );
     setDefault( RifEclipseRftAddress::NONE );
 }
 } // namespace caf
@@ -347,7 +348,9 @@ QString RimWellLogRftCurve::createCurveAutoName()
     {
         RifEclipseRftAddress::RftWellLogChannelType channelNameEnum =
             caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::fromText( wellLogChannelName() );
-        name.push_back( caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( channelNameEnum ) );
+        QString channelName = caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( channelNameEnum );
+        channelName         = RiaStatisticsTools::replacePercentileByPValueText( channelName );
+        name.push_back( channelName );
     }
     if ( !m_timeStep().isNull() )
     {
