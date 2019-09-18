@@ -120,8 +120,7 @@ RimWellLogRftCurve::RimWellLogRftCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "WellLogChannelName", "Well Property", "", "", "" );
 
-    m_isUsingPseudoLength        = false;
-    m_derivingMDFromObservedData = false;
+    m_derivedMDSource = NO_SOURCE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -367,7 +366,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
-    m_isUsingPseudoLength = false;
+    m_derivedMDSource = PSEUDO_LENGTH;
 
     if ( isCurveVisible() )
     {
@@ -412,17 +411,20 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( tvDepthVector.size() != measuredDepthVector.size() )
         {
-            measuredDepthVector = interpolatedMeasuredDepthValuesFromWellPathOrObservedData( tvDepthVector );
-            if ( measuredDepthVector.size() == tvDepthVector.size() )
+            if ( deriveMeasuredDepthValuesFromWellPath( tvDepthVector, measuredDepthVector ) )
             {
-                m_derivingMDFromObservedData = true;
+                m_derivedMDSource = WELL_PATH;
+            }
+            else if ( deriveMeasuredDepthFromObservedData( tvDepthVector, measuredDepthVector ) )
+            {
+                m_derivedMDSource = OBSERVED_DATA;
             }
         }
 
         if ( tvDepthVector.size() != measuredDepthVector.size() )
         {
-            m_isUsingPseudoLength = true;
-            measuredDepthVector   = tvDepthVector;
+            m_derivedMDSource   = NO_SOURCE;
+            measuredDepthVector = tvDepthVector;
         }
 
         m_curveData->setValuesWithTVD( values,
@@ -442,18 +444,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             m_qwtPlotCurve->setSamples( m_curveData->xPlotValues().data(),
                                         m_curveData->measuredDepthPlotValues( displayUnit ).data(),
                                         static_cast<int>( m_curveData->xPlotValues().size() ) );
-        }
-        else
-        {
-            m_qwtPlotCurve->setSamples( m_curveData->xPlotValues().data(),
-                                        m_curveData->trueDepthPlotValues( displayUnit ).data(),
-                                        static_cast<int>( m_curveData->xPlotValues().size() ) );
-            m_isUsingPseudoLength        = false;
-            m_derivingMDFromObservedData = false;
-        }
 
-        if ( m_isUsingPseudoLength || m_derivingMDFromObservedData )
-        {
             RimWellLogTrack* wellLogTrack;
             firstAncestorOrThisOfType( wellLogTrack );
             CVF_ASSERT( wellLogTrack );
@@ -461,11 +452,29 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             RiuWellLogTrack* viewer = wellLogTrack->viewer();
             if ( viewer )
             {
-                if ( m_derivingMDFromObservedData )
-                    viewer->setDepthTitle( "OBS/" + wellLogPlot->depthPlotTitle() );
-                else
+                if ( m_derivedMDSource == NO_SOURCE )
+                {
+                    viewer->setDepthTitle( "TVDMSL" );
+                }
+                else if ( m_derivedMDSource == PSEUDO_LENGTH )
+                {
                     viewer->setDepthTitle( "PL/" + wellLogPlot->depthPlotTitle() );
+                }
+                else if ( m_derivedMDSource == WELL_PATH )
+                {
+                    viewer->setDepthTitle( "WELL/" + wellLogPlot->depthPlotTitle() );
+                }
+                else
+                {
+                    viewer->setDepthTitle( "OBS/" + wellLogPlot->depthPlotTitle() );
+                }
             }
+        }
+        else
+        {
+            m_qwtPlotCurve->setSamples( m_curveData->xPlotValues().data(),
+                                        m_curveData->trueDepthPlotValues( displayUnit ).data(),
+                                        static_cast<int>( m_curveData->xPlotValues().size() ) );
         }
 
         m_qwtPlotCurve->setLineSegmentStartStopIndices( m_curveData->polylineStartStopIndices() );
@@ -694,11 +703,11 @@ RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
 
         auto wellPathBranch = wellPaths[m_branchIndex];
 
-        eclExtractor          = wellLogCollection->findOrCreateSimWellExtractor( simWellName,
+        eclExtractor      = wellLogCollection->findOrCreateSimWellExtractor( simWellName,
                                                                         QString( "Find or create sim well extractor" ),
                                                                         wellPathBranch,
                                                                         m_eclipseResultCase->eclipseCaseData() );
-        m_isUsingPseudoLength = true;
+        m_derivedMDSource = NO_SOURCE;
     }
 
     return eclExtractor;
@@ -914,24 +923,34 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLogRftCurve::interpolatedMeasuredDepthValuesFromWellPathOrObservedData(
-    const std::vector<double>& tvDepthValues )
+bool RimWellLogRftCurve::deriveMeasuredDepthValuesFromWellPath( const std::vector<double>& tvDepthValues,
+                                                                std::vector<double>&       derivedMDValues )
 {
     RimProject*  proj     = RiaApplication::instance()->project();
     RimWellPath* wellPath = proj->wellPathByName( m_wellName );
 
-    std::vector<double> interpolatedMdValues;
+    std::vector<double> derivedMdValues;
     if ( wellPath )
     {
         const std::vector<double>& mdValuesOfWellPath  = wellPath->wellPathGeometry()->measureDepths();
         std::vector<double>        tvdValuesOfWellPath = wellPath->wellPathGeometry()->trueVerticalDepths();
 
-        interpolatedMdValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfWellPath,
-                                                                               tvdValuesOfWellPath,
-                                                                               tvDepthValues );
-        CVF_ASSERT( interpolatedMdValues.size() == tvDepthValues.size() );
+        derivedMdValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfWellPath,
+                                                                          tvdValuesOfWellPath,
+                                                                          tvDepthValues );
+        CVF_ASSERT( derivedMdValues.size() == tvDepthValues.size() );
+        return true;
     }
-    else if ( m_observedFmuRftData )
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogRftCurve::deriveMeasuredDepthFromObservedData( const std::vector<double>& tvDepthValues,
+                                                              std::vector<double>&       derivedMDValues )
+{
+    if ( m_observedFmuRftData )
     {
         RifReaderRftInterface* reader = m_observedFmuRftData->rftReader();
         if ( reader )
@@ -944,11 +963,12 @@ std::vector<double> RimWellLogRftCurve::interpolatedMeasuredDepthValuesFromWellP
 
             reader->values( tvdAddress, &tvdValuesOfObservedData );
             reader->values( mdAddress, &mdValuesOfObservedData );
-            interpolatedMdValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfObservedData,
-                                                                                   tvdValuesOfObservedData,
-                                                                                   tvDepthValues );
-            CVF_ASSERT( interpolatedMdValues.size() == tvDepthValues.size() );
+            derivedMDValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfObservedData,
+                                                                              tvdValuesOfObservedData,
+                                                                              tvDepthValues );
+            CVF_ASSERT( derivedMDValues.size() == tvDepthValues.size() );
+            return true;
         }
     }
-    return interpolatedMdValues;
+    return false;
 }

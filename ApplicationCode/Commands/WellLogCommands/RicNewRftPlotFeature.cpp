@@ -67,8 +67,6 @@ void RicNewRftPlotFeature::onActionTriggered( bool isChecked )
     {
         QString wellName = selectedWellName();
 
-        QString plotName = QString( RimWellRftPlot::plotNameFormatString() ).arg( wellName );
-
         RimWellRftPlot* rftPlot = new RimWellRftPlot();
         rftPlot->setSimWellOrWellPathName( wellName );
 
@@ -77,9 +75,13 @@ void RicNewRftPlotFeature::onActionTriggered( bool isChecked )
         plotTrack->setDescription( QString( "Track %1" ).arg( rftPlot->trackCount() ) );
 
         rftPlotColl->addPlot( rftPlot );
+        rftPlot->applyInitialSelections();
+
+        wellName         = rftPlot->simWellOrWellPathName(); // We may have been given a default well name
+        QString plotName = QString( RimWellRftPlot::plotNameFormatString() ).arg( wellName );
+
         rftPlot->setDescription( plotName );
 
-        rftPlot->applyInitialSelections();
         rftPlot->loadDataAndUpdate();
         rftPlotColl->updateConnectedEditors();
 

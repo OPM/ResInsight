@@ -98,10 +98,10 @@ protected:
     void initAfterRead() override;
 
 private:
-    void calculateValueOptionsForWells( QList<caf::PdmOptionItemInfo>& options );
-    void updateEditorsFromCurves();
-    void syncCurvesFromUiSelection();
-    void assignWellPathToExtractionCurves();
+    std::map<QString, QStringList> findWellSources();
+    void                           updateEditorsFromCurves();
+    void                           syncCurvesFromUiSelection();
+    void                           assignWellPathToExtractionCurves();
 
     RimObservedFmuRftData* findObservedFmuData( const QString& wellPathName, const QDateTime& timeStep ) const;
 
