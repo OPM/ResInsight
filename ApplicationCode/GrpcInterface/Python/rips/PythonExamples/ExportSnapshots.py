@@ -37,7 +37,7 @@ for case in cases:
         
     view = case.views()[0]
     for property in property_list:
-        view.applyCellResult(resultType='DYNAMIC_NATIVE', resultVariable=property)
+        view.apply_cell_result(result_type='DYNAMIC_NATIVE', result_variable=property)
         for ts_snapshot in tss_snapshot:
             resinsight.commands.set_time_step(case_id = case.id, time_step = ts_snapshot)        
             resinsight.commands.export_snapshots(type='VIEWS', case_id=case.id)  # ‘ALL’, ‘VIEWS’ or ‘PLOTS’ default is 'ALL'

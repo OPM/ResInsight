@@ -23,7 +23,7 @@ case_group.print_object_info()
 resinsight.commands.compute_case_group_statistics(case_group_id=case_group.group_id)
 
 view = case_group.views()[0]
-cellResult = view.cellResult()
+cellResult = view.set_cell_result()
 cellResult.set_value("ResultVariable", "PRESSURE_DEV")
 cellResult.update()
         

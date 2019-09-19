@@ -6,4 +6,4 @@ import rips
 resinsight  = rips.Instance.find()
 
 view = resinsight.project.view(0)
-view.applyCellResult(resultType='STATIC_NATIVE', resultVariable='DX')
+view.apply_cell_result(resultType='STATIC_NATIVE', resultVariable='DX')
