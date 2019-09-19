@@ -10,7 +10,7 @@ import rips
 import dataroot
 
 def test_exportSnapshots(rips_instance, initialize_test):
-    if not rips_instance.isGui():
+    if not rips_instance.is_gui():
         pytest.skip("Cannot run test without a GUI")
 
     case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"

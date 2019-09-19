@@ -14,11 +14,10 @@ class GridCaseGroup (PdmObject):
     Operate on a ResInsight case group specified by a Case Group Id integer.
 
     Attributes:
-        id (int): Grid Case Group Id corresponding to case group Id in ResInsight project.
-        name (str): Case name
+        group_id (int): Grid Case Group Id corresponding to case group Id in ResInsight project.
     """
     def __init__(self, pdm_object):
-        self.groupId = pdm_object.getValue("GroupId")
+        self.group_id = pdm_object.get_value("GroupId")
         PdmObject.__init__(self, pdm_object.pb2Object, pdm_object.channel)
 
     def statistics_cases(self):
@@ -28,10 +27,10 @@ class GridCaseGroup (PdmObject):
     
     def views(self):
         """Get a list of views belonging to a grid case group"""
-        pbm_objects = self.descendants("ReservoirView")
+        pdm_objects = self.descendants("ReservoirView")
         view_list = []
-        for pbm_object in pbm_objects:
-            view_list.append(View(pbm_object))
+        for pdm_object in pdm_objects:
+            view_list.append(View(pdm_object))
         return view_list
 
     def view(self, id):

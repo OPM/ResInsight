@@ -10,25 +10,25 @@ class View (PdmObject):
 
     """
     def __init__(self, pbmObject):
-        self.id = pbmObject.getValue("ViewId")
+        self.id = pbmObject.get_value("ViewId")
 
         PdmObject.__init__(self, pbmObject.pb2Object, pbmObject.channel)
 
     def showGridBox(self):
         """Check if the grid box is meant to be shown in the view"""
-        return self.getValue("ShowGridBox")
+        return self.get_value("ShowGridBox")
 
     def setShowGridBox(self, value):
         """Set if the grid box is meant to be shown in the view"""
-        self.setValue("ShowGridBox", value)
+        self.set_value("ShowGridBox", value)
 
     def backgroundColor(self):
         """Get the current background color in the view"""
-        return self.getValue("ViewBackgroundColor")
+        return self.get_value("ViewBackgroundColor")
 
     def setBackgroundColor(self, bgColor):
         """Set the background color in the view"""
-        self.setValue("ViewBackgroundColor", bgColor)
+        self.set_value("ViewBackgroundColor", bgColor)
 
     def cellResult(self):
         """Retrieve the current cell results"""
@@ -50,8 +50,8 @@ class View (PdmObject):
             resultVariable (str): String representing the result variable.
         """
         cellResult = self.cellResult()
-        cellResult.setValue("ResultType", resultType)
-        cellResult.setValue("ResultVariable", resultVariable)
+        cellResult.set_value("ResultType", resultType)
+        cellResult.set_value("ResultVariable", resultVariable)
         cellResult.update()
 
     def applyFlowDiagnosticsCellResult(self,
@@ -77,12 +77,12 @@ class View (PdmObject):
                 Requires selectionMode to be 'FLOW_TR_BY_SELECTION'.
         """
         cellResult = self.cellResult()
-        cellResult.setValue("ResultType", "FLOW_DIAGNOSTICS")
-        cellResult.setValue("ResultVariable", resultVariable)
-        cellResult.setValue("FlowTracerSelectionMode", selectionMode)
+        cellResult.set_value("ResultType", "FLOW_DIAGNOSTICS")
+        cellResult.set_value("ResultVariable", resultVariable)
+        cellResult.set_value("FlowTracerSelectionMode", selectionMode)
         if selectionMode == 'FLOW_TR_BY_SELECTION':
-            cellResult.setValue("SelectedInjectorTracers", injectors)
-            cellResult.setValue("SelectedProducerTracers", producers)
+            cellResult.set_value("SelectedInjectorTracers", injectors)
+            cellResult.set_value("SelectedProducerTracers", producers)
         cellResult.update()
 
     def case(self):
@@ -92,7 +92,7 @@ class View (PdmObject):
             pdmCase = self.ancestor("ResInsightGeoMechCase")
         if pdmCase is None:
             return None
-        return rips.Case(self.channel, pdmCase.getValue("CaseId"))
+        return rips.Case(self.channel, pdmCase.get_value("CaseId"))
 
     def clone(self):
         """Clone the current view"""

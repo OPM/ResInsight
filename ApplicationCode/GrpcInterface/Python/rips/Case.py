@@ -48,7 +48,7 @@ class Case (PdmObject):
             return 0
     
     def grid_path(self):
-        return self.getValue("CaseFileName")
+        return self.get_value("CaseFileName")
 
     def grid(self, index):
         """Get Grid of a given index. Returns a rips Grid object
@@ -132,9 +132,9 @@ class Case (PdmObject):
         """
         active_cell_info_chunks = self.cell_info_for_active_cells_async()
         received_active_cells = []
-        for activeCellChunk in active_cell_info_chunks:
-            for activeCell in activeCellChunk.data:
-                received_active_cells.append(activeCell)
+        for active_cell_chunk in active_cell_info_chunks:
+            for active_cell in active_cell_chunk.data:
+                received_active_cells.append(active_cell)
         return received_active_cells
 
     def time_steps(self):
@@ -162,10 +162,10 @@ class Case (PdmObject):
     def views(self):
         """Get a list of views belonging to a case"""
         pdm_objects = self.children("ReservoirViews")
-        viewList = []
+        view_list = []
         for pdm_object in pdm_objects:
-            viewList.append(View(pdm_object))
-        return viewList
+            view_list.append(View(pdm_object))
+        return view_list
 
     def view(self, id):
         """Get a particular view belonging to a case by providing view id
