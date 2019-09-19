@@ -18,12 +18,12 @@ except grpc.RpcError as e:
 
 case = resinsight.project.case(id=0)
 if case is not None:
-    results = case.properties.activeCellProperty('STATIC_NATIVE', 'PORO', 0)
+    results = case.properties.active_cell_property('STATIC_NATIVE', 'PORO', 0)
     activeCellCount = len(results)
 
     # Send the results back to ResInsight inside try / except construct
     try:        
-        case.properties.setActiveCellProperty(results, 'GENERATED', 'POROAPPENDED', 0)
+        case.properties.set_active_cell_property(results, 'GENERATED', 'POROAPPENDED', 0)
         print("Everything went well as expected")
     except: # Match any exception, but it should not happen
         print("Ooops!")
@@ -33,7 +33,7 @@ if case is not None:
 
     # This time we should get a grpc.RpcError exception, which is a server side error.
     try:        
-        case.properties.setActiveCellProperty(results, 'GENERATED', 'POROAPPENDED', 0)
+        case.properties.set_active_cell_property(results, 'GENERATED', 'POROAPPENDED', 0)
         print("Everything went well??")
     except grpc.RpcError as e:
         print("Expected Server Exception Received: ", e)
@@ -46,7 +46,7 @@ if case is not None:
     case.properties.chunkSize = activeCellCount
 
     try:        
-        case.properties.setActiveCellProperty(results, 'GENERATED', 'POROAPPENDED', 0)
+        case.properties.set_active_cell_property(results, 'GENERATED', 'POROAPPENDED', 0)
         print("Everything went well??")
     except grpc.RpcError as e:
         print("Got unexpected server exception", e, "This should not happen now")

@@ -20,7 +20,7 @@ averages = []
 for i in range(0, len(timeSteps)):
     # Get the results from time step i asynchronously
     # It actually returns a generator object almost immediately
-	resultChunks = case.properties.activeCellPropertyAsync('DYNAMIC_NATIVE', 'SOIL', i)
+	resultChunks = case.properties.active_cell_property_async('DYNAMIC_NATIVE', 'SOIL', i)
 	mysum = 0.0
 	count = 0
     # Loop through and append the average. each time we loop resultChunks

@@ -13,5 +13,5 @@ for i in range(0, totalCellCount):
     values.append(i % 2 * 0.75);
 
 print("Applying values to full grid")
-case.properties.setGridProperty(values, 'DYNAMIC_NATIVE', 'SOIL', 0)
+case.properties.set_grid_property(values, 'DYNAMIC_NATIVE', 'SOIL', 0)
 

@@ -19,7 +19,7 @@ timeSteps      = case.time_steps()
 averages = []
 for i in range(0, len(timeSteps)):
     # Get a list of all the results for time step i
-	results = case.properties.activeCellProperty('DYNAMIC_NATIVE', 'SOIL', i)
+	results = case.properties.active_cell_property('DYNAMIC_NATIVE', 'SOIL', i)
 	mysum = sum(results)
 	averages.append(mysum/len(results))
 
