@@ -8,11 +8,13 @@ import time
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 import App_pb2
 import App_pb2_grpc
+import Commands_pb2 as Cmd
+import Commands_pb2_grpc as CmdRpc
+
 from Definitions_pb2 import Empty
 
 import RiaVersionInfo
 
-from rips.Commands import Commands
 from rips.Project import Project
 
 class Instance:
@@ -112,6 +114,9 @@ class Instance:
         print('Error: Could not find any ResInsight instances responding between ports ' + str(start_port) + ' and ' + str(end_port))
         return None
 
+    def __executeCmd(self, **command_params):
+        return self.commands.Execute(Cmd.CommandParams(**command_params))
+
     def __check_version(self):
         try:
             major_version_ok = self.major_version() == int(RiaVersionInfo.RESINSIGHT_MAJOR_VERSION)
@@ -131,6 +136,7 @@ class Instance:
 
         self.channel = grpc.insecure_channel(location, options=[('grpc.enable_http_proxy', False)])
         self.launched = launched
+        self.commands = CmdRpc.CommandsStub(self.channel)
 
         # Main version check package
         self.app     = self.app = App_pb2_grpc.AppStub(self.channel)
@@ -154,17 +160,32 @@ class Instance:
                 raise Exception('Error: Could not connect to resinsight at ', location)
             exit(1)
         if not version_ok:
-            raise Exception('Error: Wrong Version of ResInsight at ', location)
+            raise Exception('Error: Wrong Version of ResInsight at ', location, self.version_string(), " ",  self.client_version_string())
 
         # Service packages
-        self.commands   = Commands(self.channel)
         self.project    = Project(self.channel)
     
         path = os.getcwd()
-        self.commands.set_start_dir(path=path)
+        self.set_start_dir(path=path)
 
     def __version_message(self):
         return self.app.GetVersion(Empty())
+
+    def set_start_dir(self, path):
+        """Set current start directory
+        
+        Arguments:
+            path (str): path to directory
+        
+        """
+        return self.__executeCmd(setStartDir=Cmd.FilePathRequest(path=path))
+
+    def set_export_folder(self, type, path, create_folder=False):
+        return self.__executeCmd(setExportFolder=Cmd.SetExportFolderRequest(type=type,
+                                                                       path=path,
+                                                                       createFolder=create_folder))
+    def set_main_window_size(self, width, height):
+        return self.__executeCmd(setMainWindowSize=Cmd.SetMainWindowSizeParams(width=width, height=height))
 
     def major_version(self):
         """Get an integer with the major version number"""
@@ -181,6 +202,10 @@ class Instance:
     def version_string(self):
         """Get a full version string, i.e. 2019.04.01"""
         return str(self.major_version()) + "." + str(self.minor_version()) + "." + str(self.patch_version())
+
+    def client_version_string(self):
+        """Get a full version string, i.e. 2019.04.01"""
+        return RiaVersionInfo.RESINSIGHT_MAJOR_VERSION + "." + RiaVersionInfo.RESINSIGHT_MINOR_VERSION + "." + RiaVersionInfo.RESINSIGHT_PATCH_VERSION
 
     def exit(self):
         """Tell ResInsight instance to quit"""

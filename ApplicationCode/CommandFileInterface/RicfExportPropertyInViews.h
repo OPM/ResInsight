@@ -44,6 +44,7 @@ public:
 
 private:
     caf::PdmField<int>                  m_caseId;
+    caf::PdmField<std::vector<int>>     m_viewIds;
     caf::PdmField<std::vector<QString>> m_viewNames;
     caf::PdmField<double>               m_undefinedValue;
 };

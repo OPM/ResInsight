@@ -3,19 +3,16 @@ import os
 import sys
 
 from rips.Case import Case
-from rips.Commands import Commands
 from rips.GridCaseGroup import GridCaseGroup
 from rips.PdmObject import PdmObject
 from rips.View import View
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 
+import Commands_pb2 as Cmd
 from Definitions_pb2 import Empty
 import Project_pb2
 import Project_pb2_grpc
-
-import Commands_pb2 as Cmd
-import Commands_pb2_grpc as CmdRpc
 
 class Project (PdmObject):
     """ResInsight project. Not intended to be created separately.
@@ -25,13 +22,9 @@ class Project (PdmObject):
     def __init__(self, channel):
         self.channel = channel
         self.project = Project_pb2_grpc.ProjectStub(channel)
-        self.commands = CmdRpc.CommandsStub(channel)
-
+    
         PdmObject.__init__(self, self.project.GetPdmObject(Empty()), self.channel)
     
-    def __executeCmd(self, **command_params):
-        return self.commands.Execute(Cmd.CommandParams(**command_params))
-
     def open(self, path):
         """Open a new project from the given path
         
@@ -39,22 +32,13 @@ class Project (PdmObject):
             path(str): path to project file
         
         """
-        self.__executeCmd(openProject=Cmd.FilePathRequest(path=path))
+        self._execute_command(openProject=Cmd.FilePathRequest(path=path))
         return self
 
     def close(self):
         """Close the current project (and open new blank project)"""
-        self.__executeCmd(closeProject=Empty())
-
-    def set_start_dir(self, path):
-        """Set current start directory
-        
-        Arguments:
-            path (str): path to directory
-        
-        """
-        return self.__executeCmd(setStartDir=Cmd.FilePathRequest(path=path))
-
+        self._execute_command(closeProject=Empty())
+ 
     def load_case(self, path):
         """Load a new case from the given file path
 
@@ -63,7 +47,7 @@ class Project (PdmObject):
         Returns:
             A rips Case object
         """
-        command_reply = self.__executeCmd(loadCase=Cmd.FilePathRequest(path=path))
+        command_reply = self._execute_command(loadCase=Cmd.FilePathRequest(path=path))
         return Case(self.channel, command_reply.loadCaseResult.id)
 
     def selected_cases(self):
@@ -120,7 +104,7 @@ class Project (PdmObject):
             case_group_id (int): id of the case group to replace
         
         """
-        return self.__executeCmd(replaceSourceCases=Cmd.ReplaceSourceCasesRequest(gridListFile=grid_list_file,
+        return self._execute_command(replaceSourceCases=Cmd.ReplaceSourceCasesRequest(gridListFile=grid_list_file,
                                                                                caseGroupId=case_group_id))
 
     def create_grid_case_group(self, case_paths):
@@ -132,7 +116,7 @@ class Project (PdmObject):
         Returns:
             A case group id and name
         """
-        commandReply = self.__executeCmd(createGridCaseGroup=Cmd.CreateGridCaseGroupRequest(casePaths=case_paths))
+        commandReply = self._execute_command(createGridCaseGroup=Cmd.CreateGridCaseGroupRequest(casePaths=case_paths))
         return self.grid_case_group(commandReply.createGridCaseGroupResult.groupId)
 
     def views(self):
@@ -175,16 +159,44 @@ class Project (PdmObject):
         """
         case_groups = self.grid_case_groups()
         for case_group in case_groups:
-            if case_group.groupId == group_id:
+            if case_group.group_id == group_id:
                 return case_group
         return None
 
-    def create_grid_case_group(self, case_paths):
-        """Create a new grid case group from the provided case paths
+    def export_multi_case_snapshots(self, grid_list_file):
+        """Export snapshots for a set of cases
+        
         Arguments:
-            casePaths(list): a list of paths to the cases to be loaded and included in the group
-        Returns:
-            A new grid case group object
+            grid_list_file (str): Path to a file containing a list of grids to export snapshot for
+        
         """
-        group_id, group_name = Commands(self.channel).create_grid_case_group(case_paths)
-        return self.grid_case_group(group_id)
+        return self._execute_command(exportMultiCaseSnapshot=Cmd.ExportMultiCaseRequest(gridListFile=grid_list_file))
+
+    def export_snapshots(self, type = 'ALL', prefix=''):
+        """ Export all snapshots of a given type
+        
+        Arguments:
+            type (str): Enum string ('ALL', 'VIEWS' or 'PLOTS')
+            prefix (str): Exported file name prefix
+        
+        """
+        return self._execute_command(exportSnapshots=Cmd.ExportSnapshotsRequest(type=type,
+                                                                         prefix=prefix,
+                                                                         caseId=-1))
+
+    def export_well_paths(self, well_paths=[], md_step_size=5.0):
+        if isinstance(well_paths, str):
+            well_paths = [well_paths]
+        return self._execute_command(exportWellPaths=Cmd.ExportWellPathRequest(wellPathNames=well_paths, mdStepSize=md_step_size))
+
+    def scale_fracture_template(self, id, half_length, height, dfactor, conductivity):
+        return self._execute_command(scaleFractureTemplate=Cmd.ScaleFractureTemplateRequest(id=id,
+                                                                                   halfLength=half_length,
+                                                                                   height=height,
+                                                                                   dFactor=dfactor,
+                                                                                   conductivity=conductivity))
+
+    def set_fracture_containment(self, id, top_layer, base_layer):
+        return self._execute_command(setFractureContainment=Cmd.SetFracContainmentRequest(id=id,
+                                                                                 topLayer=top_layer,
+                                                                                 baseLayer=base_layer))

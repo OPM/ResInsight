@@ -45,6 +45,7 @@ CAF_PDM_SOURCE_INIT( RicfExportSimWellFractureCompletions, "exportSimWellFractur
 RicfExportSimWellFractureCompletions::RicfExportSimWellFractureCompletions()
 {
     RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    RICF_InitField( &m_viewId, "viewId", -1, "View ID", "", "", "" );
     RICF_InitField( &m_viewName, "viewName", QString( "" ), "View Name", "", "", "" );
     RICF_InitField( &m_timeStep, "timeStep", -1, "Time Step Index", "", "", "" );
     RICF_InitField( &m_simWellNames, "simulationWellNames", std::vector<QString>(), "Simulation Well Names", "", "", "" );
@@ -94,17 +95,19 @@ RicfCommandResponse RicfExportSimWellFractureCompletions::execute()
     for ( Rim3dView* v : exportSettings->caseToApply->views() )
     {
         RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( v );
-        if ( eclipseView && eclipseView->name() == m_viewName() )
+        if ( eclipseView && ( eclipseView->id() == m_viewId() || eclipseView->name() == m_viewName() ) )
         {
             views.push_back( eclipseView );
         }
     }
     if ( views.empty() )
     {
-        QString error = QString(
-                            "exportSimWellCompletions: Could not find any views named \"%1\" in the case with ID %2" )
-                            .arg( m_viewName )
-                            .arg( m_caseId() );
+        QString error =
+            QString(
+                "exportSimWellCompletions: Could not find any views with id %1 or named \"%2\" in the case with ID %3" )
+                .arg( m_viewId )
+                .arg( m_viewName )
+                .arg( m_caseId() );
         RiaLogging::error( error );
         return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
     }

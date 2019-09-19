@@ -236,4 +236,35 @@ class Properties:
         reply = self._properties_stub.SetGridProperty(request_iterator)
         if reply.accepted_value_count < len(values):
             raise IndexError
+
+    def export(self, time_step, property, eclipse_keyword=property, undefined_value=0.0, export_file=property):
+        """ Export an Eclipse property
+
+        Arguments:
+            time_step (int): time step index
+            property (str): property to export
+            eclipse_keyword (str): Eclipse keyword used as text in export header. Defaults to the value of property parameter.
+            undefined_value (double):	Value to use for undefined values. Defaults to 0.0
+            export_file (str):	File name for export. Defaults to the value of property parameter
+        """
+        return self.__executeCmd(exportProperty=Cmd.ExportPropertyRequest(caseId=self.case.id,
+                                                                     timeStep=time_step,
+                                                                     property=property,
+                                                                     eclipseKeyword=eclipse_keyword,
+                                                                     undefinedValue=undefined_value,
+                                                                     exportFile=export_file))
+
+    def export_in_views(self, view_ids, undefined_value):
+        """ Export the current Eclipse property from the given views
+
+        Arguments:
+            view_ids (list): list of view ids
+            undefined_value (double):	Value to use for undefined values. Defaults to 0.0
+        """
+        if isinstance(view_ids, int):
+            view_ids = [view_ids]
+
+        return self.__executeCmd(exportPropertyInViews=Cmd.ExportPropertyInViewsRequest(caseId=self.case.id,
+                                                                                   viewIds=view_ids,
+                                                                                   undefinedValue=undefined_value))
             

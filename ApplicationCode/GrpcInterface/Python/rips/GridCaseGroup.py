@@ -7,6 +7,7 @@ from rips.Case import Case
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 
+import Commands_pb2 as Cmd
 import PdmObject_pb2
 
 class GridCaseGroup (PdmObject):
@@ -19,7 +20,7 @@ class GridCaseGroup (PdmObject):
     """
     def __init__(self, pdm_object):
         self.group_id = pdm_object.get_value("GroupId")
-        PdmObject.__init__(self, pdm_object.pb2Object, pdm_object.channel)
+        PdmObject.__init__(self, pdm_object.pb2_object, pdm_object.channel)
 
     def create_statistics_case(self):
         """Create a Statistics case in the Grid Case Group
@@ -27,7 +28,7 @@ class GridCaseGroup (PdmObject):
         Returns:
             A new Case
         """
-        commandReply = self.__executeCmd(createStatisticsCase=Cmd.CreateStatisticsCaseRequest(caseGroupId=case_group_id))
+        commandReply = self._execute_command(createStatisticsCase=Cmd.CreateStatisticsCaseRequest(caseGroupId=case_group_id))
         return Case(self.channel, commandReply.createStatisticsCaseResult.caseId)
 
     def statistics_cases(self):
@@ -56,3 +57,7 @@ class GridCaseGroup (PdmObject):
             if view_object.id == id:
                 return view_object
         return None
+
+    def compute_statistics(self, case_ids = []):
+        return self._execute_command(computeCaseGroupStatistics=Cmd.ComputeCaseGroupStatRequest(caseIds=case_ids,
+                                                                                         caseGroupId=self.group_id))

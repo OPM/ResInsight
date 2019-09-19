@@ -163,7 +163,6 @@ if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 			"rips/generated/RiaVersionInfo.py"
 			"rips/__init__.py"
 			"rips/Case.py"
-			"rips/Commands.py"
 			"rips/Grid.py"
 			"rips/GridCaseGroup.py"
 			"rips/Project.py"

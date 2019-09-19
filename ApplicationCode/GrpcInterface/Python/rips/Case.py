@@ -1,7 +1,6 @@
 import grpc
 import os
 import sys
-from rips.Commands import Commands
 from rips.Grid import Grid
 from rips.Properties import Properties
 from rips.PdmObject import PdmObject
@@ -11,6 +10,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 
 import Case_pb2
 import Case_pb2_grpc
+import Commands_pb2 as Cmd
 import PdmObject_pb2
 
 class Case (PdmObject):
@@ -73,7 +73,7 @@ class Case (PdmObject):
         Arguments:
             new_egrid_file (str): path to EGRID file            
         """
-        self.__executeCmd(replaceCase=Cmd.ReplaceCaseRequest(newGridFile=new_egrid_file,
+        self._execute_command(replaceCase=Cmd.ReplaceCaseRequest(newGridFile=new_egrid_file,
                                                              caseId=self.id))
         self.__init__(self.channel, self.id)
 
@@ -193,6 +193,93 @@ class Case (PdmObject):
 
     def create_view(self):
         """Create a new view in the current case"""
-        view_id =  Commands(self.channel).create_view(self.id)
-        return self.view(view_id)
+        return self.view(self._execute_command(createView=Cmd.CreateViewRequest(caseId=self.id)).createViewResult.viewId)
 
+    def export_snapshots_of_all_views(self, prefix=''):
+        """ Export snapshots for all views in the case
+        
+        Arguments:
+            prefix (str): Exported file name prefix
+        
+        """
+        return self._execute_command(exportSnapshots=Cmd.ExportSnapshotsRequest(type=type,
+                                                                         prefix='VIEWS',
+                                                                         caseId=self.id))
+
+    def export_well_path_completions(self, time_step, well_path_names, file_split,
+                                  compdat_export, include_perforations, include_fishbones,
+                                  exclude_main_bore_for_fishbones, combination_mode):
+        if (isinstance(well_path_names, str)):
+            well_path_names = [well_path_names]
+        return self._execute_command(exportWellPathCompletions=Cmd.ExportWellPathCompRequest(caseId=self.id,
+                                                                                    timeStep=time_step,
+                                                                                    wellPathNames=well_path_names,
+                                                                                    fileSplit=file_split,
+                                                                                    compdatExport=compdat_export,
+                                                                                    includePerforations=include_perforations,
+                                                                                    includeFishbones=include_fishbones,
+                                                                                    excludeMainBoreForFishbones=exclude_main_bore_for_fishbones,
+                                                                                    combinationMode=combination_mode))
+
+    def export_msw(self, well_path):
+        return self._execute_command(exportMsw=Cmd.ExportMswRequest(caseId=self.id,
+                                                           wellPath=well_path))
+
+    def set_time_step_for_all_views(self, time_step):
+        return self._execute_command(setTimeStep=Cmd.SetTimeStepParams(caseId=self.id, viewId=-1, timeStep=time_step))
+
+    def create_multiple_fractures(self, template_id, well_path_names, min_dist_from_well_td,
+                                max_fractures_per_well, top_layer, base_layer, spacing, action):
+        if isinstance(well_path_names, str):
+            well_path_names = [well_path_names]
+        return self._execute_command(createMultipleFractures=Cmd.MultipleFracAction(caseId=self.id,
+                                                                           templateId=template_id,
+                                                                           wellPathNames=well_path_names,
+                                                                           minDistFromWellTd=min_dist_from_well_td,
+                                                                           maxFracturesPerWell=max_fractures_per_well,
+                                                                           topLayer=top_layer,
+                                                                           baseLayer=base_layer,
+                                                                           spacing=spacing,
+                                                                           action=action))
+    def create_lgr_for_completion(self, time_step, well_path_names, refinement_i, refinement_j, refinement_k, split_type):
+        if isinstance(well_path_names, str):
+            well_path_names = [well_path_names]
+        return self._execute_command(createLgrForCompletions=Cmd.CreateLgrForCompRequest(caseId=self.id,
+                                                                                timeStep=time_step,
+                                                                                wellPathNames=well_path_names,
+                                                                                refinementI=refinement_i,
+                                                                                refinementJ=refinement_j,
+                                                                                refinementK=refinement_k,
+                                                                                splitType=split_type))
+    
+    def create_saturation_pressure_plots(self):
+        case_ids = [self.id]
+        return self._execute_command(createSaturationPressurePlots=Cmd.CreateSatPressPlotRequest(caseIds=case_ids))
+
+    
+    def export_flow_characteristics(self, time_steps, injectors, producers, file_name, minimum_communication=0.0, aquifer_cell_threshold=0.1):
+        """ Export Flow Characteristics data to text file in CSV format
+
+        Parameter                 | Description                                   | Type
+        ------------------------- | --------------------------------------------- | -----
+        time_steps                | Time step indices                             | List of Integer  
+        injectors                 | Injector names                                | List of Strings  
+        producers                 | Producer names                                | List of Strings  
+        file_name                 | Export file name                              | Integer          
+        minimum_communication     | Minimum Communication, defaults to 0.0        | Integer          
+        aquifer_cell_threshold    | Aquifer Cell Threshold, defaults to 0.1       | Integer          
+
+        """
+        if isinstance(time_steps, int):
+            time_steps = [time_steps]
+        if isinstance(injectors, str):
+            injectors = [injectors]
+        if isinstance(producers, str):
+            producers = [producers]
+        return self._execute_command(exportFlowCharacteristics=Cmd.ExportFlowInfoRequest(caseId=self.id,
+                                                                                timeSteps=time_steps,
+                                                                                injectors=injectors,
+                                                                                producers=producers,
+                                                                                fileName=file_name,
+                                                                                minimumCommunication = minimum_communication,
+                                                                                aquiferCellThreshold = aquifer_cell_threshold))

@@ -7,13 +7,19 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 from Definitions_pb2 import Empty
 import PdmObject_pb2
 import PdmObject_pb2_grpc
+import Commands_pb2 as Cmd
+import Commands_pb2_grpc as CmdRpc
 
 class PdmObject:
+    def _execute_command(self, **command_params):
+        return self.commands.Execute(Cmd.CommandParams(**command_params))
+
     def __init__(self, pb2_object, channel):
         self.pb2_object = pb2_object
         self.channel = channel
         self.pdm_object_stub = PdmObject_pb2_grpc.PdmObjectServiceStub(self.channel)
-    
+        self.commands = CmdRpc.CommandsStub(channel)
+ 
     def address(self):
         """Get the unique address of the PdmObject
         
