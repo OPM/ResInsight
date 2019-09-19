@@ -13,7 +13,7 @@ caseGroup = resinsight.project.create_grid_case_group(casePaths=casePaths)
 
 caseGroup.printObjectInfo()
     
-#statCases = caseGroup.statisticsCases()
+#statCases = caseGroup.statistics_cases()
 #caseIds = []
 #for statCase in statCases:
 #    statCase.setValue("DynamicPropertiesToCalculate", ["SWAT"])
