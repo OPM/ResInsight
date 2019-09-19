@@ -9,10 +9,10 @@ class View (PdmObject):
         id(int): View Id corresponding to the View Id in ResInsight project.
 
     """
-    def __init__(self, pbmObject):
-        self.id = pbmObject.get_value("ViewId")
+    def __init__(self, pdm_object):
+        self.id = pdm_object.get_value("ViewId")
 
-        PdmObject.__init__(self, pbmObject.pb2Object, pbmObject.channel)
+        PdmObject.__init__(self, pdm_object.pb2_object, pdm_object.channel)
 
     def showGridBox(self):
         """Check if the grid box is meant to be shown in the view"""
