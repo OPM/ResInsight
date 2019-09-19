@@ -7,9 +7,9 @@ import time
 
 # Internal function for creating a result from a small chunk of poro and permx results
 # The return value of the function is a generator for the results rather than the result itself.
-def createResult(poroChunks, permxChunks):
+def create_result(poro_chunks, permx_chunks):
     # Loop through all the chunks of poro and permx in order
-    for (poroChunk, permxChunk) in zip(poroChunks, permxChunks):
+    for (poroChunk, permxChunk) in zip(poro_chunks, permx_chunks):
         resultChunk = []
         # Loop through all the values inside the chunks, in order
         for (poro, permx) in zip(poroChunk.values, permxChunk.values):
@@ -22,14 +22,14 @@ start = time.time()
 case = resinsight.project.case(id=0)
 
 # Get a generator for the poro results. The generator will provide a chunk each time it is iterated
-poroChunks = case.properties.active_cell_property_async('STATIC_NATIVE', 'PORO', 0)
+poro_chunks = case.properties.active_cell_property_async('STATIC_NATIVE', 'PORO', 0)
 # Get a generator for the permx results. The generator will provide a chunk each time it is iterated
-permxChunks = case.properties.active_cell_property_async('STATIC_NATIVE', 'PERMX', 0)
+permx_chunks = case.properties.active_cell_property_async('STATIC_NATIVE', 'PERMX', 0)
 
 # Send back the result with the result provided by a generator object.
 # Iterating the result generator will cause the script to read from the poro and permx generators
 # And return the result of each iteration
-case.properties.set_active_cell_property_async(createResult(poroChunks, permxChunks),
+case.properties.set_active_cell_property_async(create_result(poro_chunks, permx_chunks),
                                            'GENERATED', 'POROPERMXAS', 0)
 
 end = time.time()

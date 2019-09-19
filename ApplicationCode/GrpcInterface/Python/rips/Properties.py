@@ -26,8 +26,8 @@ class Properties:
                 case(Case): A rips case to handle properties for
         """
         self.case = case
-        self.propertiesStub = Properties_pb2_grpc.PropertiesStub(self.case.channel)
-        self.chunkSize = 8160
+        self._properties_stub = Properties_pb2_grpc.PropertiesStub(self.case.channel)
+        self.chunk_size = 8160
 
     
     def __generate_property_input_iterator(self, values_iterator, parameters):
@@ -49,7 +49,7 @@ class Properties:
                 chunk.params.CopyFrom(parameters)
                 index += 1
             else:
-                actual_chunk_size = min(len(array) - index + 1, self.chunkSize)
+                actual_chunk_size = min(len(array) - index + 1, self.chunk_size)
                 chunk.values.CopyFrom(Properties_pb2.PropertyChunk(values = array[index:index+actual_chunk_size]))
                 index += actual_chunk_size
 
@@ -80,7 +80,7 @@ class Properties:
         request = Properties_pb2.AvailablePropertiesRequest (case_request = Case_pb2.CaseRequest(id=self.case.id),
                                                     property_type = property_type_enum,
                                                     porosity_model = porosity_model_enum)
-        return self.propertiesStub.GetAvailableProperties(request).property_names
+        return self._properties_stub.GetAvailableProperties(request).property_names
 
     def active_cell_property_async(self, property_type, property_name, time_step, porosity_model = 'MATRIX_MODEL'):
         """Get a cell property for all active cells. Async, so returns an iterator
@@ -102,7 +102,7 @@ class Properties:
                                                property_name  = property_name,
                                                time_step      = time_step,
                                                porosity_model = porosity_model_enum)
-        for chunk in self.propertiesStub.GetActiveCellProperty(request):
+        for chunk in self._properties_stub.GetActiveCellProperty(request):
             yield chunk
 
     def active_cell_property(self, property_type, property_name, time_step, porosity_model = 'MATRIX_MODEL'):
@@ -147,7 +147,7 @@ class Properties:
                                                  time_step      = time_step,
                                                  grid_index     = gridIndex,
                                                  porosity_model = porosity_model_enum)
-        for chunk in self.propertiesStub.GetGridProperty(request):
+        for chunk in self._properties_stub.GetGridProperty(request):
             yield chunk
 
     def grid_property(self, property_type, property_name, time_step, grid_index = 0, porosity_model = 'MATRIX_MODEL'):
@@ -189,7 +189,7 @@ class Properties:
                                                  porosity_model = porosity_model_enum)
         
         request_iterator = self.__generate_property_input_iterator(values_iterator, request)
-        self.propertiesStub.SetActiveCellProperty(request_iterator)
+        self._properties_stub.SetActiveCellProperty(request_iterator)
     
     def set_active_cell_property(self, values, property_type, property_name, time_step, porosity_model = 'MATRIX_MODEL'):
         """Set a cell property for all active cells.
@@ -209,7 +209,7 @@ class Properties:
                                                  time_step      = time_step,
                                                  porosity_model = porosity_model_enum)
         request_iterator = self.__generate_property_input_chunks(values, request)
-        reply = self.propertiesStub.SetActiveCellProperty(request_iterator)
+        reply = self._properties_stub.SetActiveCellProperty(request_iterator)
         if reply.accepted_value_count < len(values):
             raise IndexError
 
@@ -233,7 +233,7 @@ class Properties:
                                                  grid_index     = grid_index,
                                                  porosity_model = porosity_model_enum)
         request_iterator = self.__generate_property_input_chunks(values, request)
-        reply = self.propertiesStub.SetGridProperty(request_iterator)
+        reply = self._properties_stub.SetGridProperty(request_iterator)
         if reply.accepted_value_count < len(values):
             raise IndexError
             

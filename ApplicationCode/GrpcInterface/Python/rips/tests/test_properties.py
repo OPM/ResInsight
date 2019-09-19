@@ -55,7 +55,7 @@ def test_10k_set_out_of_bounds_client(rips_instance, initialize_test):
     case = rips_instance.project.load_case(path=casePath)
 
     results = case.properties.active_cell_property('DYNAMIC_NATIVE', 'SOIL', 1)
-    case.properties.chunkSize = len(results)
+    case.properties.chunk_size = len(results)
     results.append(5.0)
     with pytest.raises(IndexError):
         assert case.properties.set_active_cell_property(results, 'GENERATED', 'SOIL', 1)

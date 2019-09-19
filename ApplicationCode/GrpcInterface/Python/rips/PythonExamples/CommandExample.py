@@ -36,7 +36,7 @@ with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
     resinsight.commands.export_property_in_views(0, "3D View", 0)
     
     # Check that the exported file exists
-    expectedFileName = case.name + "-" + str("3D_View") + "-" + "T3" + "-SOIL"
-    fullPath = tmpdirname + "/" + expectedFileName
-    assert(os.path.exists(fullPath))
+    expected_file_name = case.name + "-" + str("3D_View") + "-" + "T3" + "-SOIL"
+    full_path = tmpdirname + "/" + expected_file_name
+    assert(os.path.exists(full_path))
 

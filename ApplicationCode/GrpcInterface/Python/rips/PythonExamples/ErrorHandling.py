@@ -19,7 +19,7 @@ except grpc.RpcError as e:
 case = resinsight.project.case(id=0)
 if case is not None:
     results = case.properties.active_cell_property('STATIC_NATIVE', 'PORO', 0)
-    activeCellCount = len(results)
+    active_cell_count = len(results)
 
     # Send the results back to ResInsight inside try / except construct
     try:        
@@ -43,7 +43,7 @@ if case is not None:
     # With a chunk size exactly matching the active cell count the server will not
     # be able to see any error as it will successfully close the stream after receiving
     # the correct number of values, even if the python client has more chunks to send
-    case.properties.chunkSize = activeCellCount
+    case.properties.chunk_size = active_cell_count
 
     try:        
         case.properties.set_active_cell_property(results, 'GENERATED', 'POROAPPENDED', 0)

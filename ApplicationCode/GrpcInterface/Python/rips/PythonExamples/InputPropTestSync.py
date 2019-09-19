@@ -12,13 +12,13 @@ start = time.time()
 case = resinsight.project.case(id=0)
 
 # Read poro result into list
-poroResults = case.properties.active_cell_property('STATIC_NATIVE', 'PORO', 0)
+poro_results = case.properties.active_cell_property('STATIC_NATIVE', 'PORO', 0)
 # Read permx result into list
-permxResults = case.properties.active_cell_property('STATIC_NATIVE', 'PERMX', 0)
+permx_results = case.properties.active_cell_property('STATIC_NATIVE', 'PERMX', 0)
 
 # Generate output result
 results = []
-for (poro, permx) in zip(poroResults, permxResults):
+for (poro, permx) in zip(poro_results, permx_results):
     results.append(poro * permx)
 
 try:

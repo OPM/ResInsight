@@ -14,10 +14,10 @@ case           = resinsight.project.case(id=0)
 case           = resinsight.project.case(id=0)
 
 # Get a list of all time steps
-timeSteps      = case.time_steps()
+time_steps      = case.time_steps()
 
 averages = []
-for i in range(0, len(timeSteps)):
+for i in range(0, len(time_steps)):
     # Get a list of all the results for time step i
 	results = case.properties.active_cell_property('DYNAMIC_NATIVE', 'SOIL', i)
 	mysum = sum(results)

@@ -21,7 +21,7 @@ if resinsight is not None:
             # Update the view in ResInsight
             view.update()
         # Clone the first view
-        newView = views[0].clone()
+        new_view = views[0].clone()
         view.set_show_grid_box(False)
-        newView.set_background_color("#FFAA33")
-        newView.update()
+        new_view.set_background_color("#FFAA33")
+        new_view.update()
