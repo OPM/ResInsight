@@ -66,6 +66,16 @@ class Case (PdmObject):
         for i in range(0, self.grid_count()):
             grid_list.append(Grid(i, self))
         return grid_list
+    
+    def replace(self, new_egrid_file):
+        """Replace the current case grid with a new grid loaded from file
+        
+        Arguments:
+            new_egrid_file (str): path to EGRID file            
+        """
+        self.__executeCmd(replaceCase=Cmd.ReplaceCaseRequest(newGridFile=new_egrid_file,
+                                                             caseId=self.id))
+        self.__init__(self.channel, self.id)
 
     def cell_count(self, porosity_model='MATRIX_MODEL'):
         """Get a cell count object containing number of active cells and

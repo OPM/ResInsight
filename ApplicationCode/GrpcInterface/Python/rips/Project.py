@@ -14,6 +14,9 @@ from Definitions_pb2 import Empty
 import Project_pb2
 import Project_pb2_grpc
 
+import Commands_pb2 as Cmd
+import Commands_pb2_grpc as CmdRpc
+
 class Project (PdmObject):
     """ResInsight project. Not intended to be created separately.
 
@@ -22,8 +25,13 @@ class Project (PdmObject):
     def __init__(self, channel):
         self.channel = channel
         self.project = Project_pb2_grpc.ProjectStub(channel)
+        self.commands = CmdRpc.CommandsStub(channel)
+
         PdmObject.__init__(self, self.project.GetPdmObject(Empty()), self.channel)
     
+    def __executeCmd(self, **command_params):
+        return self.commands.Execute(Cmd.CommandParams(**command_params))
+
     def open(self, path):
         """Open a new project from the given path
         
@@ -31,12 +39,32 @@ class Project (PdmObject):
             path(str): path to project file
         
         """
-        Commands(self.channel).open_project(path)
+        self.__executeCmd(openProject=Cmd.FilePathRequest(path=path))
         return self
 
     def close(self):
         """Close the current project (and open new blank project)"""
-        Commands(self.channel).close_project()
+        self.__executeCmd(closeProject=Empty())
+
+    def set_start_dir(self, path):
+        """Set current start directory
+        
+        Arguments:
+            path (str): path to directory
+        
+        """
+        return self.__executeCmd(setStartDir=Cmd.FilePathRequest(path=path))
+
+    def load_case(self, path):
+        """Load a new case from the given file path
+
+        Arguments:
+            path(str): file path to case
+        Returns:
+            A rips Case object
+        """
+        command_reply = self.__executeCmd(loadCase=Cmd.FilePathRequest(path=path))
+        return Case(self.channel, command_reply.loadCaseResult.id)
 
     def selected_cases(self):
         """Get a list of all cases selected in the project tree
@@ -83,16 +111,29 @@ class Project (PdmObject):
             return case
         except grpc.RpcError as e:
             return None
+    
+    def replace_source_cases(self, grid_list_file, case_group_id=0):
+        """Replace all source cases within a case group
+        
+        Arguments:
+            grid_list_file (str): path to file containing a list of cases
+            case_group_id (int): id of the case group to replace
+        
+        """
+        return self.__executeCmd(replaceSourceCases=Cmd.ReplaceSourceCasesRequest(gridListFile=grid_list_file,
+                                                                               caseGroupId=case_group_id))
 
-    def load_case(self, path):
-        """Load a new case from the given file path
+    def create_grid_case_group(self, case_paths):
+        """Create a Grid Case Group from a list of cases
 
         Arguments:
-            path(str): file path to case
+            case_paths (list): list of file path strings
+
         Returns:
-            A rips Case object
+            A case group id and name
         """
-        return Commands(self.channel).load_case(path)
+        commandReply = self.__executeCmd(createGridCaseGroup=Cmd.CreateGridCaseGroupRequest(casePaths=case_paths))
+        return self.grid_case_group(commandReply.createGridCaseGroupResult.groupId)
 
     def views(self):
         """Get a list of views belonging to a project"""
