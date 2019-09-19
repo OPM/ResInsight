@@ -27,7 +27,7 @@
 #include "ExportCommands/RicExportWellPathsUi.h"
 #include "FractureCommands/RicCreateMultipleFracturesUi.h"
 #include "HoloLensCommands/RicHoloLensExportToFolderUi.h"
-#include "PlotTemplateCommands/RicSelectPlotTemplateUI.h"
+#include "PlotTemplateCommands/RicSelectPlotTemplateUi.h"
 
 CAF_PDM_SOURCE_INIT( RimDialogData, "RimDialogData" );
 
