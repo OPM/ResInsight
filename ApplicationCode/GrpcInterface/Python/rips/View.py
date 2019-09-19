@@ -96,5 +96,5 @@ class View (PdmObject):
 
     def clone(self):
         """Clone the current view"""
-        viewId =  Commands(self.channel).cloneView(self.id)
+        viewId =  Commands(self.channel).clone_view(self.id)
         return self.case().view(viewId)

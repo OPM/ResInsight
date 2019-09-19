@@ -5,9 +5,9 @@
 # Load ResInsight Processing Server Client Library
 import rips
 # Connect to ResInsight instance
-resInsight = rips.Instance.find()
+resinsight = rips.Instance.find()
 
-view = resInsight.project.view(0)
+view = resinsight.project.view(0)
 #view.applyFlowDiagnosticsCellResult(resultVariable='Fraction',
 #                                    selectionMode='FLOW_TR_INJ_AND_PROD')
                                     

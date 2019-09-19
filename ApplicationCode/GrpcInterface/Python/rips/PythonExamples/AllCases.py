@@ -7,10 +7,10 @@
 import rips
 
 # Connect to ResInsight
-resInsight  = rips.Instance.find()
-if resInsight is not None:
+resinsight  = rips.Instance.find()
+if resinsight is not None:
     # Get a list of all cases
-    cases = resInsight.project.cases()
+    cases = resinsight.project.cases()
 
     print ("Got " + str(len(cases)) + " cases: ")
     for case in cases:

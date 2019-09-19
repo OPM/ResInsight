@@ -6,12 +6,12 @@ import rips
 import itertools
 import time
 
-resInsight     = rips.Instance.find()
+resinsight     = rips.Instance.find()
 
 start          = time.time()
 
 # Get the case with case id 0
-case           = resInsight.project.case(id=0)
+case           = resinsight.project.case(id=0)
 
 # Get a list of all time steps
 timeSteps      = case.time_steps()

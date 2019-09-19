@@ -7,21 +7,21 @@ import rips
 
 import dataroot
 
-def test_Launch(rips_instance, initializeTest):
+def test_Launch(rips_instance, initialize_test):
     assert(rips_instance is not None)
 
-def test_EmptyProject(rips_instance, initializeTest):
+def test_EmptyProject(rips_instance, initialize_test):
     cases = rips_instance.project.cases()
     assert(len(cases) is 0)
 
-def test_OneCase(rips_instance, initializeTest):
-    case = rips_instance.project.loadCase(dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID")
+def test_OneCase(rips_instance, initialize_test):
+    case = rips_instance.project.load_case(dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID")
     assert(case.name == "TEST10K_FLT_LGR_NNC")
     assert(case.id == 0)
     cases = rips_instance.project.cases()
     assert(len(cases) is 1)
 
-def test_MultipleCases(rips_instance, initializeTest):
+def test_MultipleCases(rips_instance, initialize_test):
     casePaths = []
     casePaths.append(dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID")
     casePaths.append(dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID")
@@ -31,16 +31,16 @@ def test_MultipleCases(rips_instance, initializeTest):
     for casePath in casePaths:
         caseName = os.path.splitext(os.path.basename(casePath))[0]
         caseNames.append(caseName)
-        rips_instance.project.loadCase(path=casePath)
+        rips_instance.project.load_case(path=casePath)
 
     cases = rips_instance.project.cases()
     assert(len(cases) == len(caseNames))
     for i, caseName in enumerate(caseNames):
         assert(caseName == cases[i].name)
 
-def test_10k(rips_instance, initializeTest):
+def test_10k(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
-    case = rips_instance.project.loadCase(path=casePath)
+    case = rips_instance.project.load_case(path=casePath)
     assert(case.grid_count() == 2)
     cellCountInfo = case.cell_count()
     assert(cellCountInfo.active_cell_count == 11125)
@@ -50,9 +50,9 @@ def test_10k(rips_instance, initializeTest):
     daysSinceStart = case.days_since_start()
     assert(len(daysSinceStart) == 9)
 
-def test_PdmObject(rips_instance, initializeTest):
+def test_PdmObject(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
-    case = rips_instance.project.loadCase(path=casePath)
+    case = rips_instance.project.load_case(path=casePath)
     assert(case.id == 0)
     assert(case.address() is not 0)
     assert(case.classKeyword() == "EclipseCase")
@@ -60,9 +60,9 @@ def test_PdmObject(rips_instance, initializeTest):
     assert(caseId == case.id)
 
 @pytest.mark.skipif(sys.platform.startswith('linux'), reason="Brugge is currently exceptionally slow on Linux")
-def test_brugge_0010(rips_instance, initializeTest):
+def test_brugge_0010(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID"
-    case = rips_instance.project.loadCase(path=casePath)
+    case = rips_instance.project.load_case(path=casePath)
     assert(case.grid_count() == 1)
     cellCountInfo = case.cell_count()
     assert(cellCountInfo.active_cell_count == 43374)
@@ -73,7 +73,7 @@ def test_brugge_0010(rips_instance, initializeTest):
     assert(len(daysSinceStart) == 11)
 
 @pytest.mark.skipif(sys.platform.startswith('linux'), reason="Brugge is currently exceptionally slow on Linux")
-def test_replaceCase(rips_instance, initializeTest):
+def test_replaceCase(rips_instance, initialize_test):
     project = rips_instance.project.open(dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp")
     casePath = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
     case = project.case(id=0)
@@ -83,7 +83,7 @@ def test_replaceCase(rips_instance, initializeTest):
     cases = rips_instance.project.cases()
     assert(len(cases) is 1)
 
-    rips_instance.commands.replaceCase(newGridFile=casePath, caseId=case.id)
+    rips_instance.commands.replace_case(newGridFile=casePath, caseId=case.id)
     cases = rips_instance.project.cases()
     assert(len(cases) is 1)
     case = project.case(id=0)

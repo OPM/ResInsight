@@ -31,12 +31,12 @@ class Project (PdmObject):
             path(str): path to project file
         
         """
-        Commands(self.channel).openProject(path)
+        Commands(self.channel).open_project(path)
         return self
 
     def close(self):
         """Close the current project (and open new blank project)"""
-        Commands(self.channel).closeProject()
+        Commands(self.channel).close_project()
 
     def selectedCases(self):
         """Get a list of all cases selected in the project tree
@@ -84,7 +84,7 @@ class Project (PdmObject):
         except grpc.RpcError as e:
             return None
 
-    def loadCase(self, path):
+    def load_case(self, path):
         """Load a new case from the given file path
 
         Arguments:
@@ -92,7 +92,7 @@ class Project (PdmObject):
         Returns:
             A rips Case object
         """
-        return Commands(self.channel).loadCase(path)
+        return Commands(self.channel).load_case(path)
 
     def views(self):
         """Get a list of views belonging to a project"""
@@ -138,12 +138,12 @@ class Project (PdmObject):
                 return caseGroup
         return None
 
-    def createGridCaseGroup(self, casePaths):
+    def create_grid_case_group(self, casePaths):
         """Create a new grid case group from the provided case paths
         Arguments:
             casePaths(list): a list of paths to the cases to be loaded and included in the group
         Returns:
             A new grid case group object
         """
-        groupId, groupName = Commands(self.channel).createGridCaseGroup(casePaths)
+        groupId, groupName = Commands(self.channel).create_grid_case_group(casePaths)
         return self.gridCaseGroup(groupId)

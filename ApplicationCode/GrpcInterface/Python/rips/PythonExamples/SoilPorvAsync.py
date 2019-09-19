@@ -16,9 +16,9 @@ def createResult(soilChunks, porvChunks):
         # Return a Python generator
         yield resultChunk
 
-resInsight   = rips.Instance.find()
+resinsight   = rips.Instance.find()
 start        = time.time()
-case         = resInsight.project.case(id=0)
+case         = resinsight.project.case(id=0)
 timeStepInfo = case.time_steps()
 
 # Get a generator for the porv results. The generator will provide a chunk each time it is iterated

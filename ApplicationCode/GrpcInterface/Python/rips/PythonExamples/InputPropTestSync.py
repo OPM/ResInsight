@@ -7,9 +7,9 @@ import rips
 import time
 import grpc
 
-resInsight     = rips.Instance.find()
+resinsight     = rips.Instance.find()
 start = time.time()
-case = resInsight.project.case(id=0)
+case = resinsight.project.case(id=0)
 
 # Read poro result into list
 poroResults = case.properties.activeCellProperty('STATIC_NATIVE', 'PORO', 0)

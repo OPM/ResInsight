@@ -161,7 +161,7 @@ class Instance:
         self.project    = Project(self.channel)
     
         path = os.getcwd()
-        self.commands.setStartDir(path=path)
+        self.commands.set_start_dir(path=path)
 
     def __versionMessage(self):
         return self.app.GetVersion(Empty())

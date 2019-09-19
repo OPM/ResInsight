@@ -6,10 +6,10 @@
 import rips
 
 # Connect to ResInsight
-resInsight  = rips.Instance.find()
+resinsight  = rips.Instance.find()
 
 # Get the case with id == 0. This will fail if your project doesn't have a case with id == 0
-case = resInsight.project.case(id = 0)
+case = resinsight.project.case(id = 0)
 
 # Get the cell count object
 cellCounts = case.cell_count()

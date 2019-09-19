@@ -5,12 +5,12 @@
 #############################################################
 import rips
 # Connect to ResInsight instance
-resInsight = rips.Instance.find()
+resinsight = rips.Instance.find()
 
 # Check if connection worked
-if resInsight is not None:
+if resinsight is not None:
     # Get a list of all cases
-    cases = resInsight.project.cases()
+    cases = resinsight.project.cases()
     for case in cases:
         # Get a list of all views
         views = case.views()

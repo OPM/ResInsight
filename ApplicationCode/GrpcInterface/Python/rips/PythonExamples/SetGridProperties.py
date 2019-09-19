@@ -3,9 +3,9 @@
 ######################################################################
 import rips
 
-resInsight     = rips.Instance.find()
+resinsight     = rips.Instance.find()
 
-case = resInsight.project.case(id=0)
+case = resinsight.project.case(id=0)
 totalCellCount = case.cell_count().reservoir_cell_count
 
 values = []

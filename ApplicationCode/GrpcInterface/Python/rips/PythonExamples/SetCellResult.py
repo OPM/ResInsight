@@ -3,7 +3,7 @@
 ######################################################################
 import rips
 
-resInsight  = rips.Instance.find()
+resinsight  = rips.Instance.find()
 
-view = resInsight.project.view(0)
+view = resinsight.project.view(0)
 view.applyCellResult(resultType='STATIC_NATIVE', resultVariable='DX')

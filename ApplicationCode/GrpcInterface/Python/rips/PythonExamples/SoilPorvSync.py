@@ -5,9 +5,9 @@
 import rips
 import time
 
-resInsight = rips.Instance.find()
+resinsight = rips.Instance.find()
 start = time.time()
-case       = resInsight.project.case(id=0)
+case       = resinsight.project.case(id=0)
 
 # Read the full porv result
 porvResults = case.properties.activeCellProperty('STATIC_NATIVE', 'PORV', 0)

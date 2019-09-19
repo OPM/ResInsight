@@ -7,9 +7,9 @@
 
 import rips
 
-resInsight  = rips.Instance.find()
-if resInsight is not None:
-    cases = resInsight.project.selectedCases()
+resinsight  = rips.Instance.find()
+if resinsight is not None:
+    cases = resinsight.project.selectedCases()
 
     print ("Got " + str(len(cases)) + " cases: ")
     for case in cases:

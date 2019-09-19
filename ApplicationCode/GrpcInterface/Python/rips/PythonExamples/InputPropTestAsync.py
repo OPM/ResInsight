@@ -17,9 +17,9 @@ def createResult(poroChunks, permxChunks):
         # Return a generator object that behaves like a Python iterator
         yield resultChunk
 
-resInsight     = rips.Instance.find()
+resinsight     = rips.Instance.find()
 start = time.time()
-case = resInsight.project.case(id=0)
+case = resinsight.project.case(id=0)
 
 # Get a generator for the poro results. The generator will provide a chunk each time it is iterated
 poroChunks = case.properties.activeCellPropertyAsync('STATIC_NATIVE', 'PORO', 0)

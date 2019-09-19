@@ -6,17 +6,17 @@
 import rips
 import grpc
 
-resInsight     = rips.Instance.find()
+resinsight     = rips.Instance.find()
 
 case = None
 
 # Try loading a non-existing case. We should get a grpc.RpcError exception from the server
 try:
-    case = resInsight.project.loadCase("Nonsense")
+    case = resinsight.project.load_case("Nonsense")
 except grpc.RpcError as e:
     print("Expected Server Exception Received: ", e)
 
-case = resInsight.project.case(id=0)
+case = resinsight.project.case(id=0)
 if case is not None:
     results = case.properties.activeCellProperty('STATIC_NATIVE', 'PORO', 0)
     activeCellCount = len(results)

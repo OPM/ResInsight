@@ -8,9 +8,9 @@ import rips
 
 import dataroot
 
-def test_10kAsync(rips_instance, initializeTest):
+def test_10kAsync(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
-    case = rips_instance.project.loadCase(path=casePath)
+    case = rips_instance.project.load_case(path=casePath)
 
     resultChunks = case.properties.activeCellPropertyAsync('DYNAMIC_NATIVE', 'SOIL', 1)
     mysum = 0.0
@@ -23,9 +23,9 @@ def test_10kAsync(rips_instance, initializeTest):
     assert(average != pytest.approx(0.0158893, abs=0.0000001))
     assert(average == pytest.approx(0.0558893, abs=0.0000001))
 
-def test_10kSync(rips_instance, initializeTest):
+def test_10kSync(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
-    case = rips_instance.project.loadCase(path=casePath)
+    case = rips_instance.project.load_case(path=casePath)
 
     results = case.properties.activeCellProperty('DYNAMIC_NATIVE', 'SOIL', 1)
     mysum = sum(results)
@@ -34,25 +34,25 @@ def test_10kSync(rips_instance, initializeTest):
     assert(average != pytest.approx(0.0158893, abs=0.0000001))
     assert(average == pytest.approx(0.0558893, abs=0.0000001))
 
-def test_10k_set(rips_instance, initializeTest):
+def test_10k_set(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
-    case = rips_instance.project.loadCase(path=casePath)
+    case = rips_instance.project.load_case(path=casePath)
 
     results = case.properties.activeCellProperty('DYNAMIC_NATIVE', 'SOIL', 1)
     case.properties.setActiveCellProperty(results, 'GENERATED', 'SOIL', 1)
 
-def test_10k_set_out_of_bounds(rips_instance, initializeTest):
+def test_10k_set_out_of_bounds(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
-    case = rips_instance.project.loadCase(path=casePath)
+    case = rips_instance.project.load_case(path=casePath)
 
     results = case.properties.activeCellProperty('DYNAMIC_NATIVE', 'SOIL', 1)
     results.append(5.0)
     with pytest.raises(grpc.RpcError):
         assert case.properties.setActiveCellProperty(results, 'GENERATED', 'SOIL', 1)
 
-def test_10k_set_out_of_bounds_client(rips_instance, initializeTest):
+def test_10k_set_out_of_bounds_client(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
-    case = rips_instance.project.loadCase(path=casePath)
+    case = rips_instance.project.load_case(path=casePath)
 
     results = case.properties.activeCellProperty('DYNAMIC_NATIVE', 'SOIL', 1)
     case.properties.chunkSize = len(results)
@@ -72,9 +72,9 @@ def checkResults(poroValues, permxValues, poropermxValues):
             recalc = poro * permx
             assert(recalc == pytest.approx(poropermx, rel=1.0e-10))
 
-def test_10k_PoroPermX(rips_instance, initializeTest):
+def test_10k_PoroPermX(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
-    case = rips_instance.project.loadCase(path=casePath)
+    case = rips_instance.project.load_case(path=casePath)
 
     poroChunks = case.properties.activeCellPropertyAsync('STATIC_NATIVE', 'PORO', 0)
     permxChunks = case.properties.activeCellPropertyAsync('STATIC_NATIVE', 'PERMX', 0)
