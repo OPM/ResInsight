@@ -38,16 +38,16 @@ class Project (PdmObject):
         """Close the current project (and open new blank project)"""
         Commands(self.channel).close_project()
 
-    def selectedCases(self):
+    def selected_cases(self):
         """Get a list of all cases selected in the project tree
 
         Returns:
             A list of rips Case objects
         """
-        caseInfos = self.project.GetSelectedCases(Empty())
+        case_infos = self.project.GetSelectedCases(Empty())
         cases = []
-        for caseInfo in caseInfos.data:
-            cases.append(Case(self.channel, caseInfo.id))
+        for case_info in case_infos.data:
+            cases.append(Case(self.channel, case_info.id))
         return cases
 
     def cases(self):
@@ -57,11 +57,11 @@ class Project (PdmObject):
             A list of rips Case objects
         """
         try:
-            caseInfos = self.project.GetAllCases(Empty())
+            case_infos = self.project.GetAllCases(Empty())
 
             cases = []
-            for caseInfo in caseInfos.data:
-                cases.append(Case(self.channel, caseInfo.id))
+            for case_info in case_infos.data:
+                cases.append(Case(self.channel, case_info.id))
             return cases
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
@@ -96,11 +96,11 @@ class Project (PdmObject):
 
     def views(self):
         """Get a list of views belonging to a project"""
-        pdmObjects = self.descendants("ReservoirView")
-        viewList = []
-        for pdmObject in pdmObjects:
-            viewList.append(View(pdmObject))
-        return viewList
+        pdm_objects = self.descendants("ReservoirView")
+        view_list = []
+        for pdm_object in pdm_objects:
+            view_list.append(View(pdm_object))
+        return view_list
 
     def view(self, id):
         """Get a particular view belonging to a case by providing view id
@@ -111,39 +111,39 @@ class Project (PdmObject):
         
         """
         views = self.views()
-        for viewObject in views:
-            if viewObject.id == id:
-                return viewObject
+        for view_object in views:
+            if view_object.id == id:
+                return view_object
         return None
 
-    def gridCaseGroups(self):
+    def grid_case_groups(self):
         """Get a list of all grid case groups in the project"""
-        caseGroups = self.descendants("RimIdenticalGridCaseGroup");
+        case_groups = self.descendants("RimIdenticalGridCaseGroup")
 
-        caseGroupList = []
-        for pb2Group in caseGroups:
-            caseGroupList.append(GridCaseGroup(pb2Group))
-        return caseGroupList
+        case_group_list = []
+        for pdm_group in case_groups:
+            case_group_list.append(GridCaseGroup(pdm_group))
+        return case_group_list
     
-    def gridCaseGroup(self, groupId):
+    def grid_case_group(self, group_id):
         """Get a particular grid case group belonging to a project
         Arguments:
             groupId(int): group id
         
         Returns: a grid case group object
         """
-        caseGroups = self.gridCaseGroups()
-        for caseGroup in caseGroups:
-            if caseGroup.groupId == groupId:
-                return caseGroup
+        case_groups = self.grid_case_groups()
+        for case_group in case_groups:
+            if case_group.groupId == group_id:
+                return case_group
         return None
 
-    def create_grid_case_group(self, casePaths):
+    def create_grid_case_group(self, case_paths):
         """Create a new grid case group from the provided case paths
         Arguments:
             casePaths(list): a list of paths to the cases to be loaded and included in the group
         Returns:
             A new grid case group object
         """
-        groupId, groupName = Commands(self.channel).create_grid_case_group(casePaths)
-        return self.gridCaseGroup(groupId)
+        group_id, group_name = Commands(self.channel).create_grid_case_group(case_paths)
+        return self.grid_case_group(group_id)
