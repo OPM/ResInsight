@@ -90,6 +90,10 @@ bool RimObservedFmuRftData::hasWell( const QString& wellPathName ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RimObservedFmuRftData::wells() const
 {
-    std::set<QString> wellNames = const_cast<RifReaderFmuRft*>( m_fmuRftReader.p() )->wellNames();
-    return std::vector<QString>( wellNames.begin(), wellNames.end() );
+    if ( m_fmuRftReader.p() )
+    {
+        std::set<QString> wellNames = const_cast<RifReaderFmuRft*>( m_fmuRftReader.p() )->wellNames();
+        return std::vector<QString>( wellNames.begin(), wellNames.end() );
+    }
+    return std::vector<QString>();
 }
