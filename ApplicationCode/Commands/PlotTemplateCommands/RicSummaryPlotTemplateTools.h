@@ -18,25 +18,30 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include <QString>
+
+#include <set>
+#include <vector>
+
+namespace caf
+{
+class PdmObject;
+}
 
 class RimSummaryPlot;
+class RimSummaryPlot;
+class RifEclipseSummaryAddress;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicSavePlotTemplateFeature : public caf::CmdFeature
+class RicSummaryPlotTemplateTools
 {
-    CAF_CMD_HEADER_INIT;
+public:
+    static RimSummaryPlot* createPlotFromTemplateFile( const QString& fileName );
+    static QString         htmlTextFromPlotAndSelection( const RimSummaryPlot*                     templatePlot,
+                                                         const std::set<RifEclipseSummaryAddress>& selectedSummaryAddresses,
+                                                         const std::vector<caf::PdmObject*>&       selectedSources );
 
-protected:
-    bool isCommandEnabled() override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-
-private:
-    static QString createTextFromObject( RimSummaryPlot* summaryPlot );
-
-private:
-    RimSummaryPlot* selectedSummaryPlot() const;
+    static QString htmlTextFromCount( const QString& itemText, size_t requiredItemCount, size_t selectionCount );
 };

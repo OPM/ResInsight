@@ -78,3 +78,20 @@ QList<caf::PdmOptionItemInfo>
 
     return options;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSelectPlotTemplateUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                     QString                    uiConfigName,
+                                                     caf::PdmUiEditorAttribute* attribute )
+{
+    if ( &m_selectedPlotTemplates == field )
+    {
+        auto a = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
+        if ( a )
+        {
+            a->singleSelectionMode = true;
+        }
+    }
+}

@@ -16,27 +16,28 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaGuiApplication.h"
-#include "RiaLogging.h"
-#include "RiaSummaryTools.h"
-
 #include "RicSavePlotTemplateFeature.h"
 
+#include "RicReloadPlotTemplatesFeature.h"
+
+#include "RiaGuiApplication.h"
+#include "RiaLogging.h"
+#include "RiaPreferences.h"
+#include "RiaSummaryTools.h"
+
 #include "RimProject.h"
+#include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
+#include "cafUtils.h"
 
 #include <QAction>
 #include <QFileDialog>
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicSavePlotTemplateFeature, "RicSavePlotTemplateFeature" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RicSavePlotTemplateFeature::RicSavePlotTemplateFeature() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -53,19 +54,23 @@ bool RicSavePlotTemplateFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSavePlotTemplateFeature::onActionTriggered( bool isChecked )
 {
+    if ( !selectedSummaryPlot() ) return;
+
     RiaGuiApplication* app = RiaGuiApplication::instance();
 
-    QString startPath;
-    if ( !app->project()->fileName().isEmpty() )
+    QString fallbackPath;
+    auto    folders = app->preferences()->plotTemplateFolders();
+    if ( !folders.empty() )
     {
-        startPath = app->project()->fileName();
-        startPath = startPath.replace( QString( ".rsp" ), QString( ".rpt" ) );
+        // Use the last folder from preferences as the default fall back folder
+        fallbackPath = folders.back();
     }
-    else
-    {
-        startPath = app->lastUsedDialogDirectory( "PLOT_TEMPLATE" );
-        startPath += "/ri-plot-template.rpt";
-    }
+
+    QString startPath = app->lastUsedDialogDirectoryWithFallback( "PLOT_TEMPLATE", fallbackPath );
+
+    QString templateCandidateName = caf::Utils::makeValidFileBasename( selectedSummaryPlot()->description() );
+
+    startPath = startPath + "/" + templateCandidateName + ".rpt";
 
     QString fileName = QFileDialog::getSaveFileName( nullptr,
                                                      tr( "Save Plot Template To File" ),
@@ -73,8 +78,6 @@ void RicSavePlotTemplateFeature::onActionTriggered( bool isChecked )
                                                      tr( "Plot Template Files (*.rpt);;All files(*.*)" ) );
     if ( !fileName.isEmpty() )
     {
-        auto objectAsText = selectedSummaryPlot()->writeObjectToXmlString();
-
         QFile exportFile( fileName );
         if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
         {
@@ -82,9 +85,85 @@ void RicSavePlotTemplateFeature::onActionTriggered( bool isChecked )
             return;
         }
 
+        QString objectAsText = createTextFromObject( selectedSummaryPlot() );
+
         QTextStream stream( &exportFile );
         stream << objectAsText;
+
+        QString absPath                = QFileInfo( fileName ).absolutePath();
+        bool    foundPathInPreferences = false;
+        for ( const auto& f : folders )
+        {
+            if ( absPath.indexOf( f ) != -1 )
+            {
+                foundPathInPreferences = true;
+            }
+        }
+
+        if ( !foundPathInPreferences )
+        {
+            QMessageBox msgBox;
+            msgBox.setIcon( QMessageBox::Question );
+
+            QString questionText;
+            questionText = QString( "The path is not part of the search path for templates.\n\nDo you want to append "
+                                    "the destination path to the search path?" );
+
+            msgBox.setText( questionText );
+            msgBox.setStandardButtons( QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel );
+
+            int ret = msgBox.exec();
+            if ( ret == QMessageBox::Yes )
+            {
+                app->preferences()->appendPlotTemplateFolders( absPath );
+            }
+        }
+
+        app->setLastUsedDialogDirectory( "PLOT_TEMPLATE", absPath );
+
+        RicReloadPlotTemplatesFeature::rebuildFromDisc();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicSavePlotTemplateFeature::createTextFromObject( RimSummaryPlot* summaryPlot )
+{
+    if ( !summaryPlot ) return QString();
+
+    QString objectAsText = summaryPlot->writeObjectToXmlString();
+
+    caf::PdmObjectHandle* obj =
+        caf::PdmXmlObjectHandle::readUnknownObjectFromXmlString( objectAsText, caf::PdmDefaultObjectFactory::instance() );
+
+    RimSummaryPlot* newSummaryPlot = dynamic_cast<RimSummaryPlot*>( obj );
+    if ( newSummaryPlot )
+    {
+        std::set<QString> caseReferenceStrings;
+
+        for ( const auto& curve : newSummaryPlot->summaryCurves() )
+        {
+            auto fieldHandle = curve->findField( "SummaryCase" );
+            if ( fieldHandle )
+            {
+                auto reference = fieldHandle->xmlCapability()->referenceString();
+                caseReferenceStrings.insert( reference );
+            }
+        }
+
+        size_t index = 0;
+        for ( const auto& s : caseReferenceStrings )
+        {
+            QString caseName = QString( "CASE_NAME %1" ).arg( index++ );
+
+            objectAsText.replace( s, caseName );
+        }
+    }
+
+    delete obj;
+
+    return objectAsText;
 }
 
 //--------------------------------------------------------------------------------------------------

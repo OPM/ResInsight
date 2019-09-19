@@ -81,6 +81,7 @@ public:
 
     bool        searchPlotTemplateFoldersRecursively() const;
     QStringList plotTemplateFolders() const;
+    void        appendPlotTemplateFolders( const QString& folder );
 
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 

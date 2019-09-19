@@ -18,13 +18,15 @@
 
 #include "RicCreatePlotFromSelectionFeature.h"
 
+#include "RicSelectPlotTemplateUi.h"
+#include "RicSummaryPlotTemplateTools.h"
+
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaSummaryTools.h"
 
-#include "RicSelectPlotTemplateUi.h"
-
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
+#include "RimDialogData.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -47,17 +49,9 @@ CAF_CMD_SOURCE_INIT( RicCreatePlotFromSelectionFeature, "RicCreatePlotFromSelect
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicCreatePlotFromSelectionFeature::RicCreatePlotFromSelectionFeature() {}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RicCreatePlotFromSelectionFeature::isCommandEnabled()
 {
-    if ( selectedSummaryCases().size() == 2 ) return true;
-    if ( selectedWellPaths().size() == 2 ) return true;
-
-    return false;
+    return !selectedSummaryCases().empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,95 +59,59 @@ bool RicCreatePlotFromSelectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreatePlotFromSelectionFeature::onActionTriggered( bool isChecked )
 {
+    RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
+
+    RicSelectPlotTemplateUi* ui = RiaGuiApplication::instance()->project()->dialogData()->selectPlotTemplateUi();
+
+    caf::PdmUiPropertyViewDialog propertyDialog( plotwindow, ui, "Select Plot Template", "" );
+
+    if ( propertyDialog.exec() != QDialog::Accepted ) return;
+
+    if ( ui->selectedPlotTemplates().empty() ) return;
+
+    QString                      fileName = ui->selectedPlotTemplates().front()->absoluteFilePath();
+    std::vector<RimSummaryCase*> sumCases = selectedSummaryCases();
+
+    RimSummaryPlot* newSummaryPlot = RicSummaryPlotTemplateTools::createPlotFromTemplateFile( fileName );
+    if ( newSummaryPlot )
     {
-        RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
+        RimSummaryPlotCollection* plotColl =
+            RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
 
-        RicSelectPlotTemplateUi ui;
+        plotColl->summaryPlots.push_back( newSummaryPlot );
+        newSummaryPlot->resolveReferencesRecursively();
+        newSummaryPlot->initAfterReadRecursively();
 
-        caf::PdmUiPropertyViewDialog propertyDialog( plotwindow,
-                                                     &ui,
-                                                     "Select Case to create Pressure Saturation plots",
-                                                     "" );
+        QString nameOfCopy = QString( "Copy of " ) + newSummaryPlot->description();
+        newSummaryPlot->setDescription( nameOfCopy );
 
-        if ( propertyDialog.exec() != QDialog::Accepted ) return;
+        auto summaryCurves = newSummaryPlot->summaryCurves();
 
-        if ( ui.selectedPlotTemplates().empty() ) return;
-
-        QString fileName = ui.selectedPlotTemplates().front()->absoluteFilePath();
+        for ( const auto& curve : summaryCurves )
         {
-            auto sumCases = selectedSummaryCases();
-            if ( sumCases.size() == 2 )
+            auto fieldHandle = curve->findField( "SummaryCase" );
+            if ( fieldHandle )
             {
-                //            QString fileName = "d:/projects/ri-plot-templates/one_well_two_cases.rpt";
-
-                RimSummaryPlot* newSummaryPlot = createPlotFromTemplateFile( fileName );
-                if ( newSummaryPlot )
+                auto referenceString = fieldHandle->xmlCapability()->referenceString();
+                auto stringList      = referenceString.split( " " );
+                if ( stringList.size() == 2 )
                 {
-                    RimSummaryPlotCollection* plotColl =
-                        RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+                    QString indexAsString = stringList[1];
 
-                    plotColl->summaryPlots.push_back( newSummaryPlot );
+                    bool conversionOk = false;
+                    int  index        = indexAsString.toUInt( &conversionOk );
 
-                    // Resolve references after object has been inserted into the data model
-                    newSummaryPlot->resolveReferencesRecursively();
-                    newSummaryPlot->initAfterReadRecursively();
-
-                    QString nameOfCopy = QString( "Copy of " ) + newSummaryPlot->description();
-                    newSummaryPlot->setDescription( nameOfCopy );
-
-                    auto summaryCurves = newSummaryPlot->summaryCurves();
-                    if ( summaryCurves.size() == sumCases.size() )
+                    if ( conversionOk && index < sumCases.size() )
                     {
-                        for ( size_t i = 0; i < summaryCurves.size(); i++ )
-                        {
-                            auto sumCase = sumCases[i];
-                            summaryCurves[i]->setSummaryCaseY( sumCase );
-                        }
+                        curve->setSummaryCaseY( sumCases[index] );
                     }
-
-                    plotColl->updateConnectedEditors();
-
-                    newSummaryPlot->loadDataAndUpdate();
                 }
             }
         }
 
-        {
-            auto wellPaths = selectedWellPaths();
-            if ( wellPaths.size() == 2 )
-            {
-                // QString         fileName       = "d:/projects/ri-plot-templates/one_well_two_cases.rpt";
-                RimSummaryPlot* newSummaryPlot = createPlotFromTemplateFile( fileName );
-                if ( newSummaryPlot )
-                {
-                    RimSummaryPlotCollection* plotColl = RiaSummaryTools::summaryPlotCollection();
+        plotColl->updateConnectedEditors();
 
-                    plotColl->summaryPlots.push_back( newSummaryPlot );
-
-                    // Resolve references after object has been inserted into the data model
-                    newSummaryPlot->resolveReferencesRecursively();
-                    newSummaryPlot->initAfterReadRecursively();
-
-                    QString nameOfCopy = QString( "Copy of " ) + newSummaryPlot->description();
-                    newSummaryPlot->setDescription( nameOfCopy );
-
-                    auto summaryCurves = newSummaryPlot->summaryCurves();
-                    if ( summaryCurves.size() == wellPaths.size() )
-                    {
-                        for ( size_t i = 0; i < summaryCurves.size(); i++ )
-                        {
-                            auto wellPath = wellPaths[i];
-
-                            summaryCurves[i]->summaryAddressY().setWellName( wellPath->name().toStdString() );
-                        }
-                    }
-
-                    plotColl->updateConnectedEditors();
-
-                    newSummaryPlot->loadDataAndUpdate();
-                }
-            }
-        }
+        newSummaryPlot->loadDataAndUpdate();
     }
 }
 
@@ -169,52 +127,9 @@ void RicCreatePlotFromSelectionFeature::setupActionLook( QAction* actionToSetup 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RicCreatePlotFromSelectionFeature::createPlotFromTemplateFile( const QString& fileName ) const
-{
-    QFile importFile( fileName );
-    if ( !importFile.open( QIODevice::ReadOnly | QIODevice::Text ) )
-    {
-        RiaLogging::error( QString( "Create Plot from Template : Could not open the file: %1" ).arg( fileName ) );
-        return nullptr;
-    }
-
-    QTextStream stream( &importFile );
-
-    QString objectAsText = stream.readAll();
-
-    caf::PdmObjectHandle* obj =
-        caf::PdmXmlObjectHandle::readUnknownObjectFromXmlString( objectAsText, caf::PdmDefaultObjectFactory::instance() );
-
-    RimSummaryPlot* newSummaryPlot = dynamic_cast<RimSummaryPlot*>( obj );
-    if ( newSummaryPlot )
-    {
-        return newSummaryPlot;
-    }
-    else
-    {
-        delete obj;
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RicCreatePlotFromSelectionFeature::selectedSummaryCases() const
 {
     std::vector<RimSummaryCase*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
-    return objects;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RicCreatePlotFromSelectionFeature::selectedWellPaths() const
-{
-    std::vector<RimWellPath*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects );
 
     return objects;

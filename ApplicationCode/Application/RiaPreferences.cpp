@@ -719,6 +719,22 @@ QStringList RiaPreferences::plotTemplateFolders() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaPreferences::appendPlotTemplateFolders( const QString& folder )
+{
+    QString folders = m_plotTemplateFolders();
+    if ( !folders.isEmpty() )
+    {
+        folders += ";";
+    }
+
+    folders += folder;
+
+    m_plotTemplateFolders = folders;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> RiaPreferences::defaultFontSizes() const
 {
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> fontSizes;

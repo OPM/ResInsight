@@ -29,6 +29,7 @@ class RicHoloLensExportToFolderUi;
 class RicExportWellPathsUi;
 class RicExportLgrUi;
 class RimMockModelSettings;
+class RicSelectPlotTemplateUi;
 
 //==================================================================================================
 ///
@@ -62,6 +63,8 @@ public:
     RicExportEclipseSectorModelUi* exportSectorModelUi() const;
     RimMockModelSettings*          mockModelSettings() const;
 
+    RicSelectPlotTemplateUi* selectPlotTemplateUi() const;
+
 private:
     caf::PdmChildField<RicExportCarfinUi*>                 m_exportCarfin;
     caf::PdmChildField<RicExportCompletionDataSettingsUi*> m_exportCompletionData;
@@ -71,4 +74,5 @@ private:
     caf::PdmChildField<RicExportLgrUi*>                    m_exportLgrData;
     caf::PdmChildField<RicExportEclipseSectorModelUi*>     m_exportSectorModelData;
     caf::PdmChildField<RimMockModelSettings*>              m_mockModelSettings;
+    caf::PdmChildField<RicSelectPlotTemplateUi*>           m_selectPlotTemplateUi;
 };

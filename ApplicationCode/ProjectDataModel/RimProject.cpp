@@ -363,8 +363,10 @@ void RimProject::setScriptDirectories( const QString& scriptDirectories )
 //--------------------------------------------------------------------------------------------------
 void RimProject::setPlotTemplateFolders( const QStringList& plotTemplateFolders )
 {
-    if ( m_plotTemplateFolderItem() ) delete m_plotTemplateFolderItem();
-    m_plotTemplateFolderItem = new RimPlotTemplateFolderItem();
+    if ( !m_plotTemplateFolderItem() )
+    {
+        m_plotTemplateFolderItem = new RimPlotTemplateFolderItem();
+    }
 
     m_plotTemplateFolderItem->createRootFolderItemsFromFolderPaths( plotTemplateFolders );
 }

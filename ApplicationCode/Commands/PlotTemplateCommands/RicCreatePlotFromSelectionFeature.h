@@ -21,8 +21,6 @@
 #include "cafCmdFeature.h"
 
 class RimSummaryCase;
-class RimSummaryPlot;
-class RimWellPath;
 
 //==================================================================================================
 ///
@@ -31,18 +29,11 @@ class RicCreatePlotFromSelectionFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    RicCreatePlotFromSelectionFeature();
-
 protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    RimSummaryPlot* createPlotFromTemplateFile( const QString& fileName ) const;
-
-private:
     std::vector<RimSummaryCase*> selectedSummaryCases() const;
-    std::vector<RimWellPath*>    selectedWellPaths() const;
 };

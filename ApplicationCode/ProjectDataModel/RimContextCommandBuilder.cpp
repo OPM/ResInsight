@@ -21,6 +21,8 @@
 
 #include "RiaApplication.h"
 
+#include "PlotTemplates/RimPlotTemplateFileItem.h"
+#include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "Rim3dWellLogCurveCollection.h"
 #include "Rim3dWellLogExtractionCurve.h"
@@ -43,6 +45,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
+#include "RimEllipseFractureTemplate.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -55,6 +58,8 @@
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
+#include "RimFractureTemplate.h"
+#include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechContourMapViewCollection.h"
 #include "RimGeoMechPropertyFilter.h"
@@ -68,6 +73,7 @@
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
+#include "RimModeledWellPath.h"
 #include "RimObservedSummaryData.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
@@ -76,8 +82,10 @@
 #include "RimRftPlotCollection.h"
 #include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
+#include "RimSimWellFracture.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
+#include "RimStimPlanFractureTemplate.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -87,6 +95,8 @@
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimValveTemplate.h"
+#include "RimValveTemplateCollection.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
@@ -101,20 +111,10 @@
 #include "RimWellPathAttributeCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
+#include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
-
-#include "RimEllipseFractureTemplate.h"
-#include "RimFractureTemplate.h"
-#include "RimFractureTemplateCollection.h"
-#include "RimModeledWellPath.h"
-#include "RimSimWellFracture.h"
-#include "RimStimPlanFractureTemplate.h"
-#include "RimValveTemplate.h"
-#include "RimValveTemplateCollection.h"
-#include "RimWellPathFracture.h"
-#include "RimWellPathFractureCollection.h"
 
 #include "RiuMainWindow.h"
 
@@ -548,14 +548,12 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicDuplicateSummaryCrossPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
             menuBuilder << "Separator";
-            menuBuilder << "RicShowSummaryCurveCalculatorFeature";
-            menuBuilder << "Separator";
             menuBuilder << "RicSavePlotTemplateFeature";
-            menuBuilder << "Separator";
 
             // Export is not supported for cross plot
             if ( !summaryCrossPlot ) menuBuilder << "RicAsciiExportSummaryPlotFeature";
 
+            menuBuilder << "RicShowSummaryCurveCalculatorFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "Separator";
@@ -791,6 +789,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimAnnotationInViewCollection*>( uiItem ) )
         {
             menuBuilder << "RicCreateTextAnnotationFeature";
+        }
+        else if ( dynamic_cast<RimPlotTemplateFolderItem*>( uiItem ) || dynamic_cast<RimPlotTemplateFileItem*>( uiItem ) )
+        {
+            menuBuilder << "RicReloadPlotTemplatesFeature";
         }
         if ( dynamic_cast<Rim3dView*>( uiItem ) )
         {
