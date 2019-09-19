@@ -15,9 +15,9 @@ if resInsight is not None:
     print ("Got " + str(len(cases)) + " cases: ")
     for case in cases:
         print("Case name: " + case.name)
-        print("Case grid path: " + case.gridPath())
+        print("Case grid path: " + case.grid_path())
         
-        timesteps = case.timeSteps()
+        timesteps = case.time_steps()
         for t in timesteps:
             print("Year: " + str(t.year))
             print("Month: " + str(t.month))

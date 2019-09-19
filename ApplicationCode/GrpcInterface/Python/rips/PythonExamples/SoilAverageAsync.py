@@ -14,7 +14,7 @@ start          = time.time()
 case           = resInsight.project.case(id=0)
 
 # Get a list of all time steps
-timeSteps      = case.timeSteps()
+timeSteps      = case.time_steps()
 
 averages = []
 for i in range(0, len(timeSteps)):

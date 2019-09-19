@@ -41,13 +41,13 @@ def test_MultipleCases(rips_instance, initializeTest):
 def test_10k(rips_instance, initializeTest):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.loadCase(path=casePath)
-    assert(case.gridCount() == 2)
-    cellCountInfo = case.cellCount()
+    assert(case.grid_count() == 2)
+    cellCountInfo = case.cell_count()
     assert(cellCountInfo.active_cell_count == 11125)
     assert(cellCountInfo.reservoir_cell_count == 316224)
-    timeSteps = case.timeSteps()
+    timeSteps = case.time_steps()
     assert(len(timeSteps) == 9)
-    daysSinceStart = case.daysSinceStart()
+    daysSinceStart = case.days_since_start()
     assert(len(daysSinceStart) == 9)
 
 def test_PdmObject(rips_instance, initializeTest):
@@ -63,13 +63,13 @@ def test_PdmObject(rips_instance, initializeTest):
 def test_brugge_0010(rips_instance, initializeTest):
     casePath = dataroot.PATH + "/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID"
     case = rips_instance.project.loadCase(path=casePath)
-    assert(case.gridCount() == 1)
-    cellCountInfo = case.cellCount()
+    assert(case.grid_count() == 1)
+    cellCountInfo = case.cell_count()
     assert(cellCountInfo.active_cell_count == 43374)
     assert(cellCountInfo.reservoir_cell_count == 60048)
-    timeSteps = case.timeSteps()
+    timeSteps = case.time_steps()
     assert(len(timeSteps) == 11)
-    daysSinceStart = case.daysSinceStart()
+    daysSinceStart = case.days_since_start()
     assert(len(daysSinceStart) == 11)
 
 @pytest.mark.skipif(sys.platform.startswith('linux'), reason="Brugge is currently exceptionally slow on Linux")

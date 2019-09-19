@@ -18,7 +18,7 @@ property_list = ['SOIL', 'PRESSURE'] # list of parameter for snapshot
 print ("Looping through cases")
 for case in cases:
     # Get grid path and its folder name
-    casepath = case.gridPath()
+    casepath = case.grid_path()
     foldername = os.path.dirname(casepath)
     
     # create a folder to hold the snapshots
@@ -30,7 +30,7 @@ for case in cases:
     print ("Exporting to folder: " + dirname)
     resInsight.commands.setExportFolder(type='SNAPSHOTS', path=dirname)
    
-    timeSteps = case.timeSteps()
+    timeSteps = case.time_steps()
     tss_snapshot = range(0, len(timeSteps), n)
     print(case.name, case.id, 'Number of timesteps: ' + str(len(timeSteps)))
     print('Number of timesteps for snapshoting: ' + str(len(tss_snapshot)))

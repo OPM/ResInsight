@@ -12,12 +12,12 @@ resInsight  = rips.Instance.find()
 case = resInsight.project.case(id = 0)
 
 # Get the cell count object
-cellCounts = case.cellCount()
+cellCounts = case.cell_count()
 print("Number of active cells: " + str(cellCounts.active_cell_count))
 print("Total number of reservoir cells: " + str(cellCounts.reservoir_cell_count))
 
 # Get information for all active cells
-activeCellInfos = case.cellInfoForActiveCells()
+activeCellInfos = case.cell_info_for_active_cells()
 
 # A simple check on the size of the cell info
 assert(cellCounts.active_cell_count == len(activeCellInfos))

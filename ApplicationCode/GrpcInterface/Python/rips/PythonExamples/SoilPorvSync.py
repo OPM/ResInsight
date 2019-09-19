@@ -11,7 +11,7 @@ case       = resInsight.project.case(id=0)
 
 # Read the full porv result
 porvResults = case.properties.activeCellProperty('STATIC_NATIVE', 'PORV', 0)
-timeStepInfo = case.timeSteps()
+timeStepInfo = case.time_steps()
 
 for i in range (0, len(timeStepInfo)):
     # Read the full SOIl result for time step i

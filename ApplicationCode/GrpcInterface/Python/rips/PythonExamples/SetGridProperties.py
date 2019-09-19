@@ -6,7 +6,7 @@ import rips
 resInsight     = rips.Instance.find()
 
 case = resInsight.project.case(id=0)
-totalCellCount = case.cellCount().reservoir_cell_count
+totalCellCount = case.cell_count().reservoir_cell_count
 
 values = []
 for i in range(0, totalCellCount):

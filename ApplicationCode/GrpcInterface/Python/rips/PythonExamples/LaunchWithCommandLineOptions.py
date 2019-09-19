@@ -8,4 +8,4 @@ cases = resInsight.project.cases()
 print ("Got " + str(len(cases)) + " cases: ")
 for case in cases:
     print("Case name: " + case.name)
-    print("Case grid path: " + case.gridPath())
+    print("Case grid path: " + case.grid_path())

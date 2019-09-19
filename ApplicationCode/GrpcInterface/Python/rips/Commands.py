@@ -289,7 +289,7 @@ class Commands:
                                                                                 minimumCommunication = minimumCommunication,
                                                                                 aquiferCellThreshold = aquiferCellThreshold))
 
-    def createView(self, caseId):
+    def create_view(self, caseId):
         return self.__execute(createView=Cmd.CreateViewRequest(caseId=caseId)).createViewResult.viewId
 
     def cloneView(self, viewId):

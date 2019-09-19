@@ -19,7 +19,7 @@ def createResult(soilChunks, porvChunks):
 resInsight   = rips.Instance.find()
 start        = time.time()
 case         = resInsight.project.case(id=0)
-timeStepInfo = case.timeSteps()
+timeStepInfo = case.time_steps()
 
 # Get a generator for the porv results. The generator will provide a chunk each time it is iterated
 porvChunks   = case.properties.activeCellPropertyAsync('STATIC_NATIVE', 'PORV', 0)
