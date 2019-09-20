@@ -13,9 +13,9 @@ def rips_instance():
     return _rips_instance
 
 @pytest.fixture
-def initializeTest():
+def initialize_test():
     _rips_instance.project.close() # make sure ResInsight is clean before execution of test
-    yield initializeTest
+    yield initialize_test
     _rips_instance.project.close() # make sure ResInsight is clean after test
 
 def pytest_addoption(parser):

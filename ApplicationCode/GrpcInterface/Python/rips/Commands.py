@@ -23,14 +23,14 @@ class Commands:
         self.channel = channel
         self.commands = CmdRpc.CommandsStub(channel)
 
-    def __execute(self, **commandParams):
-        return self.commands.Execute(Cmd.CommandParams(**commandParams))
+    def __execute(self, **command_params):
+        return self.commands.Execute(Cmd.CommandParams(**command_params))
     
     ########################
     # Case Control Commands
     ########################
 
-    def openProject(self, path):
+    def open_project(self, path):
         """Open a project
         
         Arguments:
@@ -40,11 +40,11 @@ class Commands:
         """
         return self.__execute(openProject=Cmd.FilePathRequest(path=path))
 
-    def closeProject(self):
+    def close_project(self):
         """Close the current project (and reopen empty one)"""
         return self.__execute(closeProject=Empty())
 
-    def setStartDir(self, path):
+    def set_start_dir(self, path):
         """Set current start directory
         
         Arguments:
@@ -53,7 +53,7 @@ class Commands:
         """
         return self.__execute(setStartDir=Cmd.FilePathRequest(path=path))
 
-    def loadCase(self, path):
+    def load_case(self, path):
         """Load a case
         
         Arguments:
@@ -63,234 +63,249 @@ class Commands:
             A Case object
         
         """
-        commandReply = self.__execute(loadCase=Cmd.FilePathRequest(path=path))
-        return rips.Case(self.channel, commandReply.loadCaseResult.id)
+        command_reply = self.__execute(loadCase=Cmd.FilePathRequest(path=path))
+        return rips.Case(self.channel, command_reply.loadCaseResult.id)
 
-    def replaceCase(self, newGridFile, caseId=0):
+    def replace_case(self, new_grid_file, case_id=0):
         """Replace the given case with a new case loaded from file
         
         Arguments:
-            newGridFile (str): path to EGRID file
-            caseId (int): case Id to replace
+            new_grid_file (str): path to EGRID file
+            case_id (int): case Id to replace
             
         """
-        return self.__execute(replaceCase=Cmd.ReplaceCaseRequest(newGridFile=newGridFile,
-                                                                 caseId=caseId))
+        return self.__execute(replaceCase=Cmd.ReplaceCaseRequest(newGridFile=new_grid_file,
+                                                                 caseId=case_id))
     
-    def replaceSourceCases(self, gridListFile, caseGroupId=0):
+    def replace_source_cases(self, grid_list_file, case_group_id=0):
         """Replace all source cases within a case group
         
         Arguments:
-            gridListFile (str): path to file containing a list of cases
-            caseGroupId (int): id of the case group to replace
+            grid_list_file (str): path to file containing a list of cases
+            case_group_id (int): id of the case group to replace
         
         """
-        return self.__execute(replaceSourceCases=Cmd.ReplaceSourceCasesRequest(gridListFile=gridListFile,
-                                                                               caseGroupId=caseGroupId))
+        return self.__execute(replaceSourceCases=Cmd.ReplaceSourceCasesRequest(gridListFile=grid_list_file,
+                                                                               caseGroupId=case_group_id))
 
-    def createGridCaseGroup(self, casePaths):
+    def create_grid_case_group(self, case_paths):
         """Create a Grid Case Group from a list of cases
 
         Arguments:
-            casePaths (list): list of file path strings
+            case_paths (list): list of file path strings
 
         Returns:
             A case group id and name
         """
-        commandReply = self.__execute(createGridCaseGroup=Cmd.CreateGridCaseGroupRequest(casePaths=casePaths))
+        commandReply = self.__execute(createGridCaseGroup=Cmd.CreateGridCaseGroupRequest(casePaths=case_paths))
         return (commandReply.createGridCaseGroupResult.groupId, commandReply.createGridCaseGroupResult.groupName)
 
-    def createStatisticsCase(self, caseGroupId):
-        commandReply = self.__execute(createStatisticsCase=Cmd.CreateStatisticsCaseRequest(caseGroupId=caseGroupId))
-        return commandReply.createStatisticsCaseResult.caseId;
+    def create_statistics_case(self, case_group_id):
+        """Create a Statistics case in a Grid Case Group
+
+        Arguments:
+            case_group_id (int): id of the case group
+
+        Returns:
+            A case id for the new case
+        """
+        commandReply = self.__execute(createStatisticsCase=Cmd.CreateStatisticsCaseRequest(caseGroupId=case_group_id))
+        return commandReply.createStatisticsCaseResult.caseId
 
     ##################
     # Export Commands
     ##################
 
-    def exportMultiCaseSnapshots(self, gridListFile):
+    def export_multi_case_snapshots(self, grid_list_file):
         """Export snapshots for a set of cases
         
         Arguments:
-            gridListFile (str): Path to a file containing a list of grids to export snapshot for
+            grid_list_file (str): Path to a file containing a list of grids to export snapshot for
         
         """
-        return self.__execute(exportMultiCaseSnapshot=Cmd.ExportMultiCaseRequest(gridListFile=gridListFile))
+        return self.__execute(exportMultiCaseSnapshot=Cmd.ExportMultiCaseRequest(gridListFile=grid_list_file))
 
-    def exportSnapshots(self, type = 'ALL', prefix='', caseId = -1):
+    def export_snapshots(self, type = 'ALL', prefix='', case_id = -1):
         """ Export snapshots of a given type
         
         Arguments:
             type (str): Enum string ('ALL', 'VIEWS' or 'PLOTS')
             prefix (str): Exported file name prefix
-            caseId (int): the case Id to export for. The default of -1 will export all cases
+            case_id (int): the case Id to export for. The default of -1 will export all cases
         
         """
         return self.__execute(exportSnapshots=Cmd.ExportSnapshotsRequest(type=type,
                                                                          prefix=prefix,
-                                                                         caseId=caseId))
+                                                                         caseId=case_id))
 
-    def exportProperty(self, caseId, timeStep, property, eclipseKeyword=property, undefinedValue=0.0, exportFile=property):
+    def export_property(self, case_id, time_step, property, eclipse_keyword=property, undefined_value=0.0, export_file=property):
         """ Export an Eclipse property
 
         Arguments:
-            caseId (int): case id
-            timeStep (int): time step index
+            case_id (int): case id
+            time_step (int): time step index
             property (str): property to export
-            eclipseKeyword (str): Eclipse keyword used as text in export header. Defaults to the value of property parameter.
-            undefinedValue (double):	Value to use for undefined values. Defaults to 0.0
-            exportFile (str):	Filename for export. Defaults to the value of property parameter
+            eclipse_keyword (str): Eclipse keyword used as text in export header. Defaults to the value of property parameter.
+            undefined_value (double):	Value to use for undefined values. Defaults to 0.0
+            export_file (str):	File name for export. Defaults to the value of property parameter
         """
-        return self.__execute(exportProperty=Cmd.ExportPropertyRequest(caseId=caseId,
-                                                                     timeStep=timeStep,
+        return self.__execute(exportProperty=Cmd.ExportPropertyRequest(caseId=case_id,
+                                                                     timeStep=time_step,
                                                                      property=property,
-                                                                     eclipseKeyword=eclipseKeyword,
-                                                                     undefinedValue=undefinedValue,
-                                                                     exportFile=exportFile))
+                                                                     eclipseKeyword=eclipse_keyword,
+                                                                     undefinedValue=undefined_value,
+                                                                     exportFile=export_file))
 
-    def exportPropertyInViews(self, caseId, viewNames, undefinedValue):
-        if isinstance(viewNames, str):
-            viewNames = [viewNames]
+    def export_property_in_views(self, case_id, view_names, undefined_value):
+        """ Export the current Eclipse property from the given views
 
-        return self.__execute(exportPropertyInViews=Cmd.ExportPropertyInViewsRequest(caseId=caseId,
-                                                                                   viewNames=viewNames,
-                                                                                   undefinedValue=undefinedValue))
+        Arguments:
+            case_id (int): case id
+            view_names (list): list of views
+            undefined_value (double):	Value to use for undefined values. Defaults to 0.0
+        """
+        if isinstance(view_names, str):
+            view_names = [view_names]
 
-    def exportWellPathCompletions(self, caseId, timeStep, wellPathNames, fileSplit,
-                                  compdatExport, includePerforations, includeFishbones,
-                                  excludeMainBoreForFishbones, combinationMode):
-        if (isinstance(wellPathNames, str)):
-            wellPathNames = [wellPathNames]
-        return self.__execute(exportWellPathCompletions=Cmd.ExportWellPathCompRequest(caseId=caseId,
-                                                                                    timeStep=timeStep,
-                                                                                    wellPathNames=wellPathNames,
-                                                                                    fileSplit=fileSplit,
-                                                                                    compdatExport=compdatExport,
-                                                                                    includePerforations=includePerforations,
-                                                                                    includeFishbones=includeFishbones,
-                                                                                    excludeMainBoreForFishbones=excludeMainBoreForFishbones,
-                                                                                    combinationMode=combinationMode))
+        return self.__execute(exportPropertyInViews=Cmd.ExportPropertyInViewsRequest(caseId=case_id,
+                                                                                   viewNames=view_names,
+                                                                                   undefinedValue=undefined_value))
 
-    def exportSimWellFractureCompletions(self, caseId, viewName, timeStep, simulationWellNames, fileSplit, compdatExport):
-        if(isinstance(simulationWellNames, str)):
-            simulationWellNames = [simulationWellNames]
-        return self.__execute(exportSimWellFractureCompletions=Cmd.ExportSimWellPathFraqRequest(caseId=caseId,
-                                                                                              viewName=viewName,
-                                                                                              timeStep=timeStep,
-                                                                                              simulationWellNames=simulationWellNames,
-                                                                                              fileSplit=fileSplit,
-                                                                                              compdatExport=compdatExport))
+    def export_well_path_completions(self, case_id, time_step, well_path_names, file_split,
+                                  compdat_export, include_perforations, include_fishbones,
+                                  exclude_main_bore_for_fishbones, combination_mode):
+        if (isinstance(well_path_names, str)):
+            well_path_names = [well_path_names]
+        return self.__execute(exportWellPathCompletions=Cmd.ExportWellPathCompRequest(caseId=case_id,
+                                                                                    timeStep=time_step,
+                                                                                    wellPathNames=well_path_names,
+                                                                                    fileSplit=file_split,
+                                                                                    compdatExport=compdat_export,
+                                                                                    includePerforations=include_perforations,
+                                                                                    includeFishbones=include_fishbones,
+                                                                                    excludeMainBoreForFishbones=exclude_main_bore_for_fishbones,
+                                                                                    combinationMode=combination_mode))
 
-    def exportMsw(self, caseId, wellPath):
-        return self.__execute(exportMsw=Cmd.ExportMswRequest(caseId=caseId,
-                                                           wellPath=wellPath))
+    def export_sim_well_fracture_completions(self, case_id, view_name, time_step, simulation_well_names, file_split, compdat_export):
+        if(isinstance(simulation_well_names, str)):
+            simulation_well_names = [simulation_well_names]
+        return self.__execute(exportSimWellFractureCompletions=Cmd.ExportSimWellPathFraqRequest(caseId=case_id,
+                                                                                              viewName=view_name,
+                                                                                              timeStep=time_step,
+                                                                                              simulationWellNames=simulation_well_names,
+                                                                                              fileSplit=file_split,
+                                                                                              compdatExport=compdat_export))
 
-    def exportWellPaths(self, wellPaths=[], mdStepSize=5.0):
-        if isinstance(wellPaths, str):
-            wellPaths = [wellPaths]
-        return self.__execute(exportWellPaths=Cmd.ExportWellPathRequest(wellPathNames=wellPaths, mdStepSize=mdStepSize))
+    def export_msw(self, case_id, well_path):
+        return self.__execute(exportMsw=Cmd.ExportMswRequest(caseId=case_id,
+                                                           wellPath=well_path))
 
-    def exportVisibleCells(self, caseId, viewName, exportKeyword='FLUXNUM', visibleActiveCellsValue=1, hiddenActiveCellsValue=0, inactiveCellsValue=0):
-        return self.__execute(exportVisibleCells=Cmd.ExportVisibleCellsRequest(caseId=caseId,
-                                                                             viewName=viewName,
-                                                                             exportKeyword=exportKeyword,
-                                                                             visibleActiveCellsValue=visibleActiveCellsValue,
-                                                                             hiddenActiveCellsValue=hiddenActiveCellsValue,
-                                                                             inactiveCellsValue=inactiveCellsValue))
-    def setExportFolder(self, type, path, createFolder=False):
+    def export_well_paths(self, well_paths=[], md_step_size=5.0):
+        if isinstance(well_paths, str):
+            well_paths = [well_paths]
+        return self.__execute(exportWellPaths=Cmd.ExportWellPathRequest(wellPathNames=well_paths, mdStepSize=md_step_size))
+
+    def export_visible_cells(self, case_id, view_name, export_keyword='FLUXNUM', visible_active_cells_value=1, hidden_active_cells_value=0, inactive_cells_value=0):
+        return self.__execute(exportVisibleCells=Cmd.ExportVisibleCellsRequest(caseId=case_id,
+                                                                             viewName=view_name,
+                                                                             exportKeyword=export_keyword,
+                                                                             visibleActiveCellsValue=visible_active_cells_value,
+                                                                             hiddenActiveCellsValue=hidden_active_cells_value,
+                                                                             inactiveCellsValue=inactive_cells_value))
+    def set_export_folder(self, type, path, create_folder=False):
         return self.__execute(setExportFolder=Cmd.SetExportFolderRequest(type=type,
                                                                        path=path,
-                                                                       createFolder=createFolder))
+                                                                       createFolder=create_folder))
 
-    def runOctaveScript(self, path, cases):
+    def run_octave_script(self, path, cases):
         caseIds = []
         for case in cases:
             caseIds.append(case.id)
         return self.__execute(runOctaveScript=Cmd.RunOctaveScriptRequest(path=path,
                                                                        caseIds=caseIds))
         
-    def setMainWindowSize(self, width, height):
+    def set_main_window_size(self, width, height):
         return self.__execute(setMainWindowSize=Cmd.SetMainWindowSizeParams(width=width, height=height))
 
-    def computeCaseGroupStatistics(self, caseIds = [], caseGroupId = -1):
-        return self.__execute(computeCaseGroupStatistics=Cmd.ComputeCaseGroupStatRequest(caseIds=caseIds,
-                                                                                         caseGroupId=caseGroupId))
+    def compute_case_group_statistics(self, case_ids = [], case_group_id = -1):
+        return self.__execute(computeCaseGroupStatistics=Cmd.ComputeCaseGroupStatRequest(caseIds=case_ids,
+                                                                                         caseGroupId=case_group_id))
 
-    def setTimeStep(self, caseId, timeStep):
-        return self.__execute(setTimeStep=Cmd.SetTimeStepParams(caseId=caseId, timeStep=timeStep))
+    def set_time_step(self, case_id, time_step):
+        return self.__execute(setTimeStep=Cmd.SetTimeStepParams(caseId=case_id, timeStep=time_step))
 
-    def scaleFractureTemplate(self, id, halfLength, height, dFactor, conductivity):
+    def scale_fracture_template(self, id, half_length, height, dfactor, conductivity):
         return self.__execute(scaleFractureTemplate=Cmd.ScaleFractureTemplateRequest(id=id,
-                                                                                   halfLength=halfLength,
+                                                                                   halfLength=half_length,
                                                                                    height=height,
-                                                                                   dFactor=dFactor,
+                                                                                   dFactor=dfactor,
                                                                                    conductivity=conductivity))
 
-    def setFractureContainment(self, id, topLayer, baseLayer):
+    def set_fracture_containment(self, id, top_layer, base_layer):
         return self.__execute(setFractureContainment=Cmd.SetFracContainmentRequest(id=id,
-                                                                                 topLayer=topLayer,
-                                                                                 baseLayer=baseLayer))
+                                                                                 topLayer=top_layer,
+                                                                                 baseLayer=base_layer))
 
-    def createMultipleFractures(self, caseId, templateId, wellPathNames, minDistFromWellTd,
-                                maxFracturesPerWell, topLayer, baseLayer, spacing, action):
-        if isinstance(wellPathNames, str):
-            wellPathNames = [wellPathNames]
-        return self.__execute(createMultipleFractures=Cmd.MultipleFracAction(caseId=caseId,
-                                                                           templateId=templateId,
-                                                                           wellPathNames=wellPathNames,
-                                                                           minDistFromWellTd=minDistFromWellTd,
-                                                                           maxFracturesPerWell=maxFracturesPerWell,
-                                                                           topLayer=topLayer,
-                                                                           baseLayer=baseLayer,
+    def create_multiple_fractures(self, case_id, template_id, well_path_names, min_dist_from_well_td,
+                                max_fractures_per_well, top_layer, base_layer, spacing, action):
+        if isinstance(well_path_names, str):
+            well_path_names = [well_path_names]
+        return self.__execute(createMultipleFractures=Cmd.MultipleFracAction(caseId=case_id,
+                                                                           templateId=template_id,
+                                                                           wellPathNames=well_path_names,
+                                                                           minDistFromWellTd=min_dist_from_well_td,
+                                                                           maxFracturesPerWell=max_fractures_per_well,
+                                                                           topLayer=top_layer,
+                                                                           baseLayer=base_layer,
                                                                            spacing=spacing,
                                                                            action=action))
 
-    def createLgrForCompletions(self, caseId, timeStep, wellPathNames, refinementI, refinementJ, refinementK, splitType):
-        if isinstance(wellPathNames, str):
-            wellPathNames = [wellPathNames]
-        return self.__execute(createLgrForCompletions=Cmd.CreateLgrForCompRequest(caseId=caseId,
-                                                                                timeStep=timeStep,
-                                                                                wellPathNames=wellPathNames,
-                                                                                refinementI=refinementI,
-                                                                                refinementJ=refinementJ,
-                                                                                refinementK=refinementK,
-                                                                                splitType=splitType))
+    def create_lgr_for_completion(self, case_id, time_step, well_path_names, refinement_i, refinement_j, refinement_k, split_type):
+        if isinstance(well_path_names, str):
+            well_path_names = [well_path_names]
+        return self.__execute(createLgrForCompletions=Cmd.CreateLgrForCompRequest(caseId=case_id,
+                                                                                timeStep=time_step,
+                                                                                wellPathNames=well_path_names,
+                                                                                refinementI=refinement_i,
+                                                                                refinementJ=refinement_j,
+                                                                                refinementK=refinement_k,
+                                                                                splitType=split_type))
 
-    def createSaturationPressurePlots(self, caseIds):
-        if isinstance(caseIds, int):
-            caseIds = [caseIds]
-        return self.__execute(createSaturationPressurePlots=Cmd.CreateSatPressPlotRequest(caseIds=caseIds))
+    def create_saturation_pressure_plots(self, case_ids):
+        if isinstance(case_ids, int):
+            case_ids = [case_ids]
+        return self.__execute(createSaturationPressurePlots=Cmd.CreateSatPressPlotRequest(caseIds=case_ids))
 
-    def exportFlowCharacteristics(self, caseId, timeSteps, injectors, producers, fileName, minimumCommunication=0.0, aquiferCellThreshold=0.1):
+    def export_flow_characteristics(self, case_id, time_steps, injectors, producers, file_name, minimum_communication=0.0, aquifer_cell_threshold=0.1):
         """ Export Flow Characteristics data to text file in CSV format
 
         Parameter                 | Description                                   | Type
         ------------------------- | --------------------------------------------- | -----
-        caseId                    | ID of case                                    | Integer          
-        timeSteps                 | Time step indices                             | List of Integer  
+        case_id                   | ID of case                                    | Integer          
+        time_steps                | Time step indices                             | List of Integer  
         injectors                 | Injector names                                | List of Strings  
         producers                 | Producer names                                | List of Strings  
-        fileName                  | Export file name                              | Integer          
-        minimumCommunication      | Minimum Communication, defaults to 0.0        | Integer          
-        aquiferCellThreshold      | Aquifer Cell Threshold, defaults to 0.1       | Integer          
+        file_name                 | Export file name                              | Integer          
+        minimum_communication     | Minimum Communication, defaults to 0.0        | Integer          
+        aquifer_cell_threshold    | Aquifer Cell Threshold, defaults to 0.1       | Integer          
 
         """
-        if isinstance(timeSteps, int):
-            timeSteps = [timeSteps]
+        if isinstance(time_steps, int):
+            time_steps = [time_steps]
         if isinstance(injectors, str):
             injectors = [injectors]
         if isinstance(producers, str):
             producers = [producers]
-        return self.__execute(exportFlowCharacteristics=Cmd.ExportFlowInfoRequest(caseId=caseId,
-                                                                                timeSteps=timeSteps,
+        return self.__execute(exportFlowCharacteristics=Cmd.ExportFlowInfoRequest(caseId=case_id,
+                                                                                timeSteps=time_steps,
                                                                                 injectors=injectors,
                                                                                 producers=producers,
-                                                                                fileName=fileName,
-                                                                                minimumCommunication = minimumCommunication,
-                                                                                aquiferCellThreshold = aquiferCellThreshold))
+                                                                                fileName=file_name,
+                                                                                minimumCommunication = minimum_communication,
+                                                                                aquiferCellThreshold = aquifer_cell_threshold))
 
-    def createView(self, caseId):
-        return self.__execute(createView=Cmd.CreateViewRequest(caseId=caseId)).createViewResult.viewId
+    def create_view(self, case_id):
+        return self.__execute(createView=Cmd.CreateViewRequest(caseId=case_id)).createViewResult.viewId
 
-    def cloneView(self, viewId):
-        return self.__execute(cloneView=Cmd.CloneViewRequest(viewId=viewId)).createViewResult.viewId
+    def clone_view(self, view_id):
+        return self.__execute(cloneView=Cmd.CloneViewRequest(viewId=view_id)).createViewResult.viewId

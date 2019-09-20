@@ -6,22 +6,22 @@
 import rips
 
 # Connect to ResInsight
-resInsight  = rips.Instance.find()
+resinsight  = rips.Instance.find()
 
 # Get the case with id == 0. This will fail if your project doesn't have a case with id == 0
-case = resInsight.project.case(id = 0)
+case = resinsight.project.case(id = 0)
 
 # Get the cell count object
-cellCounts = case.cellCount()
-print("Number of active cells: " + str(cellCounts.active_cell_count))
-print("Total number of reservoir cells: " + str(cellCounts.reservoir_cell_count))
+cell_counts = case.cell_count()
+print("Number of active cells: " + str(cell_counts.active_cell_count))
+print("Total number of reservoir cells: " + str(cell_counts.reservoir_cell_count))
 
 # Get information for all active cells
-activeCellInfos = case.cellInfoForActiveCells()
+active_cell_infos = case.cell_info_for_active_cells()
 
 # A simple check on the size of the cell info
-assert(cellCounts.active_cell_count == len(activeCellInfos))
+assert(cell_counts.active_cell_count == len(active_cell_infos))
 
 # Print information for the first active cell
 print("First active cell: ")
-print(activeCellInfos[0])
+print(active_cell_infos[0])

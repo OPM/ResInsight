@@ -8,11 +8,11 @@ import tempfile
 import rips
 
 # Load instance
-resInsight = rips.Instance.find()
+resinsight = rips.Instance.find()
 
 # Run a couple of commands
-resInsight.commands.setTimeStep(caseId=0, timeStep=3)
-resInsight.commands.setMainWindowSize(width=800, height=500)
+resinsight.commands.set_time_step(case_id=0, time_step=3)
+resinsight.commands.set_main_window_size(width=800, height=500)
 
 # Create a temporary directory which will disappear at the end of this script
 # If you want to keep the files, provide a good path name instead of tmpdirname
@@ -20,23 +20,23 @@ with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
     print("Temporary folder: ", tmpdirname)
     
     # Set export folder for snapshots and properties
-    resInsight.commands.setExportFolder(type='SNAPSHOTS', path=tmpdirname)
-    resInsight.commands.setExportFolder(type='PROPERTIES', path=tmpdirname)
+    resinsight.commands.set_export_folder(type='SNAPSHOTS', path=tmpdirname)
+    resinsight.commands.set_export_folder(type='PROPERTIES', path=tmpdirname)
     
     # Export snapshots
-    resInsight.commands.exportSnapshots()
+    resinsight.commands.export_snapshots()
     
     # Print contents of temporary folder
     print(os.listdir(tmpdirname))
     
     assert(len(os.listdir(tmpdirname)) > 0)
-    case = resInsight.project.case(id=0)
+    case = resinsight.project.case(id=0)
     
     # Export properties in the view
-    resInsight.commands.exportPropertyInViews(0, "3D View", 0)
+    resinsight.commands.export_property_in_views(0, "3D View", 0)
     
     # Check that the exported file exists
-    expectedFileName = case.name + "-" + str("3D_View") + "-" + "T3" + "-SOIL"
-    fullPath = tmpdirname + "/" + expectedFileName
-    assert(os.path.exists(fullPath))
+    expected_file_name = case.name + "-" + str("3D_View") + "-" + "T3" + "-SOIL"
+    full_path = tmpdirname + "/" + expected_file_name
+    assert(os.path.exists(full_path))
 

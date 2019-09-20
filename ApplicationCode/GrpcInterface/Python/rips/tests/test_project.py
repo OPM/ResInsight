@@ -7,7 +7,7 @@ import rips
 
 import dataroot
 
-def test_loadProject(rips_instance, initializeTest):
+def test_loadProject(rips_instance, initialize_test):
     project = rips_instance.project.open(dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp")
     case = project.case(id=0)
     assert(case is not None)
