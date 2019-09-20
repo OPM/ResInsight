@@ -99,7 +99,7 @@ void RicCreatePlotFromSelectionFeature::onActionTriggered( bool isChecked )
                     QString indexAsString = stringList[1];
 
                     bool conversionOk = false;
-                    int  index        = indexAsString.toUInt( &conversionOk );
+                    auto index        = indexAsString.toUInt( &conversionOk );
 
                     if ( conversionOk && index < sumCases.size() )
                     {
