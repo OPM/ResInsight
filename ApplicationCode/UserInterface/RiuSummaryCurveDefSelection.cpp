@@ -605,6 +605,7 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions( const std::vector
 {
     resetAllFields();
 
+    std::set<RifEclipseSummaryAddress::SummaryVarCategory> categories;
     for ( const auto& curveDef : curveDefinitions )
     {
         if ( !( curveDef.summaryCase() || curveDef.isEnsembleCurve() ) ) continue;
@@ -664,6 +665,14 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions( const std::vector
                 ( *identifierAndField->pdmField() ) = newSelectionVector;
             }
         }
+
+        categories.insert( curveDef.summaryAddress().category() );
+    }
+
+    if ( !categories.empty() )
+    {
+        RifEclipseSummaryAddress::SummaryVarCategory cat = *( categories.begin() );
+        m_currentSummaryCategory.setValue( cat );
     }
 }
 
