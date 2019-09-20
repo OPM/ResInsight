@@ -40,9 +40,9 @@
 #include "RiuSummaryCurveDefinitionKeywords.h"
 #include "RiuSummaryVectorDescriptionMap.h"
 
-#include "cafPdmUiTreeSelectionEditor.h"
-//#include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "cafPdmUiFieldHandle.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <algorithm>
 
@@ -720,6 +720,37 @@ void RiuSummaryCurveDefSelection::fieldChangedByUi( const caf::PdmFieldHandle* c
                                 currentCategory ) == m_selectedSummaryCategories.v().end() )
                 {
                     m_selectedSummaryCategories.v().push_back( currentCategory );
+                }
+            }
+
+            if ( !newValue.toList().empty() )
+            {
+                auto identifierAndFieldList = m_identifierFieldsMap[currentCategory];
+                for ( const auto identifierAndField : identifierAndFieldList )
+                {
+                    if ( identifierAndField->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME )
+                        continue;
+
+                    auto v = identifierAndField->pdmField()->value();
+                    if ( v.empty() )
+                    {
+                        auto field = identifierAndField->pdmField();
+
+                        QList<caf::PdmOptionItemInfo> options;
+                        appendOptionItemsForSubCategoriesAndVectors( options, identifierAndField );
+
+                        if ( !options.isEmpty() )
+                        {
+                            std::vector<QString> values;
+
+                            auto    firstOption = options.front();
+                            auto    firstValue  = firstOption.value();
+                            QString valueText   = firstValue.toString();
+
+                            values.push_back( valueText );
+                            field->setValue( values );
+                        }
+                    }
                 }
             }
         }
