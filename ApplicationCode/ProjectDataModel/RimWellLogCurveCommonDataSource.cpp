@@ -227,14 +227,14 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions( const std::vector<Ri
                 m_uniqueCases.insert( extractionCurve->rimCase() );
             }
             m_uniqueTrajectoryTypes.insert( static_cast<int>( extractionCurve->trajectoryType() ) );
-            if ( extractionCurve->trajectoryType() == RimWellLogTrack::WELL_PATH )
+            if ( extractionCurve->trajectoryType() == RimWellLogExtractionCurve::WELL_PATH )
             {
                 if ( extractionCurve->wellPath() )
                 {
                     m_uniqueWellPaths.insert( extractionCurve->wellPath() );
                 }
             }
-            else if ( extractionCurve->trajectoryType() == RimWellLogTrack::SIMULATION_WELL )
+            else if ( extractionCurve->trajectoryType() == RimWellLogExtractionCurve::SIMULATION_WELL )
             {
                 if ( !extractionCurve->wellName().isEmpty() )
                 {
