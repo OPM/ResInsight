@@ -52,6 +52,7 @@
 #include <QPalette>
 #include <QSortFilterProxyModel>
 #include <QStyleOption>
+#include <QTimer>
 #include <QTreeView>
 
 #include <algorithm>
@@ -374,6 +375,10 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
             }
         }
     }
+
+    // It is required to use a timer here, as the layout of the widgets are handled by events
+    // Calling scrollTo() here has no effect, or scrolls to wrong location
+    QTimer::singleShot(150, this, SLOT(slotScrollToFirstCheckedItem()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -645,6 +650,49 @@ void PdmUiTreeSelectionEditor::slotClicked(const QModelIndex& index)
         }
     }
     currentChanged(index);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::slotScrollToFirstCheckedItem()
+{
+    auto firstVisibleIndex = m_treeView->indexAt(m_treeView->viewport()->rect().topLeft());
+    auto lastVisibleIndex = m_treeView->indexAt(m_treeView->viewport()->rect().bottomRight());
+
+    if (!firstVisibleIndex.isValid())
+    {
+        return;
+    }
+
+    if (!lastVisibleIndex.isValid())
+    {
+        return;
+    }
+
+    for (int i = firstVisibleIndex.row(); i < lastVisibleIndex.row(); i++)
+    {
+        auto treeViewIndex = m_proxyModel->index(i, 0);
+
+        if (m_proxyModel->data(treeViewIndex, Qt::CheckStateRole).toBool())
+        {
+            // Do nothing if there is a checked and visible item in the view
+            return;
+        }
+    }
+
+    for (int i = 0; i < m_proxyModel->rowCount(); i++)
+    {
+        auto treeViewIndex = m_proxyModel->index(i, 0);
+
+        if (m_proxyModel->data(treeViewIndex, Qt::CheckStateRole).toBool())
+        {
+            // Scroll to the first checked item if no checked items are visible
+            m_treeView->scrollTo(treeViewIndex);
+
+            return;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
