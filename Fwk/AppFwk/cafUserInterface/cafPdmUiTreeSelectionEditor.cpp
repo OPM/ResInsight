@@ -354,6 +354,26 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
     m_treeView->setRootIsDecorated(m_model->hasGrandChildren());
 
     m_model->resetUiValueCache();
+
+    if (m_attributes.fieldToReceiveCurrentItemValue)
+    {
+        PdmUiFieldHandle* uiFieldHandle = m_attributes.fieldToReceiveCurrentItemValue->uiCapability();
+        if (uiFieldHandle)
+        {
+            QModelIndexList indices = allVisibleSourceModelIndices();
+            QVariant currentItemValue = uiFieldHandle->uiValue();
+
+            for (const auto& mi : indices)
+            {
+                QVariant itemValue = m_model->data(mi, PdmUiTreeSelectionQModel::optionItemValueRole());
+                if (currentItemValue == itemValue)
+                {
+                    QModelIndex treeViewIndex = m_proxyModel->mapFromSource(mi);
+                    m_treeView->setCurrentIndex(treeViewIndex);
+                }
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
