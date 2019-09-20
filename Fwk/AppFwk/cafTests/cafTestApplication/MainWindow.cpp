@@ -786,7 +786,7 @@ protected:
             caf::PdmUiTreeSelectionEditorAttribute* attr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>(attribute);
             if (attr)
             {
-                attr->fieldToReceiveCurrentItemValue = &m_highlightedEnum;
+                attr->currentIndexFieldHandle = &m_highlightedEnum;
             }
         }
         else if (field == &m_proxyEnumField)

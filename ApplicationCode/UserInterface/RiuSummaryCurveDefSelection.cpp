@@ -1189,7 +1189,7 @@ void RiuSummaryCurveDefSelection::defineEditorAttribute( const caf::PdmFieldHand
     {
         if ( &m_selectedSummaryCategories == field )
         {
-            attrib->fieldToReceiveCurrentItemValue   = &m_currentSummaryCategory;
+            attrib->currentIndexFieldHandle          = &m_currentSummaryCategory;
             attrib->showTextFilter                   = false;
             attrib->showToggleAllCheckbox            = false;
             attrib->setCurrentIndexWhenItemIsChecked = true;
