@@ -115,6 +115,8 @@ private slots:
 
     void                slotClicked(const QModelIndex& index);
 
+    void                slotScrollToFirstCheckedItem();
+
 private:
     void                currentChanged(const QModelIndex& current);
 
