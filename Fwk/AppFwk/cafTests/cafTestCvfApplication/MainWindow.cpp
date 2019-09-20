@@ -25,23 +25,22 @@
 
 #ifdef TAP_USE_COMMAND_FRAMEWORK
 #include "cafCmdExecCommandManager.h"
-#include "cafCmdSelectionHelper.h"
 #include "cafCmdFeatureManager.h"
-#endif 
+#include "cafCmdSelectionHelper.h"
+#endif
 #include "TapProject.h"
-
 
 MainWindow* MainWindow::sm_mainWindowInstance = NULL;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 MainWindow::MainWindow()
 {
     // Initialize command framework
 
     // Register default command features (add/delete item in list)
- 
+
     createActions();
     createDockPanels();
 
@@ -55,11 +54,10 @@ MainWindow::MainWindow()
     caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
     undoView->setStack(caf::CmdExecCommandManager::instance()->undoStack());
 #endif
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void MainWindow::createDockPanels()
 {
@@ -112,7 +110,6 @@ void MainWindow::createDockPanels()
         addDockWidget(Qt::RightDockWidgetArea, dockWidget);
     }
 
-
     {
         QDockWidget* dockWidget = new QDockWidget("Undo stack", this);
         dockWidget->setObjectName("dockWidget");
@@ -123,20 +120,18 @@ void MainWindow::createDockPanels()
 
         addDockWidget(Qt::RightDockWidgetArea, dockWidget);
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void MainWindow::buildTestModel()
 {
     m_project = new TapProject;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
 {
@@ -155,7 +150,7 @@ void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
     pdmRoot->fields(fields);
     if (fields.size())
     {
-        caf::PdmFieldHandle* field = fields[0];
+        caf::PdmFieldHandle*   field         = fields[0];
         caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
         if (uiFieldHandle)
         {
@@ -173,7 +168,7 @@ void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 MainWindow::~MainWindow()
 {
@@ -184,7 +179,7 @@ MainWindow::~MainWindow()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void MainWindow::releaseTestData()
 {
@@ -195,7 +190,7 @@ void MainWindow::releaseTestData()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 MainWindow* MainWindow::instance()
 {
@@ -203,19 +198,18 @@ MainWindow* MainWindow::instance()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void MainWindow::createActions()
 {
     // Create actions
-    QAction* editInsert     = new QAction("&Insert", this);
-    QAction* editRemove     = new QAction("&Remove", this);
-    QAction* editRemoveAll  = new QAction("Remove all", this);
+    QAction* editInsert    = new QAction("&Insert", this);
+    QAction* editRemove    = new QAction("&Remove", this);
+    QAction* editRemoveAll = new QAction("Remove all", this);
 
     connect(editInsert, SIGNAL(triggered()), SLOT(slotInsert()));
     connect(editRemove, SIGNAL(triggered()), SLOT(slotRemove()));
     connect(editRemoveAll, SIGNAL(triggered()), SLOT(slotRemoveAll()));
-
 
     // Create menus
     QMenu* editMenu = menuBar()->addMenu("&Edit");
@@ -225,45 +219,45 @@ void MainWindow::createActions()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void MainWindow::slotInsert()
 {
-/*
-    std::vector<caf::PdmUiItem*> selection;
-    m_pdmUiTreeView->selectedUiItems(selection);
+    /*
+        std::vector<caf::PdmUiItem*> selection;
+        m_pdmUiTreeView->selectedUiItems(selection);
 
-    for (size_t i = 0; i < selection.size(); ++i)
-    {
-        caf::PdmUiFieldHandle* uiFh = dynamic_cast<caf::PdmUiFieldHandle*>(selection[i]);
-        caf::PdmChildArrayField< caf::PdmObjectHandle*> * field = NULL;
-
-        if (uiFh) field = dynamic_cast<caf::PdmChildArrayField< caf::PdmObjectHandle*> *>(uiFh->fieldHandle());
-        
-        if (field)
+        for (size_t i = 0; i < selection.size(); ++i)
         {
-            field->push_back(new DemoPdmObject);
-            field->capability<caf::PdmUiFieldHandle>()->updateConnectedEditors();
+            caf::PdmUiFieldHandle* uiFh = dynamic_cast<caf::PdmUiFieldHandle*>(selection[i]);
+            caf::PdmChildArrayField< caf::PdmObjectHandle*> * field = NULL;
 
-            return;
+            if (uiFh) field = dynamic_cast<caf::PdmChildArrayField< caf::PdmObjectHandle*> *>(uiFh->fieldHandle());
+            
+            if (field)
+            {
+                field->push_back(new DemoPdmObject);
+                field->capability<caf::PdmUiFieldHandle>()->updateConnectedEditors();
+
+                return;
+            }
+            #if 0
+            caf::PdmChildArrayFieldHandle* listField = NULL;
+
+            if (uiFh) listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>(uiFh->fieldHandle());
+
+            if (listField)
+            {
+                caf::PdmObjectHandle* obj = listField->createAppendObject();
+                listField->capability<caf::PdmUiFieldHandle>()->updateConnectedEditors();
+            }
+            #endif
         }
-        #if 0
-        caf::PdmChildArrayFieldHandle* listField = NULL;
-
-        if (uiFh) listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>(uiFh->fieldHandle());
-
-        if (listField)
-        {
-            caf::PdmObjectHandle* obj = listField->createAppendObject();
-            listField->capability<caf::PdmUiFieldHandle>()->updateConnectedEditors();
-        }
-        #endif
-    }
-*/
+    */
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void MainWindow::slotRemove()
 {
@@ -272,7 +266,7 @@ void MainWindow::slotRemove()
 
     for (size_t i = 0; i < selection.size(); ++i)
     {
-        caf::PdmObjectHandle* obj = dynamic_cast< caf::PdmObjectHandle*>(selection[i]);
+        caf::PdmObjectHandle* obj = dynamic_cast<caf::PdmObjectHandle*>(selection[i]);
         if (obj)
         {
             caf::PdmFieldHandle* field = obj->parentField();
@@ -293,26 +287,23 @@ void MainWindow::slotRemove()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void MainWindow::slotRemoveAll()
-{
-
-}
+void MainWindow::slotRemoveAll() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void MainWindow::slotSimpleSelectionChanged()
 {
     std::vector<caf::PdmUiItem*> selection;
     m_pdmUiTreeView->selectedUiItems(selection);
-    caf::PdmObjectHandle* obj = NULL;
+    caf::PdmObjectHandle*          obj       = NULL;
     caf::PdmChildArrayFieldHandle* listField = NULL;
 
     if (selection.size())
     {
-        caf::PdmUiObjectHandle* pdmUiObj = dynamic_cast<caf::PdmUiObjectHandle*>( selection[0] );
+        caf::PdmUiObjectHandle* pdmUiObj = dynamic_cast<caf::PdmUiObjectHandle*>(selection[0]);
         if (pdmUiObj) obj = pdmUiObj->objectHandle();
     }
 
@@ -320,13 +311,13 @@ void MainWindow::slotSimpleSelectionChanged()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void MainWindow::slotShowTableView()
 {
     std::vector<caf::PdmUiItem*> selection;
     m_pdmUiTreeView2->selectedUiItems(selection);
-    caf::PdmObjectHandle* obj = NULL;
+    caf::PdmObjectHandle*          obj       = NULL;
     caf::PdmChildArrayFieldHandle* listField = NULL;
 
     if (selection.size())
@@ -334,7 +325,7 @@ void MainWindow::slotShowTableView()
         caf::PdmUiItem* pdmUiItem = selection[0];
 
         caf::PdmUiFieldHandle* guiField = dynamic_cast<caf::PdmUiFieldHandle*>(pdmUiItem);
-        
+
         if (guiField) listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>(guiField->fieldHandle());
 
         if (listField)
