@@ -3,12 +3,16 @@ set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicSavePlotTemplateFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicCreatePlotFromSelectionFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSelectPlotTemplateUi.h
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotTemplateTools.h
+${CMAKE_CURRENT_LIST_DIR}/RicReloadPlotTemplatesFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicSavePlotTemplateFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicCreatePlotFromSelectionFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSelectPlotTemplateUi.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotTemplateTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicReloadPlotTemplatesFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

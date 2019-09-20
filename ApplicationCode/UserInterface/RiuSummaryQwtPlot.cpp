@@ -187,6 +187,7 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
     caf::SelectionManager::instance()->setSelectedItem( ownerViewWindow() );
 
     menuBuilder << "RicShowPlotDataFeature";
+    menuBuilder << "RicSavePlotTemplateFeature";
 
     menuBuilder.appendToMenu( &menu );
 

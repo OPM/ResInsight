@@ -55,6 +55,9 @@ RimPlotTemplateFolderItem::~RimPlotTemplateFolderItem() {}
 //--------------------------------------------------------------------------------------------------
 void RimPlotTemplateFolderItem::createRootFolderItemsFromFolderPaths( const QStringList& folderPaths )
 {
+    m_fileNames.deleteAllChildObjects();
+    m_subFolders.deleteAllChildObjects();
+
     createSubFolderItemsFromFolderPaths( folderPaths );
 }
 

@@ -25,18 +25,15 @@ class RimSummaryPlot;
 //==================================================================================================
 ///
 //==================================================================================================
-class RicSavePlotTemplateFeature : public caf::CmdFeature
+class RicReloadPlotTemplatesFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static void rebuildFromDisc();
 
 protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-
-private:
-    static QString createTextFromObject( RimSummaryPlot* summaryPlot );
-
-private:
-    RimSummaryPlot* selectedSummaryPlot() const;
 };
