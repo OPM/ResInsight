@@ -36,7 +36,6 @@
 
 #pragma once
 
-
 #include <QObject>
 #include <QPoint>
 #include <QPointer>
@@ -65,6 +64,3 @@ private:
     QPointer<QTextEdit> m_textEdit;
     int                 m_textPosition;
 };
-
-
-

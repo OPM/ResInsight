@@ -1,24 +1,23 @@
 #pragma once
 
-#include <QMainWindow>
 #include <QAbstractItemModel>
 #include <QItemSelection>
+#include <QMainWindow>
 
 class QTreeView;
 class QUndoView;
 
 class TapProject;
 
-
 namespace caf
 {
-    class PdmObjectCollection;
-    class PdmObjectHandle;
-    class UiTreeModelPdm;
-    class PdmUiPropertyView;
-    class PdmUiTreeView;
-    class PdmUiTableView;
-}
+class PdmObjectCollection;
+class PdmObjectHandle;
+class UiTreeModelPdm;
+class PdmUiPropertyView;
+class PdmUiTreeView;
+class PdmUiTableView;
+} // namespace caf
 
 class MainWindow : public QMainWindow
 {
@@ -29,14 +28,13 @@ public:
     ~MainWindow();
 
     static MainWindow* instance();
-    void setPdmRoot(caf::PdmObjectHandle* pdmRoot);
+    void               setPdmRoot(caf::PdmObjectHandle* pdmRoot);
 
 private:
     void createActions();
     void createMenus();
     void createToolBars();
     void createDockPanels();
-
 
     void buildTestModel();
     void releaseTestData();
@@ -49,18 +47,16 @@ private slots:
     void slotSimpleSelectionChanged();
     void slotShowTableView();
 
-
 private:
     static MainWindow* sm_mainWindowInstance;
 
 private:
-    QUndoView*                  undoView;
+    QUndoView* undoView;
 
-    caf::PdmUiTreeView*         m_pdmUiTreeView;
-    caf::PdmUiTreeView*         m_pdmUiTreeView2;
-    caf::PdmUiPropertyView*     m_pdmUiPropertyView;
-    caf::PdmUiTableView*        m_pdmUiTableView;
+    caf::PdmUiTreeView*     m_pdmUiTreeView;
+    caf::PdmUiTreeView*     m_pdmUiTreeView2;
+    caf::PdmUiPropertyView* m_pdmUiPropertyView;
+    caf::PdmUiTableView*    m_pdmUiTableView;
 
-    TapProject*                 m_project;
+    TapProject* m_project;
 };
-

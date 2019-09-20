@@ -64,11 +64,11 @@ public:
     bool singleSelectionMode;
     bool setCurrentIndexWhenItemIsChecked;
 
-    /// fieldToReceiveCurrentFieldValue is used to communicate the value of current item in the tree view
+    /// currentIndexFieldHandle is used to communicate the value of current item in the tree view
     /// This is useful when displaying a list of appEnums, and a dependent view is displaying content based on 
     /// the current item in the tree view
     /// Make sure the type of the receiving field is of the same type as the field used in PdmUiTreeSelectionEditor
-    caf::PdmFieldHandle* fieldToReceiveCurrentItemValue;
+    caf::PdmFieldHandle* currentIndexFieldHandle;
 
 public:
     PdmUiTreeSelectionEditorAttribute()
@@ -78,7 +78,7 @@ public:
         singleSelectionMode = false;
         setCurrentIndexWhenItemIsChecked = false;
 
-        fieldToReceiveCurrentItemValue = nullptr;
+        currentIndexFieldHandle = nullptr;
     }
 };
 

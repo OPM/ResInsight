@@ -1,12 +1,10 @@
 #pragma once
 
-
-#include "cafPdmDocument.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
+#include "cafPdmDocument.h"
 
 class TapCvfSpecialization;
-
 
 class TapProject : public caf::PdmDocument
 {
@@ -16,7 +14,7 @@ public:
     TapProject(void);
     virtual ~TapProject(void);
 
-    caf::PdmChildArrayField< caf::PdmObjectHandle*  > m_objectList;
+    caf::PdmChildArrayField<caf::PdmObjectHandle*> m_objectList;
 
-    caf::PdmChildField< TapCvfSpecialization* > m_testSpecialization;
+    caf::PdmChildField<TapCvfSpecialization*> m_testSpecialization;
 };

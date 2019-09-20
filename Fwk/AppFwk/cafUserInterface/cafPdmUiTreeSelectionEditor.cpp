@@ -354,6 +354,26 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
     m_treeView->setRootIsDecorated(m_model->hasGrandChildren());
 
     m_model->resetUiValueCache();
+
+    if (m_attributes.currentIndexFieldHandle)
+    {
+        PdmUiFieldHandle* uiFieldHandle = m_attributes.currentIndexFieldHandle->uiCapability();
+        if (uiFieldHandle)
+        {
+            QModelIndexList indices = allVisibleSourceModelIndices();
+            QVariant currentItemValue = uiFieldHandle->uiValue();
+
+            for (const auto& mi : indices)
+            {
+                QVariant itemValue = m_model->data(mi, PdmUiTreeSelectionQModel::optionItemValueRole());
+                if (currentItemValue == itemValue)
+                {
+                    QModelIndex treeViewIndex = m_proxyModel->mapFromSource(mi);
+                    m_treeView->setCurrentIndex(treeViewIndex);
+                }
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -637,9 +657,9 @@ void PdmUiTreeSelectionEditor::currentChanged(const QModelIndex& current)
         m_proxyModel->setData(current, true, Qt::CheckStateRole);
     }
 
-    if (m_attributes.fieldToReceiveCurrentItemValue)
+    if (m_attributes.currentIndexFieldHandle)
     {
-        PdmUiFieldHandle* uiFieldHandle = m_attributes.fieldToReceiveCurrentItemValue->uiCapability();
+        PdmUiFieldHandle* uiFieldHandle = m_attributes.currentIndexFieldHandle->uiCapability();
         if (uiFieldHandle)
         {
             QVariant v = m_proxyModel->data(current, PdmUiTreeSelectionQModel::optionItemValueRole());

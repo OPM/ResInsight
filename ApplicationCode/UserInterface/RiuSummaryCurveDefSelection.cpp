@@ -605,6 +605,7 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions( const std::vector
 {
     resetAllFields();
 
+    std::set<RifEclipseSummaryAddress::SummaryVarCategory> categories;
     for ( const auto& curveDef : curveDefinitions )
     {
         if ( !( curveDef.summaryCase() || curveDef.isEnsembleCurve() ) ) continue;
@@ -664,6 +665,14 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions( const std::vector
                 ( *identifierAndField->pdmField() ) = newSelectionVector;
             }
         }
+
+        categories.insert( curveDef.summaryAddress().category() );
+    }
+
+    if ( !categories.empty() )
+    {
+        RifEclipseSummaryAddress::SummaryVarCategory cat = *( categories.begin() );
+        m_currentSummaryCategory.setValue( cat );
     }
 }
 
@@ -1180,7 +1189,7 @@ void RiuSummaryCurveDefSelection::defineEditorAttribute( const caf::PdmFieldHand
     {
         if ( &m_selectedSummaryCategories == field )
         {
-            attrib->fieldToReceiveCurrentItemValue   = &m_currentSummaryCategory;
+            attrib->currentIndexFieldHandle          = &m_currentSummaryCategory;
             attrib->showTextFilter                   = false;
             attrib->showToggleAllCheckbox            = false;
             attrib->setCurrentIndexWhenItemIsChecked = true;
