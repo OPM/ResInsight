@@ -1,3 +1,5 @@
+import Commands_pb2 as Cmd
+
 import rips.Case # Circular import of Case, which already imports View. Use full name.
 from rips.PdmObject import PdmObject
 
@@ -95,19 +97,19 @@ class View (PdmObject):
 
     def clone(self):
         """Clone the current view"""
-        view_id = __executeCmd(cloneView=Cmd.CloneViewRequest(viewId=view_id)).createViewResult.viewId
+        view_id = self._execute_command(cloneView=Cmd.CloneViewRequest(viewId=self.id)).createViewResult.viewId
         return self.case().view(view_id)
 
     def set_time_step(self, time_step):
         case_id = self.case().id
-        return self.__executeCmd(setTimeStep=Cmd.SetTimeStepParams(caseId=case_id, viewId=self.id, timeStep=time_step))
+        return self._execute_command(setTimeStep=Cmd.SetTimeStepParams(caseId=case_id, viewId=self.id, timeStep=time_step))
     
     def export_sim_well_fracture_completions(self, time_step, simulation_well_names, file_split, compdat_export):
         if(isinstance(simulation_well_names, str)):
             simulation_well_names = [simulation_well_names]
 
         case_id = self.case().id
-        return self.__executeCmd(exportSimWellFractureCompletions=Cmd.ExportSimWellPathFraqRequest(caseId=case_id,
+        return self._execute_command(exportSimWellFractureCompletions=Cmd.ExportSimWellPathFraqRequest(caseId=case_id,
                                                                                               viewId=self.id,
                                                                                               timeStep=time_step,
                                                                                               simulationWellNames=simulation_well_names,
@@ -116,7 +118,7 @@ class View (PdmObject):
     
     def export_visible_cells(self, export_keyword='FLUXNUM', visible_active_cells_value=1, hidden_active_cells_value=0, inactive_cells_value=0):
         case_id = self.case().id
-        return self.__executeCmd(exportVisibleCells=Cmd.ExportVisibleCellsRequest(caseId=case_id,
+        return self._execute_command(exportVisibleCells=Cmd.ExportVisibleCellsRequest(caseId=case_id,
                                                                              viewId=self.id,
                                                                              exportKeyword=export_keyword,
                                                                              visibleActiveCellsValue=visible_active_cells_value,

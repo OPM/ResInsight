@@ -4,11 +4,13 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 
-import Properties_pb2
-import Properties_pb2_grpc
 import Case_pb2
 import Case_pb2_grpc
 from Definitions_pb2 import ClientToServerStreamReply
+import Commands_pb2 as Cmd
+import Commands_pb2_grpc as CmdRpc
+import Properties_pb2
+import Properties_pb2_grpc
 
 class Properties:
     """ Class for streaming properties to and from ResInsight
@@ -28,8 +30,11 @@ class Properties:
         self.case = case
         self._properties_stub = Properties_pb2_grpc.PropertiesStub(self.case.channel)
         self.chunk_size = 8160
+        self.commands = CmdRpc.CommandsStub(self.case.channel)
 
-    
+    def _execute_command(self, **command_params):
+        return self.commands.Execute(Cmd.CommandParams(**command_params))
+
     def __generate_property_input_iterator(self, values_iterator, parameters):
         chunk = Properties_pb2.PropertyInputChunk()
         chunk.params.CopyFrom(parameters)
@@ -247,14 +252,14 @@ class Properties:
             undefined_value (double):	Value to use for undefined values. Defaults to 0.0
             export_file (str):	File name for export. Defaults to the value of property parameter
         """
-        return self.__executeCmd(exportProperty=Cmd.ExportPropertyRequest(caseId=self.case.id,
+        return self._execute_command(exportProperty=Cmd.ExportPropertyRequest(caseId=self.case.id,
                                                                      timeStep=time_step,
                                                                      property=property,
                                                                      eclipseKeyword=eclipse_keyword,
                                                                      undefinedValue=undefined_value,
                                                                      exportFile=export_file))
 
-    def export_in_views(self, view_ids, undefined_value):
+    def export_in_views(self, view_ids, undefined_value=0.0):
         """ Export the current Eclipse property from the given views
 
         Arguments:
@@ -264,7 +269,7 @@ class Properties:
         if isinstance(view_ids, int):
             view_ids = [view_ids]
 
-        return self.__executeCmd(exportPropertyInViews=Cmd.ExportPropertyInViewsRequest(caseId=self.case.id,
+        return self._execute_command(exportPropertyInViews=Cmd.ExportPropertyInViewsRequest(caseId=self.case.id,
                                                                                    viewIds=view_ids,
                                                                                    undefinedValue=undefined_value))
             
