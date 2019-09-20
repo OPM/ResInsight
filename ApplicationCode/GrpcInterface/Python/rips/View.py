@@ -124,3 +124,28 @@ class View (PdmObject):
                                                                              visibleActiveCellsValue=visible_active_cells_value,
                                                                              hiddenActiveCellsValue=hidden_active_cells_value,
                                                                              inactiveCellsValue=inactive_cells_value))
+
+    
+    def export_property(self, undefined_value=0.0):
+        """ Export the current Eclipse property from the view
+
+        Arguments:
+            undefined_value (double):	Value to use for undefined values. Defaults to 0.0
+        """
+        case_id = self.case().id
+        return self._execute_command(exportPropertyInViews=Cmd.ExportPropertyInViewsRequest(caseId=case_id,
+                                                                                   viewIds=[self.id],
+                                                                                   undefinedValue=undefined_value))
+            
+    def export_snapshot(self, prefix=''):
+        """ Export snapshot for the current view
+        
+        Arguments:
+            prefix (str): Exported file name prefix
+        
+        """
+        case_id = self.case().id
+        return self._execute_command(exportSnapshots=Cmd.ExportSnapshotsRequest(type='VIEWS',
+                                                                         prefix=prefix,
+                                                                         caseId=case_id,
+                                                                         viewId=self.id))

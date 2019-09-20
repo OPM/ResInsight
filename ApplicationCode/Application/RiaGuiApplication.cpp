@@ -832,7 +832,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
                 // 2016-11-09 : Location of snapshot folder was previously located in 'snapshot' folder
                 // relative to current working folder. Now harmonized to behave as RiuMainWindow::slotSnapshotAllViewsToFile()
                 QString absolutePathToSnapshotDir = createAbsolutePathFromProjectRelativePath( "snapshots" );
-                RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder( absolutePathToSnapshotDir );
+                RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( absolutePathToSnapshotDir );
 
                 mainWnd->loadWinGeoAndDockToolBarLayout();
             }
@@ -1799,7 +1799,7 @@ void RiaGuiApplication::runMultiCaseSnapshots( const QString&       templateProj
         bool loadOk = loadProject( templateProjectFileName, PLA_NONE, &modifier );
         if ( loadOk )
         {
-            RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder( snapshotFolderName );
+            RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( snapshotFolderName );
         }
     }
 

@@ -53,6 +53,7 @@ message ExportSnapshotsRequest
 	SnapshotType type   = 1;
 	string       prefix = 2;
 	int32        caseId = 3;
+	int32        viewId = 4;
 }
 
 message ExportPropertyRequest

@@ -1,6 +1,8 @@
 import sys
 import os
 import pytest 
+import grpc
+import tempfile
 
 sys.path.insert(1, os.path.join(sys.path[0], '../../'))
 import rips
@@ -83,9 +85,29 @@ def test_replaceCase(rips_instance, initialize_test):
     cases = rips_instance.project.cases()
     assert(len(cases) is 1)
 
-    rips_instance.commands.replace_case(new_grid_file=case_path, case_id=case.id)
+    case.replace(new_grid_file=case_path)
+    # Check that the case object has been changed
+    assert(case.name == "Real0--BRUGGE_0000.EGRID")
+    assert(case.id == 0)
+
     cases = rips_instance.project.cases()
     assert(len(cases) is 1)
+    # Check that retrieving the case object again will yield the changed object
     case = project.case(id=0)
     assert(case.name == "Real0--BRUGGE_0000.EGRID")
     assert(case.id == 0)
+    
+def test_loadNonExistingCase(rips_instance, initialize_test):
+    case_path = "Nonsense/Nonsense/Nonsense"
+    with pytest.raises(grpc.RpcError):
+        assert rips_instance.project.load_case(case_path)
+
+@pytest.mark.skipif(sys.platform.startswith('linux'), reason="Brugge is currently exceptionally slow on Linux")
+def test_exportFlowCharacteristics(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        print("Temporary folder: ", tmpdirname)
+        file_name = tmpdirname + "/exportFlowChar.txt"
+        case.export_flow_characteristics(time_steps=8, producers=[], injectors = "I01", file_name = file_name)
+

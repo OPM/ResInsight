@@ -12,9 +12,9 @@ start = time.time()
 case = resinsight.project.case(id=0)
 
 # Read poro result into list
-poro_results = case.properties.active_cell_property('STATIC_NATIVE', 'PORO', 0)
+poro_results = case.active_cell_property('STATIC_NATIVE', 'PORO', 0)
 # Read permx result into list
-permx_results = case.properties.active_cell_property('STATIC_NATIVE', 'PERMX', 0)
+permx_results = case.active_cell_property('STATIC_NATIVE', 'PERMX', 0)
 
 # Generate output result
 results = []
@@ -23,7 +23,7 @@ for (poro, permx) in zip(poro_results, permx_results):
 
 try:
     # Send back output result
-    case.properties.set_active_cell_property(results, 'GENERATED', 'POROPERMXSY', 0)
+    case.set_active_cell_property(results, 'GENERATED', 'POROPERMXSY', 0)
 except grpc.RpcError as e:
     print("Exception Received: ", e)
 
