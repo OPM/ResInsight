@@ -9,36 +9,36 @@ class View (PdmObject):
         id(int): View Id corresponding to the View Id in ResInsight project.
 
     """
-    def __init__(self, pbmObject):
-        self.id = pbmObject.getValue("ViewId")
+    def __init__(self, pdm_object):
+        self.id = pdm_object.get_value("ViewId")
 
-        PdmObject.__init__(self, pbmObject.pb2Object, pbmObject.channel)
+        PdmObject.__init__(self, pdm_object.pb2_object, pdm_object.channel)
 
-    def showGridBox(self):
+    def show_grid_box(self):
         """Check if the grid box is meant to be shown in the view"""
-        return self.getValue("ShowGridBox")
+        return self.get_value("ShowGridBox")
 
-    def setShowGridBox(self, value):
+    def set_show_grid_box(self, value):
         """Set if the grid box is meant to be shown in the view"""
-        self.setValue("ShowGridBox", value)
+        self.set_value("ShowGridBox", value)
 
-    def backgroundColor(self):
+    def background_color(self):
         """Get the current background color in the view"""
-        return self.getValue("ViewBackgroundColor")
+        return self.get_value("ViewBackgroundColor")
 
-    def setBackgroundColor(self, bgColor):
+    def set_background_color(self, bgcolor):
         """Set the background color in the view"""
-        self.setValue("ViewBackgroundColor", bgColor)
+        self.set_value("ViewBackgroundColor", bgcolor)
 
-    def cellResult(self):
+    def set_cell_result(self):
         """Retrieve the current cell results"""
         return self.children("GridCellResult")[0]
 
-    def applyCellResult(self, resultType, resultVariable):
+    def apply_cell_result(self, result_type, result_variable):
         """Apply a regular cell result
         
         Arguments:
-            resultType (str): String representing the result category. The valid values are
+            result_type (str): String representing the result category. The valid values are
                 - DYNAMIC_NATIVE
                 - STATIC_NATIVE
                 - SOURSIMRL
@@ -47,54 +47,54 @@ class View (PdmObject):
                 - FORMATION_NAMES
                 - FLOW_DIAGNOSTICS
                 - INJECTION_FLOODING
-            resultVariable (str): String representing the result variable.
+            result_variable (str): String representing the result variable.
         """
-        cellResult = self.cellResult()
-        cellResult.setValue("ResultType", resultType)
-        cellResult.setValue("ResultVariable", resultVariable)
-        cellResult.update()
+        cell_result = self.set_cell_result()
+        cell_result.set_value("ResultType", result_type)
+        cell_result.set_value("ResultVariable", result_variable)
+        cell_result.update()
 
-    def applyFlowDiagnosticsCellResult(self,
-                                       resultVariable  = 'TOF',
-                                       selectionMode   = 'FLOW_TR_BY_SELECTION',
+    def apply_flow_diagnostics_cell_result(self,
+                                       result_variable  = 'TOF',
+                                       selection_mode   = 'FLOW_TR_BY_SELECTION',
                                        injectors = [],
                                        producers = []):
         """Apply a flow diagnostics cell result
 
         Arguments:
-            resultVariable (str): String representing the result value
+            result_variable (str): String representing the result value
                 The valid values are 'TOF', 'Fraction', 'MaxFractionTracer' and 'Communication'.
-            selectionMode (str): String specifying which tracers to select.
+            selection_mode (str): String specifying which tracers to select.
                 The valid values are
                 - FLOW_TR_INJ_AND_PROD (all injector and producer tracers), 
                 - FLOW_TR_PRODUCERS (all producers)
                 - FLOW_TR_INJECTORS (all injectors),
                 - FLOW_TR_BY_SELECTION (specify individual tracers in the
-                injectorTracers and producerTracers variables)
-            injectorTracers (list): List of injector names (strings) to select.
-                Requires selectionMode to be 'FLOW_TR_BY_SELECTION'.
-            producerTracers (list): List of producer tracers (strings) to select.
-                Requires selectionMode to be 'FLOW_TR_BY_SELECTION'.
+                injectors and producers variables)
+            injectors (list): List of injector names (strings) to select.
+                Requires selection_mode to be 'FLOW_TR_BY_SELECTION'.
+            producers (list): List of producer tracers (strings) to select.
+                Requires selection_mode to be 'FLOW_TR_BY_SELECTION'.
         """
-        cellResult = self.cellResult()
-        cellResult.setValue("ResultType", "FLOW_DIAGNOSTICS")
-        cellResult.setValue("ResultVariable", resultVariable)
-        cellResult.setValue("FlowTracerSelectionMode", selectionMode)
-        if selectionMode == 'FLOW_TR_BY_SELECTION':
-            cellResult.setValue("SelectedInjectorTracers", injectors)
-            cellResult.setValue("SelectedProducerTracers", producers)
-        cellResult.update()
+        cell_result = self.set_cell_result()
+        cell_result.set_value("ResultType", "FLOW_DIAGNOSTICS")
+        cell_result.set_value("ResultVariable", result_variable)
+        cell_result.set_value("FlowTracerSelectionMode", selection_mode)
+        if selection_mode == 'FLOW_TR_BY_SELECTION':
+            cell_result.set_value("SelectedInjectorTracers", injectors)
+            cell_result.set_value("SelectedProducerTracers", producers)
+        cell_result.update()
 
     def case(self):
         """Get the case the view belongs to"""
-        pdmCase = self.ancestor("EclipseCase")
-        if pdmCase is None:
-            pdmCase = self.ancestor("ResInsightGeoMechCase")
-        if pdmCase is None:
+        pdm_case = self.ancestor("EclipseCase")
+        if pdm_case is None:
+            pdm_case = self.ancestor("ResInsightGeoMechCase")
+        if pdm_case is None:
             return None
-        return rips.Case(self.channel, pdmCase.getValue("CaseId"))
+        return rips.Case(self.channel, pdm_case.get_value("CaseId"))
 
     def clone(self):
         """Clone the current view"""
-        viewId =  Commands(self.channel).cloneView(self.id)
-        return self.case().view(viewId)
+        view_id =  Commands(self.channel).clone_view(self.id)
+        return self.case().view(view_id)

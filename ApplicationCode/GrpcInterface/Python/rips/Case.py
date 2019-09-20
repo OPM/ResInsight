@@ -31,13 +31,13 @@ class Case (PdmObject):
         self.id = id
         info = self.stub.GetCaseInfo(Case_pb2.CaseRequest(id=self.id))
         self.name    = info.name
-        self.groupId = info.group_id
+        self.group_id = info.group_id
         self.type    = info.type
         self.properties = Properties(self)
         self.request = Case_pb2.CaseRequest(id=self.id)
         PdmObject.__init__(self, self.stub.GetPdmObject(self.request), self.channel)
   
-    def gridCount(self):
+    def grid_count(self):
         """Get number of grids in the case"""
         try:
             return self.stub.GetGridCount(self.request).count          
@@ -47,8 +47,8 @@ class Case (PdmObject):
             print("ERROR: ", e)
             return 0
     
-    def gridPath(self):
-        return self.getValue("CaseFileName")
+    def grid_path(self):
+        return self.get_value("CaseFileName")
 
     def grid(self, index):
         """Get Grid of a given index. Returns a rips Grid object
@@ -62,50 +62,50 @@ class Case (PdmObject):
     
     def grids(self):
         """Get a list of all rips Grid objects in the case"""
-        gridList = []
-        for i in range(0, self.gridCount()):
-            gridList.append(Grid(i, self))
-        return gridList
+        grid_list = []
+        for i in range(0, self.grid_count()):
+            grid_list.append(Grid(i, self))
+        return grid_list
 
-    def cellCount(self, porosityModel='MATRIX_MODEL'):
+    def cell_count(self, porosity_model='MATRIX_MODEL'):
         """Get a cell count object containing number of active cells and
         total number of cells
         
         Arguments:
-            porosityModel (str): String representing an enum.
+            porosity_model (str): String representing an enum.
                 must be 'MATRIX_MODEL' or 'FRACTURE_MODEL'.
         Returns:
             Cell Count object with the following integer attributes:
                 active_cell_count: number of active cells
                 reservoir_cell_count: total number of reservoir cells
         """
-        porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
+        porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
         request =  Case_pb2.CellInfoRequest(case_request=self.request,
-                                            porosity_model=porosityModel)
+                                            porosity_model=porosity_model_enum)
         return self.stub.GetCellCount(request)
 
-    def cellInfoForActiveCellsAsync(self, porosityModel='MATRIX_MODEL'):
+    def cell_info_for_active_cells_async(self, porosity_model='MATRIX_MODEL'):
         """Get Stream of cell info objects for current case
 		
         Arguments:
-            porosityModel(str): String representing an enum.
+            porosity_model(str): String representing an enum.
                 must be 'MATRIX_MODEL' or 'FRACTURE_MODEL'.
 		
         Returns:
             Stream of **CellInfo** objects
         
-        See cellInfoForActiveCells() for detalis on the **CellInfo** class.
+        See cell_info_for_active_cells() for detalis on the **CellInfo** class.
         """
-        porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
+        porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
         request =  Case_pb2.CellInfoRequest(case_request=self.request,
-                                            porosity_model=porosityModel)
+                                            porosity_model=porosity_model_enum)
         return self.stub.GetCellInfoForActiveCells(request)
 
-    def cellInfoForActiveCells(self, porosityModel='MATRIX_MODEL'):
+    def cell_info_for_active_cells(self, porosity_model='MATRIX_MODEL'):
         """Get list of cell info objects for current case
 		
         Arguments:
-            porosityModel(str): String representing an enum.
+            porosity_model(str): String representing an enum.
                 must be 'MATRIX_MODEL' or 'FRACTURE_MODEL'.
 		
         Returns:
@@ -130,14 +130,14 @@ class Case (PdmObject):
         k                | K grid index                                 | Integer          
 
         """
-        activeCellInfoChunks = self.cellInfoForActiveCellsAsync()
-        receivedActiveCells = []
-        for activeCellChunk in activeCellInfoChunks:
-            for activeCell in activeCellChunk.data:
-                receivedActiveCells.append(activeCell)
-        return receivedActiveCells
+        active_cell_info_chunks = self.cell_info_for_active_cells_async()
+        received_active_cells = []
+        for active_cell_chunk in active_cell_info_chunks:
+            for active_cell in active_cell_chunk.data:
+                received_active_cells.append(active_cell)
+        return received_active_cells
 
-    def timeSteps(self):
+    def time_steps(self):
         """Get a list containing all time steps
 
         The time steps are defined by the class **TimeStepDate** : 
@@ -155,17 +155,17 @@ class Case (PdmObject):
         """
         return self.stub.GetTimeSteps(self.request).dates
 
-    def daysSinceStart(self):
+    def days_since_start(self):
         """Get a list of decimal values representing days since the start of the simulation"""
         return self.stub.GetDaysSinceStart(self.request).day_decimals
 
     def views(self):
         """Get a list of views belonging to a case"""
-        pbmObjects = self.children("ReservoirViews")
-        viewList = []
-        for pbmObject in pbmObjects:
-            viewList.append(View(pbmObject))
-        return viewList
+        pdm_objects = self.children("ReservoirViews")
+        view_list = []
+        for pdm_object in pdm_objects:
+            view_list.append(View(pdm_object))
+        return view_list
 
     def view(self, id):
         """Get a particular view belonging to a case by providing view id
@@ -176,13 +176,13 @@ class Case (PdmObject):
         
         """
         views = self.views()
-        for viewObject in views:
-            if viewObject.id == id:
-                return viewObject
+        for view_object in views:
+            if view_object.id == id:
+                return view_object
         return None
 
-    def createView(self):
+    def create_view(self):
         """Create a new view in the current case"""
-        viewId =  Commands(self.channel).createView(self.id)
-        return self.view(viewId)
+        view_id =  Commands(self.channel).create_view(self.id)
+        return self.view(view_id)
 

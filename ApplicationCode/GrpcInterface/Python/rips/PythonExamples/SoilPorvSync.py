@@ -5,29 +5,29 @@
 import rips
 import time
 
-resInsight = rips.Instance.find()
+resinsight = rips.Instance.find()
 start = time.time()
-case       = resInsight.project.case(id=0)
+case       = resinsight.project.case(id=0)
 
 # Read the full porv result
-porvResults = case.properties.activeCellProperty('STATIC_NATIVE', 'PORV', 0)
-timeStepInfo = case.timeSteps()
+porv_results = case.properties.active_cell_property('STATIC_NATIVE', 'PORV', 0)
+time_step_info = case.time_steps()
 
-for i in range (0, len(timeStepInfo)):
+for i in range (0, len(time_step_info)):
     # Read the full SOIl result for time step i
-    soilResults = case.properties.activeCellProperty('DYNAMIC_NATIVE', 'SOIL', i)
+    soil_results = case.properties.active_cell_property('DYNAMIC_NATIVE', 'SOIL', i)
     
     # Generate the result by looping through both lists in order
     results = []
-    for (soil, porv) in zip(soilResults, porvResults):
+    for (soil, porv) in zip(soil_results, porv_results):
         results.append(soil * porv)
 
     # Send back result
-    case.properties.setActiveCellProperty(results, 'GENERATED', 'SOILPORVSync', i)
+    case.properties.set_active_cell_property(results, 'GENERATED', 'SOILPORVSync', i)
 
 end = time.time()
 print("Time elapsed: ", end - start)
 
 print("Transferred all results back")
 
-view = case.views()[0].applyCellResult('GENERATED', 'SOILPORVSync')
+view = case.views()[0].apply_cell_result('GENERATED', 'SOILPORVSync')

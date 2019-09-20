@@ -4,9 +4,9 @@
 
 import rips
 
-resInsight  = rips.Instance.find()
+resinsight  = rips.Instance.find()
 
-cases = resInsight.project.cases()
+cases = resinsight.project.cases()
 print("Number of cases found: ", len(cases))
 for case in cases:
     print(case.name)

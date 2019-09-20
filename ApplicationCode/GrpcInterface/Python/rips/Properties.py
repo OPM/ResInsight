@@ -26,11 +26,11 @@ class Properties:
                 case(Case): A rips case to handle properties for
         """
         self.case = case
-        self.propertiesStub = Properties_pb2_grpc.PropertiesStub(self.case.channel)
-        self.chunkSize = 8160
+        self._properties_stub = Properties_pb2_grpc.PropertiesStub(self.case.channel)
+        self.chunk_size = 8160
 
     
-    def __generatePropertyInputIterator(self, values_iterator, parameters):
+    def __generate_property_input_iterator(self, values_iterator, parameters):
         chunk = Properties_pb2.PropertyInputChunk()
         chunk.params.CopyFrom(parameters)
         yield chunk
@@ -40,7 +40,7 @@ class Properties:
             chunk.values.CopyFrom(valmsg)
             yield chunk
 
-    def __generatePropertyInputChunks(self, array, parameters):
+    def __generate_property_input_chunks(self, array, parameters):
        
         index = -1
         while index < len(array):
@@ -49,20 +49,20 @@ class Properties:
                 chunk.params.CopyFrom(parameters)
                 index += 1
             else:
-                actualChunkSize = min(len(array) - index + 1, self.chunkSize)
-                chunk.values.CopyFrom(Properties_pb2.PropertyChunk(values = array[index:index+actualChunkSize]))
-                index += actualChunkSize
+                actual_chunk_size = min(len(array) - index + 1, self.chunk_size)
+                chunk.values.CopyFrom(Properties_pb2.PropertyChunk(values = array[index:index+actual_chunk_size]))
+                index += actual_chunk_size
 
             yield chunk
         # Final empty message to signal completion
         chunk = Properties_pb2.PropertyInputChunk()
         yield chunk
 
-    def available(self, propertyType, porosityModel = 'MATRIX_MODEL'):
+    def available(self, property_type, porosity_model = 'MATRIX_MODEL'):
         """Get a list of available properties
         
         Arguments:
-            propertyType (str): string corresponding to propertyType enum. Can be one of the following:
+            property_type (str): string corresponding to property_type enum. Can be one of the following:
                 - DYNAMIC_NATIVE
                 - STATIC_NATIVE
                 - SOURSIMRL
@@ -72,168 +72,168 @@ class Properties:
                 - FLOW_DIAGNOSTICS
                 - INJECTION_FLOODING
 
-            porosityModel(str): 'MATRIX_MODEL' or 'FRACTURE_MODEL'.
+            porosity_model(str): 'MATRIX_MODEL' or 'FRACTURE_MODEL'.
         """
 
-        propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
-        porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
+        property_type_enum = Properties_pb2.PropertyType.Value(property_type)
+        porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
         request = Properties_pb2.AvailablePropertiesRequest (case_request = Case_pb2.CaseRequest(id=self.case.id),
-                                                    property_type = propertyTypeEnum,
-                                                    porosity_model = porosityModelEnum)
-        return self.propertiesStub.GetAvailableProperties(request).property_names
+                                                    property_type = property_type_enum,
+                                                    porosity_model = porosity_model_enum)
+        return self._properties_stub.GetAvailableProperties(request).property_names
 
-    def activeCellPropertyAsync(self, propertyType, propertyName, timeStep, porosityModel = 'MATRIX_MODEL'):
+    def active_cell_property_async(self, property_type, property_name, time_step, porosity_model = 'MATRIX_MODEL'):
         """Get a cell property for all active cells. Async, so returns an iterator
             
             Arguments:
-                propertyType(str): string enum. See available()
-                propertyName(str): name of an Eclipse property
-                timeStep(int): the time step for which to get the property for
-                porosityModel(str): string enum. See available()
+                property_type(str): string enum. See available()
+                property_name(str): name of an Eclipse property
+                time_step(int): the time step for which to get the property for
+                porosity_model(str): string enum. See available()
 
             Returns:
                 An iterator to a chunk object containing an array of double values
                 You first loop through the chunks and then the values within the chunk to get all values.
         """
-        propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
-        porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
+        property_type_enum = Properties_pb2.PropertyType.Value(property_type)
+        porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
         request = Properties_pb2.PropertyRequest(case_request   = Case_pb2.CaseRequest(id=self.case.id),
-                                               property_type  = propertyTypeEnum,
-                                               property_name  = propertyName,
-                                               time_step      = timeStep,
-                                               porosity_model = porosityModelEnum)
-        for chunk in self.propertiesStub.GetActiveCellProperty(request):
+                                               property_type  = property_type_enum,
+                                               property_name  = property_name,
+                                               time_step      = time_step,
+                                               porosity_model = porosity_model_enum)
+        for chunk in self._properties_stub.GetActiveCellProperty(request):
             yield chunk
 
-    def activeCellProperty(self, propertyType, propertyName, timeStep, porosityModel = 'MATRIX_MODEL'):
+    def active_cell_property(self, property_type, property_name, time_step, porosity_model = 'MATRIX_MODEL'):
         """Get a cell property for all active cells. Sync, so returns a list
             
             Arguments:
-                propertyType(str): string enum. See available()
-                propertyName(str): name of an Eclipse property
-                timeStep(int): the time step for which to get the property for
-                porosityModel(str): string enum. See available()
+                property_type(str): string enum. See available()
+                property_name(str): name of an Eclipse property
+                time_step(int): the time step for which to get the property for
+                porosity_model(str): string enum. See available()
 
             Returns:
                 A list containing double values
                 You first loop through the chunks and then the values within the chunk to get all values.
         """
-        allValues = []
-        generator = self.activeCellPropertyAsync(propertyType, propertyName, timeStep, porosityModel)
+        all_values = []
+        generator = self.active_cell_property_async(property_type, property_name, time_step, porosity_model)
         for chunk in generator:
             for value in chunk.values:
-                allValues.append(value)
-        return allValues
+                all_values.append(value)
+        return all_values
 
-    def gridPropertyAsync(self, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
+    def grid_property_async(self, property_type, property_name, time_step, gridIndex = 0, porosity_model = 'MATRIX_MODEL'):
         """Get a cell property for all grid cells. Async, so returns an iterator
             
             Arguments:
-                propertyType(str): string enum. See available()
-                propertyName(str): name of an Eclipse property
-                timeStep(int): the time step for which to get the property for
+                property_type(str): string enum. See available()
+                property_name(str): name of an Eclipse property
+                time_step(int): the time step for which to get the property for
                 gridIndex(int): index to the grid we're getting values for
-                porosityModel(str): string enum. See available()
+                porosity_model(str): string enum. See available()
 
             Returns:
                 An iterator to a chunk object containing an array of double values
                 You first loop through the chunks and then the values within the chunk to get all values.
         """
-        propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
-        porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
+        property_type_enum = Properties_pb2.PropertyType.Value(property_type)
+        porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
         request = Properties_pb2.PropertyRequest(case_request   = self.case.request,
-                                                 property_type  = propertyTypeEnum,
-                                                 property_name  = propertyName,
-                                                 time_step      = timeStep,
+                                                 property_type  = property_type_enum,
+                                                 property_name  = property_name,
+                                                 time_step      = time_step,
                                                  grid_index     = gridIndex,
-                                                 porosity_model = porosityModelEnum)
-        for chunk in self.propertiesStub.GetGridProperty(request):
+                                                 porosity_model = porosity_model_enum)
+        for chunk in self._properties_stub.GetGridProperty(request):
             yield chunk
 
-    def gridProperty(self, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
+    def grid_property(self, property_type, property_name, time_step, grid_index = 0, porosity_model = 'MATRIX_MODEL'):
         """Get a cell property for all grid cells. Synchronous, so returns a list
             
             Arguments:
-                propertyType(str): string enum. See available()
-                propertyName(str): name of an Eclipse property
-                timeStep(int): the time step for which to get the property for
-                gridIndex(int): index to the grid we're getting values for
-                porosityModel(str): string enum. See available()
+                property_type(str): string enum. See available()
+                property_name(str): name of an Eclipse property
+                time_step(int): the time step for which to get the property for
+                grid_index(int): index to the grid we're getting values for
+                porosity_model(str): string enum. See available()
 
             Returns:
                 A list of double values
         """
-        allValues = []
-        generator = self.gridPropertyAsync(propertyType, propertyName, timeStep, gridIndex, porosityModel)
+        all_values = []
+        generator = self.grid_property_async(property_type, property_name, time_step, grid_index, porosity_model)
         for chunk in generator:
             for value in chunk.values:
-                allValues.append(value)
-        return allValues
+                all_values.append(value)
+        return all_values
 
-    def setActiveCellPropertyAsync(self, values_iterator, propertyType, propertyName, timeStep, porosityModel = 'MATRIX_MODEL'):
+    def set_active_cell_property_async(self, values_iterator, property_type, property_name, time_step, porosity_model = 'MATRIX_MODEL'):
         """Set a cell property for all active cells. Async, and so takes an iterator to the input values
             
             Arguments:
                 values_iterator(iterator): an iterator to the properties to be set
-                propertyType(str): string enum. See available()
-                propertyName(str): name of an Eclipse property
-                timeStep(int): the time step for which to get the property for
-                porosityModel(str): string enum. See available()
+                property_type(str): string enum. See available()
+                property_name(str): name of an Eclipse property
+                time_step(int): the time step for which to get the property for
+                porosity_model(str): string enum. See available()
         """
-        propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
-        porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
+        property_type_enum = Properties_pb2.PropertyType.Value(property_type)
+        porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
         request = Properties_pb2.PropertyRequest(case_request   = self.case.request,
-                                                 property_type  = propertyTypeEnum,
-                                                 property_name  = propertyName,
-                                                 time_step      = timeStep,
-                                                 porosity_model = porosityModelEnum)
+                                                 property_type  = property_type_enum,
+                                                 property_name  = property_name,
+                                                 time_step      = time_step,
+                                                 porosity_model = porosity_model_enum)
         
-        request_iterator = self.__generatePropertyInputIterator(values_iterator, request)
-        self.propertiesStub.SetActiveCellProperty(request_iterator)
+        request_iterator = self.__generate_property_input_iterator(values_iterator, request)
+        self._properties_stub.SetActiveCellProperty(request_iterator)
     
-    def setActiveCellProperty(self, values, propertyType, propertyName, timeStep, porosityModel = 'MATRIX_MODEL'):
+    def set_active_cell_property(self, values, property_type, property_name, time_step, porosity_model = 'MATRIX_MODEL'):
         """Set a cell property for all active cells.
             
             Arguments:
                 values(list): a list of double precision floating point numbers
-                propertyType(str): string enum. See available()
-                propertyName(str): name of an Eclipse property
-                timeStep(int): the time step for which to get the property for
-                porosityModel(str): string enum. See available()
+                property_type(str): string enum. See available()
+                property_name(str): name of an Eclipse property
+                time_step(int): the time step for which to get the property for
+                porosity_model(str): string enum. See available()
         """
-        propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
-        porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
+        property_type_enum = Properties_pb2.PropertyType.Value(property_type)
+        porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
         request = Properties_pb2.PropertyRequest(case_request   = self.case.request,
-                                                 property_type  = propertyTypeEnum,
-                                                 property_name  = propertyName,
-                                                 time_step      = timeStep,
-                                                 porosity_model = porosityModelEnum)
-        request_iterator = self.__generatePropertyInputChunks(values, request)
-        reply = self.propertiesStub.SetActiveCellProperty(request_iterator)
+                                                 property_type  = property_type_enum,
+                                                 property_name  = property_name,
+                                                 time_step      = time_step,
+                                                 porosity_model = porosity_model_enum)
+        request_iterator = self.__generate_property_input_chunks(values, request)
+        reply = self._properties_stub.SetActiveCellProperty(request_iterator)
         if reply.accepted_value_count < len(values):
             raise IndexError
 
-    def setGridProperty(self, values, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
+    def set_grid_property(self, values, property_type, property_name, time_step, grid_index = 0, porosity_model = 'MATRIX_MODEL'):
         """Set a cell property for all grid cells.
             
             Arguments:
                 values(list): a list of double precision floating point numbers
-                propertyType(str): string enum. See available()
-                propertyName(str): name of an Eclipse property
-                timeStep(int): the time step for which to get the property for
-                gridIndex(int): index to the grid we're setting values for
-                porosityModel(str): string enum. See available()
+                property_type(str): string enum. See available()
+                property_name(str): name of an Eclipse property
+                time_step(int): the time step for which to get the property for
+                grid_index(int): index to the grid we're setting values for
+                porosity_model(str): string enum. See available()
         """
-        propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
-        porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
+        property_type_enum = Properties_pb2.PropertyType.Value(property_type)
+        porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
         request = Properties_pb2.PropertyRequest(case_request   = self.case.request,
-                                                 property_type  = propertyTypeEnum,
-                                                 property_name  = propertyName,
-                                                 time_step      = timeStep,
-                                                 grid_index     = gridIndex,
-                                                 porosity_model = porosityModelEnum)
-        request_iterator = self.__generatePropertyInputChunks(values, request)
-        reply = self.propertiesStub.SetGridProperty(request_iterator)
+                                                 property_type  = property_type_enum,
+                                                 property_name  = property_name,
+                                                 time_step      = time_step,
+                                                 grid_index     = grid_index,
+                                                 porosity_model = porosity_model_enum)
+        request_iterator = self.__generate_property_input_chunks(values, request)
+        reply = self._properties_stub.SetGridProperty(request_iterator)
         if reply.accepted_value_count < len(values):
             raise IndexError
             
