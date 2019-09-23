@@ -1617,9 +1617,11 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     mainOptions->add( &m_normalizeCurveYValues );
     mainOptions->add( &m_plotTemplate );
 
-    caf::PdmUiGroup* textCurveFilterGroup = uiOrdering.addNewGroup("Text-Based Curve Creation");
-
-    m_textCurveSetEditor->uiOrdering(uiConfigName, *textCurveFilterGroup);
+    if ( !m_isCrossPlot )
+    {
+        caf::PdmUiGroup* textCurveFilterGroup = uiOrdering.addNewGroup( "Text-Based Curve Creation" );
+        m_textCurveSetEditor->uiOrdering( uiConfigName, *textCurveFilterGroup );
+    }
 
     uiOrdering.skipRemainingFields( true );
 }

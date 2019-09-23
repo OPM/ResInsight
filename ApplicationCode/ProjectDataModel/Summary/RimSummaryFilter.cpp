@@ -24,35 +24,35 @@
 namespace caf
 {
 template <>
-void caf::AppEnum<RimSummaryFilter::SummaryFilterType>::setUp()
+void caf::AppEnum<RimSummaryFilter_OBSOLETE::SummaryFilterType>::setUp()
 {
-    addItem( RimSummaryFilter::SUM_FILTER_VAR_STRING, "SUM_FILTER_VAR_STRING", "All" );
-    addItem( RimSummaryFilter::SUM_FILTER_FIELD, "SUM_FILTER_FIELD", "Field" );
-    addItem( RimSummaryFilter::SUM_FILTER_WELL, "SUM_FILTER_WELL", "Well" );
-    addItem( RimSummaryFilter::SUM_FILTER_WELL_GROUP, "SUM_FILTER_WELL_GROUP", "Group" );
-    addItem( RimSummaryFilter::SUM_FILTER_WELL_COMPLETION, "SUM_FILTER_WELL_COMPLETION", "Completion" );
-    addItem( RimSummaryFilter::SUM_FILTER_WELL_SEGMENT, "SUM_FILTER_SEGMENT", "Segment" );
-    addItem( RimSummaryFilter::SUM_FILTER_BLOCK, "SUM_FILTER_BLOCK", "Block" );
-    addItem( RimSummaryFilter::SUM_FILTER_REGION, "SUM_FILTER_REGION", "Region" );
-    addItem( RimSummaryFilter::SUM_FILTER_REGION_2_REGION, "SUM_FILTER_REGION_2_REGION", "Region-Region" );
-    addItem( RimSummaryFilter::SUM_FILTER_WELL_LGR, "SUM_FILTER_WELL_LGR", "Lgr-Well" );
-    addItem( RimSummaryFilter::SUM_FILTER_WELL_COMPLETION_LGR, "SUM_FILTER_WELL_COMPLETION_LGR", "Lgr-Completion" );
-    addItem( RimSummaryFilter::SUM_FILTER_BLOCK_LGR, "SUM_FILTER_BLOCK_LGR", "Lgr-Block" );
-    addItem( RimSummaryFilter::SUM_FILTER_MISC, "SUM_FILTER_MISC", "Misc" );
-    addItem( RimSummaryFilter::SUM_FILTER_AQUIFER, "SUM_FILTER_AQUIFER", "Aquifer" );
-    addItem( RimSummaryFilter::SUM_FILTER_NETWORK, "SUM_FILTER_NETWORK", "Network" );
-    addItem( RimSummaryFilter::SUM_FILTER_ANY, "SUM_FILTER_ANY", "All (Advanced)" );
-    setDefault( RimSummaryFilter::SUM_FILTER_VAR_STRING );
+    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_VAR_STRING, "SUM_FILTER_VAR_STRING", "All" );
+    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_FIELD, "SUM_FILTER_FIELD", "Field" );
+    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_WELL, "SUM_FILTER_WELL", "Well" );
+    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_WELL_GROUP, "SUM_FILTER_WELL_GROUP", "Group" );
+    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_WELL_COMPLETION, "SUM_FILTER_WELL_COMPLETION", "Completion" );
+    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_WELL_SEGMENT, "SUM_FILTER_SEGMENT", "Segment" );
+    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_BLOCK, "SUM_FILTER_BLOCK", "Block" );
+    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_REGION, "SUM_FILTER_REGION", "Region" );
+    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_REGION_2_REGION, "SUM_FILTER_REGION_2_REGION", "Region-Region" );
+    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_WELL_LGR, "SUM_FILTER_WELL_LGR", "Lgr-Well" );
+    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_WELL_COMPLETION_LGR, "SUM_FILTER_WELL_COMPLETION_LGR", "Lgr-Completion" );
+    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_BLOCK_LGR, "SUM_FILTER_BLOCK_LGR", "Lgr-Block" );
+    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_MISC, "SUM_FILTER_MISC", "Misc" );
+    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_AQUIFER, "SUM_FILTER_AQUIFER", "Aquifer" );
+    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_NETWORK, "SUM_FILTER_NETWORK", "Network" );
+    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_ANY, "SUM_FILTER_ANY", "All (Advanced)" );
+    setDefault( RimSummaryFilter_OBSOLETE::SUM_FILTER_VAR_STRING );
 }
 
 } // namespace caf
 
-CAF_PDM_SOURCE_INIT( RimSummaryFilter, "SummaryFilterSettings" );
+CAF_PDM_SOURCE_INIT( RimSummaryFilter_OBSOLETE, "SummaryFilterSettings" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryFilter::RimSummaryFilter()
+RimSummaryFilter_OBSOLETE::RimSummaryFilter_OBSOLETE()
 {
     CAF_PDM_InitObject( "Summary Filter", "", "", "" );
 
@@ -71,7 +71,7 @@ RimSummaryFilter::RimSummaryFilter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryFilter::~RimSummaryFilter() {}
+RimSummaryFilter_OBSOLETE::~RimSummaryFilter_OBSOLETE() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -90,7 +90,7 @@ QString cellIJKString( int cellI, int cellJ, int cellK )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryFilter::updateFromAddress( const RifEclipseSummaryAddress& address )
+void RimSummaryFilter_OBSOLETE::updateFromAddress( const RifEclipseSummaryAddress& address )
 {
     RifEclipseSummaryAddress::SummaryVarCategory category = address.category();
 
@@ -235,7 +235,7 @@ bool isIJKMatch( QString filterString, int cellI, int cellJ, int cellK )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryFilter::isIncludedByFilter( const RifEclipseSummaryAddress& addr ) const
+bool RimSummaryFilter_OBSOLETE::isIncludedByFilter( const RifEclipseSummaryAddress& addr ) const
 {
     if ( !isSumVarTypeMatchingFilterType( m_filterType(), addr.category() ) ) return false;
 
@@ -325,7 +325,7 @@ bool RimSummaryFilter::isIncludedByFilter( const RifEclipseSummaryAddress& addr 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryFilter::isSumVarTypeMatchingFilterType( SummaryFilterType                            sumFilterType,
+bool RimSummaryFilter_OBSOLETE::isSumVarTypeMatchingFilterType( SummaryFilterType                            sumFilterType,
                                                        RifEclipseSummaryAddress::SummaryVarCategory sumVarType )
 {
     if ( sumVarType == RifEclipseSummaryAddress::SUMMARY_INVALID ) return false;
@@ -411,7 +411,7 @@ bool RimSummaryFilter::isSumVarTypeMatchingFilterType( SummaryFilterType        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimSummaryFilter_OBSOLETE::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_filterType );
 
@@ -504,7 +504,7 @@ void RimSummaryFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+void RimSummaryFilter_OBSOLETE::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                          const QVariant&            oldValue,
                                          const QVariant&            newValue )
 {

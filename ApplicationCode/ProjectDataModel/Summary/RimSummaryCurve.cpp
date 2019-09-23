@@ -130,13 +130,13 @@ RimSummaryCurve::RimSummaryCurve()
     m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
     m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiHidden( true );
     m_yValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
-    m_yValuesSummaryFilter_OBSOLETE = new RimSummaryFilter;
+    m_yValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
 
     CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryFilter_OBSOLETE, "VarListFilterX", "Filter", "", "", "" );
     m_xValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
     m_xValuesSummaryFilter_OBSOLETE.uiCapability()->setUiHidden( true );
     m_xValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
-    m_xValuesSummaryFilter_OBSOLETE = new RimSummaryFilter;
+    m_xValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -394,11 +394,11 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
     }
     else if ( &m_yValuesSummaryAddressUiField == fieldNeedingOptions )
     {
-        appendOptionItemsForSummaryAddresses( &options, m_yValuesSummaryCase(), nullptr );
+        appendOptionItemsForSummaryAddresses( &options, m_yValuesSummaryCase());
     }
     else if ( &m_xValuesSummaryAddressUiField == fieldNeedingOptions )
     {
-        appendOptionItemsForSummaryAddresses( &options, m_xValuesSummaryCase(), nullptr );
+        appendOptionItemsForSummaryAddresses( &options, m_xValuesSummaryCase() );
     }
     return options;
 }
@@ -685,8 +685,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
-                                                            RimSummaryCase*                summaryCase,
-                                                            RimSummaryFilter*              summaryFilter )
+                                                            RimSummaryCase*                summaryCase )
 {
     if ( summaryCase )
     {
@@ -698,7 +697,6 @@ void RimSummaryCurve::appendOptionItemsForSummaryAddresses( QList<caf::PdmOption
             for ( auto& address : allAddresses )
             {
                 if ( address.isErrorResult() ) continue;
-                if ( summaryFilter && !summaryFilter->isIncludedByFilter( address ) ) continue;
 
                 std::string name = address.uiText();
                 QString     s    = QString::fromStdString( name );

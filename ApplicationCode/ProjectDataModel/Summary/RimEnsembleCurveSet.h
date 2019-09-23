@@ -45,7 +45,7 @@ class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RimSummaryCurve;
 class RimSummaryAddress;
-class RimSummaryFilter;
+class RimSummaryFilter_OBSOLETE;
 class RimSummaryPlotSourceStepping;
 class RimSummaryCurveAutoName;
 class RimEnsembleCurveFilterCollection;
@@ -145,8 +145,7 @@ private:
                            const QVariant&            newValue ) override;
 
     void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
-                                               RimSummaryCaseCollection*      summaryCaseGroup,
-                                               RimSummaryFilter*              summaryFilter );
+                                               RimSummaryCaseCollection*      summaryCaseGroup);
 
     void updateCurveColors();
     void updateQwtPlotAxis();
@@ -163,11 +162,9 @@ private:
 
     caf::PdmPointer<RimSummaryCurve> m_currentSummaryCurve;
 
-    caf::PdmPtrField<RimSummaryCaseCollection*> m_yValuesSummaryGroup;
-    caf::PdmChildField<RimSummaryAddress*>      m_yValuesCurveVariable;
-    caf::PdmField<QString>                      m_yValuesSelectedVariableDisplayField;
-    caf::PdmChildField<RimSummaryFilter*>       m_yValuesSummaryFilter;
-    caf::PdmField<RifEclipseSummaryAddress>     m_yValuesUiFilterResultSelection;
+    caf::PdmPtrField<RimSummaryCaseCollection*> m_yValuesSummaryCaseCollection;
+    caf::PdmChildField<RimSummaryAddress*>      m_yValuesSummaryAddress;
+    caf::PdmField<RifEclipseSummaryAddress>     m_yValuesSummaryAddressUiField;
     caf::PdmField<bool>                         m_yPushButtonSelectSummaryAddress;
 
     caf::PdmField<caf::AppEnum<ColorMode>> m_colorMode;
@@ -191,4 +188,7 @@ private:
 
     bool m_disableStatisticCurves;
     bool m_isCurveSetFiltered;
+
+    // Obsolete fields
+    caf::PdmChildField<RimSummaryFilter_OBSOLETE*>       m_yValuesSummaryFilter_OBSOLETE;
 };

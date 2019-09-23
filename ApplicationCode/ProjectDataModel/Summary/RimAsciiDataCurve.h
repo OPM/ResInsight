@@ -34,7 +34,6 @@
 
 class RifReaderEclipseSummary;
 class RimSummaryCase;
-class RimSummaryFilter;
 class RiuQwtPlotCurve;
 class RimAsciiDataCurveAutoName;
 

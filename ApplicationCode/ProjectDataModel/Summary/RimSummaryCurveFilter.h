@@ -32,7 +32,7 @@
 #include "RiaDefines.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
 
-class RimSummaryFilter;
+class RimSummaryFilter_OBSOLETE;
 class RimSummaryCurveAutoName;
 
 //==================================================================================================
@@ -62,7 +62,7 @@ private:
     caf::PdmField<bool>                               m_showLegend;
 
     // Filter fields
-    caf::PdmChildField<RimSummaryFilter*>                m_summaryFilter;
+    caf::PdmChildField<RimSummaryFilter_OBSOLETE*>                m_summaryFilter;
     caf::PdmField<std::vector<RifEclipseSummaryAddress>> m_uiFilterResultMultiSelection;
 
     caf::PdmChildField<RimSummaryCurveAutoName*> m_curveNameConfig;

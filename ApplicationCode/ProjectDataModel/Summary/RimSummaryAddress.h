@@ -32,7 +32,7 @@
 
 class RifSummaryReaderInterface;
 class RimSummaryCase;
-class RimSummaryFilter;
+class RimSummaryFilter_OBSOLETE;
 class RiuQwtPlotCurve;
 class RimSummaryCurveAutoName;
 

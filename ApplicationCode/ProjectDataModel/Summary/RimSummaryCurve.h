@@ -32,7 +32,7 @@
 
 class RifSummaryReaderInterface;
 class RimSummaryCase;
-class RimSummaryFilter;
+class RimSummaryFilter_OBSOLETE;
 class RiuQwtPlotCurve;
 class RimSummaryCurveAutoName;
 class RimSummaryAddress;
@@ -113,8 +113,7 @@ private:
                                                          caf::PdmUiEditorAttribute* attribute ) override;
 
     static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
-                                                      RimSummaryCase*                summaryCase,
-                                                      RimSummaryFilter*              summaryFilter );
+                                                      RimSummaryCase*                summaryCase );
 
 private:
     // Y values
@@ -134,6 +133,6 @@ private:
     caf::PdmField<bool>                               m_isTopZWithinCategory;
 
     // Obsolete fields
-    caf::PdmChildField<RimSummaryFilter*> m_yValuesSummaryFilter_OBSOLETE;
-    caf::PdmChildField<RimSummaryFilter*> m_xValuesSummaryFilter_OBSOLETE;
+    caf::PdmChildField<RimSummaryFilter_OBSOLETE*> m_yValuesSummaryFilter_OBSOLETE;
+    caf::PdmChildField<RimSummaryFilter_OBSOLETE*> m_xValuesSummaryFilter_OBSOLETE;
 };

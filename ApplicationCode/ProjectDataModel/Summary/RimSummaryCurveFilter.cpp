@@ -59,7 +59,7 @@ RimSummaryCurveFilter_OBSOLETE::RimSummaryCurveFilter_OBSOLETE()
     m_summaryFilter.uiCapability()->setUiTreeChildrenHidden( true );
     m_summaryFilter.uiCapability()->setUiHidden( true );
 
-    m_summaryFilter = new RimSummaryFilter;
+    m_summaryFilter = new RimSummaryFilter_OBSOLETE;
 
     CAF_PDM_InitFieldNoDefault( &m_uiFilterResultMultiSelection,
                                 "FilterResultSelection",
