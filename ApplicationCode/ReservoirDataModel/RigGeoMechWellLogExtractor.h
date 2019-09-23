@@ -81,6 +81,10 @@ public:
                            double             userDefinedPoissonRatio,
                            double             userDefinedUcs );
 
+    std::vector<double> porePressureIntervals( int frameIndex );
+    std::vector<double> poissonIntervals( int frameIndex );
+    std::vector<double> ucsIntervals( int frameIndex );
+
 private:
     enum WellPathTangentCalculation
     {

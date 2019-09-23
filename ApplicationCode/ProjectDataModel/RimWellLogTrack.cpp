@@ -51,8 +51,11 @@
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimTools.h"
+#include "RimWellBoreStabilityPlot.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogCurve.h"
+#include "RimWellLogCurveCommonDataSource.h"
+#include "RimWellLogExtractionCurve.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathAttribute.h"
@@ -131,14 +134,22 @@ void AppEnum<RimWellLogTrack::WidthScaleFactor>::setUp()
 }
 
 template <>
-void AppEnum<RiuPlotAnnotationTool::FormationDisplay>::setUp()
+void AppEnum<RiuPlotAnnotationTool::RegionAnnotationType>::setUp()
 {
-    addItem( RiuPlotAnnotationTool::NONE, "NONE", "None" );
+    addItem( RiuPlotAnnotationTool::NO_ANNOTATIONS, "NO_ANNOTATIONS", "No Annotations" );
+    addItem( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS, "FORMATIONS", "Formations" );
+    addItem( RiuPlotAnnotationTool::CURVE_ANNOTATIONS, "CURVE_DATA", "Curve Data Annotations" );
+    setDefault( RiuPlotAnnotationTool::NO_ANNOTATIONS );
+}
+
+template <>
+void AppEnum<RiuPlotAnnotationTool::RegionDisplay>::setUp()
+{
     addItem( RiuPlotAnnotationTool::DARK_LINES, "DARK_LINES", "Dark Lines" );
     addItem( RiuPlotAnnotationTool::COLORED_LINES, "COLORED_LINES", "Colored Lines" );
     addItem( RiuPlotAnnotationTool::COLOR_SHADING, "COLOR_SHADING", "Color Shading" );
     addItem( RiuPlotAnnotationTool::COLOR_SHADING_AND_LINES, "SHADING_AND_LINES", "Color Shading and Lines" );
-    setDefault( RiuPlotAnnotationTool::NONE );
+    setDefault( RiuPlotAnnotationTool::COLOR_SHADING_AND_LINES );
 }
 
 } // namespace caf
@@ -175,7 +186,8 @@ RimWellLogTrack::RimWellLogTrack()
     m_majorTickInterval.uiCapability()->setUiHidden( true );
     m_minorTickInterval.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_formationDisplay, "FormationDisplay", "Show Formations", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_regionAnnotationType, "AnnotationType", "Region Annotations", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_regionAnnotationDisplay, "RegionDisplay", "Region Display", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_colorShadingPalette, "ColorShadingPalette", "Colors", "", "", "" );
     m_colorShadingPalette = RimRegularLegendConfig::CATEGORY;
@@ -372,8 +384,9 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         m_wellLogTrackPlotWidget->replot();
     }
-    else if ( changedField == &m_formationDisplay || changedField == &m_formationSource ||
-              changedField == &m_colorShadingTransparency || changedField == &m_colorShadingPalette )
+    else if ( changedField == &m_regionAnnotationType || changedField == &m_regionAnnotationDisplay ||
+              changedField == &m_formationSource || changedField == &m_colorShadingTransparency ||
+              changedField == &m_colorShadingPalette )
     {
         if ( changedField == &m_formationSource && m_formationSource == WELL_PICK_FILTER )
         {
@@ -598,6 +611,23 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions( const caf:
 
     if ( options.size() > 0 ) return options;
 
+    if ( fieldNeedingOptions == &m_regionAnnotationType )
+    {
+        options.push_back(
+            caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText( RiuPlotAnnotationTool::NO_ANNOTATIONS ),
+                                    RiuPlotAnnotationTool::NO_ANNOTATIONS ) );
+        options.push_back(
+            caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS ),
+                                    RiuPlotAnnotationTool::FORMATION_ANNOTATIONS ) );
+        RimWellBoreStabilityPlot* wellBoreStabilityPlot = nullptr;
+        this->firstAncestorOrThisOfTypeAsserted( wellBoreStabilityPlot );
+        if ( wellBoreStabilityPlot )
+        {
+            options.push_back(
+                caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText( RiuPlotAnnotationTool::CURVE_ANNOTATIONS ),
+                                        RiuPlotAnnotationTool::CURVE_ANNOTATIONS ) );
+        }
+    }
     if ( fieldNeedingOptions == &m_formationWellPathForSourceCase )
     {
         RimTools::wellPathOptionItems( &options );
@@ -821,7 +851,7 @@ void RimWellLogTrack::loadDataAndUpdate( bool updateParentPlotAndToolbars )
         curves[cIdx]->loadDataAndUpdate( false );
     }
 
-    if ( m_formationDisplay == RiuPlotAnnotationTool::NONE )
+    if ( m_regionAnnotationType == RiuPlotAnnotationTool::NO_ANNOTATIONS )
     {
         setFormationFieldsUiReadOnly( true );
     }
@@ -837,7 +867,7 @@ void RimWellLogTrack::loadDataAndUpdate( bool updateParentPlotAndToolbars )
         m_wellLogTrackPlotWidget->updateLegend();
 
         this->updateAxisScaleEngine();
-        this->updateFormationNamesOnPlot();
+        this->updateRegionAnnotationsOnPlot();
         this->applyXZoomFromVisibleRange();
     }
 
@@ -872,9 +902,9 @@ void RimWellLogTrack::setAndUpdateWellPathFormationNamesData( RimCase* rimCase, 
 
     updateConnectedEditors();
 
-    if ( m_formationDisplay != RiuPlotAnnotationTool::NONE )
+    if ( m_regionAnnotationType != RiuPlotAnnotationTool::NO_ANNOTATIONS )
     {
-        updateFormationNamesOnPlot();
+        updateRegionAnnotationsOnPlot();
     }
 }
 
@@ -904,9 +934,9 @@ void RimWellLogTrack::setAndUpdateSimWellFormationNamesData( RimCase* rimCase, c
 
     updateConnectedEditors();
 
-    if ( m_formationDisplay != RiuPlotAnnotationTool::NONE )
+    if ( m_regionAnnotationType != RiuPlotAnnotationTool::NO_ANNOTATIONS )
     {
-        updateFormationNamesOnPlot();
+        updateRegionAnnotationsOnPlot();
     }
 }
 
@@ -1279,9 +1309,33 @@ void RimWellLogTrack::setXAxisGridVisibility( RimWellLogPlot::AxisGridVisibility
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setShowFormations( RiuPlotAnnotationTool::FormationDisplay formationDisplay )
+void RimWellLogTrack::setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType annotationType )
 {
-    m_formationDisplay = formationDisplay;
+    m_regionAnnotationType = annotationType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setAnnotationDisplay( RiuPlotAnnotationTool::RegionDisplay annotationDisplay )
+{
+    m_regionAnnotationDisplay = annotationDisplay;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAnnotationTool::RegionAnnotationType RimWellLogTrack::annotationType() const
+{
+    return m_regionAnnotationType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAnnotationTool::RegionDisplay RimWellLogTrack::annotationDisplay() const
+{
+    return m_regionAnnotationDisplay();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1289,7 +1343,7 @@ void RimWellLogTrack::setShowFormations( RiuPlotAnnotationTool::FormationDisplay
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogTrack::showFormations() const
 {
-    return m_formationDisplay() != RiuPlotAnnotationTool::NONE;
+    return m_regionAnnotationType() == RiuPlotAnnotationTool::FORMATION_ANNOTATIONS;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1357,12 +1411,13 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     uiOrdering.add( &m_userName );
     caf::PdmUiGroup* annotationGroup = uiOrdering.addNewGroup( "Regions/Annotations" );
 
-    annotationGroup->add( &m_formationDisplay );
-    if ( m_formationDisplay() & RiuPlotAnnotationTool::COLOR_SHADING ||
-         m_formationDisplay() & RiuPlotAnnotationTool::COLORED_LINES )
+    annotationGroup->add( &m_regionAnnotationType );
+    annotationGroup->add( &m_regionAnnotationDisplay );
+    if ( m_regionAnnotationDisplay() & RiuPlotAnnotationTool::COLOR_SHADING ||
+         m_regionAnnotationDisplay() & RiuPlotAnnotationTool::COLORED_LINES )
     {
         annotationGroup->add( &m_colorShadingPalette );
-        if ( m_formationDisplay() & RiuPlotAnnotationTool::COLOR_SHADING )
+        if ( m_regionAnnotationDisplay() & RiuPlotAnnotationTool::COLOR_SHADING )
         {
             annotationGroup->add( &m_colorShadingTransparency );
         }
@@ -1435,9 +1490,9 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::initAfterRead()
 {
-    if ( m_showFormations_OBSOLETE() && m_formationDisplay() == RiuPlotAnnotationTool::NONE )
+    if ( m_showFormations_OBSOLETE() && m_regionAnnotationType() == RiuPlotAnnotationTool::NO_ANNOTATIONS )
     {
-        m_formationDisplay = RiuPlotAnnotationTool::COLORED_LINES;
+        m_regionAnnotationType = RiuPlotAnnotationTool::FORMATION_ANNOTATIONS;
     }
 }
 
@@ -1623,7 +1678,8 @@ void RimWellLogTrack::uiOrderingForRftPltFormations( caf::PdmUiOrdering& uiOrder
 {
     caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup( "Zonation/Formation Names" );
     formationGroup->setCollapsedByDefault( true );
-    formationGroup->add( &m_formationDisplay );
+    formationGroup->add( &m_regionAnnotationType );
+    formationGroup->add( &m_regionAnnotationDisplay );
     formationGroup->add( &m_formationSource );
     if ( m_formationSource == CASE )
     {
@@ -1726,29 +1782,29 @@ CurveSamplingPointData RimWellLogTrack::curveSamplingPointData( RigGeoMechWellLo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::findFormationNamesToPlot( const CurveSamplingPointData&           curveData,
-                                                const std::vector<QString>&             formationNamesVector,
-                                                RimWellLogPlot::DepthTypeEnum           depthType,
-                                                std::vector<QString>*                   formationNamesToPlot,
-                                                std::vector<std::pair<double, double>>* yValues )
+void RimWellLogTrack::findRegionNamesToPlot( const CurveSamplingPointData&           curveData,
+                                             const std::vector<QString>&             regionNamesVector,
+                                             RimWellLogPlot::DepthTypeEnum           depthType,
+                                             std::vector<QString>*                   regionNamesToPlot,
+                                             std::vector<std::pair<double, double>>* yValues )
 {
-    if ( formationNamesVector.empty() ) return;
+    if ( regionNamesVector.empty() ) return;
 
-    std::vector<size_t> formationNameIndicesFromCurve;
+    std::vector<size_t> regionNameIndicesFromCurve;
 
     for ( double nameIdx : curveData.data )
     {
         if ( nameIdx != std::numeric_limits<double>::infinity() )
         {
-            formationNameIndicesFromCurve.push_back( static_cast<size_t>( round( nameIdx ) ) );
+            regionNameIndicesFromCurve.push_back( static_cast<size_t>( round( nameIdx ) ) );
         }
         else
         {
-            formationNameIndicesFromCurve.push_back( std::numeric_limits<size_t>::max() );
+            regionNameIndicesFromCurve.push_back( std::numeric_limits<size_t>::max() );
         }
     }
 
-    if ( formationNameIndicesFromCurve.empty() ) return;
+    if ( regionNameIndicesFromCurve.empty() ) return;
 
     std::vector<double> depthVector;
 
@@ -1764,17 +1820,17 @@ void RimWellLogTrack::findFormationNamesToPlot( const CurveSamplingPointData&   
     if ( depthVector.empty() ) return;
 
     double currentYStart = depthVector[0];
-    size_t prevNameIndex = formationNameIndicesFromCurve[0];
+    size_t prevNameIndex = regionNameIndicesFromCurve[0];
     size_t currentNameIndex;
 
-    for ( size_t i = 1; i < formationNameIndicesFromCurve.size(); i++ )
+    for ( size_t i = 1; i < regionNameIndicesFromCurve.size(); i++ )
     {
-        currentNameIndex = formationNameIndicesFromCurve[i];
+        currentNameIndex = regionNameIndicesFromCurve[i];
         if ( currentNameIndex != std::numeric_limits<size_t>::max() && currentNameIndex != prevNameIndex )
         {
-            if ( prevNameIndex < formationNamesVector.size() )
+            if ( prevNameIndex < regionNamesVector.size() )
             {
-                formationNamesToPlot->push_back( formationNamesVector[prevNameIndex] );
+                regionNamesToPlot->push_back( regionNamesVector[prevNameIndex] );
                 yValues->push_back( std::make_pair( currentYStart, depthVector[i - 1] ) );
             }
 
@@ -1783,10 +1839,10 @@ void RimWellLogTrack::findFormationNamesToPlot( const CurveSamplingPointData&   
         }
     }
 
-    size_t lastFormationIdx = formationNameIndicesFromCurve.back();
-    if ( lastFormationIdx < formationNamesVector.size() )
+    size_t lastFormationIdx = regionNameIndicesFromCurve.back();
+    if ( lastFormationIdx < regionNamesVector.size() )
     {
-        formationNamesToPlot->push_back( formationNamesVector[lastFormationIdx] );
+        regionNamesToPlot->push_back( regionNamesVector[lastFormationIdx] );
         yValues->push_back( std::make_pair( currentYStart, depthVector.back() ) );
     }
 }
@@ -1822,6 +1878,7 @@ std::vector<QString> RimWellLogTrack::formationNamesVector( RimCase* rimCase )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setFormationFieldsUiReadOnly( bool readOnly /*= true*/ )
 {
+    m_regionAnnotationDisplay.uiCapability()->setUiReadOnly( readOnly );
     m_showFormationLabels.uiCapability()->setUiReadOnly( readOnly );
     m_formationSource.uiCapability()->setUiReadOnly( readOnly );
     m_formationTrajectoryType.uiCapability()->setUiReadOnly( readOnly );
@@ -1838,17 +1895,32 @@ void RimWellLogTrack::setFormationFieldsUiReadOnly( bool readOnly /*= true*/ )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateFormationNamesOnPlot()
+void RimWellLogTrack::updateRegionAnnotationsOnPlot()
 {
-    removeFormationNames();
+    removeRegionAnnotations();
 
-    if ( m_formationDisplay == RiuPlotAnnotationTool::NONE ) return;
+    if ( m_regionAnnotationType == RiuPlotAnnotationTool::NO_ANNOTATIONS ) return;
 
     if ( m_annotationTool == nullptr )
     {
         m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
     }
 
+    if ( m_regionAnnotationType == RiuPlotAnnotationTool::FORMATION_ANNOTATIONS )
+    {
+        updateFormationNamesOnPlot();
+    }
+    else
+    {
+        updateCurveDataRegionsOnPlot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateFormationNamesOnPlot()
+{
     std::vector<QString> formationNamesToPlot;
 
     RimWellLogPlot* plot = nullptr;
@@ -1915,24 +1987,24 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         std::vector<std::pair<double, double>> yValues;
         std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector( m_formationCase );
 
-        RimWellLogTrack::findFormationNamesToPlot( curveData,
-                                                   formationNamesVector,
-                                                   plot->depthType(),
-                                                   &formationNamesToPlot,
-                                                   &yValues );
+        RimWellLogTrack::findRegionNamesToPlot( curveData,
+                                                formationNamesVector,
+                                                plot->depthType(),
+                                                &formationNamesToPlot,
+                                                &yValues );
 
         std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
 
         caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
 
-        m_annotationTool->attachFormationNames( this->viewer(),
-                                                formationNamesToPlot,
-                                                xRange,
-                                                yValues,
-                                                m_formationDisplay(),
-                                                colorTable,
-                                                ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
-                                                m_showFormationLabels() );
+        m_annotationTool->attachNamedRegions( this->viewer(),
+                                              formationNamesToPlot,
+                                              xRange,
+                                              yValues,
+                                              m_regionAnnotationDisplay(),
+                                              colorTable,
+                                              ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
+                                              m_showFormationLabels() );
     }
     else if ( m_formationSource() == WELL_PICK_FILTER )
     {
@@ -1956,6 +2028,136 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                      plot->depthType() );
 
         m_annotationTool->attachWellPicks( this->viewer(), formationNamesToPlot, yValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateCurveDataRegionsOnPlot()
+{
+    RimWellBoreStabilityPlot* wellBoreStabilityPlot = nullptr;
+    this->firstAncestorOrThisOfType( wellBoreStabilityPlot );
+    if ( wellBoreStabilityPlot )
+    {
+        RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>(
+            wellBoreStabilityPlot->commonDataSource()->caseToApply() );
+        RimWellPath* wellPath = wellBoreStabilityPlot->commonDataSource()->wellPathToApply();
+        int          timeStep = wellBoreStabilityPlot->commonDataSource()->timeStepToApply();
+        if ( geoMechCase && wellPath && timeStep >= 0 )
+        {
+            RigGeoMechWellLogExtractor* geoMechWellLogExtractor = nullptr;
+            geoMechWellLogExtractor = RiaExtractionTools::wellLogExtractorGeoMechCase( m_formationWellPathForSourceCase,
+                                                                                       dynamic_cast<RimGeoMechCase*>(
+                                                                                           geoMechCase ) );
+            if ( !geoMechWellLogExtractor ) return;
+
+            std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
+            caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
+
+            CurveSamplingPointData curveData;
+            curveData.md  = geoMechWellLogExtractor->cellIntersectionMDs();
+            curveData.tvd = geoMechWellLogExtractor->cellIntersectionTVDs();
+
+            RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( wellPath, geoMechWellLogExtractor );
+            RimWellBoreStabilityPlot* wbsPlot;
+            this->firstAncestorOrThisOfType( wbsPlot );
+            if ( wbsPlot )
+            {
+                geoMechWellLogExtractor->setWbsParameters( wbsPlot->porePressureSource(),
+                                                           wbsPlot->poissonRatioSource(),
+                                                           wbsPlot->ucsSource(),
+                                                           wbsPlot->userDefinedPoissonRatio(),
+                                                           wbsPlot->userDefinedUcs() );
+            }
+
+            std::vector<double> ppValues      = geoMechWellLogExtractor->porePressureIntervals( timeStep );
+            std::vector<double> poissonValues = geoMechWellLogExtractor->poissonIntervals( timeStep );
+            std::vector<double> ucsValues     = geoMechWellLogExtractor->ucsIntervals( timeStep );
+
+            {
+                std::vector<QString> sourceNames =
+                    {"", "PP=Grid", "PP=Las-File", "PP=Element Property Table", "", "PP=Hydrostatic"};
+                curveData.data = ppValues;
+
+                std::vector<QString>                   sourceNamesToPlot;
+                std::vector<std::pair<double, double>> yValues;
+                RimWellLogTrack::findRegionNamesToPlot( curveData,
+                                                        sourceNames,
+                                                        wellBoreStabilityPlot->depthType(),
+                                                        &sourceNamesToPlot,
+                                                        &yValues );
+                m_annotationTool->attachNamedRegions( this->viewer(),
+                                                      sourceNamesToPlot,
+                                                      xRange,
+                                                      yValues,
+                                                      m_regionAnnotationDisplay(),
+                                                      colorTable,
+                                                      ( ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100 ) / 3,
+                                                      true,
+                                                      false,
+                                                      0.0,
+                                                      0.33333 );
+            }
+            {
+                std::vector<QString> sourceNames =
+                    {"",
+                     "",
+                     "Poisson=Las-File",
+                     "Poisson=Element Property Table",
+                     QString( "Poisson=%1" ).arg( wellBoreStabilityPlot->userDefinedPoissonRatio() ),
+                     ""};
+                curveData.data = poissonValues;
+
+                std::vector<QString>                   sourceNamesToPlot;
+                std::vector<std::pair<double, double>> yValues;
+                RimWellLogTrack::findRegionNamesToPlot( curveData,
+                                                        sourceNames,
+                                                        wellBoreStabilityPlot->depthType(),
+                                                        &sourceNamesToPlot,
+                                                        &yValues );
+                m_annotationTool->attachNamedRegions( this->viewer(),
+                                                      sourceNamesToPlot,
+                                                      xRange,
+                                                      yValues,
+                                                      m_regionAnnotationDisplay(),
+                                                      colorTable,
+                                                      ( ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100 ) / 3,
+                                                      true,
+                                                      false,
+                                                      0.33333,
+                                                      0.66666 );
+            }
+            {
+                std::vector<QString> sourceNames = {"",
+                                                    "",
+                                                    "UCS=Las-File",
+                                                    "UCS=Element Property Table",
+                                                    QString( "UCS=%1" ).arg( wellBoreStabilityPlot->userDefinedUcs() ),
+                                                    ""};
+
+                curveData.data = ucsValues;
+
+                std::vector<QString>                   sourceNamesToPlot;
+                std::vector<std::pair<double, double>> yValues;
+                RimWellLogTrack::findRegionNamesToPlot( curveData,
+                                                        sourceNames,
+                                                        wellBoreStabilityPlot->depthType(),
+                                                        &sourceNamesToPlot,
+                                                        &yValues );
+                m_annotationTool->attachNamedRegions( this->viewer(),
+                                                      sourceNamesToPlot,
+                                                      xRange,
+                                                      yValues,
+                                                      m_regionAnnotationDisplay(),
+                                                      colorTable,
+                                                      ( ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100 ) / 3,
+                                                      true,
+                                                      false,
+                                                      0.66666,
+                                                      1.0 );
+            }
+        }
     }
 }
 
@@ -2053,7 +2255,7 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::removeFormationNames()
+void RimWellLogTrack::removeRegionAnnotations()
 {
     if ( m_annotationTool )
     {

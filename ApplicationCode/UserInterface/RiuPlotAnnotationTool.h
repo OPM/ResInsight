@@ -33,9 +33,14 @@ class QwtPlot;
 class RiuPlotAnnotationTool
 {
 public:
-    enum FormationDisplay
+    enum RegionAnnotationType
     {
-        NONE                    = 0x00,
+        NO_ANNOTATIONS        = 0,
+        FORMATION_ANNOTATIONS = 1,
+        CURVE_ANNOTATIONS     = 2
+    };
+    enum RegionDisplay
+    {
         DARK_LINES              = 0x01,
         COLORED_LINES           = 0x02,
         COLOR_SHADING           = 0x04,
@@ -46,14 +51,17 @@ public:
     RiuPlotAnnotationTool(){};
     ~RiuPlotAnnotationTool();
 
-    void attachFormationNames( QwtPlot*                                     plot,
-                               const std::vector<QString>&                  names,
-                               const std::pair<double, double>              xRange,
-                               const std::vector<std::pair<double, double>> yPositions,
-                               FormationDisplay                             formationDisplay,
-                               const caf::ColorTable&                       colorTable,
-                               int                                          shadingAlphaByte,
-                               bool                                         showNames = true );
+    void attachNamedRegions( QwtPlot*                                     plot,
+                             const std::vector<QString>&                  names,
+                             const std::pair<double, double>              xRange,
+                             const std::vector<std::pair<double, double>> yPositions,
+                             RegionDisplay                                regionDisplay,
+                             const caf::ColorTable&                       colorTable,
+                             int                                          shadingAlphaByte,
+                             bool                                         showNames      = true,
+                             bool                                         detachExisting = true,
+                             double                                       xStart         = 0.0,
+                             double                                       xEnd           = 1.0 );
     void attachWellPicks( QwtPlot* plot, const std::vector<QString>& names, const std::vector<double> yPositions );
 
     void attachAnnotationLine( QwtPlot* plot, const QColor& color, const QString& annotationText, const double yPosition );

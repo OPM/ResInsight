@@ -936,7 +936,7 @@ void RimWellRftPlot::onLoadDataAndUpdate()
     {
         if ( trackCount() > 0 )
         {
-            trackByIndex( 0 )->setShowFormations( RiuPlotAnnotationTool::COLOR_SHADING_AND_LINES );
+            trackByIndex( 0 )->setAnnotationType( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS );
         }
 
         m_isOnLoad = false;

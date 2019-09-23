@@ -42,17 +42,22 @@ RiuPlotAnnotationTool::~RiuPlotAnnotationTool()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::attachFormationNames( QwtPlot*                                     plot,
-                                                  const std::vector<QString>&                  names,
-                                                  const std::pair<double, double>              xRange,
-                                                  const std::vector<std::pair<double, double>> yPositions,
-                                                  FormationDisplay                             formationDisplay,
-                                                  const caf::ColorTable&                       colorTable,
-                                                  int                                          shadingAlphaByte,
-                                                  bool                                         showNames /*= true */ )
+void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                                     plot,
+                                                const std::vector<QString>&                  names,
+                                                const std::pair<double, double>              xRange,
+                                                const std::vector<std::pair<double, double>> yPositions,
+                                                RegionDisplay                                regionDisplay,
+                                                const caf::ColorTable&                       colorTable,
+                                                int                                          shadingAlphaByte,
+                                                bool                                         showNames /*= true */,
+                                                bool                                         detachExisting /*= true*/,
+                                                double                                       xStart /*= 0.0*/,
+                                                double                                       xEnd /*= 1.0*/ )
 {
-    detachAllAnnotations();
-
+    if ( detachExisting )
+    {
+        detachAllAnnotations();
+    }
     if ( names.size() != yPositions.size() ) return;
     m_plot = plot;
 
@@ -67,18 +72,20 @@ void RiuPlotAnnotationTool::attachFormationNames( QwtPlot*                      
 
     for ( size_t i = 0; i < names.size(); i++ )
     {
+        if ( names[i].isEmpty() ) continue;
+
         QwtPlotMarker* line( new QwtPlotMarker() );
 
         QString name;
         if ( showNames )
         {
             name = names[i];
-            if ( ( formationDisplay & COLOR_SHADING ) == 0 && names[i].toLower().indexOf( "top" ) == -1 )
+            if ( ( regionDisplay & COLOR_SHADING ) == 0 && names[i].toLower().indexOf( "top" ) == -1 )
             {
                 name += " Top";
             }
         }
-        if ( formationDisplay & COLOR_SHADING )
+        if ( regionDisplay & COLOR_SHADING )
         {
             cvf::Color3ub cvfColor = catMapper.mapToColor( static_cast<double>( i ) );
             QColor        shadingColor( cvfColor.r(), cvfColor.g(), cvfColor.b(), shadingAlphaByte );
@@ -87,9 +94,9 @@ void RiuPlotAnnotationTool::attachFormationNames( QwtPlot*                      
 
             QwtInterval axisInterval = m_plot->axisInterval( QwtPlot::xBottom );
 
-            QRectF shadingRect( axisInterval.minValue(),
+            QRectF shadingRect( axisInterval.minValue() + axisInterval.width() * xStart,
                                 yPositions[i].first,
-                                axisInterval.width(),
+                                xEnd * axisInterval.width(),
                                 yPositions[i].second - yPositions[i].first );
 
             shading->setRect( shadingRect );
@@ -103,12 +110,12 @@ void RiuPlotAnnotationTool::attachFormationNames( QwtPlot*                      
 
         QColor lineColor( 0, 0, 0, 0 );
         QColor textColor( 0, 0, 0, 255 );
-        if ( formationDisplay & DARK_LINES || formationDisplay & COLORED_LINES )
+        if ( regionDisplay & DARK_LINES || regionDisplay & COLORED_LINES )
         {
             cvf::Color3ub cvfColor = catMapper.mapToColor( static_cast<double>( i ) );
             QColor        cycledColor( cvfColor.r(), cvfColor.g(), cvfColor.b() );
 
-            lineColor = formationDisplay & DARK_LINES ? QColor( 0, 0, 100 ) : cycledColor;
+            lineColor = regionDisplay & DARK_LINES ? QColor( 0, 0, 100 ) : cycledColor;
             textColor = lineColor;
         }
         RiuPlotAnnotationTool::horizontalDashedLineWithColor( line, lineColor, textColor, name, yPositions[i].first );
