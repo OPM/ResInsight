@@ -283,6 +283,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
         {
             if ( arguments[optionIdx] == "-help" )
             {
+                // clang-format off
                 RiaApplication::instance()->showFormattedTextInMessageBoxOrConsole(
                     "The --summaryplot option has the following syntax:\n"
                     "\n"
@@ -290,12 +291,12 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                     "\n"
                     "It Creates one summary plot for each of the the summary vectors matched by the "
                     "<eclipsesummaryvectorfilters> using all the <eclipsedatafiles> in each plot.\n"
-                    "The <eclipsesummaryvectorfilters> has the syntax <vectorname>[:<item>[:<subitem>[:i,j,k]]] and "
-                    "can be repeated.\n"
-                    "Wildcards can also be used, eg. \"WOPT:*\" to select the total oil production from all the "
-                    "wells.\n"
-                    "The <eclipsedatafiles> can be written with or without extension. Only the corresponding SMSPEC "
-                    "file will be opened for each case.\n"
+                    "The <eclipsesummaryvectorfilters> has the syntax <vectorname>[:<item>[:<subitem>[:i,j,k]]] and can be repeated.\n"
+                    "Wildcards can also be used, eg. \"WOPT:*\" to select the total oil production from all the wells.\n"
+                    "3D Grid properties from restart files can also be requested in the form <propertyname>:i,i,k.\n"
+                    "The <eclipsedatafiles> can be written with or without extension.\n"
+                    "As long as only summary vectors are requested, only the corresponding SMSPEC file will be opened for each case.\n"
+                    "If a grid property is requested, however (eg. SOIL:20,21,1) the corresponding EGRID and restart data will be loaded as well.\n"
                     "\n"
                     "The summary plot options are: \n"
                     "  -help\t Show this help text and ignore the rest of the options.\n"
@@ -304,12 +305,10 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                     "  -nl\t Omit legend in plot.\n"
                     "  -s\t Create only one plot including all the defined vectors and cases.\n"
                     "  -n\t Scale all curves into the range 0.0-1.0. Useful when using -s.\n"
-                    "  -e\t Import all the cases as an ensemble, and create ensemble curves sets instead of single "
-                    "curves.\n"
-                    "  -c  <parametername>\t Same as -e, but colors the curves by the ensemble parameter "
-                    "<parametername> . \n"
+                    "  -e\t Import all the cases as an ensemble, and create ensemble curves sets instead of single curves.\n"
+                    "  -c  <parametername>\t Same as -e, but colors the curves by the ensemble parameter <parametername> . \n"
                     "  -cl <parametername>\t Same as -c, but uses logarithmic legend.\n" );
-
+                // clang-format on
                 return;
             }
 
@@ -421,7 +420,9 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
             RimSummaryCaseCollection* ensemble        = nullptr;
 
             if ( isEnsembleMode )
+            {
                 ensemble = RicCreateSummaryCaseCollectionFeature::groupSummaryCases( summaryCasesToUse, "Ensemble", true );
+            }
 
             if ( isSinglePlot )
             {
@@ -435,6 +436,8 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                     for ( const auto& addr : filteredAdressesFromCases )
                     {
                         RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
+                        curveSet->setSummaryCaseCollection( ensemble );
+                        curveSet->setSummaryAddress( addr );
 
                         if ( ensembleColoringStyle == PARAMETER || ensembleColoringStyle == LOG_PARAMETER )
                         {
