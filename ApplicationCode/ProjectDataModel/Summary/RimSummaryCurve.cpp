@@ -394,11 +394,11 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
     }
     else if ( &m_yValuesSummaryAddressUiField == fieldNeedingOptions )
     {
-        appendOptionItemsForSummaryAddresses( &options, m_yValuesSummaryCase(), nullptr );
+        appendOptionItemsForSummaryAddresses( &options, m_yValuesSummaryCase());
     }
     else if ( &m_xValuesSummaryAddressUiField == fieldNeedingOptions )
     {
-        appendOptionItemsForSummaryAddresses( &options, m_xValuesSummaryCase(), nullptr );
+        appendOptionItemsForSummaryAddresses( &options, m_xValuesSummaryCase() );
     }
     return options;
 }
@@ -685,8 +685,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
-                                                            RimSummaryCase*                summaryCase,
-                                                            RimSummaryFilter_OBSOLETE*              summaryFilter )
+                                                            RimSummaryCase*                summaryCase )
 {
     if ( summaryCase )
     {
@@ -698,7 +697,6 @@ void RimSummaryCurve::appendOptionItemsForSummaryAddresses( QList<caf::PdmOption
             for ( auto& address : allAddresses )
             {
                 if ( address.isErrorResult() ) continue;
-                if ( summaryFilter && !summaryFilter->isIncludedByFilter( address ) ) continue;
 
                 std::string name = address.uiText();
                 QString     s    = QString::fromStdString( name );

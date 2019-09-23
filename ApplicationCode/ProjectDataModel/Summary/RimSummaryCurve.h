@@ -113,8 +113,7 @@ private:
                                                          caf::PdmUiEditorAttribute* attribute ) override;
 
     static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
-                                                      RimSummaryCase*                summaryCase,
-                                                      RimSummaryFilter_OBSOLETE*              summaryFilter );
+                                                      RimSummaryCase*                summaryCase );
 
 private:
     // Y values

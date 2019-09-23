@@ -145,8 +145,7 @@ private:
                            const QVariant&            newValue ) override;
 
     void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
-                                               RimSummaryCaseCollection*      summaryCaseGroup,
-                                               RimSummaryFilter_OBSOLETE*              summaryFilter );
+                                               RimSummaryCaseCollection*      summaryCaseGroup);
 
     void updateCurveColors();
     void updateQwtPlotAxis();
@@ -163,9 +162,9 @@ private:
 
     caf::PdmPointer<RimSummaryCurve> m_currentSummaryCurve;
 
-    caf::PdmPtrField<RimSummaryCaseCollection*> m_yValuesSummaryGroup;
-    caf::PdmChildField<RimSummaryAddress*>      m_yValuesCurveVariable;
-    caf::PdmField<RifEclipseSummaryAddress>     m_yValuesUiFilterResultSelection;
+    caf::PdmPtrField<RimSummaryCaseCollection*> m_yValuesSummaryCaseCollection;
+    caf::PdmChildField<RimSummaryAddress*>      m_yValuesSummaryAddress;
+    caf::PdmField<RifEclipseSummaryAddress>     m_yValuesSummaryAddressUiField;
     caf::PdmField<bool>                         m_yPushButtonSelectSummaryAddress;
 
     caf::PdmField<caf::AppEnum<ColorMode>> m_colorMode;
