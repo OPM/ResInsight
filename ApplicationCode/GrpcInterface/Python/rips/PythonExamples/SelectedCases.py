@@ -14,7 +14,7 @@ if resinsight is not None:
     print ("Got " + str(len(cases)) + " cases: ")
     for case in cases:
         print(case.name)
-        for property in case.properties.available('DYNAMIC_NATIVE'):
+        for property in case.available_properties('DYNAMIC_NATIVE'):
             print(property)
 
 

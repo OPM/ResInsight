@@ -135,3 +135,25 @@ RimEclipseView* RicfApplicationTools::viewFromCaseIdAndViewName( int caseId, con
     }
     return nullptr;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseView* RicfApplicationTools::viewFromCaseIdAndViewId( int caseId, int viewId )
+{
+    for ( RimEclipseCase* c : RiaApplication::instance()->project()->eclipseCases() )
+    {
+        if ( c->caseId() == caseId )
+        {
+            for ( auto v : c->views() )
+            {
+                auto eclipseView = dynamic_cast<RimEclipseView*>( v );
+                if ( eclipseView && eclipseView->id() == viewId )
+                {
+                    return eclipseView;
+                }
+            }
+        }
+    }
+    return nullptr;
+}

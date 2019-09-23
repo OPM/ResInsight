@@ -60,18 +60,19 @@ void RicSnapshotAllViewsToFileFeature::saveAllViews()
     // Save images in snapshot catalog relative to project directory
     QString snapshotFolderName = app->createAbsolutePathFromProjectRelativePath( "snapshots" );
 
-    exportSnapshotOfAllViewsIntoFolder( snapshotFolderName );
+    exportSnapshotOfViewsIntoFolder( snapshotFolderName );
 
     QString text = QString( "Exported snapshots to folder : \n%1" ).arg( snapshotFolderName );
     RiaLogging::info( text );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Export all snapshots of a given case (or caseId == -1 for all cases)
+/// Export snapshots of a given view (or viewId == -1 for all views) for the given case (or caseId == -1 for all cases)
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder( const QString& snapshotFolderName,
-                                                                           const QString& prefix /*= ""*/,
-                                                                           int            caseId /*= -1*/ )
+void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QString& snapshotFolderName,
+                                                                        const QString& prefix /*= ""*/,
+                                                                        int            caseId /*= -1*/,
+                                                                        int            viewId /*= -1*/ )
 {
     RimProject* project = RiaApplication::instance()->project();
 
@@ -104,7 +105,7 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder( const
         {
             Rim3dView* riv = views[j];
 
-            if ( riv && riv->viewer() )
+            if ( riv && riv->viewer() && ( viewId == -1 || viewId == riv->id() ) )
             {
                 RiaApplication::instance()->setActiveReservoirView( riv );
 

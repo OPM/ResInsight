@@ -64,6 +64,7 @@ void AppEnum<RicfExportVisibleCells::ExportKeyword>::setUp()
 RicfExportVisibleCells::RicfExportVisibleCells()
 {
     RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    RICF_InitField( &m_viewId, "viewId", -1, "View ID", "", "", "" );
     RICF_InitField( &m_viewName, "viewName", QString(), "View Name", "", "", "" );
     RICF_InitField( &m_exportKeyword,
                     "exportKeyword",
@@ -82,18 +83,27 @@ RicfExportVisibleCells::RicfExportVisibleCells()
 //--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicfExportVisibleCells::execute()
 {
-    if ( m_caseId < 0 || m_viewName().isEmpty() )
+    if ( m_caseId < 0 || ( m_viewName().isEmpty() && m_viewId() < 0 ) )
     {
-        QString error( "exportVisibleCells: CaseId or view name not specified" );
+        QString error( "exportVisibleCells: CaseId or view name or view id not specified" );
         RiaLogging::error( error );
         return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
     }
-
-    auto eclipseView = RicfApplicationTools::viewFromCaseIdAndViewName( m_caseId, m_viewName );
+    RimEclipseView* eclipseView = nullptr;
+    if ( m_viewId() >= 0 )
+    {
+        eclipseView = RicfApplicationTools::viewFromCaseIdAndViewId( m_caseId, m_viewId() );
+    }
+    else
+    {
+        eclipseView = RicfApplicationTools::viewFromCaseIdAndViewName( m_caseId, m_viewName );
+    }
     if ( !eclipseView )
     {
-        QString error(
-            QString( "exportVisibleCells: Could not find view '%1' in case ID %2" ).arg( m_viewName ).arg( m_caseId ) );
+        QString error( QString( "exportVisibleCells: Could not find view of id %1 or named '%2' in case ID %3" )
+                           .arg( m_viewId )
+                           .arg( m_viewName )
+                           .arg( m_caseId ) );
         RiaLogging::error( error );
         return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
     }

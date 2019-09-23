@@ -41,6 +41,7 @@ public:
 
 private:
     caf::PdmField<int>                  m_caseId;
+    caf::PdmField<int>                  m_viewId;
     caf::PdmField<QString>              m_viewName;
     caf::PdmField<int>                  m_timeStep;
     caf::PdmField<std::vector<QString>> m_simWellNames;

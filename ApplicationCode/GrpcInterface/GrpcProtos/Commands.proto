@@ -53,6 +53,7 @@ message ExportSnapshotsRequest
 	SnapshotType type   = 1;
 	string       prefix = 2;
 	int32        caseId = 3;
+	int32        viewId = 4;
 }
 
 message ExportPropertyRequest
@@ -67,9 +68,9 @@ message ExportPropertyRequest
 
 message ExportPropertyInViewsRequest
 {
-	int32 caseId              = 1;
-	repeated string viewNames = 2;
-	double undefinedValue     = 3;
+	int32            caseId = 1;
+	repeated int32  viewIds = 2;
+	double   undefinedValue = 3;
 }
 
 enum CompdatExportSplit
@@ -89,7 +90,7 @@ enum CompdatExportType
 enum CompdatCombinationMode
 {
 	INDIVIDUALLY = 0;
-	caCOMBINED     = 1;
+	COMBINED     = 1;
 }
 
 message ExportWellPathCompRequest 
@@ -108,7 +109,7 @@ message ExportWellPathCompRequest
 message ExportSimWellPathFracRequest
 {
 	int32 caseId                        = 1;
-	string viewName                     = 2;
+	int32 viewId                        = 2;
 	int32 timeStep                      = 3;
 	repeated string simulationWellNames = 4;
 	CompdatExportSplit fileSplit        = 5;
@@ -130,7 +131,7 @@ message ExportWellPathRequest
 message ExportVisibleCellsRequest
 {
 	int32 caseId                  = 1;
-	string viewName               = 2;
+	int32 viewId                  = 2;
 	string exportKeyword          = 3;
 	int32 visibleActiveCellsValue = 4;
 	int32 hiddenActiveCellsValue  = 5;
@@ -175,7 +176,8 @@ message ComputeCaseGroupStatRequest
 message SetTimeStepParams
 {
 	int32 caseId   = 1;
-	int32 timeStep = 2;
+	int32 viewId   = 2;
+	int32 timeStep = 3;
 }
 
 message ScaleFractureTemplateRequest
