@@ -15,9 +15,8 @@ class View(PdmObject):
 
     """
     def __init__(self, pdm_object):
+        PdmObject.__init__(self, pdm_object.pb2_object(), pdm_object.channel())
         self.view_id = pdm_object.get_value("ViewId")
-
-        PdmObject.__init__(self, pdm_object._pb2_object, pdm_object._channel)
 
     def show_grid_box(self):
         """Check if the grid box is meant to be shown in the view"""
