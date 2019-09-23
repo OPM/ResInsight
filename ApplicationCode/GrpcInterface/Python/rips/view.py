@@ -110,6 +110,7 @@ class View(PdmObject):
         return self.case().view(view_id)
 
     def set_time_step(self, time_step):
+        """Set the time step for current view"""
         case_id = self.case().case_id
         return self._execute_command(setTimeStep=Cmd.SetTimeStepParams(
             caseId=case_id, viewId=self.view_id, timeStep=time_step))
@@ -117,6 +118,20 @@ class View(PdmObject):
     def export_sim_well_fracture_completions(self, time_step,
                                              simulation_well_names, file_split,
                                              compdat_export):
+        """Export fracture completions for simulation wells.
+
+        Arguments:
+            time_step (int): Time step index
+            simulation_well_names (list of string): Names of simulation wells to export for.
+            Defaults to all checked wells. If a list of names are provided,
+            those wells are included even if unchecked.
+            file_split (string): Controls how to split files. 'UNIFIED_FILE',
+            'SPLIT_ON_WELL', or 'SPLIT_ON_WELL_AND_COMPLETION_TYPE'.
+            Defaults to 'UNIFIED_FILE'
+            compdat_export (string): Controls export of transmissibilites.
+            'TRANSMISSIBILITIES', 'WPIMULT_AND_DEFAULT_CONNECTION_FACTORS'.
+            Defaults to 'TRANSMISSIBILITIES'
+        """
         if isinstance(simulation_well_names, str):
             simulation_well_names = [simulation_well_names]
 
@@ -135,6 +150,15 @@ class View(PdmObject):
                              visible_active_cells_value=1,
                              hidden_active_cells_value=0,
                              inactive_cells_value=0):
+        """Export special properties for all visible cells.
+
+        Arguments:
+            export_keyword (string): The keyword to export.
+            Choices: 'FLUXNUM' or 'MULTNUM'. Default: 'FLUXNUM'
+            visible_active_cells_value (int): Value to export forvisible active cells. Default: 1
+            hidden_active_cells_value (int): Value to export for hidden active cells. Default: 0
+            inactive_cells_value (int): Value to export forinactive cells. Default: 0
+        """
         case_id = self.case().case_id
         return self._execute_command(
             exportVisibleCells=Cmd.ExportVisibleCellsRequest(
@@ -149,7 +173,8 @@ class View(PdmObject):
         """ Export the current Eclipse property from the view
 
         Arguments:
-            undefined_value (double):	Value to use for undefined values. Defaults to 0.0
+            undefined_value (double): Value to use for undefined values.
+            Defaults to 0.0
         """
         case_id = self.case().case_id
         return self._execute_command(
@@ -165,5 +190,7 @@ class View(PdmObject):
         """
         case_id = self.case().case_id
         return self._execute_command(
-            exportSnapshots=Cmd.ExportSnapshotsRequest(
-                type='VIEWS', prefix=prefix, caseId=case_id, viewId=self.view_id))
+            exportSnapshots=Cmd.ExportSnapshotsRequest(type='VIEWS',
+                                                       prefix=prefix,
+                                                       caseId=case_id,
+                                                       viewId=self.view_id))
