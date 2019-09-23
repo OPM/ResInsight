@@ -130,13 +130,13 @@ RimSummaryCurve::RimSummaryCurve()
     m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
     m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiHidden( true );
     m_yValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
-    m_yValuesSummaryFilter_OBSOLETE = new RimSummaryFilter;
+    m_yValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
 
     CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryFilter_OBSOLETE, "VarListFilterX", "Filter", "", "", "" );
     m_xValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
     m_xValuesSummaryFilter_OBSOLETE.uiCapability()->setUiHidden( true );
     m_xValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
-    m_xValuesSummaryFilter_OBSOLETE = new RimSummaryFilter;
+    m_xValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -686,7 +686,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
                                                             RimSummaryCase*                summaryCase,
-                                                            RimSummaryFilter*              summaryFilter )
+                                                            RimSummaryFilter_OBSOLETE*              summaryFilter )
 {
     if ( summaryCase )
     {

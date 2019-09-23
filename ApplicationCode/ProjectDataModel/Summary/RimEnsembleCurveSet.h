@@ -45,7 +45,7 @@ class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RimSummaryCurve;
 class RimSummaryAddress;
-class RimSummaryFilter;
+class RimSummaryFilter_OBSOLETE;
 class RimSummaryPlotSourceStepping;
 class RimSummaryCurveAutoName;
 class RimEnsembleCurveFilterCollection;
@@ -146,7 +146,7 @@ private:
 
     void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
                                                RimSummaryCaseCollection*      summaryCaseGroup,
-                                               RimSummaryFilter*              summaryFilter );
+                                               RimSummaryFilter_OBSOLETE*              summaryFilter );
 
     void updateCurveColors();
     void updateQwtPlotAxis();
@@ -191,5 +191,5 @@ private:
     bool m_isCurveSetFiltered;
 
     // Obsolete fields
-    caf::PdmChildField<RimSummaryFilter*>       m_yValuesSummaryFilter;
+    caf::PdmChildField<RimSummaryFilter_OBSOLETE*>       m_yValuesSummaryFilter_OBSOLETE;
 };

@@ -23,7 +23,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-class RimSummaryFilter : public caf::PdmObject
+class RimSummaryFilter_OBSOLETE : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -48,8 +48,8 @@ public:
         SUM_FILTER_BLOCK_LGR,
     };
 
-    RimSummaryFilter();
-    ~RimSummaryFilter() override;
+    RimSummaryFilter_OBSOLETE();
+    ~RimSummaryFilter_OBSOLETE() override;
 
     void updateFromAddress( const RifEclipseSummaryAddress& address );
 

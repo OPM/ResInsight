@@ -171,11 +171,11 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     // Obsolete fields
 
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryFilter, "VarListFilter", "Filter", "", "", "" );
-    m_yValuesSummaryFilter.uiCapability()->setUiTreeChildrenHidden( true );
-    m_yValuesSummaryFilter.uiCapability()->setUiHidden( true );
-    m_yValuesSummaryFilter.xmlCapability()->setIOWritable(false);
-    m_yValuesSummaryFilter = new RimSummaryFilter;
+    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryFilter_OBSOLETE, "VarListFilter", "Filter", "", "", "" );
+    m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
+    m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_yValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable(false);
+    m_yValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
 
 }
 
@@ -806,7 +806,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
                                                                 RimSummaryCaseCollection*      summaryCaseGroup,
-                                                                RimSummaryFilter*              summaryFilter )
+                                                                RimSummaryFilter_OBSOLETE*              summaryFilter )
 {
     if ( !summaryCaseGroup ) return;
 
