@@ -19,6 +19,7 @@ from rips.grid import Grid
 from rips.pdmobject import PdmObject
 from rips.view import View
 
+
 class Case(PdmObject):
     """ResInsight case class
 

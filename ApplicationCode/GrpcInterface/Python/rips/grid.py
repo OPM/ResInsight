@@ -9,6 +9,7 @@ import rips.generated.Case_pb2 as Case_pb2
 import rips.generated.Grid_pb2 as Grid_pb2
 import rips.generated.Grid_pb2_grpc as Grid_pb2_grpc
 
+
 class Grid:
     """Grid Information. Not meant to be constructed separately
 

@@ -8,6 +8,7 @@ from rips.case import Case
 
 import rips.generated.Commands_pb2 as Cmd
 
+
 class GridCaseGroup(PdmObject):
     """ResInsight Grid Case Group class
 

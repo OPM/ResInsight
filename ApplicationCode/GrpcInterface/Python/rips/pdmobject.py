@@ -23,6 +23,14 @@ class PdmObject:
             self._channel)
         self._commands = CmdRpc.CommandsStub(channel)
 
+    def pb2_object(self):
+        """ Private method"""
+        return self._pb2_object
+
+    def channel(self):
+        """ Private method"""
+        return self._channel
+
     def address(self):
         """Get the unique address of the PdmObject
 
