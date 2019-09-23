@@ -19,7 +19,7 @@ def create_result(poro_chunks, permx_chunks):
 
 resinsight     = rips.Instance.find()
 start = time.time()
-case = resinsight.project.case(id=0)
+case = resinsight.project.case(case_id=0)
 
 # Get a generator for the poro results. The generator will provide a chunk each time it is iterated
 poro_chunks = case.active_cell_property_async('STATIC_NATIVE', 'PORO', 0)

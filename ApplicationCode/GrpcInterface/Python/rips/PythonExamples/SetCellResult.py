@@ -5,5 +5,5 @@ import rips
 
 resinsight  = rips.Instance.find()
 
-view = resinsight.project.view(0)
+view = resinsight.project.view(view_id=0)
 view.apply_cell_result(result_type='STATIC_NATIVE', result_variable='DX')

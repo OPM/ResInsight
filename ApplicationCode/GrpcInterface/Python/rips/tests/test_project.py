@@ -11,10 +11,10 @@ import dataroot
 
 def test_loadProject(rips_instance, initialize_test):
     project = rips_instance.project.open(dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp")
-    case = project.case(id=0)
+    case = project.case(case_id=0)
     assert(case is not None)
     assert(case.name == "TEST10K_FLT_LGR_NNC")
-    assert(case.id == 0)
+    assert(case.case_id == 0)
     cases = rips_instance.project.cases()
     assert(len(cases) is 1)
 
@@ -34,7 +34,7 @@ def test_exportSnapshots(rips_instance, initialize_test):
     rips_instance.project.load_case(case_path)
     with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
         print("Temporary folder: ", tmpdirname)
-        rips_instance.set_export_folder(type='SNAPSHOTS', path=tmpdirname)
+        rips_instance.set_export_folder(export_type='SNAPSHOTS', path=tmpdirname)
         rips_instance.project.export_snapshots()
         print(os.listdir(tmpdirname))
         assert(len(os.listdir(tmpdirname)) > 0)

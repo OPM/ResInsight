@@ -15,13 +15,10 @@ resinsight.set_main_window_size(width=800, height=500)
 case = resinsight.project.cases()[0]
 
 # Get a view
-view1 = case.view(id=0)
+view1 = case.view(view_id=0)
 
 # Clone the view
 view2 = view1.clone()
-
-# Set time step for all views
-case.set_time_step_for_all_views(time_step=3)
 
 # Set the time step for view1 only
 view1.set_time_step(time_step=2)
@@ -36,8 +33,8 @@ with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
     print("Temporary folder: ", tmpdirname)
     
     # Set export folder for snapshots and properties
-    resinsight.set_export_folder(type='SNAPSHOTS', path=tmpdirname)
-    resinsight.set_export_folder(type='PROPERTIES', path=tmpdirname)
+    resinsight.set_export_folder(export_type='SNAPSHOTS', path=tmpdirname)
+    resinsight.set_export_folder(export_type='PROPERTIES', path=tmpdirname)
     
     # Export all snapshots
     resinsight.project.export_snapshots()

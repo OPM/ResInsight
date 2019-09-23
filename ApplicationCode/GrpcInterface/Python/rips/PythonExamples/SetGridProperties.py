@@ -5,7 +5,7 @@ import rips
 
 resinsight     = rips.Instance.find()
 
-case = resinsight.project.case(id=0)
+case = resinsight.project.case(case_id=0)
 total_cell_count = case.cell_count().reservoir_cell_count
 
 values = []

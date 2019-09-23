@@ -18,7 +18,7 @@ property_list = ['SOIL', 'PRESSURE'] # list of parameter for snapshot
 print ("Looping through cases")
 for case in cases:
     print("Case name: ", case.name)
-    print("Case id: ", case.id)
+    print("Case id: ", case.case_id)
     # Get grid path and its folder name
     case_path = case.grid_path()
     folder_name = os.path.dirname(case_path)
@@ -30,7 +30,7 @@ for case in cases:
         os.mkdir(dirname)
     
     print ("Exporting to folder: " + dirname)
-    resinsight.set_export_folder(type='SNAPSHOTS', path=dirname)
+    resinsight.set_export_folder(export_type='SNAPSHOTS', path=dirname)
    
     time_steps = case.time_steps()
     print('Number of time_steps: ' + str(len(time_steps)))

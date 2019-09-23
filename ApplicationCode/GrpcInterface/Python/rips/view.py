@@ -1,9 +1,13 @@
-import Commands_pb2 as Cmd
+"""
+ResInsight 3d view module
+"""
+import rips.generated.Commands_pb2 as Cmd
 
-import rips.Case # Circular import of Case, which already imports View. Use full name.
-from rips.PdmObject import PdmObject
+import rips.case  # Circular import of Case, which already imports View. Use full name.
+from rips.pdmobject import PdmObject
 
-class View (PdmObject):
+
+class View(PdmObject):
     """ResInsight view class
 
     Attributes:
@@ -11,9 +15,9 @@ class View (PdmObject):
 
     """
     def __init__(self, pdm_object):
-        self.id = pdm_object.get_value("ViewId")
+        self.view_id = pdm_object.get_value("ViewId")
 
-        PdmObject.__init__(self, pdm_object.pb2_object, pdm_object.channel)
+        PdmObject.__init__(self, pdm_object._pb2_object, pdm_object._channel)
 
     def show_grid_box(self):
         """Check if the grid box is meant to be shown in the view"""
@@ -37,7 +41,7 @@ class View (PdmObject):
 
     def apply_cell_result(self, result_type, result_variable):
         """Apply a regular cell result
-        
+
         Arguments:
             result_type (str): String representing the result category. The valid values are
                 - DYNAMIC_NATIVE
@@ -55,11 +59,12 @@ class View (PdmObject):
         cell_result.set_value("ResultVariable", result_variable)
         cell_result.update()
 
-    def apply_flow_diagnostics_cell_result(self,
-                                       result_variable  = 'TOF',
-                                       selection_mode   = 'FLOW_TR_BY_SELECTION',
-                                       injectors = [],
-                                       producers = []):
+    def apply_flow_diagnostics_cell_result(
+            self,
+            result_variable='TOF',
+            selection_mode='FLOW_TR_BY_SELECTION',
+            injectors=None,
+            producers=None):
         """Apply a flow diagnostics cell result
 
         Arguments:
@@ -67,7 +72,7 @@ class View (PdmObject):
                 The valid values are 'TOF', 'Fraction', 'MaxFractionTracer' and 'Communication'.
             selection_mode (str): String specifying which tracers to select.
                 The valid values are
-                - FLOW_TR_INJ_AND_PROD (all injector and producer tracers), 
+                - FLOW_TR_INJ_AND_PROD (all injector and producer tracers),
                 - FLOW_TR_PRODUCERS (all producers)
                 - FLOW_TR_INJECTORS (all injectors),
                 - FLOW_TR_BY_SELECTION (specify individual tracers in the
@@ -77,6 +82,10 @@ class View (PdmObject):
             producers (list): List of producer tracers (strings) to select.
                 Requires selection_mode to be 'FLOW_TR_BY_SELECTION'.
         """
+        if injectors is None:
+            injectors = []
+        if producers is None:
+            producers = []
         cell_result = self.set_cell_result()
         cell_result.set_value("ResultType", "FLOW_DIAGNOSTICS")
         cell_result.set_value("ResultVariable", result_variable)
@@ -93,59 +102,69 @@ class View (PdmObject):
             pdm_case = self.ancestor("ResInsightGeoMechCase")
         if pdm_case is None:
             return None
-        return rips.Case(self.channel, pdm_case.get_value("CaseId"))
+        return rips.case.Case(self._channel, pdm_case.get_value("CaseId"))
 
     def clone(self):
         """Clone the current view"""
-        view_id = self._execute_command(cloneView=Cmd.CloneViewRequest(viewId=self.id)).createViewResult.viewId
+        view_id = self._execute_command(cloneView=Cmd.CloneViewRequest(
+            viewId=self.view_id)).createViewResult.viewId
         return self.case().view(view_id)
 
     def set_time_step(self, time_step):
-        case_id = self.case().id
-        return self._execute_command(setTimeStep=Cmd.SetTimeStepParams(caseId=case_id, viewId=self.id, timeStep=time_step))
-    
-    def export_sim_well_fracture_completions(self, time_step, simulation_well_names, file_split, compdat_export):
-        if(isinstance(simulation_well_names, str)):
+        case_id = self.case().case_id
+        return self._execute_command(setTimeStep=Cmd.SetTimeStepParams(
+            caseId=case_id, viewId=self.view_id, timeStep=time_step))
+
+    def export_sim_well_fracture_completions(self, time_step,
+                                             simulation_well_names, file_split,
+                                             compdat_export):
+        if isinstance(simulation_well_names, str):
             simulation_well_names = [simulation_well_names]
 
-        case_id = self.case().id
-        return self._execute_command(exportSimWellFractureCompletions=Cmd.ExportSimWellPathFraqRequest(caseId=case_id,
-                                                                                              viewId=self.id,
-                                                                                              timeStep=time_step,
-                                                                                              simulationWellNames=simulation_well_names,
-                                                                                              fileSplit=file_split,
-                                                                                              compdatExport=compdat_export))
-    
-    def export_visible_cells(self, export_keyword='FLUXNUM', visible_active_cells_value=1, hidden_active_cells_value=0, inactive_cells_value=0):
-        case_id = self.case().id
-        return self._execute_command(exportVisibleCells=Cmd.ExportVisibleCellsRequest(caseId=case_id,
-                                                                             viewId=self.id,
-                                                                             exportKeyword=export_keyword,
-                                                                             visibleActiveCellsValue=visible_active_cells_value,
-                                                                             hiddenActiveCellsValue=hidden_active_cells_value,
-                                                                             inactiveCellsValue=inactive_cells_value))
+        case_id = self.case().case_id
+        return self._execute_command(
+            exportSimWellFractureCompletions=Cmd.ExportSimWellPathFracRequest(
+                caseId=case_id,
+                viewId=self.view_id,
+                timeStep=time_step,
+                simulationWellNames=simulation_well_names,
+                fileSplit=file_split,
+                compdatExport=compdat_export))
 
-    
+    def export_visible_cells(self,
+                             export_keyword='FLUXNUM',
+                             visible_active_cells_value=1,
+                             hidden_active_cells_value=0,
+                             inactive_cells_value=0):
+        case_id = self.case().case_id
+        return self._execute_command(
+            exportVisibleCells=Cmd.ExportVisibleCellsRequest(
+                caseId=case_id,
+                viewId=self.view_id,
+                exportKeyword=export_keyword,
+                visibleActiveCellsValue=visible_active_cells_value,
+                hiddenActiveCellsValue=hidden_active_cells_value,
+                inactiveCellsValue=inactive_cells_value))
+
     def export_property(self, undefined_value=0.0):
         """ Export the current Eclipse property from the view
 
         Arguments:
             undefined_value (double):	Value to use for undefined values. Defaults to 0.0
         """
-        case_id = self.case().id
-        return self._execute_command(exportPropertyInViews=Cmd.ExportPropertyInViewsRequest(caseId=case_id,
-                                                                                   viewIds=[self.id],
-                                                                                   undefinedValue=undefined_value))
-            
+        case_id = self.case().case_id
+        return self._execute_command(
+            exportPropertyInViews=Cmd.ExportPropertyInViewsRequest(
+                caseId=case_id,
+                viewIds=[self.view_id],
+                undefinedValue=undefined_value))
+
     def export_snapshot(self, prefix=''):
         """ Export snapshot for the current view
-        
         Arguments:
             prefix (str): Exported file name prefix
-        
         """
-        case_id = self.case().id
-        return self._execute_command(exportSnapshots=Cmd.ExportSnapshotsRequest(type='VIEWS',
-                                                                         prefix=prefix,
-                                                                         caseId=case_id,
-                                                                         viewId=self.id))
+        case_id = self.case().case_id
+        return self._execute_command(
+            exportSnapshots=Cmd.ExportSnapshotsRequest(
+                type='VIEWS', prefix=prefix, caseId=case_id, viewId=self.view_id))

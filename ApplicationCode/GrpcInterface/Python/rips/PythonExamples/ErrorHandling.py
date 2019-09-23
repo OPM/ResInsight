@@ -16,7 +16,7 @@ try:
 except grpc.RpcError as e:
     print("Expected Server Exception Received: ", e)
 
-case = resinsight.project.case(id=0)
+case = resinsight.project.case(case_id=0)
 if case is not None:
     results = case.active_cell_property('STATIC_NATIVE', 'PORO', 0)
     active_cell_count = len(results)

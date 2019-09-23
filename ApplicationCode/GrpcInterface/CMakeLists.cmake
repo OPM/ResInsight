@@ -85,7 +85,7 @@ set(PROTO_FILES
     "Commands"
     "App"
 	"Properties"
-	"Grid"
+	"grid"
 )
 
 set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_CURRENT_LIST_DIR}/Python")
@@ -162,13 +162,13 @@ if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 	    list(APPEND GRPC_PYTHON_SOURCES
 			"rips/generated/RiaVersionInfo.py"
 			"rips/__init__.py"
-			"rips/Case.py"
-			"rips/Grid.py"
-			"rips/GridCaseGroup.py"
-			"rips/Project.py"
-			"rips/Instance.py"	
-			"rips/PdmObject.py"
-			"rips/View.py"
+			"rips/case.py"
+			"rips/grid.py"
+			"rips/gridcasegroup.py"
+			"rips/project.py"
+			"rips/instance.py"	
+			"rips/pdmobject.py"
+			"rips/view.py"
 			"rips/PythonExamples/InstanceExample.py"
 			"rips/PythonExamples/CommandExample.py"
 			"rips/PythonExamples/CaseGridGroup.py"

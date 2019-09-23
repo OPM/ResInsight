@@ -1,18 +1,16 @@
-import grpc
-import os
-import sys
-from rips.PdmObject import PdmObject
-from rips.View import View
-from rips.Case import Case
+"""
+Grid Case Group statistics module
+"""
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
+from rips.pdmobject import PdmObject
+from rips.view import View
+from rips.case import Case
 
-import Commands_pb2 as Cmd
-import PdmObject_pb2
+import rips.generated.Commands_pb2 as Cmd
 
-class GridCaseGroup (PdmObject):
+class GridCaseGroup(PdmObject):
     """ResInsight Grid Case Group class
-    
+
     Operate on a ResInsight case group specified by a Case Group Id integer.
 
     Attributes:
@@ -20,7 +18,7 @@ class GridCaseGroup (PdmObject):
     """
     def __init__(self, pdm_object):
         self.group_id = pdm_object.get_value("GroupId")
-        PdmObject.__init__(self, pdm_object.pb2_object, pdm_object.channel)
+        PdmObject.__init__(self, pdm_object._pb2_object, pdm_object._channel)
 
     def create_statistics_case(self):
         """Create a Statistics case in the Grid Case Group
@@ -28,14 +26,17 @@ class GridCaseGroup (PdmObject):
         Returns:
             A new Case
         """
-        commandReply = self._execute_command(createStatisticsCase=Cmd.CreateStatisticsCaseRequest(caseGroupId=case_group_id))
-        return Case(self.channel, commandReply.createStatisticsCaseResult.caseId)
+        command_reply = self._execute_command(
+            createStatisticsCase=Cmd.CreateStatisticsCaseRequest(
+                caseGroupId=self.group_id))
+        return Case(self.channel,
+                    command_reply.createStatisticsCaseResult.caseId)
 
     def statistics_cases(self):
         """Get a list of all statistics cases in the Grid Case Group"""
         stat_case_collection = self.children("StatisticsCaseCollection")[0]
         return stat_case_collection.children("Reservoirs")
-    
+
     def views(self):
         """Get a list of views belonging to a grid case group"""
         pdm_objects = self.descendants("ReservoirView")
@@ -44,20 +45,29 @@ class GridCaseGroup (PdmObject):
             view_list.append(View(pdm_object))
         return view_list
 
-    def view(self, id):
+    def view(self, view_id):
         """Get a particular view belonging to a case group by providing view id
         Arguments:
-            id(int): view id                
-        
+            id(int): view id
+
         Returns: a view object
-        
+
         """
         views = self.views()
         for view_object in views:
-            if view_object.id == id:
+            if view_object.id == view_id:
                 return view_object
         return None
 
-    def compute_statistics(self, case_ids = []):
-        return self._execute_command(computeCaseGroupStatistics=Cmd.ComputeCaseGroupStatRequest(caseIds=case_ids,
-                                                                                         caseGroupId=self.group_id))
+    def compute_statistics(self, case_ids=None):
+        """ Compute statistics for the given case ids
+
+        Arguments:
+            case_ids(list): list of case ids. If this is None all cases in group are included
+
+        """
+        if case_ids is None:
+            case_ids = []
+        return self._execute_command(
+            computeCaseGroupStatistics=Cmd.ComputeCaseGroupStatRequest(
+                caseIds=case_ids, caseGroupId=self.group_id))

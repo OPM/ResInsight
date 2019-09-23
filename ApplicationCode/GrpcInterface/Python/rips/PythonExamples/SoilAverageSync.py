@@ -10,7 +10,7 @@ resinsight     = rips.Instance.find()
 start          = time.time()
 
 # Get the case with case id 0
-case           = resinsight.project.case(id=0)
+case           = resinsight.project.case(case_id=0)
 
 # Get a list of all time steps
 time_steps      = case.time_steps()
