@@ -165,8 +165,6 @@ private:
 
     caf::PdmPtrField<RimSummaryCaseCollection*> m_yValuesSummaryGroup;
     caf::PdmChildField<RimSummaryAddress*>      m_yValuesCurveVariable;
-    caf::PdmField<QString>                      m_yValuesSelectedVariableDisplayField;
-    caf::PdmChildField<RimSummaryFilter*>       m_yValuesSummaryFilter;
     caf::PdmField<RifEclipseSummaryAddress>     m_yValuesUiFilterResultSelection;
     caf::PdmField<bool>                         m_yPushButtonSelectSummaryAddress;
 
@@ -191,4 +189,7 @@ private:
 
     bool m_disableStatisticCurves;
     bool m_isCurveSetFiltered;
+
+    // Obsolete fields
+    caf::PdmChildField<RimSummaryFilter*>       m_yValuesSummaryFilter;
 };

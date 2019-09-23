@@ -55,6 +55,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiLineEditor.h"
 
 #include "cvfScalarMapper.h"
 
@@ -109,31 +110,20 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_yValuesSummaryGroup.uiCapability()->setUiTreeChildrenHidden( true );
     m_yValuesSummaryGroup.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSelectedVariableDisplayField, "SelectedVariableDisplayVar", "Vector", "", "", "" );
-    m_yValuesSelectedVariableDisplayField.xmlCapability()->disableIO();
-    m_yValuesSelectedVariableDisplayField.uiCapability()->setUiReadOnly( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryFilter, "VarListFilter", "Filter", "", "", "" );
-    m_yValuesSummaryFilter.uiCapability()->setUiTreeChildrenHidden( true );
-    m_yValuesSummaryFilter.uiCapability()->setUiHidden( true );
-
-    m_yValuesSummaryFilter = new RimSummaryFilter;
-
-    CAF_PDM_InitFieldNoDefault( &m_yValuesUiFilterResultSelection, "FilterResultSelection", "Filter Result", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yValuesUiFilterResultSelection, "SelectedVariableDisplayVar", "Vector", "", "", "" );
     m_yValuesUiFilterResultSelection.xmlCapability()->disableIO();
-    m_yValuesUiFilterResultSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
-    m_yValuesUiFilterResultSelection.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_yValuesUiFilterResultSelection.uiCapability()->setAutoAddingOptionFromValue( false );
+    m_yValuesUiFilterResultSelection.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
+
 
     CAF_PDM_InitFieldNoDefault( &m_yValuesCurveVariable, "SummaryAddress", "Summary Address", "", "", "" );
     m_yValuesCurveVariable.uiCapability()->setUiHidden( true );
     m_yValuesCurveVariable.uiCapability()->setUiTreeChildrenHidden( true );
+    m_yValuesCurveVariable = new RimSummaryAddress;
 
     CAF_PDM_InitFieldNoDefault( &m_yPushButtonSelectSummaryAddress, "SelectAddress", "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_yPushButtonSelectSummaryAddress );
+    m_yPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_yPushButtonSelectSummaryAddress = false;
-
-    m_yValuesCurveVariable = new RimSummaryAddress;
 
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( SINGLE_COLOR ), "Coloring Mode", "", "", "" );
 
@@ -178,6 +168,15 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     m_disableStatisticCurves = false;
     m_isCurveSetFiltered     = false;
+
+    // Obsolete fields
+
+    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryFilter, "VarListFilter", "Filter", "", "", "" );
+    m_yValuesSummaryFilter.uiCapability()->setUiTreeChildrenHidden( true );
+    m_yValuesSummaryFilter.uiCapability()->setUiHidden( true );
+    m_yValuesSummaryFilter.xmlCapability()->setIOWritable(false);
+    m_yValuesSummaryFilter = new RimSummaryFilter;
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -221,7 +220,6 @@ void RimEnsembleCurveSet::setColor( cvf::Color3f color )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::loadDataAndUpdate( bool updateParentPlot )
 {
-    m_yValuesSelectedVariableDisplayField = QString::fromStdString( m_yValuesCurveVariable->address().uiText() );
     m_yValuesUiFilterResultSelection      = m_yValuesCurveVariable->address();
 
     updateAllCurves();
@@ -638,17 +636,11 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         // caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroupWithKeyword(curveDataGroupName, "Summary Vector Y");
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector Y" );
         curveDataGroup->add( &m_yValuesSummaryGroup );
-        curveDataGroup->add( &m_yValuesSelectedVariableDisplayField );
+        curveDataGroup->add( &m_yValuesUiFilterResultSelection );
+        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, {false, 1, 0});
         curveDataGroup->add( &m_plotAxis );
-        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress );
 
-        QString curveVarSelectionGroupName = "Vector Selection Filter Y";
-        // caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroupWithKeyword("Vector Selection Filter", curveVarSelectionGroupName);
-        caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup( curveVarSelectionGroupName );
-        curveVarSelectionGroup->setCollapsedByDefault( true );
-        m_yValuesSummaryFilter->uiOrdering( uiConfigName, *curveVarSelectionGroup );
-        curveVarSelectionGroup->add( &m_yValuesUiFilterResultSelection );
-    }
+     }
 
     caf::PdmUiGroup* colorsGroup = uiOrdering.addNewGroup( "Colors" );
     m_colorMode.uiCapability()->setUiReadOnly( !m_yValuesSummaryGroup() );
@@ -758,7 +750,7 @@ void RimEnsembleCurveSet::defineEditorAttribute( const caf::PdmFieldHandle* fiel
     caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
     if ( attrib )
     {
-        attrib->m_buttonText = "Vector Selection Dialog";
+        attrib->m_buttonText = "...";
     }
 }
 
@@ -803,7 +795,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
     }
     else if ( fieldNeedingOptions == &m_yValuesUiFilterResultSelection )
     {
-        appendOptionItemsForSummaryAddresses( &options, m_yValuesSummaryGroup(), m_yValuesSummaryFilter() );
+        appendOptionItemsForSummaryAddresses( &options, m_yValuesSummaryGroup(), nullptr );
     }
 
     return options;
@@ -1023,7 +1015,6 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                     curve->qwtPlotCurve()->setItemAttribute( QwtPlotItem::Legend, false );
                 }
             }
-            m_yValuesSummaryFilter->updateFromAddress( addr->address() );
 
             if ( plot->qwtPlot() ) m_qwtPlotCurveForLegendText->attach( plot->qwtPlot() );
         }
