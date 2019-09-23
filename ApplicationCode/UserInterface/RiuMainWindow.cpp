@@ -1490,8 +1490,8 @@ void RiuMainWindow::slotSnapshotAllViewsToFile()
     RiaApplication* app = RiaApplication::instance();
 
     // Save images in snapshot catalog relative to project directory
-    QString absolutePathToSnapshotDir = app->createAbsolutePathFromProjectRelativePath("snapshots");
-    RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(absolutePathToSnapshotDir);
+    QString absolutePathToSnapshotDir = app->createAbsolutePathFromProjectRelativePath( "snapshots" );
+    RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( absolutePathToSnapshotDir );
 }
 
 //--------------------------------------------------------------------------------------------------

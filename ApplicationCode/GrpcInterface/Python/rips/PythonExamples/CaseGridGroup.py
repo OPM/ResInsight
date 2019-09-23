@@ -6,8 +6,8 @@ resinsight  = rips.Instance.find()
 case_paths = []
 case_paths.append("C:/Users/lindk/source/repos/ResInsight/TestModels/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID")
 case_paths.append("C:/Users/lindk/source/repos/ResInsight/TestModels/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID")
-for casePath in case_paths:
-    assert os.path.exists(casePath), "You need to set valid case paths for this script to work"
+for case_path in case_paths:
+    assert os.path.exists(case_path), "You need to set valid case paths for this script to work"
 
 case_group = resinsight.project.create_grid_case_group(case_paths=case_paths)
 
@@ -20,7 +20,7 @@ case_group.print_object_info()
 #    stat_case.update()
 #    case_ids.append(stat_case.get_value("CaseId"))
 
-resinsight.commands.compute_case_group_statistics(case_group_id=case_group.group_id)
+case_group.compute_statistics()
 
 view = case_group.views()[0]
 cell_result = view.set_cell_result()

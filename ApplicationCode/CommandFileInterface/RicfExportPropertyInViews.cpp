@@ -47,9 +47,10 @@ CAF_PDM_SOURCE_INIT(RicfExportPropertyInViews, "exportPropertyInViews");
 //--------------------------------------------------------------------------------------------------
 RicfExportPropertyInViews::RicfExportPropertyInViews()
 {
-    RICF_InitField(&m_caseId, "caseId", -1, "Case ID", "", "", "");
-    RICF_InitField(&m_viewNames, "viewNames", std::vector<QString>(), "View Names", "", "", "");
-    RICF_InitField(&m_undefinedValue, "undefinedValue", 0.0, "Undefined Value", "", "", "");
+    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    RICF_InitField( &m_viewIds, "viewIds", std::vector<int>(), "View IDs", "", "", "" );
+    RICF_InitField( &m_viewNames, "viewNames", std::vector<QString>(), "View Names", "", "", "" );
+    RICF_InitField( &m_undefinedValue, "undefinedValue", 0.0, "Undefined Value", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,22 +75,35 @@ RicfCommandResponse RicfExportPropertyInViews::execute()
         RimEclipseView* view = dynamic_cast<RimEclipseView*>(v);
         if (!view) continue;
 
-        if (m_viewNames().empty())
+        if ( m_viewNames().empty() && m_viewIds().empty() )
         {
             viewsForExport.push_back(view);
         }
         else
         {
-            bool matchingName = false;
-            for (const auto& viewName : m_viewNames())
+            bool matchingIdOrName = false;
+
+            for ( auto viewId : m_viewIds() )
             {
-                if (view->name().compare(viewName, Qt::CaseInsensitive) == 0)
+                if ( view->id() == viewId )
                 {
-                    matchingName = true;
+                    matchingIdOrName = true;
+                    break;
                 }
             }
 
-            if (matchingName)
+            if ( !matchingIdOrName )
+            {
+                for ( const auto& viewName : m_viewNames() )
+                {
+                    if ( view->name().compare( viewName, Qt::CaseInsensitive ) == 0 )
+                    {
+                        matchingIdOrName = true;
+                    }
+                }
+            }
+
+            if ( matchingIdOrName )
             {
                 viewsForExport.push_back(view);
             }

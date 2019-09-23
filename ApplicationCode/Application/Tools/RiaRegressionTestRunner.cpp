@@ -201,8 +201,8 @@ void RiaRegressionTestRunner::runRegressionTest()
 
                 resizePlotWindows();
 
-                QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath(generatedFolderName);
-                RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(fullPathGeneratedFolder);
+                QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath( generatedFolderName );
+                RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( fullPathGeneratedFolder );
 
                 RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(fullPathGeneratedFolder);
 

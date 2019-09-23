@@ -9,7 +9,7 @@ import dataroot
 def test_10k(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=casePath)
-    assert(case.grid_count() == 2)
+    assert(len(case.grids()) == 2)
     grid = case.grid(index=0)
     dimensions = grid.dimensions()
     assert(dimensions.i == 90)

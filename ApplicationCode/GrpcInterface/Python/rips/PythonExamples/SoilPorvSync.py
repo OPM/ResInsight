@@ -7,15 +7,15 @@ import time
 
 resinsight = rips.Instance.find()
 start = time.time()
-case       = resinsight.project.case(id=0)
+case       = resinsight.project.case(case_id=0)
 
 # Read the full porv result
-porv_results = case.properties.active_cell_property('STATIC_NATIVE', 'PORV', 0)
+porv_results = case.active_cell_property('STATIC_NATIVE', 'PORV', 0)
 time_step_info = case.time_steps()
 
 for i in range (0, len(time_step_info)):
     # Read the full SOIl result for time step i
-    soil_results = case.properties.active_cell_property('DYNAMIC_NATIVE', 'SOIL', i)
+    soil_results = case.active_cell_property('DYNAMIC_NATIVE', 'SOIL', i)
     
     # Generate the result by looping through both lists in order
     results = []
@@ -23,7 +23,7 @@ for i in range (0, len(time_step_info)):
         results.append(soil * porv)
 
     # Send back result
-    case.properties.set_active_cell_property(results, 'GENERATED', 'SOILPORVSync', i)
+    case.set_active_cell_property(results, 'GENERATED', 'SOILPORVSync', i)
 
 end = time.time()
 print("Time elapsed: ", end - start)

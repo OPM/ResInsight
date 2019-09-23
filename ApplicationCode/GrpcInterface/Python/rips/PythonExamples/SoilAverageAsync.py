@@ -11,7 +11,7 @@ resinsight     = rips.Instance.find()
 start          = time.time()
 
 # Get the case with case id 0
-case           = resinsight.project.case(id=0)
+case           = resinsight.project.case(case_id=0)
 
 # Get a list of all time steps
 timeSteps      = case.time_steps()
@@ -20,7 +20,7 @@ averages = []
 for i in range(0, len(timeSteps)):
     # Get the results from time step i asynchronously
     # It actually returns a generator object almost immediately
-	result_chunks = case.properties.active_cell_property_async('DYNAMIC_NATIVE', 'SOIL', i)
+	result_chunks = case.active_cell_property_async('DYNAMIC_NATIVE', 'SOIL', i)
 	mysum = 0.0
 	count = 0
     # Loop through and append the average. each time we loop resultChunks

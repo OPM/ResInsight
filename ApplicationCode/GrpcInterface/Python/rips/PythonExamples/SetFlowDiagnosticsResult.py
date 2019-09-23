@@ -7,7 +7,7 @@ import rips
 # Connect to ResInsight instance
 resinsight = rips.Instance.find()
 
-view = resinsight.project.view(0)
+view = resinsight.project.view(view_id=0)
 #view.apply_flow_diagnostics_cell_result(result_variable='Fraction',
 #                                    selection_mode='FLOW_TR_INJ_AND_PROD')
                                     
