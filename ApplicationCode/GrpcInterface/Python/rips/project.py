@@ -23,7 +23,7 @@ class Project(PdmObject):
     def __init__(self, channel):
         self._project_stub = Project_pb2_grpc.ProjectStub(channel)
         PdmObject.__init__(self, self._project_stub.GetPdmObject(Empty()),
-                    channel)
+                           channel)
 
     def open(self, path):
         """Open a new project from the given path
@@ -193,17 +193,31 @@ class Project(PdmObject):
         return self._execute_command(exportWellPaths=Cmd.ExportWellPathRequest(
             wellPathNames=well_paths, mdStepSize=md_step_size))
 
-    def scale_fracture_template(self, template_id, half_length, height, dfactor,
-                                conductivity):
+    def scale_fracture_template(self, template_id, half_length, height,
+                                d_factor, conductivity):
+        """ Scale fracture template parameters
+        Arguments:
+            template_id(int): ID of fracture template
+            half_length (double): Half Length scale factor
+            height (double): Height scale factor
+            d_factor (double): D-factor scale factor
+            conductivity (double): Conductivity scale factor
+        """
         return self._execute_command(
             scaleFractureTemplate=Cmd.ScaleFractureTemplateRequest(
                 id=template_id,
                 halfLength=half_length,
                 height=height,
-                dFactor=dfactor,
+                dFactor=d_factor,
                 conductivity=conductivity))
 
-    def set_fracture_containment(self, fracture_id, top_layer, base_layer):
+    def set_fracture_containment(self, template_id, top_layer, base_layer):
+        """ Set fracture template containment parameters
+        Arguments:
+            template_id(int): ID of fracture template
+            top_layer (int): Top layer containment
+            base_layer (int): Base layer containment
+        """
         return self._execute_command(
             setFractureContainment=Cmd.SetFracContainmentRequest(
-                id=fracture_id, topLayer=top_layer, baseLayer=base_layer))
+                id=template_id, topLayer=top_layer, baseLayer=base_layer))
