@@ -98,6 +98,7 @@ class Project(PdmObject):
 
     def replace_source_cases(self, grid_list_file, case_group_id=0):
         """Replace all source cases within a case group
+        
         Arguments:
             grid_list_file (str): path to file containing a list of cases
             case_group_id (int): id of the case group to replace
@@ -108,6 +109,7 @@ class Project(PdmObject):
 
     def create_grid_case_group(self, case_paths):
         """Create a Grid Case Group from a list of cases
+        
         Arguments:
             case_paths (list): list of file path strings
         Returns:
@@ -129,6 +131,7 @@ class Project(PdmObject):
 
     def view(self, view_id):
         """Get a particular view belonging to a case by providing view id
+        
         Arguments:
             id(int): view id
         Returns: a view object
@@ -150,6 +153,7 @@ class Project(PdmObject):
 
     def grid_case_group(self, group_id):
         """Get a particular grid case group belonging to a project
+        
         Arguments:
             groupId(int): group id
 
@@ -163,6 +167,7 @@ class Project(PdmObject):
 
     def export_multi_case_snapshots(self, grid_list_file):
         """Export snapshots for a set of cases
+        
         Arguments:
             grid_list_file (str): Path to a file containing a list of grids to export snapshot for
         """
@@ -172,6 +177,7 @@ class Project(PdmObject):
 
     def export_snapshots(self, snapshot_type='ALL', prefix=''):
         """ Export all snapshots of a given type
+        
         Arguments:
             snapshot_type (str): Enum string ('ALL', 'VIEWS' or 'PLOTS')
             prefix (str): Exported file name prefix
@@ -182,6 +188,7 @@ class Project(PdmObject):
 
     def export_well_paths(self, well_paths=None, md_step_size=5.0):
         """ Export a set of well paths
+        
         Arguments:
             well_paths(list): List of strings of well paths. If none, export all.
             md_step_size(double): resolution of the exported well path
@@ -196,6 +203,7 @@ class Project(PdmObject):
     def scale_fracture_template(self, template_id, half_length, height,
                                 d_factor, conductivity):
         """ Scale fracture template parameters
+        
         Arguments:
             template_id(int): ID of fracture template
             half_length (double): Half Length scale factor
@@ -213,6 +221,7 @@ class Project(PdmObject):
 
     def set_fracture_containment(self, template_id, top_layer, base_layer):
         """ Set fracture template containment parameters
+        
         Arguments:
             template_id(int): ID of fracture template
             top_layer (int): Top layer containment

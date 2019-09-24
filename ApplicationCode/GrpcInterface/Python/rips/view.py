@@ -186,8 +186,7 @@ class View(PdmObject):
         """ Export the current Eclipse property from the view
 
         Arguments:
-            undefined_value (double): Value to use for undefined values.
-            Defaults to 0.0
+            undefined_value (double): Value to use for undefined values. Defaults to 0.0
         """
         case_id = self.case().case_id
         return self._execute_command(
@@ -198,6 +197,7 @@ class View(PdmObject):
 
     def export_snapshot(self, prefix=''):
         """ Export snapshot for the current view
+        
         Arguments:
             prefix (str): Exported file name prefix
         """
