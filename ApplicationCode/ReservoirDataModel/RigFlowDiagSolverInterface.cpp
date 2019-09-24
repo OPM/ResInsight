@@ -118,7 +118,7 @@ class RigOpmFlowDiagStaticData : public cvf::Object
 {
 public:
     RigOpmFlowDiagStaticData( const ecl_grid_type*            mainGrid,
-                              const std::string&              init,
+                              const std::wstring&             init,
                               RiaEclipseUnitTools::UnitSystem caseUnitSystem )
     {
         Opm::ECLInitFileData initData( init );
@@ -516,8 +516,8 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
     if ( m_opmFlowDiagStaticData.isNull() )
     {
         // Get set of files
-        QString     gridFileName = m_eclipseCase->gridFileName();
-        std::string initFileName = getInitFileName();
+        QString      gridFileName = m_eclipseCase->gridFileName();
+        std::wstring initFileName = getInitFileName();
         if ( initFileName.empty() ) return false;
 
         const RigEclipseCaseData* eclipseCaseData = m_eclipseCase->eclipseCaseData();
@@ -992,18 +992,18 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RigFlowDiagSolverInterface::getInitFileName() const
+std::wstring RigFlowDiagSolverInterface::getInitFileName() const
 {
     QString gridFileName = m_eclipseCase->gridFileName();
 
     QStringList m_filesWithSameBaseName;
 
     if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( gridFileName, &m_filesWithSameBaseName ) )
-        return std::string();
+        return std::wstring();
 
     QString initFileName = RifEclipseOutputFileTools::firstFileNameOfType( m_filesWithSameBaseName, ECL_INIT_FILE );
 
-    return initFileName.toStdString();
+    return initFileName.toStdWString();
 }
 
 //--------------------------------------------------------------------------------------------------

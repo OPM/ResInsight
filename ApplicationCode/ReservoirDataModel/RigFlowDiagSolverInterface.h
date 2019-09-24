@@ -157,11 +157,11 @@ public:
         size_t activeCellIndex, double pressure, double rs, double rv, double* mu_o, double* mu_g );
 
 private:
-    std::string getInitFileName() const;
-    bool        ensureStaticDataObjectInstanceCreated();
-    void        assignPhaseCorrecedPORV( RigFlowDiagResultAddress::PhaseSelection phaseSelection, size_t timeStepIdx );
-    void        reportRelPermCurveError( const QString& message );
-    void        reportPvtCurveError( const QString& message );
+    std::wstring getInitFileName() const;
+    bool         ensureStaticDataObjectInstanceCreated();
+    void         assignPhaseCorrecedPORV( RigFlowDiagResultAddress::PhaseSelection phaseSelection, size_t timeStepIdx );
+    void         reportRelPermCurveError( const QString& message );
+    void         reportPvtCurveError( const QString& message );
 
     RimEclipseResultCase*              m_eclipseCase;
     cvf::ref<RigOpmFlowDiagStaticData> m_opmFlowDiagStaticData;
