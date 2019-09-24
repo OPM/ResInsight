@@ -277,25 +277,35 @@ class Case(PdmObject):
         ----------------------------| ------------------------------------------------ | -----
         time_step                   | Time step to export for                          | Integer
         well_path_names             | List of well path names                          | List
-        file_split                  | Split type:
-                                     <ul>
-                                     <li>'UNIFIED_FILE'</li>
-                                     <li>'SPLIT_ON_WELL'</li>
-                                     <li>'SPLIT_ON_WELL_AND_COMPLETION_TYPE'</li>
-                                     </ul>                                             | String enum
-        compdat_export              | Compdat export type:
-                                      <ul>
-                                      <li>'TRANSMISSIBILITIES'</li>
-                                      <li>'WPIMULT_AND_DEFAULT_CONNECTION_FACTORS'</li>
-                                      </ul>                                            | String enum
+        file_split                  | Controls how export data is split into files     | String enum
+        compdat_export              | Compdat export type                              | String enum
         include_perforations        | Export perforations?                             | bool
         include_fishbones           | Export fishbones?                                | bool
         fishbones_exclude_main_bore | Exclude main bore when exporting fishbones?      | bool
-        combination_mode            | Combination mode:
-                                      <ul>
-                                      <li>'INDIVIDUALLY'</li>
-                                      <li>'COMBINED'</li>
-                                      </ul>                                            | String enum
+        combination_mode            | Controls how different completion types are split into separate files | String Enum
+
+        ##### Enum file_split 
+
+        Option                              | Description
+        ----------------------------------- | ------------
+        "UNIFIED_FILE"                      | A single file with all combined transmissibilities
+        "SPLIT_ON_WELL"                     | One file for each well with combined transmissibilities
+        "SPLIT_ON_WELL_AND_COMPLETION_TYPE" | One file for each completion type for each well 
+
+        ##### Enum compdat_export 
+
+        Option                                      | Description
+        ------------------------------------------- | ------------
+        "TRANSMISSIBILITIES"                        | Direct export of transmissibilities
+        "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS"    | Include WPIMULT in addition to transmissibilities
+
+        ##### Enum combination_mode 
+
+        Option              | Description
+        ------------------- | ------------
+        "INDIVIDUALLY"      | Exports the different completion types into separate transmissibility sections
+        "COMBINED"          | Combines all transmissibilities for different types into one combined transmissibility
+
         """
         if isinstance(well_path_names, str):
             well_path_names = [well_path_names]
@@ -337,7 +347,7 @@ class Case(PdmObject):
         Create Multiple Fractures in one go
 
         Parameter              | Description                               | Type
-        -----------------------| ----------------------------------       -| -----
+        -----------------------| ----------------------------------------- | -----
         template_id            | Id of the template                        | Integer
         well_path_names        | List of well path names                   | List of Strings
         min_dist_from_well_td  | Minimum distance from well TD             | Double
@@ -381,12 +391,16 @@ class Case(PdmObject):
         refinement_i    | Refinment in x-direction               | Integer
         refinement_j    | Refinment in y-direction               | Integer
         refinement_k    | Refinment in z-direction               | Integer
-        split_type      | Type of LGR split:
-                          <ul>
-                          <li>'LGR_PER_CELL'</li>
-                          <li>'LGR_PER_COMPLETION'</li>
-                          <li>'LGR_PER_WELL'</li>
-                          </ul>                                  | String enum
+        split_type      | Defines how to split LGRS              | String enum
+
+        ##### Enum split_type 
+
+        Option                  | Description
+        ------------------------| ------------
+        "LGR_PER_CELL"          | One LGR for each completed cell 
+        "LGR_PER_COMPLETION"    | One LGR for each completion (fracture, perforation, ...)
+        "LGR_PER_WELL"          | One LGR for each well
+
         """
         if isinstance(well_path_names, str):
             well_path_names = [well_path_names]
