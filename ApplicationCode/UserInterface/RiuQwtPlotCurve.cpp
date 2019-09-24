@@ -110,9 +110,18 @@ void RiuQwtPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>
 
             if ( showErrorBars && filteredYValues[i] != DOUBLE_INF && filteredErrorValues[i] != DOUBLE_INF )
             {
-                errorIntervals << QwtIntervalSample( filteredXValues[i],
+                if ( errorAxis == ERROR_X_AXIS )
+                {
+                    errorIntervals << QwtIntervalSample( filteredXValues[i],
                                                      filteredYValues[i] - filteredErrorValues[i],
                                                      filteredYValues[i] + filteredErrorValues[i] );
+                }
+                else
+                {
+                    errorIntervals << QwtIntervalSample( filteredYValues[i],
+                                                         filteredXValues[i] - filteredErrorValues[i],
+                                                         filteredXValues[i] + filteredErrorValues[i] );
+                }
             }
         }
     }
