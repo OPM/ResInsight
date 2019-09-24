@@ -93,7 +93,7 @@ class Instance:
             parameters.append("--console")
 
         # Stringify all parameters
-        for i in enumerate(parameters):
+        for i in range(0, len(parameters)):
             parameters[i] = str(parameters[i])
 
         pid = os.spawnv(os.P_NOWAIT, resinsight_executable, parameters)
