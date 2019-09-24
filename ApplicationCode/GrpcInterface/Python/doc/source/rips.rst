@@ -25,19 +25,6 @@ Example
 	:lines: 5-
 	:emphasize-lines: 5
 	
-Commands Module
-===============
-	
-.. autoclass:: rips.Commands
-    :members:
-    :undoc-members:
-	
-Example
--------
-.. literalinclude:: ../../rips/PythonExamples/CommandExample.py
-	:language: python
-	:lines: 5-
-	
 Grid Module
 ===========
 
