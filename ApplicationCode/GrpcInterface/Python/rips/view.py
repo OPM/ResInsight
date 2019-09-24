@@ -66,20 +66,22 @@ class View(PdmObject):
             producers=None):
         """Apply a flow diagnostics cell result
 
-        Arguments:
-            result_variable (str): String representing the result value
-                The valid values are 'TOF', 'Fraction', 'MaxFractionTracer' and 'Communication'.
-            selection_mode (str): String specifying which tracers to select.
-                The valid values are
-                - FLOW_TR_INJ_AND_PROD (all injector and producer tracers),
-                - FLOW_TR_PRODUCERS (all producers)
-                - FLOW_TR_INJECTORS (all injectors),
-                - FLOW_TR_BY_SELECTION (specify individual tracers in the
-                injectors and producers variables)
-            injectors (list): List of injector names (strings) to select.
-                Requires selection_mode to be 'FLOW_TR_BY_SELECTION'.
-            producers (list): List of producer tracers (strings) to select.
-                Requires selection_mode to be 'FLOW_TR_BY_SELECTION'.
+        Parameter           | Description                                            | Type
+        ------------------- | ------------------------------------------------------ | -----
+        result_variable     | String representing the result value                   | String
+        selection_mode      | String specifying which tracers to select              | String
+        injectors           | List of injector names, used by 'FLOW_TR_BY_SELECTION' | String List
+        producers           | List of injector names, used by 'FLOW_TR_BY_SELECTION' | String List
+
+        ##### Enum compdat_export 
+
+        Option                  | Description
+        ------------------------| ------------
+        "TOF"                   | Time of flight
+        "Fraction"              | Fraction
+        "MaxFractionTracer"     | Max Fraction Tracer
+        "Communication"         | Communication
+
         """
         if injectors is None:
             injectors = []
@@ -110,6 +112,7 @@ class View(PdmObject):
         return self.case().view(view_id)
 
     def set_time_step(self, time_step):
+        """Set the time step for current view"""
         case_id = self.case().case_id
         return self._execute_command(setTimeStep=Cmd.SetTimeStepParams(
             caseId=case_id, viewId=self.view_id, timeStep=time_step))
@@ -117,6 +120,31 @@ class View(PdmObject):
     def export_sim_well_fracture_completions(self, time_step,
                                              simulation_well_names, file_split,
                                              compdat_export):
+        """Export fracture completions for simulation wells
+
+        Parameter                   | Description                                      | Type
+        ----------------------------| ------------------------------------------------ | -----
+        time_step                   | Time step to export for                          | Integer
+        simulation_well_names       | List of simulation well names                    | List
+        file_split                  | Controls how export data is split into files     | String enum
+        compdat_export              | Compdat export type                              | String enum
+
+        ##### Enum file_split 
+
+        Option                              | Description
+        ----------------------------------- | ------------
+        "UNIFIED_FILE" <b>Default Option</b>| A single file with all transmissibilities
+        "SPLIT_ON_WELL"                     | One file for each well transmissibilities
+        "SPLIT_ON_WELL_AND_COMPLETION_TYPE" | One file for each completion type for each well 
+
+        ##### Enum compdat_export 
+
+        Option                                   | Description
+        -----------------------------------------| ------------
+        "TRANSMISSIBILITIES"<b>Default Option</b>| Direct export of transmissibilities 
+        "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS" | Include export of WPIMULT
+
+        """
         if isinstance(simulation_well_names, str):
             simulation_well_names = [simulation_well_names]
 
@@ -135,6 +163,15 @@ class View(PdmObject):
                              visible_active_cells_value=1,
                              hidden_active_cells_value=0,
                              inactive_cells_value=0):
+        """Export special properties for all visible cells.
+
+        Arguments:
+            export_keyword (string): The keyword to export.
+            Choices: 'FLUXNUM' or 'MULTNUM'. Default: 'FLUXNUM'
+            visible_active_cells_value (int): Value to export forvisible active cells. Default: 1
+            hidden_active_cells_value (int): Value to export for hidden active cells. Default: 0
+            inactive_cells_value (int): Value to export for inactive cells. Default: 0
+        """
         case_id = self.case().case_id
         return self._execute_command(
             exportVisibleCells=Cmd.ExportVisibleCellsRequest(
@@ -149,7 +186,7 @@ class View(PdmObject):
         """ Export the current Eclipse property from the view
 
         Arguments:
-            undefined_value (double):	Value to use for undefined values. Defaults to 0.0
+            undefined_value (double): Value to use for undefined values. Defaults to 0.0
         """
         case_id = self.case().case_id
         return self._execute_command(
@@ -160,10 +197,13 @@ class View(PdmObject):
 
     def export_snapshot(self, prefix=''):
         """ Export snapshot for the current view
+        
         Arguments:
             prefix (str): Exported file name prefix
         """
         case_id = self.case().case_id
         return self._execute_command(
-            exportSnapshots=Cmd.ExportSnapshotsRequest(
-                type='VIEWS', prefix=prefix, caseId=case_id, viewId=self.view_id))
+            exportSnapshots=Cmd.ExportSnapshotsRequest(type='VIEWS',
+                                                       prefix=prefix,
+                                                       caseId=case_id,
+                                                       viewId=self.view_id))
