@@ -56,6 +56,7 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimObservedDataCollection.h"
+#include "RimObservedFmuRftData.h"
 #include "RimObservedSummaryData.h"
 #include "RimOilField.h"
 #include "RimPltPlotCollection.h"
@@ -491,6 +492,10 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
             observedData->createSummaryReaderInterface();
             observedData->createRftReaderInterface();
             observedData->updateMetaData();
+        }
+        for ( RimObservedFmuRftData* observedFmuData : oilField->observedDataCollection()->allObservedFmuRftData() )
+        {
+            observedFmuData->createRftReaderInterface();
         }
 
         oilField->fractureDefinitionCollection()->loadAndUpdateData();

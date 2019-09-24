@@ -53,7 +53,7 @@ RiuQwtPlotCurve::RiuQwtPlotCurve( const QString& title )
     m_symbolSkipPixelDistance = 10.0f;
 
     m_errorBars = new QwtPlotIntervalCurve();
-    m_errorBars->setStyle( QwtPlotIntervalCurve::CurveStyle::NoCurve );
+    m_errorBars->setStyle( QwtPlotIntervalCurve::CurveStyle::Tube );
     m_errorBars->setSymbol( new QwtIntervalSymbol( QwtIntervalSymbol::Bar ) );
     m_errorBars->setItemAttribute( QwtPlotItem::Legend, false );
     m_errorBars->setZ( Z_ERROR_BARS );
@@ -110,18 +110,9 @@ void RiuQwtPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>
 
             if ( showErrorBars && filteredYValues[i] != DOUBLE_INF && filteredErrorValues[i] != DOUBLE_INF )
             {
-                if ( errorAxis == ERROR_X_AXIS )
-                {
-                    errorIntervals << QwtIntervalSample( filteredXValues[i],
-                                                         filteredYValues[i] - filteredErrorValues[i],
-                                                         filteredYValues[i] + filteredErrorValues[i] );
-                }
-                else
-                {
-                    errorIntervals << QwtIntervalSample( filteredYValues[i],
-                                                         filteredXValues[i] - filteredErrorValues[i],
-                                                         filteredXValues[i] + filteredErrorValues[i] );
-                }
+                errorIntervals << QwtIntervalSample( filteredXValues[i],
+                                                     filteredYValues[i] - filteredErrorValues[i],
+                                                     filteredYValues[i] + filteredErrorValues[i] );
             }
         }
     }
