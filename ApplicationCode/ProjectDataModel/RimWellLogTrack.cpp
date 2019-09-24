@@ -197,7 +197,7 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitField( &m_showFormations_OBSOLETE, "ShowFormations", false, "Show Lines", "", "", "" );
     m_showFormations_OBSOLETE.xmlCapability()->setIOWritable( false );
-    CAF_PDM_InitField( &m_showFormationLabels, "ShowFormationLabels", true, "Show Labels", "", "", "" );
+    CAF_PDM_InitField( &m_showRegionLabels, "ShowFormationLabels", true, "Show Labels", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_formationSource, "FormationSource", "Source", "", "", "" );
 
@@ -423,7 +423,7 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
             }
         }
     }
-    else if ( changedField == &m_showFormationLabels )
+    else if ( changedField == &m_showRegionLabels )
     {
         loadDataAndUpdate();
     }
@@ -851,14 +851,17 @@ void RimWellLogTrack::loadDataAndUpdate( bool updateParentPlotAndToolbars )
         curves[cIdx]->loadDataAndUpdate( false );
     }
 
-    if ( m_regionAnnotationType == RiuPlotAnnotationTool::NO_ANNOTATIONS )
-    {
-        setFormationFieldsUiReadOnly( true );
-    }
-    else
+    if ( m_regionAnnotationType == RiuPlotAnnotationTool::FORMATION_ANNOTATIONS )
     {
         setFormationFieldsUiReadOnly( false );
     }
+    else
+    {
+        setFormationFieldsUiReadOnly( true );
+    }
+    bool noAnnotations = m_regionAnnotationType() == RiuPlotAnnotationTool::NO_ANNOTATIONS;
+    m_regionAnnotationDisplay.uiCapability()->setUiReadOnly( noAnnotations );
+    m_showRegionLabels.uiCapability()->setUiReadOnly( noAnnotations );
 
     if ( m_wellLogTrackPlotWidget )
     {
@@ -1349,9 +1352,9 @@ bool RimWellLogTrack::showFormations() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setShowFormationLabels( bool on )
+void RimWellLogTrack::setShowRegionLabels( bool on )
 {
-    m_showFormationLabels = on;
+    m_showRegionLabels = on;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1413,6 +1416,8 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 
     annotationGroup->add( &m_regionAnnotationType );
     annotationGroup->add( &m_regionAnnotationDisplay );
+    annotationGroup->add( &m_showRegionLabels );
+
     if ( m_regionAnnotationDisplay() & RiuPlotAnnotationTool::COLOR_SHADING ||
          m_regionAnnotationDisplay() & RiuPlotAnnotationTool::COLORED_LINES )
     {
@@ -1422,7 +1427,6 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
             annotationGroup->add( &m_colorShadingTransparency );
         }
     }
-    annotationGroup->add( &m_showFormationLabels );
 
     if ( !m_formationsForCaseWithSimWellOnly )
     {
@@ -1878,8 +1882,6 @@ std::vector<QString> RimWellLogTrack::formationNamesVector( RimCase* rimCase )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setFormationFieldsUiReadOnly( bool readOnly /*= true*/ )
 {
-    m_regionAnnotationDisplay.uiCapability()->setUiReadOnly( readOnly );
-    m_showFormationLabels.uiCapability()->setUiReadOnly( readOnly );
     m_formationSource.uiCapability()->setUiReadOnly( readOnly );
     m_formationTrajectoryType.uiCapability()->setUiReadOnly( readOnly );
     m_formationSimWellName.uiCapability()->setUiReadOnly( readOnly );
@@ -2004,7 +2006,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                               m_regionAnnotationDisplay(),
                                               colorTable,
                                               ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
-                                              m_showFormationLabels() );
+                                              m_showRegionLabels() );
     }
     else if ( m_formationSource() == WELL_PICK_FILTER )
     {
@@ -2040,6 +2042,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
     this->firstAncestorOrThisOfType( wellBoreStabilityPlot );
     if ( wellBoreStabilityPlot )
     {
+        wellBoreStabilityPlot->updateCommonDataSource();
         RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>(
             wellBoreStabilityPlot->commonDataSource()->caseToApply() );
         RimWellPath* wellPath = wellBoreStabilityPlot->commonDataSource()->wellPathToApply();
@@ -2095,7 +2098,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                                                       m_regionAnnotationDisplay(),
                                                       colorTable,
                                                       ( ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100 ) / 3,
-                                                      true,
+                                                      m_showRegionLabels(),
                                                       RiuPlotAnnotationTool::LEFT_COLUMN );
             }
             {
@@ -2124,7 +2127,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                                                       m_regionAnnotationDisplay(),
                                                       colorTable,
                                                       ( ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100 ) / 3,
-                                                      true,
+                                                      m_showRegionLabels(),
                                                       RiuPlotAnnotationTool::CENTRE_COLUMN );
             }
             {
@@ -2153,7 +2156,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                                                       m_regionAnnotationDisplay(),
                                                       colorTable,
                                                       ( ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100 ) / 3,
-                                                      true,
+                                                      m_showRegionLabels(),
                                                       RiuPlotAnnotationTool::RIGHT_COLUMN );
             }
         }

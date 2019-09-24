@@ -158,7 +158,7 @@ public:
 
     bool showFormations() const;
 
-    void setShowFormationLabels( bool on );
+    void setShowRegionLabels( bool on );
 
     bool showWellPathAttributes() const;
     void setShowWellPathAttributes( bool on );
@@ -256,7 +256,7 @@ private:
     caf::PdmField<RegionAnnotationDisplayEnum>                         m_regionAnnotationDisplay;
     caf::PdmField<RimRegularLegendConfig::ColorRangeEnum>              m_colorShadingPalette;
     caf::PdmField<int>                                                 m_colorShadingTransparency;
-    caf::PdmField<bool>                                                m_showFormationLabels;
+    caf::PdmField<bool>                                                m_showRegionLabels;
     caf::PdmField<caf::AppEnum<FormationSource>>                       m_formationSource;
     caf::PdmPtrField<RimCase*>                                         m_formationCase;
     caf::PdmField<caf::AppEnum<TrajectoryType>>                        m_formationTrajectoryType;

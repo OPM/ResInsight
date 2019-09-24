@@ -131,6 +131,7 @@ public:
 
     void                             handleKeyPressEvent( QKeyEvent* keyEvent );
     RimWellLogCurveCommonDataSource* commonDataSource() const;
+    void                             updateCommonDataSource();
 
     void setAvailableDepthUnits( const std::set<RiaDefines::DepthUnitType>& depthUnits );
     void setAvailableDepthTypes( const std::set<RimWellLogPlot::DepthTypeEnum>& depthTypes );

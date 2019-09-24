@@ -184,7 +184,7 @@ void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack( RimWellBoreStabi
     casingShoeTrack->setFormationCase( geoMechCase );
     casingShoeTrack->setAnnotationType( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS );
     casingShoeTrack->setAnnotationDisplay( RiuPlotAnnotationTool::DARK_LINES );
-    casingShoeTrack->setShowFormationLabels( false );
+    casingShoeTrack->setShowRegionLabels( false );
     casingShoeTrack->setShowWellPathAttributes( true );
     casingShoeTrack->setWellPathAttributesSource( wellPath );
     casingShoeTrack->setVisibleXRange( 0.0, 0.0 );
@@ -209,7 +209,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
     stabilityCurvesTrack->setFormationWellPath( wellPath );
     stabilityCurvesTrack->setFormationCase( geoMechView->geoMechCase() );
     stabilityCurvesTrack->setAnnotationType( RiuPlotAnnotationTool::CURVE_ANNOTATIONS );
-    stabilityCurvesTrack->setShowFormationLabels( false );
+    stabilityCurvesTrack->setShowRegionLabels( true );
 
     std::vector<QString> resultNames = RiaDefines::wellPathStabilityResultNames();
 
@@ -301,5 +301,5 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
     wellPathAnglesTrack->setFormationWellPath( wellPath );
     wellPathAnglesTrack->setFormationCase( geoMechView->geoMechCase() );
     wellPathAnglesTrack->setAnnotationType( RiuPlotAnnotationTool::NO_ANNOTATIONS );
-    wellPathAnglesTrack->setShowFormationLabels( false );
+    wellPathAnglesTrack->setShowRegionLabels( false );
 }
