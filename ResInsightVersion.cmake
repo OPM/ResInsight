@@ -1,10 +1,10 @@
 
 set(RESINSIGHT_MAJOR_VERSION 2019)
 set(RESINSIGHT_MINOR_VERSION 08)
-set(RESINSIGHT_PATCH_VERSION 1)
+set(RESINSIGHT_PATCH_VERSION 2)
 
 # Opional text with no restrictions
-#set(RESINSIGHT_VERSION_TEXT "-rc1")
+set(RESINSIGHT_VERSION_TEXT "-rc1")
 
 # Optional text
 # Must be unique and increasing within one combination of major/minor/patch version 
