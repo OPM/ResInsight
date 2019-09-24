@@ -85,7 +85,7 @@ set(PROTO_FILES
     "Commands"
     "App"
 	"Properties"
-	"grid"
+	"Grid"
 )
 
 set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_CURRENT_LIST_DIR}/Python")
