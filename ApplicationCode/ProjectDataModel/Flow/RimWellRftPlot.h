@@ -85,6 +85,8 @@ public:
 
     void deleteCurvesAssosicatedWithObservedData( const RimObservedFmuRftData* observedFmuRftData );
 
+    bool showErrorBarsForObservedData() const;
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
@@ -135,6 +137,7 @@ private:
     caf::PdmField<bool>    m_branchDetection;
     caf::PdmField<bool>    m_showStatisticsCurves;
     caf::PdmField<bool>    m_showEnsembleCurves;
+    caf::PdmField<bool>    m_showErrorInObservedData;
 
     caf::PdmField<std::vector<RifDataSourceForRftPlt>> m_selectedSources;
 

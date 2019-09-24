@@ -53,7 +53,7 @@ RiuQwtPlotCurve::RiuQwtPlotCurve( const QString& title )
     m_symbolSkipPixelDistance = 10.0f;
 
     m_errorBars = new QwtPlotIntervalCurve();
-    m_errorBars->setStyle( QwtPlotIntervalCurve::CurveStyle::Tube );
+    m_errorBars->setStyle( QwtPlotIntervalCurve::CurveStyle::NoCurve );
     m_errorBars->setSymbol( new QwtIntervalSymbol( QwtIntervalSymbol::Bar ) );
     m_errorBars->setItemAttribute( QwtPlotItem::Legend, false );
     m_errorBars->setZ( Z_ERROR_BARS );
@@ -113,8 +113,8 @@ void RiuQwtPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>
                 if ( errorAxis == ERROR_X_AXIS )
                 {
                     errorIntervals << QwtIntervalSample( filteredXValues[i],
-                                                     filteredYValues[i] - filteredErrorValues[i],
-                                                     filteredYValues[i] + filteredErrorValues[i] );
+                                                         filteredYValues[i] - filteredErrorValues[i],
+                                                         filteredYValues[i] + filteredErrorValues[i] );
                 }
                 else
                 {
@@ -132,6 +132,14 @@ void RiuQwtPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>
     if ( showErrorBars )
     {
         m_errorBars->setSamples( errorIntervals );
+        if ( errorAxis == ERROR_X_AXIS )
+        {
+            m_errorBars->setOrientation( Qt::Vertical );
+        }
+        else
+        {
+            m_errorBars->setOrientation( Qt::Horizontal );
+        }
     }
 }
 
@@ -376,6 +384,14 @@ void RiuQwtPlotCurve::setErrorBarsColor( QColor color )
     QwtIntervalSymbol* newSymbol = new QwtIntervalSymbol( QwtIntervalSymbol::Bar );
     newSymbol->setPen( QPen( color ) );
     m_errorBars->setSymbol( newSymbol );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::setErrorXAxis( int axis )
+{
+    m_errorBars->setXAxis( axis );
 }
 
 //--------------------------------------------------------------------------------------------------

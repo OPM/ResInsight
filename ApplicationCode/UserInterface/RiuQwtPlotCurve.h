@@ -115,6 +115,7 @@ public:
     void clearErrorBars();
     void showErrorBars( bool show );
     void setErrorBarsColor( QColor color );
+    void setErrorXAxis( int axis );
 
     void       setAppearance( LineStyleEnum          lineStyle,
                               CurveInterpolationEnum interpolationType,

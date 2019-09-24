@@ -47,6 +47,7 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPlotTools.h"
+#include "RimWellRftPlot.h"
 
 #include "RiuQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
@@ -377,6 +378,9 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         firstAncestorOrThisOfType( wellLogPlot );
         CVF_ASSERT( wellLogPlot );
 
+        RimWellRftPlot* rftPlot                     = dynamic_cast<RimWellRftPlot*>( wellLogPlot );
+        bool            showErrorBarsInObservedData = rftPlot ? rftPlot->showErrorBarsForObservedData() : false;
+
         std::vector<double> measuredDepthVector = measuredDepthValues();
         std::vector<double> tvDepthVector       = tvDepthValues();
         std::vector<double> values              = xValues();
@@ -443,7 +447,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH )
         {
-            m_qwtPlotCurve->showErrorBars( true );
+            m_qwtPlotCurve->showErrorBars( showErrorBarsInObservedData );
             m_qwtPlotCurve->setSamplesFromXValuesAndYValues( m_curveData->xPlotValues(),
                                                              m_curveData->measuredDepthPlotValues( displayUnit ),
                                                              errors,
@@ -476,7 +480,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         }
         else
         {
-            m_qwtPlotCurve->showErrorBars( true );
+            m_qwtPlotCurve->showErrorBars( showErrorBarsInObservedData );
             m_qwtPlotCurve->setSamplesFromXValuesAndYValues( m_curveData->xPlotValues(),
                                                              m_curveData->trueDepthPlotValues( displayUnit ),
                                                              errors,

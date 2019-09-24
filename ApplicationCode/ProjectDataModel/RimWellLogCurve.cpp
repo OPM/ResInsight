@@ -47,6 +47,7 @@ RimWellLogCurve::RimWellLogCurve()
     CAF_PDM_InitObject( "WellLogCurve", ":/WellLogCurve16x16.png", "", "" );
 
     m_qwtPlotCurve->setXAxis( QwtPlot::xTop );
+    m_qwtPlotCurve->setErrorXAxis( QwtPlot::xTop );
     m_qwtPlotCurve->setYAxis( QwtPlot::yLeft );
 }
 
