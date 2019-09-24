@@ -133,16 +133,16 @@ class View(PdmObject):
 
         Option                              | Description
         ----------------------------------- | ------------
-        "UNIFIED_FILE"                      | A single file with all combined transmissibilities <b>Default Option</b>
-        "SPLIT_ON_WELL"                     | One file for each well with combined transmissibilities
+        "UNIFIED_FILE" <b>Default Option</b>| A single file with all transmissibilities
+        "SPLIT_ON_WELL"                     | One file for each well transmissibilities
         "SPLIT_ON_WELL_AND_COMPLETION_TYPE" | One file for each completion type for each well 
 
         ##### Enum compdat_export 
 
-        Option                                      | Description
-        ------------------------------------------- | ------------
-        "TRANSMISSIBILITIES"                        | Direct export of transmissibilities <b>Default Option</b>
-        "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS"    | Include WPIMULT in addition to transmissibilities
+        Option                                   | Description
+        -----------------------------------------| ------------
+        "TRANSMISSIBILITIES"<b>Default Option</b>| Direct export of transmissibilities 
+        "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS" | Include export of WPIMULT
 
         """
         if isinstance(simulation_well_names, str):

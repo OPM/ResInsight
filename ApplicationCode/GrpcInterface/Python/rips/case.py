@@ -282,7 +282,7 @@ class Case(PdmObject):
         include_perforations        | Export perforations?                             | bool
         include_fishbones           | Export fishbones?                                | bool
         fishbones_exclude_main_bore | Exclude main bore when exporting fishbones?      | bool
-        combination_mode            | Controls how different completion types are split into separate files | String Enum
+        combination_mode            | Settings for multiple completions in same cell   | String Enum
 
         ##### Enum file_split 
 
@@ -303,8 +303,8 @@ class Case(PdmObject):
 
         Option              | Description
         ------------------- | ------------
-        "INDIVIDUALLY"      | Exports the different completion types into separate transmissibility sections
-        "COMBINED"          | Combines all transmissibilities for different types into one combined transmissibility
+        "INDIVIDUALLY"      | Exports the different completion types into separate sections
+        "COMBINED"          | Export one combined transmissibility for each cell
 
         """
         if isinstance(well_path_names, str):
