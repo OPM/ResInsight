@@ -208,10 +208,19 @@ class Instance:
 
         Parameter        | Description                                  | Type
         ---------------- | -------------------------------------------- | -----
-        export_type      | Type of export: 'COMPLETIONS', 'SNAPSHOTS'
-                           'PROPERTIES' or 'STATISTICS'                 | String
+        export_type      | String specifying what to export             | String
         path             | Path to folder                               | String
         create_folder    | Create folder if it doesn't exist?           | Boolean
+
+        ##### Enum export_type 
+
+        Option          | Description
+        --------------- | ------------
+        "COMPLETIONS"   |   
+        "SNAPSHOTS"     |
+        "PROPERTIES"    | 
+        "STATISTICS"    | 
+
         """
         return self.__execute_command(setExportFolder=Cmd.SetExportFolderRequest(
             type=export_type, path=path, createFolder=create_folder))
@@ -219,6 +228,7 @@ class Instance:
     def set_main_window_size(self, width, height):
         """
         Set the main window size in pixels
+
         Parameter | Description      | Type
         --------- | ---------------- | -----
         width     | Width in pixels  | Integer

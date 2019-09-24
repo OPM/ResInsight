@@ -64,7 +64,8 @@ class GridCaseGroup(PdmObject):
         """ Compute statistics for the given case ids
 
         Arguments:
-            case_ids(list): list of case ids. If this is None all cases in group are included
+            case_ids(list of integers): list of case ids.
+            If this is None all cases in group are included
 
         """
         if case_ids is None:

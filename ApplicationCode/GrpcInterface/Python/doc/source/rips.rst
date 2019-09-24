@@ -1,7 +1,7 @@
 Instance Module
 ===============
 
-.. autoclass:: rips.Instance
+.. autoclass:: rips.instance.Instance
     :members:
 
 Example
@@ -14,7 +14,7 @@ Example
 	
 Case Module
 ===========
-.. autoclass:: rips.Case
+.. autoclass:: rips.case.Case
     :members:
 
 Example
@@ -25,23 +25,10 @@ Example
 	:lines: 5-
 	:emphasize-lines: 5
 	
-Commands Module
-===============
-	
-.. autoclass:: rips.Commands
-    :members:
-    :undoc-members:
-	
-Example
--------
-.. literalinclude:: ../../rips/PythonExamples/CommandExample.py
-	:language: python
-	:lines: 5-
-	
 Grid Module
 ===========
 
-.. autoclass:: rips.Grid
+.. autoclass:: rips.grid.Grid
     :members:
 
 Example
@@ -60,26 +47,21 @@ Example
 GridCaseGroup Module
 ====================
 
-.. autoclass:: rips.GridCaseGroup
+.. autoclass:: rips.gridcasegroup.GridCaseGroup
     :members:
 
 
 Project Module
 ==============
 
-.. autoclass:: rips.Project
+.. autoclass:: rips.project.Project
     :members:
 
-Properties Module
-=================
-
-.. autoclass:: rips.Properties
-    :members:
 
 View Module
 ===========
 
-.. autoclass:: rips.View
+.. autoclass:: rips.view.View
     :members:
 
 Synchronous Example
