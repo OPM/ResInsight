@@ -757,7 +757,9 @@ void RiuPlotMainWindow::selectedObjectsChanged()
         {
             if (selectedWindow->viewWidget())
             {
+                setBlockSlotSubWindowActivated(true);
                 setActiveViewer(selectedWindow->viewWidget());
+                setBlockSlotSubWindowActivated(false);
             }
             // The only way to get to this code is by selection change initiated from the project tree view
             // As we are activating an MDI-window, the focus is given to this MDI-window
