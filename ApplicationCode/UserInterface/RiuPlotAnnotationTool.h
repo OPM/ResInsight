@@ -46,6 +46,13 @@ public:
         COLOR_SHADING           = 0x04,
         COLOR_SHADING_AND_LINES = 0x05
     };
+    enum TrackSpan
+    {
+        FULL_WIDTH,
+        LEFT_COLUMN,
+        CENTRE_COLUMN,
+        RIGHT_COLUMN
+    };
 
 public:
     RiuPlotAnnotationTool(){};
@@ -58,10 +65,8 @@ public:
                              RegionDisplay                                regionDisplay,
                              const caf::ColorTable&                       colorTable,
                              int                                          shadingAlphaByte,
-                             bool                                         showNames      = true,
-                             bool                                         detachExisting = true,
-                             double                                       xStart         = 0.0,
-                             double                                       xEnd           = 1.0 );
+                             bool                                         showNames = true,
+                             TrackSpan                                    trackSpan = FULL_WIDTH );
     void attachWellPicks( QwtPlot* plot, const std::vector<QString>& names, const std::vector<double> yPositions );
 
     void attachAnnotationLine( QwtPlot* plot, const QColor& color, const QString& annotationText, const double yPosition );
@@ -69,9 +74,13 @@ public:
     void detachAllAnnotations();
 
 private:
-    static void horizontalDashedLine( QwtPlotMarker* line, const QString& name, double yValue );
-    static void horizontalDashedLineWithColor(
-        QwtPlotMarker* line, const QColor& color, const QColor& textColor, const QString& name, double yValue );
+    static Qt::Alignment trackTextAlignment( TrackSpan trackSpan );
+    static void          horizontalDashedLine( QwtPlotMarker* line,
+                                               const QString& name,
+                                               double         yValue,
+                                               const QColor&  color               = QColor( 0, 0, 100 ),
+                                               const QColor&  textColor           = QColor( 0, 0, 100 ),
+                                               Qt::Alignment  horizontalAlignment = Qt::AlignRight );
 
 private:
     QPointer<QwtPlot>         m_plot;

@@ -2047,13 +2047,12 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
         if ( geoMechCase && wellPath && timeStep >= 0 )
         {
             RigGeoMechWellLogExtractor* geoMechWellLogExtractor = nullptr;
-            geoMechWellLogExtractor = RiaExtractionTools::wellLogExtractorGeoMechCase( m_formationWellPathForSourceCase,
+            geoMechWellLogExtractor = RiaExtractionTools::wellLogExtractorGeoMechCase( wellPath,
                                                                                        dynamic_cast<RimGeoMechCase*>(
                                                                                            geoMechCase ) );
             if ( !geoMechWellLogExtractor ) return;
 
             std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
-            caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
 
             CurveSamplingPointData curveData;
             curveData.md  = geoMechWellLogExtractor->cellIntersectionMDs();
@@ -2076,6 +2075,8 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
             std::vector<double> ucsValues     = geoMechWellLogExtractor->ucsIntervals( timeStep );
 
             {
+                caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
+
                 std::vector<QString> sourceNames =
                     {"", "PP=Grid", "PP=Las-File", "PP=Element Property Table", "", "PP=Hydrostatic"};
                 curveData.data = ppValues;
@@ -2095,11 +2096,11 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                                                       colorTable,
                                                       ( ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100 ) / 3,
                                                       true,
-                                                      false,
-                                                      0.0,
-                                                      0.33333 );
+                                                      RiuPlotAnnotationTool::LEFT_COLUMN );
             }
             {
+                caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
+
                 std::vector<QString> sourceNames =
                     {"",
                      "",
@@ -2124,11 +2125,11 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                                                       colorTable,
                                                       ( ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100 ) / 3,
                                                       true,
-                                                      false,
-                                                      0.33333,
-                                                      0.66666 );
+                                                      RiuPlotAnnotationTool::CENTRE_COLUMN );
             }
             {
+                caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
+
                 std::vector<QString> sourceNames = {"",
                                                     "",
                                                     "UCS=Las-File",
@@ -2153,9 +2154,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                                                       colorTable,
                                                       ( ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100 ) / 3,
                                                       true,
-                                                      false,
-                                                      0.66666,
-                                                      1.0 );
+                                                      RiuPlotAnnotationTool::RIGHT_COLUMN );
             }
         }
     }

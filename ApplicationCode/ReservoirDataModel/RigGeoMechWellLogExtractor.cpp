@@ -658,7 +658,6 @@ std::vector<double> RigGeoMechWellLogExtractor::poissonIntervals( int frameIndex
 
     RigFemResultAddress poissonResAddr( RIG_ELEMENT, "RATIO", "" );
 
-    const RigFemPart*            femPart          = m_caseData->femParts()->part( 0 );
     RigFemPartResultsCollection* resultCollection = m_caseData->femPartResults();
 
     std::vector<float> poissonRatios = resultCollection->resultValues( poissonResAddr, 0, frameIndex );
@@ -704,7 +703,6 @@ std::vector<double> RigGeoMechWellLogExtractor::ucsIntervals( int frameIndex )
 
     RigFemResultAddress ucsResAddr( RIG_ELEMENT, "UCS", "" );
 
-    const RigFemPart*            femPart          = m_caseData->femParts()->part( 0 );
     RigFemPartResultsCollection* resultCollection = m_caseData->femPartResults();
 
     std::vector<float> ucsValuesPascal = resultCollection->resultValues( ucsResAddr, 0, frameIndex );
