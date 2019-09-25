@@ -86,7 +86,14 @@ int main( int argc, char* argv[] )
     QLocale::setDefault( QLocale( QLocale::English, QLocale::UnitedStates ) );
     setlocale( LC_NUMERIC, "C" );
 
+    // Handle the command line arguments.
+    // Todo: Move to a one-shot timer, delaying the execution until we are inside the event loop.
+    // The complete handling of the resulting ApplicationStatus must be moved along.
+    // The reason for this is: deleteLater() does not work outside the event loop
+    // Make execution of command line stuff operate in identical conditions as interactive operation.
+
     RiaApplication::ApplicationStatus status = app->handleArguments( &progOpt );
+
     if ( status == RiaApplication::EXIT_COMPLETED )
     {
         return 0;

@@ -52,6 +52,7 @@
 #include "RimSummaryPlotCollection.h"
 
 #include "RiuMainWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
 #include <QFileInfo>
@@ -177,7 +178,6 @@ RimSummaryCurve* createHistoryCurve( const RifEclipseSummaryAddress& addr, RimSu
 
     return nullptr;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -406,6 +406,11 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
         QStringList gridResultAddressFilters;
         QStringList summaryAddressFilters;
 
+        RimSummaryPlot* lastPlotCreated = nullptr;
+
+        RimSummaryPlotCollection* sumPlotColl =
+            RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+
         splitAddressFiltersInGridAndSummary( summaryCasesToUse[0],
                                              allCurveAddressFilters,
                                              &summaryAddressFilters,
@@ -413,10 +418,6 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
         if ( summaryAddressFilters.size() )
         {
-            RimSummaryPlotCollection* sumPlotColl =
-                RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
-
-            RimSummaryPlot*           lastPlotCreated = nullptr;
             RimSummaryCaseCollection* ensemble        = nullptr;
 
             if ( isEnsembleMode )
@@ -479,11 +480,6 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
                 newPlot->applyDefaultCurveAppearances();
                 newPlot->loadDataAndUpdate();
-
-                sumPlotColl->updateConnectedEditors();
-
-                RiuPlotMainWindowTools::setExpanded( newPlot );
-                RiuPlotMainWindowTools::selectAsCurrentItem( newPlot );
             }
             else // Multiplot, one for each separate summary address
             {
@@ -556,16 +552,6 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                     }
                 }
             }
-
-            sumPlotColl->updateConnectedEditors();
-
-            if ( lastPlotCreated )
-            {
-                RiuPlotMainWindowTools::setExpanded( lastPlotCreated );
-                RiuPlotMainWindowTools::selectAsCurrentItem( lastPlotCreated );
-                RiuPlotMainWindowTools::showPlotMainWindow();
-                RiuMainWindow::instance()->close();
-            }
         }
 
         // Grid Cell Result vectors
@@ -575,9 +561,6 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
             // Todo: Use identical grid case import if -e -c or -cl
 
             std::vector<RimEclipseCase*> gridCasesToPlotFrom = openEclipseCasesForCellPlotting( gridFileNames );
-
-            RimSummaryPlotCollection* sumPlotColl =
-                RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
 
             if ( isSinglePlot )
             {
@@ -632,6 +615,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                     newPlot->showLegend( !hideLegend );
                     newPlot->setNormalizationEnabled( isNormalizedY );
                     newPlot->loadDataAndUpdate();
+                    lastPlotCreated = newPlot;
                 }
             }
             else // Multiplot
@@ -683,14 +667,27 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                             newPlot->showLegend( !hideLegend );
                             newPlot->setNormalizationEnabled( isNormalizedY );
                             newPlot->loadDataAndUpdate();
+                            lastPlotCreated = newPlot;
                         }
                     }
                 }
             }
+        }
 
+        if ( lastPlotCreated )
+        {
             sumPlotColl->updateConnectedEditors();
 
+            RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
+            // Needed to avoid unneccessary activation of sub windows (plots)
+            // which results in population of property editor, and missing deleteLater because we are outside any event loop
+            // when switching object. Results in stray widgets. 
+            mpw->setBlockSlotSubWindowActivated( true ); 
             RiuPlotMainWindowTools::showPlotMainWindow();
+            mpw->setBlockSlotSubWindowActivated( false );
+            RiuPlotMainWindowTools::setExpanded( lastPlotCreated );
+            RiuPlotMainWindowTools::selectAsCurrentItem( lastPlotCreated );
+
             RiuMainWindow::instance()->close();
         }
     }
