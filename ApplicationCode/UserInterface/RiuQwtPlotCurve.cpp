@@ -110,7 +110,7 @@ void RiuQwtPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>
 
             if ( showErrorBars && filteredYValues[i] != DOUBLE_INF && filteredErrorValues[i] != DOUBLE_INF )
             {
-                if ( errorAxis == ERROR_X_AXIS )
+                if ( errorAxis == ERROR_ALONG_Y_AXIS )
                 {
                     errorIntervals << QwtIntervalSample( filteredXValues[i],
                                                          filteredYValues[i] - filteredErrorValues[i],
@@ -132,7 +132,7 @@ void RiuQwtPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>
     if ( showErrorBars )
     {
         m_errorBars->setSamples( errorIntervals );
-        if ( errorAxis == ERROR_X_AXIS )
+        if ( errorAxis == ERROR_ALONG_Y_AXIS )
         {
             m_errorBars->setOrientation( Qt::Vertical );
         }
@@ -308,7 +308,7 @@ void RiuQwtPlotCurve::drawSymbols( QPainter*          painter,
 
         if ( sym )
         {
-            if ( !m_perPointLabels.empty() && m_perPointLabels.size() == pointsToDisplay.size() )
+            if ( m_perPointLabels.size() == pointsToDisplay.size() )
             {
                 for ( int i = 0; i < (int)pointsToDisplay.size(); ++i )
                 {
@@ -397,9 +397,11 @@ void RiuQwtPlotCurve::setErrorBarsColor( QColor color )
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Set the Qwt X-Axis (QwtPlot::xBottom or QwtPlot::xTop).
+/// This is important to make sure the x-axis interval is set correctly.
+/// WellLogPlots use top-axis and Summary uses bottom axis.
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setErrorXAxis( int axis )
+void RiuQwtPlotCurve::setErrorBarsXAxis( int axis )
 {
     m_errorBars->setXAxis( axis );
 }
