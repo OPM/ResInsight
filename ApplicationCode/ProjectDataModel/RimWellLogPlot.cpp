@@ -211,7 +211,6 @@ void RimWellLogPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
               changedField == &m_depthAxisGridVisibility )
     {
         updateTracks();
-        if ( m_viewer ) m_viewer->updateChildrenLayout();
     }
     else if ( changedField == &m_showTitleInPlot )
     {
@@ -687,7 +686,7 @@ QString RimWellLogPlot::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::performAutoNameUpdate()
 {
-    this->m_commonDataSource->updateDefaultOptions();
+    updateCommonDataSource();
     this->updatePlotTitle();
 }
 
@@ -740,6 +739,14 @@ void RimWellLogPlot::handleKeyPressEvent( QKeyEvent* keyEvent )
 RimWellLogCurveCommonDataSource* RimWellLogPlot::commonDataSource() const
 {
     return m_commonDataSource;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::updateCommonDataSource()
+{
+    m_commonDataSource->updateDefaultOptions();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -817,6 +824,7 @@ void RimWellLogPlot::updateTracks( bool autoScaleXAxis )
 
         calculateAvailableDepthRange();
         applyDepthZoomFromVisibleDepth();
+        if ( m_viewer ) m_viewer->updateChildrenLayout();
     }
 }
 
@@ -948,7 +956,7 @@ void RimWellLogPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::initAfterRead()
 {
-    m_commonDataSource->updateDefaultOptions();
+    updateCommonDataSource();
     if ( !m_userName_OBSOLETE().isEmpty() )
     {
         m_nameConfig->setCustomName( m_userName_OBSOLETE() );

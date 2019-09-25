@@ -121,6 +121,8 @@ double RimWellBoreStabilityPlot::userDefinedUcs() const
 //--------------------------------------------------------------------------------------------------
 void RimWellBoreStabilityPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    m_commonDataSource->uiOrdering( uiConfigName, uiOrdering );
+
     caf::PdmUiGroup* parameterSources = uiOrdering.addNewGroup( "Parameter Sources" );
     parameterSources->add( &m_porePressureSource );
     parameterSources->add( &m_poissonRatioSource );
@@ -131,7 +133,11 @@ void RimWellBoreStabilityPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     m_userDefinedPoissionRatio.uiCapability()->setUiReadOnly( m_poissonRatioSource() !=
                                                               RigGeoMechWellLogExtractor::USER_DEFINED );
     m_userDefinedUcs.uiCapability()->setUiReadOnly( m_ucsSource() != RigGeoMechWellLogExtractor::USER_DEFINED );
-    RimWellLogPlot::defineUiOrdering( uiConfigName, uiOrdering );
+
+    uiOrderingForDepthAxis( uiOrdering );
+    uiOrderingForPlotSettings( uiOrdering );
+
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------

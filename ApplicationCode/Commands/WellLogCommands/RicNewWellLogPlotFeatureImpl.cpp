@@ -224,6 +224,7 @@ void RicNewWellLogPlotFeatureImpl::updateAfterCreation( RimWellLogPlot* plot )
     plot->loadDataAndUpdate();
     plot->updateDepthZoom();
     plot->updateConnectedEditors();
+    plot->updateTracks();
     RiaApplication::instance()->project()->updateConnectedEditors();
 }
 

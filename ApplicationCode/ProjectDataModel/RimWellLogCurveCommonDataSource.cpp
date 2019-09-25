@@ -200,6 +200,7 @@ void RimWellLogCurveCommonDataSource::resetDefaultOptions()
     m_uniqueWellNames.clear();
     m_uniqueTimeSteps.clear();
     m_uniqueBranchIndices.clear();
+    m_uniqueBranchDetection.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

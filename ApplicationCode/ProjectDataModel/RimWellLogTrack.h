@@ -91,6 +91,9 @@ public:
         EXTRA_WIDE_TRACK   = 10
     };
 
+    typedef caf::AppEnum<RiuPlotAnnotationTool::RegionAnnotationType> RegionAnnotationTypeEnum;
+    typedef caf::AppEnum<RiuPlotAnnotationTool::RegionDisplay>        RegionAnnotationDisplayEnum;
+
     void setDescription( const QString& description );
     bool isVisible();
     void addCurve( RimWellLogCurve* curve );
@@ -103,6 +106,7 @@ public:
     {
         return curves.size();
     }
+
     void    setXAxisTitle( const QString& text );
     QString depthPlotTitle() const;
     int     widthScaleFactor() const;
@@ -145,9 +149,16 @@ public:
     void setVisibleXRange( double minValue, double maxValue );
     void setTickIntervals( double majorTickInterval, double minorTickInterval );
     void setXAxisGridVisibility( RimWellLogPlot::AxisGridVisibility gridLines );
-    void setShowFormations( RiuPlotAnnotationTool::FormationDisplay formationDisplay );
+
+    void setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType annotationType );
+    void setAnnotationDisplay( RiuPlotAnnotationTool::RegionDisplay annotationDisplay );
+
+    RiuPlotAnnotationTool::RegionAnnotationType annotationType() const;
+    RiuPlotAnnotationTool::RegionDisplay        annotationDisplay() const;
+
     bool showFormations() const;
-    void setShowFormationLabels( bool on );
+
+    void setShowRegionLabels( bool on );
 
     bool showWellPathAttributes() const;
     void setShowWellPathAttributes( bool on );
@@ -204,19 +215,21 @@ private:
     static CurveSamplingPointData curveSamplingPointData( RigGeoMechWellLogExtractor* extractor,
                                                           const RigFemResultAddress&  resultAddress );
 
-    static void findFormationNamesToPlot( const CurveSamplingPointData&           curveData,
-                                          const std::vector<QString>&             formationNamesVector,
-                                          RimWellLogPlot::DepthTypeEnum           depthType,
-                                          std::vector<QString>*                   formationNamesToPlot,
-                                          std::vector<std::pair<double, double>>* yValues );
+    static void findRegionNamesToPlot( const CurveSamplingPointData&           curveData,
+                                       const std::vector<QString>&             formationNamesVector,
+                                       RimWellLogPlot::DepthTypeEnum           depthType,
+                                       std::vector<QString>*                   formationNamesToPlot,
+                                       std::vector<std::pair<double, double>>* yValues );
 
     static std::vector<QString> formationNamesVector( RimCase* rimCase );
 
     void setFormationFieldsUiReadOnly( bool readOnly = true );
 
+    void updateRegionAnnotationsOnPlot();
     void updateFormationNamesOnPlot();
+    void updateCurveDataRegionsOnPlot();
     void updateWellPathAttributesOnPlot();
-    void removeFormationNames();
+    void removeRegionAnnotations();
     void updateAxisScaleEngine();
     bool isFirstVisibleTrackInPlot() const;
 
@@ -239,29 +252,30 @@ private:
     caf::PdmField<double>                       m_majorTickInterval;
     caf::PdmField<double>                       m_minorTickInterval;
 
-    caf::PdmField<caf::AppEnum<RiuPlotAnnotationTool::FormationDisplay>> m_formationDisplay;
-    caf::PdmField<RimRegularLegendConfig::ColorRangeEnum>                m_colorShadingPalette;
-    caf::PdmField<int>                                                   m_colorShadingTransparency;
-    caf::PdmField<bool>                                                  m_showFormationLabels;
-    caf::PdmField<caf::AppEnum<FormationSource>>                         m_formationSource;
-    caf::PdmPtrField<RimCase*>                                           m_formationCase;
-    caf::PdmField<caf::AppEnum<TrajectoryType>>                          m_formationTrajectoryType;
-    caf::PdmPtrField<RimWellPath*>                                       m_formationWellPathForSourceCase;
-    caf::PdmPtrField<RimWellPath*>                                       m_formationWellPathForSourceWellPath;
-    caf::PdmField<QString>                                               m_formationSimWellName;
-    caf::PdmField<int>                                                   m_formationBranchIndex;
-    caf::PdmField<caf::AppEnum<RigWellPathFormations::FormationLevel>>   m_formationLevel;
-    caf::PdmField<bool>                                                  m_showformationFluids;
-    caf::PdmField<caf::AppEnum<WidthScaleFactor>>                        m_widthScaleFactor;
-    caf::PdmField<bool>                                                  m_formationBranchDetection;
-    caf::PdmField<bool>                                                  m_showWellPathAttributes;
-    caf::PdmField<bool>                                                  m_showWellPathCompletions;
-    caf::PdmField<bool>                                                  m_showWellPathComponentsBothSides;
-    caf::PdmField<bool>                                                  m_showWellPathComponentLabels;
-    caf::PdmField<bool>                                                  m_wellPathAttributesInLegend;
-    caf::PdmField<bool>                                                  m_wellPathCompletionsInLegend;
-    caf::PdmPtrField<RimWellPath*>                                       m_wellPathComponentSource;
-    caf::PdmPtrField<RimWellPathAttributeCollection*>                    m_wellPathAttributeCollection;
+    caf::PdmField<RegionAnnotationTypeEnum>                            m_regionAnnotationType;
+    caf::PdmField<RegionAnnotationDisplayEnum>                         m_regionAnnotationDisplay;
+    caf::PdmField<RimRegularLegendConfig::ColorRangeEnum>              m_colorShadingPalette;
+    caf::PdmField<int>                                                 m_colorShadingTransparency;
+    caf::PdmField<bool>                                                m_showRegionLabels;
+    caf::PdmField<caf::AppEnum<FormationSource>>                       m_formationSource;
+    caf::PdmPtrField<RimCase*>                                         m_formationCase;
+    caf::PdmField<caf::AppEnum<TrajectoryType>>                        m_formationTrajectoryType;
+    caf::PdmPtrField<RimWellPath*>                                     m_formationWellPathForSourceCase;
+    caf::PdmPtrField<RimWellPath*>                                     m_formationWellPathForSourceWellPath;
+    caf::PdmField<QString>                                             m_formationSimWellName;
+    caf::PdmField<int>                                                 m_formationBranchIndex;
+    caf::PdmField<caf::AppEnum<RigWellPathFormations::FormationLevel>> m_formationLevel;
+    caf::PdmField<bool>                                                m_showformationFluids;
+    caf::PdmField<caf::AppEnum<WidthScaleFactor>>                      m_widthScaleFactor;
+    caf::PdmField<bool>                                                m_formationBranchDetection;
+    caf::PdmField<bool>                                                m_showWellPathAttributes;
+    caf::PdmField<bool>                                                m_showWellPathCompletions;
+    caf::PdmField<bool>                                                m_showWellPathComponentsBothSides;
+    caf::PdmField<bool>                                                m_showWellPathComponentLabels;
+    caf::PdmField<bool>                                                m_wellPathAttributesInLegend;
+    caf::PdmField<bool>                                                m_wellPathCompletionsInLegend;
+    caf::PdmPtrField<RimWellPath*>                                     m_wellPathComponentSource;
+    caf::PdmPtrField<RimWellPathAttributeCollection*>                  m_wellPathAttributeCollection;
 
     caf::PdmField<bool> m_showFormations_OBSOLETE;
 

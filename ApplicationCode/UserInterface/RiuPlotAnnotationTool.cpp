@@ -42,17 +42,16 @@ RiuPlotAnnotationTool::~RiuPlotAnnotationTool()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::attachFormationNames( QwtPlot*                                     plot,
-                                                  const std::vector<QString>&                  names,
-                                                  const std::pair<double, double>              xRange,
-                                                  const std::vector<std::pair<double, double>> yPositions,
-                                                  FormationDisplay                             formationDisplay,
-                                                  const caf::ColorTable&                       colorTable,
-                                                  int                                          shadingAlphaByte,
-                                                  bool                                         showNames /*= true */ )
+void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                                     plot,
+                                                const std::vector<QString>&                  names,
+                                                const std::pair<double, double>              xRange,
+                                                const std::vector<std::pair<double, double>> yPositions,
+                                                RegionDisplay                                regionDisplay,
+                                                const caf::ColorTable&                       colorTable,
+                                                int                                          shadingAlphaByte,
+                                                bool                                         showNames /*= true */,
+                                                TrackSpan trackSpan /*= FULL_WIDTH*/ )
 {
-    detachAllAnnotations();
-
     if ( names.size() != yPositions.size() ) return;
     m_plot = plot;
 
@@ -67,18 +66,20 @@ void RiuPlotAnnotationTool::attachFormationNames( QwtPlot*                      
 
     for ( size_t i = 0; i < names.size(); i++ )
     {
+        if ( names[i].isEmpty() ) continue;
+
         QwtPlotMarker* line( new QwtPlotMarker() );
 
         QString name;
         if ( showNames )
         {
             name = names[i];
-            if ( ( formationDisplay & COLOR_SHADING ) == 0 && names[i].toLower().indexOf( "top" ) == -1 )
+            if ( ( regionDisplay & COLOR_SHADING ) == 0 && names[i].toLower().indexOf( "top" ) == -1 )
             {
                 name += " Top";
             }
         }
-        if ( formationDisplay & COLOR_SHADING )
+        if ( regionDisplay & COLOR_SHADING )
         {
             cvf::Color3ub cvfColor = catMapper.mapToColor( static_cast<double>( i ) );
             QColor        shadingColor( cvfColor.r(), cvfColor.g(), cvfColor.b(), shadingAlphaByte );
@@ -103,26 +104,28 @@ void RiuPlotAnnotationTool::attachFormationNames( QwtPlot*                      
 
         QColor lineColor( 0, 0, 0, 0 );
         QColor textColor( 0, 0, 0, 255 );
-        if ( formationDisplay & DARK_LINES || formationDisplay & COLORED_LINES )
+        if ( regionDisplay & DARK_LINES || regionDisplay & COLORED_LINES )
         {
             cvf::Color3ub cvfColor = catMapper.mapToColor( static_cast<double>( i ) );
             QColor        cycledColor( cvfColor.r(), cvfColor.g(), cvfColor.b() );
 
-            lineColor = formationDisplay & DARK_LINES ? QColor( 0, 0, 100 ) : cycledColor;
+            lineColor = regionDisplay & DARK_LINES ? QColor( 0, 0, 100 ) : cycledColor;
             textColor = lineColor;
         }
-        RiuPlotAnnotationTool::horizontalDashedLineWithColor( line, lineColor, textColor, name, yPositions[i].first );
+        Qt::Alignment horizontalAlignment = trackTextAlignment( trackSpan );
+        RiuPlotAnnotationTool::horizontalDashedLine( line,
+                                                     name,
+                                                     yPositions[i].first,
+                                                     lineColor,
+                                                     textColor,
+                                                     horizontalAlignment );
         line->attach( m_plot );
         m_markers.push_back( std::move( line ) );
 
         if ( ( i != names.size() - 1 ) && cvf::Math::abs( yPositions[i].second - yPositions[i + 1].first ) > delta )
         {
             QwtPlotMarker* bottomLine( new QwtPlotMarker() );
-            RiuPlotAnnotationTool::horizontalDashedLineWithColor( bottomLine,
-                                                                  lineColor,
-                                                                  textColor,
-                                                                  QString(),
-                                                                  yPositions[i].second );
+            RiuPlotAnnotationTool::horizontalDashedLine( bottomLine, QString(), yPositions[i].second, lineColor, textColor );
 
             bottomLine->attach( m_plot );
             m_markers.push_back( std::move( bottomLine ) );
@@ -162,7 +165,7 @@ void RiuPlotAnnotationTool::attachAnnotationLine( QwtPlot*       plot,
     m_plot = plot;
 
     QwtPlotMarker* line( new QwtPlotMarker() );
-    RiuPlotAnnotationTool::horizontalDashedLineWithColor( line, color, color, annotationText, yPosition );
+    RiuPlotAnnotationTool::horizontalDashedLine( line, annotationText, yPosition, color, color );
     line->attach( m_plot );
     m_markers.push_back( std::move( line ) );
 }
@@ -186,16 +189,31 @@ void RiuPlotAnnotationTool::detachAllAnnotations()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::horizontalDashedLine( QwtPlotMarker* line, const QString& name, double yValue )
+Qt::Alignment RiuPlotAnnotationTool::trackTextAlignment( TrackSpan trackSpan )
 {
-    horizontalDashedLineWithColor( line, QColor( 0, 0, 100 ), QColor( 0, 0, 100 ), name, yValue );
+    switch ( trackSpan )
+    {
+        case FULL_WIDTH:
+            return Qt::AlignRight;
+        case LEFT_COLUMN:
+            return Qt::AlignLeft;
+        case CENTRE_COLUMN:
+            return Qt::AlignCenter;
+        case RIGHT_COLUMN:
+            return Qt::AlignRight;
+    }
+    return Qt::AlignRight;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::horizontalDashedLineWithColor(
-    QwtPlotMarker* line, const QColor& color, const QColor& textColor, const QString& name, double yValue )
+void RiuPlotAnnotationTool::horizontalDashedLine( QwtPlotMarker* line,
+                                                  const QString& name,
+                                                  double         yValue,
+                                                  const QColor&  color /*= QColor(0, 0, 100) */,
+                                                  const QColor&  textColor /*= QColor(0, 0, 100) */,
+                                                  Qt::Alignment  horizontalAlignment /*= Qt::AlignRight */ )
 {
     QPen curvePen;
     curvePen.setStyle( Qt::DashLine );
@@ -208,5 +226,5 @@ void RiuPlotAnnotationTool::horizontalDashedLineWithColor(
     QwtText label( name );
     label.setColor( textColor );
     line->setLabel( label );
-    line->setLabelAlignment( Qt::AlignRight | Qt::AlignBottom );
+    line->setLabelAlignment( horizontalAlignment | Qt::AlignBottom );
 }
