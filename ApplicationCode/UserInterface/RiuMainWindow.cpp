@@ -1441,7 +1441,10 @@ void RiuMainWindow::selectedObjectsChanged()
             // Set focus in MDI area to this window if it exists
             if (selectedReservoirView->viewer())
             {
+                setBlockSlotSubWindowActivated(true);
                 setActiveViewer(selectedReservoirView->viewer()->layoutWidget());
+                setBlockSlotSubWindowActivated(false);
+
                 isActiveViewChanged = true;
             }
         }
