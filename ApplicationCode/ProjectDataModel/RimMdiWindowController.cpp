@@ -152,13 +152,8 @@ void RimMdiWindowController::updateViewerWidget()
             QWidget* viewWidget = viewPdmObject()->createViewWidget( mainWindow );
 
             mainWindow->addViewer( viewWidget, this->mdiWindowGeometry() );
-            mainWindow->setActiveViewer( viewWidget );
 
             viewPdmObject()->updateViewWidgetAfterCreation();
-        }
-        else
-        {
-            mainWindow->setActiveViewer( viewWidget() );
         }
 
         viewPdmObject()->updateMdiWindowTitle();
