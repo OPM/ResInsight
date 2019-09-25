@@ -61,14 +61,11 @@ public:
     };
 
     RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition = LabelAboveSymbol );
-
     void    renderSymbols( QPainter* painter, const QPointF* points, int numPoints ) const override;
-    void    renderSymbolLabel( QPainter* painter, const QPointF& position ) const;
-    QString label() const
-    {
-        return m_label;
-    }
-    void setLabel( const QString& label );
+    void    renderSymbolLabel( QPainter* painter, const QPointF& position, const QString& label ) const;
+    QString globalLabel() const;
+
+    void setGlobalLabel( const QString& label );
 
     void setLabelPosition( LabelPosition labelPosition );
 
@@ -76,9 +73,9 @@ public:
     static PointSymbolEnum cycledSymbolStyle( int indexLevel );
 
 private:
-    QRect labelBoundingRect( const QPainter* painter, const QRect& symbolRect ) const;
+    QRect labelBoundingRect( const QPainter* painter, const QRect& symbolRect, const QString& label ) const;
 
 private:
-    QString       m_label;
+    QString       m_globalLabel;
     LabelPosition m_labelPosition;
 };

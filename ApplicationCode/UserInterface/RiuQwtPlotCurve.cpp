@@ -73,20 +73,21 @@ RiuQwtPlotCurve::~RiuQwtPlotCurve() {}
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>& xValues,
                                                        const std::vector<double>& yValues,
-                                                       const std::vector<double>& yErrorValues,
-                                                       bool                       keepOnlyPositiveValues )
+                                                       const std::vector<double>& errorValues,
+                                                       bool                       keepOnlyPositiveValues,
+                                                       ErrorAxis                  errorAxis )
 {
     CVF_ASSERT( xValues.size() == yValues.size() );
     CVF_ASSERT( yErrorValues.empty() || yErrorValues.size() == xValues.size() );
 
-    bool                                   showErrorBars = m_showErrorBars && !yErrorValues.empty();
+    bool                                   showErrorBars = m_showErrorBars && !errorValues.empty();
     QPolygonF                              points;
     QVector<QwtIntervalSample>             errorIntervals;
     std::vector<std::pair<size_t, size_t>> filteredIntervals;
     {
         std::vector<double> filteredYValues;
         std::vector<double> filteredXValues;
-        std::vector<double> filteredYErrorValues;
+        std::vector<double> filteredErrorValues;
 
         {
             auto intervalsOfValidValues = RiaCurveDataTools::calculateIntervalsOfValidValues( yValues,
@@ -96,7 +97,7 @@ void RiuQwtPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>
             RiaCurveDataTools::getValuesByIntervals( xValues, intervalsOfValidValues, &filteredXValues );
 
             if ( showErrorBars )
-                RiaCurveDataTools::getValuesByIntervals( yErrorValues, intervalsOfValidValues, &filteredYErrorValues );
+                RiaCurveDataTools::getValuesByIntervals( errorValues, intervalsOfValidValues, &filteredErrorValues );
 
             filteredIntervals = RiaCurveDataTools::computePolyLineStartStopIndices( intervalsOfValidValues );
         }
@@ -107,11 +108,20 @@ void RiuQwtPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>
         {
             points << QPointF( filteredXValues[i], filteredYValues[i] );
 
-            if ( showErrorBars && filteredYValues[i] != DOUBLE_INF && filteredYErrorValues[i] != DOUBLE_INF )
+            if ( showErrorBars && filteredYValues[i] != DOUBLE_INF && filteredErrorValues[i] != DOUBLE_INF )
             {
-                errorIntervals << QwtIntervalSample( filteredXValues[i],
-                                                     filteredYValues[i] - filteredYErrorValues[i],
-                                                     filteredYValues[i] + filteredYErrorValues[i] );
+                if ( errorAxis == ERROR_ALONG_Y_AXIS )
+                {
+                    errorIntervals << QwtIntervalSample( filteredXValues[i],
+                                                         filteredYValues[i] - filteredErrorValues[i],
+                                                         filteredYValues[i] + filteredErrorValues[i] );
+                }
+                else
+                {
+                    errorIntervals << QwtIntervalSample( filteredYValues[i],
+                                                         filteredXValues[i] - filteredErrorValues[i],
+                                                         filteredXValues[i] + filteredErrorValues[i] );
+                }
             }
         }
     }
@@ -119,7 +129,18 @@ void RiuQwtPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>
     this->setSamples( points );
     this->setLineSegmentStartStopIndices( filteredIntervals );
 
-    if ( showErrorBars ) m_errorBars->setSamples( errorIntervals );
+    if ( showErrorBars )
+    {
+        m_errorBars->setSamples( errorIntervals );
+        if ( errorAxis == ERROR_ALONG_Y_AXIS )
+        {
+            m_errorBars->setOrientation( Qt::Vertical );
+        }
+        else
+        {
+            m_errorBars->setOrientation( Qt::Horizontal );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -285,11 +306,21 @@ void RiuQwtPlotCurve::drawSymbols( QPainter*          painter,
 
         const RiuQwtSymbol* sym = dynamic_cast<const RiuQwtSymbol*>( &symbol );
 
-        if ( sym && !sym->label().isEmpty() )
+        if ( sym )
         {
-            for ( auto& pt : pointsToDisplay )
+            if ( m_perPointLabels.size() == pointsToDisplay.size() )
             {
-                sym->renderSymbolLabel( painter, pt );
+                for ( int i = 0; i < (int)pointsToDisplay.size(); ++i )
+                {
+                    sym->renderSymbolLabel( painter, pointsToDisplay[i], m_perPointLabels[i] );
+                }
+            }
+            else if ( !sym->globalLabel().isEmpty() )
+            {
+                for ( auto& pt : pointsToDisplay )
+                {
+                    sym->renderSymbolLabel( painter, pt, sym->globalLabel() );
+                }
             }
         }
     }
@@ -318,7 +349,10 @@ void RiuQwtPlotCurve::setSymbolSkipPixelDistance( float distance )
 void RiuQwtPlotCurve::attach( QwtPlot* plot )
 {
     QwtPlotItem::attach( plot );
-    if ( m_showErrorBars ) m_errorBars->attach( plot );
+    if ( m_showErrorBars )
+    {
+        m_errorBars->attach( plot );
+    }
     m_attachedToPlot = plot;
 }
 
@@ -360,6 +394,24 @@ void RiuQwtPlotCurve::setErrorBarsColor( QColor color )
     QwtIntervalSymbol* newSymbol = new QwtIntervalSymbol( QwtIntervalSymbol::Bar );
     newSymbol->setPen( QPen( color ) );
     m_errorBars->setSymbol( newSymbol );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Set the Qwt X-Axis (QwtPlot::xBottom or QwtPlot::xTop).
+/// This is important to make sure the x-axis interval is set correctly.
+/// WellLogPlots use top-axis and Summary uses bottom axis.
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::setErrorBarsXAxis( int axis )
+{
+    m_errorBars->setXAxis( axis );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::setPerPointLabels( const std::vector<QString>& labels )
+{
+    m_perPointLabels = labels;
 }
 
 //--------------------------------------------------------------------------------------------------

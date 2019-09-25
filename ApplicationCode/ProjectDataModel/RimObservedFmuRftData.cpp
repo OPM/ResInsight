@@ -97,3 +97,15 @@ std::vector<QString> RimObservedFmuRftData::wells() const
     }
     return std::vector<QString>();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimObservedFmuRftData::labels( const RifEclipseRftAddress& rftAddress )
+{
+    if ( m_fmuRftReader.p() )
+    {
+        return const_cast<RifReaderFmuRft*>( m_fmuRftReader.p() )->labels( rftAddress );
+    }
+    return {};
+}

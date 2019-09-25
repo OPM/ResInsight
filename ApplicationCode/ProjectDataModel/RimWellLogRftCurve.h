@@ -95,6 +95,8 @@ protected:
                                                     const QVariant&            oldValue,
                                                     const QVariant&            newValue ) override;
 
+    std::vector<QString> perPointLabels() const;
+
 private:
     RifReaderRftInterface* rftReader() const;
 
@@ -105,6 +107,7 @@ private:
     std::vector<size_t> sortedIndicesInRftFile();
 
     std::vector<double> xValues();
+    std::vector<double> errorValues();
     std::vector<double> tvDepthValues();
     std::vector<double> measuredDepthValues();
 
