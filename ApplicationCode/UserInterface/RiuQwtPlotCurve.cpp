@@ -306,11 +306,21 @@ void RiuQwtPlotCurve::drawSymbols( QPainter*          painter,
 
         const RiuQwtSymbol* sym = dynamic_cast<const RiuQwtSymbol*>( &symbol );
 
-        if ( sym && !sym->label().isEmpty() )
+        if ( sym )
         {
-            for ( auto& pt : pointsToDisplay )
+            if ( !m_perPointLabels.empty() && m_perPointLabels.size() == pointsToDisplay.size() )
             {
-                sym->renderSymbolLabel( painter, pt );
+                for ( int i = 0; i < (int)pointsToDisplay.size(); ++i )
+                {
+                    sym->renderSymbolLabel( painter, pointsToDisplay[i], m_perPointLabels[i] );
+                }
+            }
+            else if ( !sym->globalLabel().isEmpty() )
+            {
+                for ( auto& pt : pointsToDisplay )
+                {
+                    sym->renderSymbolLabel( painter, pt, sym->globalLabel() );
+                }
             }
         }
     }
@@ -392,6 +402,14 @@ void RiuQwtPlotCurve::setErrorBarsColor( QColor color )
 void RiuQwtPlotCurve::setErrorXAxis( int axis )
 {
     m_errorBars->setXAxis( axis );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::setPerPointLabels( const std::vector<QString>& labels )
+{
+    m_perPointLabels = labels;
 }
 
 //--------------------------------------------------------------------------------------------------

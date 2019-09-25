@@ -141,6 +141,33 @@ bool RifReaderFmuRft::directoryContainsFmuRftData( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<QString> RifReaderFmuRft::labels( const RifEclipseRftAddress& rftAddress )
+{
+    std::vector<QString> formationLabels;
+
+    if ( m_allWellObservations.empty() )
+    {
+        load();
+    }
+
+    auto it = m_allWellObservations.find( rftAddress.wellName() );
+    if ( it != m_allWellObservations.end() )
+    {
+        const std::vector<Observation>& observations = it->second.observations;
+        for ( const Observation& observation : observations )
+        {
+            formationLabels.push_back( QString( "%1 - Pressure: %2 +/- %3" )
+                                           .arg( observation.formation )
+                                           .arg( observation.pressure )
+                                           .arg( observation.pressureError ) );
+        }
+    }
+    return formationLabels;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<RifEclipseRftAddress> RifReaderFmuRft::eclipseRftAddresses()
 {
     if ( m_allWellObservations.empty() )

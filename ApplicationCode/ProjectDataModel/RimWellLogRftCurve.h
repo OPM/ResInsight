@@ -95,6 +95,8 @@ protected:
                                                     const QVariant&            oldValue,
                                                     const QVariant&            newValue ) override;
 
+    std::vector<QString> perPointLabels() const;
+
 private:
     RifReaderRftInterface* rftReader() const;
 

@@ -116,6 +116,7 @@ public:
     void showErrorBars( bool show );
     void setErrorBarsColor( QColor color );
     void setErrorXAxis( int axis );
+    void setPerPointLabels( const std::vector<QString>& labels );
 
     void       setAppearance( LineStyleEnum          lineStyle,
                               CurveInterpolationEnum interpolationType,
@@ -153,4 +154,6 @@ private:
     QwtPlotIntervalCurve* m_errorBars;
     QwtPlot*              m_attachedToPlot;
     bool                  m_blackAndWhiteLegendIcon;
+
+    std::vector<QString> m_perPointLabels;
 };

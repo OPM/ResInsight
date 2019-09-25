@@ -68,6 +68,8 @@ public:
     static QStringList findSubDirectoriesWithFmuRftData( const QString& filePath );
     static bool        directoryContainsFmuRftData( const QString& filePath );
 
+    std::vector<QString> labels( const RifEclipseRftAddress& rftAddress );
+
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
     void values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
 
