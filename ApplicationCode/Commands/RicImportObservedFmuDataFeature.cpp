@@ -18,6 +18,7 @@
 #include "RicImportObservedFmuDataFeature.h"
 
 #include "RiaApplication.h"
+#include "RicImportFormationNamesFeature.h"
 #include "RifReaderFmuRft.h"
 
 #include "RimObservedDataCollection.h"
@@ -32,7 +33,9 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include <QDir>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicImportObservedFmuDataFeature, "RicImportObservedFmuDataFeature" );
@@ -62,6 +65,14 @@ void RicImportObservedFmuDataFeature::selectObservedDataPathInDialog()
     for ( const QString& subDir : subDirsWithFmuData )
     {
         importedData = observedDataCollection->createAndAddFmuRftDataFromPath( subDir );
+        QDir    dir( subDir );
+        QString layerZoneFile = dir.absoluteFilePath( "layer_zone_table.txt" );
+        if ( QFileInfo::exists( layerZoneFile ) )
+        {
+            QStringList fileNames;
+            fileNames << layerZoneFile;
+            RicImportFormationNamesFeature::importFormationFiles( fileNames );
+        }
     }
     if ( importedData != nullptr )
     {

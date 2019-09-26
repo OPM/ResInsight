@@ -43,6 +43,26 @@ CAF_CMD_SOURCE_INIT( RicImportFormationNamesFeature, "RicImportFormationNamesFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimFormationNames* RicImportFormationNamesFeature::importFormationFiles( const QStringList& fileNames )
+{
+    RimProject*                  proj        = RiaApplication::instance()->project();
+    RimFormationNamesCollection* fomNameColl = proj->activeOilField()->formationNamesCollection();
+    if ( !fomNameColl )
+    {
+        fomNameColl                                      = new RimFormationNamesCollection;
+        proj->activeOilField()->formationNamesCollection = fomNameColl;
+    }
+
+    // For each file, find existing Formation names item, or create new
+    RimFormationNames* formationNames = fomNameColl->importFiles( fileNames );
+    fomNameColl->updateConnectedEditors();
+
+    return formationNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicImportFormationNamesFeature::isCommandEnabled()
 {
     return true;
@@ -67,42 +87,35 @@ void RicImportFormationNamesFeature::onActionTriggered( bool isChecked )
     app->setLastUsedDialogDirectory( "BINARY_GRID", QFileInfo( fileNames.last() ).absolutePath() );
 
     // Find or create the FomationNamesCollection
-
-    RimProject*                  proj        = RiaApplication::instance()->project();
-    RimFormationNamesCollection* fomNameColl = proj->activeOilField()->formationNamesCollection();
-    if ( !fomNameColl )
-    {
-        fomNameColl                                      = new RimFormationNamesCollection;
-        proj->activeOilField()->formationNamesCollection = fomNameColl;
-    }
-
-    // For each file, find existing Formation names item, or create new
-    RimFormationNames* formationName = fomNameColl->importFiles( fileNames );
+    RimFormationNames* formationName = importFormationFiles( fileNames );
 
     if ( fileNames.size() > 1 ) return;
 
-    std::vector<RimCase*> cases;
-    proj->allCases( cases );
-
-    if ( !cases.empty() )
-    {
-        Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-        if ( activeView )
-        {
-            RimCase* ownerCase = activeView->ownerCase();
-            if ( ownerCase )
-            {
-                ownerCase->setFormationNames( formationName );
-                ownerCase->updateConnectedEditors();
-            }
-        }
-    }
-
-    fomNameColl->updateConnectedEditors();
-
     if ( formationName )
     {
-        Riu3DMainWindowTools::selectAsCurrentItem( formationName );
+        RimProject* proj = RiaApplication::instance()->project();
+
+        std::vector<RimCase*> cases;
+        proj->allCases( cases );
+
+        if ( !cases.empty() )
+        {
+            Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+            if ( activeView )
+            {
+                RimCase* ownerCase = activeView->ownerCase();
+                if ( ownerCase )
+                {
+                    ownerCase->setFormationNames( formationName );
+                    ownerCase->updateConnectedEditors();
+                }
+            }
+        }
+
+        if ( formationName )
+        {
+            Riu3DMainWindowTools::selectAsCurrentItem( formationName );
+        }
     }
 }
 

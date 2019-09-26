@@ -19,6 +19,7 @@
 #pragma once
 
 #include "cafCmdFeature.h"
+class RimFormationNames;
 
 //==================================================================================================
 ///
@@ -26,6 +27,8 @@
 class RicImportFormationNamesFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+    static RimFormationNames* importFormationFiles( const QStringList& fileNames );
 
 protected:
     // Overrides
