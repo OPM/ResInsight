@@ -290,6 +290,42 @@ void RimWellRftPlot::applyInitialSelections()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::updateEditorsFromPreviousSelection()
+{
+    std::set<RifDataSourceForRftPlt> previousSources( m_selectedSources().begin(), m_selectedSources().end() );
+    std::set<QDateTime>              previousTimeSteps( m_selectedTimeSteps().begin(), m_selectedTimeSteps().end() );
+
+    m_selectedSources.v().clear();
+    m_selectedTimeSteps.v().clear();
+
+    bool dummy             = false;
+    auto dataSourceOptions = calculateValueOptions( &m_selectedSources, &dummy );
+    for ( auto dataSourceOption : dataSourceOptions )
+    {
+        if ( dataSourceOption.level() == 1 )
+        {
+            RifDataSourceForRftPlt dataSource = dataSourceOption.value().value<RifDataSourceForRftPlt>();
+            if ( previousSources.count( dataSource ) )
+            {
+                m_selectedSources.v().push_back( dataSource );
+            }
+        }
+    }
+
+    auto timeStepOptions = calculateValueOptions( &m_selectedTimeSteps, &dummy );
+    for ( auto timeStepOption : timeStepOptions )
+    {
+        QDateTime timeStep = timeStepOption.value().toDateTime();
+        if ( previousTimeSteps.count( timeStep ) )
+        {
+            m_selectedTimeSteps.v().push_back( timeStep );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::updateEditorsFromCurves()
 {
     std::set<RifDataSourceForRftPlt>                      selectedSources;
@@ -785,8 +821,9 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
             plotTrack->deleteAllCurves();
         }
 
-        updateEditorsFromCurves();
+        updateEditorsFromPreviousSelection();
         updateFormationsOnPlot();
+        syncCurvesFromUiSelection();
     }
     else if ( changedField == &m_branchIndex || changedField == &m_branchDetection )
     {

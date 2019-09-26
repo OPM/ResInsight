@@ -102,6 +102,7 @@ protected:
 
 private:
     std::map<QString, QStringList> findWellSources();
+    void                           updateEditorsFromPreviousSelection();
     void                           updateEditorsFromCurves();
     void                           syncCurvesFromUiSelection();
     void                           assignWellPathToExtractionCurves();
@@ -140,8 +141,7 @@ private:
     caf::PdmField<bool>    m_showErrorInObservedData;
 
     caf::PdmField<std::vector<RifDataSourceForRftPlt>> m_selectedSources;
-
-    caf::PdmField<std::vector<QDateTime>> m_selectedTimeSteps;
+    caf::PdmField<std::vector<QDateTime>>              m_selectedTimeSteps;
 
     caf::PdmPtrField<RimWellPathCollection*> m_wellPathCollection;
 
