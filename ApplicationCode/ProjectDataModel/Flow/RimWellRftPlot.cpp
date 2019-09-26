@@ -82,6 +82,7 @@ RimWellRftPlot::RimWellRftPlot()
 
     CAF_PDM_InitField( &m_showStatisticsCurves, "ShowStatisticsCurves", true, "Show Statistics Curves", "", "", "" );
     CAF_PDM_InitField( &m_showEnsembleCurves, "ShowEnsembleCurves", true, "Show Ensemble Curves", "", "", "" );
+    CAF_PDM_InitField( &m_showErrorInObservedData, "ShowErrorObserved", true, "Show Observed Data Error", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "Well Log", "", "", "" );
     m_wellLogPlot_OBSOLETE.uiCapability()->setUiHidden( true );
@@ -110,6 +111,11 @@ RimWellRftPlot::RimWellRftPlot()
     m_selectedTimeSteps.xmlCapability()->disableIO();
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue( false );
+
+    CAF_PDM_InitFieldNoDefault( &m_wellPathCollection, "WellPathCollection", "Well Path Collection", "", "", "" );
+    m_wellPathCollection.uiCapability()->setUiHidden( true );
+    m_wellPathCollection.xmlCapability()->disableIO();
+    m_wellPathCollection = RiaApplication::instance()->project()->activeOilField()->wellPathCollection();
 
     m_nameConfig->setCustomName( "RFT Plot" );
     m_trackLegendsHorizontal = true;
@@ -796,7 +802,8 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         syncCurvesFromUiSelection();
         this->updateConnectedEditors();
     }
-    else if ( changedField == &m_showStatisticsCurves || changedField == &m_showEnsembleCurves )
+    else if ( changedField == &m_showStatisticsCurves || changedField == &m_showEnsembleCurves ||
+              changedField == &m_showErrorInObservedData )
     {
         updateFormationsOnPlot();
         syncCurvesFromUiSelection();
@@ -824,6 +831,7 @@ void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     uiOrdering.add( &m_wellPathNameOrSimWellName );
     uiOrdering.add( &m_showStatisticsCurves );
     uiOrdering.add( &m_showEnsembleCurves );
+    uiOrdering.add( &m_showErrorInObservedData );
 
     bool showingEnsembleData = false;
     for ( const RifDataSourceForRftPlt& dataSource : m_selectedSources() )
@@ -971,6 +979,14 @@ void RimWellRftPlot::initAfterRead()
     }
 
     RimWellLogPlot::initAfterRead();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellRftPlot::showErrorBarsForObservedData() const
+{
+    return m_showErrorInObservedData();
 }
 
 //--------------------------------------------------------------------------------------------------

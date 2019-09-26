@@ -42,6 +42,7 @@ class RimEclipseResultCase;
 class RimWellLogCurve;
 class RimWellLogFileChannel;
 class RimWellPath;
+class RimWellPathCollection;
 class RiuWellRftPlot;
 class RigEclipseCaseData;
 class RiaRftPltCurveDefinition;
@@ -83,6 +84,8 @@ public:
     static const char* plotNameFormatString();
 
     void deleteCurvesAssosicatedWithObservedData( const RimObservedFmuRftData* observedFmuRftData );
+
+    bool showErrorBarsForObservedData() const;
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
@@ -134,10 +137,13 @@ private:
     caf::PdmField<bool>    m_branchDetection;
     caf::PdmField<bool>    m_showStatisticsCurves;
     caf::PdmField<bool>    m_showEnsembleCurves;
+    caf::PdmField<bool>    m_showErrorInObservedData;
 
     caf::PdmField<std::vector<RifDataSourceForRftPlt>> m_selectedSources;
 
     caf::PdmField<std::vector<QDateTime>> m_selectedTimeSteps;
+
+    caf::PdmPtrField<RimWellPathCollection*> m_wellPathCollection;
 
     caf::PdmField<bool>                 m_showPlotTitle_OBSOLETE;
     caf::PdmChildField<RimWellLogPlot*> m_wellLogPlot_OBSOLETE;

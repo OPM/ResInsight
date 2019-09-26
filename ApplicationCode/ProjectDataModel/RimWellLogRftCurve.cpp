@@ -47,6 +47,7 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPlotTools.h"
+#include "RimWellRftPlot.h"
 
 #include "RiuQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
@@ -81,6 +82,7 @@ void caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::setUp()
     addItem( RifEclipseRftAddress::PRESSURE_P50, "PRESSURE_P50", "P50: Pressure" );
     addItem( RifEclipseRftAddress::PRESSURE_P90, "PRESSURE_P90", "P90: Pressure" );
     addItem( RifEclipseRftAddress::PRESSURE_MEAN, "PRESSURE_MEAN", "Mean: Pressure" );
+    addItem( RifEclipseRftAddress::PRESSURE_ERROR, "PRESSURE_ERROR", "Error: Pressure" );
     setDefault( RifEclipseRftAddress::NONE );
 }
 } // namespace caf
@@ -376,9 +378,14 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         firstAncestorOrThisOfType( wellLogPlot );
         CVF_ASSERT( wellLogPlot );
 
-        std::vector<double> measuredDepthVector = measuredDepthValues();
-        std::vector<double> tvDepthVector       = tvDepthValues();
-        std::vector<double> values              = xValues();
+        RimWellRftPlot* rftPlot                     = dynamic_cast<RimWellRftPlot*>( wellLogPlot );
+        bool            showErrorBarsInObservedData = rftPlot ? rftPlot->showErrorBarsForObservedData() : false;
+
+        std::vector<double>  measuredDepthVector = measuredDepthValues();
+        std::vector<double>  tvDepthVector       = tvDepthValues();
+        std::vector<double>  values              = xValues();
+        std::vector<double>  errors              = errorValues();
+        std::vector<QString> perPointLabels;
 
         if ( values.empty() || values.size() != tvDepthVector.size() )
         {
@@ -402,7 +409,8 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         else if ( m_observedFmuRftData )
         {
             // TODO: Read unit system somewhere for FMU RFT Data
-            unitSystem = RiaEclipseUnitTools::UNITS_METRIC;
+            unitSystem     = RiaEclipseUnitTools::UNITS_METRIC;
+            perPointLabels = this->perPointLabels();
         }
         else
         {
@@ -441,9 +449,12 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH )
         {
-            m_qwtPlotCurve->setSamples( m_curveData->xPlotValues().data(),
-                                        m_curveData->measuredDepthPlotValues( displayUnit ).data(),
-                                        static_cast<int>( m_curveData->xPlotValues().size() ) );
+            m_qwtPlotCurve->showErrorBars( showErrorBarsInObservedData );
+            m_qwtPlotCurve->setPerPointLabels( perPointLabels );
+            m_qwtPlotCurve->setSamplesFromXValuesAndYValues( m_curveData->xPlotValues(),
+                                                             m_curveData->measuredDepthPlotValues( displayUnit ),
+                                                             errors,
+                                                             false,
                                                              RiuQwtPlotCurve::ERROR_ALONG_X_AXIS );
 
             RimWellLogTrack* wellLogTrack;
@@ -473,9 +484,12 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         }
         else
         {
-            m_qwtPlotCurve->setSamples( m_curveData->xPlotValues().data(),
-                                        m_curveData->trueDepthPlotValues( displayUnit ).data(),
-                                        static_cast<int>( m_curveData->xPlotValues().size() ) );
+            m_qwtPlotCurve->showErrorBars( showErrorBarsInObservedData );
+            m_qwtPlotCurve->setPerPointLabels( perPointLabels );
+            m_qwtPlotCurve->setSamplesFromXValuesAndYValues( m_curveData->xPlotValues(),
+                                                             m_curveData->trueDepthPlotValues( displayUnit ),
+                                                             errors,
+                                                             false,
                                                              RiuQwtPlotCurve::ERROR_ALONG_X_AXIS );
         }
 
@@ -648,6 +662,19 @@ void RimWellLogRftCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     {
         this->loadDataAndUpdate( true );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimWellLogRftCurve::perPointLabels() const
+{
+    if ( m_observedFmuRftData() )
+    {
+        RifEclipseRftAddress address( m_wellName(), m_timeStep, RifEclipseRftAddress::PRESSURE );
+        return m_observedFmuRftData()->labels( address );
+    }
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -833,6 +860,22 @@ std::vector<double> RimWellLogRftCurve::xValues()
     {
         return values;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimWellLogRftCurve::errorValues()
+{
+    RifReaderRftInterface* reader = rftReader();
+    std::vector<double>    errorValues;
+
+    if ( reader )
+    {
+        RifEclipseRftAddress errorAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::PRESSURE_ERROR );
+        reader->values( errorAddress, &errorValues );
+    }
+    return errorValues;
 }
 
 //--------------------------------------------------------------------------------------------------

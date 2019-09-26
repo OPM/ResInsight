@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------------
 RiuQwtSymbol::RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition )
     : QwtSymbol( QwtSymbol::NoSymbol )
-    , m_label( label )
+    , m_globalLabel( label )
     , m_labelPosition( labelPosition )
 {
     QwtSymbol::Style style = QwtSymbol::NoSymbol;
@@ -133,34 +133,33 @@ RiuQwtSymbol::RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, Labe
 void RiuQwtSymbol::renderSymbols( QPainter* painter, const QPointF* points, int numPoints ) const
 {
     QwtSymbol::renderSymbols( painter, points, numPoints );
-
-    if ( !m_label.isEmpty() )
-    {
-        for ( int i = 0; i < numPoints; i++ )
-        {
-            auto position = points[i];
-            // renderSymbolLabel(painter, position);
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtSymbol::renderSymbolLabel( QPainter* painter, const QPointF& position ) const
+void RiuQwtSymbol::renderSymbolLabel( QPainter* painter, const QPointF& position, const QString& label ) const
 {
     QSize symbolSize = QwtSymbol::size();
     QRect symbolRect( position.x(), position.y(), symbolSize.width(), symbolSize.height() );
-    QRect labelRect = labelBoundingRect( painter, symbolRect );
-    painter->drawText( labelRect.topLeft(), m_label );
+    QRect labelRect = labelBoundingRect( painter, symbolRect, label );
+    painter->drawText( labelRect.topLeft(), label );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtSymbol::setLabel( const QString& label )
+QString RiuQwtSymbol::globalLabel() const
 {
-    m_label = label;
+    return m_globalLabel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtSymbol::setGlobalLabel( const QString& label )
+{
+    m_globalLabel = label;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,7 +211,7 @@ RiuQwtSymbol::PointSymbolEnum RiuQwtSymbol::cycledSymbolStyle( int indexLevel )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QRect RiuQwtSymbol::labelBoundingRect( const QPainter* painter, const QRect& symbolRect ) const
+QRect RiuQwtSymbol::labelBoundingRect( const QPainter* painter, const QRect& symbolRect, const QString& label ) const
 {
     CVF_ASSERT( painter );
 
@@ -221,7 +220,7 @@ QRect RiuQwtSymbol::labelBoundingRect( const QPainter* painter, const QRect& sym
     int symbolWidth  = symbolRect.width();
     int symbolHeight = symbolRect.height();
 
-    int labelWidth  = painter->fontMetrics().width( m_label );
+    int labelWidth  = painter->fontMetrics().width( label );
     int labelHeight = painter->fontMetrics().height();
 
     QPoint labelPosition;

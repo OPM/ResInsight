@@ -48,6 +48,12 @@ class RiuErrorBarsQwtPlotCurve;
 class RiuQwtPlotCurve : public QwtPlotCurve
 {
 public:
+    enum ErrorAxis
+    {
+        ERROR_ALONG_X_AXIS,
+        ERROR_ALONG_Y_AXIS
+    };
+
     enum CurveInterpolationEnum
     {
         INTERPOLATION_POINT_TO_POINT,
@@ -83,8 +89,9 @@ public:
 
     void setSamplesFromXValuesAndYValues( const std::vector<double>& xValues,
                                           const std::vector<double>& yValues,
-                                          const std::vector<double>& yErrorValues,
-                                          bool                       keepOnlyPositiveValues );
+                                          const std::vector<double>& errorValues,
+                                          bool                       keepOnlyPositiveValues,
+                                          ErrorAxis                  errorAxis = ERROR_ALONG_Y_AXIS );
 
     void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
                                         const std::vector<double>&    yValues,
@@ -108,6 +115,8 @@ public:
     void clearErrorBars();
     void showErrorBars( bool show );
     void setErrorBarsColor( QColor color );
+    void setErrorBarsXAxis( int axis );
+    void setPerPointLabels( const std::vector<QString>& labels );
 
     void       setAppearance( LineStyleEnum          lineStyle,
                               CurveInterpolationEnum interpolationType,
@@ -145,4 +154,6 @@ private:
     QwtPlotIntervalCurve* m_errorBars;
     QwtPlot*              m_attachedToPlot;
     bool                  m_blackAndWhiteLegendIcon;
+
+    std::vector<QString> m_perPointLabels;
 };
