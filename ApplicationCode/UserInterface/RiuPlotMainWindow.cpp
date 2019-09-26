@@ -33,6 +33,7 @@
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogPlot.h"
+#include "RimWellRftPlot.h"
 
 #include "RiuDockWidgetTools.h"
 #include "RiuDragDrop.h"
@@ -512,7 +513,9 @@ void RiuPlotMainWindow::addToTemporaryWidgets( QWidget* widget )
 void RiuPlotMainWindow::updateWellLogPlotToolBar()
 {
     RimWellLogPlot* wellLogPlot = dynamic_cast<RimWellLogPlot*>( m_activePlotViewWindow.p() );
-    if ( wellLogPlot )
+    RimWellRftPlot* wellRftPlot = dynamic_cast<RimWellRftPlot*>( wellLogPlot );
+
+    if ( wellLogPlot && !wellRftPlot )
     {
         std::vector<caf::PdmFieldHandle*> toolBarFields;
         toolBarFields = wellLogPlot->commonDataSource()->fieldsToShowInToolbar();
@@ -758,9 +761,9 @@ void RiuPlotMainWindow::selectedObjectsChanged()
         {
             if ( selectedWindow->viewWidget() )
             {
-                setBlockSlotSubWindowActivated(true);
-                setActiveViewer(selectedWindow->viewWidget());
-                setBlockSlotSubWindowActivated(false);
+                setBlockSlotSubWindowActivated( true );
+                setActiveViewer( selectedWindow->viewWidget() );
+                setBlockSlotSubWindowActivated( false );
             }
             // The only way to get to this code is by selection change initiated from the project tree view
             // As we are activating an MDI-window, the focus is given to this MDI-window
