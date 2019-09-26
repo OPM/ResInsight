@@ -1050,7 +1050,8 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::calculat
     {
         for ( const auto& source : selSources )
         {
-            if ( source.sourceType() == RifDataSourceForRftPlt::SUMMARY_RFT && source.summaryCase() )
+            if ( source.sourceType() == RifDataSourceForRftPlt::SUMMARY_RFT && source.summaryCase() &&
+                 source.summaryCase()->rftReader() )
             {
                 std::set<QDateTime> wellTimeSteps = source.summaryCase()->rftReader()->availableTimeSteps(
                     wellPathNameOrSimWellName );

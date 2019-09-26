@@ -620,7 +620,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions( const caf:
             caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS ),
                                     RiuPlotAnnotationTool::FORMATION_ANNOTATIONS ) );
         RimWellBoreStabilityPlot* wellBoreStabilityPlot = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted( wellBoreStabilityPlot );
+        this->firstAncestorOrThisOfType( wellBoreStabilityPlot );
         if ( wellBoreStabilityPlot )
         {
             options.push_back(
