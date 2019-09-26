@@ -455,7 +455,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
                                                              m_curveData->measuredDepthPlotValues( displayUnit ),
                                                              errors,
                                                              false,
-                                                             RiuQwtPlotCurve::ERROR_ALONG_Y_AXIS );
+                                                             RiuQwtPlotCurve::ERROR_ALONG_X_AXIS );
 
             RimWellLogTrack* wellLogTrack;
             firstAncestorOrThisOfType( wellLogTrack );
@@ -490,7 +490,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
                                                              m_curveData->trueDepthPlotValues( displayUnit ),
                                                              errors,
                                                              false,
-                                                             RiuQwtPlotCurve::ERROR_ALONG_Y_AXIS );
+                                                             RiuQwtPlotCurve::ERROR_ALONG_X_AXIS );
         }
 
         m_qwtPlotCurve->setLineSegmentStartStopIndices( m_curveData->polylineStartStopIndices() );
