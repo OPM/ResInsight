@@ -55,6 +55,7 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimWellLogRftCurve.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuMainWindow.h"
@@ -124,6 +125,17 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
                     else if ( existingFileSummaryCase )
                     {
                         existingFileSummaryCase->firstAncestorOrThisOfType( existingCollection );
+
+                        // Replace file summary case pointers in Rft Curves
+                        std::vector<RimWellLogRftCurve*> rftCurves;
+                        existingFileSummaryCase->objectsWithReferringPtrFieldsOfType( rftCurves );
+                        for ( RimWellLogRftCurve* curve : rftCurves )
+                        {
+                            if ( curve->summaryCase() == existingSummaryCase )
+                            {
+                                curve->setSummaryCase( newSumCase );
+                            }
+                        }
 
                         // Replace all occurrences of file sum with ecl sum
 
