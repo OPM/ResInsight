@@ -25,6 +25,8 @@
 #include "RiaLogging.h"
 #include "RiaSummaryTools.h"
 
+#include "RifSummaryReaderInterface.h"
+
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
 #include "RimDialogData.h"
 #include "RimMainPlotCollection.h"
@@ -100,11 +102,28 @@ void RicCreatePlotFromSelectionFeature::onActionTriggered( bool isChecked )
 
                     if ( conversionOk && index < sumCases.size() )
                     {
-                        curve->setSummaryCaseY( sumCases[index] );
+                        auto summaryCaseY = sumCases[index];
+                        curve->setSummaryCaseY( summaryCaseY );
+
+                        auto currentAddressY = curve->summaryAddressY();
+                        if ( summaryCaseY->summaryReader() &&
+                             !summaryCaseY->summaryReader()->hasAddress( currentAddressY ) )
+                        {
+                            auto allAddresses = summaryCaseY->summaryReader()->allResultAddresses();
+
+                            auto candidate = RicCreatePlotFromSelectionFeature::firstAddressByQuantity( currentAddressY,
+                                                                                                        allAddresses );
+                            if ( candidate.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
+                            {
+                                curve->setSummaryAddressY( candidate );
+                            }
+                        }
                     }
                 }
             }
         }
+
+        // TODO: Create additional curves in selected case count is larger than template count
 
         plotColl->updateConnectedEditors();
 
@@ -130,4 +149,22 @@ std::vector<RimSummaryCase*> RicCreatePlotFromSelectionFeature::selectedSummaryC
     caf::SelectionManager::instance()->objectsByType( &objects );
 
     return objects;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress
+    RicCreatePlotFromSelectionFeature::firstAddressByQuantity( const RifEclipseSummaryAddress&           sourceAddress,
+                                                               const std::set<RifEclipseSummaryAddress>& allAddresses )
+{
+    for ( const auto& a : allAddresses )
+    {
+        if ( sourceAddress.quantityName() == a.quantityName() )
+        {
+            return a;
+        }
+    }
+
+    return RifEclipseSummaryAddress();
 }

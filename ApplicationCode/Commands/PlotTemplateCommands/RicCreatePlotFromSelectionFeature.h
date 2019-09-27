@@ -18,7 +18,11 @@
 
 #pragma once
 
+#include "RifEclipseSummaryAddress.h"
+
 #include "cafCmdFeature.h"
+
+#include <set>
 
 class RimSummaryCase;
 
@@ -35,5 +39,7 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    std::vector<RimSummaryCase*> selectedSummaryCases() const;
+    std::vector<RimSummaryCase*>    selectedSummaryCases() const;
+    static RifEclipseSummaryAddress firstAddressByQuantity( const RifEclipseSummaryAddress&           sourceAddress,
+                                                            const std::set<RifEclipseSummaryAddress>& allAddresses );
 };
