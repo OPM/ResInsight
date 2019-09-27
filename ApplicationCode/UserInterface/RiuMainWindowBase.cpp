@@ -42,7 +42,8 @@ RiuMainWindowBase::RiuMainWindowBase()
     : m_projectTreeView( nullptr )
     , m_allowActiveViewChangeFromSelection( true )
     , m_showFirstVisibleWindowMaximized( true )
-    , m_blockSlotSubWindowActivated( false )
+    , m_blockSubWindowActivation( false )
+    , m_blockSubWindowProjectTreeSelection( false )
 {
     setDockNestingEnabled( true );
 }
@@ -216,17 +217,33 @@ void RiuMainWindowBase::enableShowFirstVisibleMdiWindowMaximized( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::setBlockSlotSubWindowActivated( bool block )
+void RiuMainWindowBase::setBlockSubWindowActivation( bool block )
 {
-    m_blockSlotSubWindowActivated = block;
+    m_blockSubWindowActivation = block;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuMainWindowBase::blockSlotSubWindowActivated() const
+bool RiuMainWindowBase::blockSubWindowActivation() const
 {
-    return m_blockSlotSubWindowActivated;
+    return m_blockSubWindowActivation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::setBlockSubWindowProjectTreeSelection( bool block )
+{
+    m_blockSubWindowProjectTreeSelection = block;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuMainWindowBase::blockSubWindowProjectTreeSelection() const
+{
+    return m_blockSubWindowProjectTreeSelection;
 }
 
 //--------------------------------------------------------------------------------------------------

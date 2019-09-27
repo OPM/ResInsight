@@ -97,6 +97,8 @@
 #include <QTreeView>
 #include <QUndoStack>
 
+#include <QDebug>
+
 #include <algorithm>
 
 //==================================================================================================
@@ -1029,14 +1031,17 @@ QMdiSubWindow* RiuMainWindow::findMdiSubWindow( QWidget* viewer )
 //--------------------------------------------------------------------------------------------------
 RimViewWindow* RiuMainWindow::findViewWindowFromSubWindow( QMdiSubWindow* subWindow )
 {
-    std::vector<RimViewWindow*> allViewWindows;
-    RiaApplication::instance()->project()->descendantsIncludingThisOfType( allViewWindows );
-
-    for ( RimViewWindow* viewWindow : allViewWindows )
+    if ( subWindow )
     {
-        if ( viewWindow->viewWidget() == subWindow->widget() )
+        std::vector<RimViewWindow*> allViewWindows;
+        RiaApplication::instance()->project()->descendantsIncludingThisOfType( allViewWindows );
+
+        for ( RimViewWindow* viewWindow : allViewWindows )
         {
-            return viewWindow;
+            if ( viewWindow->viewWidget() == subWindow->widget() )
+            {
+                return viewWindow;
+            }
         }
     }
     return nullptr;
@@ -1225,109 +1230,90 @@ void RiuMainWindow::slotViewFromBelow()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
 {
-    if ( !subWindow ) return;
-    if ( blockSlotSubWindowActivated() ) return;
+    if ( blockSubWindowActivation() ) return;
 
-    RimProject* proj = RiaApplication::instance()->project();
-    if ( !proj ) return;
+    Rim3dView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activatedView               = dynamic_cast<Rim3dView*>( findViewWindowFromSubWindow( subWindow ) );
 
-    // Find the activated 3D view
+    if ( !activatedView ) return;
+    RiaApplication::instance()->setActiveReservoirView( activatedView );
 
-    Rim3dView* activatedView = nullptr;
-
-    std::vector<RimCase*> allCases;
-    proj->allCases( allCases );
-
-    for ( RimCase* reservoirCase : allCases )
+    if ( !blockSubWindowProjectTreeSelection() )
     {
-        if ( reservoirCase == nullptr ) continue;
+        selectViewInProjectTree( previousActiveReservoirView, activatedView );
+    }
 
-        std::vector<Rim3dView*> views = reservoirCase->views();
+    slotRefreshViewActions();
+    refreshAnimationActions();
+    refreshDrawStyleActions();
+}
 
-        size_t viewIdx;
-        for ( viewIdx = 0; viewIdx < views.size(); viewIdx++ )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::selectViewInProjectTree( const Rim3dView* previousActiveReservoirView, Rim3dView* activatedView )
+{
+    bool is3dViewCurrentlySelected = false;
+    if ( caf::SelectionManager::instance()->selectedItem() )
+    {
+        if ( caf::SelectionManager::instance()->selectedItemAncestorOfType<Rim3dView>() )
         {
-            Rim3dView* riv = views[viewIdx];
-
-            if ( riv && riv->viewer() && riv->viewer()->layoutWidget() &&
-                 riv->viewer()->layoutWidget()->parent() == subWindow )
-            {
-                activatedView = riv;
-                break;
-            }
+            is3dViewCurrentlySelected = true;
         }
     }
 
+    if ( is3dViewCurrentlySelected && ( previousActiveReservoirView != activatedView ) )
     {
-        Rim3dView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
-        RiaApplication::instance()->setActiveReservoirView( activatedView );
+        QModelIndex newViewModelIndex = m_projectTreeView->findModelIndex( activatedView );
+        QModelIndex newSelectionIndex = newViewModelIndex;
 
-        bool is3dViewCurrentlySelected = false;
-        if ( caf::SelectionManager::instance()->selectedItem() )
+        if ( previousActiveReservoirView && is3dViewCurrentlySelected )
         {
-            if ( caf::SelectionManager::instance()->selectedItemAncestorOfType<Rim3dView>() )
+            // Try to select the same entry in the new View, as was selected in the previous
+
+            QModelIndex previousViewModelIndex = m_projectTreeView->findModelIndex( previousActiveReservoirView );
+            QModelIndex currentSelectionIndex  = m_projectTreeView->treeView()->selectionModel()->currentIndex();
+
+            if ( currentSelectionIndex != newViewModelIndex && currentSelectionIndex.isValid() )
             {
-                is3dViewCurrentlySelected = true;
-            }
-        }
+                QVector<QModelIndex> route; // Contains all model indices from current selection up to previous view
 
-        if ( is3dViewCurrentlySelected && ( previousActiveReservoirView != activatedView ) )
-        {
-            QModelIndex newViewModelIndex = m_projectTreeView->findModelIndex( activatedView );
-            QModelIndex newSelectionIndex = newViewModelIndex;
+                QModelIndex tmpModelIndex = currentSelectionIndex;
 
-            if ( previousActiveReservoirView && is3dViewCurrentlySelected )
-            {
-                // Try to select the same entry in the new View, as was selected in the previous
-
-                QModelIndex previousViewModelIndex = m_projectTreeView->findModelIndex( previousActiveReservoirView );
-                QModelIndex currentSelectionIndex  = m_projectTreeView->treeView()->selectionModel()->currentIndex();
-
-                if ( currentSelectionIndex != newViewModelIndex && currentSelectionIndex.isValid() )
+                while ( tmpModelIndex.isValid() && tmpModelIndex != previousViewModelIndex )
                 {
-                    QVector<QModelIndex> route; // Contains all model indices from current selection up to previous view
+                    // NB! Add model index to front of vector to be able to do a for-loop with correct ordering
+                    route.push_front( tmpModelIndex );
 
-                    QModelIndex tmpModelIndex = currentSelectionIndex;
+                    tmpModelIndex = tmpModelIndex.parent();
+                }
 
-                    while ( tmpModelIndex.isValid() && tmpModelIndex != previousViewModelIndex )
+                // Traverse model indices from new view index to currently selected item
+                int i;
+                for ( i = 0; i < route.size(); i++ )
+                {
+                    QModelIndex tmp = route[i];
+                    if ( newSelectionIndex.isValid() )
                     {
-                        // NB! Add model index to front of vector to be able to do a for-loop with correct ordering
-                        route.push_front( tmpModelIndex );
-
-                        tmpModelIndex = tmpModelIndex.parent();
-                    }
-
-                    // Traverse model indices from new view index to currently selected item
-                    int i;
-                    for ( i = 0; i < route.size(); i++ )
-                    {
-                        QModelIndex tmp = route[i];
-                        if ( newSelectionIndex.isValid() )
-                        {
-                            newSelectionIndex = m_projectTreeView->treeView()->model()->index( tmp.row(),
-                                                                                               tmp.column(),
-                                                                                               newSelectionIndex );
-                        }
-                    }
-
-                    // Use view model index if anything goes wrong
-                    if ( !newSelectionIndex.isValid() )
-                    {
-                        newSelectionIndex = newViewModelIndex;
+                        newSelectionIndex = m_projectTreeView->treeView()->model()->index( tmp.row(),
+                                                                                           tmp.column(),
+                                                                                           newSelectionIndex );
                     }
                 }
-            }
 
-            m_projectTreeView->treeView()->setCurrentIndex( newSelectionIndex );
-            if ( newSelectionIndex != newViewModelIndex )
-            {
-                m_projectTreeView->treeView()->setExpanded( newViewModelIndex, true );
+                // Use view model index if anything goes wrong
+                if ( !newSelectionIndex.isValid() )
+                {
+                    newSelectionIndex = newViewModelIndex;
+                }
             }
         }
 
-        slotRefreshViewActions();
-        refreshAnimationActions();
-        refreshDrawStyleActions();
+        m_projectTreeView->treeView()->setCurrentIndex( newSelectionIndex );
+        if ( newSelectionIndex != newViewModelIndex )
+        {
+            m_projectTreeView->treeView()->setExpanded( newViewModelIndex, true );
+        }
     }
 }
 
@@ -1456,9 +1442,9 @@ void RiuMainWindow::selectedObjectsChanged()
             // Set focus in MDI area to this window if it exists
             if ( selectedReservoirView->viewer() )
             {
-                setBlockSlotSubWindowActivated(true);
-                setActiveViewer(selectedReservoirView->viewer()->layoutWidget());
-                setBlockSlotSubWindowActivated(false);
+                setBlockSubWindowProjectTreeSelection( true );
+                setActiveViewer( selectedReservoirView->viewer()->layoutWidget() );
+                setBlockSubWindowProjectTreeSelection( false );
 
                 isActiveViewChanged = true;
             }
@@ -1975,7 +1961,7 @@ void RiuMainWindow::tileSubWindows()
     }
 
     // Perform stable sort of list so we first sort by window position but retain activation order
-    // for windows with the same position. Needs to be sorted in decreasing order for the workaround below.
+    // for windows with the same position.
     windowList.sort( [this, viewLinker]( QMdiSubWindow* lhs, QMdiSubWindow* rhs ) {
         RimViewWindow* lhsViewWindow = findViewWindowFromSubWindow( lhs );
         RimViewWindow* rhsViewWindow = findViewWindowFromSubWindow( rhs );
@@ -1993,28 +1979,36 @@ void RiuMainWindow::tileSubWindows()
                 return false;
             }
         }
-        return lhs->frameGeometry().topLeft().rx() > rhs->frameGeometry().topLeft().rx();
+        if ( lhs->frameGeometry().topLeft().ry() == rhs->frameGeometry().topLeft().ry() )
+        {
+            return lhs->frameGeometry().topLeft().rx() < rhs->frameGeometry().topLeft().rx();
+        }
+        return lhs->frameGeometry().topLeft().ry() < rhs->frameGeometry().topLeft().ry();
     } );
 
     // Based on workaround described here
     // https://forum.qt.io/topic/50053/qmdiarea-tilesubwindows-always-places-widgets-in-activationhistoryorder-in-subwindowview-mode
 
-    bool prevActivationBlock = blockSlotSubWindowActivated();
-    // Force activation order so they end up in the order of the loop.
-    m_mdiArea->setActivationOrder( QMdiArea::ActivationHistoryOrder );
+    bool prevActivationBlock = blockSubWindowActivation();
+
     QMdiSubWindow* a = m_mdiArea->activeSubWindow();
 
-    setBlockSlotSubWindowActivated( true );
-    for ( QMdiSubWindow* subWindow : windowList )
+    // Force activation order so they end up in the order of the loop.
+    m_mdiArea->setActivationOrder( QMdiArea::ActivationHistoryOrder );
+
+    setBlockSubWindowActivation( true );
+
+    // Activate in reverse order
+    for ( auto it = windowList.rbegin(); it != windowList.rend(); ++it )
     {
-        m_mdiArea->setActiveSubWindow( subWindow );
+        m_mdiArea->setActiveSubWindow( *it );
     }
 
     m_mdiArea->tileSubWindows();
     // Set back the original activation order to avoid messing with the standard ordering
     m_mdiArea->setActivationOrder( currentActivationOrder );
     m_mdiArea->setActiveSubWindow( a );
-    setBlockSlotSubWindowActivated( prevActivationBlock );
+    setBlockSubWindowActivation( prevActivationBlock );
 
     storeSubWindowTiling( true );
 }
@@ -2033,6 +2027,7 @@ void RiuMainWindow::storeSubWindowTiling( bool tiled )
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::clearWindowTiling()
 {
+    setBlockSubWindowActivation( true );
     QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
 
     for ( QMdiSubWindow* subWindow : m_mdiArea->subWindowList( currentActivationOrder ) )
@@ -2041,6 +2036,7 @@ void RiuMainWindow::clearWindowTiling()
         subWindow->showNormal();
     }
     storeSubWindowTiling( false );
+    setBlockSubWindowActivation( false );
 }
 
 //--------------------------------------------------------------------------------------------------

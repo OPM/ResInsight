@@ -75,8 +75,11 @@ public:
     virtual void clearWindowTiling()                = 0;
     virtual bool subWindowsAreTiled() const         = 0;
 
-    void setBlockSlotSubWindowActivated( bool block );
-    bool blockSlotSubWindowActivated() const;
+    void setBlockSubWindowActivation( bool block );
+    bool blockSubWindowActivation() const;
+
+    void setBlockSubWindowProjectTreeSelection( bool block );
+    bool blockSubWindowProjectTreeSelection() const;
 
 protected:
     void removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* viewer );
@@ -94,5 +97,6 @@ private:
 
 private:
     bool m_showFirstVisibleWindowMaximized;
-    bool m_blockSlotSubWindowActivated;
+    bool m_blockSubWindowActivation;
+    bool m_blockSubWindowProjectTreeSelection;
 };

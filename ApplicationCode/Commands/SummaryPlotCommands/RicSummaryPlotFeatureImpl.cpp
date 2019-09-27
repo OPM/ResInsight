@@ -418,7 +418,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
         if ( summaryAddressFilters.size() )
         {
-            RimSummaryCaseCollection* ensemble        = nullptr;
+            RimSummaryCaseCollection* ensemble = nullptr;
 
             if ( isEnsembleMode )
             {
@@ -680,11 +680,11 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
             RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
             // Needed to avoid unneccessary activation of sub windows (plots)
-            // which results in population of property editor, and missing deleteLater because we are outside any event loop
-            // when switching object. Results in stray widgets. 
-            mpw->setBlockSlotSubWindowActivated( true ); 
+            // which results in population of property editor, and missing deleteLater because we are outside any event
+            // loop when switching object. Results in stray widgets.
+            mpw->setBlockSubWindowProjectTreeSelection( true );
             RiuPlotMainWindowTools::showPlotMainWindow();
-            mpw->setBlockSlotSubWindowActivated( false );
+            mpw->setBlockSubWindowProjectTreeSelection( false );
             RiuPlotMainWindowTools::setExpanded( lastPlotCreated );
             RiuPlotMainWindowTools::selectAsCurrentItem( lastPlotCreated );
 
