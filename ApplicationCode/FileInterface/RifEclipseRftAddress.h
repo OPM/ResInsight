@@ -68,7 +68,12 @@ public:
 
     static std::set<RftWellLogChannelType> rftPlotChannelTypes()
     {
-        return {RifEclipseRftAddress::PRESSURE};
+        return {RifEclipseRftAddress::PRESSURE,
+                RifEclipseRftAddress::PRESSURE_ERROR,
+                RifEclipseRftAddress::PRESSURE_MEAN,
+                RifEclipseRftAddress::PRESSURE_P10,
+                RifEclipseRftAddress::PRESSURE_P50,
+                RifEclipseRftAddress::PRESSURE_P90};
     }
 
     static std::set<RftWellLogChannelType> pltPlotChannelTypes()
