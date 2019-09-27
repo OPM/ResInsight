@@ -290,17 +290,13 @@ const int * ecl_coarse_cell_get_box_ptr( const ecl_coarse_cell_type * coarse_cel
 
 void ecl_coarse_cell_update_index( ecl_coarse_cell_type * coarse_cell , int global_index , int * active_index , int * active_fracture_index , int active_value) {
   if (active_value & CELL_ACTIVE_MATRIX) {
-    if (coarse_cell->active_index == -1) {
-      coarse_cell->active_index = *active_index;
-      (*active_index) += 1;
-    }
+    coarse_cell->active_index = *active_index;
+    (*active_index) += 1;
   }
 
   if (active_value & CELL_ACTIVE_FRACTURE) {
-    if (coarse_cell->active_fracture_index == -1) {
-      coarse_cell->active_fracture_index = *active_fracture_index;
-      (*active_fracture_index) += 1;
-    }
+    coarse_cell->active_fracture_index = *active_fracture_index;
+    (*active_fracture_index) += 1;
   }
 
   int_vector_append( coarse_cell->active_cells , global_index );
