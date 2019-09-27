@@ -424,7 +424,7 @@ void RiuWellLogPlot::reinsertTracks()
         {
             m_trackLayout->addWidget( m_legends[tIdx], 0, static_cast<int>( visibleIndex ) );
             m_trackLayout->addWidget( m_trackPlots[tIdx], 1, static_cast<int>( visibleIndex ) );
-            m_trackLayout->setRowStretch( 1, 10 );
+            m_trackLayout->setRowStretch( 1, 1 );
 
             if ( !m_plotDefinition->areTrackLegendsVisible() )
             {

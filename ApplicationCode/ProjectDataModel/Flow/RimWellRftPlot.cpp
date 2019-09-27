@@ -316,6 +316,8 @@ void RimWellRftPlot::updateEditorsFromPreviousSelection()
         }
     }
 
+    // This has to happen after the m_selectedSources is filled
+    // because the available time steps is dependent on the selected sources.
     auto timeStepOptions = calculateValueOptions( &m_selectedTimeSteps, &dummy );
     for ( auto timeStepOption : timeStepOptions )
     {
