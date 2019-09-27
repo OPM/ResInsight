@@ -153,6 +153,32 @@ void RifEclipseOutputFileTools::timeSteps(const ecl_file_type* ecl_file, std::ve
         }
     }
 
+    bool allTimeStepsOnSameDate = true;
+    {
+        // See https://github.com/OPM/ResInsight/issues/4770
+
+        std::set<int> days;
+        std::set<int> months;
+        std::set<int> years;
+        for ( int i = 0; i < numINTEHEAD; i++ )
+        {
+            ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, i );
+            CVF_ASSERT( kwINTEHEAD );
+            int day   = 0;
+            int month = 0;
+            int year  = 0;
+            getDayMonthYear( kwINTEHEAD, &day, &month, &year );
+
+            days.insert( day );
+            months.insert( month );
+            years.insert( year );
+        }
+
+        if ( days.size() > 1 ) allTimeStepsOnSameDate = false;
+        if ( months.size() > 1 ) allTimeStepsOnSameDate = false;
+        if ( years.size() > 1 ) allTimeStepsOnSameDate = false;
+    }
+
     std::set<QDateTime> existingTimesteps;
 
     for (int i = 0; i < numINTEHEAD; i++)
@@ -167,8 +193,14 @@ void RifEclipseOutputFileTools::timeSteps(const ecl_file_type* ecl_file, std::ve
         QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime(QDate(year, month, day));
         CVF_ASSERT(reportDateTime.isValid());
 
-        double dayValue = dayValues[i];
-        double dayFraction = dayValue - cvf::Math::floor(dayValue);
+        double dayDoubleValue = dayValues[i];
+        int    dayValue       = cvf::Math::floor( dayDoubleValue );
+        if ( allTimeStepsOnSameDate )
+        {
+            reportDateTime = reportDateTime.addDays( dayValue );
+        }
+
+        double dayFraction  = dayDoubleValue - dayValue;
         double milliseconds = dayFraction * 24.0 * 60.0 * 60.0 * 1000.0;
 
         reportDateTime = reportDateTime.addMSecs(milliseconds);
