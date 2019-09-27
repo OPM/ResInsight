@@ -18,6 +18,8 @@
 
 #include "RicHelpFeatures.h"
 
+#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
+
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
 #include "RiaVersionInfo.h"
@@ -35,6 +37,7 @@
 
 CAF_CMD_SOURCE_INIT( RicHelpAboutFeature, "RicHelpAboutFeature" );
 CAF_CMD_SOURCE_INIT( RicHelpCommandLineFeature, "RicHelpCommandLineFeature" );
+CAF_CMD_SOURCE_INIT( RicHelpSummaryCommandLineFeature, "RicHelpSummaryCommandLineFeature" );
 CAF_CMD_SOURCE_INIT( RicHelpOpenUsersGuideFeature, "RicHelpOpenUsersGuideFeature" );
 
 //--------------------------------------------------------------------------------------------------
@@ -203,6 +206,34 @@ void RicHelpCommandLineFeature::onActionTriggered( bool isChecked )
 void RicHelpCommandLineFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "&Command Line Help" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicHelpSummaryCommandLineFeature::isCommandEnabled()
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicHelpSummaryCommandLineFeature::onActionTriggered( bool isChecked )
+{
+    this->disableModelChangeContribution();
+
+    RiaApplication* app  = RiaApplication::instance();
+    QString         text = RicSummaryPlotFeatureImpl::summaryPlotCommandLineHelpText();
+    app->showFormattedTextInMessageBoxOrConsole( text );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicHelpSummaryCommandLineFeature::setupActionLook( QAction* actionToSetup )
+{
+    actionToSetup->setText( "&Summary Command Line Help" );
 }
 
 //--------------------------------------------------------------------------------------------------

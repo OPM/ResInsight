@@ -293,6 +293,7 @@ void RiuPlotMainWindow::createMenus()
     QMenu* helpMenu = menuBar()->addMenu( "&Help" );
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpAboutFeature" ) );
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpCommandLineFeature" ) );
+    helpMenu->addAction( cmdFeatureMgr->action( "RicHelpSummaryCommandLineFeature" ) );
     helpMenu->addSeparator();
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpOpenUsersGuideFeature" ) );
 }

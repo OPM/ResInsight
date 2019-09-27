@@ -535,6 +535,7 @@ void RiuMainWindow::createMenus()
     QMenu* helpMenu = menuBar()->addMenu( "&Help" );
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpAboutFeature" ) );
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpCommandLineFeature" ) );
+    helpMenu->addAction( cmdFeatureMgr->action( "RicHelpSummaryCommandLineFeature" ) );
     helpMenu->addSeparator();
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpOpenUsersGuideFeature" ) );
 }
@@ -1456,9 +1457,9 @@ void RiuMainWindow::selectedObjectsChanged()
             // Set focus in MDI area to this window if it exists
             if ( selectedReservoirView->viewer() )
             {
-                setBlockSlotSubWindowActivated(true);
-                setActiveViewer(selectedReservoirView->viewer()->layoutWidget());
-                setBlockSlotSubWindowActivated(false);
+                setBlockSlotSubWindowActivated( true );
+                setActiveViewer( selectedReservoirView->viewer()->layoutWidget() );
+                setBlockSlotSubWindowActivated( false );
 
                 isActiveViewChanged = true;
             }
