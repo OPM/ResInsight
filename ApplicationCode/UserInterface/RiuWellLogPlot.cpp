@@ -379,6 +379,8 @@ void RiuWellLogPlot::alignCanvasTops()
         }
     }
 
+    int legendHeight = 0;
+
     for ( int tIdx = 0; tIdx < m_trackPlots.size(); ++tIdx )
     {
         if ( m_trackPlots[tIdx]->isVisible() )
@@ -395,13 +397,18 @@ void RiuWellLogPlot::alignCanvasTops()
             QMargins margins = m_trackPlots[tIdx]->contentsMargins();
             margins.setTop( margins.top() + canvasShift );
             m_trackPlots[tIdx]->setContentsMargins( margins );
+
+            if ( m_legends[tIdx]->isVisible() )
+            {
+                legendHeight = std::max( legendHeight, m_legends[tIdx]->heightForWidth( canvasRect.width() ) );
+            }
         }
     }
 
-    if ( m_trackLayout->columnCount() > 0 && m_trackLayout->rowCount() > 0 )
+    if ( m_plotDefinition->areTrackLegendsVisible() && m_trackLayout->columnCount() > 0 && m_trackLayout->rowCount() > 0 )
     {
-        int legendHeight = m_trackLayout->cellRect( 0, 0 ).height();
         m_scrollBarLayout->setContentsMargins( 0, legendHeight, 0, 0 );
+        m_trackLayout->setRowMinimumHeight( 0, legendHeight );
     }
 }
 

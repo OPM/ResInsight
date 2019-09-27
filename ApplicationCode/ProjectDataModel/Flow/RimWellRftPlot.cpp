@@ -150,9 +150,12 @@ void RimWellRftPlot::applyCurveAppearance( RimWellLogCurve* newCurve )
         currentColor = m_dataSourceColors[sourceAddress];
         if ( m_showStatisticsCurves )
         {
-            cvf::Color3f backgroundColor = RiaColorTools::fromQColorTo3f(
-                trackByIndex( 0 )->viewer()->canvasBackground().color() );
-            currentColor = RiaColorTools::blendCvfColors( backgroundColor, currentColor, 2, 1 );
+            if ( trackByIndex( 0 ) && trackByIndex( 0 )->viewer() )
+            {
+                cvf::Color3f backgroundColor = RiaColorTools::fromQColorTo3f(
+                    trackByIndex( 0 )->viewer()->canvasBackground().color() );
+                currentColor = RiaColorTools::blendCvfColors( backgroundColor, currentColor, 2, 1 );
+            }
         }
     }
     else
@@ -247,7 +250,7 @@ void RimWellRftPlot::applyInitialSelections()
         sourcesToSelect.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::GRID, gridCase ) );
     }
 
-    for ( RimSummaryCaseCollection* const ensemble : RimWellPlotTools::rftEnsemblesForWell( m_wellPathNameOrSimWellName ) )
+    for ( RimSummaryCaseCollection* const ensemble : RimWellPlotTools::rftEnsemblesForWell( simWellName ) )
     {
         sourcesToSelect.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::ENSEMBLE_RFT, ensemble ) );
     }
@@ -262,7 +265,8 @@ void RimWellRftPlot::applyInitialSelections()
         }
     }
 
-    for ( RimObservedFmuRftData* const observedFmuRftData : RimWellPlotTools::observedFmuRftData() )
+    for ( RimObservedFmuRftData* const observedFmuRftData :
+          RimWellPlotTools::observedFmuRftDataForWell( m_wellPathNameOrSimWellName ) )
     {
         sourcesToSelect.push_back(
             RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_FMU_RFT, observedFmuRftData ) );
@@ -285,6 +289,44 @@ void RimWellRftPlot::applyInitialSelections()
     }
 
     syncCurvesFromUiSelection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::updateEditorsFromPreviousSelection()
+{
+    std::set<RifDataSourceForRftPlt> previousSources( m_selectedSources().begin(), m_selectedSources().end() );
+    std::set<QDateTime>              previousTimeSteps( m_selectedTimeSteps().begin(), m_selectedTimeSteps().end() );
+
+    m_selectedSources.v().clear();
+    m_selectedTimeSteps.v().clear();
+
+    bool dummy             = false;
+    auto dataSourceOptions = calculateValueOptions( &m_selectedSources, &dummy );
+    for ( auto dataSourceOption : dataSourceOptions )
+    {
+        if ( dataSourceOption.level() == 1 )
+        {
+            RifDataSourceForRftPlt dataSource = dataSourceOption.value().value<RifDataSourceForRftPlt>();
+            if ( previousSources.count( dataSource ) )
+            {
+                m_selectedSources.v().push_back( dataSource );
+            }
+        }
+    }
+
+    // This has to happen after the m_selectedSources is filled
+    // because the available time steps is dependent on the selected sources.
+    auto timeStepOptions = calculateValueOptions( &m_selectedTimeSteps, &dummy );
+    for ( auto timeStepOption : timeStepOptions )
+    {
+        QDateTime timeStep = timeStepOption.value().toDateTime();
+        if ( previousTimeSteps.count( timeStep ) )
+        {
+            m_selectedTimeSteps.v().push_back( timeStep );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -785,8 +827,9 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
             plotTrack->deleteAllCurves();
         }
 
-        updateEditorsFromCurves();
+        updateEditorsFromPreviousSelection();
         updateFormationsOnPlot();
+        syncCurvesFromUiSelection();
     }
     else if ( changedField == &m_branchIndex || changedField == &m_branchDetection )
     {

@@ -214,7 +214,8 @@ void RimWellLogExtractionCurve::setPropertiesFromView( Rim3dView* view )
     }
     else if ( eclipseCase )
     {
-        m_eclipseResultDefinition->setResultVariable( "SOIL" );
+        m_eclipseResultDefinition->setResultType( RiaDefines::STATIC_NATIVE );
+        m_eclipseResultDefinition->setResultVariable( "PORO" );
     }
 
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( view );
