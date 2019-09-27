@@ -82,9 +82,6 @@ void RicCreatePlotFromSelectionFeature::onActionTriggered( bool isChecked )
         newSummaryPlot->resolveReferencesRecursively();
         newSummaryPlot->initAfterReadRecursively();
 
-        QString nameOfCopy = QString( "Copy of " ) + newSummaryPlot->description();
-        newSummaryPlot->setDescription( nameOfCopy );
-
         auto summaryCurves = newSummaryPlot->summaryCurves();
 
         for ( const auto& curve : summaryCurves )
