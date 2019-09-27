@@ -151,8 +151,33 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
         }
     }
 
-    std::set<QDateTime> existingTimesteps;
+    bool allTimeStepsOnSameDate = true;
+    {
+        // See https://github.com/OPM/ResInsight/issues/4770
 
+        std::set<int> days;
+        std::set<int> months;
+        std::set<int> years;
+        for ( int i = 0; i < numINTEHEAD; i++ )
+        {
+            ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, i );
+            CVF_ASSERT( kwINTEHEAD );
+            int day   = 0;
+            int month = 0;
+            int year  = 0;
+            getDayMonthYear( kwINTEHEAD, &day, &month, &year );
+
+            days.insert( day );
+            months.insert( month );
+            years.insert( year );
+        }
+
+        if ( days.size() > 1 ) allTimeStepsOnSameDate = false;
+        if ( months.size() > 1 ) allTimeStepsOnSameDate = false;
+        if ( years.size() > 1 ) allTimeStepsOnSameDate = false;
+    }
+
+    std::set<QDateTime> existingTimesteps;
     for ( int i = 0; i < numINTEHEAD; i++ )
     {
         ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, i );
@@ -165,15 +190,21 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
         QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime( QDate( year, month, day ) );
         CVF_ASSERT( reportDateTime.isValid() );
 
-        double dayValue     = dayValues[i];
-        double dayFraction  = dayValue - cvf::Math::floor( dayValue );
+        double dayDoubleValue = dayValues[i];
+        int    dayValue       = cvf::Math::floor( dayDoubleValue );
+        if ( allTimeStepsOnSameDate )
+        {
+            reportDateTime = reportDateTime.addDays( dayValue );
+        }
+
+        double dayFraction  = dayDoubleValue - dayValue;
         double milliseconds = dayFraction * 24.0 * 60.0 * 60.0 * 1000.0;
 
         reportDateTime = reportDateTime.addMSecs( milliseconds );
         if ( existingTimesteps.insert( reportDateTime ).second )
         {
             timeSteps->push_back( reportDateTime );
-            daysSinceSimulationStart->push_back( dayValue );
+            daysSinceSimulationStart->push_back( dayDoubleValue );
         }
     }
 }
@@ -358,9 +389,9 @@ void RifEclipseOutputFileTools::readGridDimensions( const QString&              
     // printf("grid:%s has %d a total of %d lgr's \n", grid_filename , stringlist_get_size( lgr_names ));
     for ( int lgr_nr = 0; lgr_nr < stringlist_get_size( lgr_names ); lgr_nr++ )
     {
-        ecl_grid_type* lgr_grid =
-            ecl_grid_get_lgr( grid,
-                              stringlist_iget( lgr_names, lgr_nr ) ); // get the ecl_grid instance of the lgr - by name.
+        ecl_grid_type* lgr_grid = ecl_grid_get_lgr( grid,
+                                                    stringlist_iget( lgr_names,
+                                                                     lgr_nr ) ); // get the ecl_grid instance of the lgr - by name.
 
         int nx, ny, nz, active_size;
         ecl_grid_get_dims( lgr_grid, &nx, &ny, &nz, &active_size ); // get some size info from this lgr.
