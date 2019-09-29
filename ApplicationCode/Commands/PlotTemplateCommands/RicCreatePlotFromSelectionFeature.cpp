@@ -18,28 +18,18 @@
 
 #include "RicCreatePlotFromSelectionFeature.h"
 
+#include "RiaGuiApplication.h"
+
 #include "RicSelectPlotTemplateUi.h"
 #include "RicSummaryPlotTemplateTools.h"
 
-#include "RiaGuiApplication.h"
-#include "RiaLogging.h"
-#include "RiaSummaryTools.h"
-
-#include "RifSummaryReaderInterface.h"
-
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
 #include "RimDialogData.h"
-#include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCurve.h"
-#include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
-#include "RimWellPath.h"
 
 #include "RiuPlotMainWindow.h"
 
-#include "cafPdmObject.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
 
@@ -61,8 +51,7 @@ bool RicCreatePlotFromSelectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreatePlotFromSelectionFeature::onActionTriggered( bool isChecked )
 {
-    RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
-
+    RiuPlotMainWindow*       plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
     RicSelectPlotTemplateUi* ui = RiaGuiApplication::instance()->project()->dialogData()->selectPlotTemplateUi();
 
     caf::PdmUiPropertyViewDialog propertyDialog( plotwindow, ui, "Select Plot Template", "" );
@@ -75,60 +64,7 @@ void RicCreatePlotFromSelectionFeature::onActionTriggered( bool isChecked )
     std::vector<RimSummaryCase*> sumCases = selectedSummaryCases();
 
     RimSummaryPlot* newSummaryPlot = RicSummaryPlotTemplateTools::createPlotFromTemplateFile( fileName );
-    if ( newSummaryPlot )
-    {
-        RimSummaryPlotCollection* plotColl =
-            RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
-
-        plotColl->summaryPlots.push_back( newSummaryPlot );
-        newSummaryPlot->resolveReferencesRecursively();
-        newSummaryPlot->initAfterReadRecursively();
-
-        auto summaryCurves = newSummaryPlot->summaryCurves();
-
-        for ( const auto& curve : summaryCurves )
-        {
-            auto fieldHandle = curve->findField( "SummaryCase" );
-            if ( fieldHandle )
-            {
-                auto referenceString = fieldHandle->xmlCapability()->referenceString();
-                auto stringList      = referenceString.split( " " );
-                if ( stringList.size() == 2 )
-                {
-                    QString indexAsString = stringList[1];
-
-                    bool conversionOk = false;
-                    auto index        = indexAsString.toUInt( &conversionOk );
-
-                    if ( conversionOk && index < sumCases.size() )
-                    {
-                        auto summaryCaseY = sumCases[index];
-                        curve->setSummaryCaseY( summaryCaseY );
-
-                        auto currentAddressY = curve->summaryAddressY();
-                        if ( summaryCaseY->summaryReader() &&
-                             !summaryCaseY->summaryReader()->hasAddress( currentAddressY ) )
-                        {
-                            auto allAddresses = summaryCaseY->summaryReader()->allResultAddresses();
-
-                            auto candidate = RicCreatePlotFromSelectionFeature::firstAddressByQuantity( currentAddressY,
-                                                                                                        allAddresses );
-                            if ( candidate.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
-                            {
-                                curve->setSummaryAddressY( candidate );
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // TODO: Create additional curves in selected case count is larger than template count
-
-        plotColl->updateConnectedEditors();
-
-        newSummaryPlot->loadDataAndUpdate();
-    }
+    RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection( newSummaryPlot, sumCases );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,22 +85,4 @@ std::vector<RimSummaryCase*> RicCreatePlotFromSelectionFeature::selectedSummaryC
     caf::SelectionManager::instance()->objectsByType( &objects );
 
     return objects;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress
-    RicCreatePlotFromSelectionFeature::firstAddressByQuantity( const RifEclipseSummaryAddress&           sourceAddress,
-                                                               const std::set<RifEclipseSummaryAddress>& allAddresses )
-{
-    for ( const auto& a : allAddresses )
-    {
-        if ( sourceAddress.quantityName() == a.quantityName() )
-        {
-            return a;
-        }
-    }
-
-    return RifEclipseSummaryAddress();
 }
