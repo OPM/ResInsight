@@ -1,0 +1,160 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2019-     Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RicCreatePlotFromTemplateFeature.h"
+
+#include "RicSelectPlotTemplateUi.h"
+#include "RicSummaryPlotTemplateTools.h"
+
+#include "RiaGuiApplication.h"
+#include "RiaLogging.h"
+#include "RiaSummaryTools.h"
+
+#include "RifSummaryReaderInterface.h"
+
+#include "PlotTemplates/RimPlotTemplateFileItem.h"
+#include "RimDialogData.h"
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCurve.h"
+#include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
+#include "RimWellPath.h"
+
+#include "RiuPlotMainWindow.h"
+
+#include "cafPdmObject.h"
+#include "cafPdmUiPropertyViewDialog.h"
+#include "cafSelectionManager.h"
+
+#include <QAction>
+#include <QFileDialog>
+
+CAF_CMD_SOURCE_INIT( RicCreatePlotFromTemplateFeature, "RicCreatePlotFromTemplateFeature" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicCreatePlotFromTemplateFeature::isCommandEnabled()
+{
+    return !selectedSummaryCases().empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicCreatePlotFromTemplateFeature::onActionTriggered( bool isChecked )
+{
+    QString                      fileName = userData().toString();
+    std::vector<RimSummaryCase*> sumCases = selectedSummaryCases();
+
+    RimSummaryPlot* newSummaryPlot = RicSummaryPlotTemplateTools::createPlotFromTemplateFile( fileName );
+    if ( newSummaryPlot )
+    {
+        RimSummaryPlotCollection* plotColl =
+            RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+
+        plotColl->summaryPlots.push_back( newSummaryPlot );
+        newSummaryPlot->resolveReferencesRecursively();
+        newSummaryPlot->initAfterReadRecursively();
+
+        auto summaryCurves = newSummaryPlot->summaryCurves();
+
+        for ( const auto& curve : summaryCurves )
+        {
+            auto fieldHandle = curve->findField( "SummaryCase" );
+            if ( fieldHandle )
+            {
+                auto referenceString = fieldHandle->xmlCapability()->referenceString();
+                auto stringList      = referenceString.split( " " );
+                if ( stringList.size() == 2 )
+                {
+                    QString indexAsString = stringList[1];
+
+                    bool conversionOk = false;
+                    auto index        = indexAsString.toUInt( &conversionOk );
+
+                    if ( conversionOk && index < sumCases.size() )
+                    {
+                        auto summaryCaseY = sumCases[index];
+                        curve->setSummaryCaseY( summaryCaseY );
+
+                        auto currentAddressY = curve->summaryAddressY();
+                        if ( summaryCaseY->summaryReader() &&
+                             !summaryCaseY->summaryReader()->hasAddress( currentAddressY ) )
+                        {
+                            auto allAddresses = summaryCaseY->summaryReader()->allResultAddresses();
+
+                            auto candidate = RicCreatePlotFromTemplateFeature::firstAddressByQuantity( currentAddressY,
+                                                                                                       allAddresses );
+                            if ( candidate.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
+                            {
+                                curve->setSummaryAddressY( candidate );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // TODO: Create additional curves in selected case count is larger than template count
+
+        plotColl->updateConnectedEditors();
+
+        newSummaryPlot->loadDataAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicCreatePlotFromTemplateFeature::setupActionLook( QAction* actionToSetup )
+{
+    actionToSetup->setText( "Create Plot from Template" );
+    actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCase*> RicCreatePlotFromTemplateFeature::selectedSummaryCases() const
+{
+    std::vector<RimSummaryCase*> objects;
+    caf::SelectionManager::instance()->objectsByType( &objects );
+
+    return objects;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress
+    RicCreatePlotFromTemplateFeature::firstAddressByQuantity( const RifEclipseSummaryAddress&           sourceAddress,
+                                                              const std::set<RifEclipseSummaryAddress>& allAddresses )
+{
+    for ( const auto& a : allAddresses )
+    {
+        if ( sourceAddress.quantityName() == a.quantityName() )
+        {
+            return a;
+        }
+    }
+
+    return RifEclipseSummaryAddress();
+}

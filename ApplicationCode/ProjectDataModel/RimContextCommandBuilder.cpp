@@ -882,6 +882,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
                 menuBuilder << "RicAsciiExportSummaryPlotFeature";
             }
         }
+        else if ( dynamic_cast<RimSummaryCase*>( uiItem ) )
+        {
+            appendPlotTemplateMenus( menuBuilder );
+        }
         else if ( dynamic_cast<RimWellLogPlot*>( uiItem ) )
         {
             menuBuilder << "RicAsciiExportWellLogPlotFeature";
@@ -1034,6 +1038,19 @@ void RimContextCommandBuilder::createExecuteScriptForCasesFeatureMenu( caf::CmdF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimContextCommandBuilder::appendPlotTemplateMenus( caf::CmdFeatureMenuBuilder& menuBuilder )
+{
+    RiaApplication* app  = RiaApplication::instance();
+    RimProject*     proj = app->project();
+    if ( proj && proj->rootPlotTemlateItem() )
+    {
+        appendPlotTemplateItems( menuBuilder, proj->rootPlotTemlateItem() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimContextCommandBuilder::appendScriptItems( caf::CmdFeatureMenuBuilder& menuBuilder,
                                                   RimScriptCollection*        scriptCollection )
 {
@@ -1066,6 +1083,26 @@ void RimContextCommandBuilder::appendScriptItems( caf::CmdFeatureMenuBuilder& me
     }
 
     menuBuilder.subMenuEnd();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContextCommandBuilder::appendPlotTemplateItems( caf::CmdFeatureMenuBuilder& menuBuilder,
+                                                        RimPlotTemplateFolderItem*  plotTemplateRoot )
+{
+    for ( const auto& fileItem : plotTemplateRoot->fileNames() )
+    {
+        QString menuText = fileItem->uiName();
+        menuBuilder.addCmdFeatureWithUserData( "RicCreatePlotFromTemplateFeature",
+                                               menuText,
+                                               QVariant( fileItem->absoluteFilePath() ) );
+    }
+
+    for ( const auto& folder : plotTemplateRoot->subFolders() )
+    {
+        appendPlotTemplateItems( menuBuilder, folder );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
