@@ -75,6 +75,7 @@ protected:
     void changeEvent( QEvent* event ) override;
     void contextMenuEvent( QContextMenuEvent* ) override;
     void keyPressEvent( QKeyEvent* keyEvent ) override;
+    void resizeEvent( QResizeEvent* event ) override;
 
     QSize sizeHint() const override;
 
