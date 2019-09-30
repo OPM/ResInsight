@@ -43,7 +43,10 @@ cvf::Color3f RicWellLogPlotCurveFeatureImpl::curveColorFromTable( size_t index )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellLogCurve*> RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves()
 {
-    std::set<RimWellLogCurve*> curveSet;
+    // Use std::set to determine uniqueness but a vector for inserting curves.
+    // This is to retain deterministic order.
+    std::vector<RimWellLogCurve*> allCurves;
+    std::set<RimWellLogCurve*>    uniqueCurves;
 
     {
         std::vector<caf::PdmUiItem*> selectedItems;
@@ -59,17 +62,21 @@ std::vector<RimWellLogCurve*> RicWellLogPlotCurveFeatureImpl::selectedWellLogCur
 
                 for ( RimWellLogCurve* curve : childCurves )
                 {
-                    curveSet.insert( curve );
+                    if ( !uniqueCurves.count( curve ) )
+                    {
+                        uniqueCurves.insert( curve );
+                        allCurves.push_back( curve );
+                    }
                 }
             }
         }
     }
 
-    std::vector<RimWellLogCurve*> allCurves;
-    for ( RimWellLogCurve* curve : curveSet )
-    {
-        allCurves.push_back( curve );
-    }
+    // Sort by curve name in a way that retains the original order of equivalent items
+    // This way we have a completely deterministic order
+    std::stable_sort( allCurves.begin(), allCurves.end(), []( const RimWellLogCurve* lhs, const RimWellLogCurve* rhs ) {
+        return lhs->curveName() < rhs->curveName();
+    } );
 
     return allCurves;
 }
