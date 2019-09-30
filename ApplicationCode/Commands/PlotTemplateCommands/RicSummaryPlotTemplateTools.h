@@ -48,6 +48,8 @@ public:
 
     static QString htmlTextFromCount( const QString& itemText, size_t requiredItemCount, size_t selectionCount );
 
+    static QString selectPlotTemplatePath();
+
 private:
     static RifEclipseSummaryAddress firstAddressByQuantity( const RifEclipseSummaryAddress&           sourceAddress,
                                                             const std::set<RifEclipseSummaryAddress>& allAddresses );

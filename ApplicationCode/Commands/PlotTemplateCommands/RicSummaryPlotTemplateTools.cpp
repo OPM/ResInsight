@@ -19,16 +19,26 @@
 #include "RicSummaryPlotTemplateTools.h"
 
 #include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaSummaryCurveAnalyzer.h"
 
+#include "RicSelectPlotTemplateUI.h"
+
 #include "RifSummaryReaderInterface.h"
+
+#include "PlotTemplates/RimPlotTemplateFileItem.h"
+#include "RimDialogData.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+
+#include "RiuPlotMainWindow.h"
+
+#include "cafPdmUiPropertyViewDialog.h"
 
 #include <QFile>
 
@@ -223,6 +233,28 @@ QString RicSummaryPlotTemplateTools::htmlTextFromCount( const QString& itemText,
     text += "<br>";
 
     return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicSummaryPlotTemplateTools::selectPlotTemplatePath()
+{
+    QString fileName;
+
+    RiuPlotMainWindow*       plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
+    RicSelectPlotTemplateUi* ui = RiaGuiApplication::instance()->project()->dialogData()->selectPlotTemplateUi();
+
+    caf::PdmUiPropertyViewDialog propertyDialog( plotwindow, ui, "Select Plot Template", "" );
+
+    if ( propertyDialog.exec() == QDialog::Accepted && !ui->selectedPlotTemplates().empty() )
+    {
+        QString fileName = ui->selectedPlotTemplates().front()->absoluteFilePath();
+
+        return fileName;
+    }
+
+    return QString();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -83,6 +83,7 @@ public:
     QStringList plotTemplateFolders() const;
     void        appendPlotTemplateFolders( const QString& folder );
     QString     defaultPlotTemplateAbsolutePath() const;
+    void        setDefaultPlotTemplatePath( const QString& templatePath );
 
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 

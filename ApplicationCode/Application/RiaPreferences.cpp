@@ -757,6 +757,14 @@ QString RiaPreferences::defaultPlotTemplateAbsolutePath() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaPreferences::setDefaultPlotTemplatePath( const QString& templatePath )
+{
+    m_defaultPlotTemplate = templatePath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> RiaPreferences::defaultFontSizes() const
 {
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> fontSizes;

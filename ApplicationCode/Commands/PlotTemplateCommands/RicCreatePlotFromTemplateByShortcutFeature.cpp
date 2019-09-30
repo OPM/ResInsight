@@ -20,13 +20,18 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+
 #include "RicSummaryPlotTemplateTools.h"
 
 #include "RimSummaryCase.h"
 
+#include "RiuPlotMainWindow.h"
+
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include <QFile>
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicCreatePlotFromTemplateByShortcutFeature, "RicCreatePlotFromTemplateByShortcutFeature" );
 
@@ -44,6 +49,23 @@ bool RicCreatePlotFromTemplateByShortcutFeature::isCommandEnabled()
 void RicCreatePlotFromTemplateByShortcutFeature::onActionTriggered( bool isChecked )
 {
     QString fileName = RiaApplication::instance()->preferences()->defaultPlotTemplateAbsolutePath();
+
+    if ( !QFile::exists( fileName ) )
+    {
+        auto mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+
+        auto reply = QMessageBox::question( mainPlotWindow,
+                                            QString( "No default plot template found." ),
+                                            QString( "Do you want to define default plot template? " ),
+                                            QMessageBox::Yes | QMessageBox::No );
+
+        if ( reply == QMessageBox::No ) return;
+
+        QString fileName = RicSummaryPlotTemplateTools::selectPlotTemplatePath();
+
+        RiaApplication::instance()->preferences()->setDefaultPlotTemplatePath( fileName );
+    }
+
     std::vector<RimSummaryCase*> sumCases = selectedSummaryCases();
 
     RimSummaryPlot* newSummaryPlot = RicSummaryPlotTemplateTools::createPlotFromTemplateFile( fileName );
@@ -55,7 +77,7 @@ void RicCreatePlotFromTemplateByShortcutFeature::onActionTriggered( bool isCheck
 //--------------------------------------------------------------------------------------------------
 void RicCreatePlotFromTemplateByShortcutFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Create Plot from Template" );
+    actionToSetup->setText( "Create Plot from Default Template" );
     actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
 
     QKeySequence keySeq( Qt::CTRL + Qt::Key_T );

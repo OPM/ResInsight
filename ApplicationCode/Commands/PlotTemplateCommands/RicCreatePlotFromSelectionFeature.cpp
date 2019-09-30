@@ -20,12 +20,9 @@
 
 #include "RiaGuiApplication.h"
 
-#include "RicSelectPlotTemplateUi.h"
 #include "RicSummaryPlotTemplateTools.h"
 
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
-#include "RimDialogData.h"
-#include "RimProject.h"
 #include "RimSummaryCase.h"
 
 #include "RiuPlotMainWindow.h"
@@ -51,16 +48,7 @@ bool RicCreatePlotFromSelectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreatePlotFromSelectionFeature::onActionTriggered( bool isChecked )
 {
-    RiuPlotMainWindow*       plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
-    RicSelectPlotTemplateUi* ui = RiaGuiApplication::instance()->project()->dialogData()->selectPlotTemplateUi();
-
-    caf::PdmUiPropertyViewDialog propertyDialog( plotwindow, ui, "Select Plot Template", "" );
-
-    if ( propertyDialog.exec() != QDialog::Accepted ) return;
-
-    if ( ui->selectedPlotTemplates().empty() ) return;
-
-    QString                      fileName = ui->selectedPlotTemplates().front()->absoluteFilePath();
+    QString                      fileName = RicSummaryPlotTemplateTools::selectPlotTemplatePath();
     std::vector<RimSummaryCase*> sumCases = selectedSummaryCases();
 
     RimSummaryPlot* newSummaryPlot = RicSummaryPlotTemplateTools::createPlotFromTemplateFile( fileName );
