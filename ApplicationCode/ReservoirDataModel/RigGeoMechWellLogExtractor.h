@@ -63,7 +63,10 @@ public:
                                 const RigWellPath*  wellpath,
                                 const std::string&  wellCaseErrorMsgName );
 
-    void curveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
+    void                      curveData( const RigFemResultAddress& resAddr,
+                                         int                        frameIndex,
+                                         std::vector<double>*       values,
+                                         bool                       smoothCurveValues = false );
     const RigGeoMechCaseData* caseData();
     void                      setRkbDiff( double rkbDiff );
 
@@ -102,9 +105,15 @@ private:
     float calculateUcs( int64_t intersectionIdx, const std::vector<float>& ucsValuesPascal ) const;
 
     void wellPathAngles( const RigFemResultAddress& resAddr, std::vector<double>* values );
-    void wellPathScaledCurveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
+    void wellPathScaledCurveData( const RigFemResultAddress& resAddr,
+                                  int                        frameIndex,
+                                  std::vector<double>*       values,
+                                  bool                       smoothCurveValues );
 
-    void wellBoreWallCurveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
+    void wellBoreWallCurveData( const RigFemResultAddress& resAddr,
+                                int                        frameIndex,
+                                std::vector<double>*       values,
+                                bool                       smoothCurveValues );
 
     template <typename T>
     T      interpolateGridResultValue( RigFemResultPosEnum   resultPosType,

@@ -121,6 +121,8 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
     m_geomResultDefinition = new RimGeoMechResultDefinition;
     m_geomResultDefinition->setAddWellPathDerivedResults( true );
 
+    CAF_PDM_InitField( &m_smoothGeoMechCurves, "SmoothGeomechCurves", false, "", "", "", "" );
+
     CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", 0, "Time Step", "", "", "" );
 
     // Add some space before name to indicate these belong to the Auto Name field
@@ -494,7 +496,7 @@ void RimWellLogExtractionCurve::extractData( bool* isUsingPseudoLength )
         geomExtractor->setRkbDiff( rkbDiff() );
 
         m_geomResultDefinition->loadResult();
-        geomExtractor->curveData( m_geomResultDefinition->resultAddress(), m_timeStep, &values );
+        geomExtractor->curveData( m_geomResultDefinition->resultAddress(), m_timeStep, &values, m_smoothGeoMechCurves() );
     }
 
     if ( values.size() && measuredDepthValues.size() )
@@ -677,7 +679,6 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
     else if ( geomCase )
     {
         curveDataGroup->add( &m_wellPath );
-        m_geomResultDefinition->uiOrdering( uiConfigName, *curveDataGroup );
     }
 
     if ( ( eclipseCase && m_eclipseResultDefinition->hasDynamicResult() ) || geomCase )
@@ -687,6 +688,10 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
+    if ( geomCase )
+    {
+        appearanceGroup->add( &m_smoothGeoMechCurves );
+    }
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
     nameGroup->setCollapsedByDefault( true );

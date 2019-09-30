@@ -114,6 +114,7 @@ private:
     caf::PdmField<QString>                      m_simWellName;
     caf::PdmField<int>                          m_branchIndex;
     caf::PdmField<bool>                         m_branchDetection;
+    caf::PdmField<bool>                         m_smoothGeoMechCurves;
 
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
     caf::PdmChildField<RimGeoMechResultDefinition*> m_geomResultDefinition;

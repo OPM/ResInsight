@@ -58,7 +58,10 @@ RigGeoMechWellLogExtractor::RigGeoMechWellLogExtractor( RigGeoMechCaseData* aCas
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values )
+void RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAddr,
+                                            int                        frameIndex,
+                                            std::vector<double>*       values,
+                                            bool                       smoothCurveValues )
 {
     CVF_TIGHT_ASSERT( values );
 
@@ -67,12 +70,12 @@ void RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAddr, 
         if ( resAddr.fieldName == RiaDefines::wellPathFGResultName().toStdString() ||
              resAddr.fieldName == RiaDefines::wellPathSFGResultName().toStdString() )
         {
-            wellBoreWallCurveData( resAddr, frameIndex, values );
+            wellBoreWallCurveData( resAddr, frameIndex, values, smoothCurveValues );
             return;
         }
         else if ( resAddr.fieldName == "PP" || resAddr.fieldName == "OBG" || resAddr.fieldName == "SH" )
         {
-            wellPathScaledCurveData( resAddr, frameIndex, values );
+            wellPathScaledCurveData( resAddr, frameIndex, values, smoothCurveValues );
             return;
         }
         else if ( resAddr.fieldName == "Azimuth" || resAddr.fieldName == "Inclination" )
@@ -281,7 +284,8 @@ void RigGeoMechWellLogExtractor::wellPathAngles( const RigFemResultAddress& resA
 //--------------------------------------------------------------------------------------------------
 void RigGeoMechWellLogExtractor::wellPathScaledCurveData( const RigFemResultAddress& resAddr,
                                                           int                        frameIndex,
-                                                          std::vector<double>*       values )
+                                                          std::vector<double>*       values,
+                                                          bool                       smoothCurveValues )
 {
     CVF_ASSERT( values );
 
@@ -305,6 +309,7 @@ void RigGeoMechWellLogExtractor::wellPathScaledCurveData( const RigFemResultAddr
         nativeCompName  = "S3";
     }
 
+    RigFemResultAddress shAddr( RIG_ELEMENT_NODAL, "ST", "S3" );
     RigFemResultAddress nativeAddr( RIG_ELEMENT_NODAL, nativeFieldName, nativeCompName );
     RigFemResultAddress porElementResAddr( RIG_ELEMENT, "POR", "" );
 
@@ -372,7 +377,8 @@ void RigGeoMechWellLogExtractor::wellPathScaledCurveData( const RigFemResultAddr
 //--------------------------------------------------------------------------------------------------
 void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddress& resAddr,
                                                         int                        frameIndex,
-                                                        std::vector<double>*       values )
+                                                        std::vector<double>*       values,
+                                                        bool                       smoothCurveValues )
 {
     CVF_ASSERT( values );
     CVF_ASSERT( resAddr.fieldName == RiaDefines::wellPathFGResultName().toStdString() ||
