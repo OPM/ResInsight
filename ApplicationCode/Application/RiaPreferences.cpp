@@ -312,6 +312,9 @@ RiaPreferences::RiaPreferences( void )
                        "",
                        "" );
     m_searchPlotTemplateFoldersRecursively.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitFieldNoDefault( &m_defaultPlotTemplate, "defaultPlotTemplate", "Default Plot Template", "", "", "" );
+    // m_plotTemplateFolders.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -331,22 +334,32 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
 {
     m_readerSettings->defineEditorAttribute( field, uiConfigName, attribute );
 
-    if ( field == &scriptDirectories || field == &m_plotTemplateFolders )
     {
         caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
         if ( myAttr )
         {
-            myAttr->m_selectDirectory              = true;
-            myAttr->m_appendUiSelectedFolderToText = true;
+            if ( field == &scriptDirectories || field == &m_plotTemplateFolders )
+            {
+                myAttr->m_selectDirectory              = true;
+                myAttr->m_appendUiSelectedFolderToText = true;
+            }
+            else if ( field == &m_defaultPlotTemplate )
+            {
+                auto folders = plotTemplateFolders();
+                if ( !folders.empty() )
+                {
+                    myAttr->m_defaultPath = folders.back();
+                }
+            }
         }
     }
-    else if ( field == &octaveShowHeaderInfoWhenExecutingScripts || field == &autocomputeDepthRelatedProperties ||
-              field == &loadAndShowSoil || field == &useShaders || field == &showHud ||
-              field == &m_appendClassNameToUiText || field == &m_appendFieldKeywordToToolTipText ||
-              field == &m_showTestToolbar || field == &m_includeFractureDebugInfoFile ||
-              field == &showLasCurveWithoutTvdWarning || field == &holoLensDisableCertificateVerification ||
-              field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
-              field == &showLegendBackground )
+
+    if ( field == &octaveShowHeaderInfoWhenExecutingScripts || field == &autocomputeDepthRelatedProperties ||
+         field == &loadAndShowSoil || field == &useShaders || field == &showHud || field == &m_appendClassNameToUiText ||
+         field == &m_appendFieldKeywordToToolTipText || field == &m_showTestToolbar ||
+         field == &m_includeFractureDebugInfoFile || field == &showLasCurveWithoutTvdWarning ||
+         field == &holoLensDisableCertificateVerification || field == &m_showProjectChangedDialog ||
+         field == &m_searchPlotTemplateFoldersRecursively || field == &showLegendBackground )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -438,6 +451,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Plot Templates" );
         group->add( &m_plotTemplateFolders );
         group->add( &m_searchPlotTemplateFoldersRecursively );
+        group->add( &m_defaultPlotTemplate );
     }
     else if ( uiConfigName == RiaPreferences::tabNameScripting() )
     {
@@ -730,6 +744,14 @@ void RiaPreferences::appendPlotTemplateFolders( const QString& folder )
     folders += folder;
 
     m_plotTemplateFolders = folders;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::defaultPlotTemplateAbsolutePath() const
+{
+    return m_defaultPlotTemplate().path();
 }
 
 //--------------------------------------------------------------------------------------------------

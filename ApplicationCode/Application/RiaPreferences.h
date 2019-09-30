@@ -82,6 +82,7 @@ public:
     bool        searchPlotTemplateFoldersRecursively() const;
     QStringList plotTemplateFolders() const;
     void        appendPlotTemplateFolders( const QString& folder );
+    QString     defaultPlotTemplateAbsolutePath() const;
 
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
@@ -167,8 +168,9 @@ private:
     caf::PdmField<QString> m_dateFormat;
     caf::PdmField<QString> m_timeFormat;
 
-    caf::PdmField<QString> m_plotTemplateFolders;
-    caf::PdmField<bool>    m_searchPlotTemplateFoldersRecursively;
+    caf::PdmField<QString>       m_plotTemplateFolders;
+    caf::PdmField<bool>          m_searchPlotTemplateFoldersRecursively;
+    caf::PdmField<caf::FilePath> m_defaultPlotTemplate;
 
     QStringList m_tabNames;
 };
