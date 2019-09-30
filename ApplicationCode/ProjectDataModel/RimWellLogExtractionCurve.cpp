@@ -349,19 +349,19 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH )
         {
-            m_qwtPlotCurve->setSamples( m_curveData->xPlotValues().data(),
-                                        m_curveData->trueDepthPlotValues( displayUnit ).data(),
-                                        static_cast<int>( m_curveData->xPlotValues().size() ) );
+            m_qwtPlotCurve->setSamples( curveData()->xPlotValues().data(),
+                                        curveData()->trueDepthPlotValues( displayUnit ).data(),
+                                        static_cast<int>( curveData()->xPlotValues().size() ) );
             isUsingPseudoLength = false;
         }
         else if ( wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH )
         {
-            m_qwtPlotCurve->setSamples( m_curveData->xPlotValues().data(),
-                                        m_curveData->measuredDepthPlotValues( displayUnit ).data(),
-                                        static_cast<int>( m_curveData->xPlotValues().size() ) );
+            m_qwtPlotCurve->setSamples( curveData()->xPlotValues().data(),
+                                        curveData()->measuredDepthPlotValues( displayUnit ).data(),
+                                        static_cast<int>( curveData()->xPlotValues().size() ) );
         }
 
-        m_qwtPlotCurve->setLineSegmentStartStopIndices( m_curveData->polylineStartStopIndices() );
+        m_qwtPlotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
 
         this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
@@ -497,16 +497,15 @@ void RimWellLogExtractionCurve::extractData( bool* isUsingPseudoLength )
         geomExtractor->curveData( m_geomResultDefinition->resultAddress(), m_timeStep, &values );
     }
 
-    m_curveData = new RigWellLogCurveData;
     if ( values.size() && measuredDepthValues.size() )
     {
         if ( !tvDepthValues.size() )
         {
-            m_curveData->setValuesAndMD( values, measuredDepthValues, depthUnit, true );
+            this->setValuesAndMD( values, measuredDepthValues, depthUnit, true );
         }
         else
         {
-            m_curveData->setValuesWithTVD( values, measuredDepthValues, tvDepthValues, depthUnit, true );
+            this->setValuesWithTVD( values, measuredDepthValues, tvDepthValues, depthUnit, true );
         }
     }
 }
