@@ -813,6 +813,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         // is aware of multiple selected items, move the command to this list
         // without using dyncamic_cast.
 
+        caf::PdmUiItem* uiItem = uiItems[0];
+
         menuBuilder << "RicPasteTimeHistoryCurveFeature";
         menuBuilder << "RicPasteAsciiDataCurveFeature";
         menuBuilder << "RicPasteSummaryCaseFeature";
@@ -841,13 +843,20 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicCreateSummaryCaseCollectionFeature";
         menuBuilder << "Separator";
         menuBuilder << "RicCutReferencesToClipboardFeature";
+
+        menuBuilder << "Separator";
+        if ( dynamic_cast<RimSummaryCase*>( uiItem ) )
+        {
+            menuBuilder << "RicCreatePlotFromSelectionFeature";
+            menuBuilder << "RicCreatePlotFromTemplateByShortcutFeature";
+            appendPlotTemplateMenus( menuBuilder );
+        }
+
         menuBuilder << "Separator";
         menuBuilder << "RicCloseSummaryCaseFeature";
         menuBuilder << "RicCloseSummaryCaseInCollectionFeature";
         menuBuilder << "RicDeleteSummaryCaseCollectionFeature";
         menuBuilder << "RicCloseObservedDataFeature";
-
-        menuBuilder << "RicCreatePlotFromSelectionFeature";
 
         // Work in progress -- End
         appendCreateCompletions( menuBuilder, menuBuilder.itemCount() > 0u );
@@ -859,7 +868,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
         }
 
-        caf::PdmUiItem* uiItem = uiItems[0];
         if ( dynamic_cast<RimWellLogFileChannel*>( uiItem ) )
         {
             menuBuilder << "RicAddWellLogToPlotFeature";
@@ -1035,6 +1043,19 @@ void RimContextCommandBuilder::createExecuteScriptForCasesFeatureMenu( caf::CmdF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimContextCommandBuilder::appendPlotTemplateMenus( caf::CmdFeatureMenuBuilder& menuBuilder )
+{
+    RiaApplication* app  = RiaApplication::instance();
+    RimProject*     proj = app->project();
+    if ( proj && proj->rootPlotTemlateItem() )
+    {
+        appendPlotTemplateItems( menuBuilder, proj->rootPlotTemlateItem() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimContextCommandBuilder::appendScriptItems( caf::CmdFeatureMenuBuilder& menuBuilder,
                                                   RimScriptCollection*        scriptCollection )
 {
@@ -1067,6 +1088,34 @@ void RimContextCommandBuilder::appendScriptItems( caf::CmdFeatureMenuBuilder& me
     }
 
     menuBuilder.subMenuEnd();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContextCommandBuilder::appendPlotTemplateItems( caf::CmdFeatureMenuBuilder& menuBuilder,
+                                                        RimPlotTemplateFolderItem*  plotTemplateRoot )
+{
+    if ( !plotTemplateRoot->fileNames().empty() )
+    {
+        auto folderName = plotTemplateRoot->uiName();
+        menuBuilder.subMenuStart( folderName );
+
+        for ( const auto& fileItem : plotTemplateRoot->fileNames() )
+        {
+            QString menuText = fileItem->uiName();
+            menuBuilder.addCmdFeatureWithUserData( "RicCreatePlotFromTemplateFeature",
+                                                   menuText,
+                                                   QVariant( fileItem->absoluteFilePath() ) );
+        }
+
+        menuBuilder.subMenuEnd();
+    }
+
+    for ( const auto& folder : plotTemplateRoot->subFolders() )
+    {
+        appendPlotTemplateItems( menuBuilder, folder );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

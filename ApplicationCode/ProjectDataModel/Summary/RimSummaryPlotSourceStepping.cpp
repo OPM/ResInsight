@@ -548,6 +548,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
         summaryPlot->updatePlotTitle();
         summaryPlot->loadDataAndUpdate();
+        summaryPlot->updateConnectedEditors();
 
         if ( ensembleCurveColl )
         {

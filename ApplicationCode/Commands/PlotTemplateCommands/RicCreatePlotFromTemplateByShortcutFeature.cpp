@@ -16,29 +16,29 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicCreatePlotFromSelectionFeature.h"
+#include "RicCreatePlotFromTemplateByShortcutFeature.h"
 
-#include "RiaGuiApplication.h"
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 #include "RicSummaryPlotTemplateTools.h"
 
-#include "PlotTemplates/RimPlotTemplateFileItem.h"
 #include "RimSummaryCase.h"
 
 #include "RiuPlotMainWindow.h"
 
-#include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFile>
+#include <QMessageBox>
 
-CAF_CMD_SOURCE_INIT( RicCreatePlotFromSelectionFeature, "RicCreatePlotFromSelectionFeature" );
+CAF_CMD_SOURCE_INIT( RicCreatePlotFromTemplateByShortcutFeature, "RicCreatePlotFromTemplateByShortcutFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreatePlotFromSelectionFeature::isCommandEnabled()
+bool RicCreatePlotFromTemplateByShortcutFeature::isCommandEnabled()
 {
     return !selectedSummaryCases().empty();
 }
@@ -46,9 +46,28 @@ bool RicCreatePlotFromSelectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreatePlotFromSelectionFeature::onActionTriggered( bool isChecked )
+void RicCreatePlotFromTemplateByShortcutFeature::onActionTriggered( bool isChecked )
 {
-    QString                      fileName = RicSummaryPlotTemplateTools::selectPlotTemplatePath();
+    QString fileName = RiaApplication::instance()->preferences()->defaultPlotTemplateAbsolutePath();
+
+    if ( !QFile::exists( fileName ) )
+    {
+        auto mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+
+        auto reply = QMessageBox::question( mainPlotWindow,
+                                            QString( "No default plot template found." ),
+                                            QString( "Do you want to define default plot template? " ),
+                                            QMessageBox::Yes | QMessageBox::No );
+
+        if ( reply == QMessageBox::No ) return;
+
+        QString fileNameSelectedInUi = RicSummaryPlotTemplateTools::selectPlotTemplatePath();
+        if ( fileNameSelectedInUi.isEmpty() ) return;
+
+        fileName = fileNameSelectedInUi;
+        RiaApplication::instance()->preferences()->setDefaultPlotTemplatePath( fileName );
+    }
+
     std::vector<RimSummaryCase*> sumCases = selectedSummaryCases();
 
     RimSummaryPlot* newSummaryPlot = RicSummaryPlotTemplateTools::createPlotFromTemplateFile( fileName );
@@ -58,16 +77,19 @@ void RicCreatePlotFromSelectionFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreatePlotFromSelectionFeature::setupActionLook( QAction* actionToSetup )
+void RicCreatePlotFromTemplateByShortcutFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Create Plot from Template" );
+    actionToSetup->setText( "Create Plot from Default Template" );
     actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
+
+    QKeySequence keySeq( Qt::CTRL + Qt::Key_T );
+    actionToSetup->setShortcut( keySeq );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RicCreatePlotFromSelectionFeature::selectedSummaryCases() const
+std::vector<RimSummaryCase*> RicCreatePlotFromTemplateByShortcutFeature::selectedSummaryCases() const
 {
     std::vector<RimSummaryCase*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects );
