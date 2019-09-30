@@ -240,8 +240,6 @@ QString RicSummaryPlotTemplateTools::htmlTextFromCount( const QString& itemText,
 //--------------------------------------------------------------------------------------------------
 QString RicSummaryPlotTemplateTools::selectPlotTemplatePath()
 {
-    QString fileName;
-
     RiuPlotMainWindow*       plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
     RicSelectPlotTemplateUi* ui = RiaGuiApplication::instance()->project()->dialogData()->selectPlotTemplateUi();
 

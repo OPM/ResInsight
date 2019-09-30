@@ -61,8 +61,10 @@ void RicCreatePlotFromTemplateByShortcutFeature::onActionTriggered( bool isCheck
 
         if ( reply == QMessageBox::No ) return;
 
-        QString fileName = RicSummaryPlotTemplateTools::selectPlotTemplatePath();
+        QString fileNameSelectedInUi = RicSummaryPlotTemplateTools::selectPlotTemplatePath();
+        if ( fileNameSelectedInUi.isEmpty() ) return;
 
+        fileName = fileNameSelectedInUi;
         RiaApplication::instance()->preferences()->setDefaultPlotTemplatePath( fileName );
     }
 

@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "RiaDefines.h"
 #include "RimPlotCurve.h"
 
 #include "cvfObject.h"
@@ -40,6 +41,17 @@ public:
 
     bool xValueRangeInData( double* minimumValue, double* maximumValue ) const;
 
+    void setValuesAndMD( const std::vector<double>& xValues,
+                         const std::vector<double>& measuredDepths,
+                         RiaDefines::DepthUnitType  depthUnit,
+                         bool                       isExtractionCurve );
+
+    void setValuesWithTVD( const std::vector<double>& xValues,
+                           const std::vector<double>& measuredDepths,
+                           const std::vector<double>& tvDepths,
+                           RiaDefines::DepthUnitType  depthUnit,
+                           bool                       isExtractionCurve );
+
     const RigWellLogCurveData* curveData() const;
 
     virtual QString wellName() const           = 0;
@@ -52,7 +64,12 @@ public:
 protected:
     void updateZoomInParentPlot() override;
     void updateLegendsInPlot() override;
+    void setOverrideCurveDataXRange( double minimumValue, double maximumValue );
 
-protected:
+private:
+    void calculateCurveDataXRange();
+
+private:
     cvf::ref<RigWellLogCurveData> m_curveData;
+    std::pair<double, double>     m_curveDataXRange;
 };

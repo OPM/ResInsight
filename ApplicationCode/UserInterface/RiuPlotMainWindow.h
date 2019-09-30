@@ -73,6 +73,7 @@ public:
 
     bool                  isAnyMdiSubWindowVisible();
     QMdiSubWindow*        findMdiSubWindow( QWidget* viewer ) override;
+    RimViewWindow*        findViewWindowFromSubWindow( QMdiSubWindow* subWindow );
     QList<QMdiSubWindow*> subWindowList( QMdiArea::WindowOrder order );
 
     void setWidthOfMdiWindow( QWidget* mdiWindowWidget, int newWidth );

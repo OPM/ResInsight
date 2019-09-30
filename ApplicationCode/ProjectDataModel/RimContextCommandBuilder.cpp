@@ -893,9 +893,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimWellLogPlot*>( uiItem ) )
         {
             menuBuilder << "RicAsciiExportWellLogPlotFeature";
+            menuBuilder << "RicExportToLasFileFeature";
+            menuBuilder << "RicChangeDataSourceFeature";
         }
-        else if ( dynamic_cast<RimWellLogCurve*>( uiItem ) || dynamic_cast<RimWellLogTrack*>( uiItem ) ||
-                  dynamic_cast<RimWellLogPlot*>( uiItem ) )
+        else if ( dynamic_cast<RimWellLogCurve*>( uiItem ) || dynamic_cast<RimWellLogTrack*>( uiItem ) )
         {
             menuBuilder << "RicExportToLasFileFeature";
             menuBuilder << "RicChangeDataSourceFeature";

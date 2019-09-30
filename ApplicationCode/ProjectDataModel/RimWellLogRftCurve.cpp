@@ -372,8 +372,6 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     if ( isCurveVisible() )
     {
-        m_curveData = new RigWellLogCurveData;
-
         RimWellLogPlot* wellLogPlot;
         firstAncestorOrThisOfType( wellLogPlot );
         CVF_ASSERT( wellLogPlot );
@@ -435,11 +433,11 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             measuredDepthVector = tvDepthVector;
         }
 
-        m_curveData->setValuesWithTVD( values,
-                                       measuredDepthVector,
-                                       tvDepthVector,
-                                       RiaEclipseUnitTools::depthUnit( unitSystem ),
-                                       false );
+        this->setValuesWithTVD( values,
+                                measuredDepthVector,
+                                tvDepthVector,
+                                RiaEclipseUnitTools::depthUnit( unitSystem ),
+                                false );
 
         RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
         if ( wellLogPlot )
@@ -451,8 +449,8 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             m_qwtPlotCurve->showErrorBars( showErrorBarsInObservedData );
             m_qwtPlotCurve->setPerPointLabels( perPointLabels );
-            m_qwtPlotCurve->setSamplesFromXValuesAndYValues( m_curveData->xPlotValues(),
-                                                             m_curveData->measuredDepthPlotValues( displayUnit ),
+            m_qwtPlotCurve->setSamplesFromXValuesAndYValues( this->curveData()->xPlotValues(),
+                                                             this->curveData()->measuredDepthPlotValues( displayUnit ),
                                                              errors,
                                                              false,
                                                              RiuQwtPlotCurve::ERROR_ALONG_X_AXIS );
@@ -486,14 +484,14 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             m_qwtPlotCurve->showErrorBars( showErrorBarsInObservedData );
             m_qwtPlotCurve->setPerPointLabels( perPointLabels );
-            m_qwtPlotCurve->setSamplesFromXValuesAndYValues( m_curveData->xPlotValues(),
-                                                             m_curveData->trueDepthPlotValues( displayUnit ),
+            m_qwtPlotCurve->setSamplesFromXValuesAndYValues( this->curveData()->xPlotValues(),
+                                                             this->curveData()->trueDepthPlotValues( displayUnit ),
                                                              errors,
                                                              false,
                                                              RiuQwtPlotCurve::ERROR_ALONG_X_AXIS );
         }
 
-        m_qwtPlotCurve->setLineSegmentStartStopIndices( m_curveData->polylineStartStopIndices() );
+        m_qwtPlotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
 
         if ( updateParentPlot )
         {

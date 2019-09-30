@@ -236,7 +236,7 @@ void RimWellFlowRateCurve::updateStackedPlotData()
             stackedCurves = stackedCurveGroups[groupId()];
         }
 
-        std::vector<double> allDepthValues = m_curveData->measuredDepths();
+        std::vector<double> allDepthValues = curveData()->measuredDepths();
         std::vector<double> allStackedValues( allDepthValues.size() );
 
         for ( RimWellFlowRateCurve* stCurve : stackedCurves )
@@ -305,6 +305,9 @@ void RimWellFlowRateCurve::updateStackedPlotData()
         polyLineStartStopIndices.front().second += 1;
     }
 
+    auto minmax_it = std::minmax_element( stackedValues.begin(), stackedValues.end() );
+
+    this->setOverrideCurveDataXRange( *( minmax_it.first ), *( minmax_it.second ) );
     m_qwtPlotCurve->setSamples( stackedValues.data(), depthValues.data(), static_cast<int>( depthValues.size() ) );
     m_qwtPlotCurve->setLineSegmentStartStopIndices( polyLineStartStopIndices );
 
@@ -344,9 +347,7 @@ void RimWellFlowRateCurve::setFlowValuesPrDepthValue( const QString&            
                                                       const std::vector<double>& depthValues,
                                                       const std::vector<double>& flowRates )
 {
-    m_curveData = new RigWellLogCurveData;
-
-    m_curveData->setValuesAndMD( flowRates, depthValues, RiaDefines::UNIT_NONE, false );
+    this->setValuesAndMD( flowRates, depthValues, RiaDefines::UNIT_NONE, false );
 
     m_curveAutoName = curveName;
 }

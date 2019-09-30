@@ -49,6 +49,10 @@ RimWellLogCurve::RimWellLogCurve()
     m_qwtPlotCurve->setXAxis( QwtPlot::xTop );
     m_qwtPlotCurve->setErrorBarsXAxis( QwtPlot::xTop );
     m_qwtPlotCurve->setYAxis( QwtPlot::yLeft );
+
+    m_curveData       = new RigWellLogCurveData;
+    m_curveDataXRange = std::make_pair( std::numeric_limits<double>::infinity(),
+                                        -std::numeric_limits<double>::infinity() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,23 +71,42 @@ bool RimWellLogCurve::xValueRangeInData( double* minimumValue, double* maximumVa
     {
         return false;
     }
-    if ( m_curveData->xValues().empty() )
+
+    if ( m_curveDataXRange.first == -std::numeric_limits<double>::infinity() ||
+         m_curveDataXRange.second == std::numeric_limits<double>::infinity() )
     {
         return false;
     }
 
-    *minimumValue = std::numeric_limits<double>::infinity();
-    *maximumValue = -std::numeric_limits<double>::infinity();
+    *minimumValue = m_curveDataXRange.first;
+    *maximumValue = m_curveDataXRange.second;
 
-    for ( double xValue : m_curveData->xValues() )
-    {
-        if ( RiaCurveDataTools::isValidValue( xValue, false ) )
-        {
-            *minimumValue = std::min( *minimumValue, xValue );
-            *maximumValue = std::max( *maximumValue, xValue );
-        }
-    }
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::setValuesAndMD( const std::vector<double>& xValues,
+                                      const std::vector<double>& measuredDepths,
+                                      RiaDefines::DepthUnitType  depthUnit,
+                                      bool                       isExtractionCurve )
+{
+    m_curveData->setValuesAndMD( xValues, measuredDepths, depthUnit, isExtractionCurve );
+    calculateCurveDataXRange();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::setValuesWithTVD( const std::vector<double>& xValues,
+                                        const std::vector<double>& measuredDepths,
+                                        const std::vector<double>& tvDepths,
+                                        RiaDefines::DepthUnitType  depthUnit,
+                                        bool                       isExtractionCurve )
+{
+    m_curveData->setValuesWithTVD( xValues, measuredDepths, tvDepths, depthUnit, isExtractionCurve );
+    calculateCurveDataXRange();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,5 +148,32 @@ void RimWellLogCurve::updateLegendsInPlot()
     if ( wellLogTrack )
     {
         wellLogTrack->updateAllLegendItems();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::setOverrideCurveDataXRange( double minimumValue, double maximumValue )
+{
+    m_curveDataXRange = std::make_pair( minimumValue, maximumValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::calculateCurveDataXRange()
+{
+    // Invalidate range first
+    m_curveDataXRange = std::make_pair( std::numeric_limits<double>::infinity(),
+                                        -std::numeric_limits<double>::infinity() );
+
+    for ( double xValue : m_curveData->xValues() )
+    {
+        if ( RiaCurveDataTools::isValidValue( xValue, false ) )
+        {
+            m_curveDataXRange.first  = std::min( m_curveDataXRange.first, xValue );
+            m_curveDataXRange.second = std::max( m_curveDataXRange.second, xValue );
+        }
     }
 }

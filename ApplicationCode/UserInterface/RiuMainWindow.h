@@ -40,6 +40,7 @@ class QSpinBox;
 class QTimer;
 class QUndoView;
 
+class Rim3dView;
 class RimCase;
 class RimViewWindow;
 
@@ -230,8 +231,9 @@ private slots:
 
     // Windows slots
     void slotBuildWindowActions();
-
     void slotSubWindowActivated( QMdiSubWindow* subWindow );
+
+    void selectViewInProjectTree( const Rim3dView* previousActiveReservoirView, Rim3dView* activatedView );
 
     void selectedObjectsChanged();
     void customMenuRequested( const QPoint& pos );

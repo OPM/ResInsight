@@ -77,8 +77,6 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     if ( isCurveVisible() )
     {
-        m_curveData = new RigWellLogCurveData;
-
         RimWellLogPlot* wellLogPlot;
         firstAncestorOrThisOfType( wellLogPlot );
         CVF_ASSERT( wellLogPlot );
@@ -100,11 +98,11 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
                         if ( values.size() == measuredDepthValues.size() && values.size() == tvdMslValues.size() )
                         {
-                            m_curveData->setValuesWithTVD( values,
-                                                           measuredDepthValues,
-                                                           tvdMslValues,
-                                                           wellLogFile->depthUnit(),
-                                                           false );
+                            this->setValuesWithTVD( values,
+                                                    measuredDepthValues,
+                                                    tvdMslValues,
+                                                    wellLogFile->depthUnit(),
+                                                    false );
                             canUseTvd = true;
                         }
                     }
@@ -124,11 +122,11 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                             if ( values.size() == trueVerticeldepthValues.size() &&
                                  values.size() == measuredDepthValues.size() )
                             {
-                                m_curveData->setValuesWithTVD( values,
-                                                               measuredDepthValues,
-                                                               trueVerticeldepthValues,
-                                                               wellLogFile->depthUnit(),
-                                                               false );
+                                this->setValuesWithTVD( values,
+                                                        measuredDepthValues,
+                                                        trueVerticeldepthValues,
+                                                        wellLogFile->depthUnit(),
+                                                        false );
                                 canUseTvd = true;
                             }
                         }
@@ -152,7 +150,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 {
                     if ( values.size() == measuredDepthValues.size() )
                     {
-                        m_curveData->setValuesAndMD( values, measuredDepthValues, wellLogFile->depthUnit(), false );
+                        this->setValuesAndMD( values, measuredDepthValues, wellLogFile->depthUnit(), false );
                     }
                 }
             }
@@ -170,17 +168,17 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
         }
         if ( wellLogPlot && wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH )
         {
-            m_qwtPlotCurve->setSamples( m_curveData->xPlotValues().data(),
-                                        m_curveData->trueDepthPlotValues( displayUnit ).data(),
-                                        static_cast<int>( m_curveData->xPlotValues().size() ) );
+            m_qwtPlotCurve->setSamples( this->curveData()->xPlotValues().data(),
+                                        this->curveData()->trueDepthPlotValues( displayUnit ).data(),
+                                        static_cast<int>( this->curveData()->xPlotValues().size() ) );
         }
         else
         {
-            m_qwtPlotCurve->setSamples( m_curveData->xPlotValues().data(),
-                                        m_curveData->measuredDepthPlotValues( displayUnit ).data(),
-                                        static_cast<int>( m_curveData->xPlotValues().size() ) );
+            m_qwtPlotCurve->setSamples( this->curveData()->xPlotValues().data(),
+                                        this->curveData()->measuredDepthPlotValues( displayUnit ).data(),
+                                        static_cast<int>( this->curveData()->xPlotValues().size() ) );
         }
-        m_qwtPlotCurve->setLineSegmentStartStopIndices( m_curveData->polylineStartStopIndices() );
+        m_qwtPlotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
 
         if ( updateParentPlot )
         {

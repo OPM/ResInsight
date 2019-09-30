@@ -659,9 +659,9 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
             // Needed to avoid unneccessary activation of sub windows (plots)
             // which results in population of property editor, and missing deleteLater because we are outside any event
             // loop when switching object. Results in stray widgets.
-            mpw->setBlockSlotSubWindowActivated( true );
+            mpw->setBlockSubWindowProjectTreeSelection( true );
             RiuPlotMainWindowTools::showPlotMainWindow();
-            mpw->setBlockSlotSubWindowActivated( false );
+            mpw->setBlockSubWindowProjectTreeSelection( false );
             RiuPlotMainWindowTools::setExpanded( lastPlotCreated );
             RiuPlotMainWindowTools::selectAsCurrentItem( lastPlotCreated );
 
