@@ -23,7 +23,7 @@
 #include "RiaLogging.h"
 #include "RiaSummaryCurveAnalyzer.h"
 
-#include "RicSelectPlotTemplateUI.h"
+#include "RicSelectPlotTemplateUi.h"
 
 #include "RifSummaryReaderInterface.h"
 
