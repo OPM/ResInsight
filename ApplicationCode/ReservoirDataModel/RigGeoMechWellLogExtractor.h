@@ -50,7 +50,8 @@ class RigGeoMechWellLogExtractor : public RigWellLogExtractor
 public:
     enum WbsParameterSource
     {
-        AUTO,
+        INVALID = -1,
+        AUTO    = 0,
         GRID, // Only relevant for Pore Pressure
         LAS_FILE,
         ELEMENT_PROPERTY_TABLE,
@@ -92,14 +93,16 @@ private:
         TangentConstantWithinCell
     };
 
-    float calculatePorePressureInSegment( int64_t                   intersectionIdx,
-                                          float                     averageSegmentPorePressureBar,
-                                          double                    hydroStaticPorePressureBar,
-                                          double                    effectiveDepthMeters,
-                                          const std::vector<float>& poreElementPressuresPascal ) const;
+    std::pair<float, WbsParameterSource>
+        calculatePorePressureInSegment( int64_t                   intersectionIdx,
+                                        double                    effectiveDepthMeters,
+                                        const std::vector<float>& interpolatedInterfacePorePressuresBar,
+                                        const std::vector<float>& poreElementPressuresPascal ) const;
 
-    float calculatePoissonRatio( int64_t intersectionIdx, const std::vector<float>& poissonRatios ) const;
-    float calculateUcs( int64_t intersectionIdx, const std::vector<float>& ucsValuesPascal ) const;
+    std::pair<float, WbsParameterSource> calculatePoissonRatioInSegment( int64_t                   intersectionIdx,
+                                                                         const std::vector<float>& poissonRatios ) const;
+    std::pair<float, WbsParameterSource> calculateUcsInSegment( int64_t                   intersectionIdx,
+                                                                const std::vector<float>& ucsValuesPascal ) const;
 
     void wellPathAngles( const RigFemResultAddress& resAddr, std::vector<double>* values );
     void wellPathScaledCurveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
