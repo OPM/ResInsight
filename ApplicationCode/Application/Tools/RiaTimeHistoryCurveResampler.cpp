@@ -54,6 +54,11 @@ RiaTimeHistoryCurveResampler::RiaTimeHistoryCurveResampler()
 //--------------------------------------------------------------------------------------------------
 void RiaTimeHistoryCurveResampler::setCurveData(const std::vector<double>& values, const std::vector<time_t>& timeSteps)
 {
+    if (values.empty() || timeSteps.empty())
+    {
+        return;
+    }
+
     CVF_ASSERT(values.size() == timeSteps.size());
 
     clearData();
