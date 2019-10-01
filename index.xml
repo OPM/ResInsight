@@ -400,7 +400,7 @@ Paste Options Dialog Most of the fields in this dialog are the same as in the CS
       
       <guid>https://resinsight.org/scripting/pythonexamples/</guid>
       <description>This pages is created based on the content in the PythonExamples folder located inside the rips module, made available online for convenience.
-AllCases ################################################################################### # This example will connect to ResInsight, retrieve a list of cases and print info # ################################################################################### # Import the ResInsight Processing Server Module import rips # Connect to ResInsight resInsight = rips.Instance.find() if resInsight is not None: # Get a list of all cases cases = resInsight.</description>
+AllCases ################################################################################### # This example will connect to ResInsight, retrieve a list of cases and print info # ################################################################################### # Import the ResInsight Processing Server Module import rips # Connect to ResInsight resinsight = rips.Instance.find() if resinsight is not None: # Get a list of all cases cases = resinsight.</description>
     </item>
     
     <item>
@@ -440,7 +440,7 @@ Subscribe</description>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/scripting/pythonrips/</guid>
-      <description>Instance Module class rips.Instance(port=50051, launched=False) The ResInsight Instance class. Use to launch or find existing ResInsight instances
+      <description>Instance Module class rips.instance.Instance(port=50051, launched=False) The ResInsight Instance class. Use to launch or find existing ResInsight instances
 launched() Tells us whether the application was launched as a new process. If the application was launched we may need to close it when exiting the script.
  Type
 bool
