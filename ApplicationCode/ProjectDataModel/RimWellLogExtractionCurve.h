@@ -115,6 +115,7 @@ private:
     caf::PdmField<int>                          m_branchIndex;
     caf::PdmField<bool>                         m_branchDetection;
     caf::PdmField<bool>                         m_smoothGeoMechCurves;
+    caf::PdmField<double>                       m_smoothGeoMechThreshold;
 
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
     caf::PdmChildField<RimGeoMechResultDefinition*> m_geomResultDefinition;

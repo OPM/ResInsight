@@ -121,7 +121,8 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
     m_geomResultDefinition = new RimGeoMechResultDefinition;
     m_geomResultDefinition->setAddWellPathDerivedResults( true );
 
-    CAF_PDM_InitField( &m_smoothGeoMechCurves, "SmoothGeomechCurves", false, "", "", "", "" );
+    CAF_PDM_InitField( &m_smoothGeoMechCurves, "SmoothGeomechCurves", false, "Smooth Curve", "", "", "" );
+    CAF_PDM_InitField( &m_smoothGeoMechThreshold, "SmoothGeomechThreshold", 0.002, "Smoothing Threshold", "", "", "" );
 
     CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", 0, "Time Step", "", "", "" );
 
@@ -320,6 +321,10 @@ void RimWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* cha
     {
         this->loadDataAndUpdate( true );
     }
+    else if ( changedField == &m_smoothGeoMechCurves || changedField == &m_smoothGeoMechThreshold )
+    {
+        this->loadDataAndUpdate( true );
+    }
 
     if ( changedField == &m_addCaseNameToCurveName || changedField == &m_addPropertyToCurveName ||
          changedField == &m_addWellNameToCurveName || changedField == &m_addTimestepToCurveName ||
@@ -496,18 +501,26 @@ void RimWellLogExtractionCurve::extractData( bool* isUsingPseudoLength )
         geomExtractor->setRkbDiff( rkbDiff() );
 
         m_geomResultDefinition->loadResult();
-        geomExtractor->curveData( m_geomResultDefinition->resultAddress(), m_timeStep, &values, m_smoothGeoMechCurves() );
+        geomExtractor->curveData( m_geomResultDefinition->resultAddress(), m_timeStep, &values );
+        if ( m_smoothGeoMechCurves() )
+        {
+            geomExtractor->smoothCurveData( m_timeStep,
+                                            &measuredDepthValues,
+                                            &tvDepthValues,
+                                            &values,
+                                            m_smoothGeoMechThreshold() );
+        }
     }
 
     if ( values.size() && measuredDepthValues.size() )
     {
         if ( !tvDepthValues.size() )
         {
-            this->setValuesAndMD( values, measuredDepthValues, depthUnit, true );
+            this->setValuesAndMD( values, measuredDepthValues, depthUnit, !m_smoothGeoMechCurves() );
         }
         else
         {
-            this->setValuesWithTVD( values, measuredDepthValues, tvDepthValues, depthUnit, true );
+            this->setValuesWithTVD( values, measuredDepthValues, tvDepthValues, depthUnit, !m_smoothGeoMechCurves() );
         }
     }
 }
@@ -691,6 +704,7 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
     if ( geomCase )
     {
         appearanceGroup->add( &m_smoothGeoMechCurves );
+        appearanceGroup->add( &m_smoothGeoMechThreshold );
     }
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
