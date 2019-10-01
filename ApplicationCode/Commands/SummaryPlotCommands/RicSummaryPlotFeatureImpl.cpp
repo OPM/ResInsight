@@ -37,7 +37,7 @@
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurve* RicSummaryPlotFeatureImpl::addDefaultCurveToPlot(RimSummaryPlot* plot, RimSummaryCase* summaryCase)
 {
-    if (plot)
+    if (plot && summaryCase && summaryCase->summaryReader())
     {
         RifEclipseSummaryAddress defaultAddressToUse;
 
@@ -87,6 +87,9 @@ RimSummaryCurve* RicSummaryPlotFeatureImpl::addDefaultCurveToPlot(RimSummaryPlot
 std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot(RimSummaryPlot* plot, RimSummaryCase* summaryCase)
 {
     std::vector<RimSummaryCurve*> defaultCurves;
+
+    if (!plot) return defaultCurves;
+    if (!summaryCase || !summaryCase->summaryReader()) return defaultCurves;
 
     QString curvesTextFilter = RiaApplication::instance()->preferences()->defaultSummaryCurvesTextFilter;
     QStringList curveFilters = curvesTextFilter.split(";", QString::SkipEmptyParts);

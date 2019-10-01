@@ -7,14 +7,14 @@
 
 import rips
 
-resInsight  = rips.Instance.find()
-if resInsight is not None:
-    cases = resInsight.project.selectedCases()
+resinsight  = rips.Instance.find()
+if resinsight is not None:
+    cases = resinsight.project.selected_cases()
 
     print ("Got " + str(len(cases)) + " cases: ")
     for case in cases:
         print(case.name)
-        for property in case.properties.available('DYNAMIC_NATIVE'):
+        for property in case.available_properties('DYNAMIC_NATIVE'):
             print(property)
 
 

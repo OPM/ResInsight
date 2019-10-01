@@ -137,7 +137,7 @@ void RimSummaryCase::copyFrom(const RimSummaryCase& rhs)
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCase::operator<(const RimSummaryCase& rhs) const
 {
-    return this->caseName() < rhs.caseName();
+    return this->shortName() < rhs.shortName();
 }
 
 //--------------------------------------------------------------------------------------------------

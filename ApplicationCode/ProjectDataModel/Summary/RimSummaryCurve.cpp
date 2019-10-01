@@ -382,7 +382,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
 
         for (RimSummaryCase* rimCase : cases)
         {
-            options.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), rimCase));
+            options.push_back(caf::PdmOptionItemInfo(rimCase->shortName(), rimCase));
         }
 
         if (options.size() > 0)
@@ -515,16 +515,19 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
                 if (plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE)
                 {
                     auto reader = summaryCaseY()->summaryReader();
-                    auto errAddress = reader->errorAddress(summaryAddressY());
-                    if (errAddress.isValid())
+                    if (reader)
                     {
-                        std::vector<double> errValues;
-                        reader->values(errAddress, &errValues);
-                        m_qwtPlotCurve->setSamplesFromTimeTAndYValues(curveTimeStepsY, curveValuesY, errValues, isLogCurve);
-                    }
-                    else
-                    {
-                        m_qwtPlotCurve->setSamplesFromTimeTAndYValues(curveTimeStepsY, curveValuesY, isLogCurve);
+                        auto errAddress = reader->errorAddress(summaryAddressY());
+                        if (errAddress.isValid())
+                        {
+                            std::vector<double> errValues;
+                            reader->values(errAddress, &errValues);
+                            m_qwtPlotCurve->setSamplesFromTimeTAndYValues(curveTimeStepsY, curveValuesY, errValues, isLogCurve);
+                        }
+                        else
+                        {
+                            m_qwtPlotCurve->setSamplesFromTimeTAndYValues(curveTimeStepsY, curveValuesY, isLogCurve);
+                        }
                     }
                 }
                 else

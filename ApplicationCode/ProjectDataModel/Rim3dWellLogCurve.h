@@ -75,25 +75,28 @@ public:
 
     void            setColor(const cvf::Color3f& color);
 
-    float           minCurveUIValue() const;
-    float           maxCurveUIValue() const;
-    void            resetMinMaxValuesAndUpdateUI();
-    bool            findClosestPointOnCurve(const cvf::Vec3d& globalIntersection,
-                                            cvf::Vec3d*       closestPoint,
-                                            double*           measuredDepthAtPoint,
-                                            double*           valueAtPoint) const;
+    float minCurveUIValue() const;
+    float maxCurveUIValue() const;
+    void  resetMinMaxValues();
+    bool  findClosestPointOnCurve( const cvf::Vec3d& globalIntersection,
+                                   cvf::Vec3d*       closestPoint,
+                                   double*           measuredDepthAtPoint,
+                                   double*           valueAtPoint ) const;
 
     void setGeometryGenerator(Riv3dWellLogCurveGeometryGenerator* generator);
     cvf::ref<Riv3dWellLogCurveGeometryGenerator> geometryGenerator();
 
 protected:
-    caf::PdmFieldHandle*            objectToggleField() override;
-    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void                                    configurationUiOrdering(caf::PdmUiOrdering& uiOrdering);
-    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;    
-    void                            initAfterRead() override;
-private:
-    void                                    resetMinMaxValues();
+    caf::PdmFieldHandle* objectToggleField() override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue ) override;
+    void                 configurationUiOrdering( caf::PdmUiOrdering& uiOrdering );
+    void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                QString                    uiConfigName,
+                                                caf::PdmUiEditorAttribute* attribute ) override;
+    void                 initAfterRead() override;
+
 protected:
     caf::PdmField<DrawPlaneEnum>                    m_drawPlane;
     caf::PdmField<cvf::Color3f>                     m_color;

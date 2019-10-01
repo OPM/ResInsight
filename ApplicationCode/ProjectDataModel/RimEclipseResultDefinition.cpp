@@ -52,6 +52,8 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimViewLinker.h"
 #include "RimWellLogExtractionCurve.h"
+#include "RimContourMapProjection.h"
+#include "RimEclipseContourMapView.h"
 
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
@@ -286,14 +288,28 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         loadDataAndUpdate();
     }
 
+    RimEclipseContourMapView* contourMapView = nullptr;
+    this->firstAncestorOrThisOfType(contourMapView);
+
     if (&m_differenceCase == changedField)
     {
         m_timeLapseBaseTimestep = RigEclipseResultAddress::noTimeLapseValue();
+
+        if (contourMapView)
+        {
+            contourMapView->contourMapProjection()->updatedWeightingResult();
+        }
+    
         loadDataAndUpdate();
     }
 
     if (&m_timeLapseBaseTimestep == changedField)
     {
+        if (contourMapView)
+        {
+            contourMapView->contourMapProjection()->updatedWeightingResult();
+        }
+
         loadDataAndUpdate();
     }
 
@@ -414,7 +430,7 @@ void RimEclipseResultDefinition::updateAnyFieldHasChanged()
     this->firstAncestorOrThisOfType(rim3dWellLogCurve);
     if (rim3dWellLogCurve)
     {
-        rim3dWellLogCurve->resetMinMaxValuesAndUpdateUI();
+        rim3dWellLogCurve->resetMinMaxValues();
     }
 
     RimEclipseContourMapProjection* contourMap = nullptr;
@@ -966,6 +982,26 @@ QString RimEclipseResultDefinition::diffResultUiShortNameHTML() const
         diffResult += QString("Base Time: #%1").arg(m_timeLapseBaseTimestep());
     }
     return diffResult.join("<br>");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimEclipseResultDefinition::timeLapseBaseTimeStep() const
+{
+    return m_timeLapseBaseTimestep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimEclipseResultDefinition::caseDiffIndex() const
+{
+    if ( m_differenceCase )
+    {
+        return m_differenceCase->caseId();
+    }
+    return -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1529,39 +1565,41 @@ QList<caf::PdmOptionItemInfo>
             optionList.push_back(caf::PdmOptionItemInfo(s, s));
         }
 
-        // Ternary Result
-        if (ternaryEnabled)
+        if ( addPerCellFaceOptionItems )
         {
-            bool hasAtLeastOneTernaryComponent = false;
-            if (cellCenterResultNames.contains("SOIL"))
-                hasAtLeastOneTernaryComponent = true;
-            else if (cellCenterResultNames.contains("SGAS"))
-                hasAtLeastOneTernaryComponent = true;
-            else if (cellCenterResultNames.contains("SWAT"))
-                hasAtLeastOneTernaryComponent = true;
-
-            if (resultCatType == RiaDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent)
+            for ( const QString& s : cellFaceResultNames )
             {
-                optionList.push_front(
-                    caf::PdmOptionItemInfo(RiaDefines::ternarySaturationResultName(), RiaDefines::ternarySaturationResultName()));
-            }
-        }
-        if (addPerCellFaceOptionItems)
-        {
-            for (const QString& s : cellFaceResultNames)
-            {
-                if (showDerivedResultsFirst)
+                if ( showDerivedResultsFirst )
                 {
-                    optionList.push_front(caf::PdmOptionItemInfo(s, s));
+                    optionList.push_front( caf::PdmOptionItemInfo( s, s ) );
                 }
                 else
                 {
-                    optionList.push_back(caf::PdmOptionItemInfo(s, s));
+                    optionList.push_back( caf::PdmOptionItemInfo( s, s ) );
+                }
+            }
+
+            // Ternary Result
+            if ( ternaryEnabled )
+            {
+                bool hasAtLeastOneTernaryComponent = false;
+                if ( cellCenterResultNames.contains( "SOIL" ) )
+                    hasAtLeastOneTernaryComponent = true;
+                else if ( cellCenterResultNames.contains( "SGAS" ) )
+                    hasAtLeastOneTernaryComponent = true;
+                else if ( cellCenterResultNames.contains( "SWAT" ) )
+                    hasAtLeastOneTernaryComponent = true;
+
+                if ( resultCatType == RiaDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent )
+                {
+                    optionList.push_front( caf::PdmOptionItemInfo( RiaDefines::ternarySaturationResultName(),
+                                                                   RiaDefines::ternarySaturationResultName() ) );
                 }
             }
         }
 
-        optionList.push_front(caf::PdmOptionItemInfo(RiaDefines::undefinedResultName(), RiaDefines::undefinedResultName()));
+        optionList.push_front(
+            caf::PdmOptionItemInfo( RiaDefines::undefinedResultName(), RiaDefines::undefinedResultName() ) );
 
         return optionList;
     }

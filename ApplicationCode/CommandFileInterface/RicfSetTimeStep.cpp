@@ -34,8 +34,9 @@ CAF_PDM_SOURCE_INIT(RicfSetTimeStep, "setTimeStep");
 //--------------------------------------------------------------------------------------------------
 RicfSetTimeStep::RicfSetTimeStep()
 {
-    RICF_InitField(&m_caseId,        "caseId",    -1, "Case ID",  "", "", "");
-    RICF_InitField(&m_timeStepIndex, "timeStep",  -1, "Time Step Index",  "", "", "");
+    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    RICF_InitField( &m_viewId, "viewId", -1, "View ID", "", "", "" );
+    RICF_InitField( &m_timeStepIndex, "timeStep", -1, "Time Step Index", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +50,15 @@ void RicfSetTimeStep::setCaseId(int caseId)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfSetTimeStep::setTimeStepIndex(int timeStepIndex)
+void RicfSetTimeStep::setViewId( int viewId )
+{
+    m_viewId = viewId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicfSetTimeStep::setTimeStepIndex( int timeStepIndex )
 {
     m_timeStepIndex = timeStepIndex;
 }
@@ -93,8 +102,11 @@ RicfCommandResponse RicfSetTimeStep::execute()
 
     for (Rim3dView* view : eclipseCase->views())
     {
-        view->setCurrentTimeStepAndUpdate(m_timeStepIndex);
-        view->createDisplayModelAndRedraw();
+        if ( m_viewId() == -1 || view->id() == m_viewId() )
+        {
+            view->setCurrentTimeStepAndUpdate( m_timeStepIndex );
+            view->createDisplayModelAndRedraw();
+        }
     }
 
     return RicfCommandResponse();

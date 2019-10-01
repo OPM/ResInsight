@@ -32,6 +32,7 @@ RimCalculatedSummaryCase::RimCalculatedSummaryCase()
     CAF_PDM_InitObject("Calculated",":/SummaryCase48x48.png","","");
 
     m_calculatedCurveReader = nullptr;
+    m_shortName = "Calculated";
 }
 
 //--------------------------------------------------------------------------------------------------

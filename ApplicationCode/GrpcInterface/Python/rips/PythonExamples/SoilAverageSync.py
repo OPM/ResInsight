@@ -5,21 +5,20 @@ import rips
 import itertools
 import time
 
-resInsight     = rips.Instance.find()
+resinsight     = rips.Instance.find()
 
 start          = time.time()
-case           = resInsight.project.case(id=0)
 
 # Get the case with case id 0
-case           = resInsight.project.case(id=0)
+case           = resinsight.project.case(case_id=0)
 
 # Get a list of all time steps
-timeSteps      = case.timeSteps()
+time_steps      = case.time_steps()
 
 averages = []
-for i in range(0, len(timeSteps)):
+for i in range(0, len(time_steps)):
     # Get a list of all the results for time step i
-	results = case.properties.activeCellProperty('DYNAMIC_NATIVE', 'SOIL', i)
+	results = case.active_cell_property('DYNAMIC_NATIVE', 'SOIL', i)
 	mysum = sum(results)
 	averages.append(mysum/len(results))
 

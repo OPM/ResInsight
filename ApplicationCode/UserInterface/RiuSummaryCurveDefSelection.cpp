@@ -423,7 +423,7 @@ void RiuSummaryCurveDefSelection::setDefaultSelection(const std::vector<SummaryS
 
     if (allSumCases.size() > 0)
     {
-        RifEclipseSummaryAddress defaultAddress = RifEclipseSummaryAddress::fieldAddress("FOPT");
+        RifEclipseSummaryAddress defaultAddress;
 
         std::vector<SummarySource*> selectTheseSources = defaultSources;
         if (selectTheseSources.empty()) selectTheseSources.push_back(allSumCases[0]);
@@ -456,11 +456,6 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
         RimSummaryCase* summaryCase = curveDef.summaryCase();
 
         RifEclipseSummaryAddress summaryAddress = curveDef.summaryAddress();
-        if (summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_INVALID)
-        {
-            // If we have an invalid address, set the default address to Field
-            summaryAddress = RifEclipseSummaryAddress::fieldAddress(summaryAddress.quantityName());
-        }
 
         // Ignore ensemble statistics curves
         if (summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS) continue;
@@ -471,7 +466,15 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
         if (std::find(selectedCategories.begin(), selectedCategories.end(),
                       summaryAddress.category()) == selectedCategories.end())
         {
-            m_selectedSummaryCategories.v().push_back(summaryAddress.category());
+            if ( summaryAddress.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
+            {
+                m_selectedSummaryCategories.v().push_back( summaryAddress.category() );
+            }
+            else
+            {
+                // Use field category as fall back category to avoid an empty list of vectors
+                summaryAddress = RifEclipseSummaryAddress::fieldAddress( "" );
+            }
         }
 
         // Select case if not already selected
@@ -591,7 +594,7 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
                     // Top level cases
                     for (const auto& sumCase : sumCaseMainColl->topLevelSummaryCases())
                     {
-                        options.push_back(caf::PdmOptionItemInfo(sumCase->caseName(), sumCase));
+                        options.push_back(caf::PdmOptionItemInfo(sumCase->shortName(), sumCase));
                     }
                 }
 
@@ -626,7 +629,7 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
 
                         for (const auto& sumCase : sumCaseColl->allSummaryCases())
                         {
-                            auto optionItem = caf::PdmOptionItemInfo(sumCase->caseName(), sumCase);
+                            auto optionItem = caf::PdmOptionItemInfo(sumCase->shortName(), sumCase);
                             optionItem.setLevel(1);
                             options.push_back(optionItem);
                         }
@@ -640,7 +643,7 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
 
                         for (const auto& obsData : observedDataColl->allObservedData())
                         {
-                            auto optionItem = caf::PdmOptionItemInfo(obsData->caseName(), obsData);
+                            auto optionItem = caf::PdmOptionItemInfo(obsData->shortName(), obsData);
                             optionItem.setLevel(1);
                             options.push_back(optionItem);
                         }

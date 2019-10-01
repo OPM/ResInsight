@@ -218,7 +218,7 @@ void RicHelpOpenUsersGuideFeature::onActionTriggered(bool isChecked)
 {
     this->disableModelChangeContribution();
 
-    QString usersGuideUrl = "http://resinsight.org/docs/home";
+    QString usersGuideUrl = "https://resinsight.org/getting-started/";
 
     if (!QDesktopServices::openUrl(usersGuideUrl))
     {

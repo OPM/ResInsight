@@ -6,38 +6,38 @@ import os
 import rips
 
 # Load instance
-resInsight = rips.Instance.find()
-cases = resInsight.project.cases()
+resinsight = rips.Instance.find()
+cases = resinsight.project.cases()
 
 # Set main window size
-resInsight.commands.setMainWindowSize(width=800, height=500)
+resinsight.set_main_window_size(width=800, height=500)
 
-n = 5                            # every n-th timestep for snapshot
+n = 5                            # every n-th time_step for snapshot
 property_list = ['SOIL', 'PRESSURE'] # list of parameter for snapshot
 
 print ("Looping through cases")
 for case in cases:
+    print("Case name: ", case.name)
+    print("Case id: ", case.case_id)
     # Get grid path and its folder name
-    casepath = case.gridPath()
-    foldername = os.path.dirname(casepath)
+    case_path = case.grid_path()
+    folder_name = os.path.dirname(case_path)
     
     # create a folder to hold the snapshots
-    dirname = os.path.join(foldername, 'snapshots')
+    dirname = os.path.join(folder_name, 'snapshots')
         
     if os.path.exists(dirname) is False:
         os.mkdir(dirname)
     
     print ("Exporting to folder: " + dirname)
-    resInsight.commands.setExportFolder(type='SNAPSHOTS', path=dirname)
+    resinsight.set_export_folder(export_type='SNAPSHOTS', path=dirname)
    
-    timeSteps = case.timeSteps()
-    tss_snapshot = range(0, len(timeSteps), n)
-    print(case.name, case.id, 'Number of timesteps: ' + str(len(timeSteps)))
-    print('Number of timesteps for snapshoting: ' + str(len(tss_snapshot)))
+    time_steps = case.time_steps()
+    print('Number of time_steps: ' + str(len(time_steps)))
         
     view = case.views()[0]
     for property in property_list:
-        view.applyCellResult(resultType='DYNAMIC_NATIVE', resultVariable=property)
-        for ts_snapshot in tss_snapshot:
-            resInsight.commands.setTimeStep(caseId = case.id, timeStep = ts_snapshot)        
-            resInsight.commands.exportSnapshots(type='VIEWS', caseId=case.id)  # ‘ALL’, ‘VIEWS’ or ‘PLOTS’ default is 'ALL'
+        view.apply_cell_result(result_type='DYNAMIC_NATIVE', result_variable=property)
+        for time_step in range(0, len(time_steps), 10):
+            view.set_time_step(time_step = time_step)
+            view.export_snapshot()

@@ -142,9 +142,13 @@ QWidget* RicSummaryCurveCreatorSplitterUi::createWidget(QWidget* parent)
     m_firstColumnSplitter->setHandleWidth(6);
     m_firstColumnSplitter->setStyleSheet("QSplitter::handle { image: url(:/SplitterH.png); }");
 
-    m_firstColumnSplitter->insertWidget(0, firstRowFrame);
-    m_firstColumnSplitter->insertWidget(1, secondRowFrame);
-    m_firstColumnSplitter->setSizes(QList<int>() << 1 << 2);
+    m_firstColumnSplitter->insertWidget( 0, firstRowFrame );
+    m_firstColumnSplitter->insertWidget( 1, secondRowFrame );
+
+    const int firstRowPixelHeight  = 500;
+    const int secondRowPixelHeight = 300;
+
+    m_firstColumnSplitter->setSizes( QList<int>() << firstRowPixelHeight << secondRowPixelHeight );
 
     m_layout->addWidget(m_firstColumnSplitter);
 

@@ -5,23 +5,23 @@
 #############################################################
 import rips
 # Connect to ResInsight instance
-resInsight = rips.Instance.find()
+resinsight = rips.Instance.find()
 
 # Check if connection worked
-if resInsight is not None:
+if resinsight is not None:
     # Get a list of all cases
-    cases = resInsight.project.cases()
+    cases = resinsight.project.cases()
     for case in cases:
         # Get a list of all views
         views = case.views()
         for view in views:
             # Set some parameters for the view
-            view.setShowGridBox(not view.showGridBox())
-            view.setBackgroundColor("#3388AA")            
+            view.set_show_grid_box(not view.show_grid_box())
+            view.set_background_color("#3388AA")            
             # Update the view in ResInsight
             view.update()
         # Clone the first view
-        newView = views[0].clone()
-        view.setShowGridBox(False)
-        newView.setBackgroundColor("#FFAA33")
-        newView.update()
+        new_view = views[0].clone()
+        view.set_show_grid_box(False)
+        new_view.set_background_color("#FFAA33")
+        new_view.update()

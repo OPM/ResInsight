@@ -34,9 +34,10 @@ class QStringList;
 class RicfApplicationTools
 {
 public:
-    static std::vector<RimWellPath*> wellPathsFromNames(const QStringList& wellPathNames, QStringList* wellsNotFound);
-    static RimEclipseCase*           caseFromId(int caseId);
-    static RimEclipseView*           viewFromCaseIdAndViewName(int caseId, const QString& viewName);
+    static std::vector<RimWellPath*> wellPathsFromNames( const QStringList& wellPathNames, QStringList* wellsNotFound );
+    static RimEclipseCase*           caseFromId( int caseId );
+    static RimEclipseView*           viewFromCaseIdAndViewName( int caseId, const QString& viewName );
+    static RimEclipseView*           viewFromCaseIdAndViewId( int caseId, int viewId );
 
     static std::vector<QString> toStringVector(const QStringList& stringList);
     static QStringList          toQStringList(const std::vector<QString>& v);

@@ -3,15 +3,15 @@
 ######################################################################
 import rips
 
-resInsight     = rips.Instance.find()
+resinsight     = rips.Instance.find()
 
-case = resInsight.project.case(id=0)
-totalCellCount = case.cellCount().reservoir_cell_count
+case = resinsight.project.case(case_id=0)
+total_cell_count = case.cell_count().reservoir_cell_count
 
 values = []
-for i in range(0, totalCellCount):
+for i in range(0, total_cell_count):
     values.append(i % 2 * 0.75);
 
 print("Applying values to full grid")
-case.properties.setGridProperty(values, 'DYNAMIC_NATIVE', 'SOIL', 0)
+case.set_grid_property(values, 'DYNAMIC_NATIVE', 'SOIL', 0)
 

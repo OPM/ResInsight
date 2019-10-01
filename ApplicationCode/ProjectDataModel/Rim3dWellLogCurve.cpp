@@ -250,19 +250,10 @@ void Rim3dWellLogCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogCurve::resetMinMaxValuesAndUpdateUI()
-{
-    this->resetMinMaxValues();
-    this->updateConnectedEditors();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool Rim3dWellLogCurve::findClosestPointOnCurve(const cvf::Vec3d& globalIntersection,
-                                                cvf::Vec3d*       closestPoint,
-                                                double*           measuredDepthAtPoint,
-                                                double*           valueAtPoint) const
+bool Rim3dWellLogCurve::findClosestPointOnCurve( const cvf::Vec3d& globalIntersection,
+                                                 cvf::Vec3d*       closestPoint,
+                                                 double*           measuredDepthAtPoint,
+                                                 double*           valueAtPoint ) const
 {
     if (m_geometryGenerator.notNull())
     {
