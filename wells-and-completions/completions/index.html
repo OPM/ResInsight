@@ -12,18 +12,18 @@
     <title>Completions :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1568366249" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1568366249" rel="stylesheet">
-    <link href="/css/hybrid.css?1568366249" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1568366249" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1568366249" rel="stylesheet">
-    <link href="/css/auto-complete.css?1568366249" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1568366249" rel="stylesheet">
-    <link href="/css/theme.css?1568366249" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1568366249" rel="stylesheet">
+    <link href="/css/nucleus.css?1569932070" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1569932070" rel="stylesheet">
+    <link href="/css/hybrid.css?1569932070" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1569932070" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1569932070" rel="stylesheet">
+    <link href="/css/auto-complete.css?1569932070" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1569932070" rel="stylesheet">
+    <link href="/css/theme.css?1569932070" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1569932070" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1568366249"></script>
+    <script src="/js/jquery-3.3.1.min.js?1569932070"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -1752,7 +1752,7 @@ if (!doNotTrack) {
 
 <ul>
 <li><strong>Start MD</strong>, <strong>End MD</strong> &ndash; Measured depth along the well path for the perforation to start/stop.</li>
-<li><strong>Diameter</strong> &ndash; Diameter of the perforation, used in calculation of transmissibility ( For details on the transmissibility calculation, see <a href="/export/completionexport/#transmissibility-calculations">Transmissibility Calculations</a>).</li>
+<li><strong>Diameter</strong> &ndash; Well bore diameter for the perforation interval, used in calculation of transmissibility ( For details on the transmissibility calculation, see <a href="/export/completionexport/#transmissibility-calculations">Transmissibility Calculations</a>).</li>
 <li><strong>Skin Factor</strong> &ndash; Skin factor for the perforation, used in calculation of transmissibility.</li>
 <li><strong>All Timesteps</strong> &ndash; If on, the perforation interval will be present for all time steps</li>
 <li><strong>Start Date</strong> &ndash; The perforation will be included in the model for all time steps after this date. If &ldquo;All TimeSteps&rdquo; is turned on, this option is not available and the perforation is included for all time steps.</li>
@@ -1774,7 +1774,7 @@ if (!doNotTrack) {
 <li><strong>Multi Segment Well Options</strong> - Options used by the Well Segments Export
 
 <ul>
-<li><strong>Liner Inner Diameter</strong> &ndash; The liner inner diameter for the perforation intervals.</li>
+<li><strong>Liner Inner Diameter</strong> &ndash; The liner inner diameter for the completion intervals.</li>
 <li><strong>Roughness Factor</strong> &ndash; The roughness factor used in export of main bore segments.</li>
 <li><strong>Pressure Drop</strong> &ndash; can be either <em>Hydrostatic</em>, <em>Hydrostatic + Friction</em> or <em>Hydrostatic + Friction + Acceleration</em>.</li>
 <li><strong>Length and Depth</strong> &ndash; Used in WELSEGS export - when specifying the length and depth change for each segment</li>
@@ -1785,7 +1785,7 @@ if (!doNotTrack) {
 </ul></li>
 </ul>
 
-<p>There are three options for Non-Darcy Flow. <strong>None</strong>, <strong>User defined D-factor</strong> and <strong>Compute D-factor</strong>. The second option displays an input field where the user defined D-factor can be entered. The last options brings up several input fields.</p>
+<p>There are three options for Non-Darcy Flow. <strong>None</strong>, <strong>User defined D-factor</strong> and <strong>Compute D-factor</strong>. The second option displays an input field where the user defined D-factor can be entered. The last options calculates D-factor for gas given Dake´s (1976) radiel inflow model and correlation for calculating matrix beta factor depending on permeability and porosity.</p>
 
 <p><img src="/images/3d-main-window/PerfIntervalNonDarcy.PNG" alt="" /></p>
 
@@ -1793,13 +1793,13 @@ if (!doNotTrack) {
 <li><strong>Non-Darcy Flow</strong> - Non-Darcy settings for D factor computation
 
 <ul>
-<li><strong>Grid Permeability Scaling Factor</strong></li>
-<li><strong>Well Radius</strong></li>
+<li><strong>Grid Permeability Kr Scaling Factor</strong> &ndash; Rel.perm. scaling factor to calculate effective permeability.</li>
+<li><strong>Well Radius</strong> &ndash; Well bore radius.</li>
 <li><strong>Relative Gas Density</strong></li>
-<li><strong>Gas Viscosity</strong></li>
-<li><strong>Inertial Coefficient</strong></li>
-<li><strong>Permeability Scaling Factor</strong></li>
-<li><strong>Porosity Scaling Factor</strong>
+<li><strong>Gas Viscosity</strong> &ndash; Gas viscosity at flowing bottom hole pressure.</li>
+<li><strong>Inertial Coefficient</strong> &ndash; Coefficient to calculate beta factor.</li>
+<li><strong>Permeability Scaling Exponent</strong> &ndash; For beta factor calculation.</li>
+<li><strong>Porosity Scaling Exponent</strong> &ndash; For beta factor calculation.
 <br /></li>
 </ul></li>
 </ul>
@@ -3449,20 +3449,20 @@ For multi-segment wells there are additional parameters which should be set. The
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1568366249"></script>
-    <script src="/js/perfect-scrollbar.min.js?1568366249"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1568366249"></script>
-    <script src="/js/jquery.sticky.js?1568366249"></script>
-    <script src="/js/featherlight.min.js?1568366249"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1568366249"></script>
-    <script src="/js/highlight.pack.js?1568366249"></script>
+    <script src="/js/clipboard.min.js?1569932070"></script>
+    <script src="/js/perfect-scrollbar.min.js?1569932070"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1569932070"></script>
+    <script src="/js/jquery.sticky.js?1569932070"></script>
+    <script src="/js/featherlight.min.js?1569932070"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1569932070"></script>
+    <script src="/js/highlight.pack.js?1569932070"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1568366249"></script>
-    <script src="/js/learn.js?1568366249"></script>
-    <script src="/js/hugo-learn.js?1568366249"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1569932070"></script>
+    <script src="/js/learn.js?1569932070"></script>
+    <script src="/js/hugo-learn.js?1569932070"></script>
 
-    <link href="/mermaid/mermaid.css?1568366249" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1568366249"></script>
+    <link href="/mermaid/mermaid.css?1569932070" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1569932070"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
