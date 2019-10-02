@@ -67,6 +67,7 @@ public:
                           std::vector<double>* mds,
                           std::vector<double>* tvds,
                           std::vector<double>* values,
+                          bool                 smooth,
                           const double         smoothingTreshold );
 
     void curveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
@@ -143,9 +144,22 @@ private:
     static void initializeResultValues( std::vector<float>& resultValues, size_t resultCount );
     static void initializeResultValues( std::vector<caf::Ten3d>& resultValues, size_t resultCount );
 
-    std::vector<char> determineSmoothing( const std::vector<float>& interfaceShValues,
-                                          const std::vector<float>& porePressures,
-                                          const float               threshold = 0.002 );
+    void filterShortSegments( std::vector<double>*               xValues,
+                              std::vector<double>*               yValues,
+                              std::vector<unsigned char>*        filterSegments,
+                              std::vector<std::vector<double>*>& vectorOfDependentValues );
+    void filterColinearSegments( std::vector<double>*               xValues,
+                                 std::vector<double>*               yValues,
+                                 std::vector<unsigned char>*        filterSegments,
+                                 std::vector<std::vector<double>*>& vectorOfDependentValues );
+    void smoothSegments( std::vector<double>*              mds,
+                         std::vector<double>*              tvds,
+                         std::vector<double>*              values,
+                         const std::vector<double>&        interfaceShValues,
+                         const std::vector<unsigned char>& smoothSegments,
+                         const double                      smoothingThreshold );
+
+    std::vector<unsigned char> determineFilteringOrSmoothing( const std::vector<double>& porePressures );
 
 private:
     cvf::ref<RigGeoMechCaseData>           m_caseData;

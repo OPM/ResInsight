@@ -33,11 +33,14 @@
 
 #include "RigWellLogExtractionTools.h"
 #include "RigWellPath.h"
+#include "RigWellPathGeometryTools.h"
 #include "RigWellPathIntersectionTools.h"
 
 #include "cafTensor3.h"
 #include "cvfGeometryTools.h"
 #include "cvfMath.h"
+
+#include <QPolygonF>
 
 #include <type_traits>
 
@@ -62,6 +65,7 @@ void RigGeoMechWellLogExtractor::smoothCurveData( int                  frameInde
                                                   std::vector<double>* mds,
                                                   std::vector<double>* tvds,
                                                   std::vector<double>* values,
+                                                  bool                 smooth,
                                                   const double         smoothingTreshold )
 {
     CVF_ASSERT( mds && tvds && values );
@@ -77,6 +81,9 @@ void RigGeoMechWellLogExtractor::smoothCurveData( int                  frameInde
     std::vector<float> interfaceShValues      = interpolateInterfaceValues( shAddr, unscaledShValues );
     std::vector<float> interfacePorePressures = interpolateInterfaceValues( porBarResAddr, porePressures );
 
+    std::vector<double> interfaceShValuesDbl( interfaceShValues.size(), std::numeric_limits<double>::infinity() );
+    std::vector<double> interfacePorePressuresDbl( interfacePorePressures.size(),
+                                                   std::numeric_limits<double>::infinity() );
 #pragma omp parallel for
     for ( int64_t i = 0; i < int64_t( m_intersections.size() ); ++i )
     {
@@ -86,61 +93,21 @@ void RigGeoMechWellLogExtractor::smoothCurveData( int                  frameInde
 
         double effectiveDepthMeters       = trueVerticalDepth + m_rkbDiff;
         double hydroStaticPorePressureBar = pascalToBar( effectiveDepthMeters * UNIT_WEIGHT_OF_WATER );
-        interfaceShValues[i] /= hydroStaticPorePressureBar;
+        interfaceShValuesDbl[i]           = interfaceShValues[i] / hydroStaticPorePressureBar;
+        interfacePorePressuresDbl[i]      = interfacePorePressures[i];
     }
 
-    double maxOriginalMd  = ( *mds )[0];
-    double maxOriginalTvd = ( !tvds->empty() ) ? ( *tvds )[0] : 0.0;
-    for ( int64_t i = 1; i < int64_t( m_intersections.size() - 1 ); ++i )
+    // Note, this is unsigned char rather than bool because std::vector<bool> is not thread safe
+    if ( smooth )
     {
-        double originalMD  = ( *mds )[i];
-        double originalTVD = ( !tvds->empty() ) ? ( *tvds )[i] : 0.0;
+        std::vector<std::vector<double>*> dependentValues = {tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl};
 
-        bool validPP_im1 = interfacePorePressures[i - 1] >= 0.0 &&
-                           interfacePorePressures[i - 1] != std::numeric_limits<double>::infinity();
-        bool validPP_i = interfacePorePressures[i] >= 0.0 &&
-                         interfacePorePressures[i] != std::numeric_limits<double>::infinity();
-        bool validPP_ip1 = interfacePorePressures[i + 1] >= 0.0 &&
-                           interfacePorePressures[i + 1] != std::numeric_limits<double>::infinity();
-        bool validPP = validPP_im1 || validPP_i || validPP_ip1;
+        std::vector<unsigned char> smoothOrFilterSegments = determineFilteringOrSmoothing( interfacePorePressuresDbl );
+        filterShortSegments( mds, values, &smoothOrFilterSegments, dependentValues );
+        filterColinearSegments( mds, values, &smoothOrFilterSegments, dependentValues );
 
-        double diff = std::fabs( interfaceShValues[i + 1] - interfaceShValues[i] );
-        bool   leap = diff > smoothingTreshold && i % 2 != 0; // even indices share a depth with the previous
-
-        if ( !validPP )
-        {
-            if ( leap )
-            {
-                // Update depth of current
-                ( *mds )[i] = 0.5 * ( ( *mds )[i] + maxOriginalMd );
-
-                if ( !tvds->empty() )
-                {
-                    ( *tvds )[i] = 0.5 * ( ( *tvds )[i] + maxOriginalTvd );
-                }
-            }
-            else
-            {
-                // Update depth of current
-                ( *mds )[i] = ( *mds )[i - 1];
-
-                if ( !tvds->empty() )
-                {
-                    ( *tvds )[i] = ( *tvds )[i - 1];
-                }
-            }
-            if ( ( *mds )[i] == ( *mds )[i - 1] && ( *values )[i - 1] != std::numeric_limits<double>::infinity() )
-            {
-                ( *values )[i] = ( *values )[i - 1];
-            }
-        }
-        if ( leap )
-        {
-            maxOriginalMd  = std::max( maxOriginalMd, originalMD );
-            maxOriginalTvd = std::max( maxOriginalTvd, originalTVD );
-        }
+        smoothSegments( mds, tvds, values, interfaceShValuesDbl, smoothOrFilterSegments, smoothingTreshold );
     }
-    ( *values )[0] = std::numeric_limits<float>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1219,35 +1186,193 @@ void RigGeoMechWellLogExtractor::initializeResultValues( std::vector<caf::Ten3d>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<char> RigGeoMechWellLogExtractor::determineSmoothing( const std::vector<float>& interfaceShValues,
-                                                                  const std::vector<float>& porePressures,
-                                                                  const float               threshold )
+void RigGeoMechWellLogExtractor::filterShortSegments( std::vector<double>*               xValues,
+                                                      std::vector<double>*               yValues,
+                                                      std::vector<unsigned char>*        filterSegments,
+                                                      std::vector<std::vector<double>*>& vectorOfDependentValues )
 {
-    std::vector<char> smoothing( interfaceShValues.size(), false );
-    CVF_ASSERT( interfaceShValues.size() == m_intersections.size() );
+    std::vector<double>              simplerXValues;
+    std::vector<double>              simplerYValues;
+    std::vector<unsigned char>       simpledFilterSegments;
+    std::vector<std::vector<double>> simplerDependentValues( vectorOfDependentValues.size() );
 
-#pragma omp parallel for
-    for ( int64_t intersectionIdx = 1; intersectionIdx < int64_t( m_intersections.size() - 1 ); intersectionIdx += 2 )
+    simplerXValues.push_back( xValues->front() );
+    simplerYValues.push_back( yValues->front() );
+    simpledFilterSegments.push_back( filterSegments->front() );
+    for ( size_t n = 0; n < vectorOfDependentValues.size(); ++n )
     {
-        bool validPP = porePressures[intersectionIdx] > 0.0 &&
-                       porePressures[intersectionIdx] != std::numeric_limits<double>::infinity();
-        if ( !validPP )
+        simplerDependentValues[n].push_back( vectorOfDependentValues[n]->front() );
+    }
+    for ( int64_t i = 1; i < int64_t( xValues->size() - 1 ); ++i )
+    {
+        cvf::Vec2d vecIn( ( ( *xValues )[i] - simplerXValues.back() ) / std::max( 1.0, simplerXValues.back() ),
+                          ( ( *yValues )[i] - simplerYValues.back() ) / std::max( 1.0, simplerYValues.back() ) );
+        if ( ( *filterSegments )[i] == 0u || vecIn.length() > 1.0e-3 )
         {
-            cvf::Vec3f centroid = cellCentroid( intersectionIdx );
-
-            double trueVerticalDepth = -centroid.z();
-
-            double effectiveDepthMeters       = trueVerticalDepth + m_rkbDiff;
-            double hydroStaticPorePressureBar = pascalToBar( effectiveDepthMeters * UNIT_WEIGHT_OF_WATER );
-
-            double diff = std::fabs( interfaceShValues[intersectionIdx + 1] - interfaceShValues[intersectionIdx] ) /
-                          hydroStaticPorePressureBar;
-            if ( diff < threshold )
+            simplerXValues.push_back( ( *xValues )[i] );
+            simplerYValues.push_back( ( *yValues )[i] );
+            simpledFilterSegments.push_back( ( *filterSegments )[i] );
+            for ( size_t n = 0; n < vectorOfDependentValues.size(); ++n )
             {
-                smoothing[intersectionIdx] = true;
+                simplerDependentValues[n].push_back( ( *vectorOfDependentValues[n] )[i] );
             }
         }
     }
+    simplerXValues.push_back( xValues->back() );
+    simplerYValues.push_back( yValues->back() );
+    simpledFilterSegments.push_back( filterSegments->back() );
+    for ( size_t i = 0; i < vectorOfDependentValues.size(); ++i )
+    {
+        simplerDependentValues[i].push_back( vectorOfDependentValues[i]->back() );
+    }
 
-    return smoothing;
+    xValues->swap( simplerXValues );
+    yValues->swap( simplerYValues );
+    filterSegments->swap( simpledFilterSegments );
+    for ( size_t n = 0; n < vectorOfDependentValues.size(); ++n )
+    {
+        vectorOfDependentValues[n]->swap( simplerDependentValues[n] );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGeoMechWellLogExtractor::filterColinearSegments( std::vector<double>*               xValues,
+                                                         std::vector<double>*               yValues,
+                                                         std::vector<unsigned char>*        filterSegments,
+                                                         std::vector<std::vector<double>*>& vectorOfDependentValues )
+{
+    std::vector<double>              simplerXValues;
+    std::vector<double>              simplerYValues;
+    std::vector<unsigned char>       simpledFilterSegments;
+    std::vector<std::vector<double>> simplerDependentValues( vectorOfDependentValues.size() );
+
+    simplerXValues.push_back( xValues->front() );
+    simplerYValues.push_back( yValues->front() );
+    simpledFilterSegments.push_back( filterSegments->front() );
+
+    for ( size_t n = 0; n < vectorOfDependentValues.size(); ++n )
+    {
+        simplerDependentValues[n].push_back( vectorOfDependentValues[n]->front() );
+    }
+    for ( int64_t i = 1; i < int64_t( xValues->size() - 1 ); ++i )
+    {
+        cvf::Vec2d vecIn( ( ( *xValues )[i] - simplerXValues.back() ) / std::max( 1.0, simplerXValues.back() ),
+                          ( ( *yValues )[i] - simplerYValues.back() ) / std::max( 1.0, simplerYValues.back() ) );
+        cvf::Vec2d vecOut( ( ( *xValues )[i + 1] - ( *xValues )[i] ) / std::max( 1.0, ( *xValues )[i] ),
+                           ( ( *yValues )[i + 1] - ( *yValues )[i] ) / std::max( 1.0, ( *yValues )[i] ) );
+        vecIn.normalize();
+        vecOut.normalize();
+        double dotProduct = std::abs( vecIn * vecOut );
+
+        if ( ( *filterSegments )[i] == 0u || std::fabs( 1.0 - dotProduct ) > 1.0e-3 )
+        {
+            simplerXValues.push_back( ( *xValues )[i] );
+            simplerYValues.push_back( ( *yValues )[i] );
+            simpledFilterSegments.push_back( ( *filterSegments )[i] );
+            for ( size_t n = 0; n < vectorOfDependentValues.size(); ++n )
+            {
+                simplerDependentValues[n].push_back( ( *vectorOfDependentValues[n] )[i] );
+            }
+        }
+    }
+    simplerXValues.push_back( xValues->back() );
+    simplerYValues.push_back( yValues->back() );
+    simpledFilterSegments.push_back( filterSegments->back() );
+
+    for ( size_t i = 0; i < vectorOfDependentValues.size(); ++i )
+    {
+        simplerDependentValues[i].push_back( vectorOfDependentValues[i]->back() );
+    }
+
+    xValues->swap( simplerXValues );
+    yValues->swap( simplerYValues );
+    filterSegments->swap( simpledFilterSegments );
+    for ( size_t n = 0; n < vectorOfDependentValues.size(); ++n )
+    {
+        vectorOfDependentValues[n]->swap( simplerDependentValues[n] );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGeoMechWellLogExtractor::smoothSegments( std::vector<double>*              mds,
+                                                 std::vector<double>*              tvds,
+                                                 std::vector<double>*              values,
+                                                 const std::vector<double>&        interfaceShValues,
+                                                 const std::vector<unsigned char>& smoothSegments,
+                                                 const double                      smoothingThreshold )
+{
+    const double eps = 1.0e-6;
+
+    double maxOriginalMd  = ( *mds )[0];
+    double maxOriginalTvd = ( !tvds->empty() ) ? ( *tvds )[0] : 0.0;
+    for ( int64_t i = 1; i < int64_t( mds->size() - 1 ); ++i )
+    {
+        double originalMD  = ( *mds )[i];
+        double originalTVD = ( !tvds->empty() ) ? ( *tvds )[i] : 0.0;
+
+        bool smoothSegment = smoothSegments[i] != 0u;
+
+        double diffMd = std::fabs( ( *mds )[i + 1] - ( *mds )[i] ) / std::max( eps, ( *mds )[i] );
+        double diffSh = std::fabs( interfaceShValues[i + 1] - interfaceShValues[i] ) /
+                        std::max( eps, interfaceShValues[i] );
+
+        bool leapSh = diffSh > smoothingThreshold && diffMd < eps;
+        if ( smoothSegment )
+        {
+            if ( leapSh )
+            {
+                // Update depth of current
+                ( *mds )[i] = 0.5 * ( ( *mds )[i] + maxOriginalMd );
+
+                if ( !tvds->empty() )
+                {
+                    ( *tvds )[i] = 0.5 * ( ( *tvds )[i] + maxOriginalTvd );
+                }
+            }
+            else
+            {
+                // Update depth of current
+                ( *mds )[i] = ( *mds )[i - 1];
+
+                if ( !tvds->empty() )
+                {
+                    ( *tvds )[i] = ( *tvds )[i - 1];
+                }
+            }
+            double diffMd_m1 = std::fabs( ( *mds )[i] - ( *mds )[i - 1] );
+            if ( diffMd_m1 < ( *mds )[i] * eps && ( *values )[i - 1] != std::numeric_limits<double>::infinity() )
+            {
+                ( *values )[i] = ( *values )[i - 1];
+            }
+        }
+        if ( leapSh )
+        {
+            maxOriginalMd  = std::max( maxOriginalMd, originalMD );
+            maxOriginalTvd = std::max( maxOriginalTvd, originalTVD );
+        }
+    }
+    ( *values )[0] = std::numeric_limits<float>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<unsigned char>
+    RigGeoMechWellLogExtractor::determineFilteringOrSmoothing( const std::vector<double>& porePressures )
+{
+    std::vector<unsigned char> smoothOrFilterSegments( porePressures.size(), false );
+#pragma omp parallel for
+    for ( int64_t i = 1; i < int64_t( porePressures.size() - 1 ); ++i )
+    {
+        bool validPP_im1 = porePressures[i - 1] >= 0.0 && porePressures[i - 1] != std::numeric_limits<double>::infinity();
+        bool validPP_i   = porePressures[i] >= 0.0 && porePressures[i] != std::numeric_limits<double>::infinity();
+        bool validPP_ip1 = porePressures[i + 1] >= 0.0 && porePressures[i + 1] != std::numeric_limits<double>::infinity();
+        bool anyValidPP           = validPP_im1 || validPP_i || validPP_ip1;
+        smoothOrFilterSegments[i] = !anyValidPP;
+    }
+    return smoothOrFilterSegments;
 }

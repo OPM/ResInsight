@@ -508,6 +508,7 @@ void RimWellLogExtractionCurve::extractData( bool* isUsingPseudoLength )
                                             &measuredDepthValues,
                                             &tvDepthValues,
                                             &values,
+                                            m_smoothGeoMechCurves(),
                                             m_smoothGeoMechThreshold() );
         }
     }
