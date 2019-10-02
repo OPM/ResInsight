@@ -87,9 +87,10 @@ public:
                                                       RigGeoMechWellLogExtractor* geomExtractor );
 
 protected:
-    QString createCurveAutoName() override;
-    void    onLoadDataAndUpdate( bool updateParentPlot ) override;
-    void    extractData( bool* isUsingPseudoLength );
+    QString      createCurveAutoName() override;
+    void         onLoadDataAndUpdate( bool updateParentPlot ) override;
+    virtual void performDataExtraction( bool* isUsingPseudoLength );
+    void         extractData( bool* isUsingPseudoLength, bool smoothData = false, double smoothingThreshold = -1.0 );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
@@ -114,8 +115,6 @@ private:
     caf::PdmField<QString>                      m_simWellName;
     caf::PdmField<int>                          m_branchIndex;
     caf::PdmField<bool>                         m_branchDetection;
-    caf::PdmField<bool>                         m_smoothGeoMechCurves;
-    caf::PdmField<double>                       m_smoothGeoMechThreshold;
 
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
     caf::PdmChildField<RimGeoMechResultDefinition*> m_geomResultDefinition;

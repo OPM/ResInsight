@@ -74,7 +74,7 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered( bool isChecked )
     RimWellLogTrack* wellLogPlotTrack = caf::SelectionManager::instance()->selectedItemOfType<RimWellLogTrack>();
     if ( wellLogPlotTrack )
     {
-        RicWellLogTools::addExtractionCurve( wellLogPlotTrack, nullptr, nullptr, nullptr, -1, true );
+        RicWellLogTools::addWellLogExtractionCurve( wellLogPlotTrack, nullptr, nullptr, nullptr, -1, true );
     }
     else
     {
@@ -113,12 +113,12 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered( bool isChecked )
                 newWellLogPlotTrack->setFormationCase( view->ownerCase() );
             }
 
-            RimWellLogExtractionCurve* plotCurve = RicWellLogTools::addExtractionCurve( newWellLogPlotTrack,
-                                                                                        view,
-                                                                                        wellPath,
-                                                                                        simWell,
-                                                                                        branchIndex,
-                                                                                        useBranchDetection );
+            RimWellLogExtractionCurve* plotCurve = RicWellLogTools::addWellLogExtractionCurve( newWellLogPlotTrack,
+                                                                                               view,
+                                                                                               wellPath,
+                                                                                               simWell,
+                                                                                               branchIndex,
+                                                                                               useBranchDetection );
 
             plotCurve->loadDataAndUpdate( true );
 

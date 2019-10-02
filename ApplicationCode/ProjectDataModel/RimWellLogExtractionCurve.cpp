@@ -121,9 +121,6 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
     m_geomResultDefinition = new RimGeoMechResultDefinition;
     m_geomResultDefinition->setAddWellPathDerivedResults( true );
 
-    CAF_PDM_InitField( &m_smoothGeoMechCurves, "SmoothGeomechCurves", false, "Smooth Curve", "", "", "" );
-    CAF_PDM_InitField( &m_smoothGeoMechThreshold, "SmoothGeomechThreshold", 0.002, "Smoothing Threshold", "", "", "" );
-
     CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", 0, "Time Step", "", "", "" );
 
     // Add some space before name to indicate these belong to the Auto Name field
@@ -321,10 +318,6 @@ void RimWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* cha
     {
         this->loadDataAndUpdate( true );
     }
-    else if ( changedField == &m_smoothGeoMechCurves || changedField == &m_smoothGeoMechThreshold )
-    {
-        this->loadDataAndUpdate( true );
-    }
 
     if ( changedField == &m_addCaseNameToCurveName || changedField == &m_addPropertyToCurveName ||
          changedField == &m_addWellNameToCurveName || changedField == &m_addTimestepToCurveName ||
@@ -343,7 +336,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
     if ( isCurveVisible() )
     {
         bool isUsingPseudoLength = false;
-        extractData( &isUsingPseudoLength );
+        performDataExtraction( &isUsingPseudoLength );
 
         RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
 
@@ -402,7 +395,15 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::extractData( bool* isUsingPseudoLength )
+void RimWellLogExtractionCurve::performDataExtraction( bool* isUsingPseudoLength )
+{
+    extractData( isUsingPseudoLength );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::extractData( bool* isUsingPseudoLength, bool smoothData, double smoothingThreshold )
 {
     CAF_ASSERT( isUsingPseudoLength );
 
@@ -502,14 +503,9 @@ void RimWellLogExtractionCurve::extractData( bool* isUsingPseudoLength )
 
         m_geomResultDefinition->loadResult();
         geomExtractor->curveData( m_geomResultDefinition->resultAddress(), m_timeStep, &values );
-        if ( m_smoothGeoMechCurves() )
+        if ( smoothData )
         {
-            geomExtractor->smoothCurveData( m_timeStep,
-                                            &measuredDepthValues,
-                                            &tvDepthValues,
-                                            &values,
-                                            m_smoothGeoMechCurves(),
-                                            m_smoothGeoMechThreshold() );
+            geomExtractor->smoothCurveData( m_timeStep, &measuredDepthValues, &tvDepthValues, &values, smoothingThreshold );
         }
     }
 
@@ -517,11 +513,11 @@ void RimWellLogExtractionCurve::extractData( bool* isUsingPseudoLength )
     {
         if ( !tvDepthValues.size() )
         {
-            this->setValuesAndMD( values, measuredDepthValues, depthUnit, !m_smoothGeoMechCurves() );
+            this->setValuesAndMD( values, measuredDepthValues, depthUnit, !smoothData );
         }
         else
         {
-            this->setValuesWithTVD( values, measuredDepthValues, tvDepthValues, depthUnit, !m_smoothGeoMechCurves() );
+            this->setValuesWithTVD( values, measuredDepthValues, tvDepthValues, depthUnit, !smoothData );
         }
     }
 }
@@ -665,7 +661,7 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
 {
     RimPlotCurve::updateOptionSensitivity();
 
-    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Curve Data" );
+    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroupWithKeyword( "Curve Data", "CurveData" );
 
     curveDataGroup->add( &m_case );
 
@@ -702,11 +698,6 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
-    if ( geomCase )
-    {
-        appearanceGroup->add( &m_smoothGeoMechCurves );
-        appearanceGroup->add( &m_smoothGeoMechThreshold );
-    }
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
     nameGroup->setCollapsedByDefault( true );

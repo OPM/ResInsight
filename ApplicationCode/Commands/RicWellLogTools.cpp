@@ -32,6 +32,7 @@
 #include "RimWellLogFileCurve.h"
 #include "RimWellLogRftCurve.h"
 #include "RimWellLogTrack.h"
+#include "RimWellLogWbsCurve.h"
 #include "RimWellPath.h"
 
 #include "RifReaderEclipseRft.h"
@@ -166,16 +167,17 @@ RimWellPath* RicWellLogTools::findWellPathWithLogFileFromSelection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve( RimWellLogTrack*        plotTrack,
-                                                                Rim3dView*              view,
-                                                                RimWellPath*            wellPath,
-                                                                const RimSimWellInView* simWell,
-                                                                int                     branchIndex,
-                                                                bool                    useBranchDetection,
-                                                                bool                    showPlotWindow )
+template <typename ExtractionCurveType>
+ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*        plotTrack,
+                                                          Rim3dView*              view,
+                                                          RimWellPath*            wellPath,
+                                                          const RimSimWellInView* simWell,
+                                                          int                     branchIndex,
+                                                          bool                    useBranchDetection,
+                                                          bool                    showPlotWindow )
 {
     CVF_ASSERT( plotTrack );
-    RimWellLogExtractionCurve* curve = new RimWellLogExtractionCurve();
+    ExtractionCurveType* curve = new ExtractionCurveType();
 
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
     curve->setColor( curveColor );
@@ -362,4 +364,44 @@ RimWellLogFileCurve* RicWellLogTools::addFileCurve( RimWellLogTrack* plotTrack, 
     }
 
     return curve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogExtractionCurve* RicWellLogTools::addWellLogExtractionCurve( RimWellLogTrack*        plotTrack,
+                                                                       Rim3dView*              view,
+                                                                       RimWellPath*            wellPath,
+                                                                       const RimSimWellInView* simWell,
+                                                                       int                     branchIndex,
+                                                                       bool                    useBranchDetection,
+                                                                       bool showPlotWindow /*= true */ )
+{
+    return addExtractionCurve<RimWellLogExtractionCurve>( plotTrack,
+                                                          view,
+                                                          wellPath,
+                                                          simWell,
+                                                          branchIndex,
+                                                          useBranchDetection,
+                                                          showPlotWindow );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogWbsCurve* RicWellLogTools::addWellLogWbsCurve( RimWellLogTrack*        plotTrack,
+                                                         Rim3dView*              view,
+                                                         RimWellPath*            wellPath,
+                                                         const RimSimWellInView* simWell,
+                                                         int                     branchIndex,
+                                                         bool                    useBranchDetection,
+                                                         bool                    showPlotWindow /*= true */ )
+{
+    return addExtractionCurve<RimWellLogWbsCurve>( plotTrack,
+                                                   view,
+                                                   wellPath,
+                                                   simWell,
+                                                   branchIndex,
+                                                   useBranchDetection,
+                                                   showPlotWindow );
 }

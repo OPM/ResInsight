@@ -67,7 +67,6 @@ public:
                           std::vector<double>* mds,
                           std::vector<double>* tvds,
                           std::vector<double>* values,
-                          bool                 smooth,
                           const double         smoothingTreshold );
 
     void curveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );

@@ -65,7 +65,6 @@ void RigGeoMechWellLogExtractor::smoothCurveData( int                  frameInde
                                                   std::vector<double>* mds,
                                                   std::vector<double>* tvds,
                                                   std::vector<double>* values,
-                                                  bool                 smooth,
                                                   const double         smoothingTreshold )
 {
     CVF_ASSERT( mds && tvds && values );
@@ -97,17 +96,13 @@ void RigGeoMechWellLogExtractor::smoothCurveData( int                  frameInde
         interfacePorePressuresDbl[i]      = interfacePorePressures[i];
     }
 
-    // Note, this is unsigned char rather than bool because std::vector<bool> is not thread safe
-    if ( smooth )
-    {
-        std::vector<std::vector<double>*> dependentValues = {tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl};
+    std::vector<std::vector<double>*> dependentValues = {tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl};
 
-        std::vector<unsigned char> smoothOrFilterSegments = determineFilteringOrSmoothing( interfacePorePressuresDbl );
-        filterShortSegments( mds, values, &smoothOrFilterSegments, dependentValues );
-        filterColinearSegments( mds, values, &smoothOrFilterSegments, dependentValues );
+    std::vector<unsigned char> smoothOrFilterSegments = determineFilteringOrSmoothing( interfacePorePressuresDbl );
+    filterShortSegments( mds, values, &smoothOrFilterSegments, dependentValues );
+    filterColinearSegments( mds, values, &smoothOrFilterSegments, dependentValues );
 
-        smoothSegments( mds, tvds, values, interfaceShValuesDbl, smoothOrFilterSegments, smoothingTreshold );
-    }
+    smoothSegments( mds, tvds, values, interfaceShValuesDbl, smoothOrFilterSegments, smoothingTreshold );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1359,7 +1354,7 @@ void RigGeoMechWellLogExtractor::smoothSegments( std::vector<double>*           
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Note that this is unsigned char because std::vector<bool> is not thread safe
 //--------------------------------------------------------------------------------------------------
 std::vector<unsigned char>
     RigGeoMechWellLogExtractor::determineFilteringOrSmoothing( const std::vector<double>& porePressures )
