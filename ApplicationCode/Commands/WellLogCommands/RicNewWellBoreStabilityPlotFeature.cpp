@@ -208,22 +208,16 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
     stabilityCurvesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     stabilityCurvesTrack->setFormationWellPath( wellPath );
     stabilityCurvesTrack->setFormationCase( geoMechView->geoMechCase() );
-    stabilityCurvesTrack->setAnnotationType( RiuPlotAnnotationTool::CURVE_ANNOTATIONS );
+    stabilityCurvesTrack->setAnnotationType( RiuPlotAnnotationTool::NO_ANNOTATIONS );
     stabilityCurvesTrack->setShowRegionLabels( true );
 
     std::vector<QString> resultNames = RiaDefines::wellPathStabilityResultNames();
 
-    std::vector<cvf::Color3f> colors = {cvf::Color3f::RED,
+    std::vector<cvf::Color3f> colors = {cvf::Color3f::BLUE,
+                                        cvf::Color3f::BROWN,
+                                        cvf::Color3f::RED,
                                         cvf::Color3f::PURPLE,
-                                        cvf::Color3f::GREEN,
-                                        cvf::Color3f::BLUE,
-                                        cvf::Color3f::ORANGE};
-
-    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = {RiuQwtPlotCurve::STYLE_SOLID,
-                                                              RiuQwtPlotCurve::STYLE_DASH,
-                                                              RiuQwtPlotCurve::STYLE_DASH_DOT,
-                                                              RiuQwtPlotCurve::STYLE_SOLID,
-                                                              RiuQwtPlotCurve::STYLE_DASH};
+                                        cvf::Color3f::DARK_GREEN};
 
     for ( size_t i = 0; i < resultNames.size(); ++i )
     {
@@ -240,7 +234,6 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
         curve->setCurrentTimeStep( geoMechView->currentTimeStep() );
         curve->setCustomName( resultName );
         curve->setColor( colors[i % colors.size()] );
-        curve->setLineStyle( lineStyles[i % lineStyles.size()] );
         curve->setLineThickness( 2 );
         curve->loadDataAndUpdate( false );
     }
@@ -261,7 +254,7 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
     const double         angleIncrement = 90.0;
     std::vector<QString> resultNames    = RiaDefines::wellPathAngleResultNames();
 
-    std::vector<cvf::Color3f> colors = {cvf::Color3f::DARK_RED, cvf::Color3f::BLUE};
+    std::vector<cvf::Color3f> colors = {cvf::Color3f::GREEN, cvf::Color3f::ORANGE};
 
     std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = {RiuQwtPlotCurve::STYLE_SOLID, RiuQwtPlotCurve::STYLE_DASH};
 

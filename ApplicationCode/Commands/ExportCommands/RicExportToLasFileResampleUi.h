@@ -47,6 +47,8 @@ public:
     ~RicExportToLasFileResampleUi() override;
 
     caf::PdmField<QString> exportFolder;
+    caf::PdmField<QString> filePrefix;
+    caf::PdmField<bool>    capitalizeFileName;
 
     caf::PdmField<bool>   activateResample;
     caf::PdmField<double> resampleInterval;

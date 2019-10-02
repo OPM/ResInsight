@@ -68,6 +68,12 @@ void RicExportToLasFileFeature::onActionTriggered( bool isChecked )
     RicExportToLasFileResampleUi featureUi;
     featureUi.exportFolder = defaultDir;
 
+    if ( RicWellLogPlotCurveFeatureImpl::parentWellBoreStabilityPlot() )
+    {
+        featureUi.filePrefix         = "WBS_";
+        featureUi.capitalizeFileName = true;
+    }
+
     {
         std::vector<QString> wellNames;
         std::vector<double>  rkbDiffs;
@@ -101,7 +107,7 @@ void RicExportToLasFileFeature::onActionTriggered( bool isChecked )
             lasExporter.setRkbDiffs( wellNames, userDefRkbDiff );
         }
 
-        lasExporter.writeToFolder( featureUi.exportFolder() );
+        lasExporter.writeToFolder( featureUi.exportFolder(), featureUi.filePrefix(), featureUi.capitalizeFileName() );
 
         // Remember the path to next time
         RiaApplication::instance()->setLastUsedDialogDirectory( "WELL_LOGS_DIR", featureUi.exportFolder() );

@@ -21,6 +21,7 @@
 
 #include "cafPdmFieldCvfColor.h"
 
+class RimWellBoreStabilityPlot;
 class RimWellLogCurve;
 class RimWellAllocationPlot;
 class RimWellRftPlot;
@@ -35,4 +36,5 @@ public:
     static std::vector<RimWellLogCurve*> selectedWellLogCurves();
     static RimWellAllocationPlot*        parentWellAllocationPlot();
     static RimWellRftPlot*               parentWellRftPlot();
+    static RimWellBoreStabilityPlot*     parentWellBoreStabilityPlot();
 };
