@@ -39,6 +39,9 @@
 
 #include "cafPdmUiCheckBoxTristateEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiLineEditor.h"
+
+#include <algorithm>
 
 CAF_PDM_SOURCE_INIT( RimWellLogCurveCommonDataSource, "ChangeDataSourceFeatureUi" );
 
@@ -936,6 +939,21 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
             myAttr->nextButtonText = "Next " + modifierText + "PgDown)";
             myAttr->prevButtonText = "Previous " + modifierText + "PgUp)";
         }
+    }
+    caf::PdmUiLineEditorAttributeUiDisplayString* uiDisplayStringAttr =
+        dynamic_cast<caf::PdmUiLineEditorAttributeUiDisplayString*>( attribute );
+    if ( uiDisplayStringAttr && wbsSmoothingThreshold() == -1.0 )
+    {
+        QString displayString = "Mixed";
+
+        if ( m_uniqueWbsSmoothingThreshold.size() > 1u )
+        {
+            auto minmax_it = std::minmax_element( m_uniqueWbsSmoothingThreshold.begin(),
+                                                  m_uniqueWbsSmoothingThreshold.end() );
+            displayString += QString( " [%1, %2]" ).arg( *( minmax_it.first ) ).arg( *( minmax_it.second ) );
+        }
+
+        uiDisplayStringAttr->m_displayString = displayString;
     }
 }
 
