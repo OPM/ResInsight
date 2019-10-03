@@ -223,16 +223,20 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
 
     for ( size_t i = 0; i < resultNames.size(); ++i )
     {
-        const QString&      resultName = resultNames[i];
-        RigFemResultAddress resAddr( RIG_WELLPATH_DERIVED, resultName.toStdString(), "" );
-        RimWellLogWbsCurve* curve =
-            RicWellLogTools::addWellLogWbsCurve( paramCurvesTrack, geoMechView, wellPath, nullptr, -1, false, false );
+        const QString&             resultName = resultNames[i];
+        RigFemResultAddress        resAddr( RIG_WELLPATH_DERIVED, resultName.toStdString(), "" );
+        RimWellLogExtractionCurve* curve = RicWellLogTools::addWellLogExtractionCurve( paramCurvesTrack,
+                                                                                       geoMechView,
+                                                                                       wellPath,
+                                                                                       nullptr,
+                                                                                       -1,
+                                                                                       false,
+                                                                                       false );
         curve->setGeoMechResultAddress( resAddr );
         curve->setCurrentTimeStep( geoMechView->currentTimeStep() );
         curve->setColor( colors[i % colors.size()] );
         curve->setLineThickness( 2 );
         curve->loadDataAndUpdate( false );
-        curve->setSmoothCurve( false );
         curve->setAutoNameComponents( false, true, false, false, false );
     }
     paramCurvesTrack->calculateXZoomRangeAndUpdateQwt();
