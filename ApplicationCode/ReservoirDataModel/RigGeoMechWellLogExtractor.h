@@ -64,11 +64,11 @@ public:
                                 const RigWellPath*  wellpath,
                                 const std::string&  wellCaseErrorMsgName );
 
-    void smoothCurveData( int                  frameIndex,
-                          std::vector<double>* mds,
-                          std::vector<double>* tvds,
-                          std::vector<double>* values,
-                          const double         smoothingTreshold );
+    void performCurveDataSmoothing( int                  frameIndex,
+                                    std::vector<double>* mds,
+                                    std::vector<double>* tvds,
+                                    std::vector<double>* values,
+                                    const double         smoothingTreshold );
 
     void curveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
     const RigGeoMechCaseData* caseData();

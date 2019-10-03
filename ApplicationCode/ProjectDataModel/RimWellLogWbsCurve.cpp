@@ -65,7 +65,7 @@ void RimWellLogWbsCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 {
     RimWellLogExtractionCurve::defineUiOrdering( uiConfigName, uiOrdering );
 
-    caf::PdmUiGroup* dataGroup = uiOrdering.findGroup( "CurveData" );
+    caf::PdmUiGroup* dataGroup = uiOrdering.findGroup( dataSourceGroupKeyword() );
     dataGroup->add( &m_smoothCurve );
     dataGroup->add( &m_smoothingThreshold );
 }

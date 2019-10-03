@@ -61,11 +61,11 @@ RigGeoMechWellLogExtractor::RigGeoMechWellLogExtractor( RigGeoMechCaseData* aCas
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGeoMechWellLogExtractor::smoothCurveData( int                  frameIndex,
-                                                  std::vector<double>* mds,
-                                                  std::vector<double>* tvds,
-                                                  std::vector<double>* values,
-                                                  const double         smoothingTreshold )
+void RigGeoMechWellLogExtractor::performCurveDataSmoothing( int                  frameIndex,
+                                                            std::vector<double>* mds,
+                                                            std::vector<double>* tvds,
+                                                            std::vector<double>* values,
+                                                            const double         smoothingTreshold )
 {
     CVF_ASSERT( mds && tvds && values );
 
@@ -1172,14 +1172,16 @@ void RigGeoMechWellLogExtractor::filterShortSegments( std::vector<double>*      
                                                       std::vector<unsigned char>*        filterSegments,
                                                       std::vector<std::vector<double>*>& vectorOfDependentValues )
 {
+    const double lengthEpsilon = 1.0e-3;
+
     std::vector<double>              simplerXValues;
     std::vector<double>              simplerYValues;
-    std::vector<unsigned char>       simpledFilterSegments;
+    std::vector<unsigned char>       simplerFilterSegments;
     std::vector<std::vector<double>> simplerDependentValues( vectorOfDependentValues.size() );
 
     simplerXValues.push_back( xValues->front() );
     simplerYValues.push_back( yValues->front() );
-    simpledFilterSegments.push_back( filterSegments->front() );
+    simplerFilterSegments.push_back( filterSegments->front() );
     for ( size_t n = 0; n < vectorOfDependentValues.size(); ++n )
     {
         simplerDependentValues[n].push_back( vectorOfDependentValues[n]->front() );
@@ -1188,11 +1190,11 @@ void RigGeoMechWellLogExtractor::filterShortSegments( std::vector<double>*      
     {
         cvf::Vec2d vecIn( ( ( *xValues )[i] - simplerXValues.back() ) / std::max( 1.0, simplerXValues.back() ),
                           ( ( *yValues )[i] - simplerYValues.back() ) / std::max( 1.0, simplerYValues.back() ) );
-        if ( ( *filterSegments )[i] == 0u || vecIn.length() > 1.0e-3 )
+        if ( ( *filterSegments )[i] == 0u || vecIn.length() > lengthEpsilon )
         {
             simplerXValues.push_back( ( *xValues )[i] );
             simplerYValues.push_back( ( *yValues )[i] );
-            simpledFilterSegments.push_back( ( *filterSegments )[i] );
+            simplerFilterSegments.push_back( ( *filterSegments )[i] );
             for ( size_t n = 0; n < vectorOfDependentValues.size(); ++n )
             {
                 simplerDependentValues[n].push_back( ( *vectorOfDependentValues[n] )[i] );
@@ -1201,7 +1203,7 @@ void RigGeoMechWellLogExtractor::filterShortSegments( std::vector<double>*      
     }
     simplerXValues.push_back( xValues->back() );
     simplerYValues.push_back( yValues->back() );
-    simpledFilterSegments.push_back( filterSegments->back() );
+    simplerFilterSegments.push_back( filterSegments->back() );
     for ( size_t i = 0; i < vectorOfDependentValues.size(); ++i )
     {
         simplerDependentValues[i].push_back( vectorOfDependentValues[i]->back() );
@@ -1209,7 +1211,7 @@ void RigGeoMechWellLogExtractor::filterShortSegments( std::vector<double>*      
 
     xValues->swap( simplerXValues );
     yValues->swap( simplerYValues );
-    filterSegments->swap( simpledFilterSegments );
+    filterSegments->swap( simplerFilterSegments );
     for ( size_t n = 0; n < vectorOfDependentValues.size(); ++n )
     {
         vectorOfDependentValues[n]->swap( simplerDependentValues[n] );
