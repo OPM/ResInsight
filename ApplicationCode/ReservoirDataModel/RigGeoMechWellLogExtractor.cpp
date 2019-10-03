@@ -409,13 +409,15 @@ void RigGeoMechWellLogExtractor::wellPathScaledCurveData( const RigFemResultAddr
                 averageUnscaledValue = ppSourcePair.first;
             }
         }
+        else
+        {
+            averageIntersectionValuesToSegmentValue( intersectionIdx,
+                                                     interpolatedInterfaceValues,
+                                                     std::numeric_limits<float>::infinity(),
+                                                     &averageUnscaledValue );
+        }
 
         ( *values )[intersectionIdx] = static_cast<double>( averageUnscaledValue ) / hydroStaticPorePressureBar;
-    }
-
-#pragma omp parallel for
-    for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
-    {
     }
 }
 
