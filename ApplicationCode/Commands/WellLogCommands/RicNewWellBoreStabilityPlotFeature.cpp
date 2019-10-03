@@ -120,7 +120,12 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered( bool isChecked )
     }
 
     {
-        auto task = progInfo.task( "Creating stability curves track", 75 );
+        auto task = progInfo.task( "Creating parameters track", 15 );
+        createParametersTrack( plot, wellPath, geoMechView );
+    }
+
+    {
+        auto task = progInfo.task( "Creating stability curves track", 60 );
         createStabilityCurvesTrack( plot, wellPath, geoMechView );
     }
 
@@ -196,6 +201,50 @@ void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack( RimWellBoreStabi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabilityPlot* plot,
+                                                                RimWellPath*              wellPath,
+                                                                RimGeoMechView*           geoMechView )
+{
+    RimWellLogTrack* paramCurvesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false,
+                                                                                              "WBS Parameters",
+                                                                                              plot );
+    paramCurvesTrack->setWidthScaleFactor( RimWellLogTrack::WIDE_TRACK );
+    paramCurvesTrack->setAutoScaleXEnabled( true );
+    paramCurvesTrack->setTickIntervals( 0.5, 0.05 );
+    paramCurvesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
+    paramCurvesTrack->setFormationWellPath( wellPath );
+    paramCurvesTrack->setFormationCase( geoMechView->geoMechCase() );
+    paramCurvesTrack->setAnnotationType( RiuPlotAnnotationTool::CURVE_ANNOTATIONS );
+    paramCurvesTrack->setShowRegionLabels( true );
+    paramCurvesTrack->setVisible( false );
+    std::vector<QString> resultNames = RiaDefines::wellPathStabilityParameterNames();
+
+    std::vector<cvf::Color3f> colors = {cvf::Color3f::CRIMSON, cvf::Color3f::DARK_YELLOW};
+
+    for ( size_t i = 0; i < resultNames.size(); ++i )
+    {
+        const QString&             resultName = resultNames[i];
+        RigFemResultAddress        resAddr( RIG_WELLPATH_DERIVED, resultName.toStdString(), "" );
+        RimWellLogExtractionCurve* curve = RicWellLogTools::addWellLogExtractionCurve( paramCurvesTrack,
+                                                                                       geoMechView,
+                                                                                       wellPath,
+                                                                                       nullptr,
+                                                                                       -1,
+                                                                                       false,
+                                                                                       false );
+        curve->setGeoMechResultAddress( resAddr );
+        curve->setCurrentTimeStep( geoMechView->currentTimeStep() );
+        curve->setColor( colors[i % colors.size()] );
+        curve->setLineThickness( 2 );
+        curve->loadDataAndUpdate( false );
+        curve->setAutoNameComponents( false, true, false, false, false );
+    }
+    paramCurvesTrack->calculateXZoomRangeAndUpdateQwt();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBoreStabilityPlot* plot,
                                                                      RimWellPath*              wellPath,
                                                                      RimGeoMechView*           geoMechView )
@@ -233,7 +282,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
                                                                          false );
         curve->setGeoMechResultAddress( resAddr );
         curve->setCurrentTimeStep( geoMechView->currentTimeStep() );
-        curve->setCustomName( resultName );
+        curve->setAutoNameComponents( false, true, false, false, false );
         curve->setColor( colors[i % colors.size()] );
         curve->setLineThickness( 2 );
         curve->loadDataAndUpdate( false );

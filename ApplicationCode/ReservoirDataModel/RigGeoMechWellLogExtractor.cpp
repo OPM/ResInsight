@@ -114,18 +114,26 @@ void RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAddr, 
 
     if ( resAddr.resultPosType == RIG_WELLPATH_DERIVED )
     {
-        if ( resAddr.fieldName == RiaDefines::wellPathFGResultName().toStdString() ||
-             resAddr.fieldName == RiaDefines::wellPathSFGResultName().toStdString() )
+        if ( resAddr.fieldName == RiaDefines::wbsFGResultName().toStdString() ||
+             resAddr.fieldName == RiaDefines::wbsSFGResultName().toStdString() )
         {
             wellBoreWallCurveData( resAddr, frameIndex, values );
             return;
         }
-        else if ( resAddr.fieldName == "PP" || resAddr.fieldName == "OBG" || resAddr.fieldName == "SH" )
+        else if ( resAddr.fieldName == RiaDefines::wbsPoissonParameterName().toStdString() ||
+                  resAddr.fieldName == RiaDefines::wbsUCSParameterName().toStdString() )
+        {
+            wellPathParameters( resAddr, frameIndex, values );
+        }
+        else if ( resAddr.fieldName == RiaDefines::wbsPPResultName().toStdString() ||
+                  resAddr.fieldName == RiaDefines::wbsOBGResultName().toStdString() ||
+                  resAddr.fieldName == RiaDefines::wbsSHResultName().toStdString() )
         {
             wellPathScaledCurveData( resAddr, frameIndex, values );
             return;
         }
-        else if ( resAddr.fieldName == "Azimuth" || resAddr.fieldName == "Inclination" )
+        else if ( resAddr.fieldName == RiaDefines::wbsAzimuthResultName().toStdString() ||
+                  resAddr.fieldName == RiaDefines::wbsInclinationResultName().toStdString() )
         {
             wellPathAngles( resAddr, values );
             return;
@@ -401,6 +409,13 @@ void RigGeoMechWellLogExtractor::wellPathScaledCurveData( const RigFemResultAddr
                 averageUnscaledValue = ppSourcePair.first;
             }
         }
+        else
+        {
+            averageIntersectionValuesToSegmentValue( intersectionIdx,
+                                                     interpolatedInterfaceValues,
+                                                     std::numeric_limits<float>::infinity(),
+                                                     &averageUnscaledValue );
+        }
 
         ( *values )[intersectionIdx] = static_cast<double>( averageUnscaledValue ) / hydroStaticPorePressureBar;
     }
@@ -419,8 +434,8 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
                                                         std::vector<double>*       values )
 {
     CVF_ASSERT( values );
-    CVF_ASSERT( resAddr.fieldName == RiaDefines::wellPathFGResultName().toStdString() ||
-                resAddr.fieldName == RiaDefines::wellPathSFGResultName().toStdString() );
+    CVF_ASSERT( resAddr.fieldName == RiaDefines::wbsFGResultName().toStdString() ||
+                resAddr.fieldName == RiaDefines::wbsSFGResultName().toStdString() );
 
     // The result addresses needed
     RigFemResultAddress stressResAddr( RIG_ELEMENT_NODAL, "ST", "" );
@@ -499,7 +514,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
 
         RigGeoMechBoreHoleStressCalculator sigmaCalculator( wellPathStressDouble, porePressureBar, poissonRatio, ucsBar, 32 );
         double                             resultValue = std::numeric_limits<double>::infinity();
-        if ( resAddr.fieldName == RiaDefines::wellPathFGResultName().toStdString() )
+        if ( resAddr.fieldName == RiaDefines::wbsFGResultName().toStdString() )
         {
             if ( isFGregion && validSegmentStress )
             {
@@ -508,7 +523,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
         }
         else
         {
-            CVF_ASSERT( resAddr.fieldName == RiaDefines::wellPathSFGResultName().toStdString() );
+            CVF_ASSERT( resAddr.fieldName == RiaDefines::wbsSFGResultName().toStdString() );
             if ( !isFGregion && validSegmentStress )
             {
                 resultValue = sigmaCalculator.solveStassiDalia();
@@ -522,6 +537,43 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
             }
         }
         ( *values )[intersectionIdx] = resultValue;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGeoMechWellLogExtractor::wellPathParameters( const RigFemResultAddress& resAddr,
+                                                     int                        frameIndex,
+                                                     std::vector<double>*       values )
+{
+    CVF_ASSERT( values );
+    CVF_ASSERT( resAddr.fieldName == RiaDefines::wbsPoissonParameterName().toStdString() ||
+                resAddr.fieldName == RiaDefines::wbsUCSParameterName().toStdString() );
+
+    RigFemPartResultsCollection* resultCollection = m_caseData->femPartResults();
+
+    // Check for element property values
+    RigFemResultAddress elmResAddr( RIG_ELEMENT, resAddr.fieldName, "" );
+    std::vector<float>  elmPropertyValues = resultCollection->resultValues( elmResAddr, 0, frameIndex );
+
+    values->resize( m_intersections.size(), 0.0f );
+
+    if ( resAddr.fieldName == RiaDefines::wbsPoissonParameterName().toStdString() )
+    {
+#pragma omp parallel for
+        for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
+        {
+            ( *values )[intersectionIdx] = calculatePoissonRatioInSegment( intersectionIdx, elmPropertyValues ).first;
+        }
+    }
+    else
+    {
+#pragma omp parallel for
+        for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
+        {
+            ( *values )[intersectionIdx] = calculateUcsInSegment( intersectionIdx, elmPropertyValues ).first / 100.0;
+        }
     }
 }
 

@@ -87,6 +87,9 @@ void RiuWellLogTrack::setDefaults()
     axisScaleEngine( QwtPlot::yLeft )->setAttribute( QwtScaleEngine::Floating, true );
     setAxisScale( QwtPlot::yLeft, 1000, 0 );
     setXRange( 0, 100 );
+    QFont font     = axisFont( QwtPlot::xTop );
+    int lineHeight = QFontMetrics( font ).height() + axisScaleDraw( QwtPlot::xTop )->tickLength( QwtScaleDiv::MajorTick );
+    axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( lineHeight );
 }
 
 //--------------------------------------------------------------------------------------------------

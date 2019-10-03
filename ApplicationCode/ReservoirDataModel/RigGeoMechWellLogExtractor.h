@@ -113,7 +113,7 @@ private:
     void wellPathAngles( const RigFemResultAddress& resAddr, std::vector<double>* values );
     void wellPathScaledCurveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
     void wellBoreWallCurveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
-
+    void wellPathParameters( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
     template <typename T>
     T      interpolateGridResultValue( RigFemResultPosEnum   resultPosType,
                                        const std::vector<T>& gridResultValues,

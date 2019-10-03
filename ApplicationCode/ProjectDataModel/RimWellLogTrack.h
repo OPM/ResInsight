@@ -96,6 +96,7 @@ public:
 
     void setDescription( const QString& description );
     bool isVisible();
+    void setVisible( bool visible );
     void addCurve( RimWellLogCurve* curve );
     void insertCurve( RimWellLogCurve* curve, size_t index );
     void takeOutCurve( RimWellLogCurve* curve );
@@ -175,6 +176,7 @@ public:
 
     QString                       description();
     std::vector<RimWellLogCurve*> curvesVector();
+    std::vector<RimWellLogCurve*> visibleCurvesVector();
 
     void uiOrderingForRftPltFormations( caf::PdmUiOrdering& uiOrdering );
     void uiOrderingForXAxisSettings( caf::PdmUiOrdering& uiOrdering );

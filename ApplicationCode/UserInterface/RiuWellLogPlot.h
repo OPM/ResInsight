@@ -61,9 +61,9 @@ public:
     void insertTrackPlot( RiuWellLogTrack* trackPlot, size_t index );
     void removeTrackPlot( RiuWellLogTrack* trackPlot );
 
-    void          setDepthZoomAndReplot( double minDepth, double maxDepth );
-    void          setPlotTitle( const QString& plotTitle );
-    virtual QSize preferredSize() const;
+    void setDepthZoomAndReplot( double minDepth, double maxDepth );
+    void setPlotTitle( const QString& plotTitle );
+    int  preferredWidth() const;
 
     void setTitleVisible( bool visible );
 
@@ -85,6 +85,7 @@ private:
     void updateScrollBar( double minDepth, double maxDepth );
     void alignCanvasTops();
     void reinsertTracks();
+    void clearTrackLayout();
 private slots:
     void slotSetMinDepth( int value );
 

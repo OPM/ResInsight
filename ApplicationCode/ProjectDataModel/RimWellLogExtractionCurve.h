@@ -86,6 +86,8 @@ public:
     static void findAndLoadWbsParametersFromLasFiles( const RimWellPath*          wellPath,
                                                       RigGeoMechWellLogExtractor* geomExtractor );
 
+    void setAutoNameComponents( bool addCaseName, bool addProperty, bool addWellname, bool addTimeStep, bool addDate );
+
 protected:
     QString      createCurveAutoName() override;
     void         onLoadDataAndUpdate( bool updateParentPlot ) override;

@@ -281,14 +281,14 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
         dropTarget->firstAncestorOrThisOfType( wellLogPlotTrack );
         if ( wellLogPlotTrack )
         {
-            return handleWellLogPlotTrackDrop( action, draggedObjects, wellLogPlotTrack );
+            return handleWellLogPlotTrackDrop( action, draggedObjects, wellLogPlotTrack, row );
         }
 
         RimWellLogPlot* wellLogPlot;
         dropTarget->firstAncestorOrThisOfType( wellLogPlot );
         if ( wellLogPlot )
         {
-            return handleWellLogPlotDrop( action, draggedObjects, wellLogPlot );
+            return handleWellLogPlotDrop( action, draggedObjects, wellLogPlot, row );
         }
 
         RimSummaryCaseCollection* summaryCaseCollection;
@@ -381,7 +381,8 @@ bool RiuDragDrop::handleGridCaseGroupDrop( Qt::DropAction             action,
 //--------------------------------------------------------------------------------------------------
 bool RiuDragDrop::handleWellLogPlotTrackDrop( Qt::DropAction       action,
                                               caf::PdmObjectGroup& draggedObjects,
-                                              RimWellLogTrack*     trackTarget )
+                                              RimWellLogTrack*     trackTarget,
+                                              int                  insertAtPosition )
 {
     std::vector<RimWellLogFileChannel*> wellLogFileChannels = RiuTypedPdmObjects<RimWellLogFileChannel>::typedObjectsFromGroup(
         draggedObjects );
@@ -400,7 +401,17 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop( Qt::DropAction       action,
     {
         if ( action == Qt::MoveAction )
         {
-            RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( trackTarget, wellLogPlotCurves, nullptr );
+            RimWellLogCurve* insertAfter = nullptr;
+            if ( insertAtPosition > 0 )
+            {
+                auto visibleCurves = trackTarget->visibleCurvesVector();
+                if ( !visibleCurves.empty() )
+                {
+                    int insertAfterPosition = std::min( insertAtPosition - 1, (int)visibleCurves.size() - 1 );
+                    insertAfter             = visibleCurves[insertAfterPosition];
+                }
+            }
+            RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( trackTarget, wellLogPlotCurves, insertAfter );
             return true;
         }
     }
@@ -413,8 +424,7 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop( Qt::DropAction       action,
         {
             RimWellLogPlot* wellLogPlot;
             trackTarget->firstAncestorOrThisOfType( wellLogPlot );
-            RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot( wellLogPlot, wellLogPlotTracks, trackTarget );
-            return true;
+            return handleWellLogPlotDrop( action, draggedObjects, wellLogPlot, insertAtPosition );
         }
     }
 
@@ -426,7 +436,8 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop( Qt::DropAction       action,
 //--------------------------------------------------------------------------------------------------
 bool RiuDragDrop::handleWellLogPlotDrop( Qt::DropAction       action,
                                          caf::PdmObjectGroup& draggedObjects,
-                                         RimWellLogPlot*      wellLogPlotTarget )
+                                         RimWellLogPlot*      wellLogPlotTarget,
+                                         int                  insertAtPosition )
 {
     std::vector<RimWellLogTrack*> wellLogPlotTracks = RiuTypedPdmObjects<RimWellLogTrack>::typedObjectsFromGroup(
         draggedObjects );
@@ -434,7 +445,17 @@ bool RiuDragDrop::handleWellLogPlotDrop( Qt::DropAction       action,
     {
         if ( action == Qt::MoveAction )
         {
-            RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot( wellLogPlotTarget, wellLogPlotTracks, nullptr );
+            RimWellLogTrack* insertAfter = nullptr;
+            if ( insertAtPosition > 0 )
+            {
+                auto visibleTracks = wellLogPlotTarget->visibleTracks();
+                if ( !visibleTracks.empty() )
+                {
+                    int insertAfterPosition = std::min( insertAtPosition - 1, (int)visibleTracks.size() - 1 );
+                    insertAfter             = visibleTracks[insertAfterPosition];
+                }
+            }
+            RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot( wellLogPlotTarget, wellLogPlotTracks, insertAfter );
             return true;
         }
     }

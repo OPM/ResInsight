@@ -626,8 +626,7 @@ void RiuPlotMainWindow::addViewer( QWidget* viewer, const RimMdiWindowGeometry& 
         RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>( viewer );
         if ( wellLogPlot )
         {
-            QSize preferredSize = wellLogPlot->preferredSize();
-            subWindowSize       = QSize( preferredSize.width(), m_mdiArea->height() );
+            subWindowSize = QSize( wellLogPlot->preferredWidth(), m_mdiArea->height() );
         }
         else
         {

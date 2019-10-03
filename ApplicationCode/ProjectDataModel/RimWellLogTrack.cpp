@@ -1537,6 +1537,14 @@ bool RimWellLogTrack::isVisible()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setVisible( bool visible )
+{
+    m_show = visible;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateAxisScaleEngine()
 {
     if ( m_isLogarithmicScaleEnabled )
@@ -1670,6 +1678,24 @@ std::vector<RimWellLogCurve*> RimWellLogTrack::curvesVector()
     for ( RimWellLogCurve* curve : curves )
     {
         curvesVector.push_back( curve );
+    }
+
+    return curvesVector;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellLogCurve*> RimWellLogTrack::visibleCurvesVector()
+{
+    std::vector<RimWellLogCurve*> curvesVector;
+
+    for ( RimWellLogCurve* curve : curves )
+    {
+        if ( curve->isCurveVisible() )
+        {
+            curvesVector.push_back( curve );
+        }
     }
 
     return curvesVector;
