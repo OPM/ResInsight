@@ -114,17 +114,20 @@ QString mockModelBasicInputCase();
 QString activeFormationNamesResultName();
 
 // Well path derived results
-QString wellPathAzimuthResultName();
-QString wellPathInclinationResultName();
-QString wellPathPPResultName();
-QString wellPathSHResultName();
-QString wellPathOBGResultName();
-QString wellPathFGResultName();
-QString wellPathSFGResultName();
+QString wbsAzimuthResultName();
+QString wbsInclinationResultName();
+QString wbsPPResultName();
+QString wbsSHResultName();
+QString wbsOBGResultName();
+QString wbsFGResultName();
+QString wbsSFGResultName();
+QString wbsPoissonParameterName();
+QString wbsUCSParameterName();
 
 // List of well path derived results
 std::vector<QString> wellPathAngleResultNames();
 std::vector<QString> wellPathStabilityResultNames();
+std::vector<QString> wellPathStabilityParameterNames();
 
 // Units and conversions
 enum DepthUnitType

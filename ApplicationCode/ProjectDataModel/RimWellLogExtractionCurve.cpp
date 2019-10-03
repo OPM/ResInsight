@@ -566,6 +566,19 @@ void RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( const RimW
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::setAutoNameComponents(
+    bool addCaseName, bool addProperty, bool addWellname, bool addTimeStep, bool addDate )
+{
+    m_addCaseNameToCurveName = addCaseName;
+    m_addPropertyToCurveName = addProperty;
+    m_addWellNameToCurveName = addWellname;
+    m_addTimestepToCurveName = addTimeStep;
+    m_addDateToCurveName     = addDate;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<QString> RimWellLogExtractionCurve::sortedSimWellNames()
 {
     std::set<QString> sortedWellNames;

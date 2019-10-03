@@ -41,6 +41,7 @@ protected:
 private:
     void createFormationTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase );
     void createCasingShoeTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase );
-    void createStabilityCurvesTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechView* geoMechCase );
+    void createParametersTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechView* geoMechView );
+    void createStabilityCurvesTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechView* geoMechView );
     void createAnglesTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechView* geoMechView );
 };

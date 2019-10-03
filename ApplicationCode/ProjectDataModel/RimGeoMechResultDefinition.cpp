@@ -468,8 +468,8 @@ void RimGeoMechResultDefinition::loadResult()
 {
     if ( m_geomCase && m_geomCase->geoMechData() )
     {
-        if ( this->resultAddress().fieldName == RiaDefines::wellPathFGResultName().toStdString() ||
-             this->resultAddress().fieldName == RiaDefines::wellPathSFGResultName().toStdString() )
+        if ( this->resultAddress().fieldName == RiaDefines::wbsFGResultName().toStdString() ||
+             this->resultAddress().fieldName == RiaDefines::wbsSFGResultName().toStdString() )
         {
             RigFemResultAddress stressResAddr( RIG_ELEMENT_NODAL, std::string( "ST" ), "" );
             RigFemResultAddress porBarResAddr( RIG_ELEMENT_NODAL, std::string( "POR-Bar" ), "" );
@@ -625,6 +625,7 @@ QString RimGeoMechResultDefinition::convertToUiResultFieldName( QString resultFi
     if ( resultFieldName == "POR-Bar" ) newName = "POR"; // POR-Bar appear as POR
     if ( resultFieldName == "MODULUS" ) newName = "Young's Modulus";
     if ( resultFieldName == "RATIO" ) newName = "Poisson's Ratio";
+    if ( resultFieldName == "UCS" ) newName = "UCS bar/ 100";
 
     return newName;
 }
