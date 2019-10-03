@@ -64,6 +64,12 @@ public:
                                 const RigWellPath*  wellpath,
                                 const std::string&  wellCaseErrorMsgName );
 
+    void smoothCurveData( int                  frameIndex,
+                          std::vector<double>* mds,
+                          std::vector<double>* tvds,
+                          std::vector<double>* values,
+                          const double         smoothingTreshold );
+
     void curveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
     const RigGeoMechCaseData* caseData();
     void                      setRkbDiff( double rkbDiff );
@@ -106,14 +112,12 @@ private:
 
     void wellPathAngles( const RigFemResultAddress& resAddr, std::vector<double>* values );
     void wellPathScaledCurveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
-
     void wellBoreWallCurveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
 
     template <typename T>
     T      interpolateGridResultValue( RigFemResultPosEnum   resultPosType,
                                        const std::vector<T>& gridResultValues,
-                                       int64_t               intersectionIdx,
-                                       bool                  averageNodeElementResults ) const;
+                                       int64_t               intersectionIdx ) const;
     size_t gridResultIndexFace( size_t elementIdx, cvf::StructGridInterface::FaceType cellFace, int faceLocalNodeIdx ) const;
     void                calculateIntersection();
     std::vector<size_t> findCloseCells( const cvf::BoundingBox& bb );
@@ -134,6 +138,30 @@ private:
                                                            const T&              invalidValue,
                                                            T*                    averagedSegmentValue ) const;
     static double pascalToBar( double pascalValue );
+
+    template <typename T>
+    std::vector<T> interpolateInterfaceValues( RigFemResultAddress   nativeAddr,
+                                               const std::vector<T>& unscaledResultValues ) const;
+
+    static void initializeResultValues( std::vector<float>& resultValues, size_t resultCount );
+    static void initializeResultValues( std::vector<caf::Ten3d>& resultValues, size_t resultCount );
+
+    void filterShortSegments( std::vector<double>*               xValues,
+                              std::vector<double>*               yValues,
+                              std::vector<unsigned char>*        filterSegments,
+                              std::vector<std::vector<double>*>& vectorOfDependentValues );
+    void filterColinearSegments( std::vector<double>*               xValues,
+                                 std::vector<double>*               yValues,
+                                 std::vector<unsigned char>*        filterSegments,
+                                 std::vector<std::vector<double>*>& vectorOfDependentValues );
+    void smoothSegments( std::vector<double>*              mds,
+                         std::vector<double>*              tvds,
+                         std::vector<double>*              values,
+                         const std::vector<double>&        interfaceShValues,
+                         const std::vector<unsigned char>& smoothSegments,
+                         const double                      smoothingThreshold );
+
+    std::vector<unsigned char> determineFilteringOrSmoothing( const std::vector<double>& porePressures );
 
 private:
     cvf::ref<RigGeoMechCaseData>           m_caseData;

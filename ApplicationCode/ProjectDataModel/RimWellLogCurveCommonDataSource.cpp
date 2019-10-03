@@ -21,6 +21,7 @@
 #include "RimCase.h"
 #include "RimDataSourceSteppingTools.h"
 #include "RimEclipseCase.h"
+#include "RimGeoMechCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimTools.h"
@@ -29,6 +30,7 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
+#include "RimWellLogWbsCurve.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -37,8 +39,28 @@
 
 #include "cafPdmUiCheckBoxTristateEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiLineEditor.h"
+
+#include <algorithm>
 
 CAF_PDM_SOURCE_INIT( RimWellLogCurveCommonDataSource, "ChangeDataSourceFeatureUi" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogCurveCommonDataSource::DoubleComparator::DoubleComparator( double eps /*= 1.0e-8 */ )
+    : m_eps( eps )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogCurveCommonDataSource::DoubleComparator::operator()( const double& lhs, const double& rhs ) const
+{
+    double diff = lhs - rhs;
+    return diff < -m_eps;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -64,6 +86,12 @@ RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
     CAF_PDM_InitField( &m_branchIndex, "Branch", -1, "Branch Index", "", "", "" );
 
     CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", -1, "Time Step", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_wbsSmoothing, "WBSSmoothing", "Smooth Curves", "", "", "" );
+    m_wbsSmoothing.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
+    m_wbsSmoothing.v() = caf::Tristate::State::PartiallyTrue;
+
+    CAF_PDM_InitField( &m_wbsSmoothingThreshold, "WBSSmoothingThreshold", -1.0, "Smoothing Threshold", "", "", "" );
 
     m_case     = nullptr;
     m_wellPath = nullptr;
@@ -152,6 +180,38 @@ void RimWellLogCurveCommonDataSource::setBranchDetectionToApply( caf::Tristate::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+caf::Tristate RimWellLogCurveCommonDataSource::wbsSmoothingToApply() const
+{
+    return m_wbsSmoothing();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurveCommonDataSource::setWbsSmoothingToApply( caf::Tristate::State val )
+{
+    m_wbsSmoothing.v() = val;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellLogCurveCommonDataSource::wbsSmoothingThreshold() const
+{
+    return m_wbsSmoothingThreshold;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurveCommonDataSource::setWbsSmoothingThreshold( double smoothingThreshold )
+{
+    m_wbsSmoothingThreshold = smoothingThreshold;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWellLogCurveCommonDataSource::simWellNameToApply() const
 {
     return m_simWellName();
@@ -193,6 +253,8 @@ void RimWellLogCurveCommonDataSource::resetDefaultOptions()
     setBranchDetectionToApply( caf::Tristate::State::PartiallyTrue );
     setSimWellNameToApply( QString( "" ) );
     setTimeStepToApply( -1 );
+    setWbsSmoothingToApply( caf::Tristate::State::PartiallyTrue );
+    setWbsSmoothingThreshold( -1.0 );
 
     m_uniqueCases.clear();
     m_uniqueTrajectoryTypes.clear();
@@ -201,6 +263,8 @@ void RimWellLogCurveCommonDataSource::resetDefaultOptions()
     m_uniqueTimeSteps.clear();
     m_uniqueBranchIndices.clear();
     m_uniqueBranchDetection.clear();
+    m_uniqueWbsSmoothing.clear();
+    m_uniqueWbsSmoothingThreshold.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,6 +287,12 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions( const std::vector<Ri
         RimWellLogFileCurve*       fileCurve       = dynamic_cast<RimWellLogFileCurve*>( curve );
         if ( extractionCurve )
         {
+            RimWellLogWbsCurve* wbsCurve = dynamic_cast<RimWellLogWbsCurve*>( extractionCurve );
+            if ( wbsCurve )
+            {
+                m_uniqueWbsSmoothing.insert( wbsCurve->smoothCurve() );
+                m_uniqueWbsSmoothingThreshold.insert( wbsCurve->smoothingThreshold() );
+            }
             if ( extractionCurve->rimCase() )
             {
                 m_uniqueCases.insert( extractionCurve->rimCase() );
@@ -310,6 +380,17 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions( const std::vector<Ri
     if ( m_uniqueTimeSteps.size() == 1u )
     {
         setTimeStepToApply( *m_uniqueTimeSteps.begin() );
+    }
+
+    if ( m_uniqueWbsSmoothing.size() == 1u )
+    {
+        setWbsSmoothingToApply( *m_uniqueWbsSmoothing.begin() == true ? caf::Tristate::State::True
+                                                                      : caf::Tristate::State::False );
+    }
+
+    if ( m_uniqueWbsSmoothingThreshold.size() == 1u )
+    {
+        setWbsSmoothingThreshold( *m_uniqueWbsSmoothingThreshold.begin() );
     }
 }
 
@@ -411,6 +492,21 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks( std::vector<RimWell
                 updatedSomething = true;
             }
 
+            RimWellLogWbsCurve* wbsCurve = dynamic_cast<RimWellLogWbsCurve*>( extractionCurve );
+            if ( wbsCurve )
+            {
+                if ( !wbsSmoothingToApply().isPartiallyTrue() )
+                {
+                    wbsCurve->setSmoothCurve( wbsSmoothingToApply().isTrue() );
+                    updatedSomething = true;
+                }
+
+                if ( wbsSmoothingThreshold() != 1.0 )
+                {
+                    wbsCurve->setSmoothingThreshold( wbsSmoothingThreshold() );
+                    updatedSomething = true;
+                }
+            }
             if ( updatedSomething )
             {
                 RimWellLogPlot* parentPlot = nullptr;
@@ -603,6 +699,13 @@ void RimWellLogCurveCommonDataSource::fieldChangedByUi( const caf::PdmFieldHandl
             m_branchDetection.v() = caf::Tristate::State::True;
         }
     }
+    if ( changedField == &m_wbsSmoothing )
+    {
+        if ( m_wbsSmoothing().isPartiallyTrue() )
+        {
+            m_wbsSmoothing.v() = caf::Tristate::State::True;
+        }
+    }
 
     this->updateCurvesAndTracks();
 }
@@ -791,6 +894,13 @@ void RimWellLogCurveCommonDataSource::defineUiOrdering( QString uiConfigName, ca
         group->add( &m_wellPath );
     }
     group->add( &m_timeStep );
+
+    if ( dynamic_cast<RimGeoMechCase*>( m_case() ) )
+    {
+        group->add( &m_wbsSmoothing );
+        group->add( &m_wbsSmoothingThreshold );
+    }
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -829,6 +939,21 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
             myAttr->nextButtonText = "Next " + modifierText + "PgDown)";
             myAttr->prevButtonText = "Previous " + modifierText + "PgUp)";
         }
+    }
+    caf::PdmUiLineEditorAttributeUiDisplayString* uiDisplayStringAttr =
+        dynamic_cast<caf::PdmUiLineEditorAttributeUiDisplayString*>( attribute );
+    if ( uiDisplayStringAttr && wbsSmoothingThreshold() == -1.0 )
+    {
+        QString displayString = "Mixed";
+
+        if ( m_uniqueWbsSmoothingThreshold.size() > 1u )
+        {
+            auto minmax_it = std::minmax_element( m_uniqueWbsSmoothingThreshold.begin(),
+                                                  m_uniqueWbsSmoothingThreshold.end() );
+            displayString += QString( " [%1, %2]" ).arg( *( minmax_it.first ) ).arg( *( minmax_it.second ) );
+        }
+
+        uiDisplayStringAttr->m_displayString = displayString;
     }
 }
 

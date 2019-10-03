@@ -37,6 +37,7 @@
 #include "RimWellLogFileCurve.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
+#include "RimWellLogWbsCurve.h"
 #include "RimWellPath.h"
 
 #include "RicWellLogTools.h"
@@ -221,21 +222,23 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
 
     for ( size_t i = 0; i < resultNames.size(); ++i )
     {
-        const QString&             resultName = resultNames[i];
-        RigFemResultAddress        resAddr( RIG_WELLPATH_DERIVED, resultName.toStdString(), "" );
-        RimWellLogExtractionCurve* curve = RicWellLogTools::addExtractionCurve( stabilityCurvesTrack,
-                                                                                geoMechView,
-                                                                                wellPath,
-                                                                                nullptr,
-                                                                                -1,
-                                                                                false,
-                                                                                false );
+        const QString&      resultName = resultNames[i];
+        RigFemResultAddress resAddr( RIG_WELLPATH_DERIVED, resultName.toStdString(), "" );
+        RimWellLogWbsCurve* curve = RicWellLogTools::addWellLogWbsCurve( stabilityCurvesTrack,
+                                                                         geoMechView,
+                                                                         wellPath,
+                                                                         nullptr,
+                                                                         -1,
+                                                                         false,
+                                                                         false );
         curve->setGeoMechResultAddress( resAddr );
         curve->setCurrentTimeStep( geoMechView->currentTimeStep() );
         curve->setCustomName( resultName );
         curve->setColor( colors[i % colors.size()] );
         curve->setLineThickness( 2 );
         curve->loadDataAndUpdate( false );
+        curve->setSmoothCurve( true );
+        curve->setSmoothingThreshold( 0.002 );
     }
     stabilityCurvesTrack->calculateXZoomRangeAndUpdateQwt();
 }
@@ -262,8 +265,13 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
     {
         const QString&             resultName = resultNames[i];
         RigFemResultAddress        resAddr( RIG_WELLPATH_DERIVED, resultName.toStdString(), "" );
-        RimWellLogExtractionCurve* curve =
-            RicWellLogTools::addExtractionCurve( wellPathAnglesTrack, geoMechView, wellPath, nullptr, -1, false, false );
+        RimWellLogExtractionCurve* curve = RicWellLogTools::addWellLogExtractionCurve( wellPathAnglesTrack,
+                                                                                       geoMechView,
+                                                                                       wellPath,
+                                                                                       nullptr,
+                                                                                       -1,
+                                                                                       false,
+                                                                                       false );
         curve->setGeoMechResultAddress( resAddr );
         curve->setCurrentTimeStep( geoMechView->currentTimeStep() );
         curve->setCustomName( resultName );

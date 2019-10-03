@@ -40,6 +40,16 @@ class RimWellLogCurveCommonDataSource : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    class DoubleComparator
+    {
+    public:
+        DoubleComparator( double eps = 1.0e-6 );
+        bool operator()( const double& lhs, const double& rhs ) const;
+
+    private:
+        double m_eps;
+    };
+
     RimWellLogCurveCommonDataSource();
 
     RimCase*      caseToApply() const;
@@ -52,6 +62,10 @@ public:
     void          setBranchIndexToApply( int val );
     caf::Tristate branchDetectionToApply() const;
     void          setBranchDetectionToApply( caf::Tristate::State val );
+    caf::Tristate wbsSmoothingToApply() const;
+    void          setWbsSmoothingToApply( caf::Tristate::State val );
+    double        wbsSmoothingThreshold() const;
+    void          setWbsSmoothingThreshold( double smoothingThreshold );
 
     QString simWellNameToApply() const;
     void    setSimWellNameToApply( const QString& val );
@@ -93,12 +107,16 @@ private:
     caf::PdmField<int>             m_branchIndex;
     caf::PdmField<caf::Tristate>   m_branchDetection;
     caf::PdmField<int>             m_timeStep;
+    caf::PdmField<caf::Tristate>   m_wbsSmoothing;
+    caf::PdmField<double>          m_wbsSmoothingThreshold;
 
-    std::set<RimCase*>     m_uniqueCases;
-    std::set<int>          m_uniqueTrajectoryTypes;
-    std::set<RimWellPath*> m_uniqueWellPaths;
-    std::set<QString>      m_uniqueWellNames;
-    std::set<int>          m_uniqueTimeSteps;
-    std::set<bool>         m_uniqueBranchDetection;
-    std::set<int>          m_uniqueBranchIndices;
+    std::set<RimCase*>                 m_uniqueCases;
+    std::set<int>                      m_uniqueTrajectoryTypes;
+    std::set<RimWellPath*>             m_uniqueWellPaths;
+    std::set<QString>                  m_uniqueWellNames;
+    std::set<int>                      m_uniqueTimeSteps;
+    std::set<bool>                     m_uniqueBranchDetection;
+    std::set<int>                      m_uniqueBranchIndices;
+    std::set<bool>                     m_uniqueWbsSmoothing;
+    std::set<double, DoubleComparator> m_uniqueWbsSmoothingThreshold;
 };

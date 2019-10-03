@@ -336,7 +336,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
     if ( isCurveVisible() )
     {
         bool isUsingPseudoLength = false;
-        extractData( &isUsingPseudoLength );
+        performDataExtraction( &isUsingPseudoLength );
 
         RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
 
@@ -395,7 +395,15 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::extractData( bool* isUsingPseudoLength )
+void RimWellLogExtractionCurve::performDataExtraction( bool* isUsingPseudoLength )
+{
+    extractData( isUsingPseudoLength );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::extractData( bool* isUsingPseudoLength, bool smoothData, double smoothingThreshold )
 {
     CAF_ASSERT( isUsingPseudoLength );
 
@@ -495,17 +503,21 @@ void RimWellLogExtractionCurve::extractData( bool* isUsingPseudoLength )
 
         m_geomResultDefinition->loadResult();
         geomExtractor->curveData( m_geomResultDefinition->resultAddress(), m_timeStep, &values );
+        if ( smoothData )
+        {
+            geomExtractor->smoothCurveData( m_timeStep, &measuredDepthValues, &tvDepthValues, &values, smoothingThreshold );
+        }
     }
 
     if ( values.size() && measuredDepthValues.size() )
     {
         if ( !tvDepthValues.size() )
         {
-            this->setValuesAndMD( values, measuredDepthValues, depthUnit, true );
+            this->setValuesAndMD( values, measuredDepthValues, depthUnit, !smoothData );
         }
         else
         {
-            this->setValuesWithTVD( values, measuredDepthValues, tvDepthValues, depthUnit, true );
+            this->setValuesWithTVD( values, measuredDepthValues, tvDepthValues, depthUnit, !smoothData );
         }
     }
 }
@@ -649,7 +661,7 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
 {
     RimPlotCurve::updateOptionSensitivity();
 
-    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Curve Data" );
+    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroupWithKeyword( "Curve Data", "CurveData" );
 
     curveDataGroup->add( &m_case );
 
@@ -677,7 +689,6 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
     else if ( geomCase )
     {
         curveDataGroup->add( &m_wellPath );
-        m_geomResultDefinition->uiOrdering( uiConfigName, *curveDataGroup );
     }
 
     if ( ( eclipseCase && m_eclipseResultDefinition->hasDynamicResult() ) || geomCase )

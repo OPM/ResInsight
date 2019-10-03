@@ -83,6 +83,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFile.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileChannel.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.h
@@ -221,6 +222,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFile.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileChannel.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.cpp

@@ -87,9 +87,10 @@ public:
                                                       RigGeoMechWellLogExtractor* geomExtractor );
 
 protected:
-    QString createCurveAutoName() override;
-    void    onLoadDataAndUpdate( bool updateParentPlot ) override;
-    void    extractData( bool* isUsingPseudoLength );
+    QString      createCurveAutoName() override;
+    void         onLoadDataAndUpdate( bool updateParentPlot ) override;
+    virtual void performDataExtraction( bool* isUsingPseudoLength );
+    void         extractData( bool* isUsingPseudoLength, bool smoothData = false, double smoothingThreshold = -1.0 );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
