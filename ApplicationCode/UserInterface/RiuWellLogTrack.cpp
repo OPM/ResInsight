@@ -268,7 +268,7 @@ bool RiuWellLogTrack::isRimTrackVisible()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogTrack::enableDepthAxisLabelsAndTitle( bool enable )
+void RiuWellLogTrack::enableDepthAxisLabelsAndTicks( bool enable )
 {
     this->axisScaleDraw( QwtPlot::yLeft )->enableComponent( QwtAbstractScaleDraw::Ticks, enable );
     this->axisScaleDraw( QwtPlot::yLeft )->enableComponent( QwtAbstractScaleDraw::Labels, enable );

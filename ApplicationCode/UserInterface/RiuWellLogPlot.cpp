@@ -348,7 +348,8 @@ void RiuWellLogPlot::reinsertTracks()
                 m_legends[tIdx]->hide();
             }
 
-            m_trackPlots[tIdx]->enableDepthAxisLabelsAndTitle( visibleIndex == 0 );
+            m_trackPlots[tIdx]->setDepthTitle( visibleIndex == 0 ? m_plotDefinition->depthPlotTitle() : "" );
+            m_trackPlots[tIdx]->enableDepthAxisLabelsAndTicks( visibleIndex == 0 );
             m_trackPlots[tIdx]->show();
 
             m_trackLayout->addWidget( m_legends[tIdx], 0, static_cast<int>( visibleIndex ) );

@@ -839,10 +839,6 @@ void RimWellLogTrack::loadDataAndUpdate( bool updateParentPlotAndToolbars )
 
     if ( wellLogPlot && m_wellLogTrackPlotWidget )
     {
-        if ( isFirstVisibleTrackInPlot() )
-        {
-            m_wellLogTrackPlotWidget->setDepthTitle( wellLogPlot->depthPlotTitle() );
-        }
         m_wellLogTrackPlotWidget->setXTitle( m_xAxisTitle );
     }
 

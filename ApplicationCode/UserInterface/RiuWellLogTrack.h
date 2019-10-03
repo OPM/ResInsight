@@ -52,7 +52,7 @@ public:
     void setXRange( double min, double max, QwtPlot::Axis axis = QwtPlot::xTop );
 
     bool   isRimTrackVisible();
-    void   enableDepthAxisLabelsAndTitle( bool enable );
+    void   enableDepthAxisLabelsAndTicks( bool enable );
     int    widthScaleFactor() const;
     void   enableXGridLines( bool majorGridLines, bool minorGridLines );
     void   enableDepthGridLines( bool majorGridLines, bool minorGridLines );
