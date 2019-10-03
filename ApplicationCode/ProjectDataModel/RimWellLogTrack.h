@@ -176,6 +176,7 @@ public:
 
     QString                       description();
     std::vector<RimWellLogCurve*> curvesVector();
+    std::vector<RimWellLogCurve*> visibleCurvesVector();
 
     void uiOrderingForRftPltFormations( caf::PdmUiOrdering& uiOrdering );
     void uiOrderingForXAxisSettings( caf::PdmUiOrdering& uiOrdering );

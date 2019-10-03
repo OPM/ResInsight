@@ -62,8 +62,12 @@ private:
                                   RimIdenticalGridCaseGroup* gridCaseGroup );
     bool handleWellLogPlotTrackDrop( Qt::DropAction       action,
                                      caf::PdmObjectGroup& objectGroup,
-                                     RimWellLogTrack*     wellLogPlotTrack );
-    bool handleWellLogPlotDrop( Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlot* wellLogPlot );
+                                     RimWellLogTrack*     wellLogPlotTrack,
+                                     int                  insertAtPosition );
+    bool handleWellLogPlotDrop( Qt::DropAction       action,
+                                caf::PdmObjectGroup& objectGroup,
+                                RimWellLogPlot*      wellLogPlot,
+                                int                  insertAtPosition );
     bool handleWellLogPlotCurveDrop( Qt::DropAction       action,
                                      caf::PdmObjectGroup& objectGroup,
                                      RimWellLogCurve*     wellLogPlotCurve );

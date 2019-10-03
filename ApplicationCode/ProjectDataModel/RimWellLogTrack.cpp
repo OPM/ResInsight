@@ -1686,6 +1686,24 @@ std::vector<RimWellLogCurve*> RimWellLogTrack::curvesVector()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellLogCurve*> RimWellLogTrack::visibleCurvesVector()
+{
+    std::vector<RimWellLogCurve*> curvesVector;
+
+    for ( RimWellLogCurve* curve : curves )
+    {
+        if ( curve->isCurveVisible() )
+        {
+            curvesVector.push_back( curve );
+        }
+    }
+
+    return curvesVector;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::uiOrderingForRftPltFormations( caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup( "Zonation/Formation Names" );

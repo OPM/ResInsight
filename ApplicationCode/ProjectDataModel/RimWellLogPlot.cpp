@@ -365,6 +365,22 @@ std::vector<RimWellLogTrack*> RimWellLogPlot::tracks() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellLogTrack*> RimWellLogPlot::visibleTracks() const
+{
+    std::vector<RimWellLogTrack*> tracks;
+    for ( RimWellLogTrack* track : m_tracks() )
+    {
+        if ( track->isVisible() )
+        {
+            tracks.push_back( track );
+        }
+    }
+    return tracks;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::setDepthZoomByFactorAndCenter( double zoomFactor, double zoomCenter )
 {
     double newMinimum = zoomCenter - ( zoomCenter - m_minVisibleDepth ) * zoomFactor;
@@ -836,7 +852,7 @@ void RimWellLogPlot::updateTrackNames()
     for ( size_t tIdx = 0; tIdx < m_tracks.size(); tIdx++ )
     {
         QString            description = m_tracks[tIdx]->description();
-        QRegularExpression regexp( "Track \d+" );
+        QRegularExpression regexp( "Track \\d+" );
         description.replace( regexp, QString( "Track %1" ).arg( tIdx + 1 ) );
         m_tracks[tIdx]->setDescription( description );
     }
