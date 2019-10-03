@@ -68,6 +68,17 @@ void RicNewSummaryCurveFeature::onActionTriggered( bool isChecked )
             defaultCase = project->activeOilField()->summaryCaseMainCollection()->summaryCase( 0 );
         }
 
+        if ( !defaultCase )
+        {
+            std::vector<RimSummaryCase*> allSummaryCases =
+                project->activeOilField()->summaryCaseMainCollection()->allSummaryCases();
+
+            if ( !allSummaryCases.empty() )
+            {
+                defaultCase = allSummaryCases.front();
+            }
+        }
+
         RimSummaryCurve* newCurve = RicSummaryPlotFeatureImpl::addDefaultCurveToPlot( plot, defaultCase );
 
         plot->applyDefaultCurveAppearances();
