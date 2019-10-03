@@ -835,7 +835,10 @@ void RimWellLogPlot::updateTrackNames()
 {
     for ( size_t tIdx = 0; tIdx < m_tracks.size(); tIdx++ )
     {
-        m_tracks[tIdx]->setDescription( QString( "Track %1" ).arg( tIdx + 1 ) );
+        QString            description = m_tracks[tIdx]->description();
+        QRegularExpression regexp( "Track \d+" );
+        description.replace( regexp, QString( "Track %1" ).arg( tIdx + 1 ) );
+        m_tracks[tIdx]->setDescription( description );
     }
 }
 
