@@ -374,7 +374,9 @@ void RigLasFileExporter::setRkbDiffs( const std::vector<QString>& wellNames, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigLasFileExporter::writeToFolder( const QString& exportFolder )
+bool RigLasFileExporter::writeToFolder( const QString& exportFolder,
+                                        const QString& filePrefix /*= ""*/,
+                                        bool           capitalizeFileName /*= false*/ )
 {
     std::vector<SingleLasFileMetaData> lasFileDescriptions = createLasFileDescriptions( m_curves );
 
@@ -392,10 +394,15 @@ bool RigLasFileExporter::writeToFolder( const QString& exportFolder )
         }
 
         QDir    dir( exportFolder );
-        QString fileName = dir.absoluteFilePath( QString::fromStdString( lasFileDescr.generateFilename() ) );
-        if ( caf::Utils::fileExists( fileName ) )
+        QString fileName = filePrefix + QString::fromStdString( lasFileDescr.generateFilename() );
+        if ( capitalizeFileName )
         {
-            QString txt = QString( "File %1 exists.\n\nDo you want to overwrite the file?" ).arg( fileName );
+            fileName = fileName.toUpper();
+        }
+        QString fullPathName = dir.absoluteFilePath( fileName );
+        if ( caf::Utils::fileExists( fullPathName ) )
+        {
+            QString txt = QString( "File %1 exists.\n\nDo you want to overwrite the file?" ).arg( fullPathName );
             int     ret = QMessageBox::question( nullptr,
                                              "LAS File Export",
                                              txt,
@@ -406,7 +413,7 @@ bool RigLasFileExporter::writeToFolder( const QString& exportFolder )
         }
 
         std::vector<std::string> commentHeader;
-        lasFile.WriteToFile( fileName.toStdString(), commentHeader );
+        lasFile.WriteToFile( fullPathName.toStdString(), commentHeader );
     }
 
     return true;

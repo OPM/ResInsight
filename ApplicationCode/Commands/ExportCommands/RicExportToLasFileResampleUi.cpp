@@ -47,6 +47,8 @@ RicExportToLasFileResampleUi::RicExportToLasFileResampleUi( void )
 
     CAF_PDM_InitField( &exportFolder, "ExportFolder", QString(), "Export Folder", "", "", "" );
     exportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &filePrefix, "FilePrefix", QString( "" ), "File Prefix", "", "", "" );
+    CAF_PDM_InitField( &capitalizeFileName, "CapitalizeFileName", false, "Capitalize File Name", "", "", "" );
 
     CAF_PDM_InitField( &activateResample, "ActivateResample", false, "Resample Curve Data", "", "", "" );
     activateResample.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -168,7 +170,8 @@ void RicExportToLasFileResampleUi::updateFieldVisibility()
 void RicExportToLasFileResampleUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &exportFolder );
-
+    uiOrdering.add( &filePrefix );
+    uiOrdering.add( &capitalizeFileName );
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Resampling" );
 

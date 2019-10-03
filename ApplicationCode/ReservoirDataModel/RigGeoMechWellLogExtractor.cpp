@@ -159,23 +159,23 @@ void RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAddr, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-float RigGeoMechWellLogExtractor::calculatePorePressureInSegment( int64_t intersectionIdx,
-                                                                  float   averageSegmentPorePressureBar,
-                                                                  double  hydroStaticPorePressureBar,
-                                                                  double  effectiveDepthMeters,
-                                                                  const std::vector<float>& poreElementPressuresPascal ) const
+std::pair<float, RigGeoMechWellLogExtractor::WbsParameterSource> RigGeoMechWellLogExtractor::calculatePorePressureInSegment(
+    int64_t                   intersectionIdx,
+    double                    effectiveDepthMeters,
+    const std::vector<float>& interpolatedInterfacePorePressuresBar,
+    const std::vector<float>& poreElementPressuresPascal ) const
 {
-    // Priority 4: Assign a default of hydrostatic pore pressure
-    double porePressure = hydroStaticPorePressureBar;
-
-    // Priority 3: Try element property tables
-    if ( m_porePressureSource == AUTO || m_porePressureSource == ELEMENT_PROPERTY_TABLE )
+    // Priority 1: Try pore pressure from the grid
+    if ( m_porePressureSource == AUTO || m_porePressureSource == GRID )
     {
-        size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
-        if ( elmIdx < poreElementPressuresPascal.size() )
+        float averagePorePressureBar = std::numeric_limits<float>::infinity();
+        bool  validGridPorePressure  = averageIntersectionValuesToSegmentValue( intersectionIdx,
+                                                                              interpolatedInterfacePorePressuresBar,
+                                                                              std::numeric_limits<float>::infinity(),
+                                                                              &averagePorePressureBar );
+        if ( validGridPorePressure )
         {
-            // Pore pressure from element property tables are in pascal.
-            porePressure = pascalToBar( poreElementPressuresPascal[elmIdx] );
+            return std::make_pair( averagePorePressureBar, GRID );
         }
     }
 
@@ -187,43 +187,32 @@ float RigGeoMechWellLogExtractor::calculatePorePressureInSegment( int64_t inters
         {
             double specificMudWeightNPerM3 = lasMudWeightKgPerM3 * 9.81;
             double porePressurePascal      = specificMudWeightNPerM3 * effectiveDepthMeters;
-            porePressure                   = pascalToBar( porePressurePascal );
+            double porePressureBar         = pascalToBar( porePressurePascal );
+            return std::make_pair( (float)porePressureBar, LAS_FILE );
         }
     }
 
-    // Priority 1: Try pore pressure from the grid
-    if ( m_porePressureSource == AUTO || m_porePressureSource == GRID )
+    // Priority 3: Try element property tables
+    if ( m_porePressureSource == AUTO || m_porePressureSource == ELEMENT_PROPERTY_TABLE )
     {
-        if ( averageSegmentPorePressureBar != std::numeric_limits<double>::infinity() &&
-             averageSegmentPorePressureBar > 0.0 )
+        size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
+        if ( elmIdx < poreElementPressuresPascal.size() )
         {
-            porePressure = averageSegmentPorePressureBar;
+            float porePressureBar = pascalToBar( poreElementPressuresPascal[elmIdx] );
+            return std::make_pair( porePressureBar, ELEMENT_PROPERTY_TABLE );
         }
     }
 
-    CVF_ASSERT( porePressure >= 0.0 );
-    return porePressure;
+    return std::make_pair( std::numeric_limits<float>::infinity(), INVALID );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-float RigGeoMechWellLogExtractor::calculatePoissonRatio( int64_t                   intersectionIdx,
-                                                         const std::vector<float>& poissonRatios ) const
+std::pair<float, RigGeoMechWellLogExtractor::WbsParameterSource>
+    RigGeoMechWellLogExtractor::calculatePoissonRatioInSegment( int64_t                   intersectionIdx,
+                                                                const std::vector<float>& poissonRatios ) const
 {
-    // Priority 3: User defined poisson ratio
-    double poissonRatio = m_userDefinedPoissonRatio;
-
-    // Priority 2: Element property table ratio
-    if ( m_poissonRatioSource == AUTO || m_poissonRatioSource == ELEMENT_PROPERTY_TABLE )
-    {
-        size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
-        if ( elmIdx < poissonRatios.size() )
-        {
-            poissonRatio = poissonRatios[elmIdx];
-        }
-    }
-
     // Priority 1: Las-file poisson ratio
     if ( m_poissonRatioSource == AUTO || m_poissonRatioSource == LAS_FILE )
     {
@@ -232,33 +221,32 @@ float RigGeoMechWellLogExtractor::calculatePoissonRatio( int64_t                
             double lasPoissionRatio = getWellLogSegmentValue( intersectionIdx, m_wellLogMdAndPoissonRatios );
             if ( lasPoissionRatio != std::numeric_limits<double>::infinity() )
             {
-                poissonRatio = lasPoissionRatio;
+                return std::make_pair( lasPoissionRatio, LAS_FILE );
             }
         }
     }
 
-    return poissonRatio;
+    // Priority 2: Element property table ratio
+    if ( m_poissonRatioSource == AUTO || m_poissonRatioSource == ELEMENT_PROPERTY_TABLE )
+    {
+        size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
+        if ( elmIdx < poissonRatios.size() )
+        {
+            return std::make_pair( poissonRatios[elmIdx], ELEMENT_PROPERTY_TABLE );
+        }
+    }
+
+    // Priority 3: User defined poisson ratio
+    return std::make_pair( (float)m_userDefinedPoissonRatio, USER_DEFINED );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-float RigGeoMechWellLogExtractor::calculateUcs( int64_t intersectionIdx, const std::vector<float>& ucsValuesPascal ) const
+std::pair<float, RigGeoMechWellLogExtractor::WbsParameterSource>
+    RigGeoMechWellLogExtractor::calculateUcsInSegment( int64_t                   intersectionIdx,
+                                                       const std::vector<float>& ucsValuesPascal ) const
 {
-    // Priority 3: User defined UCS
-    double uniaxialStrengthInBar = m_userDefinedUcs;
-
-    // Priority 2: From element property table
-    if ( m_ucsSource == AUTO || m_ucsSource == ELEMENT_PROPERTY_TABLE )
-    {
-        size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
-        if ( elmIdx < ucsValuesPascal.size() )
-        {
-            // Read UCS from element table in Pascal
-            uniaxialStrengthInBar = pascalToBar( ucsValuesPascal[elmIdx] );
-        }
-    }
-
     if ( m_ucsSource == AUTO || m_ucsSource == LAS_FILE )
     {
         if ( !m_wellLogMdAndUcsBar.empty() )
@@ -266,12 +254,23 @@ float RigGeoMechWellLogExtractor::calculateUcs( int64_t intersectionIdx, const s
             double lasUniaxialStrengthInBar = getWellLogSegmentValue( intersectionIdx, m_wellLogMdAndUcsBar );
             if ( lasUniaxialStrengthInBar != std::numeric_limits<double>::infinity() )
             {
-                uniaxialStrengthInBar = lasUniaxialStrengthInBar;
+                return std::make_pair( lasUniaxialStrengthInBar, LAS_FILE );
             }
         }
     }
-
-    return uniaxialStrengthInBar;
+    // Priority 2: From element property table
+    if ( m_ucsSource == AUTO || m_ucsSource == ELEMENT_PROPERTY_TABLE )
+    {
+        size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
+        if ( elmIdx < ucsValuesPascal.size() )
+        {
+            // Read UCS from element table in Pascal
+            float uniaxialStrengthInBar = pascalToBar( ucsValuesPascal[elmIdx] );
+            return std::make_pair( uniaxialStrengthInBar, ELEMENT_PROPERTY_TABLE );
+        }
+    }
+    // Priority 3: User defined UCS (in bar)
+    return std::make_pair( m_userDefinedUcs, USER_DEFINED );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -386,19 +385,21 @@ void RigGeoMechWellLogExtractor::wellPathScaledCurveData( const RigFemResultAddr
         double hydroStaticPorePressureBar = pascalToBar( effectiveDepthMeters * UNIT_WEIGHT_OF_WATER );
 
         float averageUnscaledValue = std::numeric_limits<float>::infinity();
-        bool  validAverage         = averageIntersectionValuesToSegmentValue( intersectionIdx,
-                                                                     interpolatedInterfaceValues,
-                                                                     std::numeric_limits<float>::infinity(),
-                                                                     &averageUnscaledValue );
 
-        if ( resAddr.fieldName == "PP" && validAverage )
+        if ( resAddr.fieldName == "PP" )
         {
-            double segmentPorePressureFromGrid = averageUnscaledValue;
-            averageUnscaledValue               = calculatePorePressureInSegment( intersectionIdx,
-                                                                   segmentPorePressureFromGrid,
-                                                                   hydroStaticPorePressureBar,
-                                                                   effectiveDepthMeters,
-                                                                   poreElementPressuresPascal );
+            auto ppSourcePair = calculatePorePressureInSegment( intersectionIdx,
+                                                                effectiveDepthMeters,
+                                                                interpolatedInterfaceValues,
+                                                                poreElementPressuresPascal );
+            if ( ppSourcePair.second == INVALID )
+            {
+                averageUnscaledValue = hydroStaticPorePressureBar;
+            }
+            else
+            {
+                averageUnscaledValue = ppSourcePair.first;
+            }
         }
 
         ( *values )[intersectionIdx] = static_cast<double>( averageUnscaledValue ) / hydroStaticPorePressureBar;
@@ -447,8 +448,8 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
     std::vector<float> poissonRatios              = resultCollection->resultValues( poissonResAddr, 0, frameIndex );
     std::vector<float> ucsValuesPascal            = resultCollection->resultValues( ucsResAddr, 0, frameIndex );
 
-    std::vector<float> interpolatedInterfacePorePressureBar = interpolateInterfaceValues<float>( porBarResAddr,
-                                                                                                 porePressures );
+    std::vector<float> interpolatedInterfacePorePressuresBar = interpolateInterfaceValues<float>( porBarResAddr,
+                                                                                                  porePressures );
 
     std::vector<caf::Ten3d> interpolatedInterfaceStressBar = interpolateInterfaceValues<caf::Ten3d>( stressResAddr,
                                                                                                      vertexStresses );
@@ -469,20 +470,22 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
         double effectiveDepthMeters       = trueVerticalDepth + m_rkbDiff;
         double hydroStaticPorePressureBar = pascalToBar( effectiveDepthMeters * UNIT_WEIGHT_OF_WATER );
 
-        float averagePorePressureBar = std::numeric_limits<float>::infinity();
-        bool  validGridPorePressure  = averageIntersectionValuesToSegmentValue( intersectionIdx,
-                                                                              interpolatedInterfacePorePressureBar,
-                                                                              std::numeric_limits<float>::infinity(),
-                                                                              &averagePorePressureBar );
-        bool  isFGregion = validGridPorePressure; // FG is for sands, SFG for shale. Sands has PP, shale does not.
+        auto   ppSourcePair    = calculatePorePressureInSegment( intersectionIdx,
+                                                            effectiveDepthMeters,
+                                                            interpolatedInterfacePorePressuresBar,
+                                                            poreElementPressuresPascal );
+        double porePressureBar = ppSourcePair.first;
 
-        double porePressureBar = calculatePorePressureInSegment( intersectionIdx,
-                                                                 averagePorePressureBar,
-                                                                 hydroStaticPorePressureBar,
-                                                                 effectiveDepthMeters,
-                                                                 poreElementPressuresPascal );
-        double poissonRatio    = calculatePoissonRatio( intersectionIdx, poissonRatios );
-        double ucsBar          = calculateUcs( intersectionIdx, ucsValuesPascal );
+        // FG is for sands, SFG for shale. Sands has valid PP, shale does not.
+        bool isFGregion = ppSourcePair.second != INVALID;
+
+        if ( ppSourcePair.second == INVALID )
+        {
+            porePressureBar = hydroStaticPorePressureBar;
+        }
+
+        double poissonRatio = calculatePoissonRatioInSegment( intersectionIdx, poissonRatios ).first;
+        double ucsBar       = calculateUcsInSegment( intersectionIdx, ucsValuesPascal ).first;
 
         caf::Ten3d segmentStress;
         bool       validSegmentStress = averageIntersectionValuesToSegmentValue( intersectionIdx,
@@ -638,41 +641,17 @@ std::vector<double> RigGeoMechWellLogExtractor::porePressureIntervals( int frame
 #pragma omp parallel for
     for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
     {
-        // Priority 4: Hydrostatic pore pressure
-        ppValues[intersectionIdx] = static_cast<double>( HYDROSTATIC_PP );
-
-        // Priority 3: Try element property tables
-        if ( m_porePressureSource == AUTO || m_porePressureSource == ELEMENT_PROPERTY_TABLE )
+        auto ppSourcePair = calculatePorePressureInSegment( intersectionIdx,
+                                                            0.0,
+                                                            interpolatedInterfacePorePressureBar,
+                                                            poreElementPressuresPascal );
+        if ( ppSourcePair.second == INVALID )
         {
-            size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
-            if ( elmIdx < poreElementPressuresPascal.size() )
-            {
-                ppValues[intersectionIdx] = static_cast<double>( ELEMENT_PROPERTY_TABLE );
-            }
+            ppValues[intersectionIdx] = static_cast<double>( HYDROSTATIC_PP );
         }
-
-        // Priority 2: Try LAS-file
-        if ( m_porePressureSource == AUTO || m_porePressureSource == LAS_FILE )
+        else
         {
-            double lasMudWeightKgPerM3 = getWellLogSegmentValue( intersectionIdx, m_wellLogMdAndMudWeightKgPerM3 );
-            if ( lasMudWeightKgPerM3 != std::numeric_limits<double>::infinity() )
-            {
-                ppValues[intersectionIdx] = static_cast<double>( LAS_FILE );
-            }
-        }
-
-        // Priority 1: Try pore pressure from the grid
-        if ( m_porePressureSource == AUTO || m_porePressureSource == GRID )
-        {
-            float averagePorePressureBar = std::numeric_limits<float>::infinity();
-            bool  validGridPorePressure  = averageIntersectionValuesToSegmentValue( intersectionIdx,
-                                                                                  interpolatedInterfacePorePressureBar,
-                                                                                  std::numeric_limits<float>::infinity(),
-                                                                                  &averagePorePressureBar );
-            if ( validGridPorePressure )
-            {
-                ppValues[intersectionIdx] = static_cast<double>( GRID );
-            }
+            ppValues[intersectionIdx] = static_cast<double>( ppSourcePair.second );
         }
     }
     return ppValues;
@@ -693,31 +672,8 @@ std::vector<double> RigGeoMechWellLogExtractor::poissonIntervals( int frameIndex
 #pragma omp parallel for
     for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
     {
-        // Priority 3: User defined Poisson ratio
-        poissonValues[intersectionIdx] = static_cast<double>( USER_DEFINED );
-
-        // Priority 2: Element property table ratio
-        if ( m_poissonRatioSource == AUTO || m_poissonRatioSource == ELEMENT_PROPERTY_TABLE )
-        {
-            size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
-            if ( elmIdx < poissonRatios.size() )
-            {
-                poissonValues[intersectionIdx] = static_cast<double>( ELEMENT_PROPERTY_TABLE );
-            }
-        }
-
-        // Priority 1: Las-file poisson ratio
-        if ( m_poissonRatioSource == AUTO || m_poissonRatioSource == LAS_FILE )
-        {
-            if ( !m_wellLogMdAndPoissonRatios.empty() )
-            {
-                double lasPoissionRatio = getWellLogSegmentValue( intersectionIdx, m_wellLogMdAndPoissonRatios );
-                if ( lasPoissionRatio != std::numeric_limits<double>::infinity() )
-                {
-                    poissonValues[intersectionIdx] = static_cast<double>( LAS_FILE );
-                }
-            }
-        }
+        auto poissonSourcePair         = calculatePoissonRatioInSegment( intersectionIdx, poissonRatios );
+        poissonValues[intersectionIdx] = static_cast<double>( poissonSourcePair.second );
     }
     return poissonValues;
 }
@@ -738,30 +694,8 @@ std::vector<double> RigGeoMechWellLogExtractor::ucsIntervals( int frameIndex )
 #pragma omp parallel for
     for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
     {
-        // Priority 3: User defined Poisson ratio
-        ucsValues[intersectionIdx] = static_cast<double>( USER_DEFINED );
-
-        // Priority 2: From element property table
-        if ( m_ucsSource == AUTO || m_ucsSource == ELEMENT_PROPERTY_TABLE )
-        {
-            size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
-            if ( elmIdx < ucsValuesPascal.size() )
-            {
-                ucsValues[intersectionIdx] = static_cast<double>( ELEMENT_PROPERTY_TABLE );
-            }
-        }
-        // Priority 1: Las-file
-        if ( m_ucsSource == AUTO || m_ucsSource == LAS_FILE )
-        {
-            if ( !m_wellLogMdAndUcsBar.empty() )
-            {
-                double lasUniaxialStrengthInBar = getWellLogSegmentValue( intersectionIdx, m_wellLogMdAndUcsBar );
-                if ( lasUniaxialStrengthInBar != std::numeric_limits<double>::infinity() )
-                {
-                    ucsValues[intersectionIdx] = static_cast<double>( LAS_FILE );
-                }
-            }
-        }
+        auto ucsSourcePair         = calculateUcsInSegment( intersectionIdx, ucsValuesPascal );
+        ucsValues[intersectionIdx] = static_cast<double>( ucsSourcePair.second );
     }
     return ucsValues;
 }

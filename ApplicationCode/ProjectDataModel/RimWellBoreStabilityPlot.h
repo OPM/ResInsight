@@ -57,6 +57,15 @@ protected:
                            const QVariant&            oldValue,
                            const QVariant&            newValue ) override;
 
+    void onLoadDataAndUpdate() override;
+
+    bool hasLasFileWithChannel( const QString& channel ) const;
+    bool hasElementPropertyEntry( const RigFemResultAddress& resAddr ) const;
+
+    std::set<RigGeoMechWellLogExtractor::WbsParameterSource> supportedSourcesForPorePressure() const;
+    std::set<RigGeoMechWellLogExtractor::WbsParameterSource> supportedSourcesForPoisson() const;
+    std::set<RigGeoMechWellLogExtractor::WbsParameterSource> supportedSourcesForUcs() const;
+
 private:
     caf::PdmField<ParameterSourceEnum> m_porePressureSource;
     caf::PdmField<ParameterSourceEnum> m_poissonRatioSource;

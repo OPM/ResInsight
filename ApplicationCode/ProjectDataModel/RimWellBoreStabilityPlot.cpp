@@ -68,12 +68,16 @@ RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
                                 "" );
     CAF_PDM_InitFieldNoDefault( &m_ucsSource, "UcsSource", "Uniaxial Compressive Strength", "", "Data source for UCS", "" );
 
-    CAF_PDM_InitField( &m_userDefinedPoissionRatio, "UserPoissionRatio", 0.25, "", "", "User defined Poisson Ratio", "" );
-    m_userDefinedPoissionRatio.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    CAF_PDM_InitField( &m_userDefinedPoissionRatio,
+                       "UserPoissionRatio",
+                       0.25,
+                       "User defined Poisson Ratio",
+                       "",
+                       "User defined Poisson Ratio",
+                       "" );
     // Typical UCS: http://ceae.colorado.edu/~amadei/CVEN5768/PDF/NOTES8.pdf
     // Typical UCS for Shale is 5 - 100 MPa -> 50 - 1000 bar.
-    CAF_PDM_InitField( &m_userDefinedUcs, "UserUcs", 100.0, "", "", "User defined UCS [bar]", "" );
-    m_userDefinedUcs.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    CAF_PDM_InitField( &m_userDefinedUcs, "UserUcs", 100.0, "User defined UCS [bar]", "", "User defined UCS [bar]", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,13 +130,9 @@ void RimWellBoreStabilityPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     caf::PdmUiGroup* parameterSources = uiOrdering.addNewGroup( "Parameter Sources" );
     parameterSources->add( &m_porePressureSource );
     parameterSources->add( &m_poissonRatioSource );
-    parameterSources->add( &m_userDefinedPoissionRatio, {false, 1, 1} );
+    parameterSources->add( &m_userDefinedPoissionRatio );
     parameterSources->add( &m_ucsSource );
-    parameterSources->add( &m_userDefinedUcs, {false, 1, 1} );
-
-    m_userDefinedPoissionRatio.uiCapability()->setUiReadOnly( m_poissonRatioSource() !=
-                                                              RigGeoMechWellLogExtractor::USER_DEFINED );
-    m_userDefinedUcs.uiCapability()->setUiReadOnly( m_ucsSource() != RigGeoMechWellLogExtractor::USER_DEFINED );
+    parameterSources->add( &m_userDefinedUcs );
 
     uiOrderingForDepthAxis( uiOrdering );
     uiOrderingForPlotSettings( uiOrdering );
@@ -148,89 +148,25 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options = RimWellLogPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
 
-    RimWellPath*    wellPath    = m_commonDataSource->wellPathToApply();
-    RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>( m_commonDataSource->caseToApply() );
-    int             timeStep    = m_commonDataSource->timeStepToApply();
-
-    RigFemPartResultsCollection* femPartResults = nullptr;
-    if ( geoMechCase )
-    {
-        femPartResults = geoMechCase->geoMechData()->femPartResults();
-    }
-
     if ( fieldNeedingOptions == &m_porePressureSource )
     {
-        for ( auto source : RigGeoMechWellLogExtractor::supportedSourcesForPorePressure() )
+        for ( auto source : supportedSourcesForPorePressure() )
         {
-            if ( source == RigGeoMechWellLogExtractor::LAS_FILE )
-            {
-                if ( wellPath && !RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath, "PP" ).empty() )
-                {
-                    options.push_back( caf::PdmOptionItemInfo( ParameterSourceEnum::uiText( source ), source ) );
-                }
-            }
-            else if ( source == RigGeoMechWellLogExtractor::ELEMENT_PROPERTY_TABLE )
-            {
-                RigFemResultAddress resAddr( RIG_ELEMENT, "POR", "" );
-                if ( timeStep > 0 && femPartResults && !femPartResults->resultValues( resAddr, 0, timeStep ).empty() )
-                {
-                    options.push_back( caf::PdmOptionItemInfo( ParameterSourceEnum::uiText( source ), source ) );
-                }
-            }
-            else
-            {
-                options.push_back( caf::PdmOptionItemInfo( ParameterSourceEnum::uiText( source ), source ) );
-            }
+            options.push_back( caf::PdmOptionItemInfo( ParameterSourceEnum::uiText( source ), source ) );
         }
     }
     else if ( fieldNeedingOptions == &m_poissonRatioSource )
     {
-        for ( auto source : RigGeoMechWellLogExtractor::supportedSourcesForPoissonRatio() )
+        for ( auto source : supportedSourcesForPoisson() )
         {
-            if ( source == RigGeoMechWellLogExtractor::LAS_FILE )
-            {
-                if ( wellPath && !RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath, "POISSON_RATIO" ).empty() )
-                {
-                    options.push_back( caf::PdmOptionItemInfo( ParameterSourceEnum::uiText( source ), source ) );
-                }
-            }
-            else if ( source == RigGeoMechWellLogExtractor::ELEMENT_PROPERTY_TABLE )
-            {
-                RigFemResultAddress resAddr( RIG_ELEMENT, "RATIO", "" );
-                if ( timeStep > 0 && femPartResults && !femPartResults->resultValues( resAddr, 0, timeStep ).empty() )
-                {
-                    options.push_back( caf::PdmOptionItemInfo( ParameterSourceEnum::uiText( source ), source ) );
-                }
-            }
-            else
-            {
-                options.push_back( caf::PdmOptionItemInfo( ParameterSourceEnum::uiText( source ), source ) );
-            }
+            options.push_back( caf::PdmOptionItemInfo( ParameterSourceEnum::uiText( source ), source ) );
         }
     }
     else if ( fieldNeedingOptions == &m_ucsSource )
     {
-        for ( auto source : RigGeoMechWellLogExtractor::supportedSourcesForUcs() )
+        for ( auto source : supportedSourcesForUcs() )
         {
-            if ( source == RigGeoMechWellLogExtractor::LAS_FILE )
-            {
-                if ( wellPath && !RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath, "UCS" ).empty() )
-                {
-                    options.push_back( caf::PdmOptionItemInfo( ParameterSourceEnum::uiText( source ), source ) );
-                }
-            }
-            else if ( source == RigGeoMechWellLogExtractor::ELEMENT_PROPERTY_TABLE )
-            {
-                RigFemResultAddress resAddr( RIG_ELEMENT, "UCS", "" );
-                if ( timeStep > 0 && femPartResults && !femPartResults->resultValues( resAddr, 0, timeStep ).empty() )
-                {
-                    options.push_back( caf::PdmOptionItemInfo( ParameterSourceEnum::uiText( source ), source ) );
-                }
-            }
-            else
-            {
-                options.push_back( caf::PdmOptionItemInfo( ParameterSourceEnum::uiText( source ), source ) );
-            }
+            options.push_back( caf::PdmOptionItemInfo( ParameterSourceEnum::uiText( source ), source ) );
         }
     }
     return options;
@@ -250,4 +186,156 @@ void RimWellBoreStabilityPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
     {
         this->loadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellBoreStabilityPlot::onLoadDataAndUpdate()
+{
+    if ( !supportedSourcesForPorePressure().count( m_porePressureSource() ) )
+    {
+        m_porePressureSource = RigGeoMechWellLogExtractor::AUTO;
+    }
+
+    if ( !supportedSourcesForPoisson().count( m_poissonRatioSource() ) )
+    {
+        m_poissonRatioSource = RigGeoMechWellLogExtractor::AUTO;
+    }
+
+    if ( !supportedSourcesForUcs().count( m_ucsSource() ) )
+    {
+        m_ucsSource = RigGeoMechWellLogExtractor::AUTO;
+    }
+
+    RimWellLogPlot::onLoadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellBoreStabilityPlot::hasLasFileWithChannel( const QString& channel ) const
+{
+    RimWellPath* wellPath = m_commonDataSource->wellPathToApply();
+    if ( wellPath && !RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath, channel ).empty() )
+    {
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellBoreStabilityPlot::hasElementPropertyEntry( const RigFemResultAddress& resAddr ) const
+{
+    int             timeStep    = m_commonDataSource->timeStepToApply();
+    RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>( m_commonDataSource->caseToApply() );
+
+    RigFemPartResultsCollection* femPartResults = nullptr;
+    if ( geoMechCase && timeStep > 0 )
+    {
+        femPartResults = geoMechCase->geoMechData()->femPartResults();
+        if ( femPartResults )
+        {
+            return !femPartResults->resultValues( resAddr, 0, timeStep ).empty();
+        }
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RigGeoMechWellLogExtractor::WbsParameterSource> RimWellBoreStabilityPlot::supportedSourcesForPorePressure() const
+{
+    std::set<RigGeoMechWellLogExtractor::WbsParameterSource> sources;
+
+    for ( auto source : RigGeoMechWellLogExtractor::supportedSourcesForPorePressure() )
+    {
+        if ( source == RigGeoMechWellLogExtractor::LAS_FILE )
+        {
+            if ( hasLasFileWithChannel( "PP" ) )
+            {
+                sources.insert( source );
+            }
+        }
+        else if ( source == RigGeoMechWellLogExtractor::ELEMENT_PROPERTY_TABLE )
+        {
+            RigFemResultAddress resAddr( RIG_ELEMENT, "POR", "" );
+            if ( hasElementPropertyEntry( resAddr ) )
+            {
+                sources.insert( source );
+            }
+        }
+        else
+        {
+            sources.insert( source );
+        }
+    }
+    return sources;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RigGeoMechWellLogExtractor::WbsParameterSource> RimWellBoreStabilityPlot::supportedSourcesForPoisson() const
+{
+    std::set<RigGeoMechWellLogExtractor::WbsParameterSource> sources;
+
+    for ( auto source : RigGeoMechWellLogExtractor::supportedSourcesForPoissonRatio() )
+    {
+        if ( source == RigGeoMechWellLogExtractor::LAS_FILE )
+        {
+            if ( hasLasFileWithChannel( "POISSON_RATIO" ) )
+            {
+                sources.insert( source );
+            }
+        }
+        else if ( source == RigGeoMechWellLogExtractor::ELEMENT_PROPERTY_TABLE )
+        {
+            RigFemResultAddress resAddr( RIG_ELEMENT, "RATIO", "" );
+            if ( hasElementPropertyEntry( resAddr ) )
+            {
+                sources.insert( source );
+            }
+        }
+        else
+        {
+            sources.insert( source );
+        }
+    }
+    return sources;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RigGeoMechWellLogExtractor::WbsParameterSource> RimWellBoreStabilityPlot::supportedSourcesForUcs() const
+{
+    std::set<RigGeoMechWellLogExtractor::WbsParameterSource> sources;
+
+    for ( auto source : RigGeoMechWellLogExtractor::supportedSourcesForUcs() )
+    {
+        if ( source == RigGeoMechWellLogExtractor::LAS_FILE )
+        {
+            if ( hasLasFileWithChannel( "UCS" ) )
+            {
+                sources.insert( source );
+            }
+        }
+        else if ( source == RigGeoMechWellLogExtractor::ELEMENT_PROPERTY_TABLE )
+        {
+            RigFemResultAddress resAddr( RIG_ELEMENT, "UCS", "" );
+            if ( hasElementPropertyEntry( resAddr ) )
+            {
+                sources.insert( source );
+            }
+        }
+        else
+        {
+            sources.insert( source );
+        }
+    }
+    return sources;
 }
