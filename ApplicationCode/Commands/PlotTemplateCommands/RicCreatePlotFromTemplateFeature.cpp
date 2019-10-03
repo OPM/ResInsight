@@ -16,29 +16,21 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicCreatePlotFromSelectionFeature.h"
-
-#include "RiaGuiApplication.h"
+#include "RicCreatePlotFromTemplateFeature.h"
 
 #include "RicSummaryPlotTemplateTools.h"
-
-#include "PlotTemplates/RimPlotTemplateFileItem.h"
 #include "RimSummaryCase.h"
 
-#include "RiuPlotMainWindow.h"
-
-#include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QFileDialog>
 
-CAF_CMD_SOURCE_INIT( RicCreatePlotFromSelectionFeature, "RicCreatePlotFromSelectionFeature" );
+CAF_CMD_SOURCE_INIT( RicCreatePlotFromTemplateFeature, "RicCreatePlotFromTemplateFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreatePlotFromSelectionFeature::isCommandEnabled()
+bool RicCreatePlotFromTemplateFeature::isCommandEnabled()
 {
     return !selectedSummaryCases().empty();
 }
@@ -46,9 +38,9 @@ bool RicCreatePlotFromSelectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreatePlotFromSelectionFeature::onActionTriggered( bool isChecked )
+void RicCreatePlotFromTemplateFeature::onActionTriggered( bool isChecked )
 {
-    QString                      fileName = RicSummaryPlotTemplateTools::selectPlotTemplatePath();
+    QString                      fileName = userData().toString();
     std::vector<RimSummaryCase*> sumCases = selectedSummaryCases();
 
     RimSummaryPlot* newSummaryPlot = RicSummaryPlotTemplateTools::createPlotFromTemplateFile( fileName );
@@ -58,7 +50,7 @@ void RicCreatePlotFromSelectionFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreatePlotFromSelectionFeature::setupActionLook( QAction* actionToSetup )
+void RicCreatePlotFromTemplateFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Create Plot from Template" );
     actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
@@ -67,7 +59,7 @@ void RicCreatePlotFromSelectionFeature::setupActionLook( QAction* actionToSetup 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RicCreatePlotFromSelectionFeature::selectedSummaryCases() const
+std::vector<RimSummaryCase*> RicCreatePlotFromTemplateFeature::selectedSummaryCases() const
 {
     std::vector<RimSummaryCase*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects );

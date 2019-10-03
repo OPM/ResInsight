@@ -18,11 +18,27 @@
 
 #include "RicSummaryPlotTemplateTools.h"
 
+#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaSummaryCurveAnalyzer.h"
 
+#include "RicSelectPlotTemplateUi.h"
+
+#include "RifSummaryReaderInterface.h"
+
+#include "PlotTemplates/RimPlotTemplateFileItem.h"
+#include "RimDialogData.h"
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
+#include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
+
+#include "RiuPlotMainWindow.h"
+
+#include "cafPdmUiPropertyViewDialog.h"
 
 #include <QFile>
 
@@ -54,6 +70,68 @@ RimSummaryPlot* RicSummaryPlotTemplateTools::createPlotFromTemplateFile( const Q
     delete obj;
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
+    RimSummaryPlot* summaryPlot, const std::vector<RimSummaryCase*>& selectedSummaryCases )
+{
+    if ( summaryPlot )
+    {
+        RimSummaryPlotCollection* plotColl =
+            RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+
+        plotColl->summaryPlots.push_back( summaryPlot );
+        summaryPlot->resolveReferencesRecursively();
+        summaryPlot->initAfterReadRecursively();
+
+        auto summaryCurves = summaryPlot->summaryCurves();
+
+        for ( const auto& curve : summaryCurves )
+        {
+            auto fieldHandle = curve->findField( "SummaryCase" );
+            if ( fieldHandle )
+            {
+                auto referenceString = fieldHandle->xmlCapability()->referenceString();
+                auto stringList      = referenceString.split( " " );
+                if ( stringList.size() == 2 )
+                {
+                    QString indexAsString = stringList[1];
+
+                    bool conversionOk = false;
+                    auto index        = indexAsString.toUInt( &conversionOk );
+
+                    if ( conversionOk && index < selectedSummaryCases.size() )
+                    {
+                        auto summaryCaseY = selectedSummaryCases[index];
+                        curve->setSummaryCaseY( summaryCaseY );
+
+                        auto currentAddressY = curve->summaryAddressY();
+                        if ( summaryCaseY->summaryReader() &&
+                             !summaryCaseY->summaryReader()->hasAddress( currentAddressY ) )
+                        {
+                            auto allAddresses = summaryCaseY->summaryReader()->allResultAddresses();
+
+                            auto candidate = RicSummaryPlotTemplateTools::firstAddressByQuantity( currentAddressY,
+                                                                                                  allAddresses );
+                            if ( candidate.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
+                            {
+                                curve->setSummaryAddressY( candidate );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // TODO: Create additional curves in selected case count is larger than template count
+
+        plotColl->updateConnectedEditors();
+
+        summaryPlot->loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,4 +233,42 @@ QString RicSummaryPlotTemplateTools::htmlTextFromCount( const QString& itemText,
     text += "<br>";
 
     return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicSummaryPlotTemplateTools::selectPlotTemplatePath()
+{
+    RiuPlotMainWindow*       plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
+    RicSelectPlotTemplateUi* ui = RiaGuiApplication::instance()->project()->dialogData()->selectPlotTemplateUi();
+
+    caf::PdmUiPropertyViewDialog propertyDialog( plotwindow, ui, "Select Plot Template", "" );
+
+    if ( propertyDialog.exec() == QDialog::Accepted && !ui->selectedPlotTemplates().empty() )
+    {
+        QString fileName = ui->selectedPlotTemplates().front()->absoluteFilePath();
+
+        return fileName;
+    }
+
+    return QString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress
+    RicSummaryPlotTemplateTools::firstAddressByQuantity( const RifEclipseSummaryAddress&           sourceAddress,
+                                                         const std::set<RifEclipseSummaryAddress>& allAddresses )
+{
+    for ( const auto& a : allAddresses )
+    {
+        if ( sourceAddress.quantityName() == a.quantityName() )
+        {
+            return a;
+        }
+    }
+
+    return RifEclipseSummaryAddress();
 }

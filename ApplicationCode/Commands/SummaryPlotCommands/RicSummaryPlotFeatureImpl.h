@@ -44,6 +44,8 @@ public:
                                                  std::set<RifEclipseSummaryAddress>* setToInsertFilteredAddressesIn,
                                                  std::vector<bool>*                  usedFilters );
 
+    static QString summaryPlotCommandLineHelpText();
+
 private:
     static std::vector<RimSummaryCurve*> addCurvesFromAddressFiltersToPlot( const QStringList& curveFilters,
                                                                             RimSummaryPlot*    plot,

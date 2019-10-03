@@ -293,6 +293,7 @@ void RiuPlotMainWindow::createMenus()
     QMenu* helpMenu = menuBar()->addMenu( "&Help" );
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpAboutFeature" ) );
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpCommandLineFeature" ) );
+    helpMenu->addAction( cmdFeatureMgr->action( "RicHelpSummaryCommandLineFeature" ) );
     helpMenu->addSeparator();
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpOpenUsersGuideFeature" ) );
 }
@@ -727,16 +728,6 @@ void RiuPlotMainWindow::selectedObjectsChanged()
 
     m_pdmUiPropertyView->showProperties( firstSelectedObject );
 
-    if ( firstSelectedObject )
-    {
-        RimSummaryPlot* summaryPlot = nullptr;
-        firstSelectedObject->firstAncestorOrThisOfType( summaryPlot );
-        if ( summaryPlot )
-        {
-            updateSummaryPlotToolBar();
-        }
-    }
-
     if ( uiItems.size() == 1 && m_allowActiveViewChangeFromSelection )
     {
         // Find the reservoir view or the Plot that the selected item is within
@@ -773,6 +764,19 @@ void RiuPlotMainWindow::selectedObjectsChanged()
                 setActiveViewer( selectedWindow->viewWidget() );
                 setBlockSubWindowProjectTreeSelection( false );
             }
+
+            m_activePlotViewWindow = selectedWindow;
+
+            if ( firstSelectedObject )
+            {
+                RimSummaryPlot* summaryPlot = nullptr;
+                firstSelectedObject->firstAncestorOrThisOfType( summaryPlot );
+                if ( summaryPlot )
+                {
+                    updateSummaryPlotToolBar();
+                }
+            }
+
             // The only way to get to this code is by selection change initiated from the project tree view
             // As we are activating an MDI-window, the focus is given to this MDI-window
             // Set focus back to the tree view to be able to continue keyboard tree view navigation
