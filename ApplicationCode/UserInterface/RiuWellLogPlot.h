@@ -71,13 +71,8 @@ public slots:
     void updateChildrenLayout();
 
 protected:
-    void showEvent( QShowEvent* ) override;
-    void changeEvent( QEvent* event ) override;
     void contextMenuEvent( QContextMenuEvent* ) override;
     void keyPressEvent( QKeyEvent* keyEvent ) override;
-    void resizeEvent( QResizeEvent* event ) override;
-
-    QSize sizeHint() const override;
 
     QLabel* createTitleLabel() const;
 
@@ -86,13 +81,14 @@ private:
     void alignCanvasTops();
     void reinsertTracks();
     void clearTrackLayout();
+
 private slots:
     void slotSetMinDepth( int value );
 
 protected:
     QPointer<QVBoxLayout>            m_layout;
     QPointer<QHBoxLayout>            m_plotLayout;
-    QPointer<QFrame>                 m_plotFrame;
+    QPointer<QFrame>                 m_trackFrame;
     QPointer<QGridLayout>            m_trackLayout;
     QPointer<QLabel>                 m_plotTitle;
     QPointer<QVBoxLayout>            m_scrollBarLayout;

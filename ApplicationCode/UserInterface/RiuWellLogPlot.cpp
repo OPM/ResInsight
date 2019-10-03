@@ -67,11 +67,11 @@ RiuWellLogPlot::RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent 
     m_plotLayout = new QHBoxLayout;
     m_layout->addLayout( m_plotLayout );
 
-    m_plotFrame = new QFrame;
-    m_plotFrame->setVisible( true );
-    m_plotLayout->addWidget( m_plotFrame, 1 );
+    m_trackFrame = new QFrame;
+    m_trackFrame->setVisible( true );
+    m_plotLayout->addWidget( m_trackFrame, 1 );
 
-    m_trackLayout = new QGridLayout( m_plotFrame );
+    m_trackLayout = new QGridLayout( m_trackFrame );
     m_trackLayout->setMargin( 0 );
     m_trackLayout->setSpacing( 2 );
 
@@ -217,7 +217,6 @@ int RiuWellLogPlot::preferredWidth() const
 void RiuWellLogPlot::setTitleVisible( bool visible )
 {
     m_plotTitle->setVisible( visible );
-    this->updateChildrenLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,25 +226,6 @@ void RiuWellLogPlot::updateChildrenLayout()
 {
     reinsertTracks();
     alignCanvasTops();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::showEvent( QShowEvent* )
-{
-    updateChildrenLayout();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::changeEvent( QEvent* event )
-{
-    if ( event->type() == QEvent::WindowStateChange )
-    {
-        updateChildrenLayout();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,22 +255,6 @@ void RiuWellLogPlot::contextMenuEvent( QContextMenuEvent* event )
 void RiuWellLogPlot::keyPressEvent( QKeyEvent* keyEvent )
 {
     m_plotDefinition->handleKeyPressEvent( keyEvent );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::resizeEvent( QResizeEvent* event )
-{
-    QWidget::resizeEvent( event );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QSize RiuWellLogPlot::sizeHint() const
-{
-    return QSize( 1, 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -414,7 +378,9 @@ void RiuWellLogPlot::clearTrackLayout()
         {
         }
         QWidget().setLayout( m_trackLayout );
-        m_trackLayout = new QGridLayout( m_plotFrame );
+        QPointer<QGridLayout> newGridLayout = new QGridLayout( m_trackFrame );
+        m_trackLayout.swap( newGridLayout );
+        newGridLayout->deleteLater();
     }
 }
 
