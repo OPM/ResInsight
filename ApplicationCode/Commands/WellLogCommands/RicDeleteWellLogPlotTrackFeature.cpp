@@ -89,7 +89,7 @@ void RicDeleteWellLogPlotTrackFeature::onActionTriggered( bool isChecked )
     for ( RimWellLogPlot* wellLogPlot : alteredWellLogPlots )
     {
         RiuWellLogPlot* viewWidget = dynamic_cast<RiuWellLogPlot*>( wellLogPlot->viewWidget() );
-        plotWindow->setWidthOfMdiWindow( viewWidget, viewWidget->preferredSize().width() );
+        plotWindow->setWidthOfMdiWindow( viewWidget, viewWidget->preferredWidth() );
         wellLogPlot->calculateAvailableDepthRange();
         wellLogPlot->updateDepthZoom();
         wellLogPlot->uiCapability()->updateConnectedEditors();
