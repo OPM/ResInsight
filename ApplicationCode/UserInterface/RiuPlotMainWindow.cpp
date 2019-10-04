@@ -574,6 +574,12 @@ void RiuPlotMainWindow::updateSummaryPlotToolBar( bool forceUpdateUi )
         else
         {
             toolBarFields = summaryPlot->summaryCurveCollection()->fieldsToShowInToolbar();
+
+            if ( toolBarFields.empty() )
+            {
+                // Show ensemble stepping if no fields are available from summary stepping
+                toolBarFields = summaryPlot->ensembleCurveSetCollection()->fieldsToShowInToolbar();
+            }
         }
 
         if ( !m_summaryPlotToolBarEditor->isEditorDataValid( toolBarFields ) )

@@ -19,6 +19,7 @@
 #include "RimSummaryPlotSourceStepping.h"
 
 #include "RiaGuiApplication.h"
+#include "RiaStdStringTools.h"
 #include "RiaSummaryCurveAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
 
@@ -37,7 +38,6 @@
 
 #include "RiuPlotMainWindow.h"
 
-#include "RiaStdStringTools.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiListEditor.h"
@@ -50,36 +50,33 @@ CAF_PDM_SOURCE_INIT( RimSummaryPlotSourceStepping, "RimSummaryCurveCollectionMod
 RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
     : m_sourceSteppingType( Y_AXIS )
 {
-    // clang-format off
-    CAF_PDM_InitObject("Summary Curves Modifier", "", "", "");
+    CAF_PDM_InitObject( "Summary Curves Modifier", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_summaryCase,      "CurveCase",    "Case", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_summaryCase, "CurveCase", "Case", "", "", "" );
 
-    CAF_PDM_InitField(&m_includeEnsembleCasesForCaseStepping,
-                      "IncludeEnsembleCasesForCaseStepping",
-                      false,
-                      "Allow Stepping on Ensemble cases",
-                      "",
-                      "",
-                      "");
+    CAF_PDM_InitField( &m_includeEnsembleCasesForCaseStepping,
+                       "IncludeEnsembleCasesForCaseStepping",
+                       false,
+                       "Allow Stepping on Ensemble cases",
+                       "",
+                       "",
+                       "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_wellName,         "WellName",     "Well Name", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_wellGroupName,    "GroupName",    "Group Name", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_region,           "Region",       "Region", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_quantity,         "Quantities",   "Quantity", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "Well Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellGroupName, "GroupName", "Group Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_region, "Region", "Region", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_quantity, "Quantities", "Quantity", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_cellBlock,        "CellBlock",    "Block", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_segment,          "Segment",      "Segment", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_completion,       "Completion",   "Completion", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_cellBlock, "CellBlock", "Block", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_segment, "Segment", "Segment", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_completion, "Completion", "Completion", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_ensemble,         "Ensemble",     "Ensemble", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_placeholderForLabel, "Placeholder",   "", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_placeholderForLabel, "Placeholder", "", "", "", "" );
     m_placeholderForLabel = "No common identifiers detected";
-    m_placeholderForLabel.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
-    m_placeholderForLabel.uiCapability()->setUiReadOnly(true);
-
-    // clang-format on
+    m_placeholderForLabel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_placeholderForLabel.uiCapability()->setUiReadOnly( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,7 +161,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::fieldsToShowInTo
 void RimSummaryPlotSourceStepping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     auto visible = computeVisibleFieldsAndSetFieldVisibility();
-    if ( visible.size() == 0 )
+    if ( visible.empty() )
     {
         m_placeholderForLabel.uiCapability()->setUiHidden( false );
     }
@@ -189,7 +186,7 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_placeholderForLabel )
     {
-        options;
+        return options;
     }
     else if ( fieldNeedingOptions == &m_summaryCase )
     {
@@ -215,17 +212,17 @@ QList<caf::PdmOptionItemInfo>
         return options;
     }
 
-    std::vector<RifSummaryReaderInterface*> readers = summaryReadersForCurves();
-    if ( !readers.empty() )
+    auto addresses = adressesForSourceStepping();
+    if ( !addresses.empty() )
     {
         if ( fieldNeedingOptions == &m_quantity )
         {
             RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_FIELD;
 
-            auto addresses = addressesCurveCollection();
-            if ( !addresses.empty() )
+            auto visibleCurveAddresses = addressesForCurvesInPlot();
+            if ( !visibleCurveAddresses.empty() )
             {
-                category = addresses.begin()->category();
+                category = visibleCurveAddresses.begin()->category();
             }
 
             std::map<QString, QString> displayAndValueStrings;
@@ -233,20 +230,13 @@ QList<caf::PdmOptionItemInfo>
             {
                 RiaSummaryCurveAnalyzer quantityAnalyzer;
 
-                for ( auto reader : readers )
-                {
-                    if ( reader != nullptr )
-                    {
-                        auto subset = RiaSummaryCurveAnalyzer::addressesForCategory( reader->allResultAddresses(),
-                                                                                     category );
-                        quantityAnalyzer.appendAdresses( subset );
-                    }
-                }
+                auto subset = RiaSummaryCurveAnalyzer::addressesForCategory( addresses, category );
+                quantityAnalyzer.appendAddresses( subset );
 
-                RiaSummaryCurveAnalyzer analyzerForCurves;
-                analyzerForCurves.appendAdresses( addressesCurveCollection() );
+                RiaSummaryCurveAnalyzer analyzerForVisibleCurves;
+                analyzerForVisibleCurves.appendAddresses( visibleCurveAddresses );
 
-                if ( analyzerForCurves.quantityNamesWithHistory().empty() )
+                if ( analyzerForVisibleCurves.quantityNamesWithHistory().empty() )
                 {
                     auto quantities = quantityAnalyzer.quantities();
                     for ( const auto& s : quantities )
@@ -258,6 +248,9 @@ QList<caf::PdmOptionItemInfo>
                 }
                 else
                 {
+                    // The plot displays a mix of simulated and observed vectors
+                    // Create a combined item for source stepping
+
                     auto quantitiesWithHistory = quantityAnalyzer.quantityNamesWithHistory();
                     for ( const auto& s : quantitiesWithHistory )
                     {
@@ -323,15 +316,10 @@ QList<caf::PdmOptionItemInfo>
 
             if ( category != RifEclipseSummaryAddress::SUMMARY_INVALID )
             {
-                for ( auto reader : readers )
-                {
-                    auto analyzer = analyzerForReader( reader );
+                RiaSummaryCurveAnalyzer analyzer;
+                analyzer.appendAddresses( addresses );
 
-                    if ( analyzer )
-                    {
-                        identifierTexts = analyzer->identifierTexts( category, secondaryIdentifier );
-                    }
-                }
+                identifierTexts = analyzer.identifierTexts( category, secondaryIdentifier );
             }
 
             if ( !identifierTexts.empty() )
@@ -558,8 +546,8 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         RimSummaryCrossPlot* summaryCrossPlot = dynamic_cast<RimSummaryCrossPlot*>( summaryPlot );
         if ( summaryCrossPlot )
         {
-            // Trigger update of curve collection (and summary toolbar in main window), as the visibility of combo boxes
-            // might have been changed due to the updates in this function
+            // Trigger update of curve collection (and summary toolbar in main window), as the visibility of combo
+            // boxes might have been changed due to the updates in this function
             if ( curveCollection )
             {
                 curveCollection->updateConnectedEditors();
@@ -574,55 +562,10 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifSummaryReaderInterface*> RimSummaryPlotSourceStepping::summaryReadersForCurves() const
-{
-    std::vector<RifSummaryReaderInterface*> readers;
-    RimSummaryCurveCollection*              curveCollection = nullptr;
-    this->firstAncestorOrThisOfType( curveCollection );
-
-    if ( curveCollection )
-    {
-        for ( auto curve : curveCollection->curves() )
-        {
-            if ( isYAxisStepping() && curve->summaryCaseY() && curve->summaryCaseY()->summaryReader() )
-            {
-                readers.push_back( curve->summaryCaseY()->summaryReader() );
-            }
-
-            if ( isXAxisStepping() && curve->summaryCaseX() && curve->summaryCaseX()->summaryReader() )
-            {
-                readers.push_back( curve->summaryCaseX()->summaryReader() );
-            }
-        }
-    }
-
-    RimEnsembleCurveSetCollection* ensembleCollection = nullptr;
-    this->firstAncestorOrThisOfType( ensembleCollection );
-    if ( ensembleCollection )
-    {
-        auto curveSets = ensembleCollection->curveSets();
-        for ( const RimEnsembleCurveSet* curveSet : curveSets )
-        {
-            for ( auto curve : curveSet->curves() )
-            {
-                if ( isYAxisStepping() && curve->summaryCaseY() && curve->summaryCaseY()->summaryReader() )
-                {
-                    readers.push_back( curve->summaryCaseY()->summaryReader() );
-                }
-            }
-        }
-    }
-
-    return readers;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
 {
     RiaSummaryCurveAnalyzer analyzer;
-    analyzer.appendAdresses( addressesCurveCollection() );
+    analyzer.appendAddresses( addressesForCurvesInPlot() );
 
     if ( analyzer.wellNames().size() == 1 )
     {
@@ -660,7 +603,49 @@ caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::addressesCurveCollection() const
+std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::adressesForSourceStepping() const
+{
+    std::set<RifEclipseSummaryAddress> addressSet;
+
+    RimEnsembleCurveSetCollection* ensembleCollection = nullptr;
+    this->firstAncestorOrThisOfType( ensembleCollection );
+    if ( ensembleCollection )
+    {
+        auto curveSets = ensembleCollection->curveSetsForSourceStepping();
+        for ( const RimEnsembleCurveSet* curveSet : curveSets )
+        {
+            auto addresses = curveSet->summaryCaseCollection()->ensembleSummaryAddresses();
+            addressSet.insert( addresses.begin(), addresses.end() );
+        }
+    }
+
+    RimSummaryCurveCollection* curveCollection = nullptr;
+    this->firstAncestorOrThisOfType( curveCollection );
+    if ( curveCollection )
+    {
+        for ( auto curve : curveCollection->curvesForSourceStepping( m_sourceSteppingType ) )
+        {
+            if ( isYAxisStepping() && curve->summaryCaseY() && curve->summaryCaseY()->summaryReader() )
+            {
+                auto addresses = curve->summaryCaseY()->summaryReader()->allResultAddresses();
+                addressSet.insert( addresses.begin(), addresses.end() );
+            }
+
+            if ( isXAxisStepping() && curve->summaryCaseX() && curve->summaryCaseX()->summaryReader() )
+            {
+                auto addresses = curve->summaryCaseX()->summaryReader()->allResultAddresses();
+                addressSet.insert( addresses.begin(), addresses.end() );
+            }
+        }
+    }
+
+    return addressSet;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::addressesForCurvesInPlot() const
 {
     std::set<RifEclipseSummaryAddress> addresses;
 
@@ -781,7 +766,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
 
     {
         RiaSummaryCurveAnalyzer analyzer;
-        analyzer.appendAdresses( addressesCurveCollection() );
+        analyzer.appendAddresses( addressesForCurvesInPlot() );
 
         RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_INVALID;
 
@@ -942,7 +927,7 @@ RiaSummaryCurveAnalyzer* RimSummaryPlotSourceStepping::analyzerForReader( RifSum
         m_curveAnalyzerForReader = std::make_pair( reader, analyzer );
     }
 
-    m_curveAnalyzerForReader.second.appendAdresses( reader->allResultAddresses() );
+    m_curveAnalyzerForReader.second.appendAddresses( reader->allResultAddresses() );
 
     return &m_curveAnalyzerForReader.second;
 }

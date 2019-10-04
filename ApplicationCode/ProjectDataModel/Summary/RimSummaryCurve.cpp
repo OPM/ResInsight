@@ -394,7 +394,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
     }
     else if ( &m_yValuesSummaryAddressUiField == fieldNeedingOptions )
     {
-        appendOptionItemsForSummaryAddresses( &options, m_yValuesSummaryCase());
+        appendOptionItemsForSummaryAddresses( &options, m_yValuesSummaryCase() );
     }
     else if ( &m_xValuesSummaryAddressUiField == fieldNeedingOptions )
     {
@@ -622,15 +622,6 @@ void RimSummaryCurve::defineEditorAttribute( const caf::PdmFieldHandle* field,
         if ( attrib )
         {
             attrib->m_buttonText = "...";
-        }
-    }
-
-    if ( &m_yValuesSummaryAddressUiField == field || &m_xValuesSummaryAddressUiField == field )
-    {
-        auto* attrib = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->completerCaseSensitivity = Qt::CaseInsensitive;
         }
     }
 }

@@ -146,7 +146,7 @@ QString RicSummaryPlotTemplateTools::htmlTextFromPlotAndSelection(
 
     RiaSummaryCurveAnalyzer selectionAnalyzer;
 
-    selectionAnalyzer.appendAdresses( selectedSummaryAddresses );
+    selectionAnalyzer.appendAddresses( selectedSummaryAddresses );
 
     if ( templatePlot )
     {
@@ -169,7 +169,7 @@ QString RicSummaryPlotTemplateTools::htmlTextFromPlotAndSelection(
                 }
             }
 
-            templateAnalyzer.appendAdresses( templateAddresses );
+            templateAnalyzer.appendAddresses( templateAddresses );
         }
 
         text += "<b> Requirements </b><br>";

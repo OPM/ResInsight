@@ -62,7 +62,7 @@ public:
     PdmUiLineEditorAttribute()
     {
         avoidSendingEnterEventToParentWidget = false;
-        completerCaseSensitivity             = Qt::CaseSensitive;
+        completerCaseSensitivity             = Qt::CaseInsensitive;
         completerFilterMode                  = Qt::MatchContains;
     }
 
