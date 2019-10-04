@@ -32,7 +32,6 @@
 #include "RiuWellLogTrack.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
-#include "cafQShortenedLabel.h"
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
@@ -95,7 +94,7 @@ RiuWellLogPlot::RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent 
 
     new RiuPlotObjectPicker( m_plotTitle, m_plotDefinition );
 
-    this->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
+    this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::MinimumExpanding );
 
     setFocusPolicy( Qt::StrongFocus );
     connect( m_scrollBar, SIGNAL( valueChanged( int ) ), this, SLOT( slotSetMinDepth( int ) ) );
@@ -135,7 +134,6 @@ void RiuWellLogPlot::insertTrackPlot( RiuWellLogTrack* trackPlot, size_t index )
         legendColumns = 0; // unlimited
     }
     legend->setMaxColumns( legendColumns );
-
     legend->horizontalScrollBar()->setVisible( false );
     legend->verticalScrollBar()->setVisible( false );
 
@@ -261,10 +259,9 @@ void RiuWellLogPlot::keyPressEvent( QKeyEvent* keyEvent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::QShortenedLabel* RiuWellLogPlot::createTitleLabel() const
+QLabel* RiuWellLogPlot::createTitleLabel() const
 {
-    caf::QShortenedLabel* plotTitle = new caf::QShortenedLabel( nullptr );
-    plotTitle->setText( "PLOT TITLE HERE" );
+    QLabel* plotTitle = new QLabel( "PLOT TITLE HERE", nullptr );
 
     RiaApplication* app = RiaApplication::instance();
 
@@ -277,8 +274,17 @@ caf::QShortenedLabel* RiuWellLogPlot::createTitleLabel() const
     plotTitle->setVisible( m_plotDefinition->isPlotTitleVisible() );
     plotTitle->setAlignment( Qt::AlignHCenter );
     plotTitle->setWordWrap( true );
-    plotTitle->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Preferred );
+    plotTitle->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
     return plotTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::resizeEvent( QResizeEvent* event )
+{
+    QWidget::resizeEvent( event );
+    updateChildrenLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -341,15 +347,21 @@ void RiuWellLogPlot::reinsertTracks()
     {
         if ( m_trackPlots[tIdx]->isRimTrackVisible() )
         {
+            m_trackLayout->addWidget( m_legends[tIdx], 0, static_cast<int>( visibleIndex ) );
+            m_trackLayout->addWidget( m_trackPlots[tIdx], 1, static_cast<int>( visibleIndex ) );
+
             if ( m_plotDefinition->areTrackLegendsVisible() )
             {
-                m_trackPlots[tIdx]->updateLegend();
                 int legendColumns = 1;
                 if ( m_plotDefinition->areTrackLegendsHorizontal() )
                 {
                     legendColumns = 0; // unlimited
                 }
                 m_legends[tIdx]->setMaxColumns( legendColumns );
+                m_trackPlots[tIdx]->updateLegend();
+                int minimumHeight = m_legends[tIdx]->heightForWidth( m_trackPlots[tIdx]->width() );
+                m_legends[tIdx]->setMinimumHeight( minimumHeight );
+
                 m_legends[tIdx]->show();
             }
             else
@@ -361,10 +373,12 @@ void RiuWellLogPlot::reinsertTracks()
             m_trackPlots[tIdx]->enableDepthAxisLabelsAndTicks( visibleIndex == 0 );
             m_trackPlots[tIdx]->show();
 
-            m_trackLayout->addWidget( m_legends[tIdx], 0, static_cast<int>( visibleIndex ) );
-            m_trackLayout->addWidget( m_trackPlots[tIdx], 1, static_cast<int>( visibleIndex ) );
-
-            m_trackLayout->setColumnStretch( visibleIndex++, m_trackPlots[tIdx]->widthScaleFactor() );
+            int widthScaleFactor = m_trackPlots[tIdx]->widthScaleFactor();
+            if ( visibleIndex == 0 )
+            {
+                widthScaleFactor += 1; // Give it a bit extra room due to depth axis
+            }
+            m_trackLayout->setColumnStretch( visibleIndex, widthScaleFactor );
             m_trackLayout->setRowStretch( 1, 1 );
             visibleIndex++;
         }
@@ -387,10 +401,6 @@ void RiuWellLogPlot::clearTrackLayout()
         while ( ( item = m_trackLayout->takeAt( 0 ) ) != 0 )
         {
         }
-        QWidget().setLayout( m_trackLayout );
-        QPointer<QGridLayout> newGridLayout = new QGridLayout( m_trackFrame );
-        m_trackLayout.swap( newGridLayout );
-        newGridLayout->deleteLater();
     }
 }
 
