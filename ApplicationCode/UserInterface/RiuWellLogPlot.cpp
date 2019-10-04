@@ -20,6 +20,7 @@
 #include "RiuWellLogPlot.h"
 
 #include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 #include "RimContextCommandBuilder.h"
 #include "RimWellLogPlot.h"
@@ -31,6 +32,7 @@
 #include "RiuWellLogTrack.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafQShortenedLabel.h"
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
@@ -186,7 +188,6 @@ void RiuWellLogPlot::setDepthZoomAndReplot( double minDepth, double maxDepth )
 void RiuWellLogPlot::setPlotTitle( const QString& plotTitle )
 {
     m_plotTitle->setText( plotTitle );
-    this->updateChildrenLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -260,15 +261,23 @@ void RiuWellLogPlot::keyPressEvent( QKeyEvent* keyEvent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QLabel* RiuWellLogPlot::createTitleLabel() const
+caf::QShortenedLabel* RiuWellLogPlot::createTitleLabel() const
 {
-    QLabel* plotTitle = new QLabel( "PLOT TITLE HERE", nullptr );
-    QFont   font      = plotTitle->font();
-    font.setPointSize( 14 );
+    caf::QShortenedLabel* plotTitle = new caf::QShortenedLabel( nullptr );
+    plotTitle->setText( "PLOT TITLE HERE" );
+
+    RiaApplication* app = RiaApplication::instance();
+
+    QFont font            = plotTitle->font();
+    int   defaultFontSize = RiaFontCache::pointSizeFromFontSizeEnum( app->preferences()->defaultPlotFontSize() );
+
+    font.setPointSize( defaultFontSize + 1 );
     font.setBold( true );
     plotTitle->setFont( font );
     plotTitle->setVisible( m_plotDefinition->isPlotTitleVisible() );
     plotTitle->setAlignment( Qt::AlignHCenter );
+    plotTitle->setWordWrap( true );
+    plotTitle->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Preferred );
     return plotTitle;
 }
 

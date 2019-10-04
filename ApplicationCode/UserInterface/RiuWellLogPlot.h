@@ -36,9 +36,13 @@ class RimWellLogPlot;
 class RiuWellLogTrack;
 
 class QFocusEvent;
-class QLabel;
 class QScrollBar;
 class QwtLegend;
+
+namespace caf
+{
+class QShortenedLabel;
+}
 
 //==================================================================================================
 //
@@ -74,7 +78,7 @@ protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
     void keyPressEvent( QKeyEvent* keyEvent ) override;
 
-    QLabel* createTitleLabel() const;
+    caf::QShortenedLabel* createTitleLabel() const;
 
 private:
     void updateScrollBar( double minDepth, double maxDepth );
@@ -90,7 +94,7 @@ protected:
     QPointer<QHBoxLayout>            m_plotLayout;
     QPointer<QFrame>                 m_trackFrame;
     QPointer<QGridLayout>            m_trackLayout;
-    QPointer<QLabel>                 m_plotTitle;
+    QPointer<caf::QShortenedLabel>   m_plotTitle;
     QPointer<QVBoxLayout>            m_scrollBarLayout;
     QScrollBar*                      m_scrollBar;
     QList<QPointer<QwtLegend>>       m_legends;
