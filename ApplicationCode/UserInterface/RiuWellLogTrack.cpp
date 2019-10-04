@@ -388,7 +388,12 @@ double RiuWellLogTrack::getCurrentMinorTickInterval() const
 //--------------------------------------------------------------------------------------------------
 int RiuWellLogTrack::axisExtent( QwtPlot::Axis axis ) const
 {
-    QFont font       = axisFont( axis );
-    int   lineExtent = static_cast<int>( std::ceil( axisScaleDraw( axis )->extent( font ) ) );
+    QFont tickLabelFont = axisFont( axis );
+    int   lineExtent    = static_cast<int>( std::ceil( axisScaleDraw( axis )->extent( tickLabelFont ) ) );
+    if ( !axisTitle( axis ).text().isEmpty() )
+    {
+        QFont titleFont = axisTitle( axis ).font();
+        lineExtent += QFontMetrics( titleFont ).height();
+    }
     return lineExtent;
 }
