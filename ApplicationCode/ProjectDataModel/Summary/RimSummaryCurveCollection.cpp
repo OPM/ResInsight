@@ -341,72 +341,6 @@ std::vector<caf::PdmFieldHandle*> RimSummaryCurveCollection::fieldsToShowInToolb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::handleKeyPressEvent( QKeyEvent* keyEvent )
-{
-    if ( !keyEvent ) return;
-
-    RimSummaryPlotSourceStepping* sourceStepping = nullptr;
-    {
-        RimSummaryCrossPlot* summaryCrossPlot = nullptr;
-        this->firstAncestorOrThisOfType( summaryCrossPlot );
-
-        if ( summaryCrossPlot )
-        {
-            sourceStepping = m_unionSourceStepping();
-        }
-        else
-        {
-            sourceStepping = m_ySourceStepping();
-        }
-    }
-
-    if ( keyEvent->key() == Qt::Key_PageUp )
-    {
-        if ( keyEvent->modifiers() & Qt::ShiftModifier )
-        {
-            sourceStepping->applyPrevCase();
-
-            keyEvent->accept();
-        }
-        else if ( keyEvent->modifiers() & Qt::ControlModifier )
-        {
-            sourceStepping->applyPrevOtherIdentifier();
-
-            keyEvent->accept();
-        }
-        else
-        {
-            sourceStepping->applyPrevQuantity();
-
-            keyEvent->accept();
-        }
-    }
-    else if ( keyEvent->key() == Qt::Key_PageDown )
-    {
-        if ( keyEvent->modifiers() & Qt::ShiftModifier )
-        {
-            sourceStepping->applyNextCase();
-
-            keyEvent->accept();
-        }
-        else if ( keyEvent->modifiers() & Qt::ControlModifier )
-        {
-            sourceStepping->applyNextOtherIdentifier();
-
-            keyEvent->accept();
-        }
-        else
-        {
-            sourceStepping->applyNextQuantity();
-
-            keyEvent->accept();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::setCurveAsTopZWithinCategory( RimSummaryCurve* curve )
 {
     for ( const auto& c : m_curves )
@@ -438,6 +372,28 @@ void RimSummaryCurveCollection::setCurveForSourceStepping( RimSummaryCurve* curv
 RimSummaryCurve* RimSummaryCurveCollection::curveForSourceStepping() const
 {
     return m_curveForSourceStepping;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlotSourceStepping* RimSummaryCurveCollection::sourceSteppingObject(
+    RimSummaryPlotSourceStepping::SourceSteppingType sourceSteppingType ) const
+{
+    if ( sourceSteppingType == RimSummaryPlotSourceStepping::X_AXIS )
+    {
+        return m_xSourceStepping();
+    }
+    else if ( sourceSteppingType == RimSummaryPlotSourceStepping::Y_AXIS )
+    {
+        return m_ySourceStepping();
+    }
+    if ( sourceSteppingType == RimSummaryPlotSourceStepping::UNION_X_Y_AXIS )
+    {
+        return m_unionSourceStepping();
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
