@@ -607,15 +607,17 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::adressesForSour
 {
     std::set<RifEclipseSummaryAddress> addressSet;
 
-    RimEnsembleCurveSetCollection* ensembleCollection = nullptr;
-    this->firstAncestorOrThisOfType( ensembleCollection );
-    if ( ensembleCollection )
     {
-        auto curveSets = ensembleCollection->curveSetsForSourceStepping();
-        for ( const RimEnsembleCurveSet* curveSet : curveSets )
+        RimEnsembleCurveSetCollection* ensembleCollection = nullptr;
+        this->firstAncestorOrThisOfType( ensembleCollection );
+        if ( ensembleCollection )
         {
-            auto addresses = curveSet->summaryCaseCollection()->ensembleSummaryAddresses();
-            addressSet.insert( addresses.begin(), addresses.end() );
+            auto curveSets = ensembleCollection->curveSetsForSourceStepping();
+            for ( const RimEnsembleCurveSet* curveSet : curveSets )
+            {
+                auto addresses = curveSet->summaryCaseCollection()->ensembleSummaryAddresses();
+                addressSet.insert( addresses.begin(), addresses.end() );
+            }
         }
     }
 
@@ -649,9 +651,19 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::addressesForCur
 {
     std::set<RifEclipseSummaryAddress> addresses;
 
+    RimEnsembleCurveSetCollection* ensembleCollection = nullptr;
+    this->firstAncestorOrThisOfType( ensembleCollection );
+    if ( ensembleCollection )
+    {
+        auto curveSets = ensembleCollection->curveSetsForSourceStepping();
+        for ( const RimEnsembleCurveSet* curveSet : curveSets )
+        {
+            addresses.insert( curveSet->summaryAddress() );
+        }
+    }
+
     RimSummaryCurveCollection* curveCollection = nullptr;
     this->firstAncestorOrThisOfType( curveCollection );
-
     if ( curveCollection )
     {
         auto curves = curveCollection->curvesForSourceStepping( m_sourceSteppingType );
@@ -666,17 +678,6 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::addressesForCur
             {
                 addresses.insert( c->summaryAddressX() );
             }
-        }
-    }
-
-    RimEnsembleCurveSetCollection* ensembleCollection = nullptr;
-    this->firstAncestorOrThisOfType( ensembleCollection );
-    if ( ensembleCollection )
-    {
-        auto curveSets = ensembleCollection->curveSetsForSourceStepping();
-        for ( const RimEnsembleCurveSet* curveSet : curveSets )
-        {
-            addresses.insert( curveSet->summaryAddress() );
         }
     }
 

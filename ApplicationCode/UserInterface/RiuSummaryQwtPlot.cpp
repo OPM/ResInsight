@@ -169,10 +169,9 @@ void RiuSummaryQwtPlot::keyPressEvent( QKeyEvent* keyEvent )
 {
     RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( ownerPlotDefinition() );
 
-    if ( summaryPlot && summaryPlot->summaryCurveCollection() )
+    if ( summaryPlot )
     {
-        RimSummaryCurveCollection* curveColl = summaryPlot->summaryCurveCollection();
-        curveColl->handleKeyPressEvent( keyEvent );
+        summaryPlot->handleKeyPressEvent( keyEvent );
     }
 }
 

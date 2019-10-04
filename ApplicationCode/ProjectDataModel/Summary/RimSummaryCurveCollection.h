@@ -67,12 +67,13 @@ public:
 
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
-    void handleKeyPressEvent( QKeyEvent* keyEvent );
-
     void setCurveAsTopZWithinCategory( RimSummaryCurve* curve );
 
     void             setCurveForSourceStepping( RimSummaryCurve* curve );
     RimSummaryCurve* curveForSourceStepping() const;
+
+    RimSummaryPlotSourceStepping*
+        sourceSteppingObject( RimSummaryPlotSourceStepping::SourceSteppingType sourceSteppingType ) const;
 
 private:
     caf::PdmFieldHandle* objectToggleField() override;

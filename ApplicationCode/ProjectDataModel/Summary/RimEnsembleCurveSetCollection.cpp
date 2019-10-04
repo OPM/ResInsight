@@ -272,6 +272,14 @@ std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::curveSetsForSou
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryPlotSourceStepping* RimEnsembleCurveSetCollection::sourceSteppingObject() const
+{
+    return m_ySourceStepping();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::deleteAllCurveSets()
 {
     m_curveSets.deleteAllChildObjects();

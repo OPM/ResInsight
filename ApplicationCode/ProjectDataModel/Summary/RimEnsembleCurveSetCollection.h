@@ -65,6 +65,7 @@ public:
     void                              setCurveSetForSourceStepping( RimEnsembleCurveSet* curve );
     RimEnsembleCurveSet*              curveSetForSourceStepping() const;
     std::vector<RimEnsembleCurveSet*> curveSetsForSourceStepping() const;
+    RimSummaryPlotSourceStepping*     sourceSteppingObject() const;
 
 private:
     caf::PdmFieldHandle* objectToggleField() override;

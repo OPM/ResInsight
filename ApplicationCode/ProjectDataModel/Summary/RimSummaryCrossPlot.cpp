@@ -18,6 +18,9 @@
 
 #include "RimSummaryCrossPlot.h"
 
+#include "RimSummaryCurveCollection.h"
+#include "RimSummaryPlotSourceStepping.h"
+
 CAF_PDM_SOURCE_INIT( RimSummaryCrossPlot, "SummaryCrossPlot" );
 
 //--------------------------------------------------------------------------------------------------
@@ -28,4 +31,12 @@ RimSummaryCrossPlot::RimSummaryCrossPlot()
     CAF_PDM_InitObject( "Summary Cross Plot", ":/SummaryXPlotLight16x16.png", "", "" );
 
     setAsCrossPlot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlotSourceStepping* RimSummaryCrossPlot::sourceSteppingObjectForKeyEventHandling() const
+{
+    return summaryCurveCollection()->sourceSteppingObject( RimSummaryPlotSourceStepping::UNION_X_Y_AXIS );
 }

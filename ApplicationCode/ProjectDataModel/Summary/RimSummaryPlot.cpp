@@ -19,8 +19,10 @@
 #include "RimSummaryPlot.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaSummaryCurveAnalyzer.h"
+#include "RiaSummaryCurveDefinition.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
 #include "SummaryPlotCommands/RicSummaryCurveCreator.h"
@@ -39,9 +41,9 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryCurvesCalculator.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSummaryPlotFilterTextCurveSetEditor.h"
 #include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryTimeAxisProperties.h"
-#include "RimSummaryPlotFilterTextCurveSetEditor.h"
 
 #include "RiuPlotMainWindowTools.h"
 #include "RiuSummaryQwtPlot.h"
@@ -59,12 +61,13 @@
 #include "qwt_scale_engine.h"
 
 #include <QDateTime>
+#include <QDebug>
+#include <QEvent>
+#include <QKeyEvent>
 #include <QRectF>
 #include <QString>
 
-#include "RiaColorTables.h"
-#include "RiaSummaryCurveDefinition.h"
-#include <QDebug>
+#include "cafSelectionManager.h"
 #include <limits>
 #include <set>
 
@@ -199,7 +202,12 @@ RimSummaryPlot::RimSummaryPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_plotTemplate, "PlotTemplate", "Template", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_textCurveSetEditor, "SummaryPlotFilterTextCurveSetEditor", "Text Filter Curve Creator", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_textCurveSetEditor,
+                                "SummaryPlotFilterTextCurveSetEditor",
+                                "Text Filter Curve Creator",
+                                "",
+                                "",
+                                "" );
     m_textCurveSetEditor.uiCapability()->setUiTreeHidden( true );
     m_textCurveSetEditor = new RimSummaryPlotFilterTextCurveSetEditor;
 
@@ -1194,9 +1202,9 @@ void RimSummaryPlot::addGridTimeHistoryCurve( RimGridTimeHistoryCurve* curve )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::addGridTimeHistoryCurveNoUpdate(RimGridTimeHistoryCurve* curve)
+void RimSummaryPlot::addGridTimeHistoryCurveNoUpdate( RimGridTimeHistoryCurve* curve )
 {
     CVF_ASSERT( curve );
 
@@ -1208,7 +1216,7 @@ void RimSummaryPlot::addGridTimeHistoryCurveNoUpdate(RimGridTimeHistoryCurve* cu
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridTimeHistoryCurve*> RimSummaryPlot::gridTimeHistoryCurves() const
 {
@@ -1538,7 +1546,7 @@ std::set<RimPlotAxisPropertiesInterface*> RimSummaryPlot::allPlotAxes() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteAllGridTimeHistoryCurves()
 {
@@ -1598,13 +1606,13 @@ void RimSummaryPlot::setAsCrossPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* mainOptions = uiOrdering.addNewGroup("General Plot Options");
+    caf::PdmUiGroup* mainOptions = uiOrdering.addNewGroup( "General Plot Options" );
 
     mainOptions->add( &m_showPlotTitle );
     if ( m_showPlotTitle )
     {
-        mainOptions->add(&m_useAutoPlotTitle);
-        mainOptions->add(&m_userDefinedPlotTitle);
+        mainOptions->add( &m_useAutoPlotTitle );
+        mainOptions->add( &m_userDefinedPlotTitle );
     }
     m_userDefinedPlotTitle.uiCapability()->setUiReadOnly( m_useAutoPlotTitle );
 
@@ -1927,6 +1935,104 @@ void RimSummaryPlot::setPlotTemplate( RimPlotTemplateFileItem* plotTemplate )
 RimPlotTemplateFileItem* RimSummaryPlot::plotTemplate() const
 {
     return m_plotTemplate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::handleKeyPressEvent( QKeyEvent* keyEvent )
+{
+    if ( !keyEvent ) return;
+
+    RimSummaryPlotSourceStepping* sourceStepping = sourceSteppingObjectForKeyEventHandling();
+    if ( !sourceStepping ) return;
+
+    if ( keyEvent->key() == Qt::Key_PageUp )
+    {
+        if ( keyEvent->modifiers() & Qt::ShiftModifier )
+        {
+            sourceStepping->applyPrevCase();
+
+            keyEvent->accept();
+        }
+        else if ( keyEvent->modifiers() & Qt::ControlModifier )
+        {
+            sourceStepping->applyPrevOtherIdentifier();
+
+            keyEvent->accept();
+        }
+        else
+        {
+            sourceStepping->applyPrevQuantity();
+
+            keyEvent->accept();
+        }
+    }
+    else if ( keyEvent->key() == Qt::Key_PageDown )
+    {
+        if ( keyEvent->modifiers() & Qt::ShiftModifier )
+        {
+            sourceStepping->applyNextCase();
+
+            keyEvent->accept();
+        }
+        else if ( keyEvent->modifiers() & Qt::ControlModifier )
+        {
+            sourceStepping->applyNextOtherIdentifier();
+
+            keyEvent->accept();
+        }
+        else
+        {
+            sourceStepping->applyNextQuantity();
+
+            keyEvent->accept();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlotSourceStepping* RimSummaryPlot::sourceSteppingObjectForKeyEventHandling() const
+{
+    caf::PdmObjectHandle* selectedObj = dynamic_cast<caf::PdmObjectHandle*>(
+        caf::SelectionManager::instance()->selectedItem() );
+    if ( selectedObj )
+    {
+        RimEnsembleCurveSetCollection* ensembleCurveSetColl = nullptr;
+        selectedObj->firstAncestorOrThisOfType( ensembleCurveSetColl );
+
+        if ( ensembleCurveSetColl )
+        {
+            return ensembleCurveSetCollection()->sourceSteppingObject();
+        }
+    }
+
+    return summaryCurveCollection()->sourceSteppingObject( RimSummaryPlotSourceStepping::Y_AXIS );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle*> RimSummaryPlot::fieldsToShowInToolbar()
+{
+    std::vector<caf::PdmFieldHandle*> toolBarFields;
+
+    auto sourceObject = sourceSteppingObjectForKeyEventHandling();
+
+    if ( sourceObject )
+    {
+        toolBarFields = sourceObject->fieldsToShowInToolbar();
+    }
+
+    if ( toolBarFields.empty() )
+    {
+        // Show ensemble stepping if no fields are available from summary stepping
+        toolBarFields = ensembleCurveSetCollection()->fieldsToShowInToolbar();
+    }
+
+    return toolBarFields;
 }
 
 //--------------------------------------------------------------------------------------------------
