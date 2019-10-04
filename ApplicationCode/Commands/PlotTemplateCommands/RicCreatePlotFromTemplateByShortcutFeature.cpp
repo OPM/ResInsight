@@ -40,7 +40,10 @@ CAF_CMD_SOURCE_INIT( RicCreatePlotFromTemplateByShortcutFeature, "RicCreatePlotF
 //--------------------------------------------------------------------------------------------------
 bool RicCreatePlotFromTemplateByShortcutFeature::isCommandEnabled()
 {
-    return !selectedSummaryCases().empty();
+    bool anySummaryCases           = !RicSummaryPlotTemplateTools::selectedSummaryCases().empty();
+    bool anySummaryCaseCollections = !RicSummaryPlotTemplateTools::selectedSummaryCaseCollections().empty();
+
+    return ( anySummaryCases || anySummaryCaseCollections );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,10 +71,11 @@ void RicCreatePlotFromTemplateByShortcutFeature::onActionTriggered( bool isCheck
         RiaApplication::instance()->preferences()->setDefaultPlotTemplatePath( fileName );
     }
 
-    std::vector<RimSummaryCase*> sumCases = selectedSummaryCases();
+    auto sumCases           = RicSummaryPlotTemplateTools::selectedSummaryCases();
+    auto sumCaseCollections = RicSummaryPlotTemplateTools::selectedSummaryCaseCollections();
 
     RimSummaryPlot* newSummaryPlot = RicSummaryPlotTemplateTools::createPlotFromTemplateFile( fileName );
-    RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection( newSummaryPlot, sumCases );
+    RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection( newSummaryPlot, sumCases, sumCaseCollections );
 }
 
 //--------------------------------------------------------------------------------------------------

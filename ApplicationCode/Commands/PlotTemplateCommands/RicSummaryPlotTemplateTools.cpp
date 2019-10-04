@@ -29,6 +29,8 @@
 
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
 #include "RimDialogData.h"
+#include "RimEnsembleCurveSet.h"
+#include "RimEnsembleCurveSetCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -40,6 +42,7 @@
 
 #include "cafPdmUiPropertyViewDialog.h"
 
+#include "cafSelectionManager.h"
 #include <QFile>
 
 //--------------------------------------------------------------------------------------------------
@@ -76,7 +79,9 @@ RimSummaryPlot* RicSummaryPlotTemplateTools::createPlotFromTemplateFile( const Q
 ///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
-    RimSummaryPlot* summaryPlot, const std::vector<RimSummaryCase*>& selectedSummaryCases )
+    RimSummaryPlot*                               summaryPlot,
+    const std::vector<RimSummaryCase*>&           selectedSummaryCases,
+    const std::vector<RimSummaryCaseCollection*>& selectedEnsembles )
 {
     if ( summaryPlot )
     {
@@ -87,39 +92,68 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
         summaryPlot->resolveReferencesRecursively();
         summaryPlot->initAfterReadRecursively();
 
-        auto summaryCurves = summaryPlot->summaryCurves();
-
-        for ( const auto& curve : summaryCurves )
         {
-            auto fieldHandle = curve->findField( "SummaryCase" );
-            if ( fieldHandle )
+            auto summaryCurves = summaryPlot->summaryCurves();
+
+            for ( const auto& curve : summaryCurves )
             {
-                auto referenceString = fieldHandle->xmlCapability()->referenceString();
-                auto stringList      = referenceString.split( " " );
-                if ( stringList.size() == 2 )
+                auto fieldHandle = curve->findField( "SummaryCase" );
+                if ( fieldHandle )
                 {
-                    QString indexAsString = stringList[1];
-
-                    bool conversionOk = false;
-                    auto index        = indexAsString.toUInt( &conversionOk );
-
-                    if ( conversionOk && index < selectedSummaryCases.size() )
+                    auto referenceString = fieldHandle->xmlCapability()->referenceString();
+                    auto stringList      = referenceString.split( " " );
+                    if ( stringList.size() == 2 )
                     {
-                        auto summaryCaseY = selectedSummaryCases[index];
-                        curve->setSummaryCaseY( summaryCaseY );
+                        QString indexAsString = stringList[1];
 
-                        auto currentAddressY = curve->summaryAddressY();
-                        if ( summaryCaseY->summaryReader() &&
-                             !summaryCaseY->summaryReader()->hasAddress( currentAddressY ) )
+                        bool conversionOk = false;
+                        auto index        = indexAsString.toUInt( &conversionOk );
+
+                        if ( conversionOk && index < selectedSummaryCases.size() )
                         {
-                            auto allAddresses = summaryCaseY->summaryReader()->allResultAddresses();
+                            auto summaryCaseY = selectedSummaryCases[index];
+                            curve->setSummaryCaseY( summaryCaseY );
 
-                            auto candidate = RicSummaryPlotTemplateTools::firstAddressByQuantity( currentAddressY,
-                                                                                                  allAddresses );
-                            if ( candidate.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
+                            auto currentAddressY = curve->summaryAddressY();
+                            if ( summaryCaseY->summaryReader() &&
+                                 !summaryCaseY->summaryReader()->hasAddress( currentAddressY ) )
                             {
-                                curve->setSummaryAddressY( candidate );
+                                auto allAddresses = summaryCaseY->summaryReader()->allResultAddresses();
+
+                                auto candidate = RicSummaryPlotTemplateTools::firstAddressByQuantity( currentAddressY,
+                                                                                                      allAddresses );
+                                if ( candidate.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
+                                {
+                                    curve->setSummaryAddressY( candidate );
+                                }
                             }
+                        }
+                    }
+                }
+            }
+        }
+
+        {
+            auto summaryCurves = summaryPlot->ensembleCurveSetCollection()->curveSets();
+
+            for ( const auto& curveSet : summaryCurves )
+            {
+                auto fieldHandle = curveSet->findField( "SummaryGroup" );
+                if ( fieldHandle )
+                {
+                    auto referenceString = fieldHandle->xmlCapability()->referenceString();
+                    auto stringList      = referenceString.split( " " );
+                    if ( stringList.size() == 2 )
+                    {
+                        QString indexAsString = stringList[1];
+
+                        bool conversionOk = false;
+                        auto index        = indexAsString.toUInt( &conversionOk );
+
+                        if ( conversionOk && index < selectedEnsembles.size() )
+                        {
+                            auto summaryCaseY = selectedEnsembles[index];
+                            curveSet->setSummaryCaseCollection( summaryCaseY );
                         }
                     }
                 }
@@ -253,6 +287,28 @@ QString RicSummaryPlotTemplateTools::selectPlotTemplatePath()
     }
 
     return QString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCase*> RicSummaryPlotTemplateTools::selectedSummaryCases()
+{
+    std::vector<RimSummaryCase*> objects;
+    caf::SelectionManager::instance()->objectsByType( &objects );
+
+    return objects;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCaseCollection*> RicSummaryPlotTemplateTools::selectedSummaryCaseCollections()
+{
+    std::vector<RimSummaryCaseCollection*> objects;
+    caf::SelectionManager::instance()->objectsByType( &objects );
+
+    return objects;
 }
 
 //--------------------------------------------------------------------------------------------------

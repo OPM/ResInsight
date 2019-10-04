@@ -25,6 +25,8 @@
 #include "RiaPreferences.h"
 #include "RiaSummaryTools.h"
 
+#include "RimEnsembleCurveSet.h"
+#include "RimEnsembleCurveSetCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
@@ -140,24 +142,48 @@ QString RicSavePlotTemplateFeature::createTextFromObject( RimSummaryPlot* summar
     RimSummaryPlot* newSummaryPlot = dynamic_cast<RimSummaryPlot*>( obj );
     if ( newSummaryPlot )
     {
-        std::set<QString> caseReferenceStrings;
-
-        for ( const auto& curve : newSummaryPlot->summaryCurves() )
         {
-            auto fieldHandle = curve->findField( "SummaryCase" );
-            if ( fieldHandle )
+            std::set<QString> caseReferenceStrings;
+
+            for ( const auto& curve : newSummaryPlot->summaryCurves() )
             {
-                auto reference = fieldHandle->xmlCapability()->referenceString();
-                caseReferenceStrings.insert( reference );
+                auto fieldHandle = curve->findField( "SummaryCase" );
+                if ( fieldHandle )
+                {
+                    auto reference = fieldHandle->xmlCapability()->referenceString();
+                    caseReferenceStrings.insert( reference );
+                }
+            }
+
+            size_t index = 0;
+            for ( const auto& s : caseReferenceStrings )
+            {
+                QString caseName = QString( "CASE_NAME %1" ).arg( index++ );
+
+                objectAsText.replace( s, caseName );
             }
         }
 
-        size_t index = 0;
-        for ( const auto& s : caseReferenceStrings )
         {
-            QString caseName = QString( "CASE_NAME %1" ).arg( index++ );
+            std::set<QString> ensembleReferenceStrings;
 
-            objectAsText.replace( s, caseName );
+            for ( const auto& curveSet : newSummaryPlot->ensembleCurveSetCollection()->curveSets() )
+            {
+                auto fieldHandle = curveSet->findField( "SummaryGroup" );
+                if ( fieldHandle )
+                {
+                    auto reference = fieldHandle->xmlCapability()->referenceString();
+                    ensembleReferenceStrings.insert( reference );
+                }
+            }
+
+            size_t index = 0;
+            for ( const auto& s : ensembleReferenceStrings )
+            {
+                QString ensembleName = QString( "ENSEMBLE_NAME %1" ).arg( index++ );
+
+                objectAsText.replace( s, ensembleName );
+            }
         }
     }
 

@@ -845,7 +845,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicCutReferencesToClipboardFeature";
 
         menuBuilder << "Separator";
-        if ( dynamic_cast<RimSummaryCase*>( uiItem ) )
+        if ( dynamic_cast<RimSummaryCase*>( uiItem ) || dynamic_cast<RimSummaryCaseCollection*>( uiItem ) )
         {
             menuBuilder << "RicCreatePlotFromSelectionFeature";
             menuBuilder << "RicCreatePlotFromTemplateByShortcutFeature";

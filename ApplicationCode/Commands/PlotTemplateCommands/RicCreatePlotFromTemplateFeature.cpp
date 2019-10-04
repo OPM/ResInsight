@@ -20,6 +20,7 @@
 
 #include "RicSummaryPlotTemplateTools.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 
 #include "cafSelectionManager.h"
 
@@ -32,7 +33,10 @@ CAF_CMD_SOURCE_INIT( RicCreatePlotFromTemplateFeature, "RicCreatePlotFromTemplat
 //--------------------------------------------------------------------------------------------------
 bool RicCreatePlotFromTemplateFeature::isCommandEnabled()
 {
-    return !selectedSummaryCases().empty();
+    bool anySummaryCases           = !RicSummaryPlotTemplateTools::selectedSummaryCases().empty();
+    bool anySummaryCaseCollections = !RicSummaryPlotTemplateTools::selectedSummaryCaseCollections().empty();
+
+    return ( anySummaryCases || anySummaryCaseCollections );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -40,11 +44,13 @@ bool RicCreatePlotFromTemplateFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreatePlotFromTemplateFeature::onActionTriggered( bool isChecked )
 {
-    QString                      fileName = userData().toString();
-    std::vector<RimSummaryCase*> sumCases = selectedSummaryCases();
+    QString fileName           = userData().toString();
+    auto    sumCases           = RicSummaryPlotTemplateTools::selectedSummaryCases();
+    auto    sumCaseCollections = RicSummaryPlotTemplateTools::selectedSummaryCaseCollections();
 
     RimSummaryPlot* newSummaryPlot = RicSummaryPlotTemplateTools::createPlotFromTemplateFile( fileName );
-    RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection( newSummaryPlot, sumCases );
+
+    RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection( newSummaryPlot, sumCases, sumCaseCollections );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,15 +60,4 @@ void RicCreatePlotFromTemplateFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Create Plot from Template" );
     actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RicCreatePlotFromTemplateFeature::selectedSummaryCases() const
-{
-    std::vector<RimSummaryCase*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
-    return objects;
 }

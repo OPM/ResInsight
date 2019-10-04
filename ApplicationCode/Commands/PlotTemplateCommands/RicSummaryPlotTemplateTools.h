@@ -30,6 +30,7 @@ class PdmObject;
 
 class RimSummaryPlot;
 class RimSummaryCase;
+class RimSummaryCaseCollection;
 class RifEclipseSummaryAddress;
 
 //==================================================================================================
@@ -39,8 +40,9 @@ class RicSummaryPlotTemplateTools
 {
 public:
     static RimSummaryPlot* createPlotFromTemplateFile( const QString& fileName );
-    static void            appendSummaryPlotToPlotCollection( RimSummaryPlot*                     summaryPlot,
-                                                              const std::vector<RimSummaryCase*>& selectedSummaryCases );
+    static void            appendSummaryPlotToPlotCollection( RimSummaryPlot*                               summaryPlot,
+                                                              const std::vector<RimSummaryCase*>&           selectedSummaryCases,
+                                                              const std::vector<RimSummaryCaseCollection*>& selectedEnsembles );
 
     static QString htmlTextFromPlotAndSelection( const RimSummaryPlot*                     templatePlot,
                                                  const std::set<RifEclipseSummaryAddress>& selectedSummaryAddresses,
@@ -49,6 +51,9 @@ public:
     static QString htmlTextFromCount( const QString& itemText, size_t requiredItemCount, size_t selectionCount );
 
     static QString selectPlotTemplatePath();
+
+    static std::vector<RimSummaryCase*>           selectedSummaryCases();
+    static std::vector<RimSummaryCaseCollection*> selectedSummaryCaseCollections();
 
 private:
     static RifEclipseSummaryAddress firstAddressByQuantity( const RifEclipseSummaryAddress&           sourceAddress,
