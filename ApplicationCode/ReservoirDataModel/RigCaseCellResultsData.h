@@ -128,6 +128,10 @@ public:
 
     void ensureKnownResultLoadedForTimeStep( const RigEclipseResultAddress& resultAddress, size_t timeStepIndex );
     bool ensureKnownResultLoaded( const RigEclipseResultAddress& resultAddress );
+
+    bool findAndLoadResultByName( const QString&                                resultName,
+                                  const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder );
+
     bool hasResultEntry( const RigEclipseResultAddress& resultAddress ) const;
     bool isResultLoaded( const RigEclipseResultAddress& resultAddress ) const;
     void createResultEntry( const RigEclipseResultAddress& resultAddress, bool needsToBeStored );
@@ -142,6 +146,10 @@ public:
 
 private:
     size_t findOrLoadKnownScalarResult( const RigEclipseResultAddress& resVarAddr );
+    size_t findOrLoadKnownScalarResultByResultTypeOrder(
+        const RigEclipseResultAddress&                resVarAddr,
+        const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder );
+
     size_t findOrLoadKnownScalarResultForTimeStep( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex );
     size_t findOrCreateScalarResultIndex( const RigEclipseResultAddress& resVarAddr, bool needsToBeStored );
 

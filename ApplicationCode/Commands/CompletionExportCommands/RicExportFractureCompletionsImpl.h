@@ -28,6 +28,7 @@ class RicWellPathFractureReportItem;
 class RigWellPath;
 class RigTransmissibilityCondenser;
 class RigEclipseToStimPlanCalculator;
+class RigCaseCellResultsData;
 
 class RimEclipseCase;
 class RimFracture;
@@ -147,4 +148,6 @@ private:
                                                RigTransmissibilityCondenser& transCondenser,
                                                const RigMainGrid*            mainGrid,
                                                const RigFractureGrid*        fractureGrid );
+
+    static bool loadResultsByName( RigCaseCellResultsData* cellResultsData, const std::vector<QString>& resultNames );
 };

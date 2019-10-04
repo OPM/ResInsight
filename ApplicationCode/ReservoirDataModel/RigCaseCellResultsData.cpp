@@ -1067,6 +1067,19 @@ bool RigCaseCellResultsData::ensureKnownResultLoaded( const RigEclipseResultAddr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::findAndLoadResultByName(
+    const QString& resultName, const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder )
+{
+    RigEclipseResultAddress adr( resultName );
+
+    size_t resultIndex = findOrLoadKnownScalarResultByResultTypeOrder( adr, resultCategorySearchOrder );
+
+    return ( resultIndex != cvf::UNDEFINED_SIZE_T );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RigCaseCellResultsData::hasResultEntry( const RigEclipseResultAddress& resultAddress ) const
 {
     size_t resultIndex = findScalarResultIndexFromAddress( resultAddress );
@@ -1104,41 +1117,14 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
     }
     else if ( resVarAddr.m_resultCatType == RiaDefines::UNDEFINED )
     {
-        RigEclipseResultAddress resVarAddressWithType = resVarAddr;
+        std::vector<RiaDefines::ResultCatType> searchOrder = {RiaDefines::STATIC_NATIVE,
+                                                              RiaDefines::DYNAMIC_NATIVE,
+                                                              RiaDefines::SOURSIMRL,
+                                                              RiaDefines::GENERATED,
+                                                              RiaDefines::INPUT_PROPERTY,
+                                                              RiaDefines::FORMATION_NAMES};
 
-        resVarAddressWithType.m_resultCatType = RiaDefines::STATIC_NATIVE;
-
-        size_t scalarResultIndex = this->findOrLoadKnownScalarResult( resVarAddressWithType );
-
-        if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T )
-        {
-            resVarAddressWithType.m_resultCatType = RiaDefines::DYNAMIC_NATIVE;
-            scalarResultIndex                     = this->findOrLoadKnownScalarResult( resVarAddressWithType );
-        }
-
-        if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T )
-        {
-            resVarAddressWithType.m_resultCatType = RiaDefines::SOURSIMRL;
-            scalarResultIndex                     = this->findOrLoadKnownScalarResult( resVarAddressWithType );
-        }
-
-        if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T )
-        {
-            resVarAddressWithType.m_resultCatType = RiaDefines::GENERATED;
-            scalarResultIndex                     = this->findScalarResultIndexFromAddress( resVarAddressWithType );
-        }
-
-        if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T )
-        {
-            resVarAddressWithType.m_resultCatType = RiaDefines::INPUT_PROPERTY;
-            scalarResultIndex                     = this->findScalarResultIndexFromAddress( resVarAddressWithType );
-        }
-
-        if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T )
-        {
-            resVarAddressWithType.m_resultCatType = RiaDefines::FORMATION_NAMES;
-            scalarResultIndex = this->findScalarResultIndexFromAddress( resVarAddressWithType ); // Use Load ?
-        }
+        size_t scalarResultIndex = this->findOrLoadKnownScalarResultByResultTypeOrder( resVarAddr, searchOrder );
 
         return scalarResultIndex;
     }
@@ -1376,6 +1362,47 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
     }
 
     return scalarResultIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigCaseCellResultsData::findOrLoadKnownScalarResultByResultTypeOrder(
+    const RigEclipseResultAddress& resVarAddr, const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder )
+{
+    std::set<RiaDefines::ResultCatType> otherResultTypesToSearch = {RiaDefines::STATIC_NATIVE,
+                                                                    RiaDefines::DYNAMIC_NATIVE,
+                                                                    RiaDefines::SOURSIMRL,
+                                                                    RiaDefines::INPUT_PROPERTY,
+                                                                    RiaDefines::GENERATED,
+                                                                    RiaDefines::FORMATION_NAMES};
+
+    for ( const auto& resultType : resultCategorySearchOrder )
+    {
+        otherResultTypesToSearch.erase( resultType );
+    }
+
+    std::vector<RiaDefines::ResultCatType> resultTypesOrdered = resultCategorySearchOrder;
+
+    for ( const auto& resultType : otherResultTypesToSearch )
+    {
+        resultTypesOrdered.push_back( resultType );
+    }
+
+    for ( const auto& resultType : resultTypesOrdered )
+    {
+        RigEclipseResultAddress resVarAddressWithType = resVarAddr;
+        resVarAddressWithType.m_resultCatType         = resultType;
+
+        size_t scalarResultIndex = this->findOrLoadKnownScalarResult( resVarAddressWithType );
+
+        if ( scalarResultIndex != cvf::UNDEFINED_SIZE_T )
+        {
+            return scalarResultIndex;
+        }
+    }
+
+    return cvf::UNDEFINED_SIZE_T;
 }
 
 //--------------------------------------------------------------------------------------------------
