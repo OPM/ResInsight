@@ -37,8 +37,8 @@ class RiaSummaryCurveAnalyzer
 public:
     RiaSummaryCurveAnalyzer();
 
-    void appendAdresses( const std::set<RifEclipseSummaryAddress>& allAddresses );
-    void appendAdresses( const std::vector<RifEclipseSummaryAddress>& allAddresses );
+    void appendAddresses( const std::set<RifEclipseSummaryAddress>& allAddresses );
+    void appendAddresses( const std::vector<RifEclipseSummaryAddress>& allAddresses );
 
     void clear();
 
