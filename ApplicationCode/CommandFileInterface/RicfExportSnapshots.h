@@ -52,4 +52,5 @@ private:
     caf::PdmField<QString>           m_prefix;
     caf::PdmField<int>               m_caseId;
     caf::PdmField<int>               m_viewId;
+    caf::PdmField<QString>           m_exportFolder;
 };

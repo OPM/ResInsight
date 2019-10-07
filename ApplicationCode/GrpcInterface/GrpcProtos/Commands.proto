@@ -54,6 +54,7 @@ message ExportSnapshotsRequest
 	string       prefix = 2;
 	int32        caseId = 3;
 	int32        viewId = 4;
+	string exportFolder = 5;
 }
 
 message ExportPropertyRequest

@@ -227,7 +227,7 @@ void RiuGridCrossQwtPlot::updateInfoBoxLayout()
             }
         }
         QStringList infoText;
-        infoText << QString( "View ID: %1" ).arg( crossPlot->id() );
+        infoText << QString( "<b>View ID:</b> %1<br/>" ).arg( crossPlot->id() );
         if ( curveInfoTexts.size() > 1 )
         {
             infoText += QString( "<ol style=\"margin-top: 0px; margin-left: 15px; -qt-list-indent:0;\">" );

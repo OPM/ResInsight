@@ -53,6 +53,7 @@ RicfExportSnapshots::RicfExportSnapshots()
     RICF_InitField( &m_prefix, "prefix", QString(), "Prefix", "", "", "" );
     RICF_InitField( &m_caseId, "caseId", -1, "Case Id", "", "", "" );
     RICF_InitField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
+    RICF_InitField( &m_exportFolder, "exportFolder", QString(), "Export Folder", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,6 +75,11 @@ RicfCommandResponse RicfExportSnapshots::execute()
 
     QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath(
         RicfCommandFileExecutor::SNAPSHOTS );
+
+    if ( !m_exportFolder().isEmpty() )
+    {
+        absolutePathToSnapshotDir = m_exportFolder;
+    }
     if ( absolutePathToSnapshotDir.isNull() )
     {
         absolutePathToSnapshotDir = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath(

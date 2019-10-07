@@ -143,21 +143,21 @@ class Project(PdmObject):
                 return view_object
         return None
 
-    def well_log_plots(self):
+    def plots(self):
         """Get a list of all plots belonging to a project"""
-        pdm_objects = self.descendants("WellLogPlot")
+        pdm_objects = self.descendants("RimPlot")
         plot_list = []
         for pdm_object in pdm_objects:
             plot_list.append(Plot(pdm_object))
         return plot_list
 
-    def well_log_plot(self, view_id):
+    def plot(self, view_id):
         """Get a particular plot by providing view id
         Arguments:
             view_id(int): view id
         Returns: a plot object
         """
-        plots = self.well_log_plots()
+        plots = self.plots()
         for plot_object in plots:
             if plot_object.view_id == view_id:
                 return plot_object

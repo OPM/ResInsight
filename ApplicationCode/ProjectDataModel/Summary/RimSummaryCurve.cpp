@@ -394,7 +394,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
     }
     else if ( &m_yValuesSummaryAddressUiField == fieldNeedingOptions )
     {
-        appendOptionItemsForSummaryAddresses( &options, m_yValuesSummaryCase());
+        appendOptionItemsForSummaryAddresses( &options, m_yValuesSummaryCase() );
     }
     else if ( &m_xValuesSummaryAddressUiField == fieldNeedingOptions )
     {

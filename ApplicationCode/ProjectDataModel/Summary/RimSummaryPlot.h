@@ -24,8 +24,8 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimPlot.h"
 #include "RimRiuQwtPlotOwnerInterface.h"
-#include "RimViewWindow.h"
 
 #include "qwt_plot_textlabel.h"
 
@@ -61,7 +61,7 @@ class QwtPlotCurve;
 ///
 ///
 //==================================================================================================
-class RimSummaryPlot : public RimViewWindow, public RimRiuQwtPlotOwnerInterface
+class RimSummaryPlot : public RimPlot, public RimRiuQwtPlotOwnerInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -89,7 +89,7 @@ public:
 
     void addGridTimeHistoryCurve( RimGridTimeHistoryCurve* curve );
     void addGridTimeHistoryCurveNoUpdate( RimGridTimeHistoryCurve* curve );
- 
+
     std::vector<RimGridTimeHistoryCurve*> gridTimeHistoryCurves() const;
 
     void addAsciiDataCruve( RimAsciiDataCurve* curve );

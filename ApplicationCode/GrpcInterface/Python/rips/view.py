@@ -195,15 +195,17 @@ class View(PdmObject):
                 viewIds=[self.view_id],
                 undefinedValue=undefined_value))
 
-    def export_snapshot(self, prefix=''):
+    def export_snapshot(self, prefix='', export_folder=''):
         """ Export snapshot for the current view
         
         Arguments:
             prefix (str): Exported file name prefix
+            export_folder(str): The path to export to. By default will use the global export folder
         """
         case_id = self.case().case_id
         return self._execute_command(
             exportSnapshots=Cmd.ExportSnapshotsRequest(type='VIEWS',
                                                        prefix=prefix,
                                                        caseId=case_id,
-                                                       viewId=self.view_id))
+                                                       viewId=self.view_id,
+                                                       exportFolder=export_folder))

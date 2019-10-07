@@ -251,16 +251,17 @@ class Case(PdmObject):
             self._execute_command(createView=Cmd.CreateViewRequest(
                 caseId=self.case_id)).createViewResult.viewId)
 
-    def export_snapshots_of_all_views(self, prefix=""):
+    def export_snapshots_of_all_views(self, prefix="", export_folder=""):
         """ Export snapshots for all views in the case
 
         Arguments:
             prefix (str): Exported file name prefix
+            export_folder(str): The path to export to. By default will use the global export folder
 
         """
         return self._execute_command(
             exportSnapshots=Cmd.ExportSnapshotsRequest(
-                type="VIEWS", prefix=prefix, caseId=self.case_id, viewId=-1))
+                type="VIEWS", prefix=prefix, caseId=self.case_id, viewId=-1, exportFolder=export_folder))
 
     def export_well_path_completions(
             self,
