@@ -77,11 +77,13 @@ protected:
     QLabel* createTitleLabel() const;
 
     void resizeEvent( QResizeEvent* event ) override;
+    void showEvent( QShowEvent* event ) override;
+    void changeEvent( QEvent* ) override;
 
 private:
     void updateScrollBar( double minDepth, double maxDepth );
-    void alignCanvasTops();
-    void reinsertTracks();
+    void alignCanvasTopsAndScrollbar();
+    void reinsertTracksAndScrollbar();
     void clearTrackLayout();
 
 private slots:

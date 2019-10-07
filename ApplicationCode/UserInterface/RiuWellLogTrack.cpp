@@ -87,9 +87,8 @@ void RiuWellLogTrack::setDefaults()
     axisScaleEngine( QwtPlot::yLeft )->setAttribute( QwtScaleEngine::Floating, true );
     setAxisScale( QwtPlot::yLeft, 1000, 0 );
     setXRange( 0, 100 );
-    QFont font     = axisFont( QwtPlot::xTop );
-    int lineHeight = QFontMetrics( font ).height() + axisScaleDraw( QwtPlot::xTop )->tickLength( QwtScaleDiv::MajorTick );
-    axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( lineHeight );
+    axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( axisExtent( QwtPlot::xTop ) );
+    setMinimumWidth( defaultMinimumWidth() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,6 +118,7 @@ void RiuWellLogTrack::setDepthTitle( const QString& title )
     {
         axisTitleY.setText( title );
         setAxisTitle( QwtPlot::yLeft, axisTitleY );
+        setMinimumWidth( defaultMinimumWidth() + axisExtent( QwtPlot::yLeft ) );
     }
 }
 
@@ -234,6 +234,14 @@ void RiuWellLogTrack::selectClosestCurve( const QPoint& pos )
 
     RiuPlotMainWindowTools::showPlotMainWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( m_plotTrackDefinition );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiuWellLogTrack::defaultMinimumWidth()
+{
+    return 80;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -373,4 +381,19 @@ double RiuWellLogTrack::getCurrentMinorTickInterval() const
     if ( minorTicks.size() < 2 ) return 0.0;
 
     return minorTicks.at( 1 ) - minorTicks.at( 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiuWellLogTrack::axisExtent( QwtPlot::Axis axis ) const
+{
+    QFont tickLabelFont = axisFont( axis );
+    int   lineExtent    = static_cast<int>( std::ceil( axisScaleDraw( axis )->extent( tickLabelFont ) ) );
+    if ( !axisTitle( axis ).text().isEmpty() )
+    {
+        QFont titleFont = axisTitle( axis ).font();
+        lineExtent += QFontMetrics( titleFont ).height();
+    }
+    return lineExtent;
 }

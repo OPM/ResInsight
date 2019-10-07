@@ -82,14 +82,10 @@ RiuWellLogPlot::RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent 
 
     setAutoFillBackground( true );
 
-    m_scrollBarLayout = new QVBoxLayout;
-    m_scrollBarLayout->setContentsMargins( 0, 50, 0, 0 );
-    m_plotLayout->addLayout( m_scrollBarLayout );
-
     m_scrollBar = new QScrollBar( nullptr );
     m_scrollBar->setOrientation( Qt::Vertical );
-    m_scrollBar->setVisible( true );
 
+    m_scrollBarLayout = new QVBoxLayout;
     m_scrollBarLayout->addWidget( m_scrollBar, 0 );
 
     new RiuPlotObjectPicker( m_plotTitle, m_plotDefinition );
@@ -223,8 +219,8 @@ void RiuWellLogPlot::setTitleVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::updateChildrenLayout()
 {
-    reinsertTracks();
-    alignCanvasTops();
+    reinsertTracksAndScrollbar();
+    alignCanvasTopsAndScrollbar();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -290,6 +286,27 @@ void RiuWellLogPlot::resizeEvent( QResizeEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::showEvent( QShowEvent* event )
+{
+    QWidget::showEvent( event );
+    updateChildrenLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::changeEvent( QEvent* event )
+{
+    QWidget::changeEvent( event );
+    if ( event->type() == QEvent::WindowStateChange )
+    {
+        updateChildrenLayout();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::updateScrollBar( double minDepth, double maxDepth )
 {
     double availableMinDepth;
@@ -312,7 +329,7 @@ void RiuWellLogPlot::updateScrollBar( double minDepth, double maxDepth )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::alignCanvasTops()
+void RiuWellLogPlot::alignCanvasTopsAndScrollbar()
 {
     CVF_ASSERT( m_legends.size() == m_trackPlots.size() );
 
@@ -333,12 +350,13 @@ void RiuWellLogPlot::alignCanvasTops()
             m_trackPlots[tIdx]->axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( maxExtent );
         }
     }
+    m_scrollBarLayout->setContentsMargins( 0, maxExtent, 0, 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::reinsertTracks()
+void RiuWellLogPlot::reinsertTracksAndScrollbar()
 {
     clearTrackLayout();
 
@@ -347,8 +365,8 @@ void RiuWellLogPlot::reinsertTracks()
     {
         if ( m_trackPlots[tIdx]->isRimTrackVisible() )
         {
-            m_trackLayout->addWidget( m_legends[tIdx], 0, static_cast<int>( visibleIndex ) );
-            m_trackLayout->addWidget( m_trackPlots[tIdx], 1, static_cast<int>( visibleIndex ) );
+            m_trackLayout->addWidget( m_legends[tIdx], 0, visibleIndex );
+            m_trackLayout->addWidget( m_trackPlots[tIdx], 1, visibleIndex );
 
             if ( m_plotDefinition->areTrackLegendsVisible() )
             {
@@ -358,7 +376,6 @@ void RiuWellLogPlot::reinsertTracks()
                     legendColumns = 0; // unlimited
                 }
                 m_legends[tIdx]->setMaxColumns( legendColumns );
-                m_trackPlots[tIdx]->updateLegend();
                 int minimumHeight = m_legends[tIdx]->heightForWidth( m_trackPlots[tIdx]->width() );
                 m_legends[tIdx]->setMinimumHeight( minimumHeight );
 
@@ -388,6 +405,8 @@ void RiuWellLogPlot::reinsertTracks()
             m_legends[tIdx]->hide();
         }
     }
+    m_trackLayout->addLayout( m_scrollBarLayout, 1, visibleIndex );
+    m_scrollBar->setVisible( visibleIndex > 0 );
 }
 
 //--------------------------------------------------------------------------------------------------

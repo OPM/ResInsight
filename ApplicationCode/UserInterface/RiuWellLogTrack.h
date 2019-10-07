@@ -60,6 +60,7 @@ public:
     void   setAutoTickIntervalCounts( int maxMajorTickIntervalCount, int maxMinorTickIntervalCount );
     double getCurrentMajorTickInterval() const;
     double getCurrentMinorTickInterval() const;
+    int    axisExtent( QwtPlot::Axis axis ) const;
 
 protected:
     bool  eventFilter( QObject* watched, QEvent* event ) override;
@@ -67,8 +68,9 @@ protected:
     QSize minimumSizeHint() const override;
 
 private:
-    void setDefaults();
-    void selectClosestCurve( const QPoint& pos );
+    void       setDefaults();
+    void       selectClosestCurve( const QPoint& pos );
+    static int defaultMinimumWidth();
 
 private:
     caf::PdmPointer<RimWellLogTrack> m_plotTrackDefinition;

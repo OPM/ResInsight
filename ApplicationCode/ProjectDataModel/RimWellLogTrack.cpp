@@ -1492,7 +1492,8 @@ void RimWellLogTrack::initAfterRead()
 {
     if ( m_showFormations_OBSOLETE() && m_regionAnnotationType() == RiuPlotAnnotationTool::NO_ANNOTATIONS )
     {
-        m_regionAnnotationType = RiuPlotAnnotationTool::FORMATION_ANNOTATIONS;
+        m_regionAnnotationType    = RiuPlotAnnotationTool::FORMATION_ANNOTATIONS;
+        m_regionAnnotationDisplay = RiuPlotAnnotationTool::DARK_LINES;
     }
 }
 
