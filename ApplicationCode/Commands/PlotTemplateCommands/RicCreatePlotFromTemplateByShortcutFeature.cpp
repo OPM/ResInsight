@@ -89,14 +89,3 @@ void RicCreatePlotFromTemplateByShortcutFeature::setupActionLook( QAction* actio
     QKeySequence keySeq( Qt::CTRL + Qt::Key_T );
     actionToSetup->setShortcut( keySeq );
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RicCreatePlotFromTemplateByShortcutFeature::selectedSummaryCases() const
-{
-    std::vector<RimSummaryCase*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
-    return objects;
-}

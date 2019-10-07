@@ -41,8 +41,8 @@
 #include "RiuPlotMainWindow.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
-
 #include "cafSelectionManager.h"
+
 #include <QFile>
 
 //--------------------------------------------------------------------------------------------------
