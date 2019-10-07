@@ -44,6 +44,7 @@
 #include "cafSelectionManager.h"
 
 #include <QFile>
+#include <QRegularExpression>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -102,32 +103,30 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
                 auto fieldHandle = curve->findField( summaryFieldKeyword );
                 if ( fieldHandle )
                 {
+                    bool          conversionOk      = false;
+                    const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForSummaryCase();
+
                     auto referenceString = fieldHandle->xmlCapability()->referenceString();
-                    auto stringList      = referenceString.split( " " );
-                    if ( stringList.size() == 2 )
+                    int  indexValue      = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString,
+                                                                                       referenceString,
+                                                                                       &conversionOk );
+
+                    if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( selectedSummaryCases.size() ) )
                     {
-                        QString indexAsString = stringList[1];
+                        auto summaryCaseY = selectedSummaryCases[static_cast<int>( indexValue )];
+                        curve->setSummaryCaseY( summaryCaseY );
 
-                        bool conversionOk = false;
-                        auto index        = indexAsString.toUInt( &conversionOk );
-
-                        if ( conversionOk && index < selectedSummaryCases.size() )
+                        auto currentAddressY = curve->summaryAddressY();
+                        if ( summaryCaseY->summaryReader() &&
+                             !summaryCaseY->summaryReader()->hasAddress( currentAddressY ) )
                         {
-                            auto summaryCaseY = selectedSummaryCases[index];
-                            curve->setSummaryCaseY( summaryCaseY );
+                            auto allAddresses = summaryCaseY->summaryReader()->allResultAddresses();
 
-                            auto currentAddressY = curve->summaryAddressY();
-                            if ( summaryCaseY->summaryReader() &&
-                                 !summaryCaseY->summaryReader()->hasAddress( currentAddressY ) )
+                            auto candidate = RicSummaryPlotTemplateTools::firstAddressByQuantity( currentAddressY,
+                                                                                                  allAddresses );
+                            if ( candidate.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
                             {
-                                auto allAddresses = summaryCaseY->summaryReader()->allResultAddresses();
-
-                                auto candidate = RicSummaryPlotTemplateTools::firstAddressByQuantity( currentAddressY,
-                                                                                                      allAddresses );
-                                if ( candidate.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
-                                {
-                                    curve->setSummaryAddressY( candidate );
-                                }
+                                curve->setSummaryAddressY( candidate );
                             }
                         }
                     }
@@ -336,7 +335,7 @@ QString RicSummaryPlotTemplateTools::summaryGroupFieldName()
 //--------------------------------------------------------------------------------------------------
 QString RicSummaryPlotTemplateTools::placeholderTextForSummaryCase()
 {
-    return "SUMMARY_CASE";
+    return "CASE_NAME";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -363,4 +362,40 @@ RifEclipseSummaryAddress
     }
 
     return RifEclipseSummaryAddress();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RicSummaryPlotTemplateTools::findValueForKeyword( const QString& keyword, const QString& valueString, bool* ok )
+{
+    // Example string : "CASE_NAME 1"
+    // Will match the string specified by keyword, and return the value captured by the regexp
+
+    QString            regexpString = QString( "%1 (\\d++)" ).arg( keyword );
+    QRegularExpression rx( regexpString );
+
+    auto match = rx.match( valueString );
+    if ( match.hasMatch() )
+    {
+        QString integerAsText = match.captured( 1 );
+
+        if ( !integerAsText.isEmpty() )
+        {
+            int integerValue = integerAsText.toInt();
+
+            if ( ok )
+            {
+                *ok = true;
+            }
+            return integerValue;
+        }
+    }
+
+    if ( ok )
+    {
+        *ok = false;
+    }
+
+    return -1;
 }

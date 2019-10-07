@@ -63,4 +63,6 @@ public:
 private:
     static RifEclipseSummaryAddress firstAddressByQuantity( const RifEclipseSummaryAddress&           sourceAddress,
                                                             const std::set<RifEclipseSummaryAddress>& allAddresses );
+
+    static int findValueForKeyword( const QString& keyword, const QString& valueString, bool* ok );
 };
