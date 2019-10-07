@@ -21,12 +21,19 @@
 
 #include "cafCmdFeature.h"
 
+#include <vector>
+
+class RimFileWellPath;
+
 //==================================================================================================
 ///
 //==================================================================================================
 class RicWellPathsImportFileFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static std::vector<RimFileWellPath*> importWellPaths( const QStringList& wellPathFilePaths );
 
 protected:
     // Overrides

@@ -38,9 +38,12 @@
 #include "RimPlotAxisProperties.h"
 #include "RiuPlotAnnotationTool.h"
 
+#include "qwt_scale_draw.h"
+#include "qwt_scale_widget.h"
 #include "qwt_text.h"
 #include "qwt_text_engine.h"
 
+#include <QGraphicsDropShadowEffect>
 #include <QLabel>
 #include <QMenu>
 #include <QResizeEvent>
@@ -65,6 +68,22 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimViewWindow* ownerViewWindow, QWidge
     m_selectedPointMarker->setSymbol( mySymbol );
     m_selectedPointMarker->setLabelAlignment( Qt::AlignRight | Qt::AlignVCenter );
     m_selectedPointMarker->setSpacing( 3 );
+
+    canvas()->setContentsMargins( 0, 0, 0, 0 );
+    QFrame* canvasFrame = dynamic_cast<QFrame*>( canvas() );
+    canvasFrame->setFrameShape( QFrame::Box );
+    canvasFrame->setStyleSheet( "border: 1px solid black" );
+
+    QGraphicsDropShadowEffect* dropShadowEffect = new QGraphicsDropShadowEffect( canvas() );
+    dropShadowEffect->setOffset( 1.0, 1.0 );
+    dropShadowEffect->setBlurRadius( 3.0 );
+    dropShadowEffect->setColor( QColor( 60, 60, 60, 60 ) );
+    canvas()->setGraphicsEffect( dropShadowEffect );
+
+    axisScaleDraw( QwtPlot::xBottom )->enableComponent( QwtAbstractScaleDraw::Backbone, false );
+    axisScaleDraw( QwtPlot::yLeft )->enableComponent( QwtAbstractScaleDraw::Backbone, false );
+    axisWidget( QwtPlot::xBottom )->setMargin( 0 );
+    axisWidget( QwtPlot::yLeft )->setMargin( 0 );
 }
 
 //--------------------------------------------------------------------------------------------------

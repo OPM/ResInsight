@@ -198,7 +198,7 @@ void RimWellPathCollection::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::addWellPaths( QStringList filePaths )
+std::vector<RimFileWellPath*> RimWellPathCollection::addWellPaths( QStringList filePaths )
 {
     std::vector<RimFileWellPath*> wellPathArray;
 
@@ -254,6 +254,8 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
 
     scheduleRedrawAffectedViews();
     updateAllRequiredEditors();
+
+    return wellPathArray;
 }
 
 //--------------------------------------------------------------------------------------------------

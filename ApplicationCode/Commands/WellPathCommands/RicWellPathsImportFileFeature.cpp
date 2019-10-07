@@ -36,6 +36,39 @@ CAF_CMD_SOURCE_INIT( RicWellPathsImportFileFeature, "RicWellPathsImportFileFeatu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimFileWellPath*> RicWellPathsImportFileFeature::importWellPaths( const QStringList& wellPathFilePaths )
+{
+    RiaApplication* app = RiaApplication::instance();
+
+    // Remember the path to next time
+    app->setLastUsedDialogDirectory( "WELLPATH_DIR", QFileInfo( wellPathFilePaths.last() ).absolutePath() );
+
+    std::vector<RimFileWellPath*> wellPaths = app->addWellPathsToModel( wellPathFilePaths );
+
+    RimProject* project = app->project();
+
+    if ( project )
+    {
+        project->scheduleCreateDisplayModelAndRedrawAllViews();
+        RimOilField* oilField = project->activeOilField();
+
+        if ( !oilField ) return;
+
+        if ( oilField->wellPathCollection->wellPaths().size() > 0 )
+        {
+            RimWellPath* wellPath = oilField->wellPathCollection->mostRecentlyUpdatedWellPath();
+            if ( wellPath )
+            {
+                Riu3DMainWindowTools::selectAsCurrentItem( wellPath );
+            }
+        }
+    }
+    return wellPaths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicWellPathsImportFileFeature::isCommandEnabled()
 {
     return true;
@@ -56,30 +89,9 @@ void RicWellPathsImportFileFeature::onActionTriggered( bool isChecked )
                                        defaultDir,
                                        "Well Paths (*.json *.asc *.asci *.ascii *.dev);;All Files (*.*)" );
 
-    if ( wellPathFilePaths.size() < 1 ) return;
-
-    // Remember the path to next time
-    app->setLastUsedDialogDirectory( "WELLPATH_DIR", QFileInfo( wellPathFilePaths.last() ).absolutePath() );
-
-    app->addWellPathsToModel( wellPathFilePaths );
-
-    RimProject* project = app->project();
-
-    if ( project )
+    if ( wellPathFilePaths.size() >= 1 )
     {
-        project->scheduleCreateDisplayModelAndRedrawAllViews();
-        RimOilField* oilField = project->activeOilField();
-
-        if ( !oilField ) return;
-
-        if ( oilField->wellPathCollection->wellPaths().size() > 0 )
-        {
-            RimWellPath* wellPath = oilField->wellPathCollection->mostRecentlyUpdatedWellPath();
-            if ( wellPath )
-            {
-                Riu3DMainWindowTools::selectAsCurrentItem( wellPath );
-            }
-        }
+        importWellPaths( wellPathFilePaths );
     }
 }
 
