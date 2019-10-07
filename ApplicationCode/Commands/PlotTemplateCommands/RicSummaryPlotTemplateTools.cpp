@@ -95,9 +95,11 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
         {
             auto summaryCurves = summaryPlot->summaryCurves();
 
+            const QString summaryFieldKeyword = RicSummaryPlotTemplateTools::summaryCaseFieldKeyword();
+
             for ( const auto& curve : summaryCurves )
             {
-                auto fieldHandle = curve->findField( "SummaryCase" );
+                auto fieldHandle = curve->findField( summaryFieldKeyword );
                 if ( fieldHandle )
                 {
                     auto referenceString = fieldHandle->xmlCapability()->referenceString();
@@ -136,9 +138,11 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
         {
             auto summaryCurves = summaryPlot->ensembleCurveSetCollection()->curveSets();
 
+            const QString summaryGroupFieldKeyword = RicSummaryPlotTemplateTools::summaryGroupFieldName();
+
             for ( const auto& curveSet : summaryCurves )
             {
-                auto fieldHandle = curveSet->findField( "SummaryGroup" );
+                auto fieldHandle = curveSet->findField( summaryGroupFieldKeyword );
                 if ( fieldHandle )
                 {
                     auto referenceString = fieldHandle->xmlCapability()->referenceString();
@@ -309,6 +313,38 @@ std::vector<RimSummaryCaseCollection*> RicSummaryPlotTemplateTools::selectedSumm
     caf::SelectionManager::instance()->objectsByType( &objects );
 
     return objects;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicSummaryPlotTemplateTools::summaryCaseFieldKeyword()
+{
+    return "SummaryCase";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicSummaryPlotTemplateTools::summaryGroupFieldName()
+{
+    return "SummaryGroup";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicSummaryPlotTemplateTools::placeholderTextForSummaryCase()
+{
+    return "SUMMARY_CASE";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicSummaryPlotTemplateTools::placeholderTextForSummaryGroup()
+{
+    return "ENSEMBLE";
 }
 
 //--------------------------------------------------------------------------------------------------

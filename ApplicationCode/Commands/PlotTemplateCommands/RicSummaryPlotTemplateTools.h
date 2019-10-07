@@ -55,6 +55,11 @@ public:
     static std::vector<RimSummaryCase*>           selectedSummaryCases();
     static std::vector<RimSummaryCaseCollection*> selectedSummaryCaseCollections();
 
+    static QString summaryCaseFieldKeyword();
+    static QString summaryGroupFieldName();
+    static QString placeholderTextForSummaryCase();
+    static QString placeholderTextForSummaryGroup();
+
 private:
     static RifEclipseSummaryAddress firstAddressByQuantity( const RifEclipseSummaryAddress&           sourceAddress,
                                                             const std::set<RifEclipseSummaryAddress>& allAddresses );

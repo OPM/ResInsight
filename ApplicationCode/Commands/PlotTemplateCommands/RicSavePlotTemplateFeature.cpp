@@ -19,6 +19,7 @@
 #include "RicSavePlotTemplateFeature.h"
 
 #include "RicReloadPlotTemplatesFeature.h"
+#include "RicSummaryPlotTemplateTools.h"
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
@@ -145,9 +146,10 @@ QString RicSavePlotTemplateFeature::createTextFromObject( RimSummaryPlot* summar
         {
             std::set<QString> caseReferenceStrings;
 
+            const QString summaryFieldKeyword = RicSummaryPlotTemplateTools::summaryCaseFieldKeyword();
             for ( const auto& curve : newSummaryPlot->summaryCurves() )
             {
-                auto fieldHandle = curve->findField( "SummaryCase" );
+                auto fieldHandle = curve->findField( summaryFieldKeyword );
                 if ( fieldHandle )
                 {
                     auto reference = fieldHandle->xmlCapability()->referenceString();
@@ -158,7 +160,8 @@ QString RicSavePlotTemplateFeature::createTextFromObject( RimSummaryPlot* summar
             size_t index = 0;
             for ( const auto& s : caseReferenceStrings )
             {
-                QString caseName = QString( "CASE_NAME %1" ).arg( index++ );
+                QString placeholderText = RicSummaryPlotTemplateTools::placeholderTextForSummaryCase();
+                QString caseName        = QString( "%1 %2" ).arg( placeholderText ).arg( index++ );
 
                 objectAsText.replace( s, caseName );
             }
@@ -167,9 +170,11 @@ QString RicSavePlotTemplateFeature::createTextFromObject( RimSummaryPlot* summar
         {
             std::set<QString> ensembleReferenceStrings;
 
+            const QString summaryGroupFieldKeyword = RicSummaryPlotTemplateTools::summaryGroupFieldName();
+
             for ( const auto& curveSet : newSummaryPlot->ensembleCurveSetCollection()->curveSets() )
             {
-                auto fieldHandle = curveSet->findField( "SummaryGroup" );
+                auto fieldHandle = curveSet->findField( summaryGroupFieldKeyword );
                 if ( fieldHandle )
                 {
                     auto reference = fieldHandle->xmlCapability()->referenceString();
@@ -180,7 +185,8 @@ QString RicSavePlotTemplateFeature::createTextFromObject( RimSummaryPlot* summar
             size_t index = 0;
             for ( const auto& s : ensembleReferenceStrings )
             {
-                QString ensembleName = QString( "ENSEMBLE_NAME %1" ).arg( index++ );
+                QString placeholderText = RicSummaryPlotTemplateTools::placeholderTextForSummaryGroup();
+                QString ensembleName    = QString( "%1 %2" ).arg( placeholderText ).arg( index++ );
 
                 objectAsText.replace( s, ensembleName );
             }
