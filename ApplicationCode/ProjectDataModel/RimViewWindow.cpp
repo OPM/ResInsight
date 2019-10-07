@@ -37,6 +37,8 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimViewWindow, "ViewWindow" ); // Do not use. 
 //--------------------------------------------------------------------------------------------------
 RimViewWindow::RimViewWindow( void )
 {
+    CAF_PDM_InitObject( "View window", "", "", "" );
+
     CAF_PDM_InitFieldNoDefault( &m_windowController, "WindowController", "", "", "", "" );
     m_windowController.uiCapability()->setUiHidden( true );
     m_windowController.uiCapability()->setUiTreeChildrenHidden( true );

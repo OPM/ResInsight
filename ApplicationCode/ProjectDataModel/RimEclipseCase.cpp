@@ -75,6 +75,8 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimEclipseCase, "RimReservoir" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase::RimEclipseCase()
 {
+    CAF_PDM_InitObject( "EclipseCase", ":/Case48x48.png", "", "" );
+
     CAF_PDM_InitFieldNoDefault( &reservoirViews, "ReservoirViews", "", "", "", "" );
     reservoirViews.uiCapability()->setUiHidden( true );
 

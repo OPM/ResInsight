@@ -165,8 +165,7 @@ class Project(PdmObject):
 
     def well_paths(self):
         """Get a list of all the well path names in the project"""
-        pdm_objects = self.descendants("WellPath")
-        pdm_objects += self.descendants("ModelledWellPath")
+        pdm_objects = self.descendants("WellPathBase")
         well_path_list  = []
         for pdm_object in pdm_objects:
             well_path_list.append(pdm_object.get_value("WellPathName"))

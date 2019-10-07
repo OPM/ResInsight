@@ -43,6 +43,8 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCase, "RimCase" );
 RimCase::RimCase()
     : m_isInActiveDestruction( false )
 {
+    CAF_PDM_InitObject( "Case", ":/Case48x48.png", "", "" );
+
     RICF_InitField( &caseUserDescription, "CaseUserDescription", QString(), "Case Name", "", "", "" );
 
     RICF_InitField( &caseId, "CaseId", -1, "Case ID", "", "", "" );

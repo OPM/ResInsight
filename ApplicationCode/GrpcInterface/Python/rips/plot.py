@@ -15,7 +15,6 @@ class Plot(PdmObject):
     def __init__(self, pdm_object):
         PdmObject.__init__(self, pdm_object.pb2_object(), pdm_object.channel())
         self.view_id = pdm_object.get_value("ViewId")
-        print("Found view id: " + self.view_id)
 
     def export_snapshot(self, prefix=''):
         """ Export snapshot for the current plot

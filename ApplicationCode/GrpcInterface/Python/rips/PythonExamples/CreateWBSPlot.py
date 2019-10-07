@@ -20,7 +20,7 @@ for case in cases:
     
         # create a folder to hold the snapshots
         dirname = os.path.join(folder_name, 'snapshots')
+        print("Exporting to: " + dirname)
         resInsight.set_export_folder(export_type='SNAPSHOTS', path=dirname)
-
-        plot = case.create_well_bore_stability_plot(well_path=well_paths[0], time_step=0)
-        plot.export_snapshots()
+        wbsplot = case.create_well_bore_stability_plot(well_path=well_paths[0], time_step=0)
+        wbsplot.export_snapshot()

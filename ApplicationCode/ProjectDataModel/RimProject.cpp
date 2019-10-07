@@ -101,6 +101,8 @@ CAF_PDM_SOURCE_INIT( RimProject, "ResInsightProject" );
 //--------------------------------------------------------------------------------------------------
 RimProject::RimProject( void )
 {
+    CAF_PDM_InitObject( "Project", "", "", "" );
+
     CAF_PDM_InitFieldNoDefault( &m_projectFileVersionString, "ProjectFileVersionString", "", "", "", "" );
     m_projectFileVersionString.uiCapability()->setUiHidden( true );
 
