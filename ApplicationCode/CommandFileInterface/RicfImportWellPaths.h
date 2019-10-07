@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2019- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,26 +15,43 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "RicfCommandObject.h"
 
+#include "cafPdmField.h"
+
+#include <QString>
 #include <vector>
-
-class RimWellLogFile;
 
 //==================================================================================================
 ///
+///
 //==================================================================================================
-class RicWellLogsImportFileFeature : public caf::CmdFeature
+class RicfImportWellPathResults : public caf::PdmObject
 {
-    CAF_CMD_HEADER_INIT;
-    std::vector<RimWellLogFile*> importWellLogFiles( const QStringList& wellLogFilePaths );
+    CAF_PDM_HEADER_INIT;
 
-protected:
-    // Overrides
-    bool isCommandEnabled() override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+public:
+    RicfImportWellPathResults( const std::vector<QString>& wellPathNames = {} );
+
+public:
+    caf::PdmField<std::vector<QString>> importedWellPathNames;
+};
+
+//==================================================================================================
+///
+///
+//==================================================================================================
+class RicfImportWellPaths : public RicfCommandObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RicfImportWellPaths();
+
+    RicfCommandResponse execute() override;
+
+private:
+    caf::PdmField<std::vector<QString>> m_wellFilePaths;
 };

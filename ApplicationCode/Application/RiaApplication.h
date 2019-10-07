@@ -60,6 +60,7 @@ class RimProject;
 class RimSummaryPlot;
 class Rim3dView;
 class RimViewWindow;
+class RimWellLogFile;
 class RimWellLogPlot;
 class RimWellAllocationPlot;
 
@@ -140,7 +141,7 @@ public:
 
     std::vector<RimFileWellPath*> addWellPathsToModel( QList<QString> wellPathFilePaths );
     void                          addWellPathFormationsToModel( QList<QString> wellPathFilePaths );
-    void                          addWellLogsToModel( const QList<QString>& wellLogFilePaths );
+    std::vector<RimWellLogFile*>  addWellLogsToModel( const QList<QString>& wellLogFilePaths );
 
     QString scriptDirectories() const;
     QString scriptEditorPath() const;

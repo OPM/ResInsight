@@ -52,9 +52,7 @@ std::vector<RimFileWellPath*> RicWellPathsImportFileFeature::importWellPaths( co
         project->scheduleCreateDisplayModelAndRedrawAllViews();
         RimOilField* oilField = project->activeOilField();
 
-        if ( !oilField ) return;
-
-        if ( oilField->wellPathCollection->wellPaths().size() > 0 )
+        if ( oilField && oilField->wellPathCollection->wellPaths().size() > 0 )
         {
             RimWellPath* wellPath = oilField->wellPathCollection->mostRecentlyUpdatedWellPath();
             if ( wellPath )

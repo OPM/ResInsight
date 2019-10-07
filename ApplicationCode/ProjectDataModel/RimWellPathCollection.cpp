@@ -317,13 +317,13 @@ void RimWellPathCollection::addWellPaths( const std::vector<RimWellPath*> incomi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogFile* RimWellPathCollection::addWellLogs( const QStringList& filePaths )
+std::vector<RimWellLogFile*> RimWellPathCollection::addWellLogs( const QStringList& filePaths )
 {
-    RimWellLogFile* logFileInfo = nullptr;
+    std::vector<RimWellLogFile*> logFileInfos;
 
     foreach ( QString filePath, filePaths )
     {
-        logFileInfo = RimWellLogFile::readWellLogFile( filePath );
+        RimWellLogFile* logFileInfo = RimWellLogFile::readWellLogFile( filePath );
         if ( logFileInfo )
         {
             RimWellPath* wellPath = tryFindMatchingWellPath( logFileInfo->wellName() );
@@ -334,13 +334,14 @@ RimWellLogFile* RimWellPathCollection::addWellLogs( const QStringList& filePaths
             }
 
             wellPath->addWellLogFile( logFileInfo );
+            logFileInfos.push_back( logFileInfo );
         }
     }
 
     this->sortWellsByName();
     updateAllRequiredEditors();
 
-    return logFileInfo;
+    return logFileInfos;
 }
 
 //--------------------------------------------------------------------------------------------------

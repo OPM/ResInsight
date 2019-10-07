@@ -803,10 +803,10 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
 //--------------------------------------------------------------------------------------------------
 std::vector<RimFileWellPath*> RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths )
 {
-    if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return;
+    if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return {};
 
     RimOilField* oilField = m_project->activeOilField();
-    if ( oilField == nullptr ) return;
+    if ( oilField == nullptr ) return {};
 
     if ( oilField->wellPathCollection == nullptr )
     {
@@ -855,12 +855,12 @@ void RiaApplication::addWellPathFormationsToModel( QList<QString> wellPathFormat
 //--------------------------------------------------------------------------------------------------
 /// Add a list of well log file paths (LAS files) to the well path collection
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::addWellLogsToModel( const QList<QString>& wellLogFilePaths )
+std::vector<RimWellLogFile*> RiaApplication::addWellLogsToModel( const QList<QString>& wellLogFilePaths )
 {
-    if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return;
+    if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return {};
 
     RimOilField* oilField = m_project->activeOilField();
-    if ( oilField == nullptr ) return;
+    if ( oilField == nullptr ) return {};
 
     if ( oilField->wellPathCollection == nullptr )
     {
@@ -869,9 +869,11 @@ void RiaApplication::addWellLogsToModel( const QList<QString>& wellLogFilePaths 
         m_project->updateConnectedEditors();
     }
 
-    oilField->wellPathCollection->addWellLogs( wellLogFilePaths );
+    std::vector<RimWellLogFile*> wellLogFiles = oilField->wellPathCollection->addWellLogs( wellLogFilePaths );
 
     oilField->wellPathCollection->updateConnectedEditors();
+
+    return wellLogFiles;
 }
 
 //--------------------------------------------------------------------------------------------------

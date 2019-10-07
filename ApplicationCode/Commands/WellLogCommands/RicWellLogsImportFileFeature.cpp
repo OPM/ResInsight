@@ -33,6 +33,23 @@ CAF_CMD_SOURCE_INIT( RicWellLogsImportFileFeature, "RicWellLogsImportFileFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellLogFile*> RicWellLogsImportFileFeature::importWellLogFiles( const QStringList& wellLogFilePaths )
+{
+    RiaApplication* app = RiaApplication::instance();
+
+    // Remember the path to next time
+    app->setLastUsedDialogDirectory( "WELL_LOGS_DIR", QFileInfo( wellLogFilePaths.last() ).absolutePath() );
+
+    std::vector<RimWellLogFile*> wellLogFiles = app->addWellLogsToModel( wellLogFilePaths );
+
+    caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
+
+    return wellLogFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicWellLogsImportFileFeature::isCommandEnabled()
 {
     return true;
@@ -51,14 +68,10 @@ void RicWellLogsImportFileFeature::onActionTriggered( bool isChecked )
                                                                   defaultDir,
                                                                   "Well Logs (*.las);;All Files (*.*)" );
 
-    if ( wellLogFilePaths.size() < 1 ) return;
-
-    // Remember the path to next time
-    app->setLastUsedDialogDirectory( "WELL_LOGS_DIR", QFileInfo( wellLogFilePaths.last() ).absolutePath() );
-
-    app->addWellLogsToModel( wellLogFilePaths );
-
-    caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
+    if ( wellLogFilePaths.size() >= 1 )
+    {
+        importWellLogFiles( wellLogFilePaths );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
