@@ -8,6 +8,7 @@ import grpc
 from rips.case import Case
 from rips.gridcasegroup import GridCaseGroup
 from rips.pdmobject import PdmObject
+from rips.plot import Plot
 from rips.view import View
 
 import rips.generated.Commands_pb2 as Cmd
@@ -49,7 +50,7 @@ class Project(PdmObject):
         """
         command_reply = self._execute_command(loadCase=Cmd.FilePathRequest(
             path=path))
-        return Case(self._channel, command_reply.loadCaseResult.id)
+        return Case(self._channel, command_reply.loadCaseResult.id, self)
 
     def selected_cases(self):
         """Get a list of all cases selected in the project tree
@@ -60,7 +61,7 @@ class Project(PdmObject):
         case_infos = self._project_stub.GetSelectedCases(Empty())
         cases = []
         for case_info in case_infos.data:
-            cases.append(Case(self._channel, case_info.id))
+            cases.append(Case(self._channel, case_info.id, self))
         return cases
 
     def cases(self):
@@ -74,7 +75,7 @@ class Project(PdmObject):
 
             cases = []
             for case_info in case_infos.data:
-                cases.append(Case(self._channel, case_info.id))
+                cases.append(Case(self._channel, case_info.id, self))
             return cases
         except grpc.RpcError as rpc_error:
             if rpc_error.code() == grpc.StatusCode.NOT_FOUND:
@@ -91,7 +92,7 @@ class Project(PdmObject):
             A rips Case object
         """
         try:
-            case = Case(self._channel, case_id)
+            case = Case(self._channel, case_id, self)
             return case
         except grpc.RpcError:
             return None
@@ -133,7 +134,7 @@ class Project(PdmObject):
         """Get a particular view belonging to a case by providing view id
         
         Arguments:
-            id(int): view id
+            view_id(int): view id
         Returns: a view object
         """
         views = self.views()
@@ -141,6 +142,35 @@ class Project(PdmObject):
             if view_object.view_id == view_id:
                 return view_object
         return None
+
+    def well_log_plots(self):
+        """Get a list of all plots belonging to a project"""
+        pdm_objects = self.descendants("WellLogPlot")
+        plot_list = []
+        for pdm_object in pdm_objects:
+            plot_list.append(Plot(pdm_object))
+        return plot_list
+
+    def well_log_plot(self, view_id):
+        """Get a particular plot by providing view id
+        Arguments:
+            view_id(int): view id
+        Returns: a plot object
+        """
+        plots = self.well_log_plots()
+        for plot_object in plots:
+            if plot_object.view_id == view_id:
+                return plot_object
+        return None
+
+    def well_paths(self):
+        """Get a list of all the well path names in the project"""
+        pdm_objects = self.descendants("WellPath")
+        pdm_objects += self.descendants("ModelledWellPath")
+        well_path_list  = []
+        for pdm_object in pdm_objects:
+            well_path_list.append(pdm_object.get_value("WellPathName"))
+        return well_path_list
 
     def grid_case_groups(self):
         """Get a list of all grid case groups in the project"""

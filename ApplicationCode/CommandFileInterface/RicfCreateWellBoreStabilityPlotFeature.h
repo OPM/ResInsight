@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016 Statoil ASA
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,30 +15,42 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include "cafCmdFeature.h"
-
-class RimViewWindow;
+#include "RicfCommandObject.h"
+#include "cafPdmField.h"
 
 //==================================================================================================
-///
+//
+//
+//
 //==================================================================================================
-class RicSnapshotAllPlotsToFileFeature : public caf::CmdFeature
+class RicfCreateWbsPlotResult : public caf::PdmObject
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
-    static void saveAllPlots();
+    RicfCreateWbsPlotResult( int viewId = -1 );
 
-    static void exportSnapshotOfPlotsIntoFolder( const QString& snapshotFolderName,
-                                                 const QString& prefix = "",
-                                                 int            viewId = -1 );
+public:
+    caf::PdmField<int> viewId;
+};
 
-protected:
-    // Overrides
-    bool isCommandEnabled() override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
+class RicfCreateWellBoreStabilityPlotFeature : public RicfCommandObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RicfCreateWellBoreStabilityPlotFeature();
+    RicfCommandResponse execute() override;
+
+private:
+    caf::PdmField<int>     m_caseId;
+    caf::PdmField<QString> m_wellPath;
+    caf::PdmField<int>     m_timeStep;
 };

@@ -32,6 +32,9 @@ class RicNewWellBoreStabilityPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static RimWellBoreStabilityPlot* createPlot( RimGeoMechCase* geoMechCase, RimWellPath* wellPath, int timeStep );
+
 protected:
     // Overrides
     bool isCommandEnabled() override;
@@ -39,9 +42,18 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    void createFormationTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase );
-    void createCasingShoeTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase );
-    void createParametersTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechView* geoMechView );
-    void createStabilityCurvesTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechView* geoMechView );
-    void createAnglesTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechView* geoMechView );
+    static void createFormationTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase );
+    static void createCasingShoeTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase );
+    static void createParametersTrack( RimWellBoreStabilityPlot* plot,
+                                       RimWellPath*              wellPath,
+                                       RimGeoMechCase*           geoMechCase,
+                                       int                       timeStep );
+    static void createStabilityCurvesTrack( RimWellBoreStabilityPlot* plot,
+                                            RimWellPath*              wellPath,
+                                            RimGeoMechCase*           geoMechCase,
+                                            int                       timeStep );
+    static void createAnglesTrack( RimWellBoreStabilityPlot* plot,
+                                   RimWellPath*              wellPath,
+                                   RimGeoMechCase*           geoMechCase,
+                                   int                       timeStep );
 };

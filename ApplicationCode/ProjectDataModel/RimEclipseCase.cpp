@@ -246,6 +246,8 @@ const RigMainGrid* RimEclipseCase::mainGrid() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::initAfterRead()
 {
+    RimCase::initAfterRead();
+
     size_t j;
     for ( j = 0; j < reservoirViews().size(); j++ )
     {

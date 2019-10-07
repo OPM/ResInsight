@@ -387,6 +387,8 @@ std::vector<QDateTime> RimGeoMechCase::timeStepDates() const
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::initAfterRead()
 {
+    RimCase::initAfterRead();
+
     size_t j;
     for ( j = 0; j < geoMechViews().size(); j++ )
     {

@@ -26,6 +26,8 @@
 #include "RiaSimWellBranchTools.h"
 #include "RiaWellNameComparer.h"
 
+#include "RicfCommandObject.h"
+
 #include "RifWellPathFormationsImporter.h"
 #include "RifWellPathImporter.h"
 
@@ -73,7 +75,7 @@ RimWellPath::RimWellPath()
 {
     CAF_PDM_InitObject( "WellPath", ":/Well.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_name, "WellPathName", "Name", "", "", "" );
+    RICF_InitFieldNoDefault( &m_name, "WellPathName", "Name", "", "", "" );
     m_name.uiCapability()->setUiReadOnly( true );
     m_name.uiCapability()->setUiHidden( true );
     m_name.xmlCapability()->disableIO();

@@ -25,7 +25,7 @@ class Case(PdmObject):
 
     Operate on a ResInsight case specified by a Case Id integer.
     Not meant to be constructed separately but created by one of the following
-    methods in Project: loadCase, case, allCases, selectedCasesq
+    methods in Project: loadCase, case, allCases, selectedCases
 
     Attributes:
         id (int): Case Id corresponding to case Id in ResInsight project.
@@ -37,11 +37,12 @@ class Case(PdmObject):
                         However we need overhead space, so the default is 8160.
                         This leaves 256B for overhead.
     """
-    def __init__(self, channel, case_id):
+    def __init__(self, channel, case_id, project):
         # Private properties
         self.__channel = channel
         self.__case_stub = Case_pb2_grpc.CaseStub(channel)
         self.__request = Case_pb2.CaseRequest(id=case_id)
+        self.__project = project
 
         info = self.__case_stub.GetCaseInfo(self.__request)
         self.__properties_stub = Properties_pb2_grpc.PropertiesStub(
@@ -51,7 +52,9 @@ class Case(PdmObject):
 
         # Public properties
         self.case_id = case_id
+        self.group_id = info.group_id
         self.name = info.name
+        self.type = info.type
         self.chunk_size = 8160
 
     def __grid_count(self):
@@ -732,3 +735,18 @@ class Case(PdmObject):
             undefinedValue=undefined_value,
             exportFile=export_file,
         ))
+
+    def create_well_bore_stability_plot(self, well_path, time_step):
+        """ Create a new well bore stability plot
+
+        Arguments:
+            well_path(str): well path name
+            time_step(int): time step
+
+        Returns:
+            A new plot object
+        """
+        plot_id = self._execute_command(createWellBoreStabilityPlot=Cmd.CreateWbsPlotRequest(caseId=self.case_id,
+                                                                                                 wellPath=well_path,
+                                                                                                 timeStep=time_step))
+        return self.__project.well_log_plot(view_id=plot_id)

@@ -1,0 +1,29 @@
+"""
+ResInsight 2d plot module
+"""
+import rips.generated.Commands_pb2 as Cmd
+
+from rips.pdmobject import PdmObject
+
+class Plot(PdmObject):
+    """ResInsight plot class
+
+    Attributes:
+        view_id(int): View Id corresponding to the View Id in ResInsight project.
+
+    """
+    def __init__(self, pdm_object):
+        PdmObject.__init__(self, pdm_object.pb2_object(), pdm_object.channel())
+        self.view_id = pdm_object.get_value("ViewId")
+        print("Found view id: " + self.view_id)
+
+    def export_snapshot(self, prefix=''):
+        """ Export snapshot for the current plot
+        
+        Arguments:
+            prefix (str): Exported file name prefix
+        """
+        return self._execute_command(
+            exportSnapshots=Cmd.ExportSnapshotsRequest(type='PLOTS',
+                                                       prefix=prefix,
+                                                       viewId=self.view_id))

@@ -68,6 +68,8 @@ void RicNewRftPlotFeature::onActionTriggered( bool isChecked )
         QString wellName = selectedWellName();
 
         RimWellRftPlot* rftPlot = new RimWellRftPlot();
+        RiaApplication::instance()->project()->assignViewIdToView( rftPlot );
+
         rftPlot->setSimWellOrWellPathName( wellName );
 
         RimWellLogTrack* plotTrack = new RimWellLogTrack();

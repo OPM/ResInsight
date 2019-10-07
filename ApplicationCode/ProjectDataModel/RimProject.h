@@ -59,6 +59,7 @@ class Rim3dView;
 class RimGridView;
 class RimViewLinker;
 class RimViewLinkerCollection;
+class RimViewWindow;
 class RimWellPath;
 class RimWellPathImport;
 class RimFractureTemplateCollection;
@@ -115,7 +116,7 @@ public:
 
     void assignCaseIdToCase( RimCase* reservoirCase );
     void assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup );
-    void assignViewIdToView( Rim3dView* view );
+    void assignViewIdToView( RimViewWindow* view );
 
     void allCases( std::vector<RimCase*>& cases ) const;
 
@@ -198,10 +199,6 @@ private:
 
     caf::PdmField<bool> m_subWindowsTiled3DWindow;
     caf::PdmField<bool> m_subWindowsTiledPlotWindow;
-
-    caf::PdmField<int> nextValidCaseId; // Unique case ID within a project, used to identify a case from scripts
-    caf::PdmField<int> nextValidCaseGroupId; // Unique case group ID within a project, used to identify a case group from scripts
-    caf::PdmField<int> nextValidViewId; // Unique view ID within a project, used to identify a view from scripts
 
     caf::PdmChildArrayField<RimEclipseCase*>            casesObsolete; // obsolete
     caf::PdmChildArrayField<RimIdenticalGridCaseGroup*> caseGroupsObsolete; // obsolete

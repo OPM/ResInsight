@@ -173,3 +173,14 @@ QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions( const caf::PdmFiel
 
     return options;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCase::initAfterRead()
+{
+    if ( caseId() == -1 )
+    {
+        RiaApplication::instance()->project()->assignCaseIdToCase( this );
+    }
+}

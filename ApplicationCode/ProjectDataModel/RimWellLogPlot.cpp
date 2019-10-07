@@ -797,6 +797,8 @@ void RimWellLogPlot::depthZoomMinMax( double* minimumDepth, double* maximumDepth
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
+
     m_commonDataSource->uiOrdering( uiConfigName, uiOrdering );
     uiOrderingForDepthAxis( uiOrdering );
     uiOrderingForPlotSettings( uiOrdering );
@@ -977,6 +979,8 @@ void RimWellLogPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::initAfterRead()
 {
+    RimViewWindow::initAfterRead();
+
     updateCommonDataSource();
     if ( !m_userName_OBSOLETE().isEmpty() )
     {

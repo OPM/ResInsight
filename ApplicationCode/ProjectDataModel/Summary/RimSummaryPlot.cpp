@@ -39,9 +39,9 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryCurvesCalculator.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSummaryPlotFilterTextCurveSetEditor.h"
 #include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryTimeAxisProperties.h"
-#include "RimSummaryPlotFilterTextCurveSetEditor.h"
 
 #include "RiuPlotMainWindowTools.h"
 #include "RiuSummaryQwtPlot.h"
@@ -199,7 +199,12 @@ RimSummaryPlot::RimSummaryPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_plotTemplate, "PlotTemplate", "Template", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_textCurveSetEditor, "SummaryPlotFilterTextCurveSetEditor", "Text Filter Curve Creator", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_textCurveSetEditor,
+                                "SummaryPlotFilterTextCurveSetEditor",
+                                "Text Filter Curve Creator",
+                                "",
+                                "",
+                                "" );
     m_textCurveSetEditor.uiCapability()->setUiTreeHidden( true );
     m_textCurveSetEditor = new RimSummaryPlotFilterTextCurveSetEditor;
 
@@ -1194,9 +1199,9 @@ void RimSummaryPlot::addGridTimeHistoryCurve( RimGridTimeHistoryCurve* curve )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::addGridTimeHistoryCurveNoUpdate(RimGridTimeHistoryCurve* curve)
+void RimSummaryPlot::addGridTimeHistoryCurveNoUpdate( RimGridTimeHistoryCurve* curve )
 {
     CVF_ASSERT( curve );
 
@@ -1208,7 +1213,7 @@ void RimSummaryPlot::addGridTimeHistoryCurveNoUpdate(RimGridTimeHistoryCurve* cu
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridTimeHistoryCurve*> RimSummaryPlot::gridTimeHistoryCurves() const
 {
@@ -1538,7 +1543,7 @@ std::set<RimPlotAxisPropertiesInterface*> RimSummaryPlot::allPlotAxes() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteAllGridTimeHistoryCurves()
 {
@@ -1598,13 +1603,15 @@ void RimSummaryPlot::setAsCrossPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* mainOptions = uiOrdering.addNewGroup("General Plot Options");
+    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
+
+    caf::PdmUiGroup* mainOptions = uiOrdering.addNewGroup( "General Plot Options" );
 
     mainOptions->add( &m_showPlotTitle );
     if ( m_showPlotTitle )
     {
-        mainOptions->add(&m_useAutoPlotTitle);
-        mainOptions->add(&m_userDefinedPlotTitle);
+        mainOptions->add( &m_useAutoPlotTitle );
+        mainOptions->add( &m_userDefinedPlotTitle );
     }
     m_userDefinedPlotTitle.uiCapability()->setUiReadOnly( m_useAutoPlotTitle );
 
@@ -1678,6 +1685,8 @@ void RimSummaryPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::initAfterRead()
 {
+    RimViewWindow::initAfterRead();
+
     // Move summary curves from obsolete storage to the new curve collection
     std::vector<RimSummaryCurve*> curvesToMove;
 

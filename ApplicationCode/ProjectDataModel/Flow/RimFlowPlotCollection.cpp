@@ -18,7 +18,10 @@
 
 #include "RimFlowPlotCollection.h"
 
+#include "RiaApplication.h"
+
 #include "RimFlowCharacteristicsPlot.h"
+#include "RimProject.h"
 #include "RimWellAllocationPlot.h"
 
 #include "cafProgressInfo.h"
@@ -145,6 +148,7 @@ RimWellAllocationPlot* RimFlowPlotCollection::defaultWellAllocPlot()
     {
         m_defaultWellAllocPlot = new RimWellAllocationPlot;
         m_defaultWellAllocPlot->setDescription( "Default Flow Diagnostics Plot" );
+        RiaApplication::instance()->project()->assignViewIdToView( m_flowCharacteristicsPlot );
     }
 
     this->updateConnectedEditors();
@@ -160,6 +164,7 @@ RimFlowCharacteristicsPlot* RimFlowPlotCollection::defaultFlowCharacteristicsPlo
     if ( !m_flowCharacteristicsPlot() )
     {
         m_flowCharacteristicsPlot = new RimFlowCharacteristicsPlot;
+        RiaApplication::instance()->project()->assignViewIdToView( m_flowCharacteristicsPlot );
     }
 
     this->updateConnectedEditors();

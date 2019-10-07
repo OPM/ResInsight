@@ -160,6 +160,8 @@ void RimEclipseContourMapView::updateCurrentTimeStepAndRedraw()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapView::initAfterRead()
 {
+    RimEclipseView::initAfterRead();
+
     disablePerspectiveProjectionField();
     setShowGridBox( false );
     meshMode.setValue( RiaDefines::NO_MESH );

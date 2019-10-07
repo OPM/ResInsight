@@ -14,7 +14,9 @@ if resinsight is not None:
 
     print ("Got " + str(len(cases)) + " cases: ")
     for case in cases:
+        print("Case id: " + str(case.case_id))
         print("Case name: " + case.name)
+        print("Case type: " + case.type)
         print("Case grid path: " + case.grid_path())
         
         timesteps = case.time_steps()

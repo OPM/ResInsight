@@ -53,6 +53,7 @@ RimWellBoreStabilityPlot*
 
     RimWellBoreStabilityPlot* plot = new RimWellBoreStabilityPlot();
     plot->setAsPlotMdiWindow();
+    RiaApplication::instance()->project()->assignViewIdToView( plot );
 
     wellLogPlotColl->wellLogPlots().push_back( plot );
 
@@ -87,6 +88,7 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot( bool showAfterC
 
     RimWellLogPlot* plot = new RimWellLogPlot();
     plot->setAsPlotMdiWindow();
+    RiaApplication::instance()->project()->assignViewIdToView( plot );
 
     wellLogPlotColl->wellLogPlots().push_back( plot );
 

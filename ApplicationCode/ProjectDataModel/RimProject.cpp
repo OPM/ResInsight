@@ -73,6 +73,7 @@
 #include "RimValveTemplateCollection.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
+#include "RimViewWindow.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
@@ -102,15 +103,6 @@ RimProject::RimProject( void )
 {
     CAF_PDM_InitFieldNoDefault( &m_projectFileVersionString, "ProjectFileVersionString", "", "", "", "" );
     m_projectFileVersionString.uiCapability()->setUiHidden( true );
-
-    CAF_PDM_InitField( &nextValidCaseId, "NextValidCaseId", 0, "Next Valid Case ID", "", "", "" );
-    nextValidCaseId.uiCapability()->setUiHidden( true );
-
-    CAF_PDM_InitField( &nextValidCaseGroupId, "NextValidCaseGroupId", 0, "Next Valid Case Group ID", "", "", "" );
-    nextValidCaseGroupId.uiCapability()->setUiHidden( true );
-
-    CAF_PDM_InitField( &nextValidViewId, "NextValidViewId", 0, "Next Valid View ID", "", "", "" );
-    nextValidViewId.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &oilFields, "OilFields", "Oil Fields", "", "", "" );
     oilFields.uiCapability()->setUiHidden( true );
@@ -244,9 +236,6 @@ void RimProject::close()
 
     fileName = "";
 
-    nextValidCaseId                 = 0;
-    nextValidCaseGroupId            = 0;
-    nextValidViewId                 = 0;
     mainWindowCurrentModelIndexPath = "";
     mainWindowTreeViewState         = "";
     plotWindowCurrentModelIndexPath = "";
@@ -477,9 +466,17 @@ void RimProject::assignCaseIdToCase( RimCase* reservoirCase )
 {
     if ( reservoirCase )
     {
-        reservoirCase->caseId = nextValidCaseId;
+        int nextValidCaseId = 0;
 
-        nextValidCaseId = nextValidCaseId + 1;
+        std::vector<RimCase*> cases;
+        this->descendantsIncludingThisOfType( cases );
+
+        for ( RimCase* rimCase : cases )
+        {
+            nextValidCaseId = std::max( nextValidCaseId, rimCase->caseId() + 1 );
+        }
+
+        reservoirCase->caseId = nextValidCaseId;
     }
 }
 
@@ -490,21 +487,38 @@ void RimProject::assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup )
 {
     if ( caseGroup )
     {
-        caseGroup->groupId = nextValidCaseGroupId;
+        int nextValidCaseGroupId = 0;
 
-        nextValidCaseGroupId = nextValidCaseGroupId + 1;
+        std::vector<RimIdenticalGridCaseGroup*> identicalCaseGroups;
+        this->descendantsIncludingThisOfType( identicalCaseGroups );
+
+        for ( RimIdenticalGridCaseGroup* existingCaseGroup : identicalCaseGroups )
+        {
+            nextValidCaseGroupId = std::max( nextValidCaseGroupId, existingCaseGroup->groupId() + 1 );
+        }
+
+        caseGroup->groupId = nextValidCaseGroupId;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProject::assignViewIdToView( Rim3dView* view )
+void RimProject::assignViewIdToView( RimViewWindow* view )
 {
     if ( view )
     {
+        int nextValidViewId = 0;
+
+        std::vector<RimViewWindow*> viewWindows;
+        this->descendantsIncludingThisOfType( viewWindows );
+
+        for ( RimViewWindow* existingView : viewWindows )
+        {
+            nextValidViewId = std::max( nextValidViewId, existingView->id() + 1 );
+        }
+
         view->setId( nextValidViewId );
-        nextValidViewId = nextValidViewId + 1;
     }
 }
 

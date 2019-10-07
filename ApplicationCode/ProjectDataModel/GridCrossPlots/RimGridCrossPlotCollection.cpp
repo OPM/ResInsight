@@ -17,7 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlotCollection.h"
 
+#include "RiaApplication.h"
 #include "RimGridCrossPlot.h"
+#include "RimProject.h"
 
 CAF_PDM_SOURCE_INIT( RimGridCrossPlotCollection, "RimGridCrossPlotCollection" );
 
@@ -60,6 +62,7 @@ RimGridCrossPlot* RimGridCrossPlotCollection::createGridCrossPlot()
 {
     RimGridCrossPlot* plot = new RimGridCrossPlot();
     plot->setAsPlotMdiWindow();
+    RiaApplication::instance()->project()->assignViewIdToView( plot );
 
     // plot->setDescription(QString("Summary Cross Plot %1").arg(m_gridCrossPlots.size()));
     addGridCrossPlot( plot );

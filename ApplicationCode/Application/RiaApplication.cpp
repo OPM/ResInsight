@@ -765,6 +765,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
     geoMechCase->setFileName( fileName );
     geoMechCase->caseUserDescription = caseName;
     geoMechCase->setApplyTimeFilter( applyTimeStepFilter );
+    m_project->assignCaseIdToCase( geoMechCase );
 
     RimGeoMechModels* geoMechModelCollection = m_project->activeOilField() ? m_project->activeOilField()->geoMechModels()
                                                                            : nullptr;

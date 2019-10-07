@@ -88,7 +88,9 @@ RicfCommandResponse RicfExportSnapshots::execute()
     }
     if ( m_type == RicfExportSnapshots::PLOTS || m_type == RicfExportSnapshots::ALL )
     {
-        RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder( absolutePathToSnapshotDir, m_prefix );
+        RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( absolutePathToSnapshotDir,
+                                                                           m_prefix,
+                                                                           m_viewId() );
     }
 
     mainWnd->loadWinGeoAndDockToolBarLayout();

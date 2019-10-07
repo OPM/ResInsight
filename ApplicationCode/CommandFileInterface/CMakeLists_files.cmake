@@ -33,6 +33,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfCreateGridCaseGroup.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfCreateStatisticsCase.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfCreateView.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfCloneView.h
+${CMAKE_CURRENT_LIST_DIR}/RicfNewWellBoreStabilityPlotFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -69,6 +70,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfCreateGridCaseGroup.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfCreateStatisticsCase.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfCreateView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfCloneView.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfCreateWellBoreStabilityPlotFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

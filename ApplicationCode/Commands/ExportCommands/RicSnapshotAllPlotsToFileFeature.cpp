@@ -57,7 +57,7 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
     // Save images in snapshot catalog relative to project directory
     QString snapshotFolderName = app->createAbsolutePathFromProjectRelativePath( "snapshots" );
 
-    exportSnapshotOfAllPlotsIntoFolder( snapshotFolderName );
+    exportSnapshotOfPlotsIntoFolder( snapshotFolderName );
 
     QString text = QString( "Exported snapshots to folder : \n%1" ).arg( snapshotFolderName );
     RiaLogging::info( text );
@@ -66,8 +66,9 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder( const QString& snapshotFolderName,
-                                                                           const QString& prefix )
+void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( const QString& snapshotFolderName,
+                                                                        const QString& prefix,
+                                                                        int            viewId )
 {
     RiaApplication* app = RiaApplication::instance();
 
@@ -87,7 +88,7 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder( const
 
     for ( auto viewWindow : viewWindows )
     {
-        if ( viewWindow->isMdiWindow() && viewWindow->viewWidget() )
+        if ( viewWindow->isMdiWindow() && viewWindow->viewWidget() && ( viewId == -1 || viewId == viewWindow->id() ) )
         {
             QString fileName = RicSnapshotFilenameGenerator::generateSnapshotFileName( viewWindow );
             if ( !prefix.isEmpty() )

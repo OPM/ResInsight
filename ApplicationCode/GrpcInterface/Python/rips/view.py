@@ -11,7 +11,7 @@ class View(PdmObject):
     """ResInsight view class
 
     Attributes:
-        id(int): View Id corresponding to the View Id in ResInsight project.
+        view_id(int): View Id corresponding to the View Id in ResInsight project.
 
     """
     def __init__(self, pdm_object):
