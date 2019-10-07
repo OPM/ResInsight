@@ -283,8 +283,10 @@ QImage RimWellLogPlot::snapshotWindowContent()
 
     if ( m_viewer )
     {
+        m_viewer->setScrollbarVisible( false );
         QPixmap pix = m_viewer->grab();
         image       = pix.toImage();
+        m_viewer->setScrollbarVisible( true );
     }
 
     return image;

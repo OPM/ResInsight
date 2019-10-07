@@ -66,6 +66,7 @@ public:
     int  preferredWidth() const;
 
     void setTitleVisible( bool visible );
+    void setScrollbarVisible( bool visible );
 
 public slots:
     void updateChildrenLayout();
