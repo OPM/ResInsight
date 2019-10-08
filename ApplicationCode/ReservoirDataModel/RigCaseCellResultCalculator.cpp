@@ -112,13 +112,13 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
     // Initialize difference result with infinity for correct number of time steps and values per time step
     {
         const std::vector<std::vector<double>>& srcFrames  = sourceCaseResults->cellScalarResults( nativeAddress );
-        std::vector<std::vector<double>>& diffResultFrames = sourceCaseResults->modifiableCellScalarResultTimesteps(
+        std::vector<std::vector<double>>* diffResultFrames = sourceCaseResults->modifiableCellScalarResultTimesteps(
             address );
-        diffResultFrames.resize( srcFrames.size() );
+        diffResultFrames->resize( srcFrames.size() );
         for ( size_t fIdx = 0; fIdx < srcFrames.size(); ++fIdx )
         {
             const std::vector<double>& srcVals = srcFrames[fIdx];
-            std::vector<double>&       dstVals = diffResultFrames[fIdx];
+            std::vector<double>&       dstVals = diffResultFrames->at( fIdx );
 
             dstVals.resize( srcVals.size(), std::numeric_limits<double>::infinity() );
         }

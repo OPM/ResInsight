@@ -249,20 +249,20 @@ const std::vector<std::vector<double>>&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>>&
+std::vector<std::vector<double>>*
     RigCaseCellResultsData::modifiableCellScalarResultTimesteps( const RigEclipseResultAddress& resVarAddr )
 {
     size_t scalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
 
     CVF_TIGHT_ASSERT( scalarResultIndex < resultCount() );
 
-    return m_cellScalarResults[scalarResultIndex];
+    return &( m_cellScalarResults[scalarResultIndex] );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double>& RigCaseCellResultsData::modifiableCellScalarResult( const RigEclipseResultAddress& resVarAddr,
+std::vector<double>* RigCaseCellResultsData::modifiableCellScalarResult( const RigEclipseResultAddress& resVarAddr,
                                                                          size_t                         timeStepIndex )
 {
     size_t scalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
@@ -270,7 +270,7 @@ std::vector<double>& RigCaseCellResultsData::modifiableCellScalarResult( const R
     CVF_TIGHT_ASSERT( scalarResultIndex < resultCount() );
     CVF_TIGHT_ASSERT( timeStepIndex < m_cellScalarResults[scalarResultIndex].size() );
 
-    return m_cellScalarResults[scalarResultIndex][timeStepIndex];
+    return &( m_cellScalarResults[scalarResultIndex][timeStepIndex] );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -609,8 +609,8 @@ void RigCaseCellResultsData::setTimeStepInfos( const RigEclipseResultAddress&   
 
     m_resultInfos[findScalarResultIndexFromAddress( resVarAddr )].setTimeStepInfos( timeStepInfos );
 
-    std::vector<std::vector<double>>& dataValues = this->modifiableCellScalarResultTimesteps( resVarAddr );
-    dataValues.resize( timeStepInfos.size() );
+    std::vector<std::vector<double>>* dataValues = this->modifiableCellScalarResultTimesteps( resVarAddr );
+    dataValues->resize( timeStepInfos.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1605,7 +1605,7 @@ void RigCaseCellResultsData::computeSOILForTimeStep( size_t timeStepIndex )
         }
     }
 
-    std::vector<double>& soilForTimeStep = this->modifiableCellScalarResult( SOILAddr, timeStepIndex );
+    std::vector<double>* soilForTimeStep = this->modifiableCellScalarResult( SOILAddr, timeStepIndex );
 
 #pragma omp parallel for
     for ( int idx = 0; idx < static_cast<int>( soilResultValueCount ); idx++ )
@@ -1626,7 +1626,7 @@ void RigCaseCellResultsData::computeSOILForTimeStep( size_t timeStepIndex )
             soilValue -= ssolForTimeStep->at( idx );
         }
 
-        soilForTimeStep[idx] = soilValue;
+        soilForTimeStep->at( idx ) = soilValue;
     }
 }
 
@@ -2802,7 +2802,7 @@ void RigCaseCellResultsData::setActiveFormationNames( RigFormationNames* activeF
                                  false,
                                  totalGlobCellCount );
 
-    std::vector<double>& fnData =
+    std::vector<double>* fnData =
         this->modifiableCellScalarResult( RigEclipseResultAddress( RiaDefines::FORMATION_NAMES,
                                                                    RiaDefines::activeFormationNamesResultName() ),
                                           0 );
@@ -2811,7 +2811,7 @@ void RigCaseCellResultsData::setActiveFormationNames( RigFormationNames* activeF
     {
         for ( size_t cIdx = 0; cIdx < totalGlobCellCount; ++cIdx )
         {
-            fnData[cIdx] = HUGE_VAL;
+            fnData->at( cIdx ) = HUGE_VAL;
         }
 
         return;
@@ -2827,11 +2827,11 @@ void RigCaseCellResultsData::setActiveFormationNames( RigFormationNames* activeF
         int formNameIdx = activeFormationNames->formationIndexFromKLayerIdx( k );
         if ( formNameIdx != -1 )
         {
-            fnData[cIdx] = formNameIdx;
+            fnData->at( cIdx ) = formNameIdx;
         }
         else
         {
-            fnData[cIdx] = HUGE_VAL;
+            fnData->at( cIdx ) = HUGE_VAL;
         }
     }
 
@@ -2846,11 +2846,11 @@ void RigCaseCellResultsData::setActiveFormationNames( RigFormationNames* activeF
         int formNameIdx = activeFormationNames->formationIndexFromKLayerIdx( k );
         if ( formNameIdx != -1 )
         {
-            fnData[cIdx] = formNameIdx;
+            fnData->at( cIdx ) = formNameIdx;
         }
         else
         {
-            fnData[cIdx] = HUGE_VAL;
+            fnData->at( cIdx ) = HUGE_VAL;
         }
     }
 }
@@ -3064,9 +3064,9 @@ void RigCaseCellResultsData::copyResultsMetaDataFromMainCase( RigEclipseCaseData
 
                 cellResultsStorage->setTimeStepInfos( resVarAddr, timeStepInfos );
 
-                std::vector<std::vector<double>>& dataValues = cellResultsStorage->modifiableCellScalarResultTimesteps(
+                std::vector<std::vector<double>>* dataValues = cellResultsStorage->modifiableCellScalarResultTimesteps(
                     resVarAddr );
-                dataValues.resize( timeStepInfos.size() );
+                dataValues->resize( timeStepInfos.size() );
             }
         }
 

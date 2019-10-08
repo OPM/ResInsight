@@ -68,8 +68,8 @@ public:
 
     const std::vector<std::vector<double>>& cellScalarResults( const RigEclipseResultAddress& resVarAddr ) const;
     const std::vector<double>& cellScalarResults( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex ) const;
-    std::vector<std::vector<double>>& modifiableCellScalarResultTimesteps( const RigEclipseResultAddress& resVarAddr );
-    std::vector<double>& modifiableCellScalarResult( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex );
+    std::vector<std::vector<double>>* modifiableCellScalarResultTimesteps( const RigEclipseResultAddress& resVarAddr );
+    std::vector<double>* modifiableCellScalarResult( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex );
 
     bool isUsingGlobalActiveIndex( const RigEclipseResultAddress& resVarAddr ) const;
 

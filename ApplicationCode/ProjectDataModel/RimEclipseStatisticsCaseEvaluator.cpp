@@ -56,13 +56,13 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult( RigCaseCellResultsData* 
     destinationCellResults->createResultEntry( resAddr, true );
 
     destinationCellResults->setTimeStepInfos( resAddr, sourceTimeStepInfos );
-    std::vector<std::vector<double>>& dataValues = destinationCellResults->modifiableCellScalarResultTimesteps( resAddr );
-    dataValues.resize( sourceTimeStepInfos.size() );
+    std::vector<std::vector<double>>* dataValues = destinationCellResults->modifiableCellScalarResultTimesteps( resAddr );
+    dataValues->resize( sourceTimeStepInfos.size() );
 
     // Initializes the size of the destination dataset to active union cell count
     for ( size_t i = 0; i < sourceTimeStepInfos.size(); i++ )
     {
-        dataValues[i].resize( activeUnionCellCount, HUGE_VAL );
+        dataValues->at( i ).resize( activeUnionCellCount, HUGE_VAL );
     }
 }
 

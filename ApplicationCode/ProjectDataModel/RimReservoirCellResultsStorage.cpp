@@ -285,9 +285,7 @@ void RimReservoirCellResultsStorage::setCellResults( RigCaseCellResultsData* cel
 
         for ( size_t tsIdx = 0; tsIdx < resInfo->m_timeStepDates().size(); ++tsIdx )
         {
-            std::vector<double>* data = nullptr;
-
-            data = &( m_cellResults->modifiableCellScalarResult( resAddr, tsIdx ) );
+            std::vector<double>* data = m_cellResults->modifiableCellScalarResult( resAddr, tsIdx );
 
             quint64 cellCount = 0;
             stream >> cellCount;

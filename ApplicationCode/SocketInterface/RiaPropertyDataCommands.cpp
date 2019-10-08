@@ -79,9 +79,8 @@ public:
         {
             if ( rimCase->results( porosityModelEnum )->ensureKnownResultLoaded( RigEclipseResultAddress( propertyName ) ) )
             {
-                scalarResultFrames = &(
-                    rimCase->results( porosityModelEnum )
-                        ->modifiableCellScalarResultTimesteps( RigEclipseResultAddress( propertyName ) ) );
+                scalarResultFrames = rimCase->results( porosityModelEnum )
+                                         ->modifiableCellScalarResultTimesteps( RigEclipseResultAddress( propertyName ) );
             }
         }
 
@@ -449,8 +448,7 @@ public:
                 rimCase->results( m_porosityModelEnum )->setTimeStepInfos( eclResAddr, timeStepInfos );
             }
 
-            scalarResultFrames = &(
-                rimCase->results( m_porosityModelEnum )->modifiableCellScalarResultTimesteps( eclResAddr ) );
+            scalarResultFrames = rimCase->results( m_porosityModelEnum )->modifiableCellScalarResultTimesteps( eclResAddr );
             size_t timeStepCount = rimCase->results( m_porosityModelEnum )->maxTimeStepCount();
             scalarResultFrames->resize( timeStepCount );
 
@@ -703,9 +701,10 @@ public:
                     // Adjust the result data if only one time step is requested so the result behaves like a static result
                     if ( m_requestedTimesteps.size() == 1 && m_currentEclResultAddress.isValid() )
                     {
-                        std::vector<std::vector<double>>* scalarResultFrames = nullptr;
-                        scalarResultFrames              = &( m_currentReservoir->results( m_porosityModelEnum )
-                                                    ->modifiableCellScalarResultTimesteps( m_currentEclResultAddress ) );
+                        std::vector<std::vector<double>>* scalarResultFrames = m_currentReservoir
+                                                                                   ->results( m_porosityModelEnum )
+                                                                                   ->modifiableCellScalarResultTimesteps(
+                                                                                       m_currentEclResultAddress );
                         size_t lastIndexWithDataPresent = cvf::UNDEFINED_SIZE_T;
                         for ( size_t i = 0; i < scalarResultFrames->size(); i++ )
                         {
@@ -866,8 +865,8 @@ public:
             }
 
             m_currentResultAddress = resAddr;
-            scalarResultFrames     = &(
-                rimCase->results( m_porosityModelEnum )->modifiableCellScalarResultTimesteps( m_currentResultAddress ) );
+            scalarResultFrames     = rimCase->results( m_porosityModelEnum )
+                                     ->modifiableCellScalarResultTimesteps( m_currentResultAddress );
             size_t timeStepCount = rimCase->results( m_porosityModelEnum )->maxTimeStepCount();
             scalarResultFrames->resize( timeStepCount );
 
@@ -1093,10 +1092,10 @@ public:
                     // Adjust the result data if only one time step is requested so the result behaves like a static result
                     if ( m_requestedTimesteps.size() == 1 && m_currentResultAddress.isValid() )
                     {
-                        std::vector<std::vector<double>>* scalarResultFrames = nullptr;
-                        scalarResultFrames              = &( m_currentReservoir->results( m_porosityModelEnum )
-                                                    ->modifiableCellScalarResultTimesteps(
-                                                        RigEclipseResultAddress( m_currentResultAddress ) ) );
+                        auto scalarResultFrames = m_currentReservoir->results( m_porosityModelEnum )
+                                                      ->modifiableCellScalarResultTimesteps(
+                                                          RigEclipseResultAddress( m_currentResultAddress ) );
+
                         size_t lastIndexWithDataPresent = cvf::UNDEFINED_SIZE_T;
                         for ( size_t i = 0; i < scalarResultFrames->size(); i++ )
                         {
