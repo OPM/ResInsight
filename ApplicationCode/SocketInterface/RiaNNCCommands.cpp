@@ -466,9 +466,8 @@ private:
             results->createResultEntry( resAddr, true );
         }
 
-        std::vector<std::vector<double>>* scalarResultFrames = nullptr;
-        scalarResultFrames   = &( results->modifiableCellScalarResultTimesteps( resAddr ) );
-        size_t timeStepCount = results->maxTimeStepCount();
+        std::vector<std::vector<double>>* scalarResultFrames = results->modifiableCellScalarResultTimesteps( resAddr );
+        size_t                            timeStepCount      = results->maxTimeStepCount();
         scalarResultFrames->resize( timeStepCount );
 
         return true;
