@@ -163,7 +163,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         if ( !loadingSucceeded )
         {
             QString msg;
-            msg += "Compdat Export : One or more of the following required data missing :";
+            msg += "Compdat Export : One or more of the following required data sources are missing :";
 
             for ( const auto& r : resultNames )
             {
@@ -381,14 +381,23 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                                                       fracTemplate->name(),
                                                       fracture->fractureMD() );
             reportItem.setUnitSystem( fracTemplate->fractureTemplateUnit() );
-            reportItem.setPressureDepletionParameters( performPressureDepletionScaling,
-                                                       caseToApply->timeStepStrings()[pdParams.pressureScalingTimeStep],
-                                                       caf::AppEnum<PressureDepletionWBHPSource>::uiTextFromIndex(
-                                                           pdParams.wbhpSource ),
-                                                       pdParams.userWBHP,
-                                                       currentWellPressure,
-                                                       minPressureDrop,
-                                                       maxPressureDrop );
+
+            if ( performPressureDepletionScaling )
+            {
+                QString timeStepString;
+                if ( pdParams.pressureScalingTimeStep < caseToApply->timeStepStrings().size() )
+                {
+                    timeStepString = caseToApply->timeStepStrings()[pdParams.pressureScalingTimeStep];
+                }
+                reportItem.setPressureDepletionParameters( performPressureDepletionScaling,
+                                                           timeStepString,
+                                                           caf::AppEnum<PressureDepletionWBHPSource>::uiTextFromIndex(
+                                                               pdParams.wbhpSource ),
+                                                           pdParams.userWBHP,
+                                                           currentWellPressure,
+                                                           minPressureDrop,
+                                                           maxPressureDrop );
+            }
 
             RicExportFractureCompletionsImpl::calculateAndSetReportItemData( allCompletionsForOneFracture,
                                                                              eclToFractureCalc,
