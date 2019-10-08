@@ -19,12 +19,12 @@ for case in cases:
         print (case.case_id)
         case_path = case.grid_path()
         folder_name = os.path.dirname(case_path)
-    
+        case.import_formation_names(formation_files=['D:/Projects/ResInsight-regression-test/ModelData/norne/Norne_ATW2013.lyr'])
+
         # create a folder to hold the snapshots
         dirname = os.path.join(folder_name, 'snapshots')
         print("Exporting to: " + dirname)
-        resInsight.set_export_folder(export_type='SNAPSHOTS', path=dirname)
 
         for well_path in well_paths:
             wbsplot = case.create_well_bore_stability_plot(well_path=well_path, time_step=0)
-            wbsplot.export_snapshot()
+            wbsplot.export_snapshot(export_folder=dirname)

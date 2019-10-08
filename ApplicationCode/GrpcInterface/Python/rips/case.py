@@ -751,3 +751,18 @@ class Case(PdmObject):
                                                                                                  wellPath=well_path,
                                                                                                  timeStep=time_step))
         return self.__project.plot(view_id=plot_result.createWbsPlotResult.viewId)
+
+    def import_formation_names(self, formation_files=None):
+        """ Import formation names into project and apply it to the current case
+
+        Arguments:
+            formation_files(list): list of files to import
+
+        """
+        if formation_files is None:
+            formation_files = []
+        elif isinstance(formation_files, str):
+            formation_files = [formation_files]
+
+        res = self._execute_command(importFormationNames=Cmd.ImportFormationNamesRequest(formationFiles=formation_files,
+                                                                                         applyToCaseId=self.case_id))

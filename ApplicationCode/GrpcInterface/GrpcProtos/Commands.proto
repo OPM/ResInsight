@@ -288,6 +288,12 @@ message ImportWellLogFilesRequest
 	repeated string wellLogFiles = 2;
 }
 
+message ImportFormationNamesRequest
+{
+	repeated string formationFiles = 1;
+	int32            applyToCaseId = 2;
+}
+
 /* CommandParams handles both command name and parameters in one.
  * The message type and content is used as parameters and
  * the name of the variable is used to find the command name. */
@@ -333,6 +339,7 @@ message CommandParams
 		CreateWbsPlotRequest         createWellBoreStabilityPlot      = 32;
 		ImportWellPathsRequest       importWellPaths                  = 33;
 		ImportWellLogFilesRequest    importWellLogFiles               = 34;
+		ImportFormationNamesRequest  importFormationNames             = 35;
 	}
 }
 

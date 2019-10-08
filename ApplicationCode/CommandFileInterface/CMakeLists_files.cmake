@@ -36,6 +36,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfCloneView.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfNewWellBoreStabilityPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfImportWellPaths.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfImportWellLogFiles.h
+${CMAKE_CURRENT_LIST_DIR}/RicfImportFormationNames.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -75,6 +76,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfCloneView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfCreateWellBoreStabilityPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfImportWellPaths.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfImportWellLogFiles.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfImportFormationNames.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

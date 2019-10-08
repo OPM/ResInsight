@@ -293,3 +293,18 @@ class Project(PdmObject):
         res = self._execute_command(importWellLogFiles=Cmd.ImportWellLogFilesRequest(wellLogFolder=well_log_folder,
                                                                                      wellLogFiles=well_log_files))
         return res.importWellLogFilesResult.wellPathNames
+
+    def import_formation_names(self, formation_files=None):
+        """ Import formation names into project
+
+        Arguments:
+            formation_files(list): list of files to import
+
+        """
+        if formation_files is None:
+            formation_files = []
+        elif isinstance(formation_files, str):
+            formation_files = [formation_files]
+
+        res = self._execute_command(importFormationNames=Cmd.ImportFormationNamesRequest(formationFiles=formation_files,
+                                                                                         applyToCaseId=-1))
