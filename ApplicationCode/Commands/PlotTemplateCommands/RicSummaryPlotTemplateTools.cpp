@@ -184,7 +184,7 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
 
                 maximumIndexValue = std::max( maximumIndexValue, indexValue );
 
-                if ( conversionOk && indexValue < selectedEnsembles.size() )
+                if ( conversionOk && indexValue < static_cast<int>( selectedEnsembles.size() ) )
                 {
                     auto summaryCaseY = selectedEnsembles[indexValue];
                     curveSet->setSummaryCaseCollection( summaryCaseY );
