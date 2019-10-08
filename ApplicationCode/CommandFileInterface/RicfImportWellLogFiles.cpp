@@ -101,9 +101,9 @@ RicfCommandResponse RicfImportWellLogFiles::execute()
         warningMessages << "No well log files found";
     }
 
-    for ( QString warningMessages : warningMessages )
+    for ( QString warningMessage : warningMessages )
     {
-        response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warningMessages );
+        response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warningMessage );
     }
 
     for ( QString errorMessage : errorMessages )
