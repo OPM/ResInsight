@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 
 #include "RimOilField.h"
 #include "RimProject.h"

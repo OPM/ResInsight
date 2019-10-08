@@ -21,6 +21,8 @@
 
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
+#include "RiaLogging.h"
+
 #include "RimProject.h"
 #include "Riu3DMainWindowTools.h"
 
