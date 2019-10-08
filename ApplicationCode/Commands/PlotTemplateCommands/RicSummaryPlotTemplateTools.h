@@ -56,7 +56,7 @@ public:
     static std::vector<RimSummaryCaseCollection*> selectedSummaryCaseCollections();
 
     static QString summaryCaseFieldKeyword();
-    static QString summaryGroupFieldName();
+    static QString summaryGroupFieldKeyword();
     static QString placeholderTextForSummaryCase();
     static QString placeholderTextForSummaryGroup();
 

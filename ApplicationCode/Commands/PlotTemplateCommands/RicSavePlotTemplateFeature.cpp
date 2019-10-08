@@ -170,7 +170,7 @@ QString RicSavePlotTemplateFeature::createTextFromObject( RimSummaryPlot* summar
         {
             std::set<QString> ensembleReferenceStrings;
 
-            const QString summaryGroupFieldKeyword = RicSummaryPlotTemplateTools::summaryGroupFieldName();
+            const QString summaryGroupFieldKeyword = RicSummaryPlotTemplateTools::summaryGroupFieldKeyword();
 
             for ( const auto& curveSet : newSummaryPlot->ensembleCurveSetCollection()->curveSets() )
             {

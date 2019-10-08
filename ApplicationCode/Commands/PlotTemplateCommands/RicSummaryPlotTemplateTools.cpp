@@ -84,91 +84,140 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
     const std::vector<RimSummaryCase*>&           selectedSummaryCases,
     const std::vector<RimSummaryCaseCollection*>& selectedEnsembles )
 {
-    if ( summaryPlot )
+    if ( !summaryPlot ) return;
+
+    if ( selectedSummaryCases.empty() && selectedEnsembles.empty() ) return;
+
+    RimSummaryPlotCollection* plotColl = RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+
+    plotColl->summaryPlots.push_back( summaryPlot );
+    summaryPlot->resolveReferencesRecursively();
+    summaryPlot->initAfterReadRecursively();
+
     {
-        RimSummaryPlotCollection* plotColl =
-            RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+        // Replace single summary curves data sources
 
-        plotColl->summaryPlots.push_back( summaryPlot );
-        summaryPlot->resolveReferencesRecursively();
-        summaryPlot->initAfterReadRecursively();
+        auto summaryCurves = summaryPlot->summaryCurves();
 
+        const QString summaryFieldKeyword = RicSummaryPlotTemplateTools::summaryCaseFieldKeyword();
+
+        int maximumIndexValue = -1;
+        for ( const auto& curve : summaryCurves )
         {
-            auto summaryCurves = summaryPlot->summaryCurves();
-
-            const QString summaryFieldKeyword = RicSummaryPlotTemplateTools::summaryCaseFieldKeyword();
-
-            for ( const auto& curve : summaryCurves )
+            auto fieldHandle = curve->findField( summaryFieldKeyword );
+            if ( fieldHandle )
             {
-                auto fieldHandle = curve->findField( summaryFieldKeyword );
-                if ( fieldHandle )
+                bool          conversionOk      = false;
+                const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForSummaryCase();
+
+                auto referenceString = fieldHandle->xmlCapability()->referenceString();
+                int  indexValue      = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString,
+                                                                                   referenceString,
+                                                                                   &conversionOk );
+
+                maximumIndexValue = std::max( maximumIndexValue, indexValue );
+
+                if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( selectedSummaryCases.size() ) )
                 {
-                    bool          conversionOk      = false;
-                    const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForSummaryCase();
+                    auto summaryCaseY = selectedSummaryCases[static_cast<int>( indexValue )];
+                    curve->setSummaryCaseY( summaryCaseY );
 
-                    auto referenceString = fieldHandle->xmlCapability()->referenceString();
-                    int  indexValue      = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString,
-                                                                                       referenceString,
-                                                                                       &conversionOk );
-
-                    if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( selectedSummaryCases.size() ) )
+                    auto currentAddressY = curve->summaryAddressY();
+                    if ( summaryCaseY->summaryReader() && !summaryCaseY->summaryReader()->hasAddress( currentAddressY ) )
                     {
-                        auto summaryCaseY = selectedSummaryCases[static_cast<int>( indexValue )];
-                        curve->setSummaryCaseY( summaryCaseY );
+                        auto allAddresses = summaryCaseY->summaryReader()->allResultAddresses();
 
-                        auto currentAddressY = curve->summaryAddressY();
-                        if ( summaryCaseY->summaryReader() &&
-                             !summaryCaseY->summaryReader()->hasAddress( currentAddressY ) )
+                        auto candidate = RicSummaryPlotTemplateTools::firstAddressByQuantity( currentAddressY,
+                                                                                              allAddresses );
+                        if ( candidate.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
                         {
-                            auto allAddresses = summaryCaseY->summaryReader()->allResultAddresses();
-
-                            auto candidate = RicSummaryPlotTemplateTools::firstAddressByQuantity( currentAddressY,
-                                                                                                  allAddresses );
-                            if ( candidate.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
-                            {
-                                curve->setSummaryAddressY( candidate );
-                            }
+                            curve->setSummaryAddressY( candidate );
                         }
                     }
                 }
             }
         }
 
+        if ( selectedSummaryCases.size() > static_cast<size_t>( maximumIndexValue ) )
         {
-            auto summaryCurves = summaryPlot->ensembleCurveSetCollection()->curveSets();
+            // Use the curve style of the last curve in template, and duplicate this for remaining data sources
 
-            const QString summaryGroupFieldKeyword = RicSummaryPlotTemplateTools::summaryGroupFieldName();
-
-            for ( const auto& curveSet : summaryCurves )
+            if ( !summaryCurves.empty() )
             {
-                auto fieldHandle = curveSet->findField( summaryGroupFieldKeyword );
-                if ( fieldHandle )
+                auto lastSummaryCurve = summaryCurves.back();
+
+                for ( size_t i = maximumIndexValue; i < selectedSummaryCases.size(); i++ )
                 {
-                    auto referenceString = fieldHandle->xmlCapability()->referenceString();
-                    auto stringList      = referenceString.split( " " );
-                    if ( stringList.size() == 2 )
-                    {
-                        QString indexAsString = stringList[1];
+                    auto newCurve = dynamic_cast<RimSummaryCurve*>(
+                        lastSummaryCurve->xmlCapability()->copyByXmlSerialization(
+                            caf::PdmDefaultObjectFactory::instance() ) );
 
-                        bool conversionOk = false;
-                        auto index        = indexAsString.toUInt( &conversionOk );
-
-                        if ( conversionOk && index < selectedEnsembles.size() )
-                        {
-                            auto summaryCaseY = selectedEnsembles[index];
-                            curveSet->setSummaryCaseCollection( summaryCaseY );
-                        }
-                    }
+                    auto summaryCaseY = selectedSummaryCases[i];
+                    newCurve->setSummaryCaseY( summaryCaseY );
+                    summaryPlot->addCurveAndUpdate( newCurve );
                 }
             }
         }
-
-        // TODO: Create additional curves in selected case count is larger than template count
-
-        plotColl->updateConnectedEditors();
-
-        summaryPlot->loadDataAndUpdate();
     }
+
+    {
+        // Replace ensemble data sources
+
+        auto summaryCurveSets = summaryPlot->ensembleCurveSetCollection()->curveSets();
+
+        const QString summaryGroupFieldKeyword = RicSummaryPlotTemplateTools::summaryGroupFieldKeyword();
+
+        int maximumIndexValue = -1;
+
+        for ( const auto& curveSet : summaryCurveSets )
+        {
+            auto fieldHandle = curveSet->findField( summaryGroupFieldKeyword );
+            if ( fieldHandle )
+            {
+                bool          conversionOk      = false;
+                const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForSummaryGroup();
+
+                auto referenceString = fieldHandle->xmlCapability()->referenceString();
+                int  indexValue      = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString,
+                                                                                   referenceString,
+                                                                                   &conversionOk );
+
+                maximumIndexValue = std::max( maximumIndexValue, indexValue );
+
+                if ( conversionOk && indexValue < selectedEnsembles.size() )
+                {
+                    auto summaryCaseY = selectedEnsembles[indexValue];
+                    curveSet->setSummaryCaseCollection( summaryCaseY );
+                }
+            }
+        }
+
+        if ( selectedEnsembles.size() > static_cast<size_t>( maximumIndexValue ) )
+        {
+            // Use the curve style of the last curve in template, and duplicate this for remaining data sources
+
+            if ( !summaryCurveSets.empty() )
+            {
+                auto lastSummaryCurveSet = summaryCurveSets.back();
+
+                for ( size_t i = maximumIndexValue; i < selectedEnsembles.size(); i++ )
+                {
+                    auto newCurveSet = dynamic_cast<RimEnsembleCurveSet*>(
+                        lastSummaryCurveSet->xmlCapability()->copyByXmlSerialization(
+                            caf::PdmDefaultObjectFactory::instance() ) );
+
+                    auto ensembleDataSource = selectedEnsembles[i];
+                    newCurveSet->setSummaryCaseCollection( ensembleDataSource );
+
+                    summaryPlot->ensembleCurveSetCollection()->addCurveSet( newCurveSet );
+                }
+            }
+        }
+    }
+
+    plotColl->updateConnectedEditors();
+
+    summaryPlot->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -325,7 +374,7 @@ QString RicSummaryPlotTemplateTools::summaryCaseFieldKeyword()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicSummaryPlotTemplateTools::summaryGroupFieldName()
+QString RicSummaryPlotTemplateTools::summaryGroupFieldKeyword()
 {
     return "SummaryGroup";
 }
@@ -343,7 +392,7 @@ QString RicSummaryPlotTemplateTools::placeholderTextForSummaryCase()
 //--------------------------------------------------------------------------------------------------
 QString RicSummaryPlotTemplateTools::placeholderTextForSummaryGroup()
 {
-    return "ENSEMBLE";
+    return "ENSEMBLE_NAME";
 }
 
 //--------------------------------------------------------------------------------------------------
