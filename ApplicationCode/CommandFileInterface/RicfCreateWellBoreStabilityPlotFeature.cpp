@@ -18,6 +18,7 @@
 #include "RicfCreateWellBoreStabilityPlotFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "WellLogCommands/RicNewWellBoreStabilityPlotFeature.h"
 
