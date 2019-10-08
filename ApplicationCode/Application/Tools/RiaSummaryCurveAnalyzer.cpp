@@ -34,7 +34,7 @@ RiaSummaryCurveAnalyzer::RiaSummaryCurveAnalyzer() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveAnalyzer::appendAdresses( const std::vector<RifEclipseSummaryAddress>& allAddresses )
+void RiaSummaryCurveAnalyzer::appendAddresses( const std::vector<RifEclipseSummaryAddress>& allAddresses )
 {
     for ( const auto& adr : allAddresses )
     {
@@ -45,7 +45,7 @@ void RiaSummaryCurveAnalyzer::appendAdresses( const std::vector<RifEclipseSummar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveAnalyzer::appendAdresses( const std::set<RifEclipseSummaryAddress>& allAddresses )
+void RiaSummaryCurveAnalyzer::appendAddresses( const std::set<RifEclipseSummaryAddress>& allAddresses )
 {
     for ( const auto& adr : allAddresses )
     {

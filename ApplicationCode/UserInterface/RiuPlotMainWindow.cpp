@@ -556,25 +556,7 @@ void RiuPlotMainWindow::updateSummaryPlotToolBar( bool forceUpdateUi )
     RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( m_activePlotViewWindow.p() );
     if ( summaryPlot )
     {
-        std::vector<caf::PdmFieldHandle*> toolBarFields;
-
-        RimEnsembleCurveSetCollection* ensembleCurveSetColl = nullptr;
-
-        caf::PdmObjectHandle* selectedObj = dynamic_cast<caf::PdmObjectHandle*>(
-            caf::SelectionManager::instance()->selectedItem() );
-        if ( selectedObj )
-        {
-            selectedObj->firstAncestorOrThisOfType( ensembleCurveSetColl );
-        }
-
-        if ( ensembleCurveSetColl )
-        {
-            toolBarFields = ensembleCurveSetColl->fieldsToShowInToolbar();
-        }
-        else
-        {
-            toolBarFields = summaryPlot->summaryCurveCollection()->fieldsToShowInToolbar();
-        }
+        std::vector<caf::PdmFieldHandle*> toolBarFields = summaryPlot->fieldsToShowInToolbar();
 
         if ( !m_summaryPlotToolBarEditor->isEditorDataValid( toolBarFields ) )
         {

@@ -52,18 +52,17 @@ cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier( RigE
         return nullptr;
     }
 
-    std::vector<std::vector<double>>& scalarSetResults = eclipseCase->results( porosityModel )
-                                                             ->modifiableCellScalarResultTimesteps( resVarAddr );
+    auto scalarSetResults = eclipseCase->results( porosityModel )->modifiableCellScalarResultTimesteps( resVarAddr );
 
-    if ( timeStepIndex >= scalarSetResults.size() )
+    if ( timeStepIndex >= scalarSetResults->size() )
     {
         return nullptr;
     }
 
     std::vector<double>* resultValues = nullptr;
-    if ( timeStepIndex < scalarSetResults.size() )
+    if ( timeStepIndex < scalarSetResults->size() )
     {
-        resultValues = &( scalarSetResults[timeStepIndex] );
+        resultValues = &( scalarSetResults->at( timeStepIndex ) );
     }
 
     bool useGlobalActiveIndex = eclipseCase->results( porosityModel )->isUsingGlobalActiveIndex( resVarAddr );

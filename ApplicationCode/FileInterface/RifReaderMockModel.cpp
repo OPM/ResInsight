@@ -78,15 +78,15 @@ bool RifReaderMockModel::open( const QString& fileName, RigEclipseCaseData* ecli
         cellResults->setTimeStepInfos( resAddr, staticResultTimeStepInfos );
     }
 
-#define ADD_INPUT_PROPERTY( Name )                                                                    \
-    {                                                                                                 \
-        QString                 resultName( Name );                                                   \
-        RigEclipseResultAddress resAddr( RiaDefines::INPUT_PROPERTY, resultName );                    \
-        cellResults->createResultEntry( resAddr, false );                                             \
-        cellResults->setTimeStepInfos( resAddr, staticResultTimeStepInfos );                          \
-        cellResults->modifiableCellScalarResultTimesteps( resAddr ).resize( 1 );                      \
-        std::vector<double>& values = cellResults->modifiableCellScalarResultTimesteps( resAddr )[0]; \
-        this->inputProperty( resultName, &values );                                                   \
+#define ADD_INPUT_PROPERTY( Name )                                                                          \
+    {                                                                                                       \
+        QString                 resultName( Name );                                                         \
+        RigEclipseResultAddress resAddr( RiaDefines::INPUT_PROPERTY, resultName );                          \
+        cellResults->createResultEntry( resAddr, false );                                                   \
+        cellResults->setTimeStepInfos( resAddr, staticResultTimeStepInfos );                                \
+        cellResults->modifiableCellScalarResultTimesteps( resAddr )->resize( 1 );                           \
+        std::vector<double>& values = cellResults->modifiableCellScalarResultTimesteps( resAddr )->at( 0 ); \
+        this->inputProperty( resultName, &values );                                                         \
     }
 
     ADD_INPUT_PROPERTY( "PORO" );

@@ -47,7 +47,7 @@ void RimSummaryPlotNameHelper::clear()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotNameHelper::appendAddresses( const std::vector<RifEclipseSummaryAddress>& addresses )
 {
-    m_analyzer.appendAdresses( addresses );
+    m_analyzer.appendAddresses( addresses );
 
     extractPlotTitleSubStrings();
 }

@@ -53,9 +53,12 @@ class RiuSummaryQwtPlot;
 class RimSummaryPlotNameHelper;
 class RimPlotTemplateFileItem;
 class RimSummaryPlotFilterTextCurveSetEditor;
+class RimSummaryPlotSourceStepping;
 
 class QwtInterval;
 class QwtPlotCurve;
+
+class QKeyEvent;
 
 //==================================================================================================
 ///
@@ -155,6 +158,10 @@ public:
 
     void                     setPlotTemplate( RimPlotTemplateFileItem* plotTemplate );
     RimPlotTemplateFileItem* plotTemplate() const;
+
+    void                                      handleKeyPressEvent( QKeyEvent* keyEvent );
+    virtual RimSummaryPlotSourceStepping*     sourceSteppingObjectForKeyEventHandling() const;
+    virtual std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
 public:
     // Rim2dPlotInterface overrides

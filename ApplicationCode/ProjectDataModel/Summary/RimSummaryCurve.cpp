@@ -624,15 +624,6 @@ void RimSummaryCurve::defineEditorAttribute( const caf::PdmFieldHandle* field,
             attrib->m_buttonText = "...";
         }
     }
-
-    if ( &m_yValuesSummaryAddressUiField == field || &m_xValuesSummaryAddressUiField == field )
-    {
-        auto* attrib = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->completerCaseSensitivity = Qt::CaseInsensitive;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -36,6 +36,8 @@
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
 
+#include <algorithm>
+
 using namespace rips;
 
 #define NUM_CONCURRENT_CLIENT_TO_SERVER_STREAMS 10
@@ -110,12 +112,14 @@ public:
                 resultData->createResultEntry( m_resultAddress, true );
                 RigEclipseResultAddress addrToMaxTimeStepCountResult;
 
-                size_t timeStepCount = resultData->maxTimeStepCount( &addrToMaxTimeStepCountResult );
+                size_t timeStepCount = std::max( (size_t)1,
+                                                 resultData->maxTimeStepCount( &addrToMaxTimeStepCountResult ) );
+
                 const std::vector<RigEclipseTimeStepInfo> timeStepInfos = resultData->timeStepInfos(
                     addrToMaxTimeStepCountResult );
                 resultData->setTimeStepInfos( m_resultAddress, timeStepInfos );
                 auto scalarResultFrames = resultData->modifiableCellScalarResultTimesteps( m_resultAddress );
-                scalarResultFrames.resize( timeStepCount );
+                scalarResultFrames->resize( timeStepCount );
                 if ( timeStep < resultData->timeStepCount( m_resultAddress ) )
                 {
                     initResultAccess( caseData, request->grid_index(), m_porosityModel, timeStep, m_resultAddress );
@@ -243,7 +247,7 @@ protected:
                            RigEclipseResultAddress       resVarAddr ) override
     {
         auto activeCellInfo = caseData->activeCellInfo( porosityModel );
-        m_resultValues = &( caseData->results( porosityModel )->modifiableCellScalarResult( resVarAddr, timeStepIndex ) );
+        m_resultValues = caseData->results( porosityModel )->modifiableCellScalarResult( resVarAddr, timeStepIndex );
         if ( m_resultValues->empty() )
         {
             m_resultValues->resize( activeCellInfo->reservoirCellResultCount() );

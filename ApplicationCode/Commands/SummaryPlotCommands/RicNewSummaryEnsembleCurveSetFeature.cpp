@@ -127,7 +127,17 @@ void RicNewSummaryEnsembleCurveSetFeature::onActionTriggered( bool isChecked )
         CVF_ASSERT( !project->summaryGroups().empty() );
         auto ensemble = project->summaryGroups().back();
 
-        RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetAndUpdate( ensemble );
+        auto curveSet = RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSet( plot, ensemble );
+        plot->loadDataAndUpdate();
+        plot->updateConnectedEditors();
+
+        RiaGuiApplication* app            = RiaGuiApplication::instance();
+        RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
+        if ( mainPlotWindow )
+        {
+            mainPlotWindow->selectAsCurrentItem( curveSet );
+            mainPlotWindow->updateSummaryPlotToolBar();
+        }
     }
 }
 

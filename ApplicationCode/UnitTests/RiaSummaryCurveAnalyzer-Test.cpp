@@ -44,7 +44,7 @@ TEST( RiaSummaryCurveAnalyzer, WellCompletions )
     }
 
     RiaSummaryCurveAnalyzer analyzer;
-    analyzer.appendAdresses( addresses );
+    analyzer.appendAddresses( addresses );
 
     EXPECT_EQ( 2u, analyzer.wellNames().size() );
 
@@ -95,7 +95,7 @@ TEST( RiaSummaryCurveAnalyzer, WellSegments )
     }
 
     RiaSummaryCurveAnalyzer analyzer;
-    analyzer.appendAdresses( addresses );
+    analyzer.appendAddresses( addresses );
 
     EXPECT_EQ( 2u, analyzer.wellNames().size() );
 
@@ -131,7 +131,7 @@ TEST( RiaSummaryCurveAnalyzer, CellBlocks )
     }
 
     RiaSummaryCurveAnalyzer analyzer;
-    analyzer.appendAdresses( addresses );
+    analyzer.appendAddresses( addresses );
 
     auto blocks = analyzer.blocks();
     EXPECT_EQ( 3u, blocks.size() );
