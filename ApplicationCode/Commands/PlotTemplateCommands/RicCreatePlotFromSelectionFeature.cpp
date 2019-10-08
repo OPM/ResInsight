@@ -40,7 +40,10 @@ CAF_CMD_SOURCE_INIT( RicCreatePlotFromSelectionFeature, "RicCreatePlotFromSelect
 //--------------------------------------------------------------------------------------------------
 bool RicCreatePlotFromSelectionFeature::isCommandEnabled()
 {
-    return !selectedSummaryCases().empty();
+    bool anySummaryCases           = !RicSummaryPlotTemplateTools::selectedSummaryCases().empty();
+    bool anySummaryCaseCollections = !RicSummaryPlotTemplateTools::selectedSummaryCaseCollections().empty();
+
+    return ( anySummaryCases || anySummaryCaseCollections );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,11 +51,12 @@ bool RicCreatePlotFromSelectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreatePlotFromSelectionFeature::onActionTriggered( bool isChecked )
 {
-    QString                      fileName = RicSummaryPlotTemplateTools::selectPlotTemplatePath();
-    std::vector<RimSummaryCase*> sumCases = selectedSummaryCases();
+    QString fileName           = RicSummaryPlotTemplateTools::selectPlotTemplatePath();
+    auto    sumCases           = RicSummaryPlotTemplateTools::selectedSummaryCases();
+    auto    sumCaseCollections = RicSummaryPlotTemplateTools::selectedSummaryCaseCollections();
 
     RimSummaryPlot* newSummaryPlot = RicSummaryPlotTemplateTools::createPlotFromTemplateFile( fileName );
-    RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection( newSummaryPlot, sumCases );
+    RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection( newSummaryPlot, sumCases, sumCaseCollections );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,15 +66,4 @@ void RicCreatePlotFromSelectionFeature::setupActionLook( QAction* actionToSetup 
 {
     actionToSetup->setText( "Create Plot from Template" );
     actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RicCreatePlotFromSelectionFeature::selectedSummaryCases() const
-{
-    std::vector<RimSummaryCase*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
-    return objects;
 }

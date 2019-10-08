@@ -308,9 +308,9 @@ void RiuQwtPlotCurve::drawSymbols( QPainter*          painter,
 
         if ( sym )
         {
-            if ( m_perPointLabels.size() == pointsToDisplay.size() )
+            if ( m_perPointLabels.size() == static_cast<size_t>( pointsToDisplay.size() ) )
             {
-                for ( int i = 0; i < (int)pointsToDisplay.size(); ++i )
+                for ( int i = 0; i < pointsToDisplay.size(); ++i )
                 {
                     sym->renderSymbolLabel( painter, pointsToDisplay[i], m_perPointLabels[i] );
                 }

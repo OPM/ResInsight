@@ -19,12 +19,15 @@
 #include "RicSavePlotTemplateFeature.h"
 
 #include "RicReloadPlotTemplatesFeature.h"
+#include "RicSummaryPlotTemplateTools.h"
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaSummaryTools.h"
 
+#include "RimEnsembleCurveSet.h"
+#include "RimEnsembleCurveSetCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
@@ -140,24 +143,53 @@ QString RicSavePlotTemplateFeature::createTextFromObject( RimSummaryPlot* summar
     RimSummaryPlot* newSummaryPlot = dynamic_cast<RimSummaryPlot*>( obj );
     if ( newSummaryPlot )
     {
-        std::set<QString> caseReferenceStrings;
-
-        for ( const auto& curve : newSummaryPlot->summaryCurves() )
         {
-            auto fieldHandle = curve->findField( "SummaryCase" );
-            if ( fieldHandle )
+            std::set<QString> caseReferenceStrings;
+
+            const QString summaryFieldKeyword = RicSummaryPlotTemplateTools::summaryCaseFieldKeyword();
+            for ( const auto& curve : newSummaryPlot->summaryCurves() )
             {
-                auto reference = fieldHandle->xmlCapability()->referenceString();
-                caseReferenceStrings.insert( reference );
+                auto fieldHandle = curve->findField( summaryFieldKeyword );
+                if ( fieldHandle )
+                {
+                    auto reference = fieldHandle->xmlCapability()->referenceString();
+                    caseReferenceStrings.insert( reference );
+                }
+            }
+
+            size_t index = 0;
+            for ( const auto& s : caseReferenceStrings )
+            {
+                QString placeholderText = RicSummaryPlotTemplateTools::placeholderTextForSummaryCase();
+                QString caseName        = QString( "%1 %2" ).arg( placeholderText ).arg( index++ );
+
+                objectAsText.replace( s, caseName );
             }
         }
 
-        size_t index = 0;
-        for ( const auto& s : caseReferenceStrings )
         {
-            QString caseName = QString( "CASE_NAME %1" ).arg( index++ );
+            std::set<QString> ensembleReferenceStrings;
 
-            objectAsText.replace( s, caseName );
+            const QString summaryGroupFieldKeyword = RicSummaryPlotTemplateTools::summaryGroupFieldKeyword();
+
+            for ( const auto& curveSet : newSummaryPlot->ensembleCurveSetCollection()->curveSets() )
+            {
+                auto fieldHandle = curveSet->findField( summaryGroupFieldKeyword );
+                if ( fieldHandle )
+                {
+                    auto reference = fieldHandle->xmlCapability()->referenceString();
+                    ensembleReferenceStrings.insert( reference );
+                }
+            }
+
+            size_t index = 0;
+            for ( const auto& s : ensembleReferenceStrings )
+            {
+                QString placeholderText = RicSummaryPlotTemplateTools::placeholderTextForSummaryGroup();
+                QString ensembleName    = QString( "%1 %2" ).arg( placeholderText ).arg( index++ );
+
+                objectAsText.replace( s, ensembleName );
+            }
         }
     }
 

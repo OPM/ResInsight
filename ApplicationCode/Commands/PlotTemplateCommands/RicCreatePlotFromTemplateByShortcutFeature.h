@@ -35,7 +35,4 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-
-private:
-    std::vector<RimSummaryCase*> selectedSummaryCases() const;
 };
