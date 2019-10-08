@@ -17,23 +17,23 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicfImportWellPaths.h"
 
-#include "RiaApplication.h"
-#include "RiaImportEclipseCaseTools.h"
-#include "RiaLogging.h"
+#include "WellPathCommands/RicWellPathsImportFileFeature.h"
+
+#include "RimFileWellPath.h"
 
 #include <QDir>
 #include <QFileInfo>
 #include <QStringList>
 
-CAF_PDM_SOURCE_INIT( RicfImportWellPathResults, "importWellPathResults" );
+CAF_PDM_SOURCE_INIT( RicfImportWellPathsResult, "importWellPathsResult" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfImportWellPathResults::RicfImportWellPathResults( const std::vector<QString>& wellPathNames )
+RicfImportWellPathsResult::RicfImportWellPathsResult()
 {
-    CAF_PDM_InitObject( "well_path_results", "", "", "" );
-    CAF_PDM_InitField( &importedWellPathNames, "importedWellPathNames", wellPathNames, "", "", "", "" );
+    CAF_PDM_InitObject( "well_path_result", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &wellPathNames, "wellPathNames", "", "", "", "" );
 }
 
 CAF_PDM_SOURCE_INIT( RicfImportWellPaths, "importWellPaths" );
@@ -43,10 +43,74 @@ CAF_PDM_SOURCE_INIT( RicfImportWellPaths, "importWellPaths" );
 //--------------------------------------------------------------------------------------------------
 RicfImportWellPaths::RicfImportWellPaths()
 {
-    RICF_InitFieldNoDefault( &m_wellFilePaths, "wellFilePaths", "", "", "", "" );
+    RICF_InitFieldNoDefault( &m_wellPathFolder, "wellPathFolder", "", "", "", "" );
+    RICF_InitFieldNoDefault( &m_wellPathFiles, "wellPathFiles", "", "", "", "" );
 }
 
 RicfCommandResponse RicfImportWellPaths::execute()
 {
-    return RicfCommandResponse();
+    QStringList errorMessages, warningMessages;
+    QStringList wellPathFiles;
+
+    QDir wellPathFolder( m_wellPathFolder );
+
+    if ( wellPathFolder.exists() )
+    {
+        QStringList nameFilters;
+        nameFilters << RicWellPathsImportFileFeature::wellPathNameFilters();
+        QStringList relativePaths = wellPathFolder.entryList( nameFilters, QDir::Files | QDir::NoDotAndDotDot );
+        for ( QString relativePath : relativePaths )
+        {
+            wellPathFiles.push_back( wellPathFolder.absoluteFilePath( relativePath ) );
+        }
+    }
+    else
+    {
+        errorMessages << ( m_wellPathFolder() + " does not exist" );
+    }
+
+    for ( QString wellPathFile : m_wellPathFiles() )
+    {
+        if ( QFileInfo::exists( wellPathFile ) )
+        {
+            wellPathFiles.push_back( wellPathFile );
+        }
+        else
+        {
+            errorMessages << ( wellPathFile + " does not exist" );
+        }
+    }
+
+    RicfCommandResponse response;
+    if ( !wellPathFiles.empty() )
+    {
+        std::vector<RimFileWellPath*> importedWellPaths = RicWellPathsImportFileFeature::importWellPaths( wellPathFiles,
+                                                                                                          &warningMessages );
+        if ( !importedWellPaths.empty() )
+        {
+            RicfImportWellPathsResult* wellPathsResult = new RicfImportWellPathsResult;
+            for ( RimFileWellPath* wellPath : importedWellPaths )
+            {
+                wellPathsResult->wellPathNames.v().push_back( wellPath->name() );
+            }
+
+            response.setResult( wellPathsResult );
+        }
+    }
+    else
+    {
+        warningMessages << "No well paths found";
+    }
+
+    for ( QString warningMessage : warningMessages )
+    {
+        response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warningMessage );
+    }
+
+    for ( QString errorMessage : errorMessages )
+    {
+        response.updateStatus( RicfCommandResponse::COMMAND_ERROR, errorMessage );
+    }
+
+    return response;
 }

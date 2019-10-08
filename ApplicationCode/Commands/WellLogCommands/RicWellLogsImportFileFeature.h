@@ -31,7 +31,9 @@ class RimWellLogFile;
 class RicWellLogsImportFileFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-    std::vector<RimWellLogFile*> importWellLogFiles( const QStringList& wellLogFilePaths );
+    static std::vector<RimWellLogFile*> importWellLogFiles( const QStringList& wellLogFilePaths,
+                                                            QStringList*       errorMessages );
+    static QStringList                  wellLogFileNameFilters();
 
 protected:
     // Overrides

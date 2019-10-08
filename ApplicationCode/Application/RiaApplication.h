@@ -139,9 +139,9 @@ public:
 
     bool openOdbCaseFromFile( const QString& fileName, bool applyTimeStepFilter = false );
 
-    std::vector<RimFileWellPath*> addWellPathsToModel( QList<QString> wellPathFilePaths );
+    std::vector<RimFileWellPath*> addWellPathsToModel( QList<QString> wellPathFilePaths, QStringList* errorMessages );
     void                          addWellPathFormationsToModel( QList<QString> wellPathFilePaths );
-    std::vector<RimWellLogFile*>  addWellLogsToModel( const QList<QString>& wellLogFilePaths );
+    std::vector<RimWellLogFile*> addWellLogsToModel( const QList<QString>& wellLogFilePaths, QStringList* errorMessages );
 
     QString scriptDirectories() const;
     QString scriptEditorPath() const;

@@ -259,3 +259,37 @@ class Project(PdmObject):
         return self._execute_command(
             setFractureContainment=Cmd.SetFracContainmentRequest(
                 id=template_id, topLayer=top_layer, baseLayer=base_layer))
+
+    def import_well_paths(self, well_path_files=None, well_path_folder=''):
+        """ Import well paths into project
+
+        Arguments:
+            well_path_files(list): List of file paths to import
+            well_path_folder(str): A folder path containing files to import
+
+        Returns:
+            A list of well path names (strings)
+        """
+        if well_path_files is None:
+            well_path_files = []
+        
+        res = self._execute_command(importWellPaths=Cmd.ImportWellPathsRequest(wellPathFolder=well_path_folder,
+                                                                               wellPathFiles=well_path_files))
+        return res.importWellPathsResult.wellPathNames
+
+    def import_well_log_files(self, well_log_files=None, well_log_folder=''):
+        """ Import well log files into project
+
+        Arguments:
+            well_log_files(list): List of file paths to import
+            well_log_folder(str): A folder path containing files to import
+
+        Returns:
+            A list of well path names (strings) that had logs imported
+        """
+
+        if well_log_files is None:
+            well_log_files = []
+        res = self._execute_command(importWellLogFiles=Cmd.ImportWellLogFilesRequest(wellLogFolder=well_log_folder,
+                                                                                     wellLogFiles=well_log_files))
+        return res.importWellLogFilesResult.wellPathNames

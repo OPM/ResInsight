@@ -33,7 +33,9 @@ class RicWellPathsImportFileFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static std::vector<RimFileWellPath*> importWellPaths( const QStringList& wellPathFilePaths );
+    static std::vector<RimFileWellPath*> importWellPaths( const QStringList& wellPathFilePaths,
+                                                          QStringList*       errorMessages );
+    static QStringList                   wellPathNameFilters();
 
 protected:
     // Overrides

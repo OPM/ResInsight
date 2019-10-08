@@ -40,6 +40,7 @@
 
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QString>
 #include <QStringList>
 
 CAF_PDM_SOURCE_INIT( RimWellLogFile, "WellLogFile" );
@@ -110,33 +111,20 @@ RimWellLogFile::~RimWellLogFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogFile* RimWellLogFile::readWellLogFile( const QString& logFilePath )
+RimWellLogFile* RimWellLogFile::readWellLogFile( const QString& logFilePath, QString* errorMessage )
 {
+    CAF_ASSERT( errorMessage );
+
     QFileInfo fi( logFilePath );
 
     RimWellLogFile* wellLogFile = nullptr;
 
     if ( fi.suffix().toUpper().compare( "LAS" ) == 0 )
     {
-        QString errorMessage;
         wellLogFile = new RimWellLogFile();
         wellLogFile->setFileName( logFilePath );
-        if ( !wellLogFile->readFile( &errorMessage ) )
+        if ( !wellLogFile->readFile( errorMessage ) )
         {
-            QString displayMessage = "Could not open the LAS file: \n" + logFilePath;
-
-            if ( !errorMessage.isEmpty() )
-            {
-                displayMessage += "\n\n";
-                displayMessage += errorMessage;
-            }
-
-            if ( RiaGuiApplication::isRunning() )
-            {
-                QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
-            }
-            RiaLogging::warning( errorMessage );
-
             delete wellLogFile;
             wellLogFile = nullptr;
         }
@@ -181,15 +169,10 @@ bool RimWellLogFile::readFile( QString* errorMessage )
     }
     else if ( !isDateValid( m_date() ) )
     {
-        QMessageBox msgBox;
-
-        QString message =
+        *errorMessage =
             QString(
                 "The LAS-file '%1' contains no recognizable date. Please assign a date in the LAS-file property panel" )
                 .arg( m_name() );
-        msgBox.setText( message );
-        msgBox.setStandardButtons( QMessageBox::Ok );
-        msgBox.exec();
 
         m_date = DEFAULT_DATE_TIME;
     }

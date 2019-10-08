@@ -198,8 +198,10 @@ void RimWellPathCollection::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFileWellPath*> RimWellPathCollection::addWellPaths( QStringList filePaths )
+std::vector<RimFileWellPath*> RimWellPathCollection::addWellPaths( QStringList filePaths, QStringList* errorMessages )
 {
+    CAF_ASSERT( errorMessages );
+
     std::vector<RimFileWellPath*> wellPathArray;
 
     for ( QString filePath : filePaths )
@@ -221,6 +223,7 @@ std::vector<RimFileWellPath*> RimWellPathCollection::addWellPaths( QStringList f
             {
                 // printf("Attempting to open well path JSON file that is already open:\n  %s\n", (const char*) filePath.toLocal8Bit());
                 alreadyOpen = true;
+                errorMessages->push_back( QString( "%1 is already loaded" ).arg( filePath ) );
                 break;
             }
         }
@@ -317,13 +320,20 @@ void RimWellPathCollection::addWellPaths( const std::vector<RimWellPath*> incomi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFile*> RimWellPathCollection::addWellLogs( const QStringList& filePaths )
+std::vector<RimWellLogFile*> RimWellPathCollection::addWellLogs( const QStringList& filePaths, QStringList* errorMessages )
 {
+    CAF_ASSERT( errorMessages );
+
     std::vector<RimWellLogFile*> logFileInfos;
 
     foreach ( QString filePath, filePaths )
     {
-        RimWellLogFile* logFileInfo = RimWellLogFile::readWellLogFile( filePath );
+        QString         errorMessage;
+        RimWellLogFile* logFileInfo = RimWellLogFile::readWellLogFile( filePath, &errorMessage );
+        if ( !errorMessage.isEmpty() )
+        {
+            errorMessages->push_back( errorMessage );
+        }
         if ( logFileInfo )
         {
             RimWellPath* wellPath = tryFindMatchingWellPath( logFileInfo->wellName() );

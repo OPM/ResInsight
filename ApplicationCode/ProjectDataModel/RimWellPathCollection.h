@@ -89,7 +89,7 @@ public:
     caf::PdmChildArrayField<RimWellPath*> wellPaths;
 
     void                          loadDataAndUpdate();
-    std::vector<RimFileWellPath*> addWellPaths( QStringList filePaths );
+    std::vector<RimFileWellPath*> addWellPaths( QStringList filePaths, QStringList* errorMessages );
 
     void removeWellPath( RimWellPath* wellPath );
     void deleteAllWellPaths();
@@ -102,7 +102,7 @@ public:
     RimWellPath*                 wellPathByName( const QString& wellPathName ) const;
     RimWellPath*                 tryFindMatchingWellPath( const QString& wellName ) const;
     void                         addWellPaths( const std::vector<RimWellPath*> incomingWellPaths );
-    std::vector<RimWellLogFile*> addWellLogs( const QStringList& filePaths );
+    std::vector<RimWellLogFile*> addWellLogs( const QStringList& filePaths, QStringList* errorMessages );
     void                         addWellPathFormations( const QStringList& filePaths );
 
     void scheduleRedrawAffectedViews();

@@ -43,9 +43,10 @@ public:
 
 public:
     RicfCommandResponse( Status status = COMMAND_OK, const QString& message = "" );
+    RicfCommandResponse( caf::PdmObject* ok_result );
 
     Status          status() const;
-    QString         message() const;
+    QString         sanitizedResponseMessage() const;
     caf::PdmObject* result() const;
     void            setResult( caf::PdmObject* result );
     void            updateStatus( Status status, const QString& message );
@@ -56,5 +57,5 @@ private:
 private:
     Status                          m_status;
     QStringList                     m_messages;
-    caf::PdmPointer<caf::PdmObject> m_result;
+    std::unique_ptr<caf::PdmObject> m_result;
 };

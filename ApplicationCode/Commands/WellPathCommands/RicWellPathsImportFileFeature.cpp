@@ -20,6 +20,7 @@
 #include "RicWellPathsImportFileFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -30,20 +31,22 @@
 
 #include <QAction>
 #include <QFileDialog>
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicWellPathsImportFileFeature, "RicWellPathsImportFileFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFileWellPath*> RicWellPathsImportFileFeature::importWellPaths( const QStringList& wellPathFilePaths )
+std::vector<RimFileWellPath*> RicWellPathsImportFileFeature::importWellPaths( const QStringList& wellPathFilePaths,
+                                                                              QStringList*       errorMessages )
 {
     RiaApplication* app = RiaApplication::instance();
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "WELLPATH_DIR", QFileInfo( wellPathFilePaths.last() ).absolutePath() );
 
-    std::vector<RimFileWellPath*> wellPaths = app->addWellPathsToModel( wellPathFilePaths );
+    std::vector<RimFileWellPath*> wellPaths = app->addWellPathsToModel( wellPathFilePaths, errorMessages );
 
     RimProject* project = app->project();
 
@@ -67,6 +70,20 @@ std::vector<RimFileWellPath*> RicWellPathsImportFileFeature::importWellPaths( co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QStringList RicWellPathsImportFileFeature::wellPathNameFilters()
+{
+    QStringList nameFilters;
+    nameFilters << "*.json"
+                << "*.asc"
+                << " *.asci"
+                << "*.ascii"
+                << "*.dev";
+    return nameFilters;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicWellPathsImportFileFeature::isCommandEnabled()
 {
     return true;
@@ -81,15 +98,29 @@ void RicWellPathsImportFileFeature::onActionTriggered( bool isChecked )
     RiaApplication* app                = RiaApplication::instance();
     QString         lastUsedGridFolder = app->lastUsedDialogDirectory( "BINARY_GRID" );
     QString         defaultDir         = app->lastUsedDialogDirectoryWithFallback( "WELLPATH_DIR", lastUsedGridFolder );
-    QStringList     wellPathFilePaths =
-        QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                       "Import Well Paths",
-                                       defaultDir,
-                                       "Well Paths (*.json *.asc *.asci *.ascii *.dev);;All Files (*.*)" );
+
+    QString nameList = QString( "Well Paths (%1);;All Files (*.*)" ).arg( wellPathNameFilters().join( " " ) );
+
+    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                   "Import Well Paths",
+                                                                   defaultDir,
+                                                                   nameList );
 
     if ( wellPathFilePaths.size() >= 1 )
     {
-        importWellPaths( wellPathFilePaths );
+        QStringList errorMessages;
+        importWellPaths( wellPathFilePaths, &errorMessages );
+
+        if ( !errorMessages.empty() )
+        {
+            QString displayMessage = "Errors loading well path files: \n" + errorMessages.join( "\n" );
+
+            if ( RiaGuiApplication::isRunning() )
+            {
+                QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
+            }
+            RiaLogging::warning( displayMessage );
+        }
     }
 }
 

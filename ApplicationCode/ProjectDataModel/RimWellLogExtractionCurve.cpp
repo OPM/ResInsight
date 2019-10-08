@@ -489,6 +489,11 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
         measuredDepthValues = geomExtractor->cellIntersectionMDs();
         tvDepthValues       = geomExtractor->cellIntersectionTVDs();
 
+        if ( measuredDepthValues.empty() )
+        {
+            return;
+        }
+
         findAndLoadWbsParametersFromLasFiles( m_wellPath(), geomExtractor.p() );
         RimWellBoreStabilityPlot* wbsPlot;
         this->firstAncestorOrThisOfType( wbsPlot );

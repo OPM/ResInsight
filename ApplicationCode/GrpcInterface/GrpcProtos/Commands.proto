@@ -276,6 +276,18 @@ message CreateWbsPlotRequest
 	int32 timeStep  = 3;
 }
 
+message ImportWellPathsRequest
+{
+	string wellPathFolder         = 1;
+	repeated string wellPathFiles = 2;
+}
+
+message ImportWellLogFilesRequest
+{
+	string         wellLogFolder = 1;
+	repeated string wellLogFiles = 2;
+}
+
 /* CommandParams handles both command name and parameters in one.
  * The message type and content is used as parameters and
  * the name of the variable is used to find the command name. */
@@ -319,6 +331,8 @@ message CommandParams
 		CreateViewRequest            createView                       = 30;
 		CloneViewRequest             cloneView                        = 31;
 		CreateWbsPlotRequest         createWellBoreStabilityPlot      = 32;
+		ImportWellPathsRequest       importWellPaths                  = 33;
+		ImportWellLogFilesRequest    importWellLogFiles               = 34;
 	}
 }
 
@@ -343,6 +357,16 @@ message CreateWbsPlotResult
 	int32 viewId = 1;
 }
 
+message ImportWellPathsResult
+{
+	repeated string wellPathNames = 1;
+}
+
+message ImportWellLogFilesResult
+{
+	repeated string wellPathNames = 1;
+}
+
 /* Command reply handles the return values for the generic command
  * The name of the variable is used to map to the cafPdmObject classKeyword */
 message CommandReply
@@ -355,6 +379,8 @@ message CommandReply
 		CreateStatisticsCaseResult createStatisticsCaseResult = 4;
 		CreateViewResult                     createViewResult = 5;
 		CreateWbsPlotResult               createWbsPlotResult = 6;
+		ImportWellPathsResult           importWellPathsResult = 7;
+		ImportWellLogFilesResult     importWellLogFilesResult = 8;
 	}
 }
 

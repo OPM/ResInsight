@@ -28,15 +28,15 @@
 ///
 ///
 //==================================================================================================
-class RicfImportWellPathResults : public caf::PdmObject
+class RicfImportWellPathsResult : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RicfImportWellPathResults( const std::vector<QString>& wellPathNames = {} );
+    RicfImportWellPathsResult();
 
 public:
-    caf::PdmField<std::vector<QString>> importedWellPathNames;
+    caf::PdmField<std::vector<QString>> wellPathNames;
 };
 
 //==================================================================================================
@@ -53,5 +53,6 @@ public:
     RicfCommandResponse execute() override;
 
 private:
-    caf::PdmField<std::vector<QString>> m_wellFilePaths;
+    caf::PdmField<QString>              m_wellPathFolder;
+    caf::PdmField<std::vector<QString>> m_wellPathFiles;
 };

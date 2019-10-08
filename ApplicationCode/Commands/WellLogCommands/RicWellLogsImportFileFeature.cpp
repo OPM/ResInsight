@@ -20,6 +20,7 @@
 #include "RicWellLogsImportFileFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RimProject.h"
 #include "Riu3DMainWindowTools.h"
 
@@ -27,24 +28,36 @@
 
 #include <QAction>
 #include <QFileDialog>
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicWellLogsImportFileFeature, "RicWellLogsImportFileFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFile*> RicWellLogsImportFileFeature::importWellLogFiles( const QStringList& wellLogFilePaths )
+std::vector<RimWellLogFile*> RicWellLogsImportFileFeature::importWellLogFiles( const QStringList& wellLogFilePaths,
+                                                                               QStringList*       errorMessages )
 {
     RiaApplication* app = RiaApplication::instance();
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "WELL_LOGS_DIR", QFileInfo( wellLogFilePaths.last() ).absolutePath() );
 
-    std::vector<RimWellLogFile*> wellLogFiles = app->addWellLogsToModel( wellLogFilePaths );
+    std::vector<RimWellLogFile*> wellLogFiles = app->addWellLogsToModel( wellLogFilePaths, errorMessages );
 
     caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
 
     return wellLogFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RicWellLogsImportFileFeature::wellLogFileNameFilters()
+{
+    QStringList nameFilters;
+    nameFilters << "*.las";
+    return nameFilters;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,16 +74,28 @@ bool RicWellLogsImportFileFeature::isCommandEnabled()
 void RicWellLogsImportFileFeature::onActionTriggered( bool isChecked )
 {
     // Open dialog box to select well path files
-    RiaApplication* app              = RiaApplication::instance();
-    QString         defaultDir       = app->lastUsedDialogDirectory( "WELL_LOGS_DIR" );
-    QStringList     wellLogFilePaths = QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+    RiaApplication* app        = RiaApplication::instance();
+    QString         defaultDir = app->lastUsedDialogDirectory( "WELL_LOGS_DIR" );
+    QString nameFilterString = QString( "Well Logs (%1);;All Files (*.*)" ).arg( wellLogFileNameFilters().join( " " ) );
+    QStringList wellLogFilePaths = QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
                                                                   "Import Well Logs",
                                                                   defaultDir,
-                                                                  "Well Logs (*.las);;All Files (*.*)" );
+                                                                  nameFilterString );
 
     if ( wellLogFilePaths.size() >= 1 )
     {
-        importWellLogFiles( wellLogFilePaths );
+        QStringList errorMessages;
+        importWellLogFiles( wellLogFilePaths, &errorMessages );
+        if ( !errorMessages.empty() )
+        {
+            QString displayMessage = "Errors opening the LAS files: \n" + errorMessages.join( "\n" );
+
+            if ( RiaGuiApplication::isRunning() )
+            {
+                QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
+            }
+            RiaLogging::warning( displayMessage );
+        }
     }
 }
 

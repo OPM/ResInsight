@@ -28,15 +28,15 @@
 ///
 ///
 //==================================================================================================
-class RicfImportWellLogFileResults : public caf::PdmObject
+class RicfImportWellLogFilesResult : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RicfImportWellLogFileResults();
+    RicfImportWellLogFilesResult();
 
 public:
-    caf::PdmField<std::vector<QString>> importedWellPathNames;
+    caf::PdmField<std::vector<QString>> wellPathNames;
 };
 
 //==================================================================================================
@@ -53,5 +53,6 @@ public:
     RicfCommandResponse execute() override;
 
 private:
+    caf::PdmField<QString>              m_wellLogFileFolder;
     caf::PdmField<std::vector<QString>> m_wellLogFilePaths;
 };

@@ -750,4 +750,4 @@ class Case(PdmObject):
         plot_result = self._execute_command(createWellBoreStabilityPlot=Cmd.CreateWbsPlotRequest(caseId=self.case_id,
                                                                                                  wellPath=well_path,
                                                                                                  timeStep=time_step))
-        return self.__project.well_log_plot(view_id=plot_result.createWbsPlotResult.viewId)
+        return self.__project.plot(view_id=plot_result.createWbsPlotResult.viewId)
