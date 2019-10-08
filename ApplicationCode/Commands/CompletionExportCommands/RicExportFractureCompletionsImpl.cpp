@@ -148,15 +148,22 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         return fractureCompletions;
     }
 
+    auto cellResultsData = caseToApply->results( RiaDefines::MATRIX_MODEL );
+    if ( !cellResultsData )
+    {
+        return fractureCompletions;
+    }
+
     {
         // Load the data required by computations to be able to use const access only inside OpenMP loop
 
         std::vector<QString> resultNames = RigEclipseToStimPlanCellTransmissibilityCalculator::requiredResultNames();
 
-        if ( !caseToApply->loadStaticResultsByName( resultNames ) )
+        bool loadingSucceeded = RicExportFractureCompletionsImpl::loadResultsByName( cellResultsData, resultNames );
+        if ( !loadingSucceeded )
         {
             QString msg;
-            msg += "Compdat Export : Required data missing. Required results ";
+            msg += "Compdat Export : One or more of the following required data sources are missing :";
 
             for ( const auto& r : resultNames )
             {
@@ -173,15 +180,13 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         // Load the data required by fracture summary header
 
         std::vector<QString> resultNames{"TRANX", "TRANY", "TRANZ"};
-
-        caseToApply->loadStaticResultsByName( resultNames );
+        RicExportFractureCompletionsImpl::loadResultsByName( cellResultsData, resultNames );
     }
 
     {
         // Optional results
         std::vector<QString> resultNames = RigEclipseToStimPlanCellTransmissibilityCalculator::optionalResultNames();
-
-        caseToApply->loadStaticResultsByName( resultNames );
+        RicExportFractureCompletionsImpl::loadResultsByName( cellResultsData, resultNames );
     }
 
     if ( pdParams.performScaling )
@@ -376,14 +381,23 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                                                       fracTemplate->name(),
                                                       fracture->fractureMD() );
             reportItem.setUnitSystem( fracTemplate->fractureTemplateUnit() );
-            reportItem.setPressureDepletionParameters( performPressureDepletionScaling,
-                                                       caseToApply->timeStepStrings()[pdParams.pressureScalingTimeStep],
-                                                       caf::AppEnum<PressureDepletionWBHPSource>::uiTextFromIndex(
-                                                           pdParams.wbhpSource ),
-                                                       pdParams.userWBHP,
-                                                       currentWellPressure,
-                                                       minPressureDrop,
-                                                       maxPressureDrop );
+
+            if ( performPressureDepletionScaling )
+            {
+                QString timeStepString;
+                if ( pdParams.pressureScalingTimeStep < caseToApply->timeStepStrings().size() )
+                {
+                    timeStepString = caseToApply->timeStepStrings()[pdParams.pressureScalingTimeStep];
+                }
+                reportItem.setPressureDepletionParameters( performPressureDepletionScaling,
+                                                           timeStepString,
+                                                           caf::AppEnum<PressureDepletionWBHPSource>::uiTextFromIndex(
+                                                               pdParams.wbhpSource ),
+                                                           pdParams.userWBHP,
+                                                           currentWellPressure,
+                                                           minPressureDrop,
+                                                           maxPressureDrop );
+            }
 
             RicExportFractureCompletionsImpl::calculateAndSetReportItemData( allCompletionsForOneFracture,
                                                                              eclToFractureCalc,
@@ -811,4 +825,30 @@ void RicExportFractureCompletionsImpl::outputIntermediateResultsText( QTextStrea
         << QString::fromStdString( transCondenser.condensedTransDebugOutput( mainGrid, fractureGrid ) );
 
     ( *outputStreamForIntermediateResultsText ) << "\n";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicExportFractureCompletionsImpl::loadResultsByName( RigCaseCellResultsData*     cellResultsData,
+                                                          const std::vector<QString>& resultNames )
+{
+    const std::vector<RiaDefines::ResultCatType> resultCategorySearchOrder = {RiaDefines::STATIC_NATIVE,
+                                                                              RiaDefines::INPUT_PROPERTY,
+                                                                              RiaDefines::GENERATED};
+
+    bool foundDataForAllResults = true;
+
+    if ( cellResultsData )
+    {
+        for ( const auto& resultName : resultNames )
+        {
+            if ( !cellResultsData->findAndLoadResultByName( resultName, resultCategorySearchOrder ) )
+            {
+                foundDataForAllResults = false;
+            }
+        }
+    }
+
+    return foundDataForAllResults;
 }
