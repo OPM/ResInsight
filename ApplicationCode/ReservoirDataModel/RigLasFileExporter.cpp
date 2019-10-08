@@ -374,10 +374,12 @@ void RigLasFileExporter::setRkbDiffs( const std::vector<QString>& wellNames, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigLasFileExporter::writeToFolder( const QString& exportFolder,
-                                        const QString& filePrefix /*= ""*/,
-                                        bool           capitalizeFileName /*= false*/ )
+std::vector<QString> RigLasFileExporter::writeToFolder( const QString& exportFolder,
+                                                        const QString& filePrefix /*= ""*/,
+                                                        bool           capitalizeFileName /*= false*/ )
 {
+    std::vector<QString> writtenFiles;
+
     std::vector<SingleLasFileMetaData> lasFileDescriptions = createLasFileDescriptions( m_curves );
 
     applyUserDefinedRkbOffsets( &lasFileDescriptions );
@@ -414,9 +416,13 @@ bool RigLasFileExporter::writeToFolder( const QString& exportFolder,
 
         std::vector<std::string> commentHeader;
         lasFile.WriteToFile( fullPathName.toStdString(), commentHeader );
+        if ( QFileInfo::exists( fullPathName ) )
+        {
+            writtenFiles.push_back( fullPathName );
+        }
     }
 
-    return true;
+    return writtenFiles;
 }
 
 //--------------------------------------------------------------------------------------------------

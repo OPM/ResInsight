@@ -113,6 +113,21 @@ void RicAsciiExportWellLogPlotFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RicAsciiExportWellLogPlotFeature::makeValidExportFileName( const RimWellLogPlot* wellLogPlot,
+                                                                   const QString&        folder,
+                                                                   const QString&        prefix,
+                                                                   bool                  capitalizeFileName )
+{
+    QString fileName = folder + "/" + prefix + caf::Utils::makeValidFileBasename( wellLogPlot->description() ) + ".ascii";
+    if ( capitalizeFileName ) fileName = fileName.toUpper();
+
+    QDir dir( folder );
+    return dir.absoluteFilePath( fileName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicAsciiExportWellLogPlotFeature::exportAsciiForWellLogPlot( const QString&        fileName,
                                                                   const RimWellLogPlot* wellLogPlot )
 {

@@ -21,9 +21,12 @@
 
 #include "cafCmdFeature.h"
 
+#include <QString>
+
 #include <vector>
 
 class RimWellLogCurve;
+class RimWellLogPlot;
 
 //==================================================================================================
 ///
@@ -31,6 +34,22 @@ class RimWellLogCurve;
 class RicExportToLasFileFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static std::vector<QString> exportToLasFiles( const QString&        exportFolder,
+                                                  const QString&        filePrefix,
+                                                  const RimWellLogPlot* plot,
+                                                  bool                  exportTvdRkb        = false,
+                                                  bool                  capitalizeFileNames = false,
+                                                  double                resampleInterval    = 0.0 );
+
+    static std::vector<QString> exportToLasFiles( const QString&                exportFolder,
+                                                  const QString&                filePrefix,
+                                                  std::vector<RimWellLogCurve*> curves,
+                                                  const std::vector<QString>&   wellNames = std::vector<QString>(),
+                                                  const std::vector<double>&    rkbDiffs  = std::vector<double>(),
+                                                  bool                          capitalizeFileNames = false,
+                                                  double                        resampleInterval    = 0.0 );
 
 protected:
     // Overrides

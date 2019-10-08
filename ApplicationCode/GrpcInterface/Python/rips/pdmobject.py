@@ -26,8 +26,7 @@ class PdmObject:
     def __init__(self, pb2_object, channel):
         self._pb2_object = pb2_object
         self._channel = channel
-        self._pdm_object_stub = PdmObject_pb2_grpc.PdmObjectServiceStub(
-            self._channel)
+        self._pdm_object_stub = PdmObject_pb2_grpc.PdmObjectServiceStub(self._channel)
         self._commands = CmdRpc.CommandsStub(channel)
         self.__warnings = []
 
