@@ -19,7 +19,13 @@
 
 #pragma once
 
+#include "CommandFileInterface/Core/RicfCommandObject.h"
+
 #include "cafCmdFeature.h"
+#include "cafPdmField.h"
+
+#include <QString>
+#include <QStringList>
 
 #include <vector>
 
@@ -28,18 +34,26 @@ class RimFileWellPath;
 //==================================================================================================
 ///
 //==================================================================================================
-class RicImportWellPaths : public caf::CmdFeature
+class RicImportWellPaths : public caf::CmdFeature, public RicfCommandObject
 {
     CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
+    RicImportWellPaths();
+    RicfCommandResponse execute() override;
+
+protected:
     static std::vector<RimFileWellPath*> importWellPaths( const QStringList& wellPathFilePaths,
                                                           QStringList*       errorMessages );
     static QStringList                   wellPathNameFilters();
 
-protected:
     // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    caf::PdmField<QString>              m_wellPathFolder;
+    caf::PdmField<std::vector<QString>> m_wellPathFiles;
 };
