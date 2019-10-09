@@ -1,7 +1,7 @@
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathDeleteFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicWellPathsImportFileFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicImportWellPaths.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewEditableWellPathFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicShowWellPlanFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathListTargetFeature.h
@@ -13,7 +13,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsUnitSystemSettingsUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathPickEventHandler.h 
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateWellTargetsPickEventHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionPickEventHandler.h
-${CMAKE_CURRENT_LIST_DIR}/RicImportWellPaths.h
+${CMAKE_CURRENT_LIST_DIR}/RicWellPathFormationsImportFileFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicPolylineTargetsPickEventHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewPolylineTargetFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeletePolylineTargetFeature.h
