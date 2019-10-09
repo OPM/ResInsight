@@ -71,7 +71,7 @@ protected: // Virtual
     bool                    isInheritedFromPdmXmlSerializable() { return true; }
 
     void                    registerClassKeyword(const QString& registerKeyword);
-    bool                    isOfClassKeywordType(const QString& testClassKeyword) const;
+    bool                    inheritsClassWithKeyword(const QString& testClassKeyword) const;
 
 private:
     void                    initAfterReadRecursively(PdmObjectHandle* object);
@@ -81,7 +81,7 @@ private:
 private:
     friend class PdmObjectHandle ; // Only temporary for void PdmObject::addFieldNoDefault( ) accessing findField
 
-    std::list<QString> m_classHierarchy;
+    std::list<QString> m_classInheritanceStack;
     PdmObjectHandle*   m_owner;
 };
 

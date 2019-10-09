@@ -277,15 +277,15 @@ bool PdmXmlObjectHandle::isValidXmlElementName(const QString& name)
 //--------------------------------------------------------------------------------------------------
 void PdmXmlObjectHandle::registerClassKeyword(const QString& registerKeyword)
 {
-    m_classHierarchy.push_back(registerKeyword);
+    m_classInheritanceStack.push_back(registerKeyword);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmXmlObjectHandle::isOfClassKeywordType(const QString& testClassKeyword) const
+bool PdmXmlObjectHandle::inheritsClassWithKeyword(const QString& testClassKeyword) const
 {
-    return std::find(m_classHierarchy.begin(), m_classHierarchy.end(), testClassKeyword) != m_classHierarchy.end();
+    return std::find(m_classInheritanceStack.begin(), m_classInheritanceStack.end(), testClassKeyword) != m_classInheritanceStack.end();
 }
 
 //--------------------------------------------------------------------------------------------------
