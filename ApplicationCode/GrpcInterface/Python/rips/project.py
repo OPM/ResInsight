@@ -24,7 +24,7 @@ class Project(PdmObject):
     def __init__(self, channel):
         self._project_stub = Project_pb2_grpc.ProjectStub(channel)
         PdmObject.__init__(self, self._project_stub.GetPdmObject(Empty()),
-                           channel)
+                           channel, self)
 
     def open(self, path):
         """Open a new project from the given path
@@ -127,7 +127,7 @@ class Project(PdmObject):
         pdm_objects = self.descendants("ReservoirView")
         view_list = []
         for pdm_object in pdm_objects:
-            view_list.append(View(pdm_object))
+            view_list.append(View(pdm_object, self._project))
         return view_list
 
     def view(self, view_id):

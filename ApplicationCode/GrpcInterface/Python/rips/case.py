@@ -42,13 +42,12 @@ class Case(PdmObject):
         self.__channel = channel
         self.__case_stub = Case_pb2_grpc.CaseStub(channel)
         self.__request = Case_pb2.CaseRequest(id=case_id)
-        self.__project = project
 
         info = self.__case_stub.GetCaseInfo(self.__request)
         self.__properties_stub = Properties_pb2_grpc.PropertiesStub(
             self.__channel)
         PdmObject.__init__(self, self.__case_stub.GetPdmObject(self.__request),
-                           self.__channel)
+                           self.__channel, project)
 
         # Public properties
         self.case_id = case_id
@@ -128,7 +127,7 @@ class Case(PdmObject):
         """
         self._execute_command(replaceCase=Cmd.ReplaceCaseRequest(
             newGridFile=new_grid_file, caseId=self.case_id))
-        self.__init__(self.__channel, self.case_id)
+        self.__init__(self.__channel, self.case_id, self._project)
 
     def cell_count(self, porosity_model="MATRIX_MODEL"):
         """Get a cell count object containing number of active cells and
@@ -228,7 +227,7 @@ class Case(PdmObject):
         pdm_objects = self.children("ReservoirViews")
         view_list = []
         for pdm_object in pdm_objects:
-            view_list.append(View(pdm_object))
+            view_list.append(View(pdm_object, self._project))
         return view_list
 
     def view(self, view_id):
@@ -750,7 +749,7 @@ class Case(PdmObject):
         plot_result = self._execute_command(createWellBoreStabilityPlot=Cmd.CreateWbsPlotRequest(caseId=self.case_id,
                                                                                                  wellPath=well_path,
                                                                                                  timeStep=time_step))
-        return self.__project.plot(view_id=plot_result.createWbsPlotResult.viewId)
+        return self._project.plot(view_id=plot_result.createWbsPlotResult.viewId)
 
     def import_formation_names(self, formation_files=None):
         """ Import formation names into project and apply it to the current case

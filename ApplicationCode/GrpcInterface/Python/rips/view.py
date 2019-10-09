@@ -14,8 +14,8 @@ class View(PdmObject):
         view_id(int): View Id corresponding to the View Id in ResInsight project.
 
     """
-    def __init__(self, pdm_object):
-        PdmObject.__init__(self, pdm_object.pb2_object(), pdm_object.channel())
+    def __init__(self, pdm_object, project):
+        PdmObject.__init__(self, pdm_object.pb2_object(), pdm_object.channel(), project)
         self.view_id = pdm_object.get_value("ViewId")
 
     def show_grid_box(self):
@@ -103,7 +103,7 @@ class View(PdmObject):
             pdm_case = self.ancestor("ResInsightGeoMechCase")
         if pdm_case is None:
             return None
-        return rips.case.Case(self._channel, pdm_case.get_value("CaseId"))
+        return rips.case.Case(self._channel, pdm_case.get_value("CaseId"), self._project)
 
     def clone(self):
         """Clone the current view"""

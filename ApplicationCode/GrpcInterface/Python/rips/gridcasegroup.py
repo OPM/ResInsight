@@ -19,7 +19,7 @@ class GridCaseGroup(PdmObject):
     """
     def __init__(self, pdm_object):
         self.group_id = pdm_object.get_value("GroupId")
-        PdmObject.__init__(self, pdm_object._pb2_object, pdm_object._channel)
+        PdmObject.__init__(self, pdm_object._pb2_object, pdm_object._channel, pdm_object._project)
 
     def create_statistics_case(self):
         """Create a Statistics case in the Grid Case Group

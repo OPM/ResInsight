@@ -23,11 +23,12 @@ class PdmObject:
 
         return response
 
-    def __init__(self, pb2_object, channel):
+    def __init__(self, pb2_object, channel, project):
         self._pb2_object = pb2_object
         self._channel = channel
         self._pdm_object_stub = PdmObject_pb2_grpc.PdmObjectServiceStub(self._channel)
         self._commands = CmdRpc.CommandsStub(channel)
+        self._project = project
         self.__warnings = []
 
     def warnings(self):
@@ -149,7 +150,7 @@ class PdmObject:
             request).objects
         child_list = []
         for pdm_object in object_list:
-            child_list.append(PdmObject(pdm_object, self._channel))
+            child_list.append(PdmObject(pdm_object, self._channel, self._project))
         return child_list
 
     def children(self, child_field):
@@ -164,7 +165,7 @@ class PdmObject:
         object_list = self._pdm_object_stub.GetChildPdmObjects(request).objects
         child_list = []
         for pdm_object in object_list:
-            child_list.append(PdmObject(pdm_object, self._channel))
+            child_list.append(PdmObject(pdm_object, self._channel, self._project))
         return child_list
 
     def ancestor(self, class_keyword):
@@ -175,7 +176,7 @@ class PdmObject:
         request = PdmObject_pb2.PdmParentObjectRequest(
             object=self._pb2_object, parent_keyword=class_keyword)
         return PdmObject(self._pdm_object_stub.GetAncestorPdmObject(request),
-                         self._channel)
+                         self._channel, self._project)
 
     def update(self):
         """Sync all fields from the Python Object to ResInsight"""
