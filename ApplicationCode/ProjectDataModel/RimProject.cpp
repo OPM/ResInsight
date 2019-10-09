@@ -106,6 +106,15 @@ RimProject::RimProject( void )
     CAF_PDM_InitFieldNoDefault( &m_projectFileVersionString, "ProjectFileVersionString", "", "", "", "" );
     m_projectFileVersionString.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitField( &nextValidCaseId_OBSOLETE, "NextValidCaseId", 0, "Next Valid Case ID", "", "", "" );
+    nextValidCaseId_OBSOLETE.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &nextValidCaseGroupId_OBSOLETE, "NextValidCaseGroupId", 0, "Next Valid Case Group ID", "", "", "" );
+    nextValidCaseGroupId_OBSOLETE.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &nextValidViewId_OBSOLETE, "NextValidViewId", 0, "Next Valid View ID", "", "", "" );
+    nextValidViewId_OBSOLETE.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &oilFields, "OilFields", "Oil Fields", "", "", "" );
     oilFields.uiCapability()->setUiHidden( true );
 
