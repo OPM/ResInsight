@@ -126,9 +126,13 @@ public:
     bool    isProjectSavedToDisc() const;
     QString currentProjectPath() const;
     QString createAbsolutePathFromProjectRelativePath( QString projectRelativePath );
-    bool    loadProject( const QString& projectFileName );
+
+    bool loadProject( const QString& projectFileName );
     bool loadProject( const QString& projectFileName, ProjectLoadAction loadAction, RiaProjectModifier* projectModifier );
-    bool        saveProjectAs( const QString& fileName, QString* errorMessage );
+
+    bool saveProject( QString* errorMessage );
+    bool saveProjectAs( const QString& fileName, QString* errorMessage );
+
     static bool hasValidProjectFileExtension( const QString& fileName );
     void        closeProject();
 
@@ -206,11 +210,15 @@ protected:
     // Protected implementation specific overrides
     virtual void invokeProcessEvents( QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents ) = 0;
     virtual void onFileSuccessfullyLoaded( const QString& fileName, RiaDefines::ImportFileType fileType ) {}
+
     virtual void onProjectBeingOpened() {}
     virtual void onProjectOpened()                              = 0;
     virtual void onProjectOpeningError( const QString& errMsg ) = 0;
     virtual void onProjectBeingClosed() {}
     virtual void onProjectClosed() = 0;
+    virtual void onProjectBeingSaved() {}
+    virtual void onProjectSaved() {}
+
     virtual void startMonitoringWorkProgress( caf::UiProcess* uiProcess ) {}
     virtual void stopMonitoringWorkProgress() {}
 

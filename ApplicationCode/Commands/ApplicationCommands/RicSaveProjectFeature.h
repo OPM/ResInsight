@@ -18,18 +18,28 @@
 
 #pragma once
 
+#include "CommandFileInterface/Core/RicfCommandObject.h"
+
 #include "cafCmdFeature.h"
+#include "cafPdmField.h"
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicSaveProjectFeature : public caf::CmdFeature
+class RicSaveProjectFeature : public caf::CmdFeature, public RicfCommandObject
 {
-    CAF_CMD_HEADER_INIT;
+    RICF_HEADER_INIT;
+
+public:
+    RicSaveProjectFeature();
+    RicfCommandResponse execute() override;
 
 protected:
     // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    caf::PdmField<QString> m_filePath;
 };
