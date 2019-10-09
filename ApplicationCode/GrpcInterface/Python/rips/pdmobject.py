@@ -45,6 +45,10 @@ class PdmObject:
         """ Private method"""
         return self._channel
 
+    def project(self):
+        """ Private method"""
+        return self._project
+
     def address(self):
         """Get the unique address of the PdmObject
 

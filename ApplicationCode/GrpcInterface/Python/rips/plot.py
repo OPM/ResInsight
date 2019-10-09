@@ -13,7 +13,7 @@ class Plot(PdmObject):
 
     """
     def __init__(self, pdm_object):
-        PdmObject.__init__(self, pdm_object.pb2_object(), pdm_object.channel())
+        PdmObject.__init__(self, pdm_object.pb2_object(), pdm_object.channel(), pdm_object.project())
         self.view_id = pdm_object.get_value("ViewId")
 
     def export_snapshot(self, export_folder='', file_prefix='', ):

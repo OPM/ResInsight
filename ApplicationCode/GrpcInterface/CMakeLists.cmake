@@ -174,6 +174,7 @@ if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 			"rips/PythonExamples/CommandExample.py"
 			"rips/PythonExamples/CaseGridGroup.py"
 			"rips/PythonExamples/CaseInfoStreamingExample.py"
+			"rips/PythonExamples/ExportPlots.py"
 			"rips/PythonExamples/ExportSnapshots.py"
 			"rips/PythonExamples/ErrorHandling.py"
 			"rips/PythonExamples/SoilPorvAsync.py"
