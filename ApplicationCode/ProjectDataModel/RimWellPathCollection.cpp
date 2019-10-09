@@ -198,8 +198,10 @@ void RimWellPathCollection::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::addWellPaths( QStringList filePaths )
+std::vector<RimFileWellPath*> RimWellPathCollection::addWellPaths( QStringList filePaths, QStringList* errorMessages )
 {
+    CAF_ASSERT( errorMessages );
+
     std::vector<RimFileWellPath*> wellPathArray;
 
     for ( QString filePath : filePaths )
@@ -221,6 +223,7 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
             {
                 // printf("Attempting to open well path JSON file that is already open:\n  %s\n", (const char*) filePath.toLocal8Bit());
                 alreadyOpen = true;
+                errorMessages->push_back( QString( "%1 is already loaded" ).arg( filePath ) );
                 break;
             }
         }
@@ -254,6 +257,8 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
 
     scheduleRedrawAffectedViews();
     updateAllRequiredEditors();
+
+    return wellPathArray;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -315,13 +320,20 @@ void RimWellPathCollection::addWellPaths( const std::vector<RimWellPath*> incomi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogFile* RimWellPathCollection::addWellLogs( const QStringList& filePaths )
+std::vector<RimWellLogFile*> RimWellPathCollection::addWellLogs( const QStringList& filePaths, QStringList* errorMessages )
 {
-    RimWellLogFile* logFileInfo = nullptr;
+    CAF_ASSERT( errorMessages );
+
+    std::vector<RimWellLogFile*> logFileInfos;
 
     foreach ( QString filePath, filePaths )
     {
-        logFileInfo = RimWellLogFile::readWellLogFile( filePath );
+        QString         errorMessage;
+        RimWellLogFile* logFileInfo = RimWellLogFile::readWellLogFile( filePath, &errorMessage );
+        if ( !errorMessage.isEmpty() )
+        {
+            errorMessages->push_back( errorMessage );
+        }
         if ( logFileInfo )
         {
             RimWellPath* wellPath = tryFindMatchingWellPath( logFileInfo->wellName() );
@@ -332,13 +344,14 @@ RimWellLogFile* RimWellPathCollection::addWellLogs( const QStringList& filePaths
             }
 
             wellPath->addWellLogFile( logFileInfo );
+            logFileInfos.push_back( logFileInfo );
         }
     }
 
     this->sortWellsByName();
     updateAllRequiredEditors();
 
-    return logFileInfo;
+    return logFileInfos;
 }
 
 //--------------------------------------------------------------------------------------------------

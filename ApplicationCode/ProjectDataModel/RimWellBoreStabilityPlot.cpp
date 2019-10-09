@@ -125,6 +125,8 @@ double RimWellBoreStabilityPlot::userDefinedUcs() const
 //--------------------------------------------------------------------------------------------------
 void RimWellBoreStabilityPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
+
     m_commonDataSource->uiOrdering( uiConfigName, uiOrdering );
 
     caf::PdmUiGroup* parameterSources = uiOrdering.addNewGroup( "Parameter Sources" );

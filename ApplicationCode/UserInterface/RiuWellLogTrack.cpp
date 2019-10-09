@@ -38,10 +38,12 @@
 #include "qwt_plot_marker.h"
 #include "qwt_plot_picker.h"
 #include "qwt_scale_draw.h"
+#include "qwt_scale_widget.h"
 #include "qwt_symbol.h"
 #include "qwt_text.h"
 
 #include <QFont>
+#include <QGraphicsDropShadowEffect>
 #include <QMouseEvent>
 #include <QScrollArea>
 #include <QWheelEvent>
@@ -89,6 +91,22 @@ void RiuWellLogTrack::setDefaults()
     setXRange( 0, 100 );
     axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( axisExtent( QwtPlot::xTop ) );
     setMinimumWidth( defaultMinimumWidth() );
+
+    canvas()->setContentsMargins( 0, 0, 0, 0 );
+    QFrame* canvasFrame = dynamic_cast<QFrame*>( canvas() );
+    canvasFrame->setFrameShape( QFrame::Box );
+    canvasFrame->setStyleSheet( "border: 1px solid black" );
+
+    QGraphicsDropShadowEffect* dropShadowEffect = new QGraphicsDropShadowEffect( canvas() );
+    dropShadowEffect->setOffset( 1.0, 1.0 );
+    dropShadowEffect->setBlurRadius( 3.0 );
+    dropShadowEffect->setColor( QColor( 60, 60, 60, 60 ) );
+    canvas()->setGraphicsEffect( dropShadowEffect );
+
+    axisScaleDraw( QwtPlot::xTop )->enableComponent( QwtAbstractScaleDraw::Backbone, false );
+    axisScaleDraw( QwtPlot::yLeft )->enableComponent( QwtAbstractScaleDraw::Backbone, false );
+    axisWidget( QwtPlot::xTop )->setMargin( 0 );
+    axisWidget( QwtPlot::yLeft )->setMargin( 0 );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -52,10 +52,10 @@
 #include "RiuSummaryQwtPlot.h"
 
 #include "cafPdmObject.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
-#include "cafPdmUiLineEditor.h"
 
 #include "cvfScalarMapper.h"
 
@@ -112,8 +112,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddressUiField, "SelectedVariableDisplayVar", "Vector", "", "", "" );
     m_yValuesSummaryAddressUiField.xmlCapability()->disableIO();
-    m_yValuesSummaryAddressUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
-
+    m_yValuesSummaryAddressUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddress, "SummaryAddress", "Summary Address", "", "", "" );
     m_yValuesSummaryAddress.uiCapability()->setUiHidden( true );
@@ -122,7 +121,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_yPushButtonSelectSummaryAddress, "SelectAddress", "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_yPushButtonSelectSummaryAddress );
-    m_yPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_yPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_yPushButtonSelectSummaryAddress = false;
 
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( SINGLE_COLOR ), "Coloring Mode", "", "", "" );
@@ -174,9 +173,8 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryFilter_OBSOLETE, "VarListFilter", "Filter", "", "", "" );
     m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
     m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiHidden( true );
-    m_yValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable(false);
+    m_yValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_yValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,7 +218,7 @@ void RimEnsembleCurveSet::setColor( cvf::Color3f color )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::loadDataAndUpdate( bool updateParentPlot )
 {
-    m_yValuesSummaryAddressUiField      = m_yValuesSummaryAddress->address();
+    m_yValuesSummaryAddressUiField = m_yValuesSummaryAddress->address();
 
     updateAllCurves();
 
@@ -637,10 +635,9 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector Y" );
         curveDataGroup->add( &m_yValuesSummaryCaseCollection );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField );
-        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, {false, 1, 0});
+        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, {false, 1, 0} );
         curveDataGroup->add( &m_plotAxis );
-
-     }
+    }
 
     caf::PdmUiGroup* colorsGroup = uiOrdering.addNewGroup( "Colors" );
     m_colorMode.uiCapability()->setUiReadOnly( !m_yValuesSummaryCaseCollection() );
@@ -805,7 +802,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
 /// Optimization candidate
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
-                                                                RimSummaryCaseCollection*      summaryCaseGroup)
+                                                                RimSummaryCaseCollection*      summaryCaseGroup )
 {
     if ( !summaryCaseGroup ) return;
 

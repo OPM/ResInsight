@@ -29,17 +29,26 @@ RicfCommandResponse::RicfCommandResponse( Status status, const QString& message 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RicfCommandResponse::RicfCommandResponse( caf::PdmObject* ok_result )
+    : m_status( COMMAND_OK )
+    , m_result( ok_result )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RicfCommandResponse::Status RicfCommandResponse::status() const
 {
     return m_status;
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// The resulting message is sent in HTTP metadata and must not have any newlines.
 //--------------------------------------------------------------------------------------------------
-QString RicfCommandResponse::message() const
+QString RicfCommandResponse::sanitizedResponseMessage() const
 {
-    return m_messages.join( "\n" );
+    return m_messages.join( ";;" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,7 +56,7 @@ QString RicfCommandResponse::message() const
 //--------------------------------------------------------------------------------------------------
 caf::PdmObject* RicfCommandResponse::result() const
 {
-    return m_result.p();
+    return m_result.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +64,7 @@ caf::PdmObject* RicfCommandResponse::result() const
 //--------------------------------------------------------------------------------------------------
 void RicfCommandResponse::setResult( caf::PdmObject* result )
 {
-    m_result = result;
+    m_result.reset( result );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,8 +72,11 @@ void RicfCommandResponse::setResult( caf::PdmObject* result )
 //--------------------------------------------------------------------------------------------------
 void RicfCommandResponse::updateStatus( Status status, const QString& message )
 {
+    QString cleanedMessage = message;
+    cleanedMessage.replace( '\n', ";;" );
     m_status = std::max( m_status, status );
-    if ( !message.isEmpty() ) m_messages.push_back( QString( "%1:%2" ).arg( statusLabel( status ) ).arg( message ) );
+    if ( !message.isEmpty() )
+        m_messages.push_back( QString( "%1: %2" ).arg( statusLabel( status ) ).arg( cleanedMessage ) );
 }
 
 //--------------------------------------------------------------------------------------------------

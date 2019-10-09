@@ -61,6 +61,63 @@ CAF_CMD_SOURCE_INIT( RicNewWellBoreStabilityPlotFeature, "RicNewWellBoreStabilit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimWellBoreStabilityPlot*
+    RicNewWellBoreStabilityPlotFeature::createPlot( RimGeoMechCase* geoMechCase, RimWellPath* wellPath, int timeStep )
+{
+    caf::ProgressInfo progInfo( 100, "Creating Well Bore Stability Plot" );
+
+    RimWellBoreStabilityPlot* plot = RicNewWellLogPlotFeatureImpl::createWellBoreStabilityPlot( false,
+                                                                                                "Well Bore Stability" );
+
+    {
+        auto task = progInfo.task( "Creating formation track", 2 );
+        createFormationTrack( plot, wellPath, geoMechCase );
+    }
+
+    {
+        auto task = progInfo.task( "Creating well design track", 3 );
+        createCasingShoeTrack( plot, wellPath, geoMechCase );
+    }
+
+    {
+        auto task = progInfo.task( "Creating parameters track", 15 );
+        createParametersTrack( plot, wellPath, geoMechCase, timeStep );
+    }
+
+    {
+        auto task = progInfo.task( "Creating stability curves track", 60 );
+        createStabilityCurvesTrack( plot, wellPath, geoMechCase, timeStep );
+    }
+
+    {
+        auto task = progInfo.task( "Creating angles track", 15 );
+        createAnglesTrack( plot, wellPath, geoMechCase, timeStep );
+    }
+
+    {
+        auto task = progInfo.task( "Updating all tracks", 5 );
+
+        plot->enableAllAutoNameTags( true );
+        plot->setPlotTitleVisible( true );
+        plot->setTrackLegendsVisible( true );
+        plot->setTrackLegendsHorizontal( true );
+        plot->setDepthType( RimWellLogPlot::TRUE_VERTICAL_DEPTH );
+        plot->setDepthAutoZoom( true );
+
+        RicNewWellLogPlotFeatureImpl::updateAfterCreation( plot );
+    }
+
+    RiuPlotMainWindowTools::selectAsCurrentItem( plot );
+
+    // Make sure the summary plot window is visible
+    RiuPlotMainWindowTools::showPlotMainWindow();
+
+    return plot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicNewWellBoreStabilityPlotFeature::isCommandEnabled()
 {
     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
@@ -103,54 +160,14 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered( bool isChecked )
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( view );
     if ( !geoMechView ) return;
 
-    caf::ProgressInfo progInfo( 100, "Creating Well Bore Stability Plot" );
+    RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
 
-    RimGeoMechCase*           geoMechCase = geoMechView->geoMechCase();
-    RimWellBoreStabilityPlot* plot        = RicNewWellLogPlotFeatureImpl::createWellBoreStabilityPlot( false,
-                                                                                                "Well Bore Stability" );
-
+    if ( !geoMechCase )
     {
-        auto task = progInfo.task( "Creating formation track", 2 );
-        createFormationTrack( plot, wellPath, geoMechCase );
+        return;
     }
 
-    {
-        auto task = progInfo.task( "Creating well design track", 3 );
-        createCasingShoeTrack( plot, wellPath, geoMechCase );
-    }
-
-    {
-        auto task = progInfo.task( "Creating parameters track", 15 );
-        createParametersTrack( plot, wellPath, geoMechView );
-    }
-
-    {
-        auto task = progInfo.task( "Creating stability curves track", 60 );
-        createStabilityCurvesTrack( plot, wellPath, geoMechView );
-    }
-
-    {
-        auto task = progInfo.task( "Creating angles track", 15 );
-        createAnglesTrack( plot, wellPath, geoMechView );
-    }
-
-    {
-        auto task = progInfo.task( "Updating all tracks", 5 );
-
-        plot->enableAllAutoNameTags( true );
-        plot->setPlotTitleVisible( true );
-        plot->setTrackLegendsVisible( true );
-        plot->setTrackLegendsHorizontal( true );
-        plot->setDepthType( RimWellLogPlot::TRUE_VERTICAL_DEPTH );
-        plot->setDepthAutoZoom( true );
-
-        RicNewWellLogPlotFeatureImpl::updateAfterCreation( plot );
-    }
-
-    RiuPlotMainWindowTools::selectAsCurrentItem( plot );
-
-    // Make sure the summary plot window is visible
-    RiuPlotMainWindowTools::showPlotMainWindow();
+    createPlot( geoMechCase, wellPath, view->currentTimeStep() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,7 +220,8 @@ void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack( RimWellBoreStabi
 //--------------------------------------------------------------------------------------------------
 void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabilityPlot* plot,
                                                                 RimWellPath*              wellPath,
-                                                                RimGeoMechView*           geoMechView )
+                                                                RimGeoMechCase*           geoMechCase,
+                                                                int                       timeStep )
 {
     RimWellLogTrack* paramCurvesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false,
                                                                                               "WBS Parameters",
@@ -213,7 +231,7 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
     paramCurvesTrack->setTickIntervals( 0.5, 0.05 );
     paramCurvesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     paramCurvesTrack->setFormationWellPath( wellPath );
-    paramCurvesTrack->setFormationCase( geoMechView->geoMechCase() );
+    paramCurvesTrack->setFormationCase( geoMechCase );
     paramCurvesTrack->setAnnotationType( RiuPlotAnnotationTool::CURVE_ANNOTATIONS );
     paramCurvesTrack->setShowRegionLabels( true );
     paramCurvesTrack->setVisible( false );
@@ -226,14 +244,15 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
         const QString&             resultName = resultNames[i];
         RigFemResultAddress        resAddr( RIG_WELLPATH_DERIVED, resultName.toStdString(), "" );
         RimWellLogExtractionCurve* curve = RicWellLogTools::addWellLogExtractionCurve( paramCurvesTrack,
-                                                                                       geoMechView,
+                                                                                       geoMechCase,
+                                                                                       nullptr,
                                                                                        wellPath,
                                                                                        nullptr,
                                                                                        -1,
                                                                                        false,
                                                                                        false );
         curve->setGeoMechResultAddress( resAddr );
-        curve->setCurrentTimeStep( geoMechView->currentTimeStep() );
+        curve->setCurrentTimeStep( timeStep );
         curve->setColor( colors[i % colors.size()] );
         curve->setLineThickness( 2 );
         curve->loadDataAndUpdate( false );
@@ -247,7 +266,8 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
 //--------------------------------------------------------------------------------------------------
 void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBoreStabilityPlot* plot,
                                                                      RimWellPath*              wellPath,
-                                                                     RimGeoMechView*           geoMechView )
+                                                                     RimGeoMechCase*           geoMechCase,
+                                                                     int                       timeStep )
 {
     RimWellLogTrack* stabilityCurvesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false,
                                                                                                   "Stability Curves",
@@ -257,7 +277,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
     stabilityCurvesTrack->setTickIntervals( 0.5, 0.05 );
     stabilityCurvesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     stabilityCurvesTrack->setFormationWellPath( wellPath );
-    stabilityCurvesTrack->setFormationCase( geoMechView->geoMechCase() );
+    stabilityCurvesTrack->setFormationCase( geoMechCase );
     stabilityCurvesTrack->setAnnotationType( RiuPlotAnnotationTool::NO_ANNOTATIONS );
     stabilityCurvesTrack->setShowRegionLabels( true );
 
@@ -274,14 +294,14 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
         const QString&      resultName = resultNames[i];
         RigFemResultAddress resAddr( RIG_WELLPATH_DERIVED, resultName.toStdString(), "" );
         RimWellLogWbsCurve* curve = RicWellLogTools::addWellLogWbsCurve( stabilityCurvesTrack,
-                                                                         geoMechView,
-                                                                         wellPath,
+                                                                         geoMechCase,
                                                                          nullptr,
+                                                                         wellPath,
                                                                          -1,
                                                                          false,
                                                                          false );
         curve->setGeoMechResultAddress( resAddr );
-        curve->setCurrentTimeStep( geoMechView->currentTimeStep() );
+        curve->setCurrentTimeStep( timeStep );
         curve->setAutoNameComponents( false, true, false, false, false );
         curve->setColor( colors[i % colors.size()] );
         curve->setLineThickness( 2 );
@@ -297,7 +317,8 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
 //--------------------------------------------------------------------------------------------------
 void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStabilityPlot* plot,
                                                             RimWellPath*              wellPath,
-                                                            RimGeoMechView*           geoMechView )
+                                                            RimGeoMechCase*           geoMechCase,
+                                                            int                       timeStep )
 {
     RimWellLogTrack*     wellPathAnglesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false,
                                                                                                  "Well Path Angles",
@@ -315,14 +336,15 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
         const QString&             resultName = resultNames[i];
         RigFemResultAddress        resAddr( RIG_WELLPATH_DERIVED, resultName.toStdString(), "" );
         RimWellLogExtractionCurve* curve = RicWellLogTools::addWellLogExtractionCurve( wellPathAnglesTrack,
-                                                                                       geoMechView,
+                                                                                       geoMechCase,
+                                                                                       nullptr,
                                                                                        wellPath,
                                                                                        nullptr,
                                                                                        -1,
                                                                                        false,
                                                                                        false );
         curve->setGeoMechResultAddress( resAddr );
-        curve->setCurrentTimeStep( geoMechView->currentTimeStep() );
+        curve->setCurrentTimeStep( timeStep );
         curve->setCustomName( resultName );
 
         curve->setColor( colors[i % colors.size()] );
@@ -349,7 +371,7 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
     wellPathAnglesTrack->setTickIntervals( 90.0, 30.0 );
     wellPathAnglesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     wellPathAnglesTrack->setFormationWellPath( wellPath );
-    wellPathAnglesTrack->setFormationCase( geoMechView->geoMechCase() );
+    wellPathAnglesTrack->setFormationCase( geoMechCase );
     wellPathAnglesTrack->setAnnotationType( RiuPlotAnnotationTool::NO_ANNOTATIONS );
     wellPathAnglesTrack->setShowRegionLabels( false );
 }

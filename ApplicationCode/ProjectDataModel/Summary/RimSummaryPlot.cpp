@@ -1606,6 +1606,8 @@ void RimSummaryPlot::setAsCrossPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
+
     caf::PdmUiGroup* mainOptions = uiOrdering.addNewGroup( "General Plot Options" );
 
     mainOptions->add( &m_showPlotTitle );
@@ -1686,6 +1688,8 @@ void RimSummaryPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::initAfterRead()
 {
+    RimViewWindow::initAfterRead();
+
     // Move summary curves from obsolete storage to the new curve collection
     std::vector<RimSummaryCurve*> curvesToMove;
 

@@ -26,6 +26,7 @@
 #include "cafPdmObject.h"
 
 #include "RiaDefines.h"
+#include "RimPlot.h"
 #include "RimViewWindow.h"
 #include "RimWellLogPlotNameConfig.h"
 
@@ -42,7 +43,7 @@ class QKeyEvent;
 ///
 ///
 //==================================================================================================
-class RimWellLogPlot : public RimViewWindow, public RimNameConfigHolderInterface
+class RimWellLogPlot : public RimPlot, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -70,7 +71,6 @@ public:
 
     RimWellLogPlot& operator=( RimWellLogPlot&& rhs );
 
-    QWidget* createPlotWidget();
     QWidget* viewWidget() override;
 
     void    setDescription( const QString& description );

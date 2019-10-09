@@ -94,11 +94,11 @@ grpc::Status
             RicfCommandResponse response = commandHandle->execute();
             if ( response.status() == RicfCommandResponse::COMMAND_ERROR )
             {
-                return grpc::Status( grpc::FAILED_PRECONDITION, response.message().toStdString() );
+                return grpc::Status( grpc::FAILED_PRECONDITION, response.sanitizedResponseMessage().toStdString() );
             }
             else if ( response.status() == RicfCommandResponse::COMMAND_WARNING )
             {
-                context->AddInitialMetadata( "warning", response.message().toStdString() );
+                context->AddTrailingMetadata( "warning", response.sanitizedResponseMessage().toStdString() );
             }
 
             assignResultToReply( response.result(), reply );
@@ -243,7 +243,23 @@ void RiaGrpcCommandService::assignGrpcFieldValue( Message*                  repl
 {
     if ( fieldDescriptor->is_repeated() )
     {
-        CAF_ASSERT( false && "Assigning vector results to Command Results is not yet implemented" );
+        auto     reflection = reply->GetReflection();
+        QVariant qValue     = pdmValueField->toQVariant();
+        if ( fieldDescriptor->type() == FieldDescriptor::TYPE_STRING )
+        {
+            MutableRepeatedFieldRef<std::string> repeatedField =
+                reflection->GetMutableRepeatedFieldRef<std::string>( reply, fieldDescriptor );
+            QStringList stringList = qValue.toStringList();
+            for ( QString stringValue : stringList )
+            {
+                repeatedField.Add( stringValue.toStdString() );
+            }
+        }
+        else
+        {
+            CAF_ASSERT( false && "Assigning vector results to Command Results is only implemented for strings" );
+        }
+        return;
     }
 
     FieldDescriptor::Type fieldDataType = fieldDescriptor->type();

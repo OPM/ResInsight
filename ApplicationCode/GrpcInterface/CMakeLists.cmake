@@ -168,6 +168,7 @@ if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 			"rips/project.py"
 			"rips/instance.py"	
 			"rips/pdmobject.py"
+			"rips/plot.py"
 			"rips/view.py"
 			"rips/PythonExamples/InstanceExample.py"
 			"rips/PythonExamples/CommandExample.py"

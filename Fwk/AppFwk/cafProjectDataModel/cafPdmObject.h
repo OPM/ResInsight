@@ -85,6 +85,7 @@ class PdmObjectCapability;
 { \
     this->isInheritedFromPdmUiObject(); \
     this->isInheritedFromPdmXmlSerializable(); \
+    this->registerClassKeyword(classKeywordStatic()); \
     \
     static caf::PdmUiItemInfo objDescr(uiName, QString(iconResourceName), toolTip, whatsThis); \
     this->setUiItemInfo(&objDescr); \

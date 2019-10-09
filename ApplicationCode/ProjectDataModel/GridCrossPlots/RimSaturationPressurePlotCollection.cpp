@@ -18,12 +18,15 @@
 
 #include "RimSaturationPressurePlotCollection.h"
 
+#include "RiaApplication.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigEquil.h"
 
 #include "RimEclipseResultCase.h"
+#include "RimProject.h"
 #include "RimSaturationPressurePlot.h"
 
 CAF_PDM_SOURCE_INIT( RimSaturationPressurePlotCollection, "RimSaturationPressurePlotCollection" );
@@ -89,6 +92,7 @@ std::vector<RimSaturationPressurePlot*>
         {
             RimSaturationPressurePlot* plot = new RimSaturationPressurePlot();
             plot->setAsPlotMdiWindow();
+            RiaApplication::instance()->project()->assignViewIdToView( plot );
 
             // As discussed with Liv Merete, it is not any use for creation of different plots for matrix/fracture. For
             // now, use hardcoded value for MATRIX

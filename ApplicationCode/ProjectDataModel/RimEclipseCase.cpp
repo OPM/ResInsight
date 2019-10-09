@@ -75,6 +75,8 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimEclipseCase, "RimReservoir" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase::RimEclipseCase()
 {
+    CAF_PDM_InitObject( "EclipseCase", ":/Case48x48.png", "", "" );
+
     CAF_PDM_InitFieldNoDefault( &reservoirViews, "ReservoirViews", "", "", "", "" );
     reservoirViews.uiCapability()->setUiHidden( true );
 
@@ -246,6 +248,8 @@ const RigMainGrid* RimEclipseCase::mainGrid() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::initAfterRead()
 {
+    RimCase::initAfterRead();
+
     size_t j;
     for ( j = 0; j < reservoirViews().size(); j++ )
     {

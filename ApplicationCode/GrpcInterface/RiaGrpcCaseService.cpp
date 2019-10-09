@@ -262,10 +262,9 @@ grpc::Status RiaGrpcCaseService::GetTimeSteps( grpc::ServerContext*     context,
 {
     RimCase* rimCase = findCase( request->id() );
 
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase );
-    if ( eclipseCase )
+    if ( rimCase )
     {
-        std::vector<QDateTime> timeStepDates = eclipseCase->timeStepDates();
+        std::vector<QDateTime> timeStepDates = rimCase->timeStepDates();
         for ( QDateTime dateTime : timeStepDates )
         {
             rips::TimeStepDate* date = reply->add_dates();
@@ -278,7 +277,7 @@ grpc::Status RiaGrpcCaseService::GetTimeSteps( grpc::ServerContext*     context,
         }
         return grpc::Status::OK;
     }
-    return grpc::Status( grpc::NOT_FOUND, "Eclipse Case not found" );
+    return grpc::Status( grpc::NOT_FOUND, "Case not found" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -349,11 +348,10 @@ grpc::Status RiaGrpcCaseService::GetPdmObject( grpc::ServerContext*     context,
                                                const rips::CaseRequest* request,
                                                rips::PdmObject*         reply )
 {
-    RimCase*        rimCase     = findCase( request->id() );
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase );
-    if ( eclipseCase )
+    RimCase* rimCase = findCase( request->id() );
+    if ( rimCase )
     {
-        copyPdmObjectFromCafToRips( eclipseCase, reply );
+        copyPdmObjectFromCafToRips( rimCase, reply );
     }
     return grpc::Status::OK;
 }

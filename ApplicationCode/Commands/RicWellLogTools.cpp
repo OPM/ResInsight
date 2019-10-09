@@ -169,6 +169,7 @@ RimWellPath* RicWellLogTools::findWellPathWithLogFileFromSelection()
 //--------------------------------------------------------------------------------------------------
 template <typename ExtractionCurveType>
 ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*        plotTrack,
+                                                          RimCase*                caseToApply,
                                                           Rim3dView*              view,
                                                           RimWellPath*            wellPath,
                                                           const RimSimWellInView* simWell,
@@ -182,28 +183,26 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
     curve->setColor( curveColor );
 
-    RimCase*        caseToApply = nullptr;
-    RimWellLogPlot* plot        = nullptr;
+    RimWellLogPlot* plot = nullptr;
     plotTrack->firstAncestorOrThisOfTypeAsserted( plot );
     RimWellLogCurveCommonDataSource* commonDataSource = plot->commonDataSource();
 
-    if ( view )
+    if ( !caseToApply )
     {
-        caseToApply = view->ownerCase();
-    }
-    else if ( commonDataSource->caseToApply() )
-    {
-        caseToApply = commonDataSource->caseToApply();
-    }
-    else if ( plotTrack->formationNamesCase() )
-    {
-        caseToApply = plotTrack->formationNamesCase();
-    }
-    else
-    {
-        std::vector<RimCase*> allCases;
-        RiaApplication::instance()->project()->allCases( allCases );
-        if ( !allCases.empty() ) caseToApply = allCases.front();
+        if ( commonDataSource->caseToApply() )
+        {
+            caseToApply = commonDataSource->caseToApply();
+        }
+        else if ( plotTrack->formationNamesCase() )
+        {
+            caseToApply = plotTrack->formationNamesCase();
+        }
+        else
+        {
+            std::vector<RimCase*> allCases;
+            RiaApplication::instance()->project()->allCases( allCases );
+            if ( !allCases.empty() ) caseToApply = allCases.front();
+        }
     }
 
     QString ownerSimWellName;
@@ -267,7 +266,10 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
         curve->setCase( caseToApply );
     }
 
-    curve->setPropertiesFromView( view );
+    if ( view )
+    {
+        curve->setPropertiesFromView( view );
+    }
 
     plotTrack->addCurve( curve );
 
@@ -370,6 +372,7 @@ RimWellLogFileCurve* RicWellLogTools::addFileCurve( RimWellLogTrack* plotTrack, 
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellLogExtractionCurve* RicWellLogTools::addWellLogExtractionCurve( RimWellLogTrack*        plotTrack,
+                                                                       RimCase*                rimCase,
                                                                        Rim3dView*              view,
                                                                        RimWellPath*            wellPath,
                                                                        const RimSimWellInView* simWell,
@@ -378,6 +381,7 @@ RimWellLogExtractionCurve* RicWellLogTools::addWellLogExtractionCurve( RimWellLo
                                                                        bool showPlotWindow /*= true */ )
 {
     return addExtractionCurve<RimWellLogExtractionCurve>( plotTrack,
+                                                          rimCase,
                                                           view,
                                                           wellPath,
                                                           simWell,
@@ -389,18 +393,19 @@ RimWellLogExtractionCurve* RicWellLogTools::addWellLogExtractionCurve( RimWellLo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogWbsCurve* RicWellLogTools::addWellLogWbsCurve( RimWellLogTrack*        plotTrack,
-                                                         Rim3dView*              view,
-                                                         RimWellPath*            wellPath,
-                                                         const RimSimWellInView* simWell,
-                                                         int                     branchIndex,
-                                                         bool                    useBranchDetection,
-                                                         bool                    showPlotWindow /*= true */ )
+RimWellLogWbsCurve* RicWellLogTools::addWellLogWbsCurve( RimWellLogTrack* plotTrack,
+                                                         RimCase*         rimCase,
+                                                         Rim3dView*       view,
+                                                         RimWellPath*     wellPath,
+                                                         int              branchIndex,
+                                                         bool             useBranchDetection,
+                                                         bool             showPlotWindow /*= true */ )
 {
     return addExtractionCurve<RimWellLogWbsCurve>( plotTrack,
+                                                   rimCase,
                                                    view,
                                                    wellPath,
-                                                   simWell,
+                                                   nullptr,
                                                    branchIndex,
                                                    useBranchDetection,
                                                    showPlotWindow );

@@ -22,6 +22,7 @@
 
 #include <vector>
 
+class RimCase;
 class RimSimWellInView;
 class Rim3dView;
 class Rim3dWellLogCurveCollection;
@@ -51,23 +52,25 @@ public:
     static RimWellLogFileCurve* addFileCurve( RimWellLogTrack* plotTrack, bool showPlotWindow = true );
 
     static RimWellLogExtractionCurve* addWellLogExtractionCurve( RimWellLogTrack*        plotTrack,
+                                                                 RimCase*                rimCase,
                                                                  Rim3dView*              view,
                                                                  RimWellPath*            wellPath,
                                                                  const RimSimWellInView* simWell,
                                                                  int                     branchIndex,
                                                                  bool                    useBranchDetection,
                                                                  bool                    showPlotWindow = true );
-    static RimWellLogWbsCurve*        addWellLogWbsCurve( RimWellLogTrack*        plotTrack,
-                                                          Rim3dView*              view,
-                                                          RimWellPath*            wellPath,
-                                                          const RimSimWellInView* simWell,
-                                                          int                     branchIndex,
-                                                          bool                    useBranchDetection,
-                                                          bool                    showPlotWindow = true );
+    static RimWellLogWbsCurve*        addWellLogWbsCurve( RimWellLogTrack* plotTrack,
+                                                          RimCase*         rimCase,
+                                                          Rim3dView*       view,
+                                                          RimWellPath*     wellPath,
+                                                          int              branchIndex,
+                                                          bool             useBranchDetection,
+                                                          bool             showPlotWindow = true );
 
 private:
     template <typename ExtractionCurveType>
     static ExtractionCurveType* addExtractionCurve( RimWellLogTrack*        plotTrack,
+                                                    RimCase*                rimCase,
                                                     Rim3dView*              view,
                                                     RimWellPath*            wellPath,
                                                     const RimSimWellInView* simWell,

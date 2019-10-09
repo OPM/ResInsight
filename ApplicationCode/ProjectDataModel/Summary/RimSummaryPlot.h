@@ -24,8 +24,8 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimPlot.h"
 #include "RimRiuQwtPlotOwnerInterface.h"
-#include "RimViewWindow.h"
 
 #include "qwt_plot_textlabel.h"
 
@@ -64,7 +64,7 @@ class QKeyEvent;
 ///
 ///
 //==================================================================================================
-class RimSummaryPlot : public RimViewWindow, public RimRiuQwtPlotOwnerInterface
+class RimSummaryPlot : public RimPlot, public RimRiuQwtPlotOwnerInterface
 {
     CAF_PDM_HEADER_INIT;
 

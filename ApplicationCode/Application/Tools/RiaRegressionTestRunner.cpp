@@ -210,7 +210,7 @@ void RiaRegressionTestRunner::runRegressionTest()
                 QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath( generatedFolderName );
                 RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( fullPathGeneratedFolder );
 
-                RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder( fullPathGeneratedFolder );
+                RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( fullPathGeneratedFolder );
 
                 app->closeProject();
             }

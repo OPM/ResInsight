@@ -54,6 +54,7 @@ message ExportSnapshotsRequest
 	string       prefix = 2;
 	int32        caseId = 3;
 	int32        viewId = 4;
+	string exportFolder = 5;
 }
 
 message ExportPropertyRequest
@@ -268,6 +269,48 @@ message CloneViewRequest
 	int32 viewId = 1;
 }
 
+message CreateWbsPlotRequest
+{
+	int32 caseId    = 1;
+	string wellPath = 2;
+	int32 timeStep  = 3;
+}
+
+message ImportWellPathsRequest
+{
+	string wellPathFolder         = 1;
+	repeated string wellPathFiles = 2;
+}
+
+message ImportWellLogFilesRequest
+{
+	string         wellLogFolder = 1;
+	repeated string wellLogFiles = 2;
+}
+
+message ImportFormationNamesRequest
+{
+	repeated string formationFiles = 1;
+	int32            applyToCaseId = 2;
+}
+
+enum ExportFormat
+{
+	LAS   = 0;
+	ASCII = 1;
+}
+
+message ExportWellLogPlotDataRequest
+{
+	ExportFormat exportFormat = 1;
+	int32 viewId              = 2;
+	string exportFolder       = 3;
+	string filePrefix         = 4;
+	bool exportTvdRkb         = 5;
+	bool capitalizeFileNames  = 6;
+	double resampleInterval   = 7;
+}
+
 /* CommandParams handles both command name and parameters in one.
  * The message type and content is used as parameters and
  * the name of the variable is used to find the command name. */
@@ -310,6 +353,11 @@ message CommandParams
 		ExportFlowInfoRequest        exportFlowCharacteristics        = 29;
 		CreateViewRequest            createView                       = 30;
 		CloneViewRequest             cloneView                        = 31;
+		CreateWbsPlotRequest         createWellBoreStabilityPlot      = 32;
+		ImportWellPathsRequest       importWellPaths                  = 33;
+		ImportWellLogFilesRequest    importWellLogFiles               = 34;
+		ImportFormationNamesRequest  importFormationNames             = 35;
+		ExportWellLogPlotDataRequest exportWellLogPlotData            = 36;
 	}
 }
 
@@ -329,17 +377,41 @@ message CreateViewResult
 	int32 viewId = 1;
 }
 
+message CreateWbsPlotResult
+{
+	int32 viewId = 1;
+}
+
+message ImportWellPathsResult
+{
+	repeated string wellPathNames = 1;
+}
+
+message ImportWellLogFilesResult
+{
+	repeated string wellPathNames = 1;
+}
+
+message ExportWellLogPlotDataResult
+{
+	repeated string exportedFiles = 1;
+}
+
 /* Command reply handles the return values for the generic command
  * The name of the variable is used to map to the cafPdmObject classKeyword */
 message CommandReply
 {
 	oneof result
 	{
-		Empty                                     emptyResult = 1;
-		CaseRequest                            loadCaseResult = 2;
-		GridCaseGroupResult         createGridCaseGroupResult = 3;
-		CreateStatisticsCaseResult createStatisticsCaseResult = 4;
-		CreateViewResult                     createViewResult = 5;
+		Empty                                       emptyResult = 1;
+		CaseRequest                              loadCaseResult = 2;
+		GridCaseGroupResult           createGridCaseGroupResult = 3;
+		CreateStatisticsCaseResult   createStatisticsCaseResult = 4;
+		CreateViewResult                       createViewResult = 5;
+		CreateWbsPlotResult                 createWbsPlotResult = 6;
+		ImportWellPathsResult             importWellPathsResult = 7;
+		ImportWellLogFilesResult       importWellLogFilesResult = 8;
+		ExportWellLogPlotDataResult exportWellLogPlotDataResult = 9; 
 	}
 }
 

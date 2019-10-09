@@ -38,7 +38,8 @@ public:
     void wellPathsAndRkbDiff( std::vector<QString>* wellNames, std::vector<double>* rkbDiffs );
     void setRkbDiffs( const std::vector<QString>& wellNames, const std::vector<double>& rkbDiffs );
 
-    bool writeToFolder( const QString& exportFolder, const QString& filePrefix = "", bool capitalizeFileName = false );
+    std::vector<QString>
+        writeToFolder( const QString& exportFolder, const QString& filePrefix = "", bool capitalizeFileName = false );
 
 private:
     std::vector<SingleLasFileMetaData> createLasFileDescriptions( const std::vector<RimWellLogCurve*>& curves );

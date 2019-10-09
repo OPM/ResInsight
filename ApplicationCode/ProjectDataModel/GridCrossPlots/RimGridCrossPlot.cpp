@@ -419,6 +419,8 @@ void RimGridCrossPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
+
     uiOrdering.add( &m_showInfoBox );
     uiOrdering.add( &m_showLegend );
 

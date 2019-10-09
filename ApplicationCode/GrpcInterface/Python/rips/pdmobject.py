@@ -14,14 +14,27 @@ class PdmObject:
     """
 
     def _execute_command(self, **command_params):
-        return self._commands.Execute(Cmd.CommandParams(**command_params))
+        self.__warnings = []
+        response, call = self._commands.Execute.with_call(Cmd.CommandParams(**command_params))
+        for key, value in call.trailing_metadata():
+            value = value.replace(';;', '\n')
+            if key == 'warning':
+                self.__warnings.append(value)
+
+        return response
 
     def __init__(self, pb2_object, channel):
         self._pb2_object = pb2_object
         self._channel = channel
-        self._pdm_object_stub = PdmObject_pb2_grpc.PdmObjectServiceStub(
-            self._channel)
+        self._pdm_object_stub = PdmObject_pb2_grpc.PdmObjectServiceStub(self._channel)
         self._commands = CmdRpc.CommandsStub(channel)
+        self.__warnings = []
+
+    def warnings(self):
+        return self.__warnings
+
+    def has_warnings(self):
+        return len(self.__warnings) > 0
 
     def pb2_object(self):
         """ Private method"""

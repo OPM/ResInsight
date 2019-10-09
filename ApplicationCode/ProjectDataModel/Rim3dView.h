@@ -109,9 +109,6 @@ public:
     void    setName( const QString& name );
     QString name() const;
 
-    int  id() const;
-    void setId( int id );
-
     // Implementation of RiuViewerToViewInterface
     cvf::Color3f backgroundColor() const override
     {
@@ -290,5 +287,4 @@ private:
     caf::PdmField<cvf::Color3f>            m_backgroundColor;
     caf::PdmField<bool>                    m_showGridBox;
     caf::PdmField<bool>                    m_showZScaleLabel;
-    caf::PdmField<int>                     m_viewId;
 };

@@ -29,6 +29,8 @@
 #include "RigWellLogCurveData.h"
 
 #include "RimWellLogCurve.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogTrack.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
@@ -37,6 +39,73 @@
 #include <QFileDialog>
 
 CAF_CMD_SOURCE_INIT( RicExportToLasFileFeature, "RicExportToLasFileFeature" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RicExportToLasFileFeature::exportToLasFiles( const QString&        exportFolder,
+                                                                  const QString&        exportPrefix,
+                                                                  const RimWellLogPlot* plot,
+                                                                  bool                  exportTvdRkb,
+                                                                  bool                  capitalizeFileNames,
+                                                                  double                resampleInterval )
+{
+    std::vector<RimWellLogCurve*> allCurves;
+    std::vector<RimWellLogTrack*> tracks = plot->visibleTracks();
+
+    for ( RimWellLogTrack* track : tracks )
+    {
+        std::vector<RimWellLogCurve*> curves = track->visibleCurvesVector();
+        allCurves.insert( allCurves.end(), curves.begin(), curves.end() );
+    }
+
+    std::vector<QString> wellNames;
+    std::vector<double>  rkbDiffs;
+    {
+        RigLasFileExporter lasExporter( allCurves );
+        lasExporter.wellPathsAndRkbDiff( &wellNames, &rkbDiffs );
+
+        return exportToLasFiles( exportFolder,
+                                 exportPrefix,
+                                 allCurves,
+                                 wellNames,
+                                 rkbDiffs,
+                                 capitalizeFileNames,
+                                 resampleInterval );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RicExportToLasFileFeature::exportToLasFiles( const QString&                exportFolder,
+                                                                  const QString&                filePrefix,
+                                                                  std::vector<RimWellLogCurve*> curves,
+                                                                  const std::vector<QString>&   wellNames,
+                                                                  const std::vector<double>&    rkbDiffs,
+                                                                  bool                          capitalizeFileNames,
+                                                                  double                        resampleInterval )
+{
+    RigLasFileExporter lasExporter( curves );
+
+    std::vector<QString> writtenFiles;
+
+    if ( resampleInterval > 0.0 )
+    {
+        lasExporter.setResamplingInterval( resampleInterval );
+    }
+
+    if ( !rkbDiffs.empty() )
+    {
+        lasExporter.setRkbDiffs( wellNames, rkbDiffs );
+    }
+
+    writtenFiles = lasExporter.writeToFolder( exportFolder, filePrefix, capitalizeFileNames );
+
+    // Remember the path to next time
+    RiaApplication::instance()->setLastUsedDialogDirectory( "WELL_LOGS_DIR", exportFolder );
+    return writtenFiles;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -89,28 +158,33 @@ void RicExportToLasFileFeature::onActionTriggered( bool isChecked )
     RicExportFeatureImpl::configureForExport( propertyDialog.dialogButtonBox() );
     propertyDialog.resize( QSize( 400, 330 ) );
 
+    std::vector<QString> writtenFiles;
+
     if ( propertyDialog.exec() == QDialog::Accepted && !featureUi.exportFolder().isEmpty() )
     {
+        double resampleInterval = 0.0;
         if ( featureUi.activateResample )
         {
-            lasExporter.setResamplingInterval( featureUi.resampleInterval() );
+            resampleInterval = featureUi.resampleInterval();
         }
 
+        std::vector<QString> wellNames;
+        std::vector<double>  rkbDiffs;
         if ( featureUi.exportTvdrkb )
         {
-            std::vector<QString> wellNames;
-            std::vector<double>  rkbDiffs;
             lasExporter.wellPathsAndRkbDiff( &wellNames, &rkbDiffs );
-
             std::vector<double> userDefRkbDiff;
             featureUi.tvdrkbDiffForWellPaths( &userDefRkbDiff );
-            lasExporter.setRkbDiffs( wellNames, userDefRkbDiff );
+            rkbDiffs = userDefRkbDiff;
         }
 
-        lasExporter.writeToFolder( featureUi.exportFolder(), featureUi.filePrefix(), featureUi.capitalizeFileName() );
-
-        // Remember the path to next time
-        RiaApplication::instance()->setLastUsedDialogDirectory( "WELL_LOGS_DIR", featureUi.exportFolder() );
+        exportToLasFiles( featureUi.exportFolder(),
+                          featureUi.filePrefix(),
+                          curves,
+                          wellNames,
+                          rkbDiffs,
+                          featureUi.capitalizeFileName,
+                          resampleInterval );
     }
 }
 

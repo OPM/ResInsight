@@ -21,12 +21,19 @@
 
 #include "cafCmdFeature.h"
 
+#include <vector>
+
+class RimWellLogFile;
+
 //==================================================================================================
 ///
 //==================================================================================================
 class RicWellLogsImportFileFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+    static std::vector<RimWellLogFile*> importWellLogFiles( const QStringList& wellLogFilePaths,
+                                                            QStringList*       errorMessages );
+    static QStringList                  wellLogFileNameFilters();
 
 protected:
     // Overrides

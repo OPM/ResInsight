@@ -127,10 +127,6 @@ Rim3dView::Rim3dView( void )
 
     CAF_PDM_InitField( &m_showZScaleLabel, "ShowZScale", true, "Show Z Scale Label", "", "", "" );
 
-    RICF_InitField( &m_viewId, "ViewId", -1, "View ID", "", "", "" );
-    m_viewId.uiCapability()->setUiReadOnly( true );
-    m_viewId.capability<RicfFieldHandle>()->setIOWriteable( false );
-
     m_crossSectionVizModel = new cvf::ModelBasicList;
     m_crossSectionVizModel->setName( "CrossSectionModel" );
 
@@ -183,22 +179,6 @@ void Rim3dView::setName( const QString& name )
 QString Rim3dView::name() const
 {
     return m_nameConfig->customName();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int Rim3dView::id() const
-{
-    return m_viewId;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Rim3dView::setId( int id )
-{
-    m_viewId = id;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -304,7 +284,7 @@ void Rim3dView::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_viewId );
+    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
 
     caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroupWithKeyword( "Viewer", "ViewGroup" );
 

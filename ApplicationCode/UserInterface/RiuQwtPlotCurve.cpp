@@ -78,7 +78,7 @@ void RiuQwtPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>
                                                        ErrorAxis                  errorAxis )
 {
     CVF_ASSERT( xValues.size() == yValues.size() );
-    CVF_ASSERT( yErrorValues.empty() || yErrorValues.size() == xValues.size() );
+    CVF_ASSERT( errorValues.empty() || errorValues.size() == xValues.size() );
 
     bool                                   showErrorBars = m_showErrorBars && !errorValues.empty();
     QPolygonF                              points;

@@ -23,8 +23,8 @@
 
 #include "RiaDefines.h"
 #include "RimNameConfig.h"
+#include "RimPlot.h"
 #include "RimRiuQwtPlotOwnerInterface.h"
-#include "RimViewWindow.h"
 
 #include <QPointer>
 
@@ -49,7 +49,7 @@ protected:
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 };
 
-class RimGridCrossPlot : public RimViewWindow, public RimRiuQwtPlotOwnerInterface, public RimNameConfigHolderInterface
+class RimGridCrossPlot : public RimPlot, public RimRiuQwtPlotOwnerInterface, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 

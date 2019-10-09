@@ -109,6 +109,7 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
                            const QVariant&            newValue ) override;
+    void initAfterRead() override;
 
     void                         createPartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
     void                         createDisplayModel() override;
@@ -129,8 +130,6 @@ private:
     void updateLegends() override;
 
     void updateTensorLegendTextAndRanges( RimRegularLegendConfig* legendConfig, int timeStepIndex );
-
-    void initAfterRead() override;
 
     caf::PdmChildField<RimTensorResults*>                   m_tensorResults;
     caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;

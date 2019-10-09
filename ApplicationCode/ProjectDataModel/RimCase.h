@@ -82,6 +82,7 @@ protected:
     QList<caf::PdmOptionItemInfo>   calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                            bool*                      useOptionsOnly ) override;
     virtual std::vector<Rim3dView*> allSpecialViews() const = 0;
+    void                            initAfterRead() override;
 
 private:
     caf::PdmFieldHandle* userDescriptionField() override

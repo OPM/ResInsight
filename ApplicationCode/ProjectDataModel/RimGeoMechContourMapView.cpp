@@ -172,6 +172,8 @@ bool RimGeoMechContourMapView::isTimeStepDependentDataVisible() const
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::initAfterRead()
 {
+    RimGeoMechView::initAfterRead();
+
     m_gridCollection->setActive( false ); // This is also not added to the tree view, so cannot be enabled.
     disablePerspectiveProjectionField();
     setShowGridBox( false );

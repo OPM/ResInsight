@@ -179,14 +179,6 @@ RimWellLogPlot::~RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RimWellLogPlot::createPlotWidget()
-{
-    return createViewWidget( nullptr );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QWidget* RimWellLogPlot::viewWidget()
 {
     return m_viewer;
@@ -283,8 +275,10 @@ QImage RimWellLogPlot::snapshotWindowContent()
 
     if ( m_viewer )
     {
+        m_viewer->setScrollbarVisible( false );
         QPixmap pix = m_viewer->grab();
         image       = pix.toImage();
+        m_viewer->setScrollbarVisible( true );
     }
 
     return image;
@@ -795,6 +789,8 @@ void RimWellLogPlot::depthZoomMinMax( double* minimumDepth, double* maximumDepth
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
+
     m_commonDataSource->uiOrdering( uiConfigName, uiOrdering );
     uiOrderingForDepthAxis( uiOrdering );
     uiOrderingForPlotSettings( uiOrdering );
@@ -943,7 +939,7 @@ void RimWellLogPlot::setDescription( const QString& description )
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogPlot::description() const
 {
-    return createAutoName();
+    return m_nameConfig->customName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -975,6 +971,8 @@ void RimWellLogPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::initAfterRead()
 {
+    RimViewWindow::initAfterRead();
+
     updateCommonDataSource();
     if ( !m_userName_OBSOLETE().isEmpty() )
     {

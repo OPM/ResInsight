@@ -61,6 +61,9 @@ public:
     RimViewWindow( void );
     ~RimViewWindow( void ) override;
 
+    int  id() const;
+    void setId( int id );
+
     void loadDataAndUpdate();
     void handleMdiWindowClosed();
     void updateMdiWindowVisibility();
@@ -124,13 +127,17 @@ protected:
                                            const QVariant&            oldValue,
                                            const QVariant&            newValue ) override;
     void                 initAfterRead() override;
-
-    caf::PdmField<bool> m_showWindow;
+    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
     void setAsMdiWindow( int mainWindowID );
 
+protected:
+    caf::PdmField<bool> m_showWindow;
+
+private:
     caf::PdmChildField<RimMdiWindowController*> m_windowController;
+    caf::PdmField<int>                          m_viewId;
 
     // Obsoleted field
     caf::PdmField<std::vector<int>> obsoleteField_windowGeometry;

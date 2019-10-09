@@ -46,7 +46,7 @@ public:
     RimWellLogFile();
     ~RimWellLogFile() override;
 
-    static RimWellLogFile* readWellLogFile( const QString& logFilePath );
+    static RimWellLogFile* readWellLogFile( const QString& logFilePath, QString* errorMessage );
 
     void    setFileName( const QString& fileName );
     QString fileName() const

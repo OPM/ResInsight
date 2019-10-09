@@ -18,10 +18,13 @@
 
 #include "RimViewWindow.h"
 
+#include "RiaApplication.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaGuiApplication.h"
+#include "RicfCommandObject.h"
 
 #include "RimMdiWindowController.h"
+#include "RimProject.h"
 
 #include "cvfAssert.h"
 
@@ -34,9 +37,15 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimViewWindow, "ViewWindow" ); // Do not use. 
 //--------------------------------------------------------------------------------------------------
 RimViewWindow::RimViewWindow( void )
 {
+    CAF_PDM_InitObject( "View window", "", "", "" );
+
     CAF_PDM_InitFieldNoDefault( &m_windowController, "WindowController", "", "", "", "" );
     m_windowController.uiCapability()->setUiHidden( true );
     m_windowController.uiCapability()->setUiTreeChildrenHidden( true );
+
+    RICF_InitField( &m_viewId, "ViewId", -1, "View ID", "", "", "" );
+    m_viewId.uiCapability()->setUiReadOnly( true );
+    m_viewId.capability<RicfFieldHandle>()->setIOWriteable( false );
 
     CAF_PDM_InitField( &m_showWindow, "ShowWindow", true, "Show Window", "", "", "" );
     m_showWindow.uiCapability()->setUiHidden( true );
@@ -52,6 +61,22 @@ RimViewWindow::RimViewWindow( void )
 RimViewWindow::~RimViewWindow( void )
 {
     if ( m_windowController() ) delete m_windowController();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimViewWindow::id() const
+{
+    return m_viewId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::setId( int id )
+{
+    m_viewId = id;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -252,4 +277,16 @@ void RimViewWindow::initAfterRead()
         setAsMdiWindow( mainWindowID );
         setMdiWindowGeometry( wg );
     }
+    if ( m_viewId() == -1 )
+    {
+        RiaApplication::instance()->project()->assignViewIdToView( this );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_viewId );
 }

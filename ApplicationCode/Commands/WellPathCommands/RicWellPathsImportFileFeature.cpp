@@ -20,6 +20,8 @@
 #include "RicWellPathsImportFileFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -30,8 +32,55 @@
 
 #include <QAction>
 #include <QFileDialog>
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicWellPathsImportFileFeature, "RicWellPathsImportFileFeature" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimFileWellPath*> RicWellPathsImportFileFeature::importWellPaths( const QStringList& wellPathFilePaths,
+                                                                              QStringList*       errorMessages )
+{
+    RiaApplication* app = RiaApplication::instance();
+
+    // Remember the path to next time
+    app->setLastUsedDialogDirectory( "WELLPATH_DIR", QFileInfo( wellPathFilePaths.last() ).absolutePath() );
+
+    std::vector<RimFileWellPath*> wellPaths = app->addWellPathsToModel( wellPathFilePaths, errorMessages );
+
+    RimProject* project = app->project();
+
+    if ( project )
+    {
+        project->scheduleCreateDisplayModelAndRedrawAllViews();
+        RimOilField* oilField = project->activeOilField();
+
+        if ( oilField && oilField->wellPathCollection->wellPaths().size() > 0 )
+        {
+            RimWellPath* wellPath = oilField->wellPathCollection->mostRecentlyUpdatedWellPath();
+            if ( wellPath )
+            {
+                Riu3DMainWindowTools::selectAsCurrentItem( wellPath );
+            }
+        }
+    }
+    return wellPaths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RicWellPathsImportFileFeature::wellPathNameFilters()
+{
+    QStringList nameFilters;
+    nameFilters << "*.json"
+                << "*.asc"
+                << " *.asci"
+                << "*.ascii"
+                << "*.dev";
+    return nameFilters;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -50,35 +99,28 @@ void RicWellPathsImportFileFeature::onActionTriggered( bool isChecked )
     RiaApplication* app                = RiaApplication::instance();
     QString         lastUsedGridFolder = app->lastUsedDialogDirectory( "BINARY_GRID" );
     QString         defaultDir         = app->lastUsedDialogDirectoryWithFallback( "WELLPATH_DIR", lastUsedGridFolder );
-    QStringList     wellPathFilePaths =
-        QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                       "Import Well Paths",
-                                       defaultDir,
-                                       "Well Paths (*.json *.asc *.asci *.ascii *.dev);;All Files (*.*)" );
 
-    if ( wellPathFilePaths.size() < 1 ) return;
+    QString nameList = QString( "Well Paths (%1);;All Files (*.*)" ).arg( wellPathNameFilters().join( " " ) );
 
-    // Remember the path to next time
-    app->setLastUsedDialogDirectory( "WELLPATH_DIR", QFileInfo( wellPathFilePaths.last() ).absolutePath() );
+    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                   "Import Well Paths",
+                                                                   defaultDir,
+                                                                   nameList );
 
-    app->addWellPathsToModel( wellPathFilePaths );
-
-    RimProject* project = app->project();
-
-    if ( project )
+    if ( wellPathFilePaths.size() >= 1 )
     {
-        project->scheduleCreateDisplayModelAndRedrawAllViews();
-        RimOilField* oilField = project->activeOilField();
+        QStringList errorMessages;
+        importWellPaths( wellPathFilePaths, &errorMessages );
 
-        if ( !oilField ) return;
-
-        if ( oilField->wellPathCollection->wellPaths().size() > 0 )
+        if ( !errorMessages.empty() )
         {
-            RimWellPath* wellPath = oilField->wellPathCollection->mostRecentlyUpdatedWellPath();
-            if ( wellPath )
+            QString displayMessage = "Errors loading well path files: \n" + errorMessages.join( "\n" );
+
+            if ( RiaGuiApplication::isRunning() )
             {
-                Riu3DMainWindowTools::selectAsCurrentItem( wellPath );
+                QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
             }
+            RiaLogging::warning( displayMessage );
         }
     }
 }

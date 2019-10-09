@@ -96,13 +96,16 @@ void RigGeoMechWellLogExtractor::performCurveDataSmoothing( int                 
         interfacePorePressuresDbl[i]      = interfacePorePressures[i];
     }
 
-    std::vector<std::vector<double>*> dependentValues = {tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl};
+    if ( !mds->empty() && !values->empty() )
+    {
+        std::vector<std::vector<double>*> dependentValues = {tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl};
 
-    std::vector<unsigned char> smoothOrFilterSegments = determineFilteringOrSmoothing( interfacePorePressuresDbl );
-    filterShortSegments( mds, values, &smoothOrFilterSegments, dependentValues );
-    filterColinearSegments( mds, values, &smoothOrFilterSegments, dependentValues );
+        std::vector<unsigned char> smoothOrFilterSegments = determineFilteringOrSmoothing( interfacePorePressuresDbl );
+        filterShortSegments( mds, values, &smoothOrFilterSegments, dependentValues );
+        filterColinearSegments( mds, values, &smoothOrFilterSegments, dependentValues );
 
-    smoothSegments( mds, tvds, values, interfaceShValuesDbl, smoothOrFilterSegments, smoothingTreshold );
+        smoothSegments( mds, tvds, values, interfaceShValuesDbl, smoothOrFilterSegments, smoothingTreshold );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

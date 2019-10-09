@@ -4,6 +4,7 @@
 
 #include <QString>
 
+#include <list>
 #include <vector>
 
 class QXmlStreamReader;
@@ -69,6 +70,9 @@ protected: // Virtual
     // if user uses them on wrong type of objects
     bool                    isInheritedFromPdmXmlSerializable() { return true; }
 
+    void                    registerClassKeyword(const QString& registerKeyword);
+    bool                    isOfClassKeywordType(const QString& testClassKeyword) const;
+
 private:
     void                    initAfterReadRecursively(PdmObjectHandle* object);
     void                    setupBeforeSaveRecursively(PdmObjectHandle * object);
@@ -77,7 +81,8 @@ private:
 private:
     friend class PdmObjectHandle ; // Only temporary for void PdmObject::addFieldNoDefault( ) accessing findField
 
-    PdmObjectHandle* m_owner;
+    std::list<QString> m_classHierarchy;
+    PdmObjectHandle*   m_owner;
 };
 
 PdmXmlObjectHandle* xmlObj(PdmObjectHandle* obj);

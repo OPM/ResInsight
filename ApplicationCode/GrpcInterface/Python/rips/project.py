@@ -8,6 +8,7 @@ import grpc
 from rips.case import Case
 from rips.gridcasegroup import GridCaseGroup
 from rips.pdmobject import PdmObject
+from rips.plot import Plot
 from rips.view import View
 
 import rips.generated.Commands_pb2 as Cmd
@@ -49,7 +50,7 @@ class Project(PdmObject):
         """
         command_reply = self._execute_command(loadCase=Cmd.FilePathRequest(
             path=path))
-        return Case(self._channel, command_reply.loadCaseResult.id)
+        return Case(self._channel, command_reply.loadCaseResult.id, self)
 
     def selected_cases(self):
         """Get a list of all cases selected in the project tree
@@ -60,7 +61,7 @@ class Project(PdmObject):
         case_infos = self._project_stub.GetSelectedCases(Empty())
         cases = []
         for case_info in case_infos.data:
-            cases.append(Case(self._channel, case_info.id))
+            cases.append(Case(self._channel, case_info.id, self))
         return cases
 
     def cases(self):
@@ -74,7 +75,7 @@ class Project(PdmObject):
 
             cases = []
             for case_info in case_infos.data:
-                cases.append(Case(self._channel, case_info.id))
+                cases.append(Case(self._channel, case_info.id, self))
             return cases
         except grpc.RpcError as rpc_error:
             if rpc_error.code() == grpc.StatusCode.NOT_FOUND:
@@ -91,7 +92,7 @@ class Project(PdmObject):
             A rips Case object
         """
         try:
-            case = Case(self._channel, case_id)
+            case = Case(self._channel, case_id, self)
             return case
         except grpc.RpcError:
             return None
@@ -133,7 +134,7 @@ class Project(PdmObject):
         """Get a particular view belonging to a case by providing view id
         
         Arguments:
-            id(int): view id
+            view_id(int): view id
         Returns: a view object
         """
         views = self.views()
@@ -141,6 +142,34 @@ class Project(PdmObject):
             if view_object.view_id == view_id:
                 return view_object
         return None
+
+    def plots(self):
+        """Get a list of all plots belonging to a project"""
+        pdm_objects = self.descendants("RimPlot")
+        plot_list = []
+        for pdm_object in pdm_objects:
+            plot_list.append(Plot(pdm_object))
+        return plot_list
+
+    def plot(self, view_id):
+        """Get a particular plot by providing view id
+        Arguments:
+            view_id(int): view id
+        Returns: a plot object
+        """
+        plots = self.plots()
+        for plot_object in plots:
+            if plot_object.view_id == view_id:
+                return plot_object
+        return None
+
+    def well_paths(self):
+        """Get a list of all the well path names in the project"""
+        pdm_objects = self.descendants("WellPathBase")
+        well_path_list  = []
+        for pdm_object in pdm_objects:
+            well_path_list.append(pdm_object.get_value("WellPathName"))
+        return well_path_list
 
     def grid_case_groups(self):
         """Get a list of all grid case groups in the project"""
@@ -230,3 +259,52 @@ class Project(PdmObject):
         return self._execute_command(
             setFractureContainment=Cmd.SetFracContainmentRequest(
                 id=template_id, topLayer=top_layer, baseLayer=base_layer))
+
+    def import_well_paths(self, well_path_files=None, well_path_folder=''):
+        """ Import well paths into project
+
+        Arguments:
+            well_path_files(list): List of file paths to import
+            well_path_folder(str): A folder path containing files to import
+
+        Returns:
+            A list of well path names (strings)
+        """
+        if well_path_files is None:
+            well_path_files = []
+        
+        res = self._execute_command(importWellPaths=Cmd.ImportWellPathsRequest(wellPathFolder=well_path_folder,
+                                                                               wellPathFiles=well_path_files))
+        return res.importWellPathsResult.wellPathNames
+
+    def import_well_log_files(self, well_log_files=None, well_log_folder=''):
+        """ Import well log files into project
+
+        Arguments:
+            well_log_files(list): List of file paths to import
+            well_log_folder(str): A folder path containing files to import
+
+        Returns:
+            A list of well path names (strings) that had logs imported
+        """
+
+        if well_log_files is None:
+            well_log_files = []
+        res = self._execute_command(importWellLogFiles=Cmd.ImportWellLogFilesRequest(wellLogFolder=well_log_folder,
+                                                                                     wellLogFiles=well_log_files))
+        return res.importWellLogFilesResult.wellPathNames
+
+    def import_formation_names(self, formation_files=None):
+        """ Import formation names into project
+
+        Arguments:
+            formation_files(list): list of files to import
+
+        """
+        if formation_files is None:
+            formation_files = []
+        elif isinstance(formation_files, str):
+            formation_files = [formation_files]
+
+        res = self._execute_command(importFormationNames=Cmd.ImportFormationNamesRequest(formationFiles=formation_files,
+                                                                                         applyToCaseId=-1))

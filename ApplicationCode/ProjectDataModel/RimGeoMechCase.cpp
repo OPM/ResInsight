@@ -23,6 +23,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
+#include "RicfCommandObject.h"
 #include "RifOdbReader.h"
 
 #include "RigFemPartCollection.h"
@@ -63,7 +64,7 @@ RimGeoMechCase::RimGeoMechCase( void )
 {
     CAF_PDM_InitObject( "Geomechanical Case", ":/GeoMechCase48x48.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_caseFileName, "CaseFileName", "Case File Name", "", "", "" );
+    RICF_InitFieldNoDefault( &m_caseFileName, "CaseFileName", "Case File Name", "", "", "" );
     m_caseFileName.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitFieldNoDefault( &geoMechViews, "GeoMechViews", "", "", "", "" );
     geoMechViews.uiCapability()->setUiHidden( true );
@@ -387,6 +388,8 @@ std::vector<QDateTime> RimGeoMechCase::timeStepDates() const
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::initAfterRead()
 {
+    RimCase::initAfterRead();
+
     size_t j;
     for ( j = 0; j < geoMechViews().size(); j++ )
     {

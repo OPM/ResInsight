@@ -765,6 +765,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
     geoMechCase->setFileName( fileName );
     geoMechCase->caseUserDescription = caseName;
     geoMechCase->setApplyTimeFilter( applyTimeStepFilter );
+    m_project->assignCaseIdToCase( geoMechCase );
 
     RimGeoMechModels* geoMechModelCollection = m_project->activeOilField() ? m_project->activeOilField()->geoMechModels()
                                                                            : nullptr;
@@ -800,12 +801,15 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
 //--------------------------------------------------------------------------------------------------
 /// Add a list of well path file paths (JSON files) to the well path collection
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths )
+std::vector<RimFileWellPath*> RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths,
+                                                                   QStringList*   errorMessages )
 {
-    if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return;
+    CAF_ASSERT( errorMessages );
+
+    if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return {};
 
     RimOilField* oilField = m_project->activeOilField();
-    if ( oilField == nullptr ) return;
+    if ( oilField == nullptr ) return {};
 
     if ( oilField->wellPathCollection == nullptr )
     {
@@ -815,9 +819,15 @@ void RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths )
         m_project->updateConnectedEditors();
     }
 
-    if ( oilField->wellPathCollection ) oilField->wellPathCollection->addWellPaths( wellPathFilePaths );
+    std::vector<RimFileWellPath*> wellPaths;
+    if ( oilField->wellPathCollection )
+    {
+        wellPaths = oilField->wellPathCollection->addWellPaths( wellPathFilePaths, errorMessages );
+    }
 
     oilField->wellPathCollection->updateConnectedEditors();
+
+    return wellPaths;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -848,12 +858,15 @@ void RiaApplication::addWellPathFormationsToModel( QList<QString> wellPathFormat
 //--------------------------------------------------------------------------------------------------
 /// Add a list of well log file paths (LAS files) to the well path collection
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::addWellLogsToModel( const QList<QString>& wellLogFilePaths )
+std::vector<RimWellLogFile*> RiaApplication::addWellLogsToModel( const QList<QString>& wellLogFilePaths,
+                                                                 QStringList*          errorMessages )
 {
-    if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return;
+    CAF_ASSERT( errorMessages );
+
+    if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return {};
 
     RimOilField* oilField = m_project->activeOilField();
-    if ( oilField == nullptr ) return;
+    if ( oilField == nullptr ) return {};
 
     if ( oilField->wellPathCollection == nullptr )
     {
@@ -862,9 +875,12 @@ void RiaApplication::addWellLogsToModel( const QList<QString>& wellLogFilePaths 
         m_project->updateConnectedEditors();
     }
 
-    oilField->wellPathCollection->addWellLogs( wellLogFilePaths );
+    std::vector<RimWellLogFile*> wellLogFiles = oilField->wellPathCollection->addWellLogs( wellLogFilePaths,
+                                                                                           errorMessages );
 
     oilField->wellPathCollection->updateConnectedEditors();
+
+    return wellLogFiles;
 }
 
 //--------------------------------------------------------------------------------------------------
