@@ -821,35 +821,32 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
             }
         }
 
-        if ( project() != nullptr && !project()->fileName().isEmpty() )
+        QString exportFolder = QDir::currentPath() + "/snapshots";
+
+        if ( snapshotViews )
         {
-            if ( snapshotViews )
+            RiuMainWindow* mainWnd = RiuMainWindow::instance();
+            CVF_ASSERT( mainWnd );
+            mainWnd->hideAllDockWidgets();
+
+            RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( exportFolder );
+
+            mainWnd->loadWinGeoAndDockToolBarLayout();
+        }
+
+        if ( snapshotPlots )
+        {
+            if ( mainPlotWindow() )
             {
-                RiuMainWindow* mainWnd = RiuMainWindow::instance();
-                CVF_ASSERT( mainWnd );
-                mainWnd->hideAllDockWidgets();
+                mainPlotWindow()->hideAllDockWidgets();
 
-                // 2016-11-09 : Location of snapshot folder was previously located in 'snapshot' folder
-                // relative to current working folder. Now harmonized to behave as RiuMainWindow::slotSnapshotAllViewsToFile()
-                QString absolutePathToSnapshotDir = createAbsolutePathFromProjectRelativePath( "snapshots" );
-                RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( absolutePathToSnapshotDir );
+                RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( exportFolder );
 
-                mainWnd->loadWinGeoAndDockToolBarLayout();
-            }
-
-            if ( snapshotPlots )
-            {
-                if ( mainPlotWindow() )
-                {
-                    mainPlotWindow()->hideAllDockWidgets();
-
-                    // Will be saved relative to current directory
-                    RicSnapshotAllPlotsToFileFeature::saveAllPlots();
-
-                    mainPlotWindow()->loadWinGeoAndDockToolBarLayout();
-                }
+                mainPlotWindow()->loadWinGeoAndDockToolBarLayout();
             }
         }
+
+        closeProject();
 
         return EXIT_COMPLETED;
     }
