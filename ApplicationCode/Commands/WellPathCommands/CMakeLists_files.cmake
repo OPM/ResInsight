@@ -13,7 +13,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsUnitSystemSettingsUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathPickEventHandler.h 
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateWellTargetsPickEventHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionPickEventHandler.h
-${CMAKE_CURRENT_LIST_DIR}/RicWellPathFormationsImportFileFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicImportWellPaths.h
 ${CMAKE_CURRENT_LIST_DIR}/RicPolylineTargetsPickEventHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewPolylineTargetFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeletePolylineTargetFeature.h
@@ -27,7 +27,7 @@ ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPolylineTarget3dEditor.h
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathDeleteFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicWellPathsImportFileFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicImportWellPaths.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewEditableWellPathFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicShowWellPlanFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathListTargetFeature.cpp

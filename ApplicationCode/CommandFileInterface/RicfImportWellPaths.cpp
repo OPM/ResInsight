@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicfImportWellPaths.h"
 
-#include "WellPathCommands/RicWellPathsImportFileFeature.h"
+#include "WellPathCommands/RicImportWellPaths.h"
 
 #include "RimFileWellPath.h"
 
@@ -57,7 +57,7 @@ RicfCommandResponse RicfImportWellPaths::execute()
     if ( wellPathFolder.exists() )
     {
         QStringList nameFilters;
-        nameFilters << RicWellPathsImportFileFeature::wellPathNameFilters();
+        nameFilters << RicImportWellPaths::wellPathNameFilters();
         QStringList relativePaths = wellPathFolder.entryList( nameFilters, QDir::Files | QDir::NoDotAndDotDot );
         for ( QString relativePath : relativePaths )
         {
@@ -84,8 +84,8 @@ RicfCommandResponse RicfImportWellPaths::execute()
     RicfCommandResponse response;
     if ( !wellPathFiles.empty() )
     {
-        std::vector<RimFileWellPath*> importedWellPaths = RicWellPathsImportFileFeature::importWellPaths( wellPathFiles,
-                                                                                                          &warningMessages );
+        std::vector<RimFileWellPath*> importedWellPaths = RicImportWellPaths::importWellPaths( wellPathFiles,
+                                                                                               &warningMessages );
         if ( !importedWellPaths.empty() )
         {
             RicfImportWellPathsResult* wellPathsResult = new RicfImportWellPathsResult;

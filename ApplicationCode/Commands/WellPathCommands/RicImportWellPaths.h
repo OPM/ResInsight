@@ -28,7 +28,7 @@ class RimFileWellPath;
 //==================================================================================================
 ///
 //==================================================================================================
-class RicWellPathsImportFileFeature : public caf::CmdFeature
+class RicImportWellPaths : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

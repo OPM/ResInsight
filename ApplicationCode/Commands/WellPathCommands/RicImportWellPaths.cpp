@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicWellPathsImportFileFeature.h"
+#include "RicImportWellPaths.h"
 
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
@@ -34,13 +34,13 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-CAF_CMD_SOURCE_INIT( RicWellPathsImportFileFeature, "RicWellPathsImportFileFeature" );
+CAF_CMD_SOURCE_INIT( RicImportWellPaths, "RicWellPathsImportFileFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFileWellPath*> RicWellPathsImportFileFeature::importWellPaths( const QStringList& wellPathFilePaths,
-                                                                              QStringList*       errorMessages )
+std::vector<RimFileWellPath*> RicImportWellPaths::importWellPaths( const QStringList& wellPathFilePaths,
+                                                                   QStringList*       errorMessages )
 {
     RiaApplication* app = RiaApplication::instance();
 
@@ -71,7 +71,7 @@ std::vector<RimFileWellPath*> RicWellPathsImportFileFeature::importWellPaths( co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RicWellPathsImportFileFeature::wellPathNameFilters()
+QStringList RicImportWellPaths::wellPathNameFilters()
 {
     QStringList nameFilters;
     nameFilters << "*.json"
@@ -85,7 +85,7 @@ QStringList RicWellPathsImportFileFeature::wellPathNameFilters()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathsImportFileFeature::isCommandEnabled()
+bool RicImportWellPaths::isCommandEnabled()
 {
     return true;
 }
@@ -93,7 +93,7 @@ bool RicWellPathsImportFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathsImportFileFeature::onActionTriggered( bool isChecked )
+void RicImportWellPaths::onActionTriggered( bool isChecked )
 {
     // Open dialog box to select well path files
     RiaApplication* app                = RiaApplication::instance();
@@ -128,7 +128,7 @@ void RicWellPathsImportFileFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathsImportFileFeature::setupActionLook( QAction* actionToSetup )
+void RicImportWellPaths::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Import &Well Paths from File" );
     actionToSetup->setIcon( QIcon( ":/Well.png" ) );
