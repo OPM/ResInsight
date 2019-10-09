@@ -200,10 +200,6 @@ private:
     caf::PdmField<bool> m_subWindowsTiled3DWindow;
     caf::PdmField<bool> m_subWindowsTiledPlotWindow;
 
-    caf::PdmField<int> nextValidCaseId_OBSOLETE;
-    caf::PdmField<int> nextValidCaseGroupId_OBSOLETE;
-    caf::PdmField<int> nextValidViewId_OBSOLETE;
-
     caf::PdmChildArrayField<RimEclipseCase*>            casesObsolete; // obsolete
     caf::PdmChildArrayField<RimIdenticalGridCaseGroup*> caseGroupsObsolete; // obsolete
 };
