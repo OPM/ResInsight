@@ -36,8 +36,7 @@ class RimFileWellPath;
 //==================================================================================================
 class RicImportWellPaths : public caf::CmdFeature, public RicfCommandObject
 {
-    CAF_CMD_HEADER_INIT;
-    CAF_PDM_HEADER_INIT;
+    RICF_HEADER_INIT;
 
 public:
     RicImportWellPaths();

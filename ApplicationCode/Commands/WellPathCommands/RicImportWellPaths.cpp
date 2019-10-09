@@ -55,9 +55,7 @@ public:
 };
 
 CAF_PDM_SOURCE_INIT( RicImportWellPathsResult, "importWellPathsResult" );
-
-CAF_CMD_SOURCE_INIT( RicImportWellPaths, "RicWellPathsImportFileFeature" );
-CAF_PDM_SOURCE_INIT( RicImportWellPaths, "importWellPaths" );
+RICF_SOURCE_INIT( RicImportWellPaths, "RicWellPathsImportFileFeature", "importWellPaths" );
 
 //--------------------------------------------------------------------------------------------------
 ///
