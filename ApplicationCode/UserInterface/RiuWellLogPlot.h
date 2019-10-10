@@ -58,8 +58,8 @@ public:
     RimViewWindow*  ownerViewWindow() const override;
 
     void addTrackPlot( RiuWellLogTrack* trackPlot );
-    void insertTrackPlot( RiuWellLogTrack* trackPlot, size_t index );
-    void removeTrackPlot( RiuWellLogTrack* trackPlot );
+    void insertTrackPlot( RiuWellLogTrack* trackPlot, size_t index, bool updateLayoutAfter = true );
+    void removeTrackPlot( RiuWellLogTrack* trackPlot, bool updateLayoutAfter = true );
 
     void setDepthZoomAndReplot( double minDepth, double maxDepth );
     void setPlotTitle( const QString& plotTitle );
@@ -68,24 +68,34 @@ public:
     void setTitleVisible( bool visible );
     void setScrollbarVisible( bool visible );
 
+    int indexOfTrackPlot( RiuWellLogTrack* track );
+
 public slots:
     void updateChildrenLayout();
 
 protected:
-    void contextMenuEvent( QContextMenuEvent* ) override;
-    void keyPressEvent( QKeyEvent* keyEvent ) override;
-
+    void    contextMenuEvent( QContextMenuEvent* ) override;
+    void    keyPressEvent( QKeyEvent* keyEvent ) override;
     QLabel* createTitleLabel() const;
 
     void resizeEvent( QResizeEvent* event ) override;
     void showEvent( QShowEvent* event ) override;
     void changeEvent( QEvent* ) override;
+    void dragEnterEvent( QDragEnterEvent* event ) override;
+    void dragMoveEvent( QDragMoveEvent* event ) override;
+    void dragLeaveEvent( QDragLeaveEvent* event ) override;
+    void dropEvent( QDropEvent* event ) override;
+
+    std::pair<int, int> rowAndColumnCount( int trackCount ) const;
 
 private:
     void updateScrollBar( double minDepth, double maxDepth );
     void alignCanvasTopsAndScrollbar();
     void reinsertTracksAndScrollbar();
     void clearTrackLayout();
+
+    QList<QPointer<RiuWellLogTrack>> visibleTracks() const;
+    QList<QPointer<QwtLegend>>       visibleLegends() const;
 
 private slots:
     void slotSetMinDepth( int value );

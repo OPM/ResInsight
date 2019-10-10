@@ -22,6 +22,8 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
+#include "WellLogCommands/RicWellLogPlotTrackFeatureImpl.h"
+
 #include "RimContextCommandBuilder.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
@@ -40,6 +42,7 @@
 #include "qwt_plot_layout.h"
 #include "qwt_scale_draw.h"
 
+#include <QDebug>
 #include <QFocusEvent>
 #include <QHBoxLayout>
 #include <QMdiSubWindow>
@@ -84,6 +87,7 @@ RiuWellLogPlot::RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent 
 
     m_scrollBar = new QScrollBar( nullptr );
     m_scrollBar->setOrientation( Qt::Vertical );
+    m_scrollBar->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
 
     m_scrollBarLayout = new QVBoxLayout;
     m_scrollBarLayout->addWidget( m_scrollBar, 0 );
@@ -94,6 +98,8 @@ RiuWellLogPlot::RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent 
 
     setFocusPolicy( Qt::StrongFocus );
     connect( m_scrollBar, SIGNAL( valueChanged( int ) ), this, SLOT( slotSetMinDepth( int ) ) );
+
+    setAcceptDrops( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,7 +125,7 @@ void RiuWellLogPlot::addTrackPlot( RiuWellLogTrack* trackPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::insertTrackPlot( RiuWellLogTrack* trackPlot, size_t index )
+void RiuWellLogPlot::insertTrackPlot( RiuWellLogTrack* trackPlot, size_t index, bool updateLayoutAfter )
 {
     m_trackPlots.insert( static_cast<int>( index ), trackPlot );
 
@@ -137,15 +143,19 @@ void RiuWellLogPlot::insertTrackPlot( RiuWellLogTrack* trackPlot, size_t index )
                      SIGNAL( legendDataChanged( const QVariant&, const QList<QwtLegendData>& ) ),
                      SLOT( updateLegend( const QVariant&, const QList<QwtLegendData>& ) ) );
     legend->contentsWidget()->layout()->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
+    trackPlot->updateLegend();
     m_legends.insert( static_cast<int>( index ), legend );
 
-    updateChildrenLayout();
+    if ( updateLayoutAfter )
+    {
+        updateChildrenLayout();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::removeTrackPlot( RiuWellLogTrack* trackPlot )
+void RiuWellLogPlot::removeTrackPlot( RiuWellLogTrack* trackPlot, bool updateLayoutAfter )
 {
     if ( !trackPlot ) return;
 
@@ -159,7 +169,10 @@ void RiuWellLogPlot::removeTrackPlot( RiuWellLogTrack* trackPlot )
     m_legends.removeAt( trackIdx );
     delete legend;
 
-    updateChildrenLayout();
+    if ( updateLayoutAfter )
+    {
+        updateChildrenLayout();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,6 +233,14 @@ void RiuWellLogPlot::setTitleVisible( bool visible )
 void RiuWellLogPlot::setScrollbarVisible( bool visible )
 {
     m_scrollBar->setVisible( visible );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiuWellLogPlot::indexOfTrackPlot( RiuWellLogTrack* track )
+{
+    return m_trackPlots.indexOf( track );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -315,6 +336,131 @@ void RiuWellLogPlot::changeEvent( QEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::dragEnterEvent( QDragEnterEvent* event )
+{
+    if ( this->geometry().contains( event->pos() ) )
+    {
+        event->acceptProposedAction();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::dragMoveEvent( QDragMoveEvent* event )
+{
+    if ( this->geometry().contains( event->pos() ) )
+    {
+        RiuWellLogTrack* source = dynamic_cast<RiuWellLogTrack*>( event->source() );
+        if ( source )
+        {
+            QRect  originalGeometry = source->geometry();
+            QPoint offset           = source->dragStartPosition();
+            QRect  newRect( event->pos() - offset, originalGeometry.size() );
+
+            QList<QPointer<RiuWellLogTrack>> visibleTracks = this->visibleTracks();
+
+            int insertBeforeIndex = visibleTracks.size();
+            for ( int visibleIndex = 0; visibleIndex < visibleTracks.size(); ++visibleIndex )
+            {
+                visibleTracks[visibleIndex]->setDefaultStyleSheet();
+
+                if ( visibleTracks[visibleIndex]->frameIsInFrontOfThis( newRect ) )
+                {
+                    insertBeforeIndex = std::min( insertBeforeIndex, visibleIndex );
+                }
+            }
+            if ( insertBeforeIndex >= 0 && insertBeforeIndex < visibleTracks.size() )
+            {
+                visibleTracks[insertBeforeIndex]->setStyleSheetForThisObject(
+                    "border-left: 2px solid red; border-top: none; border-bottom: none; border-right: none;" );
+            }
+
+            if ( insertBeforeIndex > 0 )
+            {
+                int insertAfterIndex = insertBeforeIndex - 1;
+                visibleTracks[insertAfterIndex]->setStyleSheetForThisObject(
+                    "border-left: none; border-top: none; border-bottom: none; border-right: 2px solid red;" );
+            }
+            event->acceptProposedAction();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::dragLeaveEvent( QDragLeaveEvent* event )
+{
+    for ( int tIdx = 0; tIdx < m_trackPlots.size(); ++tIdx )
+    {
+        m_trackPlots[tIdx]->setDefaultStyleSheet();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::dropEvent( QDropEvent* event )
+{
+    for ( int tIdx = 0; tIdx < m_trackPlots.size(); ++tIdx )
+    {
+        m_trackPlots[tIdx]->setDefaultStyleSheet();
+    }
+
+    if ( this->geometry().contains( event->pos() ) )
+    {
+        RiuWellLogTrack* source = dynamic_cast<RiuWellLogTrack*>( event->source() );
+
+        if ( source )
+        {
+            event->acceptProposedAction();
+
+            QRect  originalGeometry = source->geometry();
+            QPoint offset           = source->dragStartPosition();
+            QRect  newRect( event->pos() - offset, originalGeometry.size() );
+
+            int beforeIndex = m_trackPlots.size();
+            for ( int tIdx = 0; tIdx < m_trackPlots.size(); ++tIdx )
+            {
+                if ( m_trackPlots[tIdx]->isVisible() )
+                {
+                    if ( m_trackPlots[tIdx]->frameIsInFrontOfThis( newRect ) )
+                    {
+                        beforeIndex = tIdx;
+                        break;
+                    }
+                }
+            }
+            RimWellLogTrack* insertAfter = nullptr;
+            if ( beforeIndex > 0 )
+            {
+                insertAfter = m_trackPlots[beforeIndex - 1]->plotDefinition();
+            }
+
+            RimWellLogTrack* rimTrack = source->plotDefinition();
+
+            if ( insertAfter != rimTrack )
+            {
+                RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot( m_plotDefinition, {rimTrack}, insertAfter );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<int, int> RiuWellLogPlot::rowAndColumnCount( int trackCount ) const
+{
+    int columnCount = std::max( 1, std::min( m_plotDefinition->columnCount(), trackCount ) );
+    int rowCount    = static_cast<int>( std::ceil( trackCount / static_cast<double>( columnCount ) ) );
+    return std::make_pair( rowCount, columnCount );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::updateScrollBar( double minDepth, double maxDepth )
 {
     double availableMinDepth;
@@ -341,24 +487,27 @@ void RiuWellLogPlot::alignCanvasTopsAndScrollbar()
 {
     CVF_ASSERT( m_legends.size() == m_trackPlots.size() );
 
-    double maxExtent = 0.0;
-    for ( int tIdx = 0; tIdx < m_trackPlots.size(); ++tIdx )
+    QList<QPointer<RiuWellLogTrack>> tracks = visibleTracks();
+
+    auto rowAndColumnCount = this->rowAndColumnCount( tracks.size() );
+
+    std::vector<double> maxExtents( rowAndColumnCount.first, 0.0 );
+
+    for ( int visibleIndex = 0; visibleIndex < tracks.size(); ++visibleIndex )
     {
-        if ( m_trackPlots[tIdx]->isVisible() )
-        {
-            QFont font = m_trackPlots[tIdx]->axisFont( QwtPlot::xTop );
-            maxExtent  = std::max( maxExtent, m_trackPlots[tIdx]->axisScaleDraw( QwtPlot::xTop )->extent( font ) );
-        }
+        int row = visibleIndex / rowAndColumnCount.second;
+
+        QFont font      = m_trackPlots[visibleIndex]->axisFont( QwtPlot::xTop );
+        maxExtents[row] = std::max( maxExtents[row],
+                                    tracks[visibleIndex]->axisScaleDraw( QwtPlot::xTop )->extent( font ) );
     }
 
-    for ( int tIdx = 0; tIdx < m_trackPlots.size(); ++tIdx )
+    for ( int visibleIndex = 0; visibleIndex < tracks.size(); ++visibleIndex )
     {
-        if ( m_trackPlots[tIdx]->isVisible() )
-        {
-            m_trackPlots[tIdx]->axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( maxExtent );
-        }
+        int row = visibleIndex / rowAndColumnCount.second;
+        tracks[visibleIndex]->axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( maxExtents[row] );
     }
-    m_scrollBarLayout->setContentsMargins( 0, maxExtent, 0, 0 );
+    m_scrollBarLayout->setContentsMargins( 0, maxExtents[0], 0, 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -368,53 +517,59 @@ void RiuWellLogPlot::reinsertTracksAndScrollbar()
 {
     clearTrackLayout();
 
-    int visibleIndex = 0;
     for ( int tIdx = 0; tIdx < m_trackPlots.size(); ++tIdx )
     {
-        if ( m_trackPlots[tIdx]->isRimTrackVisible() )
+        m_trackPlots[tIdx]->hide();
+    }
+
+    QList<QPointer<RiuWellLogTrack>> tracks  = this->visibleTracks();
+    QList<QPointer<QwtLegend>>       legends = this->visibleLegends();
+
+    auto rowAndColumnCount = this->rowAndColumnCount( tracks.size() );
+
+    for ( int visibleIndex = 0; visibleIndex < tracks.size(); ++visibleIndex )
+    {
+        int row    = visibleIndex / rowAndColumnCount.second;
+        int column = visibleIndex % rowAndColumnCount.second;
+
+        m_trackLayout->addWidget( legends[visibleIndex], 2 * row, column );
+        m_trackLayout->addWidget( tracks[visibleIndex], 2 * row + 1, column );
+
+        if ( m_plotDefinition->areTrackLegendsVisible() )
         {
-            m_trackLayout->addWidget( m_legends[tIdx], 0, visibleIndex );
-            m_trackLayout->addWidget( m_trackPlots[tIdx], 1, visibleIndex );
-
-            if ( m_plotDefinition->areTrackLegendsVisible() )
+            int legendColumns = 1;
+            if ( m_plotDefinition->areTrackLegendsHorizontal() )
             {
-                int legendColumns = 1;
-                if ( m_plotDefinition->areTrackLegendsHorizontal() )
-                {
-                    legendColumns = 0; // unlimited
-                }
-                m_legends[tIdx]->setMaxColumns( legendColumns );
-                int minimumHeight = m_legends[tIdx]->heightForWidth( m_trackPlots[tIdx]->width() );
-                m_legends[tIdx]->setMinimumHeight( minimumHeight );
-
-                m_legends[tIdx]->show();
+                legendColumns = 0; // unlimited
             }
-            else
-            {
-                m_legends[tIdx]->hide();
-            }
+            legends[visibleIndex]->setMaxColumns( legendColumns );
+            int minimumHeight = legends[visibleIndex]->heightForWidth( tracks[visibleIndex]->width() );
+            legends[visibleIndex]->setMinimumHeight( minimumHeight );
 
-            m_trackPlots[tIdx]->setDepthTitle( visibleIndex == 0 ? m_plotDefinition->depthPlotTitle() : "" );
-            m_trackPlots[tIdx]->enableDepthAxisLabelsAndTicks( visibleIndex == 0 );
-            m_trackPlots[tIdx]->show();
-
-            int widthScaleFactor = m_trackPlots[tIdx]->widthScaleFactor();
-            if ( visibleIndex == 0 )
-            {
-                widthScaleFactor += 1; // Give it a bit extra room due to depth axis
-            }
-            m_trackLayout->setColumnStretch( visibleIndex, widthScaleFactor );
-            m_trackLayout->setRowStretch( 1, 1 );
-            visibleIndex++;
+            legends[visibleIndex]->show();
         }
         else
         {
-            m_trackPlots[tIdx]->hide();
-            m_legends[tIdx]->hide();
+            legends[visibleIndex]->hide();
         }
+
+        tracks[visibleIndex]->setDepthTitle( column == 0 ? m_plotDefinition->depthPlotTitle() : "" );
+        tracks[visibleIndex]->enableDepthAxisLabelsAndTicks( column == 0 );
+        tracks[visibleIndex]->show();
+
+        int widthScaleFactor = tracks[visibleIndex]->widthScaleFactor();
+        if ( column == 0 )
+        {
+            widthScaleFactor += 1; // Give it a bit extra room due to depth axis
+        }
+        m_trackLayout->setColumnStretch( column,
+                                         std::max( m_trackLayout->columnStretch( column ),
+                                                   tracks[visibleIndex]->widthScaleFactor() ) );
+        m_trackLayout->setRowStretch( 2 * row + 1, 1 );
     }
-    m_trackLayout->addLayout( m_scrollBarLayout, 1, visibleIndex );
-    m_scrollBar->setVisible( visibleIndex > 0 );
+    m_trackLayout->addLayout( m_scrollBarLayout, 1, rowAndColumnCount.second, rowAndColumnCount.first * 2 - 1, 1 );
+    m_trackLayout->setColumnStretch( rowAndColumnCount.second, 0 );
+    m_scrollBar->setVisible( tracks.size() > 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -424,11 +579,52 @@ void RiuWellLogPlot::clearTrackLayout()
 {
     if ( m_trackLayout )
     {
+        for ( int tIdx = 0; tIdx < m_trackPlots.size(); ++tIdx )
+        {
+            m_trackLayout->removeWidget( m_legends[tIdx] );
+            m_trackLayout->removeWidget( m_trackPlots[tIdx] );
+        }
+
         QLayoutItem* item;
         while ( ( item = m_trackLayout->takeAt( 0 ) ) != 0 )
         {
         }
+        QWidget().setLayout( m_trackLayout );
+        delete m_trackLayout;
+        m_trackLayout = new QGridLayout( m_trackFrame );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<QPointer<RiuWellLogTrack>> RiuWellLogPlot::visibleTracks() const
+{
+    QList<QPointer<RiuWellLogTrack>> tracks;
+    for ( QPointer<RiuWellLogTrack> track : m_trackPlots )
+    {
+        if ( track->isRimTrackVisible() )
+        {
+            tracks.push_back( track );
+        }
+    }
+    return tracks;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<QPointer<QwtLegend>> RiuWellLogPlot::visibleLegends() const
+{
+    QList<QPointer<QwtLegend>> legends;
+    for ( int i = 0; i < m_trackPlots.size(); ++i )
+    {
+        if ( m_trackPlots[i]->isRimTrackVisible() )
+        {
+            legends.push_back( m_legends[i] );
+        }
+    }
+    return legends;
 }
 
 //--------------------------------------------------------------------------------------------------

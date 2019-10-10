@@ -61,6 +61,7 @@ public:
         adjustWidthToContents      = false;
         showPreviousAndNextButtons = false;
         minimumContentsLength      = 8;
+        iconSize = QSize(14, 14);
     }
 
 public:
@@ -68,7 +69,7 @@ public:
     bool showPreviousAndNextButtons;
     int  minimumContentsLength; // The length of string to adjust to if adjustWidthToContents = false.
                                 // Set to <= 0 to ignore and use AdjustToContentsOnFirstShow instead
-
+    QSize iconSize;
     QString nextButtonText;
     QString prevButtonText;
 };

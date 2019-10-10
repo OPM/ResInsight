@@ -61,11 +61,19 @@ public:
     double getCurrentMajorTickInterval() const;
     double getCurrentMinorTickInterval() const;
     int    axisExtent( QwtPlot::Axis axis ) const;
+    bool   frameIsInFrontOfThis( const QRect& frameGeometry );
+    QPoint dragStartPosition() const;
+    void   setDefaultStyleSheet();
+    void   setStyleSheetForThisObject( const QString& content, const QString& state = "" );
+
+    RimWellLogTrack* plotDefinition() const;
 
 protected:
     bool  eventFilter( QObject* watched, QEvent* event ) override;
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
+    void  mousePressEvent( QMouseEvent* event ) override;
+    void  mouseMoveEvent( QMouseEvent* event ) override;
 
 private:
     void       setDefaults();
@@ -74,4 +82,5 @@ private:
 
 private:
     caf::PdmPointer<RimWellLogTrack> m_plotTrackDefinition;
+    QPoint                           m_dragStartPosition;
 };

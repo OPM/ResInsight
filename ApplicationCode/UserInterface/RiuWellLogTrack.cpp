@@ -42,8 +42,10 @@
 #include "qwt_symbol.h"
 #include "qwt_text.h"
 
+#include <QDrag>
 #include <QFont>
 #include <QGraphicsDropShadowEffect>
+#include <QMimeData>
 #include <QMouseEvent>
 #include <QScrollArea>
 #include <QWheelEvent>
@@ -69,45 +71,6 @@ RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* plotTrackDefinition, QWidget*
 ///
 //--------------------------------------------------------------------------------------------------
 RiuWellLogTrack::~RiuWellLogTrack() {}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuWellLogTrack::setDefaults()
-{
-    RiuQwtPlotTools::setCommonPlotBehaviour( this );
-
-    enableAxis( QwtPlot::xTop, true );
-    enableAxis( QwtPlot::yLeft, true );
-    enableAxis( QwtPlot::xBottom, false );
-    enableAxis( QwtPlot::yRight, false );
-
-    axisScaleEngine( QwtPlot::yLeft )->setAttribute( QwtScaleEngine::Inverted, true );
-
-    // Align the canvas with the actual min and max values of the curves
-    axisScaleEngine( QwtPlot::xTop )->setAttribute( QwtScaleEngine::Floating, true );
-    axisScaleEngine( QwtPlot::yLeft )->setAttribute( QwtScaleEngine::Floating, true );
-    setAxisScale( QwtPlot::yLeft, 1000, 0 );
-    setXRange( 0, 100 );
-    axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( axisExtent( QwtPlot::xTop ) );
-    setMinimumWidth( defaultMinimumWidth() );
-
-    canvas()->setContentsMargins( 0, 0, 0, 0 );
-    QFrame* canvasFrame = dynamic_cast<QFrame*>( canvas() );
-    canvasFrame->setFrameShape( QFrame::Box );
-    canvasFrame->setStyleSheet( "border: 1px solid black" );
-
-    QGraphicsDropShadowEffect* dropShadowEffect = new QGraphicsDropShadowEffect( canvas() );
-    dropShadowEffect->setOffset( 1.0, 1.0 );
-    dropShadowEffect->setBlurRadius( 3.0 );
-    dropShadowEffect->setColor( QColor( 60, 60, 60, 60 ) );
-    canvas()->setGraphicsEffect( dropShadowEffect );
-
-    axisScaleDraw( QwtPlot::xTop )->enableComponent( QwtAbstractScaleDraw::Backbone, false );
-    axisScaleDraw( QwtPlot::yLeft )->enableComponent( QwtAbstractScaleDraw::Backbone, false );
-    axisWidget( QwtPlot::xTop )->setMargin( 0 );
-    axisWidget( QwtPlot::yLeft )->setMargin( 0 );
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -151,131 +114,6 @@ void RiuWellLogTrack::setXTitle( const QString& title )
         axisTitleX.setText( title );
         setAxisTitle( QwtPlot::xTop, axisTitleX );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiuWellLogTrack::eventFilter( QObject* watched, QEvent* event )
-{
-    if ( watched == canvas() )
-    {
-        QWheelEvent* wheelEvent = dynamic_cast<QWheelEvent*>( event );
-        if ( wheelEvent )
-        {
-            if ( !m_plotTrackDefinition )
-            {
-                return QwtPlot::eventFilter( watched, event );
-            }
-
-            RimWellLogPlot* plotDefinition;
-            m_plotTrackDefinition->firstAncestorOrThisOfType( plotDefinition );
-            if ( !plotDefinition )
-            {
-                return QwtPlot::eventFilter( watched, event );
-            }
-
-            if ( wheelEvent->modifiers() & Qt::ControlModifier )
-            {
-                QwtScaleMap scaleMap   = canvasMap( QwtPlot::yLeft );
-                double      zoomCenter = scaleMap.invTransform( wheelEvent->pos().y() );
-
-                if ( wheelEvent->delta() > 0 )
-                {
-                    plotDefinition->setDepthZoomByFactorAndCenter( RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter );
-                }
-                else
-                {
-                    plotDefinition->setDepthZoomByFactorAndCenter( 1.0 / RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter );
-                }
-            }
-            else
-            {
-                plotDefinition->panDepth( wheelEvent->delta() < 0 ? RIU_SCROLLWHEEL_PANFACTOR
-                                                                  : -RIU_SCROLLWHEEL_PANFACTOR );
-            }
-
-            event->accept();
-            return true;
-        }
-        else
-        {
-            QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>( event );
-            if ( mouseEvent )
-            {
-                if ( mouseEvent->button() == Qt::LeftButton && mouseEvent->type() == QMouseEvent::MouseButtonRelease )
-                {
-                    selectClosestCurve( mouseEvent->pos() );
-                }
-            }
-        }
-    }
-
-    return QwtPlot::eventFilter( watched, event );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuWellLogTrack::selectClosestCurve( const QPoint& pos )
-{
-    QwtPlotCurve* closestCurve = nullptr;
-    double        distMin      = DBL_MAX;
-
-    const QwtPlotItemList& itmList = itemList();
-    for ( QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++ )
-    {
-        if ( ( *it )->rtti() == QwtPlotItem::Rtti_PlotCurve )
-        {
-            QwtPlotCurve* candidateCurve = static_cast<QwtPlotCurve*>( *it );
-            double        dist           = DBL_MAX;
-            candidateCurve->closestPoint( pos, &dist );
-            if ( dist < distMin )
-            {
-                closestCurve = candidateCurve;
-                distMin      = dist;
-            }
-        }
-    }
-
-    if ( closestCurve && distMin < 20 )
-    {
-        RimWellLogCurve* selectedCurve = m_plotTrackDefinition->curveDefinitionFromCurve( closestCurve );
-        if ( selectedCurve )
-        {
-            RiuPlotMainWindowTools::showPlotMainWindow();
-            RiuPlotMainWindowTools::selectAsCurrentItem( selectedCurve );
-
-            return;
-        }
-    }
-
-    RiuPlotMainWindowTools::showPlotMainWindow();
-    RiuPlotMainWindowTools::selectAsCurrentItem( m_plotTrackDefinition );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RiuWellLogTrack::defaultMinimumWidth()
-{
-    return 80;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QSize RiuWellLogTrack::sizeHint() const
-{
-    return QSize( 0, 0 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QSize RiuWellLogTrack::minimumSizeHint() const
-{
-    return QSize( 0, 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -414,4 +252,270 @@ int RiuWellLogTrack::axisExtent( QwtPlot::Axis axis ) const
         lineExtent += QFontMetrics( titleFont ).height();
     }
     return lineExtent;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuWellLogTrack::frameIsInFrontOfThis( const QRect& frameGeometry )
+{
+    QRect ownGeometry = this->canvas()->geometry();
+    ownGeometry.translate( this->geometry().topLeft() );
+
+    if ( frameGeometry.bottom() < ownGeometry.center().y() )
+    {
+        return true;
+    }
+    else if ( frameGeometry.left() < ownGeometry.left() && frameGeometry.top() < ownGeometry.center().y() )
+    {
+        return true;
+    }
+    else
+    {
+        QRect intersection = ownGeometry.intersected( frameGeometry );
+
+        double ownArea          = double( ownGeometry.height() ) * double( ownGeometry.width() );
+        double frameArea        = double( frameGeometry.height() ) * double( frameGeometry.width() );
+        double intersectionArea = double( intersection.height() ) * double( intersection.width() );
+        if ( intersectionArea > 0.8 * std::min( ownArea, frameArea ) )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QPoint RiuWellLogTrack::dragStartPosition() const
+{
+    return m_dragStartPosition;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::setDefaultStyleSheet()
+{
+    this->setStyleSheetForThisObject( "border: 1px dashed blue;", "hover" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::setStyleSheetForThisObject( const QString& content, const QString& state /*= "" */ )
+{
+    QString stateTag   = !state.isEmpty() ? QString( ":%1" ).arg( state ) : "";
+    QString stylesheet = QString( "QwtPlot#%1%2 { %3 }" ).arg( this->objectName() ).arg( stateTag ).arg( content );
+    this->setStyleSheet( stylesheet );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogTrack* RiuWellLogTrack::plotDefinition() const
+{
+    return m_plotTrackDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuWellLogTrack::eventFilter( QObject* watched, QEvent* event )
+{
+    if ( watched == canvas() )
+    {
+        QWheelEvent* wheelEvent = dynamic_cast<QWheelEvent*>( event );
+        if ( wheelEvent )
+        {
+            if ( !m_plotTrackDefinition )
+            {
+                return QwtPlot::eventFilter( watched, event );
+            }
+
+            RimWellLogPlot* plotDefinition;
+            m_plotTrackDefinition->firstAncestorOrThisOfType( plotDefinition );
+            if ( !plotDefinition )
+            {
+                return QwtPlot::eventFilter( watched, event );
+            }
+
+            if ( wheelEvent->modifiers() & Qt::ControlModifier )
+            {
+                QwtScaleMap scaleMap   = canvasMap( QwtPlot::yLeft );
+                double      zoomCenter = scaleMap.invTransform( wheelEvent->pos().y() );
+
+                if ( wheelEvent->delta() > 0 )
+                {
+                    plotDefinition->setDepthZoomByFactorAndCenter( RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter );
+                }
+                else
+                {
+                    plotDefinition->setDepthZoomByFactorAndCenter( 1.0 / RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter );
+                }
+            }
+            else
+            {
+                plotDefinition->panDepth( wheelEvent->delta() < 0 ? RIU_SCROLLWHEEL_PANFACTOR
+                                                                  : -RIU_SCROLLWHEEL_PANFACTOR );
+            }
+
+            event->accept();
+            return true;
+        }
+        else
+        {
+            QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>( event );
+            if ( mouseEvent )
+            {
+                if ( mouseEvent->button() == Qt::LeftButton && mouseEvent->type() == QMouseEvent::MouseButtonRelease )
+                {
+                    selectClosestCurve( mouseEvent->pos() );
+                }
+            }
+        }
+    }
+
+    return QwtPlot::eventFilter( watched, event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize RiuWellLogTrack::sizeHint() const
+{
+    return QSize( 0, 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize RiuWellLogTrack::minimumSizeHint() const
+{
+    return QSize( 0, 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::mousePressEvent( QMouseEvent* event )
+{
+    if ( event->button() == Qt::LeftButton && this->underMouse() )
+    {
+        m_dragStartPosition = event->pos();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::mouseMoveEvent( QMouseEvent* event )
+{
+    if ( !( event->buttons() & Qt::LeftButton ) ) return;
+    if ( ( event->pos() - m_dragStartPosition ).manhattanLength() < QApplication::startDragDistance() ) return;
+
+    QPoint     dragPositionOffset = this->canvas()->geometry().topLeft() - m_dragStartPosition;
+    QPixmap    pixmap             = this->canvas()->grab();
+    QDrag*     drag               = new QDrag( this );
+    QMimeData* mimeData           = new QMimeData;
+    mimeData->setImageData( pixmap );
+    drag->setMimeData( mimeData );
+    drag->setPixmap( pixmap );
+    drag->setHotSpot( m_dragStartPosition );
+    drag->exec( Qt::MoveAction );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::setDefaults()
+{
+    RiuQwtPlotTools::setCommonPlotBehaviour( this );
+
+    enableAxis( QwtPlot::xTop, true );
+    enableAxis( QwtPlot::yLeft, true );
+    enableAxis( QwtPlot::xBottom, false );
+    enableAxis( QwtPlot::yRight, false );
+
+    axisScaleEngine( QwtPlot::yLeft )->setAttribute( QwtScaleEngine::Inverted, true );
+
+    // Align the canvas with the actual min and max values of the curves
+    axisScaleEngine( QwtPlot::xTop )->setAttribute( QwtScaleEngine::Floating, true );
+    axisScaleEngine( QwtPlot::yLeft )->setAttribute( QwtScaleEngine::Floating, true );
+    setAxisScale( QwtPlot::yLeft, 1000, 0 );
+    setXRange( 0, 100 );
+    axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( axisExtent( QwtPlot::xTop ) );
+    setMinimumWidth( defaultMinimumWidth() );
+
+    canvas()->setContentsMargins( 0, 0, 0, 0 );
+    QFrame* canvasFrame = dynamic_cast<QFrame*>( canvas() );
+    canvasFrame->setFrameShape( QFrame::Box );
+    canvasFrame->setStyleSheet( "border: 1px solid black" );
+
+    QGraphicsDropShadowEffect* dropShadowEffect = new QGraphicsDropShadowEffect( canvas() );
+    dropShadowEffect->setOffset( 1.0, 1.0 );
+    dropShadowEffect->setBlurRadius( 3.0 );
+    dropShadowEffect->setColor( QColor( 60, 60, 60, 60 ) );
+    canvas()->setGraphicsEffect( dropShadowEffect );
+
+    axisScaleDraw( QwtPlot::xTop )->enableComponent( QwtAbstractScaleDraw::Backbone, false );
+    axisScaleDraw( QwtPlot::yLeft )->enableComponent( QwtAbstractScaleDraw::Backbone, false );
+    axisWidget( QwtPlot::xTop )->setMargin( 0 );
+    axisWidget( QwtPlot::yLeft )->setMargin( 0 );
+
+    // Store the pointer address as an object name. This way each track can be identified uniquely for CSS-stylesheets
+    QString objectName = QString( "%1" ).arg( reinterpret_cast<uint64_t>( this ) );
+    setObjectName( objectName );
+
+    setDefaultStyleSheet();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::selectClosestCurve( const QPoint& pos )
+{
+    QwtPlotCurve* closestCurve = nullptr;
+    double        distMin      = DBL_MAX;
+
+    const QwtPlotItemList& itmList = itemList();
+    for ( QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++ )
+    {
+        if ( ( *it )->rtti() == QwtPlotItem::Rtti_PlotCurve )
+        {
+            QwtPlotCurve* candidateCurve = static_cast<QwtPlotCurve*>( *it );
+            double        dist           = DBL_MAX;
+            candidateCurve->closestPoint( pos, &dist );
+            if ( dist < distMin )
+            {
+                closestCurve = candidateCurve;
+                distMin      = dist;
+            }
+        }
+    }
+
+    if ( closestCurve && distMin < 20 )
+    {
+        RimWellLogCurve* selectedCurve = m_plotTrackDefinition->curveDefinitionFromCurve( closestCurve );
+        if ( selectedCurve )
+        {
+            RiuPlotMainWindowTools::showPlotMainWindow();
+            RiuPlotMainWindowTools::selectAsCurrentItem( selectedCurve );
+
+            return;
+        }
+    }
+
+    RiuPlotMainWindowTools::showPlotMainWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem( m_plotTrackDefinition );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiuWellLogTrack::defaultMinimumWidth()
+{
+    return 80;
 }

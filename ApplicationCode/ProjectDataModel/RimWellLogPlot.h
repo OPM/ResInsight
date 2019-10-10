@@ -23,6 +23,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
+#include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
 
 #include "RiaDefines.h"
@@ -56,6 +57,16 @@ public:
         CONNECTION_NUMBER
     };
 
+    enum ColumnCount
+    {
+        COLUMNS_1         = 1,
+        COLUMNS_2         = 2,
+        COLUMNS_3         = 3,
+        COLUMNS_4         = 4,
+        COLUMNS_UNLIMITED = 1000,
+    };
+    typedef caf::AppEnum<ColumnCount> ColumnCountEnum;
+
     enum AxisGridVisibility
     {
         AXIS_GRID_NONE,
@@ -86,12 +97,14 @@ public:
     void               enableDepthGridLines( AxisGridVisibility gridVisibility );
     AxisGridVisibility depthGridLinesVisibility() const;
 
-    bool isPlotTitleVisible() const;
-    void setPlotTitleVisible( bool visible );
-    bool areTrackLegendsVisible() const;
-    void setTrackLegendsVisible( bool doShow );
-    bool areTrackLegendsHorizontal() const;
-    void setTrackLegendsHorizontal( bool horizontal );
+    bool                 isPlotTitleVisible() const;
+    void                 setPlotTitleVisible( bool visible );
+    bool                 areTrackLegendsVisible() const;
+    void                 setTrackLegendsVisible( bool doShow );
+    bool                 areTrackLegendsHorizontal() const;
+    void                 setTrackLegendsHorizontal( bool horizontal );
+    int                  columnCount() const;
+    caf::PdmFieldHandle* columnCountField();
 
     void   addTrack( RimWellLogTrack* track );
     void   insertTrack( RimWellLogTrack* track, size_t index );
@@ -136,6 +149,7 @@ public:
 
     void setAvailableDepthUnits( const std::set<RiaDefines::DepthUnitType>& depthUnits );
     void setAvailableDepthTypes( const std::set<RimWellLogPlot::DepthTypeEnum>& depthTypes );
+    void updateTrackOrderFromWidget();
 
 protected:
     void performAutoNameUpdate() override;
@@ -156,6 +170,9 @@ protected:
     void     deleteViewWidget() override;
 
     void initAfterRead() override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     void applyZoomAllDepths();
@@ -165,6 +182,7 @@ private:
 
     void         updatePlotTitle();
     virtual void onDepthTypeChanged();
+    void         updateColumnCount();
 
 protected:
     caf::PdmField<QString>                               m_userName_OBSOLETE;
@@ -178,9 +196,10 @@ protected:
     caf::PdmField<AxisGridEnum>                            m_depthAxisGridVisibility;
     caf::PdmField<bool>                                    m_isAutoScaleDepthEnabled;
 
-    caf::PdmField<bool> m_showTitleInPlot;
-    caf::PdmField<bool> m_showTrackLegends;
-    caf::PdmField<bool> m_trackLegendsHorizontal;
+    caf::PdmField<bool>            m_showTitleInPlot;
+    caf::PdmField<bool>            m_showTrackLegends;
+    caf::PdmField<bool>            m_trackLegendsHorizontal;
+    caf::PdmField<ColumnCountEnum> m_columnCountEnum;
 
     caf::PdmChildField<RimWellLogPlotNameConfig*> m_nameConfig;
 
