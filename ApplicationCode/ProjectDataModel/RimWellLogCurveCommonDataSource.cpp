@@ -676,7 +676,6 @@ std::vector<caf::PdmFieldHandle*> RimWellLogCurveCommonDataSource::fieldsToShowI
         fieldsToDisplay.push_back( &m_simWellName );
     }
     fieldsToDisplay.push_back( &m_timeStep );
-
     return fieldsToDisplay;
 }
 
@@ -923,7 +922,8 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
 
         if ( field == &m_case )
         {
-            modifierText = ( "(Shift+" );
+            modifierText                  = ( "(Shift+" );
+            myAttr->minimumContentsLength = 14;
         }
         else if ( field == &m_wellPath || field == &m_simWellName )
         {
@@ -931,7 +931,8 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
         }
         else if ( field == &m_timeStep )
         {
-            modifierText = ( "(" );
+            modifierText                  = ( "(" );
+            myAttr->minimumContentsLength = 12;
         }
 
         if ( !modifierText.isEmpty() )

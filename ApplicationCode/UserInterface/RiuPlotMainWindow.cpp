@@ -532,6 +532,7 @@ void RiuPlotMainWindow::updateWellLogPlotToolBar()
     {
         std::vector<caf::PdmFieldHandle*> toolBarFields;
         toolBarFields = wellLogPlot->commonDataSource()->fieldsToShowInToolbar();
+        toolBarFields.push_back( wellLogPlot->columnCountField() );
 
         m_wellLogPlotToolBarEditor->setFields( toolBarFields );
         m_wellLogPlotToolBarEditor->updateUi();

@@ -31,6 +31,7 @@
 #include "RimWellLogTrack.h"
 
 #include "RiuPlotMainWindow.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuWellLogPlot.h"
 #include "RiuWellLogTrack.h"
 
@@ -54,6 +55,17 @@ void caf::AppEnum<RimWellLogPlot::DepthTypeEnum>::setUp()
     addItem( RimWellLogPlot::PSEUDO_LENGTH, "PSEUDO_LENGTH", "Pseudo Length" );
     addItem( RimWellLogPlot::CONNECTION_NUMBER, "CONNECTION_NUMBER", "Connection Number" );
     setDefault( RimWellLogPlot::MEASURED_DEPTH );
+}
+
+template <>
+void RimWellLogPlot::ColumnCountEnum::setUp()
+{
+    addItem( RimWellLogPlot::COLUMNS_1, "1", "1 Column" );
+    addItem( RimWellLogPlot::COLUMNS_2, "2", "2 Columns" );
+    addItem( RimWellLogPlot::COLUMNS_3, "3", "3 Columns" );
+    addItem( RimWellLogPlot::COLUMNS_4, "4", "4 Columns" );
+    addItem( RimWellLogPlot::COLUMNS_UNLIMITED, "UNLIMITED", "Unlimited" );
+    setDefault( RimWellLogPlot::COLUMNS_UNLIMITED );
 }
 
 template <>
@@ -110,6 +122,8 @@ RimWellLogPlot::RimWellLogPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_tracks, "Tracks", "", "", "", "" );
     m_tracks.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_columnCountEnum, "NumberOfColumns", "Number of Columns", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "", "", "", "" );
     m_nameConfig.uiCapability()->setUiTreeHidden( true );
@@ -204,6 +218,11 @@ void RimWellLogPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         updateTracks();
     }
+    else if ( changedField == &m_columnCountEnum )
+    {
+        updateTracks();
+        updateColumnCount();
+    }
     else if ( changedField == &m_showTitleInPlot )
     {
         m_viewer->setTitleVisible( m_showTitleInPlot() );
@@ -261,6 +280,29 @@ QList<caf::PdmOptionItemInfo> RimWellLogPlot::calculateValueOptions( const caf::
         options.push_back( caf::PdmOptionItemInfo( "Vertical", QVariant::fromValue( false ) ) );
         options.push_back( caf::PdmOptionItemInfo( "Horizontal", QVariant::fromValue( true ) ) );
     }
+    else if ( fieldNeedingOptions == &m_columnCountEnum )
+    {
+        for ( size_t i = 0; i < ColumnCountEnum::size(); ++i )
+        {
+            ColumnCount enumVal = ColumnCountEnum::fromIndex( i );
+            if ( enumVal == COLUMNS_UNLIMITED )
+            {
+                QString iconPath( ":/ColumnsUnlimited.png" );
+                options.push_back( caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ),
+                                                           enumVal,
+                                                           false,
+                                                           caf::QIconProvider( iconPath ) ) );
+            }
+            else
+            {
+                QString iconPath = QString( ":/Columns%1.png" ).arg( static_cast<int>( enumVal ) );
+                options.push_back( caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ),
+                                                           enumVal,
+                                                           false,
+                                                           caf::QIconProvider( iconPath ) ) );
+            }
+        }
+    }
 
     ( *useOptionsOnly ) = true;
     return options;
@@ -295,6 +337,7 @@ void RimWellLogPlot::addTrack( RimWellLogTrack* track )
         track->recreateViewer();
         m_viewer->addTrackPlot( track->viewer() );
     }
+    updateColumnCount();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -311,6 +354,7 @@ void RimWellLogPlot::insertTrack( RimWellLogTrack* track, size_t index )
     }
 
     updateTrackNames();
+    updateColumnCount();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -322,6 +366,8 @@ void RimWellLogPlot::removeTrack( RimWellLogTrack* track )
     {
         if ( m_viewer ) m_viewer->removeTrackPlot( track->viewer() );
         m_tracks.removeChildObject( track );
+
+        updateColumnCount();
     }
 }
 
@@ -610,6 +656,7 @@ void RimWellLogPlot::uiOrderingForPlotSettings( caf::PdmUiOrdering& uiOrdering )
     titleAndLegendsGroup->add( &m_showTrackLegends );
     titleAndLegendsGroup->add( &m_trackLegendsHorizontal );
     titleAndLegendsGroup->add( &m_showTitleInPlot );
+    titleAndLegendsGroup->add( &m_columnCountEnum );
     m_nameConfig->uiOrdering( "", *titleAndLegendsGroup );
 }
 
@@ -773,6 +820,18 @@ void RimWellLogPlot::setAvailableDepthUnits( const std::set<RiaDefines::DepthUni
 void RimWellLogPlot::setAvailableDepthTypes( const std::set<DepthTypeEnum>& depthTypes )
 {
     m_availableDepthTypes = depthTypes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::updateTrackOrderFromWidget()
+{
+    std::sort( m_tracks.begin(), m_tracks.end(), [this]( RimWellLogTrack* lhs, RimWellLogTrack* rhs ) {
+        return m_viewer->indexOfTrackPlot( lhs->viewer() ) < m_viewer->indexOfTrackPlot( rhs->viewer() );
+    } );
+    updateTrackNames();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -983,6 +1042,23 @@ void RimWellLogPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                            QString                    uiConfigName,
+                                            caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_columnCountEnum )
+    {
+        auto comboAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
+        if ( comboAttr )
+        {
+            comboAttr->iconSize = QSize( 24, 14 );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellLogPlot::DepthTypeEnum RimWellLogPlot::depthType() const
 {
     return m_depthType.value();
@@ -1115,6 +1191,26 @@ void RimWellLogPlot::setTrackLegendsHorizontal( bool horizontal )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimWellLogPlot::columnCount() const
+{
+    if ( m_columnCountEnum() == COLUMNS_UNLIMITED )
+    {
+        return static_cast<int>( visibleTracks().size() );
+    }
+    return static_cast<int>( m_columnCountEnum() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWellLogPlot::columnCountField()
+{
+    return &m_columnCountEnum;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RimWellLogPlot::trackIndex( const RimWellLogTrack* track ) const
 {
     return m_tracks.index( track );
@@ -1146,3 +1242,11 @@ void RimWellLogPlot::updatePlotTitle()
 /// Default empty implementation
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::onDepthTypeChanged() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::updateColumnCount()
+{
+    RiuPlotMainWindowTools::refreshToolbars();
+}

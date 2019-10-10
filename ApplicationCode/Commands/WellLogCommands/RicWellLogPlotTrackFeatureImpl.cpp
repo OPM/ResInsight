@@ -93,8 +93,6 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot( RimWellLogPlot*   
 {
     CVF_ASSERT( dstWellLogPlot );
 
-    RiuPlotMainWindow* plotWindow = RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
-
     std::set<RimWellLogPlot*> srcPlots;
 
     for ( size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++ )
@@ -113,12 +111,9 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot( RimWellLogPlot*   
 
     for ( std::set<RimWellLogPlot*>::iterator pIt = srcPlots.begin(); pIt != srcPlots.end(); ++pIt )
     {
-        RiuWellLogPlot* viewWidget = dynamic_cast<RiuWellLogPlot*>( ( *pIt )->viewWidget() );
-        plotWindow->setWidthOfMdiWindow( viewWidget, viewWidget->preferredWidth() );
-
         ( *pIt )->calculateAvailableDepthRange();
-        ( *pIt )->updateTrackNames();
         ( *pIt )->updateDepthZoom();
+        ( *pIt )->updateTrackNames();
         ( *pIt )->updateConnectedEditors();
     }
 
@@ -129,9 +124,8 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot( RimWellLogPlot*   
     {
         dstWellLogPlot->insertTrack( tracksToMove[tIdx], insertionStartIndex + tIdx );
     }
-    RiuWellLogPlot* viewWidget = dynamic_cast<RiuWellLogPlot*>( dstWellLogPlot->viewWidget() );
-    plotWindow->setWidthOfMdiWindow( viewWidget, viewWidget->preferredWidth() );
-
+    dstWellLogPlot->calculateAvailableDepthRange();
+    dstWellLogPlot->updateDepthZoom();
     dstWellLogPlot->updateTrackNames();
     dstWellLogPlot->updateTracks();
     dstWellLogPlot->updateConnectedEditors();

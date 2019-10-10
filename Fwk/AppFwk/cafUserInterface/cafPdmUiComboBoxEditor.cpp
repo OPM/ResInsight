@@ -46,7 +46,9 @@
 
 #include <QApplication>
 #include <QComboBox>
+#include <QDebug>
 #include <QLabel>
+#include <QListView>
 #include <QWheelEvent>
 
 
@@ -197,11 +199,18 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
 
         m_comboBox->blockSignals(true);
         m_comboBox->clear();
+        QListView* listView = dynamic_cast<QListView*>(m_comboBox->view());
+        if (listView)
+        {
+            listView->setSpacing(2);
+        }
+
         if (!options.isEmpty())
         {
             for (int i = 0; i < options.size(); i++)
             {
                 m_comboBox->addItem(options[i].icon(), options[i].optionUiText());
+                m_comboBox->setIconSize(attributes.iconSize);
             }
             m_comboBox->setCurrentIndex(uiField()->uiValue().toInt());
         }
