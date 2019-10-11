@@ -867,8 +867,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
 
             if ( snapshotHeight > -1 && snapshotWidth > -1 )
             {
-                QSize windowSize( snapshotWidth, snapshotHeight );
-                RiaRegressionTestRunner::setFixedWindowSizeFor3dViews( windowSize );
+                RiuMainWindowTools::setFixedWindowSizeFor3dViews( mainWnd, snapshotWidth, snapshotHeight );
             }
 
             processEvents();

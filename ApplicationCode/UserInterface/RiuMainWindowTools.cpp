@@ -22,10 +22,15 @@
 
 #include "RimViewWindow.h"
 
+#include "Rim3dView.h"
+#include "RimCase.h"
+#include "RimProject.h"
+
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuMainWindow.h"
 #include "RiuMainWindowBase.h"
 #include "RiuPlotMainWindow.h"
+#include "RiuViewer.h"
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeView.h"
@@ -95,23 +100,60 @@ void RiuMainWindowTools::collapseSiblings( const caf::PdmUiItem* sourceUiItem )
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowTools::setWindowSizeOnWidgetsInMdiWindows( RiuMainWindowBase* mainWindow, int width, int height )
 {
-    if ( mainWindow )
+    if ( !mainWindow ) return;
+
+    auto widgets = mainWindow->findChildren<QMdiSubWindow*>();
+    for ( auto w : widgets )
     {
-        auto widgets = mainWindow->findChildren<QMdiSubWindow*>();
-        for ( auto w : widgets )
+        if ( !w ) continue;
+
+        w->showNormal();
+
+        auto viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( w->widget() );
+
+        if ( viewWindow && viewWindow->viewWidget() )
         {
-            if ( w )
+            QWidget* viewWidget = viewWindow->viewWidget();
+
+            viewWidget->resize( width, height );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowTools::setFixedWindowSizeFor3dViews( RiuMainWindowBase* mainWindow, int width, int height )
+{
+    if ( !mainWindow ) return;
+
+    RimProject* proj = RiaApplication::instance()->project();
+    if ( !proj ) return;
+
+    std::vector<RimCase*> projectCases;
+    proj->allCases( projectCases );
+
+    for ( RimCase* cas : projectCases )
+    {
+        if ( !cas ) continue;
+
+        std::vector<Rim3dView*> views = cas->views();
+
+        for ( Rim3dView* riv : views )
+        {
+            if ( riv && riv->viewer() )
             {
-                w->showNormal();
-
-                auto viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( w->widget() );
-
-                if ( viewWindow && viewWindow->viewWidget() )
+                // Make sure all views are maximized for snapshotting
+                QMdiSubWindow* subWnd = mainWindow->findMdiSubWindow( riv->viewer()->layoutWidget() );
+                if ( subWnd )
                 {
-                    QWidget* viewWidget = viewWindow->viewWidget();
-
-                    viewWidget->resize( width, height );
+                    subWnd->showMaximized();
                 }
+
+                // This size is set to match the regression test reference images
+                QSize windowSize( width, height );
+
+                riv->viewer()->setFixedSize( windowSize );
             }
         }
     }

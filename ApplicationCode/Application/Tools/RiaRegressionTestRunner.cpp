@@ -34,6 +34,7 @@
 #include "RimProject.h"
 
 #include "RiuMainWindow.h"
+#include "RiuMainWindowTools.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuViewer.h"
 
@@ -469,47 +470,14 @@ void RiaRegressionTestRunner::removeDirectoryWithContent( QDir& dirToDelete )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaRegressionTestRunner::setFixedWindowSizeFor3dViews( const QSize& snapshotImageSize )
+void RiaRegressionTestRunner::setDefaultFixedWindowSizeFor3dViews()
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     if ( !mainWnd ) return;
 
-    RimProject* proj = RiaApplication::instance()->project();
-    if ( !proj ) return;
+    QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
 
-    std::vector<RimCase*> projectCases;
-    proj->allCases( projectCases );
-
-    for ( RimCase* cas : projectCases )
-    {
-        if ( !cas ) continue;
-
-        std::vector<Rim3dView*> views = cas->views();
-
-        for ( Rim3dView* riv : views )
-        {
-            if ( riv && riv->viewer() )
-            {
-                // Make sure all views are maximized for snapshotting
-                QMdiSubWindow* subWnd = mainWnd->findMdiSubWindow( riv->viewer()->layoutWidget() );
-                if ( subWnd )
-                {
-                    subWnd->showMaximized();
-                }
-
-                // This size is set to match the regression test reference images
-                riv->viewer()->setFixedSize( snapshotImageSize );
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaRegressionTestRunner::setDefaultFixedWindowSizeFor3dViews()
-{
-    setFixedWindowSizeFor3dViews( RiaRegressionTestRunner::regressionDefaultImageSize() );
+    RiuMainWindowTools::setFixedWindowSizeFor3dViews( mainWnd, defaultSize.width(), defaultSize.height() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -517,34 +485,12 @@ void RiaRegressionTestRunner::setDefaultFixedWindowSizeFor3dViews()
 //--------------------------------------------------------------------------------------------------
 void RiaRegressionTestRunner::resizePlotWindows()
 {
-    RimProject* proj = RiaApplication::instance()->project();
-    if ( !proj ) return;
-
     RiuPlotMainWindow* plotMainWindow = RiaGuiApplication::instance()->mainPlotWindow();
     if ( !plotMainWindow ) return;
 
-    std::vector<RimViewWindow*> viewWindows;
+    QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
 
-    proj->mainPlotCollection()->descendantsIncludingThisOfType( viewWindows );
-
-    for ( auto viewWindow : viewWindows )
-    {
-        if ( viewWindow->isMdiWindow() )
-        {
-            QWidget* viewWidget = viewWindow->viewWidget();
-
-            if ( viewWidget )
-            {
-                QMdiSubWindow* mdiWindow = plotMainWindow->findMdiSubWindow( viewWidget );
-                if ( mdiWindow )
-                {
-                    mdiWindow->showNormal();
-
-                    viewWidget->resize( RiaRegressionTestRunner::regressionDefaultImageSize() );
-                }
-            }
-        }
-    }
+    RiuMainWindowTools::setWindowSizeOnWidgetsInMdiWindows( plotMainWindow, defaultSize.width(), defaultSize.height() );
 }
 
 //--------------------------------------------------------------------------------------------------

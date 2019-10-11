@@ -42,7 +42,6 @@ public:
     bool useOpenMPForGeometryCreation() const;
 
     static void updateRegressionTest( const QString& testRootPath );
-    static void setFixedWindowSizeFor3dViews( const QSize& snapshotImageSize );
     static void setDefaultFixedWindowSizeFor3dViews();
 
 private:
