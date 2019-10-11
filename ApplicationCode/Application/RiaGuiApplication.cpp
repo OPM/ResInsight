@@ -907,11 +907,9 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
 
         RiuMainWindow::instance()->loadWinGeoAndDockToolBarLayout();
 
-        /*
-                closeProject();
+        closeProject();
 
-                return EXIT_COMPLETED;
-        */
+        return EXIT_COMPLETED;
     }
 
     if ( cvf::Option o = progOpt->option( "commandFile" ) )
