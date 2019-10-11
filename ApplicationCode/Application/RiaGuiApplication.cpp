@@ -39,6 +39,7 @@
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"
 #include "HoloLensCommands/RicHoloLensSessionManager.h"
 #include "RicImportGeneralDataFeature.h"
+#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
@@ -90,6 +91,7 @@
 #include "Riu3dSelectionManager.h"
 #include "RiuDockWidgetTools.h"
 #include "RiuMainWindow.h"
+#include "RiuMainWindowTools.h"
 #include "RiuMdiMaximizeWindowGuard.h"
 #include "RiuMessagePanel.h"
 #include "RiuPlotMainWindow.h"
@@ -133,7 +135,6 @@
 #ifdef USE_UNIT_TESTS
 #include "gtest/gtest.h"
 #endif // USE_UNIT_TESTS
-#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 namespace caf
 {
@@ -647,14 +648,30 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
         setStartDir( cvfqt::Utils::toQString( o.value( 0 ) ) );
     }
 
+    int snapshotWidth  = -1;
+    int snapshotHeight = -1;
+
     if ( cvf::Option o = progOpt->option( "size" ) )
     {
-        RiuMainWindow* mainWnd = RiuMainWindow::instance();
-        int            width   = o.safeValue( 0 ).toInt( -1 );
-        int            height  = o.safeValue( 1 ).toInt( -1 );
-        if ( mainWnd && width > 0 && height > 0 )
+        int width  = o.safeValue( 0 ).toInt( -1 );
+        int height = o.safeValue( 1 ).toInt( -1 );
+
+        if ( width > 0 && height > 0 )
         {
-            mainWnd->resize( width, height );
+            snapshotWidth  = width;
+            snapshotHeight = height;
+
+            auto mainWindow = RiuMainWindow::instance();
+            if ( mainWindow )
+            {
+                mainWindow->resize( width, height );
+            }
+
+            auto plotWindow = mainPlotWindow();
+            if ( plotWindow )
+            {
+                plotWindow->resize( width, height );
+            }
         }
     }
 
@@ -823,28 +840,49 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
 
         QString exportFolder = QDir::currentPath() + "/snapshots";
 
-        if ( snapshotViews )
-        {
-            RiuMainWindow* mainWnd = RiuMainWindow::instance();
-            CVF_ASSERT( mainWnd );
-            mainWnd->hideAllDockWidgets();
-
-            RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( exportFolder );
-
-            mainWnd->loadWinGeoAndDockToolBarLayout();
-        }
-
         if ( snapshotPlots )
         {
-            if ( mainPlotWindow() )
+            auto mainPlotWnd = mainPlotWindow();
+            if ( mainPlotWnd )
             {
-                mainPlotWindow()->hideAllDockWidgets();
+                mainPlotWnd->show();
+                mainPlotWnd->raise();
+
+                if ( snapshotHeight > -1 && snapshotWidth > -1 )
+                {
+                    RiuMainWindowTools::setWindowSizeOnWidgetsInMdiWindows( mainPlotWnd, snapshotWidth, snapshotHeight );
+                }
+
+                processEvents();
 
                 RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( exportFolder );
-
-                mainPlotWindow()->loadWinGeoAndDockToolBarLayout();
             }
         }
+
+        if ( snapshotViews )
+        {
+            auto mainWnd = RiuMainWindow::instance();
+            mainWnd->show();
+            mainWnd->raise();
+
+            if ( snapshotHeight > -1 && snapshotWidth > -1 )
+            {
+                QSize windowSize( snapshotWidth, snapshotHeight );
+                RiaRegressionTestRunner::setFixedWindowSizeFor3dViews( windowSize );
+            }
+
+            processEvents();
+
+            RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( exportFolder );
+        }
+
+        auto mainPlotWnd = mainPlotWindow();
+        if ( mainPlotWnd )
+        {
+            mainPlotWnd->loadWinGeoAndDockToolBarLayout();
+        }
+
+        RiuMainWindow::instance()->loadWinGeoAndDockToolBarLayout();
 
         closeProject();
 

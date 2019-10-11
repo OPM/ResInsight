@@ -59,7 +59,7 @@ RicfCommandResponse RicfOpenProject::execute()
 
     if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
     {
-        RiaRegressionTestRunner::regressionTestConfigureProject();
+        RiaRegressionTestRunner::setDefaultFixedWindowSizeFor3dViews();
     }
 
     RicfCommandFileExecutor::instance()->setLastProjectPath( projectPath );

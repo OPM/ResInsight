@@ -203,7 +203,7 @@ void RiaRegressionTestRunner::runRegressionTest()
                 // Wait until all command objects have completed
                 app->waitUntilCommandObjectsHasBeenProcessed();
 
-                regressionTestConfigureProject();
+                setDefaultFixedWindowSizeFor3dViews();
 
                 resizePlotWindows();
 
@@ -469,7 +469,7 @@ void RiaRegressionTestRunner::removeDirectoryWithContent( QDir& dirToDelete )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaRegressionTestRunner::regressionTestConfigureProject()
+void RiaRegressionTestRunner::setFixedWindowSizeFor3dViews( const QSize& snapshotImageSize )
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     if ( !mainWnd ) return;
@@ -498,10 +498,18 @@ void RiaRegressionTestRunner::regressionTestConfigureProject()
                 }
 
                 // This size is set to match the regression test reference images
-                riv->viewer()->setFixedSize( RiaRegressionTestRunner::regressionDefaultImageSize() );
+                riv->viewer()->setFixedSize( snapshotImageSize );
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaRegressionTestRunner::setDefaultFixedWindowSizeFor3dViews()
+{
+    setFixedWindowSizeFor3dViews( RiaRegressionTestRunner::regressionDefaultImageSize() );
 }
 
 //--------------------------------------------------------------------------------------------------

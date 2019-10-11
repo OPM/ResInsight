@@ -20,11 +20,18 @@
 
 #include "RiaGuiApplication.h"
 
+#include "RimViewWindow.h"
+
+#include "RiuInterfaceToViewWindow.h"
 #include "RiuMainWindow.h"
+#include "RiuMainWindowBase.h"
 #include "RiuPlotMainWindow.h"
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeView.h"
+
+#include <QMainWindow>
+#include <QMdiSubWindow>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -77,6 +84,33 @@ void RiuMainWindowTools::collapseSiblings( const caf::PdmUiItem* sourceUiItem )
                 if ( siblingTreeOrderingItem != sourceTreeOrderingItem )
                 {
                     sourceTreeView->setExpanded( siblingTreeOrderingItem->activeItem(), false );
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowTools::setWindowSizeOnWidgetsInMdiWindows( RiuMainWindowBase* mainWindow, int width, int height )
+{
+    if ( mainWindow )
+    {
+        auto widgets = mainWindow->findChildren<QMdiSubWindow*>();
+        for ( auto w : widgets )
+        {
+            if ( w )
+            {
+                w->showNormal();
+
+                auto viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( w->widget() );
+
+                if ( viewWindow && viewWindow->viewWidget() )
+                {
+                    QWidget* viewWidget = viewWindow->viewWidget();
+
+                    viewWidget->resize( width, height );
                 }
             }
         }
