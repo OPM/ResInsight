@@ -943,10 +943,10 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_grouping )
     {
-        std::set<RigGridCrossPlotCurveGrouping> validOptions = {NO_GROUPING,
-                                                                GROUP_BY_TIME,
-                                                                GROUP_BY_FORMATION,
-                                                                GROUP_BY_RESULT};
+        std::set<RigGridCrossPlotCurveGrouping> validOptions = { NO_GROUPING,
+                                                                 GROUP_BY_TIME,
+                                                                 GROUP_BY_FORMATION,
+                                                                 GROUP_BY_RESULT };
         if ( !hasMultipleTimeSteps() )
         {
             validOptions.erase( GROUP_BY_TIME );
@@ -977,7 +977,7 @@ void RimGridCrossPlotDataSet::updateLegendRange()
 
     RimGridCrossPlot* parent;
     this->firstAncestorOrThisOfTypeAsserted( parent );
-    if ( parent->qwtPlot() )
+    if ( parent->viewer() )
     {
         if ( groupingEnabled() && m_case() && isChecked() && legendConfig()->showLegend() )
         {
@@ -1020,11 +1020,11 @@ void RimGridCrossPlotDataSet::updateLegendRange()
                     m_groupingProperty->updateLegendData( eclipseCase, m_timeStep() );
                 }
             }
-            parent->qwtPlot()->addOrUpdateDataSetLegend( this );
+            parent->addOrUpdateDataSetLegend( this );
         }
         else
         {
-            parent->qwtPlot()->removeDataSetLegend( this );
+            parent->removeDataSetLegend( this );
         }
     }
 }

@@ -309,7 +309,7 @@ void RimSummaryCurveCollection::updateCaseNameHasChanged()
     firstAncestorOrThisOfTypeAsserted( parentPlot );
 
     parentPlot->updatePlotTitle();
-    if ( parentPlot->qwtPlot() ) parentPlot->qwtPlot()->updateLegend();
+    if ( parentPlot->viewer() ) parentPlot->viewer()->updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

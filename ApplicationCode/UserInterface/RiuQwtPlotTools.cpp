@@ -25,7 +25,9 @@
 #include "qwt_plot.h"
 #include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
+#include "qwt_scale_widget.h"
 
+#include <QGraphicsDropShadowEffect>
 #include <QRegExp>
 #include <vector>
 
@@ -43,11 +45,15 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     plot->setAutoFillBackground( true );
     plot->setCanvasBackground( Qt::white );
 
+    plot->canvas()->setContentsMargins( 1, 1, 1, 1 );
     QFrame* canvasFrame = dynamic_cast<QFrame*>( plot->canvas() );
-    if ( canvasFrame )
-    {
-        canvasFrame->setFrameShape( QFrame::NoFrame );
-    }
+    canvasFrame->setFrameShape( QFrame::Box );
+
+    QGraphicsDropShadowEffect* dropShadowEffect = new QGraphicsDropShadowEffect( plot->canvas() );
+    dropShadowEffect->setOffset( 1.0, 1.0 );
+    dropShadowEffect->setBlurRadius( 3.0 );
+    dropShadowEffect->setColor( QColor( 60, 60, 60, 60 ) );
+    plot->canvas()->setGraphicsEffect( dropShadowEffect );
 
     // Grid
 
@@ -57,9 +63,11 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     gridPen.setColor( Qt::lightGray );
     grid->setPen( gridPen );
 
+    int fontSize = RiaFontCache::pointSizeFromFontSizeEnum(
+        RiaApplication::instance()->preferences()->defaultPlotFontSize() );
     // Axis number font
     QFont axisFont = plot->axisFont( QwtPlot::xBottom );
-    axisFont.setPointSize( 10 );
+    axisFont.setPointSize( fontSize );
 
     plot->setAxisFont( QwtPlot::xBottom, axisFont );
     plot->setAxisFont( QwtPlot::xTop, axisFont );
@@ -67,13 +75,13 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     plot->setAxisFont( QwtPlot::yRight, axisFont );
 
     // Axis title font
-    std::vector<QwtPlot::Axis> axes = {QwtPlot::xBottom, QwtPlot::xTop, QwtPlot::yLeft, QwtPlot::yRight};
+    std::vector<QwtPlot::Axis> axes = { QwtPlot::xBottom, QwtPlot::xTop, QwtPlot::yLeft, QwtPlot::yRight };
 
     for ( QwtPlot::Axis axis : axes )
     {
         QwtText axisTitle     = plot->axisTitle( axis );
         QFont   axisTitleFont = axisTitle.font();
-        axisTitleFont.setPointSize( 10 );
+        axisTitleFont.setPointSize( fontSize );
         axisTitleFont.setBold( false );
         axisTitle.setFont( axisTitleFont );
         axisTitle.setRenderFlags( Qt::AlignRight );
@@ -89,10 +97,16 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
 
     // Enable mousetracking and event filter
     plot->canvas()->setMouseTracking( true );
-    plot->canvas()->installEventFilter( plot );
     plot->plotLayout()->setAlignCanvasToScales( true );
 
-    plot->setContentsMargins( 4, 4, 4, 4 );
+    plot->setContentsMargins( 2, 2, 2, 2 );
+
+    // Store the pointer address as an object name. This way each plot can be identified uniquely for CSS-stylesheets
+    QString objectName = QString( "%1" ).arg( reinterpret_cast<uint64_t>( plot ) );
+    plot->setObjectName( objectName );
+
+    QString canvasName = QString( "%1" ).arg( reinterpret_cast<uint64_t>( plot->canvas() ) );
+    plot->canvas()->setObjectName( canvasName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,6 +118,11 @@ void RiuQwtPlotTools::setDefaultAxes( QwtPlot* plot )
     plot->enableAxis( QwtPlot::yLeft, true );
     plot->enableAxis( QwtPlot::xTop, false );
     plot->enableAxis( QwtPlot::yRight, false );
+
+    plot->axisScaleDraw( QwtPlot::xBottom )->enableComponent( QwtAbstractScaleDraw::Backbone, false );
+    plot->axisScaleDraw( QwtPlot::yLeft )->enableComponent( QwtAbstractScaleDraw::Backbone, false );
+    plot->axisWidget( QwtPlot::xBottom )->setMargin( 0 );
+    plot->axisWidget( QwtPlot::yLeft )->setMargin( 0 );
 
     plot->setAxisMaxMinor( QwtPlot::xBottom, 2 );
     plot->setAxisMaxMinor( QwtPlot::yLeft, 3 );
@@ -120,14 +139,14 @@ void RiuQwtPlotTools::enableDateBasedBottomXAxis( QwtPlot*                      
 {
     QwtDateScaleDraw* scaleDraw = new QwtDateScaleDraw( Qt::UTC );
 
-    std::set<QwtDate::IntervalType> intervals = {QwtDate::Year,
-                                                 QwtDate::Month,
-                                                 QwtDate::Week,
-                                                 QwtDate::Day,
-                                                 QwtDate::Hour,
-                                                 QwtDate::Minute,
-                                                 QwtDate::Second,
-                                                 QwtDate::Millisecond};
+    std::set<QwtDate::IntervalType> intervals = { QwtDate::Year,
+                                                  QwtDate::Month,
+                                                  QwtDate::Week,
+                                                  QwtDate::Day,
+                                                  QwtDate::Hour,
+                                                  QwtDate::Minute,
+                                                  QwtDate::Second,
+                                                  QwtDate::Millisecond };
 
     for ( QwtDate::IntervalType interval : intervals )
     {

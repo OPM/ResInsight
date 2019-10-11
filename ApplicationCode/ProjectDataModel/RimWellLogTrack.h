@@ -24,12 +24,15 @@
 #include "RigWellPathFormations.h"
 #include "RiuPlotAnnotationTool.h"
 
+#include "RimPlotInterface.h"
 #include "RimRegularLegendConfig.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+
+#include "qwt_plot.h"
 
 #include <QPointer>
 
@@ -64,7 +67,7 @@ struct CurveSamplingPointData
 ///
 ///
 //==================================================================================================
-class RimWellLogTrack : public caf::PdmObject
+class RimWellLogTrack : public caf::PdmObject, public RimPlotInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -82,21 +85,17 @@ public:
         CASE,
         WELL_PICK_FILTER
     };
-    enum WidthScaleFactor
-    {
-        EXTRA_NARROW_TRACK = 3,
-        NARROW_TRACK       = 4,
-        NORMAL_TRACK       = 5,
-        WIDE_TRACK         = 7,
-        EXTRA_WIDE_TRACK   = 10
-    };
 
     typedef caf::AppEnum<RiuPlotAnnotationTool::RegionAnnotationType> RegionAnnotationTypeEnum;
     typedef caf::AppEnum<RiuPlotAnnotationTool::RegionDisplay>        RegionAnnotationDisplayEnum;
 
-    void setDescription( const QString& description );
-    bool isVisible();
-    void setVisible( bool visible );
+    bool          isChecked() const override;
+    void          setChecked( bool checked );
+    const QString description() const;
+    void          setDescription( const QString& description );
+    int           widthScaleFactor() const override;
+    void          setWidthScaleFactor( WidthScaleFactor scaleFactor ) override;
+
     void addCurve( RimWellLogCurve* curve );
     void insertCurve( RimWellLogCurve* curve, size_t index );
     void takeOutCurve( RimWellLogCurve* curve );
@@ -105,13 +104,11 @@ public:
     size_t curveIndex( RimWellLogCurve* curve );
     size_t curveCount()
     {
-        return curves.size();
+        return m_curves.size();
     }
 
     void    setXAxisTitle( const QString& text );
-    QString depthPlotTitle() const;
-    int     widthScaleFactor() const;
-    void    setWidthScaleFactor( WidthScaleFactor scaleFactor );
+    QString yAxisTitle() const;
 
     void           setFormationWellPath( RimWellPath* wellPath );
     RimWellPath*   formationWellPath() const;
@@ -126,11 +123,11 @@ public:
     void           setFormationTrajectoryType( TrajectoryType trajectoryType );
     TrajectoryType formationTrajectoryType() const;
 
-    void recreateViewer();
+    void createPlotWidget();
     void detachAllCurves();
     void reattachAllCurves();
 
-    void loadDataAndUpdate( bool updateParentPlotAndToolbars = false );
+    void loadDataAndUpdate() override;
 
     void setAndUpdateWellPathFormationNamesData( RimCase* rimCase, RimWellPath* wellPath );
 
@@ -140,14 +137,22 @@ public:
                                                          bool           useBranchDetection );
     void setAndUpdateSimWellFormationNamesData( RimCase* rimCase, const QString& simWellName );
 
-    void setAutoScaleXEnabled( bool enabled );
+    void setAutoScaleXEnabled( bool enabled ) override;
+    void setAutoScaleYEnabled( bool enabled ) override;
+
+    void availableXAxisRange( double* minX, double* maxX );
     void availableDepthRange( double* minimumDepth, double* maximumDepth );
-    void updateParentPlotZoom();
-    void calculateXZoomRangeAndUpdateQwt();
-    void applyXZoomFromVisibleRange();
-    void calculateXZoomRange();
-    void updateEditors();
+
     void setVisibleXRange( double minValue, double maxValue );
+    void setVisibleYRange( double minValue, double maxValue );
+
+    void updateZoomInQwt() override;
+    void updateZoomFromQwt() override;
+
+    void updateParentPlotZoom();
+
+    void updateEditors();
+
     void setTickIntervals( double majorTickInterval, double minorTickInterval );
     void setXAxisGridVisibility( RimWellLogPlot::AxisGridVisibility gridLines );
 
@@ -165,42 +170,60 @@ public:
     void setShowWellPathAttributes( bool on );
     void setWellPathAttributesSource( RimWellPath* wellPath );
 
-    RimWellPath*     wellPathAttributeSource() const;
-    RiuWellLogTrack* viewer();
+    RimWellPath*      wellPathAttributeSource() const;
+    RiuQwtPlotWidget* viewer() override;
 
-    RimWellLogCurve* curveDefinitionFromCurve( const QwtPlotCurve* curve ) const;
+    caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
 
     void setLogarithmicScale( bool enable );
 
     std::map<int, std::vector<RimWellFlowRateCurve*>> visibleStackedCurves();
 
-    QString                       description();
-    std::vector<RimWellLogCurve*> curvesVector();
-    std::vector<RimWellLogCurve*> visibleCurvesVector();
+    std::vector<RimWellLogCurve*> curves() const;
+    std::vector<RimWellLogCurve*> visibleCurves() const;
 
     void uiOrderingForRftPltFormations( caf::PdmUiOrdering& uiOrdering );
     void uiOrderingForXAxisSettings( caf::PdmUiOrdering& uiOrdering );
 
     void setFormationsForCaseWithSimWellOnly( bool caseWithSimWellOnly );
-    void updateAxisAndGridTickIntervals();
+    void updateXAxisAndGridTickIntervals();
 
     void updateAllLegendItems();
 
+    QString asciiDataForPlotExport() const;
+
+    bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
+    bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
+                        int                         oldFontSize,
+                        int                         fontSize,
+                        bool                        forceChange = false ) override;
+
+    void updatePlotWindowLayout() override;
+
+    void onAxisSelected( int axis, bool toggle ) override;
+
 private:
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue ) override;
-    void                          updateParentPlotLayout();
+    void calculateXZoomRange();
+    void calculateYZoomRange();
+
+    void updateXZoom();
+    void updateYZoom();
+
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
+
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void initAfterRead() override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+
     caf::PdmFieldHandle* objectToggleField() override;
     caf::PdmFieldHandle* userDescriptionField() override;
-    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                 initAfterRead() override;
-    void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                QString                    uiConfigName,
-                                                caf::PdmUiEditorAttribute* attribute ) override;
 
     void computeAndSetXRangeMinForLogarithmicScale();
 
@@ -239,14 +262,23 @@ private:
 
     void updateWellPathAttributesCollection();
 
+    void onWidthScaleFactorChange() override;
+
+    RimWellLogPlot* parentWellLogPlot() const;
+
 private:
     QString m_xAxisTitle;
 
-    caf::PdmField<bool>                         m_show;
-    caf::PdmField<QString>                      m_userName;
-    caf::PdmChildArrayField<RimWellLogCurve*>   curves;
-    caf::PdmField<double>                       m_visibleXRangeMin;
-    caf::PdmField<double>                       m_visibleXRangeMax;
+    caf::PdmField<bool>                                   m_show;
+    caf::PdmField<QString>                                m_description;
+    caf::PdmField<RimPlotInterface::WidthScaleFactorEnum> m_widthScaleFactor;
+
+    caf::PdmChildArrayField<RimWellLogCurve*> m_curves;
+    caf::PdmField<double>                     m_visibleXRangeMin;
+    caf::PdmField<double>                     m_visibleXRangeMax;
+    caf::PdmField<double>                     m_visibleYRangeMin;
+    caf::PdmField<double>                     m_visibleYRangeMax;
+
     caf::PdmField<bool>                         m_isAutoScaleXEnabled;
     caf::PdmField<bool>                         m_isLogarithmicScaleEnabled;
     caf::PdmField<RimWellLogPlot::AxisGridEnum> m_xAxisGridVisibility;
@@ -268,7 +300,6 @@ private:
     caf::PdmField<int>                                                 m_formationBranchIndex;
     caf::PdmField<caf::AppEnum<RigWellPathFormations::FormationLevel>> m_formationLevel;
     caf::PdmField<bool>                                                m_showformationFluids;
-    caf::PdmField<caf::AppEnum<WidthScaleFactor>>                      m_widthScaleFactor;
     caf::PdmField<bool>                                                m_formationBranchDetection;
     caf::PdmField<bool>                                                m_showWellPathAttributes;
     caf::PdmField<bool>                                                m_showWellPathCompletions;
@@ -285,7 +316,6 @@ private:
 
     bool m_formationsForCaseWithSimWellOnly;
 
-    QPointer<RiuWellLogTrack> m_wellLogTrackPlotWidget;
-
+    QPointer<RiuWellLogTrack>              m_plotWidget;
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
 };

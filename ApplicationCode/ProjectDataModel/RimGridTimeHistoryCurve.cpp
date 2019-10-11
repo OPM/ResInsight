@@ -44,8 +44,8 @@
 #include "RiuFemTimeHistoryResultAccessor.h"
 #include "RiuQwtPlotCurve.h"
 
-#include "qwt_plot.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
+#include "qwt_plot.h"
 
 CAF_PDM_SOURCE_INIT( RimGridTimeHistoryCurve, "GridTimeHistoryCurve" );
 
@@ -336,7 +336,7 @@ QString RimGridTimeHistoryCurve::caseName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimCase* RimGridTimeHistoryCurve::gridCase() const
 {

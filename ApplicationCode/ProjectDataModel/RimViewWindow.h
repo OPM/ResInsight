@@ -113,10 +113,7 @@ protected:
     virtual void     deleteViewWidget()    = 0;
     virtual void     onLoadDataAndUpdate() = 0;
     virtual void     onViewNavigationChanged();
-    virtual bool     isWindowVisible()
-    {
-        return m_showWindow();
-    } // Virtual To allow special visibility control
+    virtual bool     isWindowVisible() const; // Virtual To allow special visibility control
     //////////
 
     // Derived classes are not supposed to override this function. The intention is to always use m_showWindow

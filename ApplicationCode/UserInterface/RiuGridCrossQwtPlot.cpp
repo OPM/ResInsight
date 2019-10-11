@@ -21,12 +21,16 @@
 
 #include "RiuCvfOverlayItemWidget.h"
 #include "RiuQwtCurvePointTracker.h"
+#include "RiuQwtPlotTools.h"
+#include "RiuQwtPlotWheelZoomer.h"
+#include "RiuQwtPlotZoomer.h"
 #include "RiuRimQwtPlotCurve.h"
 #include "RiuWidgetDragger.h"
 
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
 #include "RimGridCrossPlotDataSet.h"
+#include "RimPlotInterface.h"
 #include "RimRegularLegendConfig.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -38,12 +42,12 @@
 #include "RimPlotAxisProperties.h"
 #include "RiuPlotAnnotationTool.h"
 
+#include "qwt_plot_panner.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_widget.h"
 #include "qwt_text.h"
 #include "qwt_text_engine.h"
 
-#include <QGraphicsDropShadowEffect>
 #include <QLabel>
 #include <QMenu>
 #include <QResizeEvent>
@@ -52,9 +56,35 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimViewWindow* ownerViewWindow, QWidget* parent /*= nullptr*/ )
-    : RiuQwtPlot( ownerViewWindow, parent )
+RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimPlotInterface* plotDefinition, QWidget* parent /*= nullptr*/ )
+    : RiuQwtPlotWidget( plotDefinition, parent )
 {
+    // LeftButton for the zooming
+    m_zoomerLeft = new RiuQwtPlotZoomer( canvas() );
+    m_zoomerLeft->setRubberBandPen( QColor( Qt::black ) );
+    m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
+    m_zoomerLeft->setTrackerPen( QColor( Qt::black ) );
+    m_zoomerLeft->initMousePattern( 1 );
+    m_zoomerLeft->setMousePattern( QwtEventPattern::MouseSelect1, Qt::LeftButton, Qt::ShiftModifier );
+
+    // Attach a zoomer for the right axis
+    m_zoomerRight = new RiuQwtPlotZoomer( canvas() );
+    m_zoomerRight->setAxis( xTop, yRight );
+    m_zoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
+    m_zoomerRight->initMousePattern( 1 );
+    m_zoomerRight->setMousePattern( QwtEventPattern::MouseSelect1, Qt::LeftButton, Qt::ShiftModifier );
+
+    // MidButton for the panning
+    QwtPlotPanner* panner = new QwtPlotPanner( canvas() );
+    panner->setMouseButton( Qt::MidButton );
+
+    auto wheelZoomer = new RiuQwtPlotWheelZoomer( this );
+
+    connect( wheelZoomer, SIGNAL( zoomUpdated() ), SLOT( onZoomedSlot() ) );
+    connect( m_zoomerLeft, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
+    connect( m_zoomerRight, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
+    connect( panner, SIGNAL( panned( int, int ) ), SLOT( onZoomedSlot() ) );
+
     m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
     m_infoBox        = new RiuDraggableOverlayFrame( this, canvas() );
 
@@ -69,21 +99,11 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimViewWindow* ownerViewWindow, QWidge
     m_selectedPointMarker->setLabelAlignment( Qt::AlignRight | Qt::AlignVCenter );
     m_selectedPointMarker->setSpacing( 3 );
 
-    canvas()->setContentsMargins( 0, 0, 0, 0 );
-    QFrame* canvasFrame = dynamic_cast<QFrame*>( canvas() );
-    canvasFrame->setFrameShape( QFrame::Box );
-    canvasFrame->setStyleSheet( "border: 1px solid black" );
+    RiuQwtPlotTools::setCommonPlotBehaviour( this );
+    RiuQwtPlotTools::setDefaultAxes( this );
 
-    QGraphicsDropShadowEffect* dropShadowEffect = new QGraphicsDropShadowEffect( canvas() );
-    dropShadowEffect->setOffset( 1.0, 1.0 );
-    dropShadowEffect->setBlurRadius( 3.0 );
-    dropShadowEffect->setColor( QColor( 60, 60, 60, 60 ) );
-    canvas()->setGraphicsEffect( dropShadowEffect );
-
-    axisScaleDraw( QwtPlot::xBottom )->enableComponent( QwtAbstractScaleDraw::Backbone, false );
-    axisScaleDraw( QwtPlot::yLeft )->enableComponent( QwtAbstractScaleDraw::Backbone, false );
-    axisWidget( QwtPlot::xBottom )->setMargin( 0 );
-    axisWidget( QwtPlot::yLeft )->setMargin( 0 );
+    this->installEventFilter( this );
+    this->canvas()->installEventFilter( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,7 +194,7 @@ void RiuGridCrossQwtPlot::removeDanglingDataSetLegends()
 //--------------------------------------------------------------------------------------------------
 void RiuGridCrossQwtPlot::updateLegendSizesToMatchPlot()
 {
-    RimGridCrossPlot* crossPlot = dynamic_cast<RimGridCrossPlot*>( ownerPlotDefinition() );
+    RimGridCrossPlot* crossPlot = dynamic_cast<RimGridCrossPlot*>( plotDefinition() );
     if ( !crossPlot ) return;
 
     bool anyLegendResized = false;
@@ -218,6 +238,14 @@ void RiuGridCrossQwtPlot::updateAnnotationObjects( RimPlotAxisProperties* axisPr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimViewWindow* RiuGridCrossQwtPlot::ownerViewWindow() const
+{
+    return dynamic_cast<RimViewWindow*>( plotDefinition() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuGridCrossQwtPlot::updateLayout()
 {
     QwtPlot::updateLayout();
@@ -230,7 +258,7 @@ void RiuGridCrossQwtPlot::updateLayout()
 //--------------------------------------------------------------------------------------------------
 void RiuGridCrossQwtPlot::updateInfoBoxLayout()
 {
-    RimGridCrossPlot* crossPlot = dynamic_cast<RimGridCrossPlot*>( ownerPlotDefinition() );
+    RimGridCrossPlot* crossPlot = dynamic_cast<RimGridCrossPlot*>( plotDefinition() );
     if ( !crossPlot ) return;
 
     bool showInfo = false;
@@ -300,7 +328,7 @@ void RiuGridCrossQwtPlot::updateLegendLayout()
 
     removeDanglingDataSetLegends();
 
-    RimGridCrossPlot* crossPlot = dynamic_cast<RimGridCrossPlot*>( ownerPlotDefinition() );
+    RimGridCrossPlot* crossPlot = dynamic_cast<RimGridCrossPlot*>( plotDefinition() );
 
     if ( !crossPlot ) return;
 
@@ -402,9 +430,9 @@ void RiuGridCrossQwtPlot::contextMenuEvent( QContextMenuEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::selectSample( QwtPlotCurve* curve, int sampleNumber )
+void RiuGridCrossQwtPlot::selectPoint( QwtPlotCurve* curve, int pointNumber )
 {
-    QPointF sample = curve->sample( sampleNumber );
+    QPointF sample = curve->sample( pointNumber );
     m_selectedPointMarker->setValue( sample );
     m_selectedPointMarker->setAxes( QwtPlot::xBottom, QwtPlot::yLeft );
     m_selectedPointMarker->attach( this );
@@ -426,7 +454,7 @@ void RiuGridCrossQwtPlot::selectSample( QwtPlotCurve* curve, int sampleNumber )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::clearSampleSelection()
+void RiuGridCrossQwtPlot::clearPointSelection()
 {
     m_selectedPointMarker->detach();
 }
@@ -471,4 +499,12 @@ void RiuGridCrossQwtPlot::applyFontSizeToOverlayItem( caf::TitledOverlayFrame* o
     int                 fontSize  = crossPlot->legendFontSize();
     cvf::ref<cvf::Font> cafFont   = RiaFontCache::getFont( RiaFontCache::fontSizeEnumFromPointSize( fontSize ) );
     overlayItem->setFont( cafFont.p() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuGridCrossQwtPlot::onZoomedSlot()
+{
+    plotDefinition()->updateZoomFromQwt();
 }

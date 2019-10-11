@@ -76,6 +76,7 @@ public:
 
     void        selectedUiItems(std::vector<PdmUiItem*>& objects); // TODO: rename
     void        selectAsCurrentItem(const PdmUiItem* uiItem);
+    void        selectItems(const std::vector<const PdmUiItem*>& uiItems);
     void        setExpanded(const PdmUiItem* uiItem, bool doExpand) const ;
 
     // QModelIndex access

@@ -21,6 +21,8 @@
 
 #include <vector>
 
+class RimGridPlotWindow;
+class RimPlotInterface;
 class RimWellLogPlot;
 class RimWellLogTrack;
 class RimWellLogCurve;
@@ -34,7 +36,7 @@ public:
     static void moveCurvesToWellLogPlotTrack( RimWellLogTrack*                     dstTrack,
                                               const std::vector<RimWellLogCurve*>& curves,
                                               RimWellLogCurve*                     insertAfterCurve );
-    static void moveTracksToWellLogPlot( RimWellLogPlot*                      wellLogPlot,
-                                         const std::vector<RimWellLogTrack*>& tracks,
-                                         RimWellLogTrack*                     trackToInsertAfter );
+    static void movePlotsToGridPlotWindow( RimGridPlotWindow*                    gridPlotWindow,
+                                           const std::vector<RimPlotInterface*>& plots,
+                                           RimPlotInterface*                     plotToInsertAfter );
 };

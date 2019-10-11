@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,99 +15,22 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include "RiuInterfaceToViewWindow.h"
-
-#include "cafPdmPointer.h"
-
-#include <QFrame>
-#include <QGridLayout>
-#include <QHBoxLayout>
-#include <QList>
-#include <QPointer>
-#include <QWidget>
-
-#include <map>
+#include "RiuGridPlotWindow.h"
 
 class RimWellLogPlot;
-class RiuWellLogTrack;
 
-class QFocusEvent;
-class QLabel;
-class QScrollBar;
-class QwtLegend;
-
-//==================================================================================================
-//
-// RiuWellLogPlot
-//
-//==================================================================================================
-class RiuWellLogPlot : public QWidget, public RiuInterfaceToViewWindow
+class RiuWellLogPlot : public RiuGridPlotWindow
 {
     Q_OBJECT
-
 public:
-    RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent = nullptr );
-
-    ~RiuWellLogPlot() override;
-
-    RimWellLogPlot* ownerPlotDefinition();
-    RimViewWindow*  ownerViewWindow() const override;
-
-    void addTrackPlot( RiuWellLogTrack* trackPlot );
-    void insertTrackPlot( RiuWellLogTrack* trackPlot, size_t index, bool updateLayoutAfter = true );
-    void removeTrackPlot( RiuWellLogTrack* trackPlot, bool updateLayoutAfter = true );
-
-    void setDepthZoomAndReplot( double minDepth, double maxDepth );
-    void setPlotTitle( const QString& plotTitle );
-    int  preferredWidth() const;
-
-    void setTitleVisible( bool visible );
-    void setScrollbarVisible( bool visible );
-
-    int indexOfTrackPlot( RiuWellLogTrack* track );
-
-public slots:
-    void updateChildrenLayout();
-
-protected:
-    void    contextMenuEvent( QContextMenuEvent* ) override;
-    void    keyPressEvent( QKeyEvent* keyEvent ) override;
-    QLabel* createTitleLabel() const;
-
-    void resizeEvent( QResizeEvent* event ) override;
-    void showEvent( QShowEvent* event ) override;
-    void changeEvent( QEvent* ) override;
-    void dragEnterEvent( QDragEnterEvent* event ) override;
-    void dragMoveEvent( QDragMoveEvent* event ) override;
-    void dragLeaveEvent( QDragLeaveEvent* event ) override;
-    void dropEvent( QDropEvent* event ) override;
-
-    std::pair<int, int> rowAndColumnCount( int trackCount ) const;
+    RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent );
+    void updateVerticalScrollBar( double minVisible, double maxVisible, double minAvailable, double maxAvailable );
 
 private:
-    void updateScrollBar( double minDepth, double maxDepth );
-    void alignCanvasTopsAndScrollbar();
-    void reinsertTracksAndScrollbar();
-    void clearTrackLayout();
-
-    QList<QPointer<RiuWellLogTrack>> visibleTracks() const;
-    QList<QPointer<QwtLegend>>       visibleLegends() const;
+    RimWellLogPlot* wellLogPlotDefinition();
 
 private slots:
     void slotSetMinDepth( int value );
-
-protected:
-    QPointer<QVBoxLayout>            m_layout;
-    QPointer<QHBoxLayout>            m_plotLayout;
-    QPointer<QFrame>                 m_trackFrame;
-    QPointer<QGridLayout>            m_trackLayout;
-    QPointer<QLabel>                 m_plotTitle;
-    QPointer<QVBoxLayout>            m_scrollBarLayout;
-    QScrollBar*                      m_scrollBar;
-    QList<QPointer<QwtLegend>>       m_legends;
-    QList<QPointer<RiuWellLogTrack>> m_trackPlots;
-    caf::PdmPointer<RimWellLogPlot>  m_plotDefinition;
 };

@@ -24,6 +24,7 @@
 #include "RimCase.h"
 #include "RimTools.h"
 #include "RimWellLogTrack.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafAssert.h"
 #include "cafPdmUiFilePathEditor.h"
@@ -113,6 +114,7 @@ void RimFormationNames::updateConnectedViews()
     std::vector<RimCase*> objects;
     this->objectsWithReferringPtrFieldsOfType( objects );
 
+    bool updatedTracks = false;
     for ( RimCase* caseObj : objects )
     {
         if ( caseObj )
@@ -126,11 +128,13 @@ void RimFormationNames::updateConnectedViews()
                 // The track may be referring to the case for other reasons than formations.
                 if ( track->formationNamesCase() == caseObj )
                 {
-                    track->loadDataAndUpdate( true );
+                    track->loadDataAndUpdate();
+                    updatedTracks = true;
                 }
             }
         }
     }
+    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------

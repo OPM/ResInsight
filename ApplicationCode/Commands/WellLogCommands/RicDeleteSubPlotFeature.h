@@ -24,7 +24,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicDeleteWellLogPlotTrackFeature : public caf::CmdFeature
+class RicDeleteSubPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

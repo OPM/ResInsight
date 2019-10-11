@@ -16,9 +16,8 @@ public:
 
     bool eventFilter( QObject*, QEvent* ) override;
 
-Q_SIGNALS:
-    void clicked( int axis, double value );
+    static double axisValueAtPosition( const QwtScaleWidget*, const QPoint& );
 
-private:
-    void mouseClicked( const QwtScaleWidget*, const QPoint& );
+Q_SIGNALS:
+    void mouseClicked( QwtScaleWidget*, const QPoint& );
 };

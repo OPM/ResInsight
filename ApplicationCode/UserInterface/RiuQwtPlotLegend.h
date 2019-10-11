@@ -17,15 +17,16 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimNameConfig.h"
-#include "RimViewWindow.h"
+#include "qwt_legend.h"
 
-class RimPlot : public RimViewWindow
+class RiuQwtPlotLegend : public QwtLegend
 {
-    CAF_PDM_HEADER_INIT;
-
+    Q_OBJECT
 public:
-    RimPlot();
+    RiuQwtPlotLegend( QWidget* parent = nullptr );
+    void resizeEvent( QResizeEvent* event );
+    int  columnCount() const;
 
-    QWidget* createPlotWidget();
+private:
+    mutable int m_columnCount;
 };

@@ -200,7 +200,7 @@ void RicDeleteItemExec::redo()
         if ( wellLogPlot )
         {
             wellLogPlot->calculateAvailableDepthRange();
-            wellLogPlot->updateDepthZoom();
+            wellLogPlot->updateZoom();
             RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateWellLogPlotToolBar();
         }
@@ -209,7 +209,8 @@ void RicDeleteItemExec::redo()
         parentObj->firstAncestorOrThisOfType( wellLogPlotTrack );
         if ( wellLogPlotTrack )
         {
-            wellLogPlotTrack->calculateXZoomRangeAndUpdateQwt();
+            wellLogPlotTrack->setAutoScaleXEnabled( true );
+            wellLogPlotTrack->updateZoomInQwt();
             RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateWellLogPlotToolBar();
         }

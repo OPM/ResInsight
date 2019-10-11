@@ -19,7 +19,7 @@
 
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuPlotAnnotationTool.h"
-#include "RiuQwtPlot.h"
+#include "RiuQwtPlotWidget.h"
 
 #include "cafPdmPointer.h"
 
@@ -29,9 +29,11 @@
 
 class RimGridCrossPlotDataSet;
 class RimPlotAxisProperties;
+class RimPlotInterface;
 class RiuCvfOverlayItemWidget;
 class RiuDraggableOverlayFrame;
 class RiuPlotAnnotationTool;
+class RiuQwtPlotZoomer;
 
 namespace caf
 {
@@ -43,18 +45,20 @@ class TitledOverlayFrame;
 //
 //
 //==================================================================================================
-class RiuGridCrossQwtPlot : public RiuQwtPlot
+class RiuGridCrossQwtPlot : public RiuQwtPlotWidget, public RiuInterfaceToViewWindow
 {
     Q_OBJECT;
 
 public:
-    RiuGridCrossQwtPlot( RimViewWindow* ownerViewWindow, QWidget* parent = nullptr );
+    RiuGridCrossQwtPlot( RimPlotInterface* plotDefinition, QWidget* parent = nullptr );
     ~RiuGridCrossQwtPlot();
     void addOrUpdateDataSetLegend( RimGridCrossPlotDataSet* dataSetToShowLegendFor );
     void removeDataSetLegend( RimGridCrossPlotDataSet* dataSetToShowLegendFor );
     void removeDanglingDataSetLegends();
     void updateLegendSizesToMatchPlot();
     void updateAnnotationObjects( RimPlotAxisProperties* axisProperties );
+
+    RimViewWindow* ownerViewWindow() const override;
 
 protected:
     void updateLayout() override;
@@ -64,10 +68,13 @@ protected:
     bool resizeOverlayItemToFitPlot( caf::TitledOverlayFrame* overlayItem );
     void contextMenuEvent( QContextMenuEvent* ) override;
 
-    void selectSample( QwtPlotCurve* curve, int sampleNumber ) override;
-    void clearSampleSelection() override;
+    void selectPoint( QwtPlotCurve* curve, int pointNumber ) override;
+    void clearPointSelection() override;
     bool curveText( const QwtPlotCurve* curve, QString* curveTitle, QString* xParamName, QString* yParamName ) const;
     void applyFontSizeToOverlayItem( caf::TitledOverlayFrame* overlayItem );
+
+private slots:
+    void onZoomedSlot();
 
 private:
     typedef caf::PdmPointer<RimGridCrossPlotDataSet> DataSetPtr;
@@ -78,4 +85,7 @@ private:
     std::map<DataSetPtr, LegendPtr>        m_legendWidgets;
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
     QwtPlotMarker*                         m_selectedPointMarker;
+
+    QPointer<RiuQwtPlotZoomer> m_zoomerLeft;
+    QPointer<RiuQwtPlotZoomer> m_zoomerRight;
 };

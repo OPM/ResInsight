@@ -37,7 +37,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuRmsNavigation.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSelectionChangedHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/Riu3dSelectionManager.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSimpleHistogramWidget.h
-${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuDockedQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.h
@@ -52,6 +51,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuViewerCommands.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPickItemInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.h
+${CMAKE_CURRENT_LIST_DIR}/RiuGridPlotWindow.h
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWidget.h
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotLegend.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotAnnotationTool.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuGeoMechXfTensorResultAccessor.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuFemTimeHistoryResultAccessor.h
@@ -123,7 +125,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuRmsNavigation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuSelectionChangedHandler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Riu3dSelectionManager.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuSimpleHistogramWidget.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuDockedQwtPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.cpp
@@ -135,8 +136,11 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuTreeViewEventFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewer.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewerCommands.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPickItemInfo.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuGridPlotWindow.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWidget.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotLegend.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotAnnotationTool.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuGeoMechXfTensorResultAccessor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuFemTimeHistoryResultAccessor.cpp
@@ -195,8 +199,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuViewerCommands.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuTreeViewEventFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.h
+${CMAKE_CURRENT_LIST_DIR}/RiuGridPlotWindow.h
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWidget.h
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotLegend.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuRecentFileActionProvider.h
-${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuDockedQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.h

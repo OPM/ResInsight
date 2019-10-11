@@ -51,6 +51,7 @@ public:
     const std::vector<double>& measuredDepths() const;
     const std::vector<double>& tvDepths() const;
     bool                       calculateMDRange( double* minMD, double* maxMD ) const;
+    bool                       calculateTVDRange( double* minTVD, double* maxTVD ) const;
 
     RiaDefines::DepthUnitType depthUnit() const;
 

@@ -172,6 +172,14 @@ void PdmUiTreeView::selectAsCurrentItem(const PdmUiItem* uiItem)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeView::selectItems(const std::vector<const PdmUiItem*>& uiItems)
+{
+    m_treeViewEditor->selectItems(uiItems);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeView::setExpanded(const PdmUiItem* uiItem, bool doExpand) const 

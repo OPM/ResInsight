@@ -682,6 +682,14 @@ std::vector<caf::PdmFieldHandle*> RimWellLogCurveCommonDataSource::fieldsToShowI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimWellLogCurveCommonDataSource::smoothingUiOrderinglabel()
+{
+    return "ApplySmoothing";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                         const QVariant&            oldValue,
                                                         const QVariant&            newValue )
@@ -894,7 +902,7 @@ void RimWellLogCurveCommonDataSource::defineUiOrdering( QString uiConfigName, ca
     }
     group->add( &m_timeStep );
 
-    if ( dynamic_cast<RimGeoMechCase*>( m_case() ) )
+    if ( uiConfigName == smoothingUiOrderinglabel() )
     {
         group->add( &m_wbsSmoothing );
         group->add( &m_wbsSmoothingThreshold );

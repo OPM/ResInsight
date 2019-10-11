@@ -23,6 +23,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimMainPlotCollection.h"
+#include "RimPlotInterface.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
@@ -32,6 +33,7 @@
 
 #include "RiuCvfOverlayItemWidget.h"
 #include "RiuQwtCurvePointTracker.h"
+#include "RiuQwtPlotWheelZoomer.h"
 #include "RiuRimQwtPlotCurve.h"
 #include "RiuWidgetDragger.h"
 
@@ -89,11 +91,43 @@ static EnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimViewWindow* viewWindow, QWidget* parent /*= nullptr*/ )
-    : RiuQwtPlot( viewWindow, parent )
+RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimPlotInterface* plotDefinition, QWidget* parent /*= nullptr*/ )
+    : RiuQwtPlotWidget( plotDefinition, parent )
 {
+    // LeftButton for the zooming
+    m_zoomerLeft = new RiuQwtPlotZoomer( canvas() );
+    m_zoomerLeft->setRubberBandPen( QColor( Qt::black ) );
+    m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
+    m_zoomerLeft->setTrackerPen( QColor( Qt::black ) );
+    m_zoomerLeft->initMousePattern( 1 );
+    m_zoomerLeft->setMousePattern( QwtEventPattern::MouseSelect1, Qt::LeftButton, Qt::ShiftModifier );
+
+    // Attach a zoomer for the right axis
+    m_zoomerRight = new RiuQwtPlotZoomer( canvas() );
+    m_zoomerRight->setAxis( xTop, yRight );
+    m_zoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
+    m_zoomerRight->initMousePattern( 1 );
+    m_zoomerRight->setMousePattern( QwtEventPattern::MouseSelect1, Qt::LeftButton, Qt::ShiftModifier );
+
+    // MidButton for the panning
+    QwtPlotPanner* panner = new QwtPlotPanner( canvas() );
+    panner->setMouseButton( Qt::MidButton );
+
+    auto wheelZoomer = new RiuQwtPlotWheelZoomer( this );
+
+    connect( wheelZoomer, SIGNAL( zoomUpdated() ), SLOT( onZoomedSlot() ) );
+    connect( m_zoomerLeft, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
+    connect( m_zoomerRight, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
+    connect( panner, SIGNAL( panned( int, int ) ), SLOT( onZoomedSlot() ) );
+
     setDefaults();
     new RiuQwtCurvePointTracker( this, true, &ensembleCurveInfoTextProvider );
+
+    RiuQwtPlotTools::setCommonPlotBehaviour( this );
+    RiuQwtPlotTools::setDefaultAxes( this );
+
+    this->installEventFilter( this );
+    this->canvas()->installEventFilter( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,9 +199,17 @@ void RiuSummaryQwtPlot::removeEnsembleCurveSetLegend( RimEnsembleCurveSet* curve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimViewWindow* RiuSummaryQwtPlot::ownerViewWindow() const
+{
+    return dynamic_cast<RimViewWindow*>( plotDefinition() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::keyPressEvent( QKeyEvent* keyEvent )
 {
-    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( ownerPlotDefinition() );
+    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( plotDefinition() );
 
     if ( summaryPlot )
     {
@@ -183,7 +225,7 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
     QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
 
-    caf::SelectionManager::instance()->setSelectedItem( ownerViewWindow() );
+    caf::SelectionManager::instance()->setSelectedItem( plotOwner() );
 
     menuBuilder << "RicShowPlotDataFeature";
     menuBuilder << "RicSavePlotTemplateFeature";
@@ -224,6 +266,14 @@ void RiuSummaryQwtPlot::updateLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::onZoomedSlot()
+{
+    plotDefinition()->updateZoomFromQwt();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::updateLegendLayout()
 {
     const int spacing      = 5;
@@ -234,7 +284,7 @@ void RiuSummaryQwtPlot::updateLegendLayout()
     int ypos           = startMarginY;
     int maxColumnWidth = 0;
 
-    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( ownerPlotDefinition() );
+    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( plotDefinition() );
 
     if ( !summaryPlot || !summaryPlot->ensembleCurveSetCollection() ) return;
 

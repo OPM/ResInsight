@@ -460,7 +460,7 @@ void Rim2dIntersectionView::setName( const QString& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Rim2dIntersectionView::isWindowVisible()
+bool Rim2dIntersectionView::isWindowVisible() const
 {
     return m_showWindow();
 }

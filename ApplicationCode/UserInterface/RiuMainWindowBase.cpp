@@ -209,6 +209,35 @@ void RiuMainWindowBase::selectAsCurrentItem( const caf::PdmObject* object, bool 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::toggleItemInSelection( const caf::PdmObject* object, bool allowActiveViewChange )
+{
+    m_allowActiveViewChangeFromSelection = allowActiveViewChange;
+    std::vector<caf::PdmUiItem*> currentSelection;
+    m_projectTreeView->selectedUiItems( currentSelection );
+    std::vector<const caf::PdmUiItem*> updatedSelection;
+    bool                               alreadySelected = false;
+    for ( caf::PdmUiItem* uiItem : currentSelection )
+    {
+        if ( object == uiItem )
+        {
+            alreadySelected = true;
+        }
+        else
+        {
+            updatedSelection.push_back( uiItem );
+        }
+    }
+    if ( !alreadySelected )
+    {
+        updatedSelection.push_back( object );
+    }
+    m_projectTreeView->selectItems( updatedSelection );
+    m_allowActiveViewChangeFromSelection = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::enableShowFirstVisibleMdiWindowMaximized( bool enable )
 {
     m_showFirstVisibleWindowMaximized = enable;

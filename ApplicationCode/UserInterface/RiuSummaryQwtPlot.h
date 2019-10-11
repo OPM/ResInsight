@@ -20,7 +20,7 @@
 
 #include "RiaQDateTimeTools.h"
 #include "RiuInterfaceToViewWindow.h"
-#include "RiuQwtPlot.h"
+#include "RiuQwtPlotWidget.h"
 
 #include "cafPdmPointer.h"
 
@@ -28,18 +28,19 @@
 
 class RimEnsembleCurveSet;
 class RiuCvfOverlayItemWidget;
+class RiuQwtPlotZoomer;
 
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
-class RiuSummaryQwtPlot : public RiuQwtPlot
+class RiuSummaryQwtPlot : public RiuQwtPlotWidget, public RiuInterfaceToViewWindow
 {
     Q_OBJECT;
 
 public:
-    RiuSummaryQwtPlot( RimViewWindow* ownerViewWindow, QWidget* parent = nullptr );
+    RiuSummaryQwtPlot( RimPlotInterface* plotDefinition, QWidget* parent = nullptr );
 
     void useDateBasedTimeAxis(
         const QString&                          dateFormat,
@@ -52,13 +53,22 @@ public:
     void addOrUpdateEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSetToShowLegendFor );
     void removeEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSetToShowLegendFor );
 
+    RimViewWindow* ownerViewWindow() const override;
+
 protected:
     void keyPressEvent( QKeyEvent* ) override;
     void contextMenuEvent( QContextMenuEvent* ) override;
     void setDefaults();
     void updateLayout() override;
 
+private slots:
+    void onZoomedSlot();
+
 private:
-    void                                                                              updateLegendLayout();
+    void updateLegendLayout();
+
     std::map<caf::PdmPointer<RimEnsembleCurveSet>, QPointer<RiuCvfOverlayItemWidget>> m_ensembleLegendWidgets;
+
+    QPointer<RiuQwtPlotZoomer> m_zoomerLeft;
+    QPointer<RiuQwtPlotZoomer> m_zoomerRight;
 };

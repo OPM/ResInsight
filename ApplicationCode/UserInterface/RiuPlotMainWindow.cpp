@@ -37,11 +37,11 @@
 
 #include "RiuDockWidgetTools.h"
 #include "RiuDragDrop.h"
+#include "RiuGridPlotWindow.h"
 #include "RiuMdiSubWindow.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuWellAllocationPlot.h"
-#include "RiuWellLogPlot.h"
 
 #include "cafCmdFeatureManager.h"
 #include "cafPdmObjectHandle.h"
@@ -606,7 +606,7 @@ void RiuPlotMainWindow::addViewer( QWidget* viewer, const RimMdiWindowGeometry& 
     }
     else
     {
-        RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>( viewer );
+        RiuGridPlotWindow* wellLogPlot = dynamic_cast<RiuGridPlotWindow*>( viewer );
         if ( wellLogPlot )
         {
             subWindowSize = QSize( wellLogPlot->preferredWidth(), m_mdiArea->height() );

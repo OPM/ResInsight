@@ -73,6 +73,19 @@ void RiuPlotMainWindowTools::selectAsCurrentItem( const caf::PdmObject* object, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindowTools::toggleItemInSelection( const caf::PdmObject* object, bool allowActiveViewChange /*= true*/ )
+{
+    if ( RiaGuiApplication::isRunning() )
+    {
+        RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
+
+        if ( mpw ) mpw->toggleItemInSelection( object, allowActiveViewChange );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindowTools::refreshToolbars()
 {
     if ( RiaGuiApplication::isRunning() )

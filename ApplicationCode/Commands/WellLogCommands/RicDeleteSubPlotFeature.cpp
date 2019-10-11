@@ -17,38 +17,38 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicDeleteWellLogPlotTrackFeature.h"
+#include "RicDeleteSubPlotFeature.h"
 #include "RicWellLogPlotCurveFeatureImpl.h"
 
 #include "RiaGuiApplication.h"
+#include "RiuGridPlotWindow.h"
 #include "RiuPlotMainWindow.h"
-#include "RiuWellLogPlot.h"
-#include "RiuWellLogTrack.h"
+#include "RiuQwtPlotWidget.h"
 
-#include "RimWellLogPlot.h"
-#include "RimWellLogTrack.h"
+#include "RimGridPlotWindow.h"
+#include "RimPlotInterface.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicDeleteWellLogPlotTrackFeature, "RicDeleteWellLogPlotTrackFeature" );
+CAF_CMD_SOURCE_INIT( RicDeleteSubPlotFeature, "RicDeleteWellLogPlotTrackFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeleteWellLogPlotTrackFeature::isCommandEnabled()
+bool RicDeleteSubPlotFeature::isCommandEnabled()
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
 
-    std::vector<RimWellLogTrack*> selection;
+    std::vector<caf::PdmObject*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
 
     if ( selection.size() > 0 )
     {
-        RimWellLogPlot* wellLogPlot = nullptr;
+        RimGridPlotWindow* wellLogPlot = nullptr;
         selection[0]->firstAncestorOrThisOfType( wellLogPlot );
-        if ( wellLogPlot && wellLogPlot->trackCount() > 1 )
+        if ( dynamic_cast<RimPlotInterface*>( selection[0] ) && wellLogPlot && wellLogPlot->plotCount() > 1 )
         {
             return true;
         }
@@ -60,38 +60,39 @@ bool RicDeleteWellLogPlotTrackFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteWellLogPlotTrackFeature::onActionTriggered( bool isChecked )
+void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return;
 
-    std::vector<RimWellLogTrack*> selection;
+    std::vector<caf::PdmObject*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
-    RiuPlotMainWindow*        plotWindow = RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
-    std::set<RimWellLogPlot*> alteredWellLogPlots;
+    RiuPlotMainWindow*           plotWindow = RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
+    std::set<RimGridPlotWindow*> alteredWellLogPlots;
 
     for ( size_t i = 0; i < selection.size(); i++ )
     {
-        RimWellLogTrack* track = selection[i];
+        RimPlotInterface* plot = dynamic_cast<RimPlotInterface*>( selection[i] );
 
-        RimWellLogPlot* wellLogPlot = nullptr;
-        track->firstAncestorOrThisOfType( wellLogPlot );
-        if ( wellLogPlot && wellLogPlot->trackCount() > 1 )
+        RimGridPlotWindow* wellLogPlot = nullptr;
+        selection[i]->firstAncestorOrThisOfType( wellLogPlot );
+        if ( plot && wellLogPlot && wellLogPlot->plotCount() > 1 )
         {
             alteredWellLogPlots.insert( wellLogPlot );
-            wellLogPlot->removeTrack( track );
-            caf::SelectionManager::instance()->removeObjectFromAllSelections( track );
+            wellLogPlot->removePlot( plot );
+            caf::SelectionManager::instance()->removeObjectFromAllSelections( selection[i] );
 
             wellLogPlot->updateConnectedEditors();
-            delete track;
+            delete plot;
         }
     }
 
-    for ( RimWellLogPlot* wellLogPlot : alteredWellLogPlots )
+    for ( RimGridPlotWindow* wellLogPlot : alteredWellLogPlots )
     {
-        RiuWellLogPlot* viewWidget = dynamic_cast<RiuWellLogPlot*>( wellLogPlot->viewWidget() );
+        RiuGridPlotWindow* viewWidget = dynamic_cast<RiuGridPlotWindow*>( wellLogPlot->viewWidget() );
         plotWindow->setWidthOfMdiWindow( viewWidget, viewWidget->preferredWidth() );
-        wellLogPlot->calculateAvailableDepthRange();
-        wellLogPlot->updateDepthZoom();
+        // TODO: add back with virtual methods
+        // wellLogPlot->calculateAvailableDepthRange();
+        // wellLogPlot->updateDepthZoom();
         wellLogPlot->uiCapability()->updateConnectedEditors();
     }
 }
@@ -99,7 +100,7 @@ void RicDeleteWellLogPlotTrackFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteWellLogPlotTrackFeature::setupActionLook( QAction* actionToSetup )
+void RicDeleteSubPlotFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Delete Track" );
     actionToSetup->setIcon( QIcon( ":/Erase.png" ) );

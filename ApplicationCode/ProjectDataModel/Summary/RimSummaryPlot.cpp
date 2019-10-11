@@ -139,10 +139,12 @@ CurvesData concatCurvesData( const std::vector<CurvesData>& curvesData );
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot::RimSummaryPlot()
+    : RimPlotWindow()
 {
     CAF_PDM_InitObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_userDefinedPlotTitle, "PlotDescription", QString( "Summary Plot" ), "Title", "", "", "" );
+    m_description = "Summary Plot";
+
     CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Plot Title", "", "", "" );
     m_showPlotTitle.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Legend", "", "", "" );
@@ -238,8 +240,8 @@ RimSummaryPlot::~RimSummaryPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateAxes()
 {
-    updateAxis( RiaDefines::PLOT_AXIS_LEFT );
-    updateAxis( RiaDefines::PLOT_AXIS_RIGHT );
+    updateYAxis( RiaDefines::PLOT_AXIS_LEFT );
+    updateYAxis( RiaDefines::PLOT_AXIS_RIGHT );
 
     if ( m_isCrossPlot )
     {
@@ -300,7 +302,15 @@ time_t RimSummaryPlot::firstTimeStepOfFirstCurve()
 //--------------------------------------------------------------------------------------------------
 QWidget* RimSummaryPlot::viewWidget()
 {
-    return m_qwtPlot;
+    return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuQwtPlotWidget* RimSummaryPlot::viewer()
+{
+    return m_plotWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -325,7 +335,7 @@ QString RimSummaryPlot::asciiDataForPlotExport( DateTimePeriod resamplingPeriod,
         populateTimeHistoryCurvesData( m_gridTimeHistoryCurves.childObjects(), &timeHistoryCurvesData );
 
         // Export observed data
-        appendToExportData( out, {summaryCurvesObsData}, showTimeAsLongString );
+        appendToExportData( out, { summaryCurvesObsData }, showTimeAsLongString );
 
         std::vector<CurvesData> exportData( 2 );
 
@@ -347,10 +357,103 @@ QString RimSummaryPlot::asciiDataForPlotExport( DateTimePeriod resamplingPeriod,
         CurvesData asciiCurvesData;
         populateAsciiDataCurvesData( m_asciiDataCurves.childObjects(), &asciiCurvesData );
 
-        appendToExportData( out, {asciiCurvesData}, showTimeAsLongString );
+        appendToExportData( out, { asciiCurvesData }, showTimeAsLongString );
     }
 
     return out;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::createPlotWidget()
+{
+    createViewWidget( nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObject* RimSummaryPlot::findPdmObjectFromQwtCurve( const QwtPlotCurve* qwtCurve ) const
+{
+    for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
+    {
+        if ( curve->qwtPlotCurve() == qwtCurve )
+        {
+            return curve;
+        }
+    }
+
+    for ( RimAsciiDataCurve* curve : m_asciiDataCurves )
+    {
+        if ( curve->qwtPlotCurve() == qwtCurve )
+        {
+            return curve;
+        }
+    }
+
+    if ( m_summaryCurveCollection )
+    {
+        RimSummaryCurve* foundCurve = m_summaryCurveCollection->findRimCurveFromQwtCurve( qwtCurve );
+
+        if ( foundCurve )
+        {
+            m_summaryCurveCollection->setCurrentSummaryCurve( foundCurve );
+
+            return foundCurve;
+        }
+    }
+
+    if ( m_ensembleCurveSetCollection )
+    {
+        RimEnsembleCurveSet* foundCurveSet = m_ensembleCurveSetCollection->findRimCurveSetFromQwtCurve( qwtCurve );
+
+        if ( foundCurveSet )
+        {
+            m_ensembleCurveSetCollection->setCurrentSummaryCurveSet( foundCurveSet );
+
+            return foundCurveSet;
+        }
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::onAxisSelected( int axis, bool toggle )
+{
+    RiuPlotMainWindowTools::showPlotMainWindow();
+
+    caf::PdmObject* itemToSelect = nullptr;
+    if ( axis == QwtPlot::yLeft )
+    {
+        itemToSelect = m_leftYAxisProperties;
+    }
+    else if ( axis == QwtPlot::yRight )
+    {
+        itemToSelect = m_rightYAxisProperties;
+    }
+    else if ( axis == QwtPlot::xBottom )
+    {
+        if ( m_isCrossPlot )
+        {
+            itemToSelect = m_bottomAxisProperties;
+        }
+        else
+        {
+            itemToSelect = m_timeAxisProperties;
+        }
+    }
+
+    if ( toggle )
+    {
+        RiuPlotMainWindowTools::toggleItemInSelection( itemToSelect );
+    }
+    else
+    {
+        RiuPlotMainWindowTools::selectAsCurrentItem( itemToSelect );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -411,14 +514,6 @@ RimSummaryCurveCollection* RimSummaryPlot::summaryCurveCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryQwtPlot* RimSummaryPlot::qwtPlot() const
-{
-    return m_qwtPlot;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleCurveSet*> RimSummaryPlot::curveSets() const
 {
     return ensembleCurveSetCollection()->curveSets();
@@ -433,7 +528,7 @@ void RimSummaryPlot::updatePlotTitle()
 
     if ( m_useAutoPlotTitle )
     {
-        m_userDefinedPlotTitle = m_nameHelperAllCurves->plotTitle();
+        m_description = m_nameHelperAllCurves->plotTitle();
     }
 
     updateCurveNames();
@@ -486,10 +581,10 @@ void RimSummaryPlot::copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSu
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateAll()
 {
-    if ( qwtPlot() )
+    if ( m_plotWidget )
     {
         updatePlotTitle();
-        qwtPlot()->updateLegend();
+        m_plotWidget->updateLegend();
         updateAxes();
         updateZoomInQwt();
     }
@@ -501,9 +596,9 @@ void RimSummaryPlot::updateAll()
 void RimSummaryPlot::updateAllLegendItems()
 {
     reattachAllCurves();
-    if ( qwtPlot() )
+    if ( m_plotWidget )
     {
-        qwtPlot()->updateLegend();
+        m_plotWidget->updateLegend();
     }
 }
 
@@ -530,7 +625,7 @@ void RimSummaryPlot::setPlotInfoLabel( const QString& label )
 void RimSummaryPlot::showPlotInfoLabel( bool show )
 {
     if ( show )
-        m_plotInfoLabel->attach( m_qwtPlot );
+        m_plotInfoLabel->attach( m_plotWidget );
     else
         m_plotInfoLabel->detach();
 }
@@ -614,19 +709,20 @@ void RimSummaryPlot::applyDefaultCurveAppearances()
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryPlot::hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
 {
-    if ( fontSettingType != RiaDefines::PLOT_FONT ) return false;
-
-    for ( auto plotAxis : allPlotAxes() )
+    if ( fontSettingType == RiaDefines::PLOT_FONT && m_plotWidget )
     {
-        if ( plotAxis->titleFontSize() != defaultFontSize || plotAxis->valuesFontSize() != defaultFontSize )
+        for ( auto plotAxis : allPlotAxes() )
+        {
+            if ( plotAxis->titleFontSize() != defaultFontSize || plotAxis->valuesFontSize() != defaultFontSize )
+            {
+                return true;
+            }
+        }
+
+        if ( m_legendFontSize() != defaultFontSize )
         {
             return true;
         }
-    }
-
-    if ( m_legendFontSize() != defaultFontSize )
-    {
-        return true;
     }
     return false;
 }
@@ -639,31 +735,32 @@ bool RimSummaryPlot::applyFontSize( RiaDefines::FontSettingType fontSettingType,
                                     int                         fontSize,
                                     bool                        forceChange /*= false*/ )
 {
-    if ( fontSettingType != RiaDefines::PLOT_FONT ) return false;
-
     bool anyChange = false;
-    for ( auto plotAxis : allPlotAxes() )
+
+    if ( fontSettingType == RiaDefines::PLOT_FONT && m_plotWidget )
     {
-        if ( forceChange || plotAxis->titleFontSize() == oldFontSize )
+        for ( auto plotAxis : allPlotAxes() )
         {
-            plotAxis->setTitleFontSize( fontSize );
-            anyChange = true;
+            if ( forceChange || plotAxis->titleFontSize() == oldFontSize )
+            {
+                plotAxis->setTitleFontSize( fontSize );
+                anyChange = true;
+            }
+            if ( forceChange || plotAxis->valuesFontSize() == oldFontSize )
+            {
+                plotAxis->setValuesFontSize( fontSize );
+                anyChange = true;
+            }
         }
-        if ( forceChange || plotAxis->valuesFontSize() == oldFontSize )
+
+        if ( forceChange || m_legendFontSize() == oldFontSize )
         {
-            plotAxis->setValuesFontSize( fontSize );
-            anyChange = true;
+            m_legendFontSize = fontSize;
+            anyChange        = true;
         }
+
+        if ( anyChange ) loadDataAndUpdate();
     }
-
-    if ( forceChange || m_legendFontSize() == oldFontSize )
-    {
-        m_legendFontSize = fontSize;
-        anyChange        = true;
-    }
-
-    if ( anyChange ) loadDataAndUpdate();
-
     return anyChange;
 }
 
@@ -686,25 +783,9 @@ bool RimSummaryPlot::isNormalizationEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateAxisScaling()
+void RimSummaryPlot::updateYAxis( RiaDefines::PlotAxis plotAxis )
 {
-    loadDataAndUpdate();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateAxisDisplay()
-{
-    updateAxes();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateAxis( RiaDefines::PlotAxis plotAxis )
-{
-    if ( !m_qwtPlot ) return;
+    if ( !m_plotWidget ) return;
 
     QwtPlot::Axis qwtAxis = QwtPlot::yLeft;
     if ( plotAxis == RiaDefines::PLOT_AXIS_LEFT )
@@ -719,7 +800,7 @@ void RimSummaryPlot::updateAxis( RiaDefines::PlotAxis plotAxis )
     RimPlotAxisProperties* yAxisProperties = yAxisPropertiesLeftOrRight( plotAxis );
     if ( yAxisProperties->isActive() && hasVisibleCurvesForAxis( plotAxis ) )
     {
-        m_qwtPlot->enableAxis( qwtAxis, true );
+        m_plotWidget->enableAxis( qwtAxis, true );
 
         std::set<QString> timeHistoryQuantities;
 
@@ -732,11 +813,11 @@ void RimSummaryPlot::updateAxis( RiaDefines::PlotAxis plotAxis )
                                            visibleSummaryCurvesForAxis( plotAxis ),
                                            visibleAsciiDataCurvesForAxis( plotAxis ),
                                            timeHistoryQuantities );
-        calc.applyYAxisPropertiesToPlot( m_qwtPlot );
+        calc.applyYAxisPropertiesToPlot( m_plotWidget );
     }
     else
     {
-        m_qwtPlot->enableAxis( qwtAxis, false );
+        m_plotWidget->enableAxis( qwtAxis, false );
     }
 }
 
@@ -751,26 +832,26 @@ void RimSummaryPlot::updateZoomForAxis( RiaDefines::PlotAxis plotAxis )
         {
             if ( m_bottomAxisProperties->isAutoZoom() )
             {
-                m_qwtPlot->setAxisAutoScale( QwtPlot::xBottom, true );
+                m_plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
             }
             else
             {
-                m_qwtPlot->setAxisScale( QwtPlot::xBottom,
-                                         m_bottomAxisProperties->visibleRangeMin(),
-                                         m_bottomAxisProperties->visibleRangeMax() );
+                m_plotWidget->setAxisScale( QwtPlot::xBottom,
+                                            m_bottomAxisProperties->visibleRangeMin(),
+                                            m_bottomAxisProperties->visibleRangeMax() );
             }
         }
         else
         {
             if ( m_timeAxisProperties->isAutoZoom() )
             {
-                m_qwtPlot->setAxisAutoScale( QwtPlot::xBottom, true );
+                m_plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
             }
             else
             {
-                m_qwtPlot->setAxisScale( QwtPlot::xBottom,
-                                         m_timeAxisProperties->visibleRangeMin(),
-                                         m_timeAxisProperties->visibleRangeMax() );
+                m_plotWidget->setAxisScale( QwtPlot::xBottom,
+                                            m_timeAxisProperties->visibleRangeMin(),
+                                            m_timeAxisProperties->visibleRangeMax() );
             }
         }
     }
@@ -808,21 +889,21 @@ void RimSummaryPlot::updateZoomForAxis( RiaDefines::PlotAxis plotAxis )
                     std::swap( min, max );
                 }
 
-                m_qwtPlot->setAxisScale( yAxisProps->qwtPlotAxisType(), min, max );
+                m_plotWidget->setAxisScale( yAxisProps->qwtPlotAxisType(), min, max );
             }
             else
             {
-                m_qwtPlot->setAxisAutoScale( yAxisProps->qwtPlotAxisType(), true );
+                m_plotWidget->setAxisAutoScale( yAxisProps->qwtPlotAxisType(), true );
             }
         }
         else
         {
-            m_qwtPlot->setAxisScale( yAxisProps->qwtPlotAxisType(),
-                                     yAxisProps->visibleRangeMin(),
-                                     yAxisProps->visibleRangeMax() );
+            m_plotWidget->setAxisScale( yAxisProps->qwtPlotAxisType(),
+                                        yAxisProps->visibleRangeMin(),
+                                        yAxisProps->visibleRangeMax() );
         }
 
-        m_qwtPlot->axisScaleEngine( yAxisProps->qwtPlotAxisType() )
+        m_plotWidget->axisScaleEngine( yAxisProps->qwtPlotAxisType() )
             ->setAttribute( QwtScaleEngine::Inverted, yAxisProps->isAxisInverted() );
     }
 }
@@ -969,11 +1050,11 @@ std::vector<RimAsciiDataCurve*> RimSummaryPlot::visibleAsciiDataCurvesForAxis( R
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateTimeAxis()
 {
-    if ( !m_qwtPlot ) return;
+    if ( !m_plotWidget ) return;
 
     if ( !m_timeAxisProperties->isActive() )
     {
-        m_qwtPlot->enableAxis( QwtPlot::xBottom, false );
+        m_plotWidget->enableAxis( QwtPlot::xBottom, false );
 
         return;
     }
@@ -986,20 +1067,20 @@ void RimSummaryPlot::updateTimeAxis()
         QString dateFormat = m_timeAxisProperties->dateFormat();
         QString timeFormat = m_timeAxisProperties->timeFormat();
 
-        m_qwtPlot->useDateBasedTimeAxis( dateFormat, timeFormat, dateComponents, timeComponents );
+        m_plotWidget->useDateBasedTimeAxis( dateFormat, timeFormat, dateComponents, timeComponents );
     }
     else
     {
-        m_qwtPlot->useTimeBasedTimeAxis();
+        m_plotWidget->useTimeBasedTimeAxis();
     }
 
-    m_qwtPlot->enableAxis( QwtPlot::xBottom, true );
+    m_plotWidget->enableAxis( QwtPlot::xBottom, true );
 
     {
         QString axisTitle;
         if ( m_timeAxisProperties->showTitle ) axisTitle = m_timeAxisProperties->title();
 
-        QwtText timeAxisTitle = m_qwtPlot->axisTitle( QwtPlot::xBottom );
+        QwtText timeAxisTitle = m_plotWidget->axisTitle( QwtPlot::xBottom );
 
         QFont font = timeAxisTitle.font();
         font.setBold( true );
@@ -1018,14 +1099,14 @@ void RimSummaryPlot::updateTimeAxis()
                 break;
         }
 
-        m_qwtPlot->setAxisTitle( QwtPlot::xBottom, timeAxisTitle );
+        m_plotWidget->setAxisTitle( QwtPlot::xBottom, timeAxisTitle );
     }
 
     {
-        QFont timeAxisFont = m_qwtPlot->axisFont( QwtPlot::xBottom );
+        QFont timeAxisFont = m_plotWidget->axisFont( QwtPlot::xBottom );
         timeAxisFont.setBold( false );
         timeAxisFont.setPointSize( m_timeAxisProperties->valuesFontSize() );
-        m_qwtPlot->setAxisFont( QwtPlot::xBottom, timeAxisFont );
+        m_plotWidget->setAxisFont( QwtPlot::xBottom, timeAxisFont );
     }
 }
 
@@ -1034,7 +1115,7 @@ void RimSummaryPlot::updateTimeAxis()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateBottomXAxis()
 {
-    if ( !m_qwtPlot ) return;
+    if ( !m_plotWidget ) return;
 
     QwtPlot::Axis qwtAxis = QwtPlot::xBottom;
 
@@ -1042,7 +1123,7 @@ void RimSummaryPlot::updateBottomXAxis()
 
     if ( bottomAxisProperties->isActive() )
     {
-        m_qwtPlot->enableAxis( qwtAxis, true );
+        m_plotWidget->enableAxis( qwtAxis, true );
 
         std::set<QString> timeHistoryQuantities;
 
@@ -1050,11 +1131,11 @@ void RimSummaryPlot::updateBottomXAxis()
                                            visibleSummaryCurvesForAxis( RiaDefines::PLOT_AXIS_BOTTOM ),
                                            visibleAsciiDataCurvesForAxis( RiaDefines::PLOT_AXIS_BOTTOM ),
                                            timeHistoryQuantities );
-        calc.applyYAxisPropertiesToPlot( m_qwtPlot );
+        calc.applyYAxisPropertiesToPlot( m_plotWidget );
     }
     else
     {
-        m_qwtPlot->enableAxis( qwtAxis, false );
+        m_plotWidget->enableAxis( qwtAxis, false );
     }
 }
 
@@ -1074,9 +1155,9 @@ void RimSummaryPlot::updateCaseNameHasChanged()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::zoomAll()
 {
-    setAutoZoomForAllAxes( true );
+    setAutoScaleXEnabled( true );
+    setAutoScaleYEnabled( true );
     updateZoomInQwt();
-    updateAxisRangesFromQwt();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1088,9 +1169,9 @@ void RimSummaryPlot::addCurveAndUpdate( RimSummaryCurve* curve )
     {
         m_summaryCurveCollection->addCurve( curve );
 
-        if ( m_qwtPlot )
+        if ( m_plotWidget )
         {
-            curve->setParentQwtPlotAndReplot( m_qwtPlot );
+            curve->setParentQwtPlotAndReplot( m_plotWidget );
             this->updateAxes();
         }
     }
@@ -1105,9 +1186,9 @@ void RimSummaryPlot::addCurveNoUpdate( RimSummaryCurve* curve )
     {
         m_summaryCurveCollection->addCurve( curve );
 
-        if ( m_qwtPlot )
+        if ( m_plotWidget )
         {
-            curve->setParentQwtPlotNoReplot( m_qwtPlot );
+            curve->setParentQwtPlotNoReplot( m_plotWidget );
         }
     }
 }
@@ -1117,7 +1198,7 @@ void RimSummaryPlot::addCurveNoUpdate( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteCurve( RimSummaryCurve* curve )
 {
-    deleteCurves( {curve} );
+    deleteCurves( { curve } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1149,9 +1230,9 @@ void RimSummaryPlot::deleteCurves( const std::vector<RimSummaryCurve*>& curves )
                         curveSet->deleteCurve( curve );
                         if ( curveSet->curves().empty() )
                         {
-                            if ( curveSet->colorMode() == RimEnsembleCurveSet::BY_ENSEMBLE_PARAM && qwtPlot() )
+                            if ( curveSet->colorMode() == RimEnsembleCurveSet::BY_ENSEMBLE_PARAM && m_plotWidget )
                             {
-                                qwtPlot()->removeEnsembleCurveSetLegend( curveSet );
+                                m_plotWidget->removeEnsembleCurveSetLegend( curveSet );
                             }
                             m_ensembleCurveSetCollection->deleteCurveSet( curveSet );
                         }
@@ -1194,9 +1275,9 @@ void RimSummaryPlot::addGridTimeHistoryCurve( RimGridTimeHistoryCurve* curve )
     CVF_ASSERT( curve );
 
     m_gridTimeHistoryCurves.push_back( curve );
-    if ( m_qwtPlot )
+    if ( m_plotWidget )
     {
-        curve->setParentQwtPlotAndReplot( m_qwtPlot );
+        curve->setParentQwtPlotAndReplot( m_plotWidget );
         this->updateAxes();
     }
 }
@@ -1209,9 +1290,9 @@ void RimSummaryPlot::addGridTimeHistoryCurveNoUpdate( RimGridTimeHistoryCurve* c
     CVF_ASSERT( curve );
 
     m_gridTimeHistoryCurves.push_back( curve );
-    if ( m_qwtPlot )
+    if ( m_plotWidget )
     {
-        curve->setParentQwtPlotNoReplot( m_qwtPlot );
+        curve->setParentQwtPlotNoReplot( m_plotWidget );
     }
 }
 
@@ -1231,9 +1312,9 @@ void RimSummaryPlot::addAsciiDataCruve( RimAsciiDataCurve* curve )
     CVF_ASSERT( curve );
 
     m_asciiDataCurves.push_back( curve );
-    if ( m_qwtPlot )
+    if ( m_plotWidget )
     {
-        curve->setParentQwtPlotAndReplot( m_qwtPlot );
+        curve->setParentQwtPlotAndReplot( m_plotWidget );
         this->updateAxes();
     }
 }
@@ -1241,9 +1322,17 @@ void RimSummaryPlot::addAsciiDataCruve( RimAsciiDataCurve* curve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::loadDataAndUpdate()
+{
+    onLoadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSummaryPlot::userDescriptionField()
 {
-    return &m_userDefinedPlotTitle;
+    return &m_description;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1306,7 +1395,7 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 {
     RimViewWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_userDefinedPlotTitle || changedField == &m_showPlotTitle || changedField == &m_showLegend ||
+    if ( changedField == &m_description || changedField == &m_showPlotTitle || changedField == &m_showLegend ||
          changedField == &m_legendFontSize || changedField == &m_useAutoPlotTitle )
     {
         updatePlotTitle();
@@ -1354,9 +1443,9 @@ QImage RimSummaryPlot::snapshotWindowContent()
 #endif
     QImage image;
 
-    if ( m_qwtPlot )
+    if ( m_plotWidget )
     {
-        QPixmap pix = m_qwtPlot->grab();
+        QPixmap pix = m_plotWidget->grab();
         image       = pix.toImage();
     }
 
@@ -1429,7 +1518,7 @@ void RimSummaryPlot::onLoadDataAndUpdate()
         curve->loadDataAndUpdate( false );
     }
 
-    if ( m_qwtPlot ) m_qwtPlot->updateLegend();
+    if ( m_plotWidget ) m_plotWidget->updateLegend();
     this->updateAxes();
 }
 
@@ -1438,82 +1527,28 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateZoomInQwt()
 {
-    if ( m_qwtPlot )
+    if ( m_plotWidget )
     {
         updateZoomForAxis( RiaDefines::PLOT_AXIS_BOTTOM );
         updateZoomForAxis( RiaDefines::PLOT_AXIS_LEFT );
         updateZoomForAxis( RiaDefines::PLOT_AXIS_RIGHT );
 
-        m_qwtPlot->replot();
-
-        updateAxisRangesFromQwt();
+        m_plotWidget->updateAxes();
+        updateZoomFromQwt();
+        m_plotWidget->scheduleReplot();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateZoomWindowFromQwt()
+void RimSummaryPlot::updateZoomFromQwt()
 {
-    updateAxisRangesFromQwt();
-    setAutoZoomForAllAxes( false );
-}
+    if ( !m_plotWidget ) return;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::selectAxisInPropertyEditor( int axis )
-{
-    RiuPlotMainWindowTools::showPlotMainWindow();
-    if ( axis == QwtPlot::yLeft )
-    {
-        RiuPlotMainWindowTools::selectAsCurrentItem( m_leftYAxisProperties );
-    }
-    else if ( axis == QwtPlot::yRight )
-    {
-        RiuPlotMainWindowTools::selectAsCurrentItem( m_rightYAxisProperties );
-    }
-    else if ( axis == QwtPlot::xBottom )
-    {
-        if ( m_isCrossPlot )
-        {
-            RiuPlotMainWindowTools::selectAsCurrentItem( m_bottomAxisProperties );
-        }
-        else
-        {
-            RiuPlotMainWindowTools::selectAsCurrentItem( m_timeAxisProperties );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::setAutoZoomForAllAxes( bool enableAutoZoom )
-{
-    m_leftYAxisProperties->setAutoZoom( enableAutoZoom );
-    m_rightYAxisProperties->setAutoZoom( enableAutoZoom );
-
-    if ( m_isCrossPlot )
-    {
-        m_bottomAxisProperties->setAutoZoom( enableAutoZoom );
-    }
-    else
-    {
-        m_timeAxisProperties->setAutoZoom( enableAutoZoom );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateAxisRangesFromQwt()
-{
-    if ( !m_qwtPlot ) return;
-
-    QwtInterval leftAxis  = m_qwtPlot->currentAxisRange( QwtPlot::yLeft );
-    QwtInterval rightAxis = m_qwtPlot->currentAxisRange( QwtPlot::yRight );
-    QwtInterval timeAxis  = m_qwtPlot->currentAxisRange( QwtPlot::xBottom );
+    QwtInterval leftAxis  = m_plotWidget->axisRange( QwtPlot::yLeft );
+    QwtInterval rightAxis = m_plotWidget->axisRange( QwtPlot::yRight );
+    QwtInterval timeAxis  = m_plotWidget->axisRange( QwtPlot::xBottom );
 
     m_leftYAxisProperties->visibleRangeMax = leftAxis.maxValue();
     m_leftYAxisProperties->visibleRangeMin = leftAxis.minValue();
@@ -1542,7 +1577,29 @@ void RimSummaryPlot::updateAxisRangesFromQwt()
 //--------------------------------------------------------------------------------------------------
 std::set<RimPlotAxisPropertiesInterface*> RimSummaryPlot::allPlotAxes() const
 {
-    return {m_timeAxisProperties, m_bottomAxisProperties, m_leftYAxisProperties, m_rightYAxisProperties};
+    return { m_timeAxisProperties, m_bottomAxisProperties, m_leftYAxisProperties, m_rightYAxisProperties };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::addOrUpdateEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet )
+{
+    if ( m_plotWidget )
+    {
+        m_plotWidget->addOrUpdateEnsembleCurveSetLegend( curveSet );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::removeEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet )
+{
+    if ( m_plotWidget )
+    {
+        m_plotWidget->removeEnsembleCurveSetLegend( curveSet );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1558,7 +1615,7 @@ void RimSummaryPlot::deleteAllGridTimeHistoryCurves()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::setDescription( const QString& description )
 {
-    m_userDefinedPlotTitle = description;
+    m_description = description;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1566,7 +1623,15 @@ void RimSummaryPlot::setDescription( const QString& description )
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryPlot::description() const
 {
-    return m_userDefinedPlotTitle();
+    return m_description();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::isChecked() const
+{
+    return isWindowVisible();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1614,9 +1679,9 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     if ( m_showPlotTitle )
     {
         mainOptions->add( &m_useAutoPlotTitle );
-        mainOptions->add( &m_userDefinedPlotTitle );
+        mainOptions->add( &m_description );
     }
-    m_userDefinedPlotTitle.uiCapability()->setUiReadOnly( m_useAutoPlotTitle );
+    m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle );
 
     mainOptions->add( &m_showLegend );
     if ( m_showLegend() )
@@ -1641,32 +1706,32 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 QWidget* RimSummaryPlot::createViewWidget( QWidget* mainWindowParent )
 {
-    if ( !m_qwtPlot )
+    if ( !m_plotWidget )
     {
-        m_qwtPlot = new RiuSummaryQwtPlot( this, mainWindowParent );
+        m_plotWidget = new RiuSummaryQwtPlot( this, mainWindowParent );
 
         for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
         {
-            curve->setParentQwtPlotNoReplot( m_qwtPlot );
+            curve->setParentQwtPlotNoReplot( m_plotWidget );
         }
 
         for ( RimAsciiDataCurve* curve : m_asciiDataCurves )
         {
-            curve->setParentQwtPlotNoReplot( m_qwtPlot );
+            curve->setParentQwtPlotNoReplot( m_plotWidget );
         }
 
         if ( m_summaryCurveCollection )
         {
-            m_summaryCurveCollection->setParentQwtPlotAndReplot( m_qwtPlot );
+            m_summaryCurveCollection->setParentQwtPlotAndReplot( m_plotWidget );
         }
 
         if ( m_ensembleCurveSetCollection )
         {
-            m_ensembleCurveSetCollection->setParentQwtPlotAndReplot( m_qwtPlot );
+            m_ensembleCurveSetCollection->setParentQwtPlotAndReplot( m_plotWidget );
         }
     }
 
-    return m_qwtPlot;
+    return m_plotWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1676,10 +1741,10 @@ void RimSummaryPlot::deleteViewWidget()
 {
     detachAllCurves();
 
-    if ( m_qwtPlot )
+    if ( m_plotWidget )
     {
-        m_qwtPlot->deleteLater();
-        m_qwtPlot = nullptr;
+        m_plotWidget->deleteLater();
+        m_plotWidget = nullptr;
     }
 }
 
@@ -1711,7 +1776,8 @@ void RimSummaryPlot::initAfterRead()
 
     if ( !m_isAutoZoom_OBSOLETE() )
     {
-        setAutoZoomForAllAxes( false );
+        setAutoScaleXEnabled( false );
+        setAutoScaleYEnabled( false );
     }
 
     RimProject* proj = nullptr;
@@ -1730,34 +1796,34 @@ void RimSummaryPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateMdiWindowTitle()
 {
-    if ( m_qwtPlot )
+    if ( m_plotWidget )
     {
         QString plotTitle = description();
 
-        m_qwtPlot->setWindowTitle( plotTitle );
+        m_plotWidget->setWindowTitle( plotTitle );
 
         if ( m_showPlotTitle )
         {
-            m_qwtPlot->setTitle( plotTitle );
+            m_plotWidget->setTitle( plotTitle );
         }
         else
         {
-            m_qwtPlot->setTitle( "" );
+            m_plotWidget->setTitle( "" );
         }
 
         if ( m_showLegend )
         {
             // Will be released in plot destructor or when a new legend is set
-            QwtLegend* legend = new QwtLegend( m_qwtPlot );
+            QwtLegend* legend = new QwtLegend( m_plotWidget );
 
             auto font = legend->font();
             font.setPointSize( m_legendFontSize() );
             legend->setFont( font );
-            m_qwtPlot->insertLegend( legend, QwtPlot::BottomLegend );
+            m_plotWidget->insertLegend( legend, QwtPlot::BottomLegend );
         }
         else
         {
-            m_qwtPlot->insertLegend( nullptr );
+            m_plotWidget->insertLegend( nullptr );
         }
     }
 }
@@ -1803,6 +1869,14 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
     nameHelper->appendAddresses( addresses );
     nameHelper->setSummaryCases( sumCases );
     nameHelper->setEnsembleCases( ensembleCases );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateLayout()
+{
+    this->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1868,53 +1942,6 @@ void RimSummaryPlot::reattachAllCurves()
     {
         curve->reattachQwtCurve();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimSummaryPlot::findRimPlotObjectFromQwtCurve( const QwtPlotCurve* qwtCurve ) const
-{
-    for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
-    {
-        if ( curve->qwtPlotCurve() == qwtCurve )
-        {
-            return curve;
-        }
-    }
-
-    for ( RimAsciiDataCurve* curve : m_asciiDataCurves )
-    {
-        if ( curve->qwtPlotCurve() == qwtCurve )
-        {
-            return curve;
-        }
-    }
-
-    if ( m_summaryCurveCollection )
-    {
-        RimSummaryCurve* foundCurve = m_summaryCurveCollection->findRimCurveFromQwtCurve( qwtCurve );
-
-        if ( foundCurve )
-        {
-            m_summaryCurveCollection->setCurrentSummaryCurve( foundCurve );
-
-            return foundCurve;
-        }
-    }
-
-    if ( m_ensembleCurveSetCollection )
-    {
-        RimEnsembleCurveSet* foundCurveSet = m_ensembleCurveSetCollection->findRimCurveSetFromQwtCurve( qwtCurve );
-
-        if ( foundCurveSet )
-        {
-            m_ensembleCurveSetCollection->setCurrentSummaryCurveSet( foundCurveSet );
-
-            return foundCurveSet;
-        }
-    }
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2042,6 +2069,30 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlot::fieldsToShowInToolbar()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::setAutoScaleXEnabled( bool enabled )
+{
+    if ( m_isCrossPlot )
+    {
+        m_bottomAxisProperties->setAutoZoom( enabled );
+    }
+    else
+    {
+        m_timeAxisProperties->setAutoZoom( enabled );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::setAutoScaleYEnabled( bool enabled )
+{
+    m_leftYAxisProperties->setAutoZoom( enabled );
+    m_rightYAxisProperties->setAutoZoom( enabled );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RimSummaryPlot::curveCount() const
 {
     return m_summaryCurveCollection->curves().size() + m_gridTimeHistoryCurves.size() + m_asciiDataCurves.size();
@@ -2087,13 +2138,13 @@ void populateTimeHistoryCurvesData( std::vector<RimGridTimeHistoryCurve*> curves
             if ( curveCaseName == curvesData->caseNames[i] ) casePosInList = i;
         }
 
-        CurveData curveData = {curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues()};
+        CurveData curveData = { curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues() };
 
         if ( casePosInList == cvf::UNDEFINED_SIZE_T )
         {
             curvesData->caseNames.push_back( curveCaseName );
             curvesData->timeSteps.push_back( curve->timeStepValues() );
-            curvesData->allCurveData.push_back( std::vector<CurveData>( {curveData} ) );
+            curvesData->allCurveData.push_back( std::vector<CurveData>( { curveData } ) );
         }
         else
         {
@@ -2119,13 +2170,13 @@ void populateAsciiDataCurvesData( std::vector<RimAsciiDataCurve*> curves, Curves
 
         size_t casePosInList = cvf::UNDEFINED_SIZE_T;
 
-        CurveData curveData = {curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues()};
+        CurveData curveData = { curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues() };
 
         if ( casePosInList == cvf::UNDEFINED_SIZE_T )
         {
             curvesData->caseNames.push_back( "" );
             curvesData->timeSteps.push_back( curve->timeSteps() );
-            curvesData->allCurveData.push_back( std::vector<CurveData>( {curveData} ) );
+            curvesData->allCurveData.push_back( std::vector<CurveData>( { curveData } ) );
         }
         else
         {
@@ -2161,7 +2212,7 @@ void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCur
             if ( curveCaseName == curvesData->caseNames[i] ) casePosInList = i;
         }
 
-        CurveData curveData = {curve->curveExportDescription(), curve->summaryAddressY(), curve->valuesY()};
+        CurveData curveData = { curve->curveExportDescription(), curve->summaryAddressY(), curve->valuesY() };
         CurveData errorCurveData;
 
         // Error data
@@ -2177,7 +2228,7 @@ void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCur
 
         if ( casePosInList == cvf::UNDEFINED_SIZE_T )
         {
-            auto curveDataList = std::vector<CurveData>( {curveData} );
+            auto curveDataList = std::vector<CurveData>( { curveData } );
             if ( hasErrorData ) curveDataList.push_back( errorCurveData );
 
             curvesData->caseNames.push_back( curveCaseName );
