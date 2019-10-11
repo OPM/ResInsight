@@ -19,6 +19,7 @@
 #pragma once
 
 #include <vector>
+#include "cvfVector3.h"
 
 namespace cvf
 {
@@ -26,12 +27,14 @@ class BoundingBox;
 }
 
 class RimGridView;
+class Rim3dView;
 
 class RimViewManipulator
 {
 public:
     static void applySourceViewCameraOnDestinationViews( RimGridView*               sourceView,
                                                          std::vector<RimGridView*>& destinationViews );
+    static cvf::Vec3d calculateEquivalentCamPosOffset(Rim3dView* sourceView, Rim3dView* destView);
 
 private:
     static bool isBoundingBoxesOverlappingOrClose( const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB );

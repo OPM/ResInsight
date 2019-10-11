@@ -28,6 +28,7 @@
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
@@ -145,6 +146,7 @@ public:
     }
     void         setCurrentTimeStep( int frameIdx );
     void         setCurrentTimeStepAndUpdate( int frameIdx ) override;
+    bool         isTimeStepDependentDataVisibleInThisOrComparisonView() const;
     virtual bool isTimeStepDependentDataVisible() const = 0;
 
     // Updating
@@ -172,6 +174,9 @@ public:
                         int                         fontSize,
                         bool                        forceChange = false ) override;
 
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                 bool*                      useOptionsOnly ) override;
+
 protected:
     static void removeModelByName( cvf::Scene* scene, const cvf::String& modelName );
 
@@ -193,7 +198,10 @@ protected:
     void addAnnotationsToModel( cvf::ModelBasicList* wellPathModelBasicList );
     void addMeasurementToModel( cvf::ModelBasicList* wellPathModelBasicList );
 
-    void createHighlightAndGridBoxDisplayModel();
+    // Override viewer
+
+    RiuViewer* nativeOrOverrideViewer() const;
+    bool       isUsingOverrideViewer() const;
 
     // Implementation of RimNameConfigHolderInterface
     void performAutoNameUpdate() override;
@@ -202,15 +210,14 @@ protected:
 
     virtual void axisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) = 0;
 
-    virtual void createDisplayModel()                                                   = 0;
-    virtual void createPartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) = 0;
-
+    virtual void createDisplayModel() = 0;
     virtual void updateDisplayModelVisibility();
-    virtual void clampCurrentTimestep() = 0;
+    virtual void clampCurrentTimestep()  = 0;
+    virtual void updateCurrentTimeStep() = 0;
+    virtual void onTimeStepChanged()     = 0;
 
-    virtual void updateCurrentTimeStep()  = 0;
-    virtual void onTimeStepChanged()      = 0;
-    virtual void updateStaticCellColors() = 0;
+    virtual void createPartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) = 0;
+    virtual void updateStaticCellColors()                                               = 0;
 
     virtual void            updateScaleTransform() = 0;
     virtual cvf::Transform* scaleTransform()       = 0;
@@ -221,8 +228,6 @@ protected: // Fields
     caf::PdmField<int> m_currentTimeStep;
 
 protected:
-    QPointer<RiuViewer> m_viewer;
-
     cvf::ref<cvf::ModelBasicList> m_wellPathPipeVizModel;
     cvf::ref<cvf::ModelBasicList> m_crossSectionVizModel;
     cvf::ref<cvf::ModelBasicList> m_highlightVizModel;
@@ -263,22 +268,44 @@ private:
     {
         m_cameraPosition = cameraPosition;
     }
+
     void setCameraPointOfInterest( const cvf::Vec3d& cameraPointOfInterest ) override
     {
         m_cameraPointOfInterest = cameraPointOfInterest;
     }
-    QString               timeStepName( int frameIdx ) const override;
-    void                  endAnimation() override;
+
+    QString timeStepName( int frameIdx ) const override;
+    void    endAnimation() override;
+
     caf::PdmObjectHandle* implementingPdmObject() override
     {
         return this;
     }
+
     void handleMdiWindowClosed() override;
     void setMdiWindowGeometry( const RimMdiWindowGeometry& windowGeometry ) override;
+
+    // Pure private methods
+
+    void createHighlightAndGridBoxDisplayModel();
+
     void appendAnnotationsToModel();
     void appendMeasurementToModel();
 
+    // Pure private methods : Override viewer and comparison view
+
+    void       setOverrideViewer( RiuViewer* overrideViewer );
+    Rim3dView* activeComparisonView() const;
+
+    void prepareComparisonView();
+    void restoreComparisonView();
+
 private:
+    QPointer<RiuViewer> m_viewer;
+    QPointer<RiuViewer> m_overrideViewer;
+    int                 m_comparisonViewOrgTimestep;
+    double              m_comparisonViewOrgZScale;
+
     caf::PdmField<QString>                 m_name_OBSOLETE;
     caf::PdmChildField<RimViewNameConfig*> m_nameConfig;
     caf::PdmField<bool>                    m_disableLighting;
@@ -287,4 +314,7 @@ private:
     caf::PdmField<cvf::Color3f>            m_backgroundColor;
     caf::PdmField<bool>                    m_showGridBox;
     caf::PdmField<bool>                    m_showZScaleLabel;
+    caf::PdmField<bool>                    m_isComparisonViewEnabled;
+    caf::PdmPtrField<Rim3dView*>           m_comparisonView;
+    caf::PdmField<bool>                    m_isComparisonViewLinkingTimestep;
 };
