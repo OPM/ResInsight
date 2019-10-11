@@ -293,7 +293,7 @@ void RimGeoMechView::createDisplayModel()
 
     if ( isTimeStepDependentDataVisibleInThisOrComparisonView() )
     {
-        if ( viewer() ) viewer()->setCurrentFrame( m_currentTimeStep );
+        if ( viewer() && !isUsingOverrideViewer() ) viewer()->setCurrentFrame( m_currentTimeStep );
     }
     else
     {

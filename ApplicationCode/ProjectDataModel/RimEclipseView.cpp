@@ -395,7 +395,7 @@ void RimEclipseView::createDisplayModel()
 
     // Remove all existing animation frames from the viewer.
     // The parts are still cached in the RivReservoir geometry and friends
-    nativeOrOverrideViewer()->removeAllFrames(isUsingOverrideViewer());
+    nativeOrOverrideViewer()->removeAllFrames( isUsingOverrideViewer() );
 
     wellCollection()->scheduleIsWellPipesVisibleRecalculation();
 
@@ -547,16 +547,16 @@ void RimEclipseView::createDisplayModel()
         scene->addModel( model );
 
         if ( frameIndex == 0 )
-            nativeOrOverrideViewer()->setMainScene( scene.p() ,isUsingOverrideViewer() );
+            nativeOrOverrideViewer()->setMainScene( scene.p(), isUsingOverrideViewer() );
         else
-            nativeOrOverrideViewer()->addFrame( scene.p() , isUsingOverrideViewer() );
+            nativeOrOverrideViewer()->addFrame( scene.p(), isUsingOverrideViewer() );
     }
 
     // If the animation was active before recreating everything, make viewer view current frame
 
     if ( frameModels.size() > 1 && this->hasUserRequestedAnimation() )
     {
-        if (viewer()) viewer()->setCurrentFrame( m_currentTimeStep );
+        if ( viewer() && !isUsingOverrideViewer() ) viewer()->setCurrentFrame( m_currentTimeStep );
     }
     else
     {
@@ -1171,11 +1171,14 @@ void RimEclipseView::updateLegends()
         {
             nativeOrOverrideViewer()->removeColorLegend( this->cellEdgeResult()->legendConfig()->titledOverlayFrame() );
             nativeOrOverrideViewer()->removeColorLegend( fractureColors()->activeLegend()->titledOverlayFrame() );
-            nativeOrOverrideViewer()->removeColorLegend( m_virtualPerforationResult->legendConfig()->titledOverlayFrame() );
+            nativeOrOverrideViewer()->removeColorLegend(
+                m_virtualPerforationResult->legendConfig()->titledOverlayFrame() );
             nativeOrOverrideViewer()->removeColorLegend( this->cellResult()->legendConfig()->titledOverlayFrame() );
             nativeOrOverrideViewer()->removeColorLegend( this->cellResult()->ternaryLegendConfig()->titledOverlayFrame() );
-            nativeOrOverrideViewer()->removeColorLegend( this->currentFaultResultColors()->legendConfig()->titledOverlayFrame() );
-            nativeOrOverrideViewer()->removeColorLegend( this->currentFaultResultColors()->ternaryLegendConfig()->titledOverlayFrame() );
+            nativeOrOverrideViewer()->removeColorLegend(
+                this->currentFaultResultColors()->legendConfig()->titledOverlayFrame() );
+            nativeOrOverrideViewer()->removeColorLegend(
+                this->currentFaultResultColors()->ternaryLegendConfig()->titledOverlayFrame() );
         }
     }
 
@@ -1235,7 +1238,8 @@ void RimEclipseView::updateLegends()
 
             this->cellEdgeResult()->legendConfig()->setTitle( QString( "Edge Results: \n" ) +
                                                               this->cellEdgeResult()->resultVariableUiShortName() );
-            nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( this->cellEdgeResult()->legendConfig()->titledOverlayFrame() );
+            nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner(
+                this->cellEdgeResult()->legendConfig()->titledOverlayFrame() );
         }
         else
         {
@@ -1319,7 +1323,8 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView( QString              
              resultColors->ternaryLegendConfig()->titledOverlayFrame() )
         {
             resultColors->ternaryLegendConfig()->setTitle( legendLabel );
-            nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( resultColors->ternaryLegendConfig()->titledOverlayFrame() );
+            nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner(
+                resultColors->ternaryLegendConfig()->titledOverlayFrame() );
         }
     }
 }
@@ -1835,7 +1840,8 @@ void RimEclipseView::resetLegendsInViewer()
         nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( cellResultNormalLegendConfig->titledOverlayFrame() );
     }
 
-    nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( this->cellEdgeResult()->legendConfig()->titledOverlayFrame() );
+    nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner(
+        this->cellEdgeResult()->legendConfig()->titledOverlayFrame() );
 }
 
 //--------------------------------------------------------------------------------------------------

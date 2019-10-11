@@ -388,10 +388,8 @@ void Rim3dView::setCurrentTimeStepAndUpdate( int frameIndex )
 
     this->updateCurrentTimeStep();
 
-    if ( Rim3dView* depView = activeComparisonView() )
+    if ( Rim3dView* depView = prepareComparisonView() )
     {
-        prepareComparisonView();
-
         depView->updateCurrentTimeStep();
         depView->appendAnnotationsToModel();
         depView->appendMeasurementToModel();
@@ -455,10 +453,8 @@ void Rim3dView::updateCurrentTimeStepAndRedraw()
 {
     this->updateCurrentTimeStep();
 
-    if ( Rim3dView* depView = activeComparisonView() )
+    if ( Rim3dView* depView = prepareComparisonView() )
     {
-        prepareComparisonView();
-
         depView->updateCurrentTimeStep();
 
         restoreComparisonView();
@@ -493,24 +489,26 @@ void Rim3dView::createDisplayModelAndRedraw()
             m_cameraPointOfInterest = nativeOrOverrideViewer()->pointOfInterest();
         }
 
-        if ( Rim3dView* depView = activeComparisonView() )
+        if ( Rim3dView* depView = prepareComparisonView() )
         {
-            prepareComparisonView();
-
             depView->createDisplayModelAndRedraw();
 
             if ( isTimeStepDependentDataVisibleInThisOrComparisonView() )
             {
                 // To make the override viewer see the new frame (skeletons) created by createDisplayModelAndRedraw
-                nativeOrOverrideViewer()->slotSetCurrentFrame( currentTimeStep() );
+                // But avoid any call back down to this Rim3dView, instead do the update manually to not confuse the 
+                // m_currentTimeStep
+                nativeOrOverrideViewer()->caf::Viewer::slotSetCurrentFrame( currentTimeStep() );
                 depView->updateCurrentTimeStep();
             }
 
             restoreComparisonView();
         }
-        else if ( viewer() )
+        else if ( !isUsingOverrideViewer() && viewer() )
         {
-            // Remove the comparison scene data
+            // Remove the comparison scene data when 
+            // we do not have a comparison view 
+            // and are not doing override generation
             viewer()->setMainScene( nullptr, true );
             viewer()->removeAllFrames( true );
         }
@@ -1364,12 +1362,20 @@ Rim3dView* Rim3dView::activeComparisonView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::prepareComparisonView()
+Rim3dView* Rim3dView::prepareComparisonView()
 {
     Rim3dView* depView = activeComparisonView();
-    CVF_ASSERT( depView );
 
-    // prepareComparisonView
+    if ( !depView )
+    { 
+        return nullptr;
+    }
+
+    if (isUsingOverrideViewer())
+    {
+        return nullptr;
+    }
+
     m_comparisonViewOrgTimestep = depView->currentTimeStep();
     depView->m_currentTimeStep  = currentTimeStep();
     depView->clampCurrentTimestep();
@@ -1380,6 +1386,8 @@ void Rim3dView::prepareComparisonView()
     viewer()->setComparisonViewEyePointOffset( RimViewManipulator::calculateEquivalentCamPosOffset( this, depView ) );
 
     depView->setOverrideViewer( viewer() );
+
+    return depView;
 }
 
 //--------------------------------------------------------------------------------------------------

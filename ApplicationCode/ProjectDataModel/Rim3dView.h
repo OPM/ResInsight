@@ -297,8 +297,8 @@ private:
     void       setOverrideViewer( RiuViewer* overrideViewer );
     Rim3dView* activeComparisonView() const;
 
-    void prepareComparisonView();
-    void restoreComparisonView();
+    Rim3dView* prepareComparisonView();
+    void       restoreComparisonView();
 
 private:
     QPointer<RiuViewer> m_viewer;
