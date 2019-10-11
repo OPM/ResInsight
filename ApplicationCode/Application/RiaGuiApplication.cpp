@@ -648,9 +648,6 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
         setStartDir( cvfqt::Utils::toQString( o.value( 0 ) ) );
     }
 
-    int snapshotWidth  = -1;
-    int snapshotHeight = -1;
-
     if ( cvf::Option o = progOpt->option( "size" ) )
     {
         int width  = o.safeValue( 0 ).toInt( -1 );
@@ -658,9 +655,6 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
 
         if ( width > 0 && height > 0 )
         {
-            snapshotWidth  = width;
-            snapshotHeight = height;
-
             auto mainWindow = RiuMainWindow::instance();
             if ( mainWindow )
             {
@@ -672,6 +666,20 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
             {
                 plotWindow->resize( width, height );
             }
+        }
+    }
+
+    int snapshotWidth  = -1;
+    int snapshotHeight = -1;
+    if ( cvf::Option o = progOpt->option( "snapshotsize" ) )
+    {
+        int width  = o.safeValue( 0 ).toInt( -1 );
+        int height = o.safeValue( 1 ).toInt( -1 );
+
+        if ( width > 0 && height > 0 )
+        {
+            snapshotWidth  = width;
+            snapshotHeight = height;
         }
     }
 
