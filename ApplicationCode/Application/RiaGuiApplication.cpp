@@ -683,6 +683,13 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
         }
     }
 
+    QString snapshotFolderFromCommandLine;
+    if ( cvf::Option o = progOpt->option( "snapshotfolder" ) )
+    {
+        CVF_ASSERT( o.valueCount() == 1 );
+        snapshotFolderFromCommandLine = cvfqt::Utils::toQString( o.value( 0 ) );
+    }
+
     if ( cvf::Option o = progOpt->option( "summaryplot" ) )
     {
         RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( cvfqt::Utils::toQStringList( o.values() ) );
@@ -846,7 +853,16 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
             }
         }
 
-        QString exportFolder = QDir::currentPath() + "/snapshots";
+        QString snapshotFolder;
+
+        if ( snapshotFolderFromCommandLine.isEmpty() )
+        {
+            snapshotFolder = QDir::currentPath() + "/snapshots";
+        }
+        else
+        {
+            snapshotFolder = snapshotFolderFromCommandLine;
+        }
 
         if ( snapshotPlots )
         {
@@ -863,7 +879,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
 
                 processEvents();
 
-                RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( exportFolder );
+                RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( snapshotFolder );
             }
         }
 
@@ -880,7 +896,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
 
             processEvents();
 
-            RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( exportFolder );
+            RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( snapshotFolder );
         }
 
         auto mainPlotWnd = mainPlotWindow();
@@ -891,9 +907,11 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
 
         RiuMainWindow::instance()->loadWinGeoAndDockToolBarLayout();
 
-        closeProject();
+        /*
+                closeProject();
 
-        return EXIT_COMPLETED;
+                return EXIT_COMPLETED;
+        */
     }
 
     if ( cvf::Option o = progOpt->option( "commandFile" ) )

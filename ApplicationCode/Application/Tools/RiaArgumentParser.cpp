@@ -104,6 +104,10 @@ bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
                              "<width> <height>",
                              "Set size of exported snapshot images.",
                              cvf::ProgramOptions::MULTI_VALUE );
+    progOpt->registerOption( "snapshotfolder",
+                             "<folder>",
+                             "Set the destination folder for exported snapshot images.\n",
+                             cvf::ProgramOptions::SINGLE_VALUE );
     progOpt->registerOption( "savesnapshots",
                              "all|views|plots",
                              "Save snapshot of all views or plots to project file location sub folder 'snapshots'. "
