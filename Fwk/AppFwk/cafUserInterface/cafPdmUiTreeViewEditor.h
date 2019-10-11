@@ -102,6 +102,7 @@ public:
     bool        isTreeItemEditWidgetActive() const;
 
     void        selectAsCurrentItem(const PdmUiItem* uiItem);
+    void        selectItems(std::vector<const PdmUiItem*> uiItems);
     void        selectedUiItems(std::vector<PdmUiItem*>& objects);
     void        setExpanded(const PdmUiItem* uiItem, bool doExpand) const;
 

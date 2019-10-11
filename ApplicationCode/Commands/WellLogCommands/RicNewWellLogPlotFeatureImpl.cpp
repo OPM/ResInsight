@@ -165,14 +165,14 @@ RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool     
     }
 
     RimWellLogTrack* plotTrack = new RimWellLogTrack();
-    plot->addTrack( plotTrack );
+    plot->addPlot( plotTrack );
     if ( !trackDescription.isEmpty() )
     {
         plotTrack->setDescription( trackDescription );
     }
     else
     {
-        plotTrack->setDescription( QString( "Track %1" ).arg( plot->trackCount() ) );
+        plotTrack->setDescription( QString( "Track %1" ).arg( plot->plotCount() ) );
     }
 
     if ( caseToApply )
@@ -224,10 +224,6 @@ void RicNewWellLogPlotFeatureImpl::updateAfterCreation( RimWellLogPlot* plot )
 {
     CVF_ASSERT( plot );
     plot->loadDataAndUpdate();
-    plot->updateDepthZoom();
-    plot->updateConnectedEditors();
-    plot->updateTracks();
-    RiaApplication::instance()->project()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

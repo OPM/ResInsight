@@ -27,7 +27,6 @@
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuViewer.h"
-#include "RiuWellLogPlot.h"
 
 #include <QWindowStateChangeEvent>
 

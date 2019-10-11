@@ -96,7 +96,7 @@ protected:
     cvf::Transform* scaleTransform() override;
     void            resetLegendsInViewer() override;
     void            onLoadDataAndUpdate() override;
-    bool            isWindowVisible() override;
+    bool            isWindowVisible() const override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,

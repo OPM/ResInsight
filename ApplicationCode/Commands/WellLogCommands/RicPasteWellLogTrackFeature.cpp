@@ -81,9 +81,9 @@ void RicPasteWellLogTrackFeature::onActionTriggered( bool isChecked )
                 fileCurve->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
             CVF_ASSERT( newObject );
 
-            wellLogPlot->addTrack( newObject );
+            wellLogPlot->addPlot( newObject );
 
-            newObject->setDescription( QString( "Track %1" ).arg( wellLogPlot->trackCount() ) );
+            newObject->setDescription( QString( "Track %1" ).arg( wellLogPlot->plotCount() ) );
 
             // Resolve references after object has been inserted into the project data model
             newObject->resolveReferencesRecursively();

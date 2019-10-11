@@ -15,22 +15,41 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#include "RimPlot.h"
+#include "RiuQwtPlotLegend.h"
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlot, "RimPlot" ); // Do not use. Abstract class
+#include "qwt_dyngrid_layout.h"
+
+#include <QResizeEvent>
+
+#include <utility>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlot::RimPlot()
+RiuQwtPlotLegend::RiuQwtPlotLegend( QWidget* parent /*= nullptr */ )
+    : QwtLegend( parent )
+    , m_columnCount( -1 )
 {
-    CAF_PDM_InitObject( "Plot", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RimPlot::createPlotWidget()
+void RiuQwtPlotLegend::resizeEvent( QResizeEvent* event )
 {
-    return createViewWidget( nullptr );
+    QWidget::resizeEvent( event );
+    QSize                   size         = event->size();
+    const QwtDynGridLayout* legendLayout = qobject_cast<QwtDynGridLayout*>( contentsWidget()->layout() );
+    if ( legendLayout )
+    {
+        m_columnCount = legendLayout->columnsForWidth( size.width() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiuQwtPlotLegend::columnCount() const
+{
+    return m_columnCount;
 }

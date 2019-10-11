@@ -316,7 +316,34 @@ PdmChildArrayFieldHandle* PdmUiTreeViewEditor::currentChildArrayFieldHandle()
 void PdmUiTreeViewEditor::selectAsCurrentItem(const PdmUiItem* uiItem)
 {
     QModelIndex index = m_treeViewModel->findModelIndex(uiItem);
+    QModelIndex currentIndex = m_treeView->currentIndex();
+
+    m_treeView->clearSelection();
+
     m_treeView->setCurrentIndex(index);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewEditor::selectItems(std::vector<const PdmUiItem*> uiItems)
+{
+    m_treeView->clearSelection();
+
+    if (uiItems.empty())
+    {
+        return;
+    }
+
+    QModelIndex index = findModelIndex(uiItems.back());
+    m_treeView->setCurrentIndex(index);
+
+    for (const PdmUiItem* uiItem : uiItems)
+    {
+        QModelIndex itemIndex = findModelIndex(uiItem);
+        m_treeView->selectionModel()->select(itemIndex, QItemSelectionModel::Select);
+    }
+    m_treeView->setFocus(Qt::MouseFocusReason);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -391,7 +418,6 @@ void PdmUiTreeViewEditor::updateSelectionManager()
     {
         std::vector<PdmUiItem*> items;
         this->selectedUiItems(items);
-
         SelectionManager::instance()->setSelectedItems(items);
     }
 }

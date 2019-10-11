@@ -50,7 +50,7 @@
 #include "RimWellRftPlot.h"
 
 #include "RiuQwtPlotCurve.h"
-#include "RiuWellLogTrack.h"
+#include "RiuQwtPlotWidget.h"
 
 #include "cafPdmObject.h"
 #include "cafVecIjk.h"
@@ -459,24 +459,24 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             firstAncestorOrThisOfType( wellLogTrack );
             CVF_ASSERT( wellLogTrack );
 
-            RiuWellLogTrack* viewer = wellLogTrack->viewer();
+            RiuQwtPlotWidget* viewer = wellLogTrack->viewer();
             if ( viewer )
             {
                 if ( m_derivedMDSource == NO_SOURCE )
                 {
-                    viewer->setDepthTitle( "TVDMSL" );
+                    viewer->setYTitle( "TVDMSL" );
                 }
                 else if ( m_derivedMDSource == PSEUDO_LENGTH )
                 {
-                    viewer->setDepthTitle( "PL/" + wellLogPlot->depthPlotTitle() );
+                    viewer->setYTitle( "PL/" + wellLogPlot->depthAxisTitle() );
                 }
                 else if ( m_derivedMDSource == WELL_PATH )
                 {
-                    viewer->setDepthTitle( "WELL/" + wellLogPlot->depthPlotTitle() );
+                    viewer->setYTitle( "WELL/" + wellLogPlot->depthAxisTitle() );
                 }
                 else
                 {
-                    viewer->setDepthTitle( "OBS/" + wellLogPlot->depthPlotTitle() );
+                    viewer->setYTitle( "OBS/" + wellLogPlot->depthAxisTitle() );
                 }
             }
         }

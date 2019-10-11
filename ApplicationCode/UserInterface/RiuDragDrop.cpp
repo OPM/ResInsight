@@ -27,6 +27,7 @@
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
+#include "RimGridPlotWindow.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMimeData.h"
 #include "RimSummaryCase.h"
@@ -57,15 +58,15 @@ class RiuTypedPdmObjects
 public:
     explicit RiuTypedPdmObjects( const caf::PdmObjectGroup& objectGroup )
     {
-        objectGroup.objectsByType( &m_typedObjects );
+        objectGroup.objectsByType( &m_objects );
     }
 
     explicit RiuTypedPdmObjects( const std::vector<caf::PdmPointer<caf::PdmObjectHandle>>& objectHandles )
     {
         for ( size_t i = 0; i < objectHandles.size(); i++ )
         {
-            T* obj = dynamic_cast<T*>( objectHandles[i].p() );
-            if ( obj ) m_typedObjects.push_back( obj );
+            caf::PdmObject* obj = dynamic_cast<caf::PdmObject*>( objectHandles[i].p() );
+            if ( obj ) m_objects.push_back( obj );
         }
     }
 
@@ -91,16 +92,20 @@ private:
     std::vector<T*> typedObjects()
     {
         std::vector<T*> typedObjectsVec;
-        for ( size_t i = 0; i < m_typedObjects.size(); i++ )
+        for ( size_t i = 0; i < m_objects.size(); i++ )
         {
-            typedObjectsVec.push_back( m_typedObjects[i].p() );
+            T* typedObject = dynamic_cast<T*>( m_objects[i].p() );
+            if ( typedObject )
+            {
+                typedObjectsVec.push_back( typedObject );
+            }
         }
 
         return typedObjectsVec;
     }
 
 private:
-    std::vector<caf::PdmPointer<T>> m_typedObjects;
+    std::vector<caf::PdmPointer<caf::PdmObject>> m_objects;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -284,11 +289,11 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
             return handleWellLogPlotTrackDrop( action, draggedObjects, wellLogPlotTrack, row );
         }
 
-        RimWellLogPlot* wellLogPlot;
-        dropTarget->firstAncestorOrThisOfType( wellLogPlot );
-        if ( wellLogPlot )
+        RimGridPlotWindow* gridPlotWindow;
+        dropTarget->firstAncestorOrThisOfType( gridPlotWindow );
+        if ( gridPlotWindow )
         {
-            return handleWellLogPlotDrop( action, draggedObjects, wellLogPlot, row );
+            return handleGridPlotWindowDrop( action, draggedObjects, gridPlotWindow, row );
         }
 
         RimSummaryCaseCollection* summaryCaseCollection;
@@ -404,7 +409,7 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop( Qt::DropAction       action,
             RimWellLogCurve* insertAfter = nullptr;
             if ( insertAtPosition > 0 )
             {
-                auto visibleCurves = trackTarget->visibleCurvesVector();
+                auto visibleCurves = trackTarget->visibleCurves();
                 if ( !visibleCurves.empty() )
                 {
                     int insertAfterPosition = std::min( insertAtPosition - 1, (int)visibleCurves.size() - 1 );
@@ -424,7 +429,7 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop( Qt::DropAction       action,
         {
             RimWellLogPlot* wellLogPlot;
             trackTarget->firstAncestorOrThisOfType( wellLogPlot );
-            return handleWellLogPlotDrop( action, draggedObjects, wellLogPlot, insertAtPosition );
+            return handleGridPlotWindowDrop( action, draggedObjects, wellLogPlot, insertAtPosition );
         }
     }
 
@@ -434,28 +439,27 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop( Qt::DropAction       action,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::handleWellLogPlotDrop( Qt::DropAction       action,
-                                         caf::PdmObjectGroup& draggedObjects,
-                                         RimWellLogPlot*      wellLogPlotTarget,
-                                         int                  insertAtPosition )
+bool RiuDragDrop::handleGridPlotWindowDrop( Qt::DropAction       action,
+                                            caf::PdmObjectGroup& draggedObjects,
+                                            RimGridPlotWindow*   gridPlotWindow,
+                                            int                  insertAtPosition )
 {
-    std::vector<RimWellLogTrack*> wellLogPlotTracks = RiuTypedPdmObjects<RimWellLogTrack>::typedObjectsFromGroup(
-        draggedObjects );
-    if ( wellLogPlotTracks.size() > 0 )
+    std::vector<RimPlotInterface*> plots = RiuTypedPdmObjects<RimPlotInterface>::typedObjectsFromGroup( draggedObjects );
+    if ( plots.size() > 0 )
     {
         if ( action == Qt::MoveAction )
         {
-            RimWellLogTrack* insertAfter = nullptr;
+            RimPlotInterface* insertAfter = nullptr;
             if ( insertAtPosition > 0 )
             {
-                auto visibleTracks = wellLogPlotTarget->visibleTracks();
+                auto visibleTracks = gridPlotWindow->visiblePlots();
                 if ( !visibleTracks.empty() )
                 {
                     int insertAfterPosition = std::min( insertAtPosition - 1, (int)visibleTracks.size() - 1 );
-                    insertAfter             = visibleTracks[insertAfterPosition];
+                    insertAfter             = dynamic_cast<RimPlotInterface*>( visibleTracks[insertAfterPosition] );
                 }
             }
-            RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot( wellLogPlotTarget, wellLogPlotTracks, insertAfter );
+            RicWellLogPlotTrackFeatureImpl::movePlotsToGridPlotWindow( gridPlotWindow, plots, insertAfter );
             return true;
         }
     }

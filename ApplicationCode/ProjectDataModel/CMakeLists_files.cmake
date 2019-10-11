@@ -72,7 +72,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RimMainPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RimPlotInterface.h
+${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.h
+${CMAKE_CURRENT_LIST_DIR}/RimGridPlotWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurve.h
@@ -212,7 +214,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RimMainPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimPlotInterface.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimGridPlotWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellBoreStabilityPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.cpp

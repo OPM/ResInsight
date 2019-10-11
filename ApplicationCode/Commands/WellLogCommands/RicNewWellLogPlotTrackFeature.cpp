@@ -21,8 +21,8 @@
 
 #include "RiaGuiApplication.h"
 #include "RiuPlotMainWindow.h"
+#include "RiuQwtPlotWidget.h"
 #include "RiuWellLogPlot.h"
-#include "RiuWellLogTrack.h"
 
 #include "RicNewWellLogCurveExtractionFeature.h"
 #include "RicWellLogPlotCurveFeatureImpl.h"
@@ -62,8 +62,8 @@ void RicNewWellLogPlotTrackFeature::onActionTriggered( bool isChecked )
     if ( wellLogPlot )
     {
         RimWellLogTrack* plotTrack = new RimWellLogTrack;
-        wellLogPlot->addTrack( plotTrack );
-        plotTrack->setDescription( QString( "Track %1" ).arg( wellLogPlot->trackCount() ) );
+        wellLogPlot->addPlot( plotTrack );
+        plotTrack->setDescription( QString( "Track %1" ).arg( wellLogPlot->plotCount() ) );
         RiuPlotMainWindow* plotWindow = RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
         RiuWellLogPlot*    viewWidget = dynamic_cast<RiuWellLogPlot*>( wellLogPlot->viewWidget() );
         RicWellLogTools::addWellLogExtractionCurve( plotTrack, nullptr, nullptr, nullptr, nullptr, -1, true );

@@ -87,6 +87,8 @@ public:
     void                              applyNextTimeStep();
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
+    static QString smoothingUiOrderinglabel();
+
 protected:
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                     const QVariant&            oldValue,

@@ -186,10 +186,10 @@ RimEnsembleCurveSet::~RimEnsembleCurveSet()
 
     RimSummaryPlot* parentPlot;
     firstAncestorOrThisOfType( parentPlot );
-    if ( parentPlot && parentPlot->qwtPlot() )
+    if ( parentPlot && parentPlot->viewer() )
     {
         m_qwtPlotCurveForLegendText->detach();
-        parentPlot->qwtPlot()->removeEnsembleCurveSetLegend( this );
+        parentPlot->removeEnsembleCurveSetLegend( this );
     }
 
     delete m_qwtPlotCurveForLegendText;
@@ -272,7 +272,7 @@ void RimEnsembleCurveSet::reattachQwtCurves()
     firstAncestorOrThisOfType( plot );
     if ( plot )
     {
-        m_qwtPlotCurveForLegendText->attach( plot->qwtPlot() );
+        m_qwtPlotCurveForLegendText->attach( plot->viewer() );
     }
 }
 
@@ -285,7 +285,7 @@ void RimEnsembleCurveSet::addCurve( RimSummaryCurve* curve )
     {
         RimSummaryPlot* plot;
         firstAncestorOrThisOfType( plot );
-        if ( plot ) curve->setParentQwtPlotNoReplot( plot->qwtPlot() );
+        if ( plot ) curve->setParentQwtPlotNoReplot( plot->viewer() );
 
         curve->setColor( m_color );
         m_curves.push_back( curve );
@@ -635,7 +635,7 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector Y" );
         curveDataGroup->add( &m_yValuesSummaryCaseCollection );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField );
-        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, {false, 1, 0} );
+        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
         curveDataGroup->add( &m_plotAxis );
     }
 
@@ -946,18 +946,18 @@ void RimEnsembleCurveSet::updateCurveColors()
 
     RimSummaryPlot* plot;
     firstAncestorOrThisOfType( plot );
-    if ( plot && plot->qwtPlot() )
+    if ( plot && plot->viewer() )
     {
         if ( m_yValuesSummaryCaseCollection() && isCurvesVisible() && m_colorMode == BY_ENSEMBLE_PARAM &&
              m_legendConfig->showLegend() )
         {
-            plot->qwtPlot()->addOrUpdateEnsembleCurveSetLegend( this );
+            plot->addOrUpdateEnsembleCurveSetLegend( this );
         }
         else
         {
-            plot->qwtPlot()->removeEnsembleCurveSetLegend( this );
+            plot->removeEnsembleCurveSetLegend( this );
         }
-        plot->qwtPlot()->replot();
+        plot->viewer()->scheduleReplot();
     }
 }
 
@@ -1011,13 +1011,13 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 }
             }
 
-            if ( plot->qwtPlot() ) m_qwtPlotCurveForLegendText->attach( plot->qwtPlot() );
+            if ( plot->viewer() ) m_qwtPlotCurveForLegendText->attach( plot->viewer() );
         }
 
-        if ( plot->qwtPlot() )
+        if ( plot->viewer() )
         {
-            plot->qwtPlot()->updateLegend();
-            plot->qwtPlot()->replot();
+            plot->viewer()->updateLegend();
+            plot->viewer()->scheduleReplot();
             plot->updateAxes();
             plot->updatePlotInfoLabel();
         }
@@ -1079,7 +1079,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
     for ( auto address : addresses )
     {
         auto curve = new RimSummaryCurve();
-        curve->setParentQwtPlotNoReplot( plot->qwtPlot() );
+        curve->setParentQwtPlotNoReplot( plot->viewer() );
         m_curves.push_back( curve );
         curve->setColor( m_statistics->color() );
         curve->setColor( m_statistics->color() );
@@ -1103,9 +1103,9 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
         curve->updateQwtPlotAxis();
     }
 
-    if ( plot->qwtPlot() )
+    if ( plot->viewer() )
     {
-        plot->qwtPlot()->updateLegend();
+        plot->viewer()->updateLegend();
         plot->updateAxes();
     }
 }
@@ -1163,7 +1163,7 @@ void RimEnsembleCurveSet::updateAllTextInPlot()
 
     RimSummaryPlot* summaryPlot = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( summaryPlot );
-    if ( summaryPlot->qwtPlot() )
+    if ( summaryPlot->viewer() )
     {
         summaryPlot->updatePlotTitle();
     }

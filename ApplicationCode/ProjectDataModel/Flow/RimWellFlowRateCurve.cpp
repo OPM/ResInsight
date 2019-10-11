@@ -216,7 +216,7 @@ void RimWellFlowRateCurve::updateStackedPlotData()
     RimWellLogTrack* wellLogTrack;
     firstAncestorOrThisOfTypeAsserted( wellLogTrack );
 
-    bool isFirstTrack = ( wellLogTrack == wellLogPlot->trackByIndex( 0 ) );
+    bool isFirstTrack = ( wellLogTrack == wellLogPlot->plotByIndex( 0 ) );
 
     RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_NONE;
 
@@ -271,7 +271,7 @@ void RimWellFlowRateCurve::updateStackedPlotData()
         stackedValues.insert( stackedValues.begin(), 0.0 );
         polyLineStartStopIndices.front().second += 1;
 
-        if ( wellLogPlot->trackCount() > 1 && isFirstTrack )
+        if ( wellLogPlot->plotCount() > 1 && isFirstTrack )
         {
             // Add a dummy negative depth value to make the contribution
             // from other branches connected to well head visible

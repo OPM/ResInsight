@@ -130,8 +130,6 @@ private:
 
     void defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveDefinition>& allCurveDefs );
 
-    void onDepthTypeChanged() override;
-
 private:
     caf::PdmField<QString> m_wellPathNameOrSimWellName;
     caf::PdmField<int>     m_branchIndex;
