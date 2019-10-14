@@ -109,6 +109,7 @@ public:
 
     void    setName( const QString& name );
     QString name() const;
+    QString autoName() const; 
 
     // Implementation of RiuViewerToViewInterface
     cvf::Color3f backgroundColor() const override

@@ -29,20 +29,8 @@ void RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( Rim3dView*  
 {
     if ( !view || !optionItems ) return;
 
-    QString caseName;
 
-    RimCase* rimCase = nullptr;
-    view->firstAncestorOrThisOfType( rimCase );
-    if ( rimCase )
-    {
-        caseName = rimCase->caseUserDescription();
-    }
-    else
-    {
-        caseName = "<Unnamed case>";
-    }
-
-    QString displayName = caseName + " : " + view->name();
+    QString displayName = view->autoName();
 
     caf::QIconProvider iconProvider = view->uiCapability()->uiIconProvider();
 
