@@ -678,6 +678,30 @@ void RimProject::allNotLinkedViews( std::vector<RimGridView*>& views )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimProject::allViews( std::vector<Rim3dView*>& views ) const
+{
+    std::vector<RimCase*> cases;
+    allCases( cases );
+
+    for ( size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++ )
+    {
+        RimCase* rimCase = cases[caseIdx];
+        if ( !rimCase ) continue;
+
+        std::vector<Rim3dView*> caseViews = rimCase->views();
+        for ( size_t viewIdx = 0; viewIdx < caseViews.size(); viewIdx++ )
+        {
+            if ( caseViews[viewIdx] )
+            {
+                views.push_back( caseViews[viewIdx] );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProject::allVisibleViews( std::vector<Rim3dView*>& views ) const
 {
     std::vector<RimCase*> cases;

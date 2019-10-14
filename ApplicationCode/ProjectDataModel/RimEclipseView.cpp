@@ -338,7 +338,7 @@ void RimEclipseView::updateScaleTransform()
     this->scaleTransform()->setLocalTransform( scale );
     m_simWellsPartManager->setScaleTransform( this->scaleTransform() );
 
-    if ( m_viewer ) m_viewer->updateCachedValuesInScene();
+    if ( nativeOrOverrideViewer() ) nativeOrOverrideViewer()->updateCachedValuesInScene();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -350,7 +350,7 @@ void RimEclipseView::createDisplayModel()
 {
     clearReservoirCellVisibilities();
 
-    if ( m_viewer.isNull() ) return;
+    if ( nativeOrOverrideViewer() == nullptr ) return;
 
 #if 0 // Debug info
     static int callCount = 0;
@@ -369,7 +369,7 @@ void RimEclipseView::createDisplayModel()
 
     // Find the number of time frames the animation needs to show the requested data.
 
-    if ( isTimeStepDependentDataVisible() && currentGridCellResults()->maxTimeStepCount() > 0 )
+    if ( ( isTimeStepDependentDataVisibleInThisOrComparisonView() && currentGridCellResults()->maxTimeStepCount() > 0 ) )
     {
         CVF_ASSERT( currentGridCellResults() );
 
@@ -395,7 +395,7 @@ void RimEclipseView::createDisplayModel()
 
     // Remove all existing animation frames from the viewer.
     // The parts are still cached in the RivReservoir geometry and friends
-    m_viewer->removeAllFrames();
+    nativeOrOverrideViewer()->removeAllFrames( isUsingOverrideViewer() );
 
     wellCollection()->scheduleIsWellPipesVisibleRecalculation();
 
@@ -517,7 +517,7 @@ void RimEclipseView::createDisplayModel()
     m_crossSectionCollection->appendPartsToModel( *this,
                                                   m_crossSectionVizModel.p(),
                                                   m_reservoirGridPartManager->scaleTransform() );
-    m_viewer->addStaticModelOnce( m_crossSectionVizModel.p() );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_crossSectionVizModel.p(), isUsingOverrideViewer() );
 
     // Well path model
 
@@ -532,7 +532,7 @@ void RimEclipseView::createDisplayModel()
     m_wellPathsPartManager->appendStaticFracturePartsToModel( m_wellPathPipeVizModel.p(),
                                                               currentActiveCellInfo()->geometryBoundingBox() );
     m_wellPathPipeVizModel->updateBoundingBoxesRecursive();
-    m_viewer->addStaticModelOnce( m_wellPathPipeVizModel.p() );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_wellPathPipeVizModel.p(), isUsingOverrideViewer() );
 
     // Create Scenes from the frameModels
     // Animation frames for results display, starts from frame 1
@@ -547,16 +547,16 @@ void RimEclipseView::createDisplayModel()
         scene->addModel( model );
 
         if ( frameIndex == 0 )
-            m_viewer->setMainScene( scene.p() );
+            nativeOrOverrideViewer()->setMainScene( scene.p(), isUsingOverrideViewer() );
         else
-            m_viewer->addFrame( scene.p() );
+            nativeOrOverrideViewer()->addFrame( scene.p(), isUsingOverrideViewer() );
     }
 
     // If the animation was active before recreating everything, make viewer view current frame
 
     if ( frameModels.size() > 1 && this->hasUserRequestedAnimation() )
     {
-        m_viewer->setCurrentFrame( m_currentTimeStep );
+        if ( viewer() && !isUsingOverrideViewer() ) viewer()->setCurrentFrame( m_currentTimeStep );
     }
     else
     {
@@ -716,9 +716,9 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
             }
         }
 
-        if ( m_viewer )
+        if ( nativeOrOverrideViewer() )
         {
-            cvf::Scene* frameScene = m_viewer->frame( m_currentTimeStep );
+            cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
             if ( frameScene )
             {
                 this->removeModelByName( frameScene, frameParts->name() );
@@ -792,9 +792,9 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::appendWellsAndFracturesToModel()
 {
-    if ( m_viewer )
+    if ( nativeOrOverrideViewer() )
     {
-        cvf::Scene* frameScene = m_viewer->frame( m_currentTimeStep );
+        cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
         if ( frameScene )
         {
             // Simulation Wells
@@ -1161,12 +1161,28 @@ std::vector<size_t> RimEclipseView::indicesToVisibleGrids() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateLegends()
 {
-    if ( m_viewer )
+    if ( nativeOrOverrideViewer() )
     {
-        m_viewer->removeAllColorLegends();
+        if ( !isUsingOverrideViewer() )
+        {
+            nativeOrOverrideViewer()->removeAllColorLegends();
+        }
+        else
+        {
+            nativeOrOverrideViewer()->removeColorLegend( this->cellEdgeResult()->legendConfig()->titledOverlayFrame() );
+            nativeOrOverrideViewer()->removeColorLegend( fractureColors()->activeLegend()->titledOverlayFrame() );
+            nativeOrOverrideViewer()->removeColorLegend(
+                m_virtualPerforationResult->legendConfig()->titledOverlayFrame() );
+            nativeOrOverrideViewer()->removeColorLegend( this->cellResult()->legendConfig()->titledOverlayFrame() );
+            nativeOrOverrideViewer()->removeColorLegend( this->cellResult()->ternaryLegendConfig()->titledOverlayFrame() );
+            nativeOrOverrideViewer()->removeColorLegend(
+                this->currentFaultResultColors()->legendConfig()->titledOverlayFrame() );
+            nativeOrOverrideViewer()->removeColorLegend(
+                this->currentFaultResultColors()->ternaryLegendConfig()->titledOverlayFrame() );
+        }
     }
 
-    if ( !m_eclipseCase || !m_viewer || !m_eclipseCase->eclipseCaseData() )
+    if ( !m_eclipseCase || !nativeOrOverrideViewer() || !m_eclipseCase->eclipseCaseData() )
     {
         return;
     }
@@ -1222,7 +1238,8 @@ void RimEclipseView::updateLegends()
 
             this->cellEdgeResult()->legendConfig()->setTitle( QString( "Edge Results: \n" ) +
                                                               this->cellEdgeResult()->resultVariableUiShortName() );
-            m_viewer->addColorLegendToBottomLeftCorner( this->cellEdgeResult()->legendConfig()->titledOverlayFrame() );
+            nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner(
+                this->cellEdgeResult()->legendConfig()->titledOverlayFrame() );
         }
         else
         {
@@ -1255,7 +1272,7 @@ void RimEclipseView::updateLegends()
 
                 if ( fractureColors()->isChecked() && stimPlanLegend->titledOverlayFrame() )
                 {
-                    m_viewer->addColorLegendToBottomLeftCorner( stimPlanLegend->titledOverlayFrame() );
+                    nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( stimPlanLegend->titledOverlayFrame() );
                 }
             }
         }
@@ -1266,7 +1283,7 @@ void RimEclipseView::updateLegends()
         updateVirtualConnectionLegendRanges();
 
         RimRegularLegendConfig* virtLegend = m_virtualPerforationResult->legendConfig();
-        m_viewer->addColorLegendToBottomLeftCorner( virtLegend->titledOverlayFrame() );
+        nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( virtLegend->titledOverlayFrame() );
     }
 }
 
@@ -1296,7 +1313,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView( QString              
         }
 
         resultColors->legendConfig()->setTitle( title );
-        m_viewer->addColorLegendToBottomLeftCorner( resultColors->legendConfig()->titledOverlayFrame() );
+        nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( resultColors->legendConfig()->titledOverlayFrame() );
     }
 
     size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
@@ -1306,7 +1323,8 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView( QString              
              resultColors->ternaryLegendConfig()->titledOverlayFrame() )
         {
             resultColors->ternaryLegendConfig()->setTitle( legendLabel );
-            m_viewer->addColorLegendToBottomLeftCorner( resultColors->ternaryLegendConfig()->titledOverlayFrame() );
+            nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner(
+                resultColors->ternaryLegendConfig()->titledOverlayFrame() );
         }
     }
 }
@@ -1549,9 +1567,9 @@ void RimEclipseView::updateDisplayModelForWellResults()
     createDisplayModel();
     updateDisplayModelVisibility();
 
-    if ( hasUserRequestedAnimation() && m_viewer )
+    if ( hasUserRequestedAnimation() && nativeOrOverrideViewer() )
     {
-        m_viewer->animationControl()->setCurrentFrame( m_currentTimeStep );
+        nativeOrOverrideViewer()->animationControl()->setCurrentFrame( m_currentTimeStep );
     }
 
     RiuMainWindow::instance()->refreshAnimationActions();
@@ -1815,14 +1833,15 @@ void RimEclipseView::resetLegendsInViewer()
     this->cellResult()->ternaryLegendConfig()->recreateLegend();
     this->cellEdgeResult()->legendConfig()->recreateLegend();
 
-    m_viewer->removeAllColorLegends();
+    nativeOrOverrideViewer()->removeAllColorLegends();
 
     if ( cellResultNormalLegendConfig )
     {
-        m_viewer->addColorLegendToBottomLeftCorner( cellResultNormalLegendConfig->titledOverlayFrame() );
+        nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( cellResultNormalLegendConfig->titledOverlayFrame() );
     }
 
-    m_viewer->addColorLegendToBottomLeftCorner( this->cellEdgeResult()->legendConfig()->titledOverlayFrame() );
+    nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner(
+        this->cellEdgeResult()->legendConfig()->titledOverlayFrame() );
 }
 
 //--------------------------------------------------------------------------------------------------

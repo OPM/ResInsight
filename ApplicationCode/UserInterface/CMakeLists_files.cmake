@@ -83,6 +83,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuMeasurementViewEventFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuDraggableOverlayFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMdiMaximizeWindowGuard.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiuComparisonViewMover.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -165,6 +166,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuWellPathComponentPlotItem.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuDraggableOverlayFrame.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMdiMaximizeWindowGuard.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuComparisonViewMover.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

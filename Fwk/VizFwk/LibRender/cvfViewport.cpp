@@ -61,7 +61,7 @@ namespace cvf {
 /// 
 //--------------------------------------------------------------------------------------------------
 Viewport::Viewport()
-:   m_x(0),
+    :   m_x(0),
     m_y(0),
     m_width(0),
     m_height(0),
@@ -206,9 +206,9 @@ void Viewport::applyOpenGL(OpenGLContext* oglContext, ClearMode clearMode)
         if (clearFlags & GL_DEPTH_BUFFER_BIT)
         {
             glDepthMask(GL_TRUE);
-#ifndef CVF_OPENGL_ES
+            #ifndef CVF_OPENGL_ES
             glClearDepth(m_clearDepth);
-#endif  // CVF_OPENGL_ES
+            #endif  // CVF_OPENGL_ES
         }
 
         if (clearFlags & GL_STENCIL_BUFFER_BIT)
@@ -227,32 +227,32 @@ void Viewport::applyOpenGL(OpenGLContext* oglContext, ClearMode clearMode)
         // Do the actual clear
         glClear(clearFlags);
 
-//         {
-//             // Code to draw a full screen quad into color buffer using FF
-//             // Experimented with this code when seeing problems with rendering to texture on ATI Catalys 11.3 where
-//             // it seemed that lazy clearing of color buffer was causing problems with depth peeling and glGenerateMipmap()
-//             glMatrixMode(GL_PROJECTION);
-//             glLoadIdentity();
-//             glMatrixMode(GL_MODELVIEW);
-//             glLoadIdentity();
-// 
-//             glDisable(GL_DEPTH_TEST);
-//             glDepthMask(GL_FALSE);
-//             glDisable(GL_LIGHTING);
-//             glColor3f(0, 1, 0);
-// 
-//             glBegin(GL_QUADS);
-//             {
-//                 glVertex2f(-1.0, -1.0); 
-//                 glVertex2f( 1.0, -1.0);
-//                 glVertex2f( 1.0, 1.0);
-//                 glVertex2f(-1.0, 1.0);
-//             }
-//             glEnd();
-// 
-//             glEnable(GL_DEPTH_TEST);
-//             glDepthMask(GL_TRUE);
-//         }
+        //         {
+        //             // Code to draw a full screen quad into color buffer using FF
+        //             // Experimented with this code when seeing problems with rendering to texture on ATI Catalys 11.3 where
+        //             // it seemed that lazy clearing of color buffer was causing problems with depth peeling and glGenerateMipmap()
+        //             glMatrixMode(GL_PROJECTION);
+        //             glLoadIdentity();
+        //             glMatrixMode(GL_MODELVIEW);
+        //             glLoadIdentity();
+        // 
+        //             glDisable(GL_DEPTH_TEST);
+        //             glDepthMask(GL_FALSE);
+        //             glDisable(GL_LIGHTING);
+        //             glColor3f(0, 1, 0);
+        // 
+        //             glBegin(GL_QUADS);
+        //             {
+        //                 glVertex2f(-1.0, -1.0); 
+        //                 glVertex2f( 1.0, -1.0);
+        //                 glVertex2f( 1.0, 1.0);
+        //                 glVertex2f(-1.0, 1.0);
+        //             }
+        //             glEnd();
+        // 
+        //             glEnable(GL_DEPTH_TEST);
+        //             glDepthMask(GL_TRUE);
+        //         }
 
         // Restore scissor settings
         if (!scissorWasOn) glDisable(GL_SCISSOR_TEST);

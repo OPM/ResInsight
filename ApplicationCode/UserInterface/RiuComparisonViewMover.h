@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017 Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,27 +15,44 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include <vector>
-#include "cvfVector3.h"
+#include "cvfBase.h"
+#include "cvfObject.h"
 
-namespace cvf
+#include <QPointer>
+
+#include <QMouseEvent>
+#include <QPainter>
+
+namespace caf
 {
-class BoundingBox;
+class Viewer;
 }
 
-class RimGridView;
-class Rim3dView;
-
-class RimViewManipulator
+class RiuComparisonViewMover : public QObject
 {
 public:
-    static void applySourceViewCameraOnDestinationViews( RimGridView*               sourceView,
-                                                         std::vector<RimGridView*>& destinationViews );
-    static cvf::Vec3d calculateEquivalentCamPosOffset(Rim3dView* sourceView, Rim3dView* destView);
+    RiuComparisonViewMover( caf::Viewer* viewer );
+
+    virtual bool eventFilter( QObject* watched, QEvent* event ) override;
+
+    void paintMoverHandles( QPainter* painter );
 
 private:
-    static bool isBoundingBoxesOverlappingOrClose( const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB );
+    enum DragState
+    {
+        NONE,
+        COMPLETE_BOX,
+        LEFT_EDGE,
+        RIGHT_EDGE,
+        TOP_EDGE,
+        BOTTOM_EDGE,
+    };
+
+    DragState findHandleUnderMouse( const QPoint& mousePos );
+
+    QPointer<caf::Viewer> m_viewer;
+    DragState             m_dragState;
+    DragState             m_highlightHandle;
 };

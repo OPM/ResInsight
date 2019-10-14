@@ -184,7 +184,7 @@ bool Rim2dIntersectionView::isTimeStepDependentDataVisible() const
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::update3dInfo()
 {
-    if ( !m_viewer ) return;
+    if ( !nativeOrOverrideViewer() ) return;
 
     QString overlayInfoText;
 
@@ -192,12 +192,12 @@ void Rim2dIntersectionView::update3dInfo()
     m_intersection->firstAncestorOrThisOfType( eclView );
     if ( eclView && !eclView->overlayInfoConfig()->isActive() )
     {
-        m_viewer->showInfoText( false );
-        m_viewer->showHistogram( false );
-        m_viewer->showAnimationProgress( false );
-        m_viewer->showVersionInfo( false );
+        nativeOrOverrideViewer()->showInfoText( false );
+        nativeOrOverrideViewer()->showHistogram( false );
+        nativeOrOverrideViewer()->showAnimationProgress( false );
+        nativeOrOverrideViewer()->showVersionInfo( false );
 
-        m_viewer->update();
+        nativeOrOverrideViewer()->update();
         return;
     }
     if ( eclView && eclView->overlayInfoConfig()->showCaseInfo() )
@@ -233,11 +233,11 @@ void Rim2dIntersectionView::update3dInfo()
     {
         if ( eclView->overlayInfoConfig()->showAnimProgress() )
         {
-            m_viewer->showAnimationProgress( true );
+            nativeOrOverrideViewer()->showAnimationProgress( true );
         }
         else
         {
-            m_viewer->showAnimationProgress( false );
+            nativeOrOverrideViewer()->showAnimationProgress( false );
         }
 
         if ( eclView->overlayInfoConfig()->showResultInfo() )
@@ -250,11 +250,11 @@ void Rim2dIntersectionView::update3dInfo()
     {
         if ( geoView->overlayInfoConfig()->showAnimProgress() )
         {
-            m_viewer->showAnimationProgress( true );
+            nativeOrOverrideViewer()->showAnimationProgress( true );
         }
         else
         {
-            m_viewer->showAnimationProgress( false );
+            nativeOrOverrideViewer()->showAnimationProgress( false );
         }
 
         if ( geoView->overlayInfoConfig()->showResultInfo() )
@@ -296,9 +296,9 @@ void Rim2dIntersectionView::update3dInfo()
     }
 
     overlayInfoText += "</p>";
-    m_viewer->setInfoText( overlayInfoText );
-    m_viewer->showInfoText( true );
-    m_viewer->update();
+    nativeOrOverrideViewer()->setInfoText( overlayInfoText );
+    nativeOrOverrideViewer()->showInfoText( true );
+    nativeOrOverrideViewer()->update();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -475,18 +475,18 @@ void Rim2dIntersectionView::axisLabels( cvf::String* xLabel, cvf::String* yLabel
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::createDisplayModel()
 {
-    if ( m_viewer.isNull() ) return;
+    if ( !nativeOrOverrideViewer() ) return;
     if ( !m_intersection() ) return;
 
     updateScaleTransform();
 
-    m_viewer->removeAllFrames();
+    nativeOrOverrideViewer()->removeAllFrames( isUsingOverrideViewer() );
 
     int tsCount = this->timeStepCount();
 
     for ( int i = 0; i < tsCount; ++i )
     {
-        m_viewer->addFrame( new cvf::Scene() );
+        nativeOrOverrideViewer()->addFrame( new cvf::Scene(), isUsingOverrideViewer() );
     }
 
     m_flatIntersectionPartMgr = new RivIntersectionPartMgr( m_intersection(), true );
@@ -529,13 +529,13 @@ void Rim2dIntersectionView::createDisplayModel()
         }
     }
 
-    m_viewer->addStaticModelOnce( m_intersectionVizModel.p() );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
 
     m_intersectionVizModel->updateBoundingBoxesRecursive();
 
     if ( this->hasUserRequestedAnimation() )
     {
-        m_viewer->setCurrentFrame( m_currentTimeStep );
+        if ( viewer() ) viewer()->setCurrentFrame( m_currentTimeStep );
         updateCurrentTimeStep();
     }
 
@@ -555,7 +555,7 @@ void Rim2dIntersectionView::updateCurrentTimeStep()
 
     if ( m_flatSimWellPipePartMgr.notNull() )
     {
-        cvf::Scene* frameScene = m_viewer->frame( m_currentTimeStep );
+        cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
         if ( frameScene )
         {
             {
@@ -588,7 +588,7 @@ void Rim2dIntersectionView::updateCurrentTimeStep()
 
     if ( m_flatWellpathPartMgr.notNull() )
     {
-        cvf::Scene* frameScene = m_viewer->frame( m_currentTimeStep );
+        cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
         if ( frameScene )
         {
             {
@@ -627,9 +627,9 @@ void Rim2dIntersectionView::updateLegends()
 {
     m_legendObjectToSelect = nullptr;
 
-    if ( !m_viewer ) return;
+    if ( !nativeOrOverrideViewer() ) return;
 
-    m_viewer->removeAllColorLegends();
+    nativeOrOverrideViewer()->removeAllColorLegends();
 
     if ( !hasResults() ) return;
 
@@ -678,7 +678,7 @@ void Rim2dIntersectionView::updateLegends()
 
     if ( legend )
     {
-        m_viewer->addColorLegendToBottomLeftCorner( legend );
+        nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( legend );
     }
 }
 
@@ -687,15 +687,15 @@ void Rim2dIntersectionView::updateLegends()
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::resetLegendsInViewer()
 {
-    m_viewer->showAxisCross( false );
-    m_viewer->showAnimationProgress( true );
-    m_viewer->showHistogram( false );
-    m_viewer->showInfoText( false );
-    m_viewer->showVersionInfo( false );
-    m_viewer->showEdgeTickMarksXZ( true, m_showAxisLines() );
+    nativeOrOverrideViewer()->showAxisCross( false );
+    nativeOrOverrideViewer()->showAnimationProgress( true );
+    nativeOrOverrideViewer()->showHistogram( false );
+    nativeOrOverrideViewer()->showInfoText( false );
+    nativeOrOverrideViewer()->showVersionInfo( false );
+    nativeOrOverrideViewer()->showEdgeTickMarksXZ( true, m_showAxisLines() );
 
-    m_viewer->setMainScene( new cvf::Scene() );
-    m_viewer->enableNavigationRotation( false );
+    nativeOrOverrideViewer()->setMainScene( new cvf::Scene(), isUsingOverrideViewer() );
+    nativeOrOverrideViewer()->enableNavigationRotation( false );
 
     m_ternaryLegendConfig()->recreateLegend();
     m_legendConfig()->recreateLegend();
@@ -730,7 +730,7 @@ void Rim2dIntersectionView::updateScaleTransform()
 
     this->scaleTransform()->setLocalTransform( scale );
 
-    if ( m_viewer ) m_viewer->updateCachedValuesInScene();
+    if ( nativeOrOverrideViewer() ) nativeOrOverrideViewer()->updateCachedValuesInScene();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -766,7 +766,7 @@ void Rim2dIntersectionView::fieldChangedByUi( const caf::PdmFieldHandle* changed
     }
     else if ( changedField == &m_showAxisLines )
     {
-        m_viewer->showEdgeTickMarksXZ( true, m_showAxisLines() );
+        nativeOrOverrideViewer()->showEdgeTickMarksXZ( true, m_showAxisLines() );
         this->loadDataAndUpdate();
     }
 }

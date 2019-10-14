@@ -61,7 +61,7 @@ class UniformSet;
 class RayIntersectSpec;
 class HitItemCollection;
 class OpenGLContext;
-
+class RenderingScissor;
 
 
 //==================================================================================================
@@ -106,6 +106,7 @@ public:
 
     void                    setClearMode(Viewport::ClearMode clearMode);
     Viewport::ClearMode     clearMode() const;
+    void                    setRenderingScissor(RenderingScissor* scissor);
 
     void                    setEffectOverride(Effect* effect);
     Effect*                 effectOverride();
@@ -160,7 +161,8 @@ private:
     uint                            m_enableMask;               // Mask will be compared against the contained scene's models and the model's parts when determining visible parts
     Viewport::ClearMode             m_clearMode;
     ref<Effect>                     m_effectOverride;           // Can hold an overriding effect. All parts drawn by this rendering will use this effect
-    
+    ref<RenderingScissor>           m_renderingScissor;         // Can hold a scissor used on the rendered scene. Will not affect overly items
+
     Collection<DynamicUniformSet>   m_dynamicUniformSets;       // Collection of user added dynamic uniform sets
     Collection<DynamicUniformSet>   m_globalDynamicUniformSets; // Collection of global user added dynamic uniform sets
     ref<UniformSet>                 m_combinedGlobalUniformSet; // Global uniform set, this is the combination of the uniform sets from all the dynamic uniform sets

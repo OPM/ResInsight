@@ -97,6 +97,7 @@ cvfUniformSet.h
 cvfVertexAttribute.h
 cvfVertexBundle.h
 cvfViewport.h
+cvfRenderingScissor.h
 )
 
 set(CEE_SOURCE_FILES
@@ -172,6 +173,7 @@ cvfUniformSet.cpp
 cvfVertexAttribute.cpp
 cvfVertexBundle.cpp
 cvfViewport.cpp
+cvfRenderingScissor.cpp
 )
 
 add_library(${PROJECT_NAME} ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})

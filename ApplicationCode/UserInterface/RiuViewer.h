@@ -40,6 +40,8 @@ class RiuViewerCommands;
 class RivGridBoxGenerator;
 class RivWindowEdgeAxesOverlayItem;
 
+class RiuComparisonViewMover;
+
 class QLabel;
 
 namespace caf
@@ -79,7 +81,6 @@ public:
     void                      setOwnerReservoirView( RiuViewerToViewInterface* owner );
     RiuViewerToViewInterface* ownerReservoirView();
     RimViewWindow*            ownerViewWindow() const override;
-    void                      setEnableMask( unsigned int mask );
 
     void showInfoText( bool enable );
     void showVersionInfo( bool enable );
@@ -107,6 +108,7 @@ public:
 
     void removeAllColorLegends();
     void addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* legend );
+    void removeColorLegend( caf::TitledOverlayFrame* legend );
 
     void enableNavigationRotation( bool disable );
     void updateNavigationPolicy();
@@ -185,7 +187,9 @@ private:
 
     RiuViewerCommands* m_viewerCommands;
 
-    RivGridBoxGenerator*                   m_gridBoxGenerator;
+    RivGridBoxGenerator* m_gridBoxGenerator;
+    RivGridBoxGenerator* m_comparisonGridBoxGenerator;
+
     cvf::ref<RivWindowEdgeAxesOverlayItem> m_windowEdgeAxisOverlay;
     bool                                   m_showWindowEdgeAxes;
 
@@ -197,4 +201,6 @@ private:
     cvf::ref<caf::OverlayScaleLegend> m_scaleLegend;
 
     static std::unique_ptr<QCursor> s_hoverCursor;
+
+    RiuComparisonViewMover* m_comparisonWindowMover;
 };
