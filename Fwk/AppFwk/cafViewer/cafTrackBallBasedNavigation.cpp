@@ -335,32 +335,39 @@ double caf::RotationSensitivityCalculator::calculateSensitivity(QMouseEvent* eve
 
     if ( m_isEnabled )
     {
-#if QT_VERSION >= 0x050000
-        auto presentTime = eventWhenRotating->timestamp();
-        unsigned long timeSinceLast = presentTime - m_lastTime;
-        if ( timeSinceLast == 0 ) timeSinceLast = 1; // one millisecond 
+        if ( m_fixedSensitivity == std::numeric_limits<double>::infinity() )
+        {
+            #if QT_VERSION >= 0x050000
+            auto presentTime = eventWhenRotating->timestamp();
+            unsigned long timeSinceLast = presentTime - m_lastTime;
+            if ( timeSinceLast == 0 ) timeSinceLast = 1; // one millisecond 
 
-        int deltaX = eventWhenRotating->x() - m_lastPosX;
-        int deltaY = eventWhenRotating->y() - m_lastPosY;
+            int deltaX = eventWhenRotating->x() - m_lastPosX;
+            int deltaY = eventWhenRotating->y() - m_lastPosY;
 
-        cvf::Vec2d mouseVelocity(deltaX, deltaY);
-        mouseVelocity /= 1.0e-3*timeSinceLast;
+            cvf::Vec2d mouseVelocity(deltaX, deltaY);
+            mouseVelocity /= 1.0e-3*timeSinceLast;
 
-        double mouseVelocityLength = mouseVelocity.length();
-        double mouseVelocityLengthCorr = 0.3*mouseVelocityLength + 0.7*m_lastMouseVelocityLenght;
+            double mouseVelocityLength = mouseVelocity.length();
+            double mouseVelocityLengthCorr = 0.1*mouseVelocityLength + 0.9*m_lastMouseVelocityLenght;
 
-        double slowLimit = 170.0;
+            double slowLimit = 170.0;
 
-        if ( mouseVelocityLengthCorr < slowLimit ) sensitivity = mouseVelocityLengthCorr*mouseVelocityLengthCorr/(slowLimit*slowLimit);
+            if ( mouseVelocityLengthCorr < slowLimit ) sensitivity = mouseVelocityLengthCorr*mouseVelocityLengthCorr/(slowLimit*slowLimit);
 
-        m_lastPosX                = eventWhenRotating->x();
-        m_lastPosY                = eventWhenRotating->y();
-        m_lastTime                = eventWhenRotating->timestamp();
-        m_lastMouseVelocityLenght = 0.8*mouseVelocityLength + 0.2*m_lastMouseVelocityLenght;
+            m_lastPosX                = eventWhenRotating->x();
+            m_lastPosY                = eventWhenRotating->y();
+            m_lastTime                = eventWhenRotating->timestamp();
+            m_lastMouseVelocityLenght = 0.8*mouseVelocityLength + 0.2*m_lastMouseVelocityLenght;
 
-        //openDebugWindow();
-        //std::cout  << sensitivity << " Speed: " <<  mouseVelocity.length() << " " << mouseVelocityLengthCorr << " \tDelta " << deltaX << ", " << deltaY << " "<< timeSinceLast  << std::endl;
-#endif
+            //openDebugWindow();
+            //std::cout  << sensitivity << " Speed: Raw: " << mouseVelocityLength << " Smooth: " << mouseVelocityLengthCorr << " \tDelta " << deltaX << ", " << deltaY << " "<< timeSinceLast  << std::endl;
+            #endif
+        }
+        else
+        {
+            sensitivity =  m_fixedSensitivity;
+        }
     }
 
     return sensitivity;

@@ -136,9 +136,9 @@ void RimGeoMechContourMapView::setDefaultCustomName()
 void RimGeoMechContourMapView::updatePickPointAndRedraw()
 {
     appendPickPointVisToModel();
-    if ( m_viewer )
+    if ( nativeOrOverrideViewer() )
     {
-        m_viewer->update();
+        nativeOrOverrideViewer()->update();
     }
 }
 
@@ -278,7 +278,7 @@ void RimGeoMechContourMapView::updateGeometry()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::createContourMapGeometry()
 {
-    if ( m_viewer && m_contourMapProjection->isChecked() )
+    if ( nativeOrOverrideViewer() && m_contourMapProjection->isChecked() )
     {
         m_contourMapProjectionPartMgr->createProjectionGeometry();
     }
@@ -289,9 +289,9 @@ void RimGeoMechContourMapView::createContourMapGeometry()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::appendContourMapProjectionToModel()
 {
-    if ( m_viewer && m_contourMapProjection->isChecked() )
+    if ( nativeOrOverrideViewer() && m_contourMapProjection->isChecked() )
     {
-        cvf::Scene* frameScene = m_viewer->frame( m_currentTimeStep );
+        cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
         if ( frameScene )
         {
             cvf::String name = "ContourMapProjection";
@@ -315,9 +315,9 @@ void RimGeoMechContourMapView::appendContourMapProjectionToModel()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::appendContourLinesToModel()
 {
-    if ( m_viewer && m_contourMapProjection->isChecked() )
+    if ( nativeOrOverrideViewer() && m_contourMapProjection->isChecked() )
     {
-        cvf::Scene* frameScene = m_viewer->frame( m_currentTimeStep );
+        cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
         if ( frameScene )
         {
             cvf::String name = "ContourMapLines";
@@ -342,9 +342,9 @@ void RimGeoMechContourMapView::appendContourLinesToModel()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::appendPickPointVisToModel()
 {
-    if ( m_viewer && m_contourMapProjection->isChecked() )
+    if ( nativeOrOverrideViewer() && m_contourMapProjection->isChecked() )
     {
-        cvf::Scene* frameScene = m_viewer->frame( m_currentTimeStep );
+        cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
         if ( frameScene )
         {
             cvf::String name = "ContourMapPickPoint";
@@ -368,9 +368,16 @@ void RimGeoMechContourMapView::appendPickPointVisToModel()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::updateLegends()
 {
-    if ( m_viewer )
+    if ( nativeOrOverrideViewer() )
     {
-        m_viewer->removeAllColorLegends();
+        if ( !isUsingOverrideViewer() )
+        {
+            nativeOrOverrideViewer()->removeAllColorLegends();
+        }
+        else if ( m_contourMapProjection && m_contourMapProjection->legendConfig() )
+        {
+            nativeOrOverrideViewer()->removeColorLegend( m_contourMapProjection->legendConfig()->titledOverlayFrame() );
+        }
 
         if ( m_contourMapProjection && m_contourMapProjection->isChecked() )
         {
@@ -380,12 +387,12 @@ void RimGeoMechContourMapView::updateLegends()
                 m_contourMapProjection->updateLegend();
                 if ( projectionLegend->showLegend() )
                 {
-                    m_viewer->addColorLegendToBottomLeftCorner( projectionLegend->titledOverlayFrame() );
+                    nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( projectionLegend->titledOverlayFrame() );
                 }
             }
         }
 
-        m_viewer->showScaleLegend( m_showScaleLegend() );
+        nativeOrOverrideViewer()->showScaleLegend( m_showScaleLegend() );
     }
 }
 
@@ -394,11 +401,11 @@ void RimGeoMechContourMapView::updateLegends()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::updateViewWidgetAfterCreation()
 {
-    if ( m_viewer )
+    if ( viewer() )
     {
-        m_viewer->showAxisCross( false );
-        m_viewer->showEdgeTickMarksXY( true, m_showAxisLines() );
-        m_viewer->enableNavigationRotation( false );
+        viewer()->showAxisCross( false );
+        viewer()->showEdgeTickMarksXY( true, m_showAxisLines() );
+        viewer()->enableNavigationRotation( false );
     }
 
     Rim3dView::updateViewWidgetAfterCreation();
@@ -419,9 +426,9 @@ void RimGeoMechContourMapView::updateViewFollowingRangeFilterUpdates()
 void RimGeoMechContourMapView::onLoadDataAndUpdate()
 {
     RimGeoMechView::onLoadDataAndUpdate();
-    if ( m_viewer )
+    if ( nativeOrOverrideViewer() )
     {
-        m_viewer->setView( cvf::Vec3d( 0, 0, -1 ), cvf::Vec3d( 0, 1, 0 ) );
+        nativeOrOverrideViewer()->setView( cvf::Vec3d( 0, 0, -1 ), cvf::Vec3d( 0, 1, 0 ) );
     }
 }
 
@@ -436,7 +443,7 @@ void RimGeoMechContourMapView::fieldChangedByUi( const caf::PdmFieldHandle* chan
 
     if ( changedField == &m_showAxisLines )
     {
-        m_viewer->showEdgeTickMarksXY( true, m_showAxisLines() );
+        viewer()->showEdgeTickMarksXY( true, m_showAxisLines() );
         scheduleCreateDisplayModelAndRedraw();
     }
     else if ( changedField == backgroundColorField() )

@@ -76,7 +76,11 @@ void PdmXmlObjectHandle::readFields(QXmlStreamReader& xmlStream, PdmObjectFactor
             }
             else
             {
-                std::cout << "Line " << xmlStream.lineNumber() << ": Warning: Could not find a field with name " << name.toLatin1().data() << " in the current object : " << classKeyword().toLatin1().data() << std::endl;
+                // Debug text is commented out, as this code is relatively often reached. Consider a new logging concept
+                // to receive this information
+                //
+                // std::cout << "Line " << xmlStream.lineNumber() << ": Warning: Could not find a field with name " << name.toLatin1().data() << " in the current object : " << classKeyword().toLatin1().data() << std::endl;
+
                 xmlStream.skipCurrentElement();
             }
             break;

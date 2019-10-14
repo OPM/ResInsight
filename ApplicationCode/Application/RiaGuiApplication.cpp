@@ -39,6 +39,7 @@
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"
 #include "HoloLensCommands/RicHoloLensSessionManager.h"
 #include "RicImportGeneralDataFeature.h"
+#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
@@ -90,6 +91,7 @@
 #include "Riu3dSelectionManager.h"
 #include "RiuDockWidgetTools.h"
 #include "RiuMainWindow.h"
+#include "RiuMainWindowTools.h"
 #include "RiuMdiMaximizeWindowGuard.h"
 #include "RiuMessagePanel.h"
 #include "RiuPlotMainWindow.h"
@@ -133,7 +135,6 @@
 #ifdef USE_UNIT_TESTS
 #include "gtest/gtest.h"
 #endif // USE_UNIT_TESTS
-#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 namespace caf
 {
@@ -634,13 +635,44 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
 
     if ( cvf::Option o = progOpt->option( "size" ) )
     {
-        RiuMainWindow* mainWnd = RiuMainWindow::instance();
-        int            width   = o.safeValue( 0 ).toInt( -1 );
-        int            height  = o.safeValue( 1 ).toInt( -1 );
-        if ( mainWnd && width > 0 && height > 0 )
+        int width  = o.safeValue( 0 ).toInt( -1 );
+        int height = o.safeValue( 1 ).toInt( -1 );
+
+        if ( width > 0 && height > 0 )
         {
-            mainWnd->resize( width, height );
+            auto mainWindow = RiuMainWindow::instance();
+            if ( mainWindow )
+            {
+                mainWindow->resize( width, height );
+            }
+
+            auto plotWindow = mainPlotWindow();
+            if ( plotWindow )
+            {
+                plotWindow->resize( width, height );
+            }
         }
+    }
+
+    int snapshotWidth  = -1;
+    int snapshotHeight = -1;
+    if ( cvf::Option o = progOpt->option( "snapshotsize" ) )
+    {
+        int width  = o.safeValue( 0 ).toInt( -1 );
+        int height = o.safeValue( 1 ).toInt( -1 );
+
+        if ( width > 0 && height > 0 )
+        {
+            snapshotWidth  = width;
+            snapshotHeight = height;
+        }
+    }
+
+    QString snapshotFolderFromCommandLine;
+    if ( cvf::Option o = progOpt->option( "snapshotfolder" ) )
+    {
+        CVF_ASSERT( o.valueCount() == 1 );
+        snapshotFolderFromCommandLine = cvfqt::Utils::toQString( o.value( 0 ) );
     }
 
     if ( cvf::Option o = progOpt->option( "summaryplot" ) )
@@ -806,35 +838,61 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
             }
         }
 
-        if ( project() != nullptr && !project()->fileName().isEmpty() )
+        QString snapshotFolder;
+
+        if ( snapshotFolderFromCommandLine.isEmpty() )
         {
-            if ( snapshotViews )
+            snapshotFolder = QDir::currentPath() + "/snapshots";
+        }
+        else
+        {
+            snapshotFolder = snapshotFolderFromCommandLine;
+        }
+
+        if ( snapshotPlots )
+        {
+            auto mainPlotWnd = mainPlotWindow();
+            if ( mainPlotWnd )
             {
-                RiuMainWindow* mainWnd = RiuMainWindow::instance();
-                CVF_ASSERT( mainWnd );
-                mainWnd->hideAllDockWidgets();
+                mainPlotWnd->show();
+                mainPlotWnd->raise();
 
-                // 2016-11-09 : Location of snapshot folder was previously located in 'snapshot' folder
-                // relative to current working folder. Now harmonized to behave as RiuMainWindow::slotSnapshotAllViewsToFile()
-                QString absolutePathToSnapshotDir = createAbsolutePathFromProjectRelativePath( "snapshots" );
-                RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( absolutePathToSnapshotDir );
-
-                mainWnd->loadWinGeoAndDockToolBarLayout();
-            }
-
-            if ( snapshotPlots )
-            {
-                if ( mainPlotWindow() )
+                if ( snapshotHeight > -1 && snapshotWidth > -1 )
                 {
-                    mainPlotWindow()->hideAllDockWidgets();
-
-                    // Will be saved relative to current directory
-                    RicSnapshotAllPlotsToFileFeature::saveAllPlots();
-
-                    mainPlotWindow()->loadWinGeoAndDockToolBarLayout();
+                    RiuMainWindowTools::setWindowSizeOnWidgetsInMdiWindows( mainPlotWnd, snapshotWidth, snapshotHeight );
                 }
+
+                processEvents();
+
+                RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( snapshotFolder );
             }
         }
+
+        if ( snapshotViews )
+        {
+            auto mainWnd = RiuMainWindow::instance();
+            mainWnd->show();
+            mainWnd->raise();
+
+            if ( snapshotHeight > -1 && snapshotWidth > -1 )
+            {
+                RiuMainWindowTools::setFixedWindowSizeFor3dViews( mainWnd, snapshotWidth, snapshotHeight );
+            }
+
+            processEvents();
+
+            RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( snapshotFolder );
+        }
+
+        auto mainPlotWnd = mainPlotWindow();
+        if ( mainPlotWnd )
+        {
+            mainPlotWnd->loadWinGeoAndDockToolBarLayout();
+        }
+
+        RiuMainWindow::instance()->loadWinGeoAndDockToolBarLayout();
+
+        closeProject();
 
         return EXIT_COMPLETED;
     }

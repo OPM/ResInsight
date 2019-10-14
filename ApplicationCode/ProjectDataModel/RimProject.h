@@ -124,6 +124,7 @@ public:
     std::vector<RimSummaryCaseCollection*> summaryGroups() const;
     RimSummaryCaseMainCollection*          firstSummaryCaseMainCollection() const;
 
+    void allViews(std::vector<Rim3dView*>& views) const;
     void allVisibleViews( std::vector<Rim3dView*>& views ) const;
     void allVisibleGridViews( std::vector<RimGridView*>& views ) const;
     void allNotLinkedViews( std::vector<RimGridView*>& views );
@@ -199,10 +200,6 @@ private:
 
     caf::PdmField<bool> m_subWindowsTiled3DWindow;
     caf::PdmField<bool> m_subWindowsTiledPlotWindow;
-
-    caf::PdmField<int> nextValidCaseId_OBSOLETE;
-    caf::PdmField<int> nextValidCaseGroupId_OBSOLETE;
-    caf::PdmField<int> nextValidViewId_OBSOLETE;
 
     caf::PdmChildArrayField<RimEclipseCase*>            casesObsolete; // obsolete
     caf::PdmChildArrayField<RimIdenticalGridCaseGroup*> caseGroupsObsolete; // obsolete

@@ -106,15 +106,6 @@ RimProject::RimProject( void )
     CAF_PDM_InitFieldNoDefault( &m_projectFileVersionString, "ProjectFileVersionString", "", "", "", "" );
     m_projectFileVersionString.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &nextValidCaseId_OBSOLETE, "NextValidCaseId", 0, "Next Valid Case ID", "", "", "" );
-    nextValidCaseId_OBSOLETE.uiCapability()->setUiHidden( true );
-
-    CAF_PDM_InitField( &nextValidCaseGroupId_OBSOLETE, "NextValidCaseGroupId", 0, "Next Valid Case Group ID", "", "", "" );
-    nextValidCaseGroupId_OBSOLETE.uiCapability()->setUiHidden( true );
-
-    CAF_PDM_InitField( &nextValidViewId_OBSOLETE, "NextValidViewId", 0, "Next Valid View ID", "", "", "" );
-    nextValidViewId_OBSOLETE.uiCapability()->setUiHidden( true );
-
     CAF_PDM_InitFieldNoDefault( &oilFields, "OilFields", "Oil Fields", "", "", "" );
     oilFields.uiCapability()->setUiHidden( true );
 
@@ -679,6 +670,30 @@ void RimProject::allNotLinkedViews( std::vector<RimGridView*>& views )
             if ( !isLinked )
             {
                 views.push_back( gridView );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::allViews( std::vector<Rim3dView*>& views ) const
+{
+    std::vector<RimCase*> cases;
+    allCases( cases );
+
+    for ( size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++ )
+    {
+        RimCase* rimCase = cases[caseIdx];
+        if ( !rimCase ) continue;
+
+        std::vector<Rim3dView*> caseViews = rimCase->views();
+        for ( size_t viewIdx = 0; viewIdx < caseViews.size(); viewIdx++ )
+        {
+            if ( caseViews[viewIdx] )
+            {
+                views.push_back( caseViews[viewIdx] );
             }
         }
     }

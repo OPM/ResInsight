@@ -33,69 +33,49 @@
 //   for more details.
 //
 //##################################################################################################
-
-
 #pragma once
 
+
+#include "cvfBase.h"
 #include "cvfObject.h"
-#include "cvfColor4.h"
-#include "cvfOpenGLTypes.h"
-#include "cvfString.h"
+#include "cvfViewport.h"
 
 namespace cvf {
 
 class OpenGLContext;
 
-
 //==================================================================================================
 //
-// An OpenGL viewport
+// OpenGL Scissoring
 //
 //==================================================================================================
-class Viewport : public Object
+class RenderingScissor : public Object
 {
 public:
-    enum ClearMode
-    {
-        DO_NOT_CLEAR,
-        CLEAR_COLOR,
-        CLEAR_DEPTH,
-        CLEAR_STENCIL,
-        CLEAR_COLOR_DEPTH,
-        CLEAR_COLOR_STENCIL,
-        CLEAR_DEPTH_STENCIL,
-        CLEAR_COLOR_DEPTH_STENCIL
-    };
+    RenderingScissor();
+    ~RenderingScissor(){}
 
-public:
-    Viewport();
-
-    void        set(int x, int y, uint width, uint height);
+    void        setScissorRectangle(int x, int y, uint width, uint height);
 
     int         x() const;
     int         y() const;
     uint        width() const;
     uint        height() const;
-    double      aspectRatio() const;
 
-    void        setClearColor(Color4f color);
-    Color4f     clearColor() const;
-
-    void        applyOpenGL(OpenGLContext* oglContext, ClearMode clearMode);
-
-    String      debugString() const;
-
-    static cvfGLbitfield clearFlagsOpenGL(ClearMode clearMode);
+    void        applyOpenGL(OpenGLContext* oglContext, Viewport::ClearMode clearMode, const Color4f& clearColor);
+    void        unApplyOpenGL(OpenGLContext* oglContext);
 
 private:
+
     int         m_x;
     int         m_y;
     uint        m_width;
     uint        m_height;
 
-    Color4f     m_clearColor;
-    double      m_clearDepth;
-    int         m_clearStencil;
+    int         m_scissorBoxToRestore[4];
+    bool        m_scissorEnabledStateToRestore;
 };
 
 }
+
+

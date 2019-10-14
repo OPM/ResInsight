@@ -42,7 +42,7 @@ public:
     bool useOpenMPForGeometryCreation() const;
 
     static void updateRegressionTest( const QString& testRootPath );
-    static void regressionTestConfigureProject();
+    static void setDefaultFixedWindowSizeFor3dViews();
 
 private:
     RiaRegressionTestRunner();
