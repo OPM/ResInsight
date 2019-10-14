@@ -19,6 +19,7 @@
 #include "RicSaveProjectAsFeature.h"
 
 #include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 #include "RicSaveProjectFeature.h"
 #include "Riu3DMainWindowTools.h"
 

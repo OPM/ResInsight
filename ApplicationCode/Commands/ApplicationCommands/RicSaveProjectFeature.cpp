@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 
 #include <QAction>
 #include <QMessageBox>
