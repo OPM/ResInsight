@@ -298,17 +298,7 @@ void Rim3dView::updateMdiWindowTitle()
 {
     if ( m_viewer )
     {
-        QString windowTitle;
-        if ( ownerCase() )
-        {
-            windowTitle = QString( "%1 - %2" ).arg( ownerCase()->caseUserDescription() ).arg( name() );
-        }
-        else
-        {
-            windowTitle = name();
-        }
-
-        m_viewer->layoutWidget()->setWindowTitle( windowTitle );
+        m_viewer->layoutWidget()->setWindowTitle( autoName() );
     }
 }
 
