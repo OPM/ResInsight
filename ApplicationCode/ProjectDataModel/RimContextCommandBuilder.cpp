@@ -38,6 +38,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
@@ -61,6 +62,7 @@
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
+#include "RimGeoMechContourMapView.h"
 #include "RimGeoMechContourMapViewCollection.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
@@ -174,6 +176,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
+            menuBuilder << "RicExportContourMapToAsciiFeature";
         }
         else if ( dynamic_cast<RimEclipseView*>( uiItem ) )
         {
@@ -186,6 +189,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "RicExportEclipseInputGridFeature";
+            menuBuilder << "RicExportContourMapToAsciiFeature";
             menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
         }
         else if ( dynamic_cast<RimEclipseContourMapViewCollection*>( uiItem ) )
