@@ -166,7 +166,7 @@ void RimCellEdgeColors::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 {
     loadResult();
 
-    if ( m_reservoirView ) m_reservoirView->createDisplayModelAndRedraw();
+    if ( m_reservoirView ) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
 
     if ( changedField == objectToggleField() )
     {

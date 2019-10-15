@@ -109,7 +109,7 @@ public:
 
     void    setName( const QString& name );
     QString name() const;
-    QString autoName() const; 
+    QString autoName() const;
 
     // Implementation of RiuViewerToViewInterface
     cvf::Color3f backgroundColor() const override
@@ -154,13 +154,14 @@ public:
     void         updateCurrentTimeStepAndRedraw() override;
     virtual void scheduleGeometryRegen( RivCellSetEnum geometryType ) = 0;
     void         scheduleCreateDisplayModelAndRedraw();
-    void         createDisplayModelAndRedraw();
-    void         createHighlightAndGridBoxDisplayModelWithRedraw();
-    void         updateGridBoxData();
-    void         updateAnnotationItems();
-    void         updateScaling();
-    void         updateZScaleLabel();
-    void         updateMeasurement();
+
+    void createDisplayModelAndRedraw();
+    void createHighlightAndGridBoxDisplayModelWithRedraw();
+    void updateGridBoxData();
+    void updateAnnotationItems();
+    void updateScaling();
+    void updateZScaleLabel();
+    void updateMeasurement();
 
     bool isMasterView() const;
 
@@ -295,8 +296,9 @@ private:
 
     // Pure private methods : Override viewer and comparison view
 
-    void       setOverrideViewer( RiuViewer* overrideViewer );
-    Rim3dView* activeComparisonView() const;
+    void                 setOverrideViewer( RiuViewer* overrideViewer );
+    Rim3dView*           activeComparisonView() const;
+    std::set<Rim3dView*> viewsUsingThisAsComparisonView();
 
     Rim3dView* prepareComparisonView();
     void       restoreComparisonView();

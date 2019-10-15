@@ -113,7 +113,7 @@ void RimEclipseCellColors::fieldChangedByUi( const caf::PdmFieldHandle* changedF
         }
     }
 
-    if ( m_reservoirView ) m_reservoirView->createDisplayModelAndRedraw();
+    if ( m_reservoirView ) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------

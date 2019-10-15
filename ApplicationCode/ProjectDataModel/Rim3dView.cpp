@@ -220,7 +220,7 @@ QString Rim3dView::name() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString Rim3dView::autoName() const
 {
@@ -375,6 +375,39 @@ void Rim3dView::scheduleCreateDisplayModelAndRedraw()
             viewLinker->scheduleCreateDisplayModelAndRedrawForDependentViews();
         }
     }
+
+    // Update  views using this as comparison
+    std::set<Rim3dView*> containingViews = viewsUsingThisAsComparisonView();
+
+    for ( auto view : containingViews )
+    {
+        RiaViewRedrawScheduler::instance()->scheduleDisplayModelUpdateAndRedraw( view );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<Rim3dView*> Rim3dView::viewsUsingThisAsComparisonView()
+{
+    std::set<Rim3dView*>              containingViews;
+    std::vector<caf::PdmFieldHandle*> fieldsReferringToMe;
+
+    this->referringPtrFields( fieldsReferringToMe );
+    for ( caf::PdmFieldHandle* field : fieldsReferringToMe )
+    {
+        if ( field->keyword() == m_comparisonView.keyword() )
+        {
+            Rim3dView* containingView = nullptr;
+            containingView            = dynamic_cast<Rim3dView*>( field->ownerObject() );
+            if ( containingView && containingView->activeComparisonView() == this )
+            {
+                containingViews.insert( containingView );
+            }
+        }
+    }
+
+    return containingViews;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -449,20 +482,32 @@ void Rim3dView::setCurrentTimeStep( int frameIndex )
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::updateCurrentTimeStepAndRedraw()
 {
-    this->updateCurrentTimeStep();
-
-    if ( Rim3dView* depView = prepareComparisonView() )
+    if ( nativeOrOverrideViewer() )
     {
-        depView->updateCurrentTimeStep();
+        this->updateCurrentTimeStep();
 
-        restoreComparisonView();
+        if ( Rim3dView* depView = prepareComparisonView() )
+        {
+            depView->updateCurrentTimeStep();
+
+            restoreComparisonView();
+        }
+
+        nativeOrOverrideViewer()->update();
+    }
+
+    std::set<Rim3dView*> containerViews = this->viewsUsingThisAsComparisonView();
+    if ( !containerViews.empty() && !isUsingOverrideViewer())
+    {
+        for ( auto view : containerViews )
+        {
+            view->updateCurrentTimeStepAndRedraw();
+        }
     }
 
     RimProject* project;
     firstAncestorOrThisOfTypeAsserted( project );
     project->mainPlotCollection()->updateCurrentTimeStepInPlots();
-
-    if ( nativeOrOverrideViewer() ) nativeOrOverrideViewer()->update();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -494,7 +539,7 @@ void Rim3dView::createDisplayModelAndRedraw()
             if ( isTimeStepDependentDataVisibleInThisOrComparisonView() )
             {
                 // To make the override viewer see the new frame (skeletons) created by createDisplayModelAndRedraw
-                // But avoid any call back down to this Rim3dView, instead do the update manually to not confuse the 
+                // But avoid any call back down to this Rim3dView, instead do the update manually to not confuse the
                 // m_currentTimeStep
                 nativeOrOverrideViewer()->caf::Viewer::slotSetCurrentFrame( currentTimeStep() );
                 depView->updateCurrentTimeStep();
@@ -504,8 +549,8 @@ void Rim3dView::createDisplayModelAndRedraw()
         }
         else if ( !isUsingOverrideViewer() && viewer() )
         {
-            // Remove the comparison scene data when 
-            // we do not have a comparison view 
+            // Remove the comparison scene data when
+            // we do not have a comparison view
             // and are not doing override generation
             viewer()->setMainScene( nullptr, true );
             viewer()->removeAllFrames( true );
@@ -1365,11 +1410,11 @@ Rim3dView* Rim3dView::prepareComparisonView()
     Rim3dView* depView = activeComparisonView();
 
     if ( !depView )
-    { 
+    {
         return nullptr;
     }
 
-    if (isUsingOverrideViewer())
+    if ( isUsingOverrideViewer() )
     {
         return nullptr;
     }
