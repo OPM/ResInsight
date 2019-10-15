@@ -26,7 +26,7 @@ class RimEclipseCase;
 class RimFractureTemplate;
 class RimEllipseFractureTemplate;
 class RimStimPlanFractureTemplate;
-class RifEclipseDataTableFormatter;
+class RifTextDataTableFormatter;
 class RicWellPathFractureReportItem;
 
 //==================================================================================================
@@ -57,5 +57,5 @@ private:
     QString createConnectionsPerWellText(
         const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems ) const;
 
-    void configureFormatter( RifEclipseDataTableFormatter* formatter ) const;
+    void configureFormatter( RifTextDataTableFormatter* formatter ) const;
 };

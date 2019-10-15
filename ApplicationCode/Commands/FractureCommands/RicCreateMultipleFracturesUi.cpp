@@ -18,7 +18,7 @@
 
 #include "RicCreateMultipleFracturesUi.h"
 
-#include "RifEclipseDataTableFormatter.h"
+#include "RifTextDataTableFormatter.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
@@ -239,19 +239,19 @@ QString RiuCreateMultipleFractionsUi::summaryText() const
     QString tableText;
 
     {
-        QTextStream                  stream( &tableText );
-        RifEclipseDataTableFormatter formatter( stream );
+        QTextStream               stream( &tableText );
+        RifTextDataTableFormatter formatter( stream );
         formatter.setTableRowLineAppendText( "" );
         formatter.setTableRowPrependText( "   " );
 
-        std::vector<RifEclipseOutputTableColumn> header;
-        header.push_back( RifEclipseOutputTableColumn( "Selected Wells" ) );
+        std::vector<RifTextDataTableColumn> header;
+        header.push_back( RifTextDataTableColumn( "Selected Wells" ) );
 
         for ( auto fracTemplate : fracTemplateSet )
         {
-            header.push_back( RifEclipseOutputTableColumn( fracTemplate->name(),
-                                                           RifEclipseOutputTableDoubleFormatting(),
-                                                           RifEclipseOutputTableAlignment::RIGHT ) );
+            header.push_back( RifTextDataTableColumn( fracTemplate->name(),
+                                                      RifTextDataTableDoubleFormatting(),
+                                                      RifTextDataTableAlignment::RIGHT ) );
         }
 
         formatter.header( header );

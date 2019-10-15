@@ -24,7 +24,7 @@
 #include "RicExportFractureCompletionsImpl.h"
 #include "RicWellPathFractureReportItem.h"
 
-#include "RifEclipseDataTableFormatter.h"
+#include "RifTextDataTableFormatter.h"
 
 #include "RigCompletionData.h"
 #include "RigTransmissibilityEquations.h"
@@ -55,9 +55,9 @@ QString orientationText( RimFractureTemplate::FracOrientationEnum orientation )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseOutputTableColumn floatNumberColumn( const QString& text )
+RifTextDataTableColumn floatNumberColumn( const QString& text )
 {
-    return RifEclipseOutputTableColumn( text, RifEclipseOutputTableDoubleFormatting( RIF_FLOAT, 3 ), RIGHT );
+    return RifTextDataTableColumn( text, RifTextDataTableDoubleFormatting( RIF_FLOAT, 3 ), RIGHT );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -233,13 +233,13 @@ QString RicWellPathFractureTextReportFeatureImpl::createWellFileLocationText( co
 
     QString tableText;
 
-    QTextStream                  stream( &tableText );
-    RifEclipseDataTableFormatter formatter( stream );
+    QTextStream               stream( &tableText );
+    RifTextDataTableFormatter formatter( stream );
     configureFormatter( &formatter );
 
-    std::vector<RifEclipseOutputTableColumn> header = {
-        RifEclipseOutputTableColumn( "Well" ),
-        RifEclipseOutputTableColumn( "Location" ),
+    std::vector<RifTextDataTableColumn> header = {
+        RifTextDataTableColumn( "Well" ),
+        RifTextDataTableColumn( "Location" ),
     };
 
     formatter.header( header );
@@ -275,13 +275,13 @@ QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFileLocationText
 
     QString tableText;
 
-    QTextStream                  stream( &tableText );
-    RifEclipseDataTableFormatter formatter( stream );
+    QTextStream               stream( &tableText );
+    RifTextDataTableFormatter formatter( stream );
     configureFormatter( &formatter );
 
-    std::vector<RifEclipseOutputTableColumn> header = {
-        RifEclipseOutputTableColumn( "StimPlan Name" ),
-        RifEclipseOutputTableColumn( "Location" ),
+    std::vector<RifTextDataTableColumn> header = {
+        RifTextDataTableColumn( "StimPlan Name" ),
+        RifTextDataTableColumn( "Location" ),
     };
 
     formatter.header( header );
@@ -316,13 +316,13 @@ QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFractureText(
     RiaEclipseUnitTools::UnitSystem unitSystem   = stimPlanTemplates.front()->fractureTemplateUnit();
     bool                            isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
 
-    QTextStream                  stream( &tableText );
-    RifEclipseDataTableFormatter formatter( stream );
+    QTextStream               stream( &tableText );
+    RifTextDataTableFormatter formatter( stream );
     configureFormatter( &formatter );
 
-    std::vector<RifEclipseOutputTableColumn> header = {
-        RifEclipseOutputTableColumn( "StimPlan" ),
-        RifEclipseOutputTableColumn( " " ),
+    std::vector<RifTextDataTableColumn> header = {
+        RifTextDataTableColumn( "StimPlan" ),
+        RifTextDataTableColumn( " " ),
         floatNumberColumn( "WDiam" ),
         floatNumberColumn( "Skin" ),
     };
@@ -368,13 +368,13 @@ QString RicWellPathFractureTextReportFeatureImpl::createEllipseFractureText(
     RiaEclipseUnitTools::UnitSystem unitSystem   = ellipseTemplates.front()->fractureTemplateUnit();
     bool                            isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
 
-    QTextStream                  stream( &tableText );
-    RifEclipseDataTableFormatter formatter( stream );
+    QTextStream               stream( &tableText );
+    RifTextDataTableFormatter formatter( stream );
     configureFormatter( &formatter );
 
-    std::vector<RifEclipseOutputTableColumn> header = {
-        RifEclipseOutputTableColumn( "Ellipse" ),
-        RifEclipseOutputTableColumn( " " ),
+    std::vector<RifTextDataTableColumn> header = {
+        RifTextDataTableColumn( "Ellipse" ),
+        RifTextDataTableColumn( " " ),
         floatNumberColumn( "Xf" ),
         floatNumberColumn( "Height" ),
         floatNumberColumn( "Kf" ),
@@ -433,12 +433,12 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureText(
 
     QString tableText;
 
-    QTextStream                  stream( &tableText );
-    RifEclipseDataTableFormatter formatter( stream );
+    QTextStream               stream( &tableText );
+    RifTextDataTableFormatter formatter( stream );
     configureFormatter( &formatter );
 
-    std::vector<RifEclipseOutputTableColumn> header = {
-        RifEclipseOutputTableColumn( " " ),
+    std::vector<RifTextDataTableColumn> header = {
+        RifTextDataTableColumn( " " ),
         floatNumberColumn( "Top" ),
         floatNumberColumn( "Bot" ),
         floatNumberColumn( "Fault" ),
@@ -517,24 +517,23 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
 
     QString tableText;
 
-    QTextStream                  stream( &tableText );
-    RifEclipseDataTableFormatter formatter( stream );
+    QTextStream               stream( &tableText );
+    RifTextDataTableFormatter formatter( stream );
     configureFormatter( &formatter );
 
-    std::vector<RifEclipseOutputTableColumn> header = {
-        RifEclipseOutputTableColumn( "" ),
-        RifEclipseOutputTableColumn( "" ),
-        RifEclipseOutputTableColumn( "" ),
+    std::vector<RifTextDataTableColumn> header = {
+        RifTextDataTableColumn( "" ),
+        RifTextDataTableColumn( "" ),
+        RifTextDataTableColumn( "" ),
         floatNumberColumn( "MD" ),
         floatNumberColumn( "Dip" ),
         floatNumberColumn( "Tilt" ),
         floatNumberColumn( "LPerf" ),
         floatNumberColumn( "PerfEff" ),
         floatNumberColumn( "Wdia" ),
-        RifEclipseOutputTableColumn( "Dfac",
-                                     RifEclipseOutputTableDoubleFormatting(
-                                         RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC ),
-                                     RIGHT ),
+        RifTextDataTableColumn( "Dfac",
+                                RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ),
+                                RIGHT ),
     };
 
     formatter.header( header );
@@ -627,25 +626,25 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
     RiaEclipseUnitTools::UnitSystem unitSystem   = wellPathFractureReportItems.front().unitSystem();
     bool                            isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
 
-    QTextStream                  stream( &tableText );
-    RifEclipseDataTableFormatter formatter( stream );
+    QTextStream               stream( &tableText );
+    RifTextDataTableFormatter formatter( stream );
     configureFormatter( &formatter );
 
     const QString meanText = "Mean";
 
-    std::vector<RifEclipseOutputTableColumn> header = {
-        RifEclipseOutputTableColumn( "" ), // Well
-        RifEclipseOutputTableColumn( "" ), // Fracture
-        RifEclipseOutputTableColumn( "" ), // Template
+    std::vector<RifTextDataTableColumn> header = {
+        RifTextDataTableColumn( "" ), // Well
+        RifTextDataTableColumn( "" ), // Fracture
+        RifTextDataTableColumn( "" ), // Template
         floatNumberColumn( "" ), // Tr
         floatNumberColumn( "" ), //#con
         floatNumberColumn( "" ), // Fcd
-        RifEclipseOutputTableColumn( "", RifEclipseOutputTableDoubleFormatting( RIF_FLOAT, 1 ), RIGHT ), // Area
-        RifEclipseOutputTableColumn( meanText, RifEclipseOutputTableDoubleFormatting( RIF_FLOAT, 1 ), RIGHT ), // KfWf
-        RifEclipseOutputTableColumn( meanText, RifEclipseOutputTableDoubleFormatting( RIF_FLOAT, 1 ), RIGHT ), // Kf
+        RifTextDataTableColumn( "", RifTextDataTableDoubleFormatting( RIF_FLOAT, 1 ), RIGHT ), // Area
+        RifTextDataTableColumn( meanText, RifTextDataTableDoubleFormatting( RIF_FLOAT, 1 ), RIGHT ), // KfWf
+        RifTextDataTableColumn( meanText, RifTextDataTableDoubleFormatting( RIF_FLOAT, 1 ), RIGHT ), // Kf
         floatNumberColumn( meanText ), // wf
-        RifEclipseOutputTableColumn( meanText, RifEclipseOutputTableDoubleFormatting( RIF_FLOAT, 1 ), RIGHT ), // xf
-        RifEclipseOutputTableColumn( meanText, RifEclipseOutputTableDoubleFormatting( RIF_FLOAT, 1 ), RIGHT ), // H
+        RifTextDataTableColumn( meanText, RifTextDataTableDoubleFormatting( RIF_FLOAT, 1 ), RIGHT ), // xf
+        RifTextDataTableColumn( meanText, RifTextDataTableDoubleFormatting( RIF_FLOAT, 1 ), RIGHT ), // H
         floatNumberColumn( meanText ), // Km
     };
 
@@ -724,15 +723,15 @@ QString RicWellPathFractureTextReportFeatureImpl::createFracturePressureDepletio
 {
     QString tableText;
 
-    QTextStream                  stream( &tableText );
-    RifEclipseDataTableFormatter formatter( stream );
+    QTextStream               stream( &tableText );
+    RifTextDataTableFormatter formatter( stream );
     configureFormatter( &formatter );
 
-    std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn( "Well" ),
-                                                       RifEclipseOutputTableColumn( "Fracture" ),
-                                                       RifEclipseOutputTableColumn( "Actual WBHP" ),
-                                                       RifEclipseOutputTableColumn( "Min Pressure Drop" ),
-                                                       RifEclipseOutputTableColumn( "Max Pressure Drop" )};
+    std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( "Well" ),
+                                                  RifTextDataTableColumn( "Fracture" ),
+                                                  RifTextDataTableColumn( "Actual WBHP" ),
+                                                  RifTextDataTableColumn( "Min Pressure Drop" ),
+                                                  RifTextDataTableColumn( "Max Pressure Drop" )};
 
     bool createdTable = false;
 
@@ -775,12 +774,11 @@ QString RicWellPathFractureTextReportFeatureImpl::createConnectionsPerWellText(
 {
     QString tableText;
 
-    QTextStream                  stream( &tableText );
-    RifEclipseDataTableFormatter formatter( stream );
+    QTextStream               stream( &tableText );
+    RifTextDataTableFormatter formatter( stream );
     configureFormatter( &formatter );
 
-    std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn( "Well" ),
-                                                       floatNumberColumn( "ConnCount" )};
+    std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( "Well" ), floatNumberColumn( "ConnCount" )};
 
     formatter.header( header );
     formatter.addHorizontalLine( '-' );
@@ -813,7 +811,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createConnectionsPerWellText(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathFractureTextReportFeatureImpl::configureFormatter( RifEclipseDataTableFormatter* formatter ) const
+void RicWellPathFractureTextReportFeatureImpl::configureFormatter( RifTextDataTableFormatter* formatter ) const
 {
     if ( !formatter ) return;
 

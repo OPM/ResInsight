@@ -23,7 +23,7 @@
 
 #include "RicExportWellPathsUi.h"
 
-#include "RifEclipseDataTableFormatter.h"
+#include "RifTextDataTableFormatter.h"
 
 #include "RigWellPath.h"
 
@@ -103,7 +103,7 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStre
     double currMd = wellPathGeom->measureDepths().front() - mdStepSize;
     double endMd  = wellPathGeom->measureDepths().back();
 
-    RifEclipseDataTableFormatter formatter( stream );
+    RifTextDataTableFormatter formatter( stream );
     formatter.setCommentPrefix( "# " );
     formatter.setTableRowPrependText( "  " );
 
@@ -115,7 +115,7 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStre
 
     stream << "WELLNAME: '" << caf::Utils::makeValidFileBasename( exportName ) << "'" << endl;
 
-    auto numberFormat = RifEclipseOutputTableDoubleFormatting( RIF_FLOAT, 2 );
+    auto numberFormat = RifTextDataTableDoubleFormatting( RIF_FLOAT, 2 );
     formatter.header( {{"X", numberFormat, RIGHT},
                        {"Y", numberFormat, RIGHT},
                        {"TVDMSL", numberFormat, RIGHT},

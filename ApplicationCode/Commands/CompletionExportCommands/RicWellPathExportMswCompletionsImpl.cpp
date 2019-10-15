@@ -27,7 +27,7 @@
 #include "RicMswValveAccumulators.h"
 #include "RicWellPathExportCompletionsFileTools.h"
 
-#include "RifEclipseDataTableFormatter.h"
+#include "RifTextDataTableFormatter.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
@@ -190,8 +190,8 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFractures( RimEcl
 
     RicMswExportInfo exportInfo = generateFracturesMswExportInfo( eclipseCase, wellPath, fractures );
 
-    QTextStream                  stream( exportFile.get() );
-    RifEclipseDataTableFormatter formatter( stream );
+    QTextStream               stream( exportFile.get() );
+    RifTextDataTableFormatter formatter( stream );
     generateWelsegsTable( formatter, exportInfo );
     generateCompsegTables( formatter, exportInfo );
 }
@@ -213,8 +213,8 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones(
 
     RicMswExportInfo exportInfo = generateFishbonesMswExportInfo( eclipseCase, wellPath, fishbonesSubs, true );
 
-    QTextStream                  stream( exportFile.get() );
-    RifEclipseDataTableFormatter formatter( stream );
+    QTextStream               stream( exportFile.get() );
+    RifTextDataTableFormatter formatter( stream );
 
     generateWelsegsTable( formatter, exportInfo );
     generateCompsegTables( formatter, exportInfo );
@@ -239,8 +239,8 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations(
 
     RicMswExportInfo exportInfo = generatePerforationsMswExportInfo( eclipseCase, wellPath, timeStep, perforationIntervals );
 
-    QTextStream                  stream( exportFile.get() );
-    RifEclipseDataTableFormatter formatter( stream );
+    QTextStream               stream( exportFile.get() );
+    RifTextDataTableFormatter formatter( stream );
 
     generateWelsegsTable( formatter, exportInfo );
     generateCompsegTables( formatter, exportInfo );
@@ -251,8 +251,8 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportMswCompletionsImpl::generateWelsegsTable( RifEclipseDataTableFormatter& formatter,
-                                                                const RicMswExportInfo&       exportInfo )
+void RicWellPathExportMswCompletionsImpl::generateWelsegsTable( RifTextDataTableFormatter& formatter,
+                                                                const RicMswExportInfo&    exportInfo )
 {
     formatter.keyword( "WELSEGS" );
 
@@ -260,13 +260,13 @@ void RicWellPathExportMswCompletionsImpl::generateWelsegsTable( RifEclipseDataTa
     double startTVD = exportInfo.initialTVD();
 
     {
-        std::vector<RifEclipseOutputTableColumn> header = {
-            RifEclipseOutputTableColumn( "Name" ),
-            RifEclipseOutputTableColumn( "Dep 1" ),
-            RifEclipseOutputTableColumn( "Tlen 1" ),
-            RifEclipseOutputTableColumn( "Vol 1" ),
-            RifEclipseOutputTableColumn( "Len&Dep" ),
-            RifEclipseOutputTableColumn( "PresDrop" ),
+        std::vector<RifTextDataTableColumn> header = {
+            RifTextDataTableColumn( "Name" ),
+            RifTextDataTableColumn( "Dep 1" ),
+            RifTextDataTableColumn( "Tlen 1" ),
+            RifTextDataTableColumn( "Vol 1" ),
+            RifTextDataTableColumn( "Len&Dep" ),
+            RifTextDataTableColumn( "PresDrop" ),
         };
         formatter.header( header );
 
@@ -281,15 +281,15 @@ void RicWellPathExportMswCompletionsImpl::generateWelsegsTable( RifEclipseDataTa
     }
 
     {
-        std::vector<RifEclipseOutputTableColumn> header = {
-            RifEclipseOutputTableColumn( "First Seg" ),
-            RifEclipseOutputTableColumn( "Last Seg" ),
-            RifEclipseOutputTableColumn( "Branch Num" ),
-            RifEclipseOutputTableColumn( "Outlet Seg" ),
-            RifEclipseOutputTableColumn( "Length" ),
-            RifEclipseOutputTableColumn( "Depth Change" ),
-            RifEclipseOutputTableColumn( "Diam" ),
-            RifEclipseOutputTableColumn( "Rough" ),
+        std::vector<RifTextDataTableColumn> header = {
+            RifTextDataTableColumn( "First Seg" ),
+            RifTextDataTableColumn( "Last Seg" ),
+            RifTextDataTableColumn( "Branch Num" ),
+            RifTextDataTableColumn( "Outlet Seg" ),
+            RifTextDataTableColumn( "Length" ),
+            RifTextDataTableColumn( "Depth Change" ),
+            RifTextDataTableColumn( "Diam" ),
+            RifTextDataTableColumn( "Rough" ),
         };
         formatter.header( header );
     }
@@ -351,7 +351,7 @@ void RicWellPathExportMswCompletionsImpl::generateWelsegsTable( RifEclipseDataTa
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswCompletionsImpl::generateWelsegsSegments(
-    RifEclipseDataTableFormatter&                      formatter,
+    RifTextDataTableFormatter&                         formatter,
     const RicMswExportInfo&                            exportInfo,
     const std::set<RigCompletionData::CompletionType>& exportCompletionTypes )
 {
@@ -436,7 +436,7 @@ void RicWellPathExportMswCompletionsImpl::generateWelsegsSegments(
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswCompletionsImpl::generateWelsegsCompletionCommentHeader(
-    RifEclipseDataTableFormatter& formatter, RigCompletionData::CompletionType completionType )
+    RifTextDataTableFormatter& formatter, RigCompletionData::CompletionType completionType )
 {
     if ( completionType == RigCompletionData::CT_UNDEFINED )
     {
@@ -465,8 +465,8 @@ void RicWellPathExportMswCompletionsImpl::generateWelsegsCompletionCommentHeader
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportMswCompletionsImpl::generateCompsegTables( RifEclipseDataTableFormatter& formatter,
-                                                                 const RicMswExportInfo&       exportInfo )
+void RicWellPathExportMswCompletionsImpl::generateCompsegTables( RifTextDataTableFormatter& formatter,
+                                                                 const RicMswExportInfo&    exportInfo )
 {
     /*
      * TODO: Creating the regular perforation COMPSEGS table should come in here, before the others
@@ -509,7 +509,7 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegTables( RifEclipseDataT
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswCompletionsImpl::generateCompsegTable(
-    RifEclipseDataTableFormatter&                      formatter,
+    RifTextDataTableFormatter&                         formatter,
     const RicMswExportInfo&                            exportInfo,
     bool                                               exportSubGridIntersections,
     const std::set<RigCompletionData::CompletionType>& exportCompletionTypes )
@@ -576,7 +576,7 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegTable(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportMswCompletionsImpl::generateCompsegHeader( RifEclipseDataTableFormatter&     formatter,
+void RicWellPathExportMswCompletionsImpl::generateCompsegHeader( RifTextDataTableFormatter&        formatter,
                                                                  const RicMswExportInfo&           exportInfo,
                                                                  RigCompletionData::CompletionType completionType,
                                                                  bool exportSubGridIntersections )
@@ -600,28 +600,28 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegHeader( RifEclipseDataT
     }
 
     {
-        std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn( "Name" )};
+        std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( "Name" )};
         formatter.header( header );
         formatter.add( exportInfo.wellPath()->completions()->wellNameForExport() );
         formatter.rowCompleted();
     }
 
     {
-        std::vector<RifEclipseOutputTableColumn> allHeaders;
+        std::vector<RifTextDataTableColumn> allHeaders;
         if ( exportSubGridIntersections )
         {
-            allHeaders.push_back( RifEclipseOutputTableColumn( "Grid" ) );
+            allHeaders.push_back( RifTextDataTableColumn( "Grid" ) );
         }
 
-        std::vector<RifEclipseOutputTableColumn> commonHeaders = {RifEclipseOutputTableColumn( "I" ),
-                                                                  RifEclipseOutputTableColumn( "J" ),
-                                                                  RifEclipseOutputTableColumn( "K" ),
-                                                                  RifEclipseOutputTableColumn( "Branch no" ),
-                                                                  RifEclipseOutputTableColumn( "Start Length" ),
-                                                                  RifEclipseOutputTableColumn( "End Length" ),
-                                                                  RifEclipseOutputTableColumn( "Dir Pen" ),
-                                                                  RifEclipseOutputTableColumn( "End Range" ),
-                                                                  RifEclipseOutputTableColumn( "Connection Depth" )};
+        std::vector<RifTextDataTableColumn> commonHeaders = {RifTextDataTableColumn( "I" ),
+                                                             RifTextDataTableColumn( "J" ),
+                                                             RifTextDataTableColumn( "K" ),
+                                                             RifTextDataTableColumn( "Branch no" ),
+                                                             RifTextDataTableColumn( "Start Length" ),
+                                                             RifTextDataTableColumn( "End Length" ),
+                                                             RifTextDataTableColumn( "Dir Pen" ),
+                                                             RifTextDataTableColumn( "End Range" ),
+                                                             RifTextDataTableColumn( "Connection Depth" )};
         allHeaders.insert( allHeaders.end(), commonHeaders.begin(), commonHeaders.end() );
         formatter.header( allHeaders );
     }
@@ -630,8 +630,8 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegHeader( RifEclipseDataT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportMswCompletionsImpl::generateWsegvalvTable( RifEclipseDataTableFormatter& formatter,
-                                                                 const RicMswExportInfo&       exportInfo )
+void RicWellPathExportMswCompletionsImpl::generateWsegvalvTable( RifTextDataTableFormatter& formatter,
+                                                                 const RicMswExportInfo&    exportInfo )
 {
     bool foundValve = false;
 
@@ -644,11 +644,11 @@ void RicWellPathExportMswCompletionsImpl::generateWsegvalvTable( RifEclipseDataT
                 if ( !foundValve )
                 {
                     formatter.keyword( "WSEGVALV" );
-                    std::vector<RifEclipseOutputTableColumn> header = {
-                        RifEclipseOutputTableColumn( "Well Name" ),
-                        RifEclipseOutputTableColumn( "Seg No" ),
-                        RifEclipseOutputTableColumn( "Cv" ),
-                        RifEclipseOutputTableColumn( "Ac" ),
+                    std::vector<RifTextDataTableColumn> header = {
+                        RifTextDataTableColumn( "Well Name" ),
+                        RifTextDataTableColumn( "Seg No" ),
+                        RifTextDataTableColumn( "Cv" ),
+                        RifTextDataTableColumn( "Ac" ),
                     };
                     formatter.header( header );
 
@@ -682,10 +682,10 @@ void RicWellPathExportMswCompletionsImpl::generateWsegvalvTable( RifEclipseDataT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable( RifEclipseDataTableFormatter& formatter,
-                                                                 const RicMswExportInfo&       exportInfo )
+void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable( RifTextDataTableFormatter& formatter,
+                                                                 const RicMswExportInfo&    exportInfo )
 {
-    RifEclipseDataTableFormatter tighterFormatter( formatter );
+    RifTextDataTableFormatter tighterFormatter( formatter );
     tighterFormatter.setColumnSpacing( 1 );
     tighterFormatter.setTableRowPrependText( "   " );
 
@@ -739,14 +739,14 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable( RifEclipseDataT
                             QString( "%1: %2" ).arg( i + 1, 2, 10, QChar( '0' ) ).arg( columnDescriptions[i] ) );
                     }
 
-                    std::vector<RifEclipseOutputTableColumn> header;
+                    std::vector<RifTextDataTableColumn> header;
                     for ( size_t i = 1; i <= 21; ++i )
                     {
-                        QString                     cName = QString( "%1" ).arg( i, 2, 10, QChar( '0' ) );
-                        RifEclipseOutputTableColumn col( cName,
-                                                         RifEclipseOutputTableDoubleFormatting(
-                                                             RifEclipseOutputTableDoubleFormat::RIF_CONSISE ),
-                                                         RIGHT );
+                        QString                cName = QString( "%1" ).arg( i, 2, 10, QChar( '0' ) );
+                        RifTextDataTableColumn col( cName,
+                                                    RifTextDataTableDoubleFormatting(
+                                                        RifTextDataTableDoubleFormat::RIF_CONSISE ),
+                                                    RIGHT );
                         header.push_back( col );
                     }
                     tighterFormatter.header( header );

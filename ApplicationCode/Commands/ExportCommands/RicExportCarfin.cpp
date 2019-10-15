@@ -25,7 +25,7 @@
 #include "RicExportCarfinUi.h"
 #include "RicExportFeatureImpl.h"
 
-#include "RifEclipseDataTableFormatter.h"
+#include "RifTextDataTableFormatter.h"
 
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
@@ -79,20 +79,20 @@ void RicExportCarfin::onActionTriggered( bool isChecked )
             return;
         }
 
-        QTextStream                  stream( &exportFile );
-        RifEclipseDataTableFormatter formatter( stream );
+        QTextStream               stream( &exportFile );
+        RifTextDataTableFormatter formatter( stream );
 
-        std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn( "I1" ),
-                                                           RifEclipseOutputTableColumn( "I2" ),
-                                                           RifEclipseOutputTableColumn( "J1" ),
-                                                           RifEclipseOutputTableColumn( "J2" ),
-                                                           RifEclipseOutputTableColumn( "K1" ),
-                                                           RifEclipseOutputTableColumn( "K2" ),
-                                                           RifEclipseOutputTableColumn( "NX" ),
-                                                           RifEclipseOutputTableColumn( "NY" ),
-                                                           RifEclipseOutputTableColumn( "NZ" ),
-                                                           RifEclipseOutputTableColumn( "NWMAX" ),
-                                                           RifEclipseOutputTableColumn( "Parent LGR" )};
+        std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( "I1" ),
+                                                      RifTextDataTableColumn( "I2" ),
+                                                      RifTextDataTableColumn( "J1" ),
+                                                      RifTextDataTableColumn( "J2" ),
+                                                      RifTextDataTableColumn( "K1" ),
+                                                      RifTextDataTableColumn( "K2" ),
+                                                      RifTextDataTableColumn( "NX" ),
+                                                      RifTextDataTableColumn( "NY" ),
+                                                      RifTextDataTableColumn( "NZ" ),
+                                                      RifTextDataTableColumn( "NWMAX" ),
+                                                      RifTextDataTableColumn( "Parent LGR" )};
 
         formatter.keyword( "CARFIN" );
         formatter.header( header );

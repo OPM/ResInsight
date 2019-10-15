@@ -21,7 +21,7 @@
 #include "RiaFontCache.h"
 #include "RiaPreferences.h"
 
-#include "RifEclipseDataTableFormatter.h"
+#include "RifTextDataTableFormatter.h"
 #include "RiuGridCrossQwtPlot.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotTools.h"
@@ -604,7 +604,7 @@ QString RimGridCrossPlot::asciiDataForPlotExport( int dataSetIndex ) const
         QString     asciiData;
         QTextStream stringStream( &asciiData );
 
-        RifEclipseDataTableFormatter formatter( stringStream );
+        RifTextDataTableFormatter formatter( stringStream );
         formatter.setCommentPrefix( "" );
         formatter.setTableRowPrependText( "" );
         formatter.setTableRowLineAppendText( "" );
