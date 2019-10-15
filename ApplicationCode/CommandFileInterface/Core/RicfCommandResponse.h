@@ -47,6 +47,7 @@ public:
 
     Status          status() const;
     QString         sanitizedResponseMessage() const;
+    QStringList     messages() const;
     caf::PdmObject* result() const;
     void            setResult( caf::PdmObject* result );
     void            updateStatus( Status status, const QString& message );

@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaDefines.h"
+#include "RiaLogging.h"
 
 #include "RiaGrpcCallbacks.h"
 #include "RiaGrpcCaseService.h"

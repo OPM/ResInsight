@@ -649,10 +649,31 @@ bool RiaApplication::loadProject( const QString& projectFileName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaApplication::saveProject( QString* errorMessage )
+{
+    CAF_ASSERT( errorMessage );
+    CAF_ASSERT( m_project.notNull() );
+
+    if ( !isProjectSavedToDisc() )
+    {
+        *errorMessage = "Project hasn't already been saved and no file name has been provided";
+        return false;
+    }
+    else
+    {
+        return saveProjectAs( m_project->fileName(), errorMessage );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaApplication::saveProjectAs( const QString& fileName, QString* errorMessage )
 {
     // Make sure we always store path with forward slash to avoid issues when opening the project file on Linux
     m_project->fileName = RiaFilePathTools::toInternalSeparator( fileName );
+
+    onProjectBeingSaved();
 
     if ( !m_project->writeFile() )
     {
@@ -660,12 +681,13 @@ bool RiaApplication::saveProjectAs( const QString& fileName, QString* errorMessa
         *errorMessage = QString( "Not possible to save project file. Make sure you have sufficient access "
                                  "rights.\n\nProject file location : %1" )
                             .arg( fileName );
-
         return false;
     }
 
     m_preferences->lastUsedProjectFileName = fileName;
     caf::PdmSettings::writeFieldsToApplicationStore( m_preferences );
+
+    onProjectSaved();
 
     return true;
 }

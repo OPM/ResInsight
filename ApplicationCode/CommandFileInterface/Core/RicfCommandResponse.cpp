@@ -48,7 +48,17 @@ RicfCommandResponse::Status RicfCommandResponse::status() const
 //--------------------------------------------------------------------------------------------------
 QString RicfCommandResponse::sanitizedResponseMessage() const
 {
-    return m_messages.join( ";;" );
+    QString completeMessage = m_messages.join( ";;" );
+    completeMessage.replace( '\n', ";;" );
+    return completeMessage;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RicfCommandResponse::messages() const
+{
+    return m_messages;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,11 +82,11 @@ void RicfCommandResponse::setResult( caf::PdmObject* result )
 //--------------------------------------------------------------------------------------------------
 void RicfCommandResponse::updateStatus( Status status, const QString& message )
 {
-    QString cleanedMessage = message;
-    cleanedMessage.replace( '\n', ";;" );
     m_status = std::max( m_status, status );
     if ( !message.isEmpty() )
-        m_messages.push_back( QString( "%1: %2" ).arg( statusLabel( status ) ).arg( cleanedMessage ) );
+    {
+        m_messages.push_back( QString( "%1: %2" ).arg( statusLabel( status ) ).arg( message ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,9 +97,9 @@ QString RicfCommandResponse::statusLabel( Status status )
     switch ( status )
     {
         case COMMAND_WARNING:
-            return "WARNING";
+            return "Warning";
         case COMMAND_ERROR:
-            return "ERROR";
+            return "Error";
         default:
             return "";
     }

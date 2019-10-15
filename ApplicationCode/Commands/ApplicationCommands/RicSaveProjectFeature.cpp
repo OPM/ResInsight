@@ -18,11 +18,48 @@
 
 #include "RicSaveProjectFeature.h"
 
+#include "RiaApplication.h"
 #include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 
 #include <QAction>
+#include <QMessageBox>
 
-CAF_CMD_SOURCE_INIT( RicSaveProjectFeature, "RicSaveProjectFeature" );
+RICF_SOURCE_INIT( RicSaveProjectFeature, "RicSaveProjectFeature", "saveProject" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicSaveProjectFeature::RicSaveProjectFeature()
+{
+    CAF_PDM_InitFieldNoDefault( &m_filePath, "filePath", "", "", "", "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicfCommandResponse RicSaveProjectFeature::execute()
+{
+    this->disableModelChangeContribution();
+
+    bool    worked = false;
+    QString errorMessage;
+    if ( !m_filePath().isEmpty() )
+    {
+        worked = RiaApplication::instance()->saveProjectAs( m_filePath(), &errorMessage );
+    }
+    else
+    {
+        worked = RiaApplication::instance()->saveProject( &errorMessage );
+    }
+
+    if ( !worked )
+    {
+        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, errorMessage );
+    }
+
+    return RicfCommandResponse();
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -37,11 +74,24 @@ bool RicSaveProjectFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSaveProjectFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    RiaApplication*    app    = RiaApplication::instance();
+    RiaGuiApplication* guiApp = dynamic_cast<RiaGuiApplication*>( app );
 
-    RiaGuiApplication* app = RiaGuiApplication::instance();
+    if ( guiApp && !guiApp->isProjectSavedToDisc() )
+    {
+        m_filePath = guiApp->promptForProjectSaveAsFileName();
+    }
 
-    app->saveProject();
+    auto response = execute();
+    if ( response.status() != RicfCommandResponse::COMMAND_OK )
+    {
+        QString displayMessage = response.messages().join( "\n" );
+        if ( RiaGuiApplication::isRunning() )
+        {
+            QMessageBox::warning( nullptr, "Error when saving project file", displayMessage );
+        }
+        RiaLogging::error( displayMessage );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

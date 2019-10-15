@@ -209,23 +209,23 @@ bool RiaGuiApplication::saveProject()
 {
     CVF_ASSERT( m_project.notNull() );
 
+    QString fileName;
     if ( !isProjectSavedToDisc() )
     {
-        return saveProjectPromptForFileName();
+        fileName = promptForProjectSaveAsFileName();
     }
     else
     {
-        return saveProjectAs( m_project->fileName() );
+        fileName = m_project->fileName();
     }
+    return saveProjectAs( fileName );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaGuiApplication::saveProjectPromptForFileName()
+QString RiaGuiApplication::promptForProjectSaveAsFileName() const
 {
-    // if (m_project.isNull()) return true;
-
     RiaGuiApplication* app = RiaGuiApplication::instance();
 
     QString startPath;
@@ -243,19 +243,7 @@ bool RiaGuiApplication::saveProjectPromptForFileName()
                                                      tr( "Save File" ),
                                                      startPath,
                                                      tr( "Project Files (*.rsp);;All files(*.*)" ) );
-    if ( fileName.isEmpty() )
-    {
-        return false;
-    }
-
-    // Remember the directory to next time
-    app->setLastUsedDialogDirectory( "BINARY_GRID", QFileInfo( fileName ).absolutePath() );
-
-    bool bSaveOk = saveProjectAs( fileName );
-
-    setWindowCaptionFromAppState();
-
-    return bSaveOk;
+    return fileName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -300,7 +288,6 @@ bool RiaGuiApplication::askUserToSaveModifiedProject()
 //--------------------------------------------------------------------------------------------------
 bool RiaGuiApplication::saveProjectAs( const QString& fileName )
 {
-    storeTreeViewState();
     QString errMsg;
     if ( !RiaApplication::saveProjectAs( fileName, &errMsg ) )
     {
@@ -308,8 +295,6 @@ bool RiaGuiApplication::saveProjectAs( const QString& fileName )
         return false;
     }
 
-    m_recentFileActionProvider->addFileName( fileName );
-    caf::PdmUiModelChangeDetector::instance()->reset();
     return true;
 }
 
@@ -1484,6 +1469,25 @@ void RiaGuiApplication::onProjectClosed()
     setWindowCaptionFromAppState();
 
     processEvents();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGuiApplication::onProjectBeingSaved()
+{
+    setLastUsedDialogDirectory( "BINARY_GRID", QFileInfo( m_project->fileName() ).absolutePath() );
+    storeTreeViewState();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGuiApplication::onProjectSaved()
+{
+    setWindowCaptionFromAppState();
+    m_recentFileActionProvider->addFileName( m_project->fileName() );
+    caf::PdmUiModelChangeDetector::instance()->reset();
 }
 
 //--------------------------------------------------------------------------------------------------

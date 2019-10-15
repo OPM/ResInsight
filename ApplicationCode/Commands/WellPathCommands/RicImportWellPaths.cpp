@@ -23,6 +23,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
+#include "RimFileWellPath.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
@@ -34,7 +35,103 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-CAF_CMD_SOURCE_INIT( RicImportWellPaths, "RicWellPathsImportFileFeature" );
+//==================================================================================================
+///
+///
+//==================================================================================================
+class RicImportWellPathsResult : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RicImportWellPathsResult()
+    {
+        CAF_PDM_InitObject( "well_path_result", "", "", "" );
+        CAF_PDM_InitFieldNoDefault( &wellPathNames, "wellPathNames", "", "", "", "" );
+    }
+
+public:
+    caf::PdmField<std::vector<QString>> wellPathNames;
+};
+
+CAF_PDM_SOURCE_INIT( RicImportWellPathsResult, "importWellPathsResult" );
+RICF_SOURCE_INIT( RicImportWellPaths, "RicWellPathsImportFileFeature", "importWellPaths" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicImportWellPaths::RicImportWellPaths()
+{
+    RICF_InitFieldNoDefault( &m_wellPathFolder, "wellPathFolder", "", "", "", "" );
+    RICF_InitFieldNoDefault( &m_wellPathFiles, "wellPathFiles", "", "", "", "" );
+}
+
+RicfCommandResponse RicImportWellPaths::execute()
+{
+    QStringList errorMessages, warningMessages;
+    QStringList wellPathFiles;
+
+    QDir wellPathFolder( m_wellPathFolder );
+
+    if ( wellPathFolder.exists() )
+    {
+        QStringList nameFilters;
+        nameFilters << RicImportWellPaths::wellPathNameFilters();
+        QStringList relativePaths = wellPathFolder.entryList( nameFilters, QDir::Files | QDir::NoDotAndDotDot );
+        for ( QString relativePath : relativePaths )
+        {
+            wellPathFiles.push_back( wellPathFolder.absoluteFilePath( relativePath ) );
+        }
+    }
+    else
+    {
+        errorMessages << ( m_wellPathFolder() + " does not exist" );
+    }
+
+    for ( QString wellPathFile : m_wellPathFiles() )
+    {
+        if ( QFileInfo::exists( wellPathFile ) )
+        {
+            wellPathFiles.push_back( wellPathFile );
+        }
+        else
+        {
+            errorMessages << ( wellPathFile + " does not exist" );
+        }
+    }
+
+    RicfCommandResponse response;
+    if ( !wellPathFiles.empty() )
+    {
+        std::vector<RimFileWellPath*> importedWellPaths = importWellPaths( wellPathFiles, &warningMessages );
+        if ( !importedWellPaths.empty() )
+        {
+            RicImportWellPathsResult* wellPathsResult = new RicImportWellPathsResult;
+            for ( RimFileWellPath* wellPath : importedWellPaths )
+            {
+                wellPathsResult->wellPathNames.v().push_back( wellPath->name() );
+            }
+
+            response.setResult( wellPathsResult );
+        }
+    }
+    else
+    {
+        warningMessages << "No well paths found";
+    }
+
+    for ( QString warningMessage : warningMessages )
+    {
+        response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warningMessage );
+    }
+
+    for ( QString errorMessage : errorMessages )
+    {
+        response.updateStatus( RicfCommandResponse::COMMAND_ERROR, errorMessage );
+    }
+
+    return response;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -109,18 +206,26 @@ void RicImportWellPaths::onActionTriggered( bool isChecked )
 
     if ( wellPathFilePaths.size() >= 1 )
     {
-        QStringList errorMessages;
-        importWellPaths( wellPathFilePaths, &errorMessages );
+        m_wellPathFiles.v()          = std::vector<QString>( wellPathFilePaths.begin(), wellPathFilePaths.end() );
+        RicfCommandResponse response = execute();
+        QStringList         messages = response.messages();
 
-        if ( !errorMessages.empty() )
+        if ( !messages.empty() )
         {
-            QString displayMessage = "Errors loading well path files: \n" + errorMessages.join( "\n" );
+            QString displayMessage = QString( "Problem loading well path files:\n%2" ).arg( messages.join( "\n" ) );
 
             if ( RiaGuiApplication::isRunning() )
             {
-                QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
+                QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "Well Path Loading", displayMessage );
             }
-            RiaLogging::warning( displayMessage );
+            if ( response.status() == RicfCommandResponse::COMMAND_ERROR )
+            {
+                RiaLogging::error( displayMessage );
+            }
+            else
+            {
+                RiaLogging::warning( displayMessage );
+            }
         }
     }
 }

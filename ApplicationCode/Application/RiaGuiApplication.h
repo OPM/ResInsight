@@ -91,10 +91,10 @@ public:
     RiaGuiApplication( int& argc, char** argv );
     ~RiaGuiApplication() override;
 
-    bool saveProject();
-    bool saveProjectPromptForFileName();
-    bool askUserToSaveModifiedProject();
-    bool saveProjectAs( const QString& fileName );
+    bool    saveProject();
+    QString promptForProjectSaveAsFileName() const;
+    bool    askUserToSaveModifiedProject();
+    bool    saveProjectAs( const QString& fileName );
 
     void runMultiCaseSnapshots( const QString&       templateProjectFileName,
                                 std::vector<QString> gridFileNames,
@@ -141,11 +141,15 @@ protected:
     // Protected RiaApplication overrides
     void invokeProcessEvents( QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents ) override;
     void onFileSuccessfullyLoaded( const QString& fileName, RiaDefines::ImportFileType fileType ) override;
+
     void onProjectBeingOpened() override;
     void onProjectOpeningError( const QString& errMsg );
     void onProjectOpened() override;
     void onProjectBeingClosed() override;
     void onProjectClosed() override;
+    void onProjectBeingSaved() override;
+    void onProjectSaved() override;
+
     void startMonitoringWorkProgress( caf::UiProcess* uiProcess ) override;
     void stopMonitoringWorkProgress() override;
 

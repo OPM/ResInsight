@@ -20,6 +20,7 @@
 #include "RicfCommandResponse.h"
 #include "RicfFieldCapability.h"
 #include "RicfObjectCapability.h"
+#include "cafCmdFeature.h"
 #include "cafPdmObject.h"
 
 #define RICF_InitField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis ) \
@@ -29,6 +30,20 @@
 #define RICF_InitFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis ) \
     CAF_PDM_InitFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis ); \
     AddRicfCapabilityToField( field )
+
+#define RICF_HEADER_INIT \
+    CAF_CMD_HEADER_INIT; \
+    CAF_PDM_HEADER_INIT
+
+// RICF_SOURCE_INIT calls CAF_FACTORY_REGISTER2 to avoid name conflicts with CAF_PDM_SOURCE_INIT
+#define RICF_SOURCE_INIT( ClassName, CommandIdName, CommandKeyword )                             \
+    const std::string& ClassName::idNameStatic()                                                 \
+    {                                                                                            \
+        static std::string id = CommandIdName;                                                   \
+        return id;                                                                               \
+    }                                                                                            \
+    CAF_FACTORY_REGISTER2( caf::CmdFeature, ClassName, std::string, ClassName::idNameStatic() ); \
+    CAF_PDM_SOURCE_INIT( ClassName, CommandKeyword )
 
 //==================================================================================================
 //
