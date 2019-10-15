@@ -33,6 +33,7 @@ RifTextDataTableFormatter::RifTextDataTableFormatter( QTextStream& out )
     , m_tableRowPrependText( "   " )
     , m_tableRowAppendText( " /" )
     , m_commentPrefix( "-- " )
+    , m_headerPrefix( "-- " )
     , m_maxDataRowWidth( MAX_ECLIPSE_DATA_ROW_WIDTH )
 {
 }
@@ -126,6 +127,22 @@ void RifTextDataTableFormatter::setCommentPrefix( const QString& commentPrefix )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RifTextDataTableFormatter::headerPrefix() const
+{
+    return m_headerPrefix;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifTextDataTableFormatter::setHeaderPrefix( const QString& headerPrefix )
+{
+    m_headerPrefix = headerPrefix;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifTextDataTableFormatter::setUnlimitedDataRowWidth()
 {
     m_maxDataRowWidth = std::numeric_limits<int>::max();
@@ -146,7 +163,7 @@ void RifTextDataTableFormatter::outputBuffer()
 {
     if ( !m_columns.empty() && !isAllHeadersEmpty( m_columns ) )
     {
-        m_out << m_commentPrefix;
+        m_out << m_headerPrefix;
         for ( size_t i = 0u; i < m_columns.size(); ++i )
         {
             m_out << formatColumn( m_columns[i].title, i );

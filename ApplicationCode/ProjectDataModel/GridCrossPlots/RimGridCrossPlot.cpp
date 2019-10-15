@@ -606,6 +606,7 @@ QString RimGridCrossPlot::asciiDataForPlotExport( int dataSetIndex ) const
 
         RifTextDataTableFormatter formatter( stringStream );
         formatter.setCommentPrefix( "" );
+        formatter.setHeaderPrefix( "" );
         formatter.setTableRowPrependText( "" );
         formatter.setTableRowLineAppendText( "" );
         formatter.setColumnSpacing( 3 );

@@ -104,6 +104,7 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStre
     double endMd  = wellPathGeom->measureDepths().back();
 
     RifTextDataTableFormatter formatter( stream );
+    formatter.setHeaderPrefix( "# " );
     formatter.setCommentPrefix( "# " );
     formatter.setTableRowPrependText( "  " );
 

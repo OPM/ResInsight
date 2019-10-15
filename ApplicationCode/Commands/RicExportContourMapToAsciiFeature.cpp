@@ -106,6 +106,7 @@ void RicExportContourMapToAsciiFeature::onActionTriggered( bool isChecked )
     formatter.setTableRowLineAppendText( "" );
     formatter.setTableRowPrependText( "" );
     formatter.setCommentPrefix( "#" );
+    formatter.setHeaderPrefix( "" );
 
     std::vector<RifTextDataTableColumn> header = {
         RifTextDataTableColumn( "x" ),
