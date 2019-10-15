@@ -82,6 +82,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToAsciiFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToAsciiUi.h
 )
 
 
@@ -162,6 +163,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToAsciiFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToAsciiUi.cpp
 )
 
 

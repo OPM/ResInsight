@@ -19,6 +19,7 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RicExportContourMapToAsciiUi.h"
 #include "RifTextDataTableFormatter.h"
 #include "RimContourMapProjection.h"
 #include "RimEclipseContourMapProjection.h"
@@ -26,6 +27,7 @@
 #include "RimGeoMechContourMapProjection.h"
 #include "RimGeoMechContourMapView.h"
 
+#include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
 #include "cafUtils.h"
 
@@ -75,33 +77,46 @@ void RicExportContourMapToAsciiFeature::onActionTriggered( bool isChecked )
 
     RiaGuiApplication* app = RiaGuiApplication::instance();
     CAF_ASSERT( app && "Must be gui mode" );
+
     QString startPath = app->lastUsedDialogDirectoryWithFallbackToProjectFolder( "CONTOUR_EXPORT" );
 
     QString fileBaseName = caf::Utils::makeValidFileBasename( contourMapName );
 
     startPath = startPath + "/" + fileBaseName + ".txt";
 
-    QString fileName = QFileDialog::getSaveFileName( nullptr,
-                                                     tr( "Export Contour Map To Text File" ),
-                                                     startPath,
-                                                     tr( "Text file (*.txt);;All files(*.*)" ) );
+    RicExportContourMapToAsciiUi featureUi;
+    featureUi.setExportFileName( startPath );
 
-    if ( fileName.isEmpty() )
+    caf::PdmUiPropertyViewDialog propertyDialog( nullptr,
+                                                 &featureUi,
+                                                 "Export Contour Map as Text",
+                                                 "",
+                                                 QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
+    QString                      fileName = featureUi.exportFileName();
+    if ( propertyDialog.exec() == QDialog::Accepted && !fileName.isEmpty() )
     {
-        return;
+        app->setLastUsedDialogDirectory( "CONTOUR_EXPORT", fileName );
+
+        QFile exportFile( fileName );
+        if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
+        {
+            RiaLogging::error( QString( "Export Contour Map as Text : Could not open the file: %1" ).arg( fileName ) );
+            return;
+        }
+
+        QString     tableText;
+        QTextStream stream( &exportFile );
+
+        writeContourMapToStream( stream, contourMapProjection );
     }
+}
 
-    QFile exportFile( fileName );
-    if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
-    {
-        RiaLogging::error( QString( "Export Contour Map as Text : Could not open the file: %1" ).arg( fileName ) );
-        return;
-    }
-
-    cvf::Vec2ui numVerticesIJ = contourMapProjection->numberOfVerticesIJ();
-
-    QString                   tableText;
-    QTextStream               stream( &exportFile );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicExportContourMapToAsciiFeature::writeContourMapToStream( QTextStream&                   stream,
+                                                                 const RimContourMapProjection* contourMapProjection )
+{
     RifTextDataTableFormatter formatter( stream );
     formatter.setTableRowLineAppendText( "" );
     formatter.setTableRowPrependText( "" );
@@ -116,6 +131,7 @@ void RicExportContourMapToAsciiFeature::onActionTriggered( bool isChecked )
 
     formatter.header( header );
 
+    cvf::Vec2ui numVerticesIJ = contourMapProjection->numberOfVerticesIJ();
     for ( unsigned int j = 0; j < numVerticesIJ.y(); j++ )
     {
         for ( unsigned int i = 0; i < numVerticesIJ.x(); i++ )

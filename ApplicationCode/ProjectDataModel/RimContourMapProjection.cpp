@@ -1606,7 +1606,7 @@ cvf::Vec2d RimContourMapProjection::origin2d() const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Vertex positions in local coordinates (add origin2d.x() for UTM x)
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimContourMapProjection::xVertexPositions() const
 {
@@ -1624,7 +1624,7 @@ std::vector<double> RimContourMapProjection::xVertexPositions() const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Vertex positions in local coordinates (add origin2d.y() for UTM y)
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimContourMapProjection::yVertexPositions() const
 {
