@@ -165,7 +165,7 @@ message RunOctaveScriptRequest
 	repeated int32 caseIds = 2;
 }
 
-message SetMainWindowSizeParams
+message SetWindowSizeParams
 {
 	int32 height = 1;
 	int32 width  = 2;
@@ -342,7 +342,7 @@ message CommandParams
 		ExportVisibleCellsRequest    exportVisibleCells               = 15;
 		SetExportFolderRequest       setExportFolder                  = 16;
 		RunOctaveScriptRequest       runOctaveScript                  = 17;
-		SetMainWindowSizeParams      setMainWindowSize                = 18;
+		SetWindowSizeParams          setMainWindowSize                = 18;
 		ComputeCaseGroupStatRequest  computeCaseGroupStatistics       = 19;
 		SetTimeStepParams            setTimeStep                      = 20;
 		ScaleFractureTemplateRequest scaleFractureTemplate            = 21;
@@ -361,6 +361,7 @@ message CommandParams
 		ImportWellLogFilesRequest    importWellLogFiles               = 34;
 		ImportFormationNamesRequest  importFormationNames             = 35;
 		ExportWellLogPlotDataRequest exportWellLogPlotData            = 36;
+		SetWindowSizeParams          setPlotWindowSize                = 37;
 	}
 }
 
