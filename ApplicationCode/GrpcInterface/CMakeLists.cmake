@@ -182,7 +182,7 @@ if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 			"rips/PythonExamples/selected_cases.py"
 			"rips/PythonExamples/all_cases.py"
 			"rips/PythonExamples/set_grid_properties.py"
-			"rips/PythonExamples/set_cell_Result.py"
+			"rips/PythonExamples/set_cell_result.py"
 			"rips/PythonExamples/set_flow_diagnostics_result.py"
 			"rips/PythonExamples/grid_information.py"
 			"rips/PythonExamples/input_prop_test_sync.py"
