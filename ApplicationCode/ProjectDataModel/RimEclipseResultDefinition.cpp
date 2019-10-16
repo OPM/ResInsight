@@ -306,6 +306,15 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
     {
         m_porosityModel         = m_porosityModelUiField;
         m_resultVariableUiField = resultVariable();
+
+        RimEclipseView* eclipseView = nullptr;
+        this->firstAncestorOrThisOfType( eclipseView );
+        if ( eclipseView )
+        {
+            // Active cells can be different between matrix and fracture, make sure all geometry is recreated
+            eclipseView->scheduleReservoirGridGeometryRegen();
+        }
+
         loadDataAndUpdate();
     }
 
