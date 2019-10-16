@@ -253,7 +253,19 @@ class Instance:
         width     | Width in pixels  | Integer
         height    | Height in pixels | Integer
         """
-        return self.__execute_command(setMainWindowSize=Cmd.SetMainWindowSizeParams(
+        return self.__execute_command(setMainWindowSize=Cmd.SetWindowSizeParams(
+            width=width, height=height))
+
+    def set_plot_window_size(self, width, height):
+        """
+        Set the plot window size in pixels
+
+        Parameter | Description      | Type
+        --------- | ---------------- | -----
+        width     | Width in pixels  | Integer
+        height    | Height in pixels | Integer
+        """
+        return self.__execute_command(setPlotWindowSize=Cmd.SetWindowSizeParams(
             width=width, height=height))
 
     def major_version(self):

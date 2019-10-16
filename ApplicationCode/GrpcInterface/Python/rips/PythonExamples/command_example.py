@@ -8,8 +8,10 @@ import rips
 # Load instance
 resinsight = rips.Instance.find()
 
-# Set window size
+# Set window sizes
 resinsight.set_main_window_size(width=800, height=500)
+resinsight.set_plot_window_size(width=1000, height=1000)
+
 
 # Retrieve first case
 case = resinsight.project.cases()[0]
