@@ -474,6 +474,7 @@ void caf::Viewer::optimizeClippingPlanes()
         camEye += m_comparisonViewOffset;
         camViewRefPoint += m_comparisonViewOffset;
         m_comparisonMainCamera->setFromLookAt(camEye, camViewRefPoint, camUp);
+        navPointOfinterest += m_comparisonViewOffset;
 
         if ( calculateNearFarPlanes(m_comparisonMainRendering.p(), navPointOfinterest, &farPlaneDist, &nearPlaneDist) )
         {
