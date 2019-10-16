@@ -170,10 +170,13 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
                 {
                     case RiaDefines::UNIT_METER:
                         presentUnitSystems.insert( RiaEclipseUnitTools::UNITS_METRIC );
+                        break;
                     case RiaDefines::UNIT_FEET:
                         presentUnitSystems.insert( RiaEclipseUnitTools::UNITS_FIELD );
+                        break;
                     case RiaDefines::UNIT_NONE:
                         presentUnitSystems.insert( RiaEclipseUnitTools::UNITS_UNKNOWN );
+                        break;
                 }
             }
         }
