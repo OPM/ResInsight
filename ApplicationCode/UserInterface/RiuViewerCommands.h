@@ -68,18 +68,21 @@ public:
     cvf::Vec3d lastPickPositionInDomainCoords() const;
 
 private:
-    void findCellAndGridIndex( const RivIntersectionSourceInfo* crossSectionSourceInfo,
+    void findCellAndGridIndex( Rim3dView*                       mainOrComparisonView,
+                               const RivIntersectionSourceInfo* crossSectionSourceInfo,
                                cvf::uint                        firstPartTriangleIndex,
                                size_t*                          cellIndex,
                                size_t*                          gridIndex );
-    void findCellAndGridIndex( const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo,
+    void findCellAndGridIndex( Rim3dView*                          mainOrComparisonView,
+                               const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo,
                                cvf::uint                           firstPartTriangleIndex,
                                size_t*                             cellIndex,
                                size_t*                             gridIndex );
+    void ijkFromCellIndex(
+        Rim3dView* mainOrComparisonView, size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k );
 
-    void ijkFromCellIndex( size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k );
-
-    void findFirstItems( const std::vector<RiuPickItemInfo>& pickItemInfos,
+    void findFirstItems( Rim3dView*                          mainOrComparisonView,
+                         const std::vector<RiuPickItemInfo>& pickItemInfos,
                          size_t*                             indexToFirstNoneNncItem,
                          size_t*                             indexToNncItemNearFirsItem );
 

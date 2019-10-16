@@ -163,7 +163,8 @@ public:
     void updateZScaleLabel();
     void updateMeasurement();
 
-    bool isMasterView() const;
+    bool       isMasterView() const;
+    Rim3dView* activeComparisonView() const;
 
     cvf::ref<caf::DisplayCoordTransform> displayCoordTransform() const override;
 
@@ -297,7 +298,6 @@ private:
     // Pure private methods : Override viewer and comparison view
 
     void                 setOverrideViewer( RiuViewer* overrideViewer );
-    Rim3dView*           activeComparisonView() const;
     std::set<Rim3dView*> viewsUsingThisAsComparisonView();
 
     Rim3dView* prepareComparisonView();
