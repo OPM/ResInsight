@@ -26,6 +26,8 @@
 #include "RimEclipseContourMapView.h"
 #include "RimGeoMechContourMapProjection.h"
 #include "RimGeoMechContourMapView.h"
+#include "RimProject.h"
+#include "RimViewWindow.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
@@ -35,7 +37,15 @@
 #include <QDebug>
 #include <QFileDialog>
 
-CAF_CMD_SOURCE_INIT( RicExportContourMapToAsciiFeature, "RicExportContourMapToAsciiFeature" );
+RICF_SOURCE_INIT( RicExportContourMapToAsciiFeature, "RicExportContourMapToAsciiFeature", "exportContourMapToAscii" );
+
+RicExportContourMapToAsciiFeature::RicExportContourMapToAsciiFeature()
+{
+    RICF_InitFieldNoDefault( &m_exportFileName, "exportFileName", "", "", "", "" );
+    RICF_InitFieldNoDefault( &m_exportLocalCoordinates, "exportLocalCoordinates", "", "", "", "" );
+    RICF_InitFieldNoDefault( &m_undefinedValueLabel, "undefinedValueLabel", "", "", "", "" );
+    RICF_InitField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -64,11 +74,13 @@ void RicExportContourMapToAsciiFeature::onActionTriggered( bool isChecked )
     QString contourMapName;
     if ( existingEclipseContourMap )
     {
+        m_viewId             = existingEclipseContourMap->id();
         contourMapProjection = existingEclipseContourMap->contourMapProjection();
         contourMapName       = existingEclipseContourMap->createAutoName();
     }
     else if ( existingGeoMechContourMap )
     {
+        m_viewId             = existingGeoMechContourMap->id();
         contourMapProjection = existingGeoMechContourMap->contourMapProjection();
         contourMapName       = existingGeoMechContourMap->createAutoName();
     }
@@ -92,22 +104,31 @@ void RicExportContourMapToAsciiFeature::onActionTriggered( bool isChecked )
                                                  "Export Contour Map as Text",
                                                  "",
                                                  QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
-    QString                      fileName = featureUi.exportFileName();
-    if ( propertyDialog.exec() == QDialog::Accepted && !fileName.isEmpty() )
+
+    if ( propertyDialog.exec() == QDialog::Accepted )
     {
+        QString fileName = featureUi.exportFileName();
+
         app->setLastUsedDialogDirectory( "CONTOUR_EXPORT", fileName );
+        m_exportFileName         = fileName;
+        m_exportLocalCoordinates = true;
+        m_undefinedValueLabel    = "fæskslo";
 
-        QFile exportFile( fileName );
-        if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
+        RicfCommandResponse response = execute();
+        QStringList         messages = response.messages();
+
+        if ( !messages.empty() )
         {
-            RiaLogging::error( QString( "Export Contour Map as Text : Could not open the file: %1" ).arg( fileName ) );
-            return;
+            QString displayMessage = QString( "Problem exporting contour map:\n%2" ).arg( messages.join( "\n" ) );
+            if ( response.status() == RicfCommandResponse::COMMAND_ERROR )
+            {
+                RiaLogging::error( displayMessage );
+            }
+            else
+            {
+                RiaLogging::warning( displayMessage );
+            }
         }
-
-        QString     tableText;
-        QTextStream stream( &exportFile );
-
-        writeContourMapToStream( stream, contourMapProjection );
     }
 }
 
@@ -152,4 +173,69 @@ void RicExportContourMapToAsciiFeature::writeContourMapToStream( QTextStream&   
 void RicExportContourMapToAsciiFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Export Contour Map to Ascii" );
+}
+
+RicfCommandResponse RicExportContourMapToAsciiFeature::execute()
+{
+    RicfCommandResponse response;
+    QStringList         errorMessages, warningMessages;
+
+    RiaApplication* app = RiaApplication::instance();
+
+    RimProject* proj = app->project();
+
+    // TODO: Add error message
+    if ( !proj )
+    {
+        response.updateStatus( RicfCommandResponse::COMMAND_ERROR, "No project found!" );
+        return response;
+    }
+
+    std::vector<Rim3dView*> allViews;
+    proj->allViews( allViews );
+
+    Rim3dView* myView = nullptr;
+    for ( auto view : allViews )
+    {
+        if ( m_viewId == view->id() )
+        {
+            myView = view;
+        }
+    }
+
+    RimContourMapProjection*  contourMapProjection      = nullptr;
+    RimEclipseContourMapView* existingEclipseContourMap = dynamic_cast<RimEclipseContourMapView*>( myView );
+    RimGeoMechContourMapView* existingGeoMechContourMap = dynamic_cast<RimGeoMechContourMapView*>( myView );
+    CAF_ASSERT( existingEclipseContourMap || existingGeoMechContourMap );
+
+    QString contourMapName;
+    if ( existingEclipseContourMap )
+    {
+        contourMapProjection = existingEclipseContourMap->contourMapProjection();
+    }
+    else if ( existingGeoMechContourMap )
+    {
+        contourMapProjection = existingGeoMechContourMap->contourMapProjection();
+    }
+
+    CAF_ASSERT( contourMapProjection );
+
+    QFile exportFile( m_exportFileName );
+    if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
+    {
+        errorMessages << QString( "Export Contour Map as Text : Could not open the file: %1" ).arg( m_exportFileName );
+    }
+    else
+    {
+        QString     tableText;
+        QTextStream stream( &exportFile );
+        writeContourMapToStream( stream, contourMapProjection );
+    }
+
+    for ( QString errorMessage : errorMessages )
+    {
+        response.updateStatus( RicfCommandResponse::COMMAND_ERROR, errorMessage );
+    }
+
+    return response;
 }

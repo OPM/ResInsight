@@ -17,7 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "CommandFileInterface/Core/RicfCommandObject.h"
+
 #include "cafCmdFeature.h"
+#include "cafPdmField.h"
 
 class RimContourMapProjection;
 class QTextStream;
@@ -25,9 +28,13 @@ class QTextStream;
 //==================================================================================================
 ///
 //==================================================================================================
-class RicExportContourMapToAsciiFeature : public caf::CmdFeature
+class RicExportContourMapToAsciiFeature : public caf::CmdFeature, public RicfCommandObject
 {
-    CAF_CMD_HEADER_INIT;
+    RICF_HEADER_INIT;
+
+public:
+    RicExportContourMapToAsciiFeature();
+    RicfCommandResponse execute() override;
 
 protected:
     // Overrides
@@ -37,4 +44,10 @@ protected:
     static void writeContourMapToStream( QTextStream& stream, const RimContourMapProjection* contourMapProjection );
 
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    caf::PdmField<QString> m_exportFileName;
+    caf::PdmField<bool>    m_exportLocalCoordinates;
+    caf::PdmField<QString> m_undefinedValueLabel;
+    caf::PdmField<int>     m_viewId;
 };
