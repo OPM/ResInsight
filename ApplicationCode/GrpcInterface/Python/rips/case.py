@@ -18,7 +18,7 @@ import rips.generated.Properties_pb2_grpc as Properties_pb2_grpc
 from rips.grid import Grid
 from rips.pdmobject import PdmObject
 from rips.view import View
-
+from rips.contour_map import ContourMap, ContourMapType
 
 class Case(PdmObject):
     """ResInsight case class
@@ -249,6 +249,15 @@ class Case(PdmObject):
         return self.view(
             self._execute_command(createView=Cmd.CreateViewRequest(
                 caseId=self.case_id)).createViewResult.viewId)
+
+    def contour_maps(self, map_type=ContourMapType.ECLIPSE):
+        """Get a list of all contour maps belonging to a project"""
+
+        pdm_objects = self.descendants(ContourMapType.get_identifier(map_type))
+        contour_maps = []
+        for pdm_object in pdm_objects:
+            contour_maps.append(ContourMap(pdm_object, self._project, map_type))
+        return contour_maps
 
     def export_snapshots_of_all_views(self, prefix="", export_folder=""):
         """ Export snapshots for all views in the case

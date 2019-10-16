@@ -37,7 +37,7 @@
 #include <QDebug>
 #include <QFileDialog>
 
-RICF_SOURCE_INIT( RicExportContourMapToAsciiFeature, "RicExportContourMapToAsciiFeature", "exportContourMapToAscii" );
+RICF_SOURCE_INIT( RicExportContourMapToAsciiFeature, "RicExportContourMapToAsciiFeature", "exportContourMapToText" );
 
 RicExportContourMapToAsciiFeature::RicExportContourMapToAsciiFeature()
 {
