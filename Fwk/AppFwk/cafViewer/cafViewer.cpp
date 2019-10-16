@@ -650,10 +650,14 @@ bool caf::Viewer::rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pick
     int translatedMousePosX = winPosX;
     int translatedMousePosY = height() - winPosY;
 
-    cvf::ref<cvf::RayIntersectSpec> ris = m_mainRendering->rayIntersectSpecFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
+    bool mousePosIsWithinComparisonView = isMousePosWithinComparisonView(winPosX, winPosY);
+
+    cvf::Rendering* renderingToInvestigate = mousePosIsWithinComparisonView ? m_comparisonMainRendering.p(): m_mainRendering.p();
+
+    cvf::ref<cvf::RayIntersectSpec> ris = renderingToInvestigate->rayIntersectSpecFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
     if (ris.notNull())
     {
-        bool retVal = m_mainRendering->rayIntersect(*ris, pickedPoints);
+        bool retVal = renderingToInvestigate->rayIntersect(*ris, pickedPoints);
         if (retVal && globalRayOrigin)
         {
             CVF_ASSERT(ris->ray() != nullptr);
@@ -665,8 +669,35 @@ bool caf::Viewer::rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pick
     {
         return false;
     }
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool caf::Viewer::isMousePosWithinComparisonView(int winPosX, int winPosY)
+{
+    bool mousePosIsWithinComparisonView = false;
 
+    int translatedMousePosX = winPosX;
+    int translatedMousePosY = height() - winPosY;
+
+    if ( m_comparisonMainRendering.notNull() && m_comparisonMainRendering->scene() )
+    {
+        if ( cvf::RenderingScissor* sciss = m_comparisonMainRendering->renderingScissor() )
+        {
+            cvf::Recti scissorRect(sciss->x(), sciss->y(), sciss->width(), sciss->height());
+            if ( scissorRect.contains(cvf::Vec2i(translatedMousePosX, translatedMousePosY)) )
+            {
+                mousePosIsWithinComparisonView = true;
+            }
+        }
+        else // Whole screen is covered
+        {
+            mousePosIsWithinComparisonView = true;
+        }
+    }    
+    
+    return mousePosIsWithinComparisonView;
 }
 
 //--------------------------------------------------------------------------------------------------

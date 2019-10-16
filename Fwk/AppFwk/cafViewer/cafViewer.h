@@ -151,6 +151,8 @@ public:
     bool                    canRender() const;
 
     bool                    rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pickedPoints, cvf::Vec3d* rayGlobalOrigin = nullptr) ;
+    bool                    isMousePosWithinComparisonView(int winPosX, int winPosY);
+
     cvf::OverlayItem*       overlayItem(int winPosX, int winPosY);
 
     // QPainter based drawing on top of the OpenGL graphics
