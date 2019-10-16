@@ -1045,6 +1045,12 @@ void Rim3dView::createHighlightAndGridBoxDisplayModelWithRedraw()
 {
     createHighlightAndGridBoxDisplayModel();
 
+    if ( Rim3dView* depView = prepareComparisonView() )
+    {
+        depView->createHighlightAndGridBoxDisplayModel();
+        restoreComparisonView();
+    }
+
     if ( nativeOrOverrideViewer() )
     {
         nativeOrOverrideViewer()->update();
