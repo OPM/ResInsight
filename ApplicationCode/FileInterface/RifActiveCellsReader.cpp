@@ -89,18 +89,21 @@ std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword( 
 
             if ( porvValues[poreValueIndex] > 0.0 )
             {
-                if ( !dualPorosity || poreValueIndex < porvValues.size() / 2 )
+                if ( dualPorosity )
                 {
-                    activeCellsOneGrid[indexToCell] = CELL_ACTIVE_MATRIX;
+                    if ( poreValueIndex < activeCellCount )
+                    {
+                        activeCellsOneGrid[indexToCell] += CELL_ACTIVE_MATRIX;
+                    }
+                    else
+                    {
+                        activeCellsOneGrid[indexToCell] += CELL_ACTIVE_FRACTURE;
+                    }
                 }
                 else
                 {
-                    activeCellsOneGrid[indexToCell] += CELL_ACTIVE_FRACTURE;
+                    activeCellsOneGrid[indexToCell] = CELL_ACTIVE_MATRIX;
                 }
-            }
-            else
-            {
-                activeCellsOneGrid[indexToCell] = 0;
             }
         }
 
