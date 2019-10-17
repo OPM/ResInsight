@@ -1766,10 +1766,22 @@ void RiuMainWindow::setDefaultToolbarVisibility()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::applyFontSizesToDockedPlots()
 {
-    m_resultQwtPlot->applyFontSizes( true );
-    m_mohrsCirclePlot->applyFontSizes( true );
-    m_relPermPlotPanel->applyFontSizes( true );
-    m_pvtPlotPanel->applyFontSizes( true );
+    if ( m_resultQwtPlot )
+    {
+        m_resultQwtPlot->applyFontSizes( true );
+    }
+    if ( m_mohrsCirclePlot )
+    {
+        m_mohrsCirclePlot->applyFontSizes( true );
+    }
+    if ( m_relPermPlotPanel )
+    {
+        m_relPermPlotPanel->applyFontSizes( true );
+    }
+    if ( m_pvtPlotPanel )
+    {
+        m_pvtPlotPanel->applyFontSizes( true );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
