@@ -66,6 +66,7 @@ public:
     static void removePickEventHandlerIfActive( Ric3dViewPickEventHandler* pickEventHandler );
 
     cvf::Vec3d lastPickPositionInDomainCoords() const;
+    bool       isCurrentPickInComparisonView() const;
 
 private:
     void findCellAndGridIndex( Rim3dView*                       mainOrComparisonView,
@@ -96,6 +97,7 @@ private:
     size_t                             m_currentCellIndex;
     cvf::StructGridInterface::FaceType m_currentFaceIndex;
     cvf::Vec3d                         m_currentPickPositionInDomainCoords;
+    bool                               m_isCurrentPickInComparisonView;
     caf::PdmPointer<Rim3dView>         m_reservoirView;
     QPointer<RiuViewer>                m_viewer;
 

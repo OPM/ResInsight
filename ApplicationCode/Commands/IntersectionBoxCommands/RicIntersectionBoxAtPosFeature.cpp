@@ -27,6 +27,7 @@
 
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
+#include "RiuViewerCommands.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
@@ -61,7 +62,8 @@ void RicIntersectionBoxAtPosFeature::onActionTriggered( bool isChecked )
 
         coll->appendIntersectionBoxAndUpdate( intersectionBox );
 
-        cvf::Vec3d domainCoord = activeView->viewer()->lastPickPositionInDomainCoords();
+        cvf::Vec3d domainCoord = activeView->viewer()->viewerCommands()->lastPickPositionInDomainCoords();
+
         intersectionBox->setToDefaultSizeSlice( RimIntersectionBox::PLANE_STATE_NONE, domainCoord );
 
         coll->updateConnectedEditors();

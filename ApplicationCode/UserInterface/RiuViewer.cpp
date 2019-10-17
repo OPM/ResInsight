@@ -974,13 +974,11 @@ void RiuViewer::setAxisLabels( const cvf::String& xLabel, const cvf::String& yLa
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RiuViewer::lastPickPositionInDomainCoords() const
+RiuViewerCommands* RiuViewer::viewerCommands() const
 {
-    CVF_ASSERT( m_viewerCommands );
-
-    return m_viewerCommands->lastPickPositionInDomainCoords();
+    return m_viewerCommands;
 }
 
 //--------------------------------------------------------------------------------------------------

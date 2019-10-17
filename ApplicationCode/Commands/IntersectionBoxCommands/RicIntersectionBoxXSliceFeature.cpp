@@ -24,6 +24,7 @@
 #include "RimGridView.h"
 #include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
+#include "RiuViewerCommands.h"
 
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
@@ -61,7 +62,7 @@ void RicIntersectionBoxXSliceFeature::onActionTriggered( bool isChecked )
 
         coll->appendIntersectionBoxAndUpdate( intersectionBox );
 
-        cvf::Vec3d domainCoord = activeView->viewer()->lastPickPositionInDomainCoords();
+        cvf::Vec3d domainCoord = activeView->viewer()->viewerCommands()->lastPickPositionInDomainCoords();
         intersectionBox->setToDefaultSizeSlice( RimIntersectionBox::PLANE_STATE_X, domainCoord );
 
         coll->updateConnectedEditors();

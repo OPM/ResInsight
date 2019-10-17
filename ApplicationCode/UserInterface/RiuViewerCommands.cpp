@@ -165,9 +165,9 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
         }
     }
 
-    bool       isComparisonViewPick = m_viewer->isMousePosWithinComparisonView( event->x(), event->y() );
-    Rim3dView* mainOrComparisonView = isComparisonViewPick ? m_reservoirView->activeComparisonView()
-                                                           : m_reservoirView.p();
+    m_isCurrentPickInComparisonView = m_viewer->isMousePosWithinComparisonView( event->x(), event->y() );
+    Rim3dView* mainOrComparisonView = m_isCurrentPickInComparisonView ? m_reservoirView->activeComparisonView()
+                                                                      : m_reservoirView.p();
 
     // Find the following data
 
@@ -320,13 +320,13 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
                     menuBuilder.subMenuStart( "Range Filter Slice", QIcon( ":/CellFilter_Range.png" ) );
 
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilterFeature",
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilter3dViewFeature",
                                                            "I-slice Range Filter",
                                                            iSliceList );
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilterFeature",
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilter3dViewFeature",
                                                            "J-slice Range Filter",
                                                            jSliceList );
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilterFeature",
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilter3dViewFeature",
                                                            "K-slice Range Filter",
                                                            kSliceList );
 
@@ -588,9 +588,9 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
         }
     }
 
-    bool       isComparisonViewPick = m_viewer->isMousePosWithinComparisonView( winPosX, winPosY );
-    Rim3dView* mainOrComparisonView = isComparisonViewPick ? m_reservoirView->activeComparisonView()
-                                                           : m_reservoirView.p();
+    m_isCurrentPickInComparisonView = m_viewer->isMousePosWithinComparisonView( winPosX, winPosY );
+    Rim3dView* mainOrComparisonView = m_isCurrentPickInComparisonView ? m_reservoirView->activeComparisonView()
+                                                                      : m_reservoirView.p();
 
     // Make pickEventHandlers do their stuff
 
@@ -1054,6 +1054,14 @@ cvf::Vec3d RiuViewerCommands::lastPickPositionInDomainCoords() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiuViewerCommands::isCurrentPickInComparisonView() const
+{
+    return m_isCurrentPickInComparisonView;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuViewerCommands::addDefaultPickEventHandler( RicDefaultPickEventHandler* pickEventHandler )
 {
     removeDefaultPickEventHandler( pickEventHandler );
@@ -1284,12 +1292,12 @@ void RiuViewerCommands::handleTextPicking( int winPosX, int winPosY, cvf::HitIte
 {
     using namespace cvf;
 
-    bool isMouseWithinComparisonView = m_viewer->isMousePosWithinComparisonView( winPosX, winPosY );
+    m_isCurrentPickInComparisonView = m_viewer->isMousePosWithinComparisonView( winPosX, winPosY );
 
     int translatedMousePosX = winPosX;
     int translatedMousePosY = m_viewer->height() - winPosY;
 
-    Scene* scene = m_viewer->currentScene( isMouseWithinComparisonView );
+    Scene* scene = m_viewer->currentScene( m_isCurrentPickInComparisonView );
 
     if ( !scene ) return;
 
