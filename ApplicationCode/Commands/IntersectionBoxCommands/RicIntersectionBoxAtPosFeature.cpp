@@ -52,9 +52,10 @@ bool RicIntersectionBoxAtPosFeature::isCommandEnabled()
 void RicIntersectionBoxAtPosFeature::onActionTriggered( bool isChecked )
 {
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
-    if ( activeView )
+    RimGridView* activeMainOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
+    if ( activeMainOrComparisonView )
     {
-        RimIntersectionCollection* coll = activeView->crossSectionCollection();
+        RimIntersectionCollection* coll = activeMainOrComparisonView->crossSectionCollection();
         CVF_ASSERT( coll );
 
         RimIntersectionBox* intersectionBox = new RimIntersectionBox();
@@ -67,17 +68,12 @@ void RicIntersectionBoxAtPosFeature::onActionTriggered( bool isChecked )
         intersectionBox->setToDefaultSizeSlice( RimIntersectionBox::PLANE_STATE_NONE, domainCoord );
 
         coll->updateConnectedEditors();
-        RiuMainWindow::instance()->selectAsCurrentItem( intersectionBox );
+        RiuMainWindow::instance()->selectAsCurrentItem( intersectionBox, false );
 
-        RimGridView* rimView = nullptr;
-        coll->firstAncestorOrThisOfType( rimView );
-        if ( rimView )
-        {
-            rimView->showGridCells( false );
-            RiuMainWindow::instance()->refreshDrawStyleActions();
+        activeMainOrComparisonView->showGridCells(false);
+        RiuMainWindow::instance()->refreshDrawStyleActions();
 
-            rimView->scheduleCreateDisplayModelAndRedraw();
-        }
+        activeView->scheduleCreateDisplayModelAndRedraw();
     }
 }
 

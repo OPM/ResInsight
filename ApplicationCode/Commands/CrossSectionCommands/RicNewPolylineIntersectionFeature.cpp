@@ -57,7 +57,7 @@ bool RicNewPolylineIntersectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewPolylineIntersectionFeature::onActionTriggered( bool isChecked )
 {
-    RimGridView* activeView = RiaApplication::instance()->activeGridView();
+    RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !activeView ) return;
 
     RicNewPolylineIntersectionFeatureCmd* cmd = new RicNewPolylineIntersectionFeatureCmd(
@@ -112,7 +112,7 @@ void RicNewPolylineIntersectionFeatureCmd::redo()
 
     Riu3dSelectionManager::instance()->deleteAllItems();
 
-    Riu3DMainWindowTools::selectAsCurrentItem( intersection );
+    Riu3DMainWindowTools::selectAsCurrentItem( intersection, false );
 }
 
 //--------------------------------------------------------------------------------------------------
