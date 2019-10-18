@@ -26,6 +26,7 @@
 
 #include "RifReaderFmuRft.h"
 
+#include "RimFormationNames.h"
 #include "RimObservedDataCollection.h"
 #include "RimObservedFmuRftData.h"
 #include "RimObservedSummaryData.h"
@@ -88,7 +89,7 @@ void RicImportObservedFmuDataFeature::selectObservedDataPathInDialog()
     {
         importedData = observedDataCollection->createAndAddFmuRftDataFromPath( subDir );
         QDir    dir( subDir );
-        QString layerZoneFile = dir.absoluteFilePath( "layer_zone_table.txt" );
+        QString layerZoneFile = dir.absoluteFilePath( RimFormationNames::layerZoneTableFileName() );
         if ( QFileInfo::exists( layerZoneFile ) )
         {
             QStringList fileNames;

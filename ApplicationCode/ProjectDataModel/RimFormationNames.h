@@ -49,6 +49,8 @@ public:
     void readFormationNamesFile( QString* errorMessage );
     void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
 
+    static QString layerZoneTableFileName();
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
