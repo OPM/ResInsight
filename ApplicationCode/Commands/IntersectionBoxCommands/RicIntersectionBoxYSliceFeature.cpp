@@ -54,34 +54,6 @@ bool RicIntersectionBoxYSliceFeature::isCommandEnabled()
 void RicIntersectionBoxYSliceFeature::onActionTriggered( bool isChecked )
 {
     RicIntersectionFeatureImpl::createIntersectionBoxSlize("Y-slice (Intersection box)", RimIntersectionBox::PLANE_STATE_Y);
-
-    //RimGridView* activeView = RiaApplication::instance()->activeGridView();
-    //if ( activeView )
-    //{
-    //    RimIntersectionCollection* coll = activeView->crossSectionCollection();
-    //    CVF_ASSERT( coll );
-    //
-    //    RimIntersectionBox* intersectionBox = new RimIntersectionBox();
-    //    intersectionBox->name               = QString( "Y-slice (Intersection box)" );
-    //
-    //    coll->appendIntersectionBoxAndUpdate( intersectionBox );
-    //
-    //    cvf::Vec3d domainCoord = activeView->viewer()->viewerCommands()->lastPickPositionInDomainCoords();
-    //    intersectionBox->setToDefaultSizeSlice( RimIntersectionBox::PLANE_STATE_Y, domainCoord );
-    //
-    //    coll->updateConnectedEditors();
-    //    RiuMainWindow::instance()->selectAsCurrentItem( intersectionBox );
-    //
-    //    RimGridView* rimView = nullptr;
-    //    coll->firstAncestorOrThisOfType( rimView );
-    //    if ( rimView )
-    //    {
-    //        rimView->showGridCells( false );
-    //        RiuMainWindow::instance()->refreshDrawStyleActions();
-    //
-    //        rimView->scheduleCreateDisplayModelAndRedraw();
-    //    }
-    //}
 }
 
 //--------------------------------------------------------------------------------------------------
