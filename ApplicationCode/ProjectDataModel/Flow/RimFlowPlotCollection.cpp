@@ -148,7 +148,7 @@ RimWellAllocationPlot* RimFlowPlotCollection::defaultWellAllocPlot()
     {
         m_defaultWellAllocPlot = new RimWellAllocationPlot;
         m_defaultWellAllocPlot->setDescription( "Default Flow Diagnostics Plot" );
-        RiaApplication::instance()->project()->assignViewIdToView( m_flowCharacteristicsPlot );
+        RiaApplication::instance()->project()->assignViewIdToView( m_defaultWellAllocPlot );
     }
 
     this->updateConnectedEditors();
