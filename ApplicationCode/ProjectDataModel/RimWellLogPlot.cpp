@@ -111,6 +111,8 @@ RimWellLogPlot::RimWellLogPlot()
 
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
+
+    m_commonDataSourceEnabled = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -486,6 +488,14 @@ void RimWellLogPlot::updateCommonDataSource()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::setCommonDataSourceEnabled( bool enable )
+{
+    m_commonDataSourceEnabled = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::setAvailableDepthUnits( const std::set<RiaDefines::DepthUnitType>& depthUnits )
 {
     m_availableDepthUnits = depthUnits;
@@ -563,6 +573,10 @@ void RimWellLogPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 {
     RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
 
+    if ( m_commonDataSourceEnabled )
+    {
+        m_commonDataSource->uiOrdering( uiConfigName, uiOrdering );
+    }
     uiOrderingForDepthAxis( uiOrdering );
     createPlotSettingsUiGroup( uiOrdering );
     uiOrdering.skipRemainingFields( true );
