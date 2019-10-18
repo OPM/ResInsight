@@ -18,6 +18,8 @@
 
 #include "RicIntersectionBoxZSliceFeature.h"
 
+#include "RicIntersectionFeatureImpl.h"
+
 #include "RiaApplication.h"
 
 #include "RimCase.h"
@@ -51,33 +53,35 @@ bool RicIntersectionBoxZSliceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicIntersectionBoxZSliceFeature::onActionTriggered( bool isChecked )
 {
-    RimGridView* activeView = RiaApplication::instance()->activeGridView();
-    if ( activeView )
-    {
-        RimIntersectionCollection* coll = activeView->crossSectionCollection();
-        CVF_ASSERT( coll );
+    RicIntersectionFeatureImpl::createIntersectionBoxSlize("Z-slice (Intersection box)", RimIntersectionBox::PLANE_STATE_Z);
 
-        RimIntersectionBox* intersectionBox = new RimIntersectionBox();
-        intersectionBox->name               = QString( "Z-slice (Intersection box)" );
-
-        coll->appendIntersectionBoxAndUpdate( intersectionBox );
-        cvf::Vec3d domainCoord = activeView->viewer()->viewerCommands()->lastPickPositionInDomainCoords();
-
-        intersectionBox->setToDefaultSizeSlice( RimIntersectionBox::PLANE_STATE_Z, domainCoord );
-
-        coll->updateConnectedEditors();
-        RiuMainWindow::instance()->selectAsCurrentItem( intersectionBox );
-
-        RimGridView* rimView = nullptr;
-        coll->firstAncestorOrThisOfType( rimView );
-        if ( rimView )
-        {
-            rimView->showGridCells( false );
-            RiuMainWindow::instance()->refreshDrawStyleActions();
-
-            rimView->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
+    // RimGridView* activeView = RiaApplication::instance()->activeGridView();
+    // if ( activeView )
+    // {
+    //     RimIntersectionCollection* coll = activeView->crossSectionCollection();
+    //     CVF_ASSERT( coll );
+    // 
+    //     RimIntersectionBox* intersectionBox = new RimIntersectionBox();
+    //     intersectionBox->name               = QString( "Z-slice (Intersection box)" );
+    // 
+    //     coll->appendIntersectionBoxAndUpdate( intersectionBox );
+    //     cvf::Vec3d domainCoord = activeView->viewer()->viewerCommands()->lastPickPositionInDomainCoords();
+    // 
+    //     intersectionBox->setToDefaultSizeSlice( RimIntersectionBox::PLANE_STATE_Z, domainCoord );
+    // 
+    //     coll->updateConnectedEditors();
+    //     RiuMainWindow::instance()->selectAsCurrentItem( intersectionBox );
+    // 
+    //     RimGridView* rimView = nullptr;
+    //     coll->firstAncestorOrThisOfType( rimView );
+    //     if ( rimView )
+    //     {
+    //         rimView->showGridCells( false );
+    //         RiuMainWindow::instance()->refreshDrawStyleActions();
+    // 
+    //         rimView->scheduleCreateDisplayModelAndRedraw();
+    //     }
+    // }
 }
 
 //--------------------------------------------------------------------------------------------------
