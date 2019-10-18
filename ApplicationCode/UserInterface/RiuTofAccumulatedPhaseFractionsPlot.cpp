@@ -120,7 +120,7 @@ RiuTofAccumulatedPhaseFractionsPlot::~RiuTofAccumulatedPhaseFractionsPlot()
 //--------------------------------------------------------------------------------------------------
 QSize RiuTofAccumulatedPhaseFractionsPlot::sizeHint() const
 {
-    return QSize( 350, 250 );
+    return QSize( 370, 250 );
 }
 
 //--------------------------------------------------------------------------------------------------

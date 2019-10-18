@@ -275,7 +275,6 @@ void RimEclipseCase::initAfterRead()
 RimEclipseView* RimEclipseCase::createAndAddReservoirView()
 {
     RimEclipseView* rimEclipseView = new RimEclipseView();
-    RiaApplication::instance()->project()->assignViewIdToView( rimEclipseView );
 
     rimEclipseView->setEclipseCase( this );
 
@@ -312,7 +311,6 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView( const RimEclipseView* sour
     RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(
         sourceView->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
     CVF_ASSERT( rimEclipseView );
-    RiaApplication::instance()->project()->assignViewIdToView( rimEclipseView );
     rimEclipseView->setEclipseCase( this );
 
     caf::PdmDocument::updateUiIconStateRecursively( rimEclipseView );

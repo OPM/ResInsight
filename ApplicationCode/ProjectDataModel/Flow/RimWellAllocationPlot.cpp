@@ -794,6 +794,8 @@ QImage RimWellAllocationPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
+
     uiOrdering.add( &m_userName );
     uiOrdering.add( &m_showPlotTitle );
 
@@ -809,6 +811,8 @@ void RimWellAllocationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     optionGroup.add( &m_groupSmallContributions );
     optionGroup.add( &m_smallContributionsThreshold );
     m_smallContributionsThreshold.uiCapability()->setUiReadOnly( !m_groupSmallContributions() );
+
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------

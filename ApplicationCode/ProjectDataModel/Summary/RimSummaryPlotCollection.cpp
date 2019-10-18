@@ -50,7 +50,6 @@ RimSummaryPlot* RimSummaryPlotCollection::createSummaryPlotWithAutoTitle()
 {
     RimSummaryPlot* plot = new RimSummaryPlot();
     plot->setAsPlotMdiWindow();
-    RiaApplication::instance()->project()->assignViewIdToView( plot );
 
     plot->enableAutoPlotTitle( true );
     summaryPlots.push_back( plot );
@@ -65,7 +64,6 @@ RimSummaryPlot* RimSummaryPlotCollection::createNamedSummaryPlot( const QString&
 {
     RimSummaryPlot* plot = new RimSummaryPlot();
     plot->setAsPlotMdiWindow();
-    RiaApplication::instance()->project()->assignViewIdToView( plot );
 
     summaryPlots.push_back( plot );
     plot->setDescription( name );

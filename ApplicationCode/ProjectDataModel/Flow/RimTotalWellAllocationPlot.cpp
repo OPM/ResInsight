@@ -25,6 +25,7 @@
 
 #include "RigSimWellData.h"
 
+#include "RimProject.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
