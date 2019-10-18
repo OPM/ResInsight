@@ -184,7 +184,14 @@ void RimWellLogPlot::updateZoom()
     {
         static_cast<RimWellLogTrack*>( plot )->setVisibleYRange( m_minVisibleDepth(), m_maxVisibleDepth() );
     }
-    m_viewer->updateVerticalScrollBar( m_minVisibleDepth(), m_maxVisibleDepth(), m_minAvailableDepth, m_maxAvailableDepth );
+
+    if ( m_viewer )
+    {
+        m_viewer->updateVerticalScrollBar( m_minVisibleDepth(),
+                                           m_maxVisibleDepth(),
+                                           m_minAvailableDepth,
+                                           m_maxAvailableDepth );
+    }
 
     RimGridPlotWindow::updateZoom();
 }
@@ -554,11 +561,10 @@ void RimWellLogPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimGridPlotWindow::defineUiOrdering( uiConfigName, uiOrdering );
+    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
 
     uiOrderingForDepthAxis( uiOrdering );
     createPlotSettingsUiGroup( uiOrdering );
-
     uiOrdering.skipRemainingFields( true );
 }
 

@@ -891,6 +891,7 @@ void RimWellRftPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
     uiOrdering.add( &m_wellPathNameOrSimWellName );
     uiOrdering.add( &m_showStatisticsCurves );
     uiOrdering.add( &m_showEnsembleCurves );

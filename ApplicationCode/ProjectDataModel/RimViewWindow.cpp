@@ -53,6 +53,7 @@ RimViewWindow::RimViewWindow( void )
     // Obsolete field
     CAF_PDM_InitFieldNoDefault( &obsoleteField_windowGeometry, "WindowGeometry", "", "", "", "" );
     RiaFieldhandleTools::disableWriteAndSetFieldHidden( &obsoleteField_windowGeometry );
+    RiaApplication::instance()->project()->assignViewIdToView( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -284,10 +285,6 @@ void RimViewWindow::initAfterRead()
 
         setAsMdiWindow( mainWindowID );
         setMdiWindowGeometry( wg );
-    }
-    if ( m_viewId() == -1 )
-    {
-        RiaApplication::instance()->project()->assignViewIdToView( this );
     }
 }
 

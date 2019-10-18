@@ -92,7 +92,6 @@ std::vector<RimSaturationPressurePlot*>
         {
             RimSaturationPressurePlot* plot = new RimSaturationPressurePlot();
             plot->setAsPlotMdiWindow();
-            RiaApplication::instance()->project()->assignViewIdToView( plot );
 
             // As discussed with Liv Merete, it is not any use for creation of different plots for matrix/fracture. For
             // now, use hardcoded value for MATRIX

@@ -198,7 +198,6 @@ void RimGeoMechCase::reloadDataAndUpdate()
 RimGeoMechView* RimGeoMechCase::createAndAddReservoirView()
 {
     RimGeoMechView* gmv = new RimGeoMechView();
-    RiaApplication::instance()->project()->assignViewIdToView( gmv );
 
     gmv->setGeoMechCase( this );
 
@@ -215,7 +214,6 @@ RimGeoMechView* RimGeoMechCase::createCopyAndAddView( const RimGeoMechView* sour
         sourceView->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
     CVF_ASSERT( rimGeoMechView );
 
-    RiaApplication::instance()->project()->assignViewIdToView( rimGeoMechView );
     rimGeoMechView->setGeoMechCase( this );
 
     caf::PdmDocument::updateUiIconStateRecursively( rimGeoMechView );

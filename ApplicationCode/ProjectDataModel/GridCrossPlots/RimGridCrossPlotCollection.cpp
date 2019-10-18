@@ -62,7 +62,6 @@ RimGridCrossPlot* RimGridCrossPlotCollection::createGridCrossPlot()
 {
     RimGridCrossPlot* plot = new RimGridCrossPlot();
     plot->setAsPlotMdiWindow();
-    RiaApplication::instance()->project()->assignViewIdToView( plot );
 
     // plot->setDescription(QString("Summary Cross Plot %1").arg(m_gridCrossPlots.size()));
     addGridCrossPlot( plot );
