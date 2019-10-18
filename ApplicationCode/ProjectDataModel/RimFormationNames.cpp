@@ -151,7 +151,7 @@ void RimFormationNames::readFormationNamesFile( QString* errorMessage )
 
     QFileInfo fileInfo( m_formationNamesFileName() );
 
-    if ( fileInfo.fileName() == "layer_zone_table.txt" )
+    if ( fileInfo.fileName() == RimFormationNames::layerZoneTableFileName() )
     {
         readFmuFormationNameFile( stream, errorMessage );
     }
@@ -172,6 +172,14 @@ void RimFormationNames::updateFilePathsFromProjectPath( const QString& newProjec
                                                        oldProjectPath,
                                                        nullptr,
                                                        nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFormationNames::layerZoneTableFileName()
+{
+    return "layer_zone_table.txt";
 }
 
 //--------------------------------------------------------------------------------------------------
