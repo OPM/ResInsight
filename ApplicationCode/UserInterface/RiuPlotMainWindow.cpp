@@ -645,7 +645,26 @@ void RiuPlotMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
 
     if ( !blockSubWindowProjectTreeSelection() )
     {
-        selectAsCurrentItem( activatedView );
+        std::vector<caf::PdmUiItem*> currentSelection;
+        m_projectTreeView->selectedUiItems( currentSelection );
+        bool childSelected = false;
+        for ( caf::PdmUiItem* uiItem : currentSelection )
+        {
+            caf::PdmObject* pdmObject = dynamic_cast<caf::PdmObject*>( uiItem );
+            if ( pdmObject )
+            {
+                RimViewWindow* owningView = nullptr;
+                pdmObject->firstAncestorOrThisOfType( owningView );
+                if ( owningView && owningView == activatedView )
+                {
+                    childSelected = true;
+                }
+            }
+        }
+        if ( !childSelected )
+        {
+            selectAsCurrentItem( activatedView );
+        }
     }
 
     updateWellLogPlotToolBar();
