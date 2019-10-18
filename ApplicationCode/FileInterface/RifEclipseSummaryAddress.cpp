@@ -20,7 +20,7 @@
 
 #include "RiaStdStringTools.h"
 
-#include "RiuSummaryVectorDescriptionMap.h"
+#include "RiuSummaryQuantityNameInfoProvider.h"
 
 #include <QStringList>
 #include <QTextStream>
@@ -285,8 +285,8 @@ RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::identifyC
     if ( !regexp.exactMatch( QString::fromStdString( quantityName ) ) ) return SUMMARY_INVALID;
 
     // First, try to lookup vector in vector table
-    auto vectorInfo = RiuSummaryVectorDescriptionMap::instance()->vectorInfo( quantityName );
-    if ( vectorInfo.category != SUMMARY_INVALID ) return vectorInfo.category;
+    auto category = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromQuantityName( quantityName );
+    if ( category != SUMMARY_INVALID ) return category;
 
     // Then check LGR categories
     std::string firstTwoLetters = quantityName.substr( 0, 2 );

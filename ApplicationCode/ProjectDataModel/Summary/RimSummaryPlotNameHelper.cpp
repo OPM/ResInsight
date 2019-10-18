@@ -23,7 +23,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 
-#include "RiuSummaryVectorDescriptionMap.h"
+#include "RiuSummaryQuantityNameInfoProvider.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -139,7 +139,7 @@ QString RimSummaryPlotNameHelper::plotTitle() const
     {
         if ( !title.isEmpty() ) title += ", ";
         title += QString::fromStdString(
-            RiuSummaryVectorDescriptionMap::instance()->vectorLongName( m_titleQuantity, true ) );
+            RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( m_titleQuantity, true ) );
     }
 
     if ( title.isEmpty() )

@@ -23,38 +23,41 @@
 #include <map>
 #include <string>
 
-class RiuSummaryVectorInfo
-{
-public:
-    RiuSummaryVectorInfo()
-        : category( RifEclipseSummaryAddress::SUMMARY_INVALID )
-    {
-    }
-    RiuSummaryVectorInfo( RifEclipseSummaryAddress::SummaryVarCategory category, const std::string& longName )
-        : category( category )
-        , longName( longName )
-    {
-    }
-
-    RifEclipseSummaryAddress::SummaryVarCategory category;
-    std::string                                  longName;
-};
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class RiuSummaryVectorDescriptionMap
+class RiuSummaryQuantityNameInfoProvider
 {
 public:
-    static RiuSummaryVectorDescriptionMap* instance();
+    static RiuSummaryQuantityNameInfoProvider* instance();
 
-    RiuSummaryVectorInfo vectorInfo( const std::string& vectorName );
-    std::string          vectorLongName( const std::string& vectorName, bool returnVectorNameIfNotFound = false );
+    RifEclipseSummaryAddress::SummaryVarCategory categoryFromQuantityName( const std::string& quantity ) const;
+    std::string longNameFromQuantityName( const std::string& quantity, bool returnVectorNameIfNotFound = false ) const;
 
 private:
-    RiuSummaryVectorDescriptionMap();
+    class RiuSummaryQuantityInfo
+    {
+    public:
+        RiuSummaryQuantityInfo()
+            : category( RifEclipseSummaryAddress::SUMMARY_INVALID )
+        {
+        }
+        RiuSummaryQuantityInfo( RifEclipseSummaryAddress::SummaryVarCategory category, const std::string& longName )
+            : category( category )
+            , longName( longName )
+        {
+        }
+
+        RifEclipseSummaryAddress::SummaryVarCategory category;
+        std::string                                  longName;
+    };
+
+private:
+    RiuSummaryQuantityNameInfoProvider();
     void populateFieldToInfoMap();
 
+    RiuSummaryQuantityInfo quantityInfo( const std::string& quantity ) const;
+
 private:
-    std::map<std::string, RiuSummaryVectorInfo> m_summaryToDescMap;
+    std::map<std::string, RiuSummaryQuantityInfo> m_summaryToDescMap;
 };
