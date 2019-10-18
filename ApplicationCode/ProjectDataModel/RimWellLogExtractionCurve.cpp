@@ -713,6 +713,7 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
     else if ( geomCase )
     {
         curveDataGroup->add( &m_wellPath );
+        m_geomResultDefinition->uiOrdering( uiConfigName, *curveDataGroup );
     }
 
     if ( ( eclipseCase && m_eclipseResultDefinition->hasDynamicResult() ) || geomCase )
