@@ -112,7 +112,7 @@ bool RifReaderFmuRft::directoryContainsFmuRftData( const QString& filePath )
     }
 
     QDir dir( filePath );
-    if ( !dir.exists( "well_date_rft.txt" ) )
+    if ( !dir.exists( RifReaderFmuRft::wellPathFileName() ) )
     {
         return false;
     }
@@ -136,6 +136,14 @@ bool RifReaderFmuRft::directoryContainsFmuRftData( const QString& filePath )
         }
     }
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifReaderFmuRft::wellPathFileName()
+{
+    return "well_date_rft.txt";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -386,10 +394,10 @@ RifReaderFmuRft::WellObservationMap RifReaderFmuRft::loadWellDates( QDir& dir, Q
 
     WellObservationMap validObservations;
 
-    QFileInfo wellDateFileInfo( dir.absoluteFilePath( "well_date_rft.txt" ) );
+    QFileInfo wellDateFileInfo( dir.absoluteFilePath( RifReaderFmuRft::wellPathFileName() ) );
     if ( !( wellDateFileInfo.exists() && wellDateFileInfo.isFile() && wellDateFileInfo.isReadable() ) )
     {
-        *errorMsg = QString( "well_date_rft.txt cannot be found at '%s'" ).arg( m_filePath );
+        *errorMsg = QString( "%1 cannot be found at '%s'" ).arg( RifReaderFmuRft::wellPathFileName() ).arg( m_filePath );
         return WellObservationMap();
     }
 
