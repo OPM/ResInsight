@@ -20,7 +20,7 @@
 
 #include "RiaStdStringTools.h"
 
-#include "RiuSummaryVectorDescriptionMap.h"
+#include "RiuSummaryQuantityNameInfoProvider.h"
 
 #include <QStringList>
 #include <QTextStream>
@@ -285,8 +285,8 @@ RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::identifyC
     if ( !regexp.exactMatch( QString::fromStdString( quantityName ) ) ) return SUMMARY_INVALID;
 
     // First, try to lookup vector in vector table
-    auto vectorInfo = RiuSummaryVectorDescriptionMap::instance()->vectorInfo( quantityName );
-    if ( vectorInfo.category != SUMMARY_INVALID ) return vectorInfo.category;
+    auto category = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromQuantityName( quantityName );
+    if ( category != SUMMARY_INVALID ) return category;
 
     // Then check LGR categories
     std::string firstTwoLetters = quantityName.substr( 0, 2 );
@@ -784,7 +784,14 @@ bool RifEclipseSummaryAddress::hasAccumulatedData() const
 {
     if ( !isValidEclipseCategory() ) return false;
 
-    QString qBaseName = QString::fromStdString( baseQuantityName( quantityName() ) );
+    QString quantityForInspection = QString::fromStdString( quantityName() );
+    if ( category() == SUMMARY_ENSEMBLE_STATISTICS )
+    {
+        // Remove statistics text prefix
+        quantityForInspection = quantityForInspection.mid( quantityForInspection.indexOf( ":" ) + 1 );
+    }
+
+    QString qBaseName = baseQuantityName( quantityForInspection );
     return qBaseName.endsWith( "T" ) || qBaseName.endsWith( "TH" );
 }
 
@@ -809,6 +816,7 @@ bool RifEclipseSummaryAddress::isValidEclipseCategory() const
         case SUMMARY_WELL_SEGMENT:
         case SUMMARY_BLOCK:
         case SUMMARY_BLOCK_LGR:
+        case SUMMARY_ENSEMBLE_STATISTICS:
             return true;
     }
     return false;
@@ -817,13 +825,13 @@ bool RifEclipseSummaryAddress::isValidEclipseCategory() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RifEclipseSummaryAddress::baseQuantityName( const std::string& quantityName )
+QString RifEclipseSummaryAddress::baseQuantityName( const QString& quantityName )
 {
-    QString qBaseName = QString::fromStdString( quantityName );
+    QString qBaseName = quantityName;
     if ( qBaseName.size() == 8 ) qBaseName.chop( 3 );
     while ( qBaseName.endsWith( "_" ) )
         qBaseName.chop( 1 );
-    return qBaseName.toStdString();
+    return qBaseName;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -24,8 +24,8 @@
 #include "RimPlotAxisProperties.h"
 #include "RimSummaryCurve.h"
 
+#include "RiuSummaryQuantityNameInfoProvider.h"
 #include "RiuSummaryQwtPlot.h"
-#include "RiuSummaryVectorDescriptionMap.h"
 
 #include "qwt_plot_curve.h"
 #include "qwt_scale_draw.h"
@@ -226,8 +226,8 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
             {
                 if ( m_axisProperties->showDescription() )
                 {
-                    quantityNameForDisplay = RiuSummaryVectorDescriptionMap::instance()->vectorLongName( quantityName,
-                                                                                                         true );
+                    quantityNameForDisplay = RiuSummaryQuantityNameInfoProvider::instance()
+                                                 ->longNameFromQuantityName( quantityName, true );
                 }
 
                 if ( m_axisProperties->showAcronym() )

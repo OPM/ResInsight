@@ -252,7 +252,7 @@ public:
 
 private:
     bool                                         isValidEclipseCategory() const;
-    static std::string                           baseQuantityName( const std::string& quantityName );
+    static QString                               baseQuantityName( const QString& quantityName );
     static std::tuple<int32_t, int32_t, int32_t> ijkTupleFromUiText( const std::string& s );
     std::string                                  formatUiTextRegionToRegion() const;
     std::pair<int16_t, int16_t>                  regionToRegionPairFromUiText( const std::string& s );

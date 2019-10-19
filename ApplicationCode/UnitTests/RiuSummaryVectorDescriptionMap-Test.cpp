@@ -1,45 +1,48 @@
 #include "gtest/gtest.h"
 
-#include "RiuSummaryVectorDescriptionMap.h"
+#include "RiuSummaryQuantityNameInfoProvider.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RiuSummaryVectorDescriptionMap, TestInit )
+TEST( RiuSummaryQuantityNameInfoProvider, TestInit )
 {
     {
         std::string s( "SRSFC" );
-        auto        test = RiuSummaryVectorDescriptionMap::instance()->vectorInfo( s );
+        auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromQuantityName( s );
+        EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT );
 
-        EXPECT_TRUE( test.category == RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT );
-        EXPECT_TRUE( test.longName == "Reach brine concentration" );
+        auto longName = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( s );
+        EXPECT_TRUE( longName == "Reach brine concentration" );
     }
 
     {
         std::string s( "SRSFC" );
-        auto        test = RiuSummaryVectorDescriptionMap::instance()->vectorLongName( s );
+        auto        test = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( s );
 
         EXPECT_TRUE( test == "Reach brine concentration" );
     }
 
     {
         std::string s( "does not exist" );
-        auto        test = RiuSummaryVectorDescriptionMap::instance()->vectorInfo( s );
+        auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromQuantityName( s );
+        EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_INVALID );
 
-        EXPECT_TRUE( test.category == RifEclipseSummaryAddress::SUMMARY_INVALID );
-        EXPECT_TRUE( test.longName == "" );
+        auto longName = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( s );
+
+        EXPECT_TRUE( longName == "" );
     }
 
     {
         std::string s( "does not exist" );
-        auto        test = RiuSummaryVectorDescriptionMap::instance()->vectorLongName( s );
+        auto        test = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( s );
 
         EXPECT_TRUE( test == "" );
     }
 
     {
         std::string s( "does not exist" );
-        auto        test = RiuSummaryVectorDescriptionMap::instance()->vectorLongName( s, true );
+        auto        test = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( s, true );
 
         EXPECT_TRUE( test == s );
     }
@@ -48,19 +51,20 @@ TEST( RiuSummaryVectorDescriptionMap, TestInit )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RiuSummaryVectorDescriptionMap, TestCustomNaming )
+TEST( RiuSummaryQuantityNameInfoProvider, TestCustomNaming )
 {
     {
         std::string s( "SRSFCABC" );
-        auto        test = RiuSummaryVectorDescriptionMap::instance()->vectorInfo( s );
+        auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromQuantityName( s );
+        EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT );
 
-        EXPECT_TRUE( test.category == RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT );
-        EXPECT_TRUE( test.longName == "Reach brine concentration" );
+        auto longName = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( s );
+        EXPECT_TRUE( longName == "Reach brine concentration" );
     }
 
     {
         std::string s( "BHD__ABC" );
-        auto        test = RiuSummaryVectorDescriptionMap::instance()->vectorLongName( s );
+        auto        test = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( s );
 
         EXPECT_TRUE( test == "Hydraulic head" );
     }

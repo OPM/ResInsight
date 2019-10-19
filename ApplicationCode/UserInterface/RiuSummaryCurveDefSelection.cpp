@@ -38,7 +38,7 @@
 #include "RimSummaryCaseMainCollection.h"
 
 #include "RiuSummaryCurveDefinitionKeywords.h"
-#include "RiuSummaryVectorDescriptionMap.h"
+#include "RiuSummaryQuantityNameInfoProvider.h"
 
 #include "cafPdmPointer.h"
 #include "cafPdmUiFieldHandle.h"
@@ -1506,8 +1506,9 @@ void RiuSummaryCurveDefSelection::appendOptionItemsForSubCategoriesAndVectors(
 
             if ( isVectorField )
             {
-                std::string longVectorName = RiuSummaryVectorDescriptionMap::instance()->vectorLongName( itemName, true );
-                displayName                = QString::fromStdString( longVectorName );
+                std::string longVectorName = RiuSummaryQuantityNameInfoProvider::instance()
+                                                 ->longNameFromQuantityName( itemName, true );
+                displayName = QString::fromStdString( longVectorName );
                 displayName += QString( " (%1)" ).arg( QString::fromStdString( itemName ) );
             }
             else

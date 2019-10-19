@@ -16,33 +16,45 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuSummaryVectorDescriptionMap.h"
+#include "RiuSummaryQuantityNameInfoProvider.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryVectorDescriptionMap* RiuSummaryVectorDescriptionMap::instance()
+RiuSummaryQuantityNameInfoProvider* RiuSummaryQuantityNameInfoProvider::instance()
 {
-    static RiuSummaryVectorDescriptionMap* singleton = new RiuSummaryVectorDescriptionMap;
+    static RiuSummaryQuantityNameInfoProvider* singleton = new RiuSummaryQuantityNameInfoProvider;
     return singleton;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryVectorInfo RiuSummaryVectorDescriptionMap::vectorInfo( const std::string& vectorName )
+RifEclipseSummaryAddress::SummaryVarCategory
+    RiuSummaryQuantityNameInfoProvider::categoryFromQuantityName( const std::string& quantity ) const
 {
-    std::map<std::string, RiuSummaryVectorInfo>::iterator it = m_summaryToDescMap.find( vectorName );
+    auto info = quantityInfo( quantity );
+
+    return info.category;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo
+    RiuSummaryQuantityNameInfoProvider::quantityInfo( const std::string& quantity ) const
+{
+    auto it = m_summaryToDescMap.find( quantity );
 
     if ( it != m_summaryToDescMap.end() )
     {
         return it->second;
     }
-    else if ( vectorName.size() > 1 && vectorName[1] == 'U' )
+    else if ( quantity.size() > 1 && quantity[1] == 'U' )
     {
         // User defined vector name
 
-        std::string key = vectorName.substr( 0, 2 );
+        std::string key = quantity.substr( 0, 2 );
 
         it = m_summaryToDescMap.find( key );
 
@@ -51,11 +63,11 @@ RiuSummaryVectorInfo RiuSummaryVectorDescriptionMap::vectorInfo( const std::stri
             return it->second;
         }
     }
-    else if ( vectorName.size() > 5 )
+    else if ( quantity.size() > 5 )
     {
         // Check for custom vector naming
 
-        std::string baseName = vectorName.substr( 0, 5 );
+        std::string baseName = quantity.substr( 0, 5 );
         while ( baseName.back() == '_' )
             baseName.pop_back();
 
@@ -67,16 +79,16 @@ RiuSummaryVectorInfo RiuSummaryVectorDescriptionMap::vectorInfo( const std::stri
         }
     }
 
-    return RiuSummaryVectorInfo();
+    return RiuSummaryQuantityInfo();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RiuSummaryVectorDescriptionMap::vectorLongName( const std::string& vectorName,
-                                                            bool               returnVectorNameIfNotFound )
+std::string RiuSummaryQuantityNameInfoProvider::longNameFromQuantityName( const std::string& vectorName,
+                                                                          bool returnVectorNameIfNotFound ) const
 {
-    auto info = vectorInfo( vectorName );
+    auto info = quantityInfo( vectorName );
     return info.category != RifEclipseSummaryAddress::SUMMARY_INVALID || !returnVectorNameIfNotFound ? info.longName
                                                                                                      : vectorName;
 }
@@ -84,7 +96,7 @@ std::string RiuSummaryVectorDescriptionMap::vectorLongName( const std::string& v
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryVectorDescriptionMap::RiuSummaryVectorDescriptionMap()
+RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityNameInfoProvider()
 {
     populateFieldToInfoMap();
 }
@@ -92,7 +104,7 @@ RiuSummaryVectorDescriptionMap::RiuSummaryVectorDescriptionMap()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryVectorDescriptionMap::populateFieldToInfoMap()
+void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
 {
     using A = RifEclipseSummaryAddress;
 
