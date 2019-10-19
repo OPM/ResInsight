@@ -132,7 +132,7 @@ void prepareCaseCurvesForExport( DateTimePeriod    period,
 void       appendToExportDataForCase( QString&                      out,
                                       const std::vector<time_t>&    timeSteps,
                                       const std::vector<CurveData>& curveData );
-void       appendToExportData( QString& out, const std::vector<CurvesData>& curvesData );
+void       appendToExportData( QString& out, const std::vector<CurvesData>& curvesData, bool showTimeAsLongString );
 CurvesData concatCurvesData( const std::vector<CurvesData>& curvesData );
 
 //--------------------------------------------------------------------------------------------------
@@ -306,7 +306,7 @@ QWidget* RimSummaryPlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryPlot::asciiDataForPlotExport( DateTimePeriod resamplingPeriod ) const
+QString RimSummaryPlot::asciiDataForPlotExport( DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const
 {
     QString                      out;
     RiaTimeHistoryCurveResampler resampler;
@@ -325,7 +325,7 @@ QString RimSummaryPlot::asciiDataForPlotExport( DateTimePeriod resamplingPeriod 
         populateTimeHistoryCurvesData( m_gridTimeHistoryCurves.childObjects(), &timeHistoryCurvesData );
 
         // Export observed data
-        appendToExportData( out, {summaryCurvesObsData} );
+        appendToExportData( out, {summaryCurvesObsData}, showTimeAsLongString );
 
         std::vector<CurvesData> exportData( 2 );
 
@@ -339,7 +339,7 @@ QString RimSummaryPlot::asciiDataForPlotExport( DateTimePeriod resamplingPeriod 
         prepareCaseCurvesForExport( resamplingPeriod, ResampleAlgorithm::PERIOD_END, timeHistoryCurvesData, &exportData[1] );
 
         // Export resampled summary and time history data
-        appendToExportData( out, exportData );
+        appendToExportData( out, exportData, showTimeAsLongString );
     }
 
     // Pasted observed data
@@ -347,7 +347,7 @@ QString RimSummaryPlot::asciiDataForPlotExport( DateTimePeriod resamplingPeriod 
         CurvesData asciiCurvesData;
         populateAsciiDataCurvesData( m_asciiDataCurves.childObjects(), &asciiCurvesData );
 
-        appendToExportData( out, {asciiCurvesData} );
+        appendToExportData( out, {asciiCurvesData}, showTimeAsLongString );
     }
 
     return out;
@@ -2281,7 +2281,7 @@ void appendToExportDataForCase( QString& out, const std::vector<time_t>& timeSte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void appendToExportData( QString& out, const std::vector<CurvesData>& curvesData )
+void appendToExportData( QString& out, const std::vector<CurvesData>& curvesData, bool showTimeAsLongString )
 {
     CurvesData data = concatCurvesData( curvesData );
 
@@ -2320,8 +2320,63 @@ void appendToExportData( QString& out, const std::vector<CurvesData>& curvesData
 
         for ( auto timeStep : allTimeSteps )
         {
-            QString tt = QDateTime::fromTime_t( timeStep ).toUTC().toString( "yyyy-MM-dd hh:mm:ss " );
-            out += QDateTime::fromTime_t( timeStep ).toUTC().toString( "yyyy-MM-dd hh:mm:ss " );
+            QDateTime timseStepUtc = QDateTime::fromTime_t( timeStep ).toUTC();
+            QString   timeText;
+
+            if ( showTimeAsLongString )
+            {
+                timeText = timseStepUtc.toString( "yyyy-MM-dd hh:mm:ss " );
+            }
+            else
+            {
+                // Subtract one day to make sure the period is reported using the previous period as label
+                QDateTime oneDayEarlier = timseStepUtc.addDays( -1 );
+
+                QChar zeroChar( 48 );
+
+                switch ( data.resamplePeriod )
+                {
+                    default:
+                        // Fall through to NONE
+                    case DateTimePeriod::NONE:
+                        timeText = timseStepUtc.toString( "yyyy-MM-dd hh:mm:ss " );
+                        break;
+                    case DateTimePeriod::DAY:
+                        timeText = oneDayEarlier.toString( "yyyy-MM-dd " );
+                        break;
+                    case DateTimePeriod::WEEK:
+                    {
+                        timeText       = oneDayEarlier.toString( "yyyy" );
+                        int weekNumber = oneDayEarlier.date().weekNumber();
+                        timeText += QString( "-W%1" ).arg( weekNumber, 2, 10, zeroChar );
+                        break;
+                    }
+                    case DateTimePeriod::MONTH:
+                        timeText = oneDayEarlier.toString( "yyyy-MM" );
+                        break;
+                    case DateTimePeriod::QUARTER:
+                    {
+                        int quarterNumber = oneDayEarlier.date().month() / 3;
+                        timeText          = oneDayEarlier.toString( "yyyy" );
+                        timeText += QString( "-Q%1" ).arg( quarterNumber );
+                        break;
+                    }
+                    case DateTimePeriod::HALFYEAR:
+                    {
+                        int halfYearNumber = oneDayEarlier.date().month() / 6;
+                        timeText           = oneDayEarlier.toString( "yyyy" );
+                        timeText += QString( "-H%1" ).arg( halfYearNumber );
+                        break;
+                    }
+                    case DateTimePeriod::YEAR:
+                        timeText = oneDayEarlier.toString( "yyyy" );
+                        break;
+                    case DateTimePeriod::DECADE:
+                        timeText = oneDayEarlier.toString( "yyyy" );
+                        break;
+                }
+            }
+            out += timeText;
 
             for ( size_t i = 0; i < data.caseNames.size(); i++ ) // cases
             {

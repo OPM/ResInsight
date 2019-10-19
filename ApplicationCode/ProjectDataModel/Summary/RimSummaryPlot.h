@@ -115,7 +115,7 @@ public:
 
     QWidget* viewWidget() override;
 
-    QString asciiDataForPlotExport( DateTimePeriod resamplingPeriod = DateTimePeriod::NONE ) const;
+    QString asciiDataForPlotExport( DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const;
 
     std::vector<RimSummaryCurve*>       summaryAndEnsembleCurves() const;
     std::set<RiaSummaryCurveDefinition> summaryAndEnsembleCurveDefinitions() const;

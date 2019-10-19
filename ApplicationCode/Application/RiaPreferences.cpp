@@ -315,6 +315,15 @@ RiaPreferences::RiaPreferences( void )
 
     CAF_PDM_InitFieldNoDefault( &m_defaultPlotTemplate, "defaultPlotTemplate", "Default Plot Template", "", "", "" );
     // m_plotTemplateFolders.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_showSummaryTimeAsLongString,
+                       "showSummaryTimeAsLongString",
+                       false,
+                       "Show resample time text as long time text (2010-11-21 23:15:00)",
+                       "",
+                       "",
+                       "" );
+    m_showSummaryTimeAsLongString.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -355,11 +364,12 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
     }
 
     if ( field == &octaveShowHeaderInfoWhenExecutingScripts || field == &autocomputeDepthRelatedProperties ||
-         field == &loadAndShowSoil || field == &useShaders || field == &showHud || field == &m_appendClassNameToUiText ||
-         field == &m_appendFieldKeywordToToolTipText || field == &m_showTestToolbar ||
-         field == &m_includeFractureDebugInfoFile || field == &showLasCurveWithoutTvdWarning ||
-         field == &holoLensDisableCertificateVerification || field == &m_showProjectChangedDialog ||
-         field == &m_searchPlotTemplateFoldersRecursively || field == &showLegendBackground )
+         field == &loadAndShowSoil || field == &useShaders || field == &showHud ||
+         field == &m_appendClassNameToUiText || field == &m_appendFieldKeywordToToolTipText ||
+         field == &m_showTestToolbar || field == &m_includeFractureDebugInfoFile ||
+         field == &showLasCurveWithoutTvdWarning || field == &holoLensDisableCertificateVerification ||
+         field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
+         field == &showLegendBackground || field == &m_showSummaryTimeAsLongString )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -447,6 +457,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         uiOrdering.add( &defaultSummaryHistoryCurveStyle );
         uiOrdering.add( &m_dateFormat );
         uiOrdering.add( &m_timeFormat );
+        uiOrdering.add( &m_showSummaryTimeAsLongString );
 
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Plot Templates" );
         group->add( &m_plotTemplateFolders );
@@ -760,6 +771,14 @@ QString RiaPreferences::defaultPlotTemplateAbsolutePath() const
 void RiaPreferences::setDefaultPlotTemplatePath( const QString& templatePath )
 {
     m_defaultPlotTemplate = templatePath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::showSummaryTimeAsLongString() const
+{
+    return m_showSummaryTimeAsLongString;
 }
 
 //--------------------------------------------------------------------------------------------------

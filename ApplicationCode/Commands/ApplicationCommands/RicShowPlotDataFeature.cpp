@@ -20,6 +20,7 @@
 
 #include "RiaFeatureCommandContext.h"
 #include "RiaGuiApplication.h"
+#include "RiaPreferences.h"
 
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
@@ -84,11 +85,13 @@ public:
 
         if ( m_summaryPlot->containsResamplableCurves() )
         {
-            return m_summaryPlot->asciiDataForPlotExport( timePeriod );
+            RiaPreferences* prefs = RiaApplication::instance()->preferences();
+
+            return m_summaryPlot->asciiDataForPlotExport( timePeriod, prefs->showSummaryTimeAsLongString() );
         }
         else
         {
-            return m_summaryPlot->asciiDataForPlotExport();
+            return m_summaryPlot->asciiDataForPlotExport( DateTimePeriod::NONE, true );
         }
     }
 
