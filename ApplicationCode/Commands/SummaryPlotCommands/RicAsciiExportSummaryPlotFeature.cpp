@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferences.h"
 
 #include "RicResampleDialog.h"
 
@@ -60,6 +61,8 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered( bool isChecked )
     caf::SelectionManager::instance()->objectsByType( &selectedSummaryPlots );
     QString defaultDir = defaultExportDir();
 
+    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+
     // Ask user about resampling
     auto result = RicResampleDialog::openDialog();
     if ( !result.ok ) return;
@@ -73,7 +76,10 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered( bool isChecked )
         caf::ProgressInfo pi( selectedSummaryPlots.size(), QString( "Exporting plot data to ASCII" ) );
         size_t            progress = 0;
 
-        RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot( fileName, summaryPlot, result.period );
+        RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot( fileName,
+                                                                     summaryPlot,
+                                                                     result.period,
+                                                                     prefs->showSummaryTimeAsLongString() );
 
         progress++;
         pi.setProgress( progress );
@@ -98,7 +104,10 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered( bool isChecked )
         for ( RimSummaryPlot* summaryPlot : selectedSummaryPlots )
         {
             QString fileName = saveDir + "/" + caf::Utils::makeValidFileBasename( summaryPlot->description() ) + ".ascii";
-            RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot( fileName, summaryPlot, result.period );
+            RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot( fileName,
+                                                                         summaryPlot,
+                                                                         result.period,
+                                                                         prefs->showSummaryTimeAsLongString() );
             progress++;
             pi.setProgress( progress );
         }
@@ -163,10 +172,11 @@ bool RicAsciiExportSummaryPlotFeature::exportTextToFile( const QString& fileName
 //--------------------------------------------------------------------------------------------------
 bool RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot( const QString&        fileName,
                                                                   const RimSummaryPlot* summaryPlot,
-                                                                  DateTimePeriod        resamplingPeriod )
+                                                                  DateTimePeriod        resamplingPeriod,
+                                                                  bool                  showTimeAsLongString )
 {
     QString text = summaryPlot->description();
-    text.append( summaryPlot->asciiDataForPlotExport( resamplingPeriod ) );
+    text.append( summaryPlot->asciiDataForPlotExport( resamplingPeriod, showTimeAsLongString ) );
     text.append( "\n\n" );
 
     return exportTextToFile( fileName, text );
