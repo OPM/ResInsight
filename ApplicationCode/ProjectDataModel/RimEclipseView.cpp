@@ -294,7 +294,7 @@ void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            oldValue,
                                        const QVariant&            newValue )
 {
-    Rim3dView::fieldChangedByUi( changedField, oldValue, newValue );
+    RimGridView::fieldChangedByUi( changedField, oldValue, newValue );
 
     if ( changedField == &m_showInvalidCells )
     {

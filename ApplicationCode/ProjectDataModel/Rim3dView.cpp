@@ -497,7 +497,7 @@ void Rim3dView::updateCurrentTimeStepAndRedraw()
     }
 
     std::set<Rim3dView*> containerViews = this->viewsUsingThisAsComparisonView();
-    if ( !containerViews.empty() && !isUsingOverrideViewer())
+    if ( !containerViews.empty() && !isUsingOverrideViewer() )
     {
         for ( auto view : containerViews )
         {
@@ -915,19 +915,6 @@ void Rim3dView::addMeasurementToModel( cvf::ModelBasicList* wellPathModelBasicLi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::setScaleZAndUpdate( double scalingFactor )
-{
-    this->scaleZ = scalingFactor;
-    updateScaleTransform();
-
-    this->updateGridBoxData();
-
-    this->scheduleCreateDisplayModelAndRedraw();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool Rim3dView::isMasterView() const
 {
     RimViewLinker* viewLinker = this->assosiatedViewLinker();
@@ -989,6 +976,16 @@ void Rim3dView::updateAnnotationItems()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void Rim3dView::setScaleZAndUpdate( double scalingFactor )
+{
+    this->scaleZ = scalingFactor;
+
+    updateScaling();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void Rim3dView::updateScaling()
 {
     if ( scaleZ < 1 ) scaleZ = 1;
@@ -1006,14 +1003,13 @@ void Rim3dView::updateScaling()
 
         viewer()->mainCamera()->setFromLookAt( eye, eye + dir, up );
         viewer()->setPointOfInterest( poi );
-
-        updateScaleTransform();
-        createDisplayModelAndRedraw();
-
-        viewer()->update();
-
-        updateZScaleLabel();
     }
+
+    updateScaleTransform();
+    updateGridBoxData();
+    updateZScaleLabel();
+
+    this->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1023,7 +1019,8 @@ void Rim3dView::updateZScaleLabel()
 {
     // Update Z scale label
     int scale = static_cast<int>( scaleZ() );
-    nativeOrOverrideViewer()->setZScale( scale );
+
+    if ( viewer() ) viewer()->setZScale( scale );
 }
 
 //--------------------------------------------------------------------------------------------------

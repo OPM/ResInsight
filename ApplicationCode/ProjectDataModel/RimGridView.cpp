@@ -418,14 +418,6 @@ void RimGridView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
             viewLinker->updateCamera( this );
         }
     }
-    else if ( changedField == &m_currentTimeStep )
-    {
-        RimViewLinker* viewLinker = this->assosiatedViewLinker();
-        if ( viewLinker )
-        {
-            viewLinker->updateTimeStep( this, m_currentTimeStep );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
