@@ -64,6 +64,7 @@ public:
         avoidSendingEnterEventToParentWidget = false;
         completerCaseSensitivity             = Qt::CaseInsensitive;
         completerFilterMode                  = Qt::MatchContains;
+        maximumWidth                         = -1;
     }
 
 public:
@@ -73,6 +74,7 @@ public:
     // Completer setup
     Qt::CaseSensitivity  completerCaseSensitivity;
     Qt::MatchFlags       completerFilterMode;
+    int                  maximumWidth;
 };
 
 //--------------------------------------------------------------------------------------------------

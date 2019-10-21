@@ -51,7 +51,7 @@
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 #include "cafPdmUiLabelEditor.h"
-#include "cafPdmUiTextEditor.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QRegularExpression>
@@ -393,6 +393,23 @@ void RimSummaryPlotFilterTextCurveSetEditor::defineUiOrdering( QString uiConfigN
 void RimSummaryPlotFilterTextCurveSetEditor::setupBeforeSave()
 {
     m_curveFilterText = curveFilterTextWithoutOutdatedLabel();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotFilterTextCurveSetEditor::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                                    QString                    uiConfigName,
+                                                                    caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_curveFilterText )
+    {
+        auto attr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
+        if ( attr )
+        {
+            attr->maximumWidth = 150;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
