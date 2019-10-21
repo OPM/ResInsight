@@ -19,12 +19,14 @@
 #include "RimSummaryPlotFilterTextCurveSetEditor.h"
 
 #include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RifSummaryReaderInterface.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+
 #include "RimEclipseCase.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -41,11 +43,14 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
+
+#include "RiuPlotMainWindow.h"
 #include "RiuSummaryCurveDefSelection.h"
 
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
+#include "cafPdmUiLabelEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
@@ -72,6 +77,11 @@ RimSummaryPlotFilterTextCurveSetEditor::RimSummaryPlotFilterTextCurveSetEditor()
         "  \"BPR:15,28,*\" (no space) Oil phase pressure for all blocks along k as separate curves.\n";
     // clang-format on
 
+    CAF_PDM_InitFieldNoDefault( &m_curveFilterLabelText, "Summary", "Summary", "", "", "" );
+    m_curveFilterLabelText.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
+    m_curveFilterLabelText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_curveFilterLabelText.xmlCapability()->disableIO();
+
     CAF_PDM_InitFieldNoDefault( &m_curveFilterText, "CurveFilterText", "Curve Filter Text", "", filterTextToolTip, "" );
     m_curveFilterText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     // m_curveFilterText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
@@ -86,6 +96,23 @@ RimSummaryPlotFilterTextCurveSetEditor::RimSummaryPlotFilterTextCurveSetEditor()
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotFilterTextCurveSetEditor::~RimSummaryPlotFilterTextCurveSetEditor() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle*> RimSummaryPlotFilterTextCurveSetEditor::fieldsToShowInToolbar()
+{
+    std::vector<caf::PdmFieldHandle*> fields;
+    fields.push_back( &m_curveFilterLabelText );
+    fields.push_back( &m_curveFilterText );
+
+    return fields;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotFilterTextCurveSetEditor::updateCurveFilterText() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -266,9 +293,20 @@ void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFie
     if ( changedField == &m_curveFilterText )
     {
         m_curveFilterText = curveFilterTextWithoutOutdatedLabel();
+
+        m_curveFilterText.uiCapability()->updateConnectedEditors();
     }
 
     m_isFieldRecentlyChangedFromGui = true;
+
+    if ( RiaGuiApplication::isRunning() )
+    {
+        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+        if ( mainPlotWindow )
+        {
+            mainPlotWindow->updateSummaryPlotToolBar();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -342,6 +380,8 @@ void RimSummaryPlotFilterTextCurveSetEditor::defineUiOrdering( QString uiConfigN
         {
             m_curveFilterText = curveFilterTextWithoutOutdatedLabel();
         }
+
+        m_curveFilterText.uiCapability()->updateConnectedEditors();
     }
 
     m_isFieldRecentlyChangedFromGui = false;

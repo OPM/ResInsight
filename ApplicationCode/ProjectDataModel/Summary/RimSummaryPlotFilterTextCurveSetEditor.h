@@ -31,6 +31,10 @@ public:
     RimSummaryPlotFilterTextCurveSetEditor();
     ~RimSummaryPlotFilterTextCurveSetEditor() override;
 
+    std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
+
+    void updateCurveFilterText();
+
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
@@ -49,7 +53,9 @@ private:
     QString                     curveFilterTextWithoutOutdatedLabel() const;
 
     caf::PdmPtrArrayField<SummarySource*> m_selectedSources;
-    caf::PdmField<QString>                m_curveFilterText;
+
+    caf::PdmField<QString> m_curveFilterLabelText;
+    caf::PdmField<QString> m_curveFilterText;
 
     bool m_isFieldRecentlyChangedFromGui;
 };

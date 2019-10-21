@@ -558,23 +558,22 @@ void RiuPlotMainWindow::updateSummaryPlotToolBar( bool forceUpdateUi )
     {
         std::vector<caf::PdmFieldHandle*> toolBarFields = summaryPlot->fieldsToShowInToolbar();
 
+        QString keyword;
+
         if ( !m_summaryPlotToolBarEditor->isEditorDataValid( toolBarFields ) )
         {
+            keyword = m_summaryPlotToolBarEditor->keywordForWidgetWithFocus();
+
             m_summaryPlotToolBarEditor->setFields( toolBarFields );
-        }
-        else if ( forceUpdateUi )
-        {
-            m_summaryPlotToolBarEditor->updateUi();
         }
 
         m_summaryPlotToolBarEditor->updateUi();
-
         m_summaryPlotToolBarEditor->show();
+        m_summaryPlotToolBarEditor->setKeyboardFocusFromKeyword( keyword );
     }
     else
     {
         m_summaryPlotToolBarEditor->clear();
-
         m_summaryPlotToolBarEditor->hide();
     }
 

@@ -64,9 +64,13 @@ public:
     bool isEditorDataValid(const std::vector<caf::PdmFieldHandle*>& fields) const;
     void setFields(std::vector<caf::PdmFieldHandle*>& fields);
     void clear();
+
+    void    setKeyboardFocusFromKeyword(const QString& fieldKeyword);
+    QString keywordForWidgetWithFocus();
     
     void show();
     void hide();
+
 
 private:
     void configureAndUpdateUi(const QString& uiConfigName) override;

@@ -233,6 +233,22 @@ void PdmUiToolBarEditor::clear()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiToolBarEditor::setKeyboardFocusFromKeyword(const QString& fieldKeyword)
+{
+    auto fieldView = m_fieldViews[fieldKeyword];
+    if (fieldView)
+    {
+        auto editorWidget = fieldView->editorWidget();
+        if (editorWidget)
+        {
+            editorWidget->setFocus(Qt::ActiveWindowFocusReason);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void PdmUiToolBarEditor::show()
@@ -252,6 +268,32 @@ void PdmUiToolBarEditor::hide()
     {
         m_toolbar->hide();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString PdmUiToolBarEditor::keywordForWidgetWithFocus()
+{
+    QString keyword;
+
+    if (m_toolbar->isVisible())
+    {
+        for (auto fieldViewPair : m_fieldViews)
+        {
+            auto fieldView = fieldViewPair.second;
+            if (fieldView)
+            {
+                auto editorWidget = fieldView->editorWidget();
+                if (editorWidget && editorWidget->hasFocus())
+                {
+                    keyword = fieldViewPair.first;
+                }
+            }
+        }
+    }
+
+    return keyword;
 }
 
 } // end namespace caf

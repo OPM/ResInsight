@@ -2023,17 +2023,27 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlot::fieldsToShowInToolbar()
 {
     std::vector<caf::PdmFieldHandle*> toolBarFields;
 
-    auto sourceObject = sourceSteppingObjectForKeyEventHandling();
-
-    if ( sourceObject )
     {
-        toolBarFields = sourceObject->fieldsToShowInToolbar();
+        auto fields = m_textCurveSetEditor->fieldsToShowInToolbar();
+        toolBarFields.insert( std::end( toolBarFields ), std::begin( fields ), std::end( fields ) );
     }
 
-    if ( toolBarFields.empty() )
+    bool anyFieldsAvailableForSummary = false;
+
+    auto sourceObject = sourceSteppingObjectForKeyEventHandling();
+    if ( sourceObject )
+    {
+        auto fields = sourceObject->fieldsToShowInToolbar();
+        toolBarFields.insert( std::end( toolBarFields ), std::begin( fields ), std::end( fields ) );
+
+        anyFieldsAvailableForSummary = !fields.empty();
+    }
+
+    if ( !anyFieldsAvailableForSummary )
     {
         // Show ensemble stepping if no fields are available from summary stepping
-        toolBarFields = ensembleCurveSetCollection()->fieldsToShowInToolbar();
+        auto fields = ensembleCurveSetCollection()->fieldsToShowInToolbar();
+        toolBarFields.insert( std::end( toolBarFields ), std::begin( fields ), std::end( fields ) );
     }
 
     return toolBarFields;
