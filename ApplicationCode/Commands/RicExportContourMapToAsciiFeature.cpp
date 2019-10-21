@@ -182,7 +182,10 @@ void RicExportContourMapToAsciiFeature::writeContourMapToStream( QTextStream&   
 
     formatter.header( header );
 
-    cvf::Vec2ui numVerticesIJ = contourMapProjection->numberOfVerticesIJ();
+    cvf::Vec2ui         numVerticesIJ    = contourMapProjection->numberOfVerticesIJ();
+    std::vector<double> xVertexPositions = contourMapProjection->xVertexPositions();
+    std::vector<double> yVertexPositions = contourMapProjection->yVertexPositions();
+
     for ( unsigned int j = 0; j < numVerticesIJ.y(); j++ )
     {
         for ( unsigned int i = 0; i < numVerticesIJ.x(); i++ )
@@ -190,8 +193,16 @@ void RicExportContourMapToAsciiFeature::writeContourMapToStream( QTextStream&   
             double value = contourMapProjection->valueAtVertex( i, j );
             if ( !( std::isinf( value ) && excludeUndefinedValues ) )
             {
-                formatter.add( static_cast<int>( i ) );
-                formatter.add( static_cast<int>( j ) );
+                double x = xVertexPositions.at( i );
+                double y = yVertexPositions.at( j );
+                if ( !exportLocalCoordinates )
+                {
+                    x += contourMapProjection->origin3d().x();
+                    y += contourMapProjection->origin3d().y();
+                }
+
+                formatter.add( x );
+                formatter.add( y );
                 formatter.add( value );
                 formatter.rowCompleted();
             }

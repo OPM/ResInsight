@@ -110,10 +110,6 @@ public:
     void       setPickPoint( cvf::Vec2d globalPickPoint );
     cvf::Vec3d origin3d() const;
 
-    size_t     cellIndexFromIJ( uint i, uint j ) const;
-    size_t     vertexIndexFromIJ( uint i, uint j ) const;
-    cvf::Vec2d origin2d() const;
-
     std::vector<double> xVertexPositions() const;
     std::vector<double> yVertexPositions() const;
 
@@ -189,10 +185,13 @@ protected:
 
     // Cell index and position conversion
     std::vector<CellIndexAndResult> cellsAtIJ( uint i, uint j ) const;
+    size_t                          cellIndexFromIJ( uint i, uint j ) const;
+    size_t                          vertexIndexFromIJ( uint i, uint j ) const;
     cvf::Vec2ui                     ijFromVertexIndex( size_t gridIndex ) const;
     cvf::Vec2ui                     ijFromCellIndex( size_t mapIndex ) const;
     cvf::Vec2ui                     ijFromLocalPos( const cvf::Vec2d& localPos2d ) const;
     cvf::Vec2d                      cellCenterPosition( uint i, uint j ) const;
+    cvf::Vec2d                      origin2d() const;
 
     cvf::Vec2ui calculateMapSize() const;
     double      gridEdgeOffset() const;
