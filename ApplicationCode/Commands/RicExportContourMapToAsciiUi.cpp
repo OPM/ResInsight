@@ -15,6 +15,7 @@ RicExportContourMapToAsciiUi::RicExportContourMapToAsciiUi()
 
     CAF_PDM_InitField( &m_exportLocalCoordinates, "ExportLocalCoordinates", false, "Export Local Coordinates", "", "", "" );
     CAF_PDM_InitField( &m_undefinedValueLabel, "UndefinedValueLabel", QString( "NaN" ), "Undefined Value Label", "", "", "" );
+    CAF_PDM_InitField( &m_excludeUndefinedValues, "ExcludeUndefinedValues", false, "Exclude Undefined Values", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,6 +48,14 @@ bool RicExportContourMapToAsciiUi::exportLocalCoordinates() const
 QString RicExportContourMapToAsciiUi::undefinedValueLabel() const
 {
     return m_undefinedValueLabel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicExportContourMapToAsciiUi::excludeUndefinedValues() const
+{
+    return m_excludeUndefinedValues;
 }
 
 //--------------------------------------------------------------------------------------------------

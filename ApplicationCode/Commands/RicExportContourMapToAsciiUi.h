@@ -35,6 +35,7 @@ public:
     void    setExportFileName( const QString& exportFileName );
     bool    exportLocalCoordinates() const;
     QString undefinedValueLabel() const;
+    bool    excludeUndefinedValues() const;
 
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
@@ -45,4 +46,5 @@ private:
     caf::PdmField<QString> m_exportFileName;
     caf::PdmField<bool>    m_exportLocalCoordinates;
     caf::PdmField<QString> m_undefinedValueLabel;
+    caf::PdmField<bool>    m_excludeUndefinedValues;
 };

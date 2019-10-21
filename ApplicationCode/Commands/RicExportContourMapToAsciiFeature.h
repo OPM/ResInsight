@@ -41,7 +41,11 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
 
-    static void writeContourMapToStream( QTextStream& stream, const RimContourMapProjection* contourMapProjection );
+    static void writeContourMapToStream( QTextStream&                   stream,
+                                         const RimContourMapProjection* contourMapProjection,
+                                         bool                           exportLocalCoordinates,
+                                         const QString&                 undefinedValueLabel,
+                                         bool                           excludeUndefinedValues );
 
     void setupActionLook( QAction* actionToSetup ) override;
 
@@ -49,5 +53,6 @@ private:
     caf::PdmField<QString> m_exportFileName;
     caf::PdmField<bool>    m_exportLocalCoordinates;
     caf::PdmField<QString> m_undefinedValueLabel;
+    caf::PdmField<bool>    m_excludeUndefinedValues;
     caf::PdmField<int>     m_viewId;
 };

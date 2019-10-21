@@ -37,6 +37,8 @@
 #include <QDebug>
 #include <QFileDialog>
 
+#include <cmath>
+
 RICF_SOURCE_INIT( RicExportContourMapToAsciiFeature, "RicExportContourMapToAsciiFeature", "exportContourMapToText" );
 
 RicExportContourMapToAsciiFeature::RicExportContourMapToAsciiFeature()
@@ -44,6 +46,7 @@ RicExportContourMapToAsciiFeature::RicExportContourMapToAsciiFeature()
     RICF_InitFieldNoDefault( &m_exportFileName, "exportFileName", "", "", "", "" );
     RICF_InitFieldNoDefault( &m_exportLocalCoordinates, "exportLocalCoordinates", "", "", "", "" );
     RICF_InitFieldNoDefault( &m_undefinedValueLabel, "undefinedValueLabel", "", "", "", "" );
+    RICF_InitFieldNoDefault( &m_excludeUndefinedValues, "excludeUndefinedValues", "", "", "", "" );
     RICF_InitField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
 }
 
@@ -111,8 +114,9 @@ void RicExportContourMapToAsciiFeature::onActionTriggered( bool isChecked )
 
         app->setLastUsedDialogDirectory( "CONTOUR_EXPORT", fileName );
         m_exportFileName         = fileName;
-        m_exportLocalCoordinates = true;
-        m_undefinedValueLabel    = "fæskslo";
+        m_exportLocalCoordinates = featureUi.exportLocalCoordinates();
+        m_undefinedValueLabel    = featureUi.undefinedValueLabel();
+        m_excludeUndefinedValues = featureUi.excludeUndefinedValues();
 
         RicfCommandResponse response = execute();
         QStringList         messages = response.messages();
@@ -136,7 +140,10 @@ void RicExportContourMapToAsciiFeature::onActionTriggered( bool isChecked )
 ///
 //--------------------------------------------------------------------------------------------------
 void RicExportContourMapToAsciiFeature::writeContourMapToStream( QTextStream&                   stream,
-                                                                 const RimContourMapProjection* contourMapProjection )
+                                                                 const RimContourMapProjection* contourMapProjection,
+                                                                 bool                           exportLocalCoordinates,
+                                                                 const QString&                 undefinedValueLabel,
+                                                                 bool                           excludeUndefinedValues )
 {
     RifTextDataTableFormatter formatter( stream );
     formatter.setTableRowLineAppendText( "" );
@@ -157,10 +164,14 @@ void RicExportContourMapToAsciiFeature::writeContourMapToStream( QTextStream&   
     {
         for ( unsigned int i = 0; i < numVerticesIJ.x(); i++ )
         {
-            formatter.add( static_cast<int>( i ) );
-            formatter.add( static_cast<int>( j ) );
-            formatter.add( contourMapProjection->valueAtVertex( i, j ) );
-            formatter.rowCompleted();
+            double value = contourMapProjection->valueAtVertex( i, j );
+            if ( !( std::isinf( value ) && excludeUndefinedValues ) )
+            {
+                formatter.add( static_cast<int>( i ) );
+                formatter.add( static_cast<int>( j ) );
+                formatter.add( value );
+                formatter.rowCompleted();
+            }
         }
     }
 
@@ -183,13 +194,7 @@ RicfCommandResponse RicExportContourMapToAsciiFeature::execute()
     RiaApplication* app = RiaApplication::instance();
 
     RimProject* proj = app->project();
-
-    // TODO: Add error message
-    if ( !proj )
-    {
-        response.updateStatus( RicfCommandResponse::COMMAND_ERROR, "No project found!" );
-        return response;
-    }
+    CAF_ASSERT( proj );
 
     std::vector<Rim3dView*> allViews;
     proj->allViews( allViews );
@@ -229,7 +234,11 @@ RicfCommandResponse RicExportContourMapToAsciiFeature::execute()
     {
         QString     tableText;
         QTextStream stream( &exportFile );
-        writeContourMapToStream( stream, contourMapProjection );
+        writeContourMapToStream( stream,
+                                 contourMapProjection,
+                                 m_exportLocalCoordinates.value(),
+                                 m_undefinedValueLabel.value(),
+                                 m_excludeUndefinedValues.value() );
     }
 
     for ( QString errorMessage : errorMessages )

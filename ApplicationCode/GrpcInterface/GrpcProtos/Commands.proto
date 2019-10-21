@@ -319,7 +319,8 @@ message ExportContourMapToTextRequest
         string exportFileName       = 1;
         bool exportLocalCoordinates = 2;
         string undefinedValueLabel  = 3;
-        int32 viewId                = 4;
+        bool excludeUndefinedValues = 4;
+        int32 viewId                = 5;
 }
 
 /* CommandParams handles both command name and parameters in one.
