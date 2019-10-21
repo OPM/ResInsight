@@ -41,6 +41,11 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
 
+    static void writeMetaDataToStream( QTextStream&                   stream,
+                                       const RimContourMapProjection* contourMapProjection,
+                                       const QString&                 caseName,
+                                       bool                           exportLocalCoordinates );
+
     static void writeContourMapToStream( QTextStream&                   stream,
                                          const RimContourMapProjection* contourMapProjection,
                                          bool                           exportLocalCoordinates,

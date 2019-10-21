@@ -34,6 +34,7 @@
 #include "cafUtils.h"
 
 #include <QAction>
+#include <QDateTime>
 #include <QDebug>
 #include <QFileDialog>
 
@@ -139,6 +140,28 @@ void RicExportContourMapToAsciiFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicExportContourMapToAsciiFeature::writeMetaDataToStream( QTextStream&                   stream,
+                                                               const RimContourMapProjection* contourMapProjection,
+                                                               const QString&                 caseName,
+                                                               bool                           exportLocalCoordinates )
+{
+    cvf::Vec2ui numVerticesIJ = contourMapProjection->numberOfVerticesIJ();
+    stream << "# case name : " << caseName << "\n";
+    stream << "# sampling points : nx=" << numVerticesIJ.x() << " ny=" << numVerticesIJ.y() << "\n";
+    QDateTime now = QDateTime::currentDateTime();
+    stream << "# time and date : " << now.toString( Qt::ISODate ) << "\n";
+    stream << "# property name : " << contourMapProjection->resultDescriptionText() << "\n";
+    if ( exportLocalCoordinates )
+    {
+        stream << "# UTM offset : x=" << contourMapProjection->origin3d().x()
+               << " y=" << contourMapProjection->origin3d().y() << "\n";
+    }
+    stream << "\n\n";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicExportContourMapToAsciiFeature::writeContourMapToStream( QTextStream&                   stream,
                                                                  const RimContourMapProjection* contourMapProjection,
                                                                  bool                           exportLocalCoordinates,
@@ -217,10 +240,12 @@ RicfCommandResponse RicExportContourMapToAsciiFeature::execute()
     if ( existingEclipseContourMap )
     {
         contourMapProjection = existingEclipseContourMap->contourMapProjection();
+        contourMapName       = existingEclipseContourMap->createAutoName();
     }
     else if ( existingGeoMechContourMap )
     {
         contourMapProjection = existingGeoMechContourMap->contourMapProjection();
+        contourMapName       = existingGeoMechContourMap->createAutoName();
     }
 
     CAF_ASSERT( contourMapProjection );
@@ -234,6 +259,7 @@ RicfCommandResponse RicExportContourMapToAsciiFeature::execute()
     {
         QString     tableText;
         QTextStream stream( &exportFile );
+        writeMetaDataToStream( stream, contourMapProjection, contourMapName, m_exportLocalCoordinates.value() );
         writeContourMapToStream( stream,
                                  contourMapProjection,
                                  m_exportLocalCoordinates.value(),
