@@ -57,7 +57,7 @@ bool RicShowWellAllocationPlotFeature::isCommandEnabled()
 
     if ( wellPathCollection.empty() ) return false;
 
-    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !view ) return false;
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( view );
     if ( !eclView ) return false;
@@ -92,7 +92,7 @@ void RicShowWellAllocationPlotFeature::onActionTriggered( bool isChecked )
     }
     else if ( wellPathCollection.size() > 0 )
     {
-        Rim3dView* view = RiaApplication::instance()->activeReservoirView();
+        Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
         if ( !view ) return;
         RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( view );
         if ( !eclView ) return;
