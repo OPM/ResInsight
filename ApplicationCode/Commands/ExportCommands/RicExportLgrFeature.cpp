@@ -24,7 +24,7 @@
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeature.h"
 #include "RicExportLgrUi.h"
 
-#include "RifEclipseDataTableFormatter.h"
+#include "RifTextDataTableFormatter.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigMainGrid.h"
@@ -367,19 +367,19 @@ void RicExportLgrFeature::writeLgrs( QTextStream& stream, const std::vector<LgrI
     for ( auto lgrInfo : lgrInfos )
     {
         {
-            RifEclipseDataTableFormatter formatter( stream );
+            RifTextDataTableFormatter formatter( stream );
             formatter.comment( QString( "LGR: " ) + lgrInfo.name );
             formatter.keyword( "CARFIN" );
-            formatter.header( {RifEclipseOutputTableColumn( "Name" ),
-                               RifEclipseOutputTableColumn( "I1" ),
-                               RifEclipseOutputTableColumn( "I2" ),
-                               RifEclipseOutputTableColumn( "J1" ),
-                               RifEclipseOutputTableColumn( "J2" ),
-                               RifEclipseOutputTableColumn( "K1" ),
-                               RifEclipseOutputTableColumn( "K2" ),
-                               RifEclipseOutputTableColumn( "NX" ),
-                               RifEclipseOutputTableColumn( "NY" ),
-                               RifEclipseOutputTableColumn( "NZ" )} );
+            formatter.header( {RifTextDataTableColumn( "Name" ),
+                               RifTextDataTableColumn( "I1" ),
+                               RifTextDataTableColumn( "I2" ),
+                               RifTextDataTableColumn( "J1" ),
+                               RifTextDataTableColumn( "J2" ),
+                               RifTextDataTableColumn( "K1" ),
+                               RifTextDataTableColumn( "K2" ),
+                               RifTextDataTableColumn( "NX" ),
+                               RifTextDataTableColumn( "NY" ),
+                               RifTextDataTableColumn( "NZ" )} );
 
             formatter.add( lgrInfo.name );
             formatter.addOneBasedCellIndex( lgrInfo.mainGridStartCell.i() );
@@ -396,7 +396,7 @@ void RicExportLgrFeature::writeLgrs( QTextStream& stream, const std::vector<LgrI
         }
 
         {
-            RifEclipseDataTableFormatter formatter( stream );
+            RifTextDataTableFormatter formatter( stream );
             formatter.keyword( "ENDFIN" );
             formatter.tableCompleted( "", true );
         }

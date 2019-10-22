@@ -38,7 +38,7 @@
 #include <QList>
 #include <map>
 
-class RifEclipseDataTableFormatter;
+class RifTextDataTableFormatter;
 class RimCase;
 class RimGridCrossPlotCurve;
 class RimGridView;
@@ -122,7 +122,7 @@ public:
     bool groupingByCategoryResult() const;
     bool groupingEnabled() const;
     void swapAxisProperties( bool updatePlot );
-    void exportFormattedData( RifEclipseDataTableFormatter& formatter ) const;
+    void exportFormattedData( RifTextDataTableFormatter& formatter ) const;
 
     bool isXAxisLogarithmic() const;
     bool isYAxisLogarithmic() const;

@@ -24,7 +24,7 @@
 #include "RigWellPath.h"
 
 #include "RiaCompletionTypeCalculationScheduler.h"
-#include "RifEclipseDataTableFormatter.h"
+#include "RifTextDataTableFormatter.h"
 #include "RimIntersection.h"
 #include "RimPlotCurve.h"
 #include "RimWellPath.h"
@@ -120,12 +120,12 @@ QString RimModeledWellPath::wellPlanText()
     QString     planText;
     QTextStream qtxtStream( &planText );
 
-    RifEclipseDataTableFormatter formatter( qtxtStream );
+    RifTextDataTableFormatter formatter( qtxtStream );
     formatter.setUnlimitedDataRowWidth();
     formatter.setTableRowPrependText( "" );
     formatter.setTableRowLineAppendText( "" );
 
-    std::vector<RifEclipseOutputTableColumn> tableHeader;
+    std::vector<RifTextDataTableColumn> tableHeader;
     tableHeader.push_back( {"MDRKB"} );
     tableHeader.push_back( {"CL"} );
     tableHeader.push_back( {"Inc"} );

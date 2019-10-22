@@ -26,7 +26,7 @@
 //==================================================================================================
 //
 //==================================================================================================
-enum RifEclipseOutputTableLineType
+enum RifTextDataTableLineType
 {
     COMMENT,
     CONTENTS,
@@ -36,7 +36,7 @@ enum RifEclipseOutputTableLineType
 //==================================================================================================
 //
 //==================================================================================================
-enum RifEclipseOutputTableAlignment
+enum RifTextDataTableAlignment
 {
     LEFT,
     RIGHT
@@ -45,7 +45,7 @@ enum RifEclipseOutputTableAlignment
 //==================================================================================================
 //
 //==================================================================================================
-enum RifEclipseOutputTableDoubleFormat
+enum RifTextDataTableDoubleFormat
 {
     RIF_SCIENTIFIC,
     RIF_FLOAT,
@@ -55,39 +55,38 @@ enum RifEclipseOutputTableDoubleFormat
 //==================================================================================================
 //
 //==================================================================================================
-struct RifEclipseOutputTableLine
+struct RifTextDataTableLine
 {
-    RifEclipseOutputTableLineType lineType;
-    std::vector<QString>          data;
-    bool                          appendTextSet;
-    QString                       appendText;
+    RifTextDataTableLineType lineType;
+    std::vector<QString>     data;
+    bool                     appendTextSet;
+    QString                  appendText;
 };
 
 //==================================================================================================
 //
 //==================================================================================================
-struct RifEclipseOutputTableDoubleFormatting
+struct RifTextDataTableDoubleFormatting
 {
-    RifEclipseOutputTableDoubleFormatting( RifEclipseOutputTableDoubleFormat format = RIF_FLOAT, int precision = 5 )
+    RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat format = RIF_FLOAT, int precision = 5 )
         : format( format )
         , precision( precision )
     {
     }
 
-    RifEclipseOutputTableDoubleFormat format;
-    int                               precision;
+    RifTextDataTableDoubleFormat format;
+    int                          precision;
 };
 
 //==================================================================================================
 //
 //==================================================================================================
-struct RifEclipseOutputTableColumn
+struct RifTextDataTableColumn
 {
-    RifEclipseOutputTableColumn(
-        const QString&                        title,
-        RifEclipseOutputTableDoubleFormatting doubleFormat = RifEclipseOutputTableDoubleFormatting(),
-        RifEclipseOutputTableAlignment        alignment    = LEFT,
-        int                                   width        = -1 )
+    RifTextDataTableColumn( const QString&                   title,
+                            RifTextDataTableDoubleFormatting doubleFormat = RifTextDataTableDoubleFormatting(),
+                            RifTextDataTableAlignment        alignment    = LEFT,
+                            int                              width        = -1 )
         : title( title )
         , doubleFormat( doubleFormat )
         , alignment( alignment )
@@ -95,22 +94,22 @@ struct RifEclipseOutputTableColumn
     {
     }
 
-    QString                               title;
-    RifEclipseOutputTableDoubleFormatting doubleFormat;
-    RifEclipseOutputTableAlignment        alignment;
-    int                                   width;
+    QString                          title;
+    RifTextDataTableDoubleFormatting doubleFormat;
+    RifTextDataTableAlignment        alignment;
+    int                              width;
 };
 
 //==================================================================================================
 //
 //==================================================================================================
-class RifEclipseDataTableFormatter
+class RifTextDataTableFormatter
 {
 public:
-    RifEclipseDataTableFormatter( QTextStream& out );
-    RifEclipseDataTableFormatter( const RifEclipseDataTableFormatter& rhs );
+    RifTextDataTableFormatter( QTextStream& out );
+    RifTextDataTableFormatter( const RifTextDataTableFormatter& rhs );
 
-    virtual ~RifEclipseDataTableFormatter();
+    virtual ~RifTextDataTableFormatter();
 
     int     columnSpacing() const;
     void    setColumnSpacing( int spacing );
@@ -123,20 +122,20 @@ public:
     void    setUnlimitedDataRowWidth();
     int     maxDataRowWidth() const;
 
-    RifEclipseDataTableFormatter& keyword( const QString& keyword );
-    RifEclipseDataTableFormatter& header( std::vector<RifEclipseOutputTableColumn> tableHeader );
-    RifEclipseDataTableFormatter& add( const QString& str );
-    RifEclipseDataTableFormatter& add( double num );
-    RifEclipseDataTableFormatter& add( int num );
-    RifEclipseDataTableFormatter& add( size_t num );
-    RifEclipseDataTableFormatter& addOneBasedCellIndex( size_t zeroBasedIndex );
-    RifEclipseDataTableFormatter& addValueOrDefaultMarker( double value, double defaultValue );
-    RifEclipseDataTableFormatter& comment( const QString& str );
-    RifEclipseDataTableFormatter& addHorizontalLine( const QChar& str );
-    void                          rowCompleted();
-    void                          rowCompleted( const QString& appendText );
-    void                          tableCompleted();
-    void                          tableCompleted( const QString& appendText, bool appendNewline );
+    RifTextDataTableFormatter& keyword( const QString& keyword );
+    RifTextDataTableFormatter& header( std::vector<RifTextDataTableColumn> tableHeader );
+    RifTextDataTableFormatter& add( const QString& str );
+    RifTextDataTableFormatter& add( double num );
+    RifTextDataTableFormatter& add( int num );
+    RifTextDataTableFormatter& add( size_t num );
+    RifTextDataTableFormatter& addOneBasedCellIndex( size_t zeroBasedIndex );
+    RifTextDataTableFormatter& addValueOrDefaultMarker( double value, double defaultValue );
+    RifTextDataTableFormatter& comment( const QString& str );
+    RifTextDataTableFormatter& addHorizontalLine( const QChar& str );
+    void                       rowCompleted();
+    void                       rowCompleted( const QString& appendText );
+    void                       tableCompleted();
+    void                       tableCompleted( const QString& appendText, bool appendNewline );
 
     int tableWidth() const;
 
@@ -144,29 +143,29 @@ protected:
     friend class RifCsvDataTableFormatter;
 
     int measure( const QString str );
-    int measure( double num, RifEclipseOutputTableDoubleFormatting doubleFormat );
+    int measure( double num, RifTextDataTableDoubleFormatting doubleFormat );
     int measure( int num );
     int measure( size_t num );
 
-    static QString format( double num, RifEclipseOutputTableDoubleFormatting doubleFormat );
+    static QString format( double num, RifTextDataTableDoubleFormatting doubleFormat );
     static QString format( int num );
     static QString format( size_t num );
     QString        formatColumn( const QString str, size_t columnIndex ) const;
 
     void outputBuffer();
-    void outputComment( RifEclipseOutputTableLine& comment );
-    void outputHorizontalLine( RifEclipseOutputTableLine& comment );
+    void outputComment( RifTextDataTableLine& comment );
+    void outputHorizontalLine( RifTextDataTableLine& comment );
 
-    bool isAllHeadersEmpty( const std::vector<RifEclipseOutputTableColumn>& headers );
+    bool isAllHeadersEmpty( const std::vector<RifTextDataTableColumn>& headers );
 
 private:
-    std::vector<RifEclipseOutputTableColumn> m_columns;
-    std::vector<RifEclipseOutputTableLine>   m_buffer;
-    std::vector<QString>                     m_lineBuffer;
-    QTextStream&                             m_out;
-    int                                      m_colSpacing;
-    QString                                  m_tableRowPrependText;
-    QString                                  m_tableRowAppendText;
-    QString                                  m_commentPrefix;
-    int                                      m_maxDataRowWidth;
+    std::vector<RifTextDataTableColumn> m_columns;
+    std::vector<RifTextDataTableLine>   m_buffer;
+    std::vector<QString>                m_lineBuffer;
+    QTextStream&                        m_out;
+    int                                 m_colSpacing;
+    QString                             m_tableRowPrependText;
+    QString                             m_tableRowAppendText;
+    QString                             m_commentPrefix;
+    int                                 m_maxDataRowWidth;
 };

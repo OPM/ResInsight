@@ -22,7 +22,7 @@
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
 
-#include "RifEclipseDataTableFormatter.h"
+#include "RifTextDataTableFormatter.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigActiveCellsResultAccessor.h"
@@ -1093,7 +1093,7 @@ void RimGridCrossPlotDataSet::swapAxisProperties( bool updatePlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotDataSet::exportFormattedData( RifEclipseDataTableFormatter& formatter ) const
+void RimGridCrossPlotDataSet::exportFormattedData( RifTextDataTableFormatter& formatter ) const
 {
     if ( m_groupedResults.empty() ) return;
 
@@ -1102,17 +1102,16 @@ void RimGridCrossPlotDataSet::exportFormattedData( RifEclipseDataTableFormatter&
 
     if ( m_grouping != NO_GROUPING )
     {
-        std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn( xTitle ),
-                                                           RifEclipseOutputTableColumn( yTitle ),
-                                                           RifEclipseOutputTableColumn( "Group Index" ),
-                                                           RifEclipseOutputTableColumn( "Group Description" )};
+        std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( xTitle ),
+                                                      RifTextDataTableColumn( yTitle ),
+                                                      RifTextDataTableColumn( "Group Index" ),
+                                                      RifTextDataTableColumn( "Group Description" )};
 
         formatter.header( header );
     }
     else
     {
-        std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn( xTitle ),
-                                                           RifEclipseOutputTableColumn( yTitle )};
+        std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( xTitle ), RifTextDataTableColumn( yTitle )};
         formatter.header( header );
     }
 

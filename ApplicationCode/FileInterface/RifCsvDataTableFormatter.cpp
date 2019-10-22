@@ -30,7 +30,7 @@ RifCsvDataTableFormatter::RifCsvDataTableFormatter( QTextStream& out, const QStr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifCsvDataTableFormatter& RifCsvDataTableFormatter::header( const std::vector<RifEclipseOutputTableColumn>& tableHeader )
+RifCsvDataTableFormatter& RifCsvDataTableFormatter::header( const std::vector<RifTextDataTableColumn>& tableHeader )
 {
     outputBuffer();
     m_columnHeaders = tableHeader;
@@ -54,7 +54,7 @@ RifCsvDataTableFormatter& RifCsvDataTableFormatter::add( const QString& str )
 RifCsvDataTableFormatter& RifCsvDataTableFormatter::add( double num )
 {
     size_t column = m_lineBuffer.size();
-    m_lineBuffer.push_back( RifEclipseDataTableFormatter::format( num, m_columnHeaders[column].doubleFormat ) );
+    m_lineBuffer.push_back( RifTextDataTableFormatter::format( num, m_columnHeaders[column].doubleFormat ) );
     return *this;
 }
 
@@ -63,7 +63,7 @@ RifCsvDataTableFormatter& RifCsvDataTableFormatter::add( double num )
 //--------------------------------------------------------------------------------------------------
 RifCsvDataTableFormatter& RifCsvDataTableFormatter::add( int num )
 {
-    m_lineBuffer.push_back( RifEclipseDataTableFormatter::format( num ) );
+    m_lineBuffer.push_back( RifTextDataTableFormatter::format( num ) );
     return *this;
 }
 
@@ -72,7 +72,7 @@ RifCsvDataTableFormatter& RifCsvDataTableFormatter::add( int num )
 //--------------------------------------------------------------------------------------------------
 RifCsvDataTableFormatter& RifCsvDataTableFormatter::add( size_t num )
 {
-    m_lineBuffer.push_back( RifEclipseDataTableFormatter::format( num ) );
+    m_lineBuffer.push_back( RifTextDataTableFormatter::format( num ) );
     return *this;
 }
 
@@ -81,7 +81,7 @@ RifCsvDataTableFormatter& RifCsvDataTableFormatter::add( size_t num )
 //--------------------------------------------------------------------------------------------------
 void RifCsvDataTableFormatter::rowCompleted()
 {
-    RifEclipseOutputTableLine line;
+    RifTextDataTableLine line;
     line.data          = m_lineBuffer;
     line.lineType      = CONTENTS;
     line.appendTextSet = false;

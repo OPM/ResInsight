@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
-#include "RifEclipseDataTableFormatter.h"
+#include "RifTextDataTableFormatter.h"
 
 #include "RicExportFeatureImpl.h"
 #include "RicMswExportInfo.h"

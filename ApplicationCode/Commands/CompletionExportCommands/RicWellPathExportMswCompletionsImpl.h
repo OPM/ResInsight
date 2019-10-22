@@ -21,7 +21,7 @@
 #include "RigCompletionData.h"
 
 class RicExportCompletionDataSettingsUi;
-class RifEclipseDataTableFormatter;
+class RifTextDataTableFormatter;
 class RimEclipseCase;
 class RimFishbonesMultipleSubs;
 class RimPerforationInterval;
@@ -76,24 +76,24 @@ private:
                                            int                                               timeStep,
                                            const std::vector<const RimPerforationInterval*>& perforationIntervals );
 
-    static void generateWelsegsTable( RifEclipseDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
+    static void generateWelsegsTable( RifTextDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
 
-    static void generateWelsegsSegments( RifEclipseDataTableFormatter&                      formatter,
+    static void generateWelsegsSegments( RifTextDataTableFormatter&                         formatter,
                                          const RicMswExportInfo&                            exportInfo,
                                          const std::set<RigCompletionData::CompletionType>& exportCompletionTypes );
-    static void generateWelsegsCompletionCommentHeader( RifEclipseDataTableFormatter&     formatter,
+    static void generateWelsegsCompletionCommentHeader( RifTextDataTableFormatter&        formatter,
                                                         RigCompletionData::CompletionType completionType );
-    static void generateCompsegTables( RifEclipseDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
-    static void generateCompsegTable( RifEclipseDataTableFormatter&                      formatter,
+    static void generateCompsegTables( RifTextDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
+    static void generateCompsegTable( RifTextDataTableFormatter&                         formatter,
                                       const RicMswExportInfo&                            exportInfo,
                                       bool                                               exportSubGridIntersections,
                                       const std::set<RigCompletionData::CompletionType>& exportCompletionTypes );
-    static void generateCompsegHeader( RifEclipseDataTableFormatter&     formatter,
+    static void generateCompsegHeader( RifTextDataTableFormatter&        formatter,
                                        const RicMswExportInfo&           exportInfo,
                                        RigCompletionData::CompletionType completionType,
                                        bool                              exportSubGridIntersections );
-    static void generateWsegvalvTable( RifEclipseDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
-    static void generateWsegAicdTable( RifEclipseDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
+    static void generateWsegvalvTable( RifTextDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
+    static void generateWsegAicdTable( RifTextDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
 
 private:
     typedef std::vector<std::shared_ptr<RicMswSegment>> MainBoreSegments;

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RifEclipseDataTableFormatter.h"
+#include "RifTextDataTableFormatter.h"
 
 //==================================================================================================
 //
@@ -30,7 +30,7 @@ class RifCsvDataTableFormatter
 public:
     RifCsvDataTableFormatter( QTextStream& out, const QString fieldSeparator = "," );
 
-    RifCsvDataTableFormatter& header( const std::vector<RifEclipseOutputTableColumn>& tableHeader );
+    RifCsvDataTableFormatter& header( const std::vector<RifTextDataTableColumn>& tableHeader );
     RifCsvDataTableFormatter& add( const QString& str );
     RifCsvDataTableFormatter& add( double num );
     RifCsvDataTableFormatter& add( int num );
@@ -42,9 +42,9 @@ private:
     void outputBuffer();
 
 private:
-    QTextStream&                             m_out;
-    std::vector<RifEclipseOutputTableColumn> m_columnHeaders;
-    std::vector<RifEclipseOutputTableLine>   m_buffer;
-    std::vector<QString>                     m_lineBuffer;
-    QString                                  m_fieldSeparator;
+    QTextStream&                        m_out;
+    std::vector<RifTextDataTableColumn> m_columnHeaders;
+    std::vector<RifTextDataTableLine>   m_buffer;
+    std::vector<QString>                m_lineBuffer;
+    QString                             m_fieldSeparator;
 };

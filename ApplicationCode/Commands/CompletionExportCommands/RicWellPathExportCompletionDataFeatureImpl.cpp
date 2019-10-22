@@ -34,7 +34,7 @@
 #include "RicWellPathFractureReportItem.h"
 #include "RicWellPathFractureTextReportFeatureImpl.h"
 
-#include "RifEclipseDataTableFormatter.h"
+#include "RifTextDataTableFormatter.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -719,22 +719,22 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile( RimEclips
 {
     QTextStream stream( exportFile.get() );
 
-    RifEclipseDataTableFormatter formatter( stream );
+    RifTextDataTableFormatter formatter( stream );
     formatter.setColumnSpacing( 2 );
 
-    std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn( "Well" ),
-                                                       RifEclipseOutputTableColumn( "Grp" ),
-                                                       RifEclipseOutputTableColumn( "I" ),
-                                                       RifEclipseOutputTableColumn( "J" ),
-                                                       RifEclipseOutputTableColumn( "RefDepth" ),
-                                                       RifEclipseOutputTableColumn( "Type" ),
-                                                       RifEclipseOutputTableColumn( "DrainRad" ),
-                                                       RifEclipseOutputTableColumn( "GasInEq" ),
-                                                       RifEclipseOutputTableColumn( "AutoShut" ),
-                                                       RifEclipseOutputTableColumn( "XFlow" ),
-                                                       RifEclipseOutputTableColumn( "FluidPVT" ),
-                                                       RifEclipseOutputTableColumn( "HydSDens" ),
-                                                       RifEclipseOutputTableColumn( "FluidInPlReg" )};
+    std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( "Well" ),
+                                                  RifTextDataTableColumn( "Grp" ),
+                                                  RifTextDataTableColumn( "I" ),
+                                                  RifTextDataTableColumn( "J" ),
+                                                  RifTextDataTableColumn( "RefDepth" ),
+                                                  RifTextDataTableColumn( "Type" ),
+                                                  RifTextDataTableColumn( "DrainRad" ),
+                                                  RifTextDataTableColumn( "GasInEq" ),
+                                                  RifTextDataTableColumn( "AutoShut" ),
+                                                  RifTextDataTableColumn( "XFlow" ),
+                                                  RifTextDataTableColumn( "FluidPVT" ),
+                                                  RifTextDataTableColumn( "HydSDens" ),
+                                                  RifTextDataTableColumn( "FluidInPlReg" )};
 
     formatter.keyword( "WELSPECS" );
     formatter.header( header );
@@ -784,23 +784,23 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
 {
     QTextStream stream( exportFile.get() );
 
-    RifEclipseDataTableFormatter formatter( stream );
+    RifTextDataTableFormatter formatter( stream );
     formatter.setColumnSpacing( 2 );
 
-    std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn( "Well" ),
-                                                       RifEclipseOutputTableColumn( "Grp" ),
-                                                       RifEclipseOutputTableColumn( "LGR" ),
-                                                       RifEclipseOutputTableColumn( "I" ),
-                                                       RifEclipseOutputTableColumn( "J" ),
-                                                       RifEclipseOutputTableColumn( "RefDepth" ),
-                                                       RifEclipseOutputTableColumn( "Type" ),
-                                                       RifEclipseOutputTableColumn( "DrainRad" ),
-                                                       RifEclipseOutputTableColumn( "GasInEq" ),
-                                                       RifEclipseOutputTableColumn( "AutoShut" ),
-                                                       RifEclipseOutputTableColumn( "XFlow" ),
-                                                       RifEclipseOutputTableColumn( "FluidPVT" ),
-                                                       RifEclipseOutputTableColumn( "HydSDens" ),
-                                                       RifEclipseOutputTableColumn( "FluidInPlReg" )};
+    std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( "Well" ),
+                                                  RifTextDataTableColumn( "Grp" ),
+                                                  RifTextDataTableColumn( "LGR" ),
+                                                  RifTextDataTableColumn( "I" ),
+                                                  RifTextDataTableColumn( "J" ),
+                                                  RifTextDataTableColumn( "RefDepth" ),
+                                                  RifTextDataTableColumn( "Type" ),
+                                                  RifTextDataTableColumn( "DrainRad" ),
+                                                  RifTextDataTableColumn( "GasInEq" ),
+                                                  RifTextDataTableColumn( "AutoShut" ),
+                                                  RifTextDataTableColumn( "XFlow" ),
+                                                  RifTextDataTableColumn( "FluidPVT" ),
+                                                  RifTextDataTableColumn( "HydSDens" ),
+                                                  RifTextDataTableColumn( "FluidInPlReg" )};
 
     formatter.keyword( "WELSPECL" );
     formatter.header( header );
@@ -931,7 +931,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
 
     QTextStream stream( exportFile.get() );
 
-    RifEclipseDataTableFormatter formatter( stream );
+    RifTextDataTableFormatter formatter( stream );
     formatter.setColumnSpacing( 3 );
 
     for ( const auto& gridCompletions : completionsPerGrid )
@@ -958,56 +958,52 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatter(
-    RifEclipseDataTableFormatter& formatter, const QString& gridName, const std::vector<RigCompletionData>& completionData )
+    RifTextDataTableFormatter& formatter, const QString& gridName, const std::vector<RigCompletionData>& completionData )
 {
-    std::vector<RifEclipseOutputTableColumn> header;
+    std::vector<RifTextDataTableColumn> header;
 
     if ( gridName.isEmpty() )
     {
-        header = {RifEclipseOutputTableColumn( "Well" ),
-                  RifEclipseOutputTableColumn( "I" ),
-                  RifEclipseOutputTableColumn( "J" ),
-                  RifEclipseOutputTableColumn( "K1" ),
-                  RifEclipseOutputTableColumn( "K2" ),
-                  RifEclipseOutputTableColumn( "Status" ),
-                  RifEclipseOutputTableColumn( "SAT" ),
-                  RifEclipseOutputTableColumn( "TR",
-                                               RifEclipseOutputTableDoubleFormatting(
-                                                   RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC ) ),
-                  RifEclipseOutputTableColumn( "DIAM" ),
-                  RifEclipseOutputTableColumn( "KH",
-                                               RifEclipseOutputTableDoubleFormatting(
-                                                   RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC ) ),
-                  RifEclipseOutputTableColumn( "S" ),
-                  RifEclipseOutputTableColumn( "Df",
-                                               RifEclipseOutputTableDoubleFormatting(
-                                                   RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC ) ),
-                  RifEclipseOutputTableColumn( "DIR" )};
+        header =
+            {RifTextDataTableColumn( "Well" ),
+             RifTextDataTableColumn( "I" ),
+             RifTextDataTableColumn( "J" ),
+             RifTextDataTableColumn( "K1" ),
+             RifTextDataTableColumn( "K2" ),
+             RifTextDataTableColumn( "Status" ),
+             RifTextDataTableColumn( "SAT" ),
+             RifTextDataTableColumn( "TR",
+                                     RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+             RifTextDataTableColumn( "DIAM" ),
+             RifTextDataTableColumn( "KH",
+                                     RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+             RifTextDataTableColumn( "S" ),
+             RifTextDataTableColumn( "Df",
+                                     RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+             RifTextDataTableColumn( "DIR" )};
 
         formatter.keyword( "COMPDAT" );
     }
     else
     {
-        header = {RifEclipseOutputTableColumn( "Well" ),
-                  RifEclipseOutputTableColumn( "LgrName" ),
-                  RifEclipseOutputTableColumn( "I" ),
-                  RifEclipseOutputTableColumn( "J" ),
-                  RifEclipseOutputTableColumn( "K1" ),
-                  RifEclipseOutputTableColumn( "K2" ),
-                  RifEclipseOutputTableColumn( "Status" ),
-                  RifEclipseOutputTableColumn( "SAT" ),
-                  RifEclipseOutputTableColumn( "TR",
-                                               RifEclipseOutputTableDoubleFormatting(
-                                                   RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC ) ),
-                  RifEclipseOutputTableColumn( "DIAM" ),
-                  RifEclipseOutputTableColumn( "KH",
-                                               RifEclipseOutputTableDoubleFormatting(
-                                                   RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC ) ),
-                  RifEclipseOutputTableColumn( "S" ),
-                  RifEclipseOutputTableColumn( "Df",
-                                               RifEclipseOutputTableDoubleFormatting(
-                                                   RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC ) ),
-                  RifEclipseOutputTableColumn( "DIR" )};
+        header =
+            {RifTextDataTableColumn( "Well" ),
+             RifTextDataTableColumn( "LgrName" ),
+             RifTextDataTableColumn( "I" ),
+             RifTextDataTableColumn( "J" ),
+             RifTextDataTableColumn( "K1" ),
+             RifTextDataTableColumn( "K2" ),
+             RifTextDataTableColumn( "Status" ),
+             RifTextDataTableColumn( "SAT" ),
+             RifTextDataTableColumn( "TR",
+                                     RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+             RifTextDataTableColumn( "DIAM" ),
+             RifTextDataTableColumn( "KH",
+                                     RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+             RifTextDataTableColumn( "S" ),
+             RifTextDataTableColumn( "Df",
+                                     RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+             RifTextDataTableColumn( "DIR" )};
 
         formatter.keyword( "COMPDATL" );
     }
@@ -1098,30 +1094,30 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeatureImpl::exportWpimultTableUsingFormatter(
-    RifEclipseDataTableFormatter& formatter, const QString& gridName, const std::vector<RigCompletionData>& completionData )
+    RifTextDataTableFormatter& formatter, const QString& gridName, const std::vector<RigCompletionData>& completionData )
 {
-    std::vector<RifEclipseOutputTableColumn> header;
+    std::vector<RifTextDataTableColumn> header;
 
     if ( gridName.isEmpty() )
     {
         header = {
-            RifEclipseOutputTableColumn( "Well" ),
-            RifEclipseOutputTableColumn( "Mult" ),
-            RifEclipseOutputTableColumn( "I" ),
-            RifEclipseOutputTableColumn( "J" ),
-            RifEclipseOutputTableColumn( "K" ),
+            RifTextDataTableColumn( "Well" ),
+            RifTextDataTableColumn( "Mult" ),
+            RifTextDataTableColumn( "I" ),
+            RifTextDataTableColumn( "J" ),
+            RifTextDataTableColumn( "K" ),
         };
         formatter.keyword( "WPIMULT" );
     }
     else
     {
         header = {
-            RifEclipseOutputTableColumn( "Well" ),
-            RifEclipseOutputTableColumn( "LgrName" ),
-            RifEclipseOutputTableColumn( "Mult" ),
-            RifEclipseOutputTableColumn( "I" ),
-            RifEclipseOutputTableColumn( "J" ),
-            RifEclipseOutputTableColumn( "K" ),
+            RifTextDataTableColumn( "Well" ),
+            RifTextDataTableColumn( "LgrName" ),
+            RifTextDataTableColumn( "Mult" ),
+            RifTextDataTableColumn( "I" ),
+            RifTextDataTableColumn( "J" ),
+            RifTextDataTableColumn( "K" ),
         };
         formatter.keyword( "WPIMULTL" );
     }
