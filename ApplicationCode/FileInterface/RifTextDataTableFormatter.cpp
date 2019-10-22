@@ -35,6 +35,7 @@ RifTextDataTableFormatter::RifTextDataTableFormatter( QTextStream& out )
     , m_commentPrefix( "-- " )
     , m_headerPrefix( "-- " )
     , m_maxDataRowWidth( MAX_ECLIPSE_DATA_ROW_WIDTH )
+    , m_defaultMarker( "1*" )
 {
 }
 
@@ -48,6 +49,7 @@ RifTextDataTableFormatter::RifTextDataTableFormatter( const RifTextDataTableForm
     , m_tableRowAppendText( rhs.m_tableRowAppendText )
     , m_commentPrefix( rhs.m_commentPrefix )
     , m_maxDataRowWidth( rhs.m_maxDataRowWidth )
+    , m_defaultMarker( rhs.m_defaultMarker )
 {
 }
 
@@ -154,6 +156,22 @@ void RifTextDataTableFormatter::setUnlimitedDataRowWidth()
 int RifTextDataTableFormatter::maxDataRowWidth() const
 {
     return m_maxDataRowWidth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifTextDataTableFormatter::setDefaultMarker( const QString& defaultMarker )
+{
+    m_defaultMarker = defaultMarker;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifTextDataTableFormatter::defaultMarker() const
+{
+    return m_defaultMarker;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -420,7 +438,7 @@ RifTextDataTableFormatter& RifTextDataTableFormatter::addValueOrDefaultMarker( d
 {
     if ( value == defaultValue )
     {
-        return add( QString( "1*" ) );
+        return add( m_defaultMarker );
     }
     return add( value );
 }
