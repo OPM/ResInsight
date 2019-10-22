@@ -6,6 +6,9 @@
 
 CAF_PDM_SOURCE_INIT( RicExportContourMapToTextUi, "RicExportContourMapToTextUi" );
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RicExportContourMapToTextUi::RicExportContourMapToTextUi()
 {
     CAF_PDM_InitObject( "Export Contour Map to Text", "", "", "" );

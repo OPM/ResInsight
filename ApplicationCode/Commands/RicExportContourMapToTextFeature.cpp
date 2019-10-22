@@ -19,8 +19,11 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+
 #include "RicExportContourMapToTextUi.h"
+
 #include "RifTextDataTableFormatter.h"
+
 #include "RimContourMapProjection.h"
 #include "RimEclipseContourMapProjection.h"
 #include "RimEclipseContourMapView.h"
@@ -91,12 +94,9 @@ void RicExportContourMapToTextFeature::onActionTriggered( bool isChecked )
 
     RiaGuiApplication* app = RiaGuiApplication::instance();
     CAF_ASSERT( app && "Must be gui mode" );
-
-    QString startPath = app->lastUsedDialogDirectoryWithFallbackToProjectFolder( "CONTOUR_EXPORT" );
-
+    QString startPath    = app->lastUsedDialogDirectoryWithFallbackToProjectFolder( "CONTOUR_EXPORT" );
     QString fileBaseName = caf::Utils::makeValidFileBasename( contourMapName );
-
-    startPath = startPath + "/" + fileBaseName + ".txt";
+    startPath            = startPath + "/" + fileBaseName + ".txt";
 
     RicExportContourMapToTextUi featureUi;
     featureUi.setExportFileName( startPath );
@@ -220,6 +220,9 @@ void RicExportContourMapToTextFeature::setupActionLook( QAction* actionToSetup )
     actionToSetup->setText( "Export Contour Map to Text" );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicExportContourMapToTextFeature::execute()
 {
     RicfCommandResponse response;
@@ -240,6 +243,12 @@ RicfCommandResponse RicExportContourMapToTextFeature::execute()
         {
             myView = view;
         }
+    }
+
+    if ( !myView )
+    {
+        response.updateStatus( RicfCommandResponse::COMMAND_ERROR, "No contour map view found" );
+        return response;
     }
 
     RimContourMapProjection*  contourMapProjection      = nullptr;

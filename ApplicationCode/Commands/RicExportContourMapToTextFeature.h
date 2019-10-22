@@ -37,9 +37,9 @@ public:
     RicfCommandResponse execute() override;
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
     static void writeMetaDataToStream( QTextStream&                   stream,
                                        const RimContourMapProjection* contourMapProjection,
@@ -51,8 +51,6 @@ protected:
                                          bool                           exportLocalCoordinates,
                                          const QString&                 undefinedValueLabel,
                                          bool                           excludeUndefinedValues );
-
-    void setupActionLook( QAction* actionToSetup ) override;
 
 private:
     caf::PdmField<QString> m_exportFileName;
