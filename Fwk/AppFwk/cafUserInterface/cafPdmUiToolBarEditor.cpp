@@ -42,12 +42,14 @@
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiFieldEditorHelper.h"
 #include "cafPdmUiFieldHandle.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiObjectHandle.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 
 #include <QAction>
+#include <QLineEdit>
 #include <QMainWindow>
 #include <QToolBar>
 
@@ -235,15 +237,40 @@ void PdmUiToolBarEditor::clear()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiToolBarEditor::setKeyboardFocusFromKeyword(const QString& fieldKeyword)
+void PdmUiToolBarEditor::setFocusWidgetFromKeyword(const QString& fieldKeyword)
 {
-    auto fieldView = m_fieldViews[fieldKeyword];
-    if (fieldView)
+    if (!m_toolbar->isVisible()) return;
+
+    auto fieldView = m_fieldViews.find(fieldKeyword);
+    if (fieldView != m_fieldViews.end() && fieldView->second)
     {
-        auto editorWidget = fieldView->editorWidget();
+        auto editorWidget = fieldView->second->editorWidget();
         if (editorWidget)
         {
             editorWidget->setFocus(Qt::ActiveWindowFocusReason);
+
+            PdmUiLineEditorAttribute attributes;
+
+            for (auto field : m_fields)
+            {
+                if (field->keyword() == fieldKeyword)
+                {
+                    caf::PdmUiObjectHandle* uiObject = uiObj(field->ownerObject());
+                    if (uiObject)
+                    {
+                        uiObject->editorAttribute(field, uiEditorConfigName(), &attributes);
+                    }
+                }
+            }
+
+            if (attributes.selectAllOnFocusEvent)
+            {
+                auto lineEdit = dynamic_cast<QLineEdit*>(editorWidget);
+                if (lineEdit  )
+                {
+                    lineEdit->selectAll();
+                }
+            }
         }
     }
 }
@@ -271,9 +298,17 @@ void PdmUiToolBarEditor::hide()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Special config name used to configure toolbar UI (tooltip etc.)
+//--------------------------------------------------------------------------------------------------
+QString PdmUiToolBarEditor::uiEditorConfigName()
+{
+    return "ToolbarConfigName";
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString PdmUiToolBarEditor::keywordForWidgetWithFocus()
+QString PdmUiToolBarEditor::keywordForFocusWidget()
 {
     QString keyword;
 

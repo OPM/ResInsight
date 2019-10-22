@@ -47,11 +47,13 @@
 
 #include "RiuPlotMainWindowTools.h"
 #include "RiuSummaryQwtPlot.h"
+#include "RiuTreeViewEventFilter.h"
 
 #include "cvfColor3.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafSelectionManager.h"
 
 #include "qwt_abstract_legend.h"
 #include "qwt_legend.h"
@@ -67,7 +69,6 @@
 #include <QRectF>
 #include <QString>
 
-#include "cafSelectionManager.h"
 #include <limits>
 #include <set>
 
@@ -1947,6 +1948,11 @@ RimPlotTemplateFileItem* RimSummaryPlot::plotTemplate() const
 void RimSummaryPlot::handleKeyPressEvent( QKeyEvent* keyEvent )
 {
     if ( !keyEvent ) return;
+
+    if ( RiuTreeViewEventFilter::activateFeatureFromKeyEvent( keyEvent ) )
+    {
+        return;
+    }
 
     RimSummaryPlotSourceStepping* sourceStepping = sourceSteppingObjectForKeyEventHandling();
     if ( !sourceStepping ) return;

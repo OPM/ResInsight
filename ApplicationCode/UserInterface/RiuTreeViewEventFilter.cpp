@@ -52,6 +52,44 @@ RiuTreeViewEventFilter::RiuTreeViewEventFilter( QObject* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiuTreeViewEventFilter::activateFeatureFromKeyEvent( QKeyEvent* keyEvent )
+{
+    QKeySequence keySeq( keyEvent->modifiers() + keyEvent->key() );
+
+    auto matches = caf::CmdFeatureManager::instance()->commandFeaturesMatchingKeyboardShortcut( keySeq );
+
+    bool wasFeatureActivated = activateFirstEnabledFeature( matches );
+    if ( wasFeatureActivated )
+    {
+        keyEvent->setAccepted( true );
+
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuTreeViewEventFilter::activateFirstEnabledFeature( const std::vector<caf::CmdFeature*>& features )
+{
+    for ( caf::CmdFeature* feature : features )
+    {
+        if ( feature->canFeatureBeExecuted() )
+        {
+            feature->actionTriggered( false );
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiuTreeViewEventFilter::eventFilter( QObject* obj, QEvent* event )
 {
     if ( event->type() == QEvent::KeyPress )
@@ -93,15 +131,11 @@ bool RiuTreeViewEventFilter::eventFilter( QObject* obj, QEvent* event )
                 matches = caf::CmdFeatureManager::instance()->commandFeaturesMatchingKeyboardShortcut( keySeq );
             }
 
-            for ( caf::CmdFeature* feature : matches )
+            bool wasFeatureActivated = RiuTreeViewEventFilter::activateFirstEnabledFeature( matches );
+            if ( wasFeatureActivated )
             {
-                if ( feature->canFeatureBeExecuted() )
-                {
-                    feature->actionTriggered( false );
-
-                    keyEvent->setAccepted( true );
-                    return true;
-                }
+                keyEvent->setAccepted( true );
+                return true;
             }
         }
 

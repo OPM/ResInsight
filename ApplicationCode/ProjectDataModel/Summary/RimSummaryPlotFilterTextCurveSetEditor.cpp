@@ -52,6 +52,7 @@
 
 #include "cafPdmUiLabelEditor.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiToolBarEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QRegularExpression>
@@ -69,22 +70,29 @@ RimSummaryPlotFilterTextCurveSetEditor::RimSummaryPlotFilterTextCurveSetEditor()
     CAF_PDM_InitObject( "Curve Set Filter Text", "", "", "" );
 
     // clang-format off
+    QString filterTextHeading = "Text to Create Summary Vectors";
+    QString filterTextShortcut = " (Ctrl + F)";
+
     QString filterTextToolTip =
-        "A space separated list of vector addresses in the syntax: <vectorshortname>[:<item>[:<subitem>[:i,j,k]]]\n"
+        "A list of vector addresses separated by spaces using the syntax: <vectorshortname>[:<item>[:<subitem>[:i,j,k]]]\n"
         "Wildcards can also be used. Examples:\n"
         "  \"WOPT:*\" One total oil production curve for each well.\n"
         "  \"FOPT FWPT\" Two curves with oil and water total production.\n"
         "  \"BPR:15,28,*\" (no space) Oil phase pressure for all blocks along k as separate curves.\n";
     // clang-format on
 
+    QString toolTipPropertyEditor = filterTextHeading + "\n\n" + filterTextToolTip;
+    QString toolTipToolbar        = filterTextHeading + filterTextShortcut + "\n\n" + filterTextToolTip;
+
     CAF_PDM_InitFieldNoDefault( &m_curveFilterLabelText, "Summary", "Summary", "", "", "" );
     m_curveFilterLabelText.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
-    m_curveFilterLabelText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_curveFilterLabelText.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_curveFilterText, "CurveFilterText", "Curve Filter Text", "", filterTextToolTip, "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveFilterText, "CurveFilterText", "Curve Filter Text", "", toolTipPropertyEditor, "" );
     m_curveFilterText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    // m_curveFilterText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
+
+    // Special tool tip for toolbar
+    m_curveFilterText.uiCapability()->setUiToolTip( toolTipToolbar, caf::PdmUiToolBarEditor::uiEditorConfigName() );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SummaryCases", "Sources", "", "", "" );
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
@@ -112,7 +120,10 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotFilterTextCurveSetEditor::fields
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotFilterTextCurveSetEditor::updateCurveFilterText() {}
+QString RimSummaryPlotFilterTextCurveSetEditor::curveFilterFieldKeyword()
+{
+    return "CurveFilterText";
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -402,12 +413,15 @@ void RimSummaryPlotFilterTextCurveSetEditor::defineEditorAttribute( const caf::P
                                                                     QString                    uiConfigName,
                                                                     caf::PdmUiEditorAttribute* attribute )
 {
-    if ( field == &m_curveFilterText )
+    if ( field == &m_curveFilterText && uiConfigName == caf::PdmUiToolBarEditor::uiEditorConfigName() )
     {
+        // Special config for toolbar
+
         auto attr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
         if ( attr )
         {
-            attr->maximumWidth = 150;
+            attr->maximumWidth          = 150;
+            attr->selectAllOnFocusEvent = true;
         }
     }
 }

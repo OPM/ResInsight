@@ -29,6 +29,7 @@
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSummaryPlotFilterTextCurveSetEditor.h"
 #include "RimViewWindow.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurveCommonDataSource.h"
@@ -200,6 +201,19 @@ void RiuPlotMainWindow::closeEvent( QCloseEvent* event )
     this->hideAllDockWidgets();
     app->closeMainWindowIfOpenButHidden();
     app->closeProject();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::keyPressEvent( QKeyEvent* keyEvent )
+{
+    if ( RiuTreeViewEventFilter::activateFeatureFromKeyEvent( keyEvent ) )
+    {
+        return;
+    }
+
+    RiuMainWindowBase::keyPressEvent( keyEvent );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -562,14 +576,14 @@ void RiuPlotMainWindow::updateSummaryPlotToolBar( bool forceUpdateUi )
 
         if ( !m_summaryPlotToolBarEditor->isEditorDataValid( toolBarFields ) )
         {
-            keyword = m_summaryPlotToolBarEditor->keywordForWidgetWithFocus();
+            keyword = m_summaryPlotToolBarEditor->keywordForFocusWidget();
 
             m_summaryPlotToolBarEditor->setFields( toolBarFields );
         }
 
-        m_summaryPlotToolBarEditor->updateUi();
+        m_summaryPlotToolBarEditor->updateUi( caf::PdmUiToolBarEditor::uiEditorConfigName() );
         m_summaryPlotToolBarEditor->show();
-        m_summaryPlotToolBarEditor->setKeyboardFocusFromKeyword( keyword );
+        m_summaryPlotToolBarEditor->setFocusWidgetFromKeyword( keyword );
     }
     else
     {
@@ -578,6 +592,18 @@ void RiuPlotMainWindow::updateSummaryPlotToolBar( bool forceUpdateUi )
     }
 
     refreshToolbars();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::setFocusToLineEditInSummaryToolBar()
+{
+    if ( m_summaryPlotToolBarEditor )
+    {
+        m_summaryPlotToolBarEditor->setFocusWidgetFromKeyword(
+            RimSummaryPlotFilterTextCurveSetEditor::curveFilterFieldKeyword() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -807,8 +833,8 @@ void RiuPlotMainWindow::customMenuRequested( const QPoint& pos )
     RiaApplication* app = RiaApplication::instance();
     app->project()->actionsBasedOnSelection( menu );
 
-    // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
-    // Since we might get this signal from different treeViews, we need to map the position accordingly.
+    // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the
+    // viewport(). Since we might get this signal from different treeViews, we need to map the position accordingly.
     QObject*   senderObj = this->sender();
     QTreeView* treeView  = dynamic_cast<QTreeView*>( senderObj );
     if ( treeView )

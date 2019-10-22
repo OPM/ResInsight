@@ -81,9 +81,11 @@ public:
 
     void updateWellLogPlotToolBar();
     void updateSummaryPlotToolBar( bool forceUpdateUi = false );
+    void setFocusToLineEditInSummaryToolBar();
 
 protected:
     void closeEvent( QCloseEvent* event ) override;
+    void keyPressEvent( QKeyEvent* ) override;
 
 private:
     void setPdmRoot( caf::PdmObject* pdmRoot );

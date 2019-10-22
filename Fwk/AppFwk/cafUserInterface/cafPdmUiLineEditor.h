@@ -65,6 +65,7 @@ public:
         completerCaseSensitivity             = Qt::CaseInsensitive;
         completerFilterMode                  = Qt::MatchContains;
         maximumWidth                         = -1;
+        selectAllOnFocusEvent                = false;
     }
 
 public:
@@ -75,6 +76,7 @@ public:
     Qt::CaseSensitivity  completerCaseSensitivity;
     Qt::MatchFlags       completerFilterMode;
     int                  maximumWidth;
+    bool                 selectAllOnFocusEvent;
 };
 
 //--------------------------------------------------------------------------------------------------

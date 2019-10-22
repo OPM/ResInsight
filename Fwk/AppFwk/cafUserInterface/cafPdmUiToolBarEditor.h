@@ -65,12 +65,13 @@ public:
     void setFields(std::vector<caf::PdmFieldHandle*>& fields);
     void clear();
 
-    void    setKeyboardFocusFromKeyword(const QString& fieldKeyword);
-    QString keywordForWidgetWithFocus();
+    void    setFocusWidgetFromKeyword(const QString& fieldKeyword);
+    QString keywordForFocusWidget();
     
     void show();
     void hide();
 
+    static QString uiEditorConfigName();
 
 private:
     void configureAndUpdateUi(const QString& uiConfigName) override;
