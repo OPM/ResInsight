@@ -182,6 +182,7 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
     m_scaleLegend->setOrientation( caf::OverlayScaleLegend::HORIZONTAL );
 
     m_comparisonWindowMover = new RiuComparisonViewMover( this );
+    this->setComparisonViewToFollowAnimation(false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -308,6 +309,18 @@ void RiuViewer::slotSetCurrentFrame( int frameIndex )
         if ( viewLinker )
         {
             viewLinker->updateTimeStep( dynamic_cast<RimGridView*>( m_rimView.p() ), frameIndex );
+        }
+
+        // Update  views using this as comparison
+        Rim3dView* view = dynamic_cast<Rim3dView*>( m_rimView.p() );
+        if (view)
+        {
+            std::set<Rim3dView*> containingViews = view->viewsUsingThisAsComparisonView();
+
+            for ( auto view : containingViews )
+            {
+                view->updateCurrentTimeStepAndRedraw();
+            }
         }
     }
 }

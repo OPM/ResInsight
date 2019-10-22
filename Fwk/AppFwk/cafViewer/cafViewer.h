@@ -174,6 +174,9 @@ public:
 
     static void             copyCameraView(cvf::Camera* srcCamera, cvf::Camera* dstCamera);
 
+    void                    setCurrentComparisonFrame(int frameIndex);
+    void                    setComparisonViewToFollowAnimation(bool isToFollow);
+
 public slots:
     virtual void            slotSetCurrentFrame(int frameIndex);
     virtual void            slotEndAnimation();
@@ -257,6 +260,7 @@ private:
     cvf::ref<cvf::Scene>                m_comparisonMainScene;
     cvf::Collection<cvf::Scene>         m_comparisonFrameScenes;
     cvf::Collection<cvf::Model>         m_comparisonStaticModels;
+    bool                                m_isComparisonFollowingAnimation;
 
     cvf::Vec3d                          m_comparisonViewOffset;
     cvf::ref<cvf::RenderingScissor>     m_comparisonRenderingScissor;

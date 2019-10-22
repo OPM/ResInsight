@@ -1790,7 +1790,7 @@ void RiuMainWindow::updateScaleValue()
 {
     Rim3dView* view                   = RiaApplication::instance()->activeReservoirView();
     bool       isRegularReservoirView = view && dynamic_cast<RimEclipseContourMapView*>( view ) == nullptr;
-    if ( isRegularReservoirView )
+    if ( isRegularReservoirView && view->isScaleZEditable() )
     {
         m_scaleFactor->setEnabled( true );
 

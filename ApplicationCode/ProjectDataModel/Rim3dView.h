@@ -165,6 +165,9 @@ public:
 
     bool       isMasterView() const;
     Rim3dView* activeComparisonView() const;
+    bool       isScaleZEditable();
+
+    std::set<Rim3dView*> viewsUsingThisAsComparisonView();
 
     cvf::ref<caf::DisplayCoordTransform> displayCoordTransform() const override;
 
@@ -297,8 +300,7 @@ private:
 
     // Pure private methods : Override viewer and comparison view
 
-    void                 setOverrideViewer( RiuViewer* overrideViewer );
-    std::set<Rim3dView*> viewsUsingThisAsComparisonView();
+    void setOverrideViewer( RiuViewer* overrideViewer );
 
     Rim3dView* prepareComparisonView();
     void       restoreComparisonView();

@@ -332,6 +332,7 @@ void Rim3dView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOr
 
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup( "Grid Appearance" );
     gridGroup->add( &scaleZ );
+    scaleZ.uiCapability()->setUiReadOnly( !this->isScaleZEditable() );
     gridGroup->add( &meshMode );
     gridGroup->add( &surfaceMode );
 
@@ -408,6 +409,15 @@ std::set<Rim3dView*> Rim3dView::viewsUsingThisAsComparisonView()
     }
 
     return containingViews;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Rim3dView::isScaleZEditable()
+{
+    return ( this->viewsUsingThisAsComparisonView().empty() ||
+             ( this->viewController() && this->viewController()->isCameraLinked() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1005,6 +1015,11 @@ void Rim3dView::updateScaling()
         viewer()->setPointOfInterest( poi );
     }
 
+    if (activeComparisonView())
+    {
+        activeComparisonView()->setScaleZAndUpdate(scaleZ);
+    }
+
     updateScaleTransform();
     updateGridBoxData();
     updateZScaleLabel();
@@ -1422,12 +1437,11 @@ Rim3dView* Rim3dView::prepareComparisonView()
         return nullptr;
     }
 
-    m_comparisonViewOrgTimestep = depView->currentTimeStep();
-    depView->m_currentTimeStep  = currentTimeStep();
-    depView->clampCurrentTimestep();
 
-    m_comparisonViewOrgZScale = depView->scaleZ();
-    depView->scaleZ           = scaleZ();
+    if ( depView->scaleZ() != scaleZ() )
+    {
+        depView->setScaleZAndUpdate( scaleZ() );
+    }
 
     viewer()->setComparisonViewEyePointOffset( RimViewManipulator::calculateEquivalentCamPosOffset( this, depView ) );
 
@@ -1445,6 +1459,6 @@ void Rim3dView::restoreComparisonView()
     CVF_ASSERT( depView );
 
     depView->setOverrideViewer( nullptr );
-    depView->m_currentTimeStep = m_comparisonViewOrgTimestep;
-    depView->scaleZ            = m_comparisonViewOrgZScale;
+    viewer()->setCurrentComparisonFrame(depView->currentTimeStep());
+
 }

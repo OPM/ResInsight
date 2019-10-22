@@ -131,7 +131,8 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     m_offscreenViewportHeight(0),
     m_parallelProjectionLightDirection(0, 0, -1), // Light directly from behind
     m_comparisonViewOffset(0, 0, 0),
-    m_comparisonWindowNormalizedRect(0.5f, 0.0f, 0.5f, 1.0f)
+    m_comparisonWindowNormalizedRect(0.5f, 0.0f, 0.5f, 1.0f),
+    m_isComparisonFollowingAnimation(true)
 {
     #if QT_VERSION >= 0x050000
     m_layoutWidget = new QWidget(parent);
@@ -968,6 +969,40 @@ bool caf::Viewer::isAnimationActive()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void caf::Viewer::setCurrentComparisonFrame(int frameIndex)
+{
+    if (m_frameScenes.size() == 0) return;
+
+    int clampedFrameIndex = clampFrameIndex(frameIndex);
+
+    if (m_releaseOGLResourcesEachFrame)
+    {
+        releaseOGlResourcesForCurrentFrame();
+    }
+
+    if ( m_comparisonFrameScenes.size() > clampedFrameIndex &&  m_comparisonFrameScenes.at(clampedFrameIndex) != nullptr )
+    {
+        m_comparisonMainRendering->setScene(m_comparisonFrameScenes.at(clampedFrameIndex));
+    }
+    else
+    {
+        m_comparisonMainRendering->setScene(nullptr);
+    }
+
+    update();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::setComparisonViewToFollowAnimation(bool isToFollow)
+{
+    m_isComparisonFollowingAnimation = isToFollow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void caf::Viewer::slotSetCurrentFrame(int frameIndex)
 {
     if (m_frameScenes.size() == 0) return;
@@ -989,14 +1024,19 @@ void caf::Viewer::slotSetCurrentFrame(int frameIndex)
     {
         m_mainRendering->setScene(nullptr);
     }
-    if (m_comparisonFrameScenes.size() > clampedFrameIndex &&  m_comparisonFrameScenes.at(clampedFrameIndex) != nullptr )
+
+    if ( m_isComparisonFollowingAnimation )
     {
-        m_comparisonMainRendering->setScene(m_comparisonFrameScenes.at(clampedFrameIndex));
+        if ( m_comparisonFrameScenes.size() > clampedFrameIndex &&  m_comparisonFrameScenes.at(clampedFrameIndex) != nullptr )
+        {
+            m_comparisonMainRendering->setScene(m_comparisonFrameScenes.at(clampedFrameIndex));
+        }
+        else
+        {
+            m_comparisonMainRendering->setScene(nullptr);
+        }
     }
-    else 
-    {
-        m_comparisonMainRendering->setScene(nullptr);
-    }
+
     update();
 }
 
