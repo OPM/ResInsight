@@ -133,6 +133,15 @@ RiuQwtSymbol::RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, Labe
 void RiuQwtSymbol::renderSymbols( QPainter* painter, const QPointF* points, int numPoints ) const
 {
     QwtSymbol::renderSymbols( painter, points, numPoints );
+
+    if ( !m_globalLabel.isEmpty() )
+    {
+        for ( int i = 0; i < numPoints; i++ )
+        {
+            auto position = points[i];
+            renderSymbolLabel( painter, position, m_globalLabel );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
