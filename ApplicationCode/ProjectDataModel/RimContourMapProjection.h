@@ -89,6 +89,9 @@ public:
 
     QString resultAggregationText() const;
 
+    QString caseName() const;
+    QString currentTimeStepName() const;
+
     double maxValue() const;
     double minValue() const;
 

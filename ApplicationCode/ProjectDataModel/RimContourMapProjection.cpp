@@ -246,6 +246,34 @@ QString RimContourMapProjection::resultAggregationText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimContourMapProjection::caseName() const
+{
+    RimCase* rimCase = baseView()->ownerCase();
+    if ( !rimCase )
+    {
+        return QString();
+    }
+
+    return rimCase->caseUserDescription.value();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimContourMapProjection::currentTimeStepName() const
+{
+    RimCase* rimCase = baseView()->ownerCase();
+    if ( !rimCase || m_currentResultTimestep == -1 )
+    {
+        return QString();
+    }
+
+    return rimCase->timeStepName( m_currentResultTimestep );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimContourMapProjection::maxValue() const
 {
     return maxValue( m_aggregatedResults );
