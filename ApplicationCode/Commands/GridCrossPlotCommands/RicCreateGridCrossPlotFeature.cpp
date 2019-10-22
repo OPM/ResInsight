@@ -28,7 +28,9 @@
 #include "RimProject.h"
 
 #include "RiuPlotMainWindowTools.h"
+#include "RiuViewer.h"
 
+#include "cafCmdFeatureManager.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -48,22 +50,26 @@ bool RicCreateGridCrossPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreateGridCrossPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* project = RiaApplication::instance()->project();
-
-    bool                        launchedFromPlotCollection = true;
-    RimGridCrossPlotCollection* collection                 = caf::SelectionManager::instance()
+    RimProject*                 project    = RiaApplication::instance()->project();
+    RimGridCrossPlotCollection* collection = caf::SelectionManager::instance()
                                                  ->selectedItemAncestorOfType<RimGridCrossPlotCollection>();
     if ( !collection )
     {
-        collection                 = project->mainPlotCollection()->gridCrossPlotCollection();
-        launchedFromPlotCollection = false;
+        collection = project->mainPlotCollection()->gridCrossPlotCollection();
     }
     RimGridCrossPlot*        plot    = collection->createGridCrossPlot();
     RimGridCrossPlotDataSet* dataSet = plot->createDataSet();
 
-    if ( !launchedFromPlotCollection )
+    auto contextViewer = dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
+    if ( contextViewer != nullptr )
     {
-        dataSet->setCellFilterView( RiaApplication::instance()->activeGridView() );
+        // Command is triggered from viewer
+        dataSet->setCellFilterView( RiaApplication::instance()->activeMainOrComparisonGridView() );
+    }
+    else
+    {
+        // Triggered from context menu: get the selected view
+        // TODO:  get the filter from somewhere
     }
 
     plot->loadDataAndUpdate();
@@ -80,15 +86,17 @@ void RicCreateGridCrossPlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicCreateGridCrossPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    RimGridCrossPlotCollection* collection = caf::SelectionManager::instance()
-                                                 ->selectedItemAncestorOfType<RimGridCrossPlotCollection>();
-    if ( !collection )
+    auto contextViewer = dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
+    if ( contextViewer != nullptr )
     {
+        // Command is triggered from viewer
         actionToSetup->setText( "Create Grid Cross Plot from 3d View" );
     }
     else
     {
+        // Command triggered from project tree or file menu
         actionToSetup->setText( "Create Grid Cross Plot" );
     }
+
     actionToSetup->setIcon( QIcon( ":/SummaryXPlotsLight16x16.png" ) );
 }
