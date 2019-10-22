@@ -24,12 +24,12 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicExportContourMapToAsciiUi : public caf::PdmObject
+class RicExportContourMapToTextUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RicExportContourMapToAsciiUi();
+    RicExportContourMapToTextUi();
 
     QString exportFileName() const;
     void    setExportFileName( const QString& exportFileName );

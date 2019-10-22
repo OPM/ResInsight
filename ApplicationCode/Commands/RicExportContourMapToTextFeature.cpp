@@ -15,11 +15,11 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#include "RicExportContourMapToAsciiFeature.h"
+#include "RicExportContourMapToTextFeature.h"
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
-#include "RicExportContourMapToAsciiUi.h"
+#include "RicExportContourMapToTextUi.h"
 #include "RifTextDataTableFormatter.h"
 #include "RimContourMapProjection.h"
 #include "RimEclipseContourMapProjection.h"
@@ -38,9 +38,9 @@
 
 #include <cmath>
 
-RICF_SOURCE_INIT( RicExportContourMapToAsciiFeature, "RicExportContourMapToAsciiFeature", "exportContourMapToText" );
+RICF_SOURCE_INIT( RicExportContourMapToTextFeature, "RicExportContourMapToTextFeature", "exportContourMapToText" );
 
-RicExportContourMapToAsciiFeature::RicExportContourMapToAsciiFeature()
+RicExportContourMapToTextFeature::RicExportContourMapToTextFeature()
 {
     RICF_InitFieldNoDefault( &m_exportFileName, "exportFileName", "", "", "", "" );
     RICF_InitFieldNoDefault( &m_exportLocalCoordinates, "exportLocalCoordinates", "", "", "", "" );
@@ -52,7 +52,7 @@ RicExportContourMapToAsciiFeature::RicExportContourMapToAsciiFeature()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportContourMapToAsciiFeature::isCommandEnabled()
+bool RicExportContourMapToTextFeature::isCommandEnabled()
 {
     RimEclipseContourMapView* existingEclipseContourMap = caf::SelectionManager::instance()
                                                               ->selectedItemOfType<RimEclipseContourMapView>();
@@ -64,7 +64,7 @@ bool RicExportContourMapToAsciiFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportContourMapToAsciiFeature::onActionTriggered( bool isChecked )
+void RicExportContourMapToTextFeature::onActionTriggered( bool isChecked )
 {
     RimContourMapProjection*  contourMapProjection      = nullptr;
     RimEclipseContourMapView* existingEclipseContourMap = caf::SelectionManager::instance()
@@ -98,12 +98,12 @@ void RicExportContourMapToAsciiFeature::onActionTriggered( bool isChecked )
 
     startPath = startPath + "/" + fileBaseName + ".txt";
 
-    RicExportContourMapToAsciiUi featureUi;
+    RicExportContourMapToTextUi featureUi;
     featureUi.setExportFileName( startPath );
 
     caf::PdmUiPropertyViewDialog propertyDialog( nullptr,
                                                  &featureUi,
-                                                 "Export Contour Map as Text",
+                                                 "Export Contour Map to Text",
                                                  "",
                                                  QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
 
@@ -138,10 +138,10 @@ void RicExportContourMapToAsciiFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportContourMapToAsciiFeature::writeMetaDataToStream( QTextStream&                   stream,
-                                                               const RimContourMapProjection* contourMapProjection,
-                                                               const QString&                 caseName,
-                                                               bool                           exportLocalCoordinates )
+void RicExportContourMapToTextFeature::writeMetaDataToStream( QTextStream&                   stream,
+                                                              const RimContourMapProjection* contourMapProjection,
+                                                              const QString&                 caseName,
+                                                              bool                           exportLocalCoordinates )
 {
     cvf::Vec2ui numVerticesIJ = contourMapProjection->numberOfVerticesIJ();
     stream << "# case name : " << contourMapProjection->caseName() << "\n";
@@ -159,11 +159,11 @@ void RicExportContourMapToAsciiFeature::writeMetaDataToStream( QTextStream&     
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportContourMapToAsciiFeature::writeContourMapToStream( QTextStream&                   stream,
-                                                                 const RimContourMapProjection* contourMapProjection,
-                                                                 bool                           exportLocalCoordinates,
-                                                                 const QString&                 undefinedValueLabel,
-                                                                 bool                           excludeUndefinedValues )
+void RicExportContourMapToTextFeature::writeContourMapToStream( QTextStream&                   stream,
+                                                                const RimContourMapProjection* contourMapProjection,
+                                                                bool                           exportLocalCoordinates,
+                                                                const QString&                 undefinedValueLabel,
+                                                                bool                           excludeUndefinedValues )
 {
     RifTextDataTableFormatter formatter( stream );
     formatter.setTableRowLineAppendText( "" );
@@ -215,12 +215,12 @@ void RicExportContourMapToAsciiFeature::writeContourMapToStream( QTextStream&   
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportContourMapToAsciiFeature::setupActionLook( QAction* actionToSetup )
+void RicExportContourMapToTextFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Export Contour Map to Ascii" );
+    actionToSetup->setText( "Export Contour Map to Text" );
 }
 
-RicfCommandResponse RicExportContourMapToAsciiFeature::execute()
+RicfCommandResponse RicExportContourMapToTextFeature::execute()
 {
     RicfCommandResponse response;
     QStringList         errorMessages, warningMessages;
@@ -264,7 +264,7 @@ RicfCommandResponse RicExportContourMapToAsciiFeature::execute()
     QFile exportFile( m_exportFileName );
     if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
-        errorMessages << QString( "Export Contour Map as Text : Could not open the file: %1" ).arg( m_exportFileName );
+        errorMessages << QString( "Export Contour Map to Text : Could not open the file: %1" ).arg( m_exportFileName );
     }
     else
     {

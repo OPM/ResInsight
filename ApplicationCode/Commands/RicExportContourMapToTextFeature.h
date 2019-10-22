@@ -28,12 +28,12 @@ class QTextStream;
 //==================================================================================================
 ///
 //==================================================================================================
-class RicExportContourMapToAsciiFeature : public caf::CmdFeature, public RicfCommandObject
+class RicExportContourMapToTextFeature : public caf::CmdFeature, public RicfCommandObject
 {
     RICF_HEADER_INIT;
 
 public:
-    RicExportContourMapToAsciiFeature();
+    RicExportContourMapToTextFeature();
     RicfCommandResponse execute() override;
 
 protected:

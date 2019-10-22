@@ -176,7 +176,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
-            menuBuilder << "RicExportContourMapToAsciiFeature";
+            menuBuilder << "RicExportContourMapToTextFeature";
         }
         else if ( dynamic_cast<RimEclipseView*>( uiItem ) )
         {
@@ -189,7 +189,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "RicExportEclipseInputGridFeature";
-            menuBuilder << "RicExportContourMapToAsciiFeature";
+            menuBuilder << "RicExportContourMapToTextFeature";
             menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
         }
         else if ( dynamic_cast<RimEclipseContourMapViewCollection*>( uiItem ) )

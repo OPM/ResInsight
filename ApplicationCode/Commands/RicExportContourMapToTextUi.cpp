@@ -1,12 +1,12 @@
-#include "RicExportContourMapToAsciiUi.h"
+#include "RicExportContourMapToTextUi.h"
 
 #include "RiaApplication.h"
 
 #include "cafPdmUiFilePathEditor.h"
 
-CAF_PDM_SOURCE_INIT( RicExportContourMapToAsciiUi, "RicExportContourMapToAsciiUi" );
+CAF_PDM_SOURCE_INIT( RicExportContourMapToTextUi, "RicExportContourMapToTextUi" );
 
-RicExportContourMapToAsciiUi::RicExportContourMapToAsciiUi()
+RicExportContourMapToTextUi::RicExportContourMapToTextUi()
 {
     CAF_PDM_InitObject( "Export Contour Map to Text", "", "", "" );
 
@@ -21,7 +21,7 @@ RicExportContourMapToAsciiUi::RicExportContourMapToAsciiUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicExportContourMapToAsciiUi::exportFileName() const
+QString RicExportContourMapToTextUi::exportFileName() const
 {
     return m_exportFileName;
 }
@@ -29,7 +29,7 @@ QString RicExportContourMapToAsciiUi::exportFileName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportContourMapToAsciiUi::setExportFileName( const QString& exportFileName )
+void RicExportContourMapToTextUi::setExportFileName( const QString& exportFileName )
 {
     m_exportFileName = exportFileName;
 }
@@ -37,7 +37,7 @@ void RicExportContourMapToAsciiUi::setExportFileName( const QString& exportFileN
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportContourMapToAsciiUi::exportLocalCoordinates() const
+bool RicExportContourMapToTextUi::exportLocalCoordinates() const
 {
     return m_exportLocalCoordinates;
 }
@@ -45,7 +45,7 @@ bool RicExportContourMapToAsciiUi::exportLocalCoordinates() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicExportContourMapToAsciiUi::undefinedValueLabel() const
+QString RicExportContourMapToTextUi::undefinedValueLabel() const
 {
     return m_undefinedValueLabel;
 }
@@ -53,7 +53,7 @@ QString RicExportContourMapToAsciiUi::undefinedValueLabel() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportContourMapToAsciiUi::excludeUndefinedValues() const
+bool RicExportContourMapToTextUi::excludeUndefinedValues() const
 {
     return m_excludeUndefinedValues;
 }
@@ -61,9 +61,9 @@ bool RicExportContourMapToAsciiUi::excludeUndefinedValues() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportContourMapToAsciiUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                          QString                    uiConfigName,
-                                                          caf::PdmUiEditorAttribute* attribute )
+void RicExportContourMapToTextUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_exportFileName )
     {
