@@ -28,6 +28,7 @@
 #include "RigWellLogCurveData.h"
 
 #include "Rim3dView.h"
+#include "RimGridView.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
@@ -81,7 +82,7 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered( bool isChecked )
         RimWellPath*                wellPath    = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>();
         int                         branchIndex = -1;
         RimSimWellInView*           simWell     = RicWellLogTools::selectedSimulationWell( &branchIndex );
-        Rim3dView*                  view        = RiaApplication::instance()->activeReservoirView();
+        Rim3dView*                  view        = RiaApplication::instance()->activeMainOrComparisonGridView();
         bool                        useBranchDetection = true;
         RimSimWellInViewCollection* simWellColl        = nullptr;
         if ( simWell )
