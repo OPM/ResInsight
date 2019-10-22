@@ -51,6 +51,7 @@ int         ecl_coarse_cell_iget_cell_index(ecl_coarse_cell_type * coarse_cell,
 const int * ecl_coarse_cell_get_index_ptr(ecl_coarse_cell_type * coarse_cell);
 const int_vector_type * ecl_coarse_cell_get_index_vector(ecl_coarse_cell_type * coarse_cell);
 
+void ecl_coarse_cell_reset_active_index(ecl_coarse_cell_type * coarse_cell, int active_value);
 void ecl_coarse_cell_update_index(ecl_coarse_cell_type * coarse_cell,
                                   int global_index,
                                   int * active_index,
