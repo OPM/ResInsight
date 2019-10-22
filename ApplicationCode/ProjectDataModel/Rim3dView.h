@@ -321,5 +321,4 @@ private:
     caf::PdmField<bool>                    m_showZScaleLabel;
     caf::PdmField<bool>                    m_isComparisonViewEnabled;
     caf::PdmPtrField<Rim3dView*>           m_comparisonView;
-    caf::PdmField<bool>                    m_isComparisonViewLinkingTimestep;
 };

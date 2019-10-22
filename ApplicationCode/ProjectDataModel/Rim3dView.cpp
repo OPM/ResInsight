@@ -131,13 +131,6 @@ Rim3dView::Rim3dView( void )
 
     CAF_PDM_InitField( &m_isComparisonViewEnabled, "EnableComparisonView", false, "Enable", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_comparisonView, "ComparisonView", "Comparison View", "", "", "" );
-    CAF_PDM_InitField( &m_isComparisonViewLinkingTimestep,
-                       "EnableComparisonViewTimestepLinking",
-                       true,
-                       "Link Timestep",
-                       "",
-                       "",
-                       "" );
 
     m_crossSectionVizModel = new cvf::ModelBasicList;
     m_crossSectionVizModel->setName( "CrossSectionModel" );
@@ -339,7 +332,6 @@ void Rim3dView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOr
     caf::PdmUiGroup* compViewGroup = uiOrdering.addNewGroup( "Comparison View" );
     compViewGroup->add( &m_isComparisonViewEnabled );
     compViewGroup->add( &m_comparisonView );
-    compViewGroup->add( &m_isComparisonViewLinkingTimestep );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -825,13 +817,7 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
             createDisplayModelAndRedraw();
         }
     }
-    else if ( changedField == &m_isComparisonViewLinkingTimestep )
-    {
-        if ( m_isComparisonViewEnabled() && m_comparisonView() )
-        {
-            createDisplayModelAndRedraw();
-        }
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------

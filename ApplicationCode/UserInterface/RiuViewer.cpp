@@ -317,9 +317,9 @@ void RiuViewer::slotSetCurrentFrame( int frameIndex )
         {
             std::set<Rim3dView*> containingViews = view->viewsUsingThisAsComparisonView();
 
-            for ( auto view : containingViews )
+            for ( auto contView : containingViews )
             {
-                view->updateCurrentTimeStepAndRedraw();
+                contView->updateCurrentTimeStepAndRedraw();
             }
         }
     }
