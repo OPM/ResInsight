@@ -34,8 +34,6 @@
 #include "cafUtils.h"
 
 #include <QAction>
-#include <QDateTime>
-#include <QDebug>
 #include <QFileDialog>
 
 #include <cmath>
@@ -146,10 +144,9 @@ void RicExportContourMapToAsciiFeature::writeMetaDataToStream( QTextStream&     
                                                                bool                           exportLocalCoordinates )
 {
     cvf::Vec2ui numVerticesIJ = contourMapProjection->numberOfVerticesIJ();
-    stream << "# case name : " << caseName << "\n";
+    stream << "# case name : " << contourMapProjection->caseName() << "\n";
     stream << "# sampling points : nx=" << numVerticesIJ.x() << " ny=" << numVerticesIJ.y() << "\n";
-    QDateTime now = QDateTime::currentDateTime();
-    stream << "# time and date : " << now.toString( Qt::ISODate ) << "\n";
+    stream << "# time and date : " << contourMapProjection->currentTimeStepName() << "\n";
     stream << "# property name : " << contourMapProjection->resultDescriptionText() << "\n";
     if ( exportLocalCoordinates )
     {
