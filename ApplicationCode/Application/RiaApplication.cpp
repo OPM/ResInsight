@@ -84,6 +84,9 @@
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
 
+#include "RiuViewer.h"
+#include "RiuViewerCommands.h"
+
 #include "cafPdmSettings.h"
 #include "cafPdmUiModelChangeDetector.h"
 #include "cafProgressInfo.h"
@@ -256,6 +259,25 @@ Rim3dView* RiaApplication::activeReservoirView()
 RimGridView* RiaApplication::activeGridView()
 {
     return dynamic_cast<RimGridView*>( m_activeReservoirView.p() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGridView* RiaApplication::activeMainOrComparisonGridView()
+{
+    RimGridView* activeView           = RiaApplication::instance()->activeGridView();
+    RimGridView* viewOrComparisonView = activeView;
+
+    if ( activeView->viewer()->viewerCommands()->isCurrentPickInComparisonView() )
+    {
+        if ( RimGridView* compView = dynamic_cast<RimGridView*>( activeView->activeComparisonView() ) )
+        {
+            viewOrComparisonView = compView;
+        }
+    }
+
+    return viewOrComparisonView;
 }
 
 //--------------------------------------------------------------------------------------------------

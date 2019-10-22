@@ -294,7 +294,7 @@ void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            oldValue,
                                        const QVariant&            newValue )
 {
-    Rim3dView::fieldChangedByUi( changedField, oldValue, newValue );
+    RimGridView::fieldChangedByUi( changedField, oldValue, newValue );
 
     if ( changedField == &m_showInvalidCells )
     {
@@ -1169,16 +1169,12 @@ void RimEclipseView::updateLegends()
         }
         else
         {
-            nativeOrOverrideViewer()->removeColorLegend( this->cellEdgeResult()->legendConfig()->titledOverlayFrame() );
-            nativeOrOverrideViewer()->removeColorLegend( fractureColors()->activeLegend()->titledOverlayFrame() );
-            nativeOrOverrideViewer()->removeColorLegend(
-                m_virtualPerforationResult->legendConfig()->titledOverlayFrame() );
-            nativeOrOverrideViewer()->removeColorLegend( this->cellResult()->legendConfig()->titledOverlayFrame() );
-            nativeOrOverrideViewer()->removeColorLegend( this->cellResult()->ternaryLegendConfig()->titledOverlayFrame() );
-            nativeOrOverrideViewer()->removeColorLegend(
-                this->currentFaultResultColors()->legendConfig()->titledOverlayFrame() );
-            nativeOrOverrideViewer()->removeColorLegend(
-                this->currentFaultResultColors()->ternaryLegendConfig()->titledOverlayFrame() );
+            std::vector<RimLegendConfig*> legendConfs = this->legendConfigs();
+
+            for (auto legendConf : legendConfs)
+            {
+                nativeOrOverrideViewer()->removeColorLegend(legendConf->titledOverlayFrame());
+            }
         }
     }
 

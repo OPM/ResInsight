@@ -120,7 +120,7 @@ public:
     void showAxisCross( bool enable );
     void setAxisLabels( const cvf::String& xLabel, const cvf::String& yLabel, const cvf::String& zLabel );
 
-    cvf::Vec3d lastPickPositionInDomainCoords() const;
+    RiuViewerCommands* viewerCommands() const;
 
     cvf::OverlayItem* pickFixedPositionedLegend( int winPosX, int winPosY );
 

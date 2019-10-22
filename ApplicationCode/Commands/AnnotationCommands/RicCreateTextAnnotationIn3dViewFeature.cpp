@@ -28,6 +28,7 @@
 
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
+#include "RiuViewerCommands.h"
 
 #include "cvfBoundingBox.h"
 #include "cvfCamera.h"
@@ -57,12 +58,14 @@ void RicCreateTextAnnotationIn3dViewFeature::onActionTriggered( bool isChecked )
 
     if ( activeView )
     {
-        cvf::Vec3d       domainCoord = activeView->viewer()->lastPickPositionInDomainCoords();
-        cvf::BoundingBox bbox        = activeView->ownerCase()->activeCellsBoundingBox();
+        RimGridView* viewOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
+
+        cvf::Vec3d       domainCoord = activeView->viewer()->viewerCommands()->lastPickPositionInDomainCoords();
+        cvf::BoundingBox bbox        = viewOrComparisonView->ownerCase()->activeCellsBoundingBox();
 
         if ( contMapView ) domainCoord[2] = bbox.max().z() - bbox.extent().z() * 0.2;
 
-        auto coll = activeView->annotationCollection();
+        auto coll = viewOrComparisonView->annotationCollection();
 
         if ( coll )
         {
@@ -70,7 +73,9 @@ void RicCreateTextAnnotationIn3dViewFeature::onActionTriggered( bool isChecked )
             newAnnotation->setAnchorPoint( domainCoord );
             cvf::Vec3d labelPos = domainCoord;
 
-            if ( activeView->viewer()->mainCamera()->direction().z() <= 0 )
+            cvf::Camera* viewCamera = activeView->viewer()->mainCamera();
+
+            if ( viewCamera->direction().z() <= 0 )
             {
                 labelPos.z() = bbox.max().z();
             }
@@ -79,10 +84,10 @@ void RicCreateTextAnnotationIn3dViewFeature::onActionTriggered( bool isChecked )
                 labelPos.z() = bbox.min().z();
             }
 
-            cvf::Vec3d horizontalRight = activeView->viewer()->mainCamera()->direction() ^ cvf::Vec3d::Z_AXIS;
-            cvf::Vec3d horizontalUp    = activeView->viewer()->mainCamera()->up() -
-                                      ( cvf::Vec3d::Z_AXIS *
-                                        ( activeView->viewer()->mainCamera()->up() * cvf::Vec3d::Z_AXIS ) );
+            cvf::Vec3d horizontalRight = viewCamera->direction() ^ cvf::Vec3d::Z_AXIS;
+            cvf::Vec3d horizontalUp    = viewCamera->up() -
+                                      ( cvf::Vec3d::Z_AXIS * ( viewCamera->up() * cvf::Vec3d::Z_AXIS ) );
+
             bool isOk = horizontalRight.normalize();
             if ( !isOk ) horizontalRight = {1.0, 0.0, 0.0};
 
@@ -93,7 +98,7 @@ void RicCreateTextAnnotationIn3dViewFeature::onActionTriggered( bool isChecked )
             coll->scheduleRedrawOfRelevantViews();
             coll->updateConnectedEditors();
 
-            RiuMainWindow::instance()->selectAsCurrentItem( newAnnotation );
+            RiuMainWindow::instance()->selectAsCurrentItem( newAnnotation, false );
         }
     }
 }

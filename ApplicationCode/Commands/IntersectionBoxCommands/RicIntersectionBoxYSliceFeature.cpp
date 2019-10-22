@@ -18,6 +18,8 @@
 
 #include "RicIntersectionBoxYSliceFeature.h"
 
+#include "RicIntersectionFeatureImpl.h"
+
 #include "RiaApplication.h"
 
 #include "RimCase.h"
@@ -27,6 +29,7 @@
 
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
+#include "RiuViewerCommands.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
@@ -50,33 +53,7 @@ bool RicIntersectionBoxYSliceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicIntersectionBoxYSliceFeature::onActionTriggered( bool isChecked )
 {
-    RimGridView* activeView = RiaApplication::instance()->activeGridView();
-    if ( activeView )
-    {
-        RimIntersectionCollection* coll = activeView->crossSectionCollection();
-        CVF_ASSERT( coll );
-
-        RimIntersectionBox* intersectionBox = new RimIntersectionBox();
-        intersectionBox->name               = QString( "Y-slice (Intersection box)" );
-
-        coll->appendIntersectionBoxAndUpdate( intersectionBox );
-
-        cvf::Vec3d domainCoord = activeView->viewer()->lastPickPositionInDomainCoords();
-        intersectionBox->setToDefaultSizeSlice( RimIntersectionBox::PLANE_STATE_Y, domainCoord );
-
-        coll->updateConnectedEditors();
-        RiuMainWindow::instance()->selectAsCurrentItem( intersectionBox );
-
-        RimGridView* rimView = nullptr;
-        coll->firstAncestorOrThisOfType( rimView );
-        if ( rimView )
-        {
-            rimView->showGridCells( false );
-            RiuMainWindow::instance()->refreshDrawStyleActions();
-
-            rimView->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
+    RicIntersectionFeatureImpl::createIntersectionBoxSlize("Y-slice (Intersection box)", RimIntersectionBox::PLANE_STATE_Y);
 }
 
 //--------------------------------------------------------------------------------------------------

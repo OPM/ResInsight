@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,12 +15,10 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
-#include "RicIntersectionBoxAtPosFeature.h"
+#include "RicIntersectionFeatureImpl.h"
 
 #include "RiaApplication.h"
 
-#include "RimCase.h"
 #include "RimGridView.h"
 #include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
@@ -29,59 +27,33 @@
 #include "RiuViewer.h"
 #include "RiuViewerCommands.h"
 
-#include "cafCmdExecCommandManager.h"
-#include "cafSelectionManager.h"
-
-#include "cvfAssert.h"
-
-#include <QAction>
-
-CAF_CMD_SOURCE_INIT( RicIntersectionBoxAtPosFeature, "RicIntersectionBoxAtPosFeature" );
-
 //--------------------------------------------------------------------------------------------------
-///
+/// 
 //--------------------------------------------------------------------------------------------------
-bool RicIntersectionBoxAtPosFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicIntersectionBoxAtPosFeature::onActionTriggered( bool isChecked )
+void RicIntersectionFeatureImpl::createIntersectionBoxSlize(const QString& name, RimIntersectionBox::SinglePlaneState plane)
 {
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
     RimGridView* activeMainOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
+
     if ( activeMainOrComparisonView )
     {
         RimIntersectionCollection* coll = activeMainOrComparisonView->crossSectionCollection();
         CVF_ASSERT( coll );
-
-        RimIntersectionBox* intersectionBox = new RimIntersectionBox();
-        intersectionBox->name               = QString( "Intersection box" );
-
-        coll->appendIntersectionBoxAndUpdate( intersectionBox );
-
+        
         cvf::Vec3d domainCoord = activeView->viewer()->viewerCommands()->lastPickPositionInDomainCoords();
 
-        intersectionBox->setToDefaultSizeSlice( RimIntersectionBox::PLANE_STATE_NONE, domainCoord );
+        RimIntersectionBox* intersectionBox = new RimIntersectionBox();
+        intersectionBox->name               = name;
 
+        coll->appendIntersectionBoxNoUpdate( intersectionBox );
+        intersectionBox->setToDefaultSizeSlice( plane, domainCoord );
         coll->updateConnectedEditors();
-        RiuMainWindow::instance()->selectAsCurrentItem( intersectionBox, false );
 
         activeMainOrComparisonView->showGridCells(false);
-        RiuMainWindow::instance()->refreshDrawStyleActions();
-
+        activeMainOrComparisonView->scheduleCreateDisplayModelAndRedraw();
         activeView->scheduleCreateDisplayModelAndRedraw();
-    }
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicIntersectionBoxAtPosFeature::setupActionLook( QAction* actionToSetup )
-{
-    actionToSetup->setIcon( QIcon( ":/IntersectionBox16x16.png" ) );
-    actionToSetup->setText( "Intersection Box" );
+        RiuMainWindow::instance()->selectAsCurrentItem( intersectionBox, false );
+        RiuMainWindow::instance()->refreshDrawStyleActions();
+    }
 }

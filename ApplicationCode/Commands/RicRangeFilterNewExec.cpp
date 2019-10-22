@@ -73,7 +73,7 @@ void RicRangeFilterNewExec::redo()
 
         m_cellRangeFilterCollection->updateConnectedEditors();
 
-        Riu3DMainWindowTools::selectAsCurrentItem( rangeFilter );
+        Riu3DMainWindowTools::selectAsCurrentItem( rangeFilter, false );
 
         // Trigger update of view following the range filter update
         RimGridView* view = nullptr;

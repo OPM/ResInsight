@@ -440,8 +440,12 @@ void RimGeoMechView::updateLegends()
         }
         else
         {
-            nativeOrOverrideViewer()->removeColorLegend( cellResult()->legendConfig->titledOverlayFrame() );
-            nativeOrOverrideViewer()->removeColorLegend( m_tensorResults->arrowColorLegendConfig->titledOverlayFrame() );
+            std::vector<RimLegendConfig*> legendConfs = this->legendConfigs();
+
+            for (auto legendConf : legendConfs)
+            {
+                nativeOrOverrideViewer()->removeColorLegend(legendConf->titledOverlayFrame());
+            }
         }
 
         this->updateLegendTextAndRanges( cellResult()->legendConfig(), m_currentTimeStep() );
@@ -752,7 +756,7 @@ void RimGeoMechView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            oldValue,
                                        const QVariant&            newValue )
 {
-    Rim3dView::fieldChangedByUi( changedField, oldValue, newValue );
+    RimGridView::fieldChangedByUi( changedField, oldValue, newValue );
 }
 
 //--------------------------------------------------------------------------------------------------

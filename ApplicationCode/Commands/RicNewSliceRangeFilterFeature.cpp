@@ -26,23 +26,28 @@
 #include "RimGridView.h"
 #include "RimViewController.h"
 
+#include "RiuViewer.h"
+#include "RiuViewerCommands.h"
+
 #include "cafCmdExecCommandManager.h"
 
 #include <QAction>
 #include <QList>
 #include <QVariant>
 
-CAF_CMD_SOURCE_INIT( RicNewSliceRangeFilterFeature, "RicNewSliceRangeFilterFeature" );
+CAF_CMD_SOURCE_INIT( RicNewSliceRangeFilter3dViewFeature, "RicNewSliceRangeFilter3dViewFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSliceRangeFilterFeature::isCommandEnabled()
+bool RicNewSliceRangeFilter3dViewFeature::isCommandEnabled()
 {
     RimGridView* view = RiaApplication::instance()->activeGridView();
     if ( !view ) return false;
 
-    RimViewController* vc = view->viewController();
+    RimGridView* viewOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
+
+    RimViewController* vc = viewOrComparisonView->viewController();
     if ( !vc ) return true;
 
     return ( !vc->isRangeFiltersControlled() );
@@ -51,14 +56,16 @@ bool RicNewSliceRangeFilterFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewSliceRangeFilterFeature::onActionTriggered( bool isChecked )
+void RicNewSliceRangeFilter3dViewFeature::onActionTriggered( bool isChecked )
 {
     QVariant userData = this->userData();
 
     if ( !userData.isNull() && userData.type() == QVariant::List )
     {
-        RimGridView*                  view                  = RiaApplication::instance()->activeGridView();
-        RimCellRangeFilterCollection* rangeFilterCollection = view->rangeFilterCollection();
+        RimGridView* activeView           = RiaApplication::instance()->activeGridView();
+        RimGridView* viewOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
+
+        RimCellRangeFilterCollection* rangeFilterCollection = viewOrComparisonView->rangeFilterCollection();
 
         RicRangeFilterNewExec* filterExec = new RicRangeFilterNewExec( rangeFilterCollection );
 
@@ -87,14 +94,14 @@ void RicNewSliceRangeFilterFeature::onActionTriggered( bool isChecked )
         }
 
         caf::CmdExecCommandManager::instance()->processExecuteCommand( filterExec );
-        view->setSurfaceDrawstyle();
+        activeView->setSurfaceDrawstyle();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewSliceRangeFilterFeature::setupActionLook( QAction* actionToSetup )
+void RicNewSliceRangeFilter3dViewFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/CellFilter_Range.png" ) );
 }

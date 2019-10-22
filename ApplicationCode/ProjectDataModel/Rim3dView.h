@@ -163,7 +163,11 @@ public:
     void updateZScaleLabel();
     void updateMeasurement();
 
-    bool isMasterView() const;
+    bool       isMasterView() const;
+    Rim3dView* activeComparisonView() const;
+    bool       isScaleZEditable();
+
+    std::set<Rim3dView*> viewsUsingThisAsComparisonView();
 
     cvf::ref<caf::DisplayCoordTransform> displayCoordTransform() const override;
 
@@ -296,9 +300,7 @@ private:
 
     // Pure private methods : Override viewer and comparison view
 
-    void                 setOverrideViewer( RiuViewer* overrideViewer );
-    Rim3dView*           activeComparisonView() const;
-    std::set<Rim3dView*> viewsUsingThisAsComparisonView();
+    void setOverrideViewer( RiuViewer* overrideViewer );
 
     Rim3dView* prepareComparisonView();
     void       restoreComparisonView();
@@ -319,5 +321,4 @@ private:
     caf::PdmField<bool>                    m_showZScaleLabel;
     caf::PdmField<bool>                    m_isComparisonViewEnabled;
     caf::PdmPtrField<Rim3dView*>           m_comparisonView;
-    caf::PdmField<bool>                    m_isComparisonViewLinkingTimestep;
 };

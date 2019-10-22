@@ -66,20 +66,24 @@ public:
     static void removePickEventHandlerIfActive( Ric3dViewPickEventHandler* pickEventHandler );
 
     cvf::Vec3d lastPickPositionInDomainCoords() const;
+    bool       isCurrentPickInComparisonView() const;
 
 private:
-    void findCellAndGridIndex( const RivIntersectionSourceInfo* crossSectionSourceInfo,
+    void findCellAndGridIndex( Rim3dView*                       mainOrComparisonView,
+                               const RivIntersectionSourceInfo* crossSectionSourceInfo,
                                cvf::uint                        firstPartTriangleIndex,
                                size_t*                          cellIndex,
                                size_t*                          gridIndex );
-    void findCellAndGridIndex( const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo,
+    void findCellAndGridIndex( Rim3dView*                          mainOrComparisonView,
+                               const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo,
                                cvf::uint                           firstPartTriangleIndex,
                                size_t*                             cellIndex,
                                size_t*                             gridIndex );
+    void ijkFromCellIndex(
+        Rim3dView* mainOrComparisonView, size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k );
 
-    void ijkFromCellIndex( size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k );
-
-    void findFirstItems( const std::vector<RiuPickItemInfo>& pickItemInfos,
+    void findFirstItems( Rim3dView*                          mainOrComparisonView,
+                         const std::vector<RiuPickItemInfo>& pickItemInfos,
                          size_t*                             indexToFirstNoneNncItem,
                          size_t*                             indexToNncItemNearFirsItem );
 
@@ -93,6 +97,7 @@ private:
     size_t                             m_currentCellIndex;
     cvf::StructGridInterface::FaceType m_currentFaceIndex;
     cvf::Vec3d                         m_currentPickPositionInDomainCoords;
+    bool                               m_isCurrentPickInComparisonView;
     caf::PdmPointer<Rim3dView>         m_reservoirView;
     QPointer<RiuViewer>                m_viewer;
 
