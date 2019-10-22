@@ -173,6 +173,7 @@ void RicExportContourMapToAsciiFeature::writeContourMapToStream( QTextStream&   
     formatter.setTableRowPrependText( "" );
     formatter.setCommentPrefix( "#" );
     formatter.setHeaderPrefix( "" );
+    formatter.setDefaultMarker( undefinedValueLabel );
 
     std::vector<RifTextDataTableColumn> header = {
         RifTextDataTableColumn( "x" ),
@@ -186,6 +187,8 @@ void RicExportContourMapToAsciiFeature::writeContourMapToStream( QTextStream&   
     std::vector<double> xVertexPositions = contourMapProjection->xVertexPositions();
     std::vector<double> yVertexPositions = contourMapProjection->yVertexPositions();
 
+    // Undefined values are positive inf in contour map projection.
+    double undefined = std::numeric_limits<double>::infinity();
     for ( unsigned int j = 0; j < numVerticesIJ.y(); j++ )
     {
         for ( unsigned int i = 0; i < numVerticesIJ.x(); i++ )
@@ -203,7 +206,7 @@ void RicExportContourMapToAsciiFeature::writeContourMapToStream( QTextStream&   
 
                 formatter.add( x );
                 formatter.add( y );
-                formatter.add( value );
+                formatter.addValueOrDefaultMarker( value, undefined );
                 formatter.rowCompleted();
             }
         }
