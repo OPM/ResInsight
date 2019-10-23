@@ -63,60 +63,33 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
 QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& summaryAddress,
                                              const RimSummaryPlotNameHelper* nameHelper ) const
 {
-    std::string text;
-
     RimSummaryCurve* summaryCurve = nullptr;
     this->firstAncestorOrThisOfType( summaryCurve );
 
-    if ( m_vectorName )
+    std::string unitNameY;
+    if ( summaryCurve )
     {
-        bool skipSubString = nameHelper && nameHelper->isPlotDisplayingSingleQuantity();
-        if ( !skipSubString )
-        {
-            text += summaryAddress.quantityName();
-
-            if ( summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
-            {
-                text = RiaStatisticsTools::replacePercentileByPValueText( QString::fromStdString( text ) ).toStdString();
-            }
-
-            if ( m_unit && summaryCurve && !summaryCurve->unitNameY().empty() )
-            {
-                text += "[" + summaryCurve->unitNameY() + "]";
-            }
-        }
+        unitNameY = summaryCurve->unitNameY();
     }
 
-    appendAddressDetails( text, summaryAddress, nameHelper );
-
-    QString caseName;
+    std::string caseNameY;
+    if ( caseNameY.empty() && summaryCurve && summaryCurve->summaryCaseY() )
+    {
+        caseNameY = summaryCurve->summaryCaseY()->caseName().toStdString();
+    }
 
     {
         RimEnsembleCurveSet* ensembleCurveSet = nullptr;
         this->firstAncestorOrThisOfType( ensembleCurveSet );
         if ( ensembleCurveSet && ensembleCurveSet->summaryCaseCollection() )
         {
-            caseName = ensembleCurveSet->summaryCaseCollection()->name();
+            caseNameY = ensembleCurveSet->summaryCaseCollection()->name().toStdString();
         }
     }
 
-    if ( caseName.isEmpty() && summaryCurve && summaryCurve->summaryCaseY() )
-    {
-        caseName = summaryCurve->summaryCaseY()->caseName();
-    }
+    QString curveName = buildCurveName( summaryAddress, nameHelper, unitNameY, caseNameY );
 
-    if ( !caseName.isEmpty() )
-    {
-        bool skipSubString = nameHelper && nameHelper->isCaseInTitle();
-
-        if ( m_caseName && !skipSubString )
-        {
-            if ( !text.empty() ) text += ", ";
-            text += caseName.toStdString();
-        }
-    }
-
-    return QString::fromStdString( text );
+    return curveName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,41 +98,33 @@ QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& sum
 QString RimSummaryCurveAutoName::curveNameX( const RifEclipseSummaryAddress& summaryAddress,
                                              const RimSummaryPlotNameHelper* nameHelper ) const
 {
-    std::string text;
-
     RimSummaryCurve* summaryCurve = nullptr;
     this->firstAncestorOrThisOfType( summaryCurve );
 
-    if ( m_vectorName )
+    std::string unitNameX;
+    if ( summaryCurve )
     {
-        bool skipSubString = nameHelper && nameHelper->isPlotDisplayingSingleQuantity();
-        if ( !skipSubString )
-        {
-            text += summaryAddress.quantityName();
+        unitNameX = summaryCurve->unitNameX();
+    }
 
-            if ( m_unit && summaryCurve && !summaryCurve->unitNameX().empty() )
-            {
-                text += "[" + summaryCurve->unitNameX() + "]";
-            }
+    std::string caseNameX;
+    if ( caseNameX.empty() && summaryCurve && summaryCurve->summaryCaseX() )
+    {
+        caseNameX = summaryCurve->summaryCaseX()->caseName().toStdString();
+    }
+
+    {
+        RimEnsembleCurveSet* ensembleCurveSet = nullptr;
+        this->firstAncestorOrThisOfType( ensembleCurveSet );
+        if ( ensembleCurveSet && ensembleCurveSet->summaryCaseCollection() )
+        {
+            caseNameX = ensembleCurveSet->summaryCaseCollection()->name().toStdString();
         }
     }
 
-    appendAddressDetails( text, summaryAddress, nameHelper );
+    QString curveName = buildCurveName( summaryAddress, nameHelper, unitNameX, caseNameX );
 
-    if ( summaryCurve && summaryCurve->summaryCaseX() )
-    {
-        bool skipSubString = nameHelper && nameHelper->isCaseInTitle();
-
-        if ( m_caseName && !skipSubString )
-        {
-            QString caseName = summaryCurve->summaryCaseX()->caseName();
-
-            if ( !text.empty() ) text += ", ";
-            text += caseName.toStdString();
-        }
-    }
-
-    return QString::fromStdString( text );
+    return curveName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,6 +171,53 @@ void RimSummaryCurveAutoName::appendLgrName( std::string& text, const RifEclipse
         if ( !text.empty() ) text += ":";
         text += ":" + summaryAddress.lgrName();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress& summaryAddress,
+                                                 const RimSummaryPlotNameHelper* nameHelper,
+                                                 const std::string&              unitText,
+                                                 const std::string&              caseName ) const
+{
+    std::string text; // Using std::string locally to avoid a lot of conversion when building the curve name
+
+    if ( m_vectorName )
+    {
+        bool skipSubString = nameHelper && nameHelper->isPlotDisplayingSingleQuantity();
+        if ( !skipSubString )
+        {
+            text = summaryAddress.quantityName();
+        }
+
+        if ( summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
+        {
+            text = RiaStatisticsTools::replacePercentileByPValueText(
+                       QString::fromStdString( summaryAddress.quantityName() ) )
+                       .toStdString();
+        }
+
+        if ( m_unit && !unitText.empty() )
+        {
+            text += "[" + unitText + "]";
+        }
+    }
+
+    appendAddressDetails( text, summaryAddress, nameHelper );
+
+    if ( !caseName.empty() )
+    {
+        bool skipSubString = nameHelper && nameHelper->isCaseInTitle();
+
+        if ( m_caseName && !skipSubString )
+        {
+            if ( !text.empty() ) text += ", ";
+            text += caseName;
+        }
+    }
+
+    return QString::fromStdString( text );
 }
 
 //--------------------------------------------------------------------------------------------------
