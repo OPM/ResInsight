@@ -608,6 +608,11 @@ fromECLOutput(const ECLInitFileData& init)
     raw.numCols   = 5; // [ x, 1/B, 1/(B*mu), d(1/B)/dx, d(1/(B*mu))/dx ]
     raw.numTables = tabdims[ TABDIMS_NTPVTG_ITEM ]; // # PV{D,T}G tables
 
+    if (raw.numTables == 0)
+    {
+        return GPtr{};
+    }
+
     const auto& lh = init.keywordData<bool>(LOGIHEAD_KW);
 
     if (lh[ LOGIHEAD_RV_INDEX ]) {
