@@ -336,7 +336,7 @@ void RimWellRftPlot::updateEditorsFromCurves()
             selectedSources.insert( curveDef.address() );
 
         auto newTimeStepMap = std::map<QDateTime, std::set<RifDataSourceForRftPlt>>{
-            {curveDef.timeStep(), std::set<RifDataSourceForRftPlt>{curveDef.address()}}};
+            { curveDef.timeStep(), std::set<RifDataSourceForRftPlt>{ curveDef.address() } } };
         RimWellPlotTools::addTimeStepsToMap( selectedTimeStepsMap, newTimeStepMap );
         selectedTimeSteps.insert( curveDef.timeStep() );
     }
@@ -986,18 +986,6 @@ void RimWellRftPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     updateFormationsOnPlot();
 
-    // Update of curve color must happen here when loading data from project file, as the curve color is blended by the
-    // background color. The background color is taken from the viewer.
-    RimWellLogTrack* const plotTrack = trackByIndex( 0 );
-
-    if ( plotTrack && plotTrack->viewer() )
-    {
-        for ( auto c : plotTrack->curvesVector() )
-        {
-            applyCurveColor( c );
-        }
-    }
-
     if ( depthType() == RimWellLogPlot::MEASURED_DEPTH )
     {
         assignWellPathToExtractionCurves();
@@ -1006,6 +994,20 @@ void RimWellRftPlot::onLoadDataAndUpdate()
     RimWellLogPlot::onLoadDataAndUpdate();
 
     updateEditorsFromCurves();
+
+    // Update of curve color must happen here when loading data from project file, as the curve color is blended by the
+    // background color. The background color is taken from the viewer.
+    RimWellLogTrack* const plotTrack = trackByIndex( 0 );
+
+    if ( plotTrack && plotTrack->viewer() )
+    {
+        syncCurvesFromUiSelection();
+
+        for ( auto c : plotTrack->curvesVector() )
+        {
+            applyCurveColor( c );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1135,12 +1137,12 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
     std::vector<cvf::Color3f> colorTable;
     RiaColorTables::summaryCurveDefaultPaletteColors().color3fArray().toStdVector( &colorTable );
 
-    std::vector<RiuQwtSymbol::PointSymbolEnum> symbolTable = {RiuQwtSymbol::SYMBOL_ELLIPSE,
-                                                              RiuQwtSymbol::SYMBOL_RECT,
-                                                              RiuQwtSymbol::SYMBOL_DIAMOND,
-                                                              RiuQwtSymbol::SYMBOL_CROSS,
-                                                              RiuQwtSymbol::SYMBOL_XCROSS,
-                                                              RiuQwtSymbol::SYMBOL_STAR1};
+    std::vector<RiuQwtSymbol::PointSymbolEnum> symbolTable = { RiuQwtSymbol::SYMBOL_ELLIPSE,
+                                                               RiuQwtSymbol::SYMBOL_RECT,
+                                                               RiuQwtSymbol::SYMBOL_DIAMOND,
+                                                               RiuQwtSymbol::SYMBOL_CROSS,
+                                                               RiuQwtSymbol::SYMBOL_XCROSS,
+                                                               RiuQwtSymbol::SYMBOL_STAR1 };
 
     // Add new curves
     for ( const RiaRftPltCurveDefinition& curveDefToAdd : allCurveDefs )
