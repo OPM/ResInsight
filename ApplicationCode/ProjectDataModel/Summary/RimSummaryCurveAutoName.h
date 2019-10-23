@@ -52,6 +52,11 @@ private:
                          const RimSummaryPlotNameHelper* nameHelper ) const;
     void appendLgrName( std::string& text, const RifEclipseSummaryAddress& summaryAddress ) const;
 
+    QString buildCurveName( const RifEclipseSummaryAddress& summaryAddress,
+                            const RimSummaryPlotNameHelper* nameHelper,
+                            const std::string&              unitText,
+                            const std::string&              caseName ) const;
+
 private:
     caf::PdmField<bool> m_vectorName;
     caf::PdmField<bool> m_unit;
