@@ -246,6 +246,34 @@ QString RimContourMapProjection::resultAggregationText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimContourMapProjection::caseName() const
+{
+    RimCase* rimCase = baseView()->ownerCase();
+    if ( !rimCase )
+    {
+        return QString();
+    }
+
+    return rimCase->caseUserDescription.value();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimContourMapProjection::currentTimeStepName() const
+{
+    RimCase* rimCase = baseView()->ownerCase();
+    if ( !rimCase || m_currentResultTimestep == -1 )
+    {
+        return QString();
+    }
+
+    return rimCase->timeStepName( m_currentResultTimestep );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimContourMapProjection::maxValue() const
 {
     return maxValue( m_aggregatedResults );
@@ -1606,7 +1634,7 @@ cvf::Vec2d RimContourMapProjection::origin2d() const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Vertex positions in local coordinates (add origin2d.x() for UTM x)
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimContourMapProjection::xVertexPositions() const
 {
@@ -1624,7 +1652,7 @@ std::vector<double> RimContourMapProjection::xVertexPositions() const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Vertex positions in local coordinates (add origin2d.y() for UTM y)
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimContourMapProjection::yVertexPositions() const
 {

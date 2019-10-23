@@ -10,6 +10,7 @@ from rips.gridcasegroup import GridCaseGroup
 from rips.pdmobject import PdmObject
 from rips.plot import Plot
 from rips.view import View
+from rips.contour_map import ContourMap, ContourMapType
 
 import rips.generated.Commands_pb2 as Cmd
 from rips.generated.Definitions_pb2 import Empty
@@ -162,6 +163,15 @@ class Project(PdmObject):
             if plot_object.view_id == view_id:
                 return plot_object
         return None
+
+    def contour_maps(self, map_type=ContourMapType.ECLIPSE):
+        """Get a list of all contour maps belonging to a project"""
+
+        pdm_objects = self.descendants(ContourMapType.get_identifier(map_type))
+        contour_maps = []
+        for pdm_object in pdm_objects:
+            contour_maps.append(ContourMap(pdm_object, self._project, map_type))
+        return contour_maps
 
     def well_paths(self):
         """Get a list of all the well path names in the project"""

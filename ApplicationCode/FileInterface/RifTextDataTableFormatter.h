@@ -119,8 +119,12 @@ public:
     void    setTableRowLineAppendText( const QString& text );
     QString commentPrefix() const;
     void    setCommentPrefix( const QString& commentPrefix );
+    QString headerPrefix() const;
+    void    setHeaderPrefix( const QString& headerPrefix );
     void    setUnlimitedDataRowWidth();
     int     maxDataRowWidth() const;
+    void    setDefaultMarker( const QString& defaultMarker );
+    QString defaultMarker() const;
 
     RifTextDataTableFormatter& keyword( const QString& keyword );
     RifTextDataTableFormatter& header( std::vector<RifTextDataTableColumn> tableHeader );
@@ -167,5 +171,7 @@ private:
     QString                             m_tableRowPrependText;
     QString                             m_tableRowAppendText;
     QString                             m_commentPrefix;
+    QString                             m_headerPrefix;
     int                                 m_maxDataRowWidth;
+    QString                             m_defaultMarker;
 };

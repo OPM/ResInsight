@@ -89,6 +89,9 @@ public:
 
     QString resultAggregationText() const;
 
+    QString caseName() const;
+    QString currentTimeStepName() const;
+
     double maxValue() const;
     double minValue() const;
 
@@ -109,6 +112,9 @@ public:
     bool checkForMapIntersection( const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint ) const;
     void       setPickPoint( cvf::Vec2d globalPickPoint );
     cvf::Vec3d origin3d() const;
+
+    std::vector<double> xVertexPositions() const;
+    std::vector<double> yVertexPositions() const;
 
     // Pure-virtual public methods which should be overridden by Eclipse and Geo-mechanical contour map implementations
     virtual QString                 resultDescriptionText() const = 0;
@@ -189,9 +195,6 @@ protected:
     cvf::Vec2ui                     ijFromLocalPos( const cvf::Vec2d& localPos2d ) const;
     cvf::Vec2d                      cellCenterPosition( uint i, uint j ) const;
     cvf::Vec2d                      origin2d() const;
-
-    std::vector<double> xVertexPositions() const;
-    std::vector<double> yVertexPositions() const;
 
     cvf::Vec2ui calculateMapSize() const;
     double      gridEdgeOffset() const;

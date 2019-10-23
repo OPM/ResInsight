@@ -33,7 +33,9 @@ RifTextDataTableFormatter::RifTextDataTableFormatter( QTextStream& out )
     , m_tableRowPrependText( "   " )
     , m_tableRowAppendText( " /" )
     , m_commentPrefix( "-- " )
+    , m_headerPrefix( "-- " )
     , m_maxDataRowWidth( MAX_ECLIPSE_DATA_ROW_WIDTH )
+    , m_defaultMarker( "1*" )
 {
 }
 
@@ -47,6 +49,7 @@ RifTextDataTableFormatter::RifTextDataTableFormatter( const RifTextDataTableForm
     , m_tableRowAppendText( rhs.m_tableRowAppendText )
     , m_commentPrefix( rhs.m_commentPrefix )
     , m_maxDataRowWidth( rhs.m_maxDataRowWidth )
+    , m_defaultMarker( rhs.m_defaultMarker )
 {
 }
 
@@ -126,6 +129,22 @@ void RifTextDataTableFormatter::setCommentPrefix( const QString& commentPrefix )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RifTextDataTableFormatter::headerPrefix() const
+{
+    return m_headerPrefix;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifTextDataTableFormatter::setHeaderPrefix( const QString& headerPrefix )
+{
+    m_headerPrefix = headerPrefix;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifTextDataTableFormatter::setUnlimitedDataRowWidth()
 {
     m_maxDataRowWidth = std::numeric_limits<int>::max();
@@ -142,11 +161,27 @@ int RifTextDataTableFormatter::maxDataRowWidth() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifTextDataTableFormatter::setDefaultMarker( const QString& defaultMarker )
+{
+    m_defaultMarker = defaultMarker;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifTextDataTableFormatter::defaultMarker() const
+{
+    return m_defaultMarker;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifTextDataTableFormatter::outputBuffer()
 {
     if ( !m_columns.empty() && !isAllHeadersEmpty( m_columns ) )
     {
-        m_out << m_commentPrefix;
+        m_out << m_headerPrefix;
         for ( size_t i = 0u; i < m_columns.size(); ++i )
         {
             m_out << formatColumn( m_columns[i].title, i );
@@ -403,7 +438,7 @@ RifTextDataTableFormatter& RifTextDataTableFormatter::addValueOrDefaultMarker( d
 {
     if ( value == defaultValue )
     {
-        return add( QString( "1*" ) );
+        return add( m_defaultMarker );
     }
     return add( value );
 }
