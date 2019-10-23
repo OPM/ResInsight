@@ -172,6 +172,27 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
             years.insert( year );
         }
 
+        std::set<double> uniqueDayValues;
+        for ( auto dayValue : dayValues )
+        {
+            uniqueDayValues.insert( dayValue );
+        }
+
+        if ( days.size() == 1 && months.size() == 1 && years.size() == 1 && uniqueDayValues.size() == 1 )
+        {
+            QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime(
+                QDate( *years.begin(), *months.begin(), *days.begin() ) );
+
+            timeSteps->push_back( reportDateTime );
+            daysSinceSimulationStart->push_back( *uniqueDayValues.begin() );
+
+            // Early return, we have only one unique time step
+            // This state has been seen for cases with one file for each time step
+            // See https://github.com/OPM/ResInsight/issues/4904
+
+            return;
+        }
+
         if ( days.size() > 1 ) allTimeStepsOnSameDate = false;
         if ( months.size() > 1 ) allTimeStepsOnSameDate = false;
         if ( years.size() > 1 ) allTimeStepsOnSameDate = false;
