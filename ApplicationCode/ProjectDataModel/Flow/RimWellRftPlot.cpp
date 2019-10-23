@@ -1015,18 +1015,6 @@ void RimWellRftPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     updateFormationsOnPlot();
 
-    // Update of curve color must happen here when loading data from project file, as the curve color is blended by the
-    // background color. The background color is taken from the viewer.
-    RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-
-    if ( plotTrack && plotTrack->viewer() )
-    {
-        for ( auto c : plotTrack->curves() )
-        {
-            applyCurveColor( c );
-        }
-    }
-
     if ( depthType() == RimWellLogPlot::MEASURED_DEPTH )
     {
         assignWellPathToExtractionCurves();
@@ -1035,6 +1023,19 @@ void RimWellRftPlot::onLoadDataAndUpdate()
     RimWellLogPlot::onLoadDataAndUpdate();
 
     updateEditorsFromCurves();
+
+    // Update of curve color must happen here when loading data from project file, as the curve color is blended by the
+    // background color. The background color is taken from the viewer.
+    RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+
+    if ( plotTrack && plotTrack->viewer() )
+    {
+        syncCurvesFromUiSelection();
+        for ( auto c : plotTrack->curves() )
+        {
+            applyCurveColor( c );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
