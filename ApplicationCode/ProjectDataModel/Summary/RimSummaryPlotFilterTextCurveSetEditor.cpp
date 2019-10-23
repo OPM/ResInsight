@@ -366,8 +366,11 @@ void RimSummaryPlotFilterTextCurveSetEditor::defineUiOrdering( QString uiConfigN
         std::vector<caf::PdmPointer<SummarySource>> usedSources( sourcesFromExistingCurves.begin(),
                                                                  sourcesFromExistingCurves.end() );
 
-        m_selectedSources.clear();
-        m_selectedSources.setValue( usedSources );
+        if ( !usedSources.empty() )
+        {
+            m_selectedSources.clear();
+            m_selectedSources.setValue( usedSources );
+        }
 
         // Check if existing filtertext matches all the curves
         // Todo: possibly check grid time history curves also
