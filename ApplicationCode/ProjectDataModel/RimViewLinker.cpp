@@ -45,6 +45,7 @@
 
 #include "RiuViewer.h"
 
+#include "RiaOptionItemFactory.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafQIconProvider.h"
 #include "cvfCamera.h"
@@ -70,6 +71,10 @@ RimViewLinker::RimViewLinker()
     CAF_PDM_InitFieldNoDefault(&m_viewControllers, "ManagedViews", "Managed Views", "", "", "");
     m_viewControllers.uiCapability()->setUiHidden(true);
     m_viewControllers.uiCapability()->setUiTreeChildrenHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_comparisonView, "LinkedComparisonView", "Comparison View", "", "", "");
+    m_comparisonView.xmlCapability()->disableIO();
+
     // clang-format on
 }
 
@@ -343,6 +348,10 @@ void RimViewLinker::allViews( std::vector<RimGridView*>& views ) const
 void RimViewLinker::initAfterRead()
 {
     updateUiNameAndIcon();
+    if ( m_masterView() )
+    {
+        m_comparisonView = dynamic_cast<RimGridView*>( m_masterView->activeComparisonView() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -472,6 +481,94 @@ void RimViewLinker::updateCursorPosition( const RimGridView* sourceView, const c
         if ( destinationViewer )
         {
             destinationViewer->setCursorPosition( domainCoord );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::notifyManagedViewChange( RimGridView* oldManagedView, RimGridView* newManagedView )
+{
+    if ( oldManagedView == m_comparisonView )
+    {
+        m_comparisonView = newManagedView;
+        m_comparisonView.uiCapability()->updateConnectedEditors();
+
+        if ( masterView() )
+        {
+            masterView()->setComparisonView( m_comparisonView() );
+            masterView()->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimViewLinker::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                    bool*                      useOptionsOnly )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    RimGridView* actualComparisonView = nullptr;
+    if ( m_masterView() )
+    {
+        actualComparisonView = dynamic_cast<RimGridView*>( m_masterView->activeComparisonView() );
+    }
+
+    bool isActiveCompViewInList = false;
+    for ( const auto& viewController : m_viewControllers )
+    {
+        if ( viewController->managedView() )
+        {
+            RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( viewController->managedView(), &options );
+            if ( viewController->managedView() == actualComparisonView )
+            {
+                isActiveCompViewInList = true;
+            }
+        }
+    }
+
+    if ( !isActiveCompViewInList )
+    {
+        // Add the actually used comparison view to the option list, even though it is not one of the linked views
+        options.push_front( caf::PdmOptionItemInfo( actualComparisonView->autoName(),
+                                                    actualComparisonView,
+                                                    false,
+                                                    actualComparisonView->uiCapability()->uiIconProvider() ) );
+    }
+
+    options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    // Update the comparison view from the master view
+    if ( m_masterView() )
+    {
+        m_comparisonView = dynamic_cast<RimGridView*>( m_masterView->activeComparisonView() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                      const QVariant&            oldValue,
+                                      const QVariant&            newValue )
+{
+    if ( changedField == &m_comparisonView )
+    {
+        if ( masterView() )
+        {
+            masterView()->setComparisonView( m_comparisonView() );
+            masterView()->scheduleCreateDisplayModelAndRedraw();
         }
     }
 }
