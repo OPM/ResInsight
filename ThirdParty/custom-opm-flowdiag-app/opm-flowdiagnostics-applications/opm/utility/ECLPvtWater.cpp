@@ -352,6 +352,11 @@ fromECLOutput(const ECLInitFileData& init)
     raw.numCols    = 5; // [ Pw, 1/B, Cw, 1/(B*mu), Cw - Cv ]
     raw.numTables  = tabdims[ TABDIMS_NTPVTW_ITEM ]; // # PVTW tables
 
+    if (raw.numTables == 0)
+    {
+        return WPtr{};
+    }
+
     // Extract Full Table
     {
         const auto nTabElem =
