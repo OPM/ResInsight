@@ -287,16 +287,9 @@ const int * ecl_coarse_cell_get_box_ptr( const ecl_coarse_cell_type * coarse_cel
 
 
 /*****************************************************************/
-void ecl_coarse_cell_reset_active_index(ecl_coarse_cell_type * coarse_cell, int active_value) {
-    if (active_value & CELL_ACTIVE_MATRIX)
-    {
-        coarse_cell->active_index = -1;
-    }
-
-    if (active_value & CELL_ACTIVE_FRACTURE)
-    {
-        coarse_cell->active_fracture_index = -1;
-    }
+void ecl_coarse_cell_reset_active_index(ecl_coarse_cell_type * coarse_cell) {
+    coarse_cell->active_index = -1;
+    coarse_cell->active_fracture_index = -1;
 }
 
 void ecl_coarse_cell_update_index( ecl_coarse_cell_type * coarse_cell , int global_index , int * active_index , int * active_fracture_index , int active_value) {
