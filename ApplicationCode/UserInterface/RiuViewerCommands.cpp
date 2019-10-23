@@ -213,7 +213,9 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
         }
     }
 
-    // Build menue
+    // Build menus
+
+    caf::CmdFeatureManager::instance()->setCurrentContextMenuTargetWidget( m_viewer );
 
     QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
@@ -548,12 +550,16 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
     {
     }
 
+    menuBuilder << "RicExportContourMapToTextFeature";
+
     menuBuilder.appendToMenu( &menu );
 
     if ( !menu.isEmpty() )
     {
         menu.exec( event->globalPos() );
     }
+
+    caf::CmdFeatureManager::instance()->setCurrentContextMenuTargetWidget( nullptr );
 
     // Delete items in temporary selection
     Riu3dSelectionManager::instance()->deleteAllItems( Riu3dSelectionManager::RUI_TEMPORARY );

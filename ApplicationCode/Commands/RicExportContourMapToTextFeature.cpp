@@ -32,6 +32,9 @@
 #include "RimProject.h"
 #include "RimViewWindow.h"
 
+#include "RiuViewer.h"
+
+#include "cafCmdFeatureManager.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
 #include "cafUtils.h"
@@ -57,10 +60,13 @@ RicExportContourMapToTextFeature::RicExportContourMapToTextFeature()
 //--------------------------------------------------------------------------------------------------
 bool RicExportContourMapToTextFeature::isCommandEnabled()
 {
-    RimEclipseContourMapView* existingEclipseContourMap = caf::SelectionManager::instance()
-                                                              ->selectedItemOfType<RimEclipseContourMapView>();
-    RimGeoMechContourMapView* existingGeoMechContourMap = caf::SelectionManager::instance()
-                                                              ->selectedItemOfType<RimGeoMechContourMapView>();
+    RimEclipseContourMapView* existingEclipseContourMap = nullptr;
+    RimGeoMechContourMapView* existingGeoMechContourMap = nullptr;
+
+    auto sourceViews          = findContourMapView();
+    existingEclipseContourMap = sourceViews.first;
+    existingGeoMechContourMap = sourceViews.second;
+
     return existingEclipseContourMap || existingGeoMechContourMap;
 }
 
@@ -69,14 +75,17 @@ bool RicExportContourMapToTextFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExportContourMapToTextFeature::onActionTriggered( bool isChecked )
 {
-    RimContourMapProjection*  contourMapProjection      = nullptr;
-    RimEclipseContourMapView* existingEclipseContourMap = caf::SelectionManager::instance()
-                                                              ->selectedItemOfType<RimEclipseContourMapView>();
-    RimGeoMechContourMapView* existingGeoMechContourMap = caf::SelectionManager::instance()
-                                                              ->selectedItemOfType<RimGeoMechContourMapView>();
+    RimEclipseContourMapView* existingEclipseContourMap = nullptr;
+    RimGeoMechContourMapView* existingGeoMechContourMap = nullptr;
+
+    auto sourceViews          = findContourMapView();
+    existingEclipseContourMap = sourceViews.first;
+    existingGeoMechContourMap = sourceViews.second;
+
     CAF_ASSERT( existingEclipseContourMap || existingGeoMechContourMap );
 
-    QString contourMapName;
+    RimContourMapProjection* contourMapProjection = nullptr;
+    QString                  contourMapName;
     if ( existingEclipseContourMap )
     {
         m_viewId             = existingEclipseContourMap->id();
@@ -210,6 +219,46 @@ void RicExportContourMapToTextFeature::writeContourMapToStream( QTextStream&    
     }
 
     formatter.tableCompleted();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<RimEclipseContourMapView*, RimGeoMechContourMapView*> RicExportContourMapToTextFeature::findContourMapView()
+{
+    RimEclipseContourMapView* existingEclipseContourMap = nullptr;
+    RimGeoMechContourMapView* existingGeoMechContourMap = nullptr;
+
+    auto contextMenuWidget = dynamic_cast<RiuViewer*>(
+        caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
+
+    if ( contextMenuWidget )
+    {
+        {
+            auto candidate = dynamic_cast<RimEclipseContourMapView*>( contextMenuWidget->ownerReservoirView() );
+            if ( candidate )
+            {
+                existingEclipseContourMap = candidate;
+            }
+        }
+        {
+            auto candidate = dynamic_cast<RimGeoMechContourMapView*>( contextMenuWidget->ownerReservoirView() );
+            if ( candidate )
+            {
+                existingGeoMechContourMap = candidate;
+            }
+        }
+    }
+
+    if ( !existingEclipseContourMap && !existingGeoMechContourMap )
+    {
+        existingEclipseContourMap = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapView>();
+        existingGeoMechContourMap = caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechContourMapView>();
+    }
+
+    auto pair = std::make_pair( existingEclipseContourMap, existingGeoMechContourMap );
+
+    return pair;
 }
 
 //--------------------------------------------------------------------------------------------------

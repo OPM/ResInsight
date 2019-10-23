@@ -22,7 +22,12 @@
 #include "cafCmdFeature.h"
 #include "cafPdmField.h"
 
+#include <utility>
+
 class RimContourMapProjection;
+class RimEclipseContourMapView;
+class RimGeoMechContourMapView;
+
 class QTextStream;
 
 //==================================================================================================
@@ -51,6 +56,9 @@ protected:
                                          bool                           exportLocalCoordinates,
                                          const QString&                 undefinedValueLabel,
                                          bool                           excludeUndefinedValues );
+
+private:
+    static std::pair<RimEclipseContourMapView*, RimGeoMechContourMapView*> findContourMapView();
 
 private:
     caf::PdmField<QString> m_exportFileName;
