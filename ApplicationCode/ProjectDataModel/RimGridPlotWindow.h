@@ -66,9 +66,9 @@ public:
     std::vector<RimPlotInterface*> plots() const;
     std::vector<RimPlotInterface*> visiblePlots() const;
 
-    void updateLayout() override;
-    // void updatePlotNames();
-    void updatePlotOrderFromGridWidget();
+    void         updateLayout() override;
+    virtual void updatePlotNames();
+    void         updatePlotOrderFromGridWidget();
 
     virtual void setAutoScaleXEnabled( bool enabled );
     virtual void setAutoScaleYEnabled( bool enabled );
@@ -113,8 +113,6 @@ protected:
 
 private:
     void detachAllCurves() override;
-
-    void updateColumnCount();
 
     static RimPlotInterface*       toPlotInterfaceAsserted( caf::PdmObject* pdmObject );
     static const RimPlotInterface* toPlotInterfaceAsserted( const caf::PdmObject* pdmObject );
