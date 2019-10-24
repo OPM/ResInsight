@@ -317,7 +317,7 @@ RiuQwtPlotWidget* RimSummaryPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryPlot::asciiDataForPlotExport( DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const
+QString RimSummaryPlot::asciiDataForSummaryPlotExport( DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const
 {
     QString                      out;
     RiaTimeHistoryCurveResampler resampler;

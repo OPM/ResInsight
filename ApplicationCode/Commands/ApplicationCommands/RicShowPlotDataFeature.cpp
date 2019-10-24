@@ -87,11 +87,11 @@ public:
         {
             RiaPreferences* prefs = RiaApplication::instance()->preferences();
 
-            return m_summaryPlot->asciiDataForPlotExport( timePeriod, prefs->showSummaryTimeAsLongString() );
+            return m_summaryPlot->asciiDataForSummaryPlotExport( timePeriod, prefs->showSummaryTimeAsLongString() );
         }
         else
         {
-            return m_summaryPlot->asciiDataForPlotExport( DateTimePeriod::NONE, true );
+            return m_summaryPlot->asciiDataForSummaryPlotExport( DateTimePeriod::NONE, true );
         }
     }
 
