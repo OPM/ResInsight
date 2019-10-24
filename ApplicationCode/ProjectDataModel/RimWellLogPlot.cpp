@@ -106,8 +106,8 @@ RimWellLogPlot::RimWellLogPlot()
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden( true );
     m_nameConfig = new RimWellLogPlotNameConfig();
 
-    m_availableDepthUnits = {RiaDefines::UNIT_METER, RiaDefines::UNIT_FEET};
-    m_availableDepthTypes = {MEASURED_DEPTH, TRUE_VERTICAL_DEPTH};
+    m_availableDepthUnits = { RiaDefines::UNIT_METER, RiaDefines::UNIT_FEET };
+    m_availableDepthTypes = { MEASURED_DEPTH, TRUE_VERTICAL_DEPTH };
 
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
@@ -517,6 +517,26 @@ void RimWellLogPlot::onPlotAdditionOrRemoval()
     calculateAvailableDepthRange();
     updateZoom();
     RimGridPlotWindow::onPlotAdditionOrRemoval();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::updatePlotNames()
+{
+    auto plotVector = plots();
+    for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
+    {
+        RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plotVector[tIdx] );
+        CAF_ASSERT( track );
+        if ( track )
+        {
+            QString            description = track->description();
+            QRegularExpression regexp( "Track \\d+" );
+            description.replace( regexp, QString( "Track %1" ).arg( tIdx + 1 ) );
+            track->setDescription( description );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

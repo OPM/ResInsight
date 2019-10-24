@@ -109,6 +109,8 @@ public:
 
     void onPlotAdditionOrRemoval() override;
 
+    void updatePlotNames() override;
+
 protected:
     QWidget*             createViewWidget( QWidget* mainWindowParent ) override;
     void                 performAutoNameUpdate() override;

@@ -207,22 +207,10 @@ void RimGridPlotWindow::updateLayout()
     }
 }
 
-#if 0
 //--------------------------------------------------------------------------------------------------
-///
+/// Empty default implementation
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::updatePlotNames()
-{
-    auto plotVector = plots();
-    for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
-    {
-        QString            description = plotVector[tIdx]->description();
-        QRegularExpression regexp( "Track \\d+" );
-        description.replace( regexp, QString( "Track %1" ).arg( tIdx + 1 ) );
-        plotVector[tIdx]->setDescription( description );
-    }
-}
-#endif
+void RimGridPlotWindow::updatePlotNames() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -234,7 +222,7 @@ void RimGridPlotWindow::updatePlotOrderFromGridWidget()
         auto indexRhs = m_viewer->indexOfPlotWidget( toPlotInterfaceAsserted( rhs )->viewer() );
         return indexLhs < indexRhs;
     } );
-    //    updatePlotNames();
+    updatePlotNames();
     updateConnectedEditors();
 }
 
@@ -323,10 +311,10 @@ QString RimGridPlotWindow::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 void RimGridPlotWindow::onPlotAdditionOrRemoval()
 {
-    // updatePlotNames();
-    updateColumnCount();
+    updatePlotNames();
     updateConnectedEditors();
     updateLayout();
+    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -385,7 +373,7 @@ void RimGridPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     if ( changedField == &m_columnCountEnum )
     {
         updateLayout();
-        updateColumnCount();
+        RiuPlotMainWindowTools::refreshToolbars();
     }
     updateConnectedEditors();
 }
@@ -577,14 +565,6 @@ void RimGridPlotWindow::detachAllCurves()
     {
         plotVector[tIdx]->detachAllCurves();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::updateColumnCount()
-{
-    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------
