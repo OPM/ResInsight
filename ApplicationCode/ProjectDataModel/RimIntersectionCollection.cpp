@@ -198,14 +198,14 @@ void RimIntersectionCollection::recomputeSimWellBranchData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendIntersectionAndUpdate( RimIntersection* intersection )
+void RimIntersectionCollection::appendIntersectionAndUpdate( RimIntersection* intersection, bool allowActiveViewChange )
 {
     m_intersections.push_back( intersection );
 
     syncronize2dIntersectionViews();
 
     updateConnectedEditors();
-    Riu3DMainWindowTools::selectAsCurrentItem( intersection );
+    Riu3DMainWindowTools::selectAsCurrentItem( intersection, allowActiveViewChange );
 
     Rim3dView* rimView = nullptr;
     firstAncestorOrThisOfType( rimView );
