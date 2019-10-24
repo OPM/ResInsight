@@ -148,6 +148,8 @@ void RiuGridPlotWindow::addPlot( RiuQwtPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 void RiuGridPlotWindow::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
 {
+    plotWidget->setDraggable( true ); // Becomes draggable when added to a grid plot window
+
     m_plotWidgets.insert( static_cast<int>( index ), plotWidget );
 
     RiuQwtPlotLegend* legend        = new RiuQwtPlotLegend( this );
@@ -245,13 +247,13 @@ void RiuGridPlotWindow::setSelectionsVisible( bool visible )
 {
     for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
     {
-        if ( !visible )
+        if ( visible && caf::SelectionManager::instance()->isSelected( plotWidget->plotOwner(), 0 ) )
         {
-            plotWidget->setDefaultStyleSheet( false );
+            plotWidget->setWidgetState( RiuWidgetStyleSheet::SELECTED );
         }
         else
         {
-            plotWidget->setSelected( caf::SelectionManager::instance()->isSelected( plotWidget->plotOwner(), 0 ) );
+            plotWidget->setWidgetState( RiuWidgetStyleSheet::DEFAULT );
         }
     }
 }
@@ -413,7 +415,7 @@ void RiuGridPlotWindow::dragMoveEvent( QDragMoveEvent* event )
             int insertBeforeIndex = visiblePlotWidgets.size();
             for ( int visibleIndex = 0; visibleIndex < visiblePlotWidgets.size(); ++visibleIndex )
             {
-                visiblePlotWidgets[visibleIndex]->setDefaultStyleSheet();
+                visiblePlotWidgets[visibleIndex]->setWidgetState( RiuWidgetStyleSheet::DEFAULT );
 
                 if ( visiblePlotWidgets[visibleIndex]->frameIsInFrontOfThis( newRect ) )
                 {
@@ -422,17 +424,16 @@ void RiuGridPlotWindow::dragMoveEvent( QDragMoveEvent* event )
             }
             if ( insertBeforeIndex >= 0 && insertBeforeIndex < visiblePlotWidgets.size() )
             {
-                visiblePlotWidgets[insertBeforeIndex]->setStyleSheetForThisObject(
-                    "border-left: 2px solid red; border-top: none; border-bottom: none; border-right: none;" );
+                visiblePlotWidgets[insertBeforeIndex]->setWidgetState( RiuWidgetStyleSheet::DRAG_TARGET_BEFORE );
             }
 
             if ( insertBeforeIndex > 0 )
             {
                 int insertAfterIndex = insertBeforeIndex - 1;
-                visiblePlotWidgets[insertAfterIndex]->setStyleSheetForThisObject(
-                    "border-left: none; border-top: none; border-bottom: none; border-right: 2px solid red;" );
+                visiblePlotWidgets[insertAfterIndex]->setWidgetState( RiuWidgetStyleSheet::DRAG_TARGET_AFTER );
+
+                event->acceptProposedAction();
             }
-            event->acceptProposedAction();
         }
     }
 }
@@ -444,7 +445,7 @@ void RiuGridPlotWindow::dragLeaveEvent( QDragLeaveEvent* event )
 {
     for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
     {
-        m_plotWidgets[tIdx]->setDefaultStyleSheet();
+        m_plotWidgets[tIdx]->setWidgetState( RiuWidgetStyleSheet::DEFAULT );
     }
 }
 
@@ -455,7 +456,7 @@ void RiuGridPlotWindow::dropEvent( QDropEvent* event )
 {
     for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
     {
-        m_plotWidgets[tIdx]->setDefaultStyleSheet();
+        m_plotWidgets[tIdx]->setWidgetState( RiuWidgetStyleSheet::DEFAULT );
     }
 
     if ( this->geometry().contains( event->pos() ) )
@@ -521,7 +522,14 @@ void RiuGridPlotWindow::onSelectionManagerSelectionChanged( const std::set<int>&
             isSelected = isSelected ||
                          caf::SelectionManager::instance()->isSelected( plotWidget->plotOwner(), changedLevel );
         }
-        plotWidget->setSelected( isSelected );
+        if ( isSelected )
+        {
+            plotWidget->setWidgetState( RiuWidgetStyleSheet::SELECTED );
+        }
+        else
+        {
+            plotWidget->setWidgetState( RiuWidgetStyleSheet::DEFAULT );
+        }
     }
 }
 
