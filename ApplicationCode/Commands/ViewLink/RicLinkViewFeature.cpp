@@ -58,7 +58,7 @@ bool RicLinkViewFeature::isCommandEnabled()
     else
     {
         // Link only the active view to an existing view link collection.
-        Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+        Rim3dView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
         if ( !activeView ) return false;
 
         RimProject*    proj       = RiaApplication::instance()->project();
@@ -97,7 +97,7 @@ void RicLinkViewFeature::onActionTriggered( bool isChecked )
     }
     else
     {
-        Rim3dView*   activeView = RiaApplication::instance()->activeReservoirView();
+        Rim3dView*   activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
         RimGridView* gridView   = dynamic_cast<RimGridView*>( activeView );
         if ( gridView )
         {

@@ -40,7 +40,7 @@ CAF_CMD_SOURCE_INIT( RicSetMasterViewFeature, "RicSetMasterViewFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicSetMasterViewFeature::isCommandEnabled()
 {
-    RimGridView* activeView = RiaApplication::instance()->activeGridView();
+    RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !activeView ) return false;
 
     RimProject*    proj       = RiaApplication::instance()->project();
@@ -68,7 +68,7 @@ bool RicSetMasterViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSetMasterViewFeature::onActionTriggered( bool isChecked )
 {
-    RimGridView* activeView = RiaApplication::instance()->activeGridView();
+    RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !activeView ) return;
 
     RimProject*    proj       = RiaApplication::instance()->project();
