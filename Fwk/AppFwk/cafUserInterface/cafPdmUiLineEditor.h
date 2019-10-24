@@ -66,6 +66,7 @@ public:
         completerFilterMode                  = Qt::MatchContains;
         maximumWidth                         = -1;
         selectAllOnFocusEvent                = false;
+        placeholderText                      = "";
     }
 
 public:
@@ -77,6 +78,7 @@ public:
     Qt::MatchFlags       completerFilterMode;
     int                  maximumWidth;
     bool                 selectAllOnFocusEvent;
+    QString              placeholderText;
 };
 
 //--------------------------------------------------------------------------------------------------

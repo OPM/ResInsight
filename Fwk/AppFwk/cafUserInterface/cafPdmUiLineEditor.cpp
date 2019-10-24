@@ -136,6 +136,11 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
             {
                 m_lineEdit->setMaximumWidth(leab.maximumWidth);
             }
+
+            if (!leab.placeholderText.isEmpty())
+            {
+                m_lineEdit->setPlaceholderText(leab.placeholderText);
+            }
         }
       
         bool fromMenuOnly = true;
