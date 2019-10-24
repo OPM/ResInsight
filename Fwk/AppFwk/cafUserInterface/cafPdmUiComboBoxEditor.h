@@ -61,6 +61,7 @@ public:
         adjustWidthToContents      = false;
         showPreviousAndNextButtons = false;
         minimumContentsLength      = 8;
+        enableEditableContent      = false;
     }
 
 public:
@@ -71,6 +72,8 @@ public:
 
     QString nextButtonText;
     QString prevButtonText;
+
+    bool enableEditableContent;
 };
 
 
@@ -106,6 +109,8 @@ private:
     QPointer<QToolButton> m_nextItemButton;
     QPointer<QHBoxLayout> m_layout;
     QPointer<QWidget>     m_placeholder;
+
+    PdmUiComboBoxEditorAttribute m_attributes;
 };
 
 

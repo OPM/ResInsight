@@ -37,9 +37,9 @@
 
 #include "cafPdmUiComboBoxEditor.h"
 
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafPdmField.h"
 
 #include "cafFactory.h"
 #include "cafQShortenedLabel.h"
@@ -180,11 +180,10 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 
     // Handle attributes
-    PdmUiComboBoxEditorAttribute attributes;
     caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
     if (uiObject)
     {
-        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &attributes);
+        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
     }
 
     if (!m_comboBox.isNull())
@@ -211,14 +210,19 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
             m_comboBox->setCurrentIndex(0);
         }
 
-        if (attributes.adjustWidthToContents)
+        if (m_attributes.adjustWidthToContents)
         {
             m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
         }
-        else if (attributes.minimumContentsLength > 0)
+        else if (m_attributes.minimumContentsLength > 0)
         {
             m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
-            m_comboBox->setMinimumContentsLength(attributes.minimumContentsLength);
+            m_comboBox->setMinimumContentsLength(m_attributes.minimumContentsLength);
+        }
+
+        if (m_attributes.enableEditableContent)
+        {
+            m_comboBox->setEditable(true);
         }
 
         m_comboBox->blockSignals(false);
@@ -226,7 +230,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     if (!m_layout.isNull())
     {
-        if (attributes.showPreviousAndNextButtons)
+        if (m_attributes.showPreviousAndNextButtons)
         {
             if (m_previousItemButton.isNull())
             {
@@ -268,14 +272,14 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
             }
 
             // Update button texts
-            if (!attributes.nextButtonText.isEmpty())
+            if (!m_attributes.nextButtonText.isEmpty())
             {
-                m_nextItemButton->setToolTip(attributes.nextButtonText);
+                m_nextItemButton->setToolTip(m_attributes.nextButtonText);
             }
 
-            if (!attributes.prevButtonText.isEmpty())
+            if (!m_attributes.prevButtonText.isEmpty())
             {
-                m_previousItemButton->setToolTip(attributes.prevButtonText);
+                m_previousItemButton->setToolTip(m_attributes.prevButtonText);
             }
         }
         else
@@ -397,11 +401,21 @@ QWidget* PdmUiComboBoxEditor::createLabelWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiComboBoxEditor::slotIndexActivated(int index)
 {
-    QVariant v;
-    v = index;
+    if (m_attributes.enableEditableContent)
+    {
+        // Use the text directly, as the selected item text could be entered directly by the user
 
-    QVariant uintValue(v.toUInt());
-    this->setValueToField(uintValue);
+        auto text = m_comboBox->itemText(index);
+        this->setValueToField(text);
+    }
+    else
+    {
+        QVariant v;
+        v = index;
+
+        QVariant uintValue(v.toUInt());
+        this->setValueToField(uintValue);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

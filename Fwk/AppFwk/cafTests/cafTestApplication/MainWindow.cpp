@@ -6,6 +6,7 @@
 #include "CustomObjectEditor.h"
 #include "ManyGroups.h"
 #include "MenuItemProducer.h"
+#include "TamComboBox.h"
 #include "WidgetLayoutTest.h"
 
 #include "cafAppEnum.h"
@@ -16,6 +17,7 @@
 #include "cafCmdSelectionHelper.h"
 #endif
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafFilePath.h"
 #include "cafPdmDocument.h"
 #include "cafPdmObject.h"
@@ -37,7 +39,6 @@
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
 
-#include "cafCmdFeatureMenuBuilder.h"
 #include <QAction>
 #include <QDockWidget>
 #include <QFileDialog>
@@ -1165,6 +1166,9 @@ void MainWindow::buildTestModel()
 
     SingleEditorPdmObject* singleEditorObj = new SingleEditorPdmObject;
     m_testRoot->objects.push_back(singleEditorObj);
+
+    auto tamComboBox = new TamComboBox;
+    m_testRoot->objects.push_back(tamComboBox);
 
     DemoPdmObject* demoObj2 = new DemoPdmObject;
 
