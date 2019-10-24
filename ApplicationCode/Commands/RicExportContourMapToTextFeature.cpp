@@ -32,6 +32,7 @@
 #include "RimProject.h"
 #include "RimViewWindow.h"
 
+#include "Riu3DMainWindowTools.h"
 #include "RiuViewer.h"
 
 #include "cafCmdFeatureManager.h"
@@ -110,7 +111,7 @@ void RicExportContourMapToTextFeature::onActionTriggered( bool isChecked )
     RicExportContourMapToTextUi featureUi;
     featureUi.setExportFileName( startPath );
 
-    caf::PdmUiPropertyViewDialog propertyDialog( nullptr,
+    caf::PdmUiPropertyViewDialog propertyDialog( Riu3DMainWindowTools::mainWindowWidget(),
                                                  &featureUi,
                                                  "Export Contour Map to Text",
                                                  "",
