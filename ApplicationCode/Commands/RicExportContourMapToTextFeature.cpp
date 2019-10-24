@@ -120,7 +120,7 @@ void RicExportContourMapToTextFeature::onActionTriggered( bool isChecked )
     {
         QString fileName = featureUi.exportFileName();
 
-        app->setLastUsedDialogDirectory( "CONTOUR_EXPORT", fileName );
+        app->setLastUsedDialogDirectory( "CONTOUR_EXPORT", QFileInfo( fileName ).absolutePath() );
         m_exportFileName         = fileName;
         m_exportLocalCoordinates = featureUi.exportLocalCoordinates();
         m_undefinedValueLabel    = featureUi.undefinedValueLabel();
