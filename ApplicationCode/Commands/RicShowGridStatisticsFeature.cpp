@@ -48,7 +48,7 @@ bool RicShowGridStatisticsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowGridStatisticsFeature::onActionTriggered( bool isChecked )
 {
-    RimGridView* activeView = RiaApplication::instance()->activeGridView();
+    RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
 
     if ( activeView )
     {
