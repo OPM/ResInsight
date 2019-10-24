@@ -12,6 +12,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaCurveSetDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaRftPltCurveDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaViewRedrawScheduler.h
+${CMAKE_CURRENT_LIST_DIR}/RiaPlotWindowRedrawScheduler.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaMemoryCleanup.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaFontCache.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaEclipseFileNameTools.h
@@ -32,6 +33,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaCurveSetDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaRftPltCurveDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaViewRedrawScheduler.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaPlotWindowRedrawScheduler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaMemoryCleanup.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaFontCache.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaEclipseFileNameTools.cpp
@@ -52,6 +54,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaConsoleApplication.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaGuiApplication.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaCompletionTypeCalculationScheduler.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaViewRedrawScheduler.h
+${CMAKE_CURRENT_LIST_DIR}/RiaPlotWindowRedrawScheduler.h
 )
 
 

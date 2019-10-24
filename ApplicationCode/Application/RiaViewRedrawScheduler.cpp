@@ -36,21 +36,6 @@ RiaViewRedrawScheduler* RiaViewRedrawScheduler::instance()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaViewRedrawScheduler::clearViewsScheduledForUpdate()
-{
-    if ( m_resViewUpdateTimer )
-    {
-        while ( m_resViewUpdateTimer->isActive() )
-        {
-            QCoreApplication::processEvents();
-        }
-    }
-    m_resViewsToUpdate.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Schedule a creation of the Display model and redraw of the reservoir view
 /// The redraw will happen as soon as the event loop is entered
 //--------------------------------------------------------------------------------------------------
@@ -64,19 +49,16 @@ void RiaViewRedrawScheduler::scheduleDisplayModelUpdateAndRedraw( Rim3dView* res
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaViewRedrawScheduler::startTimer( int msecs )
+void RiaViewRedrawScheduler::clearViewsScheduledForUpdate()
 {
-    if ( !m_resViewUpdateTimer )
+    if ( m_resViewUpdateTimer )
     {
-        m_resViewUpdateTimer = new QTimer( this );
-        connect( m_resViewUpdateTimer, SIGNAL( timeout() ), this, SLOT( slotUpdateAndRedrawScheduledViewsWhenReady() ) );
+        while ( m_resViewUpdateTimer->isActive() )
+        {
+            QCoreApplication::processEvents();
+        }
     }
-
-    if ( !m_resViewUpdateTimer->isActive() )
-    {
-        m_resViewUpdateTimer->setSingleShot( true );
-        m_resViewUpdateTimer->start( msecs );
-    }
+    m_resViewsToUpdate.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,6 +115,24 @@ void RiaViewRedrawScheduler::slotUpdateAndRedrawScheduledViewsWhenReady()
     }
 
     updateAndRedrawScheduledViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaViewRedrawScheduler::startTimer( int msecs )
+{
+    if ( !m_resViewUpdateTimer )
+    {
+        m_resViewUpdateTimer = new QTimer( this );
+        connect( m_resViewUpdateTimer, SIGNAL( timeout() ), this, SLOT( slotUpdateAndRedrawScheduledViewsWhenReady() ) );
+    }
+
+    if ( !m_resViewUpdateTimer->isActive() )
+    {
+        m_resViewUpdateTimer->setSingleShot( true );
+        m_resViewUpdateTimer->start( msecs );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
