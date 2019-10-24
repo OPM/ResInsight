@@ -152,7 +152,7 @@ QString RicNewGridTimeHistoryCurveFeature::suggestedNewPlotName()
 {
     QString resultName;
     {
-        Rim3dView*      activeView = RiaApplication::instance()->activeReservoirView();
+        Rim3dView*      activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
         RimEclipseView* eclView    = dynamic_cast<RimEclipseView*>( activeView );
         if ( eclView )
         {
