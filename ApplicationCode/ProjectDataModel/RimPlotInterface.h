@@ -48,6 +48,9 @@ public:
     virtual RiuQwtPlotWidget* viewer()          = 0;
     virtual bool              isChecked() const = 0;
 
+    RimPlotInterface()          = default;
+    virtual ~RimPlotInterface() = default;
+
     virtual int widthScaleFactor() const
     {
         return NORMAL;
