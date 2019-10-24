@@ -120,8 +120,7 @@ private:
 
     // RimViewWindow overrides
 
-    void applyCurveAppearance( RimWellLogCurve* curve );
-    void applyCurveColor( RimWellLogCurve* curve );
+    void applyCurveAppearance( RimWellLogCurve* newCurve );
 
     void    updateFormationsOnPlot() const;
     QString associatedSimWellName() const;
@@ -129,8 +128,7 @@ private:
     static RiuQwtSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseRftAddress& address );
     static RiuQwtSymbol::LabelPosition   statisticsLabelPosFromAddress( const RifEclipseRftAddress& address );
 
-    cvf::Color3f findCurveColor( RimWellLogCurve* curve );
-    void         defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveDefinition>& allCurveDefs );
+    void defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveDefinition>& allCurveDefs );
 
     void onDepthTypeChanged() override;
 
