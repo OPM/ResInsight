@@ -176,7 +176,7 @@ bool RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot( const QString&
                                                                   bool                  showTimeAsLongString )
 {
     QString text = summaryPlot->description();
-    text.append( summaryPlot->asciiDataForPlotExport( resamplingPeriod, showTimeAsLongString ) );
+    text.append( summaryPlot->asciiDataForSummaryPlotExport( resamplingPeriod, showTimeAsLongString ) );
     text.append( "\n\n" );
 
     return exportTextToFile( fileName, text );
