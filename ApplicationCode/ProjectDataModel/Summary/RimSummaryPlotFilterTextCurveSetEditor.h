@@ -34,6 +34,7 @@ public:
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
     static QString curveFilterFieldKeyword();
+    void           updateTextFilter();
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,

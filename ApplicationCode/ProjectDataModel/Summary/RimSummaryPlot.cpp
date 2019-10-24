@@ -1432,6 +1432,8 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 
     if ( m_qwtPlot ) m_qwtPlot->updateLegend();
     this->updateAxes();
+
+    m_textCurveSetEditor->updateTextFilter();
 }
 
 //--------------------------------------------------------------------------------------------------
