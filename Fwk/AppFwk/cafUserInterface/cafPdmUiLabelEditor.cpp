@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2014 Ceetron Solutions AS
+//   Copyright (C) 2011-2013 Ceetron AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,55 +34,65 @@
 //
 //##################################################################################################
 
-#pragma once
 
-#include "cafPdmUiEditorHandle.h"
-#include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiLabelEditor.h"
 
-#include <vector>
 
-#include <QString>
-
-class QToolBar;
-class QMainWindow;
 
 namespace caf
 {
-class PdmUiFieldEditorHandle;
-class PdmUiItem;
-class PdmFieldHandle;
+
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiLabelEditor);
+
+
+
 
 //--------------------------------------------------------------------------------------------------
-///
+/// 
 //--------------------------------------------------------------------------------------------------
-class PdmUiToolBarEditor : public PdmUiEditorHandle
+PdmUiLabelEditor::PdmUiLabelEditor()
 {
-public:
-    PdmUiToolBarEditor(const QString& title, QMainWindow* mainWindow);
-    ~PdmUiToolBarEditor() override;
 
-    bool isEditorDataValid(const std::vector<caf::PdmFieldHandle*>& fields) const;
-    void setFields(std::vector<caf::PdmFieldHandle*>& fields);
-    void clear();
+}
 
-    void    setFocusWidgetFromKeyword(const QString& fieldKeyword);
-    QString keywordForFocusWidget();
-    
-    void show();
-    void hide();
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmUiLabelEditor::~PdmUiLabelEditor()
+{
 
-    static QString uiEditorConfigName();
+}
 
-private:
-    void configureAndUpdateUi(const QString& uiConfigName) override;
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiLabelEditor::configureAndUpdateUi(const QString& uiConfigName)
+{
+    CAF_ASSERT(!m_label.isNull());
 
-private:
-    QPointer<QToolBar> m_toolbar;
+    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
-    std::vector<caf::PdmFieldHandle*>          m_fields;
-    std::map<QString, PdmUiFieldEditorHandle*> m_fieldViews;
+}
 
-    QList<QAction*> m_actions;
-};
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiLabelEditor::createEditorWidget(QWidget * parent)
+{
+    return createLabelWidget(parent);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiLabelEditor::createLabelWidget(QWidget * parent)
+{
+    if (m_label.isNull())
+    {
+        m_label = new QShortenedLabel(parent);
+    }
+
+    return m_label;
+}
 
 } // end namespace caf

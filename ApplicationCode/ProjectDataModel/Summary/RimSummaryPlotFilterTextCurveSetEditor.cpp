@@ -19,12 +19,14 @@
 #include "RimSummaryPlotFilterTextCurveSetEditor.h"
 
 #include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RifSummaryReaderInterface.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+
 #include "RimEclipseCase.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -41,12 +43,16 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
+
+#include "RiuPlotMainWindow.h"
 #include "RiuSummaryCurveDefSelection.h"
 
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
-#include "cafPdmUiTextEditor.h"
+#include "cafPdmUiLabelEditor.h"
+#include "cafPdmUiLineEditor.h"
+#include "cafPdmUiToolBarEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QRegularExpression>
@@ -64,17 +70,29 @@ RimSummaryPlotFilterTextCurveSetEditor::RimSummaryPlotFilterTextCurveSetEditor()
     CAF_PDM_InitObject( "Curve Set Filter Text", "", "", "" );
 
     // clang-format off
+    QString filterTextHeading = "Text to Create Summary Vectors";
+    QString filterTextShortcut = " (Ctrl + F)";
+
     QString filterTextToolTip =
-        "A space separated list of vector addresses in the syntax: <vectorshortname>[:<item>[:<subitem>[:i,j,k]]]\n"
+        "A list of vector addresses separated by spaces using the syntax: <vectorshortname>[:<item>[:<subitem>[:i,j,k]]]\n"
         "Wildcards can also be used. Examples:\n"
         "  \"WOPT:*\" One total oil production curve for each well.\n"
         "  \"FOPT FWPT\" Two curves with oil and water total production.\n"
         "  \"BPR:15,28,*\" (no space) Oil phase pressure for all blocks along k as separate curves.\n";
     // clang-format on
 
-    CAF_PDM_InitFieldNoDefault( &m_curveFilterText, "CurveFilterText", "Curve Filter Text", "", filterTextToolTip, "" );
+    QString toolTipPropertyEditor = filterTextHeading + "\n\n" + filterTextToolTip;
+    QString toolTipToolbar        = filterTextHeading + filterTextShortcut + "\n\n" + filterTextToolTip;
+
+    CAF_PDM_InitFieldNoDefault( &m_curveFilterLabelText, "Summary", "Summary", "", "", "" );
+    m_curveFilterLabelText.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
+    m_curveFilterLabelText.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault( &m_curveFilterText, "CurveFilterText", "Curve Filter Text", "", toolTipPropertyEditor, "" );
     m_curveFilterText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    // m_curveFilterText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
+
+    // Special tool tip for toolbar
+    m_curveFilterText.uiCapability()->setUiToolTip( toolTipToolbar, caf::PdmUiToolBarEditor::uiEditorConfigName() );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SummaryCases", "Sources", "", "", "" );
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
@@ -86,6 +104,102 @@ RimSummaryPlotFilterTextCurveSetEditor::RimSummaryPlotFilterTextCurveSetEditor()
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotFilterTextCurveSetEditor::~RimSummaryPlotFilterTextCurveSetEditor() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle*> RimSummaryPlotFilterTextCurveSetEditor::fieldsToShowInToolbar()
+{
+    std::vector<caf::PdmFieldHandle*> fields;
+    fields.push_back( &m_curveFilterLabelText );
+    fields.push_back( &m_curveFilterText );
+
+    return fields;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryPlotFilterTextCurveSetEditor::curveFilterFieldKeyword()
+{
+    return "CurveFilterText";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotFilterTextCurveSetEditor::updateTextFilter()
+{
+    RimSummaryPlot* parentPlot;
+    this->firstAncestorOrThisOfType( parentPlot );
+    std::set<SummarySource*>              sourcesFromExistingCurves;
+    std::set<RifEclipseSummaryAddress>    addressesInUse;
+    std::vector<RigGridCellResultAddress> gridaddressesInUse;
+
+    if ( parentPlot )
+    {
+        std::vector<RimEnsembleCurveSet*> ensembleCurveSets = parentPlot->ensembleCurveSetCollection()->curveSets();
+        for ( auto ensCurvSet : ensembleCurveSets )
+        {
+            sourcesFromExistingCurves.insert( ensCurvSet->summaryCaseCollection() );
+            addressesInUse.insert( ensCurvSet->summaryAddress() );
+        }
+
+        std::vector<RimSummaryCurve*> sumCurves = parentPlot->summaryCurveCollection()->curves();
+        for ( auto sumCurve : sumCurves )
+        {
+            sourcesFromExistingCurves.insert( sumCurve->summaryCaseY() );
+            addressesInUse.insert( sumCurve->summaryAddressY() );
+        }
+
+        std::vector<RimGridTimeHistoryCurve*> gridTimeHistoryCurves = parentPlot->gridTimeHistoryCurves();
+        for ( auto grCurve : gridTimeHistoryCurves )
+        {
+            RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>( grCurve->gridCase() );
+            if ( eclCase )
+            {
+                sourcesFromExistingCurves.insert( eclCase );
+                gridaddressesInUse.push_back( grCurve->resultAddress() );
+            }
+        }
+    }
+
+    std::vector<caf::PdmPointer<SummarySource>> usedSources( sourcesFromExistingCurves.begin(),
+                                                             sourcesFromExistingCurves.end() );
+
+    if ( !usedSources.empty() )
+    {
+        m_selectedSources.clear();
+        m_selectedSources.setValue( usedSources );
+    }
+
+    // Check if existing filter text matches all the curves
+    // Todo: possibly check grid time history curves also
+
+    QStringList allCurveAddressFilters = curveFilterTextWithoutOutdatedLabel().split( QRegExp( "\\s+" ),
+                                                                                      QString::SkipEmptyParts );
+
+    std::vector<bool> accumulatedUsedFilters( allCurveAddressFilters.size(), false );
+
+    std::vector<bool>                  usedFilters;
+    std::set<RifEclipseSummaryAddress> filteredAddressesFromSource;
+    RicSummaryPlotFeatureImpl::filteredSummaryAdressesFromCase( allCurveAddressFilters,
+                                                                addressesInUse,
+                                                                &filteredAddressesFromSource,
+                                                                &usedFilters );
+
+    if ( filteredAddressesFromSource != addressesInUse )
+    {
+        // m_curveFilterText = FILTER_TEXT_OUTDATED_TEXT + curveFilterTextWithoutOutdatedLabel();
+        m_curveFilterText = "";
+    }
+    else
+    {
+        m_curveFilterText = curveFilterTextWithoutOutdatedLabel();
+    }
+
+    m_curveFilterText.uiCapability()->updateConnectedEditors();
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -266,9 +380,20 @@ void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFie
     if ( changedField == &m_curveFilterText )
     {
         m_curveFilterText = curveFilterTextWithoutOutdatedLabel();
+
+        m_curveFilterText.uiCapability()->updateConnectedEditors();
     }
 
     m_isFieldRecentlyChangedFromGui = true;
+
+    if ( RiaGuiApplication::isRunning() )
+    {
+        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+        if ( mainPlotWindow )
+        {
+            mainPlotWindow->updateSummaryPlotToolBar();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -276,72 +401,13 @@ void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFie
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotFilterTextCurveSetEditor::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_curveFilterText );
+    uiOrdering.add( &m_selectedSources );
+    uiOrdering.skipRemainingFields();
+
     if ( !m_isFieldRecentlyChangedFromGui )
     {
-        // Sync gui from existing curves
-
-        RimSummaryPlot* parentPlot;
-        this->firstAncestorOrThisOfType( parentPlot );
-        std::set<SummarySource*>              sourcesFromExistingCurves;
-        std::set<RifEclipseSummaryAddress>    addressesInUse;
-        std::vector<RigGridCellResultAddress> gridaddressesInUse;
-
-        if ( parentPlot )
-        {
-            std::vector<RimEnsembleCurveSet*> ensembleCurveSets = parentPlot->ensembleCurveSetCollection()->curveSets();
-            for ( auto ensCurvSet : ensembleCurveSets )
-            {
-                sourcesFromExistingCurves.insert( ensCurvSet->summaryCaseCollection() );
-                addressesInUse.insert( ensCurvSet->summaryAddress() );
-            }
-
-            std::vector<RimSummaryCurve*> sumCurves = parentPlot->summaryCurveCollection()->curves();
-            for ( auto sumCurve : sumCurves )
-            {
-                sourcesFromExistingCurves.insert( sumCurve->summaryCaseY() );
-                addressesInUse.insert( sumCurve->summaryAddressY() );
-            }
-
-            std::vector<RimGridTimeHistoryCurve*> gridTimeHistoryCurves = parentPlot->gridTimeHistoryCurves();
-            for ( auto grCurve : gridTimeHistoryCurves )
-            {
-                RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>( grCurve->gridCase() );
-                if ( eclCase )
-                {
-                    sourcesFromExistingCurves.insert( eclCase );
-                    gridaddressesInUse.push_back( grCurve->resultAddress() );
-                }
-            }
-        }
-
-        std::vector<caf::PdmPointer<SummarySource>> usedSources( sourcesFromExistingCurves.begin(),
-                                                                 sourcesFromExistingCurves.end() );
-
-        m_selectedSources.clear();
-        m_selectedSources.setValue( usedSources );
-
-        // Check if existing filtertext matches all the curves
-        // Todo: possibly check grid time history curves also
-
-        QStringList       allCurveAddressFilters = curveFilterTextWithoutOutdatedLabel().split( QRegExp( "\\s+" ),
-                                                                                          QString::SkipEmptyParts );
-        std::vector<bool> accumulatedUsedFilters( allCurveAddressFilters.size(), false );
-
-        std::vector<bool>                  usedFilters;
-        std::set<RifEclipseSummaryAddress> filteredAddressesFromSource;
-        RicSummaryPlotFeatureImpl::filteredSummaryAdressesFromCase( allCurveAddressFilters,
-                                                                    addressesInUse,
-                                                                    &filteredAddressesFromSource,
-                                                                    &usedFilters );
-
-        if ( filteredAddressesFromSource != addressesInUse )
-        {
-            m_curveFilterText = FILTER_TEXT_OUTDATED_TEXT + curveFilterTextWithoutOutdatedLabel();
-        }
-        else
-        {
-            m_curveFilterText = curveFilterTextWithoutOutdatedLabel();
-        }
+        updateTextFilter();
     }
 
     m_isFieldRecentlyChangedFromGui = false;
@@ -353,6 +419,30 @@ void RimSummaryPlotFilterTextCurveSetEditor::defineUiOrdering( QString uiConfigN
 void RimSummaryPlotFilterTextCurveSetEditor::setupBeforeSave()
 {
     m_curveFilterText = curveFilterTextWithoutOutdatedLabel();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotFilterTextCurveSetEditor::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                                    QString                    uiConfigName,
+                                                                    caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_curveFilterText )
+    {
+        auto attr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
+        if ( attr )
+        {
+            if ( uiConfigName == caf::PdmUiToolBarEditor::uiEditorConfigName() )
+            {
+                // Special config for toolbar
+                attr->maximumWidth = 150;
+            }
+
+            attr->selectAllOnFocusEvent = true;
+            attr->placeholderText       = "Click to define filter";
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

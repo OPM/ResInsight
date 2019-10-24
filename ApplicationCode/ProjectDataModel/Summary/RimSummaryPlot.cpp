@@ -47,11 +47,13 @@
 
 #include "RiuPlotMainWindowTools.h"
 #include "RiuSummaryQwtPlot.h"
+#include "RiuTreeViewEventFilter.h"
 
 #include "cvfColor3.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafSelectionManager.h"
 
 #include "qwt_abstract_legend.h"
 #include "qwt_legend.h"
@@ -67,7 +69,6 @@
 #include <QRectF>
 #include <QString>
 
-#include "cafSelectionManager.h"
 #include <limits>
 #include <set>
 
@@ -1520,6 +1521,8 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 
     if ( m_plotWidget ) m_plotWidget->updateLegend();
     this->updateAxes();
+
+    m_textCurveSetEditor->updateTextFilter();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1975,6 +1978,11 @@ void RimSummaryPlot::handleKeyPressEvent( QKeyEvent* keyEvent )
 {
     if ( !keyEvent ) return;
 
+    if ( RiuTreeViewEventFilter::activateFeatureFromKeyEvent( keyEvent ) )
+    {
+        return;
+    }
+
     RimSummaryPlotSourceStepping* sourceStepping = sourceSteppingObjectForKeyEventHandling();
     if ( !sourceStepping ) return;
 
@@ -2050,17 +2058,27 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlot::fieldsToShowInToolbar()
 {
     std::vector<caf::PdmFieldHandle*> toolBarFields;
 
-    auto sourceObject = sourceSteppingObjectForKeyEventHandling();
-
-    if ( sourceObject )
     {
-        toolBarFields = sourceObject->fieldsToShowInToolbar();
+        auto fields = m_textCurveSetEditor->fieldsToShowInToolbar();
+        toolBarFields.insert( std::end( toolBarFields ), std::begin( fields ), std::end( fields ) );
     }
 
-    if ( toolBarFields.empty() )
+    bool anyFieldsAvailableForSummary = false;
+
+    auto sourceObject = sourceSteppingObjectForKeyEventHandling();
+    if ( sourceObject )
+    {
+        auto fields = sourceObject->fieldsToShowInToolbar();
+        toolBarFields.insert( std::end( toolBarFields ), std::begin( fields ), std::end( fields ) );
+
+        anyFieldsAvailableForSummary = !fields.empty();
+    }
+
+    if ( !anyFieldsAvailableForSummary )
     {
         // Show ensemble stepping if no fields are available from summary stepping
-        toolBarFields = ensembleCurveSetCollection()->fieldsToShowInToolbar();
+        auto fields = ensembleCurveSetCollection()->fieldsToShowInToolbar();
+        toolBarFields.insert( std::end( toolBarFields ), std::begin( fields ), std::end( fields ) );
     }
 
     return toolBarFields;

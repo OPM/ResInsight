@@ -41,6 +41,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicClearSourceSteppingSummaryCurveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSetSourceSteppingSummaryCurveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicClearSourceSteppingEnsembleCurveSetFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSetSourceSteppingEnsembleCurveSetFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicActivateCurveFilterInToolbarFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -85,6 +86,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicClearSourceSteppingSummaryCurveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSetSourceSteppingSummaryCurveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicClearSourceSteppingEnsembleCurveSetFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSetSourceSteppingEnsembleCurveSetFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicActivateCurveFilterInToolbarFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

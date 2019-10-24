@@ -31,14 +31,23 @@ public:
     RimSummaryPlotFilterTextCurveSetEditor();
     ~RimSummaryPlotFilterTextCurveSetEditor() override;
 
+    std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
+
+    static QString curveFilterFieldKeyword();
+    void           updateTextFilter();
+
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue ) override;
-    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    virtual void                  setupBeforeSave() override;
+
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void setupBeforeSave() override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     static void appendOptionItemsForSources( QList<caf::PdmOptionItemInfo>& options,
@@ -49,7 +58,9 @@ private:
     QString                     curveFilterTextWithoutOutdatedLabel() const;
 
     caf::PdmPtrArrayField<SummarySource*> m_selectedSources;
-    caf::PdmField<QString>                m_curveFilterText;
+
+    caf::PdmField<QString> m_curveFilterLabelText;
+    caf::PdmField<QString> m_curveFilterText;
 
     bool m_isFieldRecentlyChangedFromGui;
 };

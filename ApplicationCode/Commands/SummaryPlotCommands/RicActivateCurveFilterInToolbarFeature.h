@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,28 +18,17 @@
 
 #pragma once
 
-#include <QObject>
+#include "cafCmdFeature.h"
 
-#include <vector>
-
-class QEvent;
-class QKeyEvent;
-
-namespace caf
+//==================================================================================================
+///
+//==================================================================================================
+class RicActivateCurveFilterInToolbarFeature : public caf::CmdFeature
 {
-class CmdFeature;
-}
-
-//--------------------------------------------------------------------------------------------------
-class RiuTreeViewEventFilter : public QObject
-{
-    Q_OBJECT
-public:
-    explicit RiuTreeViewEventFilter( QObject* parent );
-
-    static bool activateFeatureFromKeyEvent( QKeyEvent* keyEvent );
-    static bool activateFirstEnabledFeature( const std::vector<caf::CmdFeature*>& features );
+    CAF_CMD_HEADER_INIT;
 
 protected:
-    bool eventFilter( QObject* obj, QEvent* event ) override;
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

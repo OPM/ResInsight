@@ -38,29 +38,29 @@
 #include "cafPdmUiLineEditor.h"
 
 #include "cafFactory.h"
-#include "cafQShortenedLabel.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUniqueIdValidator.h"
+#include "cafQShortenedLabel.h"
 #include "cafSelectionManager.h"
 
+#include <QAbstractItemView>
+#include <QAbstractProxyModel>
 #include <QApplication>
-#include <QKeyEvent>
+#include <QCompleter>
+#include <QDebug>
 #include <QIntValidator>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QPalette>
 #include <QStatusBar>
 #include <QString>
-#include <QCompleter>
 #include <QStringListModel>
-#include <QAbstractProxyModel>
-#include <QAbstractItemView>
-#include <QDebug>
 
 
 namespace caf
@@ -131,6 +131,16 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
             }
 
             m_lineEdit->setAvoidSendingEnterEventToParentWidget(leab.avoidSendingEnterEventToParentWidget);
+
+            if (leab.maximumWidth != -1)
+            {
+                m_lineEdit->setMaximumWidth(leab.maximumWidth);
+            }
+
+            if (!leab.placeholderText.isEmpty())
+            {
+                m_lineEdit->setPlaceholderText(leab.placeholderText);
+            }
         }
       
         bool fromMenuOnly = true;
