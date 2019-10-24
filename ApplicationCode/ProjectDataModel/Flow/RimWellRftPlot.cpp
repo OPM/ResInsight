@@ -137,37 +137,47 @@ RimWellRftPlot::~RimWellRftPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::applyCurveAppearance( RimWellLogCurve* curve )
+void RimWellRftPlot::applyCurveAppearance( RimWellLogCurve* newCurve )
 {
-    applyCurveColor( curve );
+    RiaRftPltCurveDefinition newCurveDef = RimWellPlotTools::curveDefFromCurve( newCurve );
 
-    RiaRftPltCurveDefinition       curveDef  = RimWellPlotTools::curveDefFromCurve( curve );
-    RiuQwtPlotCurve::LineStyleEnum lineStyle = RiuQwtPlotCurve::STYLE_SOLID;
+    RiuQwtPlotCurve::LineStyleEnum currentLineStyle = RiuQwtPlotCurve::STYLE_SOLID;
 
-    RiuQwtSymbol::PointSymbolEnum currentSymbol = RiuQwtSymbol::SYMBOL_NONE;
-    if ( curveDef.address().sourceType() != RifDataSourceForRftPlt::ENSEMBLE_RFT )
+    cvf::Color3f currentColor;
+    if ( newCurveDef.address().sourceType() == RifDataSourceForRftPlt::SUMMARY_RFT )
     {
-        currentSymbol = m_timeStepSymbols[curveDef.timeStep()];
+        RifDataSourceForRftPlt sourceAddress( RifDataSourceForRftPlt::ENSEMBLE_RFT, newCurveDef.address().ensemble() );
+        currentColor = m_dataSourceColors[sourceAddress];
+        if ( m_showStatisticsCurves )
+        {
+            if ( trackByIndex( 0 ) && trackByIndex( 0 )->viewer() )
+            {
+                cvf::Color3f backgroundColor = RiaColorTools::fromQColorTo3f(
+                    trackByIndex( 0 )->viewer()->canvasBackground().color() );
+                currentColor = RiaColorTools::blendCvfColors( backgroundColor, currentColor, 2, 1 );
+            }
+        }
+    }
+    else
+    {
+        currentColor = m_dataSourceColors[newCurveDef.address()];
     }
 
-    bool isObservedData = curveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED ||
-                          curveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED_FMU_RFT;
+    RiuQwtSymbol::PointSymbolEnum currentSymbol = RiuQwtSymbol::SYMBOL_NONE;
+    if ( newCurveDef.address().sourceType() != RifDataSourceForRftPlt::ENSEMBLE_RFT )
+    {
+        currentSymbol = m_timeStepSymbols[newCurveDef.timeStep()];
+    }
+
+    bool isObservedData = newCurveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED ||
+                          newCurveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED_FMU_RFT;
     // Observed data
-    lineStyle = isObservedData ? RiuQwtPlotCurve::STYLE_NONE : RiuQwtPlotCurve::STYLE_SOLID;
+    currentLineStyle = isObservedData ? RiuQwtPlotCurve::STYLE_NONE : RiuQwtPlotCurve::STYLE_SOLID;
 
-    curve->setSymbol( currentSymbol );
-    curve->setLineStyle( lineStyle );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::applyCurveColor( RimWellLogCurve* curve )
-{
-    cvf::Color3f color = findCurveColor( curve );
-
-    curve->setColor( color );
-    curve->setSymbolEdgeColor( color );
+    newCurve->setColor( currentColor );
+    newCurve->setSymbolEdgeColor( currentColor );
+    newCurve->setSymbol( currentSymbol );
+    newCurve->setLineStyle( currentLineStyle );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -986,18 +996,6 @@ void RimWellRftPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     updateFormationsOnPlot();
 
-    // Update of curve color must happen here when loading data from project file, as the curve color is blended by the
-    // background color. The background color is taken from the viewer.
-    RimWellLogTrack* const plotTrack = trackByIndex( 0 );
-
-    if ( plotTrack && plotTrack->viewer() )
-    {
-        for ( auto c : plotTrack->curvesVector() )
-        {
-            applyCurveColor( c );
-        }
-    }
-
     if ( depthType() == RimWellLogPlot::MEASURED_DEPTH )
     {
         assignWellPathToExtractionCurves();
@@ -1092,36 +1090,6 @@ RiuQwtSymbol::LabelPosition RimWellRftPlot::statisticsLabelPosFromAddress( const
             return RiuQwtSymbol::LabelBelowSymbol;
     }
     return RiuQwtSymbol::LabelAboveSymbol;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Color3f RimWellRftPlot::findCurveColor( RimWellLogCurve* curve )
-{
-    RiaRftPltCurveDefinition curveDef = RimWellPlotTools::curveDefFromCurve( curve );
-
-    cvf::Color3f curveColor;
-    if ( curveDef.address().sourceType() == RifDataSourceForRftPlt::SUMMARY_RFT )
-    {
-        RifDataSourceForRftPlt sourceAddress( RifDataSourceForRftPlt::ENSEMBLE_RFT, curveDef.address().ensemble() );
-        curveColor = m_dataSourceColors[sourceAddress];
-        if ( m_showStatisticsCurves )
-        {
-            if ( trackByIndex( 0 ) && trackByIndex( 0 )->viewer() )
-            {
-                cvf::Color3f backgroundColor = RiaColorTools::fromQColorTo3f(
-                    trackByIndex( 0 )->viewer()->canvasBackground().color() );
-                curveColor = RiaColorTools::blendCvfColors( backgroundColor, curveColor, 2, 1 );
-            }
-        }
-    }
-    else
-    {
-        curveColor = m_dataSourceColors[curveDef.address()];
-    }
-
-    return curveColor;
 }
 
 //--------------------------------------------------------------------------------------------------
