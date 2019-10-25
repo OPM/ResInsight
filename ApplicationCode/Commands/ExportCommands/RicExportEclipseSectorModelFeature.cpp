@@ -42,7 +42,6 @@
 #include "Riu3DMainWindowTools.h"
 #include "RiuPropertyViewTabWidget.h"
 
-#include "cafPdmSettings.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
@@ -162,7 +161,7 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
                 QString fileName = dirPath.absoluteFilePath( keyword + ".GRDECL" );
                 bool    worked   = RifEclipseInputFileTools::exportKeywords( fileName,
                                                                         view->eclipseCase()->eclipseCaseData(),
-                                                                        {keyword},
+                                                                        { keyword },
                                                                         fileWriteMode,
                                                                         min,
                                                                         max,

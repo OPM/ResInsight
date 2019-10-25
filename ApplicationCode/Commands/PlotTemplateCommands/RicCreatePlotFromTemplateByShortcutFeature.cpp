@@ -69,6 +69,7 @@ void RicCreatePlotFromTemplateByShortcutFeature::onActionTriggered( bool isCheck
 
         fileName = fileNameSelectedInUi;
         RiaApplication::instance()->preferences()->setDefaultPlotTemplatePath( fileName );
+        RiaApplication::instance()->preferences()->writePreferencesToApplicationStore();
     }
 
     auto sumCases           = RicSummaryPlotTemplateTools::selectedSummaryCases();

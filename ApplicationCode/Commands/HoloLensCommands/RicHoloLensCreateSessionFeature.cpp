@@ -24,7 +24,6 @@
 
 #include "RiuMainWindow.h"
 
-#include "cafPdmSettings.h"
 #include "cafPdmUiPropertyViewDialog.h"
 
 #include <QAction>
