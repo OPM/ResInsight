@@ -66,7 +66,6 @@
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
 #include "cafMemoryInspector.h"
-#include "cafPdmSettings.h"
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiTreeView.h"

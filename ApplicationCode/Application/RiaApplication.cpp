@@ -312,7 +312,7 @@ bool RiaApplication::openFile( const QString& fileName )
     }
     else if ( fileType & RiaDefines::ANY_ECLIPSE_FILE )
     {
-        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{fileName}, true );
+        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ fileName }, true );
         lastUsedDialogTag = RiaDefines::defaultDirectoryLabel( fileType );
     }
 
@@ -450,7 +450,7 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
     // VL check regarding specific order mentioned in comment above...
 
     m_preferences->lastUsedProjectFileName = fullPathProjectFileName;
-    caf::PdmSettings::writeFieldsToApplicationStore( m_preferences );
+    m_preferences->writePreferencesToApplicationStore();
 
     for ( size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++ )
     {
@@ -707,7 +707,7 @@ bool RiaApplication::saveProjectAs( const QString& fileName, QString* errorMessa
     }
 
     m_preferences->lastUsedProjectFileName = fileName;
-    caf::PdmSettings::writeFieldsToApplicationStore( m_preferences );
+    m_preferences->writePreferencesToApplicationStore();
 
     onProjectSaved();
 
@@ -1186,7 +1186,8 @@ void RiaApplication::applyPreferences()
         this->project()->setPlotTemplateFolders( m_preferences->plotTemplateFolders() );
         this->project()->updateConnectedEditors();
     }
-    caf::PdmSettings::writeFieldsToApplicationStore( m_preferences );
+
+    m_preferences->writePreferencesToApplicationStore();
 }
 
 //--------------------------------------------------------------------------------------------------

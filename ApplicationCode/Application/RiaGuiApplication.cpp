@@ -102,7 +102,6 @@
 #include "cafAppEnum.h"
 #include "cafEffectGenerator.h"
 #include "cafFixedAtlasFont.h"
-#include "cafPdmSettings.h"
 #include "cafPdmUiModelChangeDetector.h"
 #include "cafPdmUiTreeView.h"
 #include "cafProgressInfo.h"

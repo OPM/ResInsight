@@ -20,8 +20,6 @@
 
 #include "RiaRegressionTestRunner.h"
 
-#include "cafPdmSettings.h"
-
 #include <QAction>
 #include <QDir>
 
