@@ -620,7 +620,7 @@ QString RimGridCrossPlot::asciiTitleForPlotExport( int dataSetIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlot::asciiDataForPlotExport( int dataSetIndex ) const
+QString RimGridCrossPlot::asciiDataForGridCrossPlotExport( int dataSetIndex ) const
 {
     if ( (size_t)dataSetIndex < m_crossPlotDataSets.size() )
     {
