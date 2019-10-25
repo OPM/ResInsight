@@ -81,7 +81,7 @@ public:
     void                 updateCurveNamesAndPlotTitle();
     void                 swapAxes();
     QString              asciiTitleForPlotExport( int dataSetIndex ) const;
-    QString              asciiDataForPlotExport( int dataSetIndex ) const;
+    QString              asciiDataForGridCrossPlotExport( int dataSetIndex ) const;
 
     bool isXAxisLogarithmic() const;
     bool isYAxisLogarithmic() const;
