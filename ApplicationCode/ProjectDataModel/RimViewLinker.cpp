@@ -286,7 +286,7 @@ QString RimViewLinker::displayNameForView( RimGridView* view )
 
     if ( view )
     {
-            displayName = view->autoName();
+        displayName = view->autoName();
     }
 
     return displayName;
@@ -431,9 +431,15 @@ void RimViewLinker::findNameAndIconFromView( QString* name, caf::QIconProvider* 
 {
     CVF_ASSERT( name && icon );
 
-    *name = displayNameForView( view );
-    *icon =  view->uiIconProvider();
-
+    if ( view )
+    {
+        *name = displayNameForView( view );
+        *icon = view->uiIconProvider();
+    }
+    else
+    {
+        *icon = caf::QIconProvider();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
