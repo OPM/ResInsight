@@ -251,7 +251,12 @@ class Case(PdmObject):
                 caseId=self.case_id)).createViewResult.viewId)
 
     def contour_maps(self, map_type=ContourMapType.ECLIPSE):
-        """Get a list of all contour maps belonging to a project"""
+        """ Get a list of all contour maps belonging to a project
+
+        Arguments:
+            map_type (enum): ContourMapType.ECLIPSE or ContourMapType.GEO_MECH
+
+        """
 
         pdm_objects = self.descendants(ContourMapType.get_identifier(map_type))
         contour_maps = []

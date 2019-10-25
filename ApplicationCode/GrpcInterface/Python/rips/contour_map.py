@@ -35,6 +35,7 @@ class ContourMap(View):
 
     def export_to_text(self, export_file_name='', export_local_coordinates=False, undefined_value_label="NaN", exclude_undefined_values=False):
         """ Export snapshot for the current view
+        
         Arguments:
             export_file_name(str): The file location to store results in.
             export_local_coordinates(bool): Should we export local coordinates, or UTM.
