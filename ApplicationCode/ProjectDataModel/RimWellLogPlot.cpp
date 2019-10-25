@@ -649,6 +649,11 @@ void RimWellLogPlot::initAfterRead()
     {
         m_nameConfig->setCustomName( m_description() );
     }
+
+    if ( m_depthAxisGridVisibility() == AXIS_GRID_MINOR )
+    {
+        m_depthAxisGridVisibility = AXIS_GRID_MAJOR_AND_MINOR;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

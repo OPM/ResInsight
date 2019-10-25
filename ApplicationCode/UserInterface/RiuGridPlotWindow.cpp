@@ -611,8 +611,8 @@ void RiuGridPlotWindow::reinsertPlotWidgetsAndScrollbar()
             legends[visibleIndex]->hide();
         }
 
-        plotWidgets[visibleIndex]->setYAxisLabelsAndTicksEnabled( column == 0 );
-        plotWidgets[visibleIndex]->setYTitleEnabled( column == 0 );
+        plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft, column == 0 );
+        plotWidgets[visibleIndex]->setAxisTitleEnabled( QwtPlot::yLeft, column == 0 );
 
         plotWidgets[visibleIndex]->show();
 
