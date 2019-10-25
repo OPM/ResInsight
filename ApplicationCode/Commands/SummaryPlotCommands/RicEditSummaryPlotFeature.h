@@ -35,13 +35,13 @@ public:
     void closeDialogAndResetTargetPlot();
 
     static RicSummaryCurveCreatorDialog* curveCreatorDialog();
+    static void                          editSummaryPlot( RimSummaryPlot* plot );
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    RimSummaryPlot* selectedSummaryPlot() const;
+    static RimSummaryPlot* selectedSummaryPlot();
 };
