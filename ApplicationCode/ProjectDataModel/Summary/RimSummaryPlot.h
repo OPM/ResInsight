@@ -26,7 +26,6 @@
 
 #include "RimPlotInterface.h"
 #include "RimPlotWindow.h"
-#include "RimRiuQwtPlotOwnerInterface.h"
 
 #include "qwt_plot_textlabel.h"
 
@@ -105,7 +104,7 @@ public:
     void reattachAllCurves();
     void updateCaseNameHasChanged();
 
-    void updateAxes();
+    void updateAxes() override;
 
     bool isLogarithmicScaleEnabled( RiaDefines::PlotAxis plotAxis ) const;
 

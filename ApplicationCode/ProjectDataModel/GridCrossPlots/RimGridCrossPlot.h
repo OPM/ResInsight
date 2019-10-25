@@ -25,7 +25,6 @@
 #include "RimNameConfig.h"
 #include "RimPlotInterface.h"
 #include "RimPlotWindow.h"
-#include "RimRiuQwtPlotOwnerInterface.h"
 
 #include <QPointer>
 
@@ -123,7 +122,7 @@ protected:
                                                     const QVariant&            newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
-    void                          updateAxisDisplay();
+    void                          updateAxes() override;
     void                          updatePlot();
 
     virtual QString xAxisParameterString() const;

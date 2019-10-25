@@ -132,7 +132,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimScaleLegendConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.h
-${CMAKE_CURRENT_LIST_DIR}/RimRiuQwtPlotOwnerInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.h

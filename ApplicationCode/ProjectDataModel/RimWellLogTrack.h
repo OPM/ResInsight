@@ -202,6 +202,8 @@ public:
 
     void onAxisSelected( int axis, bool toggle ) override;
 
+    void updateAxes() override;
+
 private:
     void calculateXZoomRange();
     void calculateYZoomRange();
