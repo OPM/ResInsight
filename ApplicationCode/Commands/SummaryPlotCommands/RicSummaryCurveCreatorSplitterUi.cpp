@@ -107,7 +107,7 @@ void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiOr
     QMinimizePanel* curveGroup = getOrCreateCurveTreeGroup();
     m_lowerLeftLayout->insertWidget( 2, curveGroup, 1 );
     m_lowerLeftLayout->addStretch( 0 );
-    m_secondRowLayout->insertWidget( 1, getOrCreatePlotWidget() );
+    m_lowerRightLayout->insertWidget( 1, getOrCreatePlotWidget() );
 
     // Fields at bottom of dialog
     configureAndUpdateFields( 1, m_bottomFieldLayout, topLevelUiItems, uiConfigName );
@@ -137,6 +137,20 @@ QWidget* RicSummaryCurveCreatorSplitterUi::createWidget( QWidget* parent )
     m_lowerLeftLayout = new QVBoxLayout;
     m_lowerLeftLayout->setContentsMargins( 0, 0, 0, 0 );
     m_secondRowLayout->addLayout( m_lowerLeftLayout );
+
+    m_lowerRightLayout = new QVBoxLayout;
+    m_lowerRightLayout->setContentsMargins( 0, 0, 0, 0 );
+    m_secondRowLayout->addLayout( m_lowerRightLayout );
+
+    {
+        auto label = new QLabel( "Plot Preview" );
+        label->setAlignment( Qt::AlignCenter );
+        auto font = label->font();
+        font.setPixelSize( 20 );
+        label->setFont( font );
+
+        m_lowerRightLayout->insertWidget( 0, label );
+    }
 
     m_firstColumnSplitter = new QSplitter( Qt::Vertical );
     m_firstColumnSplitter->setContentsMargins( 0, 0, 0, 0 );
