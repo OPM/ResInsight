@@ -1381,11 +1381,20 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 {
     RimViewWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_description || changedField == &m_showPlotTitle || changedField == &m_showLegend ||
-         changedField == &m_legendFontSize || changedField == &m_useAutoPlotTitle )
+    if ( changedField == &m_description || changedField == &m_showPlotTitle || changedField == &m_useAutoPlotTitle )
     {
         updatePlotTitle();
         updateConnectedEditors();
+    }
+
+    if ( changedField == &m_showLegend )
+    {
+        if ( m_plotWidget ) m_plotWidget->setLegendVisible( m_showLegend );
+    }
+
+    if ( changedField == &m_legendFontSize )
+    {
+        if ( m_plotWidget ) m_plotWidget->setLegendFontSize( m_legendFontSize() );
     }
 
     if ( changedField == &m_useAutoPlotTitle && !m_useAutoPlotTitle )
@@ -1504,7 +1513,12 @@ void RimSummaryPlot::onLoadDataAndUpdate()
         curve->loadDataAndUpdate( false );
     }
 
-    if ( m_plotWidget ) m_plotWidget->updateLegend();
+    if ( m_plotWidget )
+    {
+        m_plotWidget->setLegendVisible( m_showLegend );
+        m_plotWidget->setLegendFontSize( m_legendFontSize() );
+        m_plotWidget->updateLegend();
+    }
     this->updateAxes();
 
     m_textCurveSetEditor->updateTextFilter();
@@ -1798,21 +1812,6 @@ void RimSummaryPlot::updateMdiWindowTitle()
         else
         {
             m_plotWidget->setTitle( "" );
-        }
-
-        if ( m_showLegend )
-        {
-            // Will be released in plot destructor or when a new legend is set
-            QwtLegend* legend = new QwtLegend( m_plotWidget );
-
-            auto font = legend->font();
-            font.setPointSize( m_legendFontSize() );
-            legend->setFont( font );
-            m_plotWidget->insertLegend( legend, QwtPlot::BottomLegend );
-        }
-        else
-        {
-            m_plotWidget->insertLegend( nullptr );
         }
     }
 }

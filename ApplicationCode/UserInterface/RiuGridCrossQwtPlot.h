@@ -60,6 +60,9 @@ public:
 
     RimViewWindow* ownerViewWindow() const override;
 
+    void setLegendFontSize( int fontSize );
+    void setLegendVisible( bool visible );
+
 protected:
     void updateLayout() override;
     void updateInfoBoxLayout();

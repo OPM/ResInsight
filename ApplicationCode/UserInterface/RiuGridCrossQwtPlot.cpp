@@ -42,6 +42,8 @@
 #include "RimPlotAxisProperties.h"
 #include "RiuPlotAnnotationTool.h"
 
+#include "qwt_legend.h"
+#include "qwt_legend_label.h"
 #include "qwt_plot_panner.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_widget.h"
@@ -104,6 +106,8 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimPlotInterface* plotDefinition, QWid
 
     this->installEventFilter( this );
     this->canvas()->installEventFilter( this );
+
+    setLegendVisible( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -246,6 +250,42 @@ RimViewWindow* RiuGridCrossQwtPlot::ownerViewWindow() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuGridCrossQwtPlot::setLegendFontSize( int fontSize )
+{
+    if ( legend() )
+    {
+        QFont font = legend()->font();
+        font.setPointSize( fontSize );
+        legend()->setFont( font );
+        // Set font size for all existing labels
+        QList<QwtLegendLabel*> labels = legend()->findChildren<QwtLegendLabel*>();
+        for ( QwtLegendLabel* label : labels )
+        {
+            label->setFont( font );
+        }
+    }
+    updateInfoBoxLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuGridCrossQwtPlot::setLegendVisible( bool visible )
+{
+    if ( visible )
+    {
+        QwtLegend* legend = new QwtLegend( this );
+        this->insertLegend( legend, BottomLegend );
+    }
+    else
+    {
+        this->insertLegend( nullptr );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuGridCrossQwtPlot::updateLayout()
 {
     QwtPlot::updateLayout();
@@ -291,9 +331,9 @@ void RiuGridCrossQwtPlot::updateInfoBoxLayout()
         if ( !infoText.empty() )
         {
             m_infoBox->label()->setText( infoText.join( "\n" ) );
-            QFont font = m_infoBox->font();
+            QFont font = m_infoBox->label()->font();
             font.setPointSize( crossPlot->legendFontSize() );
-            m_infoBox->setFont( font );
+            m_infoBox->label()->setFont( font );
             m_infoBox->adjustSize();
             QRect infoRect   = m_infoBox->frameGeometry();
             QRect canvasRect = canvas()->frameGeometry();

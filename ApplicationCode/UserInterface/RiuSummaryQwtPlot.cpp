@@ -53,6 +53,7 @@
 #include "qwt_date_scale_engine.h"
 #include "qwt_interval.h"
 #include "qwt_legend.h"
+#include "qwt_legend_label.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_panner.h"
 #include "qwt_plot_zoomer.h"
@@ -128,6 +129,8 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimPlotInterface* plotDefinition, QWidget*
 
     this->installEventFilter( this );
     this->canvas()->installEventFilter( this );
+
+    setLegendVisible( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,6 +210,41 @@ RimViewWindow* RiuSummaryQwtPlot::ownerViewWindow() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::setLegendFontSize( int fontSize )
+{
+    if ( legend() )
+    {
+        QFont font = legend()->font();
+        font.setPointSize( fontSize );
+        legend()->setFont( font );
+        // Set font size for all existing labels
+        QList<QwtLegendLabel*> labels = legend()->findChildren<QwtLegendLabel*>();
+        for ( QwtLegendLabel* label : labels )
+        {
+            label->setFont( font );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::setLegendVisible( bool visible )
+{
+    if ( visible )
+    {
+        QwtLegend* legend = new QwtLegend( this );
+        this->insertLegend( legend, BottomLegend );
+    }
+    else
+    {
+        this->insertLegend( nullptr );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::keyPressEvent( QKeyEvent* keyEvent )
 {
     RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( plotDefinition() );
@@ -247,11 +285,6 @@ void RiuSummaryQwtPlot::setDefaults()
     QString timeFormat = RiaApplication::instance()->preferences()->timeFormat();
 
     useDateBasedTimeAxis( dateFormat, timeFormat );
-
-    // The legend will be deleted in the destructor of the plot or when
-    // another legend is inserted.
-    QwtLegend* legend = new QwtLegend( this );
-    this->insertLegend( legend, BottomLegend );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -464,8 +464,13 @@ void RimGridCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField
                                          const QVariant&            oldValue,
                                          const QVariant&            newValue )
 {
+    if ( changedField == &m_showLegend )
+    {
+        m_plotWidget->setLegendVisible( m_showLegend() );
+    }
     if ( changedField == &m_legendFontSize )
     {
+        m_plotWidget->setLegendFontSize( m_legendFontSize() );
         for ( auto dataSet : m_crossPlotDataSets )
         {
             dataSet->updateLegendIcons();
@@ -541,20 +546,8 @@ void RimGridCrossPlot::updatePlot()
             dataSet->setParentQwtPlotNoReplot( m_plotWidget );
         }
 
-        if ( m_showLegend() )
-        {
-            // Will be released in plot destructor or when a new legend is set
-            QwtLegend* legend = new QwtLegend( m_plotWidget );
-
-            auto font = legend->font();
-            font.setPointSize( m_legendFontSize() );
-            legend->setFont( font );
-            m_plotWidget->insertLegend( legend, QwtPlot::BottomLegend );
-        }
-        else
-        {
-            m_plotWidget->insertLegend( nullptr );
-        }
+        m_plotWidget->setLegendVisible( m_showLegend() );
+        m_plotWidget->setLegendFontSize( m_legendFontSize() );
         m_plotWidget->updateLegendSizesToMatchPlot();
         m_plotWidget->scheduleReplot();
     }
