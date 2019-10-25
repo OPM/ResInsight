@@ -70,7 +70,7 @@ RimSummaryPlotFilterTextCurveSetEditor::RimSummaryPlotFilterTextCurveSetEditor()
     CAF_PDM_InitObject( "Curve Set Filter Text", "", "", "" );
 
     // clang-format off
-    QString filterTextHeading = "Text to Create Summary Vectors";
+    QString filterTextHeading = "Create Summary Curves from Text";
     QString filterTextShortcut = " (Ctrl + F)";
 
     QString filterTextToolTip =
@@ -440,7 +440,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::defineEditorAttribute( const caf::P
             }
 
             attr->selectAllOnFocusEvent = true;
-            attr->placeholderText       = "Click to define filter";
+            attr->placeholderText       = "Click to Edit Summary Curves";
         }
     }
 }

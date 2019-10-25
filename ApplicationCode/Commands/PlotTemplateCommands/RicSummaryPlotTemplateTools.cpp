@@ -138,7 +138,7 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
             }
         }
 
-        if ( selectedSummaryCases.size() > static_cast<size_t>( maximumIndexValue ) )
+        if ( selectedSummaryCases.size() > static_cast<size_t>( maximumIndexValue + 1 ) )
         {
             // Use the curve style of the last curve in template, and duplicate this for remaining data sources
 
@@ -192,7 +192,7 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
             }
         }
 
-        if ( selectedEnsembles.size() > static_cast<size_t>( maximumIndexValue ) )
+        if ( selectedEnsembles.size() > static_cast<size_t>( maximumIndexValue + 1 ) )
         {
             // Use the curve style of the last curve in template, and duplicate this for remaining data sources
 

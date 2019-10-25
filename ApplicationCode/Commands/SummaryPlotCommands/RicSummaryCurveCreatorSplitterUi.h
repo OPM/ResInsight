@@ -87,6 +87,7 @@ private:
     QPointer<QHBoxLayout> m_firstRowLayout;
     QPointer<QHBoxLayout> m_secondRowLayout;
     QPointer<QVBoxLayout> m_lowerLeftLayout;
+    QPointer<QVBoxLayout> m_lowerRightLayout;
 
     QPointer<QHBoxLayout> m_bottomFieldLayout;
 

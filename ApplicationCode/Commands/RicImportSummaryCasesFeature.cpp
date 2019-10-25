@@ -41,6 +41,7 @@
 
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
@@ -84,7 +85,12 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
     addSummaryCases( cases );
     if ( !cases.empty() )
     {
-        RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( cases.front() );
+        auto objectToSelect = RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( cases.front() );
+        if ( objectToSelect )
+        {
+            RiuPlotMainWindowTools::setExpanded( objectToSelect );
+            RiuPlotMainWindowTools::selectAsCurrentItem( objectToSelect );
+        }
     }
 
     addCasesToGroupIfRelevant( cases );
@@ -95,8 +101,6 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
     RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
     if ( mainPlotWindow && !cases.empty() )
     {
-        mainPlotWindow->selectAsCurrentItem( cases.back() );
-
         mainPlotWindow->updateSummaryPlotToolBar();
     }
 
@@ -134,13 +138,17 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( const QStr
         addSummaryCases( *cases );
         if ( !cases->empty() && doCreateDefaultPlot )
         {
-            RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( cases->back() );
+            auto objectToSelect = RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( cases->back() );
+            if ( objectToSelect )
+            {
+                RiuPlotMainWindowTools::setExpanded( objectToSelect );
+                RiuPlotMainWindowTools::selectAsCurrentItem( objectToSelect );
+            }
         }
 
         RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
         if ( mainPlotWindow && !cases->empty() )
         {
-            mainPlotWindow->selectAsCurrentItem( cases->back() );
             mainPlotWindow->updateSummaryPlotToolBar();
 
             // Close main window if there are no eclipse cases imported

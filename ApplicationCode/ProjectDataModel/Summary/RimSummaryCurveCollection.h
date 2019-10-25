@@ -85,9 +85,14 @@ private:
                            const QVariant&            oldValue,
                            const QVariant&            newValue ) override;
 
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+
 private:
     caf::PdmField<bool>                       m_showCurves;
     caf::PdmChildArrayField<RimSummaryCurve*> m_curves;
+    caf::PdmField<bool>                       m_editPlot;
 
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_ySourceStepping;
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_xSourceStepping;

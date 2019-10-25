@@ -266,5 +266,6 @@ void RicHelpOpenUsersGuideFeature::onActionTriggered( bool isChecked )
 void RicHelpOpenUsersGuideFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "&Users Guide" );
-    actionToSetup->setShortcut( QKeySequence::HelpContents );
+
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence::HelpContents );
 }
