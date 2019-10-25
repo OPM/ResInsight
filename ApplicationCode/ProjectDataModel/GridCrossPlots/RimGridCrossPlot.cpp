@@ -511,7 +511,7 @@ void RimGridCrossPlot::performAutoNameUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::updateAxisDisplay()
+void RimGridCrossPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
@@ -534,7 +534,7 @@ void RimGridCrossPlot::updatePlot()
         RiuQwtPlotTools::setCommonPlotBehaviour( m_plotWidget );
         RiuQwtPlotTools::setDefaultAxes( m_plotWidget );
 
-        updateAxisDisplay();
+        updateAxes();
 
         for ( auto dataSet : m_crossPlotDataSets )
         {
@@ -602,7 +602,7 @@ void RimGridCrossPlot::swapAxes()
 
     loadDataAndUpdate();
 
-    updateAxisDisplay();
+    updateAxes();
 }
 
 //--------------------------------------------------------------------------------------------------

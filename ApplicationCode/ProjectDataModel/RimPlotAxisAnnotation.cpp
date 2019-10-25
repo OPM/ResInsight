@@ -22,7 +22,7 @@
 #include "RigEquil.h"
 
 #include "RimEclipseCase.h"
-#include "RimRiuQwtPlotOwnerInterface.h"
+#include "RimPlotInterface.h"
 #include "RimTools.h"
 #include "RimViewWindow.h"
 
@@ -158,11 +158,11 @@ void RimPlotAxisAnnotation::fieldChangedByUi( const caf::PdmFieldHandle* changed
                                               const QVariant&            oldValue,
                                               const QVariant&            newValue )
 {
-    RimRiuQwtPlotOwnerInterface* parentPlot = nullptr;
+    RimPlotInterface* parentPlot = nullptr;
     this->firstAncestorOrThisOfType( parentPlot );
     if ( parentPlot )
     {
-        parentPlot->updateAxisDisplay();
+        parentPlot->updateAxes();
     }
 }
 

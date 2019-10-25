@@ -65,6 +65,7 @@ public:
 
     virtual void setAutoScaleXEnabled( bool enabled ) = 0;
     virtual void setAutoScaleYEnabled( bool enabled ) = 0;
+    virtual void updateAxes()                         = 0;
 
     virtual void updateZoomInQwt()   = 0;
     virtual void updateZoomFromQwt() = 0;

@@ -26,7 +26,7 @@
 #include "RigStatisticsCalculator.h"
 
 #include "RimPlotAxisAnnotation.h"
-#include "RimRiuQwtPlotOwnerInterface.h"
+#include "RimPlotInterface.h"
 
 #include "cafPdmUiSliderEditor.h"
 
@@ -416,17 +416,17 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
         m_isAutoZoom = false;
     }
 
-    RimRiuQwtPlotOwnerInterface* parentPlot = nullptr;
+    RimPlotInterface* parentPlot = nullptr;
     this->firstAncestorOrThisOfType( parentPlot );
     if ( parentPlot )
     {
         if ( changedField == &isLogarithmicScaleEnabled )
         {
-            parentPlot->updateAxisScaling();
+            parentPlot->loadDataAndUpdate();
         }
         else
         {
-            parentPlot->updateAxisDisplay();
+            parentPlot->updateAxes();
         }
     }
 }
