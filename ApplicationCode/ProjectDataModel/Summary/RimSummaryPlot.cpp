@@ -1674,9 +1674,14 @@ void RimSummaryPlot::setAsCrossPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
+    if ( !m_isCrossPlot )
+    {
+        caf::PdmUiGroup* textCurveFilterGroup = uiOrdering.addNewGroup( "Text-Based Curve Creation" );
+        m_textCurveSetEditor->uiOrdering( uiConfigName, *textCurveFilterGroup );
+    }
 
     caf::PdmUiGroup* mainOptions = uiOrdering.addNewGroup( "General Plot Options" );
+    mainOptions->setCollapsedByDefault( true );
 
     mainOptions->add( &m_showPlotTitle );
     if ( m_showPlotTitle )
@@ -1695,11 +1700,7 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     mainOptions->add( &m_normalizeCurveYValues );
     mainOptions->add( &m_plotTemplate );
 
-    if ( !m_isCrossPlot )
-    {
-        caf::PdmUiGroup* textCurveFilterGroup = uiOrdering.addNewGroup( "Text-Based Curve Creation" );
-        m_textCurveSetEditor->uiOrdering( uiConfigName, *textCurveFilterGroup );
-    }
+    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
 }
