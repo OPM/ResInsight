@@ -58,36 +58,33 @@ public:
 
     bool isChecked() const;
 
-    int  fontSize() const;
-    void setFontSize( int fontSize );
+    int  axisTitleFontSize( QwtPlot::Axis axis ) const;
+    int  axisValueFontSize( QwtPlot::Axis axis ) const;
+    void setAxisFontsAndAlignment( QwtPlot::Axis,
+                                   int               titleFontSize,
+                                   int               valueFontSize,
+                                   bool              titleBold = false,
+                                   Qt::AlignmentFlag alignment = Qt::AlignRight );
 
     void setEnabledAxes( const std::set<QwtPlot::Axis> enabledAxes );
 
-    void setXTitle( const QString& title );
-    void setYTitle( const QString& title );
-    void setYTitleEnabled( bool enable );
+    void setAxisTitleText( QwtPlot::Axis axis, const QString& title );
+    void setAxisTitleEnabled( QwtPlot::Axis axis, bool enable );
 
     QwtInterval axisRange( QwtPlot::Axis axis );
-    void        setXRange( double min, double max, QwtPlot::Axis axis = QwtPlot::xTop );
-    void        setYRange( double min, double max );
+    void        setAxisRange( QwtPlot::Axis axis, double min, double max );
 
     void setAxisInverted( QwtPlot::Axis axis );
 
-    void setYAxisLabelsAndTicksEnabled( bool enable );
+    void setAxisLabelsAndTicksEnabled( QwtPlot::Axis axis, bool enable );
 
-    void enableXGridLines( bool majorGridLines, bool minorGridLines );
-    void enableYGridLines( bool majorGridLines, bool minorGridLines );
+    void enableGridLines( QwtPlot::Axis axis, bool majorGridLines, bool minorGridLines );
 
-    void   setMajorAndMinorTickIntervals( double        majorTickInterval,
-                                          double        minorTickInterval,
-                                          double        minValue,
-                                          double        maxValue,
-                                          QwtPlot::Axis axis = QwtPlot::xTop );
-    void   setAutoTickIntervalCounts( int           maxMajorTickIntervalCount,
-                                      int           maxMinorTickIntervalCount,
-                                      QwtPlot::Axis axis = QwtPlot::xTop );
-    double getCurrentMajorTickInterval() const;
-    double getCurrentMinorTickInterval() const;
+    void setMajorAndMinorTickIntervals(
+        QwtPlot::Axis axis, double majorTickInterval, double minorTickInterval, double minValue, double maxValue );
+    void setAutoTickIntervalCounts( QwtPlot::Axis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount );
+    double majorTickInterval( QwtPlot::Axis axis ) const;
+    double minorTickInterval( QwtPlot::Axis axis ) const;
 
     int axisExtent( QwtPlot::Axis axis ) const;
 
@@ -107,7 +104,7 @@ protected:
     bool  eventFilter( QObject* watched, QEvent* event ) override;
     void  hideEvent( QHideEvent* event ) override;
 
-    void applyYTitleToQwt();
+    void applyAxisTitleToQwt( QwtPlot::Axis axis );
 
     virtual void selectPoint( QwtPlotCurve* curve, int pointNumber );
     virtual void clearPointSelection();
@@ -126,11 +123,11 @@ private:
     void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
 
 private:
-    caf::PdmPointer<caf::PdmObject> m_plotOwner;
-    QPoint                          m_clickPosition;
-    QString                         m_yAxisTitle;
-    bool                            m_yAxisTitleEnabled;
-    QPointer<QwtPlotPicker>         m_plotPicker;
+    caf::PdmPointer<caf::PdmObject>  m_plotOwner;
+    QPoint                           m_clickPosition;
+    std::map<QwtPlot::Axis, QString> m_axisTitles;
+    std::map<QwtPlot::Axis, bool>    m_axisTitlesEnabled;
+    QPointer<QwtPlotPicker>          m_plotPicker;
 
     struct CurveColors
     {

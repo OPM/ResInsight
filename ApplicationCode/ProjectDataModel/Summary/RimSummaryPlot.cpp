@@ -1078,36 +1078,21 @@ void RimSummaryPlot::updateTimeAxis()
     m_plotWidget->enableAxis( QwtPlot::xBottom, true );
 
     {
-        QString axisTitle;
-        if ( m_timeAxisProperties->showTitle ) axisTitle = m_timeAxisProperties->title();
+        QString axisTitle = m_timeAxisProperties->title();
 
-        QwtText timeAxisTitle = m_plotWidget->axisTitle( QwtPlot::xBottom );
-
-        QFont font = timeAxisTitle.font();
-        font.setBold( true );
-        font.setPointSize( m_timeAxisProperties->titleFontSize() );
-        timeAxisTitle.setFont( font );
-
-        timeAxisTitle.setText( axisTitle );
-
-        switch ( m_timeAxisProperties->titlePosition() )
+        Qt::AlignmentFlag alignment = Qt::AlignCenter;
+        if ( m_timeAxisProperties->titlePosition() == RimPlotAxisPropertiesInterface::AXIS_TITLE_END )
         {
-            case RimSummaryTimeAxisProperties::AXIS_TITLE_CENTER:
-                timeAxisTitle.setRenderFlags( Qt::AlignCenter );
-                break;
-            case RimSummaryTimeAxisProperties::AXIS_TITLE_END:
-                timeAxisTitle.setRenderFlags( Qt::AlignRight );
-                break;
+            alignment = Qt::AlignRight;
         }
 
-        m_plotWidget->setAxisTitle( QwtPlot::xBottom, timeAxisTitle );
-    }
-
-    {
-        QFont timeAxisFont = m_plotWidget->axisFont( QwtPlot::xBottom );
-        timeAxisFont.setBold( false );
-        timeAxisFont.setPointSize( m_timeAxisProperties->valuesFontSize() );
-        m_plotWidget->setAxisFont( QwtPlot::xBottom, timeAxisFont );
+        m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom,
+                                                m_timeAxisProperties->titleFontSize(),
+                                                m_timeAxisProperties->valuesFontSize(),
+                                                true,
+                                                alignment );
+        m_plotWidget->setAxisTitleText( QwtPlot::xBottom, m_timeAxisProperties->title() );
+        m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, m_timeAxisProperties->showTitle );
     }
 }
 

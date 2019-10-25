@@ -464,19 +464,19 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             {
                 if ( m_derivedMDSource == NO_SOURCE )
                 {
-                    viewer->setYTitle( "TVDMSL" );
+                    viewer->setAxisTitleText( QwtPlot::yLeft, "TVDMSL" );
                 }
                 else if ( m_derivedMDSource == PSEUDO_LENGTH )
                 {
-                    viewer->setYTitle( "PL/" + wellLogPlot->depthAxisTitle() );
+                    viewer->setAxisTitleText( QwtPlot::yLeft, "PL/" + wellLogPlot->depthAxisTitle() );
                 }
                 else if ( m_derivedMDSource == WELL_PATH )
                 {
-                    viewer->setYTitle( "WELL/" + wellLogPlot->depthAxisTitle() );
+                    viewer->setAxisTitleText( QwtPlot::yLeft, "WELL/" + wellLogPlot->depthAxisTitle() );
                 }
                 else
                 {
-                    viewer->setYTitle( "OBS/" + wellLogPlot->depthAxisTitle() );
+                    viewer->setAxisTitleText( QwtPlot::yLeft, "OBS/" + wellLogPlot->depthAxisTitle() );
                 }
             }
         }

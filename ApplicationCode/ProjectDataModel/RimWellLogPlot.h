@@ -58,9 +58,10 @@ public:
 
     enum AxisGridVisibility
     {
-        AXIS_GRID_NONE,
-        AXIS_GRID_MAJOR,
-        AXIS_GRID_MAJOR_AND_MINOR
+        AXIS_GRID_NONE            = 0x00,
+        AXIS_GRID_MAJOR           = 0x01,
+        AXIS_GRID_MINOR           = 0x02,
+        AXIS_GRID_MAJOR_AND_MINOR = 0x03
     };
 
     typedef caf::AppEnum<AxisGridVisibility> AxisGridEnum;

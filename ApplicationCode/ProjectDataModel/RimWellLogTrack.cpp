@@ -478,7 +478,7 @@ void RimWellLogTrack::updateXZoom()
         componentRangeMin = -1.5;
     }
 
-    m_plotWidget->setXRange( componentRangeMin, componentRangeMax, QwtPlot::xBottom );
+    m_plotWidget->setAxisRange( QwtPlot::xBottom, componentRangeMin, componentRangeMax );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -488,7 +488,7 @@ void RimWellLogTrack::updateYZoom()
 {
     if ( !m_plotWidget ) return;
 
-    m_plotWidget->setYRange( m_visibleYRangeMin(), m_visibleYRangeMax() );
+    m_plotWidget->setAxisRange( QwtPlot::yLeft, m_visibleYRangeMin(), m_visibleYRangeMax() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -520,8 +520,8 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         if ( m_plotWidget )
         {
-            m_majorTickInterval = m_plotWidget->getCurrentMajorTickInterval();
-            m_minorTickInterval = m_plotWidget->getCurrentMinorTickInterval();
+            m_majorTickInterval = m_plotWidget->majorTickInterval( QwtPlot::xTop );
+            m_minorTickInterval = m_plotWidget->minorTickInterval( QwtPlot::xTop );
         }
         m_majorTickInterval.uiCapability()->setUiHidden( !m_explicitTickIntervals() );
         m_minorTickInterval.uiCapability()->setUiHidden( !m_explicitTickIntervals() );
@@ -693,7 +693,8 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
 
     if ( m_explicitTickIntervals )
     {
-        m_plotWidget->setMajorAndMinorTickIntervals( m_majorTickInterval(),
+        m_plotWidget->setMajorAndMinorTickIntervals( QwtPlot::xTop,
+                                                     m_majorTickInterval(),
                                                      m_minorTickInterval(),
                                                      m_visibleXRangeMin(),
                                                      m_visibleXRangeMax() );
@@ -725,36 +726,20 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
                 minorTickIntervals = 10;
                 break;
         }
-        m_plotWidget->setAutoTickIntervalCounts( majorTickIntervals, minorTickIntervals );
-        m_plotWidget->setXRange( m_visibleXRangeMin, m_visibleXRangeMax );
+        m_plotWidget->setAutoTickIntervalCounts( QwtPlot::xTop, majorTickIntervals, minorTickIntervals );
+        m_plotWidget->setAxisRange( QwtPlot::xTop, m_visibleXRangeMin, m_visibleXRangeMax );
     }
 
-    switch ( m_xAxisGridVisibility() )
-    {
-        case RimWellLogPlot::AXIS_GRID_NONE:
-            m_plotWidget->enableXGridLines( false, false );
-            break;
-        case RimWellLogPlot::AXIS_GRID_MAJOR:
-            m_plotWidget->enableXGridLines( true, false );
-            break;
-        case RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR:
-            m_plotWidget->enableXGridLines( true, true );
-            break;
-    }
+    m_plotWidget->enableGridLines( QwtPlot::xTop,
+                                   m_xAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MAJOR,
+                                   m_xAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MINOR );
+
     RimWellLogPlot* plot = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( plot );
-    switch ( plot->depthAxisGridLinesEnabled() )
-    {
-        case RimWellLogPlot::AXIS_GRID_NONE:
-            m_plotWidget->enableYGridLines( false, false );
-            break;
-        case RimWellLogPlot::AXIS_GRID_MAJOR:
-            m_plotWidget->enableYGridLines( true, false );
-            break;
-        case RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR:
-            m_plotWidget->enableYGridLines( true, true );
-            break;
-    }
+
+    m_plotWidget->enableGridLines( QwtPlot::yLeft,
+                                   plot->depthAxisGridLinesEnabled() & RimWellLogPlot::AXIS_GRID_MAJOR,
+                                   plot->depthAxisGridLinesEnabled() & RimWellLogPlot::AXIS_GRID_MINOR );
 
     m_plotWidget->scheduleReplot();
 }
@@ -857,7 +842,7 @@ bool RimWellLogTrack::hasCustomFontSizes( RiaDefines::FontSettingType fontSettin
 {
     if ( fontSettingType == RiaDefines::PLOT_FONT && m_plotWidget )
     {
-        return defaultFontSize != m_plotWidget->fontSize();
+        return defaultFontSize != m_plotWidget->axisTitleFontSize( QwtPlot::xTop );
     }
     return false;
 }
@@ -872,9 +857,10 @@ bool RimWellLogTrack::applyFontSize( RiaDefines::FontSettingType fontSettingType
 {
     if ( fontSettingType == RiaDefines::PLOT_FONT && m_plotWidget )
     {
-        if ( oldFontSize == m_plotWidget->fontSize() || forceChange )
+        if ( oldFontSize == m_plotWidget->axisTitleFontSize( QwtPlot::xTop ) || forceChange )
         {
-            m_plotWidget->setFontSize( fontSize );
+            m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xTop, fontSize, fontSize );
+            m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, fontSize, fontSize );
             return true;
         }
     }
@@ -1121,8 +1107,8 @@ void RimWellLogTrack::loadDataAndUpdate()
 
     if ( wellLogPlot && m_plotWidget )
     {
-        m_plotWidget->setXTitle( m_xAxisTitle );
-        m_plotWidget->setYTitle( wellLogPlot->depthAxisTitle() );
+        m_plotWidget->setAxisTitleText( QwtPlot::yLeft, m_xAxisTitle );
+        m_plotWidget->setAxisTitleText( QwtPlot::yLeft, wellLogPlot->depthAxisTitle() );
     }
 
     for ( size_t cIdx = 0; cIdx < m_curves.size(); ++cIdx )
@@ -1677,6 +1663,11 @@ void RimWellLogTrack::initAfterRead()
     {
         m_regionAnnotationType    = RiuPlotAnnotationTool::FORMATION_ANNOTATIONS;
         m_regionAnnotationDisplay = RiuPlotAnnotationTool::DARK_LINES;
+    }
+
+    if ( m_xAxisGridVisibility() == RimWellLogPlot::AXIS_GRID_MINOR )
+    {
+        m_xAxisGridVisibility = RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR;
     }
 }
 
