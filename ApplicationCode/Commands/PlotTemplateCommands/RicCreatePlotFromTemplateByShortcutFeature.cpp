@@ -87,5 +87,6 @@ void RicCreatePlotFromTemplateByShortcutFeature::setupActionLook( QAction* actio
     actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
 
     QKeySequence keySeq( Qt::CTRL + Qt::Key_T );
-    actionToSetup->setShortcut( keySeq );
+
+    applyShortcutWithHintToAction( actionToSetup, keySeq );
 }

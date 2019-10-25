@@ -70,5 +70,6 @@ void RicExitApplicationFeature::onActionTriggered( bool isChecked )
 void RicExitApplicationFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "E&xit" );
-    actionToSetup->setShortcut( QKeySequence::Quit );
+
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence::Quit );
 }

@@ -101,7 +101,8 @@ void RicSaveProjectFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "&Save Project" );
     actionToSetup->setIcon( QIcon( ":/Save.png" ) );
-    actionToSetup->setShortcuts( QKeySequence::Save );
+
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence::Save );
 }
 
 //--------------------------------------------------------------------------------------------------
