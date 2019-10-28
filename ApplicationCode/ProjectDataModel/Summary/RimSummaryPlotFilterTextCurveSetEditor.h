@@ -61,6 +61,7 @@ private:
 
     caf::PdmField<QString> m_curveFilterLabelText;
     caf::PdmField<QString> m_curveFilterText;
+    QStringList            m_historyItems;
 
     bool m_isFieldRecentlyChangedFromGui;
 };

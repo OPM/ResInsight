@@ -75,6 +75,8 @@ public:
 
 private:
     void configureAndUpdateUi(const QString& uiConfigName) override;
+    
+    static QWidget* focusWidget(PdmUiFieldEditorHandle* uiFieldEditorHandle);
 
 private:
     QPointer<QToolBar> m_toolbar;
