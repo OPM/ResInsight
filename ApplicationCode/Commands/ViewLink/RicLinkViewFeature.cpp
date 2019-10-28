@@ -30,6 +30,10 @@
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 
+#include "RiuViewer.h"
+#include "RiuViewerCommands.h"
+
+#include "cafCmdFeatureManager.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -50,7 +54,9 @@ bool RicLinkViewFeature::isCommandEnabled()
     caf::SelectionManager::instance()->objectsByType( &selectedContourMaps );
     size_t selectedRegularGridViews = selectedGridViews.size() - selectedContourMaps.size();
 
-    if ( selectedGridViews.size() > 1u && selectedRegularGridViews >= 1u &&
+    auto contextViewer = dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
+
+    if ( !contextViewer && selectedGridViews.size() > 1u && selectedRegularGridViews >= 1u &&
          allSelectedItems.size() == selectedGridViews.size() )
     {
         return true;
@@ -88,10 +94,12 @@ void RicLinkViewFeature::onActionTriggered( bool isChecked )
     std::vector<caf::PdmUiItem*> allSelectedItems;
     std::vector<RimGridView*>    selectedGridViews;
 
+    auto contextViewer = dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
+
     caf::SelectionManager::instance()->selectedItems( allSelectedItems );
     caf::SelectionManager::instance()->objectsByType( &selectedGridViews );
 
-    if ( selectedGridViews.size() > 1u && allSelectedItems.size() == selectedGridViews.size() )
+    if ( !contextViewer && selectedGridViews.size() > 1u && allSelectedItems.size() == selectedGridViews.size() )
     {
         RicLinkVisibleViewsFeature::linkViews( selectedGridViews );
     }
@@ -113,9 +121,12 @@ void RicLinkViewFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicLinkViewFeature::setupActionLook( QAction* actionToSetup )
 {
+    auto contextViewer = dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
+
     std::vector<RimGridView*> selectedGridViews;
     caf::SelectionManager::instance()->objectsByType( &selectedGridViews );
-    if ( selectedGridViews.size() > 1u )
+
+    if (!contextViewer && selectedGridViews.size() > 1u )
     {
         actionToSetup->setText( "Link Selected Views" );
         actionToSetup->setIcon( QIcon( ":/LinkView16x16.png" ) );
