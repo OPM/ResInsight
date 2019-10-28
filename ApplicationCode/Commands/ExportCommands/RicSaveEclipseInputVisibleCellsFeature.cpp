@@ -29,12 +29,14 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+#include "RiuViewer.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafCmdFeatureManager.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
 
@@ -135,14 +137,20 @@ void RicSaveEclipseInputVisibleCellsFeature::setupActionLook( QAction* actionToS
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RicSaveEclipseInputVisibleCellsFeature::selectedView() const
 {
-    RimEclipseView* view = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseView>();
-    if ( view )
+    auto contextViewer = dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
+
+    if ( contextViewer != nullptr )
     {
+        // Command is triggered from viewer
+        Rim3dView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
+        return dynamic_cast<RimEclipseView*>( activeView );
+    }
+    else
+    {
+        // Command triggered from project tree or file menu
+        RimEclipseView* view = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseView>();
         return view;
     }
-
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-    return dynamic_cast<RimEclipseView*>( activeView );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,12 +183,18 @@ void RicSaveEclipseInputActiveVisibleCellsFeature::setupActionLook( QAction* act
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RicSaveEclipseInputActiveVisibleCellsFeature::selectedView()
 {
-    RimEclipseView* view = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseView>();
-    if ( view )
+    auto contextViewer = dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
+
+    if ( contextViewer != nullptr )
     {
+        // Command is triggered from viewer
+        Rim3dView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
+        return dynamic_cast<RimEclipseView*>( activeView );
+    }
+    else
+    {
+        // Command triggered from project tree or file menu
+        RimEclipseView* view = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseView>();
         return view;
     }
-
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-    return dynamic_cast<RimEclipseView*>( activeView );
 }
