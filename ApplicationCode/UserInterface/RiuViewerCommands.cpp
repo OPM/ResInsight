@@ -518,7 +518,9 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder << "RicLinkViewFeature";
             menuBuilder << "RicShowLinkOptionsFeature";
             menuBuilder << "RicSetMasterViewFeature";
+            menuBuilder.addSeparator();
             menuBuilder << "RicUnLinkViewFeature";
+            menuBuilder << "RicRemoveComparison3dViewFeature";
         }
         else if ( int2dView )
         {

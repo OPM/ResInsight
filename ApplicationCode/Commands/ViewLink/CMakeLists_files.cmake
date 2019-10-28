@@ -8,6 +8,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicUnLinkViewFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicShowLinkOptionsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteAllLinkedViewsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSetMasterViewFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicRemoveComparison3dViewFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -19,6 +20,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicUnLinkViewFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicShowLinkOptionsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteAllLinkedViewsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSetMasterViewFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicRemoveComparison3dViewFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
