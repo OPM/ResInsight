@@ -48,6 +48,7 @@
 
 #include <QDrag>
 #include <QFont>
+#include <QFontMetrics>
 #include <QGraphicsDropShadowEffect>
 #include <QMimeData>
 #include <QMouseEvent>
@@ -245,6 +246,8 @@ void RiuQwtPlotWidget::setAxisLabelsAndTicksEnabled( QwtPlot::Axis axis, bool en
 {
     this->axisScaleDraw( axis )->enableComponent( QwtAbstractScaleDraw::Ticks, enable );
     this->axisScaleDraw( axis )->enableComponent( QwtAbstractScaleDraw::Labels, enable );
+    axisScaleDraw( axis )->setMinimumExtent( axisExtent( axis ) );
+    setMinimumWidth( defaultMinimumWidth() + axisExtent( axis ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -334,13 +337,41 @@ double RiuQwtPlotWidget::minorTickInterval( QwtPlot::Axis axis ) const
 //--------------------------------------------------------------------------------------------------
 int RiuQwtPlotWidget::axisExtent( QwtPlot::Axis axis ) const
 {
-    QFont tickLabelFont = axisFont( axis );
-    int   lineExtent    = static_cast<int>( std::ceil( axisScaleDraw( axis )->extent( tickLabelFont ) ) );
+    int lineExtent = 5;
+
+    if ( this->axisScaleDraw( axis )->hasComponent( QwtAbstractScaleDraw::Ticks ) )
+    {
+        lineExtent += this->axisScaleDraw( axis )->maxTickLength();
+    }
+
+    if ( this->axisScaleDraw( axis )->hasComponent( QwtAbstractScaleDraw::Labels ) )
+    {
+        QFont tickLabelFont = axisFont( axis );
+        // Make space for a fairly long value label
+        QSize labelSize = QFontMetrics( tickLabelFont ).boundingRect( QString( "9.9e-9" ) ).size();
+
+        if ( axis == QwtPlot::yLeft || axis == QwtPlot::yRight )
+        {
+            lineExtent = labelSize.width();
+        }
+        else
+        {
+            lineExtent = labelSize.height();
+        }
+    }
+
     if ( !axisTitle( axis ).text().isEmpty() )
     {
-        QFont titleFont = axisTitle( axis ).font();
-        lineExtent += QFontMetrics( titleFont ).height();
+        auto it = m_axisTitlesEnabled.find( axis );
+        if ( it != m_axisTitlesEnabled.end() && it->second )
+        {
+            QFont titleFont = axisTitle( axis ).font();
+            // Label is aligned vertically on vertical axes
+            // So height is sufficient in both cases.
+            lineExtent += QFontMetrics( titleFont ).height();
+        }
     }
+
     return lineExtent;
 }
 
@@ -573,6 +604,7 @@ void RiuQwtPlotWidget::applyAxisTitleToQwt( QwtPlot::Axis axis )
         setAxisTitle( axis, axisTitle );
         if ( axis == QwtPlot::yLeft || axis == QwtPlot::yRight )
         {
+            axisScaleDraw( axis )->setMinimumExtent( axisExtent( axis ) );
             setMinimumWidth( defaultMinimumWidth() + axisExtent( axis ) );
         }
     }
