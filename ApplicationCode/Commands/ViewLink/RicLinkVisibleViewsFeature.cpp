@@ -92,7 +92,7 @@ void RicLinkVisibleViewsFeature::onActionTriggered( bool isChecked )
 void RicLinkVisibleViewsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Link Visible Views" );
-    actionToSetup->setIcon( QIcon( ":/chain.png" ) );
+    actionToSetup->setIcon( QIcon( ":/LinkView16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -171,8 +171,8 @@ void RicLinkVisibleViewsFeature::linkViews( std::vector<RimGridView*>& views )
             RicLinkVisibleViewsFeatureUi featureUi;
             featureUi.setViews( masterCandidates );
 
-            caf::PdmUiPropertyViewDialog propertyDialog( nullptr, &featureUi, "Select Master View", "" );
-            propertyDialog.setWindowIcon( QIcon( ":/chain.png" ) );
+            caf::PdmUiPropertyViewDialog propertyDialog( nullptr, &featureUi, "Select Primary View", "" );
+            propertyDialog.setWindowIcon( QIcon( ":/LinkView16x16.png" ) );
             if ( propertyDialog.exec() != QDialog::Accepted ) return;
 
             masterView = featureUi.masterView();

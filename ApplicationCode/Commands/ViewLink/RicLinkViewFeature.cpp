@@ -118,10 +118,11 @@ void RicLinkViewFeature::setupActionLook( QAction* actionToSetup )
     if ( selectedGridViews.size() > 1u )
     {
         actionToSetup->setText( "Link Selected Views" );
+        actionToSetup->setIcon( QIcon( ":/LinkView16x16.png" ) );
     }
     else
     {
         actionToSetup->setText( "Link View" );
+        actionToSetup->setIcon( QIcon( ":/ControlledView16x16.png" ) );
     }
-    actionToSetup->setIcon( QIcon( ":/chain.png" ) );
 }

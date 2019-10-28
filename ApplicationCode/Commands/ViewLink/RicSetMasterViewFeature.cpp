@@ -96,5 +96,6 @@ void RicSetMasterViewFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicSetMasterViewFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Set As Master View" );
+    actionToSetup->setText( "Set As Primary View" );
+    actionToSetup->setIcon( QIcon( ":/MasterView16x16.png" ) );
 }

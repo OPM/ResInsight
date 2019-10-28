@@ -69,5 +69,5 @@ void RicShowLinkOptionsFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicShowLinkOptionsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Show Link Options" );
+    actionToSetup->setText( "Show Linked View Options" );
 }
