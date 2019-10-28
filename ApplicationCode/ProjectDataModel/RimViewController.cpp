@@ -961,7 +961,7 @@ bool RimViewController::isRangeFiltersControlled() const
 {
     if ( !isRangeFilterControlPossible() ) return false;
 
-    if ( ownerViewLinker()->isActive() && this->m_isActive() )
+    if (ownerViewLinker() &&  ownerViewLinker()->isActive() && this->m_isActive() )
     {
         return m_syncRangeFilters;
     }

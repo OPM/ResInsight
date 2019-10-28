@@ -64,6 +64,7 @@ public:
     bool         isFirstViewDependentOnSecondView( const RimGridView* firstView, const RimGridView* secondView ) const;
     void         updateDependentViews();
     void         removeViewController( RimViewController* viewController );
+    RimGridView* firstControlledView();
 
     void updateOverrides();
 

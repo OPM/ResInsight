@@ -31,6 +31,7 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include "RimViewLinkerCollection.h"
 
 CAF_CMD_SOURCE_INIT( RicUnLinkViewFeature, "RicUnLinkViewFeature" );
 
@@ -43,9 +44,7 @@ bool RicUnLinkViewFeature::isCommandEnabled()
     ;
     if ( !activeView ) return false;
 
-    RimViewController* viewController = activeView->viewController();
-
-    if ( viewController )
+    if ( activeView->assosiatedViewLinker() )
     {
         return true;
     }
@@ -63,16 +62,39 @@ void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
     if ( !activeView ) return;
 
     RimViewController* viewController = activeView->viewController();
-    viewController->applyRangeFilterCollectionByUserChoice();
+    RimViewLinker*     viewLinker     = activeView->assosiatedViewLinker();
 
-    caf::SelectionManager::instance()->setSelectedItem( viewController );
-    caf::CmdFeature* feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicDeleteItemFeature" );
-    if ( feature )
+    if ( viewController )
     {
-        feature->action()->trigger();
-
-        return;
+        viewController->applyRangeFilterCollectionByUserChoice();
+        delete viewController;
+        viewLinker->removeViewController( nullptr ); // Remove the slots in the vector that was set to nullptr by the destructor
     }
+    else if ( viewLinker )
+    {
+        viewLinker->applyRangeFilterCollectionByUserChoice();
+
+        RimGridView* firstControlledView = viewLinker->firstControlledView();
+
+        if ( firstControlledView )
+        {
+            viewLinker->setMasterView(firstControlledView);
+
+            viewLinker->updateDependentViews();
+        }
+        else
+        {
+            // Remove the view linker object from the view linker collection
+            // viewLinkerCollection->viewLinker is a PdmChildField containing one RimViewLinker child object
+            RiaApplication::instance()->project()->viewLinkerCollection->viewLinker.removeChildObject(viewLinker);
+
+            delete viewLinker;
+        }
+        activeView->updateHolder();
+    }
+
+    RiaApplication::instance()->project()->viewLinkerCollection.uiCapability()->updateConnectedEditors();
+    RiaApplication::instance()->project()->uiCapability()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,5 +104,4 @@ void RicUnLinkViewFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Unlink View" );
     actionToSetup->setIcon( QIcon( ":/UnLinkView16x16.png" ) );
-
 }

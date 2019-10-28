@@ -278,6 +278,8 @@ void RimViewLinker::allViewsForCameraSync( const RimGridView* source, std::vecto
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateDependentViews()
 {
+    if (m_viewControllers.empty()) return;
+
     updateOverrides();
     updateCellResult();
     updateScaleZ( m_masterView, m_masterView->scaleZ() );
@@ -642,7 +644,7 @@ void RimViewLinker::addViewControllers( caf::PdmUiTreeOrdering& uiTreeOrdering )
 {
     for ( const auto& viewController : m_viewControllers )
     {
-        uiTreeOrdering.add( viewController );
+        if (viewController) uiTreeOrdering.add( viewController );
     }
 }
 
@@ -674,4 +676,14 @@ void RimViewLinker::updatePropertyFilters( RimPropertyFilter* changedPropertyFil
 void RimViewLinker::removeViewController( RimViewController* viewController )
 {
     m_viewControllers.removeChildObject( viewController );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimGridView* RimViewLinker::firstControlledView()
+{
+    if (m_viewControllers.empty()) return nullptr;
+
+    return m_viewControllers[0]->managedView();
 }
