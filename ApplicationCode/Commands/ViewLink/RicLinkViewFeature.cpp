@@ -101,32 +101,6 @@ public:
     void execute()
     {
         RicLinkVisibleViewsFeature::linkViews( m_viewsToLink );
-
-#if 0
-        std::vector<caf::PdmUiItem*> allSelectedItems;
-        std::vector<RimGridView*>    selectedGridViews;
-
-        auto contextViewer = dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
-
-        caf::SelectionManager::instance()->selectedItems( allSelectedItems );
-        caf::SelectionManager::instance()->objectsByType( &selectedGridViews );
-
-        if ( !contextViewer && selectedGridViews.size() > 1u && allSelectedItems.size() == selectedGridViews.size() )
-        {
-            RicLinkVisibleViewsFeature::linkViews( selectedGridViews );
-        }
-        else
-        {
-            Rim3dView*   activeView = RiaApplication::instance()->activeReservoirView();
-            RimGridView* gridView   = dynamic_cast<RimGridView*>( activeView );
-            if ( gridView )
-            {
-                std::vector<RimGridView*> views;
-                views.push_back( gridView );
-                RicLinkVisibleViewsFeature::linkViews( views );
-            }
-        }
-#endif
     }
 
     const std::vector<RimGridView*>& viewsToLink() { return m_viewsToLink;}
