@@ -189,6 +189,8 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
     if (!m_comboBox.isNull())
     {
         m_comboBox->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+        m_comboBox->setToolTip(uiField()->uiToolTip(uiConfigName));
+
 
         bool fromMenuOnly = true;
         QList<PdmOptionItemInfo> options = uiField()->valueOptions(&fromMenuOnly);
