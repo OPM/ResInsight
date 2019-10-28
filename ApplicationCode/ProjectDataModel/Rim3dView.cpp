@@ -1027,11 +1027,18 @@ void Rim3dView::updateZScaleLabel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::updateMeasurement()
+void Rim3dView::createMeasurementDisplayModelAndRedraw()
 {
-    if ( m_viewer )
+    appendMeasurementToModel();
+
+    if ( Rim3dView* depView = prepareComparisonView() )
     {
-        appendMeasurementToModel();
+        depView->appendMeasurementToModel();
+        restoreComparisonView();
+    }
+
+    if ( nativeOrOverrideViewer() )
+    {
         nativeOrOverrideViewer()->update();
     }
 }
