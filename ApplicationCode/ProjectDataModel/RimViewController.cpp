@@ -95,6 +95,10 @@ RimViewController::RimViewController()
 RimViewController::~RimViewController()
 {
     this->removeOverrides();
+    RimGridView* managedView = m_managedView;
+    m_managedView = nullptr;
+
+    if (managedView) managedView->updateHolder();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -485,6 +489,7 @@ void RimViewController::setManagedView( RimGridView* view )
     updateCameraLink();
     updateDisplayNameAndIcon();
     updateTimeStepLink();
+    m_managedView->updateHolder();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1132,7 +1137,7 @@ bool RimViewController::askUserToRestoreOriginalRangeFilterCollection( const QSt
     questionText = QString( "The range filters in the view \"%1\" are about to be unlinked." ).arg( viewName );
 
     msgBox.setText( questionText );
-    msgBox.setInformativeText( "Do you want to keep the range filters from the master view?" );
+    msgBox.setInformativeText( "Do you want to keep the range filters from the primary view?" );
     msgBox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
 
     int ret = msgBox.exec();

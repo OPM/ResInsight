@@ -291,7 +291,8 @@ void Rim3dView::updateMdiWindowTitle()
 {
     if ( m_viewer )
     {
-        m_viewer->layoutWidget()->setWindowTitle( autoName() );
+        m_viewer->layoutWidget()->setWindowTitle(
+            autoName() + ( isMasterView() ? " (Primary)" : viewController() ? " (Controlled)" : "" ) );
     }
 }
 

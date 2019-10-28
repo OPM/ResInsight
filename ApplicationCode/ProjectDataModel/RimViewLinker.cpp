@@ -86,6 +86,9 @@ RimViewLinker::~RimViewLinker()
     removeOverrides();
 
     m_viewControllers.deleteAllChildObjects();
+    RimGridView* masterView = m_masterView;
+    m_masterView = nullptr;
+    if (masterView) masterView->updateHolder();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -408,6 +411,9 @@ void RimViewLinker::updateUiNameAndIcon()
 {
     caf::QIconProvider iconProvider;
     RimViewLinker::findNameAndIconFromView( &m_name.v(), &iconProvider, m_masterView );
+    
+    if (m_masterView) m_masterView->updateHolder();
+
     setUiIcon( iconProvider );
 }
 
