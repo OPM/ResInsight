@@ -86,6 +86,9 @@ RimGridView::~RimGridView( void )
 
     if ( proj && this->isMasterView() )
     {
+        RimViewLinker* viewLinker = this->assosiatedViewLinker();
+        viewLinker->setMasterView(nullptr);
+
         delete proj->viewLinkerCollection->viewLinker();
         proj->viewLinkerCollection->viewLinker = nullptr;
 

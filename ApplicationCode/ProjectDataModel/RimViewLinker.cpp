@@ -305,7 +305,8 @@ QString RimViewLinker::displayNameForView( RimGridView* view )
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::setMasterView( RimGridView* view )
 {
-    RimViewController* previousViewController = view->viewController();
+    RimViewController* previousViewController = nullptr;
+    if (view) previousViewController = view->viewController();
 
     // Remove the view as dependent view
     if ( previousViewController )
