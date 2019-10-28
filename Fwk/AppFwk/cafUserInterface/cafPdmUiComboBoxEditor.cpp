@@ -227,6 +227,11 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
             m_comboBox->setEditable(true);
         }
 
+        if (m_attributes.minimumWidth != -1)
+        {
+            m_comboBox->setMinimumWidth(m_attributes.minimumWidth);
+        }
+
         m_comboBox->blockSignals(false);
     }
 
@@ -405,13 +410,16 @@ void PdmUiComboBoxEditor::slotIndexActivated(int index)
 {
     if (m_attributes.enableEditableContent)
     {
-        // Use the text directly, as the selected item text could be entered directly by the user
+        // Use the text directly, as the item text could be entered directly by the user
 
         auto text = m_comboBox->itemText(index);
         this->setValueToField(text);
     }
     else
     {
+        // Use index as data carrier to PDM field
+        // The index will be used as a lookup in a list of option items
+
         QVariant v;
         v = index;
 

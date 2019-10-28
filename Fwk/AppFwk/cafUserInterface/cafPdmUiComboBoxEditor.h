@@ -62,6 +62,7 @@ public:
         showPreviousAndNextButtons = false;
         minimumContentsLength      = 8;
         enableEditableContent      = false;
+        minimumWidth               = -1;
     }
 
 public:
@@ -70,10 +71,10 @@ public:
     int  minimumContentsLength; // The length of string to adjust to if adjustWidthToContents = false.
                                 // Set to <= 0 to ignore and use AdjustToContentsOnFirstShow instead
 
+    bool    enableEditableContent;
+    int     minimumWidth;
     QString nextButtonText;
     QString prevButtonText;
-
-    bool enableEditableContent;
 };
 
 
