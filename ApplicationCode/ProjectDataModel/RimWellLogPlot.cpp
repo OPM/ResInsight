@@ -563,7 +563,7 @@ void RimWellLogPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_depthAxisGridVisibility )
     {
-        updateLayout();
+        updateZoom();
     }
     else if ( changedField == &m_isAutoScaleDepthEnabled )
     {
