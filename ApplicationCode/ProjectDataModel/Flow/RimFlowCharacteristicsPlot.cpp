@@ -774,13 +774,13 @@ QString RimFlowCharacteristicsPlot::curveDataAsText() const
     QTextStream              stream( &tableText );
     RifCsvDataTableFormatter formatter( stream, fieldSeparator );
 
-    std::vector<RifEclipseOutputTableColumn> header = {
-        RifEclipseOutputTableColumn( "Date" ),
-        RifEclipseOutputTableColumn( "StorageCapacity" ),
-        RifEclipseOutputTableColumn( "FlowCapacity" ),
-        RifEclipseOutputTableColumn( "SweepEfficiency" ),
-        RifEclipseOutputTableColumn( "DimensionlessTime" ),
-        RifEclipseOutputTableColumn( "LorentzCoefficient" ),
+    std::vector<RifTextDataTableColumn> header = {
+        RifTextDataTableColumn( "Date" ),
+        RifTextDataTableColumn( "StorageCapacity" ),
+        RifTextDataTableColumn( "FlowCapacity" ),
+        RifTextDataTableColumn( "SweepEfficiency" ),
+        RifTextDataTableColumn( "DimensionlessTime" ),
+        RifTextDataTableColumn( "LorentzCoefficient" ),
     };
 
     formatter.header( header );

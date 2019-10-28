@@ -67,6 +67,7 @@ public:
     void setExpanded( const caf::PdmUiItem* uiItem, bool expanded = true );
 
     void selectAsCurrentItem( const caf::PdmObject* object, bool allowActiveViewChange = true );
+    void toggleItemInSelection( const caf::PdmObject* object, bool allowActiveViewChange = true );
 
     void enableShowFirstVisibleMdiWindowMaximized( bool enable );
 

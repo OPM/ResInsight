@@ -131,7 +131,12 @@ void RicSummaryPlotFeatureImpl::ensureAtLeastOnePlot( RimSummaryPlotCollection* 
     {
         if ( summaryPlotCollection->summaryPlots.empty() )
         {
-            createDefaultSummaryPlot( summaryCase );
+            auto objectToSelect = createDefaultSummaryPlot( summaryCase );
+            if ( objectToSelect )
+            {
+                RiuPlotMainWindowTools::setExpanded( objectToSelect );
+                RiuPlotMainWindowTools::selectAsCurrentItem( objectToSelect );
+            }
         }
     }
 }
@@ -139,10 +144,12 @@ void RicSummaryPlotFeatureImpl::ensureAtLeastOnePlot( RimSummaryPlotCollection* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( RimSummaryCase* summaryCase )
+caf::PdmObject* RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( RimSummaryCase* summaryCase )
 {
     RimSummaryPlotCollection* summaryPlotCollection =
         RiaApplication::instance()->project()->mainPlotCollection->summaryPlotCollection();
+
+    caf::PdmObject* itemToSelect = nullptr;
 
     if ( summaryPlotCollection && summaryCase &&
          !RiaApplication::instance()->preferences()->defaultSummaryCurvesTextFilter().isEmpty() )
@@ -156,12 +163,17 @@ void RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( RimSummaryCase* summar
 
         summaryPlotCollection->updateConnectedEditors();
 
-        caf::PdmObject* itemToSelect = plot;
-        if ( curves.size() ) itemToSelect = curves[0];
-
-        RiuPlotMainWindowTools::setExpanded( itemToSelect );
-        RiuPlotMainWindowTools::selectAsCurrentItem( itemToSelect );
+        if ( curves.size() )
+        {
+            itemToSelect = curves[0];
+        }
+        else
+        {
+            itemToSelect = plot;
+        }
     }
+
+    return itemToSelect;
 }
 
 RimSummaryCurve* createHistoryCurve( const RifEclipseSummaryAddress& addr, RimSummaryCase* summaryCasesToUse )
@@ -275,7 +287,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
     QStringList gridFileNames;
     QString     ensembleColoringParameter;
 
-    std::set<QString> validOptions = {"-help", "-h", "-nl", "-s", "-n", "-e", "-c", "-cl"};
+    std::set<QString> validOptions = { "-help", "-h", "-nl", "-s", "-n", "-e", "-c", "-cl" };
 
     for ( int optionIdx = 0; optionIdx < arguments.size(); ++optionIdx )
     {

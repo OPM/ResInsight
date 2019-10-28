@@ -100,6 +100,9 @@ CAF_PDM_SOURCE_INIT( RimProject, "ResInsightProject" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimProject::RimProject( void )
+    : m_nextValidCaseId( 0 )
+    , m_nextValidCaseGroupId( 0 )
+    , m_nextValidViewId( 0 )
 {
     CAF_PDM_InitObject( "Project", "", "", "" );
 
@@ -242,6 +245,10 @@ void RimProject::close()
     mainWindowTreeViewState         = "";
     plotWindowCurrentModelIndexPath = "";
     plotWindowTreeViewState         = "";
+
+    m_nextValidCaseId      = 0;
+    m_nextValidCaseGroupId = 0;
+    m_nextValidViewId      = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -468,17 +475,15 @@ void RimProject::assignCaseIdToCase( RimCase* reservoirCase )
 {
     if ( reservoirCase )
     {
-        int nextValidCaseId = 0;
-
         std::vector<RimCase*> cases;
         this->descendantsIncludingThisOfType( cases );
 
         for ( RimCase* rimCase : cases )
         {
-            nextValidCaseId = std::max( nextValidCaseId, rimCase->caseId() + 1 );
+            m_nextValidCaseId = std::max( m_nextValidCaseId, rimCase->caseId() + 1 );
         }
 
-        reservoirCase->caseId = nextValidCaseId;
+        reservoirCase->caseId = m_nextValidCaseId++;
     }
 }
 
@@ -489,17 +494,15 @@ void RimProject::assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup )
 {
     if ( caseGroup )
     {
-        int nextValidCaseGroupId = 0;
-
         std::vector<RimIdenticalGridCaseGroup*> identicalCaseGroups;
         this->descendantsIncludingThisOfType( identicalCaseGroups );
 
         for ( RimIdenticalGridCaseGroup* existingCaseGroup : identicalCaseGroups )
         {
-            nextValidCaseGroupId = std::max( nextValidCaseGroupId, existingCaseGroup->groupId() + 1 );
+            m_nextValidCaseGroupId = std::max( m_nextValidCaseGroupId, existingCaseGroup->groupId() + 1 );
         }
 
-        caseGroup->groupId = nextValidCaseGroupId;
+        caseGroup->groupId = m_nextValidCaseGroupId++;
     }
 }
 
@@ -510,17 +513,15 @@ void RimProject::assignViewIdToView( RimViewWindow* view )
 {
     if ( view )
     {
-        int nextValidViewId = 0;
-
         std::vector<RimViewWindow*> viewWindows;
         this->descendantsIncludingThisOfType( viewWindows );
 
         for ( RimViewWindow* existingView : viewWindows )
         {
-            nextValidViewId = std::max( nextValidViewId, existingView->id() + 1 );
+            m_nextValidViewId = std::max( m_nextValidViewId, existingView->id() + 1 );
         }
 
-        view->setId( nextValidViewId );
+        view->setId( m_nextValidViewId++ );
     }
 }
 

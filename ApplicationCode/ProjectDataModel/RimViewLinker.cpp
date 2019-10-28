@@ -286,12 +286,7 @@ QString RimViewLinker::displayNameForView( RimGridView* view )
 
     if ( view )
     {
-        RimCase* rimCase = nullptr;
-        view->firstAncestorOrThisOfType( rimCase );
-        if ( rimCase )
-        {
-            displayName = rimCase->caseUserDescription() + ": " + view->name();
-        }
+        displayName = view->autoName();
     }
 
     return displayName;
@@ -436,25 +431,10 @@ void RimViewLinker::findNameAndIconFromView( QString* name, caf::QIconProvider* 
 {
     CVF_ASSERT( name && icon );
 
-    *name = displayNameForView( view );
-
     if ( view )
     {
-        RimCase* rimCase = nullptr;
-        view->firstAncestorOrThisOfType( rimCase );
-
-        if ( dynamic_cast<RimGeoMechCase*>( rimCase ) )
-        {
-            *icon = caf::QIconProvider( ":/GeoMechCase48x48.png" );
-        }
-        else if ( dynamic_cast<RimEclipseResultCase*>( rimCase ) )
-        {
-            *icon = caf::QIconProvider( ":/Case48x48.png" );
-        }
-        else if ( dynamic_cast<RimEclipseInputCase*>( rimCase ) )
-        {
-            *icon = caf::QIconProvider( ":/EclipseInput48x48.png" );
-        }
+        *name = displayNameForView( view );
+        *icon = view->uiIconProvider();
     }
     else
     {

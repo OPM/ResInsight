@@ -53,7 +53,7 @@
 #include "RimWellPlotTools.h"
 #include "RimWellPltPlot.h"
 
-#include "RiuWellLogTrack.h"
+#include "RiuQwtPlotWidget.h"
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -118,7 +118,7 @@ RimWellRftPlot::RimWellRftPlot()
     m_wellPathCollection = RiaApplication::instance()->project()->activeOilField()->wellPathCollection();
 
     m_nameConfig->setCustomName( "RFT Plot" );
-    m_trackLegendsHorizontal = true;
+    m_plotLegendsHorizontal = true;
 
     this->setAsPlotMdiWindow();
     m_isOnLoad = true;
@@ -175,35 +175,41 @@ void RimWellRftPlot::applyCurveColor( RimWellLogCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::updateFormationsOnPlot() const
 {
-    if ( trackCount() > 0 )
+    if ( plotCount() > 0 )
     {
         RimProject*  proj     = RiaApplication::instance()->project();
         RimWellPath* wellPath = proj->wellPathByName( m_wellPathNameOrSimWellName );
 
-        RimCase* formationNamesCase = trackByIndex( 0 )->formationNamesCase();
-
-        if ( !formationNamesCase )
+        RimCase*         formationNamesCase = nullptr;
+        RimWellLogTrack* track              = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+        CAF_ASSERT( track );
+        if ( track )
         {
-            /// Set default case. Todo : Use the first of the selected cases in the plot
-            std::vector<RimCase*> cases;
-            proj->allCases( cases );
+            formationNamesCase = track->formationNamesCase();
 
-            if ( !cases.empty() )
+            if ( !formationNamesCase )
             {
-                formationNamesCase = cases[0];
-            }
-        }
+                /// Set default case. Todo : Use the first of the selected cases in the plot
+                std::vector<RimCase*> cases;
+                proj->allCases( cases );
 
-        if ( wellPath )
-        {
-            trackByIndex( 0 )->setAndUpdateWellPathFormationNamesData( formationNamesCase, wellPath );
-        }
-        else
-        {
-            trackByIndex( 0 )->setAndUpdateSimWellFormationNamesAndBranchData( formationNamesCase,
-                                                                               associatedSimWellName(),
-                                                                               m_branchIndex,
-                                                                               m_branchDetection );
+                if ( !cases.empty() )
+                {
+                    formationNamesCase = cases[0];
+                }
+            }
+
+            if ( wellPath )
+            {
+                track->setAndUpdateWellPathFormationNamesData( formationNamesCase, wellPath );
+            }
+            else
+            {
+                track->setAndUpdateSimWellFormationNamesAndBranchData( formationNamesCase,
+                                                                       associatedSimWellName(),
+                                                                       m_branchIndex,
+                                                                       m_branchDetection );
+            }
         }
     }
 }
@@ -336,7 +342,7 @@ void RimWellRftPlot::updateEditorsFromCurves()
             selectedSources.insert( curveDef.address() );
 
         auto newTimeStepMap = std::map<QDateTime, std::set<RifDataSourceForRftPlt>>{
-            {curveDef.timeStep(), std::set<RifDataSourceForRftPlt>{curveDef.address()}}};
+            { curveDef.timeStep(), std::set<RifDataSourceForRftPlt>{ curveDef.address() } } };
         RimWellPlotTools::addTimeStepsToMap( selectedTimeStepsMap, newTimeStepMap );
         selectedTimeSteps.insert( curveDef.timeStep() );
     }
@@ -350,7 +356,10 @@ void RimWellRftPlot::updateEditorsFromCurves()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::syncCurvesFromUiSelection()
 {
-    RimWellLogTrack* plotTrack = trackByIndex( 0 );
+    RimWellLogTrack* plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+
+    CAF_ASSERT( plotTrack );
+    if ( !plotTrack ) return;
 
     const std::set<RiaRftPltCurveDefinition>& allCurveDefs    = selectedCurveDefs();
     const std::set<RiaRftPltCurveDefinition>& curveDefsInPlot = curveDefsFromCurves();
@@ -369,7 +378,7 @@ void RimWellRftPlot::syncCurvesFromUiSelection()
                              allCurveDefs.end(),
                              std::inserter( deleteCurveDefs, deleteCurveDefs.end() ) );
 
-        for ( RimWellLogCurve* const curve : plotTrack->curvesVector() )
+        for ( RimWellLogCurve* const curve : plotTrack->curves() )
         {
             RiaRftPltCurveDefinition curveDef = RimWellPlotTools::curveDefFromCurve( curve );
             if ( deleteCurveDefs.count( curveDef ) > 0 )
@@ -412,10 +421,14 @@ std::set<RiaRftPltCurveDefinition> RimWellRftPlot::curveDefsFromCurves() const
 {
     std::set<RiaRftPltCurveDefinition> curveDefs;
 
-    RimWellLogTrack* const plotTrack = trackByIndex( 0 );
-    for ( RimWellLogCurve* const curve : plotTrack->curvesVector() )
+    RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+    CAF_ASSERT( plotTrack );
+    if ( plotTrack )
     {
-        curveDefs.insert( RimWellPlotTools::curveDefFromCurve( curve ) );
+        for ( RimWellLogCurve* const curve : plotTrack->curves() )
+        {
+            curveDefs.insert( RimWellPlotTools::curveDefFromCurve( curve ) );
+        }
     }
     return curveDefs;
 }
@@ -427,8 +440,11 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                                          const std::set<RiaRftPltCurveDefinition>& curveDefsToAdd,
                                          const std::set<RimWellLogCurve*>&         curvesToDelete )
 {
-    const QString          simWellName = associatedSimWellName();
-    RimWellLogTrack* const plotTrack   = trackByIndex( 0 );
+    const QString simWellName = associatedSimWellName();
+
+    RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+    CAF_ASSERT( plotTrack );
+    if ( !plotTrack ) return;
 
     // Delete curves
     plotTrack->deleteAllCurves();
@@ -656,16 +672,20 @@ const char* RimWellRftPlot::plotNameFormatString()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::deleteCurvesAssosicatedWithObservedData( const RimObservedFmuRftData* observedFmuRftData )
 {
-    for ( auto track : tracks() )
+    for ( auto plot : plots() )
     {
-        auto curves = track->curvesVector();
-        for ( auto curve : curves )
+        RimWellLogTrack* const track = dynamic_cast<RimWellLogTrack*>( plot );
+        if ( track )
         {
-            RimWellLogRftCurve* rftCurve = dynamic_cast<RimWellLogRftCurve*>( curve );
-            if ( rftCurve && rftCurve->observedFmuRftData() == observedFmuRftData )
+            auto curves = track->curves();
+            for ( auto curve : curves )
             {
-                track->takeOutCurve( rftCurve );
-                delete rftCurve;
+                RimWellLogRftCurve* rftCurve = dynamic_cast<RimWellLogRftCurve*>( curve );
+                if ( rftCurve && rftCurve->observedFmuRftData() == observedFmuRftData )
+                {
+                    track->takeOutCurve( rftCurve );
+                    delete rftCurve;
+                }
             }
         }
     }
@@ -811,7 +831,7 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         m_branchIndex = 0;
 
-        RimWellLogTrack* const plotTrack = trackByIndex( 0 );
+        RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
         if ( plotTrack )
         {
             plotTrack->deleteAllCurves();
@@ -861,6 +881,7 @@ void RimWellRftPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
     uiOrdering.add( &m_wellPathNameOrSimWellName );
     uiOrdering.add( &m_showStatisticsCurves );
     uiOrdering.add( &m_showEnsembleCurves );
@@ -889,18 +910,21 @@ void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     caf::PdmUiGroup* timeStepsGroup = uiOrdering.addNewGroupWithKeyword( "Time Steps", "TimeSteps" );
     timeStepsGroup->add( &m_selectedTimeSteps );
 
-    if ( trackCount() > 0 )
+    if ( plotCount() > 0 )
     {
-        RimWellLogTrack* track = trackByIndex( 0 );
+        RimWellLogTrack* const track = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+        CAF_ASSERT( track );
+        if ( track )
+        {
+            track->uiOrderingForRftPltFormations( uiOrdering );
 
-        track->uiOrderingForRftPltFormations( uiOrdering );
+            caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup( "Legend and Axis" );
+            legendAndAxisGroup->setCollapsedByDefault( true );
 
-        caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup( "Legend and Axis" );
-        legendAndAxisGroup->setCollapsedByDefault( true );
-
-        uiOrderingForPlotSettings( *legendAndAxisGroup );
-        track->uiOrderingForXAxisSettings( *legendAndAxisGroup );
-        uiOrderingForDepthAxis( *legendAndAxisGroup );
+            createPlotSettingsUiGroup( *legendAndAxisGroup );
+            track->uiOrderingForXAxisSettings( *legendAndAxisGroup );
+            uiOrderingForDepthAxis( *legendAndAxisGroup );
+        }
     }
 
     uiOrdering.skipRemainingFields( true );
@@ -975,9 +999,14 @@ void RimWellRftPlot::onLoadDataAndUpdate()
 {
     if ( m_isOnLoad )
     {
-        if ( trackCount() > 0 )
+        if ( plotCount() > 0 )
         {
-            trackByIndex( 0 )->setAnnotationType( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS );
+            RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+            CAF_ASSERT( plotTrack );
+            if ( plotTrack )
+            {
+                plotTrack->setAnnotationType( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS );
+            }
         }
 
         m_isOnLoad = false;
@@ -985,18 +1014,6 @@ void RimWellRftPlot::onLoadDataAndUpdate()
 
     updateMdiWindowVisibility();
     updateFormationsOnPlot();
-
-    // Update of curve color must happen here when loading data from project file, as the curve color is blended by the
-    // background color. The background color is taken from the viewer.
-    RimWellLogTrack* const plotTrack = trackByIndex( 0 );
-
-    if ( plotTrack && plotTrack->viewer() )
-    {
-        for ( auto c : plotTrack->curvesVector() )
-        {
-            applyCurveColor( c );
-        }
-    }
 
     if ( depthType() == RimWellLogPlot::MEASURED_DEPTH )
     {
@@ -1006,6 +1023,19 @@ void RimWellRftPlot::onLoadDataAndUpdate()
     RimWellLogPlot::onLoadDataAndUpdate();
 
     updateEditorsFromCurves();
+
+    // Update of curve color must happen here when loading data from project file, as the curve color is blended by the
+    // background color. The background color is taken from the viewer.
+    RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+
+    if ( plotTrack && plotTrack->viewer() )
+    {
+        syncCurvesFromUiSelection();
+        for ( auto c : plotTrack->curves() )
+        {
+            applyCurveColor( c );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1044,13 +1074,18 @@ void RimWellRftPlot::assignWellPathToExtractionCurves()
 
     if ( wellPath )
     {
-        for ( RimWellLogCurve* curve : trackByIndex( 0 )->curvesVector() )
+        RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+        CAF_ASSERT( plotTrack );
+        if ( plotTrack )
         {
-            auto extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( curve );
-            if ( extractionCurve )
+            for ( RimWellLogCurve* curve : plotTrack->curves() )
             {
-                extractionCurve->setTrajectoryType( RimWellLogExtractionCurve::WELL_PATH );
-                extractionCurve->setWellPath( wellPath );
+                auto extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( curve );
+                if ( extractionCurve )
+                {
+                    extractionCurve->setTrajectoryType( RimWellLogExtractionCurve::WELL_PATH );
+                    extractionCurve->setWellPath( wellPath );
+                }
             }
         }
     }
@@ -1108,10 +1143,10 @@ cvf::Color3f RimWellRftPlot::findCurveColor( RimWellLogCurve* curve )
         curveColor = m_dataSourceColors[sourceAddress];
         if ( m_showStatisticsCurves )
         {
-            if ( trackByIndex( 0 ) && trackByIndex( 0 )->viewer() )
+            if ( plotByIndex( 0 ) && plotByIndex( 0 )->viewer() )
             {
                 cvf::Color3f backgroundColor = RiaColorTools::fromQColorTo3f(
-                    trackByIndex( 0 )->viewer()->canvasBackground().color() );
+                    plotByIndex( 0 )->viewer()->canvasBackground().color() );
                 curveColor = RiaColorTools::blendCvfColors( backgroundColor, curveColor, 2, 1 );
             }
         }
@@ -1135,12 +1170,12 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
     std::vector<cvf::Color3f> colorTable;
     RiaColorTables::summaryCurveDefaultPaletteColors().color3fArray().toStdVector( &colorTable );
 
-    std::vector<RiuQwtSymbol::PointSymbolEnum> symbolTable = {RiuQwtSymbol::SYMBOL_ELLIPSE,
-                                                              RiuQwtSymbol::SYMBOL_RECT,
-                                                              RiuQwtSymbol::SYMBOL_DIAMOND,
-                                                              RiuQwtSymbol::SYMBOL_CROSS,
-                                                              RiuQwtSymbol::SYMBOL_XCROSS,
-                                                              RiuQwtSymbol::SYMBOL_STAR1};
+    std::vector<RiuQwtSymbol::PointSymbolEnum> symbolTable = { RiuQwtSymbol::SYMBOL_ELLIPSE,
+                                                               RiuQwtSymbol::SYMBOL_RECT,
+                                                               RiuQwtSymbol::SYMBOL_DIAMOND,
+                                                               RiuQwtSymbol::SYMBOL_CROSS,
+                                                               RiuQwtSymbol::SYMBOL_XCROSS,
+                                                               RiuQwtSymbol::SYMBOL_STAR1 };
 
     // Add new curves
     for ( const RiaRftPltCurveDefinition& curveDefToAdd : allCurveDefs )
@@ -1168,14 +1203,6 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
             }
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::onDepthTypeChanged()
-{
-    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

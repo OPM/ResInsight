@@ -120,7 +120,7 @@ RiuTofAccumulatedPhaseFractionsPlot::~RiuTofAccumulatedPhaseFractionsPlot()
 //--------------------------------------------------------------------------------------------------
 QSize RiuTofAccumulatedPhaseFractionsPlot::sizeHint() const
 {
-    return QSize( 350, 250 );
+    return QSize( 370, 250 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -282,15 +282,4 @@ void RiuTofAccumulatedPhaseFractionsPlot::setCommonPlotBehaviour( QwtPlot* plot 
 void RiuTofAccumulatedPhaseFractionsPlot::setCurveColor( QwtPlotCurve* curve, QColor color )
 {
     curve->setBrush( QBrush( color ) );
-
-    QLinearGradient gradient;
-    gradient.setCoordinateMode( QGradient::StretchToDeviceMode );
-    gradient.setColorAt( 0, color.darker( 110 ) );
-    gradient.setColorAt( 0.15, color );
-    gradient.setColorAt( 0.25, color );
-    gradient.setColorAt( 0.4, color.darker( 110 ) );
-    gradient.setColorAt( 0.6, color );
-    gradient.setColorAt( 0.8, color.darker( 110 ) );
-    gradient.setColorAt( 1, color );
-    curve->setBrush( gradient );
 }

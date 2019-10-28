@@ -11,84 +11,92 @@ This pages is created based on the content in the **PythonExamples** folder loca
 
 AllCases
 --------
-.. literalinclude:: ../../rips/PythonExamples/AllCases.py
-
-AppInfo
--------
-.. literalinclude:: ../../rips/PythonExamples/AppInfo.py
+.. literalinclude:: ../../rips/PythonExamples/all_cases.py
 
 CaseGridGroup
 -------------
-.. literalinclude:: ../../rips/PythonExamples/CaseGridGroup.py
+.. literalinclude:: ../../rips/PythonExamples/case_grid_group.py
 
 CaseInfoStreamingExample
 ------------------------
-.. literalinclude:: ../../rips/PythonExamples/CaseInfoStreamingExample.py
+.. literalinclude:: ../../rips/PythonExamples/case_info_streaming_example.py
 
 CommandExample
 --------------
-.. literalinclude:: ../../rips/PythonExamples/CommandExample.py
+.. literalinclude:: ../../rips/PythonExamples/command_example.py
+
+Create WBS Plot
+---------------
+.. literalinclude:: ../../rips/PythonExamples/create_wbs_plot.py
 
 ErrorHandling
 -------------
-.. literalinclude:: ../../rips/PythonExamples/ErrorHandling.py
+.. literalinclude:: ../../rips/PythonExamples/error_handling.py
+
+ExportPlots
+-----------
+.. literalinclude:: ../../rips/PythonExamples/export_plots.py
 
 ExportSnapshots
 ---------------
-.. literalinclude:: ../../rips/PythonExamples/ExportSnapshots.py
+.. literalinclude:: ../../rips/PythonExamples/export_snapshots.py
 
 GridInformation
 ---------------
-.. literalinclude:: ../../rips/PythonExamples/GridInformation.py
+.. literalinclude:: ../../rips/PythonExamples/grid_information.py
+
+Import Well Paths
+-----------------
+.. literalinclude:: ../../rips/PythonExamples/import_well_paths_and_logs.py
 
 InputPropTestAsync
 ------------------
-.. literalinclude:: ../../rips/PythonExamples/InputPropTestAsync.py
+.. literalinclude:: ../../rips/PythonExamples/input_prop_test_async.py
 
 InputPropTestSync
 -----------------
-.. literalinclude:: ../../rips/PythonExamples/InputPropTestSync.py
+.. literalinclude:: ../../rips/PythonExamples/input_prop_test_sync.py
 
 InstanceExample
 ---------------
-.. literalinclude:: ../../rips/PythonExamples/InstanceExample.py
+.. literalinclude:: ../../rips/PythonExamples/instance_example.py
 
 LaunchWithCommandLineOptions
 ----------------------------
-.. literalinclude:: ../../rips/PythonExamples/LaunchWithCommandLineOptions.py
+.. literalinclude:: ../../rips/PythonExamples/launch_with_commandline_options.py
 
 SelectedCases
 -------------
-.. literalinclude:: ../../rips/PythonExamples/SelectedCases.py
+.. literalinclude:: ../../rips/PythonExamples/selected_cases.py
 
 SetCellResult
 -------------
-.. literalinclude:: ../../rips/PythonExamples/SetCellResult.py
+.. literalinclude:: ../../rips/PythonExamples/set_cell_result.py
 
 SetFlowDiagnosticsResult
 ------------------------
-.. literalinclude:: ../../rips/PythonExamples/SetFlowDiagnosticsResult.py
+.. literalinclude:: ../../rips/PythonExamples/set_flow_diagnostics_result.py
 
 SetGridProperties
 -----------------
-.. literalinclude:: ../../rips/PythonExamples/SetGridProperties.py
+.. literalinclude:: ../../rips/PythonExamples/set_grid_properties.py
 
 SoilAverageAsync
 ----------------
-.. literalinclude:: ../../rips/PythonExamples/SoilAverageAsync.py
+.. literalinclude:: ../../rips/PythonExamples/soil_average_async.py
 
 SoilAverageSync
 ---------------
-.. literalinclude:: ../../rips/PythonExamples/SoilAverageSync.py
+.. literalinclude:: ../../rips/PythonExamples/soil_average_sync.py
 
 SoilPorvAsync
 -------------
-.. literalinclude:: ../../rips/PythonExamples/SoilPorvAsync.py
+.. literalinclude:: ../../rips/PythonExamples/soil_porv_async.py
 
 SoilPorvSync
 ------------
-.. literalinclude:: ../../rips/PythonExamples/SoilPorvSync.py
+.. literalinclude:: ../../rips/PythonExamples/soil_porv_sync.py
 
 ViewExample
 -----------
-.. literalinclude:: ../../rips/PythonExamples/ViewExample.py
+.. literalinclude:: ../../rips/PythonExamples/view_example.py

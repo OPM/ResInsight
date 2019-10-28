@@ -119,6 +119,7 @@ void RicSavePlotTemplateFeature::onActionTriggered( bool isChecked )
             if ( ret == QMessageBox::Yes )
             {
                 app->preferences()->appendPlotTemplateFolders( absPath );
+                app->preferences()->writePreferencesToApplicationStore();
             }
         }
 

@@ -170,10 +170,13 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
                 {
                     case RiaDefines::UNIT_METER:
                         presentUnitSystems.insert( RiaEclipseUnitTools::UNITS_METRIC );
+                        break;
                     case RiaDefines::UNIT_FEET:
                         presentUnitSystems.insert( RiaEclipseUnitTools::UNITS_FIELD );
+                        break;
                     case RiaDefines::UNIT_NONE:
                         presentUnitSystems.insert( RiaEclipseUnitTools::UNITS_UNKNOWN );
+                        break;
                 }
             }
         }
@@ -226,26 +229,31 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::updateFormationsOnPlot() const
 {
-    if ( trackCount() > 0 )
+    if ( plotCount() > 0 )
     {
         RimProject*  proj     = RiaApplication::instance()->project();
         RimWellPath* wellPath = proj->wellPathByName( m_wellPathName );
 
-        RimCase* formationNamesCase = trackByIndex( 0 )->formationNamesCase();
-
-        if ( !formationNamesCase )
+        RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+        CAF_ASSERT( track );
+        if ( track )
         {
-            /// Set default case. Todo : Use the first of the selected cases in the plot
-            std::vector<RimCase*> cases;
-            proj->allCases( cases );
+            RimCase* formationNamesCase = track->formationNamesCase();
 
-            if ( !cases.empty() )
+            if ( !formationNamesCase )
             {
-                formationNamesCase = cases[0];
-            }
-        }
+                /// Set default case. Todo : Use the first of the selected cases in the plot
+                std::vector<RimCase*> cases;
+                proj->allCases( cases );
 
-        trackByIndex( 0 )->setAndUpdateWellPathFormationNamesData( formationNamesCase, wellPath );
+                if ( !cases.empty() )
+                {
+                    formationNamesCase = cases[0];
+                }
+            }
+
+            track->setAndUpdateWellPathFormationNamesData( formationNamesCase, wellPath );
+        }
     }
 }
 
@@ -483,7 +491,11 @@ public:
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::syncCurvesFromUiSelection()
 {
-    RimWellLogTrack*                          plotTrack = trackByIndex( 0 );
+    RimWellLogTrack* plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+
+    CAF_ASSERT( plotTrack );
+    if ( !plotTrack ) return;
+
     const std::set<RiaRftPltCurveDefinition>& curveDefs = selectedCurveDefs();
 
     setPlotXAxisTitles( plotTrack );
@@ -697,8 +709,8 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         curveGroupId++;
     }
 
+    plotTrack->setAutoScaleXEnabled( true );
     RimWellLogPlot::onLoadDataAndUpdate();
-    plotTrack->calculateXZoomRange();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -883,11 +895,15 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
     if ( changedField == &m_wellPathName )
     {
-        RimWellLogTrack* const plotTrack = trackByIndex( 0 );
-        plotTrack->deleteAllCurves();
-        m_selectedSources.v().clear();
-        m_selectedTimeSteps.v().clear();
-        updateFormationsOnPlot();
+        RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+        CAF_ASSERT( plotTrack );
+        if ( plotTrack )
+        {
+            plotTrack->deleteAllCurves();
+            m_selectedSources.v().clear();
+            m_selectedTimeSteps.v().clear();
+            updateFormationsOnPlot();
+        }
     }
     else if ( changedField == &m_selectedSources )
     {
@@ -921,20 +937,28 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateFormationsOnPlot();
         syncSourcesIoFieldFromGuiField();
         syncCurvesFromUiSelection();
-        updateDepthZoom();
 
-        RimWellLogTrack* const plotTrack = trackByIndex( 0 );
-        plotTrack->calculateXZoomRangeAndUpdateQwt();
+        RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+        CAF_ASSERT( plotTrack );
+        if ( plotTrack )
+        {
+            plotTrack->setAutoScaleXEnabled( true );
+        }
+        updateZoom();
     }
 
     if ( changedField == &m_useStandardConditionCurves || changedField == &m_useReservoirConditionCurves ||
          changedField == &m_phases )
     {
         syncCurvesFromUiSelection();
-        updateDepthZoom();
 
-        RimWellLogTrack* const plotTrack = trackByIndex( 0 );
-        plotTrack->calculateXZoomRangeAndUpdateQwt();
+        RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+        CAF_ASSERT( plotTrack );
+        if ( plotTrack )
+        {
+            plotTrack->setAutoScaleXEnabled( true );
+        }
+        updateZoom();
     }
 }
 
@@ -951,6 +975,7 @@ void RimWellPltPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
     const QString simWellName = RimWellPlotTools::simWellName( m_wellPathName );
 
     uiOrdering.add( &m_wellPathName );
@@ -967,20 +992,23 @@ void RimWellPltPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     flowGroup->add( &m_phases );
 
-    if ( trackCount() > 0 )
+    if ( plotCount() > 0 )
     {
-        RimWellLogTrack* track = trackByIndex( 0 );
+        RimWellLogTrack* const track = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+        CAF_ASSERT( track );
+        if ( track )
+        {
+            track->uiOrderingForRftPltFormations( uiOrdering );
 
-        track->uiOrderingForRftPltFormations( uiOrdering );
+            caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup( "Legend and Axis" );
+            legendAndAxisGroup->setCollapsedByDefault( true );
 
-        caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup( "Legend and Axis" );
-        legendAndAxisGroup->setCollapsedByDefault( true );
+            createPlotSettingsUiGroup( *legendAndAxisGroup );
 
-        uiOrderingForPlotSettings( *legendAndAxisGroup );
+            track->uiOrderingForXAxisSettings( *legendAndAxisGroup );
 
-        track->uiOrderingForXAxisSettings( *legendAndAxisGroup );
-
-        uiOrderingForDepthAxis( *legendAndAxisGroup );
+            uiOrderingForDepthAxis( *legendAndAxisGroup );
+        }
     }
 
     uiOrdering.skipRemainingFields( true );
@@ -1095,9 +1123,14 @@ void RimWellPltPlot::onLoadDataAndUpdate()
 
     if ( m_isOnLoad )
     {
-        if ( trackCount() > 0 )
+        if ( plotCount() > 0 )
         {
-            trackByIndex( 0 )->setAnnotationType( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS );
+            RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+            CAF_ASSERT( plotTrack );
+            if ( plotTrack )
+            {
+                plotTrack->setAnnotationType( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS );
+            }
         }
         m_isOnLoad = false;
     }

@@ -45,18 +45,22 @@ CAF_CMD_SOURCE_INIT( RicExportToLasFileFeature, "RicExportToLasFileFeature" );
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RicExportToLasFileFeature::exportToLasFiles( const QString&        exportFolder,
                                                                   const QString&        exportPrefix,
-                                                                  const RimWellLogPlot* plot,
+                                                                  const RimWellLogPlot* plotWindow,
                                                                   bool                  exportTvdRkb,
                                                                   bool                  capitalizeFileNames,
                                                                   double                resampleInterval )
 {
-    std::vector<RimWellLogCurve*> allCurves;
-    std::vector<RimWellLogTrack*> tracks = plot->visibleTracks();
+    std::vector<RimWellLogCurve*>  allCurves;
+    std::vector<RimPlotInterface*> plots = plotWindow->visiblePlots();
 
-    for ( RimWellLogTrack* track : tracks )
+    for ( RimPlotInterface* plot : plots )
     {
-        std::vector<RimWellLogCurve*> curves = track->visibleCurvesVector();
-        allCurves.insert( allCurves.end(), curves.begin(), curves.end() );
+        RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plot );
+        if ( track )
+        {
+            std::vector<RimWellLogCurve*> curves = track->visibleCurves();
+            allCurves.insert( allCurves.end(), curves.begin(), curves.end() );
+        }
     }
 
     std::vector<QString> wellNames;

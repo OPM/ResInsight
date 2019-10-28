@@ -54,5 +54,6 @@ void RicActivateCurveFilterInToolbarFeature::onActionTriggered( bool isChecked )
 void RicActivateCurveFilterInToolbarFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Activate Summary Curve Filter Editor" );
-    actionToSetup->setShortcut( QKeySequence( tr( "Ctrl+F" ) ) );
+
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence( tr( "Ctrl+F" ) ) );
 }

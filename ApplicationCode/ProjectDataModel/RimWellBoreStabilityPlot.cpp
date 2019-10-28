@@ -127,7 +127,7 @@ void RimWellBoreStabilityPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
 {
     RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
 
-    m_commonDataSource->uiOrdering( uiConfigName, uiOrdering );
+    m_commonDataSource->uiOrdering( RimWellLogCurveCommonDataSource::smoothingUiOrderinglabel(), uiOrdering );
 
     caf::PdmUiGroup* parameterSources = uiOrdering.addNewGroup( "Parameter Sources" );
     parameterSources->add( &m_porePressureSource );
@@ -137,7 +137,7 @@ void RimWellBoreStabilityPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     parameterSources->add( &m_userDefinedUcs );
 
     uiOrderingForDepthAxis( uiOrdering );
-    uiOrderingForPlotSettings( uiOrdering );
+    createPlotSettingsUiGroup( uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
 }

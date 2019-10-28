@@ -23,7 +23,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewSliceRangeFilterFeature : public caf::CmdFeature
+class RicNewSliceRangeFilter3dViewFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

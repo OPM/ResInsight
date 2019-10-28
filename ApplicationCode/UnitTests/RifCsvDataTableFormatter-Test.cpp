@@ -11,12 +11,12 @@ TEST( RifCsvDataTableFormatter, BasicUsage )
     QTextStream              stream( &tableText );
     RifCsvDataTableFormatter formatter( stream, ";" );
 
-    std::vector<RifEclipseOutputTableColumn> header = {
-        RifEclipseOutputTableColumn( "Well" ),
-        RifEclipseOutputTableColumn( "Integer Number" ),
-        RifEclipseOutputTableColumn( "sci", RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC ),
-        RifEclipseOutputTableColumn( "float", RifEclipseOutputTableDoubleFormat::RIF_FLOAT ),
-        RifEclipseOutputTableColumn( "consise", RifEclipseOutputTableDoubleFormat::RIF_CONSISE ),
+    std::vector<RifTextDataTableColumn> header = {
+        RifTextDataTableColumn( "Well" ),
+        RifTextDataTableColumn( "Integer Number" ),
+        RifTextDataTableColumn( "sci", RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ),
+        RifTextDataTableColumn( "float", RifTextDataTableDoubleFormat::RIF_FLOAT ),
+        RifTextDataTableColumn( "consise", RifTextDataTableDoubleFormat::RIF_CONSISE ),
     };
 
     formatter.header( header );

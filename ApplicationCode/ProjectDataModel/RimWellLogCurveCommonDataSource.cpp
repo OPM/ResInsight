@@ -676,8 +676,15 @@ std::vector<caf::PdmFieldHandle*> RimWellLogCurveCommonDataSource::fieldsToShowI
         fieldsToDisplay.push_back( &m_simWellName );
     }
     fieldsToDisplay.push_back( &m_timeStep );
-
     return fieldsToDisplay;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogCurveCommonDataSource::smoothingUiOrderinglabel()
+{
+    return "ApplySmoothing";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -895,7 +902,7 @@ void RimWellLogCurveCommonDataSource::defineUiOrdering( QString uiConfigName, ca
     }
     group->add( &m_timeStep );
 
-    if ( dynamic_cast<RimGeoMechCase*>( m_case() ) )
+    if ( uiConfigName == smoothingUiOrderinglabel() )
     {
         group->add( &m_wbsSmoothing );
         group->add( &m_wbsSmoothingThreshold );
@@ -923,7 +930,8 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
 
         if ( field == &m_case )
         {
-            modifierText = ( "(Shift+" );
+            modifierText                  = ( "(Shift+" );
+            myAttr->minimumContentsLength = 14;
         }
         else if ( field == &m_wellPath || field == &m_simWellName )
         {
@@ -931,7 +939,8 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
         }
         else if ( field == &m_timeStep )
         {
-            modifierText = ( "(" );
+            modifierText                  = ( "(" );
+            myAttr->minimumContentsLength = 12;
         }
 
         if ( !modifierText.isEmpty() )

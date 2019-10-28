@@ -69,3 +69,6 @@ Ankh.NoLoad
 /Resinsight_Host.creator
 /Resinsight_Host.config
 *.RESINSIGHT_IDX
+
+#Python
+*.pyc

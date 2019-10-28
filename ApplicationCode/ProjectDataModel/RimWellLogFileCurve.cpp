@@ -34,7 +34,7 @@
 #include "RimWellRftPlot.h"
 
 #include "RiuQwtPlotCurve.h"
-#include "RiuWellLogTrack.h"
+#include "RiuQwtPlotWidget.h"
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"

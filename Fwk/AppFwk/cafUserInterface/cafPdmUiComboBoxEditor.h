@@ -63,6 +63,7 @@ public:
         minimumContentsLength      = 8;
         enableEditableContent      = false;
         minimumWidth               = -1;
+        iconSize = QSize(14, 14);
     }
 
 public:
@@ -75,6 +76,8 @@ public:
     int     minimumWidth;
     QString nextButtonText;
     QString prevButtonText;
+    
+    QSize   iconSize;
 };
 
 

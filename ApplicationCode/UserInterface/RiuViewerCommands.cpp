@@ -165,6 +165,10 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
         }
     }
 
+    m_isCurrentPickInComparisonView = m_viewer->isMousePosWithinComparisonView( event->x(), event->y() );
+    Rim3dView* mainOrComparisonView = m_isCurrentPickInComparisonView ? m_reservoirView->activeComparisonView()
+                                                                      : m_reservoirView.p();
+
     // Find the following data
 
     const cvf::Part* firstHitPart           = nullptr;
@@ -202,14 +206,16 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
         cvf::Vec3d displayModelOffset = cvf::Vec3d::ZERO;
 
-        if ( m_reservoirView.p() )
+        if ( mainOrComparisonView )
         {
-            cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView.p()->displayCoordTransform();
+            cvf::ref<caf::DisplayCoordTransform> transForm = mainOrComparisonView->displayCoordTransform();
             m_currentPickPositionInDomainCoords = transForm->transformToDomainCoord( globalIntersectionPoint );
         }
     }
 
-    // Build menue
+    // Build menus
+
+    caf::CmdFeatureManager::instance()->setCurrentContextMenuTargetWidget( m_viewer );
 
     QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
@@ -218,8 +224,8 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
     // Check type of view
 
-    RimGridView*           gridView  = dynamic_cast<RimGridView*>( m_reservoirView.p() );
-    Rim2dIntersectionView* int2dView = dynamic_cast<Rim2dIntersectionView*>( m_reservoirView.p() );
+    RimGridView*           gridView  = dynamic_cast<RimGridView*>( mainOrComparisonView );
+    Rim2dIntersectionView* int2dView = dynamic_cast<Rim2dIntersectionView*>( mainOrComparisonView );
 
     if ( firstHitPart && firstPartTriangleIndex != cvf::UNDEFINED_UINT )
     {
@@ -250,7 +256,8 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             }
             else if ( crossSectionSourceInfo )
             {
-                findCellAndGridIndex( crossSectionSourceInfo,
+                findCellAndGridIndex( mainOrComparisonView,
+                                      crossSectionSourceInfo,
                                       firstPartTriangleIndex,
                                       &m_currentCellIndex,
                                       &m_currentGridIdx );
@@ -273,7 +280,8 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             }
             else if ( intersectionBoxSourceInfo )
             {
-                findCellAndGridIndex( intersectionBoxSourceInfo,
+                findCellAndGridIndex( mainOrComparisonView,
+                                      intersectionBoxSourceInfo,
                                       firstPartTriangleIndex,
                                       &m_currentCellIndex,
                                       &m_currentGridIdx );
@@ -290,12 +298,12 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             {
                 // IJK -slice commands
                 RimViewController* viewController = nullptr;
-                if ( m_reservoirView ) viewController = m_reservoirView->viewController();
+                if ( mainOrComparisonView ) viewController = mainOrComparisonView->viewController();
 
                 if ( !viewController || !viewController->isRangeFiltersControlled() )
                 {
                     size_t i, j, k;
-                    ijkFromCellIndex( m_currentGridIdx, m_currentCellIndex, &i, &j, &k );
+                    ijkFromCellIndex( mainOrComparisonView, m_currentGridIdx, m_currentCellIndex, &i, &j, &k );
 
                     QVariantList iSliceList;
                     iSliceList.push_back( 0 );
@@ -314,13 +322,13 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
                     menuBuilder.subMenuStart( "Range Filter Slice", QIcon( ":/CellFilter_Range.png" ) );
 
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilterFeature",
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilter3dViewFeature",
                                                            "I-slice Range Filter",
                                                            iSliceList );
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilterFeature",
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilter3dViewFeature",
                                                            "J-slice Range Filter",
                                                            jSliceList );
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilterFeature",
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilter3dViewFeature",
                                                            "K-slice Range Filter",
                                                            kSliceList );
 
@@ -347,7 +355,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
             menuBuilder.addSeparator();
 
-            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( m_reservoirView.p() );
+            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
             if ( eclipseView )
             {
                 // Hide faults command
@@ -542,12 +550,16 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
     {
     }
 
+    menuBuilder << "RicExportContourMapToTextFeature";
+
     menuBuilder.appendToMenu( &menu );
 
     if ( !menu.isEmpty() )
     {
         menu.exec( event->globalPos() );
     }
+
+    caf::CmdFeatureManager::instance()->setCurrentContextMenuTargetWidget( nullptr );
 
     // Delete items in temporary selection
     Riu3dSelectionManager::instance()->deleteAllItems( Riu3dSelectionManager::RUI_TEMPORARY );
@@ -582,11 +594,15 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
         }
     }
 
+    m_isCurrentPickInComparisonView = m_viewer->isMousePosWithinComparisonView( winPosX, winPosY );
+    Rim3dView* mainOrComparisonView = m_isCurrentPickInComparisonView ? m_reservoirView->activeComparisonView()
+                                                                      : m_reservoirView.p();
+
     // Make pickEventHandlers do their stuff
 
     if ( pickItemInfos.size() )
     {
-        Ric3dPickEvent viewerEventObject( pickItemInfos, m_reservoirView );
+        Ric3dPickEvent viewerEventObject( pickItemInfos, mainOrComparisonView );
 
         if ( sm_overridingPickHandler && sm_overridingPickHandler->handle3dPickEvent( viewerEventObject ) )
         {
@@ -630,7 +646,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
             size_t indexToNncItemNearFirstItem = cvf::UNDEFINED_SIZE_T;
             ;
 
-            findFirstItems( pickItemInfos, &indexToFirstNoneNncItem, &indexToNncItemNearFirstItem );
+            findFirstItems( mainOrComparisonView, pickItemInfos, &indexToFirstNoneNncItem, &indexToNncItemNearFirstItem );
 
             if ( indexToFirstNoneNncItem != cvf::UNDEFINED_SIZE_T )
             {
@@ -716,10 +732,10 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                         // Set fracture resultInfo text
                         QString resultInfoText;
 
-                        cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView->displayCoordTransform();
+                        cvf::ref<caf::DisplayCoordTransform> transForm = mainOrComparisonView->displayCoordTransform();
                         cvf::Vec3d domainCoord = transForm->transformToDomainCoord( globalIntersectionPoint );
 
-                        RimEclipseView*         eclView = dynamic_cast<RimEclipseView*>( m_reservoirView.p() );
+                        RimEclipseView*         eclView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
                         RivWellFracturePartMgr* partMgr = fracture->fracturePartManager();
                         if ( eclView ) resultInfoText = partMgr->resultInfoText( *eclView, domainCoord );
 
@@ -763,7 +779,11 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
             }
             else if ( crossSectionSourceInfo )
             {
-                findCellAndGridIndex( crossSectionSourceInfo, firstPartTriangleIndex, &cellIndex, &gridIndex );
+                findCellAndGridIndex( mainOrComparisonView,
+                                      crossSectionSourceInfo,
+                                      firstPartTriangleIndex,
+                                      &cellIndex,
+                                      &gridIndex );
                 intersectionHit         = true;
                 intersectionTriangleHit = crossSectionSourceInfo->triangle( firstPartTriangleIndex );
 
@@ -775,7 +795,11 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
             }
             else if ( intersectionBoxSourceInfo )
             {
-                findCellAndGridIndex( intersectionBoxSourceInfo, firstPartTriangleIndex, &cellIndex, &gridIndex );
+                findCellAndGridIndex( mainOrComparisonView,
+                                      intersectionBoxSourceInfo,
+                                      firstPartTriangleIndex,
+                                      &cellIndex,
+                                      &gridIndex );
                 intersectionHit         = true;
                 intersectionTriangleHit = intersectionBoxSourceInfo->triangle( firstPartTriangleIndex );
 
@@ -796,7 +820,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                 size_t globalCellIndex = wellConnectionSourceInfo->globalCellIndexFromTriangleIndex(
                     firstPartTriangleIndex );
 
-                RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( m_reservoirView.p() );
+                RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
                 if ( eclipseView )
                 {
                     RimEclipseCase* eclipseCase = nullptr;
@@ -875,7 +899,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                 double connectionFactor = simWellConnectionSourceInfo->connectionFactorFromTriangleIndex(
                     firstPartTriangleIndex );
 
-                RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( m_reservoirView.p() );
+                RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
                 if ( eclipseView )
                 {
                     RimEclipseCase* eclipseCase = nullptr;
@@ -949,9 +973,9 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
 
         RiuSelectionItem* selItem = nullptr;
         {
-            Rim2dIntersectionView* intersectionView = dynamic_cast<Rim2dIntersectionView*>( m_reservoirView.p() );
-            RimEclipseView*        eclipseView      = dynamic_cast<RimEclipseView*>( m_reservoirView.p() );
-            RimGeoMechView*        geomView         = dynamic_cast<RimGeoMechView*>( m_reservoirView.p() );
+            Rim2dIntersectionView* intersectionView = dynamic_cast<Rim2dIntersectionView*>( mainOrComparisonView );
+            RimEclipseView*        eclipseView      = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
+            RimGeoMechView*        geomView         = dynamic_cast<RimGeoMechView*>( mainOrComparisonView );
 
             if ( intersectionView )
             {
@@ -1036,6 +1060,14 @@ cvf::Vec3d RiuViewerCommands::lastPickPositionInDomainCoords() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiuViewerCommands::isCurrentPickInComparisonView() const
+{
+    return m_isCurrentPickInComparisonView;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuViewerCommands::addDefaultPickEventHandler( RicDefaultPickEventHandler* pickEventHandler )
 {
     removeDefaultPickEventHandler( pickEventHandler );
@@ -1063,14 +1095,15 @@ void RiuViewerCommands::removeDefaultPickEventHandler( RicDefaultPickEventHandle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::findCellAndGridIndex( const RivIntersectionSourceInfo* crossSectionSourceInfo,
+void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                       mainOrComparisonView,
+                                              const RivIntersectionSourceInfo* crossSectionSourceInfo,
                                               cvf::uint                        firstPartTriangleIndex,
                                               size_t*                          cellIndex,
                                               size_t*                          gridIndex )
 {
     CVF_ASSERT( cellIndex && gridIndex );
 
-    RimCase*        ownerCase   = m_reservoirView->ownerCase();
+    RimCase*        ownerCase   = mainOrComparisonView->ownerCase();
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( ownerCase );
     RimGeoMechCase* geomCase    = dynamic_cast<RimGeoMechCase*>( ownerCase );
     if ( eclipseCase )
@@ -1094,15 +1127,17 @@ void RiuViewerCommands::findCellAndGridIndex( const RivIntersectionSourceInfo* c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::findCellAndGridIndex( const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo,
+void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                          mainOrComparisonView,
+                                              const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo,
                                               cvf::uint                           firstPartTriangleIndex,
                                               size_t*                             cellIndex,
                                               size_t*                             gridIndex )
 {
     CVF_ASSERT( cellIndex && gridIndex );
 
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( m_reservoirView.p() );
-    RimGeoMechView* geomView    = dynamic_cast<RimGeoMechView*>( m_reservoirView.p() );
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
+    RimGeoMechView* geomView    = dynamic_cast<RimGeoMechView*>( mainOrComparisonView );
+
     if ( eclipseView )
     {
         size_t globalCellIndex = intersectionBoxSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
@@ -1121,7 +1156,8 @@ void RiuViewerCommands::findCellAndGridIndex( const RivIntersectionBoxSourceInfo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::findFirstItems( const std::vector<RiuPickItemInfo>& pickItemInfos,
+void RiuViewerCommands::findFirstItems( Rim3dView*                          mainOrComparisonView,
+                                        const std::vector<RiuPickItemInfo>& pickItemInfos,
                                         size_t*                             indexToFirstNoneNncItem,
                                         size_t*                             indexToNncItemNearFirsItem )
 {
@@ -1131,7 +1167,7 @@ void RiuViewerCommands::findFirstItems( const std::vector<RiuPickItemInfo>& pick
 
     double pickDepthThresholdSquared = 0.05 * 0.05;
     {
-        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( m_reservoirView.p() );
+        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
 
         if ( eclipseView && eclipseView->mainGrid() )
         {
@@ -1195,10 +1231,11 @@ void RiuViewerCommands::findFirstItems( const std::vector<RiuPickItemInfo>& pick
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::ijkFromCellIndex( size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k )
+void RiuViewerCommands::ijkFromCellIndex(
+    Rim3dView* mainOrComparisonView, size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k )
 {
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( m_reservoirView.p() );
-    RimGeoMechView* geomView    = dynamic_cast<RimGeoMechView*>( m_reservoirView.p() );
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
+    RimGeoMechView* geomView    = dynamic_cast<RimGeoMechView*>( mainOrComparisonView );
 
     if ( eclipseView && eclipseView->eclipseCase() )
     {
@@ -1232,6 +1269,13 @@ bool RiuViewerCommands::handleOverlayItemPicking( int winPosX, int winPosY )
         else
         {
             std::vector<RimLegendConfig*> legendConfigs = m_reservoirView->legendConfigs();
+            if ( m_reservoirView->activeComparisonView() )
+            {
+                std::vector<RimLegendConfig*> compViewLegendConfigs = m_reservoirView->activeComparisonView()
+                                                                          ->legendConfigs();
+                legendConfigs.insert( legendConfigs.end(), compViewLegendConfigs.begin(), compViewLegendConfigs.end() );
+            }
+
             for ( const auto& legendConfig : legendConfigs )
             {
                 if ( legendConfig && legendConfig->titledOverlayFrame() == pickedOverlayItem )
@@ -1254,10 +1298,13 @@ void RiuViewerCommands::handleTextPicking( int winPosX, int winPosY, cvf::HitIte
 {
     using namespace cvf;
 
+    m_isCurrentPickInComparisonView = m_viewer->isMousePosWithinComparisonView( winPosX, winPosY );
+
     int translatedMousePosX = winPosX;
     int translatedMousePosY = m_viewer->height() - winPosY;
 
-    Scene* scene = m_viewer->currentScene();
+    Scene* scene = m_viewer->currentScene( m_isCurrentPickInComparisonView );
+
     if ( !scene ) return;
 
     Collection<Part> partCollection;

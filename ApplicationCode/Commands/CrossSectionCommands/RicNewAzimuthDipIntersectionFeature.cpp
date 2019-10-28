@@ -58,7 +58,7 @@ bool RicNewAzimuthDipIntersectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewAzimuthDipIntersectionFeature::onActionTriggered( bool isChecked )
 {
-    RimGridView* activeView = RiaApplication::instance()->activeGridView();
+    RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !activeView ) return;
 
     RicNewAzimuthDipIntersectionFeatureCmd* cmd = new RicNewAzimuthDipIntersectionFeatureCmd(
@@ -122,7 +122,7 @@ void RicNewAzimuthDipIntersectionFeatureCmd::redo()
     m_intersectionCollection->appendIntersectionAndUpdate( intersection );
 
     Riu3dSelectionManager::instance()->deleteAllItems();
-    Riu3DMainWindowTools::selectAsCurrentItem( intersection );
+    Riu3DMainWindowTools::selectAsCurrentItem( intersection, false );
 }
 
 //--------------------------------------------------------------------------------------------------

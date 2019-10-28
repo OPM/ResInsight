@@ -88,6 +88,8 @@ public:
 
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
+    void writePreferencesToApplicationStore();
+
 public: // Pdm Fields
     caf::PdmField<caf::AppEnum<RiaGuiApplication::RINavigationPolicy>> navigationPolicy;
 

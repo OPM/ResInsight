@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,18 +18,33 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicDeleteWellLogPlotTrackFeature : public caf::CmdFeature
+class RicExportContourMapToTextUi : public caf::PdmObject
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RicExportContourMapToTextUi();
+
+    QString exportFileName() const;
+    void    setExportFileName( const QString& exportFileName );
+    bool    exportLocalCoordinates() const;
+    QString undefinedValueLabel() const;
+    bool    excludeUndefinedValues() const;
 
 protected:
-    // Overrides
-    bool isCommandEnabled() override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+
+private:
+    caf::PdmField<QString> m_exportFileName;
+    caf::PdmField<bool>    m_exportLocalCoordinates;
+    caf::PdmField<QString> m_undefinedValueLabel;
+    caf::PdmField<bool>    m_excludeUndefinedValues;
 };

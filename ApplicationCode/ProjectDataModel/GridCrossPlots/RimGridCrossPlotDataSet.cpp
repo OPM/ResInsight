@@ -22,7 +22,7 @@
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
 
-#include "RifEclipseDataTableFormatter.h"
+#include "RifTextDataTableFormatter.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigActiveCellsResultAccessor.h"
@@ -943,10 +943,10 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_grouping )
     {
-        std::set<RigGridCrossPlotCurveGrouping> validOptions = {NO_GROUPING,
-                                                                GROUP_BY_TIME,
-                                                                GROUP_BY_FORMATION,
-                                                                GROUP_BY_RESULT};
+        std::set<RigGridCrossPlotCurveGrouping> validOptions = { NO_GROUPING,
+                                                                 GROUP_BY_TIME,
+                                                                 GROUP_BY_FORMATION,
+                                                                 GROUP_BY_RESULT };
         if ( !hasMultipleTimeSteps() )
         {
             validOptions.erase( GROUP_BY_TIME );
@@ -977,7 +977,7 @@ void RimGridCrossPlotDataSet::updateLegendRange()
 
     RimGridCrossPlot* parent;
     this->firstAncestorOrThisOfTypeAsserted( parent );
-    if ( parent->qwtPlot() )
+    if ( parent->viewer() )
     {
         if ( groupingEnabled() && m_case() && isChecked() && legendConfig()->showLegend() )
         {
@@ -1020,11 +1020,11 @@ void RimGridCrossPlotDataSet::updateLegendRange()
                     m_groupingProperty->updateLegendData( eclipseCase, m_timeStep() );
                 }
             }
-            parent->qwtPlot()->addOrUpdateDataSetLegend( this );
+            parent->addOrUpdateDataSetLegend( this );
         }
         else
         {
-            parent->qwtPlot()->removeDataSetLegend( this );
+            parent->removeDataSetLegend( this );
         }
     }
 }
@@ -1093,7 +1093,7 @@ void RimGridCrossPlotDataSet::swapAxisProperties( bool updatePlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotDataSet::exportFormattedData( RifEclipseDataTableFormatter& formatter ) const
+void RimGridCrossPlotDataSet::exportFormattedData( RifTextDataTableFormatter& formatter ) const
 {
     if ( m_groupedResults.empty() ) return;
 
@@ -1102,17 +1102,16 @@ void RimGridCrossPlotDataSet::exportFormattedData( RifEclipseDataTableFormatter&
 
     if ( m_grouping != NO_GROUPING )
     {
-        std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn( xTitle ),
-                                                           RifEclipseOutputTableColumn( yTitle ),
-                                                           RifEclipseOutputTableColumn( "Group Index" ),
-                                                           RifEclipseOutputTableColumn( "Group Description" )};
+        std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( xTitle ),
+                                                      RifTextDataTableColumn( yTitle ),
+                                                      RifTextDataTableColumn( "Group Index" ),
+                                                      RifTextDataTableColumn( "Group Description" )};
 
         formatter.header( header );
     }
     else
     {
-        std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn( xTitle ),
-                                                           RifEclipseOutputTableColumn( yTitle )};
+        std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( xTitle ), RifTextDataTableColumn( yTitle )};
         formatter.header( header );
     }
 

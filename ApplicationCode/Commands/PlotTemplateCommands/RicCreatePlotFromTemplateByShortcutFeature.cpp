@@ -69,6 +69,7 @@ void RicCreatePlotFromTemplateByShortcutFeature::onActionTriggered( bool isCheck
 
         fileName = fileNameSelectedInUi;
         RiaApplication::instance()->preferences()->setDefaultPlotTemplatePath( fileName );
+        RiaApplication::instance()->preferences()->writePreferencesToApplicationStore();
     }
 
     auto sumCases           = RicSummaryPlotTemplateTools::selectedSummaryCases();
@@ -87,5 +88,6 @@ void RicCreatePlotFromTemplateByShortcutFeature::setupActionLook( QAction* actio
     actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
 
     QKeySequence keySeq( Qt::CTRL + Qt::Key_T );
-    actionToSetup->setShortcut( keySeq );
+
+    applyShortcutWithHintToAction( actionToSetup, keySeq );
 }

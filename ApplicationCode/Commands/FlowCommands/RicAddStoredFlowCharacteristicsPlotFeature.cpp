@@ -75,8 +75,6 @@ void RicAddStoredFlowCharacteristicsPlotFeature::onActionTriggered( bool isCheck
                 sourceObject->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
             CVF_ASSERT( flowCharacteristicsPlot );
 
-            RiaApplication::instance()->project()->assignViewIdToView( flowCharacteristicsPlot );
-
             flowPlotColl->addFlowCharacteristicsPlotToStoredPlots( flowCharacteristicsPlot );
             flowCharacteristicsPlot->resolveReferencesRecursively();
 

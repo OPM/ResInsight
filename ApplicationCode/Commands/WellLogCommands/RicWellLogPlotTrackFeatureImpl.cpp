@@ -21,8 +21,8 @@
 
 #include "RiaGuiApplication.h"
 #include "RiuPlotMainWindow.h"
+#include "RiuQwtPlotWidget.h"
 #include "RiuWellLogPlot.h"
-#include "RiuWellLogTrack.h"
 
 #include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
@@ -74,65 +74,42 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
 
     for ( std::set<RimWellLogTrack*>::iterator tIt = srcTracks.begin(); tIt != srcTracks.end(); ++tIt )
     {
+        ( *tIt )->setAutoScaleXEnabled( true );
         ( *tIt )->updateParentPlotZoom();
-        ( *tIt )->calculateXZoomRangeAndUpdateQwt();
     }
 
     destTrack->loadDataAndUpdate();
+    destTrack->setAutoScaleXEnabled( true );
     destTrack->updateParentPlotZoom();
-    destTrack->calculateXZoomRangeAndUpdateQwt();
     destTrack->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot( RimWellLogPlot*                      dstWellLogPlot,
-                                                              const std::vector<RimWellLogTrack*>& tracksToMove,
-                                                              RimWellLogTrack*                     trackToInsertAfter )
+void RicWellLogPlotTrackFeatureImpl::movePlotsToGridPlotWindow( RimGridPlotWindow*                    gridPlotWindow,
+                                                                const std::vector<RimPlotInterface*>& plotsToMove,
+                                                                RimPlotInterface* plotToInsertAfter )
 {
-    CVF_ASSERT( dstWellLogPlot );
+    CVF_ASSERT( gridPlotWindow );
 
-    RiuPlotMainWindow* plotWindow = RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
-
-    std::set<RimWellLogPlot*> srcPlots;
-
-    for ( size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++ )
+    for ( size_t tIdx = 0; tIdx < plotsToMove.size(); tIdx++ )
     {
-        RimWellLogTrack* track = tracksToMove[tIdx];
-
-        RimWellLogPlot* srcPlot;
-        track->firstAncestorOrThisOfType( srcPlot );
+        RimPlotInterface*  plot      = plotsToMove[tIdx];
+        caf::PdmObject*    pdmObject = dynamic_cast<caf::PdmObject*>( plot );
+        RimGridPlotWindow* srcPlot;
+        pdmObject->firstAncestorOrThisOfType( srcPlot );
         if ( srcPlot )
         {
-            srcPlot->removeTrack( track );
-
-            srcPlots.insert( srcPlot );
+            srcPlot->removePlot( plot );
         }
     }
 
-    for ( std::set<RimWellLogPlot*>::iterator pIt = srcPlots.begin(); pIt != srcPlots.end(); ++pIt )
-    {
-        RiuWellLogPlot* viewWidget = dynamic_cast<RiuWellLogPlot*>( ( *pIt )->viewWidget() );
-        plotWindow->setWidthOfMdiWindow( viewWidget, viewWidget->preferredWidth() );
-
-        ( *pIt )->calculateAvailableDepthRange();
-        ( *pIt )->updateTrackNames();
-        ( *pIt )->updateDepthZoom();
-        ( *pIt )->updateConnectedEditors();
-    }
-
     size_t insertionStartIndex = 0;
-    if ( trackToInsertAfter ) insertionStartIndex = dstWellLogPlot->trackIndex( trackToInsertAfter ) + 1;
+    if ( plotToInsertAfter ) insertionStartIndex = gridPlotWindow->plotIndex( plotToInsertAfter ) + 1;
 
-    for ( size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++ )
+    for ( size_t tIdx = 0; tIdx < plotsToMove.size(); tIdx++ )
     {
-        dstWellLogPlot->insertTrack( tracksToMove[tIdx], insertionStartIndex + tIdx );
+        gridPlotWindow->insertPlot( plotsToMove[tIdx], insertionStartIndex + tIdx );
     }
-    RiuWellLogPlot* viewWidget = dynamic_cast<RiuWellLogPlot*>( dstWellLogPlot->viewWidget() );
-    plotWindow->setWidthOfMdiWindow( viewWidget, viewWidget->preferredWidth() );
-
-    dstWellLogPlot->updateTrackNames();
-    dstWellLogPlot->updateTracks();
-    dstWellLogPlot->updateConnectedEditors();
 }

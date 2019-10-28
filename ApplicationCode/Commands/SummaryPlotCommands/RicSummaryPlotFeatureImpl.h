@@ -22,6 +22,11 @@
 #include <set>
 #include <vector>
 
+namespace caf
+{
+class PdmObject;
+}
+
 class RimSummaryCurve;
 class RimSummaryPlot;
 class RimSummaryCase;
@@ -35,7 +40,7 @@ public:
     static RimSummaryCurve*              addDefaultCurveToPlot( RimSummaryPlot* plot, RimSummaryCase* summaryCase );
     static std::vector<RimSummaryCurve*> addDefaultCurvesToPlot( RimSummaryPlot* plot, RimSummaryCase* summaryCase );
     static void ensureAtLeastOnePlot( RimSummaryPlotCollection* summaryPlotCollection, RimSummaryCase* summaryCase );
-    static void createDefaultSummaryPlot( RimSummaryCase* summaryCase );
+    static caf::PdmObject* createDefaultSummaryPlot( RimSummaryCase* summaryCase );
 
     static void createSummaryPlotsFromArgumentLine( const QStringList& arguments );
 

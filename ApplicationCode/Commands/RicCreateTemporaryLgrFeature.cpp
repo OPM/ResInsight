@@ -28,7 +28,7 @@
 #include "ExportCommands/RicExportLgrUi.h"
 #include "RicDeleteTemporaryLgrsFeature.h"
 
-#include "RifEclipseDataTableFormatter.h"
+#include "RifTextDataTableFormatter.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"

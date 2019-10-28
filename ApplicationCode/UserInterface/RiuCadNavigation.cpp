@@ -55,18 +55,7 @@ bool RiuCadNavigation::handleInputEvent( QInputEvent* inputEvent )
 
             if ( me->button() == Qt::MidButton && me->modifiers() == Qt::NoModifier && isRotationEnabled() )
             {
-                cvf::HitItemCollection hic;
-                bool                   hitSomething = m_viewer->rayPick( me->x(), me->y(), &hic );
-
-                if ( hitSomething )
-                {
-                    cvf::Vec3d pointOfInterest = hic.firstItem()->intersectionPoint();
-                    this->setPointOfInterest( pointOfInterest );
-                }
-                else
-                {
-                    initializeRotationCenter();
-                }
+                this->pickAndSetPointOfInterest(me->x(), me->y());
 
                 m_trackball->startNavigation( cvf::ManipulatorTrackball::ROTATE, translatedMousePosX, translatedMousePosY );
                 m_isNavigating                  = true;

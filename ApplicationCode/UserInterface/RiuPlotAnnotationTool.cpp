@@ -25,7 +25,7 @@
 #include "cvfMath.h"
 
 #include "qwt_plot.h"
-#include "qwt_plot_shapeitem.h"
+#include "qwt_plot_zoneitem.h"
 
 #include <QString>
 
@@ -84,21 +84,14 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
             cvf::Color3ub cvfColor = catMapper.mapToColor( static_cast<double>( i ) );
             QColor        shadingColor( cvfColor.r(), cvfColor.g(), cvfColor.b(), shadingAlphaByte );
 
-            QwtPlotShapeItem* shading = new QwtPlotShapeItem( name );
-
-            QwtInterval axisInterval = m_plot->axisInterval( QwtPlot::xBottom );
-
-            QRectF shadingRect( axisInterval.minValue(),
-                                yPositions[i].first,
-                                axisInterval.width(),
-                                yPositions[i].second - yPositions[i].first );
-
-            shading->setRect( shadingRect );
+            QwtPlotZoneItem* shading = new QwtPlotZoneItem();
+            shading->setOrientation( Qt::Horizontal );
+            shading->setInterval( yPositions[i].first, yPositions[i].second );
             shading->setPen( shadingColor, 0.0, Qt::NoPen );
             shading->setBrush( QBrush( shadingColor ) );
             shading->attach( m_plot );
             shading->setZ( -100.0 );
-            shading->setXAxis( QwtPlot::xBottom );
+            shading->setXAxis( QwtPlot::xTop );
             m_markers.push_back( std::move( shading ) );
         }
 

@@ -107,7 +107,8 @@ protected:
     void                        setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection ) override;
     cvf::Vec3d                  pointOfInterest() override; 
     void                        setPointOfInterest(cvf::Vec3d poi) override;
-    void                        updatePointOfInterestDuringZoomIfNecessary(int zoomX, int zoomY);
+    void                        pickAndSetPointOfInterest(int winPosX, int winPosY);
+    void                        updatePointOfInterestDuringZoomIfNecessary(int winPosX, int winPosY);
     void                        forcePointOfInterestUpdateDuringNextWheelZoom();
 
     // Track ball navigation specific
@@ -134,8 +135,8 @@ protected:
     bool                                isRotationEnabled() { return m_isRotationEnabled; }
 
 private:
-    void                                updateWheelZoomPosition(int zoomX, int zoomY);
-    bool                                shouldRaytraceForNewPoiDuringWheelZoom(int zoomX, int zoomY) const;
+    void                                updateWheelZoomPosition(int winPosX, int winPosY);
+    bool                                shouldRaytraceForNewPoiDuringWheelZoom(int winPosX, int winPosY) const;
 
 private:
     bool                                m_consumeEvents;

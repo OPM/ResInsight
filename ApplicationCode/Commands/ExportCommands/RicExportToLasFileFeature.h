@@ -38,7 +38,7 @@ class RicExportToLasFileFeature : public caf::CmdFeature
 public:
     static std::vector<QString> exportToLasFiles( const QString&        exportFolder,
                                                   const QString&        filePrefix,
-                                                  const RimWellLogPlot* plot,
+                                                  const RimWellLogPlot* plotWindow,
                                                   bool                  exportTvdRkb        = false,
                                                   bool                  capitalizeFileNames = false,
                                                   double                resampleInterval    = 0.0 );

@@ -359,6 +359,42 @@ bool RigWellLogCurveData::calculateMDRange( double* minimumDepth, double* maximu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RigWellLogCurveData::calculateTVDRange( double* minTVD, double* maxTVD ) const
+{
+    CVF_ASSERT( minTVD && maxTVD );
+
+    double minValue = HUGE_VAL;
+    double maxValue = -HUGE_VAL;
+
+    for ( size_t vIdx = 0; vIdx < m_tvDepths.size(); vIdx++ )
+    {
+        double value = m_tvDepths[vIdx];
+
+        if ( value < minValue )
+        {
+            minValue = value;
+        }
+
+        if ( value > maxValue )
+        {
+            maxValue = value;
+        }
+    }
+
+    if ( maxValue >= minValue )
+    {
+        *minTVD = minValue;
+        *maxTVD = maxValue;
+
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaDefines::DepthUnitType RigWellLogCurveData::depthUnit() const
 {
     return m_depthUnit;

@@ -68,17 +68,7 @@ RicSummaryCurveCreatorDialog* RicEditSummaryPlotFeature::curveCreatorDialog()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEditSummaryPlotFeature::isCommandEnabled()
-{
-    if ( selectedSummaryPlot() ) return true;
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicEditSummaryPlotFeature::onActionTriggered( bool isChecked )
+void RicEditSummaryPlotFeature::editSummaryPlot( RimSummaryPlot* plot )
 {
     auto dialog = RicEditSummaryPlotFeature::curveCreatorDialog();
 
@@ -91,11 +81,28 @@ void RicEditSummaryPlotFeature::onActionTriggered( bool isChecked )
         dialog->raise();
     }
 
-    // Set target plot
-    if ( selectedSummaryPlot() )
+    if ( plot )
     {
-        dialog->updateFromSummaryPlot( selectedSummaryPlot() );
+        dialog->updateFromSummaryPlot( plot );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicEditSummaryPlotFeature::isCommandEnabled()
+{
+    if ( selectedSummaryPlot() ) return true;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicEditSummaryPlotFeature::onActionTriggered( bool isChecked )
+{
+    editSummaryPlot( selectedSummaryPlot() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +117,7 @@ void RicEditSummaryPlotFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RicEditSummaryPlotFeature::selectedSummaryPlot() const
+RimSummaryPlot* RicEditSummaryPlotFeature::selectedSummaryPlot()
 {
     RimSummaryPlot* sumPlot = nullptr;
 

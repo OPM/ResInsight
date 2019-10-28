@@ -107,6 +107,7 @@ public:
     void                    setClearMode(Viewport::ClearMode clearMode);
     Viewport::ClearMode     clearMode() const;
     void                    setRenderingScissor(RenderingScissor* scissor);
+    RenderingScissor*       renderingScissor();
 
     void                    setEffectOverride(Effect* effect);
     Effect*                 effectOverride();

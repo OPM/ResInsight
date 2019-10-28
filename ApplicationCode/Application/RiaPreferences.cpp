@@ -26,6 +26,7 @@
 #include "RifReaderSettings.h"
 
 #include "cafPdmFieldCvfColor.h"
+#include "cafPdmSettings.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFieldHandle.h"
@@ -792,4 +793,12 @@ std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> RiaPreferences::de
     fontSizes[RiaDefines::WELL_LABEL_FONT] = defaultWellLabelFontSize();
     fontSizes[RiaDefines::PLOT_FONT]       = defaultPlotFontSize();
     return fontSizes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferences::writePreferencesToApplicationStore()
+{
+    caf::PdmSettings::writeFieldsToApplicationStore( this );
 }

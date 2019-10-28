@@ -38,11 +38,11 @@
 
 #include "RiuDockWidgetTools.h"
 #include "RiuDragDrop.h"
+#include "RiuGridPlotWindow.h"
 #include "RiuMdiSubWindow.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuWellAllocationPlot.h"
-#include "RiuWellLogPlot.h"
 
 #include "cafCmdFeatureManager.h"
 #include "cafPdmObjectHandle.h"
@@ -546,6 +546,7 @@ void RiuPlotMainWindow::updateWellLogPlotToolBar()
     {
         std::vector<caf::PdmFieldHandle*> toolBarFields;
         toolBarFields = wellLogPlot->commonDataSource()->fieldsToShowInToolbar();
+        toolBarFields.push_back( wellLogPlot->columnCountField() );
 
         m_wellLogPlotToolBarEditor->setFields( toolBarFields );
         m_wellLogPlotToolBarEditor->updateUi();
@@ -630,7 +631,7 @@ void RiuPlotMainWindow::addViewer( QWidget* viewer, const RimMdiWindowGeometry& 
     }
     else
     {
-        RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>( viewer );
+        RiuGridPlotWindow* wellLogPlot = dynamic_cast<RiuGridPlotWindow*>( viewer );
         if ( wellLogPlot )
         {
             subWindowSize = QSize( wellLogPlot->preferredWidth(), m_mdiArea->height() );
@@ -670,7 +671,26 @@ void RiuPlotMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
 
     if ( !blockSubWindowProjectTreeSelection() )
     {
-        selectAsCurrentItem( activatedView );
+        std::vector<caf::PdmUiItem*> currentSelection;
+        m_projectTreeView->selectedUiItems( currentSelection );
+        bool childSelected = false;
+        for ( caf::PdmUiItem* uiItem : currentSelection )
+        {
+            caf::PdmObject* pdmObject = dynamic_cast<caf::PdmObject*>( uiItem );
+            if ( pdmObject )
+            {
+                RimViewWindow* owningView = nullptr;
+                pdmObject->firstAncestorOrThisOfType( owningView );
+                if ( owningView && owningView == activatedView )
+                {
+                    childSelected = true;
+                }
+            }
+        }
+        if ( !childSelected )
+        {
+            selectAsCurrentItem( activatedView );
+        }
     }
 
     updateWellLogPlotToolBar();

@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT( RicEclipsePropertyFilterNewInViewFeature, "RicEclipseProper
 //--------------------------------------------------------------------------------------------------
 bool RicEclipsePropertyFilterNewInViewFeature::isCommandEnabled()
 {
-    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !view ) return false;
 
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( view );
@@ -64,7 +64,7 @@ bool RicEclipsePropertyFilterNewInViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterNewInViewFeature::onActionTriggered( bool isChecked )
 {
-    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !view ) return;
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( view );
     if ( !eclView ) return;

@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaStdStringTools.h"
 
+#include "SummaryPlotCommands/RicEditSummaryPlotFeature.h"
+
 #include "RifReaderEclipseSummary.h"
 
 #include "RimProject.h"
@@ -33,6 +35,7 @@
 #include "RiuQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
 
+#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeViewEditor.h"
 
 #include "qwt_plot.h"
@@ -54,6 +57,10 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
 
     CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves", "", "", "" );
     m_showCurves.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_editPlot, "EditPlot", false, "", "", "", "" );
+    m_editPlot.xmlCapability()->disableIO();
+    m_editPlot.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_ySourceStepping, "YSourceStepping", "", "", "", "" );
     m_ySourceStepping = new RimSummaryPlotSourceStepping;
@@ -309,7 +316,7 @@ void RimSummaryCurveCollection::updateCaseNameHasChanged()
     firstAncestorOrThisOfTypeAsserted( parentPlot );
 
     parentPlot->updatePlotTitle();
-    if ( parentPlot->qwtPlot() ) parentPlot->qwtPlot()->updateLegend();
+    if ( parentPlot->viewer() ) parentPlot->viewer()->updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -406,6 +413,33 @@ void RimSummaryCurveCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
     if ( changedField == &m_showCurves )
     {
         loadDataAndUpdate( true );
+    }
+    else if ( changedField == &m_editPlot )
+    {
+        RimSummaryPlot* plot = nullptr;
+        this->firstAncestorOrThisOfType( plot );
+        if ( plot )
+        {
+            RicEditSummaryPlotFeature::editSummaryPlot( plot );
+        }
+        m_editPlot = false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                       QString                    uiConfigName,
+                                                       caf::PdmUiEditorAttribute* attribute )
+{
+    if ( &m_editPlot == field )
+    {
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( attrib )
+        {
+            attrib->m_buttonText = "Edit Plot";
+        }
     }
 }
 

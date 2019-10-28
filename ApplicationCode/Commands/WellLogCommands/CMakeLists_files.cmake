@@ -13,7 +13,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogPlotFeatureImpl.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogPlotTrackFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellLogPlotCurveFeatureImpl.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellLogsImportFileFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellLogPlotTrackFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicDeleteSubPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellLogPlotTrackFeatureImpl.h
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogCurveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogTrackFeature.h
@@ -44,7 +44,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogPlotFeatureImpl.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogPlotTrackFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellLogPlotCurveFeatureImpl.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellLogsImportFileFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellLogPlotTrackFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicDeleteSubPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellLogPlotTrackFeatureImpl.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogCurveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogTrackFeature.cpp

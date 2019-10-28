@@ -43,7 +43,7 @@ class RimWellPath;
 class RimWellPathValve;
 class RimWellPathFracture;
 class RimNonDarcyPerforationParameters;
-class RifEclipseDataTableFormatter;
+class RifTextDataTableFormatter;
 class RigVirtualPerforationTransmissibilities;
 class SubSegmentIntersectionInfo;
 
@@ -189,11 +189,11 @@ private:
                                                const std::map<QString, std::vector<RigCompletionData>>& completionsPerGrid,
                                                RicExportCompletionDataSettingsUi::CompdatExportType     exportType );
 
-    static void exportCompdatTableUsingFormatter( RifEclipseDataTableFormatter&         formatter,
+    static void exportCompdatTableUsingFormatter( RifTextDataTableFormatter&            formatter,
                                                   const QString&                        gridName,
                                                   const std::vector<RigCompletionData>& completionData );
 
-    static void exportWpimultTableUsingFormatter( RifEclipseDataTableFormatter&         formatter,
+    static void exportWpimultTableUsingFormatter( RifTextDataTableFormatter&            formatter,
                                                   const QString&                        gridName,
                                                   const std::vector<RigCompletionData>& completionData );
 

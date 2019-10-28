@@ -46,8 +46,8 @@
 #include "RimWellLogFile.h"
 #include "RimWellPlotTools.h"
 #include "RiuPlotMainWindow.h"
+#include "RiuQwtPlotWidget.h"
 #include "RiuWellAllocationPlot.h"
-#include "RiuWellLogTrack.h"
 
 CAF_PDM_SOURCE_INIT( RimWellAllocationPlot, "WellAllocationPlot" );
 
@@ -100,7 +100,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_accumulatedWellFlowPlot = new RimWellLogPlot;
     m_accumulatedWellFlowPlot->setDepthUnit( RiaDefines::UNIT_NONE );
     m_accumulatedWellFlowPlot->setDepthType( RimWellLogPlot::CONNECTION_NUMBER );
-    m_accumulatedWellFlowPlot->setTrackLegendsVisible( false );
+    m_accumulatedWellFlowPlot->setLegendsVisible( false );
     m_accumulatedWellFlowPlot->uiCapability()->setUiIconFromResourceString( ":/WellFlowPlot16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_totalWellAllocationPlot, "TotalWellFlowPlot", "Total Well Flow", "", "", "" );
@@ -125,6 +125,8 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_accumulatedWellFlowPlot->setAvailableDepthUnits( {} );
     m_accumulatedWellFlowPlot->setAvailableDepthTypes(
         {RimWellLogPlot::CONNECTION_NUMBER, RimWellLogPlot::TRUE_VERTICAL_DEPTH, RimWellLogPlot::PSEUDO_LENGTH} );
+
+    m_accumulatedWellFlowPlot->setCommonDataSourceEnabled( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,12 +191,12 @@ void RimWellAllocationPlot::updateFromWell()
 
         for ( RimWellLogTrack* t : tracks )
         {
-            accumulatedWellFlowPlot()->removeTrack( t );
+            accumulatedWellFlowPlot()->removePlot( t );
             delete t;
         }
     }
 
-    CVF_ASSERT( accumulatedWellFlowPlot()->trackCount() == 0 );
+    CVF_ASSERT( accumulatedWellFlowPlot()->plotCount() == 0 );
 
     QString description;
     if ( m_flowType() == ACCUMULATED ) description = "Accumulated Flow";
@@ -270,7 +272,7 @@ void RimWellAllocationPlot::updateFromWell()
         plotTrack->setFormationsForCaseWithSimWellOnly( true );
         plotTrack->setFormationBranchIndex( (int)brIdx );
 
-        accumulatedWellFlowPlot()->addTrack( plotTrack );
+        accumulatedWellFlowPlot()->addPlot( plotTrack );
 
         const std::vector<double>& depthValues = depthType == RimWellLogPlot::CONNECTION_NUMBER
                                                      ? wfCalculator->connectionNumbersFromTop( brIdx )
@@ -794,6 +796,8 @@ QImage RimWellAllocationPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
+
     uiOrdering.add( &m_userName );
     uiOrdering.add( &m_showPlotTitle );
 
@@ -809,6 +813,8 @@ void RimWellAllocationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     optionGroup.add( &m_groupSmallContributions );
     optionGroup.add( &m_smallContributionsThreshold );
     m_smallContributionsThreshold.uiCapability()->setUiReadOnly( !m_groupSmallContributions() );
+
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -865,9 +871,13 @@ cvf::Color3f RimWellAllocationPlot::getTracerColor( const QString& tracerName )
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::updateFormationNamesData() const
 {
-    for ( size_t i = 0; i < m_accumulatedWellFlowPlot->trackCount(); ++i )
+    for ( size_t i = 0; i < m_accumulatedWellFlowPlot->plotCount(); ++i )
     {
-        RimWellLogTrack* track = m_accumulatedWellFlowPlot->trackByIndex( i );
-        track->setAndUpdateSimWellFormationNamesData( m_case, m_wellName );
+        RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( m_accumulatedWellFlowPlot->plotByIndex( i ) );
+        CAF_ASSERT( track );
+        if ( track )
+        {
+            track->setAndUpdateSimWellFormationNamesData( m_case, m_wellName );
+        }
     }
 }

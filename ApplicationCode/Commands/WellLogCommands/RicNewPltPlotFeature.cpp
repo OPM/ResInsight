@@ -112,8 +112,8 @@ void RicNewPltPlotFeature::onActionTriggered( bool isChecked )
         pltPlot->setCurrentWellName( wellPathName );
 
         RimWellLogTrack* plotTrack = new RimWellLogTrack();
-        pltPlot->addTrack( plotTrack );
-        plotTrack->setDescription( QString( "Track %1" ).arg( pltPlot->trackCount() ) );
+        pltPlot->addPlot( plotTrack );
+        plotTrack->setDescription( QString( "Track %1" ).arg( pltPlot->plotCount() ) );
 
         pltPlotColl->addPlot( pltPlot );
         pltPlot->setDescription( plotName );

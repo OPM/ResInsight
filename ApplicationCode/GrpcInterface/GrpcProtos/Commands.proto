@@ -314,6 +314,15 @@ message ExportWellLogPlotDataRequest
 	double resampleInterval   = 7;
 }
 
+message ExportContourMapToTextRequest
+{
+        string exportFileName       = 1;
+        bool exportLocalCoordinates = 2;
+        string undefinedValueLabel  = 3;
+        bool excludeUndefinedValues = 4;
+        int32 viewId                = 5;
+}
+
 /* CommandParams handles both command name and parameters in one.
  * The message type and content is used as parameters and
  * the name of the variable is used to find the command name. */
@@ -325,43 +334,44 @@ message CommandParams
 	 * the FilePathRequest message. */
 	oneof params
 	{
-		FilePathRequest              openProject                      = 1;
-		Empty                        closeProject                     = 2;
-		FilePathRequest              setStartDir                      = 3;
-		FilePathRequest              loadCase                         = 4;
-		ReplaceCaseRequest           replaceCase                      = 5;
-		ReplaceSourceCasesRequest    replaceSourceCases               = 6;
-		ExportMultiCaseRequest       exportMultiCaseSnapshots         = 7;
-		ExportSnapshotsRequest       exportSnapshots                  = 8;
-		ExportPropertyRequest        exportProperty                   = 9;
-		ExportPropertyInViewsRequest exportPropertyInViews            = 10;
-		ExportWellPathCompRequest    exportWellPathCompletions        = 11;
-		ExportSimWellPathFracRequest exportSimWellFractureCompletions = 12;
-		ExportMswRequest             exportMsw                        = 13;
-		ExportWellPathRequest        exportWellPaths                  = 14;
-		ExportVisibleCellsRequest    exportVisibleCells               = 15;
-		SetExportFolderRequest       setExportFolder                  = 16;
-		RunOctaveScriptRequest       runOctaveScript                  = 17;
-		SetWindowSizeParams          setMainWindowSize                = 18;
-		ComputeCaseGroupStatRequest  computeCaseGroupStatistics       = 19;
-		SetTimeStepParams            setTimeStep                      = 20;
-		ScaleFractureTemplateRequest scaleFractureTemplate            = 21;
-		SetFracContainmentRequest    setFractureContainment           = 22;
-		CreateMultipleFracRequest    createMultipleFractures          = 23;
-		CreateLgrForCompRequest      createLgrForCompletions          = 24;
-		CreateSatPressPlotRequest    createSaturationPressurePlots    = 25;		
-		ReplaceCaseRequests          replaceMultipleCases             = 26;
-		CreateGridCaseGroupRequest   createGridCaseGroup              = 27;
-		CreateStatisticsCaseRequest  createStatisticsCase             = 28;
-		ExportFlowInfoRequest        exportFlowCharacteristics        = 29;
-		CreateViewRequest            createView                       = 30;
-		CloneViewRequest             cloneView                        = 31;
-		CreateWbsPlotRequest         createWellBoreStabilityPlot      = 32;
-		ImportWellPathsRequest       importWellPaths                  = 33;
-		ImportWellLogFilesRequest    importWellLogFiles               = 34;
-		ImportFormationNamesRequest  importFormationNames             = 35;
-		ExportWellLogPlotDataRequest exportWellLogPlotData            = 36;
-		SetWindowSizeParams          setPlotWindowSize                = 37;
+		FilePathRequest               openProject                      = 1;
+		Empty                         closeProject                     = 2;
+		FilePathRequest               setStartDir                      = 3;
+		FilePathRequest               loadCase                         = 4;
+		ReplaceCaseRequest            replaceCase                      = 5;
+		ReplaceSourceCasesRequest     replaceSourceCases               = 6;
+		ExportMultiCaseRequest        exportMultiCaseSnapshots         = 7;
+		ExportSnapshotsRequest        exportSnapshots                  = 8;
+		ExportPropertyRequest         exportProperty                   = 9;
+		ExportPropertyInViewsRequest  exportPropertyInViews            = 10;
+		ExportWellPathCompRequest     exportWellPathCompletions        = 11;
+		ExportSimWellPathFracRequest  exportSimWellFractureCompletions = 12;
+		ExportMswRequest              exportMsw                        = 13;
+		ExportWellPathRequest         exportWellPaths                  = 14;
+		ExportVisibleCellsRequest     exportVisibleCells               = 15;
+		SetExportFolderRequest        setExportFolder                  = 16;
+		RunOctaveScriptRequest        runOctaveScript                  = 17;
+		SetWindowSizeParams           setMainWindowSize                = 18;
+		ComputeCaseGroupStatRequest   computeCaseGroupStatistics       = 19;
+		SetTimeStepParams             setTimeStep                      = 20;
+		ScaleFractureTemplateRequest  scaleFractureTemplate            = 21;
+		SetFracContainmentRequest     setFractureContainment           = 22;
+		CreateMultipleFracRequest     createMultipleFractures          = 23;
+		CreateLgrForCompRequest       createLgrForCompletions          = 24;
+		CreateSatPressPlotRequest     createSaturationPressurePlots    = 25;		
+		ReplaceCaseRequests           replaceMultipleCases             = 26;
+		CreateGridCaseGroupRequest    createGridCaseGroup              = 27;
+		CreateStatisticsCaseRequest   createStatisticsCase             = 28;
+		ExportFlowInfoRequest         exportFlowCharacteristics        = 29;
+		CreateViewRequest             createView                       = 30;
+		CloneViewRequest              cloneView                        = 31;
+		CreateWbsPlotRequest          createWellBoreStabilityPlot      = 32;
+		ImportWellPathsRequest        importWellPaths                  = 33;
+		ImportWellLogFilesRequest     importWellLogFiles               = 34;
+		ImportFormationNamesRequest   importFormationNames             = 35;
+		ExportWellLogPlotDataRequest  exportWellLogPlotData            = 36;
+		SetWindowSizeParams           setPlotWindowSize                = 37;
+		ExportContourMapToTextRequest exportContourMapToText           = 38;
 	}
 }
 

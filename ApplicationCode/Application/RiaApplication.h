@@ -112,6 +112,7 @@ public:
     Rim3dView*       activeReservoirView();
     const Rim3dView* activeReservoirView() const;
     RimGridView*     activeGridView();
+    RimGridView*     activeMainOrComparisonGridView();
 
     RimProject* project();
 

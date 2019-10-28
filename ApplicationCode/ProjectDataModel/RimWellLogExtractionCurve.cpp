@@ -59,7 +59,7 @@
 
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotCurve.h"
-#include "RiuWellLogTrack.h"
+#include "RiuQwtPlotWidget.h"
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cafUtils.h"
@@ -371,10 +371,10 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
             firstAncestorOrThisOfType( wellLogTrack );
             CVF_ASSERT( wellLogTrack );
 
-            RiuWellLogTrack* viewer = wellLogTrack->viewer();
+            RiuQwtPlotWidget* viewer = wellLogTrack->viewer();
             if ( viewer )
             {
-                viewer->setDepthTitle( "PL/" + wellLogPlot->depthPlotTitle() );
+                viewer->setAxisTitleText( QwtPlot::yLeft, "PL/" + wellLogPlot->depthAxisTitle() );
             }
         }
 

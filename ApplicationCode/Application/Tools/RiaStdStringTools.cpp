@@ -34,15 +34,18 @@ std::string RiaStdStringTools::trimString( const std::string& s )
 //--------------------------------------------------------------------------------------------------
 bool RiaStdStringTools::isNumber( const std::string& s, char decimalPoint )
 {
-    if ( s.size() == 0 ) return false;
+    if ( s.empty() ) return false;
     if ( findCharMatchCount( s, decimalPoint ) > 1 ) return false;
     if ( findCharMatchCount( s, '-' ) > 1 ) return false;
     if ( findCharMatchCount( s, 'e' ) > 1 ) return false;
     if ( findCharMatchCount( s, 'E' ) > 1 ) return false;
 
-    std::string matchChars( "0123456789eE-" );
+    std::string matchChars( "0123456789eE-+" );
     matchChars.append( 1, decimalPoint );
-    return ( s.find_first_not_of( matchChars ) == std::string::npos );
+
+    auto it = s.find_first_not_of( matchChars );
+
+    return ( it == std::string::npos );
 }
 
 //--------------------------------------------------------------------------------------------------

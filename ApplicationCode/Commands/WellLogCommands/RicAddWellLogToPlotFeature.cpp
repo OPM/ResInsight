@@ -37,7 +37,7 @@
 #include "RigWellLogFile.h"
 
 #include "RiaApplication.h"
-#include "RiuWellLogTrack.h"
+#include "RiuQwtPlotWidget.h"
 
 #include "cafSelectionManager.h"
 
@@ -65,8 +65,8 @@ void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
     RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
 
     RimWellLogTrack* plotTrack = new RimWellLogTrack();
-    plot->addTrack( plotTrack );
-    plotTrack->setDescription( QString( "Track %1" ).arg( plot->trackCount() ) );
+    plot->addPlot( plotTrack );
+    plotTrack->setDescription( QString( "Track %1" ).arg( plot->plotCount() ) );
 
     plot->loadDataAndUpdate();
 
@@ -103,9 +103,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
             curve->loadDataAndUpdate( true );
         }
     }
-    plot->calculateAvailableDepthRange();
-    plot->updateDepthZoom();
-    plotTrack->viewer()->replot();
+    plot->updateLayout();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
 

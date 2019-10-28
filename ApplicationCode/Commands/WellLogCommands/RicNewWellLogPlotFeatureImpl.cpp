@@ -53,7 +53,6 @@ RimWellBoreStabilityPlot*
 
     RimWellBoreStabilityPlot* plot = new RimWellBoreStabilityPlot();
     plot->setAsPlotMdiWindow();
-    RiaApplication::instance()->project()->assignViewIdToView( plot );
 
     wellLogPlotColl->wellLogPlots().push_back( plot );
 
@@ -88,7 +87,6 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot( bool showAfterC
 
     RimWellLogPlot* plot = new RimWellLogPlot();
     plot->setAsPlotMdiWindow();
-    RiaApplication::instance()->project()->assignViewIdToView( plot );
 
     wellLogPlotColl->wellLogPlots().push_back( plot );
 
@@ -165,14 +163,14 @@ RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool     
     }
 
     RimWellLogTrack* plotTrack = new RimWellLogTrack();
-    plot->addTrack( plotTrack );
+    plot->addPlot( plotTrack );
     if ( !trackDescription.isEmpty() )
     {
         plotTrack->setDescription( trackDescription );
     }
     else
     {
-        plotTrack->setDescription( QString( "Track %1" ).arg( plot->trackCount() ) );
+        plotTrack->setDescription( QString( "Track %1" ).arg( plot->plotCount() ) );
     }
 
     if ( caseToApply )
@@ -224,10 +222,6 @@ void RicNewWellLogPlotFeatureImpl::updateAfterCreation( RimWellLogPlot* plot )
 {
     CVF_ASSERT( plot );
     plot->loadDataAndUpdate();
-    plot->updateDepthZoom();
-    plot->updateConnectedEditors();
-    plot->updateTracks();
-    RiaApplication::instance()->project()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

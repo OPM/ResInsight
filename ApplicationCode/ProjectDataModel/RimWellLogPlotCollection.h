@@ -33,7 +33,6 @@ class RigGeoMechCaseData;
 class RigWellPath;
 class RimWellPath;
 class RimEclipseCase;
-class RiuWellLogPlot;
 
 //==================================================================================================
 ///

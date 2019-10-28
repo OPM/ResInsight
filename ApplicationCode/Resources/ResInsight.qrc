@@ -159,6 +159,11 @@
 	<file>RulerPoly24x24.png</file>
 	<file>Swap.png</file>
     <file>SummaryTemplate16x16.png</file>
+	<file>Columns1.png</file>
+	<file>Columns2.png</file>
+	<file>Columns3.png</file>
+	<file>Columns4.png</file>
+  	<file>ColumnsUnlimited.png</file>
   </qresource>
   <qresource prefix="/Shader/">
     <file>fs_CellFace.glsl</file>

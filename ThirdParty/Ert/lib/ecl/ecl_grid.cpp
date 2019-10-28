@@ -1875,7 +1875,15 @@ static void ecl_grid_set_active_index(ecl_grid_type * ecl_grid) {
   } else {
     /* --- More involved path in the case of coarsening groups. --- */
 
-    /* 1: Go through all the cells and set the active index. In the
+    /* 1: Reset the coarse cell active_indices.
+          In the involved path ecl_coarse_cell_update_index() only updates
+          the coarse cells' active_index if it is -1. */
+    for (int coarse_index = 0; coarse_index < vector_get_size(ecl_grid->coarse_cells); coarse_index++) {
+        ecl_coarse_cell_type * coarse_cell = (ecl_coarse_cell_type*)vector_iget_const(ecl_grid->coarse_cells, coarse_index);
+        ecl_coarse_cell_reset_active_index(coarse_cell);
+    }
+
+    /* 2: Go through all the cells and set the active index. In the
           case of coarse cells we only set the common active index of
           the entire coarse cell.
     */
@@ -1907,7 +1915,7 @@ static void ecl_grid_set_active_index(ecl_grid_type * ecl_grid) {
 
 
     /*
-      2: Go through all the coarse cells and set the active index and
+      3: Go through all the coarse cells and set the active index and
          active value of all the cells in the coarse cell to the
          common value for the coarse cell.
     */

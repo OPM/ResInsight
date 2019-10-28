@@ -40,6 +40,7 @@ public:
     ~RimWellLogCurve() override;
 
     bool xValueRangeInData( double* minimumValue, double* maximumValue ) const;
+    bool yValueRangeInData( double* minimumValue, double* maximumValue ) const;
 
     void setValuesAndMD( const std::vector<double>& xValues,
                          const std::vector<double>& measuredDepths,
@@ -67,9 +68,11 @@ protected:
     void setOverrideCurveDataXRange( double minimumValue, double maximumValue );
 
 private:
-    void calculateCurveDataXRange();
+    void calculateCurveDataRanges();
 
 private:
     cvf::ref<RigWellLogCurveData> m_curveData;
     std::pair<double, double>     m_curveDataXRange;
+    std::pair<double, double>     m_curveDataMDRange;
+    std::pair<double, double>     m_curveDataTVDRange;
 };

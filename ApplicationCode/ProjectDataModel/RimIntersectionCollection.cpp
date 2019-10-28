@@ -255,7 +255,7 @@ void RimIntersectionCollection::appendIntersectionBoxAndUpdate( RimIntersectionB
     m_intersectionBoxes.push_back( intersectionBox );
 
     updateConnectedEditors();
-    Riu3DMainWindowTools::selectAsCurrentItem( intersectionBox );
+    Riu3DMainWindowTools::selectAsCurrentItem( intersectionBox, false );
 
     Rim3dView* rimView = nullptr;
     firstAncestorOrThisOfType( rimView );

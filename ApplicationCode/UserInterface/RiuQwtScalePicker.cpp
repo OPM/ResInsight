@@ -1,6 +1,7 @@
 // Based on the example scalepicker from the Qwt/examples/event_filter
 
 #include "RiuQwtScalePicker.h"
+#include "RiuQwtPlotWidget.h"
 
 #include <QMouseEvent>
 
@@ -31,7 +32,7 @@ bool RiuQwtScalePicker::eventFilter( QObject* object, QEvent* event )
         if ( scaleWidget )
         {
             QMouseEvent* mouseEvent = static_cast<QMouseEvent*>( event );
-            mouseClicked( scaleWidget, mouseEvent->pos() );
+            Q_EMIT( mouseClicked( scaleWidget, mouseEvent->pos() ) );
 
             return true;
         }
@@ -43,7 +44,7 @@ bool RiuQwtScalePicker::eventFilter( QObject* object, QEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtScalePicker::mouseClicked( const QwtScaleWidget* scale, const QPoint& pos )
+double RiuQwtScalePicker::axisValueAtPosition( const QwtScaleWidget* scale, const QPoint& pos )
 {
     QRect rect = scale->rect();
 
@@ -85,6 +86,7 @@ void RiuQwtScalePicker::mouseClicked( const QwtScaleWidget* scale, const QPoint&
                 break;
             }
         }
-        Q_EMIT clicked( axis, value );
+        return value;
     }
+    return std::numeric_limits<double>::infinity();
 }

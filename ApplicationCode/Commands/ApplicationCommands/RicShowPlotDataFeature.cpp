@@ -87,11 +87,11 @@ public:
         {
             RiaPreferences* prefs = RiaApplication::instance()->preferences();
 
-            return m_summaryPlot->asciiDataForPlotExport( timePeriod, prefs->showSummaryTimeAsLongString() );
+            return m_summaryPlot->asciiDataForSummaryPlotExport( timePeriod, prefs->showSummaryTimeAsLongString() );
         }
         else
         {
-            return m_summaryPlot->asciiDataForPlotExport( DateTimePeriod::NONE, true );
+            return m_summaryPlot->asciiDataForSummaryPlotExport( DateTimePeriod::NONE, true );
         }
     }
 
@@ -152,7 +152,7 @@ public:
     virtual QString tabText( int tabIndex ) const override
     {
         CVF_ASSERT( m_crossPlot.notNull() && "Need to check that provider is valid" );
-        return m_crossPlot->asciiDataForPlotExport( tabIndex );
+        return m_crossPlot->asciiDataForGridCrossPlotExport( tabIndex );
     }
 
     virtual int tabCount() const override

@@ -66,7 +66,7 @@ void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( RimEclipsePropertyF
     propertyFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
 
     propertyFilterCollection->updateConnectedEditors();
-    Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter );
+    Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter( RimEclipseProper
     propertyFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
 
     propertyFilterCollection->updateConnectedEditors();
-    Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter );
+    Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
 }
 
 //--------------------------------------------------------------------------------------------------
