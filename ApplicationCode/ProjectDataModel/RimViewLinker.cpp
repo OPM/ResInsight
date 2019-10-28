@@ -490,7 +490,7 @@ void RimViewLinker::updateCursorPosition( const RimGridView* sourceView, const c
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::notifyManagedViewChange( RimGridView* oldManagedView, RimGridView* newManagedView )
 {
-    if ( oldManagedView == m_comparisonView )
+    if ( oldManagedView && ( oldManagedView == m_comparisonView ) )
     {
         m_comparisonView = newManagedView;
         m_comparisonView.uiCapability()->updateConnectedEditors();
@@ -530,7 +530,7 @@ QList<caf::PdmOptionItemInfo> RimViewLinker::calculateValueOptions( const caf::P
         }
     }
 
-    if ( !isActiveCompViewInList )
+    if ( !isActiveCompViewInList && actualComparisonView != nullptr )
     {
         // Add the actually used comparison view to the option list, even though it is not one of the linked views
         options.push_front( caf::PdmOptionItemInfo( actualComparisonView->autoName(),
@@ -604,10 +604,13 @@ void RimViewLinker::addDependentView( RimGridView* view )
 {
     CVF_ASSERT( view && view != m_masterView );
 
-    RimViewController* viewContr = new RimViewController;
-    this->m_viewControllers.push_back( viewContr );
+    if ( !view->viewController() )
+    {
+        RimViewController* viewContr = new RimViewController;
+        this->m_viewControllers.push_back( viewContr );
 
-    viewContr->setManagedView( view );
+        viewContr->setManagedView( view );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
