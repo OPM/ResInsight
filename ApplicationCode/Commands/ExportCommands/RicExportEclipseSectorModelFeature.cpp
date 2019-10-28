@@ -41,7 +41,10 @@
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuPropertyViewTabWidget.h"
+#include "RiuViewer.h"
 
+#include "cafCmdFeatureManager.h"
+#include "cafPdmSettings.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
@@ -299,12 +302,18 @@ void RicExportEclipseSectorModelFeature::setupActionLook( QAction* actionToSetup
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RicExportEclipseSectorModelFeature::selectedView() const
 {
-    RimEclipseView* view = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseView>();
-    if ( view )
+    auto contextViewer = dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
+
+    if ( contextViewer != nullptr )
     {
+        // Command is triggered from viewer
+        Rim3dView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
+        return dynamic_cast<RimEclipseView*>( activeView );
+    }
+    else
+    {
+        // Command triggered from project tree or file menu
+        RimEclipseView* view = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseView>();
         return view;
     }
-
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-    return dynamic_cast<RimEclipseView*>( activeView );
 }
