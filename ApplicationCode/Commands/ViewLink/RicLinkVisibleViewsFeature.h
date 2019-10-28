@@ -43,6 +43,6 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    void findNotLinkedVisibleViews( std::vector<RimGridView*>& views );
+    void findLinkableVisibleViews( std::vector<RimGridView*>& views );
     void allLinkedViews( std::vector<RimGridView*>& views );
 };
