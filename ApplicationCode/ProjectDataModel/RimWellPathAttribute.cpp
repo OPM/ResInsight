@@ -154,6 +154,35 @@ double RimWellPathAttribute::endMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<double> RimWellPathAttribute::supportedDiameters( RiaDefines::WellPathComponentType type )
+{
+    CAF_ASSERT( type == RiaDefines::CASING || type == RiaDefines::LINER );
+    std::set<double> values;
+    if ( type == RiaDefines::CASING )
+    {
+        values = { MAX_DIAMETER_IN_INCHES,
+                   26.0,
+                   22.0,
+                   20.0,
+                   18.0 + 5.0 / 8.0,
+                   16.0,
+                   14.0,
+                   13.0 + 3.0 / 8.0,
+                   10.0 + 3.0 / 4.0,
+                   9.0 + 7.0 / 8.0,
+                   9.0 + 5.0 / 8.0,
+                   MIN_DIAMETER_IN_INCHES };
+    }
+    else
+    {
+        values = { 9.0 + 7.0 / 8.0, 9.0 + 5.0 / 8.0, 7.0, 5.5, 5.0, 4.5, 3.5 };
+    }
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimWellPathAttribute::isDiameterSupported() const
 {
     return m_type() == RiaDefines::CASING || m_type() == RiaDefines::LINER;
@@ -168,9 +197,9 @@ QList<caf::PdmOptionItemInfo> RimWellPathAttribute::calculateValueOptions( const
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_type )
     {
-        std::set<RiaDefines::WellPathComponentType> supportedTypes = {RiaDefines::CASING,
-                                                                      RiaDefines::LINER,
-                                                                      RiaDefines::PACKER};
+        std::set<RiaDefines::WellPathComponentType> supportedTypes = { RiaDefines::CASING,
+                                                                       RiaDefines::LINER,
+                                                                       RiaDefines::PACKER };
         for ( RiaDefines::WellPathComponentType type : supportedTypes )
         {
             options.push_back( caf::PdmOptionItemInfo( CompletionTypeEnum::uiText( type ), type ) );
@@ -180,21 +209,11 @@ QList<caf::PdmOptionItemInfo> RimWellPathAttribute::calculateValueOptions( const
     {
         if ( isDiameterSupported() )
         {
-            std::vector<double> values = {MAX_DIAMETER_IN_INCHES,
-                                          22.0,
-                                          20.0,
-                                          18.0 + 5.0 / 8.0,
-                                          16.0,
-                                          14.0,
-                                          13.0 + 3.0 / 8.0,
-                                          10.0 + 3.0 / 4.0,
-                                          9.0 + 7.0 / 8.0,
-                                          9.0 + 5.0 / 8.0,
-                                          MIN_DIAMETER_IN_INCHES};
+            std::set<double> values = supportedDiameters( m_type() );
 
-            for ( double value : values )
+            for ( auto it = values.rbegin(); it != values.rend(); ++it )
             {
-                options.push_back( caf::PdmOptionItemInfo( generateInchesLabel( value ), value ) );
+                options.push_back( caf::PdmOptionItemInfo( generateInchesLabel( *it ), *it ) );
             }
         }
         else
@@ -236,6 +255,18 @@ void RimWellPathAttribute::fieldChangedByUi( const caf::PdmFieldHandle* changedF
             RimWellPath* wellPath = nullptr;
             this->firstAncestorOrThisOfTypeAsserted( wellPath );
             m_startMD = wellPath->wellPathGeometry()->measureDepths().front();
+
+            if ( !supportedDiameters( m_type() ).count( m_diameterInInches() ) )
+            {
+                m_diameterInInches = *( supportedDiameters( m_type() ).begin() );
+            }
+        }
+        else if ( m_type() == RiaDefines::LINER )
+        {
+            if ( !supportedDiameters( m_type() ).count( m_diameterInInches() ) )
+            {
+                m_diameterInInches = *( supportedDiameters( m_type() ).rbegin() );
+            }
         }
         else if ( m_type() == RiaDefines::PACKER )
         {

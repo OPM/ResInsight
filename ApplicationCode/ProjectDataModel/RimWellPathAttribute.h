@@ -56,6 +56,8 @@ public:
     double                            endMD() const override;
 
 private:
+    static std::set<double> supportedDiameters( RiaDefines::WellPathComponentType type );
+
     bool                          isDiameterSupported() const;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
