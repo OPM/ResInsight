@@ -50,9 +50,14 @@ RimWellLogCurve::RimWellLogCurve()
     m_qwtPlotCurve->setErrorBarsXAxis( QwtPlot::xTop );
     m_qwtPlotCurve->setYAxis( QwtPlot::yLeft );
 
-    m_curveData       = new RigWellLogCurveData;
-    m_curveDataXRange = std::make_pair( std::numeric_limits<double>::infinity(),
+    m_curveData = new RigWellLogCurveData;
+
+    m_curveDataXRange   = std::make_pair( std::numeric_limits<double>::infinity(),
                                         -std::numeric_limits<double>::infinity() );
+    m_curveDataMDRange  = std::make_pair( std::numeric_limits<double>::infinity(),
+                                         -std::numeric_limits<double>::infinity() );
+    m_curveDataTVDRange = std::make_pair( std::numeric_limits<double>::infinity(),
+                                          -std::numeric_limits<double>::infinity() );
 }
 
 //--------------------------------------------------------------------------------------------------
