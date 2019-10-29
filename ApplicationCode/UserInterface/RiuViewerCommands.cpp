@@ -40,11 +40,13 @@
 #include "RigMainGrid.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 
+#include "RiaOptionItemFactory.h"
 #include "Rim2dIntersectionView.h"
 #include "RimCellEdgeColors.h"
 #include "RimContextCommandBuilder.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseContourMapView.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
@@ -53,11 +55,13 @@
 #include "RimFracture.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
+#include "RimGeoMechContourMapView.h"
 #include "RimGeoMechView.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
 #include "RimLegendConfig.h"
 #include "RimPerforationInterval.h"
+#include "RimProject.h"
 #include "RimSimWellInView.h"
 #include "RimStimPlanFractureTemplate.h"
 #include "RimTextAnnotation.h"
@@ -146,6 +150,41 @@ RiuViewerCommands::~RiuViewerCommands() {}
 void RiuViewerCommands::setOwnerView( Rim3dView* owner )
 {
     m_reservoirView = owner;
+}
+
+void RiuViewerCommands::addCompareToViewMenu( caf::CmdFeatureMenuBuilder* menuBuilder )
+{
+    RimGridView* mainGridView = dynamic_cast<RimGridView*>( m_reservoirView.p() );
+    if ( mainGridView && !mainGridView->activeComparisonView() )
+    {
+        std::vector<Rim3dView*> validComparisonViews;
+
+        std::vector<Rim3dView*> views;
+        RiaApplication::instance()->project()->allViews( views );
+        for ( auto view : views )
+        {
+            if ( !dynamic_cast<RimGridView*>( view ) ) continue;
+            if ( dynamic_cast<RimEclipseContourMapView*>( view ) ) continue;
+            if ( dynamic_cast<RimGeoMechContourMapView*>( view ) ) continue;
+
+            if ( view != mainGridView )
+            {
+                validComparisonViews.push_back( view );
+            }
+        }
+
+        if ( validComparisonViews.size() )
+        {
+            menuBuilder->subMenuStart( "Compare To ...", QIcon( ":/ComparisonView16x16.png" ) );
+            for ( auto view : validComparisonViews )
+            {
+                menuBuilder->addCmdFeatureWithUserData( "RicCompareTo3dViewFeature",
+                                                        view->autoName(),
+                                                        QVariant::fromValue( static_cast<void*>( view ) ) );
+            }
+            menuBuilder->subMenuEnd();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -518,6 +557,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder << "RicLinkViewFeature";
             menuBuilder << "RicShowLinkOptionsFeature";
             menuBuilder << "RicSetMasterViewFeature";
+            addCompareToViewMenu( &menuBuilder );
             menuBuilder.addSeparator();
             menuBuilder << "RicUnLinkViewFeature";
             menuBuilder << "RicRemoveComparison3dViewFeature";
