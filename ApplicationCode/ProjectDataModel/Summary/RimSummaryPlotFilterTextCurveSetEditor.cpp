@@ -50,6 +50,7 @@
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
+#include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLabelEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiToolBarEditor.h"
@@ -90,6 +91,7 @@ RimSummaryPlotFilterTextCurveSetEditor::RimSummaryPlotFilterTextCurveSetEditor()
 
     CAF_PDM_InitFieldNoDefault( &m_curveFilterText, "CurveFilterText", "Curve Filter Text", "", toolTipPropertyEditor, "" );
     m_curveFilterText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_curveFilterText.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     // Special tool tip for toolbar
     m_curveFilterText.uiCapability()->setUiToolTip( toolTipToolbar, caf::PdmUiToolBarEditor::uiEditorConfigName() );
@@ -381,6 +383,17 @@ void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFie
     {
         m_curveFilterText = curveFilterTextWithoutOutdatedLabel();
 
+        {
+            if ( m_historyItems.indexOf( m_curveFilterText ) == -1 )
+            {
+                m_historyItems.push_front( m_curveFilterText );
+                while ( m_historyItems.size() > 10 )
+                {
+                    m_historyItems.pop_back();
+                }
+            }
+        }
+
         m_curveFilterText.uiCapability()->updateConnectedEditors();
     }
 
@@ -430,17 +443,29 @@ void RimSummaryPlotFilterTextCurveSetEditor::defineEditorAttribute( const caf::P
 {
     if ( field == &m_curveFilterText )
     {
-        auto attr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-        if ( attr )
         {
-            if ( uiConfigName == caf::PdmUiToolBarEditor::uiEditorConfigName() )
+            auto attr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
+            if ( attr )
             {
-                // Special config for toolbar
-                attr->maximumWidth = 150;
-            }
+                if ( uiConfigName == caf::PdmUiToolBarEditor::uiEditorConfigName() )
+                {
+                    // Special config for toolbar
+                    attr->maximumWidth = 150;
+                }
 
-            attr->selectAllOnFocusEvent = true;
-            attr->placeholderText       = "Click to Edit Summary Curves";
+                attr->selectAllOnFocusEvent = true;
+                attr->placeholderText       = "Click to define filter";
+            }
+        }
+
+        {
+            auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
+            if ( attr )
+            {
+                attr->enableEditableContent = true;
+                attr->adjustWidthToContents = true;
+                attr->minimumWidth          = 100;
+            }
         }
     }
 }
@@ -456,6 +481,14 @@ QList<caf::PdmOptionItemInfo>
     if ( fieldNeedingOptions == &m_selectedSources )
     {
         appendOptionItemsForSources( options, false, false );
+    }
+
+    if ( fieldNeedingOptions == &m_curveFilterText )
+    {
+        for ( const auto& s : m_historyItems )
+        {
+            options.push_back( caf::PdmOptionItemInfo( s, s ) );
+        }
     }
 
     return options;

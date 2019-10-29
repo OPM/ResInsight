@@ -61,6 +61,8 @@ public:
         adjustWidthToContents      = false;
         showPreviousAndNextButtons = false;
         minimumContentsLength      = 8;
+        enableEditableContent      = false;
+        minimumWidth               = -1;
         iconSize = QSize(14, 14);
     }
 
@@ -69,9 +71,13 @@ public:
     bool showPreviousAndNextButtons;
     int  minimumContentsLength; // The length of string to adjust to if adjustWidthToContents = false.
                                 // Set to <= 0 to ignore and use AdjustToContentsOnFirstShow instead
-    QSize iconSize;
+
+    bool    enableEditableContent;
+    int     minimumWidth;
     QString nextButtonText;
     QString prevButtonText;
+    
+    QSize   iconSize;
 };
 
 
@@ -107,6 +113,8 @@ private:
     QPointer<QToolButton> m_nextItemButton;
     QPointer<QHBoxLayout> m_layout;
     QPointer<QWidget>     m_placeholder;
+
+    PdmUiComboBoxEditorAttribute m_attributes;
 };
 
 

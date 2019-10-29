@@ -205,6 +205,32 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiToolBarEditor::focusWidget(PdmUiFieldEditorHandle* uiFieldEditorHandle)
+{
+    // Some editors have a placeholder widget as parent of the main editor widget
+    // This is the case for combo box widget to allow up/down arrow buttons associated with the combo box
+    
+    QWidget* editorWidget = nullptr;
+    auto comboEditor = dynamic_cast<caf::PdmUiComboBoxEditor*>(uiFieldEditorHandle);
+    if (comboEditor)
+    {
+        auto topWidget = comboEditor->editorWidget();
+        QComboBox* comboBox = topWidget->findChild<QComboBox*>();
+
+        editorWidget = comboBox;
+
+    }
+    else
+    {
+        editorWidget = uiFieldEditorHandle->editorWidget();
+    }
+
+    return editorWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void PdmUiToolBarEditor::setFields(std::vector<caf::PdmFieldHandle*>& fields)
@@ -244,10 +270,11 @@ void PdmUiToolBarEditor::setFocusWidgetFromKeyword(const QString& fieldKeyword)
     auto fieldView = m_fieldViews.find(fieldKeyword);
     if (fieldView != m_fieldViews.end() && fieldView->second)
     {
-        auto editorWidget = fieldView->second->editorWidget();
-        if (editorWidget)
+        QWidget* widget = focusWidget(fieldView->second);
+
+        if (widget)
         {
-            editorWidget->setFocus(Qt::ActiveWindowFocusReason);
+            widget->setFocus(Qt::ActiveWindowFocusReason);
 
             PdmUiLineEditorAttribute attributes;
 
@@ -265,7 +292,7 @@ void PdmUiToolBarEditor::setFocusWidgetFromKeyword(const QString& fieldKeyword)
 
             if (attributes.selectAllOnFocusEvent)
             {
-                auto lineEdit = dynamic_cast<QLineEdit*>(editorWidget);
+                auto lineEdit = dynamic_cast<QLineEdit*>(widget);
                 if (lineEdit  )
                 {
                     lineEdit->selectAll();
@@ -316,11 +343,11 @@ QString PdmUiToolBarEditor::keywordForFocusWidget()
     {
         for (auto fieldViewPair : m_fieldViews)
         {
-            auto fieldView = fieldViewPair.second;
-            if (fieldView)
+            auto uiFieldEditorHandle = fieldViewPair.second;
+            if (uiFieldEditorHandle)
             {
-                auto editorWidget = fieldView->editorWidget();
-                if (editorWidget && editorWidget->hasFocus())
+                auto widget = focusWidget(uiFieldEditorHandle);
+                if (widget && widget->hasFocus())
                 {
                     keyword = fieldViewPair.first;
                 }

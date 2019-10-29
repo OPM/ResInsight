@@ -59,6 +59,9 @@ set( PROJECT_FILES
     CustomObjectEditor.h
     MenuItemProducer.cpp
     MenuItemProducer.h
+
+    TamComboBox.h
+    TamComboBox.cpp
 )
 
 
