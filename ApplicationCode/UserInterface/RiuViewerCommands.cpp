@@ -1354,17 +1354,20 @@ void RiuViewerCommands::handleTextPicking( int winPosX, int winPosY, cvf::HitIte
 
     ref<Ray> ray = m_viewer->mainCamera()->rayFromWindowCoordinates( translatedMousePosX, translatedMousePosY );
 
-    for ( size_t pIdx = 0; pIdx < partCollection.size(); ++pIdx )
+    if ( ray.notNull() )
     {
-        DrawableText* textDrawable = dynamic_cast<DrawableText*>( partCollection[pIdx]->drawable() );
-        if ( textDrawable )
+        for ( size_t pIdx = 0; pIdx < partCollection.size(); ++pIdx )
         {
-            cvf::Vec3d ppoint;
-            if ( textDrawable->rayIntersect( *ray, *( m_viewer->mainCamera() ), &ppoint ) )
+            DrawableText* textDrawable = dynamic_cast<DrawableText*>(partCollection[pIdx]->drawable());
+            if ( textDrawable )
             {
-                cvf::ref<HitItem> hitItem = new HitItem( 0, ppoint );
-                hitItem->setPart( partCollection[pIdx].p() );
-                hitItems->add( hitItem.p() );
+                cvf::Vec3d ppoint;
+                if ( textDrawable->rayIntersect(*ray, *(m_viewer->mainCamera()), &ppoint) )
+                {
+                    cvf::ref<HitItem> hitItem = new HitItem(0, ppoint);
+                    hitItem->setPart(partCollection[pIdx].p());
+                    hitItems->add(hitItem.p());
+                }
             }
         }
     }
