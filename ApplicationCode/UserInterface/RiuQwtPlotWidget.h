@@ -19,10 +19,12 @@
 
 #pragma once
 
-#include "qwt_plot.h"
+#include "RiuWidgetStyleSheet.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+
+#include "qwt_plot.h"
 
 #include <QPointer>
 
@@ -58,6 +60,8 @@ public:
 
     bool isChecked() const;
 
+    void setDraggable( bool draggable );
+
     int  axisTitleFontSize( QwtPlot::Axis axis ) const;
     int  axisValueFontSize( QwtPlot::Axis axis ) const;
     void setAxisFontsAndAlignment( QwtPlot::Axis,
@@ -75,7 +79,6 @@ public:
     void        setAxisRange( QwtPlot::Axis axis, double min, double max );
 
     void setAxisInverted( QwtPlot::Axis axis );
-
     void setAxisLabelsAndTicksEnabled( QwtPlot::Axis axis, bool enable );
 
     void enableGridLines( QwtPlot::Axis axis, bool majorGridLines, bool minorGridLines );
@@ -90,26 +93,23 @@ public:
 
     bool   frameIsInFrontOfThis( const QRect& frameGeometry );
     QPoint dragStartPosition() const;
-    void   setDefaultStyleSheet( bool includeHoverFrame = true );
-    void   setStyleSheetForThisObject( const QString& content, const QString& state = "" );
-    void   appendStyleSheetForThisObject( const QString& content, const QString& state = "" );
-    int    widthScaleFactor() const;
+
+    int widthScaleFactor() const;
 
     void scheduleReplot();
-    void setSelected( bool selected );
+    void setWidgetState( RiuWidgetStyleSheet::StateTag widgetState );
 
 protected:
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
     bool  eventFilter( QObject* watched, QEvent* event ) override;
     void  hideEvent( QHideEvent* event ) override;
+    void  showEvent( QShowEvent* event ) override;
 
     void applyAxisTitleToQwt( QwtPlot::Axis axis );
 
     virtual void selectPoint( QwtPlotCurve* curve, int pointNumber );
     virtual void clearPointSelection();
-
-    QString createHoverStyleSheet( const QString& borderType = "solid" );
 
 private:
     void       setDefaults();
@@ -122,12 +122,16 @@ private:
     void resetCurveHighlighting();
     void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
 
+    RiuWidgetStyleSheet createPlotStyleSheet() const;
+    RiuWidgetStyleSheet createCanvasStyleSheet() const;
+
 private:
     caf::PdmPointer<caf::PdmObject>  m_plotOwner;
     QPoint                           m_clickPosition;
     std::map<QwtPlot::Axis, QString> m_axisTitles;
     std::map<QwtPlot::Axis, bool>    m_axisTitlesEnabled;
     QPointer<QwtPlotPicker>          m_plotPicker;
+    bool                             m_draggable;
 
     struct CurveColors
     {
@@ -138,6 +142,9 @@ private:
 
     std::map<QwtPlotCurve*, CurveColors> m_originalCurveColors;
     std::map<QwtPlotCurve*, double>      m_originalZValues;
+
+    RiuWidgetStyleSheet m_plotStyleSheet;
+    RiuWidgetStyleSheet m_canvasStyleSheet;
 
     friend class RiaPlotWindowRedrawScheduler;
 };

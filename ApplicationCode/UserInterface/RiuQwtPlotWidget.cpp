@@ -28,9 +28,8 @@
 
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtCurvePointTracker.h"
-#include "RiuQwtPlotTools.h"
-
 #include "RiuQwtLinearScaleEngine.h"
+#include "RiuQwtPlotTools.h"
 #include "RiuQwtScalePicker.h"
 
 #include "cafAssert.h"
@@ -62,6 +61,7 @@
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlotInterface* plotTrackDefinition, QWidget* parent )
     : QwtPlot( parent )
+    , m_draggable( false )
 {
     m_plotOwner = dynamic_cast<caf::PdmObject*>( plotTrackDefinition );
     CAF_ASSERT( m_plotOwner );
@@ -88,6 +88,14 @@ bool RiuQwtPlotWidget::isChecked() const
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setDraggable( bool draggable )
+{
+    m_draggable = draggable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -418,46 +426,6 @@ QPoint RiuQwtPlotWidget::dragStartPosition() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setDefaultStyleSheet( bool includeHoverFrame )
-{
-    setStyleSheetForThisObject( "background-color: white; border: 1px solid transparent;" );
-    if ( includeHoverFrame )
-    {
-        QString styleSheet = createHoverStyleSheet( "dotted" );
-        appendStyleSheetForThisObject( styleSheet, "hover" );
-    }
-    this->canvas()->setStyleSheet( QString( "QwtPlotCanvas#%1 { background-color: white; border: 1px solid black; }" )
-                                       .arg( this->canvas()->objectName() ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setStyleSheetForThisObject( const QString& content, const QString& state /*= "" */ )
-{
-    QString stateTag   = !state.isEmpty() ? QString( ":%1" ).arg( state ) : "";
-    QString stylesheet = QString( "QwtPlot#%1%2 { %3 }\n" ).arg( this->objectName() ).arg( stateTag ).arg( content );
-    setStyleSheet( stylesheet );
-    this->canvas()->setStyleSheet( QString( "QwtPlotCanvas#%1 { background-color: white; border: 1px solid black; }" )
-                                       .arg( this->canvas()->objectName() ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::appendStyleSheetForThisObject( const QString& content, const QString& state /*= ""*/ )
-{
-    QString stateTag   = !state.isEmpty() ? QString( ":%1" ).arg( state ) : "";
-    QString stylesheet = QString( "QwtPlot#%1%2 { %3 }\n" ).arg( this->objectName() ).arg( stateTag ).arg( content );
-    QString completeStyleSheet = this->styleSheet() + stylesheet;
-    setStyleSheet( completeStyleSheet );
-    this->canvas()->setStyleSheet( QString( "QwtPlotCanvas#%1 { background-color: white; border: 1px solid black; }" )
-                                       .arg( this->canvas()->objectName() ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 int RiuQwtPlotWidget::widthScaleFactor() const
 {
     if ( plotOwner() )
@@ -478,19 +446,23 @@ void RiuQwtPlotWidget::scheduleReplot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setSelected( bool selected )
+void RiuQwtPlotWidget::setWidgetState( RiuWidgetStyleSheet::StateTag widgetState )
 {
-    if ( selected )
+    // Set all existing dynamic properties to false
+    for ( QByteArray existingProperty : dynamicPropertyNames() )
     {
-        QColor  defaultHighlightColor = this->palette().highlight().color();
-        QString styleSheet            = createHoverStyleSheet( "solid" );
-        setStyleSheetForThisObject( styleSheet, "hover" );
-        appendStyleSheetForThisObject( QString( "border: 1px solid %1;" ).arg( defaultHighlightColor.name() ) );
+        setProperty( existingProperty, false );
     }
-    else
+
+    // Set current property state to true
+    QString propertyName = RiuWidgetStyleSheet::propertyName( widgetState );
+    if ( !propertyName.isEmpty() )
     {
-        setDefaultStyleSheet();
+        setProperty( propertyName.toLatin1(), true );
     }
+
+    // Trigger style update
+    m_plotStyleSheet.refreshWidget( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -523,15 +495,15 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 
         bool toggleItemInSelection = ( mouseEvent->modifiers() & Qt::ControlModifier ) != 0;
 
-        if ( mouseEvent->type() == QMouseEvent::MouseButtonPress && mouseEvent->button() == Qt::LeftButton )
+        if ( m_draggable && mouseEvent->type() == QMouseEvent::MouseButtonPress && mouseEvent->button() == Qt::LeftButton )
         {
             m_clickPosition = mouseEvent->pos();
         }
 
         if ( watched == this && !this->canvas()->geometry().contains( mouseEvent->pos() ) )
         {
-            if ( mouseEvent->type() == QMouseEvent::MouseMove && ( mouseEvent->buttons() & Qt::LeftButton ) &&
-                 !m_clickPosition.isNull() )
+            if ( m_draggable && mouseEvent->type() == QMouseEvent::MouseMove &&
+                 ( mouseEvent->buttons() & Qt::LeftButton ) && !m_clickPosition.isNull() )
             {
                 int dragLength = ( mouseEvent->pos() - m_clickPosition ).manhattanLength();
                 if ( dragLength >= QApplication::startDragDistance() )
@@ -594,6 +566,20 @@ void RiuQwtPlotWidget::hideEvent( QHideEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::showEvent( QShowEvent* event )
+{
+    m_plotStyleSheet = createPlotStyleSheet();
+    m_plotStyleSheet.applyToWidget( this );
+
+    m_canvasStyleSheet = createCanvasStyleSheet();
+    m_canvasStyleSheet.applyToWidget( canvas() );
+
+    QwtPlot::showEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::applyAxisTitleToQwt( QwtPlot::Axis axis )
 {
     QString titleToApply = m_axisTitlesEnabled[axis] ? m_axisTitles[axis] : QString( "" );
@@ -623,26 +609,6 @@ void RiuQwtPlotWidget::clearPointSelection() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuQwtPlotWidget::createHoverStyleSheet( const QString& borderType )
-{
-    QColor highlightColor        = this->palette().highlight().color();
-    QColor backgroundColor       = this->palette().background().color();
-    QColor blendedHighlightColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 2, 1 );
-    QColor nearlyBackgroundColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 20 );
-
-    QString styleSheet = QString( "border: 1px %1 %2; background: qlineargradient(x1: 1, y1: 0, x2: 1, y2: 1, "
-                                  "stop: 0 %3, stop: 0.04 %4, stop:1 %5 );" )
-                             .arg( borderType )
-                             .arg( highlightColor.name() )
-                             .arg( blendedHighlightColor.name() )
-                             .arg( nearlyBackgroundColor.name() )
-                             .arg( backgroundColor.name() );
-    return styleSheet;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection )
 {
     int axisId = -1;
@@ -659,11 +625,52 @@ void RiuQwtPlotWidget::onAxisSelected( QwtScaleWidget* scale, bool toggleItemInS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuWidgetStyleSheet RiuQwtPlotWidget::createPlotStyleSheet() const
+{
+    QColor backgroundColor       = QColor( "white" );
+    QColor highlightColor        = this->palette().highlight().color();
+    QColor blendedHighlightColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 5 );
+    QColor nearlyBackgroundColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 30 );
+
+    RiuWidgetStyleSheet styleSheet;
+    styleSheet.set( "background-color", backgroundColor.name() );
+    styleSheet.set( "border", "1 px solid transparent" );
+
+    styleSheet.state( RiuWidgetStyleSheet::SELECTED ).set( "border", QString( "1px solid %1" ).arg( highlightColor.name() ) );
+
+    if ( m_draggable )
+    {
+        QString backgroundGradient = QString( QString( "qlineargradient( x1 : 1, y1 : 0, x2 : 1, y2 : 1,"
+                                                       "stop: 0 %1, stop: 0.02 %2, stop:1 %3 )" )
+                                                  .arg( blendedHighlightColor.name() )
+                                                  .arg( nearlyBackgroundColor.name() )
+                                                  .arg( backgroundColor.name() ) );
+
+        styleSheet.state( RiuWidgetStyleSheet::HOVER ).set( "background", backgroundGradient );
+    }
+    styleSheet.state( RiuWidgetStyleSheet::DRAG_TARGET_BEFORE ).set( "border-left", "1px solid red" );
+    styleSheet.state( RiuWidgetStyleSheet::DRAG_TARGET_AFTER ).set( "border-right", "1px solid red" );
+    return styleSheet;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuWidgetStyleSheet RiuQwtPlotWidget::createCanvasStyleSheet() const
+{
+    RiuWidgetStyleSheet styleSheet;
+    styleSheet.set( "background-color", "#FAFAFA" );
+    styleSheet.set( "border", "1px solid black" );
+    return styleSheet;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setDefaults()
 {
     setEnabledAxes( { QwtPlot::xTop, QwtPlot::yLeft } );
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
-    setDefaultStyleSheet();
 }
 
 void RiuQwtPlotWidget::selectPlotOwner( bool toggleItemInSelection )
