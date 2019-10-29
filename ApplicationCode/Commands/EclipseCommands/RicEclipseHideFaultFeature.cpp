@@ -63,7 +63,7 @@ void RicEclipseHideFaultFeature::onActionTriggered( bool isChecked )
 
     if ( !userData.isNull() && userData.type() == QVariant::List )
     {
-        Rim3dView* view = RiaApplication::instance()->activeReservoirView();
+        Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
         if ( !view ) return;
         RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( view );
         if ( !eclView ) return;

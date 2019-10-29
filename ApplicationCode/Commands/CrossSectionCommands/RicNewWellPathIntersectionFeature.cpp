@@ -53,7 +53,7 @@ bool RicNewWellPathIntersectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathIntersectionFeature::onActionTriggered( bool isChecked )
 {
-    RimGridView* activeView = RiaApplication::instance()->activeGridView();
+    RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !activeView ) return;
 
     std::vector<RimWellPath*> collection;
@@ -113,7 +113,7 @@ void RicNewWellPathIntersectionFeatureCmd::redo()
     intersection->type            = RimIntersection::CS_WELL_PATH;
     intersection->wellPath        = m_wellPath;
 
-    m_intersectionCollection->appendIntersectionAndUpdate( intersection );
+    m_intersectionCollection->appendIntersectionAndUpdate( intersection, false );
 }
 
 //--------------------------------------------------------------------------------------------------

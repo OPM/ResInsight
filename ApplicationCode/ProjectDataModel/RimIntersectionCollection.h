@@ -52,7 +52,7 @@ public:
 
     caf::PdmField<bool> isActive;
 
-    void appendIntersectionAndUpdate( RimIntersection* intersection );
+    void appendIntersectionAndUpdate( RimIntersection* intersection, bool allowActiveViewChange = true );
     void appendIntersectionNoUpdate( RimIntersection* intersection );
 
     void appendIntersectionBoxAndUpdate( RimIntersectionBox* intersectionBox );

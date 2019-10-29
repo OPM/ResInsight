@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 
 #include "Rim3dView.h"
+#include "RimGridView.h"
 
 #include "MeasurementCommands/RicMeasurementPickEventHandler.h"
 
@@ -89,7 +90,7 @@ RimMeasurement::MeasurementMode RimMeasurement::measurementMode() const
 //--------------------------------------------------------------------------------------------------
 void RimMeasurement::addPointInDomainCoords( const Vec3d& domainCoord )
 {
-    auto activeView = RiaApplication::instance()->activeReservoirView();
+    auto activeView = dynamic_cast<Rim3dView*>( RiaApplication::instance()->activeMainOrComparisonGridView() );
 
     if ( m_sourceView.p() != activeView )
     {
@@ -194,8 +195,6 @@ RimMeasurement::Lengths RimMeasurement::calculateLenghts() const
 //--------------------------------------------------------------------------------------------------
 void RimMeasurement::updateView() const
 {
-    if ( m_sourceView )
-    {
-        m_sourceView->updateMeasurement();
-    }
+    Rim3dView* rimView = RiaApplication::instance()->activeReservoirView();
+    rimView->createMeasurementDisplayModelAndRedraw();
 }

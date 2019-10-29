@@ -23,6 +23,7 @@
 #include "RiuViewerCommands.h"
 
 #include "Rim3dView.h"
+#include "RimGridView.h"
 #include "RimIntersection.h"
 #include "RimMeasurement.h"
 #include "RimProject.h"
@@ -84,7 +85,7 @@ void RicMeasurementPickEventHandler::enablePolyLineMode( bool polyLineModeEnable
 //--------------------------------------------------------------------------------------------------
 bool RicMeasurementPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eventObject )
 {
-    auto measurement = RiaApplication::instance()->project()->measurement();
+    RimMeasurement* measurement = RiaApplication::instance()->project()->measurement();
 
     if ( measurement && measurement->measurementMode() )
     {
@@ -98,8 +99,7 @@ bool RicMeasurementPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& ev
             }
         }
 
-        Rim3dView* rimView = RiaApplication::instance()->activeReservoirView();
-
+        Rim3dView* rimView = dynamic_cast<Rim3dView*>( RiaApplication::instance()->activeMainOrComparisonGridView() );
         if ( firstGeometryPickInfo && rimView )
         {
             cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();

@@ -23,6 +23,7 @@
 #include "Rim3dView.h"
 #include "RimMeasurement.h"
 #include "RimProject.h"
+#include "RimGridView.h"
 
 #include "cafCmdFeatureManager.h"
 #include "cafPdmUiPropertyViewDialog.h"
@@ -123,7 +124,7 @@ Rim3dView* RicToggleMeasurementModeFeature::activeView() const
 {
     RiaApplication* app = RiaApplication::instance();
     CAF_ASSERT( app );
-    auto view = app->activeReservoirView();
+    auto view = dynamic_cast<Rim3dView*>(app->activeMainOrComparisonGridView());
     return view;
 }
 

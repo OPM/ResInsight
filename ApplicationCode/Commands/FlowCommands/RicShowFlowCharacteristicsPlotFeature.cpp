@@ -40,7 +40,7 @@ CAF_CMD_SOURCE_INIT( RicShowFlowCharacteristicsPlotFeature, "RicShowFlowCharacte
 
 RimEclipseResultCase* activeEclipseResultCase()
 {
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
 
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( activeView );
 
@@ -78,7 +78,7 @@ void RicShowFlowCharacteristicsPlotFeature::onActionTriggered( bool isChecked )
     {
         // Make sure flow results for the the active timestep is calculated, to avoid an empty plot
         {
-            Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+            Rim3dView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
             if ( activeView && eclCase->defaultFlowDiagSolution()->flowDiagResults() )
             {
                 // Trigger calculation

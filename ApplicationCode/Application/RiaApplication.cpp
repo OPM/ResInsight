@@ -269,7 +269,7 @@ RimGridView* RiaApplication::activeMainOrComparisonGridView()
     RimGridView* activeView           = RiaApplication::instance()->activeGridView();
     RimGridView* viewOrComparisonView = activeView;
 
-    if ( activeView->viewer()->viewerCommands()->isCurrentPickInComparisonView() )
+    if ( activeView != nullptr && activeView->viewer()->viewerCommands()->isCurrentPickInComparisonView() )
     {
         if ( RimGridView* compView = dynamic_cast<RimGridView*>( activeView->activeComparisonView() ) )
         {

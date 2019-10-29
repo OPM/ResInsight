@@ -324,6 +324,7 @@ void RiuSelectionChangedHandler::scheduleUpdateForAllVisibleViews() const
         for ( size_t i = 0; i < visibleViews.size(); i++ )
         {
             visibleViews[i]->createHighlightAndGridBoxDisplayModelWithRedraw();
+            visibleViews[i]->createMeasurementDisplayModelAndRedraw();
         }
     }
 }

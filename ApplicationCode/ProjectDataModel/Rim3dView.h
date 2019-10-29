@@ -161,7 +161,7 @@ public:
     void updateAnnotationItems();
     void updateScaling();
     void updateZScaleLabel();
-    void updateMeasurement();
+    void createMeasurementDisplayModelAndRedraw();
 
     bool       isMasterView() const;
     Rim3dView* activeComparisonView() const;
