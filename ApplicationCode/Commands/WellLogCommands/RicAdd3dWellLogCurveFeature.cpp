@@ -24,6 +24,7 @@
 
 #include "Rim3dWellLogExtractionCurve.h"
 #include "RimCase.h"
+#include "RimGridView.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
 
@@ -57,7 +58,7 @@ void RicAdd3dWellLogCurveFeature::onActionTriggered( bool isChecked )
 
     Rim3dWellLogExtractionCurve* rim3dWellLogExtractionCurve = new Rim3dWellLogExtractionCurve();
 
-    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( view )
     {
         rim3dWellLogExtractionCurve->setPropertiesFromView( view );
