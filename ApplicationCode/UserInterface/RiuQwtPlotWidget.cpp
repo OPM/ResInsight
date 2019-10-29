@@ -494,10 +494,9 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
                 int dragLength = ( mouseEvent->pos() - m_clickPosition ).manhattanLength();
                 if ( dragLength >= QApplication::startDragDistance() )
                 {
-                    QPoint     dragPositionOffset = this->geometry().topLeft() - mouseEvent->pos();
-                    QPixmap    pixmap             = this->grab();
-                    QDrag*     drag               = new QDrag( this );
-                    QMimeData* mimeData           = new QMimeData;
+                    QPixmap    pixmap   = this->grab();
+                    QDrag*     drag     = new QDrag( this );
+                    QMimeData* mimeData = new QMimeData;
                     mimeData->setImageData( pixmap );
                     drag->setMimeData( mimeData );
                     drag->setPixmap( pixmap );
@@ -634,8 +633,8 @@ RiuWidgetStyleSheet RiuQwtPlotWidget::createPlotStyleSheet() const
 
         styleSheet.state( RiuWidgetStyleSheet::HOVER ).set( "background", backgroundGradient );
     }
-    styleSheet.state( RiuWidgetStyleSheet::DRAG_TARGET_BEFORE ).set( "border-left", "1px solid red" );
-    styleSheet.state( RiuWidgetStyleSheet::DRAG_TARGET_AFTER ).set( "border-right", "1px solid red" );
+    styleSheet.state( RiuWidgetStyleSheet::DRAG_TARGET_BEFORE ).set( "border-left", "1px solid lime" );
+    styleSheet.state( RiuWidgetStyleSheet::DRAG_TARGET_AFTER ).set( "border-right", "1px solid lime" );
     return styleSheet;
 }
 

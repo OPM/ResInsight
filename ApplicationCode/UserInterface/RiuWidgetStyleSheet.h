@@ -82,5 +82,5 @@ private:
     static QString buildStateString( StateTag stateTag );
 
 private:
-    std::map<int, State> m_states;
+    std::map<StateTag, State> m_states;
 };

@@ -193,9 +193,9 @@ QString RiuWidgetStyleSheet::fullText( const QString& className, const QString& 
 QString RiuWidgetStyleSheet::buildStateString( StateTag state )
 {
     QString stateString;
-    if ( state == HOVER )
+    if ( state > PSEUDO_STATE_LIMIT )
     {
-        stateString += ":hover";
+        stateString += ":" + StateTagEnum::uiText( state );
     }
     else
     {
