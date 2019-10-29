@@ -20,11 +20,11 @@
 
 #include "RiaFilePathTools.h"
 #include "RiaGuiApplication.h"
+#include "RiaStringListSerializer.h"
 
 #include <QAction>
 #include <QFileInfo>
 #include <QMessageBox>
-#include <QSettings>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -46,14 +46,8 @@ RiuRecentFileActionProvider::~RiuRecentFileActionProvider() {}
 //--------------------------------------------------------------------------------------------------
 void RiuRecentFileActionProvider::addFileName( const QString& fileName )
 {
-    QSettings   settings;
-    QStringList files = settings.value( "recentFileList" ).toStringList();
-    files.removeAll( fileName );
-    files.prepend( fileName );
-    while ( files.size() > m_maxActionCount )
-        files.removeLast();
-
-    settings.setValue( "recentFileList", files );
+    RiaStringListSerializer stringListSerializer( registryKey() );
+    stringListSerializer.addString( fileName, m_maxActionCount );
 
     updateActions();
 }
@@ -63,11 +57,8 @@ void RiuRecentFileActionProvider::addFileName( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 void RiuRecentFileActionProvider::removeFileName( const QString& fileName )
 {
-    QSettings   settings;
-    QStringList files = settings.value( "recentFileList" ).toStringList();
-    files.removeAll( fileName );
-
-    settings.setValue( "recentFileList", files );
+    RiaStringListSerializer stringListSerializer( registryKey() );
+    stringListSerializer.removeString( fileName );
 
     updateActions();
 }
@@ -75,10 +66,19 @@ void RiuRecentFileActionProvider::removeFileName( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiuRecentFileActionProvider::registryKey()
+{
+    return "recentFileList";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuRecentFileActionProvider::updateActions()
 {
-    QSettings   settings;
-    QStringList files = settings.value( "recentFileList" ).toStringList();
+    RiaStringListSerializer stringListSerializer( registryKey() );
+
+    QStringList files = stringListSerializer.textStrings();
 
     int numRecentFiles = qMin( files.size(), m_maxActionCount );
 
