@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaStringListSerializer.h"
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RifSummaryReaderInterface.h"
@@ -384,14 +385,10 @@ void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFie
         m_curveFilterText = curveFilterTextWithoutOutdatedLabel();
 
         {
-            if ( m_historyItems.indexOf( m_curveFilterText ) == -1 )
-            {
-                m_historyItems.push_front( m_curveFilterText );
-                while ( m_historyItems.size() > 10 )
-                {
-                    m_historyItems.pop_back();
-                }
-            }
+            RiaStringListSerializer stringListSerializer( curveFilterRecentlyUsedRegistryKey() );
+
+            int maxItemCount = 10;
+            stringListSerializer.addString( m_curveFilterText, maxItemCount );
         }
 
         m_curveFilterText.uiCapability()->updateConnectedEditors();
@@ -485,7 +482,9 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_curveFilterText )
     {
-        for ( const auto& s : m_historyItems )
+        RiaStringListSerializer stringListSerializer( curveFilterRecentlyUsedRegistryKey() );
+
+        for ( const auto& s : stringListSerializer.textStrings() )
         {
             options.push_back( caf::PdmOptionItemInfo( s, s ) );
         }
@@ -606,4 +605,12 @@ QString RimSummaryPlotFilterTextCurveSetEditor::curveFilterTextWithoutOutdatedLa
     }
 
     return filterText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryPlotFilterTextCurveSetEditor::curveFilterRecentlyUsedRegistryKey()
+{
+    return "curveFilterRecentlyUsedStrings";
 }

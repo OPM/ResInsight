@@ -57,11 +57,13 @@ private:
     std::vector<SummarySource*> selectedSummarySources() const;
     QString                     curveFilterTextWithoutOutdatedLabel() const;
 
+    static QString curveFilterRecentlyUsedRegistryKey();
+
+private:
     caf::PdmPtrArrayField<SummarySource*> m_selectedSources;
 
     caf::PdmField<QString> m_curveFilterLabelText;
     caf::PdmField<QString> m_curveFilterText;
-    QStringList            m_historyItems;
 
     bool m_isFieldRecentlyChangedFromGui;
 };
