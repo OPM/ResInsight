@@ -448,21 +448,7 @@ void RiuQwtPlotWidget::scheduleReplot()
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setWidgetState( RiuWidgetStyleSheet::StateTag widgetState )
 {
-    // Set all existing dynamic properties to false
-    for ( QByteArray existingProperty : dynamicPropertyNames() )
-    {
-        setProperty( existingProperty, false );
-    }
-
-    // Set current property state to true
-    QString propertyName = RiuWidgetStyleSheet::propertyName( widgetState );
-    if ( !propertyName.isEmpty() )
-    {
-        setProperty( propertyName.toLatin1(), true );
-    }
-
-    // Trigger style update
-    m_plotStyleSheet.refreshWidget( this );
+    m_plotStyleSheet.setWidgetState( this, widgetState );
 }
 
 //--------------------------------------------------------------------------------------------------

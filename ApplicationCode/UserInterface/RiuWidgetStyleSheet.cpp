@@ -19,6 +19,7 @@
 
 #include "cafAssert.h"
 
+#include <QDebug>
 #include <QStringList>
 #include <QStyle>
 #include <QWidget>
@@ -30,8 +31,9 @@ void RiuWidgetStyleSheet::StateTagEnum::setUp()
 {
     addItem( RiuWidgetStyleSheet::DEFAULT, "", "" );
     addItem( RiuWidgetStyleSheet::SELECTED, "selected", "selected" );
-    addItem( RiuWidgetStyleSheet::DRAG_TARGET_BEFORE, "dragTargetBefore", "drop Before" );
-    addItem( RiuWidgetStyleSheet::DRAG_TARGET_AFTER, "dragTargetAfter", "drop After" );
+    addItem( RiuWidgetStyleSheet::DRAG_TARGET_BEFORE, "dragTargetBefore", "drop before" );
+    addItem( RiuWidgetStyleSheet::DRAG_TARGET_AFTER, "dragTargetAfter", "drop after" );
+    addItem( RiuWidgetStyleSheet::DRAG_TARGET_INTO, "dragTargetInto", "drop into" );
     addItem( RiuWidgetStyleSheet::HOVER, "hover", "hover" );
     setDefault( RiuWidgetStyleSheet::DEFAULT );
 }
@@ -136,6 +138,7 @@ QString RiuWidgetStyleSheet::propertyName( StateTag state )
 void RiuWidgetStyleSheet::applyToWidget( QWidget* widget ) const
 {
     QString completeStyleSheet = fullText( QString( widget->metaObject()->className() ), widget->objectName() );
+    // qDebug().noquote() << completeStyleSheet;
     widget->setStyleSheet( completeStyleSheet );
     refreshWidget( widget );
 }
@@ -147,6 +150,28 @@ void RiuWidgetStyleSheet::refreshWidget( QWidget* widget ) const
 {
     widget->style()->unpolish( widget );
     widget->style()->polish( widget );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWidgetStyleSheet::setWidgetState( QWidget* widget, StateTag widgetState ) const
+{
+    // Set all existing dynamic properties to false
+    for ( QByteArray existingProperty : widget->dynamicPropertyNames() )
+    {
+        widget->setProperty( existingProperty, false );
+    }
+
+    // Set current property state to true
+    QString propertyName = RiuWidgetStyleSheet::propertyName( widgetState );
+    if ( !propertyName.isEmpty() )
+    {
+        widget->setProperty( propertyName.toLatin1(), true );
+    }
+
+    // Trigger style update
+    this->refreshWidget( widget );
 }
 
 //--------------------------------------------------------------------------------------------------

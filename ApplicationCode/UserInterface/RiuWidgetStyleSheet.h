@@ -41,6 +41,7 @@ public:
         SELECTED           = 0x0001,
         DRAG_TARGET_BEFORE = 0x0002,
         DRAG_TARGET_AFTER  = 0x0004,
+        DRAG_TARGET_INTO   = 0x0008,
         // Pseudo States:
         PSEUDO_STATE_LIMIT = 0x1000,
         HOVER              = 0x1000
@@ -72,6 +73,7 @@ public:
 
     void applyToWidget( QWidget* widget ) const;
     void refreshWidget( QWidget* widget ) const;
+    void setWidgetState( QWidget* widget, StateTag widgetState ) const;
 
 private:
     friend class RiuWidgetStyleSheetManager;
