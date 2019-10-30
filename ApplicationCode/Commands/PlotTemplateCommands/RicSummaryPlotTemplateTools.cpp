@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferences.h"
 #include "RiaSummaryCurveAnalyzer.h"
 
 #include "RicSelectPlotTemplateUi.h"
@@ -330,10 +331,14 @@ QString RicSummaryPlotTemplateTools::selectPlotTemplatePath()
     RicSelectPlotTemplateUi* ui = RiaGuiApplication::instance()->project()->dialogData()->selectPlotTemplateUi();
 
     caf::PdmUiPropertyViewDialog propertyDialog( plotwindow, ui, "Select Plot Template", "" );
+    propertyDialog.resize( QSize( 400, 600 ) );
 
     if ( propertyDialog.exec() == QDialog::Accepted && !ui->selectedPlotTemplates().empty() )
     {
         QString fileName = ui->selectedPlotTemplates().front()->absoluteFilePath();
+
+        RiaApplication::instance()->preferences()->setDefaultPlotTemplatePath( fileName );
+        RiaApplication::instance()->preferences()->writePreferencesToApplicationStore();
 
         return fileName;
     }

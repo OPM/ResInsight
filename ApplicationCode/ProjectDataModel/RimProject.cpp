@@ -1304,8 +1304,6 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                 itemCollection->add( mainPlotCollection->saturationPressurePlotCollection() );
             }
         }
-
-        uiTreeOrdering.add( m_plotTemplateFolderItem() );
     }
     else
     {

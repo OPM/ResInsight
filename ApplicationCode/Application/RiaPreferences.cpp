@@ -353,14 +353,6 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
                 myAttr->m_selectDirectory              = true;
                 myAttr->m_appendUiSelectedFolderToText = true;
             }
-            else if ( field == &m_defaultPlotTemplate )
-            {
-                auto folders = plotTemplateFolders();
-                if ( !folders.empty() )
-                {
-                    myAttr->m_defaultPath = folders.back();
-                }
-            }
         }
     }
 
@@ -463,7 +455,6 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Plot Templates" );
         group->add( &m_plotTemplateFolders );
         group->add( &m_searchPlotTemplateFoldersRecursively );
-        group->add( &m_defaultPlotTemplate );
     }
     else if ( uiConfigName == RiaPreferences::tabNameScripting() )
     {
