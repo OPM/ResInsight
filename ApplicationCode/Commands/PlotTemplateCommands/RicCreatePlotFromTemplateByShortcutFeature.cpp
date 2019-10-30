@@ -58,8 +58,8 @@ void RicCreatePlotFromTemplateByShortcutFeature::onActionTriggered( bool isCheck
         auto mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
 
         auto reply = QMessageBox::question( mainPlotWindow,
-                                            QString( "No default plot template found." ),
-                                            QString( "Do you want to define default plot template? " ),
+                                            QString( "No last used plot template found." ),
+                                            QString( "Do you want to select plot template? " ),
                                             QMessageBox::Yes | QMessageBox::No );
 
         if ( reply == QMessageBox::No ) return;
@@ -68,8 +68,6 @@ void RicCreatePlotFromTemplateByShortcutFeature::onActionTriggered( bool isCheck
         if ( fileNameSelectedInUi.isEmpty() ) return;
 
         fileName = fileNameSelectedInUi;
-        RiaApplication::instance()->preferences()->setDefaultPlotTemplatePath( fileName );
-        RiaApplication::instance()->preferences()->writePreferencesToApplicationStore();
     }
 
     auto sumCases           = RicSummaryPlotTemplateTools::selectedSummaryCases();
