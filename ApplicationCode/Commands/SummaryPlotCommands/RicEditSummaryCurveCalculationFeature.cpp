@@ -18,20 +18,21 @@
 
 #include "RicEditSummaryCurveCalculationFeature.h"
 
+#include "RiaApplication.h"
+
 #include "RicShowSummaryCurveCalculatorFeature.h"
 #include "RicSummaryCurveCalculator.h"
 #include "RicSummaryCurveCalculatorDialog.h"
 
+#include "RifEclipseSummaryAddress.h"
+
 #include "RimCalculatedSummaryCurveReader.h"
+#include "RimProject.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
-
-#include "../../Application/RiaApplication.h"
-#include "../../FileInterface/RifEclipseSummaryAddress.h"
-#include "../../ProjectDataModel/RimProject.h"
 
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"

@@ -18,7 +18,7 @@
 
 #include "RicTextAnnotation3dEditor.h"
 
-#include "../WellPathCommands/PointTangentManipulator/RicPointTangentManipulator.h"
+#include "WellPathCommands/PointTangentManipulator/RicPointTangentManipulator.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"

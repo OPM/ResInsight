@@ -28,7 +28,7 @@
 #include "RiaStdStringTools.h"
 #include "RiaTextStringTools.h"
 
-#include "../Commands/SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
 #include "cvfAssert.h"
 
@@ -63,7 +63,7 @@ enum class CsvLineBasedColumnType
     ERROR_VALUE,
     COMMENTS
 };
-const std::vector<QString> CSV_LINE_BASED_COL_NAMES = {"DATE", "VECTOR", "VALUE", "ERROR", "COMMENTS"};
+const std::vector<QString> CSV_LINE_BASED_COL_NAMES = { "DATE", "VECTOR", "VALUE", "ERROR", "COMMENTS" };
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
-#include "../Commands/ExportCommands/RicEclipseCellResultToFileImpl.h"
+#include "ExportCommands/RicEclipseCellResultToFileImpl.h"
 #include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
 

@@ -18,7 +18,7 @@
 
 #include "RicfExportProperty.h"
 
-#include "../Commands/ExportCommands/RicEclipseCellResultToFileImpl.h"
+#include "ExportCommands/RicEclipseCellResultToFileImpl.h"
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"

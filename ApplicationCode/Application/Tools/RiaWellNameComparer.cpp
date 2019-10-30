@@ -17,9 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaWellNameComparer.h"
-#include "../../ProjectDataModel/RimProject.h"
-#include "../../ProjectDataModel/RimWellPath.h"
-#include "../RiaApplication.h"
+
+#include "RiaApplication.h"
+
+#include "RimProject.h"
+#include "RimWellPath.h"
+
 #include <regex>
 
 //==================================================================================================

@@ -17,12 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicShowWellPlanFeature.h"
-#include "../ApplicationCommands/RicShowPlotDataFeature.h"
+
+#include "ApplicationCommands/RicShowPlotDataFeature.h"
+
 #include "RimModeledWellPath.h"
+
+#include "RiuTextDialog.h"
 
 #include "cafSelectionManagerTools.h"
 
-#include "RiuTextDialog.h"
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicShowWellPlanFeature, "RicShowWellPlanFeature" );
