@@ -93,7 +93,7 @@ RiuWidgetStyleSheet::RiuWidgetStyleSheet()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Set keys and values directly to the default state
 //--------------------------------------------------------------------------------------------------
 void RiuWidgetStyleSheet::set( const QString& key, const QString& value )
 {
@@ -101,7 +101,7 @@ void RiuWidgetStyleSheet::set( const QString& key, const QString& value )
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Get values directly from the default state
 //--------------------------------------------------------------------------------------------------
 QString RiuWidgetStyleSheet::get( const QString& key ) const
 {
@@ -110,7 +110,7 @@ QString RiuWidgetStyleSheet::get( const QString& key ) const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Access a particular state in the stylesheet
 //--------------------------------------------------------------------------------------------------
 RiuWidgetStyleSheet::State& RiuWidgetStyleSheet::state( StateTag stateTag )
 {
@@ -121,19 +121,7 @@ RiuWidgetStyleSheet::State& RiuWidgetStyleSheet::state( StateTag stateTag )
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiuWidgetStyleSheet::propertyName( StateTag state )
-{
-    if ( state < PSEUDO_STATE_LIMIT )
-    {
-        return StateTagEnum::text( state );
-    }
-    return "";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
+/// Apply the current stylesheet to the provided widget instance
 //--------------------------------------------------------------------------------------------------
 void RiuWidgetStyleSheet::applyToWidget( QWidget* widget ) const
 {
@@ -144,16 +132,7 @@ void RiuWidgetStyleSheet::applyToWidget( QWidget* widget ) const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuWidgetStyleSheet::refreshWidget( QWidget* widget ) const
-{
-    widget->style()->unpolish( widget );
-    widget->style()->polish( widget );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
+/// Put the provided widget into the provided state
 //--------------------------------------------------------------------------------------------------
 void RiuWidgetStyleSheet::setWidgetState( QWidget* widget, StateTag widgetState ) const
 {
@@ -190,6 +169,15 @@ QString RiuWidgetStyleSheet::fullText( const QString& className, const QString& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuWidgetStyleSheet::refreshWidget( QWidget* widget ) const
+{
+    widget->style()->unpolish( widget );
+    widget->style()->polish( widget );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiuWidgetStyleSheet::buildStateString( StateTag state )
 {
     QString stateString;
@@ -202,4 +190,16 @@ QString RiuWidgetStyleSheet::buildStateString( StateTag state )
         stateString += QString( "[%1=true]" ).arg( propertyName( state ) );
     }
     return stateString;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuWidgetStyleSheet::propertyName( StateTag state )
+{
+    if ( state < PSEUDO_STATE_LIMIT )
+    {
+        return StateTagEnum::text( state );
+    }
+    return "";
 }
