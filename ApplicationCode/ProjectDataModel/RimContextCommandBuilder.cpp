@@ -853,7 +853,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicCreatePlotFromSelectionFeature";
             menuBuilder << "RicCreatePlotFromTemplateByShortcutFeature";
-            appendPlotTemplateMenus( menuBuilder );
+
+            // TODO: Consider to remove plot template menus, only support dialog selection
+            // appendPlotTemplateMenus( menuBuilder );
         }
 
         menuBuilder << "Separator";
