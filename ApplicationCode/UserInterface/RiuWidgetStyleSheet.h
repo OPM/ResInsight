@@ -72,13 +72,13 @@ public:
     static QString propertyName( StateTag stateTag );
 
     void applyToWidget( QWidget* widget ) const;
-    void refreshWidget( QWidget* widget ) const;
     void setWidgetState( QWidget* widget, StateTag widgetState ) const;
 
 private:
     friend class RiuWidgetStyleSheetManager;
     QString fullText( const QString& className, const QString& objectName ) const;
 
+    void           refreshWidget( QWidget* widget ) const;
     static QString buildStateString( StateTag stateTag );
 
 private:
