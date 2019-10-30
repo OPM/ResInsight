@@ -201,10 +201,17 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
     {
         uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &attributes);
         
-        QPalette myPalette(m_listView->palette());
-        myPalette.setColor(QPalette::Base, attributes.m_baseColor);
+        QPalette myPalette;
 
-        m_listView->setPalette(myPalette);
+        if (attributes.m_baseColor == myPalette.color(QPalette::Active, QPalette::Base))
+        {
+            m_listView->setStyleSheet("");
+        }
+        else
+        {
+            m_listView->setStyleSheet("background-color: " + attributes.m_baseColor.name() + ";");
+        }
+
         m_listView->setHeightHint(attributes.m_heightHint);
         if (!attributes.m_allowHorizontalScrollBar)
         {
