@@ -156,9 +156,6 @@ public:
     bool isNormalizationEnabled();
     void showLegend( bool enable );
 
-    void                     setPlotTemplate( RimPlotTemplateFileItem* plotTemplate );
-    RimPlotTemplateFileItem* plotTemplate() const;
-
     void                                      handleKeyPressEvent( QKeyEvent* keyEvent );
     virtual RimSummaryPlotSourceStepping*     sourceSteppingObjectForKeyEventHandling() const;
     virtual std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
@@ -244,8 +241,6 @@ private:
 
     caf::PdmChildField<RimPlotAxisProperties*>        m_bottomAxisProperties;
     caf::PdmChildField<RimSummaryTimeAxisProperties*> m_timeAxisProperties;
-
-    caf::PdmPtrField<RimPlotTemplateFileItem*> m_plotTemplate;
 
     caf::PdmChildField<RimSummaryPlotFilterTextCurveSetEditor*> m_textCurveSetEditor;
 
