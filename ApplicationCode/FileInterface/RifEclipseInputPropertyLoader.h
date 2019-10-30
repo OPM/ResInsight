@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include "RimEclipseInputProperty.h"
+
+#include <set>
 #include <vector>
 
 #include <QString>
@@ -45,4 +48,10 @@ private:
     // Hide constructor to prevent instantiation
     RifEclipseInputPropertyLoader();
     ~RifEclipseInputPropertyLoader();
+
+    static std::set<QString> extractKeywordsOnFile( const QString& filename, bool isExistingFile );
+
+    static void setResolvedState( RimEclipseInputPropertyCollection*    inputPropertyCollection,
+                                  RimEclipseInputProperty::ResolveState currentState,
+                                  RimEclipseInputProperty::ResolveState newState );
 };

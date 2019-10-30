@@ -62,15 +62,7 @@ void RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties(
         QFileInfo fileNameInfo( filenames[i] );
         bool      isExistingFile = fileNameInfo.exists();
 
-        std::set<QString> fileKeywordSet;
-
-        if ( isExistingFile )
-        {
-            std::vector<RifKeywordAndFilePos> fileKeywords;
-            RifEclipseInputFileTools::findKeywordsOnFile( filenames[i], &fileKeywords );
-
-            for_all( fileKeywords, fkIt ) fileKeywordSet.insert( fileKeywords[fkIt].keyword );
-        }
+        std::set<QString> fileKeywordSet = extractKeywordsOnFile( filenames[i], isExistingFile );
 
         // Find the input property objects referring to the file
 
@@ -128,13 +120,8 @@ void RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties(
         }
     }
 
-    for_all( inputPropertyCollection->inputProperties, i )
-    {
-        if ( inputPropertyCollection->inputProperties[i]->resolvedState() == RimEclipseInputProperty::UNKNOWN )
-        {
-            inputPropertyCollection->inputProperties[i]->resolvedState = RimEclipseInputProperty::FILE_MISSING;
-        }
-    }
+    // All input properties still unknown at this stage is missing a file
+    setResolvedState( inputPropertyCollection, RimEclipseInputProperty::UNKNOWN, RimEclipseInputProperty::FILE_MISSING );
 }
 
 bool RifEclipseInputPropertyLoader::readInputPropertiesFromFiles( RimEclipseInputPropertyCollection* inputPropertyCollection,
@@ -172,4 +159,33 @@ bool RifEclipseInputPropertyLoader::readInputPropertiesFromFiles( RimEclipseInpu
 
     // TODO: seems a bit optimistic?
     return true;
+}
+
+std::set<QString> RifEclipseInputPropertyLoader::extractKeywordsOnFile( const QString& filename, bool isExistingFile )
+{
+    std::set<QString> fileKeywordSet;
+    if ( isExistingFile )
+    {
+        std::vector<RifKeywordAndFilePos> fileKeywords;
+        RifEclipseInputFileTools::findKeywordsOnFile( filename, &fileKeywords );
+
+        for ( const RifKeywordAndFilePos& fileKeyword : fileKeywords )
+        {
+            fileKeywordSet.insert( fileKeyword.keyword );
+        }
+    }
+    return fileKeywordSet;
+}
+
+void RifEclipseInputPropertyLoader::setResolvedState( RimEclipseInputPropertyCollection*    inputPropertyCollection,
+                                                      RimEclipseInputProperty::ResolveState currentState,
+                                                      RimEclipseInputProperty::ResolveState newState )
+{
+    for ( RimEclipseInputProperty* inputProperty : inputPropertyCollection->inputProperties )
+    {
+        if ( inputProperty->resolvedState() == currentState )
+        {
+            inputProperty->resolvedState = newState;
+        }
+    }
 }
