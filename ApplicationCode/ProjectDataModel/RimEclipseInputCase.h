@@ -48,8 +48,6 @@ public:
     bool openDataFileSet( const QStringList& fileNames );
     void loadAndSyncronizeInputProperties();
 
-    RimEclipseInputPropertyCollection* inputPropertyCollection();
-
     // RimCase overrides
     bool openEclipseGridFile() override;
     void reloadEclipseGridFile() override;
@@ -70,16 +68,14 @@ private:
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
 private:
     cvf::ref<RifReaderInterface> createMockModel( QString modelName );
 
 private:
     // Fields
-    caf::PdmChildField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
-    caf::PdmField<QString>                                 m_gridFileName;
-    caf::PdmProxyValueField<std::vector<QString>>          m_additionalFiles;
+    caf::PdmField<QString>                        m_gridFileName;
+    caf::PdmProxyValueField<std::vector<QString>> m_additionalFiles;
 
     // Obsolete fields
     caf::PdmField<std::vector<QString>> m_additionalFilenames_OBSOLETE;

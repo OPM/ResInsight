@@ -42,7 +42,6 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTools.h"
 
-#include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
 #include <QDir>
@@ -59,10 +58,6 @@ RimEclipseInputCase::RimEclipseInputCase()
     CAF_PDM_InitField( &m_gridFileName, "GridFileName", QString(), "Case File Name", "", "", "" );
     m_gridFileName.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_inputPropertyCollection, "InputPropertyCollection", "", "", "", "" );
-    m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
-    m_inputPropertyCollection->parentField()->uiCapability()->setUiHidden( true );
-
     CAF_PDM_InitFieldNoDefault( &m_additionalFiles, "AdditionalFileNamesProxy", "Additional Files", "", "", "" );
     m_additionalFiles.registerGetMethod( this, &RimEclipseInputCase::additionalFiles );
     m_additionalFiles.uiCapability()->setUiReadOnly( true );
@@ -76,10 +71,7 @@ RimEclipseInputCase::RimEclipseInputCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseInputCase::~RimEclipseInputCase()
-{
-    delete m_inputPropertyCollection;
-}
+RimEclipseInputCase::~RimEclipseInputCase() {}
 
 //--------------------------------------------------------------------------------------------------
 /// Open the supplied file set. If no grid data has been read, it will first find the possible
@@ -267,14 +259,6 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseInputPropertyCollection* RimEclipseInputCase::inputPropertyCollection()
-{
-    return m_inputPropertyCollection();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 cvf::ref<RifReaderInterface> RimEclipseInputCase::createMockModel( QString modelName )
 {
     cvf::ref<RigEclipseCaseData> reservoir         = new RigEclipseCaseData( this );
@@ -332,16 +316,6 @@ void RimEclipseInputCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     group->add( &activeFormationNames );
     group->add( &m_flipXAxis );
     group->add( &m_flipYAxis );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseInputCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
-{
-    uiTreeOrdering.add( &m_inputPropertyCollection );
-
-    RimEclipseCase::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
 }
 
 //--------------------------------------------------------------------------------------------------

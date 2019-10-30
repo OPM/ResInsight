@@ -48,6 +48,7 @@ class RimEclipseContourMapView;
 class RimEclipseContourMapViewCollection;
 class RimEclipseView;
 class RigVirtualPerforationTransmissibilities;
+class RimEclipseInputPropertyCollection;
 
 //==================================================================================================
 //
@@ -101,6 +102,7 @@ public:
 
     RimCaseCollection*                  parentCaseCollection();
     RimEclipseContourMapViewCollection* contourMapCollection();
+    RimEclipseInputPropertyCollection*  inputPropertyCollection();
 
     QStringList            timeStepStrings() const override;
     QString                timeStepName( int frameIdx ) const override;
@@ -137,8 +139,9 @@ private:
     std::vector<Rim3dView*> allSpecialViews() const override;
 
 protected:
-    caf::PdmField<bool> m_flipXAxis;
-    caf::PdmField<bool> m_flipYAxis;
+    caf::PdmField<bool>                                    m_flipXAxis;
+    caf::PdmField<bool>                                    m_flipYAxis;
+    caf::PdmChildField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
 
 private:
     caf::PdmField<QString> m_filesContainingFaultsSemColSeparated;

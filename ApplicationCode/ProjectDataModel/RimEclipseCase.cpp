@@ -43,6 +43,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
+#include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
@@ -95,6 +96,10 @@ RimEclipseCase::RimEclipseCase()
     m_contourMapCollection = new RimEclipseContourMapViewCollection;
     m_contourMapCollection.uiCapability()->setUiTreeHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_inputPropertyCollection, "InputPropertyCollection", "", "", "", "" );
+    m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
+    m_inputPropertyCollection->parentField()->uiCapability()->setUiHidden( true );
+
     // Obsolete fields
     CAF_PDM_InitFieldNoDefault( &m_filesContainingFaults_OBSOLETE, "FilesContainingFaults", "", "", "", "" );
     RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_filesContainingFaults_OBSOLETE );
@@ -124,6 +129,7 @@ RimEclipseCase::~RimEclipseCase()
 
     delete m_matrixModelResults();
     delete m_fractureModelResults();
+    delete m_inputPropertyCollection;
 
     RimProject* project = RiaApplication::instance()->project();
     if ( project )
@@ -544,6 +550,8 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
         uiTreeOrdering.add( &m_contourMapCollection );
     }
 
+    uiTreeOrdering.add( &m_inputPropertyCollection );
+
     uiTreeOrdering.skipRemainingChildren( true );
 }
 
@@ -600,6 +608,14 @@ RimCaseCollection* RimEclipseCase::parentCaseCollection()
 RimEclipseContourMapViewCollection* RimEclipseCase::contourMapCollection()
 {
     return m_contourMapCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseInputPropertyCollection* RimEclipseCase::inputPropertyCollection()
+{
+    return m_inputPropertyCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
