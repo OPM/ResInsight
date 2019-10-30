@@ -246,7 +246,7 @@ void RiuMainWindowBase::enableShowFirstVisibleMdiWindowMaximized( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::setBlockSubWindowActivation( bool block )
+void RiuMainWindowBase::setBlockSubWindowActivatedSignal( bool block )
 {
     m_blockSubWindowActivation = block;
 }
@@ -254,7 +254,7 @@ void RiuMainWindowBase::setBlockSubWindowActivation( bool block )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuMainWindowBase::blockSubWindowActivation() const
+bool RiuMainWindowBase::isBlockingSubWindowActivatedSignal() const
 {
     return m_blockSubWindowActivation;
 }
@@ -262,7 +262,7 @@ bool RiuMainWindowBase::blockSubWindowActivation() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::setBlockSubWindowProjectTreeSelection( bool block )
+void RiuMainWindowBase::setBlockViewSelectionOnSubWindowActivated( bool block )
 {
     m_blockSubWindowProjectTreeSelection = block;
 }
@@ -270,7 +270,7 @@ void RiuMainWindowBase::setBlockSubWindowProjectTreeSelection( bool block )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuMainWindowBase::blockSubWindowProjectTreeSelection() const
+bool RiuMainWindowBase::isBlockingViewSelectionOnSubWindowActivated() const
 {
     return m_blockSubWindowProjectTreeSelection;
 }

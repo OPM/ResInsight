@@ -58,7 +58,7 @@ void RiuMdiArea::resizeEvent( QResizeEvent* resizeEvent )
         }
 
         RiuMainWindowBase* mainWindow = dynamic_cast<RiuMainWindowBase*>( window() );
-        mainWindow->setBlockSubWindowActivation( true );
+        mainWindow->setBlockSubWindowActivatedSignal( true );
 
         // Workaround for Qt bug #51761: https://bugreports.qt.io/browse/QTBUG-51761
         // Set the first window to be the active window then perform resize event and set back.
@@ -70,7 +70,7 @@ void RiuMdiArea::resizeEvent( QResizeEvent* resizeEvent )
 
         setActiveSubWindow( a );
 
-        mainWindow->setBlockSubWindowActivation( false );
+        mainWindow->setBlockSubWindowActivatedSignal( false );
 
         for ( auto subWindow : subWindowList() )
         {

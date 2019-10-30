@@ -233,10 +233,12 @@ private slots:
     void slotBuildWindowActions();
     void slotSubWindowActivated( QMdiSubWindow* subWindow );
 
-    void selectViewInProjectTree( const Rim3dView* previousActiveReservoirView, Rim3dView* activatedView );
-
     void selectedObjectsChanged();
     void customMenuRequested( const QPoint& pos );
+
+private:
+    void selectViewInProjectTreePreservingSubItemSelection( const Rim3dView* previousActiveReservoirView,
+                                                            Rim3dView*       activatedView );
 
     // Pdm System :
 public:

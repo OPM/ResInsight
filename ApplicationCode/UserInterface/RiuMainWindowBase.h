@@ -76,11 +76,11 @@ public:
     virtual void clearWindowTiling()                = 0;
     virtual bool subWindowsAreTiled() const         = 0;
 
-    void setBlockSubWindowActivation( bool block );
-    bool blockSubWindowActivation() const;
+    void setBlockSubWindowActivatedSignal( bool block );
+    bool isBlockingSubWindowActivatedSignal() const;
 
-    void setBlockSubWindowProjectTreeSelection( bool block );
-    bool blockSubWindowProjectTreeSelection() const;
+    void setBlockViewSelectionOnSubWindowActivated( bool block );
+    bool isBlockingViewSelectionOnSubWindowActivated() const;
 
 protected:
     void removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* viewer );
