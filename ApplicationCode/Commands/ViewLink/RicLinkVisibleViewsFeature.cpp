@@ -34,6 +34,7 @@
 
 #include "cafPdmUiPropertyViewDialog.h"
 
+#include "RimGeoMechContourMapView.h"
 #include <QAction>
 #include <QMessageBox>
 #include <QTreeView>
@@ -65,7 +66,7 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
     if ( visibleGridViews.size() >= 2 && ( linkedviews.size() < visibleGridViews.size() ) )
     {
         std::vector<RimGridView*> views;
-        findNotLinkedVisibleViews( views );
+        findLinkableVisibleViews( views );
         RicLinkVisibleViewsFeatureUi testUi;
         testUi.setViews( views );
         return !testUi.masterViewCandidates().empty();
@@ -79,10 +80,10 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicLinkVisibleViewsFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimGridView*> views;
-    findNotLinkedVisibleViews( views );
+    std::vector<RimGridView*> linkableViews;
+    findLinkableVisibleViews( linkableViews );
 
-    linkViews( views );
+    linkViews( linkableViews );
     return;
 }
 
@@ -92,7 +93,7 @@ void RicLinkVisibleViewsFeature::onActionTriggered( bool isChecked )
 void RicLinkVisibleViewsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Link Visible Views" );
-    actionToSetup->setIcon( QIcon( ":/chain.png" ) );
+    actionToSetup->setIcon( QIcon( ":/LinkView24x24.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,81 +111,51 @@ void RicLinkVisibleViewsFeature::allLinkedViews( std::vector<RimGridView*>& view
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeature::findNotLinkedVisibleViews( std::vector<RimGridView*>& views )
+void RicLinkVisibleViewsFeature::findLinkableVisibleViews( std::vector<RimGridView*>& views )
 {
     RimProject* proj = RiaApplication::instance()->project();
 
     std::vector<RimGridView*> alreadyLinkedViews;
     allLinkedViews( alreadyLinkedViews );
 
-    std::vector<RimGridView*> visibleViews;
-    proj->allVisibleGridViews( visibleViews );
+    std::vector<RimGridView*> visibleGridViews;
+    proj->allVisibleGridViews( visibleGridViews );
 
-    for ( size_t i = 0; i < visibleViews.size(); i++ )
+    for ( auto gridView : visibleGridViews )
     {
-        bool isLinked = false;
-        for ( size_t j = 0; j < alreadyLinkedViews.size(); j++ )
-        {
-            if ( visibleViews[i] == alreadyLinkedViews[j] )
-            {
-                isLinked = true;
-            }
-        }
+        if ( dynamic_cast<RimEclipseContourMapView*>( gridView ) ) continue;
+        if ( dynamic_cast<RimGeoMechContourMapView*>( gridView ) ) continue;
+        if ( gridView->assosiatedViewLinker() ) continue;
 
-        if ( !isLinked )
-        {
-            views.push_back( visibleViews[i] );
-        }
+        views.push_back( gridView );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeature::linkViews( std::vector<RimGridView*>& views )
+void RicLinkVisibleViewsFeature::linkViews( std::vector<RimGridView*>& linkableViews )
 {
     RimProject*    proj       = RiaApplication::instance()->project();
     RimViewLinker* viewLinker = proj->viewLinkerCollection->viewLinker();
 
-    std::vector<RimGridView*> masterCandidates;
-    for ( RimGridView* view : views )
-    {
-        if ( dynamic_cast<RimEclipseContourMapView*>( view ) == nullptr )
-        {
-            masterCandidates.push_back( view );
-        }
-    }
+    std::vector<RimGridView*> masterCandidates = linkableViews;
 
     if ( !viewLinker )
     {
         // Create a new view linker
 
-        if ( views.size() < 2 )
-        {
-            return;
-        }
-        CVF_ASSERT( !masterCandidates.empty() );
-
         RimGridView* masterView = masterCandidates.front();
-        if ( masterCandidates.size() > 1u )
-        {
-            RicLinkVisibleViewsFeatureUi featureUi;
-            featureUi.setViews( masterCandidates );
 
-            caf::PdmUiPropertyViewDialog propertyDialog( nullptr, &featureUi, "Select Master View", "" );
-            propertyDialog.setWindowIcon( QIcon( ":/chain.png" ) );
-            if ( propertyDialog.exec() != QDialog::Accepted ) return;
+        viewLinker = new RimViewLinker;
 
-            masterView = featureUi.masterView();
-        }
-        viewLinker                               = new RimViewLinker;
         proj->viewLinkerCollection()->viewLinker = viewLinker;
         viewLinker->setMasterView( masterView );
     }
 
-    for ( size_t i = 0; i < views.size(); i++ )
+    for ( size_t i = 0; i < linkableViews.size(); i++ )
     {
-        RimGridView* rimView = views[i];
+        RimGridView* rimView = linkableViews[i];
         if ( rimView == viewLinker->masterView() ) continue;
 
         viewLinker->addDependentView( rimView );

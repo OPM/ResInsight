@@ -53,8 +53,13 @@ void RimViewManipulator::applySourceViewCameraOnDestinationViews( RimGridView*  
     }
 
     // Source bounding box in global coordinates including scaleZ
-    cvf::BoundingBox sourceSceneBB = sourceView->viewer()->currentScene()->boundingBox();
+    cvf::BoundingBox sourceSceneBB;
     {
+        if ( sourceView->viewer()->currentScene() )
+        {
+            sourceSceneBB =  sourceView->viewer()->currentScene()->boundingBox();
+        }
+
         cvf::Vec3d offset          = cvf::Vec3d::ZERO;
         RimCase*   sourceOwnerCase = sourceView->ownerCase();
         if ( sourceOwnerCase )
@@ -68,8 +73,8 @@ void RimViewManipulator::applySourceViewCameraOnDestinationViews( RimGridView*  
         if ( setPointOfInterest ) sourcePointOfInterest += offset;
 
         cvf::Mat4d trans;
-        trans.setTranslation( offset );
-        sourceSceneBB.transform( trans );
+        trans.setTranslation(offset);
+        sourceSceneBB.transform(trans);
     }
 
     for ( RimGridView* destinationView : destinationViews )
@@ -84,7 +89,12 @@ void RimViewManipulator::applySourceViewCameraOnDestinationViews( RimGridView*  
             destinationViewer->enableParallelProjection( !sourceView->isPerspectiveView );
 
             // Destination bounding box in global coordinates including scaleZ
-            cvf::BoundingBox destSceneBB                = destinationViewer->currentScene()->boundingBox();
+            cvf::BoundingBox destSceneBB; 
+            if ( destinationViewer->currentScene() )
+            {
+                destSceneBB =  destinationViewer->currentScene()->boundingBox();
+            }
+
             cvf::Vec3d       destinationCamEye          = sourceCamGlobalEye;
             cvf::Vec3d       destinationCamViewRefPoint = sourceCamGlobalViewRefPoint;
             cvf::Vec3d       offset                     = cvf::Vec3d::ZERO;

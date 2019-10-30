@@ -45,6 +45,7 @@
 
 #include "RiuViewer.h"
 
+#include "RiaOptionItemFactory.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafQIconProvider.h"
 #include "cvfCamera.h"
@@ -70,6 +71,10 @@ RimViewLinker::RimViewLinker()
     CAF_PDM_InitFieldNoDefault(&m_viewControllers, "ManagedViews", "Managed Views", "", "", "");
     m_viewControllers.uiCapability()->setUiHidden(true);
     m_viewControllers.uiCapability()->setUiTreeChildrenHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_comparisonView, "LinkedComparisonView", "Comparison View", "", "", "");
+    m_comparisonView.xmlCapability()->disableIO();
+
     // clang-format on
 }
 
@@ -81,6 +86,9 @@ RimViewLinker::~RimViewLinker()
     removeOverrides();
 
     m_viewControllers.deleteAllChildObjects();
+    RimGridView* masterView = m_masterView;
+    m_masterView = nullptr;
+    if (masterView) masterView->updateHolder();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,6 +278,8 @@ void RimViewLinker::allViewsForCameraSync( const RimGridView* source, std::vecto
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateDependentViews()
 {
+    if (m_viewControllers.empty()) return;
+
     updateOverrides();
     updateCellResult();
     updateScaleZ( m_masterView, m_masterView->scaleZ() );
@@ -297,7 +307,8 @@ QString RimViewLinker::displayNameForView( RimGridView* view )
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::setMasterView( RimGridView* view )
 {
-    RimViewController* previousViewController = view->viewController();
+    RimViewController* previousViewController = nullptr;
+    if (view) previousViewController = view->viewController();
 
     // Remove the view as dependent view
     if ( previousViewController )
@@ -343,6 +354,10 @@ void RimViewLinker::allViews( std::vector<RimGridView*>& views ) const
 void RimViewLinker::initAfterRead()
 {
     updateUiNameAndIcon();
+    if ( m_masterView() )
+    {
+        m_comparisonView = dynamic_cast<RimGridView*>( m_masterView->activeComparisonView() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -399,6 +414,9 @@ void RimViewLinker::updateUiNameAndIcon()
 {
     caf::QIconProvider iconProvider;
     RimViewLinker::findNameAndIconFromView( &m_name.v(), &iconProvider, m_masterView );
+    
+    if (m_masterView) m_masterView->updateHolder();
+
     setUiIcon( iconProvider );
 }
 
@@ -479,6 +497,94 @@ void RimViewLinker::updateCursorPosition( const RimGridView* sourceView, const c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimViewLinker::notifyManagedViewChange( RimGridView* oldManagedView, RimGridView* newManagedView )
+{
+    if ( oldManagedView && ( oldManagedView == m_comparisonView ) )
+    {
+        m_comparisonView = newManagedView;
+        m_comparisonView.uiCapability()->updateConnectedEditors();
+
+        if ( masterView() )
+        {
+            masterView()->setComparisonView( m_comparisonView() );
+            masterView()->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimViewLinker::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                    bool*                      useOptionsOnly )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    RimGridView* actualComparisonView = nullptr;
+    if ( m_masterView() )
+    {
+        actualComparisonView = dynamic_cast<RimGridView*>( m_masterView->activeComparisonView() );
+    }
+
+    bool isActiveCompViewInList = false;
+    for ( const auto& viewController : m_viewControllers )
+    {
+        if ( viewController->managedView() )
+        {
+            RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( viewController->managedView(), &options );
+            if ( viewController->managedView() == actualComparisonView )
+            {
+                isActiveCompViewInList = true;
+            }
+        }
+    }
+
+    if ( !isActiveCompViewInList && actualComparisonView != nullptr )
+    {
+        // Add the actually used comparison view to the option list, even though it is not one of the linked views
+        options.push_front( caf::PdmOptionItemInfo( actualComparisonView->autoName(),
+                                                    actualComparisonView,
+                                                    false,
+                                                    actualComparisonView->uiCapability()->uiIconProvider() ) );
+    }
+
+    options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    // Update the comparison view from the master view
+    if ( m_masterView() )
+    {
+        m_comparisonView = dynamic_cast<RimGridView*>( m_masterView->activeComparisonView() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                      const QVariant&            oldValue,
+                                      const QVariant&            newValue )
+{
+    if ( changedField == &m_comparisonView )
+    {
+        if ( masterView() )
+        {
+            masterView()->setComparisonView( m_comparisonView() );
+            masterView()->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateCamera( RimGridView* sourceView )
 {
     if ( !sourceView->viewer() ) return;
@@ -507,10 +613,13 @@ void RimViewLinker::addDependentView( RimGridView* view )
 {
     CVF_ASSERT( view && view != m_masterView );
 
-    RimViewController* viewContr = new RimViewController;
-    this->m_viewControllers.push_back( viewContr );
+    if ( !view->viewController() )
+    {
+        RimViewController* viewContr = new RimViewController;
+        this->m_viewControllers.push_back( viewContr );
 
-    viewContr->setManagedView( view );
+        viewContr->setManagedView( view );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -535,7 +644,7 @@ void RimViewLinker::addViewControllers( caf::PdmUiTreeOrdering& uiTreeOrdering )
 {
     for ( const auto& viewController : m_viewControllers )
     {
-        uiTreeOrdering.add( viewController );
+        if (viewController) uiTreeOrdering.add( viewController );
     }
 }
 
@@ -567,4 +676,14 @@ void RimViewLinker::updatePropertyFilters( RimPropertyFilter* changedPropertyFil
 void RimViewLinker::removeViewController( RimViewController* viewController )
 {
     m_viewControllers.removeChildObject( viewController );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimGridView* RimViewLinker::firstControlledView()
+{
+    if (m_viewControllers.empty()) return nullptr;
+
+    return m_viewControllers[0]->managedView();
 }

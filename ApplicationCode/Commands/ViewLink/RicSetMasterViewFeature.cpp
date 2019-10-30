@@ -30,6 +30,7 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "RimGeoMechContourMapView.h"
 #include <QAction>
 #include <QTreeView>
 
@@ -42,23 +43,13 @@ bool RicSetMasterViewFeature::isCommandEnabled()
 {
     RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !activeView ) return false;
+    if ( dynamic_cast<RimEclipseContourMapView*>( activeView ) != nullptr ) return false;
+    if ( dynamic_cast<RimGeoMechContourMapView*>( activeView ) != nullptr ) return false;
 
-    RimProject*    proj       = RiaApplication::instance()->project();
     RimViewLinker* viewLinker = activeView->assosiatedViewLinker();
-    if ( viewLinker && viewLinker->masterView() == activeView )
-    {
-        return false;
-    }
 
-    if ( !proj->viewLinkerCollection()->viewLinker() )
-    {
-        return false;
-    }
-
-    if ( dynamic_cast<RimEclipseContourMapView*>( activeView ) != nullptr )
-    {
-        return false;
-    }
+    if ( !viewLinker ) return false;
+    if ( viewLinker->masterView() == activeView ) return false;
 
     return true;
 }
@@ -96,5 +87,6 @@ void RicSetMasterViewFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicSetMasterViewFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Set As Master View" );
+    actionToSetup->setText( "Set As Primary Linked View" );
+    actionToSetup->setIcon( QIcon( ":/MasterView16x16.png" ) );
 }

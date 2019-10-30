@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2019-     Statoil ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,58 +15,60 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
-#include "RicShowLinkOptionsFeature.h"
+#include "RicCompareTo3dViewFeature.h"
 
 #include "RiaApplication.h"
-#include "Rim3dView.h"
-#include "RimGridView.h"
-#include "RimProject.h"
-#include "RimViewController.h"
-#include "RimViewLinker.h"
-#include "Riu3DMainWindowTools.h"
 
-#include "cafSelectionManager.h"
+#include "RimGridView.h"
+
+#include "RiuViewer.h"
+#include "RiuViewerCommands.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicShowLinkOptionsFeature, "RicShowLinkOptionsFeature" );
+CAF_CMD_SOURCE_INIT( RicCompareTo3dViewFeature, "RicCompareTo3dViewFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowLinkOptionsFeature::isCommandEnabled()
+bool RicCompareTo3dViewFeature::isCommandEnabled()
 {
-    Rim3dView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
-    if ( !activeView ) return false;
+    return true;
+}
 
-    RimViewController* viewController = activeView->viewController();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicCompareTo3dViewFeature::onActionTriggered( bool isChecked )
+{
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
 
-    if ( viewController )
+    QVariant userData = this->userData();
+    auto view = static_cast<Rim3dView*>(userData.value<void*>());
+
+    if (view && activeView)
     {
-        return true;
+        activeView->setComparisonView( view );
+        activeView->scheduleCreateDisplayModelAndRedraw();
     }
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicShowLinkOptionsFeature::onActionTriggered( bool isChecked )
+void RicCompareTo3dViewFeature::setupActionLook( QAction* actionToSetup )
 {
-    Rim3dView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
-    if ( !activeView ) return;
+    QVariant userData = actionToSetup->data();
 
-    RimViewController* viewController = activeView->viewController();
-
-    Riu3DMainWindowTools::selectAsCurrentItem( viewController );
+    auto view = static_cast<Rim3dView*>(userData.value<void*>());
+    if ( view )
+    {
+        actionToSetup->setIcon(view->uiIconProvider().icon() );
+    }
+    else
+    {
+        actionToSetup->setIcon(QIcon(":/ComparisonView16x16.png"));
+    }
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicShowLinkOptionsFeature::setupActionLook( QAction* actionToSetup )
-{
-    actionToSetup->setText( "Show Linked View Options" );
-}
+

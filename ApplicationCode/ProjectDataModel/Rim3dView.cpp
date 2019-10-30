@@ -80,6 +80,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( Rim3dView, "GenericView" ); // Do not use. Abs
 ///
 //--------------------------------------------------------------------------------------------------
 Rim3dView::Rim3dView( void )
+    : m_isCallingUpdateTimestepAndRedraw( false )
 {
     RiaApplication* app         = RiaApplication::instance();
     RiaPreferences* preferences = app->preferences();
@@ -129,7 +130,6 @@ Rim3dView::Rim3dView( void )
 
     CAF_PDM_InitField( &m_showZScaleLabel, "ShowZScale", true, "Show Z Scale Label", "", "", "" );
 
-    CAF_PDM_InitField( &m_isComparisonViewEnabled, "EnableComparisonView", false, "Enable", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_comparisonView, "ComparisonView", "Comparison View", "", "", "" );
 
     m_crossSectionVizModel = new cvf::ModelBasicList;
@@ -291,7 +291,8 @@ void Rim3dView::updateMdiWindowTitle()
 {
     if ( m_viewer )
     {
-        m_viewer->layoutWidget()->setWindowTitle( autoName() );
+        m_viewer->layoutWidget()->setWindowTitle(
+            autoName() + ( isMasterView() ? " (Primary)" : viewController() ? " (Controlled)" : "" ) );
     }
 }
 
@@ -322,16 +323,13 @@ void Rim3dView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOr
     viewGroup->add( &m_showGridBox );
     viewGroup->add( &isPerspectiveView );
     viewGroup->add( &m_disableLighting );
+    viewGroup->add( &m_comparisonView );
 
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup( "Grid Appearance" );
     gridGroup->add( &scaleZ );
     scaleZ.uiCapability()->setUiReadOnly( !this->isScaleZEditable() );
     gridGroup->add( &meshMode );
     gridGroup->add( &surfaceMode );
-
-    caf::PdmUiGroup* compViewGroup = uiOrdering.addNewGroup( "Comparison View" );
-    compViewGroup->add( &m_isComparisonViewEnabled );
-    compViewGroup->add( &m_comparisonView );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -415,6 +413,15 @@ bool Rim3dView::isScaleZEditable()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void Rim3dView::setComparisonView( Rim3dView* compView )
+{
+    m_comparisonView = compView;
+    m_comparisonView.uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void Rim3dView::setCurrentTimeStepAndUpdate( int frameIndex )
 {
     setCurrentTimeStep( frameIndex );
@@ -484,6 +491,8 @@ void Rim3dView::setCurrentTimeStep( int frameIndex )
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::updateCurrentTimeStepAndRedraw()
 {
+    if ( m_isCallingUpdateTimestepAndRedraw ) return;
+
     if ( nativeOrOverrideViewer() )
     {
         this->updateCurrentTimeStep();
@@ -498,6 +507,8 @@ void Rim3dView::updateCurrentTimeStepAndRedraw()
         nativeOrOverrideViewer()->update();
     }
 
+    m_isCallingUpdateTimestepAndRedraw = true;
+
     std::set<Rim3dView*> containerViews = this->viewsUsingThisAsComparisonView();
     if ( !containerViews.empty() && !isUsingOverrideViewer() )
     {
@@ -506,6 +517,7 @@ void Rim3dView::updateCurrentTimeStepAndRedraw()
             view->updateCurrentTimeStepAndRedraw();
         }
     }
+    m_isCallingUpdateTimestepAndRedraw = false;
 
     RimProject* project;
     firstAncestorOrThisOfTypeAsserted( project );
@@ -806,18 +818,10 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         m_viewer->showZScaleLabel( m_showZScaleLabel() );
         m_viewer->update();
     }
-    else if ( changedField == &m_isComparisonViewEnabled )
+    else if ( changedField == &m_comparisonView )
     {
         createDisplayModelAndRedraw();
     }
-    else if ( changedField == &m_comparisonView )
-    {
-        if ( m_isComparisonViewEnabled() )
-        {
-            createDisplayModelAndRedraw();
-        }
-    }
-   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -974,9 +978,12 @@ void Rim3dView::updateAnnotationItems()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setScaleZAndUpdate( double scalingFactor )
 {
-    this->scaleZ = scalingFactor;
+    if ( this->scaleZ != scalingFactor )
+    {
+        this->scaleZ = scalingFactor;
 
-    updateScaling();
+        updateScaling();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1001,9 +1008,9 @@ void Rim3dView::updateScaling()
         viewer()->setPointOfInterest( poi );
     }
 
-    if (activeComparisonView())
+    if ( activeComparisonView() )
     {
-        activeComparisonView()->setScaleZAndUpdate(scaleZ);
+        activeComparisonView()->setScaleZAndUpdate( scaleZ );
     }
 
     updateScaleTransform();
@@ -1403,14 +1410,7 @@ void Rim3dView::appendMeasurementToModel()
 //--------------------------------------------------------------------------------------------------
 Rim3dView* Rim3dView::activeComparisonView() const
 {
-    if ( m_isComparisonViewEnabled() )
-    {
-        return m_comparisonView();
-    }
-    else
-    {
-        return nullptr;
-    }
+    return m_comparisonView();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1429,7 +1429,6 @@ Rim3dView* Rim3dView::prepareComparisonView()
     {
         return nullptr;
     }
-
 
     if ( depView->scaleZ() != scaleZ() )
     {
@@ -1452,6 +1451,5 @@ void Rim3dView::restoreComparisonView()
     CVF_ASSERT( depView );
 
     depView->setOverrideViewer( nullptr );
-    viewer()->setCurrentComparisonFrame(depView->currentTimeStep());
-
+    viewer()->setCurrentComparisonFrame( depView->currentTimeStep() );
 }

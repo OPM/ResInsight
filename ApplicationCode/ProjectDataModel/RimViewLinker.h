@@ -64,6 +64,7 @@ public:
     bool         isFirstViewDependentOnSecondView( const RimGridView* firstView, const RimGridView* secondView ) const;
     void         updateDependentViews();
     void         removeViewController( RimViewController* viewController );
+    RimGridView* firstControlledView();
 
     void updateOverrides();
 
@@ -91,12 +92,24 @@ public:
 
     void updateCursorPosition( const RimGridView* sourceView, const cvf::Vec3d& domainCoord );
 
+    void notifyManagedViewChange(RimGridView* oldManagedView, RimGridView* newManagedView);
+
 protected:
     caf::PdmFieldHandle* userDescriptionField() override
     {
         return &m_name;
     }
+
     void initAfterRead() override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
+
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+
+
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     static QString displayNameForView( RimGridView* view );
@@ -109,4 +122,5 @@ private:
     caf::PdmChildArrayField<RimViewController*> m_viewControllers;
     caf::PdmPtrField<RimGridView*>              m_masterView;
     caf::PdmField<QString>                      m_name;
+    caf::PdmPtrField<RimGridView*>              m_comparisonView;
 };

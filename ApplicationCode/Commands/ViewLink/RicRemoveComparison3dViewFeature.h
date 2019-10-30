@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2019-     Statoil ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,28 +20,18 @@
 
 #include "cafCmdFeature.h"
 
-#include <vector>
-
-class RimGridView;
-
 //==================================================================================================
 ///
 //==================================================================================================
-class RicLinkVisibleViewsFeature : public caf::CmdFeature
+class RicRemoveComparison3dViewFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-
-public:
-    static void linkViews( std::vector<RimGridView*>& views );
 
 protected:
     // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
-
     void setupActionLook( QAction* actionToSetup ) override;
-
-private:
-    void findLinkableVisibleViews( std::vector<RimGridView*>& views );
-    void allLinkedViews( std::vector<RimGridView*>& views );
 };
+
+

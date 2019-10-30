@@ -127,7 +127,7 @@ RimProject::RimProject( void )
     CAF_PDM_InitFieldNoDefault( &viewLinkerCollection,
                                 "LinkedViews",
                                 "Linked Views (field in RimProject",
-                                ":/chain.png",
+                                ":/LinkView16x16.png",
                                 "",
                                 "" );
     viewLinkerCollection.uiCapability()->setUiHidden( true );

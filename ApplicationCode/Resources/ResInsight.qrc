@@ -58,6 +58,13 @@
 	<file>GeoMechCasePropTable24x24.png</file>
     <file>GeoMechCases48x48.png</file>
     <file>chain.png</file>
+    <file>UnLinkView16x16.png</file>
+    <file>LinkView16x16.png</file>
+    <file>LinkView24x24.png</file>
+    <file>ComparisonView16x16.png</file>
+    <file>RemoveComparisonView16x16.png</file>
+    <file>MasterView16x16.png</file>
+    <file>ControlledView16x16.png</file>
     <file>TileWindows24x24.png</file>
 	<file>Window16x16.png</file>
     <file>LasFile16x16.png</file>

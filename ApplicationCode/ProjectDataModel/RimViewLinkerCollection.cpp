@@ -30,7 +30,7 @@ CAF_PDM_SOURCE_INIT( RimViewLinkerCollection, "RimViewLinkerCollection" );
 //--------------------------------------------------------------------------------------------------
 RimViewLinkerCollection::RimViewLinkerCollection( void )
 {
-    CAF_PDM_InitObject( "Linked Views", ":/chain.png", "", "" );
+    CAF_PDM_InitObject( "Linked Views", ":/LinkView16x16.png", "", "" );
 
     CAF_PDM_InitField( &isActive, "Active", true, "Active", "", "", "" );
     isActive.uiCapability()->setUiHidden( true );

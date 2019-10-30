@@ -166,6 +166,7 @@ public:
     bool       isMasterView() const;
     Rim3dView* activeComparisonView() const;
     bool       isScaleZEditable();
+    void       setComparisonView(Rim3dView* compView); 
 
     std::set<Rim3dView*> viewsUsingThisAsComparisonView();
 
@@ -310,6 +311,7 @@ private:
     QPointer<RiuViewer> m_overrideViewer;
     int                 m_comparisonViewOrgTimestep;
     double              m_comparisonViewOrgZScale;
+    bool                m_isCallingUpdateTimestepAndRedraw; // To avoid infinite recursion if comparison views are pointing to each other.
 
     caf::PdmField<QString>                 m_name_OBSOLETE;
     caf::PdmChildField<RimViewNameConfig*> m_nameConfig;
@@ -319,6 +321,5 @@ private:
     caf::PdmField<cvf::Color3f>            m_backgroundColor;
     caf::PdmField<bool>                    m_showGridBox;
     caf::PdmField<bool>                    m_showZScaleLabel;
-    caf::PdmField<bool>                    m_isComparisonViewEnabled;
     caf::PdmPtrField<Rim3dView*>           m_comparisonView;
 };

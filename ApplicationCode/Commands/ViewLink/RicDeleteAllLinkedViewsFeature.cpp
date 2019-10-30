@@ -20,6 +20,7 @@
 #include "RicDeleteAllLinkedViewsFeature.h"
 
 #include "RiaApplication.h"
+#include "RimGridView.h"
 #include "RimProject.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
@@ -29,6 +30,29 @@
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicDeleteAllLinkedViewsFeature, "RicDeleteAllLinkedViewsFeature" );
+
+class DeleteAllLinkedViewsImpl
+{
+public:
+    static void execute()
+    {
+        RimProject* proj = RiaApplication::instance()->project();
+
+        RimViewLinker* viewLinker = proj->viewLinkerCollection()->viewLinker();
+        if ( viewLinker )
+        {
+            // Remove the view linker object from the view linker collection
+            // viewLinkerCollection->viewLinker is a PdmChildField containing one RimViewLinker child object
+            proj->viewLinkerCollection->viewLinker.removeChildObject( viewLinker );
+
+            viewLinker->applyRangeFilterCollectionByUserChoice();
+
+            delete viewLinker;
+
+            proj->uiCapability()->updateConnectedEditors();
+        }
+    }
+};
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -43,21 +67,7 @@ bool RicDeleteAllLinkedViewsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicDeleteAllLinkedViewsFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* proj = RiaApplication::instance()->project();
-
-    RimViewLinker* viewLinker = proj->viewLinkerCollection()->viewLinker();
-    if ( viewLinker )
-    {
-        // Remove the view linker object from the view linker collection
-        // viewLinkerCollection->viewLinker is a PdmChildField containing one RimViewLinker child object
-        proj->viewLinkerCollection->viewLinker.removeChildObject( viewLinker );
-
-        viewLinker->applyRangeFilterCollectionByUserChoice();
-
-        delete viewLinker;
-
-        proj->uiCapability()->updateConnectedEditors();
-    }
+    DeleteAllLinkedViewsImpl::execute();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,6 +75,6 @@ void RicDeleteAllLinkedViewsFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicDeleteAllLinkedViewsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Delete All Linked Views" );
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    actionToSetup->setText( "Unlink All Views" );
+    actionToSetup->setIcon( QIcon( ":/UnLinkView16x16.png" ) );
 }

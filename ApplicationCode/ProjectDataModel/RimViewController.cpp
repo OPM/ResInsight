@@ -95,6 +95,10 @@ RimViewController::RimViewController()
 RimViewController::~RimViewController()
 {
     this->removeOverrides();
+    RimGridView* managedView = m_managedView;
+    m_managedView = nullptr;
+
+    if (managedView) managedView->updateHolder();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,6 +219,8 @@ void RimViewController::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         PdmObjectHandle* prevValue           = oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr();
         RimGridView*     previousManagedView = dynamic_cast<RimGridView*>( prevValue );
         RimViewController::removeOverrides( previousManagedView );
+
+        ownerViewLinker()->notifyManagedViewChange(previousManagedView,  m_managedView());
 
         setManagedView( m_managedView() );
 
@@ -469,6 +475,11 @@ RimGridView* RimViewController::managedView() const
 //--------------------------------------------------------------------------------------------------
 void RimViewController::setManagedView( RimGridView* view )
 {
+    if (m_managedView != view)
+    {
+        ownerViewLinker()->notifyManagedViewChange(m_managedView(), view);
+    }
+
     m_managedView = view;
 
     updateOptionSensitivity();
@@ -478,6 +489,7 @@ void RimViewController::setManagedView( RimGridView* view )
     updateCameraLink();
     updateDisplayNameAndIcon();
     updateTimeStepLink();
+    m_managedView->updateHolder();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -949,7 +961,7 @@ bool RimViewController::isRangeFiltersControlled() const
 {
     if ( !isRangeFilterControlPossible() ) return false;
 
-    if ( ownerViewLinker()->isActive() && this->m_isActive() )
+    if (ownerViewLinker() &&  ownerViewLinker()->isActive() && this->m_isActive() )
     {
         return m_syncRangeFilters;
     }
@@ -1125,7 +1137,7 @@ bool RimViewController::askUserToRestoreOriginalRangeFilterCollection( const QSt
     questionText = QString( "The range filters in the view \"%1\" are about to be unlinked." ).arg( viewName );
 
     msgBox.setText( questionText );
-    msgBox.setInformativeText( "Do you want to keep the range filters from the master view?" );
+    msgBox.setInformativeText( "Do you want to keep the range filters from the primary view?" );
     msgBox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
 
     int ret = msgBox.exec();

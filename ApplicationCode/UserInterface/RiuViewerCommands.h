@@ -41,7 +41,8 @@ class QMouseEvent;
 namespace caf
 {
 class PdmObject;
-}
+class CmdFeatureMenuBuilder;
+} // namespace caf
 
 namespace cvf
 {
@@ -88,6 +89,8 @@ private:
                          size_t*                             indexToNncItemNearFirsItem );
 
     bool handleOverlayItemPicking( int winPosX, int winPosY );
+
+    void addCompareToViewMenu( caf::CmdFeatureMenuBuilder* menuBuilder );
 
     static void addDefaultPickEventHandler( RicDefaultPickEventHandler* pickEventHandler );
     static void removeDefaultPickEventHandler( RicDefaultPickEventHandler* pickEventHandler );
