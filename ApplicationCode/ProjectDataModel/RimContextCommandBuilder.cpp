@@ -223,6 +223,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewContourMapViewFeature";
             menuBuilder << "RicShowFlowCharacteristicsPlotFeature";
             menuBuilder << "RicEclipseCaseNewGroupFeature";
+            menuBuilder << "RicAddEclipseInputPropertyFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "Separator";

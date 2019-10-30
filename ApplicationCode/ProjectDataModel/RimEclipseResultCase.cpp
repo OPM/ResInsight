@@ -28,6 +28,7 @@
 
 #include "RicfCommandObject.h"
 
+#include "RifEclipseInputPropertyLoader.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RifReaderEclipseOutput.h"
 #include "RifReaderEclipseRft.h"
@@ -41,6 +42,8 @@
 
 #include "RimDialogData.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseInputProperty.h"
+#include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
 #include "RimMockModelSettings.h"
@@ -237,6 +240,18 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
     results( RiaDefines::MATRIX_MODEL )->computeCellVolumes();
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseResultCase::importAsciiInputProperties( const QStringList& fileNames )
+{
+    bool importFaults = false;
+    return RifEclipseInputPropertyLoader::readInputPropertiesFromFiles( m_inputPropertyCollection,
+                                                                        this->eclipseCaseData(),
+                                                                        importFaults,
+                                                                        fileNames.toVector().toStdVector() );
 }
 
 //--------------------------------------------------------------------------------------------------

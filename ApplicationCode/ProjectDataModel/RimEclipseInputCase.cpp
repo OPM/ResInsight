@@ -74,6 +74,15 @@ RimEclipseInputCase::RimEclipseInputCase()
 RimEclipseInputCase::~RimEclipseInputCase() {}
 
 //--------------------------------------------------------------------------------------------------
+/// Import ascii properties. If no grid data has been read, it will first find the possible
+/// grid data among the files then read all supported properties from the files matching the grid
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseInputCase::importAsciiInputProperties( const QStringList& fileNames )
+{
+    return openDataFileSet( fileNames );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Open the supplied file set. If no grid data has been read, it will first find the possible
 /// grid data among the files then read all supported properties from the files matching the grid
 //--------------------------------------------------------------------------------------------------

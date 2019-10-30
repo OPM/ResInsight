@@ -72,6 +72,7 @@ public:
     bool         ensureReservoirCaseIsOpen();
     bool         openReserviorCase();
     virtual bool openEclipseGridFile() = 0;
+    virtual bool importAsciiInputProperties( const QStringList& fileNames );
 
     RigEclipseCaseData*       eclipseCaseData();
     const RigEclipseCaseData* eclipseCaseData() const;

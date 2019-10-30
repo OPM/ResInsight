@@ -46,6 +46,7 @@ public:
 
     // File open methods
     bool openDataFileSet( const QStringList& fileNames );
+    bool importAsciiInputProperties( const QStringList& fileNames ) override;
     void loadAndSyncronizeInputProperties();
 
     // RimCase overrides
