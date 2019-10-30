@@ -34,7 +34,6 @@
 
 #include <QFileInfo>
 
-#define for_all( stdVector, indexName ) for ( size_t indexName = 0; indexName < stdVector.size(); ++indexName )
 //--------------------------------------------------------------------------------------------------
 /// Loads input property data from the gridFile and additional files
 /// Creates new InputProperties if necessary, and flags the unused ones as obsolete
@@ -48,69 +47,43 @@ void RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties(
     CVF_ASSERT( eclipseCaseData );
     CVF_ASSERT( eclipseCaseData->mainGrid()->gridPointDimensions() != cvf::Vec3st( 0, 0, 0 ) );
 
-    size_t inputPropCount = inputPropertyCollection->inputProperties.size();
-
+    size_t            inputPropCount = inputPropertyCollection->inputProperties.size();
     caf::ProgressInfo progInfo( static_cast<int>( filenames.size() * inputPropCount ), "Reading Input properties" );
 
-    for_all( filenames, i )
+    int i = 0;
+    for ( const QString filename : filenames )
     {
         int progress = static_cast<int>( i * inputPropCount );
-        // Find all the keywords present on the file
+        progInfo.setProgressDescription( filename );
 
-        progInfo.setProgressDescription( filenames[i] );
-
-        QFileInfo fileNameInfo( filenames[i] );
+        QFileInfo fileNameInfo( filename );
         bool      isExistingFile = fileNameInfo.exists();
 
+        // Find all the keywords present on the file
         std::set<QString> fileKeywordSet = extractKeywordsOnFile( filenames[i], isExistingFile );
 
-        // Find the input property objects referring to the file
-
-        std::vector<RimEclipseInputProperty*> ipsUsingThisFile = inputPropertyCollection->findInputProperties(
-            filenames[i] );
-
-        // Read property data for each inputProperty
-
-        for_all( ipsUsingThisFile, ipIdx )
-        {
-            if ( !isExistingFile )
-            {
-                ipsUsingThisFile[ipIdx]->resolvedState = RimEclipseInputProperty::FILE_MISSING;
-            }
-            else
-            {
-                QString kw                             = ipsUsingThisFile[ipIdx]->eclipseKeyword();
-                ipsUsingThisFile[ipIdx]->resolvedState = RimEclipseInputProperty::KEYWORD_NOT_IN_FILE;
-                if ( fileKeywordSet.count( kw ) )
-                {
-                    if ( RifEclipseInputFileTools::readProperty( filenames[i],
-                                                                 eclipseCaseData,
-                                                                 kw,
-                                                                 ipsUsingThisFile[ipIdx]->resultName ) )
-                    {
-                        ipsUsingThisFile[ipIdx]->resolvedState = RimEclipseInputProperty::RESOLVED;
-                    }
-                }
-                fileKeywordSet.erase( kw );
-            }
-
-            progInfo.setProgress( static_cast<int>( progress + ipIdx ) );
-        }
+        readDataForEachInputProperty( inputPropertyCollection,
+                                      eclipseCaseData,
+                                      filename,
+                                      isExistingFile,
+                                      &fileKeywordSet,
+                                      &progInfo,
+                                      progress );
 
         progInfo.setProgress( static_cast<int>( progress + inputPropCount ) );
+
         // Check if there are more known property keywords left on file. If it is, read them and create inputProperty
         // objects
-
         for ( const QString& fileKeyword : fileKeywordSet )
         {
             {
                 QString resultName = eclipseCaseData->results( RiaDefines::MATRIX_MODEL )->makeResultNameUnique( fileKeyword );
-                if ( RifEclipseInputFileTools::readProperty( filenames[i], eclipseCaseData, fileKeyword, resultName ) )
+                if ( RifEclipseInputFileTools::readProperty( filename, eclipseCaseData, fileKeyword, resultName ) )
                 {
                     RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
                     inputProperty->resultName              = resultName;
                     inputProperty->eclipseKeyword          = fileKeyword;
-                    inputProperty->fileName                = filenames[i];
+                    inputProperty->fileName                = filename;
                     inputProperty->resolvedState           = RimEclipseInputProperty::RESOLVED;
                     inputPropertyCollection->inputProperties.push_back( inputProperty );
                 }
@@ -118,6 +91,7 @@ void RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties(
 
             progInfo.setProgress( static_cast<int>( progress + inputPropCount ) );
         }
+        i++;
     }
 
     // All input properties still unknown at this stage is missing a file
@@ -187,5 +161,44 @@ void RifEclipseInputPropertyLoader::setResolvedState( RimEclipseInputPropertyCol
         {
             inputProperty->resolvedState = newState;
         }
+    }
+}
+
+void RifEclipseInputPropertyLoader::readDataForEachInputProperty( RimEclipseInputPropertyCollection* inputPropertyCollection,
+                                                                  RigEclipseCaseData*                eclipseCaseData,
+                                                                  const QString&                     filename,
+                                                                  bool                               isExistingFile,
+                                                                  std::set<QString>*                 fileKeywordSet,
+                                                                  caf::ProgressInfo*                 progressInfo,
+                                                                  int                                progressOffset )
+{
+    // Find the input property objects referring to the file
+    std::vector<RimEclipseInputProperty*> ipsUsingThisFile = inputPropertyCollection->findInputProperties( filename );
+
+    // Read property data for each inputProperty
+    int progress = 0;
+    for ( RimEclipseInputProperty* inputProperty : ipsUsingThisFile )
+    {
+        if ( !isExistingFile )
+        {
+            inputProperty->resolvedState = RimEclipseInputProperty::FILE_MISSING;
+        }
+        else
+        {
+            inputProperty->resolvedState = RimEclipseInputProperty::KEYWORD_NOT_IN_FILE;
+
+            QString kw = inputProperty->eclipseKeyword();
+            if ( fileKeywordSet->count( kw ) )
+            {
+                if ( RifEclipseInputFileTools::readProperty( filename, eclipseCaseData, kw, inputProperty->resultName ) )
+                {
+                    inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
+                }
+            }
+            fileKeywordSet->erase( kw );
+        }
+
+        progressInfo->setProgress( static_cast<int>( progressOffset + progress ) );
+        progress++;
     }
 }

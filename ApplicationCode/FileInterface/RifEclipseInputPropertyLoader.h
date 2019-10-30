@@ -27,6 +27,10 @@
 
 class RimEclipseInputPropertyCollection;
 class RigEclipseCaseData;
+namespace caf
+{
+class ProgressInfo;
+}
 
 //==================================================================================================
 //
@@ -54,4 +58,12 @@ private:
     static void setResolvedState( RimEclipseInputPropertyCollection*    inputPropertyCollection,
                                   RimEclipseInputProperty::ResolveState currentState,
                                   RimEclipseInputProperty::ResolveState newState );
+
+    static void readDataForEachInputProperty( RimEclipseInputPropertyCollection* inputPropertyCollection,
+                                              RigEclipseCaseData*                eclipseCaseData,
+                                              const QString&                     filename,
+                                              bool                               isExistingFile,
+                                              std::set<QString>*                 fileKeywordSet,
+                                              caf::ProgressInfo*                 progressInfo,
+                                              int                                progressOffset );
 };
