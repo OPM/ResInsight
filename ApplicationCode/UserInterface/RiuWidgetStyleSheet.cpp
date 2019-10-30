@@ -125,6 +125,8 @@ RiuWidgetStyleSheet::State& RiuWidgetStyleSheet::state( StateTag stateTag )
 //--------------------------------------------------------------------------------------------------
 void RiuWidgetStyleSheet::applyToWidget( QWidget* widget ) const
 {
+    CAF_ASSERT( !widget->objectName().isEmpty() &&
+                "The widget is required to have an object name set with setObjectName" );
     QString completeStyleSheet = fullText( QString( widget->metaObject()->className() ), widget->objectName() );
     // qDebug().noquote() << completeStyleSheet;
     widget->setStyleSheet( completeStyleSheet );

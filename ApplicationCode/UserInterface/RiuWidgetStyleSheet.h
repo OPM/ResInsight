@@ -27,9 +27,8 @@ class RiuWidgetStyleSheetManager;
 class QWidget;
 
 //==================================================================================================
-//
-//
-//
+// ResInsight widget class. Meant to create and apply style sheets to particular widget instances.
+// without "bleeding" the look into other widgets.
 //==================================================================================================
 class RiuWidgetStyleSheet
 {
