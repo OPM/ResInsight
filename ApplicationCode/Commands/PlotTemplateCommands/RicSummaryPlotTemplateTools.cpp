@@ -331,6 +331,7 @@ QString RicSummaryPlotTemplateTools::selectPlotTemplatePath()
     RicSelectPlotTemplateUi* ui = RiaGuiApplication::instance()->project()->dialogData()->selectPlotTemplateUi();
 
     caf::PdmUiPropertyViewDialog propertyDialog( plotwindow, ui, "Select Plot Template", "" );
+    propertyDialog.resize( QSize( 400, 600 ) );
 
     if ( propertyDialog.exec() == QDialog::Accepted && !ui->selectedPlotTemplates().empty() )
     {
