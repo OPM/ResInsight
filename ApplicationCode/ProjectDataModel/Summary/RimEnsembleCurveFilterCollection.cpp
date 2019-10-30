@@ -142,59 +142,71 @@ void RimEnsembleCurveFilterCollection::fieldChangedByUi( const caf::PdmFieldHand
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilterCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_newFilterButton );
-
-    for ( auto& filter : m_filters )
+    RimEnsembleCurveSet* curveSet = nullptr;
+    this->firstAncestorOrThisOfType( curveSet );
+    if ( curveSet )
     {
-        QString groupTitle;
-        auto    selEnsembleParam = filter->selectedEnsembleParameter();
-        if ( selEnsembleParam.isNumeric() )
+        // Show the color control group
+        curveSet->appendColorGroup( uiOrdering );
+    }
+
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Filters" );
+
+        group->add( &m_newFilterButton );
+
+        for ( auto& filter : m_filters )
         {
-            groupTitle = filter->ensembleParameterName();
+            QString groupTitle;
+            auto    selEnsembleParam = filter->selectedEnsembleParameter();
+            if ( selEnsembleParam.isNumeric() )
+            {
+                groupTitle = filter->ensembleParameterName();
 
-            if ( !filter->isActive() )
-            {
-                groupTitle += " - [Disabled]";
-            }
-            else
-            {
-                groupTitle += QString( " [%2 .. %3]" )
-                                  .arg( QString::number( filter->minValue() ) )
-                                  .arg( QString::number( filter->maxValue() ) );
-            }
-        }
-        else if ( selEnsembleParam.isText() )
-        {
-            groupTitle = filter->ensembleParameterName();
-
-            if ( !filter->isActive() )
-            {
-                groupTitle += " - [Disabled]";
-            }
-            else
-            {
-                groupTitle += " { ";
-
-                bool first = true;
-                for ( auto cat : filter->categories() )
+                if ( !filter->isActive() )
                 {
-                    if ( !first ) groupTitle += ", ";
-                    groupTitle += cat;
-                    first = false;
+                    groupTitle += " - [Disabled]";
                 }
-                groupTitle += " }";
-
-                if ( groupTitle.size() > 45 )
+                else
                 {
-                    groupTitle = groupTitle.left( 40 ) + "... }";
+                    groupTitle += QString( " [%2 .. %3]" )
+                                      .arg( QString::number( filter->minValue() ) )
+                                      .arg( QString::number( filter->maxValue() ) );
                 }
             }
-        }
+            else if ( selEnsembleParam.isText() )
+            {
+                groupTitle = filter->ensembleParameterName();
 
-        caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroupWithKeyword( groupTitle,
+                if ( !filter->isActive() )
+                {
+                    groupTitle += " - [Disabled]";
+                }
+                else
+                {
+                    groupTitle += " { ";
+
+                    bool first = true;
+                    for ( const auto& cat : filter->categories() )
+                    {
+                        if ( !first ) groupTitle += ", ";
+                        groupTitle += cat;
+                        first = false;
+                    }
+                    groupTitle += " }";
+
+                    if ( groupTitle.size() > 45 )
+                    {
+                        groupTitle = groupTitle.left( 40 ) + "... }";
+                    }
+                }
+            }
+
+            caf::PdmUiGroup* filterGroup = group->addNewGroupWithKeyword( groupTitle,
                                                                           QString( "EnsembleFilter_" ) +
                                                                               filter->filterId() );
-        filter->defineUiOrdering( uiConfigName, *filterGroup );
+            filter->defineUiOrdering( uiConfigName, *filterGroup );
+        }
     }
 
     uiOrdering.skipRemainingFields( true );

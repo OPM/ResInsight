@@ -125,6 +125,8 @@ public:
     bool hasP90Data() const;
     bool hasMeanData() const;
 
+    void appendColorGroup( caf::PdmUiOrdering& uiOrdering );
+
 private:
     void updateEnsembleCurves( const std::vector<RimSummaryCase*>& sumCases );
     void updateStatisticsCurves( const std::vector<RimSummaryCase*>& sumCases );
@@ -138,6 +140,7 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
@@ -145,7 +148,7 @@ private:
                            const QVariant&            newValue ) override;
 
     void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
-                                               RimSummaryCaseCollection*      summaryCaseGroup);
+                                               RimSummaryCaseCollection*      summaryCaseGroup );
 
     void updateCurveColors();
     void updateQwtPlotAxis();
@@ -154,7 +157,6 @@ private:
     QString createAutoName() const;
 
     void updateLegendMappingMode();
-    void sortParameterVectorByBinnedVariation( std::vector<NameParameterPair>& parameterVector ) const;
 
 private:
     caf::PdmField<bool>                       m_showCurves;
@@ -190,5 +192,5 @@ private:
     bool m_isCurveSetFiltered;
 
     // Obsolete fields
-    caf::PdmChildField<RimSummaryFilter_OBSOLETE*>       m_yValuesSummaryFilter_OBSOLETE;
+    caf::PdmChildField<RimSummaryFilter_OBSOLETE*> m_yValuesSummaryFilter_OBSOLETE;
 };

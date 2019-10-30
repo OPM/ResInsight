@@ -20,7 +20,7 @@
 
 #include "RifSummaryReaderInterface.h"
 
-#include "../Commands/SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
 #include <map>
 #include <memory>

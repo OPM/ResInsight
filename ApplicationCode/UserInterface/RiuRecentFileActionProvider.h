@@ -49,6 +49,8 @@ private:
     void updateActions();
     void removeFileName( const QString& fileName );
 
+    static QString registryKey();
+
 private:
     int m_maxActionCount;
 

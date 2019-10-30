@@ -639,19 +639,7 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         curveDataGroup->add( &m_plotAxis );
     }
 
-    caf::PdmUiGroup* colorsGroup = uiOrdering.addNewGroup( "Colors" );
-    m_colorMode.uiCapability()->setUiReadOnly( !m_yValuesSummaryCaseCollection() );
-    colorsGroup->add( &m_colorMode );
-
-    if ( m_colorMode == SINGLE_COLOR )
-    {
-        colorsGroup->add( &m_color );
-    }
-    else if ( m_colorMode == BY_ENSEMBLE_PARAM )
-    {
-        m_ensembleParameter.uiCapability()->setUiReadOnly( !m_yValuesSummaryCaseCollection() );
-        colorsGroup->add( &m_ensembleParameter );
-    }
+    appendColorGroup( uiOrdering );
 
     {
         caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
@@ -672,6 +660,26 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     m_statistics->defineUiOrdering( uiConfigName, *statGroup );
 
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
+{
+    caf::PdmUiGroup* colorsGroup = uiOrdering.addNewGroup( "Colors" );
+    m_colorMode.uiCapability()->setUiReadOnly( !m_yValuesSummaryCaseCollection() );
+    colorsGroup->add( &m_colorMode );
+
+    if ( m_colorMode == SINGLE_COLOR )
+    {
+        colorsGroup->add( &m_color );
+    }
+    else if ( m_colorMode == BY_ENSEMBLE_PARAM )
+    {
+        m_ensembleParameter.uiCapability()->setUiReadOnly( !m_yValuesSummaryCaseCollection() );
+        colorsGroup->add( &m_ensembleParameter );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

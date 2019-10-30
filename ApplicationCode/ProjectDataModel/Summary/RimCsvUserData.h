@@ -20,7 +20,7 @@
 
 #include "RimObservedSummaryData.h"
 
-#include "../../Commands/SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
