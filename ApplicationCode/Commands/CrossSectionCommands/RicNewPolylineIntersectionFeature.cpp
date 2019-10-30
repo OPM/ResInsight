@@ -108,7 +108,7 @@ void RicNewPolylineIntersectionFeatureCmd::redo()
     intersection->type                           = RimIntersection::CS_POLYLINE;
     intersection->inputPolyLineFromViewerEnabled = true;
 
-    m_intersectionCollection->appendIntersectionAndUpdate( intersection );
+    m_intersectionCollection->appendIntersectionAndUpdate( intersection, false );
 
     Riu3dSelectionManager::instance()->deleteAllItems();
 

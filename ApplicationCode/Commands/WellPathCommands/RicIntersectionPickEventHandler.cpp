@@ -52,13 +52,14 @@ bool RicIntersectionPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& e
             RimGridView* gridView = nullptr;
             intersection->firstAncestorOrThisOfTypeAsserted( gridView );
 
-            if ( RiaApplication::instance()->activeGridView() != gridView )
+            if ( RiaApplication::instance()->activeMainOrComparisonGridView() != gridView )
             {
                 return false;
             }
 
-            cvf::ref<caf::DisplayCoordTransform> transForm   = gridView->displayCoordTransform();
-            cvf::Vec3d                           domainCoord = transForm->transformToDomainCoord(
+            cvf::ref<caf::DisplayCoordTransform> transForm = gridView->displayCoordTransform();
+
+            cvf::Vec3d domainCoord = transForm->transformToDomainCoord(
                 eventObject.m_pickItemInfos.front().globalPickedPoint() );
 
             if ( intersection->inputPolyLineFromViewerEnabled() )
