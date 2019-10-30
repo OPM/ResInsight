@@ -23,7 +23,6 @@
 #include "RimFlowPlotCollection.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
-#include "RimGridPlotWindowCollection.h"
 #include "RimPltPlotCollection.h"
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
@@ -84,9 +83,6 @@ RimMainPlotCollection::RimMainPlotCollection()
                                 "",
                                 "" );
     m_saturationPressurePlotCollection.uiCapability()->setUiHidden( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_combinationPlotCollection, "RimGridPlotWindowCollection", "Combination Plots", "", "", "" );
-    m_combinationPlotCollection.uiCapability()->setUiHidden( true );
 
     m_wellLogPlotCollection            = new RimWellLogPlotCollection();
     m_rftPlotCollection                = new RimRftPlotCollection();
@@ -187,14 +183,6 @@ RimSaturationPressurePlotCollection* RimMainPlotCollection::saturationPressurePl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridPlotWindowCollection* RimMainPlotCollection::combinationPlotCollection()
-{
-    return m_combinationPlotCollection();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::deleteAllContainedObjects()
 {
     m_wellLogPlotCollection()->wellLogPlots.deleteAllChildObjects();
@@ -205,7 +193,6 @@ void RimMainPlotCollection::deleteAllContainedObjects()
     m_gridCrossPlotCollection->deleteAllChildObjects();
     m_flowPlotCollection()->closeDefaultPlotWindowAndDeletePlots();
     m_saturationPressurePlotCollection()->deleteAllChildObjects();
-    m_combinationPlotCollection()->deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,14 +244,6 @@ void RimMainPlotCollection::updatePlotsWithFormations()
             crossPlot->loadDataAndUpdate();
         }
     }
-
-    if ( m_combinationPlotCollection )
-    {
-        for ( RimGridPlotWindow* plotWindow : m_combinationPlotCollection->gridPlotWindows() )
-        {
-            plotWindow->loadDataAndUpdate();
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,14 +256,6 @@ void RimMainPlotCollection::updatePlotsWithCompletions()
         for ( RimWellLogPlot* wellLogPlot : m_wellLogPlotCollection->wellLogPlots() )
         {
             wellLogPlot->loadDataAndUpdate();
-        }
-    }
-
-    if ( m_combinationPlotCollection )
-    {
-        for ( RimGridPlotWindow* plotWindow : m_combinationPlotCollection->gridPlotWindows() )
-        {
-            plotWindow->loadDataAndUpdate();
         }
     }
 }

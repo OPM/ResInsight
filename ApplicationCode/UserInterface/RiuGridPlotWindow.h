@@ -20,7 +20,6 @@
 #pragma once
 
 #include "RiuInterfaceToViewWindow.h"
-#include "RiuWidgetStyleSheet.h"
 
 #include "cafPdmPointer.h"
 #include "cafSelectionChangedReceiver.h"
@@ -65,6 +64,7 @@ public:
     void removePlot( RiuQwtPlotWidget* plotWidget );
 
     void setPlotTitle( const QString& plotTitle );
+    int  preferredWidth() const;
 
     void setTitleVisible( bool visible );
     void setScrollbarVisible( bool visible );
@@ -95,15 +95,13 @@ protected:
 
     virtual void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
 
-    void setWidgetState( RiuWidgetStyleSheet::StateTag widgetState );
 private slots:
     void performUpdate();
 
 private:
-    void                alignCanvasTopsAndScrollbar();
-    void                reinsertPlotWidgetsAndScrollbar();
-    void                clearGridLayout();
-    RiuWidgetStyleSheet createDropTargetStyleSheet();
+    void alignCanvasTopsAndScrollbar();
+    void reinsertPlotWidgetsAndScrollbar();
+    void clearGridLayout();
 
     QList<QPointer<RiuQwtPlotWidget>> visiblePlotWidgets() const;
     QList<QPointer<RiuQwtPlotLegend>> visibleLegends() const;
@@ -120,9 +118,6 @@ protected:
     QList<int>                         m_legendColumns;
     QList<QPointer<RiuQwtPlotWidget>>  m_plotWidgets;
     caf::PdmPointer<RimGridPlotWindow> m_plotDefinition;
-    QPointer<QLabel>                   m_dropTargetPlaceHolder;
-
-    RiuWidgetStyleSheet m_dropTargetStyleSheet;
 
 private:
     friend class RiaPlotWindowRedrawScheduler;

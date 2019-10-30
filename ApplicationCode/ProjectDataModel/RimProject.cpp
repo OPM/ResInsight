@@ -50,7 +50,6 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimGridCrossPlotCollection.h"
-#include "RimGridPlotWindowCollection.h"
 #include "RimGridSummaryCase.h"
 #include "RimGridView.h"
 #include "RimIdenticalGridCaseGroup.h"
@@ -1303,10 +1302,6 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( mainPlotCollection->saturationPressurePlotCollection() )
             {
                 itemCollection->add( mainPlotCollection->saturationPressurePlotCollection() );
-            }
-            if ( mainPlotCollection->combinationPlotCollection() )
-            {
-                itemCollection->add( mainPlotCollection->combinationPlotCollection() );
             }
         }
 
