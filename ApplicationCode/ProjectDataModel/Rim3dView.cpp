@@ -153,6 +153,11 @@ Rim3dView::Rim3dView( void )
 //--------------------------------------------------------------------------------------------------
 Rim3dView::~Rim3dView( void )
 {
+    if (RiaApplication::instance()->activeReservoirView() == this)
+    {
+        RiaApplication::instance()->setActiveReservoirView(nullptr);
+    }
+
     if ( m_viewer )
     {
         m_viewer->clearRimView();
