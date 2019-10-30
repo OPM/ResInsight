@@ -72,25 +72,9 @@ void RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties(
 
         progInfo.setProgress( static_cast<int>( progress + inputPropCount ) );
 
-        // Check if there are more known property keywords left on file. If it is, read them and create inputProperty
-        // objects
-        for ( const QString& fileKeyword : fileKeywordSet )
-        {
-            {
-                QString resultName = eclipseCaseData->results( RiaDefines::MATRIX_MODEL )->makeResultNameUnique( fileKeyword );
-                if ( RifEclipseInputFileTools::readProperty( filename, eclipseCaseData, fileKeyword, resultName ) )
-                {
-                    RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
-                    inputProperty->resultName              = resultName;
-                    inputProperty->eclipseKeyword          = fileKeyword;
-                    inputProperty->fileName                = filename;
-                    inputProperty->resolvedState           = RimEclipseInputProperty::RESOLVED;
-                    inputPropertyCollection->inputProperties.push_back( inputProperty );
-                }
-            }
-
-            progInfo.setProgress( static_cast<int>( progress + inputPropCount ) );
-        }
+        // Check if there are more known property keywords left on file.
+        // If it is, read them and create inputProperty objects
+        readInputPropertiesForRemainingKeywords( inputPropertyCollection, eclipseCaseData, filename, &fileKeywordSet );
         i++;
     }
 
@@ -200,5 +184,26 @@ void RifEclipseInputPropertyLoader::readDataForEachInputProperty( RimEclipseInpu
 
         progressInfo->setProgress( static_cast<int>( progressOffset + progress ) );
         progress++;
+    }
+}
+
+void RifEclipseInputPropertyLoader::readInputPropertiesForRemainingKeywords(
+    RimEclipseInputPropertyCollection* inputPropertyCollection,
+    RigEclipseCaseData*                eclipseCaseData,
+    const QString&                     filename,
+    std::set<QString>*                 fileKeywordSet )
+{
+    for ( const QString& fileKeyword : *fileKeywordSet )
+    {
+        QString resultName = eclipseCaseData->results( RiaDefines::MATRIX_MODEL )->makeResultNameUnique( fileKeyword );
+        if ( RifEclipseInputFileTools::readProperty( filename, eclipseCaseData, fileKeyword, resultName ) )
+        {
+            RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
+            inputProperty->resultName              = resultName;
+            inputProperty->eclipseKeyword          = fileKeyword;
+            inputProperty->fileName                = filename;
+            inputProperty->resolvedState           = RimEclipseInputProperty::RESOLVED;
+            inputPropertyCollection->inputProperties.push_back( inputProperty );
+        }
     }
 }

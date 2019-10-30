@@ -66,4 +66,9 @@ private:
                                               std::set<QString>*                 fileKeywordSet,
                                               caf::ProgressInfo*                 progressInfo,
                                               int                                progressOffset );
+
+    static void readInputPropertiesForRemainingKeywords( RimEclipseInputPropertyCollection* inputPropertyCollection,
+                                                         RigEclipseCaseData*                eclipseCaseData,
+                                                         const QString&                     filename,
+                                                         std::set<QString>*                 fileKeywordSet );
 };
