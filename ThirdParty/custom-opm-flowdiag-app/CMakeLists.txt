@@ -36,7 +36,7 @@ target_link_libraries(custom-opm-flowdiag-app
 if (MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4190 /wd4267")
 else()
-    set_target_properties(ecl PROPERTIES COMPILE_FLAGS "-Wno-deprecated -Wno-deprecated-declarations")
+    set_target_properties(custom-opm-flowdiag-app PROPERTIES COMPILE_FLAGS "-Wno-deprecated -Wno-deprecated-declarations")
 endif()
 
 target_include_directories(${PROJECT_NAME}
