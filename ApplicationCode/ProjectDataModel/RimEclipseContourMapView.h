@@ -51,7 +51,7 @@ protected:
     void appendContourMapProjectionToModel();
     void appendContourLinesToModel();
     void appendPickPointVisToModel();
-    void updateLegends() override;
+    void onUpdateLegends() override;
     void updateViewWidgetAfterCreation() override;
     void updateViewFollowingRangeFilterUpdates() override;
     void onLoadDataAndUpdate() override;

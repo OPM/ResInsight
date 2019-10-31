@@ -254,7 +254,7 @@ void RimGeoMechContourMapView::updateGeometry()
         {
             m_contourMapProjection->generateResultsIfNecessary( m_currentTimeStep() );
         }
-        updateLegends();
+        onUpdateLegends();
 
         progress.setProgress( 30 );
     }
@@ -366,7 +366,7 @@ void RimGeoMechContourMapView::appendPickPointVisToModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapView::updateLegends()
+void RimGeoMechContourMapView::onUpdateLegends()
 {
     if ( nativeOrOverrideViewer() )
     {
@@ -452,7 +452,7 @@ void RimGeoMechContourMapView::fieldChangedByUi( const caf::PdmFieldHandle* chan
     }
     else if ( changedField == &m_showScaleLegend )
     {
-        updateLegends();
+        onUpdateLegends();
         scheduleCreateDisplayModelAndRedraw();
     }
 }

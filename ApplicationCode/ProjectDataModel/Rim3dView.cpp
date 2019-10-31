@@ -432,31 +432,6 @@ void Rim3dView::setComparisonView( Rim3dView* compView )
     m_comparisonView.uiCapability()->updateConnectedEditors();
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Rim3dView::setCurrentTimeStepAndUpdate( int frameIndex )
-{
-    setCurrentTimeStep( frameIndex );
-
-    this->onUpdateCurrentTimeStep();
-
-    if ( Rim3dView* depView = prepareComparisonView() )
-    {
-        depView->onUpdateCurrentTimeStep();
-        depView->appendAnnotationsToModel();
-        depView->appendMeasurementToModel();
-
-        restoreComparisonView();
-    }
-
-    RimProject* project;
-    firstAncestorOrThisOfTypeAsserted( project );
-    project->mainPlotCollection()->updateCurrentTimeStepInPlots();
-
-    appendAnnotationsToModel();
-    appendMeasurementToModel();
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -497,6 +472,32 @@ void Rim3dView::setCurrentTimeStep( int frameIndex )
     }
 
     this->hasUserRequestedAnimation = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::setCurrentTimeStepAndUpdate( int frameIndex )
+{
+    setCurrentTimeStep( frameIndex );
+
+    this->onUpdateCurrentTimeStep();
+
+    if ( Rim3dView* depView = prepareComparisonView() )
+    {
+        depView->onUpdateCurrentTimeStep();
+        depView->appendAnnotationsToModel();
+        depView->appendMeasurementToModel();
+
+        restoreComparisonView();
+    }
+
+    RimProject* project;
+    firstAncestorOrThisOfTypeAsserted( project );
+    project->mainPlotCollection()->updateCurrentTimeStepInPlots();
+
+    appendAnnotationsToModel();
+    appendMeasurementToModel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -750,6 +751,14 @@ bool Rim3dView::isLightingDisabled() const
 caf::PdmFieldHandle* Rim3dView::userDescriptionField()
 {
     return m_nameConfig->nameField();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* Rim3dView::backgroundColorField()
+{
+    return &m_backgroundColor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1147,7 +1156,7 @@ void Rim3dView::applyBackgroundColorAndFontChanges()
     }
     updateGridBoxData();
     updateAnnotationItems();
-    updateLegends();
+    onUpdateLegends();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1206,6 +1215,8 @@ void Rim3dView::updateDisplayModelVisibility()
 
     viewer()->setEnableMask( mask, false );
     viewer()->setEnableMask( mask, true );
+
+    this->onUpdateDisplayModelVisibility();
 
     viewer()->update();
 }

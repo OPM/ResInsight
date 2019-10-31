@@ -166,7 +166,7 @@ protected:
 private:
     QString createAutoName() const override;
 
-    void updateDisplayModelVisibility() override;
+    void onUpdateDisplayModelVisibility() override;
 
     std::vector<size_t> indicesToVisibleGrids() const;
     void                onUpdateScaleTransform() override;
@@ -175,7 +175,7 @@ private:
     void onUpdateStaticCellColors() override;
     void updateStaticCellColors( RivCellSetEnum geometryType );
 
-    void updateLegends() override;
+    void onUpdateLegends() override;
     void updateMinMaxValuesAndAddLegendToView( QString                 legendLabel,
                                                RimEclipseCellColors*   resultColors,
                                                RigCaseCellResultsData* cellResultsData );

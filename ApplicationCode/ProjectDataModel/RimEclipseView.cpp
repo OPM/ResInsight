@@ -561,7 +561,7 @@ void RimEclipseView::onCreateDisplayModel()
     else
     {
         m_overlayInfoConfig()->update3DInfo();
-        updateLegends();
+        onUpdateLegends();
     }
 
     std::vector<RimFlowCharacteristicsPlot*> characteristicsPlots;
@@ -596,7 +596,7 @@ void RimEclipseView::onUpdateCurrentTimeStep()
 
     m_propertyFilterCollection()->updateFromCurrentTimeStep();
 
-    updateLegends(); // To make sure the scalar mappers are set up correctly
+    onUpdateLegends(); // To make sure the scalar mappers are set up correctly
 
     updateVisibleGeometriesAndCellColors();
 
@@ -1070,10 +1070,8 @@ QString RimEclipseView::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateDisplayModelVisibility()
+void RimEclipseView::onUpdateDisplayModelVisibility()
 {
-    Rim3dView::updateDisplayModelVisibility();
-
     faultCollection()->updateConnectedEditors();
 
     // This is required to update the read-only state of simulation wells
@@ -1159,7 +1157,7 @@ std::vector<size_t> RimEclipseView::indicesToVisibleGrids() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateLegends()
+void RimEclipseView::onUpdateLegends()
 {
     if ( nativeOrOverrideViewer() )
     {

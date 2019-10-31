@@ -551,7 +551,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
 void Rim2dIntersectionView::onUpdateCurrentTimeStep()
 {
     update3dInfo();
-    updateLegends();
+    onUpdateLegends();
 
     if ( m_flatSimWellPipePartMgr.notNull() )
     {
@@ -623,7 +623,7 @@ void Rim2dIntersectionView::onUpdateCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::updateLegends()
+void Rim2dIntersectionView::onUpdateLegends()
 {
     m_legendObjectToSelect = nullptr;
 
@@ -705,10 +705,6 @@ void Rim2dIntersectionView::onResetLegendsInViewer()
 ///
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) {}
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::onTimeStepChanged() {}
 
 //--------------------------------------------------------------------------------------------------
 ///

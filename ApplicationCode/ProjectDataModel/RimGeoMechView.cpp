@@ -297,7 +297,7 @@ void RimGeoMechView::onCreateDisplayModel()
     }
     else
     {
-        updateLegends();
+        onUpdateLegends();
         m_vizLogic->updateStaticCellColors( -1 );
         m_crossSectionCollection->applySingleColorEffect();
 
@@ -318,7 +318,7 @@ RimPropertyFilterCollection* RimGeoMechView::nativePropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::onUpdateCurrentTimeStep()
 {
-    updateLegends();
+    onUpdateLegends();
 
     if ( this->isTimeStepDependentDataVisibleInThisOrComparisonView() )
     {
@@ -430,7 +430,7 @@ void RimGeoMechView::onResetLegendsInViewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::updateLegends()
+void RimGeoMechView::onUpdateLegends()
 {
     if ( nativeOrOverrideViewer() )
     {

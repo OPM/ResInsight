@@ -144,7 +144,7 @@ public:
     bool isTimeStepDependentDataVisibleInThisOrComparisonView() const;
 
     // Updating
-    void         updateCurrentTimeStepAndRedraw() override;
+    virtual void updateCurrentTimeStepAndRedraw();
     virtual void scheduleGeometryRegen( RivCellSetEnum geometryType ) = 0;
     void         scheduleCreateDisplayModelAndRedraw();
 
@@ -191,6 +191,7 @@ protected:
     bool                   hasVisibleTimeStepDependent3dWellLogCurves() const;
     void                   addWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
                                                 const cvf::BoundingBox& wellPathClipBoundingBox );
+    void                   updateDisplayModelVisibility();
 
     void addDynamicWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
                                      const cvf::BoundingBox& wellPathClipBoundingBox );
@@ -203,18 +204,15 @@ protected:
     RiuViewer* nativeOrOverrideViewer() const;
     bool       isUsingOverrideViewer() const;
 
-    // Implementation of RimNameConfigHolderInterface
-    void performAutoNameUpdate() override;
-
     // Abstract methods to implement in subclasses
 
     virtual void axisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) = 0;
 
     virtual void onCreateDisplayModel() = 0;
-    virtual void updateDisplayModelVisibility();
-    virtual void onClampCurrentTimestep()               = 0;
-    virtual void onUpdateCurrentTimeStep()              = 0;
-    virtual void onTimeStepChanged()                    = 0;
+    virtual void onUpdateDisplayModelVisibility(){};
+    virtual void onClampCurrentTimestep()  = 0;
+    virtual void onUpdateCurrentTimeStep() = 0;
+    virtual void onTimeStepChanged(){};
     virtual bool isTimeStepDependentDataVisible() const = 0;
 
     virtual void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) = 0;
@@ -224,12 +222,13 @@ protected:
     virtual cvf::Transform* scaleTransform()         = 0;
 
     virtual void onResetLegendsInViewer() = 0;
-    virtual void updateLegends()          = 0;
-
-protected: // Fields
-    caf::PdmField<int> m_currentTimeStep;
+    virtual void onUpdateLegends()        = 0;
 
 protected:
+    // Timestep Field. Children clamps this differently
+    caf::PdmField<int> m_currentTimeStep;
+
+    // 3D display model data
     cvf::ref<cvf::ModelBasicList> m_wellPathPipeVizModel;
     cvf::ref<cvf::ModelBasicList> m_crossSectionVizModel;
     cvf::ref<cvf::ModelBasicList> m_highlightVizModel;
@@ -238,17 +237,11 @@ protected:
     cvf::ref<RivAnnotationsPartMgr> m_annotationsPartManager;
     cvf::ref<RivMeasurementPartMgr> m_measurementPartManager;
 
-private:
+protected:
     // Overridden PdmObject methods:
 
-    void setupBeforeSave() override;
-
-protected:
     caf::PdmFieldHandle* userDescriptionField() override;
-    caf::PdmFieldHandle* backgroundColorField()
-    {
-        return &m_backgroundColor;
-    }
+    caf::PdmFieldHandle* backgroundColorField();
 
     void     fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                const QVariant&            oldValue,
@@ -259,11 +252,17 @@ protected:
     void     initAfterRead() override;
 
 private:
+    void setupBeforeSave() override;
+
+private:
     // Overridden ViewWindow methods:
 
     void     updateMdiWindowTitle() override;
     void     deleteViewWidget() override;
     QWidget* viewWidget() override;
+
+    // Implementation of RimNameConfigHolderInterface
+    void performAutoNameUpdate() override final;
 
     // Implementation of RiuViewerToViewInterface
     void setCameraPosition( const cvf::Mat4d& cameraPosition ) override;

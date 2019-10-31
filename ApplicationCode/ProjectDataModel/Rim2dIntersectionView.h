@@ -82,7 +82,7 @@ public:
     bool                          handleOverlayItemPicked( const cvf::OverlayItem* pickedOverlayItem ) const;
 
 protected:
-    void updateLegends() override;
+    void onUpdateLegends() override;
 
     bool            isGridVisualizationMode() const override;
     void            axisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
@@ -90,7 +90,6 @@ protected:
     void            onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
     void            onClampCurrentTimestep() override;
     void            onUpdateCurrentTimeStep() override;
-    void            onTimeStepChanged() override;
     void            onUpdateStaticCellColors() override;
     void            onUpdateScaleTransform() override;
     cvf::Transform* scaleTransform() override;

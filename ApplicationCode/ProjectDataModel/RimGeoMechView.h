@@ -128,7 +128,7 @@ private:
 
     void onResetLegendsInViewer() override;
 
-    void updateLegends() override;
+    void onUpdateLegends() override;
 
     void updateTensorLegendTextAndRanges( RimRegularLegendConfig* legendConfig, int timeStepIndex );
 
