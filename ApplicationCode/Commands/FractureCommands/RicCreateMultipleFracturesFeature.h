@@ -61,6 +61,5 @@ private:
     RiuCreateMultipleFractionsUi* multipleFractionsUi() const;
 
 private:
-    QPointer<caf::PdmUiPropertyViewDialog> m_dialog;
-    QString                                m_copyOfObject;
+    QString m_copyOfObject;
 };
