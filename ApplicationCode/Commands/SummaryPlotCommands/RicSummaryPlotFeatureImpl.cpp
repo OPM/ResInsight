@@ -464,7 +464,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
                 lastPlotCreated = newPlot;
 
-                newPlot->showLegend( !hideLegend );
+                newPlot->setLegendsVisible( !hideLegend );
                 newPlot->setNormalizationEnabled( isNormalizedY );
 
                 newPlot->applyDefaultCurveAppearances();
@@ -532,7 +532,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                             newPlot->ensembleCurveSetCollection()->addCurveSet( curveSet );
                         }
 
-                        newPlot->showLegend( !hideLegend );
+                        newPlot->setLegendsVisible( !hideLegend );
                         newPlot->setNormalizationEnabled( isNormalizedY );
 
                         newPlot->applyDefaultCurveAppearances();
@@ -601,7 +601,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                         newPlot->addGridTimeHistoryCurve( curve );
                     }
 
-                    newPlot->showLegend( !hideLegend );
+                    newPlot->setLegendsVisible( !hideLegend );
                     newPlot->setNormalizationEnabled( isNormalizedY );
                     newPlot->loadDataAndUpdate();
                     lastPlotCreated = newPlot;
@@ -653,7 +653,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                             {
                                 newPlot->addGridTimeHistoryCurve( newCurve );
                             }
-                            newPlot->showLegend( !hideLegend );
+                            newPlot->setLegendsVisible( !hideLegend );
                             newPlot->setNormalizationEnabled( isNormalizedY );
                             newPlot->loadDataAndUpdate();
                             lastPlotCreated = newPlot;

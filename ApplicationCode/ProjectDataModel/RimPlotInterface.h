@@ -45,11 +45,16 @@ public:
     typedef caf::AppEnum<WidthScaleFactor> WidthScaleFactorEnum;
 
 public:
-    virtual RiuQwtPlotWidget* viewer()          = 0;
-    virtual bool              isChecked() const = 0;
-
     RimPlotInterface()          = default;
     virtual ~RimPlotInterface() = default;
+
+    bool isStandalonePlot() const;
+
+    virtual RiuQwtPlotWidget* viewer()                   = 0;
+    virtual bool              isChecked() const          = 0;
+    virtual void              setChecked( bool checked ) = 0;
+
+    virtual QString description() const = 0;
 
     virtual int widthScaleFactor() const
     {
@@ -80,6 +85,9 @@ public:
     virtual void loadDataAndUpdate() = 0;
 
     virtual void onAxisSelected( int axis, bool toggle ) {}
+
+    virtual void removeFromMdiAreaAndCollection() {}
+    virtual void updateAfterInsertingIntoGridPlotWindow() {}
 
 protected:
     virtual void updatePlotWindowLayout() {}

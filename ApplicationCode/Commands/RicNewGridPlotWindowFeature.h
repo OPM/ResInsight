@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016  Statoil ASA
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,30 +18,18 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
-
-class RimSummaryPlot;
+#include "cafCmdFeature.h"
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RimSummaryPlotCollection : public caf::PdmObject
+class RicNewGridPlotWindowFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_CMD_HEADER_INIT;
 
-public:
-    RimSummaryPlotCollection();
-    ~RimSummaryPlotCollection() override;
-
-    caf::PdmChildArrayField<RimSummaryPlot*> summaryPlots;
-
-    RimSummaryPlot* createSummaryPlotWithAutoTitle();
-    RimSummaryPlot* createNamedSummaryPlot( const QString& name );
-
-    void updateSummaryNameHasChanged();
-    void summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const;
-
-    void removeSummaryPlot( RimSummaryPlot* summaryPlot );
+protected:
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

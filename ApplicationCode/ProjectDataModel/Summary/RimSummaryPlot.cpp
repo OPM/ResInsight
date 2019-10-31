@@ -32,6 +32,7 @@
 #include "RimAsciiDataCurve.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimGridPlotWindow.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimPlotAxisProperties.h"
 #include "RimProject.h"
@@ -146,19 +147,14 @@ RimSummaryPlot::RimSummaryPlot()
 
     m_description = "Summary Plot";
 
-    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Plot Title", "", "", "" );
-    m_showPlotTitle.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Legend", "", "", "" );
-    m_showLegend.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
-    CAF_PDM_InitField( &m_legendFontSize, "LegendFontSize", 11, "Legend Font Size", "", "", "" );
-    m_showLegend.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    CAF_PDM_InitField( &m_showPlotTitle_OBSOLETE, "ShowPlotTitle", true, "Plot Title", "", "", "" );
+    m_showPlotTitle_OBSOLETE.xmlCapability()->setIOWritable( false );
+    CAF_PDM_InitField( &m_showLegend_OBSOLETE, "ShowLegend", true, "Legend", "", "", "" );
+    m_showLegend_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title", "", "", "" );
-    m_useAutoPlotTitle.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves", "", "", "" );
-    m_normalizeCurveYValues.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_curveFilters_OBSOLETE, "SummaryCurveFilters", "", "", "", "" );
     m_curveFilters_OBSOLETE.uiCapability()->setUiTreeHidden( true );
@@ -213,6 +209,7 @@ RimSummaryPlot::RimSummaryPlot()
     m_textCurveSetEditor = new RimSummaryPlotFilterTextCurveSetEditor;
 
     m_isCrossPlot = false;
+    m_isDraggable = false;
 
     m_nameHelperAllCurves.reset( new RimSummaryPlotNameHelper );
 
@@ -585,7 +582,6 @@ void RimSummaryPlot::updateAll()
         updatePlotTitle();
         m_plotWidget->updateLegend();
         updateAxes();
-        updateZoomInQwt();
     }
 }
 
@@ -1322,66 +1318,30 @@ caf::PdmFieldHandle* RimSummaryPlot::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimSummaryPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                     bool*                      useOptionsOnly )
-{
-    QList<caf::PdmOptionItemInfo> options;
-
-    if ( fieldNeedingOptions == &m_legendFontSize )
-    {
-        std::vector<int> fontSizes;
-        fontSizes.push_back( 8 );
-        fontSizes.push_back( 9 );
-        fontSizes.push_back( 10 );
-        fontSizes.push_back( 11 );
-        fontSizes.push_back( 12 );
-        fontSizes.push_back( 14 );
-        fontSizes.push_back( 16 );
-        fontSizes.push_back( 18 );
-        fontSizes.push_back( 24 );
-
-        for ( int value : fontSizes )
-        {
-            QString text = QString( "%1" ).arg( value );
-            options.push_back( caf::PdmOptionItemInfo( text, value ) );
-        }
-    }
-
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            oldValue,
                                        const QVariant&            newValue )
 {
-    RimViewWindow::fieldChangedByUi( changedField, oldValue, newValue );
+    RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_description || changedField == &m_showPlotTitle || changedField == &m_useAutoPlotTitle )
+    if ( changedField == &m_showWindow )
+    {
+        updateWindowVisibility();
+    }
+
+    if ( changedField == &m_useAutoPlotTitle )
     {
         updatePlotTitle();
         updateConnectedEditors();
-    }
 
-    if ( changedField == &m_showLegend )
-    {
-        if ( m_plotWidget ) m_plotWidget->setLegendVisible( m_showLegend );
-    }
-
-    if ( changedField == &m_legendFontSize )
-    {
-        if ( m_plotWidget ) m_plotWidget->setLegendFontSize( m_legendFontSize() );
-    }
-
-    if ( changedField == &m_useAutoPlotTitle && !m_useAutoPlotTitle )
-    {
-        // When auto name of plot is turned off, update the auto name for all curves
-
-        for ( auto c : summaryCurves() )
+        if ( !m_useAutoPlotTitle )
         {
-            c->updateCurveNameNoLegendUpdate();
+            // When auto name of plot is turned off, update the auto name for all curves
+
+            for ( auto c : summaryCurves() )
+            {
+                c->updateCurveNameNoLegendUpdate();
+            }
         }
     }
 
@@ -1396,24 +1356,6 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 QImage RimSummaryPlot::snapshotWindowContent()
 {
-#if 0
-// This does not work with the color legend widgets. Is there a reason for doing this, and not to grab the widget ?
-    QImage image;
-
-    if (m_qwtPlot)
-    {
-        image = QImage(m_qwtPlot->size(), QImage::Format_ARGB32);
-        image.fill(QColor(Qt::white).rgb());
-
-        QPainter painter(&image);
-        QRectF rect(0, 0, m_qwtPlot->size().width(), m_qwtPlot->size().height());
-
-        QwtPlotRenderer plotRenderer;
-        plotRenderer.render(m_qwtPlot, &painter, rect);
-    }
-
-    return image;
-#endif
     QImage image;
 
     if ( m_plotWidget )
@@ -1472,7 +1414,7 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 {
     updatePlotTitle();
 
-    updateMdiWindowVisibility();
+    updateWindowVisibility();
 
     if ( m_summaryCurveCollection )
     {
@@ -1493,7 +1435,7 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 
     if ( m_plotWidget )
     {
-        m_plotWidget->setLegendVisible( m_showLegend );
+        m_plotWidget->setLegendVisible( m_showPlotLegends && isStandalonePlot() );
         m_plotWidget->setLegendFontSize( m_legendFontSize() );
         m_plotWidget->updateLegend();
     }
@@ -1585,6 +1527,39 @@ void RimSummaryPlot::removeEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::removeFromMdiAreaAndCollection()
+{
+    RimSummaryPlotCollection* summaryCollection = nullptr;
+    this->firstAncestorOrThisOfType( summaryCollection );
+    if ( summaryCollection )
+    {
+        summaryCollection->removeSummaryPlot( this );
+        this->revokeMdiWindowStatus();
+        summaryCollection->updateAllRequiredEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateAfterInsertingIntoGridPlotWindow()
+{
+    if ( m_plotWidget )
+    {
+        m_plotWidget->setTitle( "" );
+        m_plotWidget->setLegendVisible( false );
+    }
+
+    if ( m_timeAxisProperties )
+    {
+        m_timeAxisProperties->showTitle = true;
+    }
+    updateAxes();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteAllGridTimeHistoryCurves()
 {
     m_gridTimeHistoryCurves.deleteAllChildObjects();
@@ -1617,9 +1592,17 @@ bool RimSummaryPlot::isChecked() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::enableShowPlotTitle( bool enable )
+void RimSummaryPlot::setChecked( bool checked )
 {
-    m_showPlotTitle = enable;
+    m_showWindow = checked;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::setDraggable( bool draggable )
+{
+    m_isDraggable = draggable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1660,18 +1643,29 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     caf::PdmUiGroup* mainOptions = uiOrdering.addNewGroup( "General Plot Options" );
     mainOptions->setCollapsedByDefault( true );
 
-    mainOptions->add( &m_showPlotTitle );
-    if ( m_showPlotTitle )
+    if ( isStandalonePlot() )
+    {
+        mainOptions->add( &m_showTitleInPlot );
+        if ( m_showTitleInPlot )
+        {
+            mainOptions->add( &m_useAutoPlotTitle );
+            mainOptions->add( &m_description );
+        }
+    }
+    else
     {
         mainOptions->add( &m_useAutoPlotTitle );
         mainOptions->add( &m_description );
     }
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle );
 
-    mainOptions->add( &m_showLegend );
-    if ( m_showLegend() )
+    if ( isStandalonePlot() )
     {
-        mainOptions->add( &m_legendFontSize );
+        mainOptions->add( &m_showPlotLegends );
+        if ( m_showPlotLegends() )
+        {
+            mainOptions->add( &m_legendFontSize );
+        }
     }
 
     mainOptions->add( &m_normalizeCurveYValues );
@@ -1689,6 +1683,7 @@ QWidget* RimSummaryPlot::createViewWidget( QWidget* mainWindowParent )
     if ( !m_plotWidget )
     {
         m_plotWidget = new RiuSummaryQwtPlot( this, mainWindowParent );
+        m_plotWidget->setDraggable( m_isDraggable );
 
         for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
         {
@@ -1769,6 +1764,16 @@ void RimSummaryPlot::initAfterRead()
             m_useAutoPlotTitle = false;
         }
     }
+
+    if ( m_showPlotTitle_OBSOLETE() )
+    {
+        m_showTitleInPlot = true;
+    }
+
+    if ( m_showLegend_OBSOLETE() )
+    {
+        m_showPlotLegends = true;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1776,13 +1781,13 @@ void RimSummaryPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateMdiWindowTitle()
 {
-    if ( m_plotWidget )
+    if ( m_plotWidget && isStandalonePlot() )
     {
-        QString plotTitle = description();
+        QString plotTitle = fullPlotTitle();
 
         m_plotWidget->setWindowTitle( plotTitle );
 
-        if ( m_showPlotTitle )
+        if ( m_showTitleInPlot )
         {
             m_plotWidget->setTitle( plotTitle );
         }
@@ -1790,6 +1795,7 @@ void RimSummaryPlot::updateMdiWindowTitle()
         {
             m_plotWidget->setTitle( "" );
         }
+        m_plotWidget->scheduleReplot();
     }
 }
 
@@ -1834,6 +1840,23 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
     nameHelper->appendAddresses( addresses );
     nameHelper->setSummaryCases( sumCases );
     nameHelper->setEnsembleCases( ensembleCases );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateWindowVisibility()
+{
+    RimGridPlotWindow* plotWindow = nullptr;
+    this->firstAncestorOrThisOfType( plotWindow );
+    if ( plotWindow )
+    {
+        plotWindow->updateLayout();
+    }
+    else
+    {
+        updateMdiWindowVisibility();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1907,14 +1930,6 @@ void RimSummaryPlot::reattachAllCurves()
     {
         curve->reattachQwtCurve();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::showLegend( bool enable )
-{
-    m_showLegend = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2060,24 +2075,6 @@ void RimSummaryPlot::setAutoScaleYEnabled( bool enabled )
 size_t RimSummaryPlot::curveCount() const
 {
     return m_summaryCurveCollection->curves().size() + m_gridTimeHistoryCurves.size() + m_asciiDataCurves.size();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                            QString                    uiConfigName,
-                                            caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_showLegend || field == &m_showPlotTitle || field == &m_useAutoPlotTitle ||
-         field == &m_normalizeCurveYValues )
-    {
-        caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_useNativeCheckBoxLabel = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

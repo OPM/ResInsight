@@ -459,7 +459,7 @@ bool RiuDragDrop::handleGridPlotWindowDrop( Qt::DropAction       action,
                     insertAfter             = dynamic_cast<RimPlotInterface*>( visibleTracks[insertAfterPosition] );
                 }
             }
-            RicWellLogPlotTrackFeatureImpl::movePlotsToGridPlotWindow( gridPlotWindow, plots, insertAfter );
+            gridPlotWindow->movePlotsToThis( plots, insertAfter );
             return true;
         }
     }

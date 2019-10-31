@@ -94,3 +94,11 @@ void RimSummaryPlotCollection::summaryPlotItemInfos( QList<caf::PdmOptionItemInf
             caf::PdmOptionItemInfo( displayName, plot, false, plot->uiCapability()->uiIconProvider() ) );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotCollection::removeSummaryPlot( RimSummaryPlot* summaryPlot )
+{
+    summaryPlots.removeChildObject( summaryPlot );
+}

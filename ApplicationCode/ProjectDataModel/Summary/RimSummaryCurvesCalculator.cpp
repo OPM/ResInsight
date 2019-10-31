@@ -123,24 +123,23 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot( RiuSummaryQwtPlot
 
         axisTitleY.setText( axisTitle );
 
+        Qt::AlignmentFlag titleAlignment;
         switch ( m_axisProperties->titlePosition() )
         {
             case RimPlotAxisProperties::AXIS_TITLE_CENTER:
-                axisTitleY.setRenderFlags( Qt::AlignCenter );
+                titleAlignment = Qt::AlignCenter;
                 break;
             case RimPlotAxisProperties::AXIS_TITLE_END:
-                axisTitleY.setRenderFlags( Qt::AlignRight );
+                titleAlignment = Qt::AlignRight;
                 break;
         }
-
-        qwtPlot->setAxisTitle( m_axisProperties->qwtPlotAxisType(), axisTitleY );
-    }
-
-    {
-        QFont yAxisFont = qwtPlot->axisFont( m_axisProperties->qwtPlotAxisType() );
-        yAxisFont.setBold( false );
-        yAxisFont.setPointSize( m_axisProperties->valuesFontSize() );
-        qwtPlot->setAxisFont( m_axisProperties->qwtPlotAxisType(), yAxisFont );
+        // TODO: We currently call setAxisTitle just to set font size. Fix this.
+        qwtPlot->setAxisFontsAndAlignment( m_axisProperties->qwtPlotAxisType(),
+                                           m_axisProperties->titleFontSize(),
+                                           m_axisProperties->valuesFontSize(),
+                                           true,
+                                           titleAlignment );
+        qwtPlot->setAxisTitleText( m_axisProperties->qwtPlotAxisType(), axisTitle );
     }
 
     {

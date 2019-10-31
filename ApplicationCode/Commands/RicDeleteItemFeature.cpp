@@ -39,6 +39,7 @@
 #include "RimGeoMechView.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotDataSet.h"
+#include "RimGridPlotWindow.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersection.h"
@@ -107,7 +108,12 @@ bool isDeletable( caf::PdmUiItem* uiItem )
     if ( dynamic_cast<RimViewController*>( uiItem ) ) return true;
     if ( dynamic_cast<RimWellLogPlot*>( uiItem ) ) return true;
     if ( dynamic_cast<RimWellLogCurve*>( uiItem ) ) return true;
-    if ( dynamic_cast<RimSummaryPlot*>( uiItem ) ) return true;
+    if ( dynamic_cast<RimSummaryPlot*>( uiItem ) )
+    {
+        RimGridPlotWindow* plotWindow = nullptr;
+        static_cast<RimSummaryPlot*>( uiItem )->firstAncestorOrThisOfType( plotWindow );
+        return plotWindow == nullptr;
+    }
     if ( dynamic_cast<RimSummaryCurve*>( uiItem ) ) return true;
     if ( dynamic_cast<RimGridTimeHistoryCurve*>( uiItem ) ) return true;
     if ( dynamic_cast<RimIntersection*>( uiItem ) ) return true;
@@ -131,7 +137,15 @@ bool isDeletable( caf::PdmUiItem* uiItem )
     if ( dynamic_cast<RimTextAnnotation*>( uiItem ) ) return true;
     if ( dynamic_cast<RimReachCircleAnnotation*>( uiItem ) ) return true;
     if ( dynamic_cast<RimPolylinesAnnotation*>( uiItem ) ) return true;
+    if ( dynamic_cast<RimGridCrossPlot*>( uiItem ) )
+    {
+        RimGridPlotWindow* plotWindow = nullptr;
+        static_cast<RimGridCrossPlot*>( uiItem )->firstAncestorOrThisOfType( plotWindow );
+        return plotWindow == nullptr;
+    }
+
     if ( dynamic_cast<RimGridCrossPlot*>( uiItem ) ) return true;
+
     if ( dynamic_cast<RimGridCrossPlotDataSet*>( uiItem ) ) return true;
     return false;
 }

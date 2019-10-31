@@ -71,6 +71,7 @@
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
 #include "RimGridCrossPlotDataSet.h"
+#include "RimGridPlotWindowCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
@@ -465,6 +466,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewWellLogPlotFeature";
             menuBuilder << "RicNewWellBoreStabilityPlotFeature";
         }
+        else if ( dynamic_cast<RimGridPlotWindowCollection*>( uiItem ) )
+        {
+            menuBuilder << "RicNewGridPlotWindowFeature";
+        }
         else if ( dynamic_cast<RimRftPlotCollection*>( uiItem ) )
         {
             menuBuilder << "RicNewRftPlotFeature";
@@ -506,7 +511,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewWellLogRftCurveFeature";
             menuBuilder << "RicNewWellLogFileCurveFeature";
             menuBuilder << "Separator";
-            menuBuilder << "RicDeleteWellLogPlotTrackFeature";
+            menuBuilder << "RicDeleteSubPlotFeature";
         }
         else if ( dynamic_cast<RimWellLogCurve*>( uiItem ) )
         {
@@ -562,6 +567,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicViewZoomAllFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicDeleteSubPlotFeature";
         }
         else if ( dynamic_cast<RimSummaryCurve*>( uiItem ) )
         {

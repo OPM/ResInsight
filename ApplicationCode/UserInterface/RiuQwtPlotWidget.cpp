@@ -61,7 +61,7 @@
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlotInterface* plotTrackDefinition, QWidget* parent )
     : QwtPlot( parent )
-    , m_draggable( false )
+    , m_draggable( true )
 {
     m_plotOwner = dynamic_cast<caf::PdmObject*>( plotTrackDefinition );
     CAF_ASSERT( m_plotOwner );
@@ -178,7 +178,6 @@ void RiuQwtPlotWidget::setEnabledAxes( const std::set<QwtPlot::Axis> enabledAxes
             axisScaleDraw( axis )->setMinimumExtent( axisExtent( axis ) );
             setMinimumWidth( defaultMinimumWidth() );
 
-            axisScaleDraw( axis )->enableComponent( QwtAbstractScaleDraw::Backbone, false );
             axisWidget( axis )->setMargin( 0 );
             m_axisTitlesEnabled[axis] = true;
         }
@@ -196,13 +195,6 @@ void RiuQwtPlotWidget::setEnabledAxes( const std::set<QwtPlot::Axis> enabledAxes
 void RiuQwtPlotWidget::setAxisTitleText( QwtPlot::Axis axis, const QString& title )
 {
     m_axisTitles[axis] = title;
-
-    QwtText axisTitleText = axisTitle( axis );
-    if ( title != axisTitleText.text() )
-    {
-        axisTitleText.setText( title );
-        setAxisTitle( axis, axisTitleText );
-    }
     applyAxisTitleToQwt( axis );
 }
 
@@ -568,10 +560,11 @@ void RiuQwtPlotWidget::showEvent( QShowEvent* event )
 void RiuQwtPlotWidget::applyAxisTitleToQwt( QwtPlot::Axis axis )
 {
     QString titleToApply = m_axisTitlesEnabled[axis] ? m_axisTitles[axis] : QString( "" );
-    QwtText axisTitle    = this->axisTitle( QwtPlot::yLeft );
+    QwtText axisTitle    = this->axisTitle( axis );
     if ( titleToApply != axisTitle.text() )
     {
         axisTitle.setText( titleToApply );
+
         setAxisTitle( axis, axisTitle );
         if ( axis == QwtPlot::yLeft || axis == QwtPlot::yRight )
         {
@@ -613,7 +606,7 @@ void RiuQwtPlotWidget::onAxisSelected( QwtScaleWidget* scale, bool toggleItemInS
 RiuWidgetStyleSheet RiuQwtPlotWidget::createPlotStyleSheet() const
 {
     QColor backgroundColor       = QColor( "white" );
-    QColor highlightColor        = this->palette().highlight().color();
+    QColor highlightColor        = QApplication::palette().highlight().color();
     QColor blendedHighlightColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 5 );
     QColor nearlyBackgroundColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 30 );
 
@@ -645,7 +638,7 @@ RiuWidgetStyleSheet RiuQwtPlotWidget::createCanvasStyleSheet() const
 {
     RiuWidgetStyleSheet styleSheet;
     styleSheet.set( "background-color", "#FAFAFA" );
-    styleSheet.set( "border", "1px solid black" );
+    styleSheet.set( "border", "1px solid LightGray" );
     return styleSheet;
 }
 

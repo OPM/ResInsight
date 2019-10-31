@@ -30,6 +30,8 @@
 #include <QPointer>
 #include <QString>
 
+#include <vector>
+
 class RimPlotInterface;
 
 class RimGridPlotWindow : public RimPlotWindow
@@ -58,6 +60,7 @@ public:
     void addPlot( RimPlotInterface* plot );
     void insertPlot( RimPlotInterface* plot, size_t index );
     void removePlot( RimPlotInterface* plot );
+    void movePlotsToThis( const std::vector<RimPlotInterface*>& plots, RimPlotInterface* plotToInsertAfter );
 
     size_t            plotCount() const;
     size_t            plotIndex( const RimPlotInterface* plot ) const;
@@ -75,10 +78,9 @@ public:
 
     int                  columnCount() const;
     caf::PdmFieldHandle* columnCountField();
+    bool                 showPlotTitles() const;
 
     void zoomAll() override;
-
-    caf::PdmUiGroup* createPlotSettingsUiGroup( caf::PdmUiOrdering& uiOrdering ) override;
 
     QString asciiDataForPlotExport() const;
 
@@ -90,17 +92,19 @@ protected:
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
     void     deleteViewWidget() override;
 
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue ) override;
-    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    void uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering ) override;
+
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
     void                          onLoadDataAndUpdate() override;
     void                          initAfterRead() override;
 
     void         updatePlotTitle() override;
-    void         setPlotTitleInWidget( const QString& plotTitle );
     void         updatePlots();
     virtual void updateZoom();
     void         recreatePlotWidgets();
@@ -121,6 +125,7 @@ private:
 
 protected:
     caf::PdmField<ColumnCountEnum> m_columnCountEnum;
+    caf::PdmField<bool>            m_showIndividualPlotTitles;
 
     friend class RiuGridPlotWindow;
     QPointer<RiuGridPlotWindow> m_viewer;

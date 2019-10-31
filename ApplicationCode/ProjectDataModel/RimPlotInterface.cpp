@@ -1,11 +1,11 @@
 #include "RimPlotInterface.h"
 
+#include "RimGridPlotWindow.h"
 #include "RimPlotWindow.h"
 
 #include "RiuQwtPlotWidget.h"
 
-#define RI_PLOT_MIN_DEFAULT -10.0
-#define RI_PLOT_MAX_DEFAULT 100.0
+#include "cafPdmObject.h"
 
 namespace caf
 {
@@ -20,6 +20,23 @@ void RimPlotInterface::WidthScaleFactorEnum::setUp()
     setDefault( RimPlotInterface::NORMAL );
 }
 } // namespace caf
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotInterface::isStandalonePlot() const
+{
+    const caf::PdmObject* thisPdm = dynamic_cast<const caf::PdmObject*>( this );
+    CAF_ASSERT( thisPdm );
+
+    if ( thisPdm )
+    {
+        RimGridPlotWindow* gridPlotWindow = nullptr;
+        thisPdm->firstAncestorOrThisOfType( gridPlotWindow );
+        return gridPlotWindow == nullptr;
+    }
+    return false;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -39,6 +39,7 @@ public:
     std::vector<RimGridCrossPlot*> gridCrossPlots() const;
     RimGridCrossPlot*              createGridCrossPlot();
     void                           addGridCrossPlot( RimGridCrossPlot* plot );
+    void                           removeGridCrossPlot( RimGridCrossPlot* plot );
 
 private:
     caf::PdmChildArrayField<RimGridCrossPlot*> m_gridCrossPlots;

@@ -78,8 +78,8 @@ RiuGridPlotWindow::RiuGridPlotWindow( RimGridPlotWindow* plotDefinition, QWidget
     m_plotLayout->addWidget( m_plotWidgetFrame, 1 );
 
     m_gridLayout = new QGridLayout( m_plotWidgetFrame );
-    m_gridLayout->setMargin( 0 );
-    m_gridLayout->setSpacing( 2 );
+    m_gridLayout->setContentsMargins( 1, 1, 1, 1 );
+    m_gridLayout->setSpacing( 1 );
 
     QPalette newPalette( palette() );
     newPalette.setColor( QPalette::Background, Qt::white );
@@ -87,14 +87,14 @@ RiuGridPlotWindow::RiuGridPlotWindow( RimGridPlotWindow* plotDefinition, QWidget
 
     setAutoFillBackground( true );
 
-    m_scrollBar = new QScrollBar( nullptr );
-    m_scrollBar->setOrientation( Qt::Vertical );
-    m_scrollBar->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
-
-    m_scrollBarLayout = new QVBoxLayout;
-    m_scrollBarLayout->addWidget( m_scrollBar, 0 );
-
     new RiuPlotObjectPicker( m_plotTitle, m_plotDefinition );
+
+    m_dropTargetPlaceHolder = new QLabel( "Drag plots here" );
+    m_dropTargetPlaceHolder->setAlignment( Qt::AlignCenter );
+    m_dropTargetPlaceHolder->setObjectName(
+        QString( "%1" ).arg( reinterpret_cast<uint64_t>( m_dropTargetPlaceHolder.data() ) ) );
+    m_dropTargetStyleSheet = createDropTargetStyleSheet();
+    m_dropTargetStyleSheet.applyToWidget( m_dropTargetPlaceHolder );
 
     this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::MinimumExpanding );
 
@@ -105,6 +105,8 @@ RiuGridPlotWindow::RiuGridPlotWindow( RimGridPlotWindow* plotDefinition, QWidget
     RiaApplication* app = RiaApplication::instance();
     int defaultFontSize = RiaFontCache::pointSizeFromFontSizeEnum( app->preferences()->defaultPlotFontSize() );
     setFontSize( defaultFontSize );
+
+    this->setObjectName( QString( "%1" ).arg( reinterpret_cast<uint64_t>( this ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,8 +151,11 @@ void RiuGridPlotWindow::addPlot( RiuQwtPlotWidget* plotWidget )
 void RiuGridPlotWindow::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
 {
     plotWidget->setDraggable( true ); // Becomes draggable when added to a grid plot window
-
     m_plotWidgets.insert( static_cast<int>( index ), plotWidget );
+
+    QLabel* subTitle = new QLabel( plotWidget->plotDefinition()->description() );
+    subTitle->setAlignment( Qt::AlignRight );
+    m_subTitles.insert( static_cast<int>( index ), subTitle );
 
     RiuQwtPlotLegend* legend        = new RiuQwtPlotLegend( this );
     int               legendColumns = 1;
@@ -170,6 +175,7 @@ void RiuGridPlotWindow::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
     plotWidget->updateLegend();
     m_legends.insert( static_cast<int>( index ), legend );
     m_legendColumns.insert( static_cast<int>( index ), -1 );
+
     scheduleUpdate();
 }
 
@@ -205,39 +211,9 @@ void RiuGridPlotWindow::setPlotTitle( const QString& plotTitle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuGridPlotWindow::preferredWidth() const
-{
-    int titleWidth = 0;
-    if ( m_plotTitle && m_plotTitle->isVisible() )
-    {
-        titleWidth = m_plotTitle->width();
-    }
-
-    QList<QPointer<RiuQwtPlotWidget>> visiblePlotWidgets = this->visiblePlotWidgets();
-    auto                              rowAndColumnCount  = this->rowAndColumnCount( visiblePlotWidgets.size() );
-
-    int sumColumnWidths = 0;
-    for ( int visibleIndex = 0; visibleIndex < rowAndColumnCount.second; ++visibleIndex )
-    {
-        sumColumnWidths += visiblePlotWidgets[visibleIndex]->width();
-    }
-    return std::max( titleWidth, sumColumnWidths );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuGridPlotWindow::setTitleVisible( bool visible )
 {
     m_plotTitle->setVisible( visible );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::setScrollbarVisible( bool visible )
-{
-    m_scrollBar->setVisible( visible );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -390,8 +366,10 @@ void RiuGridPlotWindow::showEvent( QShowEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuGridPlotWindow::dragEnterEvent( QDragEnterEvent* event )
 {
-    if ( this->geometry().contains( event->pos() ) )
+    RiuQwtPlotWidget* source = dynamic_cast<RiuQwtPlotWidget*>( event->source() );
+    if ( source )
     {
+        setWidgetState( RiuWidgetStyleSheet::DRAG_TARGET_INTO );
         event->acceptProposedAction();
     }
 }
@@ -401,11 +379,13 @@ void RiuGridPlotWindow::dragEnterEvent( QDragEnterEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuGridPlotWindow::dragMoveEvent( QDragMoveEvent* event )
 {
-    if ( this->geometry().contains( event->pos() ) )
+    if ( event->answerRect().intersects( this->geometry() ) )
     {
         RiuQwtPlotWidget* source = dynamic_cast<RiuQwtPlotWidget*>( event->source() );
-        if ( source )
+        if ( source && willAcceptDroppedPlot( source ) )
         {
+            setWidgetState( RiuWidgetStyleSheet::DRAG_TARGET_INTO );
+
             QRect  originalGeometry = source->geometry();
             QPoint offset           = source->dragStartPosition();
             QRect  newRect( event->pos() - offset, originalGeometry.size() );
@@ -431,9 +411,8 @@ void RiuGridPlotWindow::dragMoveEvent( QDragMoveEvent* event )
             {
                 int insertAfterIndex = insertBeforeIndex - 1;
                 visiblePlotWidgets[insertAfterIndex]->setWidgetState( RiuWidgetStyleSheet::DRAG_TARGET_AFTER );
-
-                event->acceptProposedAction();
             }
+            event->acceptProposedAction();
         }
     }
 }
@@ -443,6 +422,8 @@ void RiuGridPlotWindow::dragMoveEvent( QDragMoveEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuGridPlotWindow::dragLeaveEvent( QDragLeaveEvent* event )
 {
+    setWidgetState( RiuWidgetStyleSheet::DEFAULT );
+
     for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
     {
         m_plotWidgets[tIdx]->setWidgetState( RiuWidgetStyleSheet::DEFAULT );
@@ -454,6 +435,8 @@ void RiuGridPlotWindow::dragLeaveEvent( QDragLeaveEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuGridPlotWindow::dropEvent( QDropEvent* event )
 {
+    setWidgetState( RiuWidgetStyleSheet::DEFAULT );
+
     for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
     {
         m_plotWidgets[tIdx]->setWidgetState( RiuWidgetStyleSheet::DEFAULT );
@@ -463,7 +446,7 @@ void RiuGridPlotWindow::dropEvent( QDropEvent* event )
     {
         RiuQwtPlotWidget* source = dynamic_cast<RiuQwtPlotWidget*>( event->source() );
 
-        if ( source )
+        if ( source && willAcceptDroppedPlot( source ) )
         {
             event->acceptProposedAction();
 
@@ -489,11 +472,11 @@ void RiuGridPlotWindow::dropEvent( QDropEvent* event )
                 insertAfter = m_plotWidgets[beforeIndex - 1]->plotDefinition();
             }
 
-            RimPlotInterface* plotWidget = source->plotDefinition();
+            RimPlotInterface* plotToMove = source->plotDefinition();
 
-            if ( insertAfter != plotWidget )
+            if ( insertAfter != plotToMove )
             {
-                RicWellLogPlotTrackFeatureImpl::movePlotsToGridPlotWindow( m_plotDefinition, { plotWidget }, insertAfter );
+                m_plotDefinition->movePlotsToThis( { plotToMove }, insertAfter );
             }
         }
     }
@@ -502,8 +485,21 @@ void RiuGridPlotWindow::dropEvent( QDropEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiuGridPlotWindow::willAcceptDroppedPlot( const RiuQwtPlotWidget* plotWidget ) const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<int, int> RiuGridPlotWindow::rowAndColumnCount( int plotWidgetCount ) const
 {
+    if ( plotWidgetCount == 0 )
+    {
+        return std::make_pair( 0, 0 );
+    }
+
     int columnCount = std::max( 1, std::min( m_plotDefinition->columnCount(), plotWidgetCount ) );
     int rowCount    = static_cast<int>( std::ceil( plotWidgetCount / static_cast<double>( columnCount ) ) );
     return std::make_pair( rowCount, columnCount );
@@ -516,6 +512,8 @@ void RiuGridPlotWindow::onSelectionManagerSelectionChanged( const std::set<int>&
 {
     for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
     {
+        CAF_ASSERT( plotWidget );
+
         bool isSelected = false;
         for ( int changedLevel : changedSelectionLevels )
         {
@@ -536,21 +534,115 @@ void RiuGridPlotWindow::onSelectionManagerSelectionChanged( const std::set<int>&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::performUpdate()
+void RiuGridPlotWindow::setWidgetState( RiuWidgetStyleSheet::StateTag widgetState )
 {
-    reinsertPlotWidgetsAndScrollbar();
-    alignCanvasTopsAndScrollbar();
+    m_dropTargetStyleSheet.setWidgetState( m_dropTargetPlaceHolder, widgetState );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::alignCanvasTopsAndScrollbar()
+bool RiuGridPlotWindow::showYAxis( int row, int column ) const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuGridPlotWindow::performUpdate()
+{
+    reinsertPlotWidgets();
+    alignCanvasTops();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuGridPlotWindow::reinsertPlotWidgets()
+{
+    clearGridLayout();
+
+    for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
+    {
+        m_plotWidgets[tIdx]->hide();
+        m_legends[tIdx]->hide();
+    }
+
+    QList<QPointer<QLabel>>           subTitles   = this->visibleTitles();
+    QList<QPointer<RiuQwtPlotLegend>> legends     = this->visibleLegends();
+    QList<QPointer<RiuQwtPlotWidget>> plotWidgets = this->visiblePlotWidgets();
+
+    if ( plotWidgets.empty() )
+    {
+        m_gridLayout->addWidget( m_dropTargetPlaceHolder, 0, 0 );
+        m_gridLayout->setRowStretch( 0, 1 );
+        m_dropTargetPlaceHolder->setVisible( true );
+    }
+    else
+    {
+        m_dropTargetPlaceHolder->setVisible( false );
+
+        auto rowAndColumnCount = this->rowAndColumnCount( plotWidgets.size() );
+
+        for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
+        {
+            int row    = visibleIndex / rowAndColumnCount.second;
+            int column = visibleIndex % rowAndColumnCount.second;
+
+            m_gridLayout->addWidget( subTitles[visibleIndex], 3 * row, column );
+            m_gridLayout->addWidget( legends[visibleIndex], 3 * row + 1, column );
+            m_gridLayout->addWidget( plotWidgets[visibleIndex], 3 * row + 2, column );
+
+            subTitles[visibleIndex]->setVisible( m_plotDefinition->showPlotTitles() );
+
+            if ( m_plotDefinition->legendsVisible() )
+            {
+                int legendColumns = 1;
+                if ( m_plotDefinition->legendsHorizontal() )
+                {
+                    legendColumns = 0; // unlimited
+                }
+                legends[visibleIndex]->setMaxColumns( legendColumns );
+                int minimumHeight = legends[visibleIndex]->heightForWidth( plotWidgets[visibleIndex]->width() );
+                legends[visibleIndex]->setMinimumHeight( minimumHeight );
+                QFont legendFont = legends[visibleIndex]->font();
+                legendFont.setPointSize( m_plotDefinition->legendFontSize() );
+                legends[visibleIndex]->setFont( legendFont );
+                legends[visibleIndex]->show();
+            }
+            else
+            {
+                legends[visibleIndex]->hide();
+            }
+
+            plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft, showYAxis( row, column ) );
+            plotWidgets[visibleIndex]->setAxisTitleEnabled( QwtPlot::yLeft, showYAxis( row, column ) );
+
+            plotWidgets[visibleIndex]->show();
+
+            int widthScaleFactor = plotWidgets[visibleIndex]->widthScaleFactor();
+            if ( showYAxis( row, column ) )
+            {
+                widthScaleFactor += 1; // Give it a bit extra room due to axis
+            }
+            m_gridLayout->setColumnStretch( column,
+                                            std::max( m_gridLayout->columnStretch( column ),
+                                                      plotWidgets[visibleIndex]->widthScaleFactor() ) );
+            m_gridLayout->setRowStretch( 3 * row + 2, 1 );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiuGridPlotWindow::alignCanvasTops()
 {
     CVF_ASSERT( m_legends.size() == m_plotWidgets.size() );
 
     QList<QPointer<RiuQwtPlotWidget>> plotWidgets = visiblePlotWidgets();
-    if ( plotWidgets.empty() ) return;
+    if ( plotWidgets.empty() ) return 0;
 
     auto rowAndColumnCount = this->rowAndColumnCount( plotWidgets.size() );
 
@@ -570,73 +662,7 @@ void RiuGridPlotWindow::alignCanvasTopsAndScrollbar()
         int row = visibleIndex / rowAndColumnCount.second;
         plotWidgets[visibleIndex]->axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( maxExtents[row] );
     }
-    m_scrollBarLayout->setContentsMargins( 0, maxExtents[0], 0, 0 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::reinsertPlotWidgetsAndScrollbar()
-{
-    clearGridLayout();
-
-    for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
-    {
-        m_plotWidgets[tIdx]->hide();
-        m_legends[tIdx]->hide();
-    }
-
-    QList<QPointer<RiuQwtPlotWidget>> plotWidgets = this->visiblePlotWidgets();
-    QList<QPointer<RiuQwtPlotLegend>> legends     = this->visibleLegends();
-
-    auto rowAndColumnCount = this->rowAndColumnCount( plotWidgets.size() );
-
-    for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
-    {
-        int row    = visibleIndex / rowAndColumnCount.second;
-        int column = visibleIndex % rowAndColumnCount.second;
-
-        m_gridLayout->addWidget( legends[visibleIndex], 2 * row, column );
-        m_gridLayout->addWidget( plotWidgets[visibleIndex], 2 * row + 1, column );
-
-        if ( m_plotDefinition->legendsVisible() )
-        {
-            int legendColumns = 1;
-            if ( m_plotDefinition->legendsHorizontal() )
-            {
-                legendColumns = 0; // unlimited
-            }
-            legends[visibleIndex]->setMaxColumns( legendColumns );
-            int minimumHeight = legends[visibleIndex]->heightForWidth( plotWidgets[visibleIndex]->width() );
-            legends[visibleIndex]->setMinimumHeight( minimumHeight );
-            QFont legendFont = legends[visibleIndex]->font();
-            legendFont.setPointSize( fontSize() - 1 );
-            legends[visibleIndex]->setFont( legendFont );
-            legends[visibleIndex]->show();
-        }
-        else
-        {
-            legends[visibleIndex]->hide();
-        }
-
-        plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft, column == 0 );
-        plotWidgets[visibleIndex]->setAxisTitleEnabled( QwtPlot::yLeft, column == 0 );
-
-        plotWidgets[visibleIndex]->show();
-
-        int widthScaleFactor = plotWidgets[visibleIndex]->widthScaleFactor();
-        if ( column == 0 )
-        {
-            widthScaleFactor += 1; // Give it a bit extra room due to axis
-        }
-        m_gridLayout->setColumnStretch( column,
-                                        std::max( m_gridLayout->columnStretch( column ),
-                                                  plotWidgets[visibleIndex]->widthScaleFactor() ) );
-        m_gridLayout->setRowStretch( 2 * row + 1, 1 );
-    }
-    m_gridLayout->addLayout( m_scrollBarLayout, 1, rowAndColumnCount.second, rowAndColumnCount.first * 2 - 1, 1 );
-    m_gridLayout->setColumnStretch( rowAndColumnCount.second, 0 );
-    m_scrollBar->setVisible( plotWidgets.size() > 0 );
+    return maxExtents[0];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -648,6 +674,7 @@ void RiuGridPlotWindow::clearGridLayout()
     {
         for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
         {
+            m_gridLayout->removeWidget( m_subTitles[tIdx] );
             m_gridLayout->removeWidget( m_legends[tIdx] );
             m_gridLayout->removeWidget( m_plotWidgets[tIdx] );
         }
@@ -660,6 +687,22 @@ void RiuGridPlotWindow::clearGridLayout()
         delete m_gridLayout;
         m_gridLayout = new QGridLayout( m_plotWidgetFrame );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuWidgetStyleSheet RiuGridPlotWindow::createDropTargetStyleSheet()
+{
+    RiuWidgetStyleSheet styleSheet;
+
+    styleSheet.set( "background-color", "white" );
+    styleSheet.set( "border", "1px dashed black" );
+    styleSheet.set( "font-size", "14pt" );
+    styleSheet.state( RiuWidgetStyleSheet::DRAG_TARGET_INTO ).set( "border", "1px dashed lime" );
+    styleSheet.state( RiuWidgetStyleSheet::DRAG_TARGET_INTO ).set( "background-color", "#DDFFDD" );
+
+    return styleSheet;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -692,4 +735,20 @@ QList<QPointer<RiuQwtPlotLegend>> RiuGridPlotWindow::visibleLegends() const
         }
     }
     return legends;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<QPointer<QLabel>> RiuGridPlotWindow::visibleTitles() const
+{
+    QList<QPointer<QLabel>> subTitles;
+    for ( int i = 0; i < m_plotWidgets.size(); ++i )
+    {
+        if ( m_plotWidgets[i]->isChecked() )
+        {
+            subTitles.push_back( m_subTitles[i] );
+        }
+    }
+    return subTitles;
 }
