@@ -60,6 +60,7 @@
 #include "cvfRenderSequence.h"
 #include "cvfRenderbufferObject.h"
 #include "cvfRendering.h"
+#include "cvfRenderingScissor.h"
 #include "cvfScene.h"
 #include "cvfShaderSourceProvider.h"
 #include "cvfSingleQuadRenderingGenerator.h"
@@ -72,11 +73,11 @@
 #include "cvfqtPerformanceInfoHud.h"
 #include "cvfqtUtils.h"
 
-#include <cmath>
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QInputEvent>
-#include "cvfRenderingScissor.h"
+
+#include <cmath>
 
 namespace caf
 {
@@ -641,6 +642,20 @@ const caf::NavigationPolicy* caf::Viewer::getNavigationPolicy() const
     return m_navigationPolicy.p();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::RayIntersectSpec> caf::Viewer::rayIntersectSpecFromWindowCoordinates( int winPosX, int winPosY )
+{
+    bool mousePosIsWithinComparisonView = isMousePosWithinComparisonView(winPosX, winPosY);
+
+    int translatedMousePosX = winPosX;
+    int translatedMousePosY = height() - winPosY;
+
+    cvf::Rendering* renderingToInvestigate = mousePosIsWithinComparisonView ? m_comparisonMainRendering.p(): m_mainRendering.p();
+
+    return renderingToInvestigate->rayIntersectSpecFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -649,14 +664,12 @@ bool caf::Viewer::rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pick
 {
     CVF_ASSERT(m_mainRendering.notNull());
 
-    int translatedMousePosX = winPosX;
-    int translatedMousePosY = height() - winPosY;
-
     bool mousePosIsWithinComparisonView = isMousePosWithinComparisonView(winPosX, winPosY);
 
     cvf::Rendering* renderingToInvestigate = mousePosIsWithinComparisonView ? m_comparisonMainRendering.p(): m_mainRendering.p();
 
-    cvf::ref<cvf::RayIntersectSpec> ris = renderingToInvestigate->rayIntersectSpecFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
+    cvf::ref<cvf::RayIntersectSpec> ris = rayIntersectSpecFromWindowCoordinates(winPosX, winPosY);
+
     if (ris.notNull())
     {
         bool retVal = renderingToInvestigate->rayIntersect(*ris, pickedPoints);

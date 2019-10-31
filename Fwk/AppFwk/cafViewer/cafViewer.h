@@ -61,6 +61,7 @@ namespace cvf {
     class Scene;
     class Texture;
     class TextureImage;
+    class RayIntersectSpec;
 }
 
 namespace caf {
@@ -150,6 +151,7 @@ public:
     // Test whether it is any point in doing navigation etc.
     bool                    canRender() const;
 
+    cvf::ref<cvf::RayIntersectSpec> rayIntersectSpecFromWindowCoordinates(int winPosX, int winPosY);
     bool                    rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pickedPoints, cvf::Vec3d* rayGlobalOrigin = nullptr) ;
     bool                    isMousePosWithinComparisonView(int winPosX, int winPosY);
 
