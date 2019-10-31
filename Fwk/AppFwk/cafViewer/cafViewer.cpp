@@ -551,7 +551,7 @@ bool caf::Viewer::calculateNearFarPlanes(const cvf::Rendering* rendering,
         }
 
         // Guard against the zero nearplane possibility
-        if ( nearPlaneDist <= 0 ) (*nearPlaneDist) = m_defaultPerspectiveNearPlaneDistance;
+        if ( (*nearPlaneDist) <= 0 ) (*nearPlaneDist) = m_defaultPerspectiveNearPlaneDistance;
     }
     else // Orthographic projection. Set to encapsulate the complete boundingbox, possibly setting a negative nearplane
     {
@@ -986,7 +986,7 @@ void caf::Viewer::setCurrentComparisonFrame(int frameIndex)
 {
     if (m_frameScenes.size() == 0) return;
 
-    int clampedFrameIndex = clampFrameIndex(frameIndex);
+    unsigned clampedFrameIndex = static_cast<unsigned>(clampFrameIndex(frameIndex));
 
     if (m_releaseOGLResourcesEachFrame)
     {
@@ -1020,9 +1020,7 @@ void caf::Viewer::slotSetCurrentFrame(int frameIndex)
 {
     if (m_frameScenes.size() == 0) return;
 
-    int clampedFrameIndex = clampFrameIndex(frameIndex);
-
-    //if (m_frameScenes.at(clampedFrameIndex) == nullptr) return;
+    unsigned clampedFrameIndex = static_cast<unsigned>(clampFrameIndex(frameIndex));
 
     if (m_releaseOGLResourcesEachFrame)
     {
