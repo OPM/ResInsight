@@ -61,7 +61,7 @@ public:
     RimViewWindow* ownerViewWindow() const override;
 
     void setLegendFontSize( int fontSize );
-    void setLegendVisible( bool visible );
+    void setInternalQwtLegendVisible( bool visible );
 
 protected:
     void updateLayout() override;

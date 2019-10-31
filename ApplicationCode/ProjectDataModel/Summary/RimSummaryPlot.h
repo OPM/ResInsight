@@ -72,11 +72,12 @@ public:
     RimSummaryPlot();
     ~RimSummaryPlot() override;
 
-    void    setDescription( const QString& description );
-    QString description() const;
+    void    setDescription( const QString& description ) override;
+    QString description() const override;
     bool    isChecked() const override;
+    void    setChecked( bool checked ) override;
+    void    setDraggable( bool draggable );
 
-    void enableShowPlotTitle( bool enable );
     void enableAutoPlotTitle( bool enable );
     bool autoPlotTitle() const;
 
@@ -100,7 +101,7 @@ public:
 
     size_t curveCount() const;
 
-    void detachAllCurves();
+    void detachAllCurves() override;
     void reattachAllCurves();
     void updateCaseNameHasChanged();
 
@@ -154,9 +155,8 @@ public:
 
     void setNormalizationEnabled( bool enable );
     bool isNormalizationEnabled();
-    void showLegend( bool enable );
 
-    void                                      handleKeyPressEvent( QKeyEvent* keyEvent );
+    void                                      handleKeyPressEvent( QKeyEvent* keyEvent ) override;
     virtual RimSummaryPlotSourceStepping*     sourceSteppingObjectForKeyEventHandling() const;
     virtual std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
@@ -171,10 +171,13 @@ public:
     caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
 
     void onAxisSelected( int axis, bool toggle ) override;
-    void loadDataAndUpdate();
+    void loadDataAndUpdate() override;
 
     void addOrUpdateEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet );
     void removeEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet );
+
+    void removeFromMdiAreaAndCollection() override;
+    void updateAfterInsertingIntoGridPlotWindow() override;
 
 public:
     // RimViewWindow overrides
@@ -186,18 +189,15 @@ private:
     void updateMdiWindowTitle() override;
     void updateNameHelperWithCurveData( RimSummaryPlotNameHelper* nameHelper ) const;
 
+    void updateWindowVisibility();
+
 protected:
     // Overridden PDM methods
-    caf::PdmFieldHandle*          userDescriptionField() override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue ) override;
+    caf::PdmFieldHandle* userDescriptionField() override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
 
@@ -222,11 +222,7 @@ private:
     std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
 
 private:
-    caf::PdmField<bool> m_showPlotTitle;
-    caf::PdmField<bool> m_showLegend;
     caf::PdmField<bool> m_normalizeCurveYValues;
-
-    caf::PdmField<int> m_legendFontSize;
 
     caf::PdmField<bool> m_useAutoPlotTitle;
 
@@ -248,6 +244,7 @@ private:
     std::unique_ptr<QwtPlotTextLabel> m_plotInfoLabel;
 
     bool m_isCrossPlot;
+    bool m_isDraggable;
 
     std::unique_ptr<RimSummaryPlotNameHelper> m_nameHelperAllCurves;
 
@@ -255,4 +252,7 @@ private:
     caf::PdmChildArrayField<RimSummaryCurve*>                m_summaryCurves_OBSOLETE;
     caf::PdmChildArrayField<RimSummaryCurveFilter_OBSOLETE*> m_curveFilters_OBSOLETE;
     caf::PdmField<bool>                                      m_isAutoZoom_OBSOLETE;
+
+    caf::PdmField<bool> m_showPlotTitle_OBSOLETE;
+    caf::PdmField<bool> m_showLegend_OBSOLETE;
 };

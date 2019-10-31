@@ -130,7 +130,7 @@ RimWellPltPlot::RimWellPltPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_phases, "Phases", "Phases", "", "", "" );
     m_phases.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_phases = std::vector<caf::AppEnum<FlowPhase>>( {FLOW_PHASE_OIL, FLOW_PHASE_GAS, FLOW_PHASE_WATER} );
+    m_phases = std::vector<caf::AppEnum<FlowPhase>>( { FLOW_PHASE_OIL, FLOW_PHASE_GAS, FLOW_PHASE_WATER } );
     m_phases.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     m_nameConfig->setCustomName( "PLT Plot" );
@@ -139,7 +139,7 @@ RimWellPltPlot::RimWellPltPlot()
     m_doInitAfterLoad = false;
     m_isOnLoad        = true;
 
-    setAvailableDepthTypes( {RimWellLogPlot::MEASURED_DEPTH} );
+    setAvailableDepthTypes( { RimWellLogPlot::MEASURED_DEPTH } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -999,15 +999,13 @@ void RimWellPltPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         if ( track )
         {
             track->uiOrderingForRftPltFormations( uiOrdering );
+            caf::PdmUiGroup* axesGroup = uiOrdering.addNewGroup( "Axes" );
+            track->uiOrderingForXAxisSettings( *axesGroup );
+            uiOrderingForDepthAxis( *axesGroup );
 
-            caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup( "Legend and Axis" );
-            legendAndAxisGroup->setCollapsedByDefault( true );
-
-            createPlotSettingsUiGroup( *legendAndAxisGroup );
-
-            track->uiOrderingForXAxisSettings( *legendAndAxisGroup );
-
-            uiOrderingForDepthAxis( *legendAndAxisGroup );
+            caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
+            plotLayoutGroup->setCollapsedByDefault( true );
+            RimWellLogPlot::uiOrderingForPlotLayout( *plotLayoutGroup );
         }
     }
 

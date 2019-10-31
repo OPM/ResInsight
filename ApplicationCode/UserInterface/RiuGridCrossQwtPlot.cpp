@@ -107,7 +107,7 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimPlotInterface* plotDefinition, QWid
     this->installEventFilter( this );
     this->canvas()->installEventFilter( this );
 
-    setLegendVisible( true );
+    setInternalQwtLegendVisible( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,9 +268,9 @@ void RiuGridCrossQwtPlot::setLegendFontSize( int fontSize )
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// The internal qwt legend is not used in grid plot windows
 //--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::setLegendVisible( bool visible )
+void RiuGridCrossQwtPlot::setInternalQwtLegendVisible( bool visible )
 {
     if ( visible )
     {

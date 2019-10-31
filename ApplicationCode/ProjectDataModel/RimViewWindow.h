@@ -76,6 +76,8 @@ public:
     {
         setAsMdiWindow( 1 );
     }
+    void revokeMdiWindowStatus();
+
     bool isMdiWindow() const;
 
     void                 setMdiWindowGeometry( const RimMdiWindowGeometry& windowGeometry );

@@ -27,12 +27,13 @@
 
 #include "RimGridPlotWindow.h"
 #include "RimPlotInterface.h"
+#include "RimWellLogTrack.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicDeleteSubPlotFeature, "RicDeleteWellLogPlotTrackFeature" );
+CAF_CMD_SOURCE_INIT( RicDeleteSubPlotFeature, "RicDeleteSubPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -46,12 +47,17 @@ bool RicDeleteSubPlotFeature::isCommandEnabled()
 
     if ( selection.size() > 0 )
     {
-        RimGridPlotWindow* wellLogPlot = nullptr;
-        selection[0]->firstAncestorOrThisOfType( wellLogPlot );
-        if ( dynamic_cast<RimPlotInterface*>( selection[0] ) && wellLogPlot && wellLogPlot->plotCount() > 1 )
+        size_t plotsSelected = 0;
+        for ( caf::PdmObject* object : selection )
         {
-            return true;
+            RimGridPlotWindow* gridPlotWindow = nullptr;
+            object->firstAncestorOrThisOfType( gridPlotWindow );
+            if ( dynamic_cast<RimPlotInterface*>( object ) && gridPlotWindow )
+            {
+                plotsSelected++;
+            }
         }
+        return plotsSelected == selection.size();
     }
 
     return false;
@@ -66,34 +72,28 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
 
     std::vector<caf::PdmObject*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
-    RiuPlotMainWindow*           plotWindow = RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
-    std::set<RimGridPlotWindow*> alteredWellLogPlots;
+    std::set<RimGridPlotWindow*> alteredPlotWindows;
 
     for ( size_t i = 0; i < selection.size(); i++ )
     {
         RimPlotInterface* plot = dynamic_cast<RimPlotInterface*>( selection[i] );
 
-        RimGridPlotWindow* wellLogPlot = nullptr;
-        selection[i]->firstAncestorOrThisOfType( wellLogPlot );
-        if ( plot && wellLogPlot && wellLogPlot->plotCount() > 1 )
+        RimGridPlotWindow* plotWindow = nullptr;
+        selection[i]->firstAncestorOrThisOfType( plotWindow );
+        if ( plot && plotWindow )
         {
-            alteredWellLogPlots.insert( wellLogPlot );
-            wellLogPlot->removePlot( plot );
+            alteredPlotWindows.insert( plotWindow );
+            plotWindow->removePlot( plot );
             caf::SelectionManager::instance()->removeObjectFromAllSelections( selection[i] );
 
-            wellLogPlot->updateConnectedEditors();
+            plotWindow->updateConnectedEditors();
             delete plot;
         }
     }
 
-    for ( RimGridPlotWindow* wellLogPlot : alteredWellLogPlots )
+    for ( RimGridPlotWindow* plotWindow : alteredPlotWindows )
     {
-        RiuGridPlotWindow* viewWidget = dynamic_cast<RiuGridPlotWindow*>( wellLogPlot->viewWidget() );
-        plotWindow->setWidthOfMdiWindow( viewWidget, viewWidget->preferredWidth() );
-        // TODO: add back with virtual methods
-        // wellLogPlot->calculateAvailableDepthRange();
-        // wellLogPlot->updateDepthZoom();
-        wellLogPlot->uiCapability()->updateConnectedEditors();
+        plotWindow->uiCapability()->updateConnectedEditors();
     }
 }
 
@@ -102,7 +102,32 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicDeleteSubPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Delete Track" );
+    QString                      actionText;
+    std::vector<caf::PdmObject*> selection;
+    caf::SelectionManager::instance()->objectsByType( &selection );
+
+    size_t tracksSelected = 0u;
+    for ( caf::PdmObject* object : selection )
+    {
+        if ( dynamic_cast<RimWellLogTrack*>( object ) )
+        {
+            tracksSelected++;
+        }
+    }
+    if ( tracksSelected == selection.size() )
+    {
+        actionText = "Delete Track";
+    }
+    else
+    {
+        actionText = "Delete Plot";
+    }
+    if ( selection.size() > 1u )
+    {
+        actionText += "s";
+    }
+
+    actionToSetup->setText( actionText );
     actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
 }

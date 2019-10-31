@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016  Statoil ASA
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,30 +18,35 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "RicfCommandObject.h"
 
-class RimSummaryPlot;
+#include "cafCmdFeature.h"
+#include "cafPdmField.h"
+
+#include <vector>
+
+class RimPlotInterface;
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RimSummaryPlotCollection : public caf::PdmObject
+class RicNewGridPlotWindowFeature : public caf::CmdFeature, public RicfCommandObject
 {
-    CAF_PDM_HEADER_INIT;
+    RICF_HEADER_INIT;
 
 public:
-    RimSummaryPlotCollection();
-    ~RimSummaryPlotCollection() override;
+    RicNewGridPlotWindowFeature();
 
-    caf::PdmChildArrayField<RimSummaryPlot*> summaryPlots;
+    virtual RicfCommandResponse execute() override;
 
-    RimSummaryPlot* createSummaryPlotWithAutoTitle();
-    RimSummaryPlot* createNamedSummaryPlot( const QString& name );
+protected:
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
-    void updateSummaryNameHasChanged();
-    void summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const;
+    static std::vector<RimPlotInterface*> selectedPlotInterfaces();
 
-    void removeSummaryPlot( RimSummaryPlot* summaryPlot );
+private:
+    caf::PdmField<std::vector<uint64_t>> m_plots;
 };

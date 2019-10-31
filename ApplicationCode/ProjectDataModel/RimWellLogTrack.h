@@ -89,12 +89,12 @@ public:
     typedef caf::AppEnum<RiuPlotAnnotationTool::RegionAnnotationType> RegionAnnotationTypeEnum;
     typedef caf::AppEnum<RiuPlotAnnotationTool::RegionDisplay>        RegionAnnotationDisplayEnum;
 
-    bool          isChecked() const override;
-    void          setChecked( bool checked );
-    const QString description() const;
-    void          setDescription( const QString& description );
-    int           widthScaleFactor() const override;
-    void          setWidthScaleFactor( WidthScaleFactor scaleFactor ) override;
+    bool    isChecked() const override;
+    void    setChecked( bool checked ) override;
+    QString description() const override;
+    void    setDescription( const QString& description );
+    int     widthScaleFactor() const override;
+    void    setWidthScaleFactor( WidthScaleFactor scaleFactor ) override;
 
     void addCurve( RimWellLogCurve* curve );
     void insertCurve( RimWellLogCurve* curve, size_t index );
@@ -258,7 +258,6 @@ private:
     void updateWellPathAttributesOnPlot();
     void removeRegionAnnotations();
     void updateAxisScaleEngine();
-    bool isFirstVisibleTrackInPlot() const;
 
     std::pair<double, double> adjustXRange( double minValue, double maxValue, double tickInterval );
 

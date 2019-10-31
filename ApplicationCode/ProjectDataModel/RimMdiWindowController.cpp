@@ -93,7 +93,10 @@ void RimMdiWindowController::handleViewerDeletion()
 void RimMdiWindowController::removeWindowFromMDI()
 {
     RiuMainWindowBase* mainWin = getMainWindow();
-    if ( mainWin && viewWidget() ) mainWin->removeViewer( viewWidget() );
+    if ( mainWin && viewWidget() )
+    {
+        mainWin->removeViewer( viewWidget() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

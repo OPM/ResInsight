@@ -113,6 +113,8 @@ RimWellLogPlot::RimWellLogPlot()
     m_maxAvailableDepth = -HUGE_VAL;
 
     m_commonDataSourceEnabled = true;
+    m_showTitleInPlot         = false;
+    m_columnCountEnum         = RimGridPlotWindow::COLUMNS_UNLIMITED;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -302,31 +304,31 @@ void RimWellLogPlot::enableAllAutoNameTags( bool enable )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::uiOrderingForDepthAxis( caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup( "Depth Axis" );
-
     if ( m_availableDepthTypes.size() > 1u )
     {
-        gridGroup->add( &m_depthType );
+        uiOrdering.add( &m_depthType );
     }
 
     if ( m_availableDepthUnits.size() > 1u )
     {
-        gridGroup->add( &m_depthUnit );
+        uiOrdering.add( &m_depthUnit );
     }
 
-    gridGroup->add( &m_minVisibleDepth );
-    gridGroup->add( &m_maxVisibleDepth );
-    gridGroup->add( &m_depthAxisGridVisibility );
+    uiOrdering.add( &m_minVisibleDepth );
+    uiOrdering.add( &m_maxVisibleDepth );
+    uiOrdering.add( &m_depthAxisGridVisibility );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiGroup* RimWellLogPlot::createPlotSettingsUiGroup( caf::PdmUiOrdering& uiOrdering )
+void RimWellLogPlot::uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* titleAndLegendsGroup = RimGridPlotWindow::createPlotSettingsUiGroup( uiOrdering );
-    m_nameConfig->uiOrdering( "", *titleAndLegendsGroup );
-    return titleAndLegendsGroup;
+    uiOrdering.add( &m_showTitleInPlot );
+    m_nameConfig->uiOrdering( "", uiOrdering );
+    uiOrdering.add( &m_showIndividualPlotTitles );
+    RimPlotWindow::uiOrderingForPlotLayout( uiOrdering );
+    uiOrdering.add( &m_columnCountEnum );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -423,7 +425,7 @@ QWidget* RimWellLogPlot::createViewWidget( QWidget* mainWindowParent )
 void RimWellLogPlot::performAutoNameUpdate()
 {
     updateCommonDataSource();
-    this->setPlotTitleInWidget( this->createAutoName() );
+    updatePlotTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -597,8 +599,13 @@ void RimWellLogPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     {
         m_commonDataSource->uiOrdering( uiConfigName, uiOrdering );
     }
-    uiOrderingForDepthAxis( uiOrdering );
-    createPlotSettingsUiGroup( uiOrdering );
+
+    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup( "Depth Axis" );
+    uiOrderingForDepthAxis( *gridGroup );
+
+    caf::PdmUiGroup* titleAndLegendsGroup = uiOrdering.addNewGroup( "Plot Layout" );
+    uiOrderingForPlotLayout( *titleAndLegendsGroup );
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -671,6 +678,26 @@ void RimWellLogPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
             comboAttr->iconSize = QSize( 24, 14 );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QImage RimWellLogPlot::snapshotWindowContent()
+{
+    QImage image;
+
+    if ( m_viewer )
+    {
+        RiuWellLogPlot* wellLogViewer = dynamic_cast<RiuWellLogPlot*>( m_viewer.data() );
+        CAF_ASSERT( wellLogViewer );
+        bool isScrollbarVisible = wellLogViewer->isScrollbarVisible();
+        wellLogViewer->setScrollbarVisible( false );
+        image = RimGridPlotWindow::snapshotWindowContent();
+        wellLogViewer->setScrollbarVisible( isScrollbarVisible );
+    }
+
+    return image;
 }
 
 //--------------------------------------------------------------------------------------------------

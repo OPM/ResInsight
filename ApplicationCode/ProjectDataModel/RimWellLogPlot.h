@@ -96,8 +96,8 @@ public:
     void setAutoScaleYEnabled( bool enabled ) override;
     void enableAllAutoNameTags( bool enable );
 
-    void             uiOrderingForDepthAxis( caf::PdmUiOrdering& uiOrdering );
-    caf::PdmUiGroup* createPlotSettingsUiGroup( caf::PdmUiOrdering& uiOrdering );
+    void uiOrderingForDepthAxis( caf::PdmUiOrdering& uiOrdering );
+    void uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering ) override;
 
     QString createAutoName() const override;
 
@@ -130,6 +130,8 @@ protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
+
+    QImage snapshotWindowContent() override;
 
 protected:
     caf::PdmChildField<RimWellLogCurveCommonDataSource*> m_commonDataSource;

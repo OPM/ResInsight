@@ -123,24 +123,17 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot( RiuSummaryQwtPlot
 
         axisTitleY.setText( axisTitle );
 
-        switch ( m_axisProperties->titlePosition() )
+        Qt::AlignmentFlag titleAlignment = Qt::AlignCenter;
+        if ( m_axisProperties->titlePosition() == RimPlotAxisPropertiesInterface::AXIS_TITLE_END )
         {
-            case RimPlotAxisProperties::AXIS_TITLE_CENTER:
-                axisTitleY.setRenderFlags( Qt::AlignCenter );
-                break;
-            case RimPlotAxisProperties::AXIS_TITLE_END:
-                axisTitleY.setRenderFlags( Qt::AlignRight );
-                break;
+            titleAlignment = Qt::AlignRight;
         }
-
-        qwtPlot->setAxisTitle( m_axisProperties->qwtPlotAxisType(), axisTitleY );
-    }
-
-    {
-        QFont yAxisFont = qwtPlot->axisFont( m_axisProperties->qwtPlotAxisType() );
-        yAxisFont.setBold( false );
-        yAxisFont.setPointSize( m_axisProperties->valuesFontSize() );
-        qwtPlot->setAxisFont( m_axisProperties->qwtPlotAxisType(), yAxisFont );
+        qwtPlot->setAxisFontsAndAlignment( m_axisProperties->qwtPlotAxisType(),
+                                           m_axisProperties->titleFontSize(),
+                                           m_axisProperties->valuesFontSize(),
+                                           true,
+                                           titleAlignment );
+        qwtPlot->setAxisTitleText( m_axisProperties->qwtPlotAxisType(), axisTitle );
     }
 
     {

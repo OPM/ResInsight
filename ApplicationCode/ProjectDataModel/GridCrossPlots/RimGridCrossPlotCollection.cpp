@@ -75,3 +75,11 @@ void RimGridCrossPlotCollection::addGridCrossPlot( RimGridCrossPlot* plot )
 {
     m_gridCrossPlots().push_back( plot );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCollection::removeGridCrossPlot( RimGridCrossPlot* plot )
+{
+    m_gridCrossPlots.removeChildObject( plot );
+}

@@ -19,6 +19,7 @@
 
 #include "RiuGridPlotWindow.h"
 
+class RiuQwtPlotWidget;
 class RimWellLogPlot;
 
 class RiuWellLogPlot : public RiuGridPlotWindow
@@ -26,11 +27,26 @@ class RiuWellLogPlot : public RiuGridPlotWindow
     Q_OBJECT
 public:
     RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent );
-    void updateVerticalScrollBar( double minVisible, double maxVisible, double minAvailable, double maxAvailable );
+
+    bool isScrollbarVisible() const;
+    void setScrollbarVisible( bool visible );
+    void updateVerticalScrollBar( double minVisible, double maxVisible, double minAvailable, double maxAvailable ) override;
+
+protected:
+    bool willAcceptDroppedPlot( const RiuQwtPlotWidget* plotWidget ) const override;
+    bool showYAxis( int row, int column ) const override;
+
+    void reinsertScrollbar();
+    void alignScrollbar( int offset );
 
 private:
     RimWellLogPlot* wellLogPlotDefinition();
 
 private slots:
     void slotSetMinDepth( int value );
+    void performUpdate() override;
+
+private:
+    QPointer<QVBoxLayout> m_trackScrollBarLayout;
+    QScrollBar*           m_trackScrollBar;
 };

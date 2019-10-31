@@ -64,11 +64,8 @@ void RicNewWellLogPlotTrackFeature::onActionTriggered( bool isChecked )
         RimWellLogTrack* plotTrack = new RimWellLogTrack;
         wellLogPlot->addPlot( plotTrack );
         plotTrack->setDescription( QString( "Track %1" ).arg( wellLogPlot->plotCount() ) );
-        RiuPlotMainWindow* plotWindow = RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
-        RiuWellLogPlot*    viewWidget = dynamic_cast<RiuWellLogPlot*>( wellLogPlot->viewWidget() );
         RicWellLogTools::addWellLogExtractionCurve( plotTrack, nullptr, nullptr, nullptr, nullptr, -1, true );
 
-        plotWindow->setWidthOfMdiWindow( viewWidget, viewWidget->preferredWidth() );
         wellLogPlot->updateConnectedEditors();
         wellLogPlot->loadDataAndUpdate();
     }

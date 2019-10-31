@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimPlotWindow.h"
 
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+
 #include "cafPdmUiComboBoxEditor.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotWindow, "RimPlotWindow" ); // Do not use. Abstract class
@@ -30,10 +33,13 @@ RimPlotWindow::RimPlotWindow()
 
     CAF_PDM_InitField( &m_description, "PlotDescription", QString( "" ), "Name", "", "", "" );
 
-    CAF_PDM_InitField( &m_showTitleInPlot, "ShowTitleInPlot", false, "Show Title", "", "", "" );
+    CAF_PDM_InitField( &m_showTitleInPlot, "ShowTitleInPlot", true, "Show Title", "", "", "" );
     CAF_PDM_InitField( &m_showPlotLegends, "ShowTrackLegends", true, "Show Legends", "", "", "" );
-    CAF_PDM_InitField( &m_plotLegendsHorizontal, "TrackLegendsHorizontal", false, "Legend Orientation", "", "", "" );
+    CAF_PDM_InitField( &m_plotLegendsHorizontal, "TrackLegendsHorizontal", true, "Legend Orientation", "", "", "" );
     m_plotLegendsHorizontal.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    int fontSize = RiaFontCache::pointSizeFromFontSizeEnum(
+        RiaApplication::instance()->preferences()->defaultPlotFontSize() );
+    CAF_PDM_InitField( &m_legendFontSize, "LegendFontSize", fontSize, "Legend Font Size", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,6 +133,22 @@ void RimPlotWindow::setLegendsHorizontal( bool horizontal )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimPlotWindow::legendFontSize() const
+{
+    return m_legendFontSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::setLegendFontSize( int fontSize )
+{
+    m_legendFontSize = fontSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                       const QVariant&            oldValue,
                                       const QVariant&            newValue )
@@ -137,9 +159,13 @@ void RimPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         updateLayout();
     }
-    else if ( changedField == &m_showTitleInPlot )
+    else if ( changedField == &m_showTitleInPlot || changedField == &m_description )
     {
         updatePlotTitle();
+    }
+    else if ( changedField == &m_legendFontSize )
+    {
+        updateLayout();
     }
 
     updateConnectedEditors();
@@ -152,7 +178,26 @@ QList<caf::PdmOptionItemInfo> RimPlotWindow::calculateValueOptions( const caf::P
                                                                     bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
-    if ( fieldNeedingOptions == &m_plotLegendsHorizontal )
+    if ( fieldNeedingOptions == &m_legendFontSize )
+    {
+        std::vector<int> fontSizes;
+        fontSizes.push_back( 8 );
+        fontSizes.push_back( 9 );
+        fontSizes.push_back( 10 );
+        fontSizes.push_back( 11 );
+        fontSizes.push_back( 12 );
+        fontSizes.push_back( 14 );
+        fontSizes.push_back( 16 );
+        fontSizes.push_back( 18 );
+        fontSizes.push_back( 24 );
+
+        for ( int value : fontSizes )
+        {
+            QString text = QString( "%1" ).arg( value );
+            options.push_back( caf::PdmOptionItemInfo( text, value ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_plotLegendsHorizontal )
     {
         options.push_back( caf::PdmOptionItemInfo( "Vertical", QVariant::fromValue( false ) ) );
         options.push_back( caf::PdmOptionItemInfo( "Horizontal", QVariant::fromValue( true ) ) );
@@ -163,11 +208,17 @@ QList<caf::PdmOptionItemInfo> RimPlotWindow::calculateValueOptions( const caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiGroup* RimPlotWindow::createPlotSettingsUiGroup( caf::PdmUiOrdering& uiOrdering )
+caf::PdmFieldHandle* RimPlotWindow::userDescriptionField()
 {
-    caf::PdmUiGroup* titleAndLegendsGroup = uiOrdering.addNewGroup( "Title and Legends" );
-    titleAndLegendsGroup->add( &m_showPlotLegends );
-    titleAndLegendsGroup->add( &m_plotLegendsHorizontal );
-    titleAndLegendsGroup->add( &m_showTitleInPlot );
-    return titleAndLegendsGroup;
+    return &m_description;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_showPlotLegends );
+    uiOrdering.add( &m_plotLegendsHorizontal );
+    uiOrdering.add( &m_legendFontSize );
 }
