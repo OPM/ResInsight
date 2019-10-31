@@ -490,7 +490,10 @@ void RimViewController::setManagedView( RimGridView* view )
     updateDisplayNameAndIcon();
     updateTimeStepLink();
 
-    m_managedView->updateHolder();
+    if ( m_managedView )
+    {
+        m_managedView->updateHolder();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
