@@ -55,8 +55,7 @@ void RicExportFishbonesLateralsFeature::onActionTriggered( bool isChecked )
 
     RiaApplication* app = RiaApplication::instance();
 
-    QString defaultDir = app->lastUsedDialogDirectoryWithFallbackToProjectFolder( "WELL_PATH_EXPORT_DIR" );
-    auto    fileName   = caf::Utils::makeValidFileBasename( wellPath->name() ) + "_laterals.dev";
+    auto fileName = caf::Utils::makeValidFileBasename( wellPath->name() ) + "_laterals.dev";
 
     auto dialogData = EXP::openDialog();
     if ( dialogData )

@@ -205,9 +205,6 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
         auto task = progress.task( "Export Faults", faultsProgressPercentage );
         if ( exportSettings.exportFaults == RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT )
         {
-            QFileInfo info( exportSettings.exportGridFilename() );
-            QDir      dirPath = info.absoluteDir();
-
             for ( auto faultInView : view->faultCollection()->faults() )
             {
                 auto    rigFault = faultInView->faultGeometry();

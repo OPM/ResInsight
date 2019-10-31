@@ -134,8 +134,6 @@ QString RiaFilePathTools::removeDuplicatePathSeparators( const QString& path )
 //--------------------------------------------------------------------------------------------------
 QString RiaFilePathTools::rootSearchPathFromSearchFilter( const QString& searchFilter )
 {
-    std::set<QChar> globStartCharacters = {'*', '?', '['}; // ']' not needed
-
     QStringList pathPartList = searchFilter.split( SEPARATOR );
 
     QStringList::iterator pathPartIt = pathPartList.begin();
