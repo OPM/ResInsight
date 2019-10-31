@@ -114,14 +114,14 @@ void RimGridPlotWindow::insertPlot( RimPlotInterface* plot, size_t index )
     if ( plot )
     {
         m_plots.insert( index, toPdmObjectAsserted( plot ) );
+        plot->setChecked( true );
 
         if ( m_viewer )
         {
             plot->createPlotWidget();
-            plot->setChecked( true );
             m_viewer->insertPlot( plot->viewer(), index );
-            plot->updateAfterInsertingIntoGridPlotWindow();
         }
+        plot->updateAfterInsertingIntoGridPlotWindow();
 
         onPlotAdditionOrRemoval();
     }

@@ -24,27 +24,31 @@
 #include "RimGridPlotWindow.h"
 #include "RimGridPlotWindowCollection.h"
 #include "RimMainPlotCollection.h"
+#include "RimPlotInterface.h"
 #include "RimProject.h"
 
 #include "RiuPlotMainWindowTools.h"
 #include <QAction>
 
+#include "cafSelectionManager.h"
+
 #include "cvfAssert.h"
 
-CAF_CMD_SOURCE_INIT( RicNewGridPlotWindowFeature, "RicNewGridPlotWindowFeature" );
+RICF_SOURCE_INIT( RicNewGridPlotWindowFeature, "RicNewGridPlotWindowFeature", "createCombinationPlot" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewGridPlotWindowFeature::isCommandEnabled()
+RicNewGridPlotWindowFeature::RicNewGridPlotWindowFeature()
 {
-    return true;
+    CAF_PDM_InitObject( "Create Combination Plot", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plots, "plots", "Plots", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewGridPlotWindowFeature::onActionTriggered( bool isChecked )
+RicfCommandResponse RicNewGridPlotWindowFeature::execute()
 {
     RimProject*                  project        = RiaApplication::instance()->project();
     RimGridPlotWindowCollection* plotCollection = project->mainPlotCollection()->combinationPlotCollection();
@@ -53,12 +57,58 @@ void RicNewGridPlotWindowFeature::onActionTriggered( bool isChecked )
     plotWindow->setDescription( QString( "Combination Plot %1" ).arg( plotCollection->gridPlotWindows().size() + 1 ) );
     plotWindow->setAsPlotMdiWindow();
     plotCollection->addGridPlotWindow( plotWindow );
-    plotCollection->updateAllRequiredEditors();
 
+    if ( !m_plots().empty() )
+    {
+        std::vector<RimPlotInterface*> plotInterfaces;
+        for ( auto ptr : m_plots() )
+        {
+            plotInterfaces.push_back( reinterpret_cast<RimPlotInterface*>( ptr ) );
+        }
+        plotWindow->movePlotsToThis( plotInterfaces, nullptr );
+    }
+
+    plotCollection->updateAllRequiredEditors();
     plotWindow->loadDataAndUpdate();
 
     RiuPlotMainWindowTools::setExpanded( plotCollection, true );
     RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
+
+    return RicfCommandResponse();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicNewGridPlotWindowFeature::isCommandEnabled()
+{
+    RimGridPlotWindowCollection* gridPlotCollection = caf::SelectionManager::instance()
+                                                          ->selectedItemOfType<RimGridPlotWindowCollection>();
+    if ( gridPlotCollection )
+    {
+        return true;
+    }
+
+    auto selectedPlots = selectedPlotInterfaces();
+
+    std::vector<caf::PdmUiItem*> selectedUiItems;
+    caf::SelectionManager::instance()->selectedItems( selectedUiItems );
+
+    return !selectedPlots.empty() && selectedPlots.size() == selectedUiItems.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewGridPlotWindowFeature::onActionTriggered( bool isChecked )
+{
+    m_plots.v().clear();
+    auto selectedPlots = selectedPlotInterfaces();
+    for ( RimPlotInterface* plotInterface : selectedPlots )
+    {
+        m_plots.v().push_back( reinterpret_cast<uintptr_t>( plotInterface ) );
+    }
+    execute();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,6 +116,34 @@ void RicNewGridPlotWindowFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewGridPlotWindowFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New Empty Combination Plot" );
-    actionToSetup->setIcon( QIcon( ":/WellLogPlot16x16.png" ) );
+    if ( selectedPlotInterfaces().empty() )
+    {
+        actionToSetup->setText( "New Empty Combination Plot" );
+        actionToSetup->setIcon( QIcon( ":/WellLogPlot16x16.png" ) );
+    }
+    else
+    {
+        actionToSetup->setText( "Create Combination Plot from selected plots" );
+        actionToSetup->setIcon( QIcon( ":/WellLogPlot16x16.png" ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlotInterface*> RicNewGridPlotWindowFeature::selectedPlotInterfaces()
+{
+    std::vector<caf::PdmUiItem*> uiItems;
+    caf::SelectionManager::instance()->selectedItems( uiItems );
+
+    std::vector<RimPlotInterface*> plotInterfaces;
+    for ( caf::PdmUiItem* uiItem : uiItems )
+    {
+        RimPlotInterface* plotInterface = dynamic_cast<RimPlotInterface*>( uiItem );
+        if ( plotInterface )
+        {
+            plotInterfaces.push_back( plotInterface );
+        }
+    }
+    return plotInterfaces;
 }

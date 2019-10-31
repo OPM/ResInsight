@@ -18,18 +18,35 @@
 
 #pragma once
 
+#include "RicfCommandObject.h"
+
 #include "cafCmdFeature.h"
+#include "cafPdmField.h"
+
+#include <vector>
+
+class RimPlotInterface;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewGridPlotWindowFeature : public caf::CmdFeature
+class RicNewGridPlotWindowFeature : public caf::CmdFeature, public RicfCommandObject
 {
-    CAF_CMD_HEADER_INIT;
+    RICF_HEADER_INIT;
+
+public:
+    RicNewGridPlotWindowFeature();
+
+    virtual RicfCommandResponse execute() override;
 
 protected:
     // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+    static std::vector<RimPlotInterface*> selectedPlotInterfaces();
+
+private:
+    caf::PdmField<std::vector<uint64_t>> m_plots;
 };

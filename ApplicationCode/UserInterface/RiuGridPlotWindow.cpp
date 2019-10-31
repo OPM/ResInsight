@@ -193,9 +193,15 @@ void RiuGridPlotWindow::removePlot( RiuQwtPlotWidget* plotWidget )
     plotWidget->setParent( nullptr );
 
     RiuQwtPlotLegend* legend = m_legends[plotWidgetIdx];
+    legend->setParent( nullptr );
     m_legends.removeAt( plotWidgetIdx );
     m_legendColumns.removeAt( plotWidgetIdx );
     delete legend;
+
+    QLabel* subTitle = m_subTitles[plotWidgetIdx];
+    subTitle->setParent( nullptr );
+    m_subTitles.removeAt( plotWidgetIdx );
+    delete subTitle;
 
     scheduleUpdate();
 }

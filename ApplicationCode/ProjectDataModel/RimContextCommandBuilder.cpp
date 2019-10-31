@@ -466,10 +466,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewWellLogPlotFeature";
             menuBuilder << "RicNewWellBoreStabilityPlotFeature";
         }
-        else if ( dynamic_cast<RimGridPlotWindowCollection*>( uiItem ) )
-        {
-            menuBuilder << "RicNewGridPlotWindowFeature";
-        }
         else if ( dynamic_cast<RimRftPlotCollection*>( uiItem ) )
         {
             menuBuilder << "RicNewRftPlotFeature";
@@ -870,6 +866,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicCloseSummaryCaseInCollectionFeature";
         menuBuilder << "RicDeleteSummaryCaseCollectionFeature";
         menuBuilder << "RicCloseObservedDataFeature";
+
+        menuBuilder << "RicNewGridPlotWindowFeature";
 
         // Work in progress -- End
         appendCreateCompletions( menuBuilder, menuBuilder.itemCount() > 0u );

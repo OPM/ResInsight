@@ -209,7 +209,7 @@ RimSummaryPlot::RimSummaryPlot()
     m_textCurveSetEditor = new RimSummaryPlotFilterTextCurveSetEditor;
 
     m_isCrossPlot = false;
-    m_isDraggable = false;
+    m_isDraggable = true;
 
     m_nameHelperAllCurves.reset( new RimSummaryPlotNameHelper );
 
