@@ -82,7 +82,7 @@ void RicCreatePlotFromTemplateByShortcutFeature::onActionTriggered( bool isCheck
 //--------------------------------------------------------------------------------------------------
 void RicCreatePlotFromTemplateByShortcutFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Create Plot from Default Template" );
+    actionToSetup->setText( "Create Plot from Last Used Template" );
     actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
 
     QKeySequence keySeq( Qt::CTRL + Qt::Key_T );
