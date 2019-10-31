@@ -162,8 +162,6 @@ void RicExportToLasFileFeature::onActionTriggered( bool isChecked )
     RicExportFeatureImpl::configureForExport( propertyDialog.dialogButtonBox() );
     propertyDialog.resize( QSize( 400, 330 ) );
 
-    std::vector<QString> writtenFiles;
-
     if ( propertyDialog.exec() == QDialog::Accepted && !featureUi.exportFolder().isEmpty() )
     {
         double resampleInterval = 0.0;
