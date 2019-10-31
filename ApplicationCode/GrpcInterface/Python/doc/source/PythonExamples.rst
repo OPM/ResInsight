@@ -33,6 +33,10 @@ ErrorHandling
 -------------
 .. literalinclude:: ../../rips/PythonExamples/error_handling.py
 
+ExportContourMaps
+-----------------
+.. literalinclude:: ../../rips/PythonExamples/export_contour_maps.py 
+
 ExportPlots
 -----------
 .. literalinclude:: ../../rips/PythonExamples/export_plots.py
