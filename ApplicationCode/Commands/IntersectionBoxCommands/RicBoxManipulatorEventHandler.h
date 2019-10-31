@@ -52,6 +52,8 @@ public:
     explicit RicBoxManipulatorEventHandler( caf::Viewer* viewer );
     ~RicBoxManipulatorEventHandler() override;
 
+    void registerInAdditionalViewer( caf::Viewer* viewer);
+
     void setOrigin( const cvf::Vec3d& origin );
     void setSize( const cvf::Vec3d& size );
 
@@ -66,6 +68,7 @@ protected:
 
 private:
     QPointer<caf::Viewer> m_viewer;
+    std::vector<QPointer<caf::Viewer>> m_otherViewers;
 
     cvf::ref<caf::BoxManipulatorPartManager> m_partManager;
 };

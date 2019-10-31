@@ -29,6 +29,7 @@
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfRay.h"
+#include "cvfRayIntersectSpec.h"
 
 #include <QDebug>
 #include <QMouseEvent>
@@ -50,6 +51,26 @@ RicBoxManipulatorEventHandler::RicBoxManipulatorEventHandler( caf::Viewer* viewe
 RicBoxManipulatorEventHandler::~RicBoxManipulatorEventHandler()
 {
     if ( m_viewer ) m_viewer->removeEventFilter( this );
+
+    for ( auto viewer : m_otherViewers )
+    {
+        if ( viewer )
+        {
+            m_viewer->removeEventFilter( this );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicBoxManipulatorEventHandler::registerInAdditionalViewer( caf::Viewer* viewer )
+{
+    if ( viewer )
+    {
+        m_otherViewers.push_back( viewer );
+        viewer->installEventFilter( this );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,6 +106,10 @@ void RicBoxManipulatorEventHandler::appendPartsToModel( cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 bool RicBoxManipulatorEventHandler::eventFilter( QObject* obj, QEvent* inputEvent )
 {
+    caf::Viewer* viewer = dynamic_cast<caf::Viewer*>( obj );
+
+    if ( !viewer ) return false;
+
     if ( inputEvent->type() == QEvent::MouseButtonPress )
     {
         QMouseEvent* mouseEvent = static_cast<QMouseEvent*>( inputEvent );
@@ -92,7 +117,7 @@ bool RicBoxManipulatorEventHandler::eventFilter( QObject* obj, QEvent* inputEven
         if ( mouseEvent->button() == Qt::LeftButton )
         {
             cvf::HitItemCollection hitItems;
-            if ( m_viewer->rayPick( mouseEvent->x(), mouseEvent->y(), &hitItems ) )
+            if ( viewer->rayPick( mouseEvent->x(), mouseEvent->y(), &hitItems ) )
             {
                 m_partManager->tryToActivateManipulator( hitItems.firstItem() );
 
@@ -111,16 +136,12 @@ bool RicBoxManipulatorEventHandler::eventFilter( QObject* obj, QEvent* inputEven
         {
             QMouseEvent* mouseEvent = static_cast<QMouseEvent*>( inputEvent );
 
-            // qDebug() << "Inside mouse move";
-            // qDebug() << mouseEvent->pos();
+            cvf::ref<cvf::RayIntersectSpec> rayIS =
+                viewer->rayIntersectSpecFromWindowCoordinates( mouseEvent->pos().x(), mouseEvent->pos().y() );
 
-            int translatedMousePosX = mouseEvent->pos().x();
-            int translatedMousePosY = m_viewer->height() - mouseEvent->pos().y();
-
-            cvf::ref<cvf::Ray> ray = m_viewer->mainCamera()->rayFromWindowCoordinates( translatedMousePosX,
-                                                                                       translatedMousePosY );
+            if (rayIS.notNull())
             {
-                m_partManager->updateManipulatorFromRay( ray.p() );
+                m_partManager->updateManipulatorFromRay( rayIS->ray() );
 
                 cvf::Vec3d origin;
                 cvf::Vec3d size;
