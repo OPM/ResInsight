@@ -46,7 +46,6 @@ public:
 private:
     static std::vector<RimWellPath*> allWellPaths();
     static void                      createExecuteScriptForCasesFeatureMenu( caf::CmdFeatureMenuBuilder& menuBuilder );
-    static void                      appendPlotTemplateMenus( caf::CmdFeatureMenuBuilder& menuBuilder );
 
     static void appendScriptItems( caf::CmdFeatureMenuBuilder& menuBuilder, RimScriptCollection* scriptCollection );
     static void appendPlotTemplateItems( caf::CmdFeatureMenuBuilder& menuBuilder,

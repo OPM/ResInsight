@@ -853,9 +853,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicCreatePlotFromSelectionFeature";
             menuBuilder << "RicCreatePlotFromTemplateByShortcutFeature";
-
-            // TODO: Consider to remove plot template menus, only support dialog selection
-            // appendPlotTemplateMenus( menuBuilder );
         }
 
         menuBuilder << "Separator";
@@ -1049,19 +1046,6 @@ void RimContextCommandBuilder::createExecuteScriptForCasesFeatureMenu( caf::CmdF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContextCommandBuilder::appendPlotTemplateMenus( caf::CmdFeatureMenuBuilder& menuBuilder )
-{
-    RiaApplication* app  = RiaApplication::instance();
-    RimProject*     proj = app->project();
-    if ( proj && proj->rootPlotTemlateItem() )
-    {
-        appendPlotTemplateItems( menuBuilder, proj->rootPlotTemlateItem() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimContextCommandBuilder::appendScriptItems( caf::CmdFeatureMenuBuilder& menuBuilder,
                                                   RimScriptCollection*        scriptCollection )
 {
@@ -1094,34 +1078,6 @@ void RimContextCommandBuilder::appendScriptItems( caf::CmdFeatureMenuBuilder& me
     }
 
     menuBuilder.subMenuEnd();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimContextCommandBuilder::appendPlotTemplateItems( caf::CmdFeatureMenuBuilder& menuBuilder,
-                                                        RimPlotTemplateFolderItem*  plotTemplateRoot )
-{
-    if ( !plotTemplateRoot->fileNames().empty() )
-    {
-        auto folderName = plotTemplateRoot->uiName();
-        menuBuilder.subMenuStart( folderName );
-
-        for ( const auto& fileItem : plotTemplateRoot->fileNames() )
-        {
-            QString menuText = fileItem->uiName();
-            menuBuilder.addCmdFeatureWithUserData( "RicCreatePlotFromTemplateFeature",
-                                                   menuText,
-                                                   QVariant( fileItem->absoluteFilePath() ) );
-        }
-
-        menuBuilder.subMenuEnd();
-    }
-
-    for ( const auto& folder : plotTemplateRoot->subFolders() )
-    {
-        appendPlotTemplateItems( menuBuilder, folder );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
