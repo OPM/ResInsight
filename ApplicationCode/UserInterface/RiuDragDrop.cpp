@@ -30,6 +30,7 @@
 #include "RimGridPlotWindow.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMimeData.h"
+#include "RimPlotInterface.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -162,7 +163,7 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
         }
 
         if ( dynamic_cast<RimEclipseCase*>( uiItem ) || dynamic_cast<RimWellLogCurve*>( uiItem ) ||
-             dynamic_cast<RimWellLogFileChannel*>( uiItem ) || dynamic_cast<RimWellLogTrack*>( uiItem ) ||
+             dynamic_cast<RimWellLogFileChannel*>( uiItem ) || dynamic_cast<RimPlotInterface*>( uiItem ) ||
              dynamic_cast<RimSummaryCase*>( uiItem ) )
         {
             // TODO: Remember to handle reservoir holding the main grid
@@ -181,6 +182,20 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
             if ( dynamic_cast<RimWellLogPlot*>( uiItem ) )
             {
                 if ( RiuTypedPdmObjects<RimWellLogTrack>::containsTypedObjects( m_dragItems ) )
+                {
+                    itemflags |= Qt::ItemIsDropEnabled;
+                }
+            }
+            else if ( dynamic_cast<RimGridPlotWindow*>( uiItem ) )
+            {
+                if ( RiuTypedPdmObjects<RimPlotInterface>::containsTypedObjects( m_dragItems ) )
+                {
+                    itemflags |= Qt::ItemIsDropEnabled;
+                }
+            }
+            else if ( dynamic_cast<RimPlotInterface*>( uiItem ) )
+            {
+                if ( RiuTypedPdmObjects<RimPlotInterface>::containsTypedObjects( m_dragItems ) )
                 {
                     itemflags |= Qt::ItemIsDropEnabled;
                 }
