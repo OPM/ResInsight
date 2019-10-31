@@ -86,15 +86,15 @@ protected:
 
     bool            isGridVisualizationMode() const override;
     void            axisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
-    void            createDisplayModel() override;
-    void            createPartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
-    void            clampCurrentTimestep() override;
-    void            updateCurrentTimeStep() override;
+    void            onCreateDisplayModel() override;
+    void            onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
+    void            onClampCurrentTimestep() override;
+    void            onUpdateCurrentTimeStep() override;
     void            onTimeStepChanged() override;
-    void            updateStaticCellColors() override;
-    void            updateScaleTransform() override;
+    void            onUpdateStaticCellColors() override;
+    void            onUpdateScaleTransform() override;
     cvf::Transform* scaleTransform() override;
-    void            resetLegendsInViewer() override;
+    void            onResetLegendsInViewer() override;
     void            onLoadDataAndUpdate() override;
     bool            isWindowVisible() const override;
 

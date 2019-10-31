@@ -173,9 +173,9 @@ void RimEclipseContourMapView::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::createDisplayModel()
+void RimEclipseContourMapView::onCreateDisplayModel()
 {
-    RimEclipseView::createDisplayModel();
+    RimEclipseView::onCreateDisplayModel();
 
     if ( !this->isTimeStepDependentDataVisible() )
     {
@@ -228,7 +228,7 @@ void RimEclipseContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::updateCurrentTimeStep()
+void RimEclipseContourMapView::onUpdateCurrentTimeStep()
 {
     static_cast<RimEclipsePropertyFilterCollection*>( nativePropertyFilterCollection() )->updateFromCurrentTimeStep();
     updateGeometry();

@@ -185,9 +185,9 @@ void RimGeoMechContourMapView::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapView::createDisplayModel()
+void RimGeoMechContourMapView::onCreateDisplayModel()
 {
-    RimGeoMechView::createDisplayModel();
+    RimGeoMechView::onCreateDisplayModel();
 
     if ( !this->isTimeStepDependentDataVisible() )
     {
@@ -237,7 +237,7 @@ void RimGeoMechContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapView::updateCurrentTimeStep()
+void RimGeoMechContourMapView::onUpdateCurrentTimeStep()
 {
     updateGeometry();
 }

@@ -124,7 +124,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
 {
     caf::ProgressInfo progress( 7, "" );
     progress.setNextProgressIncrement( 5 );
-    updateScaleTransform();
+    onUpdateScaleTransform();
 
     if ( m_geomechCase )
     {
@@ -181,7 +181,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
 ///
 //--------------------------------------------------------------------------------------------------
 
-void RimGeoMechView::updateScaleTransform()
+void RimGeoMechView::onUpdateScaleTransform()
 {
     cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
     scale( 2, 2 )    = scaleZ();
@@ -231,7 +231,7 @@ QString RimGeoMechView::createAutoName() const
 /// or at least empty scenes as frames that is delivered to the viewer
 /// The real geometry generation is done inside RivReservoirViewGeometry and friends
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::createDisplayModel()
+void RimGeoMechView::onCreateDisplayModel()
 {
     if ( nativeOrOverrideViewer() == nullptr ) return;
 
@@ -316,7 +316,7 @@ RimPropertyFilterCollection* RimGeoMechView::nativePropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::updateCurrentTimeStep()
+void RimGeoMechView::onUpdateCurrentTimeStep()
 {
     updateLegends();
 
@@ -402,7 +402,7 @@ void RimGeoMechView::updateCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::updateStaticCellColors()
+void RimGeoMechView::onUpdateStaticCellColors()
 {
     m_vizLogic->updateStaticCellColors( -1 );
 }
@@ -419,7 +419,7 @@ void RimGeoMechView::setGeoMechCase( RimGeoMechCase* gmCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::resetLegendsInViewer()
+void RimGeoMechView::onResetLegendsInViewer()
 {
     this->cellResult()->legendConfig->recreateLegend();
 
@@ -711,7 +711,7 @@ RimGeoMechCase* RimGeoMechView::geoMechCase() const
 //--------------------------------------------------------------------------------------------------
 /// Clamp the current timestep to actual possibilities
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::clampCurrentTimestep()
+void RimGeoMechView::onClampCurrentTimestep()
 {
     int maxFrameCount = 0;
 
@@ -852,7 +852,7 @@ void RimGeoMechView::calculateCurrentTotalCellVisibility( cvf::UByteArray* total
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::createPartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )
+void RimGeoMechView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )
 {
     Riu3dSelectionManager*         riuSelManager = Riu3dSelectionManager::instance();
     std::vector<RiuSelectionItem*> items;

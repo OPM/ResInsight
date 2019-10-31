@@ -255,7 +255,7 @@ RimVirtualPerforationResults* RimEclipseView::virtualPerforationResult() const
 //--------------------------------------------------------------------------------------------------
 /// Clamp the current timestep to actual possibilities
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::clampCurrentTimestep()
+void RimEclipseView::onClampCurrentTimestep()
 {
     if ( this->currentGridCellResults() )
     {
@@ -330,7 +330,7 @@ void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateScaleTransform()
+void RimEclipseView::onUpdateScaleTransform()
 {
     cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
     scale( 2, 2 )    = scaleZ();
@@ -346,7 +346,7 @@ void RimEclipseView::updateScaleTransform()
 /// or at least empty scenes as frames that is delivered to the viewer
 /// The real geometry generation is done inside RivReservoirViewGeometry and friends
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::createDisplayModel()
+void RimEclipseView::onCreateDisplayModel()
 {
     clearReservoirCellVisibilities();
 
@@ -475,7 +475,7 @@ void RimEclipseView::createDisplayModel()
             }
         }
         // Set static colors
-        this->updateStaticCellColors();
+        this->onUpdateStaticCellColors();
     }
     else
     {
@@ -590,7 +590,7 @@ void RimEclipseView::createDisplayModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateCurrentTimeStep()
+void RimEclipseView::onUpdateCurrentTimeStep()
 {
     clearReservoirCellVisibilities();
 
@@ -868,7 +868,7 @@ void RimEclipseView::appendWellsAndFracturesToModel()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::onLoadDataAndUpdate()
 {
-    updateScaleTransform();
+    onUpdateScaleTransform();
 
     if ( m_eclipseCase )
     {
@@ -953,7 +953,7 @@ void RimEclipseView::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateStaticCellColors()
+void RimEclipseView::onUpdateStaticCellColors()
 {
     updateStaticCellColors( OVERRIDDEN_CELL_VISIBILITY );
     updateStaticCellColors( ACTIVE );
@@ -1560,7 +1560,7 @@ void RimEclipseView::updateDisplayModelForWellResults()
 
     syncronizeWellsWithResults();
 
-    createDisplayModel();
+    onCreateDisplayModel();
     updateDisplayModelVisibility();
 
     if ( hasUserRequestedAnimation() && nativeOrOverrideViewer() )
@@ -1821,7 +1821,7 @@ RimEclipseCellColors* RimEclipseView::currentFaultResultColors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::resetLegendsInViewer()
+void RimEclipseView::onResetLegendsInViewer()
 {
     RimRegularLegendConfig* cellResultNormalLegendConfig = this->cellResult()->legendConfig();
     if ( cellResultNormalLegendConfig ) cellResultNormalLegendConfig->recreateLegend();
@@ -2002,7 +2002,7 @@ bool RimEclipseView::showActiveCellsOnly()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::createPartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )
+void RimEclipseView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )
 {
     Riu3dSelectionManager*         riuSelManager = Riu3dSelectionManager::instance();
     std::vector<RiuSelectionItem*> items;

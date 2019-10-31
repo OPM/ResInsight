@@ -173,7 +173,7 @@ bool Rim2dIntersectionView::isTimeStepDependentDataVisible() const
     {
         RimGridView* gridView = nullptr;
         m_intersection->firstAncestorOrThisOfTypeAsserted( gridView );
-        return gridView->isTimeStepDependentDataVisible();
+        return gridView->isTimeStepDependentDataVisibleInThisOrComparisonView();
     }
 
     return false;
@@ -473,12 +473,12 @@ void Rim2dIntersectionView::axisLabels( cvf::String* xLabel, cvf::String* yLabel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::createDisplayModel()
+void Rim2dIntersectionView::onCreateDisplayModel()
 {
     if ( !nativeOrOverrideViewer() ) return;
     if ( !m_intersection() ) return;
 
-    updateScaleTransform();
+    onUpdateScaleTransform();
 
     nativeOrOverrideViewer()->removeAllFrames( isUsingOverrideViewer() );
 
@@ -536,7 +536,7 @@ void Rim2dIntersectionView::createDisplayModel()
     if ( this->hasUserRequestedAnimation() )
     {
         if ( viewer() ) viewer()->setCurrentFrame( m_currentTimeStep );
-        updateCurrentTimeStep();
+        onUpdateCurrentTimeStep();
     }
 
     if ( this->viewer()->mainCamera()->viewMatrix() == sm_defaultViewMatrix )
@@ -548,7 +548,7 @@ void Rim2dIntersectionView::createDisplayModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::updateCurrentTimeStep()
+void Rim2dIntersectionView::onUpdateCurrentTimeStep()
 {
     update3dInfo();
     updateLegends();
@@ -685,7 +685,7 @@ void Rim2dIntersectionView::updateLegends()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::resetLegendsInViewer()
+void Rim2dIntersectionView::onResetLegendsInViewer()
 {
     nativeOrOverrideViewer()->showAxisCross( false );
     nativeOrOverrideViewer()->showAnimationProgress( true );
@@ -704,7 +704,7 @@ void Rim2dIntersectionView::resetLegendsInViewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::createPartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) {}
+void Rim2dIntersectionView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -713,17 +713,17 @@ void Rim2dIntersectionView::onTimeStepChanged() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::clampCurrentTimestep() {}
+void Rim2dIntersectionView::onClampCurrentTimestep() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::updateStaticCellColors() {}
+void Rim2dIntersectionView::onUpdateStaticCellColors() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::updateScaleTransform()
+void Rim2dIntersectionView::onUpdateScaleTransform()
 {
     cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
     scale( 2, 2 )    = scaleZ();

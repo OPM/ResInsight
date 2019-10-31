@@ -111,21 +111,22 @@ protected:
                            const QVariant&            newValue ) override;
     void initAfterRead() override;
 
-    void                         createPartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
-    void                         createDisplayModel() override;
+    void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
+    void onCreateDisplayModel() override;
+
     RimPropertyFilterCollection* nativePropertyFilterCollection();
 
 private:
     QString createAutoName() const override;
 
-    void updateScaleTransform() override;
+    void onUpdateScaleTransform() override;
 
-    void clampCurrentTimestep() override;
+    void onClampCurrentTimestep() override;
 
-    void updateCurrentTimeStep() override;
-    void updateStaticCellColors() override;
+    void onUpdateCurrentTimeStep() override;
+    void onUpdateStaticCellColors() override;
 
-    void resetLegendsInViewer() override;
+    void onResetLegendsInViewer() override;
 
     void updateLegends() override;
 

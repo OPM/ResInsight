@@ -41,10 +41,10 @@ public:
 
 protected:
     void initAfterRead() override;
-    void createDisplayModel() override;
+    void onCreateDisplayModel() override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void updateCurrentTimeStep() override;
+    void onUpdateCurrentTimeStep() override;
     void updateGeometry();
     void setFaultVisParameters();
     void createContourMapGeometry();

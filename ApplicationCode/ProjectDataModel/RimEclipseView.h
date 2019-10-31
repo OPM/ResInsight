@@ -153,13 +153,13 @@ protected:
     void onLoadDataAndUpdate() override;
     caf::PdmFieldHandle* userDescriptionField() override;
 
-    void createPartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
+    void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
     bool showActiveCellsOnly() override;
-    void updateCurrentTimeStep() override;
+    void onUpdateCurrentTimeStep() override;
     void updateVisibleGeometriesAndCellColors();
     void appendWellsAndFracturesToModel();
 
-    void                             createDisplayModel() override;
+    void                             onCreateDisplayModel() override;
     RimPropertyFilterCollection*     nativePropertyFilterCollection();
     virtual std::set<RivCellSetEnum> allVisibleFaultGeometryTypes() const;
 
@@ -169,24 +169,24 @@ private:
     void updateDisplayModelVisibility() override;
 
     std::vector<size_t> indicesToVisibleGrids() const;
-    void                updateScaleTransform() override;
+    void                onUpdateScaleTransform() override;
     cvf::Transform*     scaleTransform() override;
 
-    void updateStaticCellColors() override;
+    void onUpdateStaticCellColors() override;
     void updateStaticCellColors( RivCellSetEnum geometryType );
 
     void updateLegends() override;
     void updateMinMaxValuesAndAddLegendToView( QString                 legendLabel,
                                                RimEclipseCellColors*   resultColors,
                                                RigCaseCellResultsData* cellResultsData );
-    void resetLegendsInViewer() override;
+    void onResetLegendsInViewer() override;
     void updateVirtualConnectionLegendRanges();
 
     void updateFaultColors();
 
     void syncronizeWellsWithResults();
 
-    void clampCurrentTimestep() override;
+    void onClampCurrentTimestep() override;
     void setVisibleGridParts( const std::vector<RivCellSetEnum>& cellSets );
     void setVisibleGridPartsWatertight();
 

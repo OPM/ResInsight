@@ -112,10 +112,7 @@ public:
     QString autoName() const;
 
     // Implementation of RiuViewerToViewInterface
-    cvf::Color3f backgroundColor() const override
-    {
-        return m_backgroundColor();
-    }
+    cvf::Color3f backgroundColor() const override;
 
     void setMeshOnlyDrawstyle();
     void setMeshSurfDrawstyle();
@@ -141,14 +138,10 @@ public:
     void   forceShowWindowOn();
 
     // Animation
-    int currentTimeStep() const
-    {
-        return m_currentTimeStep;
-    }
-    void         setCurrentTimeStep( int frameIdx );
-    void         setCurrentTimeStepAndUpdate( int frameIdx ) override;
-    bool         isTimeStepDependentDataVisibleInThisOrComparisonView() const;
-    virtual bool isTimeStepDependentDataVisible() const = 0;
+    int  currentTimeStep() const;
+    void setCurrentTimeStep( int frameIdx );
+    void setCurrentTimeStepAndUpdate( int frameIdx ) override;
+    bool isTimeStepDependentDataVisibleInThisOrComparisonView() const;
 
     // Updating
     void         updateCurrentTimeStepAndRedraw() override;
@@ -166,7 +159,7 @@ public:
     bool       isMasterView() const;
     Rim3dView* activeComparisonView() const;
     bool       isScaleZEditable();
-    void       setComparisonView(Rim3dView* compView); 
+    void       setComparisonView( Rim3dView* compView );
 
     std::set<Rim3dView*> viewsUsingThisAsComparisonView();
 
@@ -202,8 +195,8 @@ protected:
     void addDynamicWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
                                      const cvf::BoundingBox& wellPathClipBoundingBox );
 
-    void addAnnotationsToModel( cvf::ModelBasicList* wellPathModelBasicList );
-    void addMeasurementToModel( cvf::ModelBasicList* wellPathModelBasicList );
+    void addAnnotationsToModel( cvf::ModelBasicList* annotationsModel );
+    void addMeasurementToModel( cvf::ModelBasicList* measureModel );
 
     // Override viewer
 
@@ -217,19 +210,21 @@ protected:
 
     virtual void axisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) = 0;
 
-    virtual void createDisplayModel() = 0;
+    virtual void onCreateDisplayModel() = 0;
     virtual void updateDisplayModelVisibility();
-    virtual void clampCurrentTimestep()  = 0;
-    virtual void updateCurrentTimeStep() = 0;
-    virtual void onTimeStepChanged()     = 0;
+    virtual void onClampCurrentTimestep()               = 0;
+    virtual void onUpdateCurrentTimeStep()              = 0;
+    virtual void onTimeStepChanged()                    = 0;
+    virtual bool isTimeStepDependentDataVisible() const = 0;
 
-    virtual void createPartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) = 0;
-    virtual void updateStaticCellColors()                                               = 0;
+    virtual void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) = 0;
+    virtual void onUpdateStaticCellColors()                                               = 0;
 
-    virtual void            updateScaleTransform() = 0;
-    virtual cvf::Transform* scaleTransform()       = 0;
+    virtual void            onUpdateScaleTransform() = 0;
+    virtual cvf::Transform* scaleTransform()         = 0;
 
-    virtual void resetLegendsInViewer() = 0;
+    virtual void onResetLegendsInViewer() = 0;
+    virtual void updateLegends()          = 0;
 
 protected: // Fields
     caf::PdmField<int> m_currentTimeStep;
@@ -271,23 +266,14 @@ private:
     QWidget* viewWidget() override;
 
     // Implementation of RiuViewerToViewInterface
-    void setCameraPosition( const cvf::Mat4d& cameraPosition ) override
-    {
-        m_cameraPosition = cameraPosition;
-    }
+    void setCameraPosition( const cvf::Mat4d& cameraPosition ) override;
 
-    void setCameraPointOfInterest( const cvf::Vec3d& cameraPointOfInterest ) override
-    {
-        m_cameraPointOfInterest = cameraPointOfInterest;
-    }
+    void setCameraPointOfInterest( const cvf::Vec3d& cameraPointOfInterest ) override;
 
     QString timeStepName( int frameIdx ) const override;
     void    endAnimation() override;
 
-    caf::PdmObjectHandle* implementingPdmObject() override
-    {
-        return this;
-    }
+    caf::PdmObjectHandle* implementingPdmObject() override;
 
     void handleMdiWindowClosed() override;
     void setMdiWindowGeometry( const RimMdiWindowGeometry& windowGeometry ) override;
