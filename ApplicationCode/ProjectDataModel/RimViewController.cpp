@@ -96,9 +96,9 @@ RimViewController::~RimViewController()
 {
     this->removeOverrides();
     RimGridView* managedView = m_managedView;
-    m_managedView = nullptr;
+    m_managedView            = nullptr;
 
-    if (managedView) managedView->updateHolder();
+    if ( managedView ) managedView->updateHolder();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,7 +220,7 @@ void RimViewController::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         RimGridView*     previousManagedView = dynamic_cast<RimGridView*>( prevValue );
         RimViewController::removeOverrides( previousManagedView );
 
-        ownerViewLinker()->notifyManagedViewChange(previousManagedView,  m_managedView());
+        ownerViewLinker()->notifyManagedViewChange( previousManagedView, m_managedView() );
 
         setManagedView( m_managedView() );
 
@@ -475,9 +475,9 @@ RimGridView* RimViewController::managedView() const
 //--------------------------------------------------------------------------------------------------
 void RimViewController::setManagedView( RimGridView* view )
 {
-    if (m_managedView != view)
+    if ( m_managedView != view )
     {
-        ownerViewLinker()->notifyManagedViewChange(m_managedView(), view);
+        ownerViewLinker()->notifyManagedViewChange( m_managedView(), view );
     }
 
     m_managedView = view;
@@ -489,6 +489,7 @@ void RimViewController::setManagedView( RimGridView* view )
     updateCameraLink();
     updateDisplayNameAndIcon();
     updateTimeStepLink();
+
     m_managedView->updateHolder();
 }
 
@@ -961,7 +962,7 @@ bool RimViewController::isRangeFiltersControlled() const
 {
     if ( !isRangeFilterControlPossible() ) return false;
 
-    if (ownerViewLinker() &&  ownerViewLinker()->isActive() && this->m_isActive() )
+    if ( ownerViewLinker() && ownerViewLinker()->isActive() && this->m_isActive() )
     {
         return m_syncRangeFilters;
     }
