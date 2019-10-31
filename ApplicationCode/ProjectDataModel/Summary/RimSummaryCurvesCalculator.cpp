@@ -123,17 +123,11 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot( RiuSummaryQwtPlot
 
         axisTitleY.setText( axisTitle );
 
-        Qt::AlignmentFlag titleAlignment;
-        switch ( m_axisProperties->titlePosition() )
+        Qt::AlignmentFlag titleAlignment = Qt::AlignCenter;
+        if ( m_axisProperties->titlePosition() == RimPlotAxisPropertiesInterface::AXIS_TITLE_END )
         {
-            case RimPlotAxisProperties::AXIS_TITLE_CENTER:
-                titleAlignment = Qt::AlignCenter;
-                break;
-            case RimPlotAxisProperties::AXIS_TITLE_END:
-                titleAlignment = Qt::AlignRight;
-                break;
+            titleAlignment = Qt::AlignRight;
         }
-        // TODO: We currently call setAxisTitle just to set font size. Fix this.
         qwtPlot->setAxisFontsAndAlignment( m_axisProperties->qwtPlotAxisType(),
                                            m_axisProperties->titleFontSize(),
                                            m_axisProperties->valuesFontSize(),
