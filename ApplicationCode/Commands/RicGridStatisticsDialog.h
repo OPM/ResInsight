@@ -43,7 +43,7 @@ class RicGridStatisticsDialog : public QDialog
     Q_OBJECT
 
 public:
-    RicGridStatisticsDialog( QWidget* parent );
+    explicit RicGridStatisticsDialog( QWidget* parent );
     ~RicGridStatisticsDialog() override;
 
     void   setLabel( const QString& labelText );
