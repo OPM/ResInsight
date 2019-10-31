@@ -134,6 +134,8 @@ else()
     if (MSVC)
          # libecl : Disable some warnings  
          set_target_properties(ecl PROPERTIES COMPILE_FLAGS "/wd4244 /wd4267 /wd4013 /wd4190 /wd4018 /wd4477 /wd4098 /wd4293 /wd4305 /wd4020 /wd4028 /wd4715")
+    else()
+        set_target_properties(ecl PROPERTIES COMPILE_FLAGS "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered")
     endif()
 
     list(APPEND THIRD_PARTY_LIBRARIES
