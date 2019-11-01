@@ -135,7 +135,7 @@ public:
                            const QVariant&            newValue ) override;
     void updateIconStateForFilterCollections();
 
-    void axisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
+    void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
 
     bool isUsingFormationNames() const override;
 
@@ -155,7 +155,7 @@ protected:
 
     void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
     bool showActiveCellsOnly() override;
-    void onUpdateCurrentTimeStep() override;
+    void onUpdateDisplayModelForCurrentTimeStep() override;
     void updateVisibleGeometriesAndCellColors();
     void appendWellsAndFracturesToModel();
 

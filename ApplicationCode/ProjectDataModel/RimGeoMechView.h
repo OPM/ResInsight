@@ -83,7 +83,7 @@ public:
     void            scheduleGeometryRegen( RivCellSetEnum geometryType ) override;
     void            updateIconStateForFilterCollections();
 
-    void axisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
+    void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
 
     bool isUsingFormationNames() const override;
 
@@ -123,7 +123,7 @@ private:
 
     void onClampCurrentTimestep() override;
 
-    void onUpdateCurrentTimeStep() override;
+    void onUpdateDisplayModelForCurrentTimeStep() override;
     void onUpdateStaticCellColors() override;
 
     void onResetLegendsInViewer() override;

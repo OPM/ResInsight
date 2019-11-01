@@ -248,7 +248,7 @@ QWidget* Rim3dView::createViewWidget( QWidget* mainWindowParent )
     cvf::String yLabel;
     cvf::String zLabel;
 
-    this->axisLabels( &xLabel, &yLabel, &zLabel );
+    this->defineAxisLabels( &xLabel, &yLabel, &zLabel );
     m_viewer->setAxisLabels( xLabel, yLabel, zLabel );
 
     updateZScaleLabel();
@@ -468,7 +468,7 @@ void Rim3dView::setCurrentTimeStep( int frameIndex )
     if ( m_currentTimeStep != oldTimeStep )
     {
         RiuTimeStepChangedHandler::instance()->handleTimeStepChanged( this );
-        this->onTimeStepChanged();
+        this->onClearReservoirCellVisibilitiesIfNeccessary();
     }
 
     this->hasUserRequestedAnimation = true;
@@ -481,11 +481,11 @@ void Rim3dView::setCurrentTimeStepAndUpdate( int frameIndex )
 {
     setCurrentTimeStep( frameIndex );
 
-    this->onUpdateCurrentTimeStep();
+    this->onUpdateDisplayModelForCurrentTimeStep();
 
     if ( Rim3dView* depView = prepareComparisonView() )
     {
-        depView->onUpdateCurrentTimeStep();
+        depView->onUpdateDisplayModelForCurrentTimeStep();
         depView->appendAnnotationsToModel();
         depView->appendMeasurementToModel();
 
@@ -503,17 +503,17 @@ void Rim3dView::setCurrentTimeStepAndUpdate( int frameIndex )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::updateCurrentTimeStepAndRedraw()
+void Rim3dView::updateDisplayModelForCurrentTimeStepAndRedraw()
 {
     if ( m_isCallingUpdateTimestepAndRedraw ) return;
 
     if ( nativeOrOverrideViewer() )
     {
-        this->onUpdateCurrentTimeStep();
+        this->onUpdateDisplayModelForCurrentTimeStep();
 
         if ( Rim3dView* depView = prepareComparisonView() )
         {
-            depView->onUpdateCurrentTimeStep();
+            depView->onUpdateDisplayModelForCurrentTimeStep();
 
             restoreComparisonView();
         }
@@ -528,7 +528,7 @@ void Rim3dView::updateCurrentTimeStepAndRedraw()
     {
         for ( auto view : containerViews )
         {
-            view->updateCurrentTimeStepAndRedraw();
+            view->updateDisplayModelForCurrentTimeStepAndRedraw();
         }
     }
     m_isCallingUpdateTimestepAndRedraw = false;
@@ -570,7 +570,7 @@ void Rim3dView::createDisplayModelAndRedraw()
                 // But avoid any call back down to this Rim3dView, instead do the update manually to not confuse the
                 // m_currentTimeStep
                 nativeOrOverrideViewer()->caf::Viewer::slotSetCurrentFrame( currentTimeStep() );
-                depView->onUpdateCurrentTimeStep();
+                depView->onUpdateDisplayModelForCurrentTimeStep();
             }
 
             restoreComparisonView();
@@ -733,7 +733,7 @@ void Rim3dView::setSurfaceDrawstyle()
 void Rim3dView::disableLighting( bool disable )
 {
     m_disableLighting = disable;
-    updateCurrentTimeStepAndRedraw();
+    updateDisplayModelForCurrentTimeStepAndRedraw();
     updateConnectedEditors();
 }
 
@@ -796,7 +796,7 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_showGridBox )
     {
-        createHighlightAndGridBoxDisplayModelWithRedraw();
+        createHighlightAndGridBoxDisplayModelAndRedraw();
     }
     else if ( changedField == &m_disableLighting )
     {
@@ -1083,7 +1083,7 @@ void Rim3dView::createMeasurementDisplayModelAndRedraw()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::createHighlightAndGridBoxDisplayModelWithRedraw()
+void Rim3dView::createHighlightAndGridBoxDisplayModelAndRedraw()
 {
     createHighlightAndGridBoxDisplayModel();
 

@@ -87,7 +87,7 @@ void RicFlyToObjectFeature::onActionTriggered( bool isChecked )
 
     destinationViewer->setPointOfInterest( cameraViewRefPoint );
 
-    activeView->updateCurrentTimeStepAndRedraw();
+    activeView->updateDisplayModelForCurrentTimeStepAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------

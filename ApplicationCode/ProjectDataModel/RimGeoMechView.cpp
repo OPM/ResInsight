@@ -316,7 +316,7 @@ RimPropertyFilterCollection* RimGeoMechView::nativePropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::onUpdateCurrentTimeStep()
+void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
 {
     onUpdateLegends();
 
@@ -892,7 +892,7 @@ void RimGeoMechView::updateIconStateForFilterCollections()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::axisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel )
+void RimGeoMechView::defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel )
 {
     CVF_ASSERT( xLabel && yLabel && zLabel );
 

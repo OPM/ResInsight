@@ -468,7 +468,7 @@ bool Rim2dIntersectionView::isWindowVisible() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::axisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) {}
+void Rim2dIntersectionView::defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -536,7 +536,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
     if ( this->hasUserRequestedAnimation() )
     {
         if ( viewer() ) viewer()->setCurrentFrame( m_currentTimeStep );
-        onUpdateCurrentTimeStep();
+        onUpdateDisplayModelForCurrentTimeStep();
     }
 
     if ( this->viewer()->mainCamera()->viewMatrix() == sm_defaultViewMatrix )
@@ -548,7 +548,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::onUpdateCurrentTimeStep()
+void Rim2dIntersectionView::onUpdateDisplayModelForCurrentTimeStep()
 {
     update3dInfo();
     onUpdateLegends();

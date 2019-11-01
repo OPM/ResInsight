@@ -158,7 +158,7 @@ void RimTernaryLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
             viewLinker->updateCellResult();
         }
 
-        view->updateCurrentTimeStepAndRedraw();
+        view->updateDisplayModelForCurrentTimeStepAndRedraw();
         view->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 }

@@ -228,7 +228,7 @@ void RimGeoMechContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapView::onUpdateCurrentTimeStep()
+void RimGeoMechContourMapView::onUpdateDisplayModelForCurrentTimeStep()
 {
     m_contourMapProjection->clearGeometry();
 

@@ -171,7 +171,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
     viewToModify->faultCollection()->showFaultCollection = false;
     viewToModify->faultCollection()->updateConnectedEditors();
 
-    viewToModify->updateCurrentTimeStepAndRedraw();
+    viewToModify->updateDisplayModelForCurrentTimeStepAndRedraw();
     viewToModify->scheduleCreateDisplayModelAndRedraw();
 }
 

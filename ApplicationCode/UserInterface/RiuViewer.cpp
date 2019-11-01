@@ -319,7 +319,7 @@ void RiuViewer::slotSetCurrentFrame( int frameIndex )
 
             for ( auto contView : containingViews )
             {
-                contView->updateCurrentTimeStepAndRedraw();
+                contView->updateDisplayModelForCurrentTimeStepAndRedraw();
             }
         }
     }

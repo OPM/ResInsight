@@ -85,11 +85,11 @@ protected:
     void onUpdateLegends() override;
 
     bool            isGridVisualizationMode() const override;
-    void            axisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
+    void            defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
     void            onCreateDisplayModel() override;
     void            onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
     void            onClampCurrentTimestep() override;
-    void            onUpdateCurrentTimeStep() override;
+    void            onUpdateDisplayModelForCurrentTimeStep() override;
     void            onUpdateStaticCellColors() override;
     void            onUpdateScaleTransform() override;
     cvf::Transform* scaleTransform() override;

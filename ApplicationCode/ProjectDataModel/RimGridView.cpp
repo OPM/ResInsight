@@ -390,7 +390,7 @@ void RimGridView::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridView::onTimeStepChanged()
+void RimGridView::onClearReservoirCellVisibilitiesIfNeccessary()
 {
     if ( this->propertyFilterCollection() && this->propertyFilterCollection()->hasActiveDynamicFilters() )
     {

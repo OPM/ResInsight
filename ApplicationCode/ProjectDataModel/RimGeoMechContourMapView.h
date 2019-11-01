@@ -46,7 +46,7 @@ protected:
     void onCreateDisplayModel() override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void onUpdateCurrentTimeStep() override;
+    void onUpdateDisplayModelForCurrentTimeStep() override;
     void updateGeometry();
     void createContourMapGeometry();
     void appendContourMapProjectionToModel();

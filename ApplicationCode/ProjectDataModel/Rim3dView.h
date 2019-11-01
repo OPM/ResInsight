@@ -148,13 +148,13 @@ public:
     void         scheduleCreateDisplayModelAndRedraw();
 
     void createDisplayModelAndRedraw();
-    void updateCurrentTimeStepAndRedraw();
-    void createHighlightAndGridBoxDisplayModelWithRedraw();
+    void updateDisplayModelForCurrentTimeStepAndRedraw();
+    void createHighlightAndGridBoxDisplayModelAndRedraw();
+    void createMeasurementDisplayModelAndRedraw();
     void updateGridBoxData();
     void updateAnnotationItems();
     void updateScaling();
     void updateZScaleLabel();
-    void createMeasurementDisplayModelAndRedraw();
 
     bool       isMasterView() const;
     Rim3dView* activeComparisonView() const;
@@ -206,14 +206,13 @@ protected:
 
     // Abstract methods to implement in subclasses
 
-    virtual void axisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) = 0;
-
     virtual void onCreateDisplayModel() = 0;
+    virtual void onUpdateDisplayModelForCurrentTimeStep() = 0;
     virtual void onUpdateDisplayModelVisibility(){};
     virtual void onClampCurrentTimestep()  = 0;
-    virtual void onUpdateCurrentTimeStep() = 0;
-    virtual void onTimeStepChanged(){};
+    virtual void onClearReservoirCellVisibilitiesIfNeccessary(){};
     virtual bool isTimeStepDependentDataVisible() const = 0;
+    virtual void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) = 0;
 
     virtual void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) = 0;
     virtual void onUpdateStaticCellColors()                                               = 0;

@@ -354,8 +354,8 @@ void RimEclipseView::onCreateDisplayModel()
 
 #if 0 // Debug info
     static int callCount = 0;
-    std::cout << "RimReservoirView::createDisplayModel() " << callCount++ << std::endl;
-    RiuMainWindow::instance()->setResultInfo(QString("RimReservoirView::createDisplayModel() ") + QString::number(callCount++));
+    std::cout << "RimEclipseView::onCreateDisplayModel() " << callCount++ << std::endl;
+    RiuMainWindow::instance()->setResultInfo(QString("RimEclipseView::onCreateDisplayModel() ") + QString::number(callCount++));
 #endif
 
     if ( !( m_eclipseCase && m_eclipseCase->eclipseCaseData() ) ) return;
@@ -590,7 +590,7 @@ void RimEclipseView::onCreateDisplayModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::onUpdateCurrentTimeStep()
+void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 {
     clearReservoirCellVisibilities();
 
@@ -2045,7 +2045,7 @@ void RimEclipseView::updateIconStateForFilterCollections()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::axisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel )
+void RimEclipseView::defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel )
 {
     CVF_ASSERT( xLabel && yLabel && zLabel );
 
