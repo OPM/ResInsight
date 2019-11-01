@@ -37,7 +37,6 @@ public:
     QString createAutoName() const override;
     void    setDefaultCustomName();
     void    updatePickPointAndRedraw();
-    void    updateCurrentTimeStepAndRedraw() override;
     bool    isGridVisualizationMode() const override;
 
     bool isTimeStepDependentDataVisible() const override;

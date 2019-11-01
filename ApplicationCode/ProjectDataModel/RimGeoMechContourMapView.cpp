@@ -145,15 +145,6 @@ void RimGeoMechContourMapView::updatePickPointAndRedraw()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapView::updateCurrentTimeStepAndRedraw()
-{
-    m_contourMapProjection->clearGeometry();
-    RimGeoMechView::updateCurrentTimeStepAndRedraw();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimGeoMechContourMapView::isGridVisualizationMode() const
 {
     return m_contourMapProjection->isChecked();
@@ -239,6 +230,8 @@ void RimGeoMechContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::onUpdateCurrentTimeStep()
 {
+    m_contourMapProjection->clearGeometry();
+
     updateGeometry();
 }
 

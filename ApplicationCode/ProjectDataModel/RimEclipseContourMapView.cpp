@@ -149,15 +149,6 @@ void RimEclipseContourMapView::updatePickPointAndRedraw()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::updateCurrentTimeStepAndRedraw()
-{
-    m_contourMapProjection->clearGeometry();
-    RimEclipseView::updateCurrentTimeStepAndRedraw();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapView::initAfterRead()
 {
     RimEclipseView::initAfterRead();
@@ -231,6 +222,8 @@ void RimEclipseContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 void RimEclipseContourMapView::onUpdateCurrentTimeStep()
 {
     static_cast<RimEclipsePropertyFilterCollection*>( nativePropertyFilterCollection() )->updateFromCurrentTimeStep();
+    
+    m_contourMapProjection->clearGeometry();
     updateGeometry();
 }
 

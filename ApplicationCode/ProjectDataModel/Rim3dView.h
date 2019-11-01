@@ -144,11 +144,11 @@ public:
     bool isTimeStepDependentDataVisibleInThisOrComparisonView() const;
 
     // Updating
-    virtual void updateCurrentTimeStepAndRedraw();
     virtual void scheduleGeometryRegen( RivCellSetEnum geometryType ) = 0;
     void         scheduleCreateDisplayModelAndRedraw();
 
     void createDisplayModelAndRedraw();
+    void updateCurrentTimeStepAndRedraw();
     void createHighlightAndGridBoxDisplayModelWithRedraw();
     void updateGridBoxData();
     void updateAnnotationItems();
