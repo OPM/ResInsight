@@ -536,7 +536,6 @@ void Rim2dIntersectionView::onCreateDisplayModel()
     if ( this->hasUserRequestedAnimation() )
     {
         if ( viewer() ) viewer()->setCurrentFrame( m_currentTimeStep );
-        onUpdateDisplayModelForCurrentTimeStep();
     }
 
     if ( this->viewer()->mainCamera()->viewMatrix() == sm_defaultViewMatrix )

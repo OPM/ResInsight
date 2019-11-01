@@ -479,24 +479,7 @@ void Rim3dView::setCurrentTimeStep( int frameIndex )
 void Rim3dView::setCurrentTimeStepAndUpdate( int frameIndex )
 {
     setCurrentTimeStep( frameIndex );
-
-    this->onUpdateDisplayModelForCurrentTimeStep();
-
-    if ( Rim3dView* depView = prepareComparisonView() )
-    {
-        depView->onUpdateDisplayModelForCurrentTimeStep();
-        depView->appendAnnotationsToModel();
-        depView->appendMeasurementToModel();
-
-        restoreComparisonView();
-    }
-
-    RimProject* project;
-    firstAncestorOrThisOfTypeAsserted( project );
-    project->mainPlotCollection()->updateCurrentTimeStepInPlots();
-
-    appendAnnotationsToModel();
-    appendMeasurementToModel();
+    updateDisplayModelForCurrentTimeStepAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -509,10 +492,14 @@ void Rim3dView::updateDisplayModelForCurrentTimeStepAndRedraw()
     if ( nativeOrOverrideViewer() )
     {
         this->onUpdateDisplayModelForCurrentTimeStep();
+        appendAnnotationsToModel();
+        appendMeasurementToModel();
 
         if ( Rim3dView* depView = prepareComparisonView() )
         {
             depView->onUpdateDisplayModelForCurrentTimeStep();
+            depView->appendAnnotationsToModel();
+            depView->appendMeasurementToModel();
 
             restoreComparisonView();
         }
@@ -530,6 +517,7 @@ void Rim3dView::updateDisplayModelForCurrentTimeStepAndRedraw()
             view->updateDisplayModelForCurrentTimeStepAndRedraw();
         }
     }
+
     m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw = false;
 
     RimProject* project;
@@ -569,7 +557,7 @@ void Rim3dView::createDisplayModelAndRedraw()
                 // But avoid any call back down to this Rim3dView, instead do the update manually to not confuse the
                 // m_currentTimeStep
                 nativeOrOverrideViewer()->caf::Viewer::slotSetCurrentFrame( currentTimeStep() );
-                depView->onUpdateDisplayModelForCurrentTimeStep();
+                depView->updateDisplayModelForCurrentTimeStepAndRedraw();
             }
 
             restoreComparisonView();
