@@ -74,6 +74,8 @@ void RicSaveEclipseInputVisibleCellsUi::defineEditorAttribute( const caf::PdmFie
         if ( myAttr )
         {
             myAttr->m_selectSaveFileName = true;
+            // Set GRDECL file filter as default
+            myAttr->m_fileSelectionFilter = "GRDECL files (*.grdecl);;All files (*.*)";
         }
     }
 }
