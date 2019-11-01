@@ -1,0 +1,62 @@
+@startuml
+
+actor RedrawScheduler
+
+box "Rim3dView" #White
+	participant createDisplayModelAndRedraw order 10
+	participant setCurrentTimeStepAndUpdate order 20
+end box
+
+box "RimSpecialView" #LightBlue
+	participant createDisplayModel order 20
+	participant onUpdateCurrentTimeStep  order 30
+end box	
+
+box "RiuViewer" #LightBlue
+	participant setCurrentFrame order 40
+end box	
+
+box "Rim3dView Comparison" #LightGray
+	participant createDisplayModelAndRedraw_c order 45
+end box
+
+box "RimSpecialView Comparison" #LightGray
+	participant onUpdateCurrentTimeStep_c order 50
+
+	participant createDisplayModel_c order 60
+end box	
+
+
+RedrawScheduler -> createDisplayModelAndRedraw ++
+
+createDisplayModelAndRedraw -> createDisplayModel ++
+createDisplayModel -> setCurrentFrame ++
+
+setCurrentFrame -> setCurrentTimeStepAndUpdate 
+activate setCurrentTimeStepAndUpdate
+
+setCurrentTimeStepAndUpdate -> onUpdateCurrentTimeStep ++
+onUpdateCurrentTimeStep --> setCurrentTimeStepAndUpdate -- : return 
+
+setCurrentTimeStepAndUpdate -> onUpdateCurrentTimeStep_c ++
+onUpdateCurrentTimeStep_c --> setCurrentTimeStepAndUpdate --
+
+setCurrentTimeStepAndUpdate --> setCurrentFrame --: return 
+setCurrentFrame --> createDisplayModel --: return
+
+createDisplayModel --> createDisplayModelAndRedraw --: return
+
+createDisplayModelAndRedraw -> createDisplayModelAndRedraw_c ++
+createDisplayModelAndRedraw_c -> createDisplayModel_c++
+createDisplayModel_c --> createDisplayModelAndRedraw_c-- : return
+
+createDisplayModelAndRedraw_c --> createDisplayModelAndRedraw -- : return
+
+createDisplayModelAndRedraw -> onUpdateCurrentTimeStep_c ++
+onUpdateCurrentTimeStep_c  --> createDisplayModelAndRedraw --: return
+
+createDisplayModelAndRedraw --> RedrawScheduler -- : return
+
+
+
+@enduml
