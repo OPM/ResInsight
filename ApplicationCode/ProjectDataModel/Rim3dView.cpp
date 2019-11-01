@@ -80,7 +80,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( Rim3dView, "GenericView" ); // Do not use. Abs
 ///
 //--------------------------------------------------------------------------------------------------
 Rim3dView::Rim3dView( void )
-    : m_isCallingUpdateTimestepAndRedraw( false )
+    : m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw( false )
 {
     RiaApplication* app         = RiaApplication::instance();
     RiaPreferences* preferences = app->preferences();
@@ -153,9 +153,9 @@ Rim3dView::Rim3dView( void )
 //--------------------------------------------------------------------------------------------------
 Rim3dView::~Rim3dView( void )
 {
-    if (RiaApplication::instance()->activeReservoirView() == this)
+    if ( RiaApplication::instance()->activeReservoirView() == this )
     {
-        RiaApplication::instance()->setActiveReservoirView(nullptr);
+        RiaApplication::instance()->setActiveReservoirView( nullptr );
     }
 
     if ( m_viewer )
@@ -226,7 +226,7 @@ QString Rim3dView::autoName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f Rim3dView::backgroundColor() const
 {
@@ -432,7 +432,6 @@ void Rim3dView::setComparisonView( Rim3dView* compView )
     m_comparisonView.uiCapability()->updateConnectedEditors();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -505,7 +504,7 @@ void Rim3dView::setCurrentTimeStepAndUpdate( int frameIndex )
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::updateDisplayModelForCurrentTimeStepAndRedraw()
 {
-    if ( m_isCallingUpdateTimestepAndRedraw ) return;
+    if ( m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw ) return;
 
     if ( nativeOrOverrideViewer() )
     {
@@ -521,7 +520,7 @@ void Rim3dView::updateDisplayModelForCurrentTimeStepAndRedraw()
         nativeOrOverrideViewer()->update();
     }
 
-    m_isCallingUpdateTimestepAndRedraw = true;
+    m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw = true;
 
     std::set<Rim3dView*> containerViews = this->viewsUsingThisAsComparisonView();
     if ( !containerViews.empty() && !isUsingOverrideViewer() )
@@ -531,7 +530,7 @@ void Rim3dView::updateDisplayModelForCurrentTimeStepAndRedraw()
             view->updateDisplayModelForCurrentTimeStepAndRedraw();
         }
     }
-    m_isCallingUpdateTimestepAndRedraw = false;
+    m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw = false;
 
     RimProject* project;
     firstAncestorOrThisOfTypeAsserted( project );
@@ -632,7 +631,7 @@ void Rim3dView::endAnimation()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* Rim3dView::implementingPdmObject()
 {
@@ -754,7 +753,7 @@ caf::PdmFieldHandle* Rim3dView::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* Rim3dView::backgroundColorField()
 {
@@ -965,8 +964,8 @@ void Rim3dView::updateGridBoxData()
     {
         using BBox = cvf::BoundingBox;
 
-        BBox masterDomainBBox = showActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox()
-                                                      : ownerCase()->allCellsBoundingBox();
+        BBox masterDomainBBox = isShowingActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox()
+                                                           : ownerCase()->allCellsBoundingBox();
         BBox combinedDomainBBox = masterDomainBBox;
 
         if ( Rim3dView* depView = activeComparisonView() )
@@ -978,8 +977,8 @@ void Rim3dView::updateGridBoxData()
 
             if ( destinationOwnerCase )
             {
-                BBox depDomainBBox = depView->showActiveCellsOnly() ? destinationOwnerCase->activeCellsBoundingBox()
-                                                                    : destinationOwnerCase->allCellsBoundingBox();
+                BBox depDomainBBox = depView->isShowingActiveCellsOnly() ? destinationOwnerCase->activeCellsBoundingBox()
+                                                                         : destinationOwnerCase->allCellsBoundingBox();
                 if ( depDomainBBox.isValid() )
                 {
                     combinedDomainBBox.add( depDomainBBox.min() );
@@ -1224,7 +1223,7 @@ void Rim3dView::updateDisplayModelVisibility()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Rim3dView::showActiveCellsOnly()
+bool Rim3dView::isShowingActiveCellsOnly()
 {
     return false;
 }
@@ -1350,17 +1349,17 @@ QWidget* Rim3dView::viewWidget()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::setCameraPosition(const cvf::Mat4d& cameraPosition)
+void Rim3dView::setCameraPosition( const cvf::Mat4d& cameraPosition )
 {
     m_cameraPosition = cameraPosition;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::setCameraPointOfInterest(const cvf::Vec3d& cameraPointOfInterest)
+void Rim3dView::setCameraPointOfInterest( const cvf::Vec3d& cameraPointOfInterest )
 {
     m_cameraPointOfInterest = cameraPointOfInterest;
 }
@@ -1374,7 +1373,7 @@ void Rim3dView::forceShowWindowOn()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int Rim3dView::currentTimeStep() const
 {

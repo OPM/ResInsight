@@ -154,7 +154,7 @@ protected:
     caf::PdmFieldHandle* userDescriptionField() override;
 
     void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
-    bool showActiveCellsOnly() override;
+    bool isShowingActiveCellsOnly() override;
     void onUpdateDisplayModelForCurrentTimeStep() override;
     void updateVisibleGeometriesAndCellColors();
     void appendWellsAndFracturesToModel();

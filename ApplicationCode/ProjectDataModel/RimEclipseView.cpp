@@ -1992,7 +1992,7 @@ std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseView::showActiveCellsOnly()
+bool RimEclipseView::isShowingActiveCellsOnly()
 {
     return !m_showInactiveCells;
 }
