@@ -611,7 +611,6 @@ void RicSummaryCaseRestartDialog::slotDialogButtonClicked( QAbstractButton* butt
 void RicSummaryCaseRestartDialog::slotFileNameCopyCustomMenuRequested( const QPoint& point )
 {
     QMenu    menu;
-    QPoint   globalPoint = point;
     QAction* action;
 
     QLabel* sourceLabel = dynamic_cast<QLabel*>( sender() );
@@ -621,7 +620,7 @@ void RicSummaryCaseRestartDialog::slotFileNameCopyCustomMenuRequested( const QPo
     connect( action, SIGNAL( triggered() ), SLOT( slotCopyFileNameToClipboard() ) );
     menu.addAction( action );
 
-    globalPoint = sourceLabel->mapToGlobal( point );
+    QPoint globalPoint = sourceLabel->mapToGlobal( point );
     menu.exec( globalPoint );
 }
 

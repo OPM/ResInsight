@@ -557,7 +557,6 @@ void RicRecursiveFileSearchDialog::slotFilterChanged( const QString& text )
 void RicRecursiveFileSearchDialog::slotFileListCustomMenuRequested( const QPoint& point )
 {
     QMenu    menu;
-    QPoint   globalPoint = point;
     QAction* action;
 
     action = new QAction( QIcon( ":/Copy.png" ), "&Copy", this );
@@ -577,7 +576,7 @@ void RicRecursiveFileSearchDialog::slotFileListCustomMenuRequested( const QPoint
     connect( action, SIGNAL( triggered() ), SLOT( slotToggleFileListItems() ) );
     menu.addAction( action );
 
-    globalPoint = m_fileListWidget->mapToGlobal( point );
+    QPoint globalPoint = m_fileListWidget->mapToGlobal( point );
     menu.exec( globalPoint );
 }
 
