@@ -459,7 +459,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::defineEditorAttribute( const caf::P
             {
                 attr->enableEditableContent = true;
                 attr->adjustWidthToContents = true;
-                attr->minimumWidth          = 100;
+                attr->minimumWidth          = 140;
             }
         }
     }

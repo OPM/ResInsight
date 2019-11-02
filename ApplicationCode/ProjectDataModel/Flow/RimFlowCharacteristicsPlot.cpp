@@ -733,7 +733,7 @@ void RimFlowCharacteristicsPlot::viewGeometryUpdated()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double interpolate( std::vector<double>& xData, std::vector<double>& yData, double x, bool extrapolate )
+double interpolate( const std::vector<double>& xData, const std::vector<double>& yData, double x, bool extrapolate )
 {
     size_t itemCount = xData.size();
 
@@ -787,7 +787,7 @@ QString RimFlowCharacteristicsPlot::curveDataAsText() const
 
     std::vector<QDateTime> timeStepDates = m_case->timeStepDates();
 
-    std::vector<double> storageCapacitySamplingValues = {0.08, 0.1, 0.2, 0.3, 0.4};
+    std::vector<double> storageCapacitySamplingValues = { 0.08, 0.1, 0.2, 0.3, 0.4 };
     size_t              sampleCount                   = storageCapacitySamplingValues.size();
 
     for ( const auto& timeIndex : m_currentlyPlottedTimeSteps )

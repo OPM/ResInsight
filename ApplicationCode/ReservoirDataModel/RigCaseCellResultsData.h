@@ -123,7 +123,7 @@ public:
     QStringList                          resultNames( RiaDefines::ResultCatType type ) const;
     std::vector<RigEclipseResultAddress> existingResults() const;
     const RigEclipseResultInfo*          resultInfo( const RigEclipseResultAddress& resVarAddr ) const;
-    bool    updateResultName( RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName );
+    bool    updateResultName( RiaDefines::ResultCatType resultType, const QString& oldName, const QString& newName );
     QString makeResultNameUnique( const QString& resultNameProposal ) const;
 
     void ensureKnownResultLoadedForTimeStep( const RigEclipseResultAddress& resultAddress, size_t timeStepIndex );

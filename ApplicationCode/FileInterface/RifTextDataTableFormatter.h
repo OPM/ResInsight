@@ -157,7 +157,7 @@ protected:
     QString        formatColumn( const QString str, size_t columnIndex ) const;
 
     void outputBuffer();
-    void outputComment( RifTextDataTableLine& comment );
+    void outputComment( const RifTextDataTableLine& comment );
     void outputHorizontalLine( RifTextDataTableLine& comment );
 
     bool isAllHeadersEmpty( const std::vector<RifTextDataTableColumn>& headers );

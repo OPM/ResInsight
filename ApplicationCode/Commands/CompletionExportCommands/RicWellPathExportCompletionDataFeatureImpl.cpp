@@ -615,7 +615,7 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionData>
-    RicWellPathExportCompletionDataFeatureImpl::mainGridCompletions( std::vector<RigCompletionData>& allCompletions )
+    RicWellPathExportCompletionDataFeatureImpl::mainGridCompletions( const std::vector<RigCompletionData>& allCompletions )
 {
     std::vector<RigCompletionData> completions;
 
@@ -634,7 +634,7 @@ std::vector<RigCompletionData>
 ///
 //--------------------------------------------------------------------------------------------------
 std::map<QString, std::vector<RigCompletionData>>
-    RicWellPathExportCompletionDataFeatureImpl::subGridsCompletions( std::vector<RigCompletionData>& allCompletions )
+    RicWellPathExportCompletionDataFeatureImpl::subGridsCompletions( const std::vector<RigCompletionData>& allCompletions )
 {
     std::map<QString, std::vector<RigCompletionData>> completions;
 
@@ -873,7 +873,7 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
     RimEclipseCase*                                      eclipseCase,
     const QString&                                       folderName,
     const QString&                                       fileName,
-    std::vector<RigCompletionData>&                      completions,
+    const std::vector<RigCompletionData>&                completions,
     const std::vector<RicWellPathFractureReportItem>&    wellPathFractureReportItems,
     RicExportCompletionDataSettingsUi::CompdatExportType exportType )
 {
