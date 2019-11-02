@@ -478,12 +478,11 @@ QString RimSummaryCaseMainCollection::uniqueShortNameForCase( RimSummaryCase* su
         }
     }
 
-    QString candidate  = shortName;
-    int     autoNumber = 0;
+    int autoNumber = 0;
 
     while ( !foundUnique )
     {
-        candidate = shortName + QString::number( autoNumber++ );
+        QString candidate = shortName + QString::number( autoNumber++ );
         if ( allAutoShortNames.count( candidate ) == 0 )
         {
             shortName   = candidate;

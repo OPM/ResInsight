@@ -53,8 +53,6 @@ void RicExportFishbonesLateralsFeature::onActionTriggered( bool isChecked )
     fishbonesCollection->firstAncestorOrThisOfType( wellPath );
     CVF_ASSERT( wellPath );
 
-    RiaApplication* app = RiaApplication::instance();
-
     auto fileName = caf::Utils::makeValidFileBasename( wellPath->name() ) + "_laterals.dev";
 
     auto dialogData = EXP::openDialog();

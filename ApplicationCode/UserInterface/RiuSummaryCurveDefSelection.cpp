@@ -575,7 +575,6 @@ void RiuSummaryCurveDefSelection::setDefaultSelection( const std::vector<Summary
 {
     RimProject* proj         = RiaApplication::instance()->project();
     auto        allSumCases  = proj->allSummaryCases();
-    auto        allSumGroups = proj->summaryGroups();
 
     if ( allSumCases.size() > 0 )
     {

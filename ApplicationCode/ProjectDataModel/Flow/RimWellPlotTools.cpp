@@ -1128,8 +1128,6 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::calculat
                                                                                                       rftTimeSteps );
         std::set<QDateTime> filteredGridTimeSteps = RimWellPlotTools::findMatchingOrAdjacentTimeSteps( baseTimeSteps,
                                                                                                        gridTimeSteps );
-        std::set<QDateTime> filteredSummaryRftTimeSteps =
-            RimWellPlotTools::findMatchingOrAdjacentTimeSteps( baseTimeSteps, summaryRftTimeSteps );
         std::set<QDateTime> filteredEnsembleRftTimeSteps =
             RimWellPlotTools::findMatchingOrAdjacentTimeSteps( baseTimeSteps, ensembleRftTimeSteps );
 

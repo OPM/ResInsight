@@ -31,8 +31,6 @@ QString versionHeaderText()
 {
     QString text;
 
-    QDateTime dt = QDateTime::currentDateTime();
-
     text += QString( "// ResInsight version string : %1\n" ).arg( STRPRODUCTVER );
     text += QString( "// Report generated : %1\n" ).arg( QDateTime::currentDateTime().toString() );
     text += "//\n";
