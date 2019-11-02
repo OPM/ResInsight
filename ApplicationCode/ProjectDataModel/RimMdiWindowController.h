@@ -49,7 +49,6 @@ public:
 protected:
     RimViewWindow*     viewPdmObject();
     QWidget*           viewWidget();
-    RiuMdiSubWindow*   viewSubWindow();
     RiuMainWindowBase* getMainWindow();
 
     // Overridden PDM methods

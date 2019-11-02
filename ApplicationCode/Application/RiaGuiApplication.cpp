@@ -58,6 +58,7 @@
 #include "RimGeoMechView.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
+#include "RimGridPlotWindowCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimObservedDataCollection.h"
@@ -310,38 +311,46 @@ void RiaGuiApplication::loadAndUpdatePlotData()
     RimPltPlotCollection*                pltColl  = nullptr;
     RimGridCrossPlotCollection*          gcpColl  = nullptr;
     RimSaturationPressurePlotCollection* sppColl  = nullptr;
+    RimGridPlotWindowCollection*         gpwColl  = nullptr;
 
-    if ( m_project->mainPlotCollection() && m_project->mainPlotCollection()->wellLogPlotCollection() )
+    if ( m_project->mainPlotCollection() )
     {
-        wlpColl = m_project->mainPlotCollection()->wellLogPlotCollection();
-    }
-    if ( m_project->mainPlotCollection() && m_project->mainPlotCollection()->summaryPlotCollection() )
-    {
-        spColl = m_project->mainPlotCollection()->summaryPlotCollection();
-    }
-    if ( m_project->mainPlotCollection() && m_project->mainPlotCollection()->summaryCrossPlotCollection() )
-    {
-        scpColl = m_project->mainPlotCollection()->summaryCrossPlotCollection();
-    }
-    if ( m_project->mainPlotCollection() && m_project->mainPlotCollection()->flowPlotCollection() )
-    {
-        flowColl = m_project->mainPlotCollection()->flowPlotCollection();
-    }
-    if ( m_project->mainPlotCollection() && m_project->mainPlotCollection()->rftPlotCollection() )
-    {
-        rftColl = m_project->mainPlotCollection()->rftPlotCollection();
-    }
-    if ( m_project->mainPlotCollection() && m_project->mainPlotCollection()->pltPlotCollection() )
-    {
-        pltColl = m_project->mainPlotCollection()->pltPlotCollection();
-    }
-    if ( m_project->mainPlotCollection() && m_project->mainPlotCollection()->gridCrossPlotCollection() )
-    {
-        gcpColl = m_project->mainPlotCollection()->gridCrossPlotCollection();
-    }
-    if ( m_project->mainPlotCollection() && m_project->mainPlotCollection()->saturationPressurePlotCollection() )
-    {
-        sppColl = m_project->mainPlotCollection()->saturationPressurePlotCollection();
+        if ( m_project->mainPlotCollection()->wellLogPlotCollection() )
+        {
+            wlpColl = m_project->mainPlotCollection()->wellLogPlotCollection();
+        }
+        if ( m_project->mainPlotCollection()->summaryPlotCollection() )
+        {
+            spColl = m_project->mainPlotCollection()->summaryPlotCollection();
+        }
+        if ( m_project->mainPlotCollection()->summaryCrossPlotCollection() )
+        {
+            scpColl = m_project->mainPlotCollection()->summaryCrossPlotCollection();
+        }
+        if ( m_project->mainPlotCollection()->flowPlotCollection() )
+        {
+            flowColl = m_project->mainPlotCollection()->flowPlotCollection();
+        }
+        if ( m_project->mainPlotCollection()->rftPlotCollection() )
+        {
+            rftColl = m_project->mainPlotCollection()->rftPlotCollection();
+        }
+        if ( m_project->mainPlotCollection()->pltPlotCollection() )
+        {
+            pltColl = m_project->mainPlotCollection()->pltPlotCollection();
+        }
+        if ( m_project->mainPlotCollection()->gridCrossPlotCollection() )
+        {
+            gcpColl = m_project->mainPlotCollection()->gridCrossPlotCollection();
+        }
+        if ( m_project->mainPlotCollection()->saturationPressurePlotCollection() )
+        {
+            sppColl = m_project->mainPlotCollection()->saturationPressurePlotCollection();
+        }
+        if ( m_project->mainPlotCollection()->combinationPlotCollection() )
+        {
+            gpwColl = m_project->mainPlotCollection()->combinationPlotCollection();
+        }
     }
 
     size_t plotCount = 0;
@@ -353,6 +362,7 @@ void RiaGuiApplication::loadAndUpdatePlotData()
     plotCount += pltColl ? pltColl->pltPlots().size() : 0;
     plotCount += gcpColl ? gcpColl->gridCrossPlots().size() : 0;
     plotCount += sppColl ? sppColl->plots().size() : 0;
+    plotCount += gpwColl ? gpwColl->gridPlotWindows().size() : 0;
 
     if ( plotCount > 0 )
     {
@@ -423,6 +433,15 @@ void RiaGuiApplication::loadAndUpdatePlotData()
             for ( const auto& sppPlot : sppColl->plots() )
             {
                 sppPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( gpwColl )
+        {
+            for ( const auto& gridPlotWindow : gpwColl->gridPlotWindows() )
+            {
+                gridPlotWindow->loadDataAndUpdate();
                 plotProgress.incrementProgress();
             }
         }

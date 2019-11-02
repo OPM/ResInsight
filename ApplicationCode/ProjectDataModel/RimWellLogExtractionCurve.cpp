@@ -342,7 +342,6 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         RimWellLogPlot* wellLogPlot;
         firstAncestorOrThisOfType( wellLogPlot );
-        CVF_ASSERT( wellLogPlot );
         if ( !wellLogPlot ) return;
 
         displayUnit = wellLogPlot->depthUnit();

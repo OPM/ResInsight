@@ -158,6 +158,7 @@ void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
 
     m_wellLogPlotToolBarEditor->clear();
     m_summaryPlotToolBarEditor->clear();
+    m_gridPlotWindowToolBarEditor->clear();
 
     setWindowTitle( "Plots - ResInsight" );
 }
@@ -381,6 +382,9 @@ void RiuPlotMainWindow::createToolBars()
 
     m_summaryPlotToolBarEditor = new caf::PdmUiToolBarEditor( "Summary Plot", this );
     m_summaryPlotToolBarEditor->hide();
+
+    m_gridPlotWindowToolBarEditor = new caf::PdmUiToolBarEditor( "Combination Plot", this );
+    m_gridPlotWindowToolBarEditor->hide();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -546,7 +550,6 @@ void RiuPlotMainWindow::updateWellLogPlotToolBar()
     {
         std::vector<caf::PdmFieldHandle*> toolBarFields;
         toolBarFields = wellLogPlot->commonDataSource()->fieldsToShowInToolbar();
-        toolBarFields.push_back( wellLogPlot->columnCountField() );
 
         m_wellLogPlotToolBarEditor->setFields( toolBarFields );
         m_wellLogPlotToolBarEditor->updateUi();
@@ -566,9 +569,36 @@ void RiuPlotMainWindow::updateWellLogPlotToolBar()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::updateGridPlotWindowToolBar()
+{
+    RimGridPlotWindow* plotWindow = dynamic_cast<RimGridPlotWindow*>( m_activePlotViewWindow.p() );
+    if ( plotWindow )
+    {
+        std::vector<caf::PdmFieldHandle*> toolBarFields = { plotWindow->columnCountField() };
+        m_gridPlotWindowToolBarEditor->setFields( toolBarFields );
+        m_gridPlotWindowToolBarEditor->updateUi();
+        m_gridPlotWindowToolBarEditor->show();
+    }
+    else
+    {
+        m_gridPlotWindowToolBarEditor->clear();
+        m_gridPlotWindowToolBarEditor->hide();
+    }
+    refreshToolbars();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::updateSummaryPlotToolBar( bool forceUpdateUi )
 {
-    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( m_activePlotViewWindow.p() );
+    RimSummaryPlot*    summaryPlot    = dynamic_cast<RimSummaryPlot*>( m_activePlotViewWindow.p() );
+    RimGridPlotWindow* gridPlotWindow = dynamic_cast<RimGridPlotWindow*>( m_activePlotViewWindow.p() );
+    if ( gridPlotWindow )
+    {
+        summaryPlot = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryPlot>();
+    }
+
     if ( summaryPlot )
     {
         std::vector<caf::PdmFieldHandle*> toolBarFields = summaryPlot->fieldsToShowInToolbar();
@@ -631,15 +661,7 @@ void RiuPlotMainWindow::addViewer( QWidget* viewer, const RimMdiWindowGeometry& 
     }
     else
     {
-        RiuGridPlotWindow* wellLogPlot = dynamic_cast<RiuGridPlotWindow*>( viewer );
-        if ( wellLogPlot )
-        {
-            subWindowSize = QSize( wellLogPlot->preferredWidth(), m_mdiArea->height() );
-        }
-        else
-        {
-            subWindowSize = QSize( 400, 400 );
-        }
+        subWindowSize = QSize( 400, 400 );
     }
 
     addViewerToMdiArea( m_mdiArea, viewer, subWindowPos, subWindowSize );
@@ -695,6 +717,7 @@ void RiuPlotMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
 
     updateWellLogPlotToolBar();
     updateSummaryPlotToolBar();
+    updateGridPlotWindowToolBar();
 }
 
 //--------------------------------------------------------------------------------------------------

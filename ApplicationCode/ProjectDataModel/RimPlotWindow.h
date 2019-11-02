@@ -37,7 +37,7 @@ public:
     RimPlotWindow& operator=( RimPlotWindow&& rhs );
 
     virtual void    setDescription( const QString& description );
-    virtual QString description() const;
+    QString         description() const;
     virtual QString fullPlotTitle() const;
 
     bool isPlotTitleVisible() const;
@@ -46,6 +46,8 @@ public:
     void setLegendsVisible( bool doShow );
     bool legendsHorizontal() const;
     void setLegendsHorizontal( bool horizontal );
+    int  legendFontSize() const;
+    void setLegendFontSize( int fontSize );
 
     virtual void detachAllCurves() = 0;
     virtual void handleKeyPressEvent( QKeyEvent* keyEvent ) {}
@@ -57,13 +59,15 @@ protected:
                                                     const QVariant&            newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
+    caf::PdmFieldHandle*          userDescriptionField() override;
 
-    virtual caf::PdmUiGroup* createPlotSettingsUiGroup( caf::PdmUiOrdering& uiOrdering );
-    virtual void             updatePlotTitle() = 0;
+    virtual void uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering );
+    virtual void updatePlotTitle() = 0;
 
 protected:
     caf::PdmField<QString> m_description;
     caf::PdmField<bool>    m_showTitleInPlot;
     caf::PdmField<bool>    m_showPlotLegends;
     caf::PdmField<bool>    m_plotLegendsHorizontal;
+    caf::PdmField<int>     m_legendFontSize;
 };

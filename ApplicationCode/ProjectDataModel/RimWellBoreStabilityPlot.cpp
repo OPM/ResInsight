@@ -136,8 +136,9 @@ void RimWellBoreStabilityPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     parameterSources->add( &m_ucsSource );
     parameterSources->add( &m_userDefinedUcs );
 
-    uiOrderingForDepthAxis( uiOrdering );
-    createPlotSettingsUiGroup( uiOrdering );
+    caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup( "Title, Legend and Axis" );
+    RimWellLogPlot::uiOrderingForPlotLayout( *legendAndAxisGroup );
+    uiOrderingForDepthAxis( *legendAndAxisGroup );
 
     uiOrdering.skipRemainingFields( true );
 }

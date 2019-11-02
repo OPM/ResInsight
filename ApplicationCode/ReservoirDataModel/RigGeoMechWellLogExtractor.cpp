@@ -98,7 +98,7 @@ void RigGeoMechWellLogExtractor::performCurveDataSmoothing( int                 
 
     if ( !mds->empty() && !values->empty() )
     {
-        std::vector<std::vector<double>*> dependentValues = {tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl};
+        std::vector<std::vector<double>*> dependentValues = { tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl };
 
         std::vector<unsigned char> smoothOrFilterSegments = determineFilteringOrSmoothing( interfacePorePressuresDbl );
         filterShortSegments( mds, values, &smoothOrFilterSegments, dependentValues );
@@ -232,7 +232,7 @@ std::pair<float, RigGeoMechWellLogExtractor::WbsParameterSource>
             double lasPoissionRatio = getWellLogSegmentValue( intersectionIdx, m_wellLogMdAndPoissonRatios );
             if ( lasPoissionRatio != std::numeric_limits<double>::infinity() )
             {
-                return std::make_pair( lasPoissionRatio, LAS_FILE );
+                return std::make_pair( (float)lasPoissionRatio, LAS_FILE );
             }
         }
     }
@@ -265,7 +265,7 @@ std::pair<float, RigGeoMechWellLogExtractor::WbsParameterSource>
             double lasUniaxialStrengthInBar = getWellLogSegmentValue( intersectionIdx, m_wellLogMdAndUcsBar );
             if ( lasUniaxialStrengthInBar != std::numeric_limits<double>::infinity() )
             {
-                return std::make_pair( lasUniaxialStrengthInBar, LAS_FILE );
+                return std::make_pair( (float)lasUniaxialStrengthInBar, LAS_FILE );
             }
         }
     }
@@ -276,12 +276,12 @@ std::pair<float, RigGeoMechWellLogExtractor::WbsParameterSource>
         if ( elmIdx < ucsValuesPascal.size() )
         {
             // Read UCS from element table in Pascal
-            float uniaxialStrengthInBar = pascalToBar( ucsValuesPascal[elmIdx] );
-            return std::make_pair( uniaxialStrengthInBar, ELEMENT_PROPERTY_TABLE );
+            double uniaxialStrengthInBar = pascalToBar( ucsValuesPascal[elmIdx] );
+            return std::make_pair( (float)uniaxialStrengthInBar, ELEMENT_PROPERTY_TABLE );
         }
     }
     // Priority 3: User defined UCS (in bar)
-    return std::make_pair( m_userDefinedUcs, USER_DEFINED );
+    return std::make_pair( (float)m_userDefinedUcs, USER_DEFINED );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -625,7 +625,7 @@ void RigGeoMechWellLogExtractor::setWellLogMdAndPoissonRatio( const std::vector<
 //--------------------------------------------------------------------------------------------------
 std::set<RigGeoMechWellLogExtractor::WbsParameterSource> RigGeoMechWellLogExtractor::supportedSourcesForPorePressure()
 {
-    return {AUTO, GRID, LAS_FILE, ELEMENT_PROPERTY_TABLE, HYDROSTATIC_PP};
+    return { AUTO, GRID, LAS_FILE, ELEMENT_PROPERTY_TABLE, HYDROSTATIC_PP };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -633,7 +633,7 @@ std::set<RigGeoMechWellLogExtractor::WbsParameterSource> RigGeoMechWellLogExtrac
 //--------------------------------------------------------------------------------------------------
 std::set<RigGeoMechWellLogExtractor::WbsParameterSource> RigGeoMechWellLogExtractor::supportedSourcesForPoissonRatio()
 {
-    return {AUTO, LAS_FILE, ELEMENT_PROPERTY_TABLE, USER_DEFINED};
+    return { AUTO, LAS_FILE, ELEMENT_PROPERTY_TABLE, USER_DEFINED };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -641,7 +641,7 @@ std::set<RigGeoMechWellLogExtractor::WbsParameterSource> RigGeoMechWellLogExtrac
 //--------------------------------------------------------------------------------------------------
 std::set<RigGeoMechWellLogExtractor::WbsParameterSource> RigGeoMechWellLogExtractor::supportedSourcesForUcs()
 {
-    return {AUTO, LAS_FILE, ELEMENT_PROPERTY_TABLE, USER_DEFINED};
+    return { AUTO, LAS_FILE, ELEMENT_PROPERTY_TABLE, USER_DEFINED };
 }
 
 //--------------------------------------------------------------------------------------------------

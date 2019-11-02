@@ -35,6 +35,8 @@ add_library( ${PROJECT_NAME}
 ) 
 if (MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4244")
+else()
+    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-Wno-deprecated -Wno-deprecated-declarations")
 endif()
 
 target_include_directories(${PROJECT_NAME}

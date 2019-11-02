@@ -83,6 +83,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextUi.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewGridPlotWindowFeature.h
 )
 
 
@@ -164,6 +165,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextUi.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewGridPlotWindowFeature.cpp
 )
 
 

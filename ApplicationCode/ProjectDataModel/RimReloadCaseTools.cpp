@@ -34,6 +34,7 @@
 #include "RimFlowPlotCollection.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
+#include "RimGridPlotWindowCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -175,6 +176,15 @@ void RimReloadCaseTools::updateAllPlots()
         if ( flowPlotCollection )
         {
             flowPlotCollection->loadDataAndUpdate();
+        }
+
+        RimGridPlotWindowCollection* gridPlotWindowCollection = project->mainPlotCollection()->combinationPlotCollection();
+        if ( gridPlotWindowCollection )
+        {
+            for ( RimGridPlotWindow* plotWindow : gridPlotWindowCollection->gridPlotWindows() )
+            {
+                plotWindow->loadDataAndUpdate();
+            }
         }
     }
 }

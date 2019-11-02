@@ -279,7 +279,7 @@ void RimWellLogTrack::setChecked( bool checked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString RimWellLogTrack::description() const
+QString RimWellLogTrack::description() const
 {
     return m_description;
 }
@@ -734,13 +734,14 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
                                    m_xAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MAJOR,
                                    m_xAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MINOR );
 
-    RimWellLogPlot* plot = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( plot );
-
-    m_plotWidget->enableGridLines( QwtPlot::yLeft,
-                                   plot->depthAxisGridLinesEnabled() & RimWellLogPlot::AXIS_GRID_MAJOR,
-                                   plot->depthAxisGridLinesEnabled() & RimWellLogPlot::AXIS_GRID_MINOR );
-
+    RimWellLogPlot* wellLogPlot = nullptr;
+    this->firstAncestorOrThisOfType( wellLogPlot );
+    if ( wellLogPlot )
+    {
+        m_plotWidget->enableGridLines( QwtPlot::yLeft,
+                                       wellLogPlot->depthAxisGridLinesEnabled() & RimWellLogPlot::AXIS_GRID_MAJOR,
+                                       wellLogPlot->depthAxisGridLinesEnabled() & RimWellLogPlot::AXIS_GRID_MINOR );
+    }
     m_plotWidget->scheduleReplot();
 }
 
@@ -1229,9 +1230,12 @@ void RimWellLogTrack::setXAxisTitle( const QString& text )
 QString RimWellLogTrack::yAxisTitle() const
 {
     RimWellLogPlot* parent;
-    this->firstAncestorOrThisOfTypeAsserted( parent );
-
-    return parent->depthAxisTitle();
+    this->firstAncestorOrThisOfType( parent );
+    if ( parent )
+    {
+        return parent->depthAxisTitle();
+    }
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1403,29 +1407,10 @@ void RimWellLogTrack::updateParentPlotZoom()
 void RimWellLogTrack::updateEditors()
 {
     this->updateConnectedEditors();
+    RimPlotWindow* plotWindow = nullptr;
 
-    RimWellLogPlot* plot = nullptr;
-    firstAncestorOrThisOfTypeAsserted( plot );
-    plot->updateConnectedEditors();
-
-    RimWellRftPlot* rftPlot( nullptr );
-
-    firstAncestorOrThisOfType( rftPlot );
-
-    if ( rftPlot )
-    {
-        rftPlot->updateConnectedEditors();
-    }
-    else
-    {
-        RimWellPltPlot* pltPlot( nullptr );
-        firstAncestorOrThisOfType( pltPlot );
-
-        if ( pltPlot )
-        {
-            pltPlot->updateConnectedEditors();
-        }
-    }
+    firstAncestorOrThisOfTypeAsserted( plotWindow );
+    plotWindow->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1732,17 +1717,6 @@ void RimWellLogTrack::updateAxisScaleEngine()
         // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
         m_plotWidget->setAxisScaleEngine( QwtPlot::xBottom, new RiuQwtLinearScaleEngine );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimWellLogTrack::isFirstVisibleTrackInPlot() const
-{
-    RimGridPlotWindow* plotWindow = nullptr;
-    firstAncestorOrThisOfTypeAsserted( plotWindow );
-    std::vector<RimPlotInterface*> visiblePlots = plotWindow->visiblePlots();
-    return visiblePlots.empty() ? false : visiblePlots.front() == this;
 }
 
 //--------------------------------------------------------------------------------------------------

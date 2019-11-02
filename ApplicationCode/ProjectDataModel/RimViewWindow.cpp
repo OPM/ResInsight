@@ -28,6 +28,7 @@
 
 #include "cvfAssert.h"
 
+#include <QDebug>
 #include <QWidget>
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimViewWindow, "ViewWindow" ); // Do not use. Abstract class
@@ -145,6 +146,20 @@ void RimViewWindow::updateMdiWindowVisibility()
                 viewWidget()->hide();
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::revokeMdiWindowStatus()
+{
+    if ( m_windowController() )
+    {
+        handleMdiWindowClosed();
+        deleteViewWidget();
+        delete m_windowController();
+        m_windowController = nullptr;
     }
 }
 

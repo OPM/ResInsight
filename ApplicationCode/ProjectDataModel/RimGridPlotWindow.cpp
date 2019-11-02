@@ -35,7 +35,7 @@ void RimGridPlotWindow::ColumnCountEnum::setUp()
     addItem( RimGridPlotWindow::COLUMNS_3, "3", "3 Columns" );
     addItem( RimGridPlotWindow::COLUMNS_4, "4", "4 Columns" );
     addItem( RimGridPlotWindow::COLUMNS_UNLIMITED, "UNLIMITED", "Unlimited" );
-    setDefault( RimGridPlotWindow::COLUMNS_UNLIMITED );
+    setDefault( RimGridPlotWindow::COLUMNS_2 );
 }
 } // namespace caf
 
@@ -46,12 +46,14 @@ CAF_PDM_SOURCE_INIT( RimGridPlotWindow, "GridPlotWindow" );
 //--------------------------------------------------------------------------------------------------
 RimGridPlotWindow::RimGridPlotWindow()
 {
-    CAF_PDM_InitObject( "Grid Plot Window", ":/WellLogPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Combination Plot", ":/WellLogPlot16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_plots, "Tracks", "", "", "", "" );
     m_plots.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_columnCountEnum, "NumberOfColumns", "Number of Columns", "", "", "" );
+
+    CAF_PDM_InitField( &m_showIndividualPlotTitles, "ShowPlotTitles", false, "Show Sub Plot Titles", "", "", "" );
 
     m_viewer = nullptr;
 }
@@ -112,12 +114,14 @@ void RimGridPlotWindow::insertPlot( RimPlotInterface* plot, size_t index )
     if ( plot )
     {
         m_plots.insert( index, toPdmObjectAsserted( plot ) );
+        plot->setChecked( true );
 
         if ( m_viewer )
         {
             plot->createPlotWidget();
             m_viewer->insertPlot( plot->viewer(), index );
         }
+        plot->updateAfterInsertingIntoGridPlotWindow();
 
         onPlotAdditionOrRemoval();
     }
@@ -138,6 +142,43 @@ void RimGridPlotWindow::removePlot( RimPlotInterface* plot )
 
         onPlotAdditionOrRemoval();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridPlotWindow::movePlotsToThis( const std::vector<RimPlotInterface*>& plotsToMove,
+                                         RimPlotInterface*                     plotToInsertAfter )
+{
+    std::set<caf::PdmObject*> objectsToUpdate;
+
+    for ( size_t tIdx = 0; tIdx < plotsToMove.size(); tIdx++ )
+    {
+        RimPlotInterface* plot      = plotsToMove[tIdx];
+        caf::PdmObject*   pdmObject = dynamic_cast<caf::PdmObject*>( plot );
+
+        RimGridPlotWindow* srcPlot = nullptr;
+        pdmObject->firstAncestorOrThisOfType( srcPlot );
+        if ( srcPlot )
+        {
+            srcPlot->removePlot( plot );
+        }
+        else
+        {
+            plot->removeFromMdiAreaAndCollection();
+        }
+    }
+
+    size_t insertionStartIndex = 0;
+    if ( plotToInsertAfter ) insertionStartIndex = this->plotIndex( plotToInsertAfter ) + 1;
+
+    for ( size_t tIdx = 0; tIdx < plotsToMove.size(); tIdx++ )
+    {
+        this->insertPlot( plotsToMove[tIdx], insertionStartIndex + tIdx );
+    }
+
+    this->updateLayout();
+    this->updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -271,21 +312,19 @@ caf::PdmFieldHandle* RimGridPlotWindow::columnCountField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::zoomAll()
+bool RimGridPlotWindow::showPlotTitles() const
 {
-    setAutoScaleXEnabled( true );
-    setAutoScaleYEnabled( true );
-    updateZoom();
+    return m_showIndividualPlotTitles;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiGroup* RimGridPlotWindow::createPlotSettingsUiGroup( caf::PdmUiOrdering& uiOrdering )
+void RimGridPlotWindow::zoomAll()
 {
-    caf::PdmUiGroup* titleAndLegendsGroup = RimPlotWindow::createPlotSettingsUiGroup( uiOrdering );
-    titleAndLegendsGroup->add( &m_columnCountEnum );
-    return titleAndLegendsGroup;
+    setAutoScaleXEnabled( true );
+    setAutoScaleYEnabled( true );
+    updateZoom();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -326,11 +365,9 @@ QImage RimGridPlotWindow::snapshotWindowContent()
 
     if ( m_viewer )
     {
-        m_viewer->setScrollbarVisible( false );
         m_viewer->setSelectionsVisible( false );
         QPixmap pix = m_viewer->grab();
         image       = pix.toImage();
-        m_viewer->setScrollbarVisible( true );
         m_viewer->setSelectionsVisible( true );
     }
 
@@ -370,6 +407,10 @@ void RimGridPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 {
     RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
+    if ( changedField == &m_showIndividualPlotTitles )
+    {
+        updateLayout();
+    }
     if ( changedField == &m_columnCountEnum )
     {
         updateLayout();
@@ -383,7 +424,20 @@ void RimGridPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 void RimGridPlotWindow::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    createPlotSettingsUiGroup( uiOrdering );
+    caf::PdmUiGroup* titleAndLegendsGroup = uiOrdering.addNewGroup( "Plot Layout" );
+    uiOrderingForPlotLayout( *titleAndLegendsGroup );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridPlotWindow::uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_showTitleInPlot );
+    uiOrdering.add( &m_description );
+    uiOrdering.add( &m_showIndividualPlotTitles );
+    RimPlotWindow::uiOrderingForPlotLayout( uiOrdering );
+    uiOrdering.add( &m_columnCountEnum );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -426,7 +480,7 @@ QList<caf::PdmOptionItemInfo> RimGridPlotWindow::calculateValueOptions( const ca
 void RimGridPlotWindow::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
-    setPlotTitleInWidget( this->fullPlotTitle() );
+    updatePlotTitle();
     updatePlots();
     updateLayout();
 }
@@ -444,17 +498,10 @@ void RimGridPlotWindow::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimGridPlotWindow::updatePlotTitle()
 {
-    m_viewer->setTitleVisible( m_showTitleInPlot() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::setPlotTitleInWidget( const QString& title )
-{
     if ( m_viewer )
     {
-        m_viewer->setPlotTitle( title );
+        m_viewer->setTitleVisible( m_showTitleInPlot() );
+        m_viewer->setPlotTitle( fullPlotTitle() );
     }
     updateMdiWindowTitle();
 }
@@ -512,6 +559,10 @@ bool RimGridPlotWindow::hasCustomFontSizes( RiaDefines::FontSettingType fontSett
         {
             return true;
         }
+        if ( m_legendFontSize() != defaultFontSize )
+        {
+            return true;
+        }
         for ( const RimPlotInterface* plot : plots() )
         {
             if ( plot->hasCustomFontSizes( fontSettingType, defaultFontSize ) )
@@ -537,6 +588,12 @@ bool RimGridPlotWindow::applyFontSize( RiaDefines::FontSettingType fontSettingTy
         if ( oldFontSize == m_viewer->fontSize() || forceChange )
         {
             m_viewer->setFontSize( fontSize );
+            somethingChanged = true;
+        }
+
+        if ( oldFontSize == m_legendFontSize() || forceChange )
+        {
+            m_legendFontSize = fontSize;
             somethingChanged = true;
         }
 

@@ -917,13 +917,13 @@ void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         if ( track )
         {
             track->uiOrderingForRftPltFormations( uiOrdering );
+            caf::PdmUiGroup* axesGroup = uiOrdering.addNewGroup( "Axes" );
+            track->uiOrderingForXAxisSettings( *axesGroup );
+            uiOrderingForDepthAxis( *axesGroup );
 
-            caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup( "Legend and Axis" );
-            legendAndAxisGroup->setCollapsedByDefault( true );
-
-            createPlotSettingsUiGroup( *legendAndAxisGroup );
-            track->uiOrderingForXAxisSettings( *legendAndAxisGroup );
-            uiOrderingForDepthAxis( *legendAndAxisGroup );
+            caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
+            plotLayoutGroup->setCollapsedByDefault( true );
+            RimWellLogPlot::uiOrderingForPlotLayout( *plotLayoutGroup );
         }
     }
 

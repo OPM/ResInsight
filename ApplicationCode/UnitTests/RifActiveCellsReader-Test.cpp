@@ -54,7 +54,7 @@ TEST( RifActiveCellsReaderTest, BasicTest10k )
         ecl_file_type* gridFile = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( filePath ).data(),
                                                  ECL_FILE_CLOSE_STREAM );
         activeCellsFromActnum   = RifActiveCellsReader::activeCellsFromActnumKeyword( gridFile );
-        EXPECT_EQ( 2, activeCellsFromActnum.size() );
+        EXPECT_EQ( (size_t)2, activeCellsFromActnum.size() );
         ecl_file_close( gridFile );
     }
 

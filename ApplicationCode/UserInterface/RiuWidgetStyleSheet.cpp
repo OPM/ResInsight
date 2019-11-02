@@ -183,7 +183,7 @@ void RiuWidgetStyleSheet::refreshWidget( QWidget* widget ) const
 QString RiuWidgetStyleSheet::buildStateString( StateTag state )
 {
     QString stateString;
-    if ( state > PSEUDO_STATE_LIMIT )
+    if ( state >= PSEUDO_STATE_LIMIT )
     {
         stateString += ":" + StateTagEnum::uiText( state );
     }

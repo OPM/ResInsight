@@ -26,8 +26,10 @@
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotTools.h"
 
+#include "RimGridCrossPlotCollection.h"
 #include "RimGridCrossPlotCurve.h"
 #include "RimGridCrossPlotDataSet.h"
+#include "RimGridPlotWindow.h"
 #include "RimPlotAxisProperties.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
@@ -53,10 +55,7 @@ RimGridCrossPlot::RimGridCrossPlot()
     CAF_PDM_InitObject( "Grid Cross Plot", ":/SummaryXPlotLight16x16.png", "", "" );
 
     CAF_PDM_InitField( &m_showInfoBox, "ShowInfoBox", true, "Show Info Box", "", "", "" );
-    CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Show Legend", "", "", "" );
-    CAF_PDM_InitField( &m_legendFontSize, "LegendFontSize", 10, "Legend and Info Font Size", "", "", "" );
-    m_legendFontSize = RiaFontCache::pointSizeFromFontSizeEnum(
-        RiaApplication::instance()->preferences()->defaultPlotFontSize() );
+    CAF_PDM_InitField( &m_showLegend_OBSOLETE, "ShowLegend", false, "Show Legend", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "Name Config", "", "", "" );
     m_nameConfig.uiCapability()->setUiTreeHidden( true );
@@ -94,6 +93,22 @@ RimGridCrossPlot::~RimGridCrossPlot()
 bool RimGridCrossPlot::isChecked() const
 {
     return isWindowVisible();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::setChecked( bool checked )
+{
+    m_showWindow = checked;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGridCrossPlot::description() const
+{
+    return createAutoName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -424,16 +439,31 @@ void RimGridCrossPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::initAfterRead()
+{
+    if ( m_showLegend_OBSOLETE() )
+    {
+        m_showPlotLegends = true;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
 
     uiOrdering.add( &m_showInfoBox );
-    uiOrdering.add( &m_showLegend );
 
-    if ( m_showLegend() )
+    if ( isStandalonePlot() )
     {
-        uiOrdering.add( &m_legendFontSize );
+        uiOrdering.add( &m_showPlotLegends );
+
+        if ( m_showPlotLegends() )
+        {
+            uiOrdering.add( &m_legendFontSize );
+        }
     }
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Name Configuration" );
@@ -464,17 +494,10 @@ void RimGridCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField
                                          const QVariant&            oldValue,
                                          const QVariant&            newValue )
 {
-    if ( changedField == &m_showLegend )
-    {
-        m_plotWidget->setLegendVisible( m_showLegend() );
-    }
+    RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_legendFontSize )
     {
-        m_plotWidget->setLegendFontSize( m_legendFontSize() );
-        for ( auto dataSet : m_crossPlotDataSets )
-        {
-            dataSet->updateLegendIcons();
-        }
+        updateLegend();
     }
     onLoadDataAndUpdate();
 }
@@ -546,9 +569,7 @@ void RimGridCrossPlot::updatePlot()
             dataSet->setParentQwtPlotNoReplot( m_plotWidget );
         }
 
-        m_plotWidget->setLegendVisible( m_showLegend() );
-        m_plotWidget->setLegendFontSize( m_legendFontSize() );
-        m_plotWidget->updateLegendSizesToMatchPlot();
+        updateLegend();
         m_plotWidget->scheduleReplot();
     }
 }
@@ -563,7 +584,7 @@ void RimGridCrossPlot::updateCurveNamesAndPlotTitle()
         m_crossPlotDataSets[i]->updateCurveNames( i, m_crossPlotDataSets.size() );
     }
 
-    if ( m_plotWidget )
+    if ( m_plotWidget && isStandalonePlot() )
     {
         m_plotWidget->setTitle( this->createAutoName() );
     }
@@ -666,6 +687,12 @@ void RimGridCrossPlot::setYAxisInverted( bool inverted )
 //--------------------------------------------------------------------------------------------------
 int RimGridCrossPlot::legendFontSize() const
 {
+    RimGridPlotWindow* plotWindow = nullptr;
+    this->firstAncestorOrThisOfType( plotWindow );
+    if ( plotWindow )
+    {
+        return plotWindow->legendFontSize();
+    }
     return m_legendFontSize;
 }
 
@@ -733,6 +760,19 @@ bool RimGridCrossPlot::applyFontSize( RiaDefines::FontSettingType fontSettingTyp
 void RimGridCrossPlot::updateLayout()
 {
     updatePlot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::updateLegend()
+{
+    m_plotWidget->setInternalQwtLegendVisible( m_showPlotLegends() && isStandalonePlot() );
+    m_plotWidget->setLegendFontSize( m_legendFontSize() );
+    for ( auto dataSet : m_crossPlotDataSets )
+    {
+        dataSet->updateLegendIcons();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -829,27 +869,18 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
     {
         m_plotWidget->enableAxis( qwtAxisId, true );
 
-        QwtText axisTitle( axisParameterString );
-        QFont   titleFont = m_plotWidget->axisTitle( qwtAxisId ).font();
-        titleFont.setBold( true );
-        titleFont.setPointSize( axisProperties->titleFontSize() );
-        axisTitle.setFont( titleFont );
-
-        QFont valuesFont = m_plotWidget->axisFont( qwtAxisId );
-        valuesFont.setPointSize( axisProperties->valuesFontSize() );
-        m_plotWidget->setAxisFont( qwtAxisId, valuesFont );
-
-        switch ( axisProperties->titlePosition() )
+        Qt::AlignmentFlag alignment = Qt::AlignCenter;
+        if ( axisProperties->titlePosition() == RimPlotAxisPropertiesInterface::AXIS_TITLE_END )
         {
-            case RimPlotAxisProperties::AXIS_TITLE_CENTER:
-                axisTitle.setRenderFlags( Qt::AlignCenter );
-                break;
-            case RimPlotAxisProperties::AXIS_TITLE_END:
-                axisTitle.setRenderFlags( Qt::AlignRight );
-                break;
+            alignment = Qt::AlignRight;
         }
-
-        m_plotWidget->setAxisTitle( qwtAxisId, axisTitle );
+        m_plotWidget->setAxisFontsAndAlignment( qwtAxisId,
+                                                axisProperties->titleFontSize(),
+                                                axisProperties->valuesFontSize(),
+                                                true,
+                                                alignment );
+        m_plotWidget->setAxisTitleText( qwtAxisId, axisParameterString );
+        m_plotWidget->setAxisTitleEnabled( qwtAxisId, true );
 
         if ( axisProperties->isLogarithmicScaleEnabled )
         {
@@ -1023,6 +1054,35 @@ void RimGridCrossPlot::removeDataSetLegend( RimGridCrossPlotDataSet* dataSet )
     {
         m_plotWidget->removeDataSetLegend( dataSet );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::removeFromMdiAreaAndCollection()
+{
+    RimGridCrossPlotCollection* crossPlotCollection = nullptr;
+    this->firstAncestorOrThisOfType( crossPlotCollection );
+    if ( crossPlotCollection )
+    {
+        crossPlotCollection->removeGridCrossPlot( this );
+        this->revokeMdiWindowStatus();
+        crossPlotCollection->updateAllRequiredEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::updateAfterInsertingIntoGridPlotWindow()
+{
+    if ( m_plotWidget )
+    {
+        m_plotWidget->setTitle( "" );
+        m_plotWidget->setInternalQwtLegendVisible( false );
+    }
+    updateAxes();
+    updateLayout();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -58,6 +58,9 @@ public:
     ~RimGridCrossPlot();
 
     bool isChecked() const override;
+    void setChecked( bool checked ) override;
+
+    QString description() const override;
 
     RimGridCrossPlotDataSet* createDataSet();
     int                      indexOfDataSet( const RimGridCrossPlotDataSet* dataSet ) const;
@@ -95,11 +98,12 @@ public:
                         bool                        forceChange = false ) override;
 
     void updateLayout() override;
+    void updateLegend();
 
     void updateZoomInQwt() override;
     void updateZoomFromQwt() override;
 
-    void loadDataAndUpdate();
+    void loadDataAndUpdate() override;
 
     void            setAutoScaleXEnabled( bool enabled ) override;
     void            setAutoScaleYEnabled( bool enabled ) override;
@@ -110,10 +114,14 @@ public:
     void addOrUpdateDataSetLegend( RimGridCrossPlotDataSet* dataSet );
     void removeDataSetLegend( RimGridCrossPlotDataSet* dataSet );
 
+    void removeFromMdiAreaAndCollection() override;
+    void updateAfterInsertingIntoGridPlotWindow() override;
+
 protected:
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
     void     deleteViewWidget() override;
     void     onLoadDataAndUpdate() override;
+    void     initAfterRead() override;
     void     defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void     defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
@@ -144,8 +152,7 @@ protected:
 
 private:
     caf::PdmField<bool>                             m_showInfoBox;
-    caf::PdmField<bool>                             m_showLegend;
-    caf::PdmField<int>                              m_legendFontSize;
+    caf::PdmField<bool>                             m_showLegend_OBSOLETE;
     caf::PdmChildField<RimGridCrossPlotNameConfig*> m_nameConfig;
 
     caf::PdmChildField<RimPlotAxisProperties*> m_yAxisProperties;
