@@ -59,10 +59,10 @@ std::set<RifEclipseRftAddress> RifReaderEnsembleStatisticsRft::eclipseRftAddress
         }
         else if ( regularAddress.wellLogChannel() == RifEclipseRftAddress::PRESSURE )
         {
-            std::set<RifEclipseRftAddress::RftWellLogChannelType> statChannels = {RifEclipseRftAddress::PRESSURE_P10,
-                                                                                  RifEclipseRftAddress::PRESSURE_P50,
-                                                                                  RifEclipseRftAddress::PRESSURE_P90,
-                                                                                  RifEclipseRftAddress::PRESSURE_MEAN};
+            std::set<RifEclipseRftAddress::RftWellLogChannelType> statChannels = { RifEclipseRftAddress::PRESSURE_P10,
+                                                                                   RifEclipseRftAddress::PRESSURE_P50,
+                                                                                   RifEclipseRftAddress::PRESSURE_P90,
+                                                                                   RifEclipseRftAddress::PRESSURE_MEAN };
             for ( auto channel : statChannels )
             {
                 statisticsAddresses.insert(
@@ -132,7 +132,7 @@ std::set<QDateTime> RifReaderEnsembleStatisticsRft::availableTimeSteps(
 ///
 //--------------------------------------------------------------------------------------------------
 std::set<QDateTime> RifReaderEnsembleStatisticsRft::availableTimeSteps(
-    const QString& wellName, const std::set<RifEclipseRftAddress::RftWellLogChannelType> relevantChannels )
+    const QString& wellName, const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
 {
     std::set<QDateTime> allTimeSteps;
     for ( auto summaryCase : m_summaryCaseCollection->allSummaryCases() )

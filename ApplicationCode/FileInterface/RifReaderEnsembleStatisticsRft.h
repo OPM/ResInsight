@@ -36,8 +36,8 @@ public:
     std::set<QDateTime> availableTimeSteps( const QString&                                     wellName,
                                             const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName ) override;
     std::set<QDateTime>
-                                                          availableTimeSteps( const QString&                                              wellName,
-                                                                              const std::set<RifEclipseRftAddress::RftWellLogChannelType> relevantChannels ) override;
+                                                          availableTimeSteps( const QString&                                               wellName,
+                                                                              const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels ) override;
     std::set<RifEclipseRftAddress::RftWellLogChannelType> availableWellLogChannels( const QString& wellName ) override;
     std::set<QString>                                     wellNames() override;
 

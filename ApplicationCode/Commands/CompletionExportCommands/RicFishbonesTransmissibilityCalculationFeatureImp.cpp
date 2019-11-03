@@ -47,7 +47,7 @@
 struct WellBorePartForTransCalc
 {
     WellBorePartForTransCalc(
-        cvf::Vec3d lengthsInCell, double wellRadius, double skinFactor, bool isMainBore, QString metaData )
+        cvf::Vec3d lengthsInCell, double wellRadius, double skinFactor, bool isMainBore, const QString& metaData )
         : lengthsInCell( lengthsInCell )
         , wellRadius( wellRadius )
         , skinFactor( skinFactor )

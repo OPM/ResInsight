@@ -145,8 +145,8 @@ public:
     RicSummaryCaseRestartDialogResult( Status                                     _status,
                                        RicSummaryCaseRestartDialog::ImportOptions _summaryImportOption,
                                        RicSummaryCaseRestartDialog::ImportOptions _gridImportOption,
-                                       QStringList                                _summaryFiles,
-                                       QStringList                                _gridFiles,
+                                       const QStringList&                         _summaryFiles,
+                                       const QStringList&                         _gridFiles,
                                        bool                                       _applyToAll )
         : status( _status )
         , summaryImportOption( _summaryImportOption )

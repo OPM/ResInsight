@@ -53,7 +53,9 @@ void RiaImageFileCompare::reset()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaImageFileCompare::runComparison( QString imgFileName, QString refFileName, QString diffFileName )
+bool RiaImageFileCompare::runComparison( const QString& imgFileName,
+                                         const QString& refFileName,
+                                         const QString& diffFileName )
 {
     reset();
 

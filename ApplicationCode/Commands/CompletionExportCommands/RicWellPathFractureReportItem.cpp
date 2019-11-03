@@ -125,13 +125,13 @@ void RicWellPathFractureReportItem::setUnitSystem( RiaEclipseUnitTools::UnitSyst
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathFractureReportItem::setPressureDepletionParameters( bool    performPDDScaling,
-                                                                    QString timeStepString,
-                                                                    QString wbhpString,
-                                                                    double  userWBHP,
-                                                                    double  actualWBHP,
-                                                                    double  minPressureDrop,
-                                                                    double  maxPressureDrop )
+void RicWellPathFractureReportItem::setPressureDepletionParameters( bool           performPDDScaling,
+                                                                    const QString& timeStepString,
+                                                                    const QString& wbhpString,
+                                                                    double         userWBHP,
+                                                                    double         actualWBHP,
+                                                                    double         minPressureDrop,
+                                                                    double         maxPressureDrop )
 {
     m_performPressureDepletionScaling  = performPDDScaling;
     m_pressureDepletionTimeStepString  = timeStepString;

@@ -53,7 +53,7 @@ public:
     ~RicfCommandFileExecutor();
 
     void    executeCommands( QTextStream& stream );
-    void    setExportPath( ExportType type, QString path );
+    void    setExportPath( ExportType type, const QString& path );
     QString getExportPath( ExportType type ) const;
     void    setLastProjectPath( const QString& path );
     QString getLastProjectPath() const;

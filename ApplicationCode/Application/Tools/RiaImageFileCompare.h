@@ -39,7 +39,7 @@ public:
     explicit RiaImageFileCompare( QString compareExecutable );
     ~RiaImageFileCompare();
 
-    bool      runComparison( QString imgFileName, QString refFileName, QString diffFileName );
+    bool      runComparison( const QString& imgFileName, const QString& refFileName, const QString& diffFileName );
     bool      imagesEqual() const;
     ErrorType error() const;
     QString   errorMessage() const;
