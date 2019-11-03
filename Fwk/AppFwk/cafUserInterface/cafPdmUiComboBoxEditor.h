@@ -74,6 +74,7 @@ public:
 
     bool    enableEditableContent;
     int     minimumWidth;
+    QString placeholderText;
     QString nextButtonText;
     QString prevButtonText;
     

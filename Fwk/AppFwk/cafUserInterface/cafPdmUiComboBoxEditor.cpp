@@ -48,6 +48,7 @@
 #include <QComboBox>
 #include <QDebug>
 #include <QLabel>
+#include <QLineEdit>
 #include <QListView>
 #include <QWheelEvent>
 
@@ -234,6 +235,8 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
         if (m_attributes.enableEditableContent)
         {
             m_comboBox->setEditable(true);
+
+            m_comboBox->lineEdit()->setPlaceholderText(m_attributes.placeholderText);
         }
 
         if (m_attributes.minimumWidth != -1)
