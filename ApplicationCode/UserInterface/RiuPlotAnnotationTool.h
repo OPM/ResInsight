@@ -58,16 +58,16 @@ public:
     RiuPlotAnnotationTool(){};
     ~RiuPlotAnnotationTool();
 
-    void attachNamedRegions( QwtPlot*                                     plot,
-                             const std::vector<QString>&                  names,
-                             const std::pair<double, double>              xRange,
-                             const std::vector<std::pair<double, double>> yPositions,
-                             RegionDisplay                                regionDisplay,
-                             const caf::ColorTable&                       colorTable,
-                             int                                          shadingAlphaByte,
-                             bool                                         showNames = true,
-                             TrackSpan                                    trackSpan = FULL_WIDTH );
-    void attachWellPicks( QwtPlot* plot, const std::vector<QString>& names, const std::vector<double> yPositions );
+    void attachNamedRegions( QwtPlot*                                      plot,
+                             const std::vector<QString>&                   names,
+                             const std::pair<double, double>               xRange,
+                             const std::vector<std::pair<double, double>>& yPositions,
+                             RegionDisplay                                 regionDisplay,
+                             const caf::ColorTable&                        colorTable,
+                             int                                           shadingAlphaByte,
+                             bool                                          showNames = true,
+                             TrackSpan                                     trackSpan = FULL_WIDTH );
+    void attachWellPicks( QwtPlot* plot, const std::vector<QString>& names, const std::vector<double>& yPositions );
 
     void attachAnnotationLine( QwtPlot* plot, const QColor& color, const QString& annotationText, const double yPosition );
 

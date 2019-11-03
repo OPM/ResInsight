@@ -63,9 +63,9 @@ public:
                      const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr,
                      double                                                   pressure,
                      double                                                   pointMarkerYValue,
-                     QString                                                  pointMarkerLabel,
-                     QString                                                  plotTitle,
-                     QString                                                  yAxisTitle );
+                     const QString&                                           pointMarkerLabel,
+                     const QString&                                           plotTitle,
+                     const QString&                                           yAxisTitle );
     void applyFontSizes( bool replot );
 
 private:
@@ -127,10 +127,10 @@ public:
     void               setPlotData( RiaEclipseUnitTools::UnitSystem                          unitSystem,
                                     const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr,
                                     const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr,
-                                    FvfDynProps                                              fvfDynProps,
-                                    ViscosityDynProps                                        viscosityDynProps,
-                                    CellValues                                               cellValues,
-                                    QString                                                  cellReferenceText );
+                                    const FvfDynProps&                                       fvfDynProps,
+                                    const ViscosityDynProps&                                 viscosityDynProps,
+                                    const CellValues&                                        cellValues,
+                                    const QString&                                           cellReferenceText );
     void               clearPlot();
     RiuPvtPlotUpdater* plotUpdater();
     void               applyFontSizes( bool replot );

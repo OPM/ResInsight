@@ -192,9 +192,9 @@ void RiuPvtPlotWidget::plotCurves( RiaEclipseUnitTools::UnitSystem              
                                    const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr,
                                    double                                                   pressure,
                                    double                                                   pointMarkerYValue,
-                                   QString                                                  pointMarkerLabel,
-                                   QString                                                  plotTitle,
-                                   QString                                                  yAxisTitle )
+                                   const QString&                                           pointMarkerLabel,
+                                   const QString&                                           plotTitle,
+                                   const QString&                                           yAxisTitle )
 {
     m_qwtPlot->detachItems( QwtPlotItem::Rtti_PlotCurve );
     m_qwtPlot->detachItems( QwtPlotItem::Rtti_PlotMarker );
@@ -567,10 +567,10 @@ RiuPvtPlotPanel::~RiuPvtPlotPanel() {}
 void RiuPvtPlotPanel::setPlotData( RiaEclipseUnitTools::UnitSystem                          unitSystem,
                                    const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr,
                                    const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr,
-                                   FvfDynProps                                              fvfDynProps,
-                                   ViscosityDynProps                                        viscosityDynProps,
-                                   CellValues                                               cellValues,
-                                   QString                                                  cellReferenceText )
+                                   const FvfDynProps&                                       fvfDynProps,
+                                   const ViscosityDynProps&                                 viscosityDynProps,
+                                   const CellValues&                                        cellValues,
+                                   const QString&                                           cellReferenceText )
 {
     // cvf::Trace::show("RiuPvtPlotPanel::setPlotData()");
 

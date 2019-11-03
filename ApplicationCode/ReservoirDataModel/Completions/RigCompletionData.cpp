@@ -29,7 +29,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-RigCompletionData::RigCompletionData( const QString                    wellName,
+RigCompletionData::RigCompletionData( const QString&                   wellName,
                                       const RigCompletionDataGridCell& cellIndex,
                                       double                           orderingValue )
     : m_wellName( wellName )

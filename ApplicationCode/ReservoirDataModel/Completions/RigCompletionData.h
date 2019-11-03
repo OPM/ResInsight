@@ -81,7 +81,7 @@ public:
         CT_UNDEFINED
     };
 
-    RigCompletionData( const QString wellName, const RigCompletionDataGridCell& cellIndex, double orderingValue );
+    RigCompletionData( const QString& wellName, const RigCompletionDataGridCell& cellIndex, double orderingValue );
     ~RigCompletionData();
 
     RigCompletionData( const RigCompletionData& other );

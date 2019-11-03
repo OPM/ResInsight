@@ -38,11 +38,11 @@ class RiaProjectModifier : public cvf::Object
 public:
     RiaProjectModifier();
 
-    void setReplaceCaseFirstOccurrence( QString newGridFileName );
-    void setReplaceCase( int caseIdToReplace, QString newGridFileName );
+    void setReplaceCaseFirstOccurrence( const QString& newGridFileName );
+    void setReplaceCase( int caseIdToReplace, const QString& newGridFileName );
 
-    void setReplaceSourceCasesFirstOccurrence( std::vector<QString> newGridFileNames );
-    void setReplaceSourceCasesById( int caseGroupIdToReplace, std::vector<QString> newGridFileNames );
+    void setReplaceSourceCasesFirstOccurrence( const std::vector<QString>& newGridFileNames );
+    void setReplaceSourceCasesById( int caseGroupIdToReplace, const std::vector<QString>& newGridFileNames );
 
     void setReplacePropertiesFolderFirstOccurrence( QString newPropertiesFolder );
     void setReplacePropertiesFolder( int caseIdToReplace, QString newPropertiesFolder );
@@ -54,8 +54,8 @@ private:
     void replaceCase( RimProject* project );
     void replacePropertiesFolder( RimProject* project );
 
-    static QString makeFilePathAbsolute( QString relOrAbsolutePath );
-    static QString caseNameFromGridFileName( QString fullGridFilePathName );
+    static QString makeFilePathAbsolute( const QString& relOrAbsolutePath );
+    static QString caseNameFromGridFileName( const QString& fullGridFilePathName );
 
     static int firstCaseId( RimProject* project );
     static int firstGroupId( RimProject* project );

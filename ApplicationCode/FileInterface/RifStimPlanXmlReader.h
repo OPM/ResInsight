@@ -54,8 +54,8 @@ private:
                                               MirrorMode                      mirrorMode,
                                               RiaEclipseUnitTools::UnitSystem requiredUnit );
 
-    static double  getAttributeValueDouble( QXmlStreamReader& xmlStream, QString parameterName );
-    static QString getAttributeValueString( QXmlStreamReader& xmlStream, QString parameterName );
+    static double  getAttributeValueDouble( QXmlStreamReader& xmlStream, const QString& parameterName );
+    static QString getAttributeValueString( QXmlStreamReader& xmlStream, const QString& parameterName );
     static void getGriddingValues( QXmlStreamReader& xmlStream, std::vector<double>& gridValues, size_t& startNegValues );
 
     static std::vector<std::vector<double>> getAllDepthDataAtTimeStep( QXmlStreamReader& xmlStream );

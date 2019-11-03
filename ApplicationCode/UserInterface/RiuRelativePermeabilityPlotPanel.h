@@ -52,8 +52,8 @@ public:
                                                      const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& relPermCurves,
                                                      double                                                       swat,
                                                      double                                                       sgas,
-                                                     QString                                                      caseName,
-                                                     QString                                                      cellReferenceText );
+                                                     const QString&                                               caseName,
+                                                     const QString&                                               cellReferenceText );
     void                                clearPlot();
     RiuRelativePermeabilityPlotUpdater* plotUpdater();
     void                                applyFontSizes( bool replot );

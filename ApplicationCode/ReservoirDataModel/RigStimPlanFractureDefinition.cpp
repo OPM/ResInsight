@@ -566,10 +566,10 @@ size_t RigStimPlanFractureDefinition::resultIndex( const QString& resultName, co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigStimPlanFractureDefinition::setDataAtTimeValue( QString                          resultName,
-                                                        QString                          unit,
-                                                        std::vector<std::vector<double>> data,
-                                                        double                           timeStepValue )
+void RigStimPlanFractureDefinition::setDataAtTimeValue( const QString&                          resultName,
+                                                        const QString&                          unit,
+                                                        const std::vector<std::vector<double>>& data,
+                                                        double                                  timeStepValue )
 {
     size_t resIndex = resultIndex( resultName, unit );
 
