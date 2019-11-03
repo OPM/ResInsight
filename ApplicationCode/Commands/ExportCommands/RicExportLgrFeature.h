@@ -232,7 +232,7 @@ private:
 
     static std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
         cellsIntersectingCompletions_PerCompletion( RimEclipseCase*                                    eclipseCase,
-                                                    const std::vector<RimWellPath*>                    wellPaths,
+                                                    const std::vector<RimWellPath*>&                   wellPaths,
                                                     size_t                                             timeStep,
                                                     const std::set<RigCompletionData::CompletionType>& completionTypes,
                                                     QStringList* wellsIntersectingOtherLgrs );

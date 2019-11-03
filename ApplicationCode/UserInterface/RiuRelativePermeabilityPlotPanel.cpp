@@ -184,8 +184,8 @@ void RiuRelativePermeabilityPlotPanel::setPlotData( RiaEclipseUnitTools::UnitSys
                                                     const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& relPermCurves,
                                                     double                                                       swat,
                                                     double                                                       sgas,
-                                                    QString caseName,
-                                                    QString cellReferenceText )
+                                                    const QString& caseName,
+                                                    const QString& cellReferenceText )
 {
     // cvf::Trace::show("Set RelPerm plot data");
 

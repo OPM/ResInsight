@@ -39,7 +39,7 @@ RiaProjectModifier::RiaProjectModifier() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaProjectModifier::setReplaceCaseFirstOccurrence( QString newGridFileName )
+void RiaProjectModifier::setReplaceCaseFirstOccurrence( const QString& newGridFileName )
 {
     m_caseIdToGridFileNameMap[RiaProjectModifier::firstOccurrenceId()] = makeFilePathAbsolute( newGridFileName );
 }
@@ -47,7 +47,7 @@ void RiaProjectModifier::setReplaceCaseFirstOccurrence( QString newGridFileName 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaProjectModifier::setReplaceCase( int caseIdToReplace, QString newGridFileName )
+void RiaProjectModifier::setReplaceCase( int caseIdToReplace, const QString& newGridFileName )
 {
     if ( caseIdToReplace >= 0 )
     {
@@ -58,7 +58,7 @@ void RiaProjectModifier::setReplaceCase( int caseIdToReplace, QString newGridFil
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaProjectModifier::setReplaceSourceCasesFirstOccurrence( std::vector<QString> newGridFileNames )
+void RiaProjectModifier::setReplaceSourceCasesFirstOccurrence( const std::vector<QString>& newGridFileNames )
 {
     m_groupIdToGridFileNamesMap[RiaProjectModifier::firstOccurrenceId()] = newGridFileNames;
 }
@@ -66,7 +66,8 @@ void RiaProjectModifier::setReplaceSourceCasesFirstOccurrence( std::vector<QStri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaProjectModifier::setReplaceSourceCasesById( int caseGroupIdToReplace, std::vector<QString> newGridFileNames )
+void RiaProjectModifier::setReplaceSourceCasesById( int                         caseGroupIdToReplace,
+                                                    const std::vector<QString>& newGridFileNames )
 {
     if ( caseGroupIdToReplace >= 0 )
     {
@@ -237,7 +238,7 @@ void RiaProjectModifier::replacePropertiesFolder( RimProject* project )
 /// If \a relOrAbsolutePath is a relative, the current working directory for the process will be
 /// used in order to make the path absolute.
 //--------------------------------------------------------------------------------------------------
-QString RiaProjectModifier::makeFilePathAbsolute( QString relOrAbsolutePath )
+QString RiaProjectModifier::makeFilePathAbsolute( const QString& relOrAbsolutePath )
 {
     QFileInfo theFile( relOrAbsolutePath );
     theFile.makeAbsolute();
@@ -247,7 +248,7 @@ QString RiaProjectModifier::makeFilePathAbsolute( QString relOrAbsolutePath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaProjectModifier::caseNameFromGridFileName( QString fullGridFilePathName )
+QString RiaProjectModifier::caseNameFromGridFileName( const QString& fullGridFilePathName )
 {
     QString fn = QDir::fromNativeSeparators( fullGridFilePathName );
 

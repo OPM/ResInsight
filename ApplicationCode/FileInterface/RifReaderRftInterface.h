@@ -34,8 +34,8 @@ public:
     virtual void values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) = 0;
 
     virtual std::set<QDateTime>
-                                availableTimeSteps( const QString&                                              wellName,
-                                                    const std::set<RifEclipseRftAddress::RftWellLogChannelType> relevantChannels ) = 0;
+                                availableTimeSteps( const QString&                                               wellName,
+                                                    const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels ) = 0;
     virtual std::set<QDateTime> availableTimeSteps( const QString& wellName ) = 0;
     virtual std::set<QDateTime>
                                                                   availableTimeSteps( const QString&                                     wellName,

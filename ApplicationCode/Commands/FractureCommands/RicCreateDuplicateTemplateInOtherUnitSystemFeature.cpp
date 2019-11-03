@@ -51,15 +51,11 @@ CAF_CMD_SOURCE_INIT( RicCreateDuplicateTemplateInOtherUnitSystemFeature, "RicCon
 //--------------------------------------------------------------------------------------------------
 void RicCreateDuplicateTemplateInOtherUnitSystemFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-    if ( !pdmUiItem ) return;
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
+    auto objHandle = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>();
     if ( !objHandle ) return;
 
     RimFractureTemplate* fractureTemplate = nullptr;
     objHandle->firstAncestorOrThisOfType( fractureTemplate );
-
     if ( !fractureTemplate ) return;
 
     RimFractureTemplateCollection* fractureTemplateCollection = nullptr;
@@ -95,10 +91,7 @@ void RicCreateDuplicateTemplateInOtherUnitSystemFeature::onActionTriggered( bool
 //--------------------------------------------------------------------------------------------------
 void RicCreateDuplicateTemplateInOtherUnitSystemFeature::setupActionLook( QAction* actionToSetup )
 {
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-    if ( !pdmUiItem ) return;
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
+    auto objHandle = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>();
     if ( !objHandle ) return;
 
     RimFractureTemplate* fractureTemplate = nullptr;

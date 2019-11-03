@@ -33,8 +33,8 @@ class RigConnection;
 class RigNumberOfFloodedPoreVolumesCalculator
 {
 public:
-    explicit RigNumberOfFloodedPoreVolumesCalculator( RimEclipseCase*            caseToApply,
-                                                      const std::vector<QString> tracerNames );
+    explicit RigNumberOfFloodedPoreVolumesCalculator( RimEclipseCase*             caseToApply,
+                                                      const std::vector<QString>& tracerNames );
 
     // Used to "steal" the data from this one using swap
 
@@ -49,19 +49,19 @@ private:
                     std::vector<const std::vector<double>*> flowrateIatAllTimeSteps,
                     std::vector<const std::vector<double>*> flowrateJatAllTimeSteps,
                     std::vector<const std::vector<double>*> flowrateKatAllTimeSteps,
-                    const std::vector<RigConnection>        connections,
+                    const std::vector<RigConnection>&       connections,
                     std::vector<const std::vector<double>*> flowrateNNCatAllTimeSteps,
                     std::vector<std::vector<double>>        summedTracersAtAllTimesteps );
 
-    void distributeNNCflow( std::vector<RigConnection> connections,
-                            RimEclipseCase*            caseToApply,
-                            std::vector<double>        summedTracerValues,
-                            const std::vector<double>* flowrateNNC,
-                            std::vector<double>&       flowrateIntoCell );
+    void distributeNNCflow( const std::vector<RigConnection>& connections,
+                            RimEclipseCase*                   caseToApply,
+                            const std::vector<double>&        summedTracerValues,
+                            const std::vector<double>*        flowrateNNC,
+                            std::vector<double>&              flowrateIntoCell );
 
     void distributeNeighbourCellFlow( RigMainGrid*               mainGrid,
                                       RimEclipseCase*            caseToApply,
-                                      std::vector<double>        summedTracerValues,
+                                      const std::vector<double>& summedTracerValues,
                                       const std::vector<double>* flrWatResultI,
                                       const std::vector<double>* flrWatResultJ,
                                       const std::vector<double>* flrWatResultK,

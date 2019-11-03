@@ -926,8 +926,6 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions( const caf:
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( options.size() > 0 ) return options;
-
     if ( fieldNeedingOptions == &m_regionAnnotationType )
     {
         options.push_back(

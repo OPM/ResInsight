@@ -388,7 +388,7 @@ void RifStimPlanXmlReader::getGriddingValues( QXmlStreamReader&    xmlStream,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RifStimPlanXmlReader::getAttributeValueDouble( QXmlStreamReader& xmlStream, QString parameterName )
+double RifStimPlanXmlReader::getAttributeValueDouble( QXmlStreamReader& xmlStream, const QString& parameterName )
 {
     double value = HUGE_VAL;
     for ( const QXmlStreamAttribute& attr : xmlStream.attributes() )
@@ -404,7 +404,7 @@ double RifStimPlanXmlReader::getAttributeValueDouble( QXmlStreamReader& xmlStrea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifStimPlanXmlReader::getAttributeValueString( QXmlStreamReader& xmlStream, QString parameterName )
+QString RifStimPlanXmlReader::getAttributeValueString( QXmlStreamReader& xmlStream, const QString& parameterName )
 {
     QString parameterValue;
     for ( const QXmlStreamAttribute& attr : xmlStream.attributes() )

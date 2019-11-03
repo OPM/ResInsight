@@ -330,7 +330,7 @@ std::set<QDateTime> RifReaderFmuRft::availableTimeSteps( const QString& wellName
     auto it = m_allWellObservations.find( wellName );
     if ( it != m_allWellObservations.end() )
     {
-        return {it->second.dateTime};
+        return { it->second.dateTime };
     }
     return {};
 }
@@ -339,8 +339,8 @@ std::set<QDateTime> RifReaderFmuRft::availableTimeSteps( const QString& wellName
 ///
 //--------------------------------------------------------------------------------------------------
 std::set<QDateTime>
-    RifReaderFmuRft::availableTimeSteps( const QString&                                              wellName,
-                                         const std::set<RifEclipseRftAddress::RftWellLogChannelType> relevantChannels )
+    RifReaderFmuRft::availableTimeSteps( const QString&                                               wellName,
+                                         const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
 {
     if ( relevantChannels.count( RifEclipseRftAddress::TVD ) || relevantChannels.count( RifEclipseRftAddress::MD ) ||
          relevantChannels.count( RifEclipseRftAddress::PRESSURE ) )
@@ -362,7 +362,7 @@ std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderFmuRft::available
 
     if ( !m_allWellObservations.empty() )
     {
-        return {RifEclipseRftAddress::TVD, RifEclipseRftAddress::MD, RifEclipseRftAddress::PRESSURE};
+        return { RifEclipseRftAddress::TVD, RifEclipseRftAddress::MD, RifEclipseRftAddress::PRESSURE };
     }
     return {};
 }

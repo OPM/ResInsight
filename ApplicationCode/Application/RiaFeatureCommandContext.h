@@ -31,6 +31,8 @@ class RiaFeatureCommandContext
 public:
     static RiaFeatureCommandContext* instance();
 
+    RiaFeatureCommandContext( const RiaFeatureCommandContext& ) = delete;
+
     QObject* object() const;
     void     setObject( QObject* object );
 

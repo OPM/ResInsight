@@ -38,13 +38,13 @@ public:
     void setHeightAndHalfLength( double height, double halfLength );
     void setAreaWeightedPermeability( double permeability );
     void setUnitSystem( RiaEclipseUnitTools::UnitSystem unitSystem );
-    void setPressureDepletionParameters( bool    performPressureDepletionScaling,
-                                         QString timeStepString,
-                                         QString wbhpString,
-                                         double  userWBHP,
-                                         double  actualWBHP,
-                                         double  minPressureDrop,
-                                         double  maxPressureDrop );
+    void setPressureDepletionParameters( bool           performPressureDepletionScaling,
+                                         const QString& timeStepString,
+                                         const QString& wbhpString,
+                                         double         userWBHP,
+                                         double         actualWBHP,
+                                         double         minPressureDrop,
+                                         double         maxPressureDrop );
 
     QString wellPathNameForExport() const;
     QString fractureName() const;

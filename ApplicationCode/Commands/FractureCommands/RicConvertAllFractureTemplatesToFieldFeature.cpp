@@ -49,10 +49,7 @@ CAF_CMD_SOURCE_INIT( RicConvertAllFractureTemplatesToFieldFeature, "RicConvertAl
 //--------------------------------------------------------------------------------------------------
 void RicConvertAllFractureTemplatesToFieldFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-    if ( !pdmUiItem ) return;
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
+    auto objHandle = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>();
     if ( !objHandle ) return;
 
     RimFractureTemplateCollection* fracTempColl = nullptr;

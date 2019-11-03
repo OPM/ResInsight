@@ -208,7 +208,7 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles( const QStringLis
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportSummaryCasesFeature::addSummaryCases( const std::vector<RimSummaryCase*> cases )
+void RicImportSummaryCasesFeature::addSummaryCases( const std::vector<RimSummaryCase*>& cases )
 {
     RiaApplication*               app         = RiaApplication::instance();
     RimProject*                   proj        = app->project();
@@ -223,7 +223,7 @@ void RicImportSummaryCasesFeature::addSummaryCases( const std::vector<RimSummary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportSummaryCasesFeature::addCasesToGroupIfRelevant( const std::vector<RimSummaryCase*> cases )
+void RicImportSummaryCasesFeature::addCasesToGroupIfRelevant( const std::vector<RimSummaryCase*>& cases )
 {
     std::vector<RimSummaryCaseCollection*> selectedColl = caf::selectedObjectsByTypeStrict<RimSummaryCaseCollection*>();
 

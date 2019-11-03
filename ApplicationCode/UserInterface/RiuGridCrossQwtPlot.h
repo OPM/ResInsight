@@ -52,6 +52,9 @@ class RiuGridCrossQwtPlot : public RiuQwtPlotWidget, public RiuInterfaceToViewWi
 public:
     RiuGridCrossQwtPlot( RimPlotInterface* plotDefinition, QWidget* parent = nullptr );
     ~RiuGridCrossQwtPlot();
+
+    RiuGridCrossQwtPlot( const RiuGridCrossQwtPlot& ) = delete;
+
     void addOrUpdateDataSetLegend( RimGridCrossPlotDataSet* dataSetToShowLegendFor );
     void removeDataSetLegend( RimGridCrossPlotDataSet* dataSetToShowLegendFor );
     void removeDanglingDataSetLegends();

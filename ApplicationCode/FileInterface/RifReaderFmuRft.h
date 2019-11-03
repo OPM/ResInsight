@@ -75,8 +75,8 @@ public:
     void values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
 
     std::set<QDateTime>
-                        availableTimeSteps( const QString&                                              wellName,
-                                            const std::set<RifEclipseRftAddress::RftWellLogChannelType> relevantChannels ) override;
+                        availableTimeSteps( const QString&                                               wellName,
+                                            const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels ) override;
     std::set<QDateTime> availableTimeSteps( const QString& wellName ) override;
     std::set<QDateTime> availableTimeSteps( const QString&                                     wellName,
                                             const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName ) override;

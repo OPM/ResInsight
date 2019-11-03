@@ -139,10 +139,7 @@ bool RicNewSimWellFractureAtPosFeature::isCommandEnabled()
     RimProject* proj = RiaApplication::instance()->project();
     if ( proj->allFractureTemplates().empty() ) return false;
 
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-    if ( !pdmUiItem ) return false;
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
+    auto objHandle = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>();
     if ( !objHandle ) return false;
 
     RimSimWellInView* eclipseWell = nullptr;

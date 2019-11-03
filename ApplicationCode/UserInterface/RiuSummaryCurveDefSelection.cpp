@@ -60,6 +60,8 @@ public:
     {
     }
 
+    SummaryIdentifierAndField( const SummaryIdentifierAndField& ) = delete;
+
     SummaryIdentifierAndField( RifEclipseSummaryAddress::SummaryIdentifierType summaryIdentifier )
         : m_summaryIdentifier( summaryIdentifier )
         , m_pdmField( new caf::PdmField<std::vector<QString>>() )
@@ -90,55 +92,55 @@ private:
 //--------------------------------------------------------------------------------------------------
 RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection()
     : m_identifierFieldsMap( {
-          {RifEclipseSummaryAddress::SUMMARY_FIELD,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
-          {RifEclipseSummaryAddress::SUMMARY_AQUIFER,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_AQUIFER_NUMBER )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
-          {RifEclipseSummaryAddress::SUMMARY_NETWORK,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
-          {RifEclipseSummaryAddress::SUMMARY_MISC,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
-          {RifEclipseSummaryAddress::SUMMARY_REGION,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_REGION_NUMBER )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
-          {RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_REGION_2_REGION )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
-          {RifEclipseSummaryAddress::SUMMARY_WELL_GROUP,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_WELL_GROUP_NAME )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
-          {RifEclipseSummaryAddress::SUMMARY_WELL,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_WELL_NAME )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
-          {RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_WELL_NAME )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_CELL_IJK )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
-          {RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_LGR_NAME )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_WELL_NAME )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_CELL_IJK )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
-          {RifEclipseSummaryAddress::SUMMARY_WELL_LGR,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_LGR_NAME )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_WELL_NAME )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
-          {RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_WELL_NAME )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_SEGMENT_NUMBER )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
-          {RifEclipseSummaryAddress::SUMMARY_BLOCK,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_CELL_IJK )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
-          {RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_LGR_NAME )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_CELL_IJK )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
-          {RifEclipseSummaryAddress::SUMMARY_CALCULATED,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
-          {RifEclipseSummaryAddress::SUMMARY_IMPORTED,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
+          { RifEclipseSummaryAddress::SUMMARY_FIELD,
+            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+          { RifEclipseSummaryAddress::SUMMARY_AQUIFER,
+            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_AQUIFER_NUMBER ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+          { RifEclipseSummaryAddress::SUMMARY_NETWORK,
+            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+          { RifEclipseSummaryAddress::SUMMARY_MISC,
+            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+          { RifEclipseSummaryAddress::SUMMARY_REGION,
+            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_REGION_NUMBER ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+          { RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION,
+            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_REGION_2_REGION ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+          { RifEclipseSummaryAddress::SUMMARY_WELL_GROUP,
+            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_WELL_GROUP_NAME ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+          { RifEclipseSummaryAddress::SUMMARY_WELL,
+            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_WELL_NAME ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+          { RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION,
+            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_WELL_NAME ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_CELL_IJK ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+          { RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR,
+            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_LGR_NAME ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_WELL_NAME ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_CELL_IJK ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+          { RifEclipseSummaryAddress::SUMMARY_WELL_LGR,
+            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_LGR_NAME ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_WELL_NAME ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+          { RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT,
+            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_WELL_NAME ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_SEGMENT_NUMBER ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+          { RifEclipseSummaryAddress::SUMMARY_BLOCK,
+            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_CELL_IJK ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+          { RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR,
+            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_LGR_NAME ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_CELL_IJK ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+          { RifEclipseSummaryAddress::SUMMARY_CALCULATED,
+            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+          { RifEclipseSummaryAddress::SUMMARY_IMPORTED,
+            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
       } )
 {
     CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SummaryCases", "Cases", "", "", "" );
@@ -573,8 +575,8 @@ void RiuSummaryCurveDefSelection::setFieldChangedHandler( const std::function<vo
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::setDefaultSelection( const std::vector<SummarySource*>& defaultSources )
 {
-    RimProject* proj         = RiaApplication::instance()->project();
-    auto        allSumCases  = proj->allSummaryCases();
+    RimProject* proj        = RiaApplication::instance()->project();
+    auto        allSumCases = proj->allSummaryCases();
 
     if ( allSumCases.size() > 0 )
     {

@@ -42,14 +42,14 @@ RiuPlotAnnotationTool::~RiuPlotAnnotationTool()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                                     plot,
-                                                const std::vector<QString>&                  names,
-                                                const std::pair<double, double>              xRange,
-                                                const std::vector<std::pair<double, double>> yPositions,
-                                                RegionDisplay                                regionDisplay,
-                                                const caf::ColorTable&                       colorTable,
-                                                int                                          shadingAlphaByte,
-                                                bool                                         showNames /*= true */,
+void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                                      plot,
+                                                const std::vector<QString>&                   names,
+                                                const std::pair<double, double>               xRange,
+                                                const std::vector<std::pair<double, double>>& yPositions,
+                                                RegionDisplay                                 regionDisplay,
+                                                const caf::ColorTable&                        colorTable,
+                                                int                                           shadingAlphaByte,
+                                                bool                                          showNames /*= true */,
                                                 TrackSpan trackSpan /*= FULL_WIDTH*/ )
 {
     if ( names.size() != yPositions.size() ) return;
@@ -131,7 +131,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
 //--------------------------------------------------------------------------------------------------
 void RiuPlotAnnotationTool::attachWellPicks( QwtPlot*                    plot,
                                              const std::vector<QString>& names,
-                                             const std::vector<double>   yPositions )
+                                             const std::vector<double>&  yPositions )
 {
     detachAllAnnotations();
 

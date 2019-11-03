@@ -110,7 +110,7 @@ void RicfCommandFileExecutor::executeCommands( QTextStream& stream )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfCommandFileExecutor::setExportPath( ExportType type, QString path )
+void RicfCommandFileExecutor::setExportPath( ExportType type, const QString& path )
 {
     m_exportPaths[type] = path;
 }
