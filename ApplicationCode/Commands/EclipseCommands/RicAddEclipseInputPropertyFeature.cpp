@@ -72,10 +72,7 @@ void RicAddEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
     defaultDir = QFileInfo( fileNames.last() ).absolutePath();
     app->setLastUsedDialogDirectory( "INPUT_FILES", defaultDir );
 
-    if ( inputPropertyCollection )
-    {
-        addEclipseInputProperty( fileNames, inputPropertyCollection );
-    }
+    addEclipseInputProperty( fileNames, inputPropertyCollection );
 }
 
 //--------------------------------------------------------------------------------------------------

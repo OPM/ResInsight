@@ -483,7 +483,6 @@ bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions& pa
 //--------------------------------------------------------------------------------------------------
 bool RifCsvUserDataParser::parseLineBasedData()
 {
-    bool                                                                       errors     = false;
     QTextStream*                                                               dataStream = openDataStream();
     std::map<RifEclipseSummaryAddress, std::vector<std::pair<time_t, double>>> addressesAndData;
     std::vector<int>                                                           colIndexes;
@@ -493,7 +492,7 @@ bool RifCsvUserDataParser::parseLineBasedData()
     bool headerFound      = false;
     bool expectErrorValue = false;
 
-    while ( !dataStream->atEnd() && !errors )
+    while ( !dataStream->atEnd() )
     {
         lineCount++;
 
@@ -597,7 +596,6 @@ bool RifCsvUserDataParser::parseLineBasedData()
     }
     closeDataStream();
 
-    if ( !errors )
     {
         std::vector<Column> columnInfoList;
         for ( const auto& item : addressesAndData )
@@ -624,7 +622,8 @@ bool RifCsvUserDataParser::parseLineBasedData()
         TableData td( "", "", columnInfoList );
         m_tableData = td;
     }
-    return !errors;
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

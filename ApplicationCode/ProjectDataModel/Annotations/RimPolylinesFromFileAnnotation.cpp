@@ -85,11 +85,12 @@ void RimPolylinesFromFileAnnotation::readPolyLinesFile( QString* errorMessage )
     {
         QString     line            = stream.readLine();
         QStringList commentLineSegs = line.split( "#", QString::KeepEmptyParts );
-        if ( commentLineSegs.size() == 0 ) continue; // Empty line
+        if ( commentLineSegs.empty() ) continue; // Empty line
 
         QStringList lineSegs = commentLineSegs[0].split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
 
-        if ( lineSegs.size() == 0 ) continue; // No data
+        if ( lineSegs.empty() ) continue; // No data
+
         if ( lineSegs.size() != 3 )
         {
             if ( errorMessage )
@@ -97,7 +98,6 @@ void RimPolylinesFromFileAnnotation::readPolyLinesFile( QString* errorMessage )
             continue;
         }
 
-        if ( lineSegs.size() == 3 ) // Normal case
         {
             bool   isNumberParsingOk = true;
             bool   isOk              = true;
