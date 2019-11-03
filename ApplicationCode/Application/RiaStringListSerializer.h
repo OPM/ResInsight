@@ -28,7 +28,7 @@ class QStringList;
 class RiaStringListSerializer
 {
 public:
-    RiaStringListSerializer( const QString& key );
+    explicit RiaStringListSerializer( const QString& key );
 
     void addString( const QString& textString, int maxStringCount );
     void removeString( const QString& textString );

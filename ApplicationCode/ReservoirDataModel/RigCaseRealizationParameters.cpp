@@ -155,7 +155,8 @@ size_t RigCaseRealizationParameters::parameterHash( const QString& name ) const
     }
 
     QString s = QString::number( nameHash ) + QString::number( valueHash );
-    return stringHasher( ( QString::number( nameHash ) + QString::number( valueHash ) ).toStdString() );
+
+    return stringHasher( s.toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,7 +192,7 @@ void RigCaseRealizationParameters::calculateParametersHash( const std::set<QStri
     }
     else
     {
-        for ( auto paramName : paramNames )
+        for ( const auto& paramName : paramNames )
         {
             if ( m_parameters.find( paramName ) == m_parameters.end() ) return;
             hashes.push_back( QString::number( parameterHash( paramName ) ) );

@@ -416,8 +416,8 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::updateCurvesAndTracks( std::vector<RimWellLogCurve*>& curves,
-                                                             std::vector<RimWellLogTrack*>& tracks )
+void RimWellLogCurveCommonDataSource::updateCurvesAndTracks( const std::vector<RimWellLogCurve*>& curves,
+                                                             const std::vector<RimWellLogTrack*>& tracks )
 {
     std::set<RimWellLogPlot*> plots;
     for ( RimWellLogCurve* curve : curves )
@@ -758,7 +758,7 @@ QList<caf::PdmOptionItemInfo>
             }
         }
         std::vector<RimWellLogExtractionCurve::TrajectoryType> trajectoryTypes =
-            {RimWellLogExtractionCurve::WELL_PATH, RimWellLogExtractionCurve::SIMULATION_WELL};
+            { RimWellLogExtractionCurve::WELL_PATH, RimWellLogExtractionCurve::SIMULATION_WELL };
         for ( RimWellLogExtractionCurve::TrajectoryType trajectoryType : trajectoryTypes )
         {
             caf::PdmOptionItemInfo item( caf::AppEnum<RimWellLogExtractionCurve::TrajectoryType>::uiText( trajectoryType ),

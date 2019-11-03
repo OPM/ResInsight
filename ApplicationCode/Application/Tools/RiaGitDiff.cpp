@@ -84,7 +84,6 @@ bool RiaGitDiff::executeDiff( const QString& baseFolder )
         return false;
     }
 
-    QByteArray stdErr = proc.readAllStandardError();
     QByteArray stdOut = proc.readAllStandardOutput();
     m_diffOutput      = stdOut;
 

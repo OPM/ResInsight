@@ -158,10 +158,10 @@ private:
     static RigCompletionData combineEclipseCellCompletions( const std::vector<RigCompletionData>&    completions,
                                                             const RicExportCompletionDataSettingsUi& settings );
 
-    static std::vector<RigCompletionData> mainGridCompletions( std::vector<RigCompletionData>& allCompletions );
+    static std::vector<RigCompletionData> mainGridCompletions( const std::vector<RigCompletionData>& allCompletions );
 
     static std::map<QString, std::vector<RigCompletionData>>
-        subGridsCompletions( std::vector<RigCompletionData>& allCompletions );
+        subGridsCompletions( const std::vector<RigCompletionData>& allCompletions );
 
     static void
         exportWellPathFractureReport( RimEclipseCase*                                   sourceCase,
@@ -180,7 +180,7 @@ private:
         sortAndExportCompletionsToFile( RimEclipseCase*                                   eclipseCase,
                                         const QString&                                    exportFolder,
                                         const QString&                                    fileName,
-                                        std::vector<RigCompletionData>&                   completions,
+                                        const std::vector<RigCompletionData>&             completions,
                                         const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems,
                                         RicExportCompletionDataSettingsUi::CompdatExportType exportType );
 

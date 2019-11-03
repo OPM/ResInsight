@@ -109,16 +109,6 @@ bool RiaEclipseFileNameTools::isSummarySpecFile( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaEclipseFileNameTools::findBaseName( const QString& inputFilePath ) const
-{
-    QFileInfo fi( inputFilePath );
-
-    return fi.baseName();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RiaEclipseFileNameTools::relatedFilePath( EclipseFileType fileType ) const
 {
     const QString extension        = caf::AppEnum<EclipseFileType>::text( fileType );

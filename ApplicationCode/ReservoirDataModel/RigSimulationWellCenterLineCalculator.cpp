@@ -518,7 +518,7 @@ public:
 
         auto buildResBranchToBranchLineEndsDistMap = [&unusedBranchLineIterators,
                                                       &resBranchIdxToBranchLineEndPointsDists,
-                                                      this]( cvf::Vec3d& fromPoint, int resultBranchIndex ) {
+                                                      this]( const cvf::Vec3d& fromPoint, int resultBranchIndex ) {
             for ( auto it : unusedBranchLineIterators )
             {
                 {
@@ -887,9 +887,9 @@ private:
                     else // if ( endToGrow > 1 )
                     {
                         m_branchLines.push_back( std::make_pair( false,
-                                                                 std::deque<size_t>{branchList.front(),
-                                                                                    cellWithNeighborsPair.first,
-                                                                                    neighbour} ) );
+                                                                 std::deque<size_t>{ branchList.front(),
+                                                                                     cellWithNeighborsPair.first,
+                                                                                     neighbour } ) );
                         auto newBranchLineIt = std::prev( m_branchLines.end() );
                         growBranchListEnd( newBranchLineIt );
                         if ( newBranchLineIt->second.size() == 3 )
@@ -987,11 +987,11 @@ private:
         {
             if ( prevCell == cvf::UNDEFINED_SIZE_T )
             {
-                m_branchLines.push_back( std::make_pair( false, std::deque<size_t>{startCell, nb} ) );
+                m_branchLines.push_back( std::make_pair( false, std::deque<size_t>{ startCell, nb } ) );
             }
             else
             {
-                m_branchLines.push_back( std::make_pair( false, std::deque<size_t>{prevCell, startCell, nb} ) );
+                m_branchLines.push_back( std::make_pair( false, std::deque<size_t>{ prevCell, startCell, nb } ) );
             }
 
             m_unusedWellCellIndices.erase( nb );

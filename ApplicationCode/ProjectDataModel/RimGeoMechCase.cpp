@@ -570,8 +570,6 @@ std::vector<QDateTime> RimGeoMechCase::vectorOfValidDateTimesFromTimeStepStrings
 {
     std::vector<QDateTime> dates;
 
-    QString dateFormat = "yyyyMMdd";
-
     for ( const QString& timeStepString : timeStepStrings )
     {
         QDateTime dateTime = dateTimeFromTimeStepString( timeStepString );

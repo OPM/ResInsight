@@ -1072,8 +1072,6 @@ void RimSummaryPlot::updateTimeAxis()
     m_plotWidget->enableAxis( QwtPlot::xBottom, true );
 
     {
-        QString axisTitle = m_timeAxisProperties->title();
-
         Qt::AlignmentFlag alignment = Qt::AlignCenter;
         if ( m_timeAxisProperties->titlePosition() == RimPlotAxisPropertiesInterface::AXIS_TITLE_END )
         {

@@ -400,9 +400,9 @@ void RimEclipseResultDefinition::changedTracerSelectionField( bool injector )
 {
     m_flowSolution = m_flowSolutionUiField();
 
-    std::vector<QString>& selectedTracers   = injector ? m_selectedInjectorTracers.v() : m_selectedProducerTracers.v();
-    std::vector<QString>& selectedTracersUi = injector ? m_selectedInjectorTracersUiField.v()
-                                                       : m_selectedProducerTracersUiField.v();
+    std::vector<QString>& selectedTracers = injector ? m_selectedInjectorTracers.v() : m_selectedProducerTracers.v();
+    const std::vector<QString>& selectedTracersUi = injector ? m_selectedInjectorTracersUiField.v()
+                                                             : m_selectedProducerTracersUiField.v();
 
     selectedTracers = selectedTracersUi;
 

@@ -243,8 +243,6 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             break;
         }
 
-        cvf::Vec3d displayModelOffset = cvf::Vec3d::ZERO;
-
         if ( mainOrComparisonView )
         {
             cvf::ref<caf::DisplayCoordTransform> transForm = mainOrComparisonView->displayCoordTransform();

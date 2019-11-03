@@ -64,7 +64,6 @@ void RiaPolyArcLineSampler::sampledPointsAndMDs( double                   sample
     m_totalMD = startMD;
 
     cvf::Vec3d p1 = pointsNoDuplicates[0];
-    cvf::Vec3d p2 = pointsNoDuplicates[1];
 
     m_points->push_back( p1 );
     m_meshDs->push_back( m_totalMD );

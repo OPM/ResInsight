@@ -516,7 +516,6 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
     if ( m_opmFlowDiagStaticData.isNull() )
     {
         // Get set of files
-        QString      gridFileName = m_eclipseCase->gridFileName();
         std::wstring initFileName = getInitFileName();
         if ( initFileName.empty() ) return false;
 
@@ -528,7 +527,6 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
                 return false;
             }
 
-            // ecl_grid_type* mainGrid = eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->readerInterface();
             auto fileReader = eclipseCaseData->results( RiaDefines::MATRIX_MODEL )->readerInterface();
             auto eclOutput  = dynamic_cast<const RifReaderEclipseOutput*>( fileReader );
             if ( eclOutput )

@@ -94,13 +94,6 @@ public:
     ~RifCaseRealizationRunspecificationReader() override;
 
     void parse() override;
-
-private:
-    QXmlStreamReader* openDataStream();
-    void              closeDataStream();
-
-private:
-    QXmlStreamReader* m_xmlStream;
 };
 
 //==================================================================================================

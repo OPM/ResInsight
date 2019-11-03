@@ -51,7 +51,7 @@ public:
     {
     }
 
-    virtual bool isValid() const override
+    bool isValid() const override
     {
         return m_summaryPlot.notNull();
     }
@@ -132,30 +132,30 @@ public:
     {
     }
 
-    virtual bool isValid() const override
+    bool isValid() const override
     {
         return m_crossPlot.notNull();
     }
 
-    virtual QString description() const override
+    QString description() const override
     {
         CVF_ASSERT( m_crossPlot.notNull() && "Need to check that provider is valid" );
         return m_crossPlot->createAutoName();
     }
 
-    virtual QString tabTitle( int tabIndex ) const override
+    QString tabTitle( int tabIndex ) const override
     {
         CVF_ASSERT( m_crossPlot.notNull() && "Need to check that provider is valid" );
         return m_crossPlot->asciiTitleForPlotExport( tabIndex );
     }
 
-    virtual QString tabText( int tabIndex ) const override
+    QString tabText( int tabIndex ) const override
     {
         CVF_ASSERT( m_crossPlot.notNull() && "Need to check that provider is valid" );
         return m_crossPlot->asciiDataForGridCrossPlotExport( tabIndex );
     }
 
-    virtual int tabCount() const override
+    int tabCount() const override
     {
         CVF_ASSERT( m_crossPlot.notNull() && "Need to check that provider is valid" );
         return (int)m_crossPlot->dataSets().size();

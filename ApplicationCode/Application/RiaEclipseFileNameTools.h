@@ -54,7 +54,6 @@ public:
     static bool isSummarySpecFile( const QString& fileName );
 
 private:
-    QString findBaseName( const QString& inputFilePath ) const;
     QString relatedFilePath( EclipseFileType fileType ) const;
 
     static bool hasMatchingSuffix( const QString& fileName, EclipseFileType fileType );

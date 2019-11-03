@@ -143,7 +143,7 @@ protected:
     void onFileSuccessfullyLoaded( const QString& fileName, RiaDefines::ImportFileType fileType ) override;
 
     void onProjectBeingOpened() override;
-    void onProjectOpeningError( const QString& errMsg );
+    void onProjectOpeningError( const QString& errMsg ) override;
     void onProjectOpened() override;
     void onProjectBeingClosed() override;
     void onProjectClosed() override;

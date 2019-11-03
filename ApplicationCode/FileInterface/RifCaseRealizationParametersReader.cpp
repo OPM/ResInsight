@@ -217,47 +217,42 @@ void RifCaseRealizationParametersReader::closeDataStream()
 RifCaseRealizationRunspecificationReader::RifCaseRealizationRunspecificationReader( const QString& fileName )
     : RifCaseRealizationReader( fileName )
 {
-    m_xmlStream = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifCaseRealizationRunspecificationReader::~RifCaseRealizationRunspecificationReader()
-{
-    if ( m_xmlStream )
-    {
-        delete m_xmlStream;
-    }
-}
+RifCaseRealizationRunspecificationReader::~RifCaseRealizationRunspecificationReader() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RifCaseRealizationRunspecificationReader::parse()
 {
-    auto    xml = openDataStream();
+    auto             file = openFile();
+    QXmlStreamReader xml( file );
+
     QString paramName;
 
-    while ( !xml->atEnd() )
+    while ( !xml.atEnd() )
     {
-        xml->readNext();
+        xml.readNext();
 
-        if ( xml->isStartElement() )
+        if ( xml.isStartElement() )
         {
-            if ( xml->name() == "modifier" )
+            if ( xml.name() == "modifier" )
             {
                 paramName = "";
             }
 
-            if ( xml->name() == "id" )
+            if ( xml.name() == "id" )
             {
-                paramName = xml->readElementText();
+                paramName = xml.readElementText();
             }
 
-            if ( xml->name() == "value" )
+            if ( xml.name() == "value" )
             {
-                QString paramStrValue = xml->readElementText();
+                QString paramStrValue = xml.readElementText();
 
                 if ( paramName.isEmpty() ) continue;
 
@@ -272,7 +267,7 @@ void RifCaseRealizationRunspecificationReader::parse()
                     {
                         throw FileParseException(
                             QString( "RifEnsembleParametersReader: Invalid number format in line %1" )
-                                .arg( xml->lineNumber() ) );
+                                .arg( xml.lineNumber() ) );
                     }
 
                     bool   parseOk = true;
@@ -281,44 +276,22 @@ void RifCaseRealizationRunspecificationReader::parse()
                     {
                         throw FileParseException(
                             QString( "RifEnsembleParametersReader: Invalid number format in line %1" )
-                                .arg( xml->lineNumber() ) );
+                                .arg( xml.lineNumber() ) );
                     }
 
                     m_parameters->addParameter( paramName, value );
                 }
             }
         }
-        else if ( xml->isEndElement() )
+        else if ( xml.isEndElement() )
         {
-            if ( xml->name() == "modifier" )
+            if ( xml.name() == "modifier" )
             {
                 paramName = "";
             }
         }
     }
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QXmlStreamReader* RifCaseRealizationRunspecificationReader::openDataStream()
-{
-    auto file = openFile();
-
-    m_xmlStream = new QXmlStreamReader( file );
-    return m_xmlStream;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifCaseRealizationRunspecificationReader::closeDataStream()
-{
-    if ( m_xmlStream )
-    {
-        delete m_xmlStream;
-        m_xmlStream = nullptr;
-    }
     closeFile();
 }
 

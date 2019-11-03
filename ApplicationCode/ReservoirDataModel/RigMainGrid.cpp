@@ -86,8 +86,8 @@ RigGridBase* RigMainGrid::gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCel
 {
     CVF_ASSERT( globalCellIdx < m_cells.size() );
 
-    RigCell&     cell     = m_cells[globalCellIdx];
-    RigGridBase* hostGrid = cell.hostGrid();
+    const RigCell& cell     = m_cells[globalCellIdx];
+    RigGridBase*   hostGrid = cell.hostGrid();
     CVF_ASSERT( hostGrid );
 
     if ( gridLocalCellIdx )
@@ -856,10 +856,10 @@ void RigMainGrid::setDualPorosity( bool enable )
 //--------------------------------------------------------------------------------------------------
 std::array<double, 6> RigMainGrid::defaultMapAxes()
 {
-    const double origin[2] = {0.0, 0.0};
-    const double xPoint[2] = {1.0, 0.0};
-    const double yPoint[2] = {0.0, 1.0};
+    const double origin[2] = { 0.0, 0.0 };
+    const double xPoint[2] = { 1.0, 0.0 };
+    const double yPoint[2] = { 0.0, 1.0 };
 
     // Order (see Elipse Reference Manual for keyword MAPAXES): Y_x, Y_y, O_x, O_y, X_x, X_y
-    return {yPoint[0], yPoint[1], origin[0], origin[1], xPoint[0], xPoint[1]};
+    return { yPoint[0], yPoint[1], origin[0], origin[1], xPoint[0], xPoint[1] };
 }

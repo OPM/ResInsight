@@ -976,7 +976,6 @@ void RimWellPltPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 void RimWellPltPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
-    const QString simWellName = RimWellPlotTools::simWellName( m_wellPathName );
 
     uiOrdering.add( &m_wellPathName );
 

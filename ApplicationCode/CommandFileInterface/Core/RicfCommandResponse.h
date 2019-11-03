@@ -43,7 +43,7 @@ public:
 
 public:
     RicfCommandResponse( Status status = COMMAND_OK, const QString& message = "" );
-    RicfCommandResponse( caf::PdmObject* ok_result );
+    explicit RicfCommandResponse( caf::PdmObject* ok_result );
 
     Status          status() const;
     QString         sanitizedResponseMessage() const;

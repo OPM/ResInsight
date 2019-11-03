@@ -52,8 +52,8 @@ protected:
     // Protected implementation specific overrides
     void invokeProcessEvents( QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents ) override;
     void onProjectOpeningError( const QString& errMsg ) override;
-    void onProjectOpened();
-    void onProjectClosed();
+    void onProjectOpened() override;
+    void onProjectClosed() override;
 
 private slots:
     void runIdleProcessing();

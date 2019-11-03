@@ -234,8 +234,6 @@ void RimScaleLegendConfig::updateLegend()
         adjustedMax = roundToNumSignificantDigits( m_userDefinedMaxValue, m_precision );
     }
 
-    cvf::Color3ubArray legendColors = colorArrayFromColorType( m_colorRangeMode() );
-
     double decadesInRange = 0;
 
     {

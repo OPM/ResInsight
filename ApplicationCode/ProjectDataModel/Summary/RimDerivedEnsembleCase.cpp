@@ -156,8 +156,8 @@ void RimDerivedEnsembleCase::calculate( const RifEclipseSummaryAddress& address 
     merger.addCurveData( reader2->timeSteps( address ), values2 );
     merger.computeInterpolatedValues();
 
-    std::vector<double>& allValues1 = merger.interpolatedYValuesForAllXValues( 0 );
-    std::vector<double>& allValues2 = merger.interpolatedYValuesForAllXValues( 1 );
+    const std::vector<double>& allValues1 = merger.interpolatedYValuesForAllXValues( 0 );
+    const std::vector<double>& allValues2 = merger.interpolatedYValuesForAllXValues( 1 );
 
     size_t              sampleCount = merger.allXValues().size();
     std::vector<double> calculatedValues;

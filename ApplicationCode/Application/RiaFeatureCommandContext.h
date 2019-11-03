@@ -54,7 +54,7 @@ private:
 class RiaFeatureCommandContextHelper
 {
 public:
-    RiaFeatureCommandContextHelper( QObject* externalObject );
+    explicit RiaFeatureCommandContextHelper( QObject* externalObject );
     ~RiaFeatureCommandContextHelper();
 };
 

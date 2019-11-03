@@ -746,7 +746,7 @@ size_t RigCaseCellResultsData::addStaticScalarResult( RiaDefines::ResultCatType 
 ///
 //--------------------------------------------------------------------------------------------------
 bool RigCaseCellResultsData::updateResultName( RiaDefines::ResultCatType resultType,
-                                               QString&                  oldName,
+                                               const QString&            oldName,
                                                const QString&            newName )
 {
     bool anyNameUpdated = false;
@@ -1117,12 +1117,12 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
     }
     else if ( resVarAddr.m_resultCatType == RiaDefines::UNDEFINED )
     {
-        std::vector<RiaDefines::ResultCatType> searchOrder = {RiaDefines::STATIC_NATIVE,
-                                                              RiaDefines::DYNAMIC_NATIVE,
-                                                              RiaDefines::SOURSIMRL,
-                                                              RiaDefines::GENERATED,
-                                                              RiaDefines::INPUT_PROPERTY,
-                                                              RiaDefines::FORMATION_NAMES};
+        std::vector<RiaDefines::ResultCatType> searchOrder = { RiaDefines::STATIC_NATIVE,
+                                                               RiaDefines::DYNAMIC_NATIVE,
+                                                               RiaDefines::SOURSIMRL,
+                                                               RiaDefines::GENERATED,
+                                                               RiaDefines::INPUT_PROPERTY,
+                                                               RiaDefines::FORMATION_NAMES };
 
         size_t scalarResultIndex = this->findOrLoadKnownScalarResultByResultTypeOrder( resVarAddr, searchOrder );
 
@@ -1370,12 +1370,12 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
 size_t RigCaseCellResultsData::findOrLoadKnownScalarResultByResultTypeOrder(
     const RigEclipseResultAddress& resVarAddr, const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder )
 {
-    std::set<RiaDefines::ResultCatType> otherResultTypesToSearch = {RiaDefines::STATIC_NATIVE,
-                                                                    RiaDefines::DYNAMIC_NATIVE,
-                                                                    RiaDefines::SOURSIMRL,
-                                                                    RiaDefines::INPUT_PROPERTY,
-                                                                    RiaDefines::GENERATED,
-                                                                    RiaDefines::FORMATION_NAMES};
+    std::set<RiaDefines::ResultCatType> otherResultTypesToSearch = { RiaDefines::STATIC_NATIVE,
+                                                                     RiaDefines::DYNAMIC_NATIVE,
+                                                                     RiaDefines::SOURSIMRL,
+                                                                     RiaDefines::INPUT_PROPERTY,
+                                                                     RiaDefines::GENERATED,
+                                                                     RiaDefines::FORMATION_NAMES };
 
     for ( const auto& resultType : resultCategorySearchOrder )
     {
@@ -2011,9 +2011,9 @@ void RigCaseCellResultsData::computeRiTransComponent( const QString& riTransComp
 
     // Get all the actual result values
 
-    std::vector<double>& permResults    = m_cellScalarResults[permResultIdx][0];
-    std::vector<double>& riTransResults = m_cellScalarResults[riTransResultIdx][0];
-    std::vector<double>* ntgResults     = nullptr;
+    const std::vector<double>& permResults    = m_cellScalarResults[permResultIdx][0];
+    std::vector<double>&       riTransResults = m_cellScalarResults[riTransResultIdx][0];
+    std::vector<double>*       ntgResults     = nullptr;
     if ( hasNTGResults )
     {
         ntgResults = &( m_cellScalarResults[ntgResultIdx][0] );
@@ -2385,9 +2385,9 @@ void RigCaseCellResultsData::computeRiMULTComponent( const QString& riMultCompNa
 
     // Get all the actual result values
 
-    std::vector<double>& riTransResults = m_cellScalarResults[riTransResultIdx][0];
-    std::vector<double>& transResults   = m_cellScalarResults[transResultIdx][0];
-    std::vector<double>& riMultResults  = m_cellScalarResults[riMultResultIdx][0];
+    const std::vector<double>& riTransResults = m_cellScalarResults[riTransResultIdx][0];
+    const std::vector<double>& transResults   = m_cellScalarResults[transResultIdx][0];
+    std::vector<double>&       riMultResults  = m_cellScalarResults[riMultResultIdx][0];
 
     // Set up output container to correct number of results
 
@@ -2477,8 +2477,8 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent( const QString& riTra
 
     // Get all the actual result values
 
-    std::vector<double>& transResults         = m_cellScalarResults[tranCompScResIdx][0];
-    std::vector<double>& riTransByAreaResults = m_cellScalarResults[riTranByAreaScResIdx][0];
+    const std::vector<double>& transResults         = m_cellScalarResults[tranCompScResIdx][0];
+    std::vector<double>&       riTransByAreaResults = m_cellScalarResults[riTranByAreaScResIdx][0];
 
     // Set up output container to correct number of results
 

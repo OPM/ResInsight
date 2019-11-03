@@ -1467,8 +1467,6 @@ double RimContourMapProjection::interpolateValue( const cvf::Vec2d& gridPos2d ) 
         double vertexValue = valueAtVertex( v[i].x(), v[i].y() );
         if ( vertexValue == std::numeric_limits<double>::infinity() )
         {
-            baryCentricCoords[i] = 0.0;
-            vertexValues[i]      = 0.0;
             return std::numeric_limits<double>::infinity();
         }
         else

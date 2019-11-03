@@ -231,7 +231,7 @@ void RifTextDataTableFormatter::outputBuffer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifTextDataTableFormatter::outputComment( RifTextDataTableLine& comment )
+void RifTextDataTableFormatter::outputComment( const RifTextDataTableLine& comment )
 {
     m_out << m_commentPrefix << comment.data[0] << "\n";
 }

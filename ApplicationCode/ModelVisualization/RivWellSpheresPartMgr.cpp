@@ -89,7 +89,7 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
 
             if ( gridIndex >= mainGrid->gridCount() ) continue;
 
-            const RigGridBase* rigGrid = rigGrid = mainGrid->gridByIndex( gridIndex );
+            const RigGridBase* rigGrid = mainGrid->gridByIndex( gridIndex );
 
             size_t gridCellIndex = wellResultPoint.m_gridCellIndex;
             if ( gridCellIndex >= rigGrid->cellCount() ) continue;

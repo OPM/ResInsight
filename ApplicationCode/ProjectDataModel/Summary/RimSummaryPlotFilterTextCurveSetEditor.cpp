@@ -182,8 +182,6 @@ void RimSummaryPlotFilterTextCurveSetEditor::updateTextFilter()
     QStringList allCurveAddressFilters = curveFilterTextWithoutOutdatedLabel().split( QRegExp( "\\s+" ),
                                                                                       QString::SkipEmptyParts );
 
-    std::vector<bool> accumulatedUsedFilters( allCurveAddressFilters.size(), false );
-
     std::vector<bool>                  usedFilters;
     std::set<RifEclipseSummaryAddress> filteredAddressesFromSource;
     RicSummaryPlotFeatureImpl::filteredSummaryAdressesFromCase( allCurveAddressFilters,
@@ -461,7 +459,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::defineEditorAttribute( const caf::P
             {
                 attr->enableEditableContent = true;
                 attr->adjustWidthToContents = true;
-                attr->minimumWidth          = 100;
+                attr->minimumWidth          = 140;
             }
         }
     }

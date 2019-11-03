@@ -34,8 +34,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewManipulator::applySourceViewCameraOnDestinationViews( RimGridView*               sourceView,
-                                                                  std::vector<RimGridView*>& destinationViews )
+void RimViewManipulator::applySourceViewCameraOnDestinationViews( RimGridView*                     sourceView,
+                                                                  const std::vector<RimGridView*>& destinationViews )
 {
     bool       setPointOfInterest = false;
     cvf::Vec3d sourceCamUp;
@@ -57,7 +57,7 @@ void RimViewManipulator::applySourceViewCameraOnDestinationViews( RimGridView*  
     {
         if ( sourceView->viewer()->currentScene() )
         {
-            sourceSceneBB =  sourceView->viewer()->currentScene()->boundingBox();
+            sourceSceneBB = sourceView->viewer()->currentScene()->boundingBox();
         }
 
         cvf::Vec3d offset          = cvf::Vec3d::ZERO;
@@ -73,8 +73,8 @@ void RimViewManipulator::applySourceViewCameraOnDestinationViews( RimGridView*  
         if ( setPointOfInterest ) sourcePointOfInterest += offset;
 
         cvf::Mat4d trans;
-        trans.setTranslation(offset);
-        sourceSceneBB.transform(trans);
+        trans.setTranslation( offset );
+        sourceSceneBB.transform( trans );
     }
 
     for ( RimGridView* destinationView : destinationViews )
@@ -89,15 +89,15 @@ void RimViewManipulator::applySourceViewCameraOnDestinationViews( RimGridView*  
             destinationViewer->enableParallelProjection( !sourceView->isPerspectiveView );
 
             // Destination bounding box in global coordinates including scaleZ
-            cvf::BoundingBox destSceneBB; 
+            cvf::BoundingBox destSceneBB;
             if ( destinationViewer->currentScene() )
             {
-                destSceneBB =  destinationViewer->currentScene()->boundingBox();
+                destSceneBB = destinationViewer->currentScene()->boundingBox();
             }
 
-            cvf::Vec3d       destinationCamEye          = sourceCamGlobalEye;
-            cvf::Vec3d       destinationCamViewRefPoint = sourceCamGlobalViewRefPoint;
-            cvf::Vec3d       offset                     = cvf::Vec3d::ZERO;
+            cvf::Vec3d destinationCamEye          = sourceCamGlobalEye;
+            cvf::Vec3d destinationCamViewRefPoint = sourceCamGlobalViewRefPoint;
+            cvf::Vec3d offset                     = cvf::Vec3d::ZERO;
 
             RimCase* destinationOwnerCase = destinationView->ownerCase();
             if ( destinationOwnerCase )

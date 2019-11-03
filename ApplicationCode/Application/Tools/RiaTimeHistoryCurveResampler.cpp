@@ -51,12 +51,12 @@ RiaTimeHistoryCurveResampler::RiaTimeHistoryCurveResampler() {}
 //--------------------------------------------------------------------------------------------------
 void RiaTimeHistoryCurveResampler::setCurveData( const std::vector<double>& values, const std::vector<time_t>& timeSteps )
 {
-    if (values.empty() || timeSteps.empty())
+    if ( values.empty() || timeSteps.empty() )
     {
         return;
     }
 
-    CVF_ASSERT(values.size() == timeSteps.size());
+    CVF_ASSERT( values.size() == timeSteps.size() );
 
     clearData();
     m_originalValues = std::make_pair( values, timeSteps );
@@ -123,10 +123,10 @@ std::vector<time_t>
 //--------------------------------------------------------------------------------------------------
 void RiaTimeHistoryCurveResampler::computeWeightedMeanValues( DateTimePeriod period )
 {
-    size_t origDataSize  = m_originalValues.second.size();
-    size_t oi            = 0;
-    auto&  origTimeSteps = m_originalValues.second;
-    auto&  origValues    = m_originalValues.first;
+    size_t      origDataSize  = m_originalValues.second.size();
+    size_t      oi            = 0;
+    const auto& origTimeSteps = m_originalValues.second;
+    const auto& origValues    = m_originalValues.first;
 
     computeResampledTimeSteps( period );
 
@@ -191,10 +191,10 @@ void RiaTimeHistoryCurveResampler::computeWeightedMeanValues( DateTimePeriod per
 //--------------------------------------------------------------------------------------------------
 void RiaTimeHistoryCurveResampler::computePeriodEndValues( DateTimePeriod period )
 {
-    size_t origDataSize  = m_originalValues.second.size();
-    size_t oi            = 0;
-    auto&  origTimeSteps = m_originalValues.second;
-    auto&  origValues    = m_originalValues.first;
+    size_t      origDataSize  = m_originalValues.second.size();
+    size_t      oi            = 0;
+    const auto& origTimeSteps = m_originalValues.second;
+    const auto& origValues    = m_originalValues.first;
 
     computeResampledTimeSteps( period );
 

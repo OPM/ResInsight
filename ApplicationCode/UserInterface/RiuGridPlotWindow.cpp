@@ -686,7 +686,7 @@ void RiuGridPlotWindow::clearGridLayout()
         }
 
         QLayoutItem* item;
-        while ( ( item = m_gridLayout->takeAt( 0 ) ) != 0 )
+        while ( ( item = m_gridLayout->takeAt( 0 ) ) != nullptr )
         {
         }
         QWidget().setLayout( m_gridLayout );

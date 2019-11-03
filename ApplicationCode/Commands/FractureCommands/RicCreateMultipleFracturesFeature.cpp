@@ -152,21 +152,13 @@ void RicCreateMultipleFracturesFeature::slotAppendFractures()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateMultipleFracturesFeature::slotClose()
-{
-    if ( m_dialog )
-    {
-        m_dialog->close();
-    }
-}
+void RicCreateMultipleFracturesFeature::slotClose() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RicCreateMultipleFracturesFeature::onActionTriggered( bool isChecked )
 {
-    m_dialog = nullptr;
-
     RiuCreateMultipleFractionsUi* multipleFractionsUi = this->multipleFractionsUi();
     if ( multipleFractionsUi )
     {
@@ -217,8 +209,7 @@ void RicCreateMultipleFracturesFeature::onActionTriggered( bool isChecked )
                                                      "Create Multiple Fractures",
                                                      "" );
 
-        m_dialog = &propertyDialog;
-        multipleFractionsUi->setParentDialog( m_dialog );
+        multipleFractionsUi->setParentDialog( &propertyDialog );
 
         propertyDialog.resize( QSize( 700, 450 ) );
 
@@ -246,7 +237,7 @@ void RicCreateMultipleFracturesFeature::onActionTriggered( bool isChecked )
 
         {
             QPushButton* pushButton = dialogButtonBox->addButton( "Close", QDialogButtonBox::ActionRole );
-            connect( pushButton, SIGNAL( clicked() ), this, SLOT( slotClose() ) );
+            connect( pushButton, SIGNAL( clicked() ), &propertyDialog, SLOT( close() ) );
             pushButton->setDefault( false );
             pushButton->setAutoDefault( false );
         }
