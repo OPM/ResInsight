@@ -438,28 +438,16 @@ void RimSummaryPlotFilterTextCurveSetEditor::defineEditorAttribute( const caf::P
 {
     if ( field == &m_curveFilterText )
     {
+        auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
+        if ( attr )
         {
-            auto attr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-            if ( attr )
-            {
-                if ( uiConfigName == caf::PdmUiToolBarEditor::uiEditorConfigName() )
-                {
-                    // Special config for toolbar
-                    attr->maximumWidth = 150;
-                }
+            attr->enableEditableContent = true;
+            attr->adjustWidthToContents = true;
+            attr->placeholderText       = "Click to edit curves";
 
-                attr->selectAllOnFocusEvent = true;
-                attr->placeholderText       = "Click to define filter";
-            }
-        }
-
-        {
-            auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
-            if ( attr )
+            if ( uiConfigName == caf::PdmUiToolBarEditor::uiEditorConfigName() )
             {
-                attr->enableEditableContent = true;
-                attr->adjustWidthToContents = true;
-                attr->minimumWidth          = 140;
+                attr->minimumWidth = 140;
             }
         }
     }
