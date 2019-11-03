@@ -74,6 +74,9 @@ class RiuViewer : public caf::Viewer, public RiuInterfaceToViewWindow
 public:
     RiuViewer( const QGLFormat& format, QWidget* parent );
     ~RiuViewer() override;
+
+    RiuViewer( const RiuViewer& ) = delete;
+
     void                      clearRimView();
     void                      setDefaultView();
     cvf::Vec3d                pointOfInterest();

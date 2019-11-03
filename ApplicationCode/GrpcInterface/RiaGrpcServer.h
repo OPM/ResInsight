@@ -35,6 +35,8 @@ public:
     RiaGrpcServer( int portNumber );
     ~RiaGrpcServer();
 
+    RiaGrpcServer( const RiaGrpcServer& ) = delete;
+
     int         portNumber() const;
     bool        isRunning() const;
     void        run();

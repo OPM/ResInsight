@@ -85,7 +85,9 @@ public:
 private:
     Riu3dSelectionManager();
     ~Riu3dSelectionManager();
+
     Riu3dSelectionManager( const Riu3dSelectionManager& ) = delete;
+    void operator=( const Riu3dSelectionManager& o ) = delete;
 
     void deleteAllItemsFromSelection( int role );
 
