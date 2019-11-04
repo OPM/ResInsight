@@ -819,11 +819,15 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
 
         if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SYMBOLS )
         {
+            m_symbolEdgeColor = m_curveColor;
+
             setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
             setLineStyle( RiuQwtPlotCurve::STYLE_NONE );
         }
         else if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SYMBOLS_AND_LINES )
         {
+            m_symbolEdgeColor = m_curveColor;
+
             setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
             setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
         }

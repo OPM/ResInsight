@@ -84,7 +84,13 @@ RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(
 
         if ( !curveDef.summaryAddress().quantityName().empty() )
         {
-            std::string varname              = curveDef.summaryAddress().quantityName();
+            std::string varname = curveDef.summaryAddress().quantityName();
+
+            if ( curveDef.summaryAddress().isHistoryQuantity() )
+            {
+                varname = varname.substr( 0, varname.size() - 1 );
+            }
+
             m_varToAppearanceIdxMap[varname] = -1;
 
             // Indexes for sub color ranges
@@ -363,6 +369,12 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook( RimSummaryCurve* curve
         int         subColorIndex = -1;
         char        secondChar    = 0;
         std::string varname       = curve->summaryAddressY().quantityName();
+
+        if ( curve->summaryAddressY().isHistoryQuantity() )
+        {
+            varname = varname.substr( 0, varname.size() - 1 );
+        }
+
         if ( varname.size() > 1 )
         {
             secondChar = varname[1];
@@ -527,7 +539,7 @@ RiuQwtSymbol::PointSymbolEnum RimSummaryCurveAppearanceCalculator::cycledSymbol(
 int RimSummaryCurveAppearanceCalculator::cycledLineThickness( int index )
 {
     static const int thicknessCount = 3;
-    static const int thicknesses[]  = {1, 3, 5};
+    static const int thicknesses[]  = { 1, 3, 5 };
 
     if ( index < 0 ) return 1;
     return ( thicknesses[( index ) % thicknessCount] );
