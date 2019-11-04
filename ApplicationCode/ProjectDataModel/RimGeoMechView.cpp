@@ -442,9 +442,9 @@ void RimGeoMechView::onUpdateLegends()
         {
             std::vector<RimLegendConfig*> legendConfs = this->legendConfigs();
 
-            for (auto legendConf : legendConfs)
+            for ( auto legendConf : legendConfs )
             {
-                nativeOrOverrideViewer()->removeColorLegend(legendConf->titledOverlayFrame());
+                nativeOrOverrideViewer()->removeColorLegend( legendConf->titledOverlayFrame() );
             }
         }
 

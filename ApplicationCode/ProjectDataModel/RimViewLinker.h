@@ -92,7 +92,7 @@ public:
 
     void updateCursorPosition( const RimGridView* sourceView, const cvf::Vec3d& domainCoord );
 
-    void notifyManagedViewChange(RimGridView* oldManagedView, RimGridView* newManagedView);
+    void notifyManagedViewChange( RimGridView* oldManagedView, RimGridView* newManagedView );
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override
@@ -108,8 +108,7 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
     static QString displayNameForView( RimGridView* view );

@@ -182,7 +182,7 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
     m_scaleLegend->setOrientation( caf::OverlayScaleLegend::HORIZONTAL );
 
     m_comparisonWindowMover = new RiuComparisonViewMover( this );
-    this->setComparisonViewToFollowAnimation(false);
+    this->setComparisonViewToFollowAnimation( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -313,7 +313,7 @@ void RiuViewer::slotSetCurrentFrame( int frameIndex )
 
         // Update  views using this as comparison
         Rim3dView* view = dynamic_cast<Rim3dView*>( m_rimView.p() );
-        if (view)
+        if ( view )
         {
             std::set<Rim3dView*> containingViews = view->viewsUsingThisAsComparisonView();
 
@@ -356,7 +356,7 @@ void RiuViewer::setOwnerReservoirView( RiuViewerToViewInterface* owner )
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::paintOverlayItems( QPainter* painter )
 {
-    // Update the legend layout on every redraw as the legends stores their own position, 
+    // Update the legend layout on every redraw as the legends stores their own position,
     // and when they are shared between views the positions are overwritten.
     updateLegendLayout();
 
@@ -987,7 +987,7 @@ void RiuViewer::setAxisLabels( const cvf::String& xLabel, const cvf::String& yLa
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuViewerCommands* RiuViewer::viewerCommands() const
 {

@@ -98,7 +98,7 @@ void RigGeoMechWellLogExtractor::performCurveDataSmoothing( int                 
 
     if ( !mds->empty() && !values->empty() )
     {
-        std::vector<std::vector<double>*> dependentValues = { tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl };
+        std::vector<std::vector<double>*> dependentValues = {tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl};
 
         std::vector<unsigned char> smoothOrFilterSegments = determineFilteringOrSmoothing( interfacePorePressuresDbl );
         filterShortSegments( mds, values, &smoothOrFilterSegments, dependentValues );
@@ -625,7 +625,7 @@ void RigGeoMechWellLogExtractor::setWellLogMdAndPoissonRatio( const std::vector<
 //--------------------------------------------------------------------------------------------------
 std::set<RigGeoMechWellLogExtractor::WbsParameterSource> RigGeoMechWellLogExtractor::supportedSourcesForPorePressure()
 {
-    return { AUTO, GRID, LAS_FILE, ELEMENT_PROPERTY_TABLE, HYDROSTATIC_PP };
+    return {AUTO, GRID, LAS_FILE, ELEMENT_PROPERTY_TABLE, HYDROSTATIC_PP};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -633,7 +633,7 @@ std::set<RigGeoMechWellLogExtractor::WbsParameterSource> RigGeoMechWellLogExtrac
 //--------------------------------------------------------------------------------------------------
 std::set<RigGeoMechWellLogExtractor::WbsParameterSource> RigGeoMechWellLogExtractor::supportedSourcesForPoissonRatio()
 {
-    return { AUTO, LAS_FILE, ELEMENT_PROPERTY_TABLE, USER_DEFINED };
+    return {AUTO, LAS_FILE, ELEMENT_PROPERTY_TABLE, USER_DEFINED};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -641,7 +641,7 @@ std::set<RigGeoMechWellLogExtractor::WbsParameterSource> RigGeoMechWellLogExtrac
 //--------------------------------------------------------------------------------------------------
 std::set<RigGeoMechWellLogExtractor::WbsParameterSource> RigGeoMechWellLogExtractor::supportedSourcesForUcs()
 {
-    return { AUTO, LAS_FILE, ELEMENT_PROPERTY_TABLE, USER_DEFINED };
+    return {AUTO, LAS_FILE, ELEMENT_PROPERTY_TABLE, USER_DEFINED};
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -562,7 +562,7 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
             QString   totCellCount        = QString::number( contourMap->contourMapProjection()->numberOfCells() );
             cvf::uint validCellCount      = contourMap->contourMapProjection()->numberOfValidCells();
             QString   activeCellCountText = QString::number( validCellCount );
-            QString   aggregationType = contourMap->contourMapProjection()->resultAggregationText();
+            QString   aggregationType     = contourMap->contourMapProjection()->resultAggregationText();
             QString   weightingParameterString;
             if ( contourMap->contourMapProjection()->weightingParameter() != "None" )
             {
@@ -630,7 +630,7 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimGeoMechView* geoMechView )
                 QString   totCellCount        = QString::number( contourMap->contourMapProjection()->numberOfCells() );
                 cvf::uint validCellCount      = contourMap->contourMapProjection()->numberOfValidCells();
                 QString   activeCellCountText = QString::number( validCellCount );
-                QString   aggregationType = contourMap->contourMapProjection()->resultAggregationText();
+                QString   aggregationType     = contourMap->contourMapProjection()->resultAggregationText();
 
                 infoText += QString( "<p><b>-- Contour Map: %1 --</b><p>  "
                                      "<b>Sample Count. Total:</b> %2 <b>Valid Results:</b> %3 <br>"

@@ -68,8 +68,7 @@ bool RiuComparisonViewMover::eventFilter( QObject* watched, QEvent* event )
                     m_viewer->setComparisonViewVisibleNormalizedRect(
                         cvf::Rectf( normMousePos.x(),
                                     orgCompViewWindow.min().y(),
-                                    ( orgCompViewWindow.min().x() + orgCompViewWindow.width() ) -
-                                        normMousePos.x(),
+                                    ( orgCompViewWindow.min().x() + orgCompViewWindow.width() ) - normMousePos.x(),
                                     orgCompViewWindow.height() ) );
 
                     return true;

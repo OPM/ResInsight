@@ -53,7 +53,8 @@ bool RicIntersectionBoxZSliceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicIntersectionBoxZSliceFeature::onActionTriggered( bool isChecked )
 {
-    RicIntersectionFeatureImpl::createIntersectionBoxSlize("Z-slice (Intersection box)", RimIntersectionBox::PLANE_STATE_Z);
+    RicIntersectionFeatureImpl::createIntersectionBoxSlize( "Z-slice (Intersection box)",
+                                                            RimIntersectionBox::PLANE_STATE_Z );
 }
 
 //--------------------------------------------------------------------------------------------------

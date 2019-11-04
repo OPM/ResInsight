@@ -313,9 +313,9 @@ void RimIntersectionBox::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 
                 Rim3dView* rimView = nullptr;
                 this->firstAncestorOrThisOfType( rimView );
-                for (Rim3dView * mainView : rimView->viewsUsingThisAsComparisonView())
+                for ( Rim3dView* mainView : rimView->viewsUsingThisAsComparisonView() )
                 {
-                    m_boxManipulator->registerInAdditionalViewer( mainView->viewer());
+                    m_boxManipulator->registerInAdditionalViewer( mainView->viewer() );
                 }
 
                 connect( m_boxManipulator, SIGNAL( notifyRedraw() ), this, SLOT( slotScheduleRedraw() ) );

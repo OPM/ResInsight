@@ -36,7 +36,9 @@ void caf::AppEnum<RimSummaryFilter_OBSOLETE::SummaryFilterType>::setUp()
     addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_REGION, "SUM_FILTER_REGION", "Region" );
     addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_REGION_2_REGION, "SUM_FILTER_REGION_2_REGION", "Region-Region" );
     addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_WELL_LGR, "SUM_FILTER_WELL_LGR", "Lgr-Well" );
-    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_WELL_COMPLETION_LGR, "SUM_FILTER_WELL_COMPLETION_LGR", "Lgr-Completion" );
+    addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_WELL_COMPLETION_LGR,
+             "SUM_FILTER_WELL_COMPLETION_LGR",
+             "Lgr-Completion" );
     addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_BLOCK_LGR, "SUM_FILTER_BLOCK_LGR", "Lgr-Block" );
     addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_MISC, "SUM_FILTER_MISC", "Misc" );
     addItem( RimSummaryFilter_OBSOLETE::SUM_FILTER_AQUIFER, "SUM_FILTER_AQUIFER", "Aquifer" );
@@ -325,8 +327,8 @@ bool RimSummaryFilter_OBSOLETE::isIncludedByFilter( const RifEclipseSummaryAddre
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryFilter_OBSOLETE::isSumVarTypeMatchingFilterType( SummaryFilterType                            sumFilterType,
-                                                       RifEclipseSummaryAddress::SummaryVarCategory sumVarType )
+bool RimSummaryFilter_OBSOLETE::isSumVarTypeMatchingFilterType( SummaryFilterType sumFilterType,
+                                                                RifEclipseSummaryAddress::SummaryVarCategory sumVarType )
 {
     if ( sumVarType == RifEclipseSummaryAddress::SUMMARY_INVALID ) return false;
     if ( sumFilterType == SUM_FILTER_ANY || sumFilterType == SUM_FILTER_VAR_STRING ) return true;
@@ -505,8 +507,8 @@ void RimSummaryFilter_OBSOLETE::defineUiOrdering( QString uiConfigName, caf::Pdm
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryFilter_OBSOLETE::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                         const QVariant&            oldValue,
-                                         const QVariant&            newValue )
+                                                  const QVariant&            oldValue,
+                                                  const QVariant&            newValue )
 {
     caf::PdmObject* parent = dynamic_cast<caf::PdmObject*>( this->parentField()->ownerObject() );
 

@@ -574,7 +574,7 @@ void RiuPlotMainWindow::updateGridPlotWindowToolBar()
     RimGridPlotWindow* plotWindow = dynamic_cast<RimGridPlotWindow*>( m_activePlotViewWindow.p() );
     if ( plotWindow )
     {
-        std::vector<caf::PdmFieldHandle*> toolBarFields = { plotWindow->columnCountField() };
+        std::vector<caf::PdmFieldHandle*> toolBarFields = {plotWindow->columnCountField()};
         m_gridPlotWindowToolBarEditor->setFields( toolBarFields );
         m_gridPlotWindowToolBarEditor->updateUi();
         m_gridPlotWindowToolBarEditor->show();

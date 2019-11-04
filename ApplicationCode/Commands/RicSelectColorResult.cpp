@@ -68,11 +68,11 @@ bool RicSelectColorResult::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSelectColorResult::onActionTriggered( bool isChecked )
 {
-    Rim3dView*             activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
-    bool              isComparisonView = (activeView != RiaApplication::instance()->activeGridView());
+    Rim3dView* activeView       = RiaApplication::instance()->activeMainOrComparisonGridView();
+    bool       isComparisonView = ( activeView != RiaApplication::instance()->activeGridView() );
 
-    Rim2dIntersectionView* int2dView  = dynamic_cast<Rim2dIntersectionView*>( activeView );
-    RimGridView*           gridView   = nullptr;
+    Rim2dIntersectionView* int2dView = dynamic_cast<Rim2dIntersectionView*>( activeView );
+    RimGridView*           gridView  = nullptr;
 
     if ( int2dView )
         gridView = gridViewFrom2dIntersectionView( int2dView );

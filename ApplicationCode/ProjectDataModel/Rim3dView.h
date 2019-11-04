@@ -272,7 +272,7 @@ private:
 
     // Pure private methods : Override viewer and comparison view
 
-    void setOverrideViewer( RiuViewer* overrideViewer );
+    void       setOverrideViewer( RiuViewer* overrideViewer );
     Rim3dView* prepareComparisonView();
     void       restoreComparisonView();
 

@@ -53,7 +53,8 @@ bool RicIntersectionBoxYSliceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicIntersectionBoxYSliceFeature::onActionTriggered( bool isChecked )
 {
-    RicIntersectionFeatureImpl::createIntersectionBoxSlize("Y-slice (Intersection box)", RimIntersectionBox::PLANE_STATE_Y);
+    RicIntersectionFeatureImpl::createIntersectionBoxSlize( "Y-slice (Intersection box)",
+                                                            RimIntersectionBox::PLANE_STATE_Y );
 }
 
 //--------------------------------------------------------------------------------------------------

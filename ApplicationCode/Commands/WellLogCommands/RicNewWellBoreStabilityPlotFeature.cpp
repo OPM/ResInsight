@@ -237,7 +237,7 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
     paramCurvesTrack->setChecked( false );
     std::vector<QString> resultNames = RiaDefines::wellPathStabilityParameterNames();
 
-    std::vector<cvf::Color3f> colors = { cvf::Color3f::CRIMSON, cvf::Color3f::DARK_YELLOW };
+    std::vector<cvf::Color3f> colors = {cvf::Color3f::CRIMSON, cvf::Color3f::DARK_YELLOW};
 
     for ( size_t i = 0; i < resultNames.size(); ++i )
     {
@@ -283,11 +283,11 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
 
     std::vector<QString> resultNames = RiaDefines::wellPathStabilityResultNames();
 
-    std::vector<cvf::Color3f> colors = { cvf::Color3f::BLUE,
-                                         cvf::Color3f::BROWN,
-                                         cvf::Color3f::RED,
-                                         cvf::Color3f::PURPLE,
-                                         cvf::Color3f::DARK_GREEN };
+    std::vector<cvf::Color3f> colors = {cvf::Color3f::BLUE,
+                                        cvf::Color3f::BROWN,
+                                        cvf::Color3f::RED,
+                                        cvf::Color3f::PURPLE,
+                                        cvf::Color3f::DARK_GREEN};
 
     for ( size_t i = 0; i < resultNames.size(); ++i )
     {
@@ -327,9 +327,9 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
     const double         angleIncrement = 90.0;
     std::vector<QString> resultNames    = RiaDefines::wellPathAngleResultNames();
 
-    std::vector<cvf::Color3f> colors = { cvf::Color3f::GREEN, cvf::Color3f::ORANGE };
+    std::vector<cvf::Color3f> colors = {cvf::Color3f::GREEN, cvf::Color3f::ORANGE};
 
-    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = { RiuQwtPlotCurve::STYLE_SOLID, RiuQwtPlotCurve::STYLE_DASH };
+    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = {RiuQwtPlotCurve::STYLE_SOLID, RiuQwtPlotCurve::STYLE_DASH};
 
     for ( size_t i = 0; i < resultNames.size(); ++i )
     {

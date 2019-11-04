@@ -30,8 +30,8 @@
 #include "cafCmdFeatureManager.h"
 #include "cafSelectionManager.h"
 
-#include <QAction>
 #include "RimViewLinkerCollection.h"
+#include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicUnLinkViewFeature, "RicUnLinkViewFeature" );
 
@@ -68,7 +68,8 @@ void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
     {
         viewController->applyRangeFilterCollectionByUserChoice();
         delete viewController;
-        viewLinker->removeViewController( nullptr ); // Remove the slots in the vector that was set to nullptr by the destructor
+        viewLinker->removeViewController(
+            nullptr ); // Remove the slots in the vector that was set to nullptr by the destructor
     }
     else if ( viewLinker )
     {
@@ -78,7 +79,7 @@ void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
 
         if ( firstControlledView )
         {
-            viewLinker->setMasterView(firstControlledView);
+            viewLinker->setMasterView( firstControlledView );
 
             viewLinker->updateDependentViews();
         }
@@ -86,7 +87,7 @@ void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
         {
             // Remove the view linker object from the view linker collection
             // viewLinkerCollection->viewLinker is a PdmChildField containing one RimViewLinker child object
-            RiaApplication::instance()->project()->viewLinkerCollection->viewLinker.removeChildObject(viewLinker);
+            RiaApplication::instance()->project()->viewLinkerCollection->viewLinker.removeChildObject( viewLinker );
 
             delete viewLinker;
         }

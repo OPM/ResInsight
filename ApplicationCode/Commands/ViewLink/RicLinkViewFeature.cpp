@@ -103,7 +103,10 @@ public:
         RicLinkVisibleViewsFeature::linkViews( m_viewsToLink );
     }
 
-    const std::vector<RimGridView*>& viewsToLink() { return m_viewsToLink;}
+    const std::vector<RimGridView*>& viewsToLink()
+    {
+        return m_viewsToLink;
+    }
 
 private:
     std::vector<RimGridView*> m_viewsToLink;
@@ -138,7 +141,6 @@ void RicLinkViewFeature::setupActionLook( QAction* actionToSetup )
     RicLinkViewFeatureImpl cmdImpl;
     cmdImpl.prepareToExecute();
 
-
     if ( cmdImpl.viewsToLink().size() >= 2u )
     {
         actionToSetup->setText( "Link Selected Views" );
@@ -147,13 +149,13 @@ void RicLinkViewFeature::setupActionLook( QAction* actionToSetup )
     else
     {
         actionToSetup->setText( "Link View" );
-        if (RiaApplication::instance()->project()->viewLinkerCollection()->viewLinker())
+        if ( RiaApplication::instance()->project()->viewLinkerCollection()->viewLinker() )
         {
-            actionToSetup->setIcon(QIcon(":/ControlledView16x16.png"));
+            actionToSetup->setIcon( QIcon( ":/ControlledView16x16.png" ) );
         }
         else
         {
-            actionToSetup->setIcon(QIcon(":/MasterView16x16.png"));
+            actionToSetup->setIcon( QIcon( ":/MasterView16x16.png" ) );
         }
     }
 }

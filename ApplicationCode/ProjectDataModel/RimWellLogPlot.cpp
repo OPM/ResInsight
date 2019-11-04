@@ -106,8 +106,8 @@ RimWellLogPlot::RimWellLogPlot()
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden( true );
     m_nameConfig = new RimWellLogPlotNameConfig();
 
-    m_availableDepthUnits = { RiaDefines::UNIT_METER, RiaDefines::UNIT_FEET };
-    m_availableDepthTypes = { MEASURED_DEPTH, TRUE_VERTICAL_DEPTH };
+    m_availableDepthUnits = {RiaDefines::UNIT_METER, RiaDefines::UNIT_FEET};
+    m_availableDepthTypes = {MEASURED_DEPTH, TRUE_VERTICAL_DEPTH};
 
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;

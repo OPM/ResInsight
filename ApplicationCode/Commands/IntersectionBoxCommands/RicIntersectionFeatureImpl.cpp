@@ -28,18 +28,19 @@
 #include "RiuViewerCommands.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicIntersectionFeatureImpl::createIntersectionBoxSlize(const QString& name, RimIntersectionBox::SinglePlaneState plane)
+void RicIntersectionFeatureImpl::createIntersectionBoxSlize( const QString&                       name,
+                                                             RimIntersectionBox::SinglePlaneState plane )
 {
-    RimGridView* activeView = RiaApplication::instance()->activeGridView();
+    RimGridView* activeView                 = RiaApplication::instance()->activeGridView();
     RimGridView* activeMainOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
 
     if ( activeMainOrComparisonView )
     {
         RimIntersectionCollection* coll = activeMainOrComparisonView->crossSectionCollection();
         CVF_ASSERT( coll );
-        
+
         cvf::Vec3d domainCoord = activeView->viewer()->viewerCommands()->lastPickPositionInDomainCoords();
 
         RimIntersectionBox* intersectionBox = new RimIntersectionBox();
@@ -49,7 +50,7 @@ void RicIntersectionFeatureImpl::createIntersectionBoxSlize(const QString& name,
         intersectionBox->setToDefaultSizeSlice( plane, domainCoord );
         coll->updateConnectedEditors();
 
-        activeMainOrComparisonView->showGridCells(false);
+        activeMainOrComparisonView->showGridCells( false );
         activeMainOrComparisonView->scheduleCreateDisplayModelAndRedraw();
         activeView->scheduleCreateDisplayModelAndRedraw();
 

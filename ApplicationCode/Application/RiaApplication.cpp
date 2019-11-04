@@ -313,7 +313,7 @@ bool RiaApplication::openFile( const QString& fileName )
     }
     else if ( fileType & RiaDefines::ANY_ECLIPSE_FILE )
     {
-        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ fileName }, true );
+        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{fileName}, true );
         lastUsedDialogTag = RiaDefines::defaultDirectoryLabel( fileType );
     }
 

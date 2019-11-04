@@ -222,7 +222,7 @@ void RimEclipseContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 void RimEclipseContourMapView::onUpdateDisplayModelForCurrentTimeStep()
 {
     static_cast<RimEclipsePropertyFilterCollection*>( nativePropertyFilterCollection() )->updateFromCurrentTimeStep();
-    
+
     m_contourMapProjection->clearGeometry();
     updateGeometry();
 }
