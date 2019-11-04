@@ -108,7 +108,6 @@ private:
 
     bool isCameraControlPossible() const;
     bool isMasterAndDepViewDifferentType() const;
-    bool isRangeFilterControlPossible() const;
     bool isPropertyFilterControlPossible() const;
     bool isRangeFilterMappingApplicable() const;
     bool isCellResultControlAdvisable() const;

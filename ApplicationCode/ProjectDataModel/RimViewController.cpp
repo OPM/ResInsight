@@ -439,16 +439,6 @@ void RimViewController::updateOptionSensitivity()
         this->m_syncPropertyFilters = false;
     }
 
-    if ( isRangeFilterControlPossible() )
-    {
-        this->m_syncRangeFilters.uiCapability()->setUiReadOnly( false );
-    }
-    else
-    {
-        this->m_syncRangeFilters.uiCapability()->setUiReadOnly( true );
-        this->m_syncRangeFilters = false;
-    }
-
     if ( m_syncCamera )
     {
         this->m_showCursor.uiCapability()->setUiReadOnly( false );
@@ -864,40 +854,6 @@ bool RimViewController::isVisibleCellsOveridden() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isRangeFilterControlPossible() const
-{
-    return true;
-#if 0
-    if (!isMasterAndDepViewDifferentType()) return true;
-
-    // Make sure the cases are in the same domain
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(masterView());
-    RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(masterView());
-    if (!geomView) geomView = managedGeoView();
-    if (!eclipseView) eclipseView = managedEclipseView();
-
-    if (eclipseView && geomView)
-    {
-        if (eclipseView->eclipseCase()->reservoirData() && geomView->geoMechCase()->geoMechData())
-        {
-            RigMainGrid* eclGrid = eclipseView->eclipseCase()->reservoirData()->mainGrid();
-            RigFemPart* femPart = geomView->femParts()->part(0);
-            
-            if (eclGrid && femPart)
-            {
-                cvf::BoundingBox fembb = femPart->boundingBox();
-                cvf::BoundingBox eclbb = eclGrid->boundingBox();
-                return fembb.contains(eclbb.min()) && fembb.contains(eclbb.max());
-            }
-        }
-    }
-    return false;
-#endif
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimViewController::isRangeFilterMappingApplicable() const
 {
     if ( !isMasterAndDepViewDifferentType() ) return false;
@@ -945,7 +901,7 @@ bool RimViewController::isRangeFilterControlAdvisable() const
 {
     bool contourMapMasterView  = dynamic_cast<RimEclipseContourMapView*>( masterView() ) != nullptr;
     bool contourMapManagedView = dynamic_cast<RimEclipseContourMapView*>( managedEclipseView() ) != nullptr;
-    return isRangeFilterControlPossible() && contourMapMasterView != contourMapManagedView;
+    return contourMapMasterView != contourMapManagedView;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -963,8 +919,6 @@ bool RimViewController::isPropertyFilterControlAdvisable() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isRangeFiltersControlled() const
 {
-    if ( !isRangeFilterControlPossible() ) return false;
-
     if ( ownerViewLinker() && ownerViewLinker()->isActive() && this->m_isActive() )
     {
         return m_syncRangeFilters;
