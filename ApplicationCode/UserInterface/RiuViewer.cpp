@@ -93,6 +93,7 @@ std::unique_ptr<QCursor> RiuViewer::s_hoverCursor;
 RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
     : caf::Viewer( format, parent )
     , m_isNavigationRotationEnabled( true )
+    , m_zScale( 1.0 )
 {
     cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
     QFont      font         = RiaGuiApplication::instance()->font();
@@ -490,7 +491,12 @@ void RiuViewer::showZScaleLabel( bool enable )
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::setZScale( int scale )
 {
+    bool isScaleChanged = m_zScale != scale;
+    m_zScale            = scale;
+
     m_zScaleLabel->setText( QString( "Z: %1" ).arg( scale ) );
+
+    if ( isScaleChanged ) m_selectionVisualizerManager->updateVisibleEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -531,13 +537,15 @@ void RiuViewer::setHistogramPercentiles( double pmin, double pmax, double mean )
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::showGridBox( bool enable )
 {
-    this->removeStaticModel( m_gridBoxGenerator->model() );
-    this->removeStaticModel( m_comparisonGridBoxGenerator->model() );
-
     if ( enable )
     {
         this->addStaticModelOnce( m_gridBoxGenerator->model(), false );
         this->addStaticModelOnce( m_comparisonGridBoxGenerator->model(), true );
+    }
+    else
+    {
+        this->removeStaticModel( m_gridBoxGenerator->model() );
+        this->removeStaticModel( m_comparisonGridBoxGenerator->model() );
     }
 }
 
@@ -930,8 +938,6 @@ void RiuViewer::updateGridBoxData( double                  scaleZ,
     m_comparisonGridBoxGenerator->setGridBoxDomainCoordBoundingBox( domainCoordBoundingBox );
 
     m_comparisonGridBoxGenerator->createGridBoxParts();
-
-    m_selectionVisualizerManager->updateVisibleEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
