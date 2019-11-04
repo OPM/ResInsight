@@ -627,8 +627,8 @@ RiuWidgetStyleSheet RiuQwtPlotWidget::createPlotStyleSheet() const
 {
     QColor backgroundColor       = QColor( "white" );
     QColor highlightColor        = QApplication::palette().highlight().color();
-    QColor blendedHighlightColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 10 );
-    QColor nearlyBackgroundColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 30 );
+    QColor blendedHighlightColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 20 );
+    QColor nearlyBackgroundColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 40 );
 
     RiuWidgetStyleSheet styleSheet;
     styleSheet.set( "background-color", backgroundColor.name() );
@@ -639,12 +639,14 @@ RiuWidgetStyleSheet RiuQwtPlotWidget::createPlotStyleSheet() const
     if ( m_draggable )
     {
         QString backgroundGradient = QString( QString( "qlineargradient( x1 : 1, y1 : 0, x2 : 1, y2 : 1,"
-                                                       "stop: 0 %1, stop: 0.015 %2, stop:1 %3 )" )
+                                                       "stop: 0 %1, stop: 0.02 %2, stop:1 %3 )" )
                                                   .arg( blendedHighlightColor.name() )
                                                   .arg( nearlyBackgroundColor.name() )
                                                   .arg( backgroundColor.name() ) );
 
         styleSheet.state( RiuWidgetStyleSheet::HOVER ).set( "background", backgroundGradient );
+        styleSheet.state( RiuWidgetStyleSheet::HOVER )
+            .set( "border", QString( "1px dashed %1" ).arg( blendedHighlightColor.name() ) );
     }
     styleSheet.state( RiuWidgetStyleSheet::DRAG_TARGET_BEFORE ).set( "border-left", "1px solid lime" );
     styleSheet.state( RiuWidgetStyleSheet::DRAG_TARGET_AFTER ).set( "border-right", "1px solid lime" );

@@ -1668,8 +1668,6 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     mainOptions->add( &m_normalizeCurveYValues );
 
-    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
-
     uiOrdering.skipRemainingFields( true );
 }
 

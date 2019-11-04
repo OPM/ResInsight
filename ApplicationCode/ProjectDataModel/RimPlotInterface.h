@@ -62,6 +62,15 @@ public:
     }
     virtual void setWidthScaleFactor( WidthScaleFactor scaleFactor ) {}
 
+    virtual int rowSpan() const
+    {
+        return 1;
+    }
+    virtual int colSpan() const
+    {
+        return 1;
+    }
+
     virtual bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const = 0;
     virtual bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
                                 int                         oldFontSize,

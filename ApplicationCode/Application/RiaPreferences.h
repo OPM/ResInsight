@@ -71,6 +71,7 @@ public:
     // Debug settings
     bool    appendClassNameToUiText() const;
     bool    appendFieldKeywordToToolTipText() const;
+    bool    showViewIdInProjectTree() const;
     bool    showTestToolbar() const;
     bool    includeFractureDebugInfoFile() const;
     bool    showProjectChangedDialog() const;
@@ -163,6 +164,7 @@ private:
     caf::PdmChildField<RifReaderSettings*> m_readerSettings;
     caf::PdmField<bool>                    m_appendClassNameToUiText;
     caf::PdmField<bool>                    m_appendFieldKeywordToToolTipText;
+    caf::PdmField<bool>                    m_showViewIdInProjectTree;
 
     caf::PdmField<bool> m_showProjectChangedDialog;
 

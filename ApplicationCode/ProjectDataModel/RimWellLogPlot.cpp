@@ -593,8 +593,6 @@ void RimWellLogPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
-
     if ( m_commonDataSourceEnabled )
     {
         m_commonDataSource->uiOrdering( uiConfigName, uiOrdering );

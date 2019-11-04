@@ -327,8 +327,6 @@ void Rim3dView::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
-
     caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroupWithKeyword( "Viewer", "ViewGroup" );
 
     viewGroup->add( &m_backgroundColor );

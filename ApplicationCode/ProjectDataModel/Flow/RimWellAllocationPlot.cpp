@@ -124,7 +124,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
 
     m_accumulatedWellFlowPlot->setAvailableDepthUnits( {} );
     m_accumulatedWellFlowPlot->setAvailableDepthTypes(
-        {RimWellLogPlot::CONNECTION_NUMBER, RimWellLogPlot::TRUE_VERTICAL_DEPTH, RimWellLogPlot::PSEUDO_LENGTH} );
+        { RimWellLogPlot::CONNECTION_NUMBER, RimWellLogPlot::TRUE_VERTICAL_DEPTH, RimWellLogPlot::PSEUDO_LENGTH } );
 
     m_accumulatedWellFlowPlot->setCommonDataSourceEnabled( false );
 }
@@ -796,8 +796,6 @@ QImage RimWellAllocationPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
-
     uiOrdering.add( &m_userName );
     uiOrdering.add( &m_showPlotTitle );
 
