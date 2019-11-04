@@ -463,8 +463,7 @@ void caf::Viewer::optimizeClippingPlanes()
     }
 
     copyCameraView(m_mainCamera.p(), m_comparisonMainCamera.p() );
-
-
+    m_comparisonMainCamera->viewport()->setClearColor(m_mainCamera->viewport()->clearColor());
 
     if ( m_comparisonMainRendering->scene() )
     {
