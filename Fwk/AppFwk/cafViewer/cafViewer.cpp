@@ -1358,12 +1358,15 @@ void caf::Viewer::addStaticModelOnce(cvf::Model* model, bool isForComparisonView
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::removeStaticModel(cvf::Model* model)
 {
-    removeModelFromAllFrames(model);
-    
-    m_staticModels.erase(model);
-    m_comparisonStaticModels.erase(model);
+    if ( m_staticModels.contains(model) || m_comparisonStaticModels.contains(model) )
+    {
+        removeModelFromAllFrames(model);
 
-    updateCachedValuesInScene();
+        m_staticModels.erase(model);
+        m_comparisonStaticModels.erase(model);
+
+        updateCachedValuesInScene();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
