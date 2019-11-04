@@ -94,7 +94,7 @@ void RicPasteIntersectionsFeature::onActionTriggered( bool isChecked )
 
         if ( i == intersectionObjects.size() - 1 )
         {
-            intersectionCollection->appendIntersectionAndUpdate( intersection );
+            intersectionCollection->appendIntersectionAndUpdate( intersection, false );
         }
         else
         {

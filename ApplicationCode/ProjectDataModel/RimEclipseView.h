@@ -135,7 +135,7 @@ public:
                            const QVariant&            newValue ) override;
     void updateIconStateForFilterCollections();
 
-    void axisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
+    void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
 
     bool isUsingFormationNames() const override;
 
@@ -153,40 +153,40 @@ protected:
     void onLoadDataAndUpdate() override;
     caf::PdmFieldHandle* userDescriptionField() override;
 
-    void createPartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
-    bool showActiveCellsOnly() override;
-    void updateCurrentTimeStep() override;
+    void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
+    bool isShowingActiveCellsOnly() override;
+    void onUpdateDisplayModelForCurrentTimeStep() override;
     void updateVisibleGeometriesAndCellColors();
     void appendWellsAndFracturesToModel();
 
-    void                             createDisplayModel() override;
+    void                             onCreateDisplayModel() override;
     RimPropertyFilterCollection*     nativePropertyFilterCollection();
     virtual std::set<RivCellSetEnum> allVisibleFaultGeometryTypes() const;
 
 private:
     QString createAutoName() const override;
 
-    void updateDisplayModelVisibility() override;
+    void onUpdateDisplayModelVisibility() override;
 
     std::vector<size_t> indicesToVisibleGrids() const;
-    void                updateScaleTransform() override;
+    void                onUpdateScaleTransform() override;
     cvf::Transform*     scaleTransform() override;
 
-    void updateStaticCellColors() override;
+    void onUpdateStaticCellColors() override;
     void updateStaticCellColors( RivCellSetEnum geometryType );
 
-    void updateLegends() override;
+    void onUpdateLegends() override;
     void updateMinMaxValuesAndAddLegendToView( QString                 legendLabel,
                                                RimEclipseCellColors*   resultColors,
                                                RigCaseCellResultsData* cellResultsData );
-    void resetLegendsInViewer() override;
+    void onResetLegendsInViewer() override;
     void updateVirtualConnectionLegendRanges();
 
     void updateFaultColors();
 
     void syncronizeWellsWithResults();
 
-    void clampCurrentTimestep() override;
+    void onClampCurrentTimestep() override;
     void setVisibleGridParts( const std::vector<RivCellSetEnum>& cellSets );
     void setVisibleGridPartsWatertight();
 

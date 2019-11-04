@@ -90,7 +90,7 @@ bool RicContourMapPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                 return true;
             }
             contourMap->setPickPoint( cvf::Vec2d::UNDEFINED );
-            view->updateCurrentTimeStepAndRedraw();
+            view->updateDisplayModelForCurrentTimeStepAndRedraw();
             return true;
         }
     }

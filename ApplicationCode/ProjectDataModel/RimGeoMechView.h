@@ -83,7 +83,7 @@ public:
     void            scheduleGeometryRegen( RivCellSetEnum geometryType ) override;
     void            updateIconStateForFilterCollections();
 
-    void axisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
+    void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
 
     bool isUsingFormationNames() const override;
 
@@ -111,23 +111,24 @@ protected:
                            const QVariant&            newValue ) override;
     void initAfterRead() override;
 
-    void                         createPartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
-    void                         createDisplayModel() override;
+    void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
+    void onCreateDisplayModel() override;
+
     RimPropertyFilterCollection* nativePropertyFilterCollection();
 
 private:
     QString createAutoName() const override;
 
-    void updateScaleTransform() override;
+    void onUpdateScaleTransform() override;
 
-    void clampCurrentTimestep() override;
+    void onClampCurrentTimestep() override;
 
-    void updateCurrentTimeStep() override;
-    void updateStaticCellColors() override;
+    void onUpdateDisplayModelForCurrentTimeStep() override;
+    void onUpdateStaticCellColors() override;
 
-    void resetLegendsInViewer() override;
+    void onResetLegendsInViewer() override;
 
-    void updateLegends() override;
+    void onUpdateLegends() override;
 
     void updateTensorLegendTextAndRanges( RimRegularLegendConfig* legendConfig, int timeStepIndex );
 

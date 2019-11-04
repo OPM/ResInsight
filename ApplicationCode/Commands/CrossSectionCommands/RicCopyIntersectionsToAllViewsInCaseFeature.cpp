@@ -128,7 +128,7 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionsToOtherViews(
                     intersection->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
                 CVF_ASSERT( copy );
 
-                destCollection->appendIntersectionAndUpdate( copy );
+                destCollection->appendIntersectionAndUpdate( copy, false );
 
                 // Resolve references after object has been inserted into the project data model
                 copy->resolveReferencesRecursively();

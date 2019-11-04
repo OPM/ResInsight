@@ -684,14 +684,14 @@ void RiuPlotMainWindow::setPdmRoot( caf::PdmObject* pdmRoot )
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
 {
-    if ( blockSubWindowActivation() ) return;
+    if ( isBlockingSubWindowActivatedSignal() ) return;
 
     RimViewWindow* activatedView = findViewWindowFromSubWindow( subWindow );
 
     if ( !activatedView ) return;
     m_activePlotViewWindow = activatedView;
 
-    if ( !blockSubWindowProjectTreeSelection() )
+    if ( !isBlockingViewSelectionOnSubWindowActivated() )
     {
         std::vector<caf::PdmUiItem*> currentSelection;
         m_projectTreeView->selectedUiItems( currentSelection );
@@ -809,9 +809,9 @@ void RiuPlotMainWindow::selectedObjectsChanged()
         {
             if ( selectedWindow->viewWidget() )
             {
-                setBlockSubWindowProjectTreeSelection( true );
+                setBlockViewSelectionOnSubWindowActivated( true );
                 setActiveViewer( selectedWindow->viewWidget() );
-                setBlockSubWindowProjectTreeSelection( false );
+                setBlockViewSelectionOnSubWindowActivated( false );
             }
 
             m_activePlotViewWindow = selectedWindow;
@@ -913,12 +913,12 @@ void RiuPlotMainWindow::tileSubWindows()
     // Based on workaround described here
     // https://forum.qt.io/topic/50053/qmdiarea-tilesubwindows-always-places-widgets-in-activationhistoryorder-in-subwindowview-mode
 
-    bool prevActivationBlock = blockSubWindowActivation();
+    bool prevActivationBlock = isBlockingSubWindowActivatedSignal();
     // Force activation order so they end up in the order of the loop.
     m_mdiArea->setActivationOrder( QMdiArea::ActivationHistoryOrder );
     QMdiSubWindow* a = m_mdiArea->activeSubWindow();
 
-    setBlockSubWindowActivation( true );
+    setBlockSubWindowActivatedSignal( true );
     // Activate in reverse order
     for ( auto it = windowList.rbegin(); it != windowList.rend(); ++it )
     {
@@ -929,7 +929,7 @@ void RiuPlotMainWindow::tileSubWindows()
     // Set back the original activation order to avoid messing with the standard ordering
     m_mdiArea->setActivationOrder( currentActivationOrder );
     m_mdiArea->setActiveSubWindow( a );
-    setBlockSubWindowActivation( prevActivationBlock );
+    setBlockSubWindowActivatedSignal( prevActivationBlock );
 
     storeSubWindowTiling( true );
 }
@@ -948,7 +948,7 @@ void RiuPlotMainWindow::storeSubWindowTiling( bool tiled )
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::clearWindowTiling()
 {
-    setBlockSubWindowActivation( true );
+    setBlockSubWindowActivatedSignal( true );
     QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
 
     for ( QMdiSubWindow* subWindow : m_mdiArea->subWindowList( currentActivationOrder ) )
@@ -957,7 +957,7 @@ void RiuPlotMainWindow::clearWindowTiling()
         subWindow->showNormal();
     }
     storeSubWindowTiling( false );
-    setBlockSubWindowActivation( false );
+    setBlockSubWindowActivatedSignal( false );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -82,19 +82,18 @@ public:
     bool                          handleOverlayItemPicked( const cvf::OverlayItem* pickedOverlayItem ) const;
 
 protected:
-    void updateLegends() override;
+    void onUpdateLegends() override;
 
     bool            isGridVisualizationMode() const override;
-    void            axisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
-    void            createDisplayModel() override;
-    void            createPartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
-    void            clampCurrentTimestep() override;
-    void            updateCurrentTimeStep() override;
-    void            onTimeStepChanged() override;
-    void            updateStaticCellColors() override;
-    void            updateScaleTransform() override;
+    void            defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
+    void            onCreateDisplayModel() override;
+    void            onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
+    void            onClampCurrentTimestep() override;
+    void            onUpdateDisplayModelForCurrentTimeStep() override;
+    void            onUpdateStaticCellColors() override;
+    void            onUpdateScaleTransform() override;
     cvf::Transform* scaleTransform() override;
-    void            resetLegendsInViewer() override;
+    void            onResetLegendsInViewer() override;
     void            onLoadDataAndUpdate() override;
     bool            isWindowVisible() const override;
 

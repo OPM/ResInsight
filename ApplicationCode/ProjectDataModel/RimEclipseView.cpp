@@ -255,7 +255,7 @@ RimVirtualPerforationResults* RimEclipseView::virtualPerforationResult() const
 //--------------------------------------------------------------------------------------------------
 /// Clamp the current timestep to actual possibilities
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::clampCurrentTimestep()
+void RimEclipseView::onClampCurrentTimestep()
 {
     if ( this->currentGridCellResults() )
     {
@@ -330,7 +330,7 @@ void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateScaleTransform()
+void RimEclipseView::onUpdateScaleTransform()
 {
     cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
     scale( 2, 2 )    = scaleZ();
@@ -346,7 +346,7 @@ void RimEclipseView::updateScaleTransform()
 /// or at least empty scenes as frames that is delivered to the viewer
 /// The real geometry generation is done inside RivReservoirViewGeometry and friends
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::createDisplayModel()
+void RimEclipseView::onCreateDisplayModel()
 {
     clearReservoirCellVisibilities();
 
@@ -354,8 +354,8 @@ void RimEclipseView::createDisplayModel()
 
 #if 0 // Debug info
     static int callCount = 0;
-    std::cout << "RimReservoirView::createDisplayModel() " << callCount++ << std::endl;
-    RiuMainWindow::instance()->setResultInfo(QString("RimReservoirView::createDisplayModel() ") + QString::number(callCount++));
+    std::cout << "RimEclipseView::onCreateDisplayModel() " << callCount++ << std::endl;
+    RiuMainWindow::instance()->setResultInfo(QString("RimEclipseView::onCreateDisplayModel() ") + QString::number(callCount++));
 #endif
 
     if ( !( m_eclipseCase && m_eclipseCase->eclipseCaseData() ) ) return;
@@ -475,7 +475,7 @@ void RimEclipseView::createDisplayModel()
             }
         }
         // Set static colors
-        this->updateStaticCellColors();
+        this->onUpdateStaticCellColors();
     }
     else
     {
@@ -561,7 +561,7 @@ void RimEclipseView::createDisplayModel()
     else
     {
         m_overlayInfoConfig()->update3DInfo();
-        updateLegends();
+        onUpdateLegends();
     }
 
     std::vector<RimFlowCharacteristicsPlot*> characteristicsPlots;
@@ -590,13 +590,13 @@ void RimEclipseView::createDisplayModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateCurrentTimeStep()
+void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 {
     clearReservoirCellVisibilities();
 
     m_propertyFilterCollection()->updateFromCurrentTimeStep();
 
-    updateLegends(); // To make sure the scalar mappers are set up correctly
+    onUpdateLegends(); // To make sure the scalar mappers are set up correctly
 
     updateVisibleGeometriesAndCellColors();
 
@@ -868,7 +868,7 @@ void RimEclipseView::appendWellsAndFracturesToModel()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::onLoadDataAndUpdate()
 {
-    updateScaleTransform();
+    onUpdateScaleTransform();
 
     if ( m_eclipseCase )
     {
@@ -953,7 +953,7 @@ void RimEclipseView::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateStaticCellColors()
+void RimEclipseView::onUpdateStaticCellColors()
 {
     updateStaticCellColors( OVERRIDDEN_CELL_VISIBILITY );
     updateStaticCellColors( ACTIVE );
@@ -1070,10 +1070,8 @@ QString RimEclipseView::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateDisplayModelVisibility()
+void RimEclipseView::onUpdateDisplayModelVisibility()
 {
-    Rim3dView::updateDisplayModelVisibility();
-
     faultCollection()->updateConnectedEditors();
 
     // This is required to update the read-only state of simulation wells
@@ -1159,7 +1157,7 @@ std::vector<size_t> RimEclipseView::indicesToVisibleGrids() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateLegends()
+void RimEclipseView::onUpdateLegends()
 {
     if ( nativeOrOverrideViewer() )
     {
@@ -1560,7 +1558,7 @@ void RimEclipseView::updateDisplayModelForWellResults()
 
     syncronizeWellsWithResults();
 
-    createDisplayModel();
+    onCreateDisplayModel();
     updateDisplayModelVisibility();
 
     if ( hasUserRequestedAnimation() && nativeOrOverrideViewer() )
@@ -1821,7 +1819,7 @@ RimEclipseCellColors* RimEclipseView::currentFaultResultColors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::resetLegendsInViewer()
+void RimEclipseView::onResetLegendsInViewer()
 {
     RimRegularLegendConfig* cellResultNormalLegendConfig = this->cellResult()->legendConfig();
     if ( cellResultNormalLegendConfig ) cellResultNormalLegendConfig->recreateLegend();
@@ -1994,7 +1992,7 @@ std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseView::showActiveCellsOnly()
+bool RimEclipseView::isShowingActiveCellsOnly()
 {
     return !m_showInactiveCells;
 }
@@ -2002,7 +2000,7 @@ bool RimEclipseView::showActiveCellsOnly()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::createPartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )
+void RimEclipseView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )
 {
     Riu3dSelectionManager*         riuSelManager = Riu3dSelectionManager::instance();
     std::vector<RiuSelectionItem*> items;
@@ -2047,7 +2045,7 @@ void RimEclipseView::updateIconStateForFilterCollections()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::axisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel )
+void RimEclipseView::defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel )
 {
     CVF_ASSERT( xLabel && yLabel && zLabel );
 

@@ -37,21 +37,20 @@ public:
     QString createAutoName() const override;
     void    setDefaultCustomName();
     void    updatePickPointAndRedraw();
-    void    updateCurrentTimeStepAndRedraw() override;
 
 protected:
     void initAfterRead() override;
-    void createDisplayModel() override;
+    void onCreateDisplayModel() override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void updateCurrentTimeStep() override;
+    void onUpdateDisplayModelForCurrentTimeStep() override;
     void updateGeometry();
     void setFaultVisParameters();
     void createContourMapGeometry();
     void appendContourMapProjectionToModel();
     void appendContourLinesToModel();
     void appendPickPointVisToModel();
-    void updateLegends() override;
+    void onUpdateLegends() override;
     void updateViewWidgetAfterCreation() override;
     void updateViewFollowingRangeFilterUpdates() override;
     void onLoadDataAndUpdate() override;

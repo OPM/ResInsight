@@ -188,7 +188,7 @@ void RimScaleLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* changedF
             viewLinker->updateCellResult();
         }
 
-        view->updateCurrentTimeStepAndRedraw();
+        view->updateDisplayModelForCurrentTimeStepAndRedraw();
 
         view->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }

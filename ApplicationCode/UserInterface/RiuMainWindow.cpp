@@ -1230,7 +1230,7 @@ void RiuMainWindow::slotViewFromBelow()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
 {
-    if ( blockSubWindowActivation() ) return;
+    if ( isBlockingSubWindowActivatedSignal() ) return;
 
     Rim3dView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
     Rim3dView* activatedView               = dynamic_cast<Rim3dView*>( findViewWindowFromSubWindow( subWindow ) );
@@ -1238,9 +1238,9 @@ void RiuMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
     if ( !activatedView ) return;
     RiaApplication::instance()->setActiveReservoirView( activatedView );
 
-    if ( !blockSubWindowProjectTreeSelection() )
+    if ( !isBlockingViewSelectionOnSubWindowActivated() )
     {
-        selectViewInProjectTree( previousActiveReservoirView, activatedView );
+        selectViewInProjectTreePreservingSubItemSelection( previousActiveReservoirView, activatedView );
     }
 
     slotRefreshViewActions();
@@ -1251,7 +1251,8 @@ void RiuMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::selectViewInProjectTree( const Rim3dView* previousActiveReservoirView, Rim3dView* activatedView )
+void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim3dView* previousActiveReservoirView,
+                                                                       Rim3dView*       activatedView )
 {
     bool is3dViewCurrentlySelected = false;
     if ( caf::SelectionManager::instance()->selectedItem() )
@@ -1442,9 +1443,9 @@ void RiuMainWindow::selectedObjectsChanged()
             // Set focus in MDI area to this window if it exists
             if ( selectedReservoirView->viewer() )
             {
-                setBlockSubWindowProjectTreeSelection( true );
+                setBlockViewSelectionOnSubWindowActivated( true );
                 setActiveViewer( selectedReservoirView->viewer()->layoutWidget() );
-                setBlockSubWindowProjectTreeSelection( false );
+                setBlockViewSelectionOnSubWindowActivated( false );
 
                 isActiveViewChanged = true;
             }
@@ -2001,14 +2002,14 @@ void RiuMainWindow::tileSubWindows()
     // Based on workaround described here
     // https://forum.qt.io/topic/50053/qmdiarea-tilesubwindows-always-places-widgets-in-activationhistoryorder-in-subwindowview-mode
 
-    bool prevActivationBlock = blockSubWindowActivation();
+    bool prevActivationBlock = isBlockingSubWindowActivatedSignal();
 
     QMdiSubWindow* a = m_mdiArea->activeSubWindow();
 
     // Force activation order so they end up in the order of the loop.
     m_mdiArea->setActivationOrder( QMdiArea::ActivationHistoryOrder );
 
-    setBlockSubWindowActivation( true );
+    setBlockSubWindowActivatedSignal( true );
 
     // Activate in reverse order
     for ( auto it = windowList.rbegin(); it != windowList.rend(); ++it )
@@ -2020,7 +2021,7 @@ void RiuMainWindow::tileSubWindows()
     // Set back the original activation order to avoid messing with the standard ordering
     m_mdiArea->setActivationOrder( currentActivationOrder );
     m_mdiArea->setActiveSubWindow( a );
-    setBlockSubWindowActivation( prevActivationBlock );
+    setBlockSubWindowActivatedSignal( prevActivationBlock );
 
     storeSubWindowTiling( true );
 }
@@ -2039,7 +2040,7 @@ void RiuMainWindow::storeSubWindowTiling( bool tiled )
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::clearWindowTiling()
 {
-    setBlockSubWindowActivation( true );
+    setBlockSubWindowActivatedSignal( true );
     QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
 
     for ( QMdiSubWindow* subWindow : m_mdiArea->subWindowList( currentActivationOrder ) )
@@ -2048,7 +2049,7 @@ void RiuMainWindow::clearWindowTiling()
         subWindow->showNormal();
     }
     storeSubWindowTiling( false );
-    setBlockSubWindowActivation( false );
+    setBlockSubWindowActivatedSignal( false );
 }
 
 //--------------------------------------------------------------------------------------------------

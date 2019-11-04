@@ -72,7 +72,7 @@ public:
 protected:
     virtual void updateViewFollowingRangeFilterUpdates();
     void         initAfterRead() override;
-    void         onTimeStepChanged() override;
+    void         onClearReservoirCellVisibilitiesIfNeccessary() override;
     virtual void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep ) = 0;
     void         selectOverlayInfoConfig() override;
 

@@ -120,7 +120,7 @@ void RimGridView::showGridCells( bool enableGridCells )
 {
     m_gridCollection->setActive( enableGridCells );
 
-    createDisplayModel();
+    onCreateDisplayModel();
     updateDisplayModelVisibility();
     RiuMainWindow::instance()->refreshDrawStyleActions();
     RiuMainWindow::instance()->refreshAnimationActions();
@@ -390,7 +390,7 @@ void RimGridView::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridView::onTimeStepChanged()
+void RimGridView::onClearReservoirCellVisibilitiesIfNeccessary()
 {
     if ( this->propertyFilterCollection() && this->propertyFilterCollection()->hasActiveDynamicFilters() )
     {

@@ -311,6 +311,13 @@ void RimIntersectionBox::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
             {
                 m_boxManipulator = new RicBoxManipulatorEventHandler( viewer() );
 
+                Rim3dView* rimView = nullptr;
+                this->firstAncestorOrThisOfType( rimView );
+                for (Rim3dView * mainView : rimView->viewsUsingThisAsComparisonView())
+                {
+                    m_boxManipulator->registerInAdditionalViewer( mainView->viewer());
+                }
+
                 connect( m_boxManipulator, SIGNAL( notifyRedraw() ), this, SLOT( slotScheduleRedraw() ) );
                 connect( m_boxManipulator,
                          SIGNAL( notifyUpdate( const cvf::Vec3d&, const cvf::Vec3d& ) ),

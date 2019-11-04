@@ -105,189 +105,161 @@ public:
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>> meshMode;
     caf::PdmField<caf::AppEnum<SurfaceModeType>>          surfaceMode;
 
-    RiuViewer* viewer() const;
+    virtual RimCase* ownerCase() const = 0;
+    RiuViewer*       viewer() const;
 
     void    setName( const QString& name );
     QString name() const;
     QString autoName() const;
 
-    // Implementation of RiuViewerToViewInterface
-    cvf::Color3f backgroundColor() const override
-    {
-        return m_backgroundColor();
-    }
+    void         setMeshOnlyDrawstyle();
+    void         setMeshSurfDrawstyle();
+    void         setSurfOnlyDrawstyle();
+    void         setFaultMeshSurfDrawstyle();
+    void         setSurfaceDrawstyle();
+    void         setShowGridBox( bool showGridBox );
+    virtual bool isShowingActiveCellsOnly();
+    virtual bool isGridVisualizationMode() const = 0;
 
-    void setMeshOnlyDrawstyle();
-    void setMeshSurfDrawstyle();
-    void setSurfOnlyDrawstyle();
-    void setFaultMeshSurfDrawstyle();
-    void setSurfaceDrawstyle();
-    void setBackgroundColor( const cvf::Color3f& newBackgroundColor );
-    void setShowGridBox( bool showGridBox );
-
-    void applyBackgroundColorAndFontChanges();
+    void         setBackgroundColor( const cvf::Color3f& newBackgroundColor );
+    cvf::Color3f backgroundColor() const override; // Implementation of RiuViewerToViewInterface
+    void         applyBackgroundColorAndFontChanges();
+    bool         hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
+    bool         applyFontSize( RiaDefines::FontSettingType fontSettingType,
+                                int                         oldFontSize,
+                                int                         fontSize,
+                                bool                        forceChange = false ) override;
 
     void disableLighting( bool disable );
     bool isLightingDisabled() const;
 
-    virtual bool isGridVisualizationMode() const = 0;
-
-    void         setScaleZAndUpdate( double scaleZ );
-    virtual bool showActiveCellsOnly();
-    virtual bool isUsingFormationNames() const = 0;
+    virtual bool                          isUsingFormationNames() const = 0;
+    cvf::ref<caf::DisplayCoordTransform>  displayCoordTransform() const override;
+    virtual std::vector<RimLegendConfig*> legendConfigs() const = 0;
 
     QImage snapshotWindowContent() override;
     void   zoomAll() override;
     void   forceShowWindowOn();
 
     // Animation
-    int currentTimeStep() const
-    {
-        return m_currentTimeStep;
-    }
-    void         setCurrentTimeStep( int frameIdx );
-    void         setCurrentTimeStepAndUpdate( int frameIdx ) override;
-    bool         isTimeStepDependentDataVisibleInThisOrComparisonView() const;
-    virtual bool isTimeStepDependentDataVisible() const = 0;
+    int  currentTimeStep() const;
+    void setCurrentTimeStep( int frameIdx );
+    void setCurrentTimeStepAndUpdate( int frameIdx ) override;
+    bool isTimeStepDependentDataVisibleInThisOrComparisonView() const;
 
     // Updating
-    void         updateCurrentTimeStepAndRedraw() override;
-    virtual void scheduleGeometryRegen( RivCellSetEnum geometryType ) = 0;
     void         scheduleCreateDisplayModelAndRedraw();
+    virtual void scheduleGeometryRegen( RivCellSetEnum geometryType ) = 0;
 
     void createDisplayModelAndRedraw();
-    void createHighlightAndGridBoxDisplayModelWithRedraw();
+    void updateDisplayModelForCurrentTimeStepAndRedraw();
+    void createHighlightAndGridBoxDisplayModelAndRedraw();
+    void createMeasurementDisplayModelAndRedraw();
     void updateGridBoxData();
     void updateAnnotationItems();
+
+    void setScaleZAndUpdate( double scaleZ );
     void updateScaling();
     void updateZScaleLabel();
-    void createMeasurementDisplayModelAndRedraw();
+    bool isScaleZEditable();
 
-    bool       isMasterView() const;
-    Rim3dView* activeComparisonView() const;
-    bool       isScaleZEditable();
-    void       setComparisonView(Rim3dView* compView); 
-
+    bool                 isMasterView() const;
+    Rim3dView*           activeComparisonView() const;
+    void                 setComparisonView( Rim3dView* compView );
     std::set<Rim3dView*> viewsUsingThisAsComparisonView();
-
-    cvf::ref<caf::DisplayCoordTransform> displayCoordTransform() const override;
-
-    virtual RimCase*                      ownerCase() const     = 0;
-    virtual std::vector<RimLegendConfig*> legendConfigs() const = 0;
-
-    bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
-    bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                        int                         oldFontSize,
-                        int                         fontSize,
-                        bool                        forceChange = false ) override;
-
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                 bool*                      useOptionsOnly ) override;
 
 protected:
     static void removeModelByName( cvf::Scene* scene, const cvf::String& modelName );
 
     virtual void       setDefaultView();
-    void               disableGridBoxField();
-    void               disablePerspectiveProjectionField();
     cvf::Mat4d         cameraPosition() const;
     cvf::Vec3d         cameraPointOfInterest() const;
     RimViewNameConfig* nameConfig() const;
 
-    RimWellPathCollection* wellPathCollection() const;
-    bool                   hasVisibleTimeStepDependent3dWellLogCurves() const;
-    void                   addWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
-                                                const cvf::BoundingBox& wellPathClipBoundingBox );
+    void disableGridBoxField();
+    void disablePerspectiveProjectionField();
+    void updateDisplayModelVisibility();
 
+    bool hasVisibleTimeStepDependent3dWellLogCurves() const;
+
+    RimWellPathCollection* wellPathCollection() const;
+
+    void addWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
+                              const cvf::BoundingBox& wellPathClipBoundingBox );
     void addDynamicWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
                                      const cvf::BoundingBox& wellPathClipBoundingBox );
-
-    void addAnnotationsToModel( cvf::ModelBasicList* wellPathModelBasicList );
-    void addMeasurementToModel( cvf::ModelBasicList* wellPathModelBasicList );
+    void addAnnotationsToModel( cvf::ModelBasicList* annotationsModel );
+    void addMeasurementToModel( cvf::ModelBasicList* measureModel );
 
     // Override viewer
 
     RiuViewer* nativeOrOverrideViewer() const;
     bool       isUsingOverrideViewer() const;
 
-    // Implementation of RimNameConfigHolderInterface
-    void performAutoNameUpdate() override;
-
     // Abstract methods to implement in subclasses
 
-    virtual void axisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) = 0;
+    virtual void onCreateDisplayModel()                   = 0;
+    virtual void onUpdateDisplayModelForCurrentTimeStep() = 0;
+    virtual void onUpdateDisplayModelVisibility(){};
+    virtual void onClampCurrentTimestep() = 0;
+    virtual void onClearReservoirCellVisibilitiesIfNeccessary(){};
+    virtual bool isTimeStepDependentDataVisible() const                                            = 0;
+    virtual void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) = 0;
+    virtual void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )          = 0;
+    virtual void onUpdateStaticCellColors()                                                        = 0;
+    virtual void onResetLegendsInViewer()                                                          = 0;
+    virtual void onUpdateLegends()                                                                 = 0;
 
-    virtual void createDisplayModel() = 0;
-    virtual void updateDisplayModelVisibility();
-    virtual void clampCurrentTimestep()  = 0;
-    virtual void updateCurrentTimeStep() = 0;
-    virtual void onTimeStepChanged()     = 0;
-
-    virtual void createPartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) = 0;
-    virtual void updateStaticCellColors()                                               = 0;
-
-    virtual void            updateScaleTransform() = 0;
-    virtual cvf::Transform* scaleTransform()       = 0;
-
-    virtual void resetLegendsInViewer() = 0;
-
-protected: // Fields
-    caf::PdmField<int> m_currentTimeStep;
+    virtual void            onUpdateScaleTransform() = 0;
+    virtual cvf::Transform* scaleTransform()         = 0;
 
 protected:
-    cvf::ref<cvf::ModelBasicList> m_wellPathPipeVizModel;
-    cvf::ref<cvf::ModelBasicList> m_crossSectionVizModel;
-    cvf::ref<cvf::ModelBasicList> m_highlightVizModel;
-
-    cvf::ref<RivWellPathsPartMgr>   m_wellPathsPartManager;
-    cvf::ref<RivAnnotationsPartMgr> m_annotationsPartManager;
-    cvf::ref<RivMeasurementPartMgr> m_measurementPartManager;
-
-private:
     // Overridden PdmObject methods:
 
+    caf::PdmFieldHandle* userDescriptionField() override;
+    caf::PdmFieldHandle* backgroundColorField();
+
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                 bool*                      useOptionsOnly ) override;
+
+    void initAfterRead() override;
     void setupBeforeSave() override;
 
-protected:
-    caf::PdmFieldHandle* userDescriptionField() override;
-    caf::PdmFieldHandle* backgroundColorField()
-    {
-        return &m_backgroundColor;
-    }
-
-    void     fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                               const QVariant&            oldValue,
-                               const QVariant&            newValue ) override;
-    void     defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    // Overridden ViewWindow methods:
     void     updateViewWidgetAfterCreation() override;
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
-    void     initAfterRead() override;
+
+protected:
+    // Timestep Field. Children clamps this differently
+    caf::PdmField<int> m_currentTimeStep;
+
+    // 3D display model data
+    cvf::ref<cvf::ModelBasicList> m_wellPathPipeVizModel;
+    cvf::ref<cvf::ModelBasicList> m_crossSectionVizModel;
+    cvf::ref<RivWellPathsPartMgr> m_wellPathsPartManager;
 
 private:
-    // Overridden ViewWindow methods:
-
     void     updateMdiWindowTitle() override;
     void     deleteViewWidget() override;
     QWidget* viewWidget() override;
 
-    // Implementation of RiuViewerToViewInterface
-    void setCameraPosition( const cvf::Mat4d& cameraPosition ) override
-    {
-        m_cameraPosition = cameraPosition;
-    }
+    // Implementation of RimNameConfigHolderInterface
+    void performAutoNameUpdate() override final;
 
-    void setCameraPointOfInterest( const cvf::Vec3d& cameraPointOfInterest ) override
-    {
-        m_cameraPointOfInterest = cameraPointOfInterest;
-    }
+    // Implementation of RiuViewerToViewInterface
+
+    void setCameraPosition( const cvf::Mat4d& cameraPosition ) override;
+    void setCameraPointOfInterest( const cvf::Vec3d& cameraPointOfInterest ) override;
 
     QString timeStepName( int frameIdx ) const override;
     void    endAnimation() override;
 
-    caf::PdmObjectHandle* implementingPdmObject() override
-    {
-        return this;
-    }
+    caf::PdmObjectHandle* implementingPdmObject() override;
 
     void handleMdiWindowClosed() override;
     void setMdiWindowGeometry( const RimMdiWindowGeometry& windowGeometry ) override;
@@ -295,23 +267,21 @@ private:
     // Pure private methods
 
     void createHighlightAndGridBoxDisplayModel();
-
     void appendAnnotationsToModel();
     void appendMeasurementToModel();
 
     // Pure private methods : Override viewer and comparison view
 
     void setOverrideViewer( RiuViewer* overrideViewer );
-
     Rim3dView* prepareComparisonView();
     void       restoreComparisonView();
 
 private:
     QPointer<RiuViewer> m_viewer;
     QPointer<RiuViewer> m_overrideViewer;
-    int                 m_comparisonViewOrgTimestep;
-    double              m_comparisonViewOrgZScale;
-    bool                m_isCallingUpdateTimestepAndRedraw; // To avoid infinite recursion if comparison views are pointing to each other.
+    bool                m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw; // To avoid infinite recursion if comparison views are pointing to each other.
+
+    // Fields
 
     caf::PdmField<QString>                 m_name_OBSOLETE;
     caf::PdmChildField<RimViewNameConfig*> m_nameConfig;
@@ -322,4 +292,9 @@ private:
     caf::PdmField<bool>                    m_showGridBox;
     caf::PdmField<bool>                    m_showZScaleLabel;
     caf::PdmPtrField<Rim3dView*>           m_comparisonView;
+
+    // 3D display model data
+    cvf::ref<cvf::ModelBasicList>   m_highlightVizModel;
+    cvf::ref<RivAnnotationsPartMgr> m_annotationsPartManager;
+    cvf::ref<RivMeasurementPartMgr> m_measurementPartManager;
 };

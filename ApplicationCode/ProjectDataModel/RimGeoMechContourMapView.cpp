@@ -145,15 +145,6 @@ void RimGeoMechContourMapView::updatePickPointAndRedraw()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapView::updateCurrentTimeStepAndRedraw()
-{
-    m_contourMapProjection->clearGeometry();
-    RimGeoMechView::updateCurrentTimeStepAndRedraw();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimGeoMechContourMapView::isGridVisualizationMode() const
 {
     return m_contourMapProjection->isChecked();
@@ -185,9 +176,9 @@ void RimGeoMechContourMapView::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapView::createDisplayModel()
+void RimGeoMechContourMapView::onCreateDisplayModel()
 {
-    RimGeoMechView::createDisplayModel();
+    RimGeoMechView::onCreateDisplayModel();
 
     if ( !this->isTimeStepDependentDataVisible() )
     {
@@ -237,8 +228,10 @@ void RimGeoMechContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapView::updateCurrentTimeStep()
+void RimGeoMechContourMapView::onUpdateDisplayModelForCurrentTimeStep()
 {
+    m_contourMapProjection->clearGeometry();
+
     updateGeometry();
 }
 
@@ -254,7 +247,7 @@ void RimGeoMechContourMapView::updateGeometry()
         {
             m_contourMapProjection->generateResultsIfNecessary( m_currentTimeStep() );
         }
-        updateLegends();
+        onUpdateLegends();
 
         progress.setProgress( 30 );
     }
@@ -366,7 +359,7 @@ void RimGeoMechContourMapView::appendPickPointVisToModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapView::updateLegends()
+void RimGeoMechContourMapView::onUpdateLegends()
 {
     if ( nativeOrOverrideViewer() )
     {
@@ -452,7 +445,7 @@ void RimGeoMechContourMapView::fieldChangedByUi( const caf::PdmFieldHandle* chan
     }
     else if ( changedField == &m_showScaleLegend )
     {
-        updateLegends();
+        onUpdateLegends();
         scheduleCreateDisplayModelAndRedraw();
     }
 }

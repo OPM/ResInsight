@@ -149,15 +149,6 @@ void RimEclipseContourMapView::updatePickPointAndRedraw()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::updateCurrentTimeStepAndRedraw()
-{
-    m_contourMapProjection->clearGeometry();
-    RimEclipseView::updateCurrentTimeStepAndRedraw();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapView::initAfterRead()
 {
     RimEclipseView::initAfterRead();
@@ -173,9 +164,9 @@ void RimEclipseContourMapView::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::createDisplayModel()
+void RimEclipseContourMapView::onCreateDisplayModel()
 {
-    RimEclipseView::createDisplayModel();
+    RimEclipseView::onCreateDisplayModel();
 
     if ( !this->isTimeStepDependentDataVisible() )
     {
@@ -228,9 +219,11 @@ void RimEclipseContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::updateCurrentTimeStep()
+void RimEclipseContourMapView::onUpdateDisplayModelForCurrentTimeStep()
 {
     static_cast<RimEclipsePropertyFilterCollection*>( nativePropertyFilterCollection() )->updateFromCurrentTimeStep();
+    
+    m_contourMapProjection->clearGeometry();
     updateGeometry();
 }
 
@@ -251,7 +244,7 @@ void RimEclipseContourMapView::updateGeometry()
         progress.setProgress( 30 );
     }
 
-    updateLegends(); // To make sure the scalar mappers are set up correctly
+    onUpdateLegends(); // To make sure the scalar mappers are set up correctly
     appendWellsAndFracturesToModel();
 
     { // Step 2: generate geometry. Takes about 60% of the time.
@@ -373,7 +366,7 @@ void RimEclipseContourMapView::appendPickPointVisToModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::updateLegends()
+void RimEclipseContourMapView::onUpdateLegends()
 {
     if ( nativeOrOverrideViewer() )
     {
@@ -459,7 +452,7 @@ void RimEclipseContourMapView::fieldChangedByUi( const caf::PdmFieldHandle* chan
     }
     else if ( changedField == &m_showScaleLegend )
     {
-        updateLegends();
+        onUpdateLegends();
         scheduleCreateDisplayModelAndRedraw();
     }
 }

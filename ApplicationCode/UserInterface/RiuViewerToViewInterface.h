@@ -57,8 +57,6 @@ public:
     virtual cvf::ref<caf::DisplayCoordTransform> displayCoordTransform() const = 0;
 
     virtual void setCurrentTimeStepAndUpdate( int frameIndex ) = 0;
-    virtual void updateCurrentTimeStepAndRedraw()              = 0;
-    virtual void updateLegends()                               = 0;
 
     virtual void endAnimation() = 0;
 };

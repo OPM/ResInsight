@@ -119,7 +119,7 @@ void RicNewAzimuthDipIntersectionFeatureCmd::redo()
         intersection->setLengthDown( cvf::Math::floor( bBox.extent()[2] / 2 ) );
     }
 
-    m_intersectionCollection->appendIntersectionAndUpdate( intersection );
+    m_intersectionCollection->appendIntersectionAndUpdate( intersection, false );
 
     Riu3dSelectionManager::instance()->deleteAllItems();
     Riu3DMainWindowTools::selectAsCurrentItem( intersection, false );
