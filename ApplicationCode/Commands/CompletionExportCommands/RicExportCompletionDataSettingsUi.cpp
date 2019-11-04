@@ -257,7 +257,8 @@ QList<caf::PdmOptionItemInfo>
                         wellList = candidateWellList;
                     }
 
-                    QString wellStringWithPressure = QString( "%1 (%2)" ).arg( it->second[w].first ).arg( it->second[w].second );
+                    QString wellStringWithPressure =
+                        QString( "%1 (%2)" ).arg( it->second[w].first ).arg( it->second[w].second );
                     QStringList candidateWellPressureList = wellPressureList;
                     candidateWellPressureList << wellStringWithPressure;
                     if ( startStringFormat.arg( candidateWellPressureList.join( ", " ) ).length() < maxStringLength )

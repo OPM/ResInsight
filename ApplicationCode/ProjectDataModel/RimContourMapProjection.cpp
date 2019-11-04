@@ -1160,7 +1160,8 @@ void RimContourMapProjection::generateContourPolygons()
 ///
 //--------------------------------------------------------------------------------------------------
 RimContourMapProjection::ContourPolygons RimContourMapProjection::createContourPolygonsFromLineSegments(
-    caf::ContourLines::ListOfLineSegments& unorderedLineSegments, double contourValue )
+    caf::ContourLines::ListOfLineSegments& unorderedLineSegments,
+    double                                 contourValue )
 {
     const double areaThreshold = 1.5 * ( m_sampleSpacing * m_sampleSpacing ) /
                                  ( sampleSpacingFactor() * sampleSpacingFactor() );
@@ -1448,11 +1449,8 @@ double RimContourMapProjection::interpolateValue( const cvf::Vec2d& gridPos2d ) 
     x[2] = cvf::Vec3d( cellCenter + cvf::Vec2d( m_sampleSpacing * 0.5, m_sampleSpacing * 0.5 ), 0.0 );
     x[3] = cvf::Vec3d( cellCenter + cvf::Vec2d( -m_sampleSpacing * 0.5, m_sampleSpacing * 0.5 ), 0.0 );
 
-    cvf::Vec4d baryCentricCoords = cvf::GeometryTools::barycentricCoords( x[0],
-                                                                          x[1],
-                                                                          x[2],
-                                                                          x[3],
-                                                                          cvf::Vec3d( gridPos2d, 0.0 ) );
+    cvf::Vec4d baryCentricCoords =
+        cvf::GeometryTools::barycentricCoords( x[0], x[1], x[2], x[3], cvf::Vec3d( gridPos2d, 0.0 ) );
 
     std::array<cvf::Vec2ui, 4> v;
     v[0] = cellContainingPoint;

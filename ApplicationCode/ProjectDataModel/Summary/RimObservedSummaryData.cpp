@@ -68,11 +68,8 @@ QString RimObservedSummaryData::caseName() const
 //--------------------------------------------------------------------------------------------------
 void RimObservedSummaryData::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
 {
-    m_summaryHeaderFilename = RimTools::relocateFile( m_summaryHeaderFilename(),
-                                                      newProjectPath,
-                                                      oldProjectPath,
-                                                      nullptr,
-                                                      nullptr );
+    m_summaryHeaderFilename =
+        RimTools::relocateFile( m_summaryHeaderFilename(), newProjectPath, oldProjectPath, nullptr, nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------

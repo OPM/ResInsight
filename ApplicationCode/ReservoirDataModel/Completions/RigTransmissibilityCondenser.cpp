@@ -226,10 +226,8 @@ std::map<size_t, double> RigTransmissibilityCondenser::calculateFicticiousFractu
             // Sum(T'_mf)
             double scaledMatrixToFractureTrans = matrixToAllFracturesTrans[globalMatrixCellIdx];
             // T'mw
-            double scaledMatrixToWellTrans = condensedTransmissibility( externalCell,
-                                                                        {true,
-                                                                         RigTransmissibilityCondenser::CellAddress::WELL,
-                                                                         1} );
+            double scaledMatrixToWellTrans =
+                condensedTransmissibility( externalCell, {true, RigTransmissibilityCondenser::CellAddress::WELL, 1} );
             // T'_fjw
             fictitiousFractureToWellTrans[globalMatrixCellIdx] =
                 RigFractureTransmissibilityEquations::effectiveInternalFractureToWellTransPDDHC( scaledMatrixToFractureTrans,

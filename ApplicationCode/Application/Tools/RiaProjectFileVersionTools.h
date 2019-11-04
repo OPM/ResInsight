@@ -30,8 +30,11 @@ public:
                                                   const QString& otherProjectFileVersion );
 
     // Public to be able to unit test function, not intended to be used
-    static void decodeVersionString(
-        const QString& projectFileVersion, int* majorVersion, int* minorVersion, int* patch, int* developmentId );
+    static void decodeVersionString( const QString& projectFileVersion,
+                                     int*           majorVersion,
+                                     int*           minorVersion,
+                                     int*           patch,
+                                     int*           developmentId );
 
 private:
     static bool isCandidateNewerThanOther( int candidateMajorVersion,

@@ -217,47 +217,47 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints( const RigRange
 
             if ( femIsDestination )
             {
-                rangeFilterMatches[cornerIdx]
-                    .cellMatchType = findBestFemCellFromEclCell( eclGrid,
-                                                                 srcRangeCube[cornerIdx][0],
-                                                                 srcRangeCube[cornerIdx][1],
-                                                                 srcRangeCube[cornerIdx][2],
-                                                                 femPart,
-                                                                 &( rangeFilterMatches[cornerIdx].ijk[0] ),
-                                                                 &( rangeFilterMatches[cornerIdx].ijk[1] ),
-                                                                 &( rangeFilterMatches[cornerIdx].ijk[2] ) );
+                rangeFilterMatches[cornerIdx].cellMatchType =
+                    findBestFemCellFromEclCell( eclGrid,
+                                                srcRangeCube[cornerIdx][0],
+                                                srcRangeCube[cornerIdx][1],
+                                                srcRangeCube[cornerIdx][2],
+                                                femPart,
+                                                &( rangeFilterMatches[cornerIdx].ijk[0] ),
+                                                &( rangeFilterMatches[cornerIdx].ijk[1] ),
+                                                &( rangeFilterMatches[cornerIdx].ijk[2] ) );
 
-                rangeFilterMatches[diagIdx]
-                    .cellMatchType = findBestFemCellFromEclCell( eclGrid,
-                                                                 srcRangeCube[diagIdx][0],
-                                                                 srcRangeCube[diagIdx][1],
-                                                                 srcRangeCube[diagIdx][2],
-                                                                 femPart,
-                                                                 &( rangeFilterMatches[diagIdx].ijk[0] ),
-                                                                 &( rangeFilterMatches[diagIdx].ijk[1] ),
-                                                                 &( rangeFilterMatches[diagIdx].ijk[2] ) );
+                rangeFilterMatches[diagIdx].cellMatchType =
+                    findBestFemCellFromEclCell( eclGrid,
+                                                srcRangeCube[diagIdx][0],
+                                                srcRangeCube[diagIdx][1],
+                                                srcRangeCube[diagIdx][2],
+                                                femPart,
+                                                &( rangeFilterMatches[diagIdx].ijk[0] ),
+                                                &( rangeFilterMatches[diagIdx].ijk[1] ),
+                                                &( rangeFilterMatches[diagIdx].ijk[2] ) );
             }
             else
             {
-                rangeFilterMatches[cornerIdx]
-                    .cellMatchType = findBestEclCellFromFemCell( femPart,
-                                                                 srcRangeCube[cornerIdx][0],
-                                                                 srcRangeCube[cornerIdx][1],
-                                                                 srcRangeCube[cornerIdx][2],
-                                                                 eclGrid,
-                                                                 &( rangeFilterMatches[cornerIdx].ijk[0] ),
-                                                                 &( rangeFilterMatches[cornerIdx].ijk[1] ),
-                                                                 &( rangeFilterMatches[cornerIdx].ijk[2] ) );
+                rangeFilterMatches[cornerIdx].cellMatchType =
+                    findBestEclCellFromFemCell( femPart,
+                                                srcRangeCube[cornerIdx][0],
+                                                srcRangeCube[cornerIdx][1],
+                                                srcRangeCube[cornerIdx][2],
+                                                eclGrid,
+                                                &( rangeFilterMatches[cornerIdx].ijk[0] ),
+                                                &( rangeFilterMatches[cornerIdx].ijk[1] ),
+                                                &( rangeFilterMatches[cornerIdx].ijk[2] ) );
 
-                rangeFilterMatches[diagIdx]
-                    .cellMatchType = findBestEclCellFromFemCell( femPart,
-                                                                 srcRangeCube[diagIdx][0],
-                                                                 srcRangeCube[diagIdx][1],
-                                                                 srcRangeCube[diagIdx][2],
-                                                                 eclGrid,
-                                                                 &( rangeFilterMatches[diagIdx].ijk[0] ),
-                                                                 &( rangeFilterMatches[diagIdx].ijk[1] ),
-                                                                 &( rangeFilterMatches[diagIdx].ijk[2] ) );
+                rangeFilterMatches[diagIdx].cellMatchType =
+                    findBestEclCellFromFemCell( femPart,
+                                                srcRangeCube[diagIdx][0],
+                                                srcRangeCube[diagIdx][1],
+                                                srcRangeCube[diagIdx][2],
+                                                eclGrid,
+                                                &( rangeFilterMatches[diagIdx].ijk[0] ),
+                                                &( rangeFilterMatches[diagIdx].ijk[1] ),
+                                                &( rangeFilterMatches[diagIdx].ijk[2] ) );
             }
 
             if ( rangeFilterMatches[cornerIdx].cellMatchType == EXACT &&

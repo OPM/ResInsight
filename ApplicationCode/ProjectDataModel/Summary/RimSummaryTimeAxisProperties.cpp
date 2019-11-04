@@ -692,8 +692,8 @@ void RimSummaryTimeAxisProperties::defineEditorAttribute( const caf::PdmFieldHan
         auto timeAttrib = dynamic_cast<caf::PdmUiTimeEditorAttribute*>( attribute );
         if ( timeAttrib )
         {
-            timeAttrib->timeFormat = RiaQDateTimeTools::timeFormatString( m_timeFormat(),
-                                                                          RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND );
+            timeAttrib->timeFormat =
+                RiaQDateTimeTools::timeFormatString( m_timeFormat(), RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND );
         }
     }
 }

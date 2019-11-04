@@ -155,9 +155,9 @@ void RicSummaryCurveCalculator::defineUiOrdering( QString uiConfigName, caf::Pdm
     }
 
     {
-        caf::PdmUiGroup* group = uiOrdering
-                                     .addNewGroupWithKeyword( "Calculated Summaries",
-                                                              RicSummaryCurveCalculator::calculatedSummariesGroupName() );
+        caf::PdmUiGroup* group =
+            uiOrdering.addNewGroupWithKeyword( "Calculated Summaries",
+                                               RicSummaryCurveCalculator::calculatedSummariesGroupName() );
         group->add( &m_currentCalculation );
         group->add( &m_newCalculation );
         group->add( &m_deleteCalculation );

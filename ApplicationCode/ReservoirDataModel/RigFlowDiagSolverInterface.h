@@ -151,10 +151,18 @@ public:
 
     std::vector<RelPermCurve> calculateRelPermCurves( size_t activeCellIndex );
     std::vector<PvtCurve>     calculatePvtCurves( PvtCurveType pvtCurveType, size_t activeCellIndex );
-    bool                      calculatePvtDynamicPropertiesFvf(
-                             size_t activeCellIndex, double pressure, double rs, double rv, double* bo, double* bg );
-    bool calculatePvtDynamicPropertiesViscosity(
-        size_t activeCellIndex, double pressure, double rs, double rv, double* mu_o, double* mu_g );
+    bool                      calculatePvtDynamicPropertiesFvf( size_t  activeCellIndex,
+                                                                double  pressure,
+                                                                double  rs,
+                                                                double  rv,
+                                                                double* bo,
+                                                                double* bg );
+    bool                      calculatePvtDynamicPropertiesViscosity( size_t  activeCellIndex,
+                                                                      double  pressure,
+                                                                      double  rs,
+                                                                      double  rv,
+                                                                      double* mu_o,
+                                                                      double* mu_g );
 
 private:
     std::wstring getInitFileName() const;

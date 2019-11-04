@@ -116,9 +116,8 @@ void VdeVizDataExtractor::extractViewContents( QString*            modelMetaJson
             if ( !packetDirectory->lookupPacket( arrayIdsThisMesh.connArrId ) )
             {
                 cvf::Trace::show( "    generating connectivities, arrayId=%d", arrayIdsThisMesh.connArrId );
-                std::unique_ptr<VdeArrayDataPacket> dataPacket = VdeArrayDataPacket::fromUint32Arr( arrayIdsThisMesh.connArrId,
-                                                                                                    uintArr,
-                                                                                                    arrElementCount );
+                std::unique_ptr<VdeArrayDataPacket> dataPacket =
+                    VdeArrayDataPacket::fromUint32Arr( arrayIdsThisMesh.connArrId, uintArr, arrElementCount );
 
                 // Debug testing of decoding
                 // debugComparePackets(*dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket->fullPacketRawPtr(),
@@ -131,12 +130,12 @@ void VdeVizDataExtractor::extractViewContents( QString*            modelMetaJson
         if ( mesh->texCoordArr.notNull() && mesh->texImage.notNull() )
         {
             {
-                const float* floatArr           = reinterpret_cast<const float*>( mesh->texCoordArr->ptr() );
-                const size_t arrElementCount    = 2 * mesh->texCoordArr->size();
-                arrayIdsThisMesh.texCoordsArrId = m_cachingIdFactory
-                                                      ->getOrCreateIdForFloatArr( VdeCachingHashedIdFactory::TexCoordsArr,
-                                                                                  floatArr,
-                                                                                  arrElementCount );
+                const float* floatArr        = reinterpret_cast<const float*>( mesh->texCoordArr->ptr() );
+                const size_t arrElementCount = 2 * mesh->texCoordArr->size();
+                arrayIdsThisMesh.texCoordsArrId =
+                    m_cachingIdFactory->getOrCreateIdForFloatArr( VdeCachingHashedIdFactory::TexCoordsArr,
+                                                                  floatArr,
+                                                                  arrElementCount );
 
                 if ( !packetDirectory->lookupPacket( arrayIdsThisMesh.texCoordsArrId ) )
                 {
@@ -153,10 +152,10 @@ void VdeVizDataExtractor::extractViewContents( QString*            modelMetaJson
             }
             {
                 cvf::ref<cvf::UByteArray> byteArr = mesh->texImage->toRgb();
-                arrayIdsThisMesh.texImageArrId    = m_cachingIdFactory
-                                                     ->getOrCreateIdForUint8Arr( VdeCachingHashedIdFactory::TexImage,
-                                                                                 byteArr->ptr(),
-                                                                                 byteArr->size() );
+                arrayIdsThisMesh.texImageArrId =
+                    m_cachingIdFactory->getOrCreateIdForUint8Arr( VdeCachingHashedIdFactory::TexImage,
+                                                                  byteArr->ptr(),
+                                                                  byteArr->size() );
 
                 if ( !packetDirectory->lookupPacket( arrayIdsThisMesh.texImageArrId ) )
                 {

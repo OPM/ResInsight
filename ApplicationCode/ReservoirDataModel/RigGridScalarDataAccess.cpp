@@ -162,8 +162,8 @@ cvf::ref<cvf::StructGridScalarDataAccess>
         return NULL;
     }
 
-    std::vector<std::vector<double>>& scalarSetResults = eclipseCase->results( porosityModel )
-                                                             ->cellScalarResults( scalarSetIndex );
+    std::vector<std::vector<double>>& scalarSetResults =
+        eclipseCase->results( porosityModel )->cellScalarResults( scalarSetIndex );
 
     // A generated result with a generated results for a subset of time steps, will end up with a result container with
     // less entries than time steps See RiaSetGridProperty command in RiaPropertyDataCommands

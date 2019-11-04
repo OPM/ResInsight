@@ -500,8 +500,8 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                     {
                         for ( RimSummaryCase* sumCase : summaryCasesToUse )
                         {
-                            const std::set<RifEclipseSummaryAddress>& allAddrsInCase = sumCase->summaryReader()
-                                                                                           ->allResultAddresses();
+                            const std::set<RifEclipseSummaryAddress>& allAddrsInCase =
+                                sumCase->summaryReader()->allResultAddresses();
                             if ( allAddrsInCase.count( addr ) )
                             {
                                 RimSummaryCurve* newCurve = new RimSummaryCurve();
@@ -755,8 +755,10 @@ std::set<RifEclipseSummaryAddress>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot(
-    const QStringList& curveFilters, RimSummaryPlot* plot, RimSummaryCase* summaryCase, bool addHistoryCurves )
+std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot( const QStringList& curveFilters,
+                                                                                            RimSummaryPlot* plot,
+                                                                                            RimSummaryCase* summaryCase,
+                                                                                            bool addHistoryCurves )
 {
     std::vector<RimSummaryCurve*> createdCurves;
 

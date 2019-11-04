@@ -404,8 +404,8 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop( Qt::DropAction       action,
                                               RimWellLogTrack*     trackTarget,
                                               int                  insertAtPosition )
 {
-    std::vector<RimWellLogFileChannel*> wellLogFileChannels = RiuTypedPdmObjects<RimWellLogFileChannel>::typedObjectsFromGroup(
-        draggedObjects );
+    std::vector<RimWellLogFileChannel*> wellLogFileChannels =
+        RiuTypedPdmObjects<RimWellLogFileChannel>::typedObjectsFromGroup( draggedObjects );
     if ( wellLogFileChannels.size() > 0 )
     {
         if ( action == Qt::CopyAction )

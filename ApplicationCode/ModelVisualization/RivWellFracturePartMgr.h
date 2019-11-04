@@ -89,8 +89,10 @@ private:
                                                        RimFracture*             fracture,
                                                        bool                     disableLighting );
 
-    static std::vector<cvf::Vec3f> transformToFractureDisplayCoords(
-        const std::vector<cvf::Vec3f>& polygon, cvf::Mat4d m, const caf::DisplayCoordTransform& displayCoordTransform );
+    static std::vector<cvf::Vec3f>
+        transformToFractureDisplayCoords( const std::vector<cvf::Vec3f>&    polygon,
+                                          cvf::Mat4d                        m,
+                                          const caf::DisplayCoordTransform& displayCoordTransform );
 
     static cvf::ref<cvf::DrawableGeo> buildDrawableGeoFromTriangles( const std::vector<cvf::uint>&  triangleIndices,
                                                                      const std::vector<cvf::Vec3f>& nodeCoords );

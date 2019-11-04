@@ -98,11 +98,18 @@ public:
     void setDiameter( double diameter );
     void setTransmissibility( double transmissibility );
 
-    void setTransAndWPImultBackgroundDataFromFishbone(
-        double transmissibility, double skinFactor, double diameter, CellDirection direction, bool isMainBore );
+    void setTransAndWPImultBackgroundDataFromFishbone( double        transmissibility,
+                                                       double        skinFactor,
+                                                       double        diameter,
+                                                       CellDirection direction,
+                                                       bool          isMainBore );
 
-    void setTransAndWPImultBackgroundDataFromPerforation(
-        double transmissibility, double skinFactor, double diameter, double dFactor, double kh, CellDirection direction );
+    void setTransAndWPImultBackgroundDataFromPerforation( double        transmissibility,
+                                                          double        skinFactor,
+                                                          double        diameter,
+                                                          double        dFactor,
+                                                          double        kh,
+                                                          CellDirection direction );
 
     void setCombinedValuesExplicitTrans( double         transmissibility,
                                          double         skinFactor,
@@ -110,8 +117,11 @@ public:
                                          CellDirection  celldirection,
                                          CompletionType completionType );
 
-    void setCombinedValuesImplicitTransWPImult(
-        double wpimult, double skinFactor, double diameter, CellDirection celldirection, CompletionType completionType );
+    void setCombinedValuesImplicitTransWPImult( double         wpimult,
+                                                double         skinFactor,
+                                                double         diameter,
+                                                CellDirection  celldirection,
+                                                CompletionType completionType );
 
     bool isNonDarcyFlow() const;
     void setDFactor( double dFactor );

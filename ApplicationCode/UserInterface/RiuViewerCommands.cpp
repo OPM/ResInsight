@@ -1271,8 +1271,12 @@ void RiuViewerCommands::findFirstItems( Rim3dView*                          main
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::ijkFromCellIndex(
-    Rim3dView* mainOrComparisonView, size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k )
+void RiuViewerCommands::ijkFromCellIndex( Rim3dView* mainOrComparisonView,
+                                          size_t     gridIdx,
+                                          size_t     cellIndex,
+                                          size_t*    i,
+                                          size_t*    j,
+                                          size_t*    k )
 {
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
     RimGeoMechView* geomView    = dynamic_cast<RimGeoMechView*>( mainOrComparisonView );
@@ -1311,8 +1315,8 @@ bool RiuViewerCommands::handleOverlayItemPicking( int winPosX, int winPosY )
             std::vector<RimLegendConfig*> legendConfigs = m_reservoirView->legendConfigs();
             if ( m_reservoirView->activeComparisonView() )
             {
-                std::vector<RimLegendConfig*> compViewLegendConfigs = m_reservoirView->activeComparisonView()
-                                                                          ->legendConfigs();
+                std::vector<RimLegendConfig*> compViewLegendConfigs =
+                    m_reservoirView->activeComparisonView()->legendConfigs();
                 legendConfigs.insert( legendConfigs.end(), compViewLegendConfigs.begin(), compViewLegendConfigs.end() );
             }
 

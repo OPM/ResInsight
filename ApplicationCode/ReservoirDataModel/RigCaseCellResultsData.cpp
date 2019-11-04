@@ -1067,8 +1067,8 @@ bool RigCaseCellResultsData::ensureKnownResultLoaded( const RigEclipseResultAddr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigCaseCellResultsData::findAndLoadResultByName(
-    const QString& resultName, const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder )
+bool RigCaseCellResultsData::findAndLoadResultByName( const QString&                                resultName,
+                                                      const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder )
 {
     RigEclipseResultAddress adr( resultName );
 
@@ -1368,7 +1368,8 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
 ///
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::findOrLoadKnownScalarResultByResultTypeOrder(
-    const RigEclipseResultAddress& resVarAddr, const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder )
+    const RigEclipseResultAddress&                resVarAddr,
+    const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder )
 {
     std::set<RiaDefines::ResultCatType> otherResultTypesToSearch = {RiaDefines::STATIC_NATIVE,
                                                                     RiaDefines::DYNAMIC_NATIVE,
@@ -3028,11 +3029,12 @@ void RigCaseCellResultsData::copyResultsMetaDataFromMainCase( RigEclipseCaseData
                                                               RiaDefines::PorosityModelType poroModel,
                                                               std::vector<RimEclipseCase*>  destinationCases )
 {
-    std::vector<RigEclipseResultAddress> resAddresses  = mainCaseResultsData->results( poroModel )->existingResults();
-    std::vector<RigEclipseTimeStepInfo>  timeStepInfos = mainCaseResultsData->results( poroModel )
-                                                            ->timeStepInfos( resAddresses[0] );
+    std::vector<RigEclipseResultAddress> resAddresses = mainCaseResultsData->results( poroModel )->existingResults();
+    std::vector<RigEclipseTimeStepInfo>  timeStepInfos =
+        mainCaseResultsData->results( poroModel )->timeStepInfos( resAddresses[0] );
 
-    const std::vector<RigEclipseResultInfo> resultInfos = mainCaseResultsData->results( poroModel )->infoForEachResultIndex();
+    const std::vector<RigEclipseResultInfo> resultInfos =
+        mainCaseResultsData->results( poroModel )->infoForEachResultIndex();
 
     for ( size_t i = 0; i < destinationCases.size(); i++ )
     {

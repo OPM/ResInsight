@@ -158,7 +158,8 @@ void RigSimWellData::computeStaticWellCellPath() const
     for ( size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[0].m_wellResultBranches.size(); ++bIdx )
     {
         int branchErtId = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_ertBranchId;
-        const std::vector<RigWellResultPoint>& frameCells = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchResultPoints;
+        const std::vector<RigWellResultPoint>& frameCells =
+            m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchResultPoints;
 
         std::list<RigWellResultPoint>& branch = staticWellBranches[branchErtId];
 

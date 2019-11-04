@@ -809,8 +809,8 @@ void RiuSummaryCurveDefSelection::defineUiOrdering( QString uiConfigName, caf::P
                                                                        RiuSummaryCurveDefinitionKeywords::sources() );
     sourcesGroup->add( &m_selectedSources );
 
-    caf::PdmUiGroup* itemTypesGroup = uiOrdering.addNewGroupWithKeyword( "Summary Types",
-                                                                         RiuSummaryCurveDefinitionKeywords::summaryTypes() );
+    caf::PdmUiGroup* itemTypesGroup =
+        uiOrdering.addNewGroupWithKeyword( "Summary Types", RiuSummaryCurveDefinitionKeywords::summaryTypes() );
     itemTypesGroup->add( &m_selectedSummaryCategories );
 
     caf::PdmField<std::vector<QString>>* summaryiesField = nullptr;
@@ -1003,8 +1003,9 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 //--------------------------------------------------------------------------------------------------
 /// Returns the summary addresses that match the selected item type and input selections made in GUI
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddresses(
-    const std::vector<SummarySource*>& selectedSources, const SummaryIdentifierAndField* identifierAndField ) const
+std::set<RifEclipseSummaryAddress>
+    RiuSummaryCurveDefSelection::findPossibleSummaryAddresses( const std::vector<SummarySource*>& selectedSources,
+                                                               const SummaryIdentifierAndField* identifierAndField ) const
 {
     std::set<RifEclipseSummaryAddress> addrUnion;
 
@@ -1126,7 +1127,8 @@ SummaryIdentifierAndField*
 ///
 //--------------------------------------------------------------------------------------------------
 bool RiuSummaryCurveDefSelection::isAddressCompatibleWithControllingFieldSelection(
-    const RifEclipseSummaryAddress& address, const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList ) const
+    const RifEclipseSummaryAddress&                address,
+    const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList ) const
 {
     for ( const auto& identifierAndField : identifierAndFieldList )
     {
@@ -1404,7 +1406,8 @@ void RiuSummaryCurveDefSelection::appendOptionItemsForCategories( QList<caf::Pdm
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::appendOptionItemsForSubCategoriesAndVectors(
-    QList<caf::PdmOptionItemInfo>& options, SummaryIdentifierAndField* identifierAndField ) const
+    QList<caf::PdmOptionItemInfo>& options,
+    SummaryIdentifierAndField*     identifierAndField ) const
 {
     if ( identifierAndField == nullptr ) return;
 
@@ -1507,8 +1510,8 @@ void RiuSummaryCurveDefSelection::appendOptionItemsForSubCategoriesAndVectors(
 
             if ( isVectorField )
             {
-                std::string longVectorName = RiuSummaryQuantityNameInfoProvider::instance()
-                                                 ->longNameFromQuantityName( itemName, true );
+                std::string longVectorName =
+                    RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( itemName, true );
                 displayName = QString::fromStdString( longVectorName );
                 displayName += QString( " (%1)" ).arg( QString::fromStdString( itemName ) );
             }

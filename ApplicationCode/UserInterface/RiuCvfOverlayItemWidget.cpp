@@ -93,9 +93,8 @@ void RiuCvfOverlayItemWidget::updateFromOverlayItem( caf::TitledOverlayFrame* it
         cvf::ref<cvf::RenderbufferObject> rboColor = new cvf::RenderbufferObject( cvf::RenderbufferObject::RGBA,
                                                                                   width,
                                                                                   height );
-        cvf::ref<cvf::RenderbufferObject> rboDepth = new cvf::RenderbufferObject( cvf::RenderbufferObject::DEPTH_COMPONENT24,
-                                                                                  width,
-                                                                                  height );
+        cvf::ref<cvf::RenderbufferObject> rboDepth =
+            new cvf::RenderbufferObject( cvf::RenderbufferObject::DEPTH_COMPONENT24, width, height );
 
         fbo->attachDepthRenderbuffer( rboDepth.p() );
         fbo->attachColorRenderbuffer( 0, rboColor.p() );

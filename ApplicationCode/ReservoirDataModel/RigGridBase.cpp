@@ -404,8 +404,13 @@ size_t RigGridBase::addCoarseningBox( size_t i1, size_t i2, size_t j1, size_t j2
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGridBase::coarseningBox(
-    size_t coarseningBoxIndex, size_t* i1, size_t* i2, size_t* j1, size_t* j2, size_t* k1, size_t* k2 ) const
+void RigGridBase::coarseningBox( size_t  coarseningBoxIndex,
+                                 size_t* i1,
+                                 size_t* i2,
+                                 size_t* j1,
+                                 size_t* j2,
+                                 size_t* k1,
+                                 size_t* k2 ) const
 {
     CVF_ASSERT( coarseningBoxIndex < m_coarseningBoxInfo.size() );
 
@@ -446,8 +451,11 @@ cvf::BoundingBox RigGridBase::boundingBox()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigGridCellFaceVisibilityFilter::isFaceVisible(
-    size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face, const cvf::UByteArray* cellVisibility ) const
+bool RigGridCellFaceVisibilityFilter::isFaceVisible( size_t                             i,
+                                                     size_t                             j,
+                                                     size_t                             k,
+                                                     cvf::StructGridInterface::FaceType face,
+                                                     const cvf::UByteArray*             cellVisibility ) const
 {
     CVF_TIGHT_ASSERT( m_grid );
 

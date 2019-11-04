@@ -109,8 +109,8 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::setupActionLook( QAction* acti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionsToOtherViews(
-    RimCase& gridCase, std::vector<RimIntersection*> intersections )
+void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionsToOtherViews( RimCase&                      gridCase,
+                                                                                 std::vector<RimIntersection*> intersections )
 {
     for ( RimIntersection* intersection : intersections )
     {
@@ -142,7 +142,8 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionsToOtherViews(
 ///
 //--------------------------------------------------------------------------------------------------
 void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionBoxesToOtherViews(
-    RimCase& gridCase, std::vector<RimIntersectionBox*> intersectionBoxes )
+    RimCase&                         gridCase,
+    std::vector<RimIntersectionBox*> intersectionBoxes )
 {
     for ( RimIntersectionBox* intersectionBox : intersectionBoxes )
     {

@@ -193,9 +193,9 @@ void RiaGrpcCommandService::assignPdmFieldValue( caf::PdmValueField*    pdmValue
         {
             if ( paramDescriptor->is_repeated() )
             {
-                RepeatedFieldRef<std::string> repeatedField = reflection->GetRepeatedFieldRef<std::string>( params,
-                                                                                                            paramDescriptor );
-                std::vector<QString>          stringVector;
+                RepeatedFieldRef<std::string> repeatedField =
+                    reflection->GetRepeatedFieldRef<std::string>( params, paramDescriptor );
+                std::vector<QString> stringVector;
                 for ( const std::string& string : repeatedField )
                 {
                     stringVector.push_back( QString::fromStdString( string ) );

@@ -72,7 +72,8 @@ void RicPasteTimeHistoryCurveFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    std::vector<caf::PdmPointer<RimGridTimeHistoryCurve>> sourceObjects = RicPasteTimeHistoryCurveFeature::timeHistoryCurves();
+    std::vector<caf::PdmPointer<RimGridTimeHistoryCurve>> sourceObjects =
+        RicPasteTimeHistoryCurveFeature::timeHistoryCurves();
 
     for ( size_t i = 0; i < sourceObjects.size(); i++ )
     {

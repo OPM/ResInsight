@@ -61,8 +61,11 @@ bool RiaProjectFileVersionTools::isCandidateVersionNewerThanOther( const QString
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaProjectFileVersionTools::decodeVersionString(
-    const QString& projectFileVersion, int* majorVersion, int* minorVersion, int* patch, int* developmentId )
+void RiaProjectFileVersionTools::decodeVersionString( const QString& projectFileVersion,
+                                                      int*           majorVersion,
+                                                      int*           minorVersion,
+                                                      int*           patch,
+                                                      int*           developmentId )
 {
     if ( projectFileVersion.isEmpty() ) return;
 

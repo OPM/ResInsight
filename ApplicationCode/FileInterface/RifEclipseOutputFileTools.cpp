@@ -410,9 +410,10 @@ void RifEclipseOutputFileTools::readGridDimensions( const QString&              
     // printf("grid:%s has %d a total of %d lgr's \n", grid_filename , stringlist_get_size( lgr_names ));
     for ( int lgr_nr = 0; lgr_nr < stringlist_get_size( lgr_names ); lgr_nr++ )
     {
-        ecl_grid_type* lgr_grid = ecl_grid_get_lgr( grid,
-                                                    stringlist_iget( lgr_names,
-                                                                     lgr_nr ) ); // get the ecl_grid instance of the lgr - by name.
+        ecl_grid_type* lgr_grid =
+            ecl_grid_get_lgr( grid,
+                              stringlist_iget( lgr_names,
+                                               lgr_nr ) ); // get the ecl_grid instance of the lgr - by name.
 
         int nx, ny, nz, active_size;
         ecl_grid_get_dims( lgr_grid, &nx, &ny, &nz, &active_size ); // get some size info from this lgr.

@@ -159,8 +159,11 @@ void RifEclipseSummaryTools::dumpMetaData( RifSummaryReaderInterface* readerEcli
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseSummaryTools::findSummaryHeaderFileInfo(
-    const QString& inputFile, QString* headerFile, QString* path, QString* base, bool* isFormatted )
+void RifEclipseSummaryTools::findSummaryHeaderFileInfo( const QString& inputFile,
+                                                        QString*       headerFile,
+                                                        QString*       path,
+                                                        QString*       base,
+                                                        bool*          isFormatted )
 {
     char* myPath        = nullptr;
     char* myBase        = nullptr;

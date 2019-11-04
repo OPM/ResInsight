@@ -112,7 +112,8 @@ const std::vector<double>* RigFlowDiagResults::findOrCalculateResult( const RigF
 ///
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagResults::calculateNativeResultsIfNotPreviouslyAttempted(
-    size_t timeStepIndex, RigFlowDiagResultAddress::PhaseSelection phaseSelection )
+    size_t                                   timeStepIndex,
+    RigFlowDiagResultAddress::PhaseSelection phaseSelection )
 {
     if ( timeStepIndex >= m_hasAtemptedNativeResults.size() ) return;
 
@@ -231,20 +232,16 @@ std::vector<double>* RigFlowDiagResults::calculateDerivedResult( const RigFlowDi
 std::vector<double>* RigFlowDiagResults::calculateAverageTOFResult( const RigFlowDiagResultAddress& resVarAddr,
                                                                     size_t                          timeStepIndex )
 {
-    std::vector<const std::vector<double>*> injectorTOFs = findResultsForSelectedTracers( resVarAddr,
-                                                                                          timeStepIndex,
-                                                                                          RIG_FLD_TOF_RESNAME,
-                                                                                          RimFlowDiagSolution::INJECTOR );
+    std::vector<const std::vector<double>*> injectorTOFs =
+        findResultsForSelectedTracers( resVarAddr, timeStepIndex, RIG_FLD_TOF_RESNAME, RimFlowDiagSolution::INJECTOR );
     std::vector<const std::vector<double>*> injectorFractions =
         findResultsForSelectedTracers( resVarAddr,
                                        timeStepIndex,
                                        RIG_FLD_CELL_FRACTION_RESNAME,
                                        RimFlowDiagSolution::INJECTOR );
 
-    std::vector<const std::vector<double>*> producerTOFs = findResultsForSelectedTracers( resVarAddr,
-                                                                                          timeStepIndex,
-                                                                                          RIG_FLD_TOF_RESNAME,
-                                                                                          RimFlowDiagSolution::PRODUCER );
+    std::vector<const std::vector<double>*> producerTOFs =
+        findResultsForSelectedTracers( resVarAddr, timeStepIndex, RIG_FLD_TOF_RESNAME, RimFlowDiagSolution::PRODUCER );
     std::vector<const std::vector<double>*> producerFractions =
         findResultsForSelectedTracers( resVarAddr,
                                        timeStepIndex,
@@ -899,8 +896,10 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagResults::flowCharacteristicsResults(
-    int timeStepIndex, const std::vector<char>& visibleActiveCells, double max_pv_fraction )
+RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame
+    RigFlowDiagResults::flowCharacteristicsResults( int                      timeStepIndex,
+                                                    const std::vector<char>& visibleActiveCells,
+                                                    double                   max_pv_fraction )
 {
     std::vector<QString> tracerNames = m_flowDiagSolution->tracerNames();
 

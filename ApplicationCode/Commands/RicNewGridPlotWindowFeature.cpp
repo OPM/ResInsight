@@ -82,8 +82,8 @@ RicfCommandResponse RicNewGridPlotWindowFeature::execute()
 //--------------------------------------------------------------------------------------------------
 bool RicNewGridPlotWindowFeature::isCommandEnabled()
 {
-    RimGridPlotWindowCollection* gridPlotCollection = caf::SelectionManager::instance()
-                                                          ->selectedItemOfType<RimGridPlotWindowCollection>();
+    RimGridPlotWindowCollection* gridPlotCollection =
+        caf::SelectionManager::instance()->selectedItemOfType<RimGridPlotWindowCollection>();
     if ( gridPlotCollection )
     {
         return true;

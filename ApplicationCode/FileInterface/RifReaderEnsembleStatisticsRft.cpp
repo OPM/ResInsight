@@ -114,7 +114,8 @@ std::set<QDateTime> RifReaderEnsembleStatisticsRft::availableTimeSteps( const QS
 ///
 //--------------------------------------------------------------------------------------------------
 std::set<QDateTime> RifReaderEnsembleStatisticsRft::availableTimeSteps(
-    const QString& wellName, const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
+    const QString&                                     wellName,
+    const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
 {
     std::set<QDateTime> allTimeSteps;
     for ( auto summaryCase : m_summaryCaseCollection->allSummaryCases() )
@@ -132,7 +133,8 @@ std::set<QDateTime> RifReaderEnsembleStatisticsRft::availableTimeSteps(
 ///
 //--------------------------------------------------------------------------------------------------
 std::set<QDateTime> RifReaderEnsembleStatisticsRft::availableTimeSteps(
-    const QString& wellName, const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
+    const QString&                                               wellName,
+    const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
 {
     std::set<QDateTime> allTimeSteps;
     for ( auto summaryCase : m_summaryCaseCollection->allSummaryCases() )

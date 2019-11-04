@@ -196,8 +196,13 @@ void RiuQwtPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::drawCurve(
-    QPainter* p, int style, const QwtScaleMap& xMap, const QwtScaleMap& yMap, const QRectF& canvasRect, int from, int to ) const
+void RiuQwtPlotCurve::drawCurve( QPainter*          p,
+                                 int                style,
+                                 const QwtScaleMap& xMap,
+                                 const QwtScaleMap& yMap,
+                                 const QRectF&      canvasRect,
+                                 int                from,
+                                 int                to ) const
 {
     size_t intervalCount = m_polyLineStartStopIndices.size();
     if ( intervalCount > 0 )

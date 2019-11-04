@@ -566,10 +566,10 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePar
             QString resultNameFromColors = activeView.fractureColors()->uiResultName();
             QString resultUnitFromColors = activeView.fractureColors()->unit();
 
-            std::vector<double> prCellResults = stimPlanFracTemplate
-                                                    ->fractureGridResults( resultNameFromColors,
-                                                                           resultUnitFromColors,
-                                                                           stimPlanFracTemplate->activeTimeStepIndex() );
+            std::vector<double> prCellResults =
+                stimPlanFracTemplate->fractureGridResults( resultNameFromColors,
+                                                           resultUnitFromColors,
+                                                           stimPlanFracTemplate->activeTimeStepIndex() );
 
             textureCoords->reserve( prCellResults.size() * 4 );
 
@@ -1046,10 +1046,10 @@ cvf::ref<cvf::DrawableGeo>
     QString resultNameFromColors = activeView.fractureColors()->uiResultName();
     QString resultUnitFromColors = activeView.fractureColors()->unit();
 
-    std::vector<double> prCellResults = stimPlanFracTemplate
-                                            ->fractureGridResults( resultNameFromColors,
-                                                                   resultUnitFromColors,
-                                                                   stimPlanFracTemplate->activeTimeStepIndex() );
+    std::vector<double> prCellResults =
+        stimPlanFracTemplate->fractureGridResults( resultNameFromColors,
+                                                   resultUnitFromColors,
+                                                   stimPlanFracTemplate->activeTimeStepIndex() );
 
     m_visibleFracturePolygons.clear();
     for ( size_t cIdx = 0; cIdx < stimPlanCells.size(); ++cIdx )

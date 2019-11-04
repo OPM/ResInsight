@@ -154,8 +154,8 @@ double RigFractureTransmissibilityEquations::matrixToFractureTrans( double perm,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransmissibilityEquations::effectiveInternalFractureToWellTransPDDHC(
-    double sumScaledMatrixToFractureTrans, double scaledMatrixToWellTrans )
+double RigFractureTransmissibilityEquations::effectiveInternalFractureToWellTransPDDHC( double sumScaledMatrixToFractureTrans,
+                                                                                        double scaledMatrixToWellTrans )
 {
     double divisor = sumScaledMatrixToFractureTrans - scaledMatrixToWellTrans;
     if ( cvf::Math::abs( divisor ) > EPSILON )

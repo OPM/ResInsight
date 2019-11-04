@@ -83,8 +83,11 @@ public:
     {
     }
 
-    RigGridCellResultAddress(
-        size_t gridIndex, size_t i, size_t j, size_t k, const RigEclipseResultAddress& eclipseResultAddress )
+    RigGridCellResultAddress( size_t                         gridIndex,
+                              size_t                         i,
+                              size_t                         j,
+                              size_t                         k,
+                              const RigEclipseResultAddress& eclipseResultAddress )
         : gridIndex( gridIndex )
         , i( i )
         , j( j )

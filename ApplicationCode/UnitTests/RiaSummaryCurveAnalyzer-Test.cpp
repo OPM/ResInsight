@@ -35,11 +35,8 @@ TEST( RiaSummaryCurveAnalyzer, WellCompletions )
         addresses.push_back( adr );
     }
     {
-        RifEclipseSummaryAddress adr = RifEclipseSummaryAddress::wellCompletionAddress( "quantity_name",
-                                                                                        wellNameB,
-                                                                                        5,
-                                                                                        4,
-                                                                                        30 );
+        RifEclipseSummaryAddress adr =
+            RifEclipseSummaryAddress::wellCompletionAddress( "quantity_name", wellNameB, 5, 4, 30 );
         addresses.push_back( adr );
     }
 

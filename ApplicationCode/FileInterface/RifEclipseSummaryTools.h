@@ -42,6 +42,9 @@ public:
     static void dumpMetaData( RifSummaryReaderInterface* readerEclipseSummary );
 
 private:
-    static void findSummaryHeaderFileInfo(
-        const QString& inputFile, QString* headerFile, QString* path, QString* base, bool* isFormatted );
+    static void findSummaryHeaderFileInfo( const QString& inputFile,
+                                           QString*       headerFile,
+                                           QString*       path,
+                                           QString*       base,
+                                           bool*          isFormatted );
 };

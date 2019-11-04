@@ -76,7 +76,8 @@ void RicSummaryCurveCreatorSplitterUi::updateFromDefaultSources( const std::vect
 ///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiOrdering(
-    const caf::PdmUiOrdering& topLevelUiOrdering, const QString& uiConfigName )
+    const caf::PdmUiOrdering& topLevelUiOrdering,
+    const QString&            uiConfigName )
 {
     const std::vector<caf::PdmUiItem*>& topLevelUiItems = topLevelUiOrdering.uiItems();
     if ( m_summaryCurveCreator->isCloseButtonPressed() )

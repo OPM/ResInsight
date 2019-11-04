@@ -64,8 +64,11 @@ private:
     };
 
 private:
-    int getOrCreateIdForArrOfType(
-        ArrayRole arrayRole, ElementType elementType, size_t elementSizeInBytes, const void* data, size_t elementCount );
+    int getOrCreateIdForArrOfType( ArrayRole   arrayRole,
+                                   ElementType elementType,
+                                   size_t      elementSizeInBytes,
+                                   const void* data,
+                                   size_t      elementCount );
 
 private:
     std::map<Key, int> m_keyToIdMap;

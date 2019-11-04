@@ -46,8 +46,11 @@
 //==================================================================================================
 struct WellBorePartForTransCalc
 {
-    WellBorePartForTransCalc(
-        cvf::Vec3d lengthsInCell, double wellRadius, double skinFactor, bool isMainBore, const QString& metaData )
+    WellBorePartForTransCalc( cvf::Vec3d     lengthsInCell,
+                              double         wellRadius,
+                              double         skinFactor,
+                              bool           isMainBore,
+                              const QString& metaData )
         : lengthsInCell( lengthsInCell )
         , wellRadius( wellRadius )
         , skinFactor( skinFactor )
@@ -79,7 +82,8 @@ struct WellBorePartForTransCalc
 //--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionData>
     RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneCompdatValuesUsingAdjustedCellVolume(
-        const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings )
+        const RimWellPath*                       wellPath,
+        const RicExportCompletionDataSettingsUi& settings )
 {
     std::vector<RigCompletionData> completionData;
 
@@ -211,10 +215,10 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
             {
                 for ( std::shared_ptr<RicMswSubSegmentCellIntersection> intersection : segment->intersections() )
                 {
-                    double  diameter           = location->holeDiameter();
-                    QString completionMetaData = ( location->label() + QString( ": Sub: %1 Lateral: %2" )
-                                                                           .arg( location->subIndex() )
-                                                                           .arg( completion->index() ) );
+                    double  diameter = location->holeDiameter();
+                    QString completionMetaData =
+                        ( location->label() +
+                          QString( ": Sub: %1 Lateral: %2" ).arg( location->subIndex() ).arg( completion->index() ) );
 
                     WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc( intersection->lengthsInCell(),
                                                                                       diameter / 2.0,

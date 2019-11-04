@@ -576,8 +576,11 @@ QString RiuRelativePermeabilityPlotPanel::determineXAxisTitleFromCurveCollection
 //--------------------------------------------------------------------------------------------------
 /// Add a vertical labeled marker line at the specified saturation value
 //--------------------------------------------------------------------------------------------------
-void RiuRelativePermeabilityPlotPanel::addVerticalSaturationMarkerLine(
-    double saturationValue, QString label, QColor color, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers )
+void RiuRelativePermeabilityPlotPanel::addVerticalSaturationMarkerLine( double                       saturationValue,
+                                                                        QString                      label,
+                                                                        QColor                       color,
+                                                                        QwtPlot*                     plot,
+                                                                        std::vector<QwtPlotMarker*>* myPlotMarkers )
 {
     QwtPlotMarker* lineMarker = new QwtPlotMarker;
     lineMarker->setXValue( saturationValue );

@@ -92,8 +92,11 @@ private:
     static QString
         determineXAxisTitleFromCurveCollection( const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr );
 
-    static void addVerticalSaturationMarkerLine(
-        double saturationValue, QString label, QColor color, QwtPlot* plot, std::vector<QwtPlotMarker*>* myPlotMarkers );
+    static void addVerticalSaturationMarkerLine( double                       saturationValue,
+                                                 QString                      label,
+                                                 QColor                       color,
+                                                 QwtPlot*                     plot,
+                                                 std::vector<QwtPlotMarker*>* myPlotMarkers );
 
     static void addCurveConstSaturationIntersectionMarker( const RigFlowDiagSolverInterface::RelPermCurve& curve,
                                                            double                       saturationValue,

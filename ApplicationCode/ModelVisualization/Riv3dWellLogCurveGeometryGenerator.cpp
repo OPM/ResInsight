@@ -357,8 +357,8 @@ void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongSegment( const cv
     {
         caf::Line<double> triangleEdge1 = caf::Line<double>( drawSurfaceVertices[j], drawSurfaceVertices[j + 1] );
         caf::Line<double> triangleEdge2 = caf::Line<double>( drawSurfaceVertices[j + 2], drawSurfaceVertices[j + 1] );
-        cvf::Vec3d triangleNormal = ( triangleEdge1.vector().getNormalized() ^ triangleEdge2.vector().getNormalized() )
-                                        .getNormalized();
+        cvf::Vec3d        triangleNormal =
+            ( triangleEdge1.vector().getNormalized() ^ triangleEdge2.vector().getNormalized() ).getNormalized();
 
         cvf::Vec3d currentSubSegment      = ptEnd - extraVertices->back();
         cvf::Vec3d projectedSegmentVector = currentSubSegment - ( currentSubSegment * triangleNormal ) * triangleNormal;
@@ -382,8 +382,9 @@ void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongSegment( const cv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> Riv3dWellLogCurveGeometryGenerator::projectVerticesOntoTriangles(
-    const std::vector<cvf::Vec3d>& originalVertices, const std::vector<cvf::Vec3d>& drawSurfaceVertices )
+std::vector<cvf::Vec3d>
+    Riv3dWellLogCurveGeometryGenerator::projectVerticesOntoTriangles( const std::vector<cvf::Vec3d>& originalVertices,
+                                                                      const std::vector<cvf::Vec3d>& drawSurfaceVertices )
 {
     std::vector<cvf::Vec3d> projectedVertices;
     projectedVertices.reserve( originalVertices.size() );

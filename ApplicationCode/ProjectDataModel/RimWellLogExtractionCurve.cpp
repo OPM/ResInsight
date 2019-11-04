@@ -576,8 +576,11 @@ void RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( const RimW
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::setAutoNameComponents(
-    bool addCaseName, bool addProperty, bool addWellname, bool addTimeStep, bool addDate )
+void RimWellLogExtractionCurve::setAutoNameComponents( bool addCaseName,
+                                                       bool addProperty,
+                                                       bool addWellname,
+                                                       bool addTimeStep,
+                                                       bool addDate )
 {
     m_addCaseNameToCurveName = addCaseName;
     m_addPropertyToCurveName = addProperty;

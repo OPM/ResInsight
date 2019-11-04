@@ -63,12 +63,12 @@ void RicExportCompletionsWellSegmentsFeature::onActionTriggered( bool isChecked 
     RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
     CVF_ASSERT( wellPath );
 
-    RimFishbonesCollection* fishbonesCollection = caf::SelectionManager::instance()
-                                                      ->selectedItemAncestorOfType<RimFishbonesCollection>();
-    RimWellPathFractureCollection* fractureCollection = caf::SelectionManager::instance()
-                                                            ->selectedItemAncestorOfType<RimWellPathFractureCollection>();
-    RimPerforationCollection* perforationCollection = caf::SelectionManager::instance()
-                                                          ->selectedItemAncestorOfType<RimPerforationCollection>();
+    RimFishbonesCollection* fishbonesCollection =
+        caf::SelectionManager::instance()->selectedItemAncestorOfType<RimFishbonesCollection>();
+    RimWellPathFractureCollection* fractureCollection =
+        caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathFractureCollection>();
+    RimPerforationCollection* perforationCollection =
+        caf::SelectionManager::instance()->selectedItemAncestorOfType<RimPerforationCollection>();
 
     CVF_ASSERT( fishbonesCollection || fractureCollection || perforationCollection );
 

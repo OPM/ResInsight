@@ -1967,10 +1967,10 @@ void RimEclipseResultDefinition::syncInjectorToProducerSelection()
         {
             for ( const QString& producer : producers )
             {
-                std::pair<double, double> commFluxes = flowSol->flowDiagResults()
-                                                           ->injectorProducerPairFluxes( selectedInjector.toStdString(),
-                                                                                         producer.toStdString(),
-                                                                                         timeStep );
+                std::pair<double, double> commFluxes =
+                    flowSol->flowDiagResults()->injectorProducerPairFluxes( selectedInjector.toStdString(),
+                                                                            producer.toStdString(),
+                                                                            timeStep );
                 if ( std::abs( commFluxes.first ) > epsilon || std::abs( commFluxes.second ) > epsilon )
                 {
                     newProducerSelection.insert( producer );
@@ -2013,10 +2013,10 @@ void RimEclipseResultDefinition::syncProducerToInjectorSelection()
         {
             for ( const QString& injector : injectors )
             {
-                std::pair<double, double> commFluxes = flowSol->flowDiagResults()
-                                                           ->injectorProducerPairFluxes( injector.toStdString(),
-                                                                                         selectedProducer.toStdString(),
-                                                                                         timeStep );
+                std::pair<double, double> commFluxes =
+                    flowSol->flowDiagResults()->injectorProducerPairFluxes( injector.toStdString(),
+                                                                            selectedProducer.toStdString(),
+                                                                            timeStep );
                 if ( std::abs( commFluxes.first ) > epsilon || std::abs( commFluxes.second ) > epsilon )
                 {
                     newInjectorSelection.insert( injector );

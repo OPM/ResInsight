@@ -304,27 +304,30 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
                 NTG = dataAccessObjectNTG->cellScalarGlobIdx( reservoirCellIndex );
             }
 
-            double transmissibility_X = RigFractureTransmissibilityEquations::matrixToFractureTrans( permY,
-                                                                                                     NTG,
-                                                                                                     Ay,
-                                                                                                     dx,
-                                                                                                     m_fractureSkinFactor,
-                                                                                                     fractureAreaWeightedlength,
-                                                                                                     m_cDarcy );
-            double transmissibility_Y = RigFractureTransmissibilityEquations::matrixToFractureTrans( permX,
-                                                                                                     NTG,
-                                                                                                     Ax,
-                                                                                                     dy,
-                                                                                                     m_fractureSkinFactor,
-                                                                                                     fractureAreaWeightedlength,
-                                                                                                     m_cDarcy );
-            double transmissibility_Z = RigFractureTransmissibilityEquations::matrixToFractureTrans( permZ,
-                                                                                                     1.0,
-                                                                                                     Az,
-                                                                                                     dz,
-                                                                                                     m_fractureSkinFactor,
-                                                                                                     fractureAreaWeightedlength,
-                                                                                                     m_cDarcy );
+            double transmissibility_X =
+                RigFractureTransmissibilityEquations::matrixToFractureTrans( permY,
+                                                                             NTG,
+                                                                             Ay,
+                                                                             dx,
+                                                                             m_fractureSkinFactor,
+                                                                             fractureAreaWeightedlength,
+                                                                             m_cDarcy );
+            double transmissibility_Y =
+                RigFractureTransmissibilityEquations::matrixToFractureTrans( permX,
+                                                                             NTG,
+                                                                             Ax,
+                                                                             dy,
+                                                                             m_fractureSkinFactor,
+                                                                             fractureAreaWeightedlength,
+                                                                             m_cDarcy );
+            double transmissibility_Z =
+                RigFractureTransmissibilityEquations::matrixToFractureTrans( permZ,
+                                                                             1.0,
+                                                                             Az,
+                                                                             dz,
+                                                                             m_fractureSkinFactor,
+                                                                             fractureAreaWeightedlength,
+                                                                             m_cDarcy );
 
             transmissibility = sqrt( transmissibility_X * transmissibility_X + transmissibility_Y * transmissibility_Y +
                                      transmissibility_Z * transmissibility_Z );

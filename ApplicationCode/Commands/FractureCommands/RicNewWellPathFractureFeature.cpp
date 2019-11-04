@@ -170,8 +170,8 @@ RimWellPathFractureCollection* RicNewWellPathFractureFeature::selectedWellPathFr
         {
             return wellPaths[0]->fractureCollection();
         }
-        RimWellPathCompletions* completions = caf::SelectionManager::instance()
-                                                  ->selectedItemOfType<RimWellPathCompletions>();
+        RimWellPathCompletions* completions =
+            caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletions>();
         if ( completions )
         {
             return completions->fractureCollection();

@@ -116,9 +116,9 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
                     QString   resultPath = fi.absolutePath();
                     if ( caf::Utils::isFolderWritable( resultPath ) )
                     {
-                        bool success = ecl_file_write_index( m_ecl_file,
-                                                             RiaStringEncodingTools::toNativeEncoded( indexFileName )
-                                                                 .data() );
+                        bool success =
+                            ecl_file_write_index( m_ecl_file,
+                                                  RiaStringEncodingTools::toNativeEncoded( indexFileName ).data() );
 
                         if ( success )
                         {

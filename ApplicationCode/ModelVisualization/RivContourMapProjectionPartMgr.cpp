@@ -543,7 +543,8 @@ cvf::ref<cvf::DrawableGeo> RivContourMapProjectionPartMgr::createPickPointVisDra
 ///
 //--------------------------------------------------------------------------------------------------
 bool RivContourMapProjectionPartMgr::lineOverlapsWithPreviousContourLevel(
-    const cvf::Vec3d& lineCenter, const RimContourMapProjection::ContourPolygons* previousLevel ) const
+    const cvf::Vec3d&                               lineCenter,
+    const RimContourMapProjection::ContourPolygons* previousLevel ) const
 {
     const int64_t jump = 50;
     CVF_ASSERT( previousLevel );

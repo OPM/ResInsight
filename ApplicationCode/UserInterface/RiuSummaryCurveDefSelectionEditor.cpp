@@ -60,7 +60,8 @@ RiuSummaryCurveDefSelection* RiuSummaryCurveDefSelectionEditor::summaryAddressSe
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelectionEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(
-    const caf::PdmUiOrdering& topLevelUiOrdering, const QString& uiConfigName )
+    const caf::PdmUiOrdering& topLevelUiOrdering,
+    const QString&            uiConfigName )
 {
     if ( !m_firstRowLeftLayout || !m_firstRowRightLayout ) return;
 

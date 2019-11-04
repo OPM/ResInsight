@@ -50,7 +50,9 @@ CAF_CMD_SOURCE_INIT( RicWellPathExportCompletionDataFeature, "RicWellPathExportC
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions(
-    const QString& dialogTitle, const std::vector<RimWellPath*>& wellPaths, const std::vector<RimSimWellInView*>& simWells )
+    const QString&                        dialogTitle,
+    const std::vector<RimWellPath*>&      wellPaths,
+    const std::vector<RimSimWellInView*>& simWells )
 {
     RiaApplication* app        = RiaApplication::instance();
     RimProject*     project    = app->project();
@@ -210,8 +212,8 @@ std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPa
 
     if ( wellPaths.empty() )
     {
-        RimWellPathCompletions* completions = caf::SelectionManager::instance()
-                                                  ->selectedItemAncestorOfType<RimWellPathCompletions>();
+        RimWellPathCompletions* completions =
+            caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathCompletions>();
         if ( completions )
         {
             RimWellPath* wellPath = nullptr;

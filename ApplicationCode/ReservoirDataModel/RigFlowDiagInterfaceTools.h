@@ -88,8 +88,10 @@ inline Opm::FlowDiagnostics::ConnectionValues
     return flux;
 }
 
-inline Opm::FlowDiagnostics::ConnectionValues extractFluxFieldFromRestartFile(
-    const Opm::ECLGraph& G, const Opm::ECLRestartData& rstrt, RigFlowDiagResultAddress::PhaseSelection phaseSelection )
+inline Opm::FlowDiagnostics::ConnectionValues
+    extractFluxFieldFromRestartFile( const Opm::ECLGraph&                     G,
+                                     const Opm::ECLRestartData&               rstrt,
+                                     RigFlowDiagResultAddress::PhaseSelection phaseSelection )
 {
     auto getFlux = [&G, &rstrt]( const Opm::ECLPhaseIndex p ) { return G.flux( rstrt, p ); };
 

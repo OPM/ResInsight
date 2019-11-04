@@ -79,10 +79,8 @@ bool RicEclipseCellResultToFileImpl::writeBinaryResultToTextFile( const QString&
 {
     CVF_TIGHT_ASSERT( eclipseCase );
 
-    cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition( eclipseCase,
-                                                                                                       0,
-                                                                                                       timeStep,
-                                                                                                       resultDefinition );
+    cvf::ref<RigResultAccessor> resultAccessor =
+        RigResultAccessorFactory::createFromResultDefinition( eclipseCase, 0, timeStep, resultDefinition );
     if ( resultAccessor.isNull() )
     {
         return false;

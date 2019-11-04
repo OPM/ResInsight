@@ -191,8 +191,9 @@ void RimPlotTemplateFolderItem::defineEditorAttribute( const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotTemplateFolderItem::appendOptionItemsForPlotTemplatesRecursively(
-    QList<caf::PdmOptionItemInfo>& options, RimPlotTemplateFolderItem* templateFolderItem, int menuLevel )
+void RimPlotTemplateFolderItem::appendOptionItemsForPlotTemplatesRecursively( QList<caf::PdmOptionItemInfo>& options,
+                                                                              RimPlotTemplateFolderItem* templateFolderItem,
+                                                                              int                        menuLevel )
 {
     {
         auto subFolders = templateFolderItem->subFolders();

@@ -132,8 +132,8 @@ bool RicNewWellBoreStabilityPlotFeature::isCommandEnabled()
 void RicNewWellBoreStabilityPlotFeature::onActionTriggered( bool isChecked )
 {
     RimWellPath*              wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
-    RimWellLogPlotCollection* plotCollection = caf::SelectionManager::instance()
-                                                   ->selectedItemOfType<RimWellLogPlotCollection>();
+    RimWellLogPlotCollection* plotCollection =
+        caf::SelectionManager::instance()->selectedItemOfType<RimWellLogPlotCollection>();
     if ( !wellPath )
     {
         if ( plotCollection )
@@ -293,13 +293,8 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
     {
         const QString&      resultName = resultNames[i];
         RigFemResultAddress resAddr( RIG_WELLPATH_DERIVED, resultName.toStdString(), "" );
-        RimWellLogWbsCurve* curve = RicWellLogTools::addWellLogWbsCurve( stabilityCurvesTrack,
-                                                                         geoMechCase,
-                                                                         nullptr,
-                                                                         wellPath,
-                                                                         -1,
-                                                                         false,
-                                                                         false );
+        RimWellLogWbsCurve* curve =
+            RicWellLogTools::addWellLogWbsCurve( stabilityCurvesTrack, geoMechCase, nullptr, wellPath, -1, false, false );
         curve->setGeoMechResultAddress( resAddr );
         curve->setCurrentTimeStep( timeStep );
         curve->setAutoNameComponents( false, true, false, false, false );

@@ -685,8 +685,8 @@ private:
         std::deque<size_t>   wellCellIndices = branchLineIt->second;
         if ( !startAtFront ) std::reverse( wellCellIndices.begin(), wellCellIndices.end() );
 
-        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0]
-                                                                         .m_branchResultPoints;
+        const std::vector<RigWellResultPoint>& orgWellResultPoints =
+            m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
 
 #if 1
         if ( wellCellIndices.size() )
@@ -739,8 +739,8 @@ private:
     //--------------------------------------------------------------------------------------------------
     void buildCellSearchTree()
     {
-        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0]
-                                                                         .m_branchResultPoints;
+        const std::vector<RigWellResultPoint>& orgWellResultPoints =
+            m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
         size_t cellCount = orgWellResultPoints.size();
 
         m_cellBoundingBoxes.resize( cellCount );
@@ -775,8 +775,8 @@ private:
     //--------------------------------------------------------------------------------------------------
     void buildCellsToNeighborsMap()
     {
-        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0]
-                                                                         .m_branchResultPoints;
+        const std::vector<RigWellResultPoint>& orgWellResultPoints =
+            m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
         size_t                         cellCount = orgWellResultPoints.size();
         const std::vector<cvf::Vec3d>& nodes     = m_eclipseCaseData->mainGrid()->nodes();
         double                         cellSizeI, cellSizeJ, cellSizeK;
@@ -837,8 +837,8 @@ private:
     //--------------------------------------------------------------------------------------------------
     void buildUnusedCellsSet()
     {
-        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0]
-                                                                         .m_branchResultPoints;
+        const std::vector<RigWellResultPoint>& orgWellResultPoints =
+            m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
         size_t cellCount = orgWellResultPoints.size();
 
         for ( size_t i = 0; i < cellCount; ++i )
@@ -911,10 +911,10 @@ private:
     //--------------------------------------------------------------------------------------------------
     size_t findBestNeighbor( size_t cell, std::set<size_t> neighbors )
     {
-        size_t                                 posKNeighbor        = cvf::UNDEFINED_SIZE_T;
-        size_t                                 firstUnused         = cvf::UNDEFINED_SIZE_T;
-        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0]
-                                                                         .m_branchResultPoints;
+        size_t                                 posKNeighbor = cvf::UNDEFINED_SIZE_T;
+        size_t                                 firstUnused  = cvf::UNDEFINED_SIZE_T;
+        const std::vector<RigWellResultPoint>& orgWellResultPoints =
+            m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
 
         for ( size_t neighbor : neighbors )
         {
@@ -1073,8 +1073,8 @@ private:
     //--------------------------------------------------------------------------------------------------
     double calculateWellCellToPointDistance( size_t wellCellIdx, const cvf::Vec3d& point )
     {
-        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0]
-                                                                         .m_branchResultPoints;
+        const std::vector<RigWellResultPoint>& orgWellResultPoints =
+            m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
 
         const RigCell& c = m_eclipseCaseData->cellFromWellResultCell( orgWellResultPoints[wellCellIdx] );
 

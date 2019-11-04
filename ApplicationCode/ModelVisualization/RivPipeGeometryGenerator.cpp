@@ -242,8 +242,9 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateLine( const cvf::Ve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder(
-    double radius, size_t crossSectionNodeCount, const cvf::Vec3dArray* cylinderCenterCoords )
+cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder( double radius,
+                                                                               size_t crossSectionNodeCount,
+                                                                               const cvf::Vec3dArray* cylinderCenterCoords )
 {
     CVF_ASSERT( cylinderCenterCoords != nullptr );
 
@@ -396,8 +397,9 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateVariableRadiusTube(
-    size_t crossSectionNodeCount, const cvf::Vec3dArray* cylinderCenterCoords, const std::vector<double>& radii )
+cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateVariableRadiusTube( size_t crossSectionNodeCount,
+                                                                                 const cvf::Vec3dArray* cylinderCenterCoords,
+                                                                                 const std::vector<double>& radii )
 {
     CVF_ASSERT( cylinderCenterCoords != nullptr );
 

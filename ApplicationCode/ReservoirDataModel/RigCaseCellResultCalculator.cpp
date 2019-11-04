@@ -139,11 +139,8 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
             cvf::ref<RigResultAccessor> sourceResultAccessor =
                 RigResultAccessorFactory::createFromResultAddress( sourceCase, gridIdx, porosityModel, fIdx, nativeAddress );
 
-            cvf::ref<RigResultModifier> resultModifier = RigResultModifierFactory::createResultModifier( sourceCase,
-                                                                                                         gridIdx,
-                                                                                                         porosityModel,
-                                                                                                         fIdx,
-                                                                                                         address );
+            cvf::ref<RigResultModifier> resultModifier =
+                RigResultModifierFactory::createResultModifier( sourceCase, gridIdx, porosityModel, fIdx, address );
 
             size_t baseFrameIdx = fIdx;
             if ( address.isTimeLapse() )

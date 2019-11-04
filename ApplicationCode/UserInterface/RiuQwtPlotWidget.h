@@ -83,8 +83,11 @@ public:
 
     void enableGridLines( QwtPlot::Axis axis, bool majorGridLines, bool minorGridLines );
 
-    void setMajorAndMinorTickIntervals(
-        QwtPlot::Axis axis, double majorTickInterval, double minorTickInterval, double minValue, double maxValue );
+    void setMajorAndMinorTickIntervals( QwtPlot::Axis axis,
+                                        double        majorTickInterval,
+                                        double        minorTickInterval,
+                                        double        minValue,
+                                        double        maxValue );
     void setAutoTickIntervalCounts( QwtPlot::Axis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount );
     double majorTickInterval( QwtPlot::Axis axis ) const;
     double minorTickInterval( QwtPlot::Axis axis ) const;

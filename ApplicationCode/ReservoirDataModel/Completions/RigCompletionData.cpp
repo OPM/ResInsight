@@ -166,8 +166,11 @@ void RigCompletionData::setTransmissibility( double transmissibility )
 //==================================================================================================
 ///
 //==================================================================================================
-void RigCompletionData::setTransAndWPImultBackgroundDataFromFishbone(
-    double transmissibility, double skinFactor, double diameter, CellDirection direction, bool isMainBore )
+void RigCompletionData::setTransAndWPImultBackgroundDataFromFishbone( double        transmissibility,
+                                                                      double        skinFactor,
+                                                                      double        diameter,
+                                                                      CellDirection direction,
+                                                                      bool          isMainBore )
 {
     m_completionType   = FISHBONES;
     m_transmissibility = transmissibility;
@@ -180,8 +183,12 @@ void RigCompletionData::setTransAndWPImultBackgroundDataFromFishbone(
 //==================================================================================================
 ///
 //==================================================================================================
-void RigCompletionData::setTransAndWPImultBackgroundDataFromPerforation(
-    double transmissibility, double skinFactor, double diameter, double dFactor, double kh, CellDirection direction )
+void RigCompletionData::setTransAndWPImultBackgroundDataFromPerforation( double        transmissibility,
+                                                                         double        skinFactor,
+                                                                         double        diameter,
+                                                                         double        dFactor,
+                                                                         double        kh,
+                                                                         CellDirection direction )
 {
     m_completionType   = PERFORATION;
     m_transmissibility = transmissibility;
@@ -212,8 +219,11 @@ void RigCompletionData::setCombinedValuesExplicitTrans( double         transmiss
 //==================================================================================================
 ///
 //==================================================================================================
-void RigCompletionData::setCombinedValuesImplicitTransWPImult(
-    double wpimult, double skinFactor, double diameter, CellDirection celldirection, CompletionType completionType )
+void RigCompletionData::setCombinedValuesImplicitTransWPImult( double         wpimult,
+                                                               double         skinFactor,
+                                                               double         diameter,
+                                                               CellDirection  celldirection,
+                                                               CompletionType completionType )
 {
     m_wpimult        = wpimult;
     m_direction      = celldirection;

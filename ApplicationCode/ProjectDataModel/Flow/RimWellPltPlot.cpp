@@ -473,8 +473,8 @@ public:
             m_pipeBranchCLCoords.push_back( intersections[wpExIdx].endPoint );
             m_pipeBranchMeasuredDepths.push_back( intersections[wpExIdx].endMD );
 
-            const RigWellResultPoint& resPoint = resFrame.m_wellResultBranches[it->second.first]
-                                                     .m_branchResultPoints[it->second.second];
+            const RigWellResultPoint& resPoint =
+                resFrame.m_wellResultBranches[it->second.first].m_branchResultPoints[it->second.second];
 
             m_pipeBranchWellResultPoints.push_back( resPoint );
             if ( wpExIdx < intersections.size() - 1 )
@@ -570,8 +570,8 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                     QString curveUnitText = RimWellPlotTools::flowUnitText( RimWellLogFile::WELL_FLOW_COND_RESERVOIR,
                                                                             unitSet );
 
-                    const std::vector<double> accFlow = wfTotalAccumulator
-                                                            .accumulatedTracerFlowPrPseudoLength( RIG_FLOW_TOTAL_NAME, 0 );
+                    const std::vector<double> accFlow =
+                        wfTotalAccumulator.accumulatedTracerFlowPrPseudoLength( RIG_FLOW_TOTAL_NAME, 0 );
                     addStackedCurve( curveName + ", " + RIG_FLOW_TOTAL_NAME + " " + curveUnitText,
                                      depthValues,
                                      accFlow,
@@ -615,8 +615,8 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                                                                                      unitSet,
                                                                                      flowPhase );
 
-                            const std::vector<double>& accFlow = wfPhaseAccumulator
-                                                                     .accumulatedTracerFlowPrPseudoLength( tracerName, 0 );
+                            const std::vector<double>& accFlow =
+                                wfPhaseAccumulator.accumulatedTracerFlowPrPseudoLength( tracerName, 0 );
                             addStackedCurve( curveName + ", " + tracerName + " " + curveUnitText,
                                              depthValues,
                                              accFlow,
@@ -860,7 +860,8 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
     }
     else if ( fieldNeedingOptions == &m_selectedTimeSteps )
     {
-        std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::pltPlotChannelTypes();
+        std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse =
+            RifEclipseRftAddress::pltPlotChannelTypes();
 
         RimWellPlotTools::calculateValueOptionsForTimeSteps( RimWellPlotTools::simWellName( m_wellPathName ),
                                                              selectedSourcesExpanded(),

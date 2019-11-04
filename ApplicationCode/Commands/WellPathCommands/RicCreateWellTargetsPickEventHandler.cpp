@@ -108,11 +108,11 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
                                                                                 intersectionPointInDomain );
 
             double md = wellPathSourceInfo->measuredDepth( firstPickItem.faceIdx(), intersectionPointInDomain );
-            doSetAzimuthAndInclination = calculateAzimuthAndInclinationAtMd( md,
-                                                                             wellPathSourceInfo->wellPath()
-                                                                                 ->wellPathGeometry(),
-                                                                             &azimuth,
-                                                                             &inclination );
+            doSetAzimuthAndInclination =
+                calculateAzimuthAndInclinationAtMd( md,
+                                                    wellPathSourceInfo->wellPath()->wellPathGeometry(),
+                                                    &azimuth,
+                                                    &inclination );
         }
         else if ( isGridSourceObject( firstPickItem.sourceInfo() ) )
         {

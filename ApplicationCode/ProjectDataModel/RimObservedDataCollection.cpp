@@ -165,8 +165,10 @@ RimObservedSummaryData*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimObservedSummaryData* RimObservedDataCollection::createAndAddCvsObservedSummaryDataFromFile(
-    const QString& fileName, bool useSavedFieldsValuesInDialog, QString* errorText /*= nullptr*/ )
+RimObservedSummaryData*
+    RimObservedDataCollection::createAndAddCvsObservedSummaryDataFromFile( const QString& fileName,
+                                                                           bool           useSavedFieldsValuesInDialog,
+                                                                           QString*       errorText /*= nullptr*/ )
 {
     if ( !fileExists( fileName, errorText ) ) return nullptr;
 

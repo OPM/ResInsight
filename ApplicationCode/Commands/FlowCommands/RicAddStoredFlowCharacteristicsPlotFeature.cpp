@@ -42,7 +42,8 @@ bool RicAddStoredFlowCharacteristicsPlotFeature::isCommandEnabled()
 {
     if ( RiaApplication::instance()->project() )
     {
-        RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
+        RimFlowPlotCollection* flowPlotColl =
+            RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
         if ( flowPlotColl )
         {
             RimFlowCharacteristicsPlot* flowCharacteristicsPlot = dynamic_cast<RimFlowCharacteristicsPlot*>(
@@ -65,7 +66,8 @@ void RicAddStoredFlowCharacteristicsPlotFeature::onActionTriggered( bool isCheck
 {
     if ( RiaApplication::instance()->project() )
     {
-        RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
+        RimFlowPlotCollection* flowPlotColl =
+            RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
         if ( flowPlotColl )
         {
             RimFlowCharacteristicsPlot* sourceObject = dynamic_cast<RimFlowCharacteristicsPlot*>(

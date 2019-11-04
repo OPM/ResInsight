@@ -62,7 +62,8 @@ RicSummaryCurveCalculatorEditor::~RicSummaryCurveCalculatorEditor()
 ///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(
-    const caf::PdmUiOrdering& topLevelUiOrdering, const QString& uiConfigName )
+    const caf::PdmUiOrdering& topLevelUiOrdering,
+    const QString&            uiConfigName )
 {
     if ( !m_firstRowLeftLayout || !m_firstRowRightLayout ) return;
 

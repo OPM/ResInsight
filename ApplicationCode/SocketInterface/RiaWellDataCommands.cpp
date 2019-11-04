@@ -298,8 +298,8 @@ public:
 
         for ( size_t bIdx = 0; bIdx < wellResFrame.m_wellResultBranches.size(); ++bIdx )
         {
-            const std::vector<RigWellResultPoint>& branchResPoints = wellResFrame.m_wellResultBranches[bIdx]
-                                                                         .m_branchResultPoints;
+            const std::vector<RigWellResultPoint>& branchResPoints =
+                wellResFrame.m_wellResultBranches[bIdx].m_branchResultPoints;
             for ( size_t rpIdx = 0; rpIdx < branchResPoints.size(); ++rpIdx )
             {
                 const RigWellResultPoint& resPoint = branchResPoints[rpIdx];

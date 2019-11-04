@@ -460,8 +460,10 @@ std::vector<RigCompletionData>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::computeDynamicCompletionsForWellPath(
-    RimWellPath* wellPath, RimEclipseCase* eclipseCase, size_t timeStepIndex )
+std::vector<RigCompletionData>
+    RicWellPathExportCompletionDataFeatureImpl::computeDynamicCompletionsForWellPath( RimWellPath*    wellPath,
+                                                                                      RimEclipseCase* eclipseCase,
+                                                                                      size_t          timeStepIndex )
 {
     std::vector<RigCompletionData> completionsPerEclipseCell;
 
@@ -474,10 +476,10 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compu
         exportSettings.includePerforations = true;
         exportSettings.includeFractures    = true;
 
-        completionsPerEclipseCell = generatePerforationsCompdatValues( wellPath,
-                                                                       wellPath->perforationIntervalCollection()
-                                                                           ->perforations(),
-                                                                       exportSettings );
+        completionsPerEclipseCell =
+            generatePerforationsCompdatValues( wellPath,
+                                               wellPath->perforationIntervalCollection()->perforations(),
+                                               exportSettings );
     }
 
     return completionsPerEclipseCell;
@@ -487,7 +489,8 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compu
 ///
 //==================================================================================================
 RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCellCompletions(
-    const std::vector<RigCompletionData>& completions, const RicExportCompletionDataSettingsUi& settings )
+    const std::vector<RigCompletionData>&    completions,
+    const RicExportCompletionDataSettingsUi& settings )
 {
     CVF_ASSERT( !completions.empty() );
 
@@ -780,7 +783,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile( RimEclips
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
-    RimEclipseCase* gridCase, QFilePtr exportFile, const std::map<QString, std::vector<RigCompletionData>>& completions )
+    RimEclipseCase*                                          gridCase,
+    QFilePtr                                                 exportFile,
+    const std::map<QString, std::vector<RigCompletionData>>& completions )
 {
     QTextStream stream( exportFile.get() );
 
@@ -958,7 +963,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatter(
-    RifTextDataTableFormatter& formatter, const QString& gridName, const std::vector<RigCompletionData>& completionData )
+    RifTextDataTableFormatter&            formatter,
+    const QString&                        gridName,
+    const std::vector<RigCompletionData>& completionData )
 {
     std::vector<RifTextDataTableColumn> header;
 
@@ -1094,7 +1101,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeatureImpl::exportWpimultTableUsingFormatter(
-    RifTextDataTableFormatter& formatter, const QString& gridName, const std::vector<RigCompletionData>& completionData )
+    RifTextDataTableFormatter&            formatter,
+    const QString&                        gridName,
+    const std::vector<RigCompletionData>& completionData )
 {
     std::vector<RifTextDataTableColumn> header;
 
@@ -1192,8 +1201,8 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
                                                                       cell.globCellIndex,
                                                                       cell.intersectionLengthsInCellCS );
 
-                const RimNonDarcyPerforationParameters* nonDarcyParameters = wellPath->perforationIntervalCollection()
-                                                                                 ->nonDarcyParameters();
+                const RimNonDarcyPerforationParameters* nonDarcyParameters =
+                    wellPath->perforationIntervalCollection()->nonDarcyParameters();
 
                 double transmissibility = 0.0;
                 double kh               = RigCompletionData::defaultValue();
@@ -1429,7 +1438,8 @@ TransmissibilityData
 
     const double totalKh = RigTransmissibilityEquations::totalKh( permx, permy, permz, internalCellLengths, latNtg, ntg );
 
-    const double effectiveK = RigTransmissibilityEquations::effectiveK( permx, permy, permz, internalCellLengths, latNtg, ntg );
+    const double effectiveK =
+        RigTransmissibilityEquations::effectiveK( permx, permy, permz, internalCellLengths, latNtg, ntg );
     const double effectiveH = RigTransmissibilityEquations::effectiveH( internalCellLengths, latNtg, ntg );
 
     double darcy = RiaEclipseUnitTools::darcysConstant( wellPath->unitSystem() );
@@ -1531,8 +1541,11 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateDFactor( RimEclipseC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEclipseDoes(
-    RimEclipseCase* eclipseCase, double skinFactor, double wellRadius, size_t globalCellIndex, CellDirection direction )
+double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEclipseDoes( RimEclipseCase* eclipseCase,
+                                                                                           double          skinFactor,
+                                                                                           double          wellRadius,
+                                                                                           size_t globalCellIndex,
+                                                                                           CellDirection direction )
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
@@ -1651,8 +1664,10 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, cvf::Vec2i> RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ(
-    const RimEclipseCase* gridCase, const RimWellPath* wellPath, const QString& gridName )
+std::pair<double, cvf::Vec2i>
+    RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ( const RimEclipseCase* gridCase,
+                                                                                 const RimWellPath*    wellPath,
+                                                                                 const QString&        gridName )
 {
     const RigEclipseCaseData*      caseData         = gridCase->eclipseCaseData();
     const RigMainGrid*             mainGrid         = caseData->mainGrid();

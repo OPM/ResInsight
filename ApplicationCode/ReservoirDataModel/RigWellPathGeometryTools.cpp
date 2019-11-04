@@ -57,8 +57,8 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals( c
         cvf::Vec3d normal( 0, 0, 0 );
         if ( cvf::Math::abs( tangent * projectionPlaneNormal ) < 0.7071 )
         {
-            cvf::Vec3d projectedTangent = ( tangent - ( tangent * projectionPlaneNormal ) * projectionPlaneNormal )
-                                              .getNormalized();
+            cvf::Vec3d projectedTangent =
+                ( tangent - ( tangent * projectionPlaneNormal ) * projectionPlaneNormal ).getNormalized();
             normal = ( projectedTangent ^ projectionPlaneNormal ).getNormalized();
             normal = normal.getTransformedVector( cvf::Mat3d::fromRotation( tangent, planeAngle ) );
         }
@@ -217,8 +217,8 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals( c
             if ( lastNormalNonInterpolated.length() > 0.0 && nextNormal.length() > 0.0 )
             {
                 // Both last and next are acceptable, interpolate!
-                currentNormal = ( distanceToNext * lastNormalNonInterpolated + distanceFromLast * nextNormal )
-                                    .getNormalized();
+                currentNormal =
+                    ( distanceToNext * lastNormalNonInterpolated + distanceFromLast * nextNormal ).getNormalized();
             }
             else if ( lastNormalNonInterpolated.length() > 0.0 )
             {

@@ -176,8 +176,8 @@ RicfCommandResponse RicfExportWellPathCompletions::execute()
             }
             else
             {
-                QString warning = QString( "exportWellPathCompletions: Could not find well path with name %1" )
-                                      .arg( wellPathName );
+                QString warning =
+                    QString( "exportWellPathCompletions: Could not find well path with name %1" ).arg( wellPathName );
                 RiaLogging::warning( warning );
                 response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warning );
             }

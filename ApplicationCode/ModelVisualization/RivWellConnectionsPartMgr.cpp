@@ -169,10 +169,8 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
             }
         }
 
-        std::pair<double, double> injProdFluxPair   = flowResults->injectorProducerPairFluxes( injectorName,
-                                                                                             producerName,
-                                                                                             static_cast<int>(
-                                                                                                 frameIndex ) );
+        std::pair<double, double> injProdFluxPair =
+            flowResults->injectorProducerPairFluxes( injectorName, producerName, static_cast<int>( frameIndex ) );
         std::pair<double, double> injProdFluxPairXF = flowResults->injectorProducerPairFluxes( crossFlowInjectorName,
                                                                                                crossFlowProducerName,
                                                                                                static_cast<int>(
@@ -210,12 +208,8 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
                     startPoint.z() -= 0.5 * characteristicCellSize;
                     endPoint.z() -= 0.5 * characteristicCellSize;
                 }
-                cvf::ref<cvf::Part> arrowPart = createArrowPart( startPoint,
-                                                                 endPoint,
-                                                                 width,
-                                                                 isProducer,
-                                                                 arrowColor,
-                                                                 enableLighting );
+                cvf::ref<cvf::Part> arrowPart =
+                    createArrowPart( startPoint, endPoint, width, isProducer, arrowColor, enableLighting );
                 model->addPart( arrowPart.p() );
             }
 
@@ -223,12 +217,8 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
             {
                 startPoint.z() -= 0.5 * characteristicCellSize;
                 endPoint.z() -= 0.5 * characteristicCellSize;
-                cvf::ref<cvf::Part> arrowPart = createArrowPart( startPoint,
-                                                                 endPoint,
-                                                                 widthXf,
-                                                                 !isProducer,
-                                                                 arrowColor,
-                                                                 enableLighting );
+                cvf::ref<cvf::Part> arrowPart =
+                    createArrowPart( startPoint, endPoint, widthXf, !isProducer, arrowColor, enableLighting );
                 model->addPart( arrowPart.p() );
             }
         }

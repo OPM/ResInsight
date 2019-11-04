@@ -162,7 +162,8 @@ void RifSummaryCaseRestartSelector::determineFilesToImport( const std::vector<Ri
 ///
 //--------------------------------------------------------------------------------------------------
 void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser(
-    const std::vector<RifSummaryCaseFileImportInfo>& initialFiles, bool enableApplyToAllField )
+    const std::vector<RifSummaryCaseFileImportInfo>& initialFiles,
+    bool                                             enableApplyToAllField )
 {
     RicSummaryCaseRestartDialogResult lastResult;
 
