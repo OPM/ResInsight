@@ -1,59 +1,65 @@
 @startuml
+scale 2000 width
 
 actor RedrawScheduler
 
 box "Rim3dView" #White
 	participant createDisplayModelAndRedraw order 10
 	participant setCurrentTimeStepAndUpdate order 20
+	participant updateDisplayModelForCurrentTimeStepAndRedraw  order 30
 end box
 
 box "RimSpecialView" #LightBlue
-	participant createDisplayModel order 20
-	participant onUpdateCurrentTimeStep  order 30
+	participant onCreateDisplayModel order 40
+	participant onUpdateDisplayModelForCurrentTimeStep order 45
 end box	
 
 box "RiuViewer" #LightBlue
-	participant setCurrentFrame order 40
+	participant setCurrentFrame order 50
 end box	
 
 box "Rim3dView Comparison" #LightGray
-	participant createDisplayModelAndRedraw_c order 45
+	participant createDisplayModelAndRedraw_c order 60
+
 end box
 
 box "RimSpecialView Comparison" #LightGray
-	participant onUpdateCurrentTimeStep_c order 50
+	participant onCreateDisplayModel_c order 70
+	participant onUpdateDisplayModelForCurrentTimeStep_c order 80
 
-	participant createDisplayModel_c order 60
 end box	
 
 
 RedrawScheduler -> createDisplayModelAndRedraw ++
 
-createDisplayModelAndRedraw -> createDisplayModel ++
-createDisplayModel -> setCurrentFrame ++
+createDisplayModelAndRedraw -> onCreateDisplayModel ++
+onCreateDisplayModel -> setCurrentFrame ++
 
-setCurrentFrame -> setCurrentTimeStepAndUpdate 
-activate setCurrentTimeStepAndUpdate
+setCurrentFrame -> setCurrentTimeStepAndUpdate ++ 
 
-setCurrentTimeStepAndUpdate -> onUpdateCurrentTimeStep ++
-onUpdateCurrentTimeStep --> setCurrentTimeStepAndUpdate -- : return 
+setCurrentTimeStepAndUpdate -> updateDisplayModelForCurrentTimeStepAndRedraw ++
 
-setCurrentTimeStepAndUpdate -> onUpdateCurrentTimeStep_c ++
-onUpdateCurrentTimeStep_c --> setCurrentTimeStepAndUpdate --
+updateDisplayModelForCurrentTimeStepAndRedraw  -> onUpdateDisplayModelForCurrentTimeStep ++
+onUpdateDisplayModelForCurrentTimeStep --> updateDisplayModelForCurrentTimeStepAndRedraw -- :return
+
+updateDisplayModelForCurrentTimeStepAndRedraw  -> onUpdateDisplayModelForCurrentTimeStep_c ++
+onUpdateDisplayModelForCurrentTimeStep_c --> updateDisplayModelForCurrentTimeStepAndRedraw  -- :return
+
+updateDisplayModelForCurrentTimeStepAndRedraw --> setCurrentTimeStepAndUpdate -- : return 
 
 setCurrentTimeStepAndUpdate --> setCurrentFrame --: return 
-setCurrentFrame --> createDisplayModel --: return
+setCurrentFrame --> onCreateDisplayModel --: return
 
-createDisplayModel --> createDisplayModelAndRedraw --: return
+onCreateDisplayModel --> createDisplayModelAndRedraw --: return
 
 createDisplayModelAndRedraw -> createDisplayModelAndRedraw_c ++
-createDisplayModelAndRedraw_c -> createDisplayModel_c++
-createDisplayModel_c --> createDisplayModelAndRedraw_c-- : return
+createDisplayModelAndRedraw_c -> onCreateDisplayModel_c ++	
+onCreateDisplayModel_c --> createDisplayModelAndRedraw_c-- : return
 
 createDisplayModelAndRedraw_c --> createDisplayModelAndRedraw -- : return
 
-createDisplayModelAndRedraw -> onUpdateCurrentTimeStep_c ++
-onUpdateCurrentTimeStep_c  --> createDisplayModelAndRedraw --: return
+createDisplayModelAndRedraw -> onUpdateDisplayModelForCurrentTimeStep_c ++
+onUpdateDisplayModelForCurrentTimeStep_c  --> createDisplayModelAndRedraw --: return
 
 createDisplayModelAndRedraw --> RedrawScheduler -- : return
 
