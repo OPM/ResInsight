@@ -75,7 +75,7 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     plot->setAxisFont( QwtPlot::yRight, axisFont );
 
     // Axis title font
-    std::vector<QwtPlot::Axis> axes = { QwtPlot::xBottom, QwtPlot::xTop, QwtPlot::yLeft, QwtPlot::yRight };
+    std::vector<QwtPlot::Axis> axes = {QwtPlot::xBottom, QwtPlot::xTop, QwtPlot::yLeft, QwtPlot::yRight};
 
     for ( QwtPlot::Axis axis : axes )
     {
@@ -139,14 +139,14 @@ void RiuQwtPlotTools::enableDateBasedBottomXAxis( QwtPlot*                      
 {
     QwtDateScaleDraw* scaleDraw = new QwtDateScaleDraw( Qt::UTC );
 
-    std::set<QwtDate::IntervalType> intervals = { QwtDate::Year,
-                                                  QwtDate::Month,
-                                                  QwtDate::Week,
-                                                  QwtDate::Day,
-                                                  QwtDate::Hour,
-                                                  QwtDate::Minute,
-                                                  QwtDate::Second,
-                                                  QwtDate::Millisecond };
+    std::set<QwtDate::IntervalType> intervals = {QwtDate::Year,
+                                                 QwtDate::Month,
+                                                 QwtDate::Week,
+                                                 QwtDate::Day,
+                                                 QwtDate::Hour,
+                                                 QwtDate::Minute,
+                                                 QwtDate::Second,
+                                                 QwtDate::Millisecond};
 
     for ( QwtDate::IntervalType interval : intervals )
     {

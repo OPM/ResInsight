@@ -225,7 +225,7 @@ void RimAnnotationCollection::updateViewAnnotationCollections()
 
     for ( const auto* view : views )
     {
-        if (view->annotationCollection())
+        if ( view->annotationCollection() )
         {
             view->annotationCollection()->onGlobalCollectionChanged( this );
         }

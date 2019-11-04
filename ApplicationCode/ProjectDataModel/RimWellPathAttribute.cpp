@@ -160,22 +160,22 @@ std::set<double> RimWellPathAttribute::supportedDiameters( RiaDefines::WellPathC
     std::set<double> values;
     if ( type == RiaDefines::CASING )
     {
-        values = { MAX_DIAMETER_IN_INCHES,
-                   26.0,
-                   22.0,
-                   20.0,
-                   18.0 + 5.0 / 8.0,
-                   16.0,
-                   14.0,
-                   13.0 + 3.0 / 8.0,
-                   10.0 + 3.0 / 4.0,
-                   9.0 + 7.0 / 8.0,
-                   9.0 + 5.0 / 8.0,
-                   MIN_DIAMETER_IN_INCHES };
+        values = {MAX_DIAMETER_IN_INCHES,
+                  26.0,
+                  22.0,
+                  20.0,
+                  18.0 + 5.0 / 8.0,
+                  16.0,
+                  14.0,
+                  13.0 + 3.0 / 8.0,
+                  10.0 + 3.0 / 4.0,
+                  9.0 + 7.0 / 8.0,
+                  9.0 + 5.0 / 8.0,
+                  MIN_DIAMETER_IN_INCHES};
     }
     else
     {
-        values = { 9.0 + 7.0 / 8.0, 9.0 + 5.0 / 8.0, 7.0, 5.5, 5.0, 4.5, 3.5 };
+        values = {9.0 + 7.0 / 8.0, 9.0 + 5.0 / 8.0, 7.0, 5.5, 5.0, 4.5, 3.5};
     }
     return values;
 }
@@ -197,9 +197,9 @@ QList<caf::PdmOptionItemInfo> RimWellPathAttribute::calculateValueOptions( const
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_type )
     {
-        std::set<RiaDefines::WellPathComponentType> supportedTypes = { RiaDefines::CASING,
-                                                                       RiaDefines::LINER,
-                                                                       RiaDefines::PACKER };
+        std::set<RiaDefines::WellPathComponentType> supportedTypes = {RiaDefines::CASING,
+                                                                      RiaDefines::LINER,
+                                                                      RiaDefines::PACKER};
         for ( RiaDefines::WellPathComponentType type : supportedTypes )
         {
             options.push_back( caf::PdmOptionItemInfo( CompletionTypeEnum::uiText( type ), type ) );

@@ -24,6 +24,6 @@ class QString;
 
 class RicIntersectionFeatureImpl
 {
-public :
-    static void createIntersectionBoxSlize(const QString& name, RimIntersectionBox::SinglePlaneState plane );
+public:
+    static void createIntersectionBoxSlize( const QString& name, RimIntersectionBox::SinglePlaneState plane );
 };

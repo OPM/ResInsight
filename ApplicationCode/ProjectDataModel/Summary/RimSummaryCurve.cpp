@@ -637,10 +637,10 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         QString curveDataGroupName = "Summary Vector";
         if ( isCrossPlotCurve() ) curveDataGroupName += " Y";
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroupWithKeyword( curveDataGroupName, "Summary Vector Y" );
-        curveDataGroup->add( &m_yValuesSummaryCase, { true, 3, 1 } );
-        curveDataGroup->add( &m_yValuesSummaryAddressUiField, { true, 2, 1 } );
-        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
-        curveDataGroup->add( &m_plotAxis, { true, 3, 1 } );
+        curveDataGroup->add( &m_yValuesSummaryCase, {true, 3, 1} );
+        curveDataGroup->add( &m_yValuesSummaryAddressUiField, {true, 2, 1} );
+        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, {false, 1, 0} );
+        curveDataGroup->add( &m_plotAxis, {true, 3, 1} );
 
         if ( isCrossPlotCurve() )
             m_showErrorBars = false;
@@ -651,9 +651,9 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     if ( isCrossPlotCurve() )
     {
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector X" );
-        curveDataGroup->add( &m_xValuesSummaryCase, { true, 3, 1 } );
-        curveDataGroup->add( &m_xValuesSummaryAddressUiField, { true, 2, 1 } );
-        curveDataGroup->add( &m_xPushButtonSelectSummaryAddress, { false, 1, 0 } );
+        curveDataGroup->add( &m_xValuesSummaryCase, {true, 3, 1} );
+        curveDataGroup->add( &m_xValuesSummaryAddressUiField, {true, 2, 1} );
+        curveDataGroup->add( &m_xPushButtonSelectSummaryAddress, {false, 1, 0} );
     }
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );

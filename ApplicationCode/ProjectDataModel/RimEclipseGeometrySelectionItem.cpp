@@ -145,4 +145,3 @@ cvf::Vec3st RimEclipseGeometrySelectionItem::cellIJK() const
 
     return IJK;
 }
-

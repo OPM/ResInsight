@@ -482,7 +482,7 @@ void RiuGridPlotWindow::dropEvent( QDropEvent* event )
 
             if ( insertAfter != plotToMove )
             {
-                m_plotDefinition->movePlotsToThis( { plotToMove }, insertAfter );
+                m_plotDefinition->movePlotsToThis( {plotToMove}, insertAfter );
             }
         }
     }

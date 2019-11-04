@@ -1023,7 +1023,7 @@ void RimGridCrossPlot::setShowInfoBox( bool enable )
 //--------------------------------------------------------------------------------------------------
 std::set<RimPlotAxisPropertiesInterface*> RimGridCrossPlot::allPlotAxes() const
 {
-    return { m_xAxisProperties, m_yAxisProperties };
+    return {m_xAxisProperties, m_yAxisProperties};
 }
 
 //--------------------------------------------------------------------------------------------------

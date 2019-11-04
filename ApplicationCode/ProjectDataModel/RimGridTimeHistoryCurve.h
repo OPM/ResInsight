@@ -25,8 +25,8 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
-#include <memory>
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
+#include <memory>
 
 class RigMainGrid;
 class RimEclipseCase;
@@ -65,8 +65,8 @@ public:
 
     RigGridCellResultAddress resultAddress();
 
-    QString quantityName() const;
-    QString caseName() const;
+    QString  quantityName() const;
+    QString  caseName() const;
     RimCase* gridCase() const;
 
 protected:

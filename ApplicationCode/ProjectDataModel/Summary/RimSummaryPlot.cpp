@@ -331,7 +331,7 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( DateTimePeriod resampling
         populateTimeHistoryCurvesData( m_gridTimeHistoryCurves.childObjects(), &timeHistoryCurvesData );
 
         // Export observed data
-        appendToExportData( out, { summaryCurvesObsData }, showTimeAsLongString );
+        appendToExportData( out, {summaryCurvesObsData}, showTimeAsLongString );
 
         std::vector<CurvesData> exportData( 2 );
 
@@ -353,7 +353,7 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( DateTimePeriod resampling
         CurvesData asciiCurvesData;
         populateAsciiDataCurvesData( m_asciiDataCurves.childObjects(), &asciiCurvesData );
 
-        appendToExportData( out, { asciiCurvesData }, showTimeAsLongString );
+        appendToExportData( out, {asciiCurvesData}, showTimeAsLongString );
     }
 
     return out;
@@ -1176,7 +1176,7 @@ void RimSummaryPlot::addCurveNoUpdate( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteCurve( RimSummaryCurve* curve )
 {
-    deleteCurves( { curve } );
+    deleteCurves( {curve} );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1497,7 +1497,7 @@ void RimSummaryPlot::updateZoomFromQwt()
 //--------------------------------------------------------------------------------------------------
 std::set<RimPlotAxisPropertiesInterface*> RimSummaryPlot::allPlotAxes() const
 {
-    return { m_timeAxisProperties, m_bottomAxisProperties, m_leftYAxisProperties, m_rightYAxisProperties };
+    return {m_timeAxisProperties, m_bottomAxisProperties, m_leftYAxisProperties, m_rightYAxisProperties};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2097,13 +2097,13 @@ void populateTimeHistoryCurvesData( std::vector<RimGridTimeHistoryCurve*> curves
             if ( curveCaseName == curvesData->caseNames[i] ) casePosInList = i;
         }
 
-        CurveData curveData = { curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues() };
+        CurveData curveData = {curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues()};
 
         if ( casePosInList == cvf::UNDEFINED_SIZE_T )
         {
             curvesData->caseNames.push_back( curveCaseName );
             curvesData->timeSteps.push_back( curve->timeStepValues() );
-            curvesData->allCurveData.push_back( std::vector<CurveData>( { curveData } ) );
+            curvesData->allCurveData.push_back( std::vector<CurveData>( {curveData} ) );
         }
         else
         {
@@ -2129,13 +2129,13 @@ void populateAsciiDataCurvesData( std::vector<RimAsciiDataCurve*> curves, Curves
 
         size_t casePosInList = cvf::UNDEFINED_SIZE_T;
 
-        CurveData curveData = { curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues() };
+        CurveData curveData = {curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues()};
 
         if ( casePosInList == cvf::UNDEFINED_SIZE_T )
         {
             curvesData->caseNames.push_back( "" );
             curvesData->timeSteps.push_back( curve->timeSteps() );
-            curvesData->allCurveData.push_back( std::vector<CurveData>( { curveData } ) );
+            curvesData->allCurveData.push_back( std::vector<CurveData>( {curveData} ) );
         }
         else
         {
@@ -2171,7 +2171,7 @@ void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCur
             if ( curveCaseName == curvesData->caseNames[i] ) casePosInList = i;
         }
 
-        CurveData curveData = { curve->curveExportDescription(), curve->summaryAddressY(), curve->valuesY() };
+        CurveData curveData = {curve->curveExportDescription(), curve->summaryAddressY(), curve->valuesY()};
         CurveData errorCurveData;
 
         // Error data
@@ -2187,7 +2187,7 @@ void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCur
 
         if ( casePosInList == cvf::UNDEFINED_SIZE_T )
         {
-            auto curveDataList = std::vector<CurveData>( { curveData } );
+            auto curveDataList = std::vector<CurveData>( {curveData} );
             if ( hasErrorData ) curveDataList.push_back( errorCurveData );
 
             curvesData->caseNames.push_back( curveCaseName );

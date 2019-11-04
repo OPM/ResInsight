@@ -44,9 +44,9 @@ void RicCompareTo3dViewFeature::onActionTriggered( bool isChecked )
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
 
     QVariant userData = this->userData();
-    auto view = static_cast<Rim3dView*>(userData.value<void*>());
+    auto     view     = static_cast<Rim3dView*>( userData.value<void*>() );
 
-    if (view && activeView)
+    if ( view && activeView )
     {
         activeView->setComparisonView( view );
         activeView->scheduleCreateDisplayModelAndRedraw();
@@ -60,15 +60,13 @@ void RicCompareTo3dViewFeature::setupActionLook( QAction* actionToSetup )
 {
     QVariant userData = actionToSetup->data();
 
-    auto view = static_cast<Rim3dView*>(userData.value<void*>());
+    auto view = static_cast<Rim3dView*>( userData.value<void*>() );
     if ( view )
     {
-        actionToSetup->setIcon(view->uiIconProvider().icon() );
+        actionToSetup->setIcon( view->uiIconProvider().icon() );
     }
     else
     {
-        actionToSetup->setIcon(QIcon(":/ComparisonView16x16.png"));
+        actionToSetup->setIcon( QIcon( ":/ComparisonView16x16.png" ) );
     }
 }
-
-

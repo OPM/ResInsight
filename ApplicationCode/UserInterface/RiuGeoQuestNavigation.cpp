@@ -55,7 +55,7 @@ bool RiuGeoQuestNavigation::handleInputEvent( QInputEvent* inputEvent )
 
             if ( me->button() == Qt::LeftButton && isRotationEnabled() )
             {
-                this->pickAndSetPointOfInterest(me->x(), me->y());
+                this->pickAndSetPointOfInterest( me->x(), me->y() );
 
                 m_trackball->startNavigation( cvf::ManipulatorTrackball::ROTATE, translatedMousePosX, translatedMousePosY );
                 m_isNavigating                  = true;

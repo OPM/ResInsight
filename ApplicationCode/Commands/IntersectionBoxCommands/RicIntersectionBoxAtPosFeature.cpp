@@ -51,7 +51,7 @@ bool RicIntersectionBoxAtPosFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicIntersectionBoxAtPosFeature::onActionTriggered( bool isChecked )
 {
-    RimGridView* activeView = RiaApplication::instance()->activeGridView();
+    RimGridView* activeView                 = RiaApplication::instance()->activeGridView();
     RimGridView* activeMainOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( activeMainOrComparisonView )
     {
@@ -70,7 +70,7 @@ void RicIntersectionBoxAtPosFeature::onActionTriggered( bool isChecked )
         coll->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem( intersectionBox, false );
 
-        activeMainOrComparisonView->showGridCells(false);
+        activeMainOrComparisonView->showGridCells( false );
         RiuMainWindow::instance()->refreshDrawStyleActions();
 
         activeView->scheduleCreateDisplayModelAndRedraw();

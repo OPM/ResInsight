@@ -87,8 +87,8 @@ RimViewLinker::~RimViewLinker()
 
     m_viewControllers.deleteAllChildObjects();
     RimGridView* masterView = m_masterView;
-    m_masterView = nullptr;
-    if (masterView) masterView->updateHolder();
+    m_masterView            = nullptr;
+    if ( masterView ) masterView->updateHolder();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -278,7 +278,7 @@ void RimViewLinker::allViewsForCameraSync( const RimGridView* source, std::vecto
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateDependentViews()
 {
-    if (m_viewControllers.empty()) return;
+    if ( m_viewControllers.empty() ) return;
 
     updateOverrides();
     updateCellResult();
@@ -308,7 +308,7 @@ QString RimViewLinker::displayNameForView( RimGridView* view )
 void RimViewLinker::setMasterView( RimGridView* view )
 {
     RimViewController* previousViewController = nullptr;
-    if (view) previousViewController = view->viewController();
+    if ( view ) previousViewController = view->viewController();
 
     // Remove the view as dependent view
     if ( previousViewController )
@@ -414,8 +414,8 @@ void RimViewLinker::updateUiNameAndIcon()
 {
     caf::QIconProvider iconProvider;
     RimViewLinker::findNameAndIconFromView( &m_name.v(), &iconProvider, m_masterView );
-    
-    if (m_masterView) m_masterView->updateHolder();
+
+    if ( m_masterView ) m_masterView->updateHolder();
 
     setUiIcon( iconProvider );
 }
@@ -644,7 +644,7 @@ void RimViewLinker::addViewControllers( caf::PdmUiTreeOrdering& uiTreeOrdering )
 {
     for ( const auto& viewController : m_viewControllers )
     {
-        if (viewController) uiTreeOrdering.add( viewController );
+        if ( viewController ) uiTreeOrdering.add( viewController );
     }
 }
 
@@ -679,11 +679,11 @@ void RimViewLinker::removeViewController( RimViewController* viewController )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGridView* RimViewLinker::firstControlledView()
 {
-    if (m_viewControllers.empty()) return nullptr;
+    if ( m_viewControllers.empty() ) return nullptr;
 
     return m_viewControllers[0]->managedView();
 }

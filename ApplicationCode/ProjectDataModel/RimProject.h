@@ -124,7 +124,7 @@ public:
     std::vector<RimSummaryCaseCollection*> summaryGroups() const;
     RimSummaryCaseMainCollection*          firstSummaryCaseMainCollection() const;
 
-    void allViews(std::vector<Rim3dView*>& views) const;
+    void allViews( std::vector<Rim3dView*>& views ) const;
     void allVisibleViews( std::vector<Rim3dView*>& views ) const;
     void allVisibleGridViews( std::vector<RimGridView*>& views ) const;
     void allNotLinkedViews( std::vector<RimGridView*>& views );

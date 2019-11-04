@@ -68,7 +68,7 @@ void RicGeoMechPropertyFilterFeatureImpl::addPropertyFilter( RimGeoMechPropertyF
     propertyFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
 
     propertyFilterCollection->updateConnectedEditors();
-    Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter , false);
+    Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ void RicGeoMechPropertyFilterFeatureImpl::insertPropertyFilter( RimGeoMechProper
     propertyFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
 
     propertyFilterCollection->updateConnectedEditors();
-    Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter , false);
+    Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -177,7 +177,7 @@ QString RimOilField::uniqueShortNameForCase( RimSummaryCase* summaryCase )
         }
     }
 
-    int     autoNumber = 0;
+    int autoNumber = 0;
 
     while ( !foundUnique )
     {

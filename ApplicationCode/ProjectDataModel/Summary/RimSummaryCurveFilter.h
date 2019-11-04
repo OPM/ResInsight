@@ -62,7 +62,7 @@ private:
     caf::PdmField<bool>                               m_showLegend;
 
     // Filter fields
-    caf::PdmChildField<RimSummaryFilter_OBSOLETE*>                m_summaryFilter;
+    caf::PdmChildField<RimSummaryFilter_OBSOLETE*>       m_summaryFilter;
     caf::PdmField<std::vector<RifEclipseSummaryAddress>> m_uiFilterResultMultiSelection;
 
     caf::PdmChildField<RimSummaryCurveAutoName*> m_curveNameConfig;
