@@ -376,7 +376,8 @@ RimSummaryCaseCollection* RimSummaryCaseMainCollection::defaultAllocator()
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFromFileInfos(
-    const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos, bool showProgress )
+    const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos,
+    bool                                             showProgress )
 {
     RimProject* project = RiaApplication::instance()->project();
 

@@ -279,8 +279,10 @@ std::vector<std::pair<QString, QString>> RigStimPlanFractureDefinition::getStimP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>> RigStimPlanFractureDefinition::conductivityValuesAtTimeStep(
-    const QString& resultName, int activeTimeStepIndex, RiaEclipseUnitTools::UnitSystem requiredUnitSet ) const
+std::vector<std::vector<double>>
+    RigStimPlanFractureDefinition::conductivityValuesAtTimeStep( const QString&                  resultName,
+                                                                 int                             activeTimeStepIndex,
+                                                                 RiaEclipseUnitTools::UnitSystem requiredUnitSet ) const
 {
     std::vector<std::vector<double>> conductivityValues;
 

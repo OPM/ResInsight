@@ -382,8 +382,9 @@ void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongSegment( const cv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> Riv3dWellLogCurveGeometryGenerator::projectVerticesOntoTriangles(
-    const std::vector<cvf::Vec3d>& originalVertices, const std::vector<cvf::Vec3d>& drawSurfaceVertices )
+std::vector<cvf::Vec3d>
+    Riv3dWellLogCurveGeometryGenerator::projectVerticesOntoTriangles( const std::vector<cvf::Vec3d>& originalVertices,
+                                                                      const std::vector<cvf::Vec3d>& drawSurfaceVertices )
 {
     std::vector<cvf::Vec3d> projectedVertices;
     projectedVertices.reserve( originalVertices.size() );

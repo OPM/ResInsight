@@ -214,8 +214,11 @@ void RimTernaryLegendConfig::updateLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTernaryLegendConfig::setAutomaticRanges(
-    TernaryArrayIndex ternaryIndex, double globalMin, double globalMax, double localMin, double localMax )
+void RimTernaryLegendConfig::setAutomaticRanges( TernaryArrayIndex ternaryIndex,
+                                                 double            globalMin,
+                                                 double            globalMax,
+                                                 double            localMin,
+                                                 double            localMax )
 {
     double candidateGlobalAutoMin = roundToNumSignificantDigits( globalMin, precision );
     double candidateGlobalAutoMax = roundToNumSignificantDigits( globalMax, precision );
@@ -379,8 +382,12 @@ void RimTernaryLegendConfig::defineEditorAttribute( const caf::PdmFieldHandle* f
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTernaryLegendConfig::ternaryRanges(
-    double& soilLower, double& soilUpper, double& sgasLower, double& sgasUpper, double& swatLower, double& swatUpper ) const
+void RimTernaryLegendConfig::ternaryRanges( double& soilLower,
+                                            double& soilUpper,
+                                            double& sgasLower,
+                                            double& sgasUpper,
+                                            double& swatLower,
+                                            double& swatUpper ) const
 {
     if ( rangeMode() == AUTOMATIC_CURRENT_TIMESTEP )
     {

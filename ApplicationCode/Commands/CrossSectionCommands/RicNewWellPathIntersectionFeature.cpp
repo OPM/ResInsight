@@ -79,8 +79,8 @@ void RicNewWellPathIntersectionFeature::setupActionLook( QAction* actionToSetup 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicNewWellPathIntersectionFeatureCmd::RicNewWellPathIntersectionFeatureCmd(
-    RimIntersectionCollection* intersectionCollection, RimWellPath* wellPath )
+RicNewWellPathIntersectionFeatureCmd::RicNewWellPathIntersectionFeatureCmd( RimIntersectionCollection* intersectionCollection,
+                                                                            RimWellPath*               wellPath )
     : CmdExecuteCommand( nullptr )
     , m_intersectionCollection( intersectionCollection )
     , m_wellPath( wellPath )

@@ -34,8 +34,8 @@ public:
                                           double*                    range,
                                           double*                    mean,
                                           double*                    dev );
-    static void calculateStatisticsCurves(
-        const std::vector<double>& values, double* p10, double* p50, double* p90, double* mean );
+    static void
+        calculateStatisticsCurves( const std::vector<double>& values, double* p10, double* p50, double* p90, double* mean );
 
     static std::vector<double> calculateNearestRankPercentiles( const std::vector<double>& inputValues,
                                                                 const std::vector<double>& pValPositions );

@@ -636,8 +636,11 @@ inline double triArea3D( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::
 /// a_i = Area(v_(i-1), v_i, v_(i+1))*Area(p, v_(i-2), v_(i-1))*Area(p, v_(i+1), v_(i+2))
 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec4d GeometryTools::barycentricCoords(
-    const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2, const cvf::Vec3d& v3, const cvf::Vec3d& p )
+cvf::Vec4d GeometryTools::barycentricCoords( const cvf::Vec3d& v0,
+                                             const cvf::Vec3d& v1,
+                                             const cvf::Vec3d& v2,
+                                             const cvf::Vec3d& v3,
+                                             const cvf::Vec3d& p )
 {
     cvf::Vec4d w;
     cvf::Vec4d a;

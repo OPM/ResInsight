@@ -371,8 +371,10 @@ cvf::ref<RigResultAccessor>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellCenterResultAccessor(
-    RimEclipseCellColors* cellResultColors, size_t timeStepIndex, RigEclipseCaseData* eclipseCase, const RigGridBase* grid )
+cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellCenterResultAccessor( RimEclipseCellColors* cellResultColors,
+                                                                                      size_t              timeStepIndex,
+                                                                                      RigEclipseCaseData* eclipseCase,
+                                                                                      const RigGridBase*  grid )
 {
     cvf::ref<RigResultAccessor> resultAccessor = nullptr;
 

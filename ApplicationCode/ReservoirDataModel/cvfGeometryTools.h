@@ -53,8 +53,11 @@ public:
                                                 bool*            isLineDirDotNormalNegative );
     static cvf::Vec3d
                       barycentricCoords( const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2, const cvf::Vec3d& p );
-    static cvf::Vec4d barycentricCoords(
-        const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2, const cvf::Vec3d& v3, const cvf::Vec3d& p );
+    static cvf::Vec4d barycentricCoords( const cvf::Vec3d& v0,
+                                         const cvf::Vec3d& v1,
+                                         const cvf::Vec3d& v2,
+                                         const cvf::Vec3d& v3,
+                                         const cvf::Vec3d& p );
     template <typename DataType>
     static DataType interpolateQuad( const cvf::Vec3d& v1,
                                      DataType          s1,
@@ -163,8 +166,13 @@ private:
         double                            fractionAlongEdge2;
     };
 
-    void canonizeAddress(
-        IndexType& e1P1, IndexType& e1P2, IndexType& e2P1, IndexType& e2P2, bool& flipE1, bool& flipE2, bool& flipE1E2 );
+    void canonizeAddress( IndexType& e1P1,
+                          IndexType& e1P2,
+                          IndexType& e2P1,
+                          IndexType& e2P2,
+                          bool&      flipE1,
+                          bool&      flipE2,
+                          bool&      flipE1E2 );
 
     // A map containing the intersection data. The addressing is :
     // ( when leastVxIdxEdge1 < leastVxIdxEdge2 )

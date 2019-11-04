@@ -154,8 +154,12 @@ void RimGridTimeHistoryCurve::setFromSelectionItem( const RiuSelectionItem* sele
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridTimeHistoryCurve::setFromEclipseCellAndResult(
-    RimEclipseCase* eclCase, size_t gridIdx, size_t i, size_t j, size_t k, const RigEclipseResultAddress& resAddr )
+void RimGridTimeHistoryCurve::setFromEclipseCellAndResult( RimEclipseCase*                eclCase,
+                                                           size_t                         gridIdx,
+                                                           size_t                         i,
+                                                           size_t                         j,
+                                                           size_t                         k,
+                                                           const RigEclipseResultAddress& resAddr )
 {
     delete m_geometrySelectionItem();
     delete m_eclipseResultDefinition();

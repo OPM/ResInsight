@@ -1003,8 +1003,9 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 //--------------------------------------------------------------------------------------------------
 /// Returns the summary addresses that match the selected item type and input selections made in GUI
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddresses(
-    const std::vector<SummarySource*>& selectedSources, const SummaryIdentifierAndField* identifierAndField ) const
+std::set<RifEclipseSummaryAddress>
+    RiuSummaryCurveDefSelection::findPossibleSummaryAddresses( const std::vector<SummarySource*>& selectedSources,
+                                                               const SummaryIdentifierAndField* identifierAndField ) const
 {
     std::set<RifEclipseSummaryAddress> addrUnion;
 
@@ -1126,7 +1127,8 @@ SummaryIdentifierAndField*
 ///
 //--------------------------------------------------------------------------------------------------
 bool RiuSummaryCurveDefSelection::isAddressCompatibleWithControllingFieldSelection(
-    const RifEclipseSummaryAddress& address, const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList ) const
+    const RifEclipseSummaryAddress&                address,
+    const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList ) const
 {
     for ( const auto& identifierAndField : identifierAndFieldList )
     {
@@ -1404,7 +1406,8 @@ void RiuSummaryCurveDefSelection::appendOptionItemsForCategories( QList<caf::Pdm
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::appendOptionItemsForSubCategoriesAndVectors(
-    QList<caf::PdmOptionItemInfo>& options, SummaryIdentifierAndField* identifierAndField ) const
+    QList<caf::PdmOptionItemInfo>& options,
+    SummaryIdentifierAndField*     identifierAndField ) const
 {
     if ( identifierAndField == nullptr ) return;
 

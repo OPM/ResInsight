@@ -924,8 +924,11 @@ bool RimStimPlanFractureTemplate::hasConductivity() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimStimPlanFractureTemplate::resultValueAtIJ(
-    const QString& uiResultName, const QString& unitName, size_t timeStepIndex, size_t i, size_t j )
+double RimStimPlanFractureTemplate::resultValueAtIJ( const QString& uiResultName,
+                                                     const QString& unitName,
+                                                     size_t         timeStepIndex,
+                                                     size_t         i,
+                                                     size_t         j )
 {
     auto values = resultValues( uiResultName, unitName, timeStepIndex );
 

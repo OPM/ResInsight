@@ -531,7 +531,9 @@ bool RicExportFractureCompletionsImpl::checkForStimPlanConductivity( const RimFr
 ///
 //--------------------------------------------------------------------------------------------------
 void RicExportFractureCompletionsImpl::calculateInternalFractureTransmissibilities(
-    const RigFractureGrid* fractureGrid, double cDarcyInCorrectUnit, RigTransmissibilityCondenser& transCondenser )
+    const RigFractureGrid*        fractureGrid,
+    double                        cDarcyInCorrectUnit,
+    RigTransmissibilityCondenser& transCondenser )
 {
     for ( size_t i = 0; i < fractureGrid->iCellCount(); i++ )
     {
@@ -732,7 +734,8 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 ///
 //--------------------------------------------------------------------------------------------------
 void RicExportFractureCompletionsImpl::computeNonDarcyFlowParameters(
-    const RimFracture* fracture, std::vector<RigCompletionData>& allCompletionsForOneFracture )
+    const RimFracture*              fracture,
+    std::vector<RigCompletionData>& allCompletionsForOneFracture )
 {
     double dFactorForFracture = fracture->nonDarcyProperties().dFactor;
     double khForFracture      = fracture->nonDarcyProperties().conductivity;

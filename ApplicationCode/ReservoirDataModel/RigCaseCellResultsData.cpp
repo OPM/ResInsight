@@ -1067,8 +1067,8 @@ bool RigCaseCellResultsData::ensureKnownResultLoaded( const RigEclipseResultAddr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigCaseCellResultsData::findAndLoadResultByName(
-    const QString& resultName, const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder )
+bool RigCaseCellResultsData::findAndLoadResultByName( const QString&                                resultName,
+                                                      const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder )
 {
     RigEclipseResultAddress adr( resultName );
 
@@ -1368,7 +1368,8 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
 ///
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::findOrLoadKnownScalarResultByResultTypeOrder(
-    const RigEclipseResultAddress& resVarAddr, const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder )
+    const RigEclipseResultAddress&                resVarAddr,
+    const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder )
 {
     std::set<RiaDefines::ResultCatType> otherResultTypesToSearch = {RiaDefines::STATIC_NATIVE,
                                                                     RiaDefines::DYNAMIC_NATIVE,

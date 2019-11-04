@@ -112,7 +112,8 @@ const std::vector<double>* RigFlowDiagResults::findOrCalculateResult( const RigF
 ///
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagResults::calculateNativeResultsIfNotPreviouslyAttempted(
-    size_t timeStepIndex, RigFlowDiagResultAddress::PhaseSelection phaseSelection )
+    size_t                                   timeStepIndex,
+    RigFlowDiagResultAddress::PhaseSelection phaseSelection )
 {
     if ( timeStepIndex >= m_hasAtemptedNativeResults.size() ) return;
 
@@ -899,8 +900,10 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagResults::flowCharacteristicsResults(
-    int timeStepIndex, const std::vector<char>& visibleActiveCells, double max_pv_fraction )
+RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame
+    RigFlowDiagResults::flowCharacteristicsResults( int                      timeStepIndex,
+                                                    const std::vector<char>& visibleActiveCells,
+                                                    double                   max_pv_fraction )
 {
     std::vector<QString> tracerNames = m_flowDiagSolution->tracerNames();
 

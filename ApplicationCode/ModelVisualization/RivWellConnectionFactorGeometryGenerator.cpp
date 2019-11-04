@@ -31,7 +31,8 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RivWellConnectionFactorGeometryGenerator::RivWellConnectionFactorGeometryGenerator(
-    std::vector<CompletionVizData>& completionVizData, float radius )
+    std::vector<CompletionVizData>& completionVizData,
+    float                           radius )
     : m_completionVizData( completionVizData )
     , m_radius( radius )
     , m_trianglesPerConnection( 0 )

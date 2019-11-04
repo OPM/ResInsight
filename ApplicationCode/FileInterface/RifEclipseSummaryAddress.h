@@ -136,8 +136,12 @@ public:
         wellCompletionAddress( const std::string& quantityName, const std::string& wellName, int i, int j, int k );
     static RifEclipseSummaryAddress
                                     wellLgrAddress( const std::string& quantityName, const std::string& lgrName, const std::string& wellName );
-    static RifEclipseSummaryAddress wellCompletionLgrAddress(
-        const std::string& quantityName, const std::string& lgrName, const std::string& wellName, int i, int j, int k );
+    static RifEclipseSummaryAddress wellCompletionLgrAddress( const std::string& quantityName,
+                                                              const std::string& lgrName,
+                                                              const std::string& wellName,
+                                                              int                i,
+                                                              int                j,
+                                                              int                k );
     static RifEclipseSummaryAddress
                                     wellSegmentAddress( const std::string& quantityName, const std::string& wellName, int segmentNumber );
     static RifEclipseSummaryAddress blockAddress( const std::string& quantityName, int i, int j, int k );

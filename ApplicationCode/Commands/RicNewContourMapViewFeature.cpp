@@ -166,7 +166,8 @@ void RicNewContourMapViewFeature::setupActionLook( QAction* actionToSetup )
 ///
 //--------------------------------------------------------------------------------------------------
 RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFromExistingContourMap(
-    RimEclipseCase* eclipseCase, RimEclipseContourMapView* existingContourMap )
+    RimEclipseCase*           eclipseCase,
+    RimEclipseContourMapView* existingContourMap )
 {
     RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>(
         existingContourMap->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
@@ -260,7 +261,8 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
 ///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMapFromExistingContourMap(
-    RimGeoMechCase* geoMechCase, RimGeoMechContourMapView* existingContourMap )
+    RimGeoMechCase*           geoMechCase,
+    RimGeoMechContourMapView* existingContourMap )
 {
     RimGeoMechContourMapView* contourMap = dynamic_cast<RimGeoMechContourMapView*>(
         existingContourMap->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );

@@ -28,8 +28,13 @@
 /// A function to do basic statistical calculations
 //--------------------------------------------------------------------------------------------------
 
-void RigStatisticsMath::calculateBasicStatistics(
-    const std::vector<double>& values, double* min, double* max, double* sum, double* range, double* mean, double* dev )
+void RigStatisticsMath::calculateBasicStatistics( const std::vector<double>& values,
+                                                  double*                    min,
+                                                  double*                    max,
+                                                  double*                    sum,
+                                                  double*                    range,
+                                                  double*                    mean,
+                                                  double*                    dev )
 {
     double m_min( HUGE_VAL );
     double m_max( -HUGE_VAL );
@@ -82,8 +87,11 @@ void RigStatisticsMath::calculateBasicStatistics(
 /// Algorithm:
 /// https://en.wikipedia.org/wiki/Percentile#Third_variant,_'%22%60UNIQ--postMath-00000052-QINU%60%22'
 //--------------------------------------------------------------------------------------------------
-void RigStatisticsMath::calculateStatisticsCurves(
-    const std::vector<double>& values, double* p10, double* p50, double* p90, double* mean )
+void RigStatisticsMath::calculateStatisticsCurves( const std::vector<double>& values,
+                                                   double*                    p10,
+                                                   double*                    p50,
+                                                   double*                    p90,
+                                                   double*                    mean )
 {
     CVF_ASSERT( p10 && p50 && p90 && mean );
 

@@ -474,8 +474,12 @@ void RiuWellPathComponentPlotItem::addColumnFeature( double         startX,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtPlotItem* RiuWellPathComponentPlotItem::createColumnShape(
-    double startX, double endX, double startDepth, double endDepth, cvf::Color4f baseColor, Qt::BrushStyle brushStyle )
+QwtPlotItem* RiuWellPathComponentPlotItem::createColumnShape( double         startX,
+                                                              double         endX,
+                                                              double         startDepth,
+                                                              double         endDepth,
+                                                              cvf::Color4f   baseColor,
+                                                              Qt::BrushStyle brushStyle )
 {
     QwtPlotShapeItem* columnShape = new QwtPlotShapeItem( label() );
     QPolygonF         polygon;

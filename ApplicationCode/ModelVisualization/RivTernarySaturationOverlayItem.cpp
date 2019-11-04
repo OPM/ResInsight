@@ -176,8 +176,11 @@ void RivTernarySaturationOverlayItem::renderGeneric( cvf::OpenGLContext* oglCont
 //--------------------------------------------------------------------------------------------------
 /// Draw the axis using immediate mode OpenGL
 //--------------------------------------------------------------------------------------------------
-void RivTernarySaturationOverlayItem::renderAxisImmediateMode(
-    float upperBoundY, float lowerBoundY, float border, unsigned int totalWidth, cvf::OpenGLContext* oglContext )
+void RivTernarySaturationOverlayItem::renderAxisImmediateMode( float               upperBoundY,
+                                                               float               lowerBoundY,
+                                                               float               border,
+                                                               unsigned int        totalWidth,
+                                                               cvf::OpenGLContext* oglContext )
 {
 #ifdef CVF_OPENGL_ES
     CVF_UNUSED( layout );

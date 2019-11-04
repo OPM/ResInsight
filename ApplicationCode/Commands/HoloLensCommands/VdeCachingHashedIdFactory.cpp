@@ -120,8 +120,11 @@ int VdeCachingHashedIdFactory::lastAssignedId() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int VdeCachingHashedIdFactory::getOrCreateIdForArrOfType(
-    ArrayRole arrayRole, ElementType elementType, size_t elementSizeInBytes, const void* data, size_t elementCount )
+int VdeCachingHashedIdFactory::getOrCreateIdForArrOfType( ArrayRole   arrayRole,
+                                                          ElementType elementType,
+                                                          size_t      elementSizeInBytes,
+                                                          const void* data,
+                                                          size_t      elementCount )
 {
     Key key;
     key.elementType  = elementType;

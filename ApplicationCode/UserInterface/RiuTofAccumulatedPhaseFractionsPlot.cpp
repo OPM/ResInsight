@@ -43,8 +43,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuTofAccumulatedPhaseFractionsPlot::RiuTofAccumulatedPhaseFractionsPlot(
-    RimTofAccumulatedPhaseFractionsPlot* plotDefinition, QWidget* parent )
+RiuTofAccumulatedPhaseFractionsPlot::RiuTofAccumulatedPhaseFractionsPlot( RimTofAccumulatedPhaseFractionsPlot* plotDefinition,
+                                                                          QWidget*                             parent )
     : QwtPlot( parent )
     , m_watCurve( nullptr )
     , m_oilCurve( nullptr )

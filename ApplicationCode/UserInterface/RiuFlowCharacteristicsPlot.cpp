@@ -187,8 +187,11 @@ void RiuFlowCharacteristicsPlot::setLorenzCurve( const QStringList&            d
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol(
-    QwtPlot* plot, const QString& curveName, const QColor& color, const QDateTime& dateTime, double timeHistoryValue )
+void RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol( QwtPlot*         plot,
+                                                          const QString&   curveName,
+                                                          const QColor&    color,
+                                                          const QDateTime& dateTime,
+                                                          double           timeHistoryValue )
 {
     auto curve = createEmptyCurve( plot, curveName, color );
 

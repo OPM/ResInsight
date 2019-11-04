@@ -405,7 +405,9 @@ std::map<std::string, std::vector<std::string>> RimGeoMechResultDefinition::getR
 ///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechResultDefinition::getUiAndResultVariableStringList(
-    QStringList* uiNames, QStringList* variableNames, const std::map<std::string, std::vector<std::string>>& fieldCompNames )
+    QStringList*                                           uiNames,
+    QStringList*                                           variableNames,
+    const std::map<std::string, std::vector<std::string>>& fieldCompNames )
 {
     CVF_ASSERT( uiNames && variableNames );
 

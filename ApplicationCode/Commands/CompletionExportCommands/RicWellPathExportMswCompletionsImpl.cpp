@@ -59,8 +59,12 @@
 class SubSegmentIntersectionInfo
 {
 public:
-    SubSegmentIntersectionInfo(
-        size_t globCellIndex, double startTVD, double endTVD, double startMD, double endMD, cvf::Vec3d lengthsInCell );
+    SubSegmentIntersectionInfo( size_t     globCellIndex,
+                                double     startTVD,
+                                double     endTVD,
+                                double     startMD,
+                                double     endMD,
+                                cvf::Vec3d lengthsInCell );
     static std::vector<SubSegmentIntersectionInfo>
                spiltIntersectionSegmentsToMaxLength( const RigWellPath*                               pathGeometry,
                                                      const std::vector<WellPathCellIntersectionInfo>& intersections,
@@ -79,7 +83,8 @@ public:
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
-    const RicExportCompletionDataSettingsUi& exportSettings, const std::vector<RimWellPath*>& wellPaths )
+    const RicExportCompletionDataSettingsUi& exportSettings,
+    const std::vector<RimWellPath*>&         wellPaths )
 {
     std::shared_ptr<QFile> unifiedExportFile;
     if ( exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::UNIFIED_FILE )
@@ -436,7 +441,8 @@ void RicWellPathExportMswCompletionsImpl::generateWelsegsSegments(
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswCompletionsImpl::generateWelsegsCompletionCommentHeader(
-    RifTextDataTableFormatter& formatter, RigCompletionData::CompletionType completionType )
+    RifTextDataTableFormatter&        formatter,
+    RigCompletionData::CompletionType completionType )
 {
     if ( completionType == RigCompletionData::CT_UNDEFINED )
     {
@@ -921,7 +927,9 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generateFracturesMswExport
 ///
 //--------------------------------------------------------------------------------------------------
 RicMswExportInfo RicWellPathExportMswCompletionsImpl::generateFracturesMswExportInfo(
-    RimEclipseCase* caseToApply, const RimWellPath* wellPath, const std::vector<RimWellPathFracture*>& fractures )
+    RimEclipseCase*                          caseToApply,
+    const RimWellPath*                       wellPath,
+    const std::vector<RimWellPathFracture*>& fractures )
 {
     const RigMainGrid*       grid           = caseToApply->eclipseCaseData()->mainGrid();
     const RigActiveCellInfo* activeCellInfo = caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
@@ -1611,7 +1619,10 @@ void RicWellPathExportMswCompletionsImpl::assignFractureIntersections( const Rim
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionData> RicWellPathExportMswCompletionsImpl::generatePerforationIntersections(
-    const RimWellPath* wellPath, const RimPerforationInterval* perforationInterval, int timeStep, RimEclipseCase* eclipseCase )
+    const RimWellPath*            wellPath,
+    const RimPerforationInterval* perforationInterval,
+    int                           timeStep,
+    RimEclipseCase*               eclipseCase )
 {
     std::vector<RigCompletionData> completionData;
     const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
@@ -1757,8 +1768,12 @@ void RicWellPathExportMswCompletionsImpl::assignBranchAndSegmentNumbers( const R
     }
 }
 
-SubSegmentIntersectionInfo::SubSegmentIntersectionInfo(
-    size_t globCellIndex, double startTVD, double endTVD, double startMD, double endMD, cvf::Vec3d lengthsInCell )
+SubSegmentIntersectionInfo::SubSegmentIntersectionInfo( size_t     globCellIndex,
+                                                        double     startTVD,
+                                                        double     endTVD,
+                                                        double     startMD,
+                                                        double     endMD,
+                                                        cvf::Vec3d lengthsInCell )
     : globCellIndex( globCellIndex )
     , startTVD( startTVD )
     , endTVD( endTVD )

@@ -676,8 +676,9 @@ std::vector<double> RigAccWellFlowCalculator::accumulatedDsBranchFlowPrTracer( c
 //--------------------------------------------------------------------------------------------------
 /// Calculate the flow pr tracer. If inconsistent flow, keep the existing fractions constant
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigAccWellFlowCalculator::calculateWellCellFlowPrTracer(
-    const RigWellResultPoint& wellCell, const std::vector<double>& currentAccumulatedFlowPrTracer ) const
+std::vector<double>
+    RigAccWellFlowCalculator::calculateWellCellFlowPrTracer( const RigWellResultPoint& wellCell,
+                                                             const std::vector<double>& currentAccumulatedFlowPrTracer ) const
 {
     std::vector<double> flowPrTracer( m_tracerNames.size(), 0.0 );
 

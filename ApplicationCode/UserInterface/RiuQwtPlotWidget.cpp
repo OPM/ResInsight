@@ -125,8 +125,11 @@ int RiuQwtPlotWidget::axisValueFontSize( QwtPlot::Axis axis ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setAxisFontsAndAlignment(
-    QwtPlot::Axis axis, int titleFontSize, int valueFontSize, bool titleBold, Qt::AlignmentFlag alignment )
+void RiuQwtPlotWidget::setAxisFontsAndAlignment( QwtPlot::Axis     axis,
+                                                 int               titleFontSize,
+                                                 int               valueFontSize,
+                                                 bool              titleBold,
+                                                 Qt::AlignmentFlag alignment )
 {
     // Axis number font
     QFont axisFont = this->axisFont( axis );
@@ -279,8 +282,11 @@ void RiuQwtPlotWidget::enableGridLines( QwtPlot::Axis axis, bool majorGridLines,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setMajorAndMinorTickIntervals(
-    QwtPlot::Axis axis, double majorTickInterval, double minorTickInterval, double minValue, double maxValue )
+void RiuQwtPlotWidget::setMajorAndMinorTickIntervals( QwtPlot::Axis axis,
+                                                      double        majorTickInterval,
+                                                      double        minorTickInterval,
+                                                      double        minValue,
+                                                      double        maxValue )
 {
     RiuQwtLinearScaleEngine* scaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>( this->axisScaleEngine( axis ) );
     if ( scaleEngine )

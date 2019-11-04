@@ -202,8 +202,9 @@ std::vector<std::vector<RivPolylineAnnotationPartMgr::Vec3d>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::Vec3d>> RivPolylineAnnotationPartMgr::transformPolylinesPointsToDisplay(
-    const std::vector<std::vector<Vec3d>>& pointsInDomain, const caf::DisplayCoordTransform* displayXf )
+std::vector<std::vector<cvf::Vec3d>>
+    RivPolylineAnnotationPartMgr::transformPolylinesPointsToDisplay( const std::vector<std::vector<Vec3d>>& pointsInDomain,
+                                                                     const caf::DisplayCoordTransform*      displayXf )
 {
     std::vector<std::vector<Vec3d>> pointsInDisplay;
     for ( const auto& pts : pointsInDomain )

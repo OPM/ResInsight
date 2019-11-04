@@ -755,8 +755,10 @@ std::set<RifEclipseSummaryAddress>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot(
-    const QStringList& curveFilters, RimSummaryPlot* plot, RimSummaryCase* summaryCase, bool addHistoryCurves )
+std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot( const QStringList& curveFilters,
+                                                                                            RimSummaryPlot* plot,
+                                                                                            RimSummaryCase* summaryCase,
+                                                                                            bool addHistoryCurves )
 {
     std::vector<RimSummaryCurve*> createdCurves;
 

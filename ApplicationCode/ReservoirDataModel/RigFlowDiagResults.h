@@ -101,8 +101,10 @@ public:
                                     double                      minCommunication,
                                     int                         maxTof );
 
-    RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame flowCharacteristicsResults(
-        int timeStepIndex, const std::vector<char>& visibleActiveCells, double max_pv_fraction );
+    RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame
+        flowCharacteristicsResults( int                      timeStepIndex,
+                                    const std::vector<char>& visibleActiveCells,
+                                    double                   max_pv_fraction );
 
     RimFlowDiagSolution* flowDiagSolution();
 

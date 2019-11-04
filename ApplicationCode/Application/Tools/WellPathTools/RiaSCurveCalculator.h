@@ -23,8 +23,7 @@
 class RiaSCurveCalculator
 {
 public:
-    RiaSCurveCalculator(
-        cvf::Vec3d p1, double azi1, double inc1, double r1, cvf::Vec3d p2, double azi2, double inc2, double r2 );
+    RiaSCurveCalculator( cvf::Vec3d p1, double azi1, double inc1, double r1, cvf::Vec3d p2, double azi2, double inc2, double r2 );
 
     RiaSCurveCalculator( cvf::Vec3d p1, cvf::Vec3d q1, cvf::Vec3d p2, cvf::Vec3d q2 );
 
@@ -105,8 +104,14 @@ public:
                                                       double     lengthToQ2 );
 
 private:
-    void initializeByFinding_q1q2(
-        cvf::Vec3d p1, double azi1, double inc1, double r1, cvf::Vec3d p2, double azi2, double inc2, double r2 );
+    void initializeByFinding_q1q2( cvf::Vec3d p1,
+                                   double     azi1,
+                                   double     inc1,
+                                   double     r1,
+                                   cvf::Vec3d p2,
+                                   double     azi2,
+                                   double     inc2,
+                                   double     r2 );
 
     bool m_isCalculationOK;
 

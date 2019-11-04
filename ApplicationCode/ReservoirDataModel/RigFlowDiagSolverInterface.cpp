@@ -864,8 +864,12 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf(
-    size_t activeCellIndex, double pressure, double rs, double rv, double* bo, double* bg )
+bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf( size_t  activeCellIndex,
+                                                                   double  pressure,
+                                                                   double  rs,
+                                                                   double  rv,
+                                                                   double* bo,
+                                                                   double* bg )
 {
     if ( bo ) *bo = HUGE_VAL;
     if ( bg ) *bg = HUGE_VAL;
@@ -927,8 +931,12 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity(
-    size_t activeCellIndex, double pressure, double rs, double rv, double* mu_o, double* mu_g )
+bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity( size_t  activeCellIndex,
+                                                                         double  pressure,
+                                                                         double  rs,
+                                                                         double  rv,
+                                                                         double* mu_o,
+                                                                         double* mu_g )
 {
     if ( mu_o ) *mu_o = HUGE_VAL;
     if ( mu_g ) *mu_g = HUGE_VAL;

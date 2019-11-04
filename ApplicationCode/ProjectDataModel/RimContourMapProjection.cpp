@@ -1160,7 +1160,8 @@ void RimContourMapProjection::generateContourPolygons()
 ///
 //--------------------------------------------------------------------------------------------------
 RimContourMapProjection::ContourPolygons RimContourMapProjection::createContourPolygonsFromLineSegments(
-    caf::ContourLines::ListOfLineSegments& unorderedLineSegments, double contourValue )
+    caf::ContourLines::ListOfLineSegments& unorderedLineSegments,
+    double                                 contourValue )
 {
     const double areaThreshold = 1.5 * ( m_sampleSpacing * m_sampleSpacing ) /
                                  ( sampleSpacingFactor() * sampleSpacingFactor() );

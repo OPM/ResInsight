@@ -33,8 +33,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(
-    const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& pathCoords, const std::vector<double>& pathMds )
+std::vector<WellPathCellIntersectionInfo>
+    RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( const RigEclipseCaseData*      caseData,
+                                                                      const std::vector<cvf::Vec3d>& pathCoords,
+                                                                      const std::vector<double>&     pathMds )
 {
     std::vector<WellPathCellIntersectionInfo> intersectionInfos;
 

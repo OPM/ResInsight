@@ -400,8 +400,11 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::wellAddress( const std::strin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseSummaryAddress::wellCompletionAddress(
-    const std::string& quantityName, const std::string& wellName, int i, int j, int k )
+RifEclipseSummaryAddress RifEclipseSummaryAddress::wellCompletionAddress( const std::string& quantityName,
+                                                                          const std::string& wellName,
+                                                                          int                i,
+                                                                          int                j,
+                                                                          int                k )
 {
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_WELL_COMPLETION;
@@ -431,8 +434,12 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::wellLgrAddress( const std::st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseSummaryAddress::wellCompletionLgrAddress(
-    const std::string& quantityName, const std::string& lgrName, const std::string& wellName, int i, int j, int k )
+RifEclipseSummaryAddress RifEclipseSummaryAddress::wellCompletionLgrAddress( const std::string& quantityName,
+                                                                             const std::string& lgrName,
+                                                                             const std::string& wellName,
+                                                                             int                i,
+                                                                             int                j,
+                                                                             int                k )
 {
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_WELL_COMPLETION_LGR;
@@ -477,8 +484,11 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::blockAddress( const std::stri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseSummaryAddress::blockLgrAddress(
-    const std::string& quantityName, const std::string& lgrName, int i, int j, int k )
+RifEclipseSummaryAddress RifEclipseSummaryAddress::blockLgrAddress( const std::string& quantityName,
+                                                                    const std::string& lgrName,
+                                                                    int                i,
+                                                                    int                j,
+                                                                    int                k )
 {
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_BLOCK_LGR;

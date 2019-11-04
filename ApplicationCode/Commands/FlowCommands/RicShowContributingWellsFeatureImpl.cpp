@@ -178,8 +178,10 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RicShowContributingWellsFeatureImpl::findContributingTracerNames(
-    const RimFlowDiagSolution* flowDiagSolution, const RigSimWellData* simWellData, int timeStep )
+std::vector<QString>
+    RicShowContributingWellsFeatureImpl::findContributingTracerNames( const RimFlowDiagSolution* flowDiagSolution,
+                                                                      const RigSimWellData*      simWellData,
+                                                                      int                        timeStep )
 {
     std::vector<QString> tracerCellFractionValues;
 

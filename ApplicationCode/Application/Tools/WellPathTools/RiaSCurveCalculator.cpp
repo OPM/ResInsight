@@ -28,8 +28,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSCurveCalculator::RiaSCurveCalculator(
-    cvf::Vec3d p1, double azi1, double inc1, double rad1, cvf::Vec3d p2, double azi2, double inc2, double rad2 )
+RiaSCurveCalculator::RiaSCurveCalculator( cvf::Vec3d p1,
+                                          double     azi1,
+                                          double     inc1,
+                                          double     rad1,
+                                          cvf::Vec3d p2,
+                                          double     azi2,
+                                          double     inc2,
+                                          double     rad2 )
     : m_isCalculationOK( false )
     , m_p1( p1 )
     , m_p2( p2 )
@@ -145,8 +151,14 @@ RiaSCurveCalculator::RiaSCurveCalculator( cvf::Vec3d p1, cvf::Vec3d q1, cvf::Vec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSCurveCalculator RiaSCurveCalculator::fromTangentsAndLength(
-    cvf::Vec3d p1, double azi1, double inc1, double lengthToQ1, cvf::Vec3d p2, double azi2, double inc2, double lengthToQ2 )
+RiaSCurveCalculator RiaSCurveCalculator::fromTangentsAndLength( cvf::Vec3d p1,
+                                                                double     azi1,
+                                                                double     inc1,
+                                                                double     lengthToQ1,
+                                                                cvf::Vec3d p2,
+                                                                double     azi2,
+                                                                double     inc2,
+                                                                double     lengthToQ2 )
 {
     cvf::Vec3d t1( RiaOffshoreSphericalCoords::unitVectorFromAziInc( azi1, inc1 ) );
     cvf::Vec3d t2( RiaOffshoreSphericalCoords::unitVectorFromAziInc( azi2, inc2 ) );
@@ -209,8 +221,14 @@ bool isZeroCrossing( double newError, double oldError, double maxError )
 /// R1(q1, q2), R2(q1, q2)
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSCurveCalculator::initializeByFinding_q1q2(
-    cvf::Vec3d p1, double azi1, double inc1, double r1, cvf::Vec3d p2, double azi2, double inc2, double r2 )
+void RiaSCurveCalculator::initializeByFinding_q1q2( cvf::Vec3d p1,
+                                                    double     azi1,
+                                                    double     inc1,
+                                                    double     r1,
+                                                    cvf::Vec3d p2,
+                                                    double     azi2,
+                                                    double     inc2,
+                                                    double     r2 )
 {
     // Algorithm options
 
