@@ -920,12 +920,12 @@ void Rim3dView::addMeasurementToModel( cvf::ModelBasicList* measureModel )
     else
     {
         cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
-        m_measurementPartManager->appendGeometryPartsToModel( isUsingOverrideViewer()
-                                                             ? nativeOrOverrideViewer()->comparisonMainCamera()
-                                                             : nativeOrOverrideViewer()->mainCamera() ,
-                                                             measureModel,
-                                                             transForm.p(),
-                                                             ownerCase()->allCellsBoundingBox() );
+        cvf::Camera* mainOrComparisonCamera = isUsingOverrideViewer() ? nativeOrOverrideViewer()->comparisonMainCamera()
+                                                                      : nativeOrOverrideViewer()->mainCamera();
+        m_measurementPartManager->appendGeometryPartsToModel( mainOrComparisonCamera,
+                                                              measureModel,
+                                                              transForm.p(),
+                                                              ownerCase()->allCellsBoundingBox() );
     }
 
     measureModel->updateBoundingBoxesRecursive();
