@@ -152,11 +152,8 @@ void RiaRegressionTestRunner::runRegressionTest()
         }
     }
 
-    QString htmlReportFileName = generateHtmlReport( folderList,
-                                                     baseFolderName,
-                                                     generatedFolderName,
-                                                     diffFolderName,
-                                                     testDir );
+    QString htmlReportFileName =
+        generateHtmlReport( folderList, baseFolderName, generatedFolderName, diffFolderName, testDir );
 
     if ( regressionTestConfig.openReportInBrowser() )
     {

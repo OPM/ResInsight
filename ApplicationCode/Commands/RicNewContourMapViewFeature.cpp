@@ -54,10 +54,10 @@ bool RicNewContourMapViewFeature::isCommandEnabled()
 {
     bool selectedView = caf::SelectionManager::instance()->selectedItemOfType<RimGridView>() != nullptr;
     bool selectedCase = caf::SelectionManager::instance()->selectedItemOfType<RimCase>() != nullptr;
-    bool selectedEclipseContourMapCollection = caf::SelectionManager::instance()
-                                                   ->selectedItemOfType<RimEclipseContourMapViewCollection>();
-    bool selectedGeoMechContourMapCollection = caf::SelectionManager::instance()
-                                                   ->selectedItemOfType<RimGeoMechContourMapViewCollection>();
+    bool selectedEclipseContourMapCollection =
+        caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapViewCollection>();
+    bool selectedGeoMechContourMapCollection =
+        caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechContourMapViewCollection>();
     return selectedView || selectedCase || selectedEclipseContourMapCollection || selectedGeoMechContourMapCollection;
 }
 
@@ -67,14 +67,14 @@ bool RicNewContourMapViewFeature::isCommandEnabled()
 void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
 {
     RimEclipseView*           reservoirView = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
-    RimEclipseContourMapView* existingEclipseContourMap = caf::SelectionManager::instance()
-                                                              ->selectedItemOfType<RimEclipseContourMapView>();
+    RimEclipseContourMapView* existingEclipseContourMap =
+        caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapView>();
     RimEclipseCase* eclipseCase = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseCase>();
     RimEclipseContourMapView* eclipseContourMap = nullptr;
 
     RimGeoMechView*           geoMechView = caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechView>();
-    RimGeoMechContourMapView* existingGeoMechContourMap = caf::SelectionManager::instance()
-                                                              ->selectedItemOfType<RimGeoMechContourMapView>();
+    RimGeoMechContourMapView* existingGeoMechContourMap =
+        caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechContourMapView>();
     RimGeoMechCase* geoMechCase = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGeoMechCase>();
     RimGeoMechContourMapView* geoMechContourMap = nullptr;
 

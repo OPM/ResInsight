@@ -164,10 +164,10 @@ void RiuFemTimeHistoryResultAccessor::computeTimeHistoryData()
 
         for ( int frameIdx = 0; frameIdx < femPartResultsColl->frameCount(); frameIdx++ )
         {
-            const std::vector<float>& scalarResults = m_geoMechCaseData->femPartResults()
-                                                          ->resultValues( *m_femResultAddress,
-                                                                          static_cast<int>( m_gridIndex ),
-                                                                          frameIdx );
+            const std::vector<float>& scalarResults =
+                m_geoMechCaseData->femPartResults()->resultValues( *m_femResultAddress,
+                                                                   static_cast<int>( m_gridIndex ),
+                                                                   frameIdx );
             if ( scalarResults.size() )
             {
                 float scalarValue = scalarResults[scalarResultIndex];

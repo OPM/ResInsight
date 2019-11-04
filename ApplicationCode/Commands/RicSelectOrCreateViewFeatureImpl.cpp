@@ -73,8 +73,8 @@ RimEclipseView* RicSelectOrCreateViewFeatureImpl::showViewSelection( RimEclipseR
         viewToManipulate = featureUi.selectedView();
     }
 
-    QString refFromProjectToView = caf::PdmReferenceHelper::referenceFromRootToObject( RiaApplication::instance()->project(),
-                                                                                       viewToManipulate );
+    QString refFromProjectToView =
+        caf::PdmReferenceHelper::referenceFromRootToObject( RiaApplication::instance()->project(), viewToManipulate );
     RiaApplication::instance()->setCacheDataObject( lastUsedViewKey, refFromProjectToView );
 
     return viewToManipulate;

@@ -1196,7 +1196,8 @@ void RiaApplication::applyPreferences()
 //--------------------------------------------------------------------------------------------------
 QString RiaApplication::commandLineParameterHelp()
 {
-    QString helpText = QString( "\n%1 v. %2\n" ).arg( RI_APPLICATION_NAME ).arg( RiaApplication::getVersionStringApp( false ) );
+    QString helpText =
+        QString( "\n%1 v. %2\n" ).arg( RI_APPLICATION_NAME ).arg( RiaApplication::getVersionStringApp( false ) );
     helpText += "Copyright Equinor ASA, Ceetron Solution AS, Ceetron AS\n\n";
     helpText += m_commandLineHelpText;
 

@@ -485,11 +485,8 @@ void RimEclipseResultCase::updateFilePathsFromProjectPath( const QString& newPro
     const std::vector<QString>& orgFilesContainingFaults = filesContainingFaults();
     for ( auto faultFileName : orgFilesContainingFaults )
     {
-        QString relocatedFaultFile = RimTools::relocateFile( faultFileName,
-                                                             newProjectPath,
-                                                             oldProjectPath,
-                                                             &foundFile,
-                                                             &searchedPaths );
+        QString relocatedFaultFile =
+            RimTools::relocateFile( faultFileName, newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
         relocatedFaultFiles.push_back( relocatedFaultFile );
     }
 

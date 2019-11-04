@@ -438,8 +438,8 @@ QString RiuResultTextBuilder::nncResultText()
 
                 if ( m_reservoirView->currentFaultResultColors() )
                 {
-                    RigEclipseResultAddress eclipseResultAddress = m_reservoirView->currentFaultResultColors()
-                                                                       ->eclipseResultAddress();
+                    RigEclipseResultAddress eclipseResultAddress =
+                        m_reservoirView->currentFaultResultColors()->eclipseResultAddress();
                     RiaDefines::ResultCatType  resultType = m_reservoirView->currentFaultResultColors()->resultType();
                     const std::vector<double>* nncValues  = nullptr;
                     if ( resultType == RiaDefines::STATIC_NATIVE )
@@ -547,12 +547,13 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*   ecl
             if ( resultColors->resultVariable().compare( RiaDefines::combinedTransmissibilityResultName(),
                                                          Qt::CaseInsensitive ) == 0 )
             {
-                cvf::ref<RigResultAccessor> transResultAccessor = RigResultAccessorFactory::
-                    createFromResultAddress( eclipseCase,
-                                             gridIndex,
-                                             porosityModel,
-                                             0,
-                                             RigEclipseResultAddress( RiaDefines::combinedTransmissibilityResultName() ) );
+                cvf::ref<RigResultAccessor> transResultAccessor =
+                    RigResultAccessorFactory::createFromResultAddress( eclipseCase,
+                                                                       gridIndex,
+                                                                       porosityModel,
+                                                                       0,
+                                                                       RigEclipseResultAddress(
+                                                                           RiaDefines::combinedTransmissibilityResultName() ) );
                 {
                     double scalarValue = transResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_I );
                     resultInfoText->append( QString( "Tran X : %1\n" ).arg( scalarValue ) );

@@ -79,8 +79,8 @@ void RigEclipseToStimPlanCalculator::computeValues()
                                                                                    reservoirCellIndicesOpenForFlow,
                                                                                    m_fracture );
 
-        const std::vector<size_t>& fractureCellContributingEclipseCells = eclToFractureTransCalc
-                                                                              .globalIndiciesToContributingEclipseCells();
+        const std::vector<size_t>& fractureCellContributingEclipseCells =
+            eclToFractureTransCalc.globalIndiciesToContributingEclipseCells();
 
         if ( !fractureCellContributingEclipseCells.empty() )
         {
@@ -99,8 +99,8 @@ void RigEclipseToStimPlanCalculator::appendDataToTransmissibilityCondenser( bool
 {
     for ( const auto& eclToFractureTransCalc : m_singleFractureCellCalculators )
     {
-        const std::vector<size_t>& fractureCellContributingEclipseCells = eclToFractureTransCalc.second
-                                                                              .globalIndiciesToContributingEclipseCells();
+        const std::vector<size_t>& fractureCellContributingEclipseCells =
+            eclToFractureTransCalc.second.globalIndiciesToContributingEclipseCells();
 
         const std::vector<double>& fractureCellContributingEclipseCellTransmissibilities =
             eclToFractureTransCalc.second.contributingEclipseCellTransmissibilities();

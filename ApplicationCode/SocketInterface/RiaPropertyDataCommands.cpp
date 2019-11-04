@@ -661,8 +661,8 @@ public:
                     if ( activeCellInfo->isActive( gcIdx ) )
                     {
                         m_scalarResultsToAdd->at(
-                            m_requestedTimesteps[m_currentTimeStepNumberToRead] )[activeCellInfo->cellResultIndex(
-                            gcIdx )] = readBuffer[acIdx];
+                            m_requestedTimesteps[m_currentTimeStepNumberToRead] )[activeCellInfo->cellResultIndex( gcIdx )] =
+                            readBuffer[acIdx];
                         ++acIdx;
                     }
                 }
@@ -865,8 +865,8 @@ public:
             }
 
             m_currentResultAddress = resAddr;
-            scalarResultFrames     = rimCase->results( m_porosityModelEnum )
-                                     ->modifiableCellScalarResultTimesteps( m_currentResultAddress );
+            scalarResultFrames =
+                rimCase->results( m_porosityModelEnum )->modifiableCellScalarResultTimesteps( m_currentResultAddress );
             size_t timeStepCount = rimCase->results( m_porosityModelEnum )->maxTimeStepCount();
             scalarResultFrames->resize( timeStepCount );
 
@@ -1418,6 +1418,6 @@ public:
     }
 };
 
-static bool RiaGetGridPropertyForSelectedCells_init = RiaSocketCommandFactory::instance()
-                                                          ->registerCreator<RiaGetGridPropertyForSelectedCells>(
-                                                              RiaGetGridPropertyForSelectedCells::commandName() );
+static bool RiaGetGridPropertyForSelectedCells_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetGridPropertyForSelectedCells>(
+        RiaGetGridPropertyForSelectedCells::commandName() );

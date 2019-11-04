@@ -547,8 +547,8 @@ void RimEclipseStatisticsCase::fieldChangedByUi( const caf::PdmFieldHandle* chan
             // Propagate well info to statistics case
             if ( sourceResultCase->eclipseCaseData() )
             {
-                const cvf::Collection<RigSimWellData>& sourceCaseSimWellData = sourceResultCase->eclipseCaseData()
-                                                                                   ->wellResults();
+                const cvf::Collection<RigSimWellData>& sourceCaseSimWellData =
+                    sourceResultCase->eclipseCaseData()->wellResults();
                 setWellResultsAndUpdateViews( sourceCaseSimWellData );
             }
         }

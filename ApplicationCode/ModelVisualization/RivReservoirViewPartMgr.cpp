@@ -715,8 +715,8 @@ void RivReservoirViewPartMgr::computeOverriddenCellVisibility( cvf::UByteArray* 
             int cellSetCount = gridsWithCellSetVisibility[masterCaseCells.gridIndex[mcIdx]].size();
             for ( int csIdx = 0; csIdx < cellSetCount; ++csIdx )
             {
-                ( *cellVisibility )[lcIdx] |= gridsWithCellSetVisibility[masterCaseCells.gridIndex[mcIdx]]
-                                                                        [masterCaseCells.cellIndex[mcIdx]];
+                ( *cellVisibility )[lcIdx] |=
+                    gridsWithCellSetVisibility[masterCaseCells.gridIndex[mcIdx]][masterCaseCells.cellIndex[mcIdx]];
             }
         }
 #endif
@@ -781,7 +781,8 @@ void RivReservoirViewPartMgr::computeRangeVisibility( RivCellSetEnum            
 
             if ( geometryType == RANGE_FILTERED_WELL_CELLS )
             {
-                geometryType = RANGE_FILTERED; // Use the range filtering in the parent grid, not the well cells in the parent grid
+                geometryType =
+                    RANGE_FILTERED; // Use the range filtering in the parent grid, not the well cells in the parent grid
             }
 
             RivReservoirPartMgr* reservoirGridPartMgr = &m_geometries[geometryType];
@@ -998,8 +999,8 @@ const cvf::UByteArray*
     ensureDynamicGeometryPartsCreated( geometryType, timeStepIndex );
     ensureStaticGeometryPartsCreated( geometryType );
 
-    RivReservoirPartMgr* pmgr = ( const_cast<RivReservoirViewPartMgr*>( this ) )
-                                    ->reservoirPartManager( geometryType, timeStepIndex );
+    RivReservoirPartMgr* pmgr =
+        ( const_cast<RivReservoirViewPartMgr*>( this ) )->reservoirPartManager( geometryType, timeStepIndex );
 
     return pmgr->cellVisibility( gridIndex ).p();
 }

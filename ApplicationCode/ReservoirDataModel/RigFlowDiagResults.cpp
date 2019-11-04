@@ -232,20 +232,16 @@ std::vector<double>* RigFlowDiagResults::calculateDerivedResult( const RigFlowDi
 std::vector<double>* RigFlowDiagResults::calculateAverageTOFResult( const RigFlowDiagResultAddress& resVarAddr,
                                                                     size_t                          timeStepIndex )
 {
-    std::vector<const std::vector<double>*> injectorTOFs = findResultsForSelectedTracers( resVarAddr,
-                                                                                          timeStepIndex,
-                                                                                          RIG_FLD_TOF_RESNAME,
-                                                                                          RimFlowDiagSolution::INJECTOR );
+    std::vector<const std::vector<double>*> injectorTOFs =
+        findResultsForSelectedTracers( resVarAddr, timeStepIndex, RIG_FLD_TOF_RESNAME, RimFlowDiagSolution::INJECTOR );
     std::vector<const std::vector<double>*> injectorFractions =
         findResultsForSelectedTracers( resVarAddr,
                                        timeStepIndex,
                                        RIG_FLD_CELL_FRACTION_RESNAME,
                                        RimFlowDiagSolution::INJECTOR );
 
-    std::vector<const std::vector<double>*> producerTOFs = findResultsForSelectedTracers( resVarAddr,
-                                                                                          timeStepIndex,
-                                                                                          RIG_FLD_TOF_RESNAME,
-                                                                                          RimFlowDiagSolution::PRODUCER );
+    std::vector<const std::vector<double>*> producerTOFs =
+        findResultsForSelectedTracers( resVarAddr, timeStepIndex, RIG_FLD_TOF_RESNAME, RimFlowDiagSolution::PRODUCER );
     std::vector<const std::vector<double>*> producerFractions =
         findResultsForSelectedTracers( resVarAddr,
                                        timeStepIndex,

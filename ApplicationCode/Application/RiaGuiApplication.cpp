@@ -1592,8 +1592,8 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences* oldPreference
                     if ( gridView && gridView->annotationCollection() )
                     {
                         RiaFontCache::FontSize oldFontSize = oldPreferences->defaultAnnotationFontSize();
-                        existingObjectsWithCustomFonts     = gridView->annotationCollection()
-                                                             ->hasTextAnnotationsWithCustomFontSize( oldFontSize );
+                        existingObjectsWithCustomFonts =
+                            gridView->annotationCollection()->hasTextAnnotationsWithCustomFontSize( oldFontSize );
                     }
                     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( rim3dView );
                     if ( eclipseView )

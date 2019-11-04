@@ -277,8 +277,8 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
 
                     const RigWellPath* wellPath = wellPaths[brIdx];
 
-                    RigEclipseWellLogExtractor* extractor = RiaExtractionTools::findOrCreateSimWellExtractor( m_simWellInView,
-                                                                                                              wellPath );
+                    RigEclipseWellLogExtractor* extractor =
+                        RiaExtractionTools::findOrCreateSimWellExtractor( m_simWellInView, wellPath );
                     if ( extractor )
                     {
                         std::vector<WellPathCellIntersectionInfo> wellPathCellIntersections =
@@ -287,8 +287,8 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
                         for ( const auto& intersectionInfo : wellPathCellIntersections )
                         {
                             size_t                    globalCellIndex = intersectionInfo.globCellIndex;
-                            const RigWellResultPoint* wResCell        = wResFrame.findResultCellWellHeadIncluded( 0,
-                                                                                                           globalCellIndex );
+                            const RigWellResultPoint* wResCell =
+                                wResFrame.findResultCellWellHeadIncluded( 0, globalCellIndex );
 
                             if ( !wResCell || !wResCell->isValid() )
                             {

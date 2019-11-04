@@ -368,11 +368,8 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             }
         }
 
-        std::vector<RigCompletionData> allCompletionsForOneFracture = generateCompdatValuesForFracture( matrixToWellTrans,
-                                                                                                        wellNameForExport,
-                                                                                                        caseToApply,
-                                                                                                        fracture,
-                                                                                                        fracTemplate );
+        std::vector<RigCompletionData> allCompletionsForOneFracture =
+            generateCompdatValuesForFracture( matrixToWellTrans, wellNameForExport, caseToApply, fracture, fracTemplate );
 
         if ( fractureDataReportItems )
         {

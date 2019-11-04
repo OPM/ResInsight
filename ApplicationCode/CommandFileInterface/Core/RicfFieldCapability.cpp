@@ -145,8 +145,8 @@ void RicfFieldReader<bool>::readFieldData( bool&         fieldValue,
     {
         QString formatString(
             "Boolean argument \"%1\" for the command \"%2\" does not evaluate to either true or false" );
-        QString errorMessage = formatString.arg( errorMessageContainer->currentArgument )
-                                   .arg( errorMessageContainer->currentCommand );
+        QString errorMessage =
+            formatString.arg( errorMessageContainer->currentArgument ).arg( errorMessageContainer->currentCommand );
         errorMessageContainer->addError( errorMessage );
     }
     fieldValue = evaluatesToTrue;

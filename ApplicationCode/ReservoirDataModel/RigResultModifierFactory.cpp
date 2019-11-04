@@ -68,9 +68,8 @@ cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier( RigE
     bool useGlobalActiveIndex = eclipseCase->results( porosityModel )->isUsingGlobalActiveIndex( resVarAddr );
     if ( useGlobalActiveIndex )
     {
-        cvf::ref<RigResultModifier> object = new RigActiveCellsResultModifier( grid,
-                                                                               eclipseCase->activeCellInfo( porosityModel ),
-                                                                               resultValues );
+        cvf::ref<RigResultModifier> object =
+            new RigActiveCellsResultModifier( grid, eclipseCase->activeCellInfo( porosityModel ), resultValues );
         return object;
     }
     else

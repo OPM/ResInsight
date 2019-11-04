@@ -809,8 +809,8 @@ void RiuSummaryCurveDefSelection::defineUiOrdering( QString uiConfigName, caf::P
                                                                        RiuSummaryCurveDefinitionKeywords::sources() );
     sourcesGroup->add( &m_selectedSources );
 
-    caf::PdmUiGroup* itemTypesGroup = uiOrdering.addNewGroupWithKeyword( "Summary Types",
-                                                                         RiuSummaryCurveDefinitionKeywords::summaryTypes() );
+    caf::PdmUiGroup* itemTypesGroup =
+        uiOrdering.addNewGroupWithKeyword( "Summary Types", RiuSummaryCurveDefinitionKeywords::summaryTypes() );
     itemTypesGroup->add( &m_selectedSummaryCategories );
 
     caf::PdmField<std::vector<QString>>* summaryiesField = nullptr;
@@ -1510,8 +1510,8 @@ void RiuSummaryCurveDefSelection::appendOptionItemsForSubCategoriesAndVectors(
 
             if ( isVectorField )
             {
-                std::string longVectorName = RiuSummaryQuantityNameInfoProvider::instance()
-                                                 ->longNameFromQuantityName( itemName, true );
+                std::string longVectorName =
+                    RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( itemName, true );
                 displayName = QString::fromStdString( longVectorName );
                 displayName += QString( " (%1)" ).arg( QString::fromStdString( itemName ) );
             }

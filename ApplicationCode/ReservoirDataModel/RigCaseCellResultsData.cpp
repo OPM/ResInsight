@@ -3029,11 +3029,12 @@ void RigCaseCellResultsData::copyResultsMetaDataFromMainCase( RigEclipseCaseData
                                                               RiaDefines::PorosityModelType poroModel,
                                                               std::vector<RimEclipseCase*>  destinationCases )
 {
-    std::vector<RigEclipseResultAddress> resAddresses  = mainCaseResultsData->results( poroModel )->existingResults();
-    std::vector<RigEclipseTimeStepInfo>  timeStepInfos = mainCaseResultsData->results( poroModel )
-                                                            ->timeStepInfos( resAddresses[0] );
+    std::vector<RigEclipseResultAddress> resAddresses = mainCaseResultsData->results( poroModel )->existingResults();
+    std::vector<RigEclipseTimeStepInfo>  timeStepInfos =
+        mainCaseResultsData->results( poroModel )->timeStepInfos( resAddresses[0] );
 
-    const std::vector<RigEclipseResultInfo> resultInfos = mainCaseResultsData->results( poroModel )->infoForEachResultIndex();
+    const std::vector<RigEclipseResultInfo> resultInfos =
+        mainCaseResultsData->results( poroModel )->infoForEachResultIndex();
 
     for ( size_t i = 0; i < destinationCases.size(); i++ )
     {

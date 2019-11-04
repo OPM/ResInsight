@@ -280,7 +280,8 @@ QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions( const caf
                     const RigFemResultAddress& result = m_geomResultAddresses[i];
                     bool                       inUse  = resultsInUse.count( result );
                     QString posText = caf::AppEnum<RigFemResultPosEnum>::uiTextFromIndex( result.resultPosType );
-                    QString resultsText = QString( "%1, %2" ).arg( posText ).arg( QString::fromStdString( result.fieldName ) );
+                    QString resultsText =
+                        QString( "%1, %2" ).arg( posText ).arg( QString::fromStdString( result.fieldName ) );
                     if ( !result.componentName.empty() )
                     {
                         resultsText += QString( ", %1" ).arg( QString::fromStdString( result.componentName ) );

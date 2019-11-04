@@ -212,8 +212,8 @@ std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPa
 
     if ( wellPaths.empty() )
     {
-        RimWellPathCompletions* completions = caf::SelectionManager::instance()
-                                                  ->selectedItemAncestorOfType<RimWellPathCompletions>();
+        RimWellPathCompletions* completions =
+            caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathCompletions>();
         if ( completions )
         {
             RimWellPath* wellPath = nullptr;

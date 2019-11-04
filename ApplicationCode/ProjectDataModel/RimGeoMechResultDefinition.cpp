@@ -235,8 +235,8 @@ QList<caf::PdmOptionItemInfo>
         {
             if ( m_geomCase->geoMechData() )
             {
-                size_t kCount = m_geomCase->geoMechData()->femParts()->part( 0 )->getOrCreateStructGrid()->gridPointCountK() -
-                                1;
+                size_t kCount =
+                    m_geomCase->geoMechData()->femParts()->part( 0 )->getOrCreateStructGrid()->gridPointCountK() - 1;
                 for ( size_t layerIdx = 0; layerIdx < kCount; ++layerIdx )
                 {
                     options.push_back( caf::PdmOptionItemInfo( QString::number( layerIdx + 1 ), (int)layerIdx ) );

@@ -57,12 +57,9 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo( size_t          
 
     // Create result access objects
 
-    cvf::ref<RigResultAccessor> cellCenterDataAccessObject = createCellCenterResultAccessor( cellResultColors,
-                                                                                             timeStepIndex,
-                                                                                             eclipseCase,
-                                                                                             eclipseCase->grid(
-                                                                                                 gridIndex ) );
-    cvf::ref<RigResultAccessor> cellEdgeResultAccessor     = createCellEdgeResultAccessor( cellResultColors,
+    cvf::ref<RigResultAccessor> cellCenterDataAccessObject =
+        createCellCenterResultAccessor( cellResultColors, timeStepIndex, eclipseCase, eclipseCase->grid( gridIndex ) );
+    cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeResultAccessor( cellResultColors,
                                                                                        cellEdgeResultColors,
                                                                                        timeStepIndex,
                                                                                        eclipseCase,

@@ -42,7 +42,8 @@ bool RicAddStoredWellAllocationPlotFeature::isCommandEnabled()
 {
     if ( RiaApplication::instance()->project() )
     {
-        RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
+        RimFlowPlotCollection* flowPlotColl =
+            RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
         if ( flowPlotColl )
         {
             RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(
@@ -65,7 +66,8 @@ void RicAddStoredWellAllocationPlotFeature::onActionTriggered( bool isChecked )
 {
     if ( RiaApplication::instance()->project() )
     {
-        RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
+        RimFlowPlotCollection* flowPlotColl =
+            RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
         if ( flowPlotColl )
         {
             RimWellAllocationPlot* sourceObject = dynamic_cast<RimWellAllocationPlot*>(

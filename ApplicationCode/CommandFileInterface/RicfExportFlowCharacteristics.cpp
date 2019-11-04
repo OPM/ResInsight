@@ -86,7 +86,8 @@ RicfCommandResponse RicfExportFlowCharacteristics::execute()
             exportFileName = exportFolder + "/" + fi.fileName();
         }
 
-        RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
+        RimFlowPlotCollection* flowPlotColl =
+            RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
         if ( flowPlotColl )
         {
             RimFlowCharacteristicsPlot* plot = flowPlotColl->defaultFlowCharacteristicsPlot();

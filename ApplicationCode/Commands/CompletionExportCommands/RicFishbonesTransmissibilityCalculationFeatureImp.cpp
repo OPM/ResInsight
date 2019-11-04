@@ -215,10 +215,10 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
             {
                 for ( std::shared_ptr<RicMswSubSegmentCellIntersection> intersection : segment->intersections() )
                 {
-                    double  diameter           = location->holeDiameter();
-                    QString completionMetaData = ( location->label() + QString( ": Sub: %1 Lateral: %2" )
-                                                                           .arg( location->subIndex() )
-                                                                           .arg( completion->index() ) );
+                    double  diameter = location->holeDiameter();
+                    QString completionMetaData =
+                        ( location->label() +
+                          QString( ": Sub: %1 Lateral: %2" ).arg( location->subIndex() ).arg( completion->index() ) );
 
                     WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc( intersection->lengthsInCell(),
                                                                                       diameter / 2.0,

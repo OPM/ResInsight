@@ -385,8 +385,8 @@ std::map<QString, const std::vector<double>*>
                 RigFlowDiagResultAddress   resAddr( RIG_FLD_CELL_FRACTION_RESNAME,
                                                   RigFlowDiagResultAddress::PHASE_ALL,
                                                   tracerName.toStdString() );
-                const std::vector<double>* tracerCellFractions = m_flowDiagSolution->flowDiagResults()
-                                                                     ->resultValues( resAddr, m_timeStep );
+                const std::vector<double>* tracerCellFractions =
+                    m_flowDiagSolution->flowDiagResults()->resultValues( resAddr, m_timeStep );
                 if ( tracerCellFractions ) tracerCellFractionValues[tracerName] = tracerCellFractions;
             }
         }

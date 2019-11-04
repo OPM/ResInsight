@@ -1315,8 +1315,8 @@ bool RiuViewerCommands::handleOverlayItemPicking( int winPosX, int winPosY )
             std::vector<RimLegendConfig*> legendConfigs = m_reservoirView->legendConfigs();
             if ( m_reservoirView->activeComparisonView() )
             {
-                std::vector<RimLegendConfig*> compViewLegendConfigs = m_reservoirView->activeComparisonView()
-                                                                          ->legendConfigs();
+                std::vector<RimLegendConfig*> compViewLegendConfigs =
+                    m_reservoirView->activeComparisonView()->legendConfigs();
                 legendConfigs.insert( legendConfigs.end(), compViewLegendConfigs.begin(), compViewLegendConfigs.end() );
             }
 

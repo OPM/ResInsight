@@ -271,7 +271,8 @@ void RimWellRftPlot::applyInitialSelections()
     m_selectedSources = sourcesToSelect;
 
     {
-        std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::rftPlotChannelTypes();
+        std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse =
+            RifEclipseRftAddress::rftPlotChannelTypes();
 
         auto relevantTimeSteps = RimWellPlotTools::calculateRelevantTimeStepsFromCases( m_wellPathNameOrSimWellName,
                                                                                         m_selectedSources,
@@ -508,10 +509,10 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
         }
         else if ( m_showStatisticsCurves && curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::ENSEMBLE_RFT )
         {
-            RimSummaryCaseCollection*      ensemble     = curveDefToAdd.address().ensemble();
-            std::set<RifEclipseRftAddress> rftAddresses = ensemble->rftStatisticsReader()
-                                                              ->eclipseRftAddresses( m_wellPathNameOrSimWellName,
-                                                                                     curveDefToAdd.timeStep() );
+            RimSummaryCaseCollection*      ensemble = curveDefToAdd.address().ensemble();
+            std::set<RifEclipseRftAddress> rftAddresses =
+                ensemble->rftStatisticsReader()->eclipseRftAddresses( m_wellPathNameOrSimWellName,
+                                                                      curveDefToAdd.timeStep() );
             for ( auto rftAddress : rftAddresses )
             {
                 if ( rftAddress.wellLogChannel() != RifEclipseRftAddress::TVD )
@@ -799,7 +800,8 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions( const caf::
     }
     else if ( fieldNeedingOptions == &m_selectedTimeSteps )
     {
-        std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::rftPlotChannelTypes();
+        std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse =
+            RifEclipseRftAddress::rftPlotChannelTypes();
 
         RimWellPlotTools::calculateValueOptionsForTimeSteps( m_wellPathNameOrSimWellName,
                                                              selectedSourcesExpanded(),

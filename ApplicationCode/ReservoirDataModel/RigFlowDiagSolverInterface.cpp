@@ -733,10 +733,10 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve>
             {
                 scaling.enable = static_cast<unsigned char>( 0 );
             }
-            std::vector<Opm::FlowDiagnostics::Graph> graphArr = m_opmFlowDiagStaticData->m_eclSaturationFunc
-                                                                    ->getSatFuncCurve( satFuncRequests,
-                                                                                       static_cast<int>( activeCellIndex ),
-                                                                                       scaling );
+            std::vector<Opm::FlowDiagnostics::Graph> graphArr =
+                m_opmFlowDiagStaticData->m_eclSaturationFunc->getSatFuncCurve( satFuncRequests,
+                                                                               static_cast<int>( activeCellIndex ),
+                                                                               scaling );
             for ( size_t i = 0; i < graphArr.size(); i++ )
             {
                 const RelPermCurve::Ident          curveIdent = curveIdentNameArr[i].first;
@@ -786,10 +786,10 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
         {
             // Bo
             {
-                std::vector<Opm::ECLPVT::PVTGraph> graphArr = m_opmFlowDiagStaticData->m_eclPvtCurveCollection
-                                                                  ->getPvtCurve( Opm::ECLPVT::RawCurve::FVF,
-                                                                                 Opm::ECLPhaseIndex::Liquid,
-                                                                                 static_cast<int>( activeCellIndex ) );
+                std::vector<Opm::ECLPVT::PVTGraph> graphArr =
+                    m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve( Opm::ECLPVT::RawCurve::FVF,
+                                                                                   Opm::ECLPhaseIndex::Liquid,
+                                                                                   static_cast<int>( activeCellIndex ) );
                 for ( Opm::ECLPVT::PVTGraph srcGraph : graphArr )
                 {
                     if ( srcGraph.press.size() > 0 )
@@ -802,10 +802,10 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
 
             // Bg
             {
-                std::vector<Opm::ECLPVT::PVTGraph> graphArr = m_opmFlowDiagStaticData->m_eclPvtCurveCollection
-                                                                  ->getPvtCurve( Opm::ECLPVT::RawCurve::FVF,
-                                                                                 Opm::ECLPhaseIndex::Vapour,
-                                                                                 static_cast<int>( activeCellIndex ) );
+                std::vector<Opm::ECLPVT::PVTGraph> graphArr =
+                    m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve( Opm::ECLPVT::RawCurve::FVF,
+                                                                                   Opm::ECLPhaseIndex::Vapour,
+                                                                                   static_cast<int>( activeCellIndex ) );
                 for ( Opm::ECLPVT::PVTGraph srcGraph : graphArr )
                 {
                     if ( srcGraph.press.size() > 0 )
@@ -821,10 +821,10 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
         {
             // Visc_o / mu_o
             {
-                std::vector<Opm::ECLPVT::PVTGraph> graphArr = m_opmFlowDiagStaticData->m_eclPvtCurveCollection
-                                                                  ->getPvtCurve( Opm::ECLPVT::RawCurve::Viscosity,
-                                                                                 Opm::ECLPhaseIndex::Liquid,
-                                                                                 static_cast<int>( activeCellIndex ) );
+                std::vector<Opm::ECLPVT::PVTGraph> graphArr =
+                    m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve( Opm::ECLPVT::RawCurve::Viscosity,
+                                                                                   Opm::ECLPhaseIndex::Liquid,
+                                                                                   static_cast<int>( activeCellIndex ) );
                 for ( Opm::ECLPVT::PVTGraph srcGraph : graphArr )
                 {
                     if ( srcGraph.press.size() > 0 )
@@ -837,10 +837,10 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
 
             // Visc_g / mu_g
             {
-                std::vector<Opm::ECLPVT::PVTGraph> graphArr = m_opmFlowDiagStaticData->m_eclPvtCurveCollection
-                                                                  ->getPvtCurve( Opm::ECLPVT::RawCurve::Viscosity,
-                                                                                 Opm::ECLPhaseIndex::Vapour,
-                                                                                 static_cast<int>( activeCellIndex ) );
+                std::vector<Opm::ECLPVT::PVTGraph> graphArr =
+                    m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve( Opm::ECLPVT::RawCurve::Viscosity,
+                                                                                   Opm::ECLPhaseIndex::Vapour,
+                                                                                   static_cast<int>( activeCellIndex ) );
                 for ( Opm::ECLPVT::PVTGraph srcGraph : graphArr )
                 {
                     if ( srcGraph.press.size() > 0 )

@@ -198,7 +198,8 @@ void RimSummaryCalculationVariable::readDataFromApplicationStore( RiuSummaryCurv
             sumAddress = lastUsedAddress;
         }
 
-        QString lastUsedSummaryCaseString = RiaApplication::instance()->cacheDataObject( "CalculatorSummaryCase" ).toString();
+        QString lastUsedSummaryCaseString =
+            RiaApplication::instance()->cacheDataObject( "CalculatorSummaryCase" ).toString();
 
         auto* lastUsedSummaryCase = dynamic_cast<RimSummaryCase*>(
             caf::PdmReferenceHelper::objectFromReference( RiaApplication::instance()->project(),

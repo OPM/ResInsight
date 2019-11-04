@@ -89,8 +89,8 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
     std::shared_ptr<QFile> unifiedExportFile;
     if ( exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::UNIFIED_FILE )
     {
-        QString unifiedFileName = QString( "UnifiedCompletions_MSW_%1" )
-                                      .arg( exportSettings.caseToApply->caseUserDescription() );
+        QString unifiedFileName =
+            QString( "UnifiedCompletions_MSW_%1" ).arg( exportSettings.caseToApply->caseUserDescription() );
         unifiedExportFile = RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
                                                                                       unifiedFileName );
     }

@@ -269,9 +269,8 @@ std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( Resul
         resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "PORO" ), 0 );
     const std::vector<double>& ntgResults =
         resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "NTG" ), 0 );
-    const std::vector<double>& dzResults = resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE,
-                                                                                                   "DZ" ),
-                                                                          0 );
+    const std::vector<double>& dzResults =
+        resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "DZ" ), 0 );
 
     CVF_ASSERT( poroResults.size() == ntgResults.size() && ntgResults.size() == dzResults.size() );
 
@@ -434,8 +433,8 @@ double RimEclipseContourMapProjection::calculateRayLengthInCell( size_t         
 
     if ( RigHexIntersectionTools::lineHexCellIntersection( highestPoint, lowestPoint, hexCorners.data(), 0, &intersections ) )
     {
-        double lengthInCell = ( intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint )
-                                  .length();
+        double lengthInCell =
+            ( intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint ).length();
         return lengthInCell;
     }
     return 0.0;

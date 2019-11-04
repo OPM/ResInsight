@@ -474,8 +474,8 @@ double RimGeoMechContourMapProjection::calculateRayLengthInCell( size_t         
 
     if ( RigHexIntersectionTools::lineHexCellIntersection( highestPoint, lowestPoint, hexCorners.data(), 0, &intersections ) )
     {
-        double lengthInCell = ( intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint )
-                                  .length();
+        double lengthInCell =
+            ( intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint ).length();
         return lengthInCell;
     }
     return 0.0;

@@ -76,8 +76,8 @@ void RicExportFishbonesLateralsFeature::onActionTriggered( bool isChecked )
             {
                 for ( size_t lateralIndex : sub.lateralIndices )
                 {
-                    std::vector<std::pair<cvf::Vec3d, double>> coordsAndMD = fishbone->coordsAndMDForLateral( sub.subIndex,
-                                                                                                              lateralIndex );
+                    std::vector<std::pair<cvf::Vec3d, double>> coordsAndMD =
+                        fishbone->coordsAndMDForLateral( sub.subIndex, lateralIndex );
 
                     std::vector<cvf::Vec3d> lateralCoords;
                     std::vector<double>     lateralMDs;

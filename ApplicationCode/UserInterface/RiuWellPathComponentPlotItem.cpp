@@ -216,17 +216,11 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         }
         addMarker( casingTrackEnd, midDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor( 0.0 ), label() );
 
-        QwtPlotItem* legendItem1 = createMarker( 16.0,
-                                                 0.0,
-                                                 6,
-                                                 RiuQwtSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE,
-                                                 componentColor() );
+        QwtPlotItem* legendItem1 =
+            createMarker( 16.0, 0.0, 6, RiuQwtSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor() );
         legendItem1->setLegendIconSize( QSize( 4, 8 ) );
-        QwtPlotItem* legendItem2 = createMarker( 16.0,
-                                                 8.0,
-                                                 6,
-                                                 RiuQwtSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE,
-                                                 componentColor() );
+        QwtPlotItem* legendItem2 =
+            createMarker( 16.0, 8.0, 6, RiuQwtSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor() );
         legendItem2->setLegendIconSize( QSize( 4, 8 ) );
         m_combinedComponentGroup.addLegendItem( legendItem1 );
         m_combinedComponentGroup.addLegendItem( legendItem2 );
@@ -439,12 +433,8 @@ void RiuWellPathComponentPlotItem::addColumnFeature( double         startX,
     {
         // If we're doing a special pattern, draw the background in white first over the existing pattern
         cvf::Color4f semiTransparentWhite( cvf::Color3f( cvf::Color3::WHITE ), 0.9f );
-        QwtPlotItem* backgroundShape = createColumnShape( startX,
-                                                          endX,
-                                                          startDepth,
-                                                          endDepth,
-                                                          semiTransparentWhite,
-                                                          Qt::SolidPattern );
+        QwtPlotItem* backgroundShape =
+            createColumnShape( startX, endX, startDepth, endDepth, semiTransparentWhite, Qt::SolidPattern );
         m_combinedComponentGroup.addPlotItem( backgroundShape );
 
         QwtPlotItem* patternShape = createColumnShape( startX, endX, startDepth, endDepth, baseColor, brushStyle );

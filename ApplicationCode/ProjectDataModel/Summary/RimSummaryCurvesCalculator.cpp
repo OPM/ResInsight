@@ -219,8 +219,8 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
             {
                 if ( m_axisProperties->showDescription() )
                 {
-                    quantityNameForDisplay = RiuSummaryQuantityNameInfoProvider::instance()
-                                                 ->longNameFromQuantityName( quantityName, true );
+                    quantityNameForDisplay =
+                        RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( quantityName, true );
                 }
 
                 if ( m_axisProperties->showAcronym() )

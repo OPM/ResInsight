@@ -954,14 +954,13 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
         m_dynamicResultsAccess->resultNames( &resultNames, &resultNamesDataItemCounts );
 
         {
-            QStringList matrixResultNames = validKeywordsForPorosityModel( resultNames,
-                                                                           resultNamesDataItemCounts,
-                                                                           m_eclipseCase->activeCellInfo(
-                                                                               RiaDefines::MATRIX_MODEL ),
-                                                                           m_eclipseCase->activeCellInfo(
-                                                                               RiaDefines::FRACTURE_MODEL ),
-                                                                           RiaDefines::MATRIX_MODEL,
-                                                                           m_dynamicResultsAccess->timeStepCount() );
+            QStringList matrixResultNames =
+                validKeywordsForPorosityModel( resultNames,
+                                               resultNamesDataItemCounts,
+                                               m_eclipseCase->activeCellInfo( RiaDefines::MATRIX_MODEL ),
+                                               m_eclipseCase->activeCellInfo( RiaDefines::FRACTURE_MODEL ),
+                                               RiaDefines::MATRIX_MODEL,
+                                               m_dynamicResultsAccess->timeStepCount() );
 
             for ( int i = 0; i < matrixResultNames.size(); ++i )
             {
@@ -972,14 +971,13 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
         }
 
         {
-            QStringList fractureResultNames = validKeywordsForPorosityModel( resultNames,
-                                                                             resultNamesDataItemCounts,
-                                                                             m_eclipseCase->activeCellInfo(
-                                                                                 RiaDefines::MATRIX_MODEL ),
-                                                                             m_eclipseCase->activeCellInfo(
-                                                                                 RiaDefines::FRACTURE_MODEL ),
-                                                                             RiaDefines::FRACTURE_MODEL,
-                                                                             m_dynamicResultsAccess->timeStepCount() );
+            QStringList fractureResultNames =
+                validKeywordsForPorosityModel( resultNames,
+                                               resultNamesDataItemCounts,
+                                               m_eclipseCase->activeCellInfo( RiaDefines::MATRIX_MODEL ),
+                                               m_eclipseCase->activeCellInfo( RiaDefines::FRACTURE_MODEL ),
+                                               RiaDefines::FRACTURE_MODEL,
+                                               m_dynamicResultsAccess->timeStepCount() );
 
             for ( int i = 0; i < fractureResultNames.size(); ++i )
             {
@@ -1047,14 +1045,13 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
         }
 
         {
-            QStringList matrixResultNames = validKeywordsForPorosityModel( resultNames,
-                                                                           resultNamesDataItemCounts,
-                                                                           m_eclipseCase->activeCellInfo(
-                                                                               RiaDefines::MATRIX_MODEL ),
-                                                                           m_eclipseCase->activeCellInfo(
-                                                                               RiaDefines::FRACTURE_MODEL ),
-                                                                           RiaDefines::MATRIX_MODEL,
-                                                                           1 );
+            QStringList matrixResultNames =
+                validKeywordsForPorosityModel( resultNames,
+                                               resultNamesDataItemCounts,
+                                               m_eclipseCase->activeCellInfo( RiaDefines::MATRIX_MODEL ),
+                                               m_eclipseCase->activeCellInfo( RiaDefines::FRACTURE_MODEL ),
+                                               RiaDefines::MATRIX_MODEL,
+                                               1 );
 
             // Add ACTNUM
             matrixResultNames += "ACTNUM";
@@ -1068,14 +1065,13 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
         }
 
         {
-            QStringList fractureResultNames = validKeywordsForPorosityModel( resultNames,
-                                                                             resultNamesDataItemCounts,
-                                                                             m_eclipseCase->activeCellInfo(
-                                                                                 RiaDefines::MATRIX_MODEL ),
-                                                                             m_eclipseCase->activeCellInfo(
-                                                                                 RiaDefines::FRACTURE_MODEL ),
-                                                                             RiaDefines::FRACTURE_MODEL,
-                                                                             1 );
+            QStringList fractureResultNames =
+                validKeywordsForPorosityModel( resultNames,
+                                               resultNamesDataItemCounts,
+                                               m_eclipseCase->activeCellInfo( RiaDefines::MATRIX_MODEL ),
+                                               m_eclipseCase->activeCellInfo( RiaDefines::FRACTURE_MODEL ),
+                                               RiaDefines::FRACTURE_MODEL,
+                                               1 );
             // Add ACTNUM
             fractureResultNames += "ACTNUM";
 
@@ -2051,8 +2047,8 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                 // Calculate the bottom position of all the unpositioned segments
                 // Then do the calculation based on the refined contributions
 
-                std::map<int, std::vector<SegmentPositionContribution>>::iterator posContribIt = segmentIdToPositionContrib
-                                                                                                     .begin();
+                std::map<int, std::vector<SegmentPositionContribution>>::iterator posContribIt =
+                    segmentIdToPositionContrib.begin();
                 std::map<int, cvf::Vec3d> bottomPositions;
                 while ( posContribIt != segmentIdToPositionContrib.end() )
                 {
@@ -2088,7 +2084,8 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                                                                                    static_cast<int>( gridNr ) );
                     if ( ert_wellhead )
                     {
-                        RigWellResultPoint wellHeadRp = createWellResultPoint( grids[gridNr], ert_wellhead, -1, -1, wellName );
+                        RigWellResultPoint wellHeadRp =
+                            createWellResultPoint( grids[gridNr], ert_wellhead, -1, -1, wellName );
                         // HACK: Ert returns open as "this is equally wrong as closed for well heads".
                         // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
                         wellHeadRp.m_isOpen = false;
@@ -2116,11 +2113,8 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                             for ( int connIdx = 0; connIdx < connectionCount; connIdx++ )
                             {
                                 well_conn_type*    ert_connection = well_conn_collection_iget( connections, connIdx );
-                                RigWellResultPoint wellRp         = createWellResultPoint( grids[gridNr],
-                                                                                   ert_connection,
-                                                                                   -1,
-                                                                                   -1,
-                                                                                   wellName );
+                                RigWellResultPoint wellRp =
+                                    createWellResultPoint( grids[gridNr], ert_connection, -1, -1, wellName );
 
                                 if ( !subCellConnCalc.hasSubCellConnection( wellRp ) )
                                 {

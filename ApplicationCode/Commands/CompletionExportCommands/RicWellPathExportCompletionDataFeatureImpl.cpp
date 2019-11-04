@@ -476,10 +476,10 @@ std::vector<RigCompletionData>
         exportSettings.includePerforations = true;
         exportSettings.includeFractures    = true;
 
-        completionsPerEclipseCell = generatePerforationsCompdatValues( wellPath,
-                                                                       wellPath->perforationIntervalCollection()
-                                                                           ->perforations(),
-                                                                       exportSettings );
+        completionsPerEclipseCell =
+            generatePerforationsCompdatValues( wellPath,
+                                               wellPath->perforationIntervalCollection()->perforations(),
+                                               exportSettings );
     }
 
     return completionsPerEclipseCell;
@@ -1201,8 +1201,8 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
                                                                       cell.globCellIndex,
                                                                       cell.intersectionLengthsInCellCS );
 
-                const RimNonDarcyPerforationParameters* nonDarcyParameters = wellPath->perforationIntervalCollection()
-                                                                                 ->nonDarcyParameters();
+                const RimNonDarcyPerforationParameters* nonDarcyParameters =
+                    wellPath->perforationIntervalCollection()->nonDarcyParameters();
 
                 double transmissibility = 0.0;
                 double kh               = RigCompletionData::defaultValue();
@@ -1438,7 +1438,8 @@ TransmissibilityData
 
     const double totalKh = RigTransmissibilityEquations::totalKh( permx, permy, permz, internalCellLengths, latNtg, ntg );
 
-    const double effectiveK = RigTransmissibilityEquations::effectiveK( permx, permy, permz, internalCellLengths, latNtg, ntg );
+    const double effectiveK =
+        RigTransmissibilityEquations::effectiveK( permx, permy, permz, internalCellLengths, latNtg, ntg );
     const double effectiveH = RigTransmissibilityEquations::effectiveH( internalCellLengths, latNtg, ntg );
 
     double darcy = RiaEclipseUnitTools::darcysConstant( wellPath->unitSystem() );

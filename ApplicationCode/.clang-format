@@ -52,7 +52,7 @@ MacroBlockBegin: ''
 MacroBlockEnd:   ''
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: Inner
-PenaltyBreakAssignment: 200
+PenaltyBreakAssignment: 130
 PenaltyBreakBeforeFirstCallParameter: 100000
 PenaltyBreakComment: 300
 PenaltyBreakFirstLessLess: 120

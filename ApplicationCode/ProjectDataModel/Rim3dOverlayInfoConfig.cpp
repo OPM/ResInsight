@@ -566,8 +566,8 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
             QString   weightingParameterString;
             if ( contourMap->contourMapProjection()->weightingParameter() != "None" )
             {
-                weightingParameterString += QString( " (Weight: %1)" )
-                                                .arg( contourMap->contourMapProjection()->weightingParameter() );
+                weightingParameterString +=
+                    QString( " (Weight: %1)" ).arg( contourMap->contourMapProjection()->weightingParameter() );
             }
 
             infoText += QString( "<p><b>-- Contour Map: %1 --</b><p>  "

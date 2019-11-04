@@ -789,14 +789,12 @@ std::map<QString, QString> RifEclipseInputFileTools::readProperties( const QStri
 
         fseek( gridFilePointer, fileKeywords[i].filePos, SEEK_SET );
 
-        ecl_kw_type* eclipseKeywordData = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
-                                                                                false,
-                                                                                ecl_type_create_from_type(
-                                                                                    ECL_FLOAT_TYPE ) );
+        ecl_kw_type* eclipseKeywordData =
+            ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer, false, ecl_type_create_from_type( ECL_FLOAT_TYPE ) );
         if ( eclipseKeywordData )
         {
-            QString newResultName = caseData->results( RiaDefines::MATRIX_MODEL )
-                                        ->makeResultNameUnique( fileKeywords[i].keyword );
+            QString newResultName =
+                caseData->results( RiaDefines::MATRIX_MODEL )->makeResultNameUnique( fileKeywords[i].keyword );
             QString errMsg;
             if ( readDataFromKeyword( eclipseKeywordData, caseData, newResultName, &errMsg ) )
             {

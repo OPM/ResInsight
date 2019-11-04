@@ -159,13 +159,14 @@ cvf::StructGridInterface::FaceType RigNNCData::calculateCellFaceOverlap( const R
         c1.faceIndices( ( cvf::StructGridInterface::FaceType )( fIdx ), &face1 );
         c2.faceIndices( cvf::StructGridInterface::oppositeFace( ( cvf::StructGridInterface::FaceType )( fIdx ) ), &face2 );
 
-        bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( &polygon,
-                                                                                   &intersections,
-                                                                                   (cvf::EdgeIntersectStorage<size_t>*)nullptr,
-                                                                                   cvf::wrapArrayConst( &mainGrid.nodes() ),
-                                                                                   face1.data(),
-                                                                                   face2.data(),
-                                                                                   1e-6 );
+        bool foundOverlap =
+            cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( &polygon,
+                                                                   &intersections,
+                                                                   (cvf::EdgeIntersectStorage<size_t>*)nullptr,
+                                                                   cvf::wrapArrayConst( &mainGrid.nodes() ),
+                                                                   face1.data(),
+                                                                   face2.data(),
+                                                                   1e-6 );
 
         if ( foundOverlap )
         {
