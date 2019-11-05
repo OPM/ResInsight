@@ -117,6 +117,9 @@ public:
     void removeFromMdiAreaAndCollection() override;
     void updateAfterInsertingIntoGridPlotWindow() override;
 
+    int rowSpan() const override;
+    int colSpan() const override;
+
 protected:
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
     void     deleteViewWidget() override;
@@ -154,6 +157,9 @@ private:
     caf::PdmField<bool>                             m_showInfoBox;
     caf::PdmField<bool>                             m_showLegend_OBSOLETE;
     caf::PdmChildField<RimGridCrossPlotNameConfig*> m_nameConfig;
+
+    caf::PdmField<RimPlotInterface::RowOrColSpanEnum> m_rowSpan;
+    caf::PdmField<RimPlotInterface::RowOrColSpanEnum> m_colSpan;
 
     caf::PdmChildField<RimPlotAxisProperties*> m_yAxisProperties;
     caf::PdmChildField<RimPlotAxisProperties*> m_xAxisProperties;

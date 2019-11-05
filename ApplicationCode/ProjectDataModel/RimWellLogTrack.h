@@ -198,8 +198,6 @@ public:
                         int                         fontSize,
                         bool                        forceChange = false ) override;
 
-    void updatePlotWindowLayout() override;
-
     void onAxisSelected( int axis, bool toggle ) override;
 
     void updateAxes() override;

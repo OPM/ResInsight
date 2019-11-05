@@ -482,7 +482,7 @@ void RiuGridPlotWindow::dropEvent( QDropEvent* event )
 
             if ( insertAfter != plotToMove )
             {
-                m_plotDefinition->movePlotsToThis( {plotToMove}, insertAfter );
+                m_plotDefinition->movePlotsToThis( { plotToMove }, insertAfter );
             }
         }
     }
@@ -573,6 +573,7 @@ void RiuGridPlotWindow::reinsertPlotWidgets()
     {
         m_plotWidgets[tIdx]->hide();
         m_legends[tIdx]->hide();
+        m_subTitles[tIdx]->hide();
     }
 
     QList<QPointer<QLabel>>           subTitles   = this->visibleTitles();
@@ -591,14 +592,21 @@ void RiuGridPlotWindow::reinsertPlotWidgets()
 
         auto rowAndColumnCount = this->rowAndColumnCount( plotWidgets.size() );
 
+        int row    = 0;
+        int column = 0;
         for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
         {
-            int row    = visibleIndex / rowAndColumnCount.second;
-            int column = visibleIndex % rowAndColumnCount.second;
+            std::tie( row, column ) = findAvailableRowAndColumn( row,
+                                                                 column,
+                                                                 rowAndColumnCount.first,
+                                                                 rowAndColumnCount.second );
 
-            m_gridLayout->addWidget( subTitles[visibleIndex], 3 * row, column );
-            m_gridLayout->addWidget( legends[visibleIndex], 3 * row + 1, column );
-            m_gridLayout->addWidget( plotWidgets[visibleIndex], 3 * row + 2, column );
+            int colSpan = plotWidgets[visibleIndex]->plotDefinition()->colSpan();
+            int rowSpan = plotWidgets[visibleIndex]->plotDefinition()->rowSpan();
+
+            m_gridLayout->addWidget( subTitles[visibleIndex], 3 * row, column, 1, colSpan );
+            m_gridLayout->addWidget( legends[visibleIndex], 3 * row + 1, column, 1, colSpan );
+            m_gridLayout->addWidget( plotWidgets[visibleIndex], 3 * row + 2, column, 1 + ( rowSpan - 1 ) * 3, colSpan );
 
             subTitles[visibleIndex]->setVisible( m_plotDefinition->showPlotTitles() );
 
@@ -627,15 +635,24 @@ void RiuGridPlotWindow::reinsertPlotWidgets()
 
             plotWidgets[visibleIndex]->show();
 
+            // Set basic row and column stretches
+            for ( int r = row; r < row + rowSpan; ++r )
+            {
+                m_gridLayout->setRowStretch( 3 * r + 2, 1 );
+            }
+            for ( int c = column; c < column + colSpan; ++c )
+            {
+                m_gridLayout->setColumnStretch( c, std::max( 1, m_gridLayout->columnStretch( c ) ) );
+            }
+
+            // Set column stretches for main widget column based on width scale factor
             int widthScaleFactor = plotWidgets[visibleIndex]->widthScaleFactor();
             if ( showYAxis( row, column ) )
             {
                 widthScaleFactor += 1; // Give it a bit extra room due to axis
             }
-            m_gridLayout->setColumnStretch( column,
-                                            std::max( m_gridLayout->columnStretch( column ),
-                                                      plotWidgets[visibleIndex]->widthScaleFactor() ) );
-            m_gridLayout->setRowStretch( 3 * row + 2, 1 );
+
+            m_gridLayout->setColumnStretch( column, std::max( m_gridLayout->columnStretch( column ), widthScaleFactor ) );
         }
     }
 }
@@ -757,4 +774,29 @@ QList<QPointer<QLabel>> RiuGridPlotWindow::visibleTitles() const
         }
     }
     return subTitles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<int, int> RiuGridPlotWindow::findAvailableRowAndColumn( int startRow,
+                                                                  int startColumn,
+                                                                  int expectedRows,
+                                                                  int expectedColumns ) const
+{
+    int availableRow    = startRow;
+    int availableColumn = startColumn;
+    while ( true )
+    {
+        for ( ; availableColumn < expectedColumns; ++availableColumn )
+        {
+            if ( m_gridLayout->itemAtPosition( 3 * availableRow, availableColumn ) == nullptr )
+            {
+                return std::make_pair( availableRow, availableColumn );
+            }
+        }
+        availableColumn = 0;
+        availableRow++;
+    }
+    return std::make_pair( availableRow, availableColumn );
 }

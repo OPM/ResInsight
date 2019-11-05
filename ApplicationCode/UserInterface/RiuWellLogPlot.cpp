@@ -93,14 +93,15 @@ bool RiuWellLogPlot::showYAxis( int row, int column ) const
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::reinsertScrollbar()
 {
-    QList<QPointer<RiuQwtPlotWidget>> plotWidgets       = this->visiblePlotWidgets();
-    QList<QPointer<RiuQwtPlotLegend>> legends           = this->visibleLegends();
-    auto                              rowAndColumnCount = this->rowAndColumnCount( plotWidgets.size() );
+    QList<QPointer<RiuQwtPlotWidget>> plotWidgets = this->visiblePlotWidgets();
+    QList<QPointer<RiuQwtPlotLegend>> legends     = this->visibleLegends();
+    int                               rowCount    = this->m_gridLayout->rowCount();
+    int                               colCount    = this->m_gridLayout->columnCount();
 
     m_trackScrollBar->setVisible( !plotWidgets.empty() );
 
-    m_gridLayout->addLayout( m_trackScrollBarLayout, 2, rowAndColumnCount.second, rowAndColumnCount.first * 2 - 1, 1 );
-    m_gridLayout->setColumnStretch( rowAndColumnCount.second, 0 );
+    m_gridLayout->addLayout( m_trackScrollBarLayout, 2, colCount, rowCount * 2 - 1, 1 );
+    m_gridLayout->setColumnStretch( colCount, 0 );
 }
 
 //--------------------------------------------------------------------------------------------------

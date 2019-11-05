@@ -19,6 +19,17 @@ void RimPlotInterface::WidthScaleFactorEnum::setUp()
     addItem( RimPlotInterface::EXTRA_WIDE, "EXTRA_WIDE_TRACK", "Extra wide" );
     setDefault( RimPlotInterface::NORMAL );
 }
+
+template <>
+void RimPlotInterface::RowOrColSpanEnum::setUp()
+{
+    addItem( RimPlotInterface::ONE, "ONE", "1" );
+    addItem( RimPlotInterface::TWO, "TWO", "2" );
+    addItem( RimPlotInterface::THREE, "THREE", "3" );
+    addItem( RimPlotInterface::FOUR, "FOUR", "4" );
+    setDefault( RimPlotInterface::ONE );
+}
+
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -44,4 +55,20 @@ bool RimPlotInterface::isStandalonePlot() const
 QString RimPlotInterface::asciiDataForPlotExport() const
 {
     return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotInterface::updatePlotWindowLayout()
+{
+    const caf::PdmObject* thisPdm = dynamic_cast<const caf::PdmObject*>( this );
+    CAF_ASSERT( thisPdm );
+
+    RimGridPlotWindow* plotWindow;
+    thisPdm->firstAncestorOrThisOfType( plotWindow );
+    if ( plotWindow )
+    {
+        plotWindow->updateLayout();
+    }
 }

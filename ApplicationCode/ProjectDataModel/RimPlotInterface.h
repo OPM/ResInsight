@@ -41,8 +41,16 @@ public:
         WIDE         = 7,
         EXTRA_WIDE   = 10
     };
-
     typedef caf::AppEnum<WidthScaleFactor> WidthScaleFactorEnum;
+
+    enum RowOrColSpan
+    {
+        ONE   = 1,
+        TWO   = 2,
+        THREE = 3,
+        FOUR  = 4
+    };
+    typedef caf::AppEnum<RowOrColSpan> RowOrColSpanEnum;
 
 public:
     RimPlotInterface()          = default;
@@ -99,6 +107,6 @@ public:
     virtual void updateAfterInsertingIntoGridPlotWindow() {}
 
 protected:
-    virtual void updatePlotWindowLayout() {}
+    void         updatePlotWindowLayout();
     virtual void onWidthScaleFactorChange() {}
 };

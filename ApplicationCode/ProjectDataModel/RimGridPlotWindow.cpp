@@ -296,7 +296,7 @@ int RimGridPlotWindow::columnCount() const
 {
     if ( m_columnCountEnum() == COLUMNS_UNLIMITED )
     {
-        return static_cast<int>( visiblePlots().size() );
+        std::numeric_limits<int>::max();
     }
     return static_cast<int>( m_columnCountEnum() );
 }

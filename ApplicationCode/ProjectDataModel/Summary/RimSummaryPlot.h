@@ -179,6 +179,9 @@ public:
     void removeFromMdiAreaAndCollection() override;
     void updateAfterInsertingIntoGridPlotWindow() override;
 
+    int rowSpan() const override;
+    int colSpan() const override;
+
 public:
     // RimViewWindow overrides
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
@@ -225,6 +228,9 @@ private:
     caf::PdmField<bool> m_normalizeCurveYValues;
 
     caf::PdmField<bool> m_useAutoPlotTitle;
+
+    caf::PdmField<RimPlotInterface::RowOrColSpanEnum> m_rowSpan;
+    caf::PdmField<RimPlotInterface::RowOrColSpanEnum> m_colSpan;
 
     caf::PdmChildArrayField<RimGridTimeHistoryCurve*>  m_gridTimeHistoryCurves;
     caf::PdmChildField<RimSummaryCurveCollection*>     m_summaryCurveCollection;
