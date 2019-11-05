@@ -28,9 +28,9 @@ CAF_PDM_SOURCE_INIT( RimGridPlotWindowCollection, "RimGridPlotWindowCollection" 
 //--------------------------------------------------------------------------------------------------
 RimGridPlotWindowCollection::RimGridPlotWindowCollection()
 {
-    CAF_PDM_InitObject( "Combination Plots", ":/WellLogPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Plot Reports", ":/WellLogPlot16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_gridPlotWindows, "GridPlotWindows", "Combination Plots", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_gridPlotWindows, "GridPlotWindows", "Plots Reports", "", "", "" );
     m_gridPlotWindows.uiCapability()->setUiHidden( true );
 }
 

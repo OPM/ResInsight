@@ -46,7 +46,7 @@ CAF_PDM_SOURCE_INIT( RimGridPlotWindow, "GridPlotWindow" );
 //--------------------------------------------------------------------------------------------------
 RimGridPlotWindow::RimGridPlotWindow()
 {
-    CAF_PDM_InitObject( "Combination Plot", ":/WellLogPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Plot Report", ":/WellLogPlot16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_plots, "Tracks", "", "", "", "" );
     m_plots.uiCapability()->setUiHidden( true );

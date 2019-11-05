@@ -118,12 +118,12 @@ void RicNewGridPlotWindowFeature::setupActionLook( QAction* actionToSetup )
 {
     if ( selectedPlotInterfaces().empty() )
     {
-        actionToSetup->setText( "New Empty Combination Plot" );
+        actionToSetup->setText( "New Empty Plot Report" );
         actionToSetup->setIcon( QIcon( ":/WellLogPlot16x16.png" ) );
     }
     else
     {
-        actionToSetup->setText( "Create Combination Plot from selected plots" );
+        actionToSetup->setText( "Create Plot Report from Selected Plots" );
         actionToSetup->setIcon( QIcon( ":/WellLogPlot16x16.png" ) );
     }
 }
