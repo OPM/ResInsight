@@ -98,6 +98,7 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimPlotInterface* plotDefinition, QWid
     m_selectedPointMarker->setSymbol( mySymbol );
     m_selectedPointMarker->setLabelAlignment( Qt::AlignRight | Qt::AlignVCenter );
     m_selectedPointMarker->setSpacing( 3 );
+    m_selectedPointMarker->setZ( 1000.0 ); // Make sure it ends up in front of highlighted curves.
 
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
     RiuQwtPlotTools::setDefaultAxes( this );
