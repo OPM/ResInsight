@@ -58,7 +58,7 @@ void RicImportPolylinesAnnotationFeature::onActionTriggered( bool isChecked )
     QStringList     fileNames  = QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
                                                            "Import Poly Lines Annotation",
                                                            defaultDir,
-                                                           "Text File (*.txt);Polylines (*.dat);All Files (*.*)" );
+                                                           "Text Files (*.txt);;Polylines (*.dat);;All Files (*.*)" );
 
     if ( fileNames.isEmpty() ) return;
 

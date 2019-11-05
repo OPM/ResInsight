@@ -45,7 +45,8 @@ void RimExportInputSettings::defineEditorAttribute( const caf::PdmFieldHandle* f
         caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
         if ( myAttr )
         {
-            myAttr->m_selectSaveFileName = true;
+            myAttr->m_selectSaveFileName  = true;
+            myAttr->m_fileSelectionFilter = "Text files (*.txt);;All files (*.*)";
         }
     }
 }
