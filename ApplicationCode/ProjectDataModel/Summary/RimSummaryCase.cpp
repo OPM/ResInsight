@@ -34,6 +34,8 @@
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimSummaryCase, "SummaryCase" );
 
+const QString RimSummaryCase::DEFAULT_DISPLAY_NAME = "Display Name";
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -41,7 +43,7 @@ RimSummaryCase::RimSummaryCase()
 {
     CAF_PDM_InitObject( "Summary Case", ":/SummaryCase16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_shortName, "ShortName", QString( "Display Name" ), "Display Name", "", "", "" );
+    CAF_PDM_InitField( &m_shortName, "ShortName", QString( "Display Name" ), DEFAULT_DISPLAY_NAME, "", "", "" );
     CAF_PDM_InitField( &m_useAutoShortName, "AutoShortyName", false, "Use Auto Display Name", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryHeaderFilename, "SummaryHeaderFilename", "Summary Header File", "", "", "" );
@@ -231,10 +233,19 @@ void RimSummaryCase::updateAutoShortName()
 
         m_shortName = oilField->uniqueShortNameForCase( this );
     }
-    else if ( m_shortName() == QString( "Display Name" ) )
+    else if ( m_shortName() == DEFAULT_DISPLAY_NAME )
     {
         m_shortName = caseName();
     }
 
     updateTreeItemName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::resetAutoShortName()
+{
+    m_shortName = DEFAULT_DISPLAY_NAME;
+    updateAutoShortName();
 }

@@ -154,7 +154,7 @@ void RicImportGeneralDataFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
+QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefines::ImportFileType fileTypes )
 {
     QString eclipseGridFilePattern( "*.GRID" );
     QString eclipseEGridFilePattern( "*.EGRID" );
@@ -195,7 +195,15 @@ void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
                                                            "Import Data File",
                                                            defaultDir,
                                                            fullPattern );
+    return fileNames;
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
+{
+    QStringList fileNames = getEclipseFileNamesWithDialog( fileTypes );
     if ( fileNames.empty() ) return;
 
     if ( fileTypes == ANY_ECLIPSE_FILE )
