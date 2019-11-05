@@ -506,7 +506,7 @@ std::pair<int, int> RiuGridPlotWindow::rowAndColumnCount( int plotWidgetCount ) 
         return std::make_pair( 0, 0 );
     }
 
-    int columnCount = std::max( 1, std::min( m_plotDefinition->columnCount(), plotWidgetCount ) );
+    int columnCount = std::max( 1, m_plotDefinition->columnCount() );
     int rowCount    = static_cast<int>( std::ceil( plotWidgetCount / static_cast<double>( columnCount ) ) );
     return std::make_pair( rowCount, columnCount );
 }
@@ -596,13 +596,10 @@ void RiuGridPlotWindow::reinsertPlotWidgets()
         int column = 0;
         for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
         {
-            std::tie( row, column ) = findAvailableRowAndColumn( row,
-                                                                 column,
-                                                                 rowAndColumnCount.first,
-                                                                 rowAndColumnCount.second );
-
-            int colSpan = plotWidgets[visibleIndex]->plotDefinition()->colSpan();
+            int colSpan = std::min( plotWidgets[visibleIndex]->plotDefinition()->colSpan(), rowAndColumnCount.second );
             int rowSpan = plotWidgets[visibleIndex]->plotDefinition()->rowSpan();
+
+            std::tie( row, column ) = findAvailableRowAndColumn( row, column, colSpan, rowAndColumnCount.second );
 
             m_gridLayout->addWidget( subTitles[visibleIndex], 3 * row, column, 1, colSpan );
             m_gridLayout->addWidget( legends[visibleIndex], 3 * row + 1, column, 1, colSpan );
@@ -779,18 +776,29 @@ QList<QPointer<QLabel>> RiuGridPlotWindow::visibleTitles() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<int, int> RiuGridPlotWindow::findAvailableRowAndColumn( int startRow,
-                                                                  int startColumn,
-                                                                  int expectedRows,
-                                                                  int expectedColumns ) const
+std::pair<int, int>
+    RiuGridPlotWindow::findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const
 {
     int availableRow    = startRow;
     int availableColumn = startColumn;
     while ( true )
     {
-        for ( ; availableColumn < expectedColumns; ++availableColumn )
+        for ( ; availableColumn < columnCount; ++availableColumn )
         {
-            if ( m_gridLayout->itemAtPosition( 3 * availableRow, availableColumn ) == nullptr )
+            bool fits = true;
+            for ( int c = availableColumn; ( c < availableColumn + columnSpan ) && fits; ++c )
+            {
+                if ( c >= columnCount )
+                {
+                    fits = false;
+                }
+
+                if ( m_gridLayout->itemAtPosition( 3 * availableRow, c ) != nullptr )
+                {
+                    fits = false;
+                }
+            }
+            if ( fits )
             {
                 return std::make_pair( availableRow, availableColumn );
             }

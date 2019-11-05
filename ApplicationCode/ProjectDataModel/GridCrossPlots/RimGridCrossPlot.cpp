@@ -522,21 +522,22 @@ void RimGridCrossPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_showInfoBox );
+    caf::PdmUiGroup* generalGroup = uiOrdering.addNewGroup( "Plot Options" );
+    generalGroup->add( &m_showInfoBox );
 
     if ( isStandalonePlot() )
     {
-        uiOrdering.add( &m_showPlotLegends );
+        generalGroup->add( &m_showPlotLegends );
 
         if ( m_showPlotLegends() )
         {
-            uiOrdering.add( &m_legendFontSize );
+            generalGroup->add( &m_legendFontSize );
         }
     }
     else
     {
-        uiOrdering.add( &m_rowSpan );
-        uiOrdering.add( &m_colSpan );
+        generalGroup->add( &m_rowSpan );
+        generalGroup->add( &m_colSpan );
     }
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Name Configuration" );

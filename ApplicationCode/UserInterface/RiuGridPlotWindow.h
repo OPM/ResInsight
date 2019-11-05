@@ -109,8 +109,7 @@ protected:
     QList<QPointer<RiuQwtPlotLegend>> visibleLegends() const;
     QList<QPointer<QLabel>>           visibleTitles() const;
 
-    std::pair<int, int>
-        findAvailableRowAndColumn( int startRow, int startColumn, int expectedRows, int expectedColumns ) const;
+    std::pair<int, int> findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const;
 
 private slots:
     virtual void performUpdate();
