@@ -103,7 +103,10 @@ bool RifEclipseInputPropertyLoader::readInputPropertiesFromFiles( RimEclipseInpu
             inputPropertyCollection->inputProperties.push_back( inputProperty );
         }
 
-        if ( importFaults )
+        // Avoid importing faults from the input property files when faults already exists in
+        // the eclipse case. Faults can theoretically appear in any of the files, but reading
+        // and appending them to the existing fault collection is not currently supported.
+        if ( importFaults && eclipseCaseData->mainGrid()->faults().empty() )
         {
             cvf::Collection<RigFault> faultCollection;
             RifEclipseInputFileTools::parseAndReadFaults( propertyFileName, &faultCollection );
