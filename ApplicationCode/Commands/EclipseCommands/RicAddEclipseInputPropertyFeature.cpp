@@ -41,6 +41,7 @@ CAF_CMD_SOURCE_INIT( RicAddEclipseInputPropertyFeature, "RicAddEclipseInputPrope
 bool RicAddEclipseInputPropertyFeature::isCommandEnabled()
 {
     return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseInputPropertyCollection>() ||
+           caf::SelectionManager::instance()->selectedItemOfType<RimEclipseInputCase>() ||
            caf::SelectionManager::instance()->selectedItemOfType<RimEclipseResultCase>();
 }
 
@@ -55,7 +56,7 @@ void RicAddEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
         caf::SelectionManager::instance()->selectedItemOfType<RimEclipseInputPropertyCollection>();
     if ( !inputPropertyCollection )
     {
-        // No property collection selected: triggered from RimEclipseResultCase.
+        // No property collection selected: triggered from RimEclipseInputCase/RimEclipseResultCase.
         eclipseCase = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCase>();
         if ( eclipseCase )
         {
