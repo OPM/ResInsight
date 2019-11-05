@@ -82,6 +82,9 @@ void RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties(
     setResolvedState( inputPropertyCollection, RimEclipseInputProperty::UNKNOWN, RimEclipseInputProperty::FILE_MISSING );
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Loads input property data from additional files.
+//--------------------------------------------------------------------------------------------------
 bool RifEclipseInputPropertyLoader::readInputPropertiesFromFiles( RimEclipseInputPropertyCollection* inputPropertyCollection,
                                                                   RigEclipseCaseData*                eclipseCaseData,
                                                                   bool                               importFaults,
@@ -122,6 +125,9 @@ bool RifEclipseInputPropertyLoader::readInputPropertiesFromFiles( RimEclipseInpu
     return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Extract keywords from a input property file.
+//--------------------------------------------------------------------------------------------------
 std::set<QString> RifEclipseInputPropertyLoader::extractKeywordsOnFile( const QString& filename, bool isExistingFile )
 {
     std::set<QString> fileKeywordSet;
@@ -138,6 +144,9 @@ std::set<QString> RifEclipseInputPropertyLoader::extractKeywordsOnFile( const QS
     return fileKeywordSet;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Change the resolved state of all matching input properties in a collection.
+//--------------------------------------------------------------------------------------------------
 void RifEclipseInputPropertyLoader::setResolvedState( RimEclipseInputPropertyCollection*    inputPropertyCollection,
                                                       RimEclipseInputProperty::ResolveState currentState,
                                                       RimEclipseInputProperty::ResolveState newState )
@@ -151,6 +160,9 @@ void RifEclipseInputPropertyLoader::setResolvedState( RimEclipseInputPropertyCol
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifEclipseInputPropertyLoader::readDataForEachInputProperty( RimEclipseInputPropertyCollection* inputPropertyCollection,
                                                                   RigEclipseCaseData*                eclipseCaseData,
                                                                   const QString&                     filename,
@@ -190,6 +202,9 @@ void RifEclipseInputPropertyLoader::readDataForEachInputProperty( RimEclipseInpu
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifEclipseInputPropertyLoader::readInputPropertiesForRemainingKeywords(
     RimEclipseInputPropertyCollection* inputPropertyCollection,
     RigEclipseCaseData*                eclipseCaseData,
