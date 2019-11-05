@@ -366,7 +366,6 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 void RimFlowCharacteristicsPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
     {
         // Ensure a case is selected if one is available
         RimProject* proj = nullptr;

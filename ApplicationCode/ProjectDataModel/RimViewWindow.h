@@ -126,7 +126,8 @@ protected:
                                            const QVariant&            oldValue,
                                            const QVariant&            newValue ) override;
     void                 initAfterRead() override;
-    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     void setAsMdiWindow( int mainWindowID );

@@ -976,8 +976,6 @@ void RimWellPltPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
-
     uiOrdering.add( &m_wellPathName );
 
     caf::PdmUiGroup* sourcesGroup = uiOrdering.addNewGroupWithKeyword( "Sources", "Sources" );

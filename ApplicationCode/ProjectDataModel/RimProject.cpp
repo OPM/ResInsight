@@ -101,9 +101,9 @@ CAF_PDM_SOURCE_INIT( RimProject, "ResInsightProject" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimProject::RimProject( void )
-    : m_nextValidCaseId( 0 )
-    , m_nextValidCaseGroupId( 0 )
-    , m_nextValidViewId( 0 )
+    : m_nextValidCaseId( 1 )
+    , m_nextValidCaseGroupId( 1 )
+    , m_nextValidViewId( 1 )
 {
     CAF_PDM_InitObject( "Project", "", "", "" );
 

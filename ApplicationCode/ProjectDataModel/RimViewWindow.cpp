@@ -19,13 +19,18 @@
 #include "RimViewWindow.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
+#include "RiaColorTools.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaGuiApplication.h"
+#include "RiaPreferences.h"
+
 #include "RicfCommandObject.h"
 
 #include "RimMdiWindowController.h"
 #include "RimProject.h"
 
+#include "cafPdmUiTreeViewEditor.h"
 #include "cvfAssert.h"
 
 #include <QDebug>
@@ -54,7 +59,10 @@ RimViewWindow::RimViewWindow( void )
     // Obsolete field
     CAF_PDM_InitFieldNoDefault( &obsoleteField_windowGeometry, "WindowGeometry", "", "", "", "" );
     RiaFieldhandleTools::disableWriteAndSetFieldHidden( &obsoleteField_windowGeometry );
+
     RiaApplication::instance()->project()->assignViewIdToView( this );
+    QString viewIdTooltip = QString( "View id: %1" ).arg( m_viewId );
+    this->setUiToolTip( viewIdTooltip );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -306,7 +314,15 @@ void RimViewWindow::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimViewWindow::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    uiOrdering.add( &m_viewId );
+    caf::PdmUiTreeViewItemAttribute* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
+    if ( treeItemAttribute && RiaApplication::instance()->preferences()->showViewIdInProjectTree() )
+    {
+        treeItemAttribute->tag     = QString( "%1" ).arg( m_viewId );
+        cvf::Color3f viewColor     = RiaColorTables::contrastCategoryPaletteColors().cycledColor3f( (size_t)m_viewId );
+        cvf::Color3f viewTextColor = RiaColorTools::contrastColor( viewColor );
+        treeItemAttribute->bgColor = QColor( RiaColorTools::toQColor( viewColor ) );
+        treeItemAttribute->fgColor = QColor( RiaColorTools::toQColor( viewTextColor ) );
+    }
 }

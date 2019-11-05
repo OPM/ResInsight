@@ -191,6 +191,9 @@ RiaPreferences::RiaPreferences( void )
                        "",
                        "" );
     m_appendFieldKeywordToToolTipText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    CAF_PDM_InitField( &m_showViewIdInProjectTree, "showViewIdInTree", false, "Show View Id in Project Tree", "", "", "" );
+    m_showViewIdInProjectTree.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     CAF_PDM_InitField( &m_showTestToolbar, "showTestToolbar", false, "Enable Test Toolbar", "", "", "" );
     m_showTestToolbar.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     CAF_PDM_InitField( &m_includeFractureDebugInfoFile,
@@ -357,12 +360,12 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
     }
 
     if ( field == &octaveShowHeaderInfoWhenExecutingScripts || field == &autocomputeDepthRelatedProperties ||
-         field == &loadAndShowSoil || field == &useShaders || field == &showHud ||
-         field == &m_appendClassNameToUiText || field == &m_appendFieldKeywordToToolTipText ||
-         field == &m_showTestToolbar || field == &m_includeFractureDebugInfoFile ||
-         field == &showLasCurveWithoutTvdWarning || field == &holoLensDisableCertificateVerification ||
-         field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
-         field == &showLegendBackground || field == &m_showSummaryTimeAsLongString )
+         field == &loadAndShowSoil || field == &useShaders || field == &showHud || field == &m_appendClassNameToUiText ||
+         field == &m_appendFieldKeywordToToolTipText || field == &m_showTestToolbar ||
+         field == &m_includeFractureDebugInfoFile || field == &showLasCurveWithoutTvdWarning ||
+         field == &holoLensDisableCertificateVerification || field == &m_showProjectChangedDialog ||
+         field == &m_searchPlotTemplateFoldersRecursively || field == &showLegendBackground ||
+         field == &m_showSummaryTimeAsLongString || field == &m_showViewIdInProjectTree )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -481,6 +484,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     {
         uiOrdering.add( &m_appendClassNameToUiText );
         uiOrdering.add( &m_appendFieldKeywordToToolTipText );
+        uiOrdering.add( &m_showViewIdInProjectTree );
 
         uiOrdering.add( &m_showProjectChangedDialog );
 
@@ -651,6 +655,14 @@ bool RiaPreferences::appendClassNameToUiText() const
 bool RiaPreferences::appendFieldKeywordToToolTipText() const
 {
     return RiaApplication::enableDevelopmentFeatures() && m_appendFieldKeywordToToolTipText();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::showViewIdInProjectTree() const
+{
+    return RiaApplication::enableDevelopmentFeatures() && m_showViewIdInProjectTree();
 }
 
 //--------------------------------------------------------------------------------------------------
