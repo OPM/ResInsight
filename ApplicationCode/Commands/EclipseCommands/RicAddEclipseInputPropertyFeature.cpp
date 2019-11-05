@@ -88,6 +88,7 @@ void RicAddEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
     app->setLastUsedDialogDirectory( "INPUT_FILES", defaultDir );
     eclipseCase->importAsciiInputProperties( fileNames );
     inputPropertyCollection->updateConnectedEditors();
+    eclipseCase->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
