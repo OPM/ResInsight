@@ -41,6 +41,7 @@ class QwtPlotMarker;
 class QwtPlotPicker;
 
 class QEvent;
+class QLabel;
 
 //==================================================================================================
 //
@@ -113,6 +114,8 @@ protected:
 
     virtual void selectPoint( QwtPlotCurve* curve, int pointNumber );
     virtual void clearPointSelection();
+    virtual bool isZoomerActive() const;
+    virtual void endZoomOperations();
 
 private:
     void       setDefaults();

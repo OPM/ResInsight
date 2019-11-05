@@ -49,6 +49,7 @@
 #include <QFont>
 #include <QFontMetrics>
 #include <QGraphicsDropShadowEffect>
+#include <QLabel>
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QScrollArea>
@@ -473,9 +474,7 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
     QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>( event );
     if ( mouseEvent )
     {
-        // Shift is the zoom modifier and is reserved for QwtZoomPickers
-        bool zoomModifierApplied = ( mouseEvent->modifiers() & Qt::ShiftModifier ) != 0;
-        if ( zoomModifierApplied ) return false;
+        if ( isZoomerActive() ) return false;
 
         bool toggleItemInSelection = ( mouseEvent->modifiers() & Qt::ControlModifier ) != 0;
 
@@ -520,6 +519,7 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
                 else
                 {
                     selectPlotOwner( toggleItemInSelection );
+                    endZoomOperations();
                     return true;
                 }
             }
@@ -530,6 +530,7 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
                  !m_clickPosition.isNull() )
             {
                 selectClosestCurve( mouseEvent->pos(), toggleItemInSelection );
+                endZoomOperations();
                 return true;
             }
         }
@@ -593,6 +594,19 @@ void RiuQwtPlotWidget::clearPointSelection() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiuQwtPlotWidget::isZoomerActive() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Empty default implementation
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::endZoomOperations() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection )
 {
     int axisId = -1;
@@ -613,7 +627,7 @@ RiuWidgetStyleSheet RiuQwtPlotWidget::createPlotStyleSheet() const
 {
     QColor backgroundColor       = QColor( "white" );
     QColor highlightColor        = QApplication::palette().highlight().color();
-    QColor blendedHighlightColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 5 );
+    QColor blendedHighlightColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 10 );
     QColor nearlyBackgroundColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 30 );
 
     RiuWidgetStyleSheet styleSheet;
@@ -625,7 +639,7 @@ RiuWidgetStyleSheet RiuQwtPlotWidget::createPlotStyleSheet() const
     if ( m_draggable )
     {
         QString backgroundGradient = QString( QString( "qlineargradient( x1 : 1, y1 : 0, x2 : 1, y2 : 1,"
-                                                       "stop: 0 %1, stop: 0.02 %2, stop:1 %3 )" )
+                                                       "stop: 0 %1, stop: 0.015 %2, stop:1 %3 )" )
                                                   .arg( blendedHighlightColor.name() )
                                                   .arg( nearlyBackgroundColor.name() )
                                                   .arg( backgroundColor.name() ) );

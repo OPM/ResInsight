@@ -78,6 +78,8 @@ protected:
     void clearPointSelection() override;
     bool curveText( const QwtPlotCurve* curve, QString* curveTitle, QString* xParamName, QString* yParamName ) const;
     void applyFontSizeToOverlayItem( caf::TitledOverlayFrame* overlayItem );
+    bool isZoomerActive() const override;
+    void endZoomOperations() override;
 
 private slots:
     void onZoomedSlot();

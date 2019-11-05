@@ -63,6 +63,8 @@ protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
     void setDefaults();
     void updateLayout() override;
+    bool isZoomerActive() const override;
+    void endZoomOperations() override;
 
 private slots:
     void onZoomedSlot();

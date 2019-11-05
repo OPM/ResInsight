@@ -101,14 +101,12 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimPlotInterface* plotDefinition, QWidget*
     m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
     m_zoomerLeft->setTrackerPen( QColor( Qt::black ) );
     m_zoomerLeft->initMousePattern( 1 );
-    m_zoomerLeft->setMousePattern( QwtEventPattern::MouseSelect1, Qt::LeftButton, Qt::ShiftModifier );
 
     // Attach a zoomer for the right axis
     m_zoomerRight = new RiuQwtPlotZoomer( canvas() );
     m_zoomerRight->setAxis( xTop, yRight );
     m_zoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
     m_zoomerRight->initMousePattern( 1 );
-    m_zoomerRight->setMousePattern( QwtEventPattern::MouseSelect1, Qt::LeftButton, Qt::ShiftModifier );
 
     // MidButton for the panning
     QwtPlotPanner* panner = new QwtPlotPanner( canvas() );
@@ -294,6 +292,23 @@ void RiuSummaryQwtPlot::updateLayout()
 {
     QwtPlot::updateLayout();
     updateLegendLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuSummaryQwtPlot::isZoomerActive() const
+{
+    return m_zoomerLeft->isActiveAndValid() || m_zoomerRight->isActiveAndValid();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::endZoomOperations()
+{
+    m_zoomerLeft->endZoomOperation();
+    m_zoomerRight->endZoomOperation();
 }
 
 //--------------------------------------------------------------------------------------------------

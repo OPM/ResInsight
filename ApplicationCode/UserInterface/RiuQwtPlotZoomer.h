@@ -19,6 +19,8 @@
 
 #include "qwt_plot_zoomer.h"
 
+#include <QMouseEvent>
+
 class RiuQwtPlotZoomer : public QwtPlotZoomer
 {
 public:
@@ -33,6 +35,11 @@ public:
 
         auto currentSelection = selection();
         return accept( currentSelection );
+    }
+
+    void endZoomOperation()
+    {
+        reset();
     }
 
 protected:
