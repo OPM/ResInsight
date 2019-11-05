@@ -175,6 +175,7 @@ private:
     QLabel* m_zScaleLabel;
     bool    m_showZScaleLabel;
     bool    m_hideZScaleCheckbox;
+    double  m_zScale;
 
     caf::QStyledProgressBar*  m_animationProgress;
     bool                      m_showAnimProgress;

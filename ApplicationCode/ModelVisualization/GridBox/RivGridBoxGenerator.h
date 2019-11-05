@@ -122,4 +122,6 @@ private:
 
     cvf::Color3f m_gridColor;
     cvf::Color3f m_gridLegendColor;
+
+    bool m_needsRegeneration; 
 };

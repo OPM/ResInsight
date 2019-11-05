@@ -42,6 +42,7 @@
 RivGridBoxGenerator::RivGridBoxGenerator()
     : m_gridColor( cvf::Color3f::LIGHT_GRAY )
     , m_gridLegendColor( cvf::Color3f::BLACK )
+    , m_needsRegeneration( true )
 {
     m_gridBoxModel = new cvf::ModelBasicList();
     m_gridBoxModel->setName( "GridBoxModel" );
@@ -55,6 +56,8 @@ RivGridBoxGenerator::RivGridBoxGenerator()
 //--------------------------------------------------------------------------------------------------
 void RivGridBoxGenerator::setScaleZ( double scaleZ )
 {
+    if ( m_scaleZ != scaleZ ) m_needsRegeneration = true;
+
     m_scaleZ = scaleZ;
 }
 
@@ -63,6 +66,8 @@ void RivGridBoxGenerator::setScaleZ( double scaleZ )
 //--------------------------------------------------------------------------------------------------
 void RivGridBoxGenerator::setDisplayModelOffset( cvf::Vec3d offset )
 {
+    if ( m_displayModelOffset != offset ) m_needsRegeneration = true;
+
     m_displayModelOffset = offset;
 }
 
@@ -183,6 +188,11 @@ void RivGridBoxGenerator::setGridBoxDomainCoordBoundingBox( const cvf::BoundingB
     expandedBB.add( min );
     expandedBB.add( max );
 
+    if ( m_domainCoordsBoundingBox.min() != expandedBB.min() || m_domainCoordsBoundingBox.max() != expandedBB.max() )
+    {
+        m_needsRegeneration = true;
+    }
+
     m_domainCoordsBoundingBox = expandedBB;
 }
 
@@ -191,10 +201,14 @@ void RivGridBoxGenerator::setGridBoxDomainCoordBoundingBox( const cvf::BoundingB
 //--------------------------------------------------------------------------------------------------
 void RivGridBoxGenerator::createGridBoxParts()
 {
-    computeDisplayCoords();
+    if ( m_needsRegeneration )
+    {
+        computeDisplayCoords();
 
-    createGridBoxFaceParts();
-    createGridBoxLegendParts();
+        createGridBoxFaceParts();
+        createGridBoxLegendParts();
+        m_needsRegeneration = false;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -740,8 +754,12 @@ cvf::Vec3f RivGridBoxGenerator::cornerDirection( FaceType face1, FaceType face2 
 //--------------------------------------------------------------------------------------------------
 void RivGridBoxGenerator::updateFromBackgroundColor( const cvf::Color3f& backgroundColor )
 {
-    m_gridColor       = RiaColorTools::computeOffsetColor( backgroundColor, 0.3f );
-    m_gridLegendColor = RiaColorTools::contrastColor( backgroundColor );
+    m_gridColor                = RiaColorTools::computeOffsetColor( backgroundColor, 0.3f );
+    cvf::Color3f contrastColor = RiaColorTools::contrastColor( backgroundColor );
+
+    if ( contrastColor != m_gridLegendColor ) m_needsRegeneration = true;
+
+    m_gridLegendColor = contrastColor;
 }
 
 //--------------------------------------------------------------------------------------------------
