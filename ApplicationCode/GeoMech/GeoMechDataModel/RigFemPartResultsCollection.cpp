@@ -500,12 +500,12 @@ std::map<std::string, std::vector<std::string>>
         }
         else if ( resPos == RIG_WELLPATH_DERIVED )
         {
-            std::vector<QString> angles = RiaDefines::wellPathAngleResultNames();
+            std::vector<QString> angles = RiaDefines::wbsAngleResultNames();
             for ( QString angle : angles )
             {
                 fieldCompNames[angle.toStdString()];
             }
-            std::vector<QString> derivedResults = RiaDefines::wellPathStabilityResultNames();
+            std::vector<QString> derivedResults = RiaDefines::wbsDerivedResultNames();
             for ( QString result : derivedResults )
             {
                 fieldCompNames[result.toStdString()];

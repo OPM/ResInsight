@@ -186,12 +186,12 @@ QList<caf::PdmOptionItemInfo>
     {
         if ( &m_resultPositionTypeUiField == fieldNeedingOptions )
         {
-            std::vector<RigFemResultPosEnum> optionItems = {RIG_NODAL,
-                                                            RIG_ELEMENT_NODAL,
-                                                            RIG_INTEGRATION_POINT,
-                                                            RIG_ELEMENT_NODAL_FACE,
-                                                            RIG_FORMATION_NAMES,
-                                                            RIG_ELEMENT};
+            std::vector<RigFemResultPosEnum> optionItems = { RIG_NODAL,
+                                                             RIG_ELEMENT_NODAL,
+                                                             RIG_INTEGRATION_POINT,
+                                                             RIG_ELEMENT_NODAL_FACE,
+                                                             RIG_FORMATION_NAMES,
+                                                             RIG_ELEMENT };
             if ( m_addWellPathDerivedResults )
             {
                 optionItems.push_back( RIG_WELLPATH_DERIVED );
@@ -472,8 +472,8 @@ void RimGeoMechResultDefinition::loadResult()
 {
     if ( m_geomCase && m_geomCase->geoMechData() )
     {
-        if ( this->resultAddress().fieldName == RiaDefines::wbsFGResultName().toStdString() ||
-             this->resultAddress().fieldName == RiaDefines::wbsSFGResultName().toStdString() )
+        if ( this->resultAddress().fieldName == RiaDefines::wbsFGResult().toStdString() ||
+             this->resultAddress().fieldName == RiaDefines::wbsSFGResult().toStdString() )
         {
             RigFemResultAddress stressResAddr( RIG_ELEMENT_NODAL, std::string( "ST" ), "" );
             RigFemResultAddress porBarResAddr( RIG_ELEMENT_NODAL, std::string( "POR-Bar" ), "" );
