@@ -18,6 +18,8 @@
 
 #include "RicNewWellBoreStabilityPlotFeature.h"
 
+#include "RiaColorTables.h"
+
 #include "RicNewWellLogCurveExtractionFeature.h"
 #include "RicNewWellLogFileCurveFeature.h"
 #include "RicNewWellLogPlotFeatureImpl.h"
@@ -226,7 +228,8 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
     RimWellLogTrack* paramCurvesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false,
                                                                                               "WBS Parameters",
                                                                                               plot );
-    paramCurvesTrack->setColSpan( RimPlot::TWO );
+    paramCurvesTrack->setColSpan( RimPlot::THREE );
+    paramCurvesTrack->setVisibleXRange( 0.0, 1.0 );
     paramCurvesTrack->setAutoScaleXEnabled( true );
     paramCurvesTrack->setTickIntervals( 0.5, 0.05 );
     paramCurvesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
@@ -235,13 +238,18 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
     paramCurvesTrack->setAnnotationType( RiuPlotAnnotationTool::CURVE_ANNOTATIONS );
     paramCurvesTrack->setShowRegionLabels( true );
     paramCurvesTrack->setShowWindow( false );
-    std::vector<QString> resultNames = RiaDefines::wellPathStabilityParameterNames();
+    std::set<RigWbsParameter> parameters = RigWbsParameter::allParameters();
 
-    std::vector<cvf::Color3f> colors = {cvf::Color3f::CRIMSON, cvf::Color3f::DARK_YELLOW};
+    caf::ColorTable                             colors     = RiaColorTables::contrastCategoryPaletteColors();
+    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = {RiuQwtPlotCurve::STYLE_SOLID,
+                                                              RiuQwtPlotCurve::STYLE_DASH,
+                                                              RiuQwtPlotCurve::STYLE_DASH_DOT};
 
-    for ( size_t i = 0; i < resultNames.size(); ++i )
+    size_t i = 0;
+    for ( const RigWbsParameter& param : parameters )
     {
-        const QString&             resultName = resultNames[i];
+        const QString& resultName = param.addressString( RigWbsParameter::LAS_FILE );
+
         RigFemResultAddress        resAddr( RIG_WELLPATH_DERIVED, resultName.toStdString(), "" );
         RimWellLogExtractionCurve* curve = RicWellLogTools::addWellLogExtractionCurve( paramCurvesTrack,
                                                                                        geoMechCase,
@@ -253,10 +261,12 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
                                                                                        false );
         curve->setGeoMechResultAddress( resAddr );
         curve->setCurrentTimeStep( timeStep );
-        curve->setColor( colors[i % colors.size()] );
+        curve->setColor( colors.cycledColor3f( i ) );
+        curve->setLineStyle( lineStyles[i % lineStyles.size()] );
         curve->setLineThickness( 2 );
         curve->loadDataAndUpdate( false );
-        curve->setAutoNameComponents( false, true, false, false, false );
+        curve->setCustomName( param.name() );
+        i++;
     }
     paramCurvesTrack->setAutoScaleXEnabled( true );
 }
@@ -271,7 +281,9 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
 {
     RimWellLogTrack* stabilityCurvesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false,
                                                                                                   "Stability Curves",
+
                                                                                                   plot );
+    stabilityCurvesTrack->setVisibleXRange( 0.0, 2.5 );
     stabilityCurvesTrack->setColSpan( RimPlot::FIVE );
     stabilityCurvesTrack->setAutoScaleXEnabled( true );
     stabilityCurvesTrack->setTickIntervals( 0.5, 0.05 );
@@ -281,13 +293,17 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
     stabilityCurvesTrack->setAnnotationType( RiuPlotAnnotationTool::NO_ANNOTATIONS );
     stabilityCurvesTrack->setShowRegionLabels( true );
 
-    std::vector<QString> resultNames = RiaDefines::wellPathStabilityResultNames();
+    std::vector<QString> resultNames = RiaDefines::wbsDerivedResultNames();
 
     std::vector<cvf::Color3f> colors = {cvf::Color3f::BLUE,
                                         cvf::Color3f::BROWN,
                                         cvf::Color3f::RED,
                                         cvf::Color3f::PURPLE,
-                                        cvf::Color3f::DARK_GREEN};
+                                        cvf::Color3f::DARK_GREEN,
+                                        cvf::Color3f::OLIVE};
+
+    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles( resultNames.size(), RiuQwtPlotCurve::STYLE_SOLID );
+    lineStyles.back() = RiuQwtPlotCurve::STYLE_DASH;
 
     for ( size_t i = 0; i < resultNames.size(); ++i )
     {
@@ -299,6 +315,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
         curve->setCurrentTimeStep( timeStep );
         curve->setAutoNameComponents( false, true, false, false, false );
         curve->setColor( colors[i % colors.size()] );
+        curve->setLineStyle( lineStyles[i] );
         curve->setLineThickness( 2 );
         curve->loadDataAndUpdate( false );
         curve->setSmoothCurve( true );
@@ -320,7 +337,7 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
                                                                                                  plot );
     double               minValue = 360.0, maxValue = 0.0;
     const double         angleIncrement = 90.0;
-    std::vector<QString> resultNames    = RiaDefines::wellPathAngleResultNames();
+    std::vector<QString> resultNames    = RiaDefines::wbsAngleResultNames();
 
     std::vector<cvf::Color3f> colors = {cvf::Color3f::GREEN, cvf::Color3f::ORANGE};
 
