@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "cafPdmUi3dObjectEditorHandle.h"
+#include "Ric3dObjectEditorHandle.h"
 
 class RicPointTangentManipulator;
 
@@ -33,7 +33,7 @@ class ModelBasicList;
 class QString;
 #include <QPointer>
 
-class RicWellTarget3dEditor : public caf::PdmUi3dObjectEditorHandle
+class RicWellTarget3dEditor : public Ric3dObjectEditorHandle
 {
     CAF_PDM_UI_3D_OBJECT_EDITOR_HEADER_INIT;
     Q_OBJECT

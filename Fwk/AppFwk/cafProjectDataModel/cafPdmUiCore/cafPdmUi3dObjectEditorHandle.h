@@ -75,14 +75,15 @@ public:
     PdmUi3dObjectEditorHandle();
     ~PdmUi3dObjectEditorHandle() override;
 
-    void setViewer(QWidget* ownerViewer);
+    void setViewer(QWidget* ownerViewer, bool isInComparisonView);
 
 protected:
     QWidget* ownerViewer() const { return m_ownerViewer;}
+    bool     isInComparisonView() const { return m_isInComparisonView; }
 
 private:
-
-    QPointer<QWidget>                   m_ownerViewer;
+    QPointer<QWidget>  m_ownerViewer;
+    bool               m_isInComparisonView;
 };
 
 }

@@ -71,10 +71,12 @@ void RicPolylineTarget3dEditor::configureAndUpdateUi( const QString& uiConfigNam
 {
     RimPolylineTarget* target         = dynamic_cast<RimPolylineTarget*>( this->pdmObject() );
     RiuViewer*         ownerRiuViewer = dynamic_cast<RiuViewer*>( ownerViewer() );
+    Rim3dView*         view           = mainOrComparisonView();
 
-    if ( !target || !target->isEnabled() )
+    if ( !target || !target->isEnabled() || !view )
     {
-        m_cvfModel->removeAllParts();
+        if ( m_cvfModel.notNull() ) m_cvfModel->removeAllParts();
+
         return;
     }
 
@@ -93,16 +95,11 @@ void RicPolylineTarget3dEditor::configureAndUpdateUi( const QString& uiConfigNam
         QObject::connect( m_manipulator, SIGNAL( notifySelected() ), this, SLOT( slotSelectedIn3D() ) );
         QObject::connect( m_manipulator, SIGNAL( notifyDragFinished() ), this, SLOT( slotDragFinished() ) );
         m_cvfModel = new cvf::ModelBasicList;
-        ownerRiuViewer->addStaticModelOnce( m_cvfModel.p() );
+        ownerRiuViewer->addStaticModelOnce( m_cvfModel.p(), isInComparisonView() );
     }
 
-    cvf::ref<caf::DisplayCoordTransform> dispXf;
-    double                               handleSize = 1.0;
-    {
-        dispXf          = ownerRiuViewer->ownerReservoirView()->displayCoordTransform();
-        Rim3dView* view = dynamic_cast<Rim3dView*>( ownerRiuViewer->ownerReservoirView() );
-        handleSize      = 0.7 * view->ownerCase()->characteristicCellSize();
-    }
+    cvf::ref<caf::DisplayCoordTransform> dispXf     = view->displayCoordTransform();
+    double                               handleSize = 0.7 * view->ownerCase()->characteristicCellSize();
 
     m_manipulator->setOrigin( dispXf->transformToDisplayCoord( target->targetPointXYZ() ) );
     // m_manipulator->setTangent(target->tangent());
@@ -131,17 +128,14 @@ void RicPolylineTarget3dEditor::cleanupBeforeSettingPdmObject()
 void RicPolylineTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Vec3d& tangent )
 {
     RimPolylineTarget* target = dynamic_cast<RimPolylineTarget*>( this->pdmObject() );
+    Rim3dView*         view   = mainOrComparisonView();
 
-    if ( !target )
+    if ( !target || !view )
     {
         return;
     }
 
-    cvf::ref<caf::DisplayCoordTransform> dispXf;
-    {
-        RiuViewer* viewer = dynamic_cast<RiuViewer*>( ownerViewer() );
-        dispXf            = viewer->ownerReservoirView()->displayCoordTransform();
-    }
+    cvf::ref<caf::DisplayCoordTransform> dispXf = view->displayCoordTransform();
 
     RimUserDefinedPolylinesAnnotation* polylineDef;
     target->firstAncestorOrThisOfTypeAsserted( polylineDef );
@@ -155,6 +149,9 @@ void RicPolylineTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf
     target->enableFullUpdate( true );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicPolylineTarget3dEditor::slotSelectedIn3D()
 {
     RimPolylineTarget* target = dynamic_cast<RimPolylineTarget*>( this->pdmObject() );

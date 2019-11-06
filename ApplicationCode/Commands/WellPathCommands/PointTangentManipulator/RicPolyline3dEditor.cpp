@@ -80,7 +80,7 @@ void RicPolyline3dEditor::configureAndUpdateUi( const QString& uiConfigName )
     for ( auto target : targets )
     {
         auto targetEditor = new RicPolylineTarget3dEditor;
-        targetEditor->setViewer( ownerViewer() );
+        targetEditor->setViewer( ownerViewer(), isInComparisonView() );
         targetEditor->setPdmObject( target );
         m_targetEditors.push_back( targetEditor );
         targetEditor->updateUi();
