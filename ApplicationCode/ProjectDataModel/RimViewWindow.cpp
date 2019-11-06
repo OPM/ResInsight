@@ -51,6 +51,7 @@ RimViewWindow::RimViewWindow( void )
 
     RICF_InitField( &m_viewId, "ViewId", -1, "View ID", "", "", "" );
     m_viewId.uiCapability()->setUiReadOnly( true );
+    m_viewId.uiCapability()->setUiHidden( true );
     m_viewId.capability<RicfFieldHandle>()->setIOWriteable( false );
 
     CAF_PDM_InitField( &m_showWindow, "ShowWindow", true, "Show Window", "", "", "" );
