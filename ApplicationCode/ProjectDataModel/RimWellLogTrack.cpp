@@ -374,20 +374,11 @@ void RimWellLogTrack::calculateXZoomRange()
 
     if ( minValue == HUGE_VAL )
     {
-        if ( visibleCurves )
-        {
-            minValue = RI_LOGPLOTTRACK_MINX_DEFAULT;
-            maxValue = RI_LOGPLOTTRACK_MAXX_DEFAULT;
-        }
-        else
-        {
-            // Empty axis when there are no curves
-            minValue = 0;
-            maxValue = 0;
-        }
+        // Empty axis when there are no sensible visible curves
+        minValue = 0;
+        maxValue = 0;
     }
-
-    if ( m_minorTickInterval() != 0.0 )
+    else if ( m_minorTickInterval() != 0.0 )
     {
         std::tie( minValue, maxValue ) = adjustXRange( minValue, maxValue, m_minorTickInterval() );
     }
@@ -697,25 +688,38 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
 {
     if ( !m_plotWidget ) return;
 
-    if ( m_explicitTickIntervals )
+    bool emptyRange = std::abs( m_visibleXRangeMax() - m_visibleXRangeMin ) <
+                      1.0e-6 * std::max( 1.0, std::max( m_visibleXRangeMax(), m_visibleXRangeMin() ) );
+
+    if ( emptyRange )
     {
-        m_plotWidget->setMajorAndMinorTickIntervals( QwtPlot::xTop,
-                                                     m_majorTickInterval(),
-                                                     m_minorTickInterval(),
-                                                     m_visibleXRangeMin(),
-                                                     m_visibleXRangeMax() );
+        m_plotWidget->enableGridLines( QwtPlot::xTop, false, false );
+        m_plotWidget->setAxisRange( QwtPlot::xTop, 0.0, 0.0 );
+        m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::xTop, false );
     }
     else
     {
-        int majorTickIntervals = 5;
-        int minorTickIntervals = 10;
-        m_plotWidget->setAutoTickIntervalCounts( QwtPlot::xTop, majorTickIntervals, minorTickIntervals );
-        m_plotWidget->setAxisRange( QwtPlot::xTop, m_visibleXRangeMin, m_visibleXRangeMax );
-    }
+        m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::xTop, true );
+        if ( m_explicitTickIntervals )
+        {
+            m_plotWidget->setMajorAndMinorTickIntervals( QwtPlot::xTop,
+                                                         m_majorTickInterval(),
+                                                         m_minorTickInterval(),
+                                                         m_visibleXRangeMin(),
+                                                         m_visibleXRangeMax() );
+        }
+        else
+        {
+            int majorTickIntervals = 5;
+            int minorTickIntervals = 10;
+            m_plotWidget->setAutoTickIntervalCounts( QwtPlot::xTop, majorTickIntervals, minorTickIntervals );
+            m_plotWidget->setAxisRange( QwtPlot::xTop, m_visibleXRangeMin, m_visibleXRangeMax );
+        }
 
-    m_plotWidget->enableGridLines( QwtPlot::xTop,
-                                   m_xAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MAJOR,
-                                   m_xAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MINOR );
+        m_plotWidget->enableGridLines( QwtPlot::xTop,
+                                       m_xAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MAJOR,
+                                       m_xAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MINOR );
+    }
 
     RimWellLogPlot* wellLogPlot = nullptr;
     this->firstAncestorOrThisOfType( wellLogPlot );
@@ -2227,23 +2231,20 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
             this->firstAncestorOrThisOfType( wbsPlot );
             if ( wbsPlot )
             {
-                geoMechWellLogExtractor->setWbsParameters( wbsPlot->porePressureSource(),
-                                                           wbsPlot->poissonRatioSource(),
-                                                           wbsPlot->ucsSource(),
-                                                           wbsPlot->userDefinedPoissonRatio(),
-                                                           wbsPlot->userDefinedUcs() );
+                wbsPlot->applyWbsParametersToExtractor( geoMechWellLogExtractor );
             }
 
-            std::vector<double> ppValues      = geoMechWellLogExtractor->porePressureIntervals( timeStep );
-            std::vector<double> poissonValues = geoMechWellLogExtractor->poissonIntervals( timeStep );
-            std::vector<double> ucsValues     = geoMechWellLogExtractor->ucsIntervals( timeStep );
+            std::vector<double> ppSourceRegions      = geoMechWellLogExtractor->porePressureSourceRegions( timeStep );
+            std::vector<double> poissonSourceRegions = geoMechWellLogExtractor->poissonSourceRegions( timeStep );
+            std::vector<double> ucsSourceRegions     = geoMechWellLogExtractor->ucsSourceRegions( timeStep );
 
             {
                 caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
 
                 std::vector<QString> sourceNames =
-                    {"", "PP=Grid", "PP=Las-File", "PP=Element Property Table", "", "PP=Hydrostatic"};
-                curveData.data = ppValues;
+                    RigWbsParameter::PP_Sand().allSourceLabels( "\n",
+                                                                wbsPlot->userDefinedValue( RigWbsParameter::PP_Shale() ) );
+                curveData.data = ppSourceRegions;
 
                 std::vector<QString>                   sourceNamesToPlot;
                 std::vector<std::pair<double, double>> yValues;
@@ -2266,13 +2267,10 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                 caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
 
                 std::vector<QString> sourceNames =
-                    {"",
-                     "",
-                     "Poisson=Las-File",
-                     "Poisson=Element Property Table",
-                     QString( "Poisson=%1" ).arg( wellBoreStabilityPlot->userDefinedPoissonRatio() ),
-                     ""};
-                curveData.data = poissonValues;
+                    RigWbsParameter::poissonRatio().allSourceLabels( "\n",
+                                                                     wbsPlot->userDefinedValue(
+                                                                         RigWbsParameter::poissonRatio() ) );
+                curveData.data = poissonSourceRegions;
 
                 std::vector<QString>                   sourceNamesToPlot;
                 std::vector<std::pair<double, double>> yValues;
@@ -2294,14 +2292,10 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
             {
                 caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
 
-                std::vector<QString> sourceNames = {"",
-                                                    "",
-                                                    "UCS=Las-File",
-                                                    "UCS=Element Property Table",
-                                                    QString( "UCS=%1" ).arg( wellBoreStabilityPlot->userDefinedUcs() ),
-                                                    ""};
+                std::vector<QString> sourceNames =
+                    RigWbsParameter::UCS().allSourceLabels( "\n", wbsPlot->userDefinedValue( RigWbsParameter::UCS() ) );
 
-                curveData.data = ucsValues;
+                curveData.data = ucsSourceRegions;
 
                 std::vector<QString>                   sourceNamesToPlot;
                 std::vector<std::pair<double, double>> yValues;

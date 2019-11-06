@@ -410,7 +410,7 @@ QString RiaDefines::activeFormationNamesResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsAzimuthResultName()
+QString RiaDefines::wbsAzimuthResult()
 {
     return "Azimuth";
 }
@@ -418,7 +418,7 @@ QString RiaDefines::wbsAzimuthResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsInclinationResultName()
+QString RiaDefines::wbsInclinationResult()
 {
     return "Inclination";
 }
@@ -426,7 +426,7 @@ QString RiaDefines::wbsInclinationResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsPPResultName()
+QString RiaDefines::wbsPPResult()
 {
     return "PP";
 }
@@ -434,7 +434,7 @@ QString RiaDefines::wbsPPResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsSHResultName()
+QString RiaDefines::wbsSHResult()
 {
     return "SH";
 }
@@ -442,7 +442,15 @@ QString RiaDefines::wbsSHResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsOBGResultName()
+QString RiaDefines::wbsSHMkResult()
+{
+    return "SH_MK";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::wbsOBGResult()
 {
     return "OBG";
 }
@@ -450,7 +458,7 @@ QString RiaDefines::wbsOBGResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsFGResultName()
+QString RiaDefines::wbsFGResult()
 {
     return "FG";
 }
@@ -458,7 +466,7 @@ QString RiaDefines::wbsFGResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsSFGResultName()
+QString RiaDefines::wbsSFGResult()
 {
     return "SFG";
 }
@@ -466,41 +474,24 @@ QString RiaDefines::wbsSFGResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsPoissonParameterName()
+std::vector<QString> RiaDefines::wbsAngleResultNames()
 {
-    return "RATIO";
+    return {wbsAzimuthResult(), wbsInclinationResult()};
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsUCSParameterName()
+std::vector<QString> RiaDefines::wbsDerivedResultNames()
 {
-    return "UCS";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RiaDefines::wellPathAngleResultNames()
-{
-    return {wbsAzimuthResultName(), wbsInclinationResultName()};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RiaDefines::wellPathStabilityResultNames()
-{
-    return {wbsFGResultName(), wbsOBGResultName(), wbsPPResultName(), wbsSFGResultName(), wbsSHResultName()};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RiaDefines::wellPathStabilityParameterNames()
-{
-    return {wbsPoissonParameterName(), wbsUCSParameterName()};
+    return {
+        wbsFGResult(),
+        wbsOBGResult(),
+        wbsPPResult(),
+        wbsSFGResult(),
+        wbsSHResult(),
+        wbsSHMkResult(),
+    };
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -487,11 +487,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
         this->firstAncestorOrThisOfType( wbsPlot );
         if ( wbsPlot )
         {
-            geomExtractor->setWbsParameters( wbsPlot->porePressureSource(),
-                                             wbsPlot->poissonRatioSource(),
-                                             wbsPlot->ucsSource(),
-                                             wbsPlot->userDefinedPoissonRatio(),
-                                             wbsPlot->userDefinedUcs() );
+            wbsPlot->applyWbsParametersToExtractor( geomExtractor.p() );
         }
 
         geomExtractor->setRkbDiff( rkbDiff() );
@@ -508,9 +504,9 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
         }
     }
 
-    if ( values.size() && measuredDepthValues.size() )
+    if ( !values.empty() && !measuredDepthValues.empty() )
     {
-        if ( !tvDepthValues.size() )
+        if ( tvDepthValues.empty() )
         {
             this->setValuesAndDepths( values,
                                       measuredDepthValues,
@@ -531,38 +527,92 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
 void RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( const RimWellPath*          wellPath,
                                                                       RigGeoMechWellLogExtractor* geomExtractor )
 {
-    std::vector<std::pair<double, double>> logFileMudWeights =
-        RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath, "PP" );
-    if ( !logFileMudWeights.empty() )
+    auto allParams = RigWbsParameter::allParameters();
+    for ( const RigWbsParameter& parameter : allParams )
     {
-        // Log file pressures come in SG units (g / cm^3).
-        // We need SI as input (kg / m^3), so multiply by 1000:
-        for ( auto& mudWeight : logFileMudWeights )
+        if ( parameter == RigWbsParameter::PP_Sand() || parameter == RigWbsParameter::PP_Shale() )
         {
-            mudWeight.second *= 1000.0;
+            findAndLoadPorePressuresFromLasFiles( wellPath, parameter, geomExtractor );
         }
-        geomExtractor->setWellLogMdAndMudWeightKgPerM3( logFileMudWeights );
-    }
-
-    std::vector<std::pair<double, double>> logFileUcs = RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath,
-                                                                                                           "UCS" );
-    if ( !logFileUcs.empty() )
-    {
-        // TODO: UCS is typically in MPa, but not necessarily.
-        // We need to at least give a warning if the units don't match
-        // ... and preferable do a conversion.
-        for ( auto& ucsValue : logFileUcs )
+        else if ( parameter == RigWbsParameter::UCS() )
         {
-            ucsValue.second *= 10.0; // MPa -> Bar
+            findAndLoadUcsFromLasFiles( wellPath, geomExtractor );
         }
-        geomExtractor->setWellLogMdAndUcsBar( logFileUcs );
-    }
+        else
+        {
+            // Generic LAS
+            QString lasAddress = parameter.addressString( RigWbsParameter::LAS_FILE );
 
-    std::vector<std::pair<double, double>> logFilePoissonRatio =
-        RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath, "POISSON_RATIO" );
-    if ( !logFilePoissonRatio.empty() )
+            std::vector<std::pair<double, double>> lasFileValues =
+                RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath, lasAddress );
+            if ( !lasFileValues.empty() )
+            {
+                geomExtractor->setWbsLasValues( parameter, lasFileValues );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::findAndLoadUcsFromLasFiles( const RimWellPath*          wellPath,
+                                                            RigGeoMechWellLogExtractor* geomExtractor )
+{
     {
-        geomExtractor->setWellLogMdAndPoissonRatio( logFilePoissonRatio );
+        QString lasAddress = RigWbsParameter::UCS().addressString( RigWbsParameter::LAS_FILE );
+        std::vector<std::pair<double, double>> logFileUcs = RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath,
+                                                                                                               lasAddress );
+        if ( !logFileUcs.empty() )
+        {
+            // TODO: UCS is typically in MPa, but not necessarily.
+            // We need to at least give a warning if the units don't match
+            // ... and preferable do a conversion.
+            for ( auto& ucsValue : logFileUcs )
+            {
+                ucsValue.second *= 10.0; // MPa -> Bar
+            }
+            geomExtractor->setWbsLasValues( RigWbsParameter::UCS(), logFileUcs );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::findAndLoadPorePressuresFromLasFiles( const RimWellPath*          wellPath,
+                                                                      const RigWbsParameter&      parameter,
+                                                                      RigGeoMechWellLogExtractor* geomExtractor )
+{
+    {
+        std::vector<std::pair<double, double>> logFileMudWeights =
+            RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath,
+                                                               parameter.addressString( RigWbsParameter::LAS_FILE ) );
+        if ( !logFileMudWeights.empty() )
+        {
+            std::vector<std::pair<double, double>> porePressuresBar;
+            porePressuresBar.reserve( logFileMudWeights.size() );
+
+            for ( auto& mudWeight : logFileMudWeights )
+            {
+                // Log file mud weights come in SG units (g / cm^3).
+                // We need SI as input (kg / m^3), so multiply by 1000:
+                double mudWeightsSI = mudWeight.second * 1000.0;
+                // To get specific mudWeight (N / m^3):
+                double specificMudWeight = mudWeightsSI * 9.81;
+
+                double     md    = mudWeight.first;
+                cvf::Vec3d point = wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( md );
+                double     depth = -point.z() + wellPath->wellPathGeometry()->rkbDiff();
+
+                // Pore pressure in pascal
+                double ppPascal = specificMudWeight * depth;
+
+                // Pore pressure in bar
+                porePressuresBar.emplace_back( mudWeight.first, ppPascal * 1.0e-5 );
+            }
+            geomExtractor->setWbsLasValues( parameter, porePressuresBar );
+        }
     }
 }
 
