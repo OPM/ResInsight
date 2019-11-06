@@ -51,7 +51,7 @@ void RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties(
     caf::ProgressInfo progInfo( static_cast<int>( filenames.size() * inputPropCount ), "Reading Input properties" );
 
     int i = 0;
-    for ( const QString filename : filenames )
+    for ( const QString& filename : filenames )
     {
         int progress = static_cast<int>( i * inputPropCount );
         progInfo.setProgressDescription( filename );

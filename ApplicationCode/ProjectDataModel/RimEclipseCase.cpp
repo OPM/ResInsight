@@ -1003,6 +1003,9 @@ std::vector<QDateTime> RimEclipseCase::timeStepDates() const
     return std::vector<QDateTime>();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimEclipseCase::importAsciiInputProperties( const QStringList& fileNames )
 {
     return false;

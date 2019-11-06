@@ -37,18 +37,18 @@
 
 class QString;
 
-class RigEclipseCaseData;
 class RigCaseCellResultsData;
+class RigEclipseCaseData;
 class RigGridBase;
 class RigMainGrid;
+class RigVirtualPerforationTransmissibilities;
 class RimCaseCollection;
-class RimIdenticalGridCaseGroup;
-class RimReservoirCellResultsStorage;
 class RimEclipseContourMapView;
 class RimEclipseContourMapViewCollection;
-class RimEclipseView;
-class RigVirtualPerforationTransmissibilities;
 class RimEclipseInputPropertyCollection;
+class RimEclipseView;
+class RimIdenticalGridCaseGroup;
+class RimReservoirCellResultsStorage;
 
 //==================================================================================================
 //

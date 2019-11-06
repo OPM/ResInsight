@@ -43,6 +43,7 @@ public:
     static void loadAndSyncronizeInputProperties( RimEclipseInputPropertyCollection* inputPropertyCollection,
                                                   RigEclipseCaseData*                eclipseCaseData,
                                                   const std::vector<QString>&        filenames );
+
     static bool readInputPropertiesFromFiles( RimEclipseInputPropertyCollection* inputPropertyCollection,
                                               RigEclipseCaseData*                eclipseCaseData,
                                               bool                               importFaults,
@@ -51,7 +52,6 @@ public:
 private:
     // Hide constructor to prevent instantiation
     RifEclipseInputPropertyLoader();
-    ~RifEclipseInputPropertyLoader();
 
     static std::set<QString> extractKeywordsOnFile( const QString& filename, bool isExistingFile );
 
