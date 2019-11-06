@@ -591,32 +591,28 @@ void RiuViewer::removeAllColorLegends()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* addedLegend )
 {
-    RiaGuiApplication* app = RiaGuiApplication::instance();
-    CVF_ASSERT( app );
-    RiaPreferences* preferences      = app->preferences();
-    cvf::Rendering* overlayRendering = overlayItemsRendering();
-    CVF_ASSERT( preferences );
+    if ( !addedLegend || m_visibleLegends.contains( addedLegend ) ) return;
+
+    RiaGuiApplication* app              = RiaGuiApplication::instance();
+    RiaPreferences*    preferences      = app->preferences();
+    cvf::Rendering*    overlayRendering = overlayItemsRendering();
     CVF_ASSERT( overlayRendering );
 
-    if ( addedLegend )
-    {
-        cvf::Color4f backgroundColor = mainCamera()->viewport()->clearColor();
-        backgroundColor.a()          = 0.8f;
-        cvf::Color3f frameColor( backgroundColor.r(), backgroundColor.g(), backgroundColor.b() );
-        updateLegendTextAndTickMarkColor( addedLegend );
+    cvf::Color4f backgroundColor = mainCamera()->viewport()->clearColor();
+    backgroundColor.a()          = 0.8f;
 
-        overlayRendering->addOverlayItem( addedLegend );
-        addedLegend->enableBackground( preferences->showLegendBackground() );
-        addedLegend->setBackgroundColor( backgroundColor );
-        addedLegend->setBackgroundFrameColor(
-            cvf::Color4f( RiaColorTools::computeOffsetColor( frameColor, 0.3f ), 0.9f ) );
-        addedLegend->setFont( app->defaultSceneFont() );
+    cvf::Color3f backgroundColor3f( backgroundColor.r(), backgroundColor.g(), backgroundColor.b() );
+    cvf::Color4f frameColor = cvf::Color4f( RiaColorTools::computeOffsetColor( backgroundColor3f, 0.3f ), 0.9f );
 
-        if ( !m_visibleLegends.contains( addedLegend ) )
-        {
-            m_visibleLegends.push_back( addedLegend );
-        }
-    }
+    updateLegendTextAndTickMarkColor( addedLegend );
+
+    addedLegend->enableBackground( preferences->showLegendBackground() );
+    addedLegend->setBackgroundColor( backgroundColor );
+    addedLegend->setBackgroundFrameColor( frameColor );
+    addedLegend->setFont( app->defaultSceneFont() );
+
+    overlayRendering->addOverlayItem( addedLegend );
+    m_visibleLegends.push_back( addedLegend );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -713,7 +709,7 @@ void RiuViewer::updateLegendLayout()
         const int xPos = width() - (int)scaleLegendSize.x() - margin - edgeAxisBorderWidth;
         const int yPos = margin + edgeAxisBorderHeight + margin + otherItemsHeight;
 
-        m_scaleLegend->setLayoutFixedPosition( {xPos, yPos} );
+        m_scaleLegend->setLayoutFixedPosition( { xPos, yPos } );
     }
 }
 
@@ -1078,9 +1074,9 @@ void RiuViewer::showScaleLegend( bool show )
     if ( show )
     {
         if ( m_scaleLegend->orientation() == caf::OverlayScaleLegend::HORIZONTAL )
-            m_scaleLegend->setRenderSize( {280, 45} );
+            m_scaleLegend->setRenderSize( { 280, 45 } );
         else
-            m_scaleLegend->setRenderSize( {50, 280} );
+            m_scaleLegend->setRenderSize( { 50, 280 } );
 
         overlayItemsRendering()->addOverlayItem( m_scaleLegend.p() );
     }
