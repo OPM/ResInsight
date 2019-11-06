@@ -480,18 +480,23 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
-        uiOrdering.add( &m_appendClassNameToUiText );
-        uiOrdering.add( &m_appendFieldKeywordToToolTipText );
-        uiOrdering.add( &m_showViewIdInProjectTree );
+        {
+            caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Project Tree" );
+            group->add( &m_appendClassNameToUiText );
+            group->add( &m_appendFieldKeywordToToolTipText );
+            group->add( &m_showViewIdInProjectTree );
+        }
+
+        {
+            caf::PdmUiGroup* group = uiOrdering.addNewGroup( "3D View" );
+            group->add( &m_useShaders );
+            group->add( &m_showHud );
+        }
 
         uiOrdering.add( &m_showProjectChangedDialog );
-
         uiOrdering.add( &m_showTestToolbar );
         uiOrdering.add( &m_includeFractureDebugInfoFile );
         uiOrdering.add( &m_holoLensExportFolder );
-
-        uiOrdering.add( &m_useShaders );
-        uiOrdering.add( &m_showHud );
     }
 
     uiOrdering.skipRemainingFields( true );
