@@ -97,4 +97,5 @@ void RicAddEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
 void RicAddEclipseInputPropertyFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Add Input Property" );
+    actionToSetup->setIcon( QIcon( ":/EclipseInput48x48.png" ) );
 }
