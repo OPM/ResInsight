@@ -72,18 +72,14 @@ public:
     void appendPartsToModel( cvf::ModelBasicList* model );
 
 private:
-    void clearGeometryOnly();
     void createGeometryOnly();
-
-    void createAllHandleParts();
-    void clearAllGeometryAndParts();
     void recreateAllGeometryAndParts();
 
     void                       createHorizontalPlaneHandle();
     cvf::ref<cvf::DrawableGeo> createHorizontalPlaneGeo();
 
     void                       createVerticalAxisHandle();
-    cvf::ref<cvf::DrawableGeo> createVertexAxisGeo();
+    cvf::ref<cvf::DrawableGeo> createVerticalAxisGeo();
 
     void addHandlePart( cvf::DrawableGeo* geo, const cvf::Color4f& color, HandleType handleId, const cvf::String& partName );
 
@@ -98,13 +94,16 @@ private:
     static cvf::ref<cvf::Part> createPart( cvf::DrawableGeo* geo, const cvf::Color4f& color, const cvf::String& partName );
 
 private:
-    HandleType                                m_activeHandle;
     std::map<HandleType, cvf::ref<cvf::Part>> m_handleParts; // These arrays have the same length
     cvf::Collection<cvf::Part>                m_activeDragModeParts;
-    cvf::Vec3d                                m_origin;
-    cvf::Vec3d                                m_tangent;
-    double                                    m_handleSize;
-    cvf::Vec3d                                m_initialPickPoint;
-    cvf::Vec3d                                m_tangentOnStartManipulation;
-    cvf::Vec3d                                m_originOnStartManipulation;
+
+    cvf::Vec3d m_origin;
+    cvf::Vec3d m_tangent;
+    double     m_handleSize;
+    bool       m_isGeometryUpdateNeeded;
+
+    HandleType m_activeHandle;
+    cvf::Vec3d m_initialPickPoint;
+    cvf::Vec3d m_tangentOnStartManipulation;
+    cvf::Vec3d m_originOnStartManipulation;
 };

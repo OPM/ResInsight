@@ -92,13 +92,17 @@ void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
     if ( m_manipulator.isNull() )
     {
         m_manipulator = new RicPointTangentManipulator( ownerRiuViewer );
+
         QObject::connect( m_manipulator,
                           SIGNAL( notifyUpdate( const cvf::Vec3d&, const cvf::Vec3d& ) ),
                           this,
                           SLOT( slotUpdated( const cvf::Vec3d&, const cvf::Vec3d& ) ) );
+
         QObject::connect( m_manipulator, SIGNAL( notifySelected() ), this, SLOT( slotSelectedIn3D() ) );
         QObject::connect( m_manipulator, SIGNAL( notifyDragFinished() ), this, SLOT( slotDragFinished() ) );
+
         m_cvfModel = new cvf::ModelBasicList;
+
         ownerRiuViewer->addStaticModelOnce( m_cvfModel.p() );
     }
 
@@ -113,6 +117,7 @@ void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
     m_manipulator->setOrigin( dispXf->transformToDisplayCoord( target->targetPointXYZ() + geomDef->referencePointXyz() ) );
     m_manipulator->setTangent( target->tangent() );
     m_manipulator->setHandleSize( handleSize );
+
     m_cvfModel->removeAllParts();
     m_manipulator->appendPartsToModel( m_cvfModel.p() );
 

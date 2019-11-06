@@ -48,6 +48,7 @@ RicPointTangentManipulatorPartMgr::RicPointTangentManipulatorPartMgr()
     , m_originOnStartManipulation( cvf::Vec3d::UNDEFINED )
     , m_activeHandle( NONE )
     , m_handleSize( 1.0 )
+    , m_isGeometryUpdateNeeded( true )
 {
 }
 
@@ -66,7 +67,7 @@ void RicPointTangentManipulatorPartMgr::setOrigin( const cvf::Vec3d& origin )
     m_origin = origin;
     if ( m_originOnStartManipulation.isUndefined() ) m_originOnStartManipulation = origin;
 
-    clearAllGeometryAndParts();
+    m_isGeometryUpdateNeeded = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,7 +80,7 @@ void RicPointTangentManipulatorPartMgr::setTangent( const cvf::Vec3d& tangent )
     m_tangent = tangent;
     if ( m_tangentOnStartManipulation.isUndefined() ) m_tangentOnStartManipulation = m_tangent;
 
-    clearAllGeometryAndParts();
+    m_isGeometryUpdateNeeded = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,6 +89,8 @@ void RicPointTangentManipulatorPartMgr::setTangent( const cvf::Vec3d& tangent )
 void RicPointTangentManipulatorPartMgr::setHandleSize( double handleSize )
 {
     m_handleSize = handleSize;
+
+    m_isGeometryUpdateNeeded = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,6 +118,11 @@ void RicPointTangentManipulatorPartMgr::appendPartsToModel( cvf::ModelBasicList*
     if ( m_handleParts.empty() )
     {
         recreateAllGeometryAndParts();
+    }
+
+    if ( m_isGeometryUpdateNeeded )
+    {
+        createGeometryOnly();
     }
 
     for ( auto& idPartIt : m_handleParts )
@@ -193,7 +201,7 @@ void RicPointTangentManipulatorPartMgr::updateManipulatorFromRay( const cvf::Ray
     }
     // m_tangent = newTangent;
 
-    clearAllGeometryAndParts();
+    m_isGeometryUpdateNeeded = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,29 +215,10 @@ void RicPointTangentManipulatorPartMgr::endManipulator()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPointTangentManipulatorPartMgr::clearAllGeometryAndParts()
-{
-    m_handleParts.clear();
-    m_activeDragModeParts.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicPointTangentManipulatorPartMgr::recreateAllGeometryAndParts()
 {
-    createAllHandleParts();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicPointTangentManipulatorPartMgr::clearGeometryOnly()
-{
-    for ( auto& idPartIt : m_handleParts )
-    {
-        idPartIt.second->setDrawable( nullptr );
-    }
+    createHorizontalPlaneHandle();
+    createVerticalAxisHandle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -237,16 +226,8 @@ void RicPointTangentManipulatorPartMgr::clearGeometryOnly()
 //--------------------------------------------------------------------------------------------------
 void RicPointTangentManipulatorPartMgr::createGeometryOnly()
 {
-    // m_handleParts[]
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicPointTangentManipulatorPartMgr::createAllHandleParts()
-{
-    createHorizontalPlaneHandle();
-    createVerticalAxisHandle();
+    m_handleParts[HORIZONTAL_PLANE]->setDrawable( createHorizontalPlaneGeo().p() );
+    m_handleParts[VERTICAL_AXIS]->setDrawable( createVerticalAxisGeo().p() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -297,7 +278,7 @@ cvf::ref<cvf::DrawableGeo> RicPointTangentManipulatorPartMgr::createHorizontalPl
 void RicPointTangentManipulatorPartMgr::createVerticalAxisHandle()
 {
     using namespace cvf;
-    cvf::ref<cvf::DrawableGeo> geo = createVertexAxisGeo();
+    cvf::ref<cvf::DrawableGeo> geo = createVerticalAxisGeo();
 
     HandleType   handleId = VERTICAL_AXIS;
     cvf::Color4f color    = cvf::Color4f( 0.0f, 0.2f, 0.8f, 0.5f );
@@ -309,7 +290,7 @@ void RicPointTangentManipulatorPartMgr::createVerticalAxisHandle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RicPointTangentManipulatorPartMgr::createVertexAxisGeo()
+cvf::ref<cvf::DrawableGeo> RicPointTangentManipulatorPartMgr::createVerticalAxisGeo()
 {
     using namespace cvf;
 
