@@ -539,7 +539,7 @@ RimViewWindow* RiaGuiApplication::activePlotWindow() const
 //--------------------------------------------------------------------------------------------------
 bool RiaGuiApplication::useShaders() const
 {
-    if ( !m_preferences->useShaders ) return false;
+    if ( !m_preferences->useShaders() ) return false;
 
     bool isShadersSupported = caf::Viewer::isShadersSupported();
     if ( !isShadersSupported ) return false;

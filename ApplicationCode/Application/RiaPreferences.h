@@ -35,10 +35,15 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"
 
+#include <QStringList>
+
 #include <map>
 
 class RifReaderSettings;
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 class RiaPreferences : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -76,6 +81,7 @@ public:
     bool    includeFractureDebugInfoFile() const;
     bool    showProjectChangedDialog() const;
     QString holoLensExportFolder() const;
+    bool    useShaders() const;
 
     const QString& dateFormat() const;
     const QString& timeFormat() const;
@@ -124,7 +130,6 @@ public: // Pdm Fields
 
     caf::PdmField<bool> showLegendBackground;
 
-    caf::PdmField<bool> useShaders;
     caf::PdmField<bool> showHud;
 
     caf::PdmField<QString> lastUsedProjectFileName;
@@ -165,6 +170,7 @@ private:
     caf::PdmField<bool>                    m_appendClassNameToUiText;
     caf::PdmField<bool>                    m_appendFieldKeywordToToolTipText;
     caf::PdmField<bool>                    m_showViewIdInProjectTree;
+    caf::PdmField<bool>                    m_useShaders;
 
     caf::PdmField<bool> m_showProjectChangedDialog;
 

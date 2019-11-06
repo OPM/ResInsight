@@ -177,8 +177,8 @@ RiaPreferences::RiaPreferences( void )
                        "" );
     showLasCurveWithoutTvdWarning.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitField( &useShaders, "useShaders", true, "Use Shaders", "", "", "" );
-    useShaders.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    CAF_PDM_InitField( &m_useShaders, "useShaders", true, "Use Shaders", "", "", "" );
+    m_useShaders.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     CAF_PDM_InitField( &showHud, "showHud", false, "Show 3D Information", "", "", "" );
     showHud.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     CAF_PDM_InitField( &m_appendClassNameToUiText, "appendClassNameToUiText", false, "Show Class Names", "", "", "" );
@@ -360,7 +360,7 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
     }
 
     if ( field == &octaveShowHeaderInfoWhenExecutingScripts || field == &autocomputeDepthRelatedProperties ||
-         field == &loadAndShowSoil || field == &useShaders || field == &showHud || field == &m_appendClassNameToUiText ||
+         field == &loadAndShowSoil || field == &m_useShaders || field == &showHud || field == &m_appendClassNameToUiText ||
          field == &m_appendFieldKeywordToToolTipText || field == &m_showTestToolbar ||
          field == &m_includeFractureDebugInfoFile || field == &showLasCurveWithoutTvdWarning ||
          field == &holoLensDisableCertificateVerification || field == &m_showProjectChangedDialog ||
@@ -413,7 +413,6 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         viewsGroup->add( &navigationPolicy );
         viewsGroup->add( &defaultScaleFactorZ );
         viewsGroup->add( &showLegendBackground );
-        viewsGroup->add( &useShaders );
         viewsGroup->add( &showHud );
 
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
@@ -491,6 +490,8 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         uiOrdering.add( &m_showTestToolbar );
         uiOrdering.add( &m_includeFractureDebugInfoFile );
         uiOrdering.add( &m_holoLensExportFolder );
+
+        uiOrdering.add( &m_useShaders );
     }
 
     uiOrdering.skipRemainingFields( true );
@@ -700,6 +701,19 @@ bool RiaPreferences::showProjectChangedDialog() const
 QString RiaPreferences::holoLensExportFolder() const
 {
     return m_holoLensExportFolder();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::useShaders() const
+{
+    if ( !RiaApplication::enableDevelopmentFeatures() )
+    {
+        return true;
+    }
+
+    return m_useShaders();
 }
 
 //--------------------------------------------------------------------------------------------------
