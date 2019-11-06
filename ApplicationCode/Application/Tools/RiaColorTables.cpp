@@ -458,7 +458,7 @@ const caf::ColorTable& RiaColorTables::timestepsPaletteColors()
 const caf::ColorTable& RiaColorTables::editableWellPathsPaletteColors()
 {
     static std::vector<cvf::Color3ub> colors{
-        cvf::Color3ub( 204, 0, 204 ), // Dark magenta
+        cvf::Color3ub( 201, 145, 201 ), // Gray pink
         cvf::Color3ub( 173, 23, 212 ), // Strong Purple
         cvf::Color3ub( 143, 46, 219 ), // Purple
         cvf::Color3ub( 102, 76, 230 ), // Gray Blue
