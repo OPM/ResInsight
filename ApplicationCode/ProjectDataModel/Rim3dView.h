@@ -196,6 +196,8 @@ protected:
     RiuViewer* nativeOrOverrideViewer() const;
     bool       isUsingOverrideViewer() const;
 
+    void hideComparisonViewField();
+
     // Abstract methods to implement in subclasses
 
     virtual void onCreateDisplayModel()                   = 0;

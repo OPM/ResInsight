@@ -101,6 +101,8 @@ Rim2dIntersectionView::Rim2dIntersectionView( void )
     nameConfig()->hideAggregationTypeField( true );
     nameConfig()->hidePropertyField( true );
     nameConfig()->hideSampleSpacingField( true );
+
+    hideComparisonViewField();
 }
 
 //--------------------------------------------------------------------------------------------------
