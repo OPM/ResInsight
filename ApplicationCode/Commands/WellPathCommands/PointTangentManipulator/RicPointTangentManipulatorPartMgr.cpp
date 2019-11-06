@@ -15,8 +15,6 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#define _USE_MATH_DEFINES
-
 #include "RicPointTangentManipulatorPartMgr.h"
 
 #include "RivPartPriority.h"
@@ -40,6 +38,10 @@
 #include "cvfGeometryUtils.h"
 
 #include <QDebug>
+
+#ifndef MY_PI
+#define MY_PI 3.14159265358f
+#endif
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -257,12 +259,12 @@ cvf::ref<cvf::DrawableGeo> RicPointTangentManipulatorPartMgr::createHorizontalPl
     cvf::ref<cvf::Vec3fArray> vertexArray         = new cvf::Vec3fArray( 16 );
     cvf::ref<cvf::Vec3fArray> triangleVertexArray = new cvf::Vec3fArray( 16 * 3 );
 
-    float cos_pi_12  = cos( 0.5 * M_PI / 12 );
-    float sin_pi_12  = sin( 0.5 * M_PI / 12 );
-    float cos_3pi_12 = cos( 3 * M_PI / 12 );
-    float sin_3pi_12 = sin( 3 * M_PI / 12 );
-    float cos_5pi_12 = cos( 5.5 * M_PI / 12 );
-    float sin_5pi_12 = sin( 5.5 * M_PI / 12 );
+    float cos_pi_12  = cos( 0.5 * MY_PI / 12 );
+    float sin_pi_12  = sin( 0.5 * MY_PI / 12 );
+    float cos_3pi_12 = cos( 3 * MY_PI / 12 );
+    float sin_3pi_12 = sin( 3 * MY_PI / 12 );
+    float cos_5pi_12 = cos( 5.5 * MY_PI / 12 );
+    float sin_5pi_12 = sin( 5.5 * MY_PI / 12 );
 
     vertexArray->set( 0, { 1.25, 0, 0 } );
     vertexArray->set( 1, { cos_pi_12, sin_pi_12, 0 } );
