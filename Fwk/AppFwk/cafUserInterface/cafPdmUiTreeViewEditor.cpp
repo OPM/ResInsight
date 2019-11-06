@@ -512,11 +512,12 @@ void PdmUiTreeViewItemDelegate::paint(QPainter *painter, const QStyleOptionViewI
 {
     QStyledItemDelegate::paint(painter, option, index);
 
-    // Save painter so we can restore it
-    painter->save();
 
     auto it = m_attributes.find(index);
     if (it == m_attributes.end()) return;
+
+    // Save painter so we can restore it
+    painter->save();
 
     const int insideTopBottomMargins  = 1;
     const int insideleftRightMargins  = 6;
