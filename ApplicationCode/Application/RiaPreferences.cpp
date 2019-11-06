@@ -179,8 +179,8 @@ RiaPreferences::RiaPreferences( void )
 
     CAF_PDM_InitField( &m_useShaders, "useShaders", true, "Use Shaders", "", "", "" );
     m_useShaders.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    CAF_PDM_InitField( &showHud, "showHud", false, "Show 3D Information", "", "", "" );
-    showHud.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    CAF_PDM_InitField( &m_showHud, "showHud", false, "Show 3D Information", "", "", "" );
+    m_showHud.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     CAF_PDM_InitField( &m_appendClassNameToUiText, "appendClassNameToUiText", false, "Show Class Names", "", "", "" );
     m_appendClassNameToUiText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     CAF_PDM_InitField( &m_appendFieldKeywordToToolTipText,
@@ -360,12 +360,12 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
     }
 
     if ( field == &octaveShowHeaderInfoWhenExecutingScripts || field == &autocomputeDepthRelatedProperties ||
-         field == &loadAndShowSoil || field == &m_useShaders || field == &showHud || field == &m_appendClassNameToUiText ||
-         field == &m_appendFieldKeywordToToolTipText || field == &m_showTestToolbar ||
-         field == &m_includeFractureDebugInfoFile || field == &showLasCurveWithoutTvdWarning ||
-         field == &holoLensDisableCertificateVerification || field == &m_showProjectChangedDialog ||
-         field == &m_searchPlotTemplateFoldersRecursively || field == &showLegendBackground ||
-         field == &m_showSummaryTimeAsLongString || field == &m_showViewIdInProjectTree )
+         field == &loadAndShowSoil || field == &m_useShaders || field == &m_showHud ||
+         field == &m_appendClassNameToUiText || field == &m_appendFieldKeywordToToolTipText ||
+         field == &m_showTestToolbar || field == &m_includeFractureDebugInfoFile ||
+         field == &showLasCurveWithoutTvdWarning || field == &holoLensDisableCertificateVerification ||
+         field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
+         field == &showLegendBackground || field == &m_showSummaryTimeAsLongString || field == &m_showViewIdInProjectTree )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -413,7 +413,6 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         viewsGroup->add( &navigationPolicy );
         viewsGroup->add( &defaultScaleFactorZ );
         viewsGroup->add( &showLegendBackground );
-        viewsGroup->add( &showHud );
 
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
         otherGroup->add( &ssihubAddress );
@@ -492,6 +491,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         uiOrdering.add( &m_holoLensExportFolder );
 
         uiOrdering.add( &m_useShaders );
+        uiOrdering.add( &m_showHud );
     }
 
     uiOrdering.skipRemainingFields( true );
@@ -714,6 +714,14 @@ bool RiaPreferences::useShaders() const
     }
 
     return m_useShaders();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::show3dInformation() const
+{
+    return RiaApplication::enableDevelopmentFeatures() && m_showHud();
 }
 
 //--------------------------------------------------------------------------------------------------

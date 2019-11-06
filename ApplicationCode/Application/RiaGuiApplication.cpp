@@ -558,14 +558,6 @@ RiaGuiApplication::RINavigationPolicy RiaGuiApplication::navigationPolicy() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaGuiApplication::showPerformanceInfo() const
-{
-    return m_preferences->showHud;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::initialize()
 {
     RiaApplication::initialize();
@@ -1529,7 +1521,7 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences* oldPreference
     if ( m_activeReservoirView && m_activeReservoirView->viewer() )
     {
         m_activeReservoirView->viewer()->updateNavigationPolicy();
-        m_activeReservoirView->viewer()->enablePerfInfoHud( m_preferences->showHud() );
+        m_activeReservoirView->viewer()->enablePerfInfoHud( m_preferences->show3dInformation() );
     }
 
     if ( useShaders() )

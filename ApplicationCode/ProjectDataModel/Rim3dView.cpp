@@ -265,7 +265,7 @@ void Rim3dView::updateViewWidgetAfterCreation()
     this->onResetLegendsInViewer();
 
     m_viewer->updateNavigationPolicy();
-    m_viewer->enablePerfInfoHud( RiaGuiApplication::instance()->showPerformanceInfo() );
+    m_viewer->enablePerfInfoHud( RiaGuiApplication::instance()->preferences()->show3dInformation() );
 
     m_viewer->mainCamera()->setViewMatrix( m_cameraPosition );
     m_viewer->setPointOfInterest( m_cameraPointOfInterest() );
