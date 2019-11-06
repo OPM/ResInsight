@@ -886,6 +886,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimEclipseCase*>( uiItem ) )
         {
+            menuBuilder << "RicAddEclipseInputPropertyFeature";
             menuBuilder << "RicReloadCaseFeature";
             createExecuteScriptForCasesFeatureMenu( menuBuilder );
             menuBuilder << "RicCloseSourSimDataFeature";

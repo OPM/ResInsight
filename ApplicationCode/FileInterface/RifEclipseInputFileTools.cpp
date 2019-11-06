@@ -306,7 +306,7 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
         cvf::Vec2f origin( mapAxes[2] - minPoint2f.x(), mapAxes[3] - minPoint2f.y() );
         cvf::Vec2f xPoint = cvf::Vec2f( mapAxes[4], mapAxes[5] ) - minPoint2f;
         cvf::Vec2f yPoint = cvf::Vec2f( mapAxes[0], mapAxes[1] ) - minPoint2f;
-        mapAxes           = {yPoint.x(), yPoint.y(), origin.x(), origin.y(), xPoint.x(), xPoint.y()};
+        mapAxes           = { yPoint.x(), yPoint.y(), origin.x(), origin.y(), xPoint.x(), xPoint.y() };
 
         mapAxisTrans.setTranslation( mapAxisTrans.translation() - minPoint3d );
     }
@@ -875,25 +875,31 @@ bool RifEclipseInputFileTools::readDataFromKeyword( ecl_kw_type*        eclipseK
     CVF_ASSERT( eclipseKeywordData );
     CVF_ASSERT( errMsg );
 
-    bool   mathingItemCount = false;
-    size_t keywordItemCount = 0u;
+    // Number of values to allocate in the result data structure. Must either be number of active cells or
+    // number of total cells in case to match the criteria in RigCaseCellResultsData::isUsingGlobalActiveIndex
+    size_t scalarValueCount = 0u;
+
     {
-        keywordItemCount = static_cast<size_t>( ecl_kw_get_size( eclipseKeywordData ) );
+        bool   mathingItemCount = false;
+        size_t keywordItemCount = static_cast<size_t>( ecl_kw_get_size( eclipseKeywordData ) );
         if ( keywordItemCount == caseData->mainGrid()->cellCount() )
         {
             mathingItemCount = true;
+
+            scalarValueCount = caseData->mainGrid()->globalCellArray().size();
         }
-        if ( keywordItemCount == caseData->activeCellInfo( RiaDefines::MATRIX_MODEL )->reservoirActiveCellCount() )
+        else if ( keywordItemCount == caseData->activeCellInfo( RiaDefines::MATRIX_MODEL )->reservoirActiveCellCount() )
         {
             mathingItemCount = true;
+            scalarValueCount = caseData->activeCellInfo( RiaDefines::MATRIX_MODEL )->reservoirActiveCellCount();
         }
-    }
 
-    if ( !mathingItemCount )
-    {
-        QString errFormat( "Size mismatch: Main Grid has %1 cells, keyword %2 has %3 cells" );
-        *errMsg = errFormat.arg( caseData->mainGrid()->cellCount() ).arg( resultName ).arg( keywordItemCount );
-        return false;
+        if ( !mathingItemCount )
+        {
+            QString errFormat( "Size mismatch: Main Grid has %1 cells, keyword %2 has %3 cells" );
+            *errMsg = errFormat.arg( caseData->mainGrid()->cellCount() ).arg( resultName ).arg( keywordItemCount );
+            return false;
+        }
     }
 
     RigEclipseResultAddress resAddr( RiaDefines::INPUT_PROPERTY, resultName );
@@ -902,7 +908,7 @@ bool RifEclipseInputFileTools::readDataFromKeyword( ecl_kw_type*        eclipseK
     auto newPropertyData = caseData->results( RiaDefines::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
 
     newPropertyData->push_back( std::vector<double>() );
-    newPropertyData->at( 0 ).resize( ecl_kw_get_size( eclipseKeywordData ), HUGE_VAL );
+    newPropertyData->at( 0 ).resize( scalarValueCount, HUGE_VAL );
 
     ecl_kw_get_data_as_double( eclipseKeywordData, newPropertyData->at( 0 ).data() );
 

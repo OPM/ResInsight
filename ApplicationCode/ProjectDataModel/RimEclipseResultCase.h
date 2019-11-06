@@ -26,11 +26,13 @@
 
 #include <cafPdmProxyValueField.h>
 
-class RifReaderInterface;
-class RigMainGrid;
-class RimFlowDiagSolution;
-class RigFlowDiagSolverInterface;
 class RifReaderEclipseRft;
+class RifReaderInterface;
+class RigFlowDiagSolverInterface;
+class RigMainGrid;
+class RimEclipseInputProperty;
+class RimEclipseInputPropertyCollection;
+class RimFlowDiagSolution;
 
 //==================================================================================================
 //
@@ -53,6 +55,7 @@ public:
     bool openEclipseGridFile() override;
 
     bool importGridAndResultMetaData( bool showTimeStepFilter );
+    bool importAsciiInputProperties( const QStringList& fileNames );
 
     void reloadEclipseGridFile() override;
     bool openAndReadActiveCellData( RigEclipseCaseData* mainEclipseCase );

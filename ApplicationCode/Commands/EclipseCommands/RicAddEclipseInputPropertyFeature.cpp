@@ -21,6 +21,7 @@
 
 #include "RimEclipseInputCase.h"
 #include "RimEclipseInputPropertyCollection.h"
+#include "RimEclipseResultCase.h"
 
 #include "RiaApplication.h"
 #include "Riu3DMainWindowTools.h"
@@ -39,7 +40,9 @@ CAF_CMD_SOURCE_INIT( RicAddEclipseInputPropertyFeature, "RicAddEclipseInputPrope
 //--------------------------------------------------------------------------------------------------
 bool RicAddEclipseInputPropertyFeature::isCommandEnabled()
 {
-    return selectedInputPropertyCollection() != nullptr;
+    return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseInputPropertyCollection>() ||
+           caf::SelectionManager::instance()->selectedItemOfType<RimEclipseInputCase>() ||
+           caf::SelectionManager::instance()->selectedItemOfType<RimEclipseResultCase>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,17 +50,29 @@ bool RicAddEclipseInputPropertyFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAddEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
 {
-    RimEclipseInputPropertyCollection* inputPropertyCollection = selectedInputPropertyCollection();
-    if ( !inputPropertyCollection ) return;
+    RimEclipseCase* eclipseCase = nullptr;
 
-    QString casePath;
+    RimEclipseInputPropertyCollection* inputPropertyCollection =
+        caf::SelectionManager::instance()->selectedItemOfType<RimEclipseInputPropertyCollection>();
+    if ( !inputPropertyCollection )
     {
-        RimEclipseInputCase* inputReservoir = nullptr;
-        inputPropertyCollection->firstAncestorOrThisOfTypeAsserted( inputReservoir );
-
-        QFileInfo fi( inputReservoir->gridFileName() );
-        casePath = fi.absolutePath();
+        // No property collection selected: triggered from RimEclipseInputCase/RimEclipseResultCase.
+        eclipseCase = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCase>();
+        if ( eclipseCase )
+        {
+            inputPropertyCollection = eclipseCase->inputPropertyCollection();
+        }
     }
+    else
+    {
+        // Triggered from collection: get eclipse case ancestor
+        inputPropertyCollection->firstAncestorOrThisOfTypeAsserted( eclipseCase );
+    }
+
+    if ( !inputPropertyCollection || !eclipseCase ) return;
+
+    QFileInfo fi( eclipseCase->gridFileName() );
+    QString   casePath = fi.absolutePath();
 
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectoryWithFallback( "INPUT_FILES", casePath );
@@ -71,8 +86,9 @@ void RicAddEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
     // Remember the directory to next time
     defaultDir = QFileInfo( fileNames.last() ).absolutePath();
     app->setLastUsedDialogDirectory( "INPUT_FILES", defaultDir );
-
-    addEclipseInputProperty( fileNames, inputPropertyCollection );
+    eclipseCase->importAsciiInputProperties( fileNames );
+    inputPropertyCollection->updateConnectedEditors();
+    eclipseCase->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,27 +97,5 @@ void RicAddEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
 void RicAddEclipseInputPropertyFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Add Input Property" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimEclipseInputPropertyCollection* RicAddEclipseInputPropertyFeature::selectedInputPropertyCollection() const
-{
-    return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseInputPropertyCollection>();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicAddEclipseInputPropertyFeature::addEclipseInputProperty( const QStringList&                 fileNames,
-                                                                 RimEclipseInputPropertyCollection* inputPropertyCollection )
-{
-    CVF_ASSERT( inputPropertyCollection );
-
-    RimEclipseInputCase* inputReservoir = nullptr;
-    inputPropertyCollection->firstAncestorOrThisOfTypeAsserted( inputReservoir );
-    inputReservoir->openDataFileSet( fileNames );
-
-    inputPropertyCollection->updateConnectedEditors();
+    actionToSetup->setIcon( QIcon( ":/EclipseInput48x48.png" ) );
 }

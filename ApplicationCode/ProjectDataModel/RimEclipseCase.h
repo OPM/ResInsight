@@ -37,17 +37,18 @@
 
 class QString;
 
-class RigEclipseCaseData;
 class RigCaseCellResultsData;
+class RigEclipseCaseData;
 class RigGridBase;
 class RigMainGrid;
+class RigVirtualPerforationTransmissibilities;
 class RimCaseCollection;
-class RimIdenticalGridCaseGroup;
-class RimReservoirCellResultsStorage;
 class RimEclipseContourMapView;
 class RimEclipseContourMapViewCollection;
+class RimEclipseInputPropertyCollection;
 class RimEclipseView;
-class RigVirtualPerforationTransmissibilities;
+class RimIdenticalGridCaseGroup;
+class RimReservoirCellResultsStorage;
 
 //==================================================================================================
 //
@@ -71,6 +72,7 @@ public:
     bool         ensureReservoirCaseIsOpen();
     bool         openReserviorCase();
     virtual bool openEclipseGridFile() = 0;
+    virtual bool importAsciiInputProperties( const QStringList& fileNames );
 
     RigEclipseCaseData*       eclipseCaseData();
     const RigEclipseCaseData* eclipseCaseData() const;
@@ -101,6 +103,7 @@ public:
 
     RimCaseCollection*                  parentCaseCollection();
     RimEclipseContourMapViewCollection* contourMapCollection();
+    RimEclipseInputPropertyCollection*  inputPropertyCollection();
 
     QStringList            timeStepStrings() const override;
     QString                timeStepName( int frameIdx ) const override;
@@ -137,8 +140,9 @@ private:
     std::vector<Rim3dView*> allSpecialViews() const override;
 
 protected:
-    caf::PdmField<bool> m_flipXAxis;
-    caf::PdmField<bool> m_flipYAxis;
+    caf::PdmField<bool>                                    m_flipXAxis;
+    caf::PdmField<bool>                                    m_flipYAxis;
+    caf::PdmChildField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
 
 private:
     caf::PdmField<QString> m_filesContainingFaultsSemColSeparated;

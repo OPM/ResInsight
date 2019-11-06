@@ -25,7 +25,7 @@
 #include "RicEclipseCellResultToFileImpl.h"
 #include "RicExportFeatureImpl.h"
 
-#include "RimEclipseInputCase.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimExportInputPropertySettings.h"
@@ -81,23 +81,23 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
     exportSettings.eclipseKeyword = inputProperty->eclipseKeyword;
 
     // Find input reservoir for this property
-    RimEclipseInputCase* inputReservoir = nullptr;
+    RimEclipseCase* eclipseCase = nullptr;
     {
         RimEclipseInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimEclipseInputPropertyCollection*>(
             inputProperty->parentField()->ownerObject() );
         if ( !inputPropertyCollection ) return;
 
-        inputReservoir = dynamic_cast<RimEclipseInputCase*>( inputPropertyCollection->parentField()->ownerObject() );
+        eclipseCase = dynamic_cast<RimEclipseCase*>( inputPropertyCollection->parentField()->ownerObject() );
     }
 
-    if ( !inputReservoir ) return;
+    if ( !eclipseCase ) return;
 
     {
         RiaApplication* app           = RiaApplication::instance();
         QString         projectFolder = app->currentProjectPath();
         if ( projectFolder.isEmpty() )
         {
-            projectFolder = inputReservoir->locationOnDisc();
+            projectFolder = eclipseCase->locationOnDisc();
         }
 
         QString outputFileName = projectFolder + "/" + inputProperty->eclipseKeyword;
@@ -117,7 +117,7 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
 
         QString errorMsg;
         bool    isOk = RicEclipseCellResultToFileImpl::writePropertyToTextFile( exportSettings.fileName,
-                                                                             inputReservoir->eclipseCaseData(),
+                                                                             eclipseCase->eclipseCaseData(),
                                                                              0,
                                                                              inputProperty->resultName,
                                                                              exportSettings.eclipseKeyword,
