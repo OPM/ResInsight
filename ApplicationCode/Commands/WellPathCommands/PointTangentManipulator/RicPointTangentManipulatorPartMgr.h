@@ -25,6 +25,8 @@
 #include "cvfMatrix4.h"
 #include "cvfVector3.h"
 
+#include <map>
+
 namespace cvf
 {
 class ModelBasicList;
@@ -49,7 +51,8 @@ public:
         HORIZONTAL_PLANE,
         VERTICAL_AXIS,
         AZIMUTH,
-        INCLINATION
+        INCLINATION,
+        NONE
     };
 
 public:
@@ -69,12 +72,14 @@ public:
     void appendPartsToModel( cvf::ModelBasicList* model );
 
 private:
-    void createAllHandleParts();
-    void clearAllGeometryAndParts();
+    void createGeometryOnly();
     void recreateAllGeometryAndParts();
 
-    void createHorizontalPlaneHandle();
-    void createVerticalAxisHandle();
+    void                       createHorizontalPlaneHandle();
+    cvf::ref<cvf::DrawableGeo> createHorizontalPlaneGeo();
+
+    void                       createVerticalAxisHandle();
+    cvf::ref<cvf::DrawableGeo> createVerticalAxisGeo();
 
     void addHandlePart( cvf::DrawableGeo* geo, const cvf::Color4f& color, HandleType handleId, const cvf::String& partName );
 
@@ -89,14 +94,16 @@ private:
     static cvf::ref<cvf::Part> createPart( cvf::DrawableGeo* geo, const cvf::Color4f& color, const cvf::String& partName );
 
 private:
-    size_t                     m_currentHandleIndex;
-    std::vector<HandleType>    m_handleIds; // These arrays have the same length
-    cvf::Collection<cvf::Part> m_handleParts; // These arrays have the same length
-    cvf::Collection<cvf::Part> m_activeDragModeParts;
-    cvf::Vec3d                 m_origin;
-    cvf::Vec3d                 m_tangent;
-    double                     m_handleSize;
-    cvf::Vec3d                 m_initialPickPoint;
-    cvf::Vec3d                 m_tangentOnStartManipulation;
-    cvf::Vec3d                 m_originOnStartManipulation;
+    std::map<HandleType, cvf::ref<cvf::Part>> m_handleParts; // These arrays have the same length
+    cvf::Collection<cvf::Part>                m_activeDragModeParts;
+
+    cvf::Vec3d m_origin;
+    cvf::Vec3d m_tangent;
+    double     m_handleSize;
+    bool       m_isGeometryUpdateNeeded;
+
+    HandleType m_activeHandle;
+    cvf::Vec3d m_initialPickPoint;
+    cvf::Vec3d m_tangentOnStartManipulation;
+    cvf::Vec3d m_originOnStartManipulation;
 };

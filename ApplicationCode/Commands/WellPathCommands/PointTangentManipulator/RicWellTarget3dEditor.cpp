@@ -74,10 +74,12 @@ void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
     RimWellPathTarget* target         = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
     RiuViewer*         ownerRiuViewer = dynamic_cast<RiuViewer*>( ownerViewer() );
+    Rim3dView*         view           = mainOrComparisonView();
 
-    if ( !target || !target->isEnabled() )
+    if ( !target || !target->isEnabled() || !view )
     {
-        m_cvfModel->removeAllParts();
+        if ( m_cvfModel.notNull() ) m_cvfModel->removeAllParts();
+
         return;
     }
 
@@ -92,27 +94,26 @@ void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
     if ( m_manipulator.isNull() )
     {
         m_manipulator = new RicPointTangentManipulator( ownerRiuViewer );
+
         QObject::connect( m_manipulator,
                           SIGNAL( notifyUpdate( const cvf::Vec3d&, const cvf::Vec3d& ) ),
                           this,
                           SLOT( slotUpdated( const cvf::Vec3d&, const cvf::Vec3d& ) ) );
+
         QObject::connect( m_manipulator, SIGNAL( notifySelected() ), this, SLOT( slotSelectedIn3D() ) );
         QObject::connect( m_manipulator, SIGNAL( notifyDragFinished() ), this, SLOT( slotDragFinished() ) );
+
         m_cvfModel = new cvf::ModelBasicList;
-        ownerRiuViewer->addStaticModelOnce( m_cvfModel.p() );
+        ownerRiuViewer->addStaticModelOnce( m_cvfModel.p(), isInComparisonView() );
     }
 
-    cvf::ref<caf::DisplayCoordTransform> dispXf;
-    double                               handleSize = 1.0;
-    {
-        dispXf          = ownerRiuViewer->ownerReservoirView()->displayCoordTransform();
-        Rim3dView* view = dynamic_cast<Rim3dView*>( ownerRiuViewer->ownerReservoirView() );
-        handleSize      = 0.7 * view->ownerCase()->characteristicCellSize();
-    }
+    cvf::ref<caf::DisplayCoordTransform> dispXf     = view->displayCoordTransform();
+    double                               handleSize = 0.7 * view->ownerCase()->characteristicCellSize();
 
     m_manipulator->setOrigin( dispXf->transformToDisplayCoord( target->targetPointXYZ() + geomDef->referencePointXyz() ) );
     m_manipulator->setTangent( target->tangent() );
     m_manipulator->setHandleSize( handleSize );
+
     m_cvfModel->removeAllParts();
     m_manipulator->appendPartsToModel( m_cvfModel.p() );
 
@@ -140,17 +141,14 @@ void RicWellTarget3dEditor::cleanupBeforeSettingPdmObject()
 void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Vec3d& tangent )
 {
     RimWellPathTarget* target = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
+    Rim3dView*         view   = mainOrComparisonView();
 
-    if ( !target )
+    if ( !target || !view )
     {
         return;
     }
 
-    cvf::ref<caf::DisplayCoordTransform> dispXf;
-    {
-        RiuViewer* viewer = dynamic_cast<RiuViewer*>( ownerViewer() );
-        dispXf            = viewer->ownerReservoirView()->displayCoordTransform();
-    }
+    cvf::ref<caf::DisplayCoordTransform> dispXf = view->displayCoordTransform();
 
     RimWellPathGeometryDef* geomDef;
     target->firstAncestorOrThisOfTypeAsserted( geomDef );
@@ -164,6 +162,9 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
     target->enableFullUpdate( true );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicWellTarget3dEditor::slotSelectedIn3D()
 {
     RimWellPathTarget* target = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );

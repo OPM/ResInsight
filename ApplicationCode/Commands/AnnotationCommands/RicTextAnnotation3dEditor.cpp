@@ -70,10 +70,12 @@ void RicTextAnnotation3dEditor::configureAndUpdateUi( const QString& uiConfigNam
 {
     RimTextAnnotation* textAnnot      = dynamic_cast<RimTextAnnotation*>( this->pdmObject() );
     RiuViewer*         ownerRiuViewer = dynamic_cast<RiuViewer*>( ownerViewer() );
+    Rim3dView*         view           = mainOrComparisonView();
 
-    if ( !textAnnot || !textAnnot->isActive() )
+    if ( !textAnnot || !textAnnot->isActive() || !view )
     {
-        m_cvfModel->removeAllParts();
+        if ( m_cvfModel.notNull() ) m_cvfModel->removeAllParts();
+
         return;
     }
 
@@ -94,16 +96,12 @@ void RicTextAnnotation3dEditor::configureAndUpdateUi( const QString& uiConfigNam
                           SLOT( slotAnchorUpdated( const cvf::Vec3d&, const cvf::Vec3d& ) ) );
 
         m_cvfModel = new cvf::ModelBasicList;
-        ownerRiuViewer->addStaticModelOnce( m_cvfModel.p() );
+        ownerRiuViewer->addStaticModelOnce( m_cvfModel.p(), isInComparisonView() );
     }
 
-    cvf::ref<caf::DisplayCoordTransform> dispXf;
-    double                               handleSize = 1.0;
-    {
-        dispXf          = ownerRiuViewer->ownerReservoirView()->displayCoordTransform();
-        Rim3dView* view = dynamic_cast<Rim3dView*>( ownerRiuViewer->ownerReservoirView() );
-        handleSize      = 0.7 * view->ownerCase()->characteristicCellSize();
-    }
+    cvf::ref<caf::DisplayCoordTransform> dispXf     = view->displayCoordTransform();
+    double                               handleSize = 0.7 * view->ownerCase()->characteristicCellSize();
+
     cvf::Vec3d labelPos( textAnnot->m_labelPointXyd() );
     labelPos.z() *= -1.0;
     m_labelManipulator->setOrigin( dispXf->transformToDisplayCoord( labelPos ) );
@@ -145,6 +143,7 @@ void RicTextAnnotation3dEditor::slotLabelUpdated( const cvf::Vec3d& origin, cons
     {
         return;
     }
+
     updatePoint( textAnnot->m_labelPointXyd.uiCapability(), origin );
 }
 
@@ -159,6 +158,7 @@ void RicTextAnnotation3dEditor::slotAnchorUpdated( const cvf::Vec3d& origin, con
     {
         return;
     }
+
     updatePoint( textAnnot->m_anchorPointXyd.uiCapability(), origin );
 }
 
@@ -167,11 +167,11 @@ void RicTextAnnotation3dEditor::slotAnchorUpdated( const cvf::Vec3d& origin, con
 //--------------------------------------------------------------------------------------------------
 void RicTextAnnotation3dEditor::updatePoint( caf::PdmUiFieldHandle* uiField, const cvf::Vec3d& newPos )
 {
-    cvf::ref<caf::DisplayCoordTransform> dispXf;
-    {
-        RiuViewer* viewer = dynamic_cast<RiuViewer*>( ownerViewer() );
-        dispXf            = viewer->ownerReservoirView()->displayCoordTransform();
-    }
+    Rim3dView* view = mainOrComparisonView();
+
+    if ( !view ) return;
+
+    cvf::ref<caf::DisplayCoordTransform> dispXf = view->displayCoordTransform();
 
     cvf::Vec3d domainPos   = dispXf->transformToDomainCoord( newPos );
     domainPos.z()          = -domainPos.z();

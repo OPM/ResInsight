@@ -31,6 +31,7 @@
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfRay.h"
+#include "cvfRayIntersectSpec.h"
 
 #include <QDebug>
 #include <QMouseEvent>
@@ -104,6 +105,9 @@ bool RicPointTangentManipulator::eventFilter( QObject* obj, QEvent* inputEvent )
 
                 if ( m_partManager->isManipulatorActive() )
                 {
+                    m_isDraggingInComparisonView = m_viewer->isMousePosWithinComparisonView( mouseEvent->x(),
+                                                                                             mouseEvent->y() );
+
                     emit notifySelected();
 
                     return true;
@@ -117,17 +121,14 @@ bool RicPointTangentManipulator::eventFilter( QObject* obj, QEvent* inputEvent )
         {
             QMouseEvent* mouseEvent = static_cast<QMouseEvent*>( inputEvent );
 
-            // qDebug() << "Inside mouse move";
-            // qDebug() << mouseEvent->pos();
+            cvf::ref<cvf::RayIntersectSpec> rayIs =
+                m_viewer->rayIntersectSpecFromWindowCoordinates( mouseEvent->pos().x(),
+                                                                 mouseEvent->pos().y(),
+                                                                 m_isDraggingInComparisonView );
 
-            int translatedMousePosX = mouseEvent->pos().x();
-            int translatedMousePosY = m_viewer->height() - mouseEvent->pos().y();
-
-            cvf::ref<cvf::Ray> ray = m_viewer->mainCamera()->rayFromWindowCoordinates( translatedMousePosX,
-                                                                                       translatedMousePosY );
-            if ( !ray.isNull() )
+            if ( !rayIs.isNull() && rayIs->ray() )
             {
-                m_partManager->updateManipulatorFromRay( ray.p() );
+                m_partManager->updateManipulatorFromRay( rayIs->ray() );
 
                 cvf::Vec3d origin;
                 cvf::Vec3d tangent;

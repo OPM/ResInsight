@@ -109,13 +109,28 @@ void PdmUiSelection3dEditorVisualizer::onSelectionManagerSelectionChanged( const
         if (!editor3dTypeName.isEmpty())
         {
             PdmObjectHandle* itemObject = dynamic_cast<PdmObjectHandle*>(item);
-            if (itemObject)
+            if ( itemObject )
             {
-                PdmUi3dObjectEditorHandle* editor3d = caf::Factory<PdmUi3dObjectEditorHandle, QString>::instance()->create(editor3dTypeName);
-                editor3d->setViewer(m_ownerViewer);
-                editor3d->setPdmObject(itemObject);
-                m_active3DEditors.emplace_back(editor3d);
-                editor3d->updateUi();
+                // Editor in main view
+                {
+                    PdmUi3dObjectEditorHandle* editor3d = caf::Factory<PdmUi3dObjectEditorHandle, QString>::instance()->create(editor3dTypeName);
+                    editor3d->setViewer(m_ownerViewer, false);
+                    editor3d->setPdmObject(itemObject);
+                    m_active3DEditors.emplace_back(editor3d);
+                    editor3d->updateUi();
+                }
+                
+                QVariant isComparisonActive = m_ownerViewer->property("cafViewer_IsComparisonViewActive");
+
+                // Editor in comparison view
+                if (!isComparisonActive.isNull() && isComparisonActive.isValid() && isComparisonActive.toBool())
+                {
+                    PdmUi3dObjectEditorHandle* editor3d = caf::Factory<PdmUi3dObjectEditorHandle, QString>::instance()->create(editor3dTypeName);
+                    editor3d->setViewer(m_ownerViewer, true);
+                    editor3d->setPdmObject(itemObject);
+                    m_active3DEditors.emplace_back(editor3d);
+                    editor3d->updateUi();
+                }
             }
         }
     }

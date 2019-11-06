@@ -68,6 +68,7 @@ protected:
 
 private:
     QPointer<caf::Viewer> m_viewer;
+    bool                  m_isDraggingInComparisonView = false;
 
     cvf::ref<RicPointTangentManipulatorPartMgr> m_partManager;
 };

@@ -97,6 +97,7 @@ public:
 
     void                    setComparisonViewVisibleNormalizedRect( const cvf::Rectf& visibleRect );
     cvf::Rectf              comparisonViewVisibleNormalizedRect() const;
+    bool                    isComparisonViewActive() const;
 
     // Set the main scene : the scene active when the animation is not active. (Stopped)
     void                    setMainScene(cvf::Scene* scene, bool isForComparisonView = false);
@@ -151,8 +152,10 @@ public:
     // Test whether it is any point in doing navigation etc.
     bool                    canRender() const;
 
+    cvf::ref<cvf::RayIntersectSpec> rayIntersectSpecFromWindowCoordinates(int winPosX, int winPosY, bool isForComparisonView);
     cvf::ref<cvf::RayIntersectSpec> rayIntersectSpecFromWindowCoordinates(int winPosX, int winPosY);
-    bool                    rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pickedPoints, cvf::Vec3d* rayGlobalOrigin = nullptr) ;
+    bool                            rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pickedPoints, cvf::Vec3d* rayGlobalOrigin = nullptr) ;
+
     bool                    isMousePosWithinComparisonView(int winPosX, int winPosY);
 
     cvf::OverlayItem*       overlayItem(int winPosX, int winPosY);
@@ -263,6 +266,8 @@ private:
     cvf::Collection<cvf::Scene>         m_comparisonFrameScenes;
     cvf::Collection<cvf::Model>         m_comparisonStaticModels;
     bool                                m_isComparisonFollowingAnimation;
+    bool                                m_isComparisonViewActiveFlag;
+    void                                updateComparisonViewActiveFlag();
 
     cvf::Vec3d                          m_comparisonViewOffset;
     cvf::ref<cvf::RenderingScissor>     m_comparisonRenderingScissor;

@@ -133,7 +133,8 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     m_parallelProjectionLightDirection(0, 0, -1), // Light directly from behind
     m_comparisonViewOffset(0, 0, 0),
     m_comparisonWindowNormalizedRect(0.5f, 0.0f, 0.5f, 1.0f),
-    m_isComparisonFollowingAnimation(true)
+    m_isComparisonFollowingAnimation(true),
+    m_isComparisonViewActiveFlag(false)
 {
     #if QT_VERSION >= 0x050000
     m_layoutWidget = new QWidget(parent);
@@ -354,6 +355,14 @@ cvf::Rectf caf::Viewer::comparisonViewVisibleNormalizedRect() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool caf::Viewer::isComparisonViewActive() const
+{
+    return m_isComparisonViewActiveFlag;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Set the scene to be rendered when the animation is inactive (Stopped)
 //--------------------------------------------------------------------------------------------------
 void  caf::Viewer::setMainScene(cvf::Scene* scene, bool isForComparisonView )
@@ -368,6 +377,7 @@ void  caf::Viewer::setMainScene(cvf::Scene* scene, bool isForComparisonView )
     {
         m_comparisonMainScene = scene;
         m_comparisonMainRendering->setScene(scene);
+        updateComparisonViewActiveFlag();
     }
 }
 
@@ -648,11 +658,19 @@ cvf::ref<cvf::RayIntersectSpec> caf::Viewer::rayIntersectSpecFromWindowCoordinat
 {
     bool mousePosIsWithinComparisonView = isMousePosWithinComparisonView(winPosX, winPosY);
 
+    return this->rayIntersectSpecFromWindowCoordinates(winPosX, winPosY, mousePosIsWithinComparisonView);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::RayIntersectSpec> caf::Viewer::rayIntersectSpecFromWindowCoordinates(int winPosX, int winPosY, bool isForComparisonView)
+{
     int translatedMousePosX = winPosX;
     int translatedMousePosY = height() - winPosY;
 
-    cvf::Rendering* renderingToInvestigate = mousePosIsWithinComparisonView ? m_comparisonMainRendering.p(): m_mainRendering.p();
-
+    cvf::Rendering* renderingToInvestigate = isForComparisonView ? m_comparisonMainRendering.p(): m_mainRendering.p();
+    
     return renderingToInvestigate->rayIntersectSpecFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
 }
 
@@ -952,6 +970,7 @@ void caf::Viewer::removeAllFrames(bool isForComparisonView)
     {
         m_comparisonFrameScenes.clear();
         m_comparisonMainRendering->setScene(m_comparisonMainScene.p());
+        updateComparisonViewActiveFlag();
     }
 
     m_animationControl->setNumFrames(static_cast<int>(frameCount()));
@@ -981,6 +1000,15 @@ bool caf::Viewer::isAnimationActive()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void caf::Viewer::updateComparisonViewActiveFlag()
+{
+    m_isComparisonViewActiveFlag = m_comparisonMainRendering->scene() != nullptr;
+    this->setProperty("cafViewer_IsComparisonViewActive", QVariant(m_isComparisonViewActiveFlag));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void caf::Viewer::setCurrentComparisonFrame(int frameIndex)
 {
     if (m_frameScenes.size() == 0) return;
@@ -995,10 +1023,12 @@ void caf::Viewer::setCurrentComparisonFrame(int frameIndex)
     if ( m_comparisonFrameScenes.size() > clampedFrameIndex &&  m_comparisonFrameScenes.at(clampedFrameIndex) != nullptr )
     {
         m_comparisonMainRendering->setScene(m_comparisonFrameScenes.at(clampedFrameIndex));
+        updateComparisonViewActiveFlag();
     }
     else
     {
         m_comparisonMainRendering->setScene(nullptr);
+        updateComparisonViewActiveFlag();
     }
 
     update();
@@ -1040,16 +1070,21 @@ void caf::Viewer::slotSetCurrentFrame(int frameIndex)
         if ( m_comparisonFrameScenes.size() > clampedFrameIndex &&  m_comparisonFrameScenes.at(clampedFrameIndex) != nullptr )
         {
             m_comparisonMainRendering->setScene(m_comparisonFrameScenes.at(clampedFrameIndex));
+            updateComparisonViewActiveFlag();
         }
         else
         {
             m_comparisonMainRendering->setScene(nullptr);
+            updateComparisonViewActiveFlag();
         }
     }
 
     update();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void caf::Viewer::releaseOGlResourcesForCurrentFrame()
 {
     if (isAnimationActive())

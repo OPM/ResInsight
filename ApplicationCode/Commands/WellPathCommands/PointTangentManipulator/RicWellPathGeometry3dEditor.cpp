@@ -70,7 +70,7 @@ void RicWellPathGeometry3dEditor::configureAndUpdateUi( const QString& uiConfigN
     for ( auto target : targets )
     {
         auto targetEditor = new RicWellTarget3dEditor;
-        targetEditor->setViewer( ownerViewer() );
+        targetEditor->setViewer( ownerViewer(), isInComparisonView() );
         targetEditor->setPdmObject( target );
         m_targetEditors.push_back( targetEditor );
         targetEditor->updateUi();
