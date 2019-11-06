@@ -35,10 +35,15 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"
 
+#include <QStringList>
+
 #include <map>
 
 class RifReaderSettings;
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 class RiaPreferences : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -76,6 +81,8 @@ public:
     bool    includeFractureDebugInfoFile() const;
     bool    showProjectChangedDialog() const;
     QString holoLensExportFolder() const;
+    bool    useShaders() const;
+    bool    show3dInformation() const;
 
     const QString& dateFormat() const;
     const QString& timeFormat() const;
@@ -124,9 +131,6 @@ public: // Pdm Fields
 
     caf::PdmField<bool> showLegendBackground;
 
-    caf::PdmField<bool> useShaders;
-    caf::PdmField<bool> showHud;
-
     caf::PdmField<QString> lastUsedProjectFileName;
 
     caf::PdmField<bool> autocomputeDepthRelatedProperties;
@@ -162,9 +166,12 @@ private:
 
 private:
     caf::PdmChildField<RifReaderSettings*> m_readerSettings;
-    caf::PdmField<bool>                    m_appendClassNameToUiText;
-    caf::PdmField<bool>                    m_appendFieldKeywordToToolTipText;
-    caf::PdmField<bool>                    m_showViewIdInProjectTree;
+
+    caf::PdmField<bool> m_appendClassNameToUiText;
+    caf::PdmField<bool> m_appendFieldKeywordToToolTipText;
+    caf::PdmField<bool> m_showViewIdInProjectTree;
+    caf::PdmField<bool> m_useShaders;
+    caf::PdmField<bool> m_showHud;
 
     caf::PdmField<bool> m_showProjectChangedDialog;
 

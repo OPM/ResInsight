@@ -100,7 +100,6 @@ public:
                                 std::vector<QString> gridFileNames,
                                 const QString&       snapshotFolderName );
     bool useShaders() const;
-    bool showPerformanceInfo() const;
 
     RINavigationPolicy navigationPolicy() const;
 

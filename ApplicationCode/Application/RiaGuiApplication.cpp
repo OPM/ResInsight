@@ -539,7 +539,7 @@ RimViewWindow* RiaGuiApplication::activePlotWindow() const
 //--------------------------------------------------------------------------------------------------
 bool RiaGuiApplication::useShaders() const
 {
-    if ( !m_preferences->useShaders ) return false;
+    if ( !m_preferences->useShaders() ) return false;
 
     bool isShadersSupported = caf::Viewer::isShadersSupported();
     if ( !isShadersSupported ) return false;
@@ -553,14 +553,6 @@ bool RiaGuiApplication::useShaders() const
 RiaGuiApplication::RINavigationPolicy RiaGuiApplication::navigationPolicy() const
 {
     return m_preferences->navigationPolicy();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaGuiApplication::showPerformanceInfo() const
-{
-    return m_preferences->showHud;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1529,7 +1521,7 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences* oldPreference
     if ( m_activeReservoirView && m_activeReservoirView->viewer() )
     {
         m_activeReservoirView->viewer()->updateNavigationPolicy();
-        m_activeReservoirView->viewer()->enablePerfInfoHud( m_preferences->showHud() );
+        m_activeReservoirView->viewer()->enablePerfInfoHud( m_preferences->show3dInformation() );
     }
 
     if ( useShaders() )
