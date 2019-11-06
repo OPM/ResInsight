@@ -1828,14 +1828,6 @@ void RimEclipseView::onResetLegendsInViewer()
     this->cellEdgeResult()->legendConfig()->recreateLegend();
 
     nativeOrOverrideViewer()->removeAllColorLegends();
-
-    if ( cellResultNormalLegendConfig )
-    {
-        nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( cellResultNormalLegendConfig->titledOverlayFrame() );
-    }
-
-    nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner(
-        this->cellEdgeResult()->legendConfig()->titledOverlayFrame() );
 }
 
 //--------------------------------------------------------------------------------------------------

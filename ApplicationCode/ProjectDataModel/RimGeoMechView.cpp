@@ -424,7 +424,6 @@ void RimGeoMechView::onResetLegendsInViewer()
     this->cellResult()->legendConfig->recreateLegend();
 
     nativeOrOverrideViewer()->removeAllColorLegends();
-    nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( this->cellResult()->legendConfig->titledOverlayFrame() );
 }
 
 //--------------------------------------------------------------------------------------------------
