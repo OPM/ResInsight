@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "RigWbsParameter.h"
 #include "RimWellLogCurve.h"
 
 #include "cafPdmChildField.h"
@@ -84,6 +85,12 @@ public:
     void setBranchIndex( int index );
 
     static void findAndLoadWbsParametersFromLasFiles( const RimWellPath*          wellPath,
+                                                      RigGeoMechWellLogExtractor* geomExtractor );
+
+    static void findAndLoadUcsFromLasFiles( const RimWellPath* wellPath, RigGeoMechWellLogExtractor* geomExtractor );
+
+    static void findAndLoadPorePressuresFromLasFiles( const RimWellPath*          wellPath,
+                                                      const RigWbsParameter&      parameter,
                                                       RigGeoMechWellLogExtractor* geomExtractor );
 
     void setAutoNameComponents( bool addCaseName, bool addProperty, bool addWellname, bool addTimeStep, bool addDate );

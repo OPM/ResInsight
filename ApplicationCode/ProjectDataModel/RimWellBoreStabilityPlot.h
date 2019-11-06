@@ -20,6 +20,7 @@
 #include "RimWellLogPlot.h"
 
 #include "RigGeoMechWellLogExtractor.h"
+#include "RigWbsParameter.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
@@ -34,18 +35,18 @@ class RimWellBoreStabilityPlot : public RimWellLogPlot
 {
     CAF_PDM_HEADER_INIT;
 
-public:
-    typedef caf::AppEnum<RigGeoMechWellLogExtractor::WbsParameterSource> ParameterSourceEnum;
+    using ParameterSource     = RigGeoMechWellLogExtractor::WbsParameterSource;
+    using ParameterSourceEnum = RigGeoMechWellLogExtractor::WbsParameterSourceEnum;
 
 public:
     RimWellBoreStabilityPlot();
 
-    RigGeoMechWellLogExtractor::WbsParameterSource porePressureSource() const;
-    RigGeoMechWellLogExtractor::WbsParameterSource poissonRatioSource() const;
-    RigGeoMechWellLogExtractor::WbsParameterSource ucsSource() const;
+    void applyWbsParametersToExtractor( RigGeoMechWellLogExtractor* extractor );
 
-    double userDefinedPoissonRatio() const;
-    double userDefinedUcs() const;
+    RimWellBoreStabilityPlot::ParameterSource parameterSource( const RigWbsParameter& parameter ) const;
+    double                                    userDefinedValue( const RigWbsParameter& parameter ) const;
+
+    void setParameterSource( const RigWbsParameter& parameter, RimWellBoreStabilityPlot::ParameterSource );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -57,20 +58,36 @@ protected:
                            const QVariant&            oldValue,
                            const QVariant&            newValue ) override;
 
+    void assignValidSource( caf::PdmField<ParameterSourceEnum>* parameterSourceField,
+                            const std::vector<ParameterSource>& validSources );
     void onLoadDataAndUpdate() override;
 
     bool hasLasFileWithChannel( const QString& channel ) const;
     bool hasElementPropertyEntry( const RigFemResultAddress& resAddr ) const;
 
-    std::set<RigGeoMechWellLogExtractor::WbsParameterSource> supportedSourcesForPorePressure() const;
-    std::set<RigGeoMechWellLogExtractor::WbsParameterSource> supportedSourcesForPoisson() const;
-    std::set<RigGeoMechWellLogExtractor::WbsParameterSource> supportedSourcesForUcs() const;
+    caf::PdmField<ParameterSourceEnum>* sourceField( const RigWbsParameter& parameter ) const;
+
+    std::vector<ParameterSource> supportedSources( const RigWbsParameter& parameter ) const;
 
 private:
     caf::PdmField<ParameterSourceEnum> m_porePressureSource;
+    caf::PdmField<ParameterSourceEnum> m_porePressureShaleSource;
     caf::PdmField<ParameterSourceEnum> m_poissonRatioSource;
     caf::PdmField<ParameterSourceEnum> m_ucsSource;
+    caf::PdmField<ParameterSourceEnum> m_OBG0Source;
+    caf::PdmField<ParameterSourceEnum> m_DFSource;
+    caf::PdmField<ParameterSourceEnum> m_K0FGSource;
+    caf::PdmField<ParameterSourceEnum> m_K0SHSource;
+    caf::PdmField<ParameterSourceEnum> m_FGShaleSource;
 
+    caf::PdmField<double> m_userDefinedPPShale;
     caf::PdmField<double> m_userDefinedPoissionRatio;
     caf::PdmField<double> m_userDefinedUcs;
+    caf::PdmField<double> m_userDefinedDF;
+    caf::PdmField<double> m_userDefinedK0FG;
+    caf::PdmField<double> m_userDefinedK0SH;
+    caf::PdmField<double> m_FGShaleMultiplier;
+
+    std::map<RigWbsParameter, caf::PdmField<ParameterSourceEnum>*> m_parameterSourceFields;
+    std::map<RigWbsParameter, caf::PdmField<double>*>              m_userDefinedValueFields;
 };
