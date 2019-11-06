@@ -82,6 +82,6 @@ void RicRemoveComparison3dViewFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicRemoveComparison3dViewFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Remove Comparison" );
+    actionToSetup->setText( "Stop Comparison" );
     actionToSetup->setIcon( QIcon( ":/RemoveComparisonView16x16.png" ) );
 }
