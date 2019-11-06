@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+#define _USE_MATH_DEFINES
 
 #include "RicPointTangentManipulatorPartMgr.h"
 
@@ -240,7 +241,7 @@ void RicPointTangentManipulatorPartMgr::createHorizontalPlaneHandle()
     ref<cvf::DrawableGeo> geo = createHorizontalPlaneGeo();
 
     HandleType   handleId = HORIZONTAL_PLANE;
-    cvf::Color4f color    = cvf::Color4f( 1.0f, 0.0f, 1.0f, 0.5f );
+    cvf::Color4f color    = cvf::Color4f( 1.0f, 0.0f, 1.0f, 0.7f );
     cvf::String  partName( "PointTangentManipulator Horizontal Plane Handle" );
 
     addHandlePart( geo.p(), color, handleId, partName );
@@ -253,23 +254,59 @@ cvf::ref<cvf::DrawableGeo> RicPointTangentManipulatorPartMgr::createHorizontalPl
 {
     using namespace cvf;
 
-    cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray( 6 );
+    cvf::ref<cvf::Vec3fArray> vertexArray         = new cvf::Vec3fArray( 16 );
+    cvf::ref<cvf::Vec3fArray> triangleVertexArray = new cvf::Vec3fArray( 16 * 3 );
 
-    vertexArray->set( 0, { -1, -1, 0 } );
-    vertexArray->set( 1, { 1, -1, 0 } );
-    vertexArray->set( 2, { 1, 1, 0 } );
-    vertexArray->set( 3, { -1, -1, 0 } );
-    vertexArray->set( 4, { 1, 1, 0 } );
-    vertexArray->set( 5, { -1, 1, 0 } );
+    float cos_pi_12  = cos( 0.5 * M_PI / 12 );
+    float sin_pi_12  = sin( 0.5 * M_PI / 12 );
+    float cos_3pi_12 = cos( 3 * M_PI / 12 );
+    float sin_3pi_12 = sin( 3 * M_PI / 12 );
+    float cos_5pi_12 = cos( 5.5 * M_PI / 12 );
+    float sin_5pi_12 = sin( 5.5 * M_PI / 12 );
+
+    vertexArray->set( 0, { 1.25, 0, 0 } );
+    vertexArray->set( 1, { cos_pi_12, sin_pi_12, 0 } );
+    vertexArray->set( 2, { cos_3pi_12, sin_3pi_12, 0 } );
+    vertexArray->set( 3, { cos_5pi_12, sin_5pi_12, 0 } );
+    vertexArray->set( 4, { 0, 1.25, 0 } );
+    vertexArray->set( 5, { -cos_5pi_12, sin_5pi_12, 0 } );
+    vertexArray->set( 6, { -cos_3pi_12, sin_3pi_12, 0 } );
+    vertexArray->set( 7, { -cos_pi_12, sin_pi_12, 0 } );
+    vertexArray->set( 8, { -1.25, 0, 0 } );
+    vertexArray->set( 9, { -cos_pi_12, -sin_pi_12, 0 } );
+    vertexArray->set( 10, { -cos_3pi_12, -sin_3pi_12, 0 } );
+    vertexArray->set( 11, { -cos_5pi_12, -sin_5pi_12, 0 } );
+    vertexArray->set( 12, { 0, -1.25, 0 } );
+    vertexArray->set( 13, { cos_5pi_12, -sin_5pi_12, 0 } );
+    vertexArray->set( 14, { cos_3pi_12, -sin_3pi_12, 0 } );
+    vertexArray->set( 15, { cos_pi_12, -sin_pi_12, 0 } );
 
     Vec3f origin( m_origin );
     for ( cvf::Vec3f& vx : *vertexArray )
     {
-        vx *= 0.5 * m_handleSize;
+        vx *= 0.4 * m_handleSize;
         vx += origin;
     }
 
-    return createTriangelDrawableGeo( vertexArray.p() );
+    unsigned tVxIdx = 0;
+    for ( unsigned vxIdx = 0; vxIdx < vertexArray->size(); ++vxIdx )
+    {
+        cvf::Vec3f vx = ( *vertexArray )[vxIdx];
+
+        unsigned idx2 = vxIdx + 1;
+        if ( idx2 >= vertexArray->size() ) idx2 = 0;
+
+        cvf::Vec3f vx2 = ( *vertexArray )[idx2];
+
+        triangleVertexArray->set( tVxIdx, origin );
+        tVxIdx++;
+        triangleVertexArray->set( tVxIdx, vx );
+        tVxIdx++;
+        triangleVertexArray->set( tVxIdx, vx2 );
+        tVxIdx++;
+    }
+
+    return createTriangelDrawableGeo( triangleVertexArray.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -281,7 +318,7 @@ void RicPointTangentManipulatorPartMgr::createVerticalAxisHandle()
     cvf::ref<cvf::DrawableGeo> geo = createVerticalAxisGeo();
 
     HandleType   handleId = VERTICAL_AXIS;
-    cvf::Color4f color    = cvf::Color4f( 0.0f, 0.2f, 0.8f, 0.5f );
+    cvf::Color4f color    = cvf::Color4f( 0.0f, 0.7f, 0.8f, 0.7f );
     cvf::String  partName( "PointTangentManipulator Vertical Axis Handle" );
 
     addHandlePart( geo.p(), color, handleId, partName );
@@ -295,17 +332,31 @@ cvf::ref<cvf::DrawableGeo> RicPointTangentManipulatorPartMgr::createVerticalAxis
     using namespace cvf;
 
     cvf::ref<cvf::GeometryBuilderTriangles> geomBuilder = new cvf::GeometryBuilderTriangles;
-    cvf::GeometryUtils::createBox( { -0.3f, -0.3f, -1.0f }, { 0.3f, 0.3f, 1.0f }, geomBuilder.p() );
+
+    cvf::GeometryUtils::createObliqueCylinder( 0.3f, 0.05f, 1.0f, 0.0f, 0.0, 12, true, true, true, 1, geomBuilder.p() );
+
+    float s = 0.5 * m_handleSize;
+    Vec3f origin( m_origin );
+
+    geomBuilder->transformVertexRange( 0, geomBuilder->vertexCount(), cvf::Mat4f::fromScaling( { s, s, s } ) );
+    geomBuilder->transformVertexRange( 0, geomBuilder->vertexCount(), cvf::Mat4f::fromTranslation( origin ) );
+
+    unsigned vxArraySizeFirstCylinder = geomBuilder->vertexCount();
+
+    cvf::GeometryUtils::createObliqueCylinder( 0.05f, 0.3f, 1.0f, 0.0f, 0.0, 12, true, true, true, 1, geomBuilder.p() );
+
+    geomBuilder->transformVertexRange( vxArraySizeFirstCylinder,
+                                       geomBuilder->vertexCount(),
+                                       cvf::Mat4f::fromTranslation( { 0.0f, 0.0f, -1.0f } ) );
+    geomBuilder->transformVertexRange( vxArraySizeFirstCylinder,
+                                       geomBuilder->vertexCount(),
+                                       cvf::Mat4f::fromScaling( { s, s, s } ) );
+    geomBuilder->transformVertexRange( vxArraySizeFirstCylinder,
+                                       geomBuilder->vertexCount(),
+                                       cvf::Mat4f::fromTranslation( origin ) );
 
     cvf::ref<cvf::Vec3fArray> vertexArray = geomBuilder->vertices();
     cvf::ref<cvf::UIntArray>  indexArray  = geomBuilder->triangles();
-
-    Vec3f origin( m_origin );
-    for ( cvf::Vec3f& vx : *vertexArray )
-    {
-        vx *= 0.5 * m_handleSize;
-        vx += origin;
-    }
 
     return createIndexedTriangelDrawableGeo( vertexArray.p(), indexArray.p() );
 }
