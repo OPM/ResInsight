@@ -66,7 +66,7 @@ RimGridPlotWindow::~RimGridPlotWindow()
     removeMdiWindowFromMdiArea();
     m_plots.deleteAllChildObjects();
 
-    deleteViewWidget();
+    cleanupBeforeClose();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -389,13 +389,7 @@ QWidget* RimGridPlotWindow::createViewWidget( QWidget* mainWindowParent )
 //--------------------------------------------------------------------------------------------------
 void RimGridPlotWindow::deleteViewWidget()
 {
-    detachAllCurves();
-
-    if ( m_viewer )
-    {
-        m_viewer->deleteLater();
-        m_viewer = nullptr;
-    }
+    cleanupBeforeClose();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -621,6 +615,24 @@ void RimGridPlotWindow::detachAllCurves()
     for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
     {
         plotVector[tIdx]->detachAllCurves();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridPlotWindow::cleanupBeforeClose()
+{
+    auto plotVector = plots();
+    for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
+    {
+        plotVector[tIdx]->detachAllCurves();
+    }
+
+    if ( m_viewer )
+    {
+        m_viewer->deleteLater();
+        m_viewer = nullptr;
     }
 }
 

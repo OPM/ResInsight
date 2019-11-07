@@ -140,7 +140,11 @@ RimWellAllocationPlot::~RimWellAllocationPlot()
     delete m_totalWellAllocationPlot();
     delete m_tofAccumulatedPhaseFractionsPlot();
 
-    deleteViewWidget();
+    if ( m_wellAllocationPlotWidget )
+    {
+        m_wellAllocationPlotWidget->deleteLater();
+        m_wellAllocationPlotWidget = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

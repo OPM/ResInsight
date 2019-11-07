@@ -41,8 +41,6 @@ RifEclipseRestartFilesetAccess::RifEclipseRestartFilesetAccess()
 //--------------------------------------------------------------------------------------------------
 RifEclipseRestartFilesetAccess::~RifEclipseRestartFilesetAccess()
 {
-    close();
-
     for ( size_t i = 0; i < m_ecl_files.size(); i++ )
     {
         if ( m_ecl_files[i] )

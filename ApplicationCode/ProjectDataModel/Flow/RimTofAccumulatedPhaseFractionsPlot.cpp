@@ -69,7 +69,11 @@ RimTofAccumulatedPhaseFractionsPlot::~RimTofAccumulatedPhaseFractionsPlot()
 {
     removeMdiWindowFromMdiArea();
 
-    deleteViewWidget();
+    if ( m_tofAccumulatedPhaseFractionsPlotWidget )
+    {
+        m_tofAccumulatedPhaseFractionsPlotWidget->deleteLater();
+        m_tofAccumulatedPhaseFractionsPlotWidget = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

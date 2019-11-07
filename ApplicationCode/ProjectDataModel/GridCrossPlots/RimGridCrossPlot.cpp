@@ -87,7 +87,7 @@ RimGridCrossPlot::RimGridCrossPlot()
 RimGridCrossPlot::~RimGridCrossPlot()
 {
     removeMdiWindowFromMdiArea();
-    deleteViewWidget();
+    cleanupBeforeClose();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -481,12 +481,7 @@ QWidget* RimGridCrossPlot::createViewWidget( QWidget* mainWindowParent )
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::deleteViewWidget()
 {
-    detachAllCurves();
-    if ( m_plotWidget )
-    {
-        m_plotWidget->deleteLater();
-        m_plotWidget = nullptr;
-    }
+    cleanupBeforeClose();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1113,6 +1108,23 @@ std::set<RimPlotAxisPropertiesInterface*> RimGridCrossPlot::allPlotAxes() const
 void RimGridCrossPlot::updatePlotTitle()
 {
     updateCurveNamesAndPlotTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::cleanupBeforeClose()
+{
+    for ( auto dataSet : m_crossPlotDataSets() )
+    {
+        dataSet->detachAllCurves();
+    }
+
+    if ( m_plotWidget )
+    {
+        m_plotWidget->deleteLater();
+        m_plotWidget = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

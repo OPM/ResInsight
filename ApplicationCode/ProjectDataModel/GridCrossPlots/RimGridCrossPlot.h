@@ -154,6 +154,9 @@ protected:
     void updatePlotTitle() override;
 
 private:
+    void cleanupBeforeClose();
+
+private:
     caf::PdmField<bool>                             m_showInfoBox;
     caf::PdmField<bool>                             m_showLegend_OBSOLETE;
     caf::PdmChildField<RimGridCrossPlotNameConfig*> m_nameConfig;
