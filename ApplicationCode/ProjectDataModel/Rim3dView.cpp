@@ -164,7 +164,8 @@ Rim3dView::~Rim3dView( void )
     }
     removeMdiWindowFromMdiArea();
 
-    deleteViewWidget();
+    delete m_viewer;
+    m_viewer = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

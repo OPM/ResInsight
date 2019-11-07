@@ -118,6 +118,8 @@ protected:
 private:
     void detachAllCurves() override;
 
+    void cleanupBeforeClose();
+
     static RimPlotInterface*       toPlotInterfaceAsserted( caf::PdmObject* pdmObject );
     static const RimPlotInterface* toPlotInterfaceAsserted( const caf::PdmObject* pdmObject );
     static caf::PdmObject*         toPdmObjectAsserted( RimPlotInterface* plotInterface );

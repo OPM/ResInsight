@@ -57,7 +57,11 @@ RimTotalWellAllocationPlot::~RimTotalWellAllocationPlot()
 {
     removeMdiWindowFromMdiArea();
 
-    deleteViewWidget();
+    if ( m_wellTotalAllocationPlotWidget )
+    {
+        m_wellTotalAllocationPlotWidget->deleteLater();
+        m_wellTotalAllocationPlotWidget = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

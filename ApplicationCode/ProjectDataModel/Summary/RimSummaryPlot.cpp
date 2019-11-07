@@ -226,7 +226,7 @@ RimSummaryPlot::~RimSummaryPlot()
 {
     removeMdiWindowFromMdiArea();
 
-    deleteViewWidget();
+    cleanupBeforeClose();
 
     m_summaryCurves_OBSOLETE.deleteAllChildObjects();
     m_curveFilters_OBSOLETE.deleteAllChildObjects();
@@ -1511,6 +1511,35 @@ std::set<RimPlotAxisPropertiesInterface*> RimSummaryPlot::allPlotAxes() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::cleanupBeforeClose()
+{
+    if ( m_summaryCurveCollection )
+    {
+        m_summaryCurveCollection->detachQwtCurves();
+    }
+
+    m_ensembleCurveSetCollection->detachQwtCurves();
+
+    for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
+    {
+        curve->detachQwtCurve();
+    }
+
+    for ( RimAsciiDataCurve* curve : m_asciiDataCurves )
+    {
+        curve->detachQwtCurve();
+    }
+
+    if ( m_plotWidget )
+    {
+        m_plotWidget->deleteLater();
+        m_plotWidget = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::addOrUpdateEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet )
 {
     if ( m_plotWidget )
@@ -1736,13 +1765,7 @@ QWidget* RimSummaryPlot::createViewWidget( QWidget* mainWindowParent )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteViewWidget()
 {
-    detachAllCurves();
-
-    if ( m_plotWidget )
-    {
-        m_plotWidget->deleteLater();
-        m_plotWidget = nullptr;
-    }
+    cleanupBeforeClose();
 }
 
 //--------------------------------------------------------------------------------------------------

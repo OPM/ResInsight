@@ -26,8 +26,10 @@ class RigFemPart;
 class RigFemPartGrid : public cvf::StructGridInterface
 {
 public:
-    explicit RigFemPartGrid( const RigFemPart* femPart );
+    RigFemPartGrid();
     ~RigFemPartGrid() override;
+
+    void setFemPart( const RigFemPart* femPart );
 
     bool   ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const override;
     size_t cellIndexFromIJK( size_t i, size_t j, size_t k ) const override;

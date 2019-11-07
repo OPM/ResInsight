@@ -116,7 +116,11 @@ RimFlowCharacteristicsPlot::~RimFlowCharacteristicsPlot()
 {
     removeMdiWindowFromMdiArea();
 
-    deleteViewWidget();
+    if ( m_flowCharPlotWidget )
+    {
+        m_flowCharPlotWidget->deleteLater();
+        m_flowCharPlotWidget = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

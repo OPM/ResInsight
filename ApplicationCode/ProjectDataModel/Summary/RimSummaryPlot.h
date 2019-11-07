@@ -224,6 +224,8 @@ private:
 
     std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
 
+    void cleanupBeforeClose();
+
 private:
     caf::PdmField<bool> m_normalizeCurveYValues;
 
