@@ -188,7 +188,8 @@ void RivGridBoxGenerator::setGridBoxDomainCoordBoundingBox( const cvf::BoundingB
     expandedBB.add( min );
     expandedBB.add( max );
 
-    if ( m_domainCoordsBoundingBox.min() != expandedBB.min() || m_domainCoordsBoundingBox.max() != expandedBB.max() )
+    if ( !m_domainCoordsBoundingBox.isValid() || m_domainCoordsBoundingBox.min() != expandedBB.min() ||
+         m_domainCoordsBoundingBox.max() != expandedBB.max() )
     {
         m_needsRegeneration = true;
     }
