@@ -161,7 +161,6 @@ void RimFormationNames::readFormationNamesFile( QString* errorMessage )
     }
     else
     {
-        CAF_ASSERT( fileInfo.suffix() == "lyr" );
         readLyrFormationNameFile( stream, errorMessage );
     }
 }
