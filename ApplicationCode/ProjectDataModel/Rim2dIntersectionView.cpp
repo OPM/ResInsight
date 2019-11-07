@@ -679,7 +679,7 @@ void Rim2dIntersectionView::onUpdateLegends()
 
     if ( legend )
     {
-        nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( legend );
+        nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( legend, isUsingOverrideViewer() );
     }
 }
 

@@ -1232,8 +1232,9 @@ void RimEclipseView::onUpdateLegends()
 
             this->cellEdgeResult()->legendConfig()->setTitle( QString( "Edge Results: \n" ) +
                                                               this->cellEdgeResult()->resultVariableUiShortName() );
-            nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner(
-                this->cellEdgeResult()->legendConfig()->titledOverlayFrame() );
+            nativeOrOverrideViewer()
+                ->addColorLegendToBottomLeftCorner( this->cellEdgeResult()->legendConfig()->titledOverlayFrame(),
+                                                    isUsingOverrideViewer() );
         }
         else
         {
@@ -1266,7 +1267,8 @@ void RimEclipseView::onUpdateLegends()
 
                 if ( fractureColors()->isChecked() && stimPlanLegend->titledOverlayFrame() )
                 {
-                    nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( stimPlanLegend->titledOverlayFrame() );
+                    nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( stimPlanLegend->titledOverlayFrame(),
+                                                                                isUsingOverrideViewer() );
                 }
             }
         }
@@ -1277,7 +1279,8 @@ void RimEclipseView::onUpdateLegends()
         updateVirtualConnectionLegendRanges();
 
         RimRegularLegendConfig* virtLegend = m_virtualPerforationResult->legendConfig();
-        nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( virtLegend->titledOverlayFrame() );
+        nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( virtLegend->titledOverlayFrame(),
+                                                                    isUsingOverrideViewer() );
     }
 }
 
@@ -1307,7 +1310,8 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView( QString              
         }
 
         resultColors->legendConfig()->setTitle( title );
-        nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( resultColors->legendConfig()->titledOverlayFrame() );
+        nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( resultColors->legendConfig()->titledOverlayFrame(),
+                                                                    isUsingOverrideViewer() );
     }
 
     size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
@@ -1317,8 +1321,9 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView( QString              
              resultColors->ternaryLegendConfig()->titledOverlayFrame() )
         {
             resultColors->ternaryLegendConfig()->setTitle( legendLabel );
-            nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner(
-                resultColors->ternaryLegendConfig()->titledOverlayFrame() );
+            nativeOrOverrideViewer()
+                ->addColorLegendToBottomLeftCorner( resultColors->ternaryLegendConfig()->titledOverlayFrame(),
+                                                    isUsingOverrideViewer() );
         }
     }
 }

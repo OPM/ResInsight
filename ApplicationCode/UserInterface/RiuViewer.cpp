@@ -582,14 +582,19 @@ void RiuViewer::removeAllColorLegends()
     {
         overlayItemsRendering()->removeOverlayItem( m_visibleLegends[i].p() );
     }
+    for ( auto legend : m_visibleComparisonLegends )
+    {
+        overlayItemsRendering()->removeOverlayItem( legend.p() );
+    }
 
     m_visibleLegends.clear();
+    m_visibleComparisonLegends.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* addedLegend )
+void RiuViewer::addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* addedLegend, bool isForComparisonView )
 {
     if ( !addedLegend || m_visibleLegends.contains( addedLegend ) ) return;
 
@@ -612,7 +617,15 @@ void RiuViewer::addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* added
     addedLegend->setFont( app->defaultSceneFont() );
 
     overlayRendering->addOverlayItem( addedLegend );
-    m_visibleLegends.push_back( addedLegend );
+
+    if ( isForComparisonView )
+    {
+        m_visibleComparisonLegends.push_back( addedLegend );
+    }
+    else
+    {
+        m_visibleLegends.push_back( addedLegend );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -622,6 +635,7 @@ void RiuViewer::removeColorLegend( caf::TitledOverlayFrame* legend )
 {
     overlayItemsRendering()->removeOverlayItem( legend );
     m_visibleLegends.erase( legend );
+    m_visibleComparisonLegends.erase( legend );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -636,6 +650,7 @@ void RiuViewer::updateLegendLayout()
     int         edgeAxisBorderWidth  = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderWidth() : 0;
     int         edgeAxisBorderHeight = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderHeight() : 0;
 
+    // Place the main view legends from left to right
     {
         int xPos = border + edgeAxisBorderWidth;
         int yPos = border + edgeAxisBorderHeight;
@@ -701,6 +716,90 @@ void RiuViewer::updateLegendLayout()
         }
     }
 
+    // Place the comparison view legends from right to left
+    {
+        int viewPortWidth = static_cast<int>( m_mainCamera->viewport()->width() );
+
+        int xPos      = viewPortWidth - border + edgeAxisBorderWidth;
+        int yPosStart = border + edgeAxisBorderHeight + m_versionInfoLabel->sizeHint().height() + 5;
+        int yPos      = yPosStart;
+
+        std::vector<caf::TitledOverlayFrame*> standardHeightLegends;
+
+        // Place the legends needing the full height, and sort out the standard height legends
+
+        for ( cvf::ref<caf::TitledOverlayFrame> legend : m_visibleComparisonLegends )
+        {
+            cvf::Vec2ui prefSize = legend->preferredSize();
+            if ( prefSize.y() > maxFreeLegendHeight )
+            {
+                int legendWidth = prefSize.x();
+                legend->setLayoutFixedPosition( cvf::Vec2i( xPos - legendWidth, yPos ) );
+                legend->setRenderSize(
+                    cvf::Vec2ui( legendWidth, viewPortHeight - yPosStart - border - edgeAxisBorderHeight ) );
+                xPos -= legendWidth + border;
+            }
+            else
+            {
+                standardHeightLegends.push_back( legend.p() );
+            }
+        }
+
+        // Place the rest of the legends in columns that fits within the screen height
+
+        std::vector<caf::TitledOverlayFrame*> columnLegends;
+
+        int maxColumnWidht = 0;
+
+        for ( caf::TitledOverlayFrame* legend : standardHeightLegends )
+        {
+            cvf::Vec2ui prefSize = legend->preferredSize();
+
+            // Check if we need a new column
+            if ( ( yPos + (int)prefSize.y() + border ) > viewPortHeight )
+            {
+                // Finish the previous column setting same width to all legends and correcting the xposition accordingly
+                for ( caf::TitledOverlayFrame* columnLegend : columnLegends )
+                {
+                    columnLegend->setRenderSize( cvf::Vec2ui( maxColumnWidht, columnLegend->renderSize().y() ) );
+                    columnLegend->setLayoutFixedPosition(
+                        cvf::Vec2i( xPos - maxColumnWidht, columnLegend->fixedPosition().y() ) );
+                }
+
+                // Increment to make ready for a new column
+                xPos -= border + maxColumnWidht;
+                yPos = yPosStart;
+
+                maxColumnWidht = 0;
+                columnLegends.clear();
+            }
+
+            legend->setLayoutFixedPosition( cvf::Vec2i( xPos - prefSize.x(), yPos ) );
+            legend->setRenderSize( cvf::Vec2ui( prefSize.x(), prefSize.y() ) );
+            columnLegends.push_back( legend );
+
+            yPos += legend->renderSize().y() + border;
+            maxColumnWidht = std::max( maxColumnWidht, (int)prefSize.x() );
+        }
+
+        // Finish the last column setting same width to all legends and correcting the xposition accordingly
+
+        for ( caf::TitledOverlayFrame* columnLegend : columnLegends )
+        {
+            columnLegend->setRenderSize( cvf::Vec2ui( maxColumnWidht, columnLegend->renderSize().y() ) );
+            columnLegend->setLayoutFixedPosition( cvf::Vec2i( xPos - maxColumnWidht, columnLegend->fixedPosition().y() ) );
+        }
+
+        xPos -= maxColumnWidht;
+
+        // Set axis cross position at the bottom besides the last column
+        {
+            m_axisCross->setLayoutFixedPosition(
+                cvf::Vec2i( xPos + border - m_axisCross->sizeHint().x(), edgeAxisBorderHeight ) );
+        }
+    }
+
+    // Set the position of the scale bar used in contour map views
     {
         int  margin           = 5;
         auto scaleLegendSize  = m_scaleLegend->renderSize();
@@ -1016,6 +1115,18 @@ cvf::OverlayItem* RiuViewer::pickFixedPositionedLegend( int winPosX, int winPosY
         }
     }
 
+    for ( auto overlayItem : m_visibleComparisonLegends )
+    {
+        if ( overlayItem->layoutScheme() == cvf::OverlayItem::FIXED_POSITION &&
+             overlayItem->pick( translatedMousePosX,
+                                translatedMousePosY,
+                                overlayItem->fixedPosition(),
+                                overlayItem->renderSize() ) )
+        {
+            return overlayItem.p();
+        }
+    }
+
     return nullptr;
 }
 
@@ -1164,6 +1275,11 @@ void RiuViewer::updateTextAndTickMarkColorForOverlayItems()
     for ( size_t i = 0; i < m_visibleLegends.size(); i++ )
     {
         updateLegendTextAndTickMarkColor( m_visibleLegends.at( i ) );
+    }
+
+    for ( auto legend : m_visibleComparisonLegends )
+    {
+        updateLegendTextAndTickMarkColor( legend.p() );
     }
 
     updateAxisCrossTextColor();

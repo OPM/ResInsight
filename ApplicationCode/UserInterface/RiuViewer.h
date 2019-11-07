@@ -110,7 +110,7 @@ public:
     void showAnimationProgress( bool enable );
 
     void removeAllColorLegends();
-    void addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* legend );
+    void addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* legend, bool isForComparisonView );
     void removeColorLegend( caf::TitledOverlayFrame* legend );
 
     void enableNavigationRotation( bool disable );
@@ -185,6 +185,7 @@ private:
     cvf::ref<cvf::OverlayAxisCross>          m_axisCross;
     bool                                     m_showAxisCross;
     cvf::Collection<caf::TitledOverlayFrame> m_visibleLegends;
+    cvf::Collection<caf::TitledOverlayFrame> m_visibleComparisonLegends;
 
     caf::PdmInterfacePointer<RiuViewerToViewInterface> m_rimView;
     QPoint                                             m_lastMousePressPosition;
