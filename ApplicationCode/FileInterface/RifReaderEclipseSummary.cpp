@@ -173,6 +173,8 @@ std::vector<RifRestartFileInfo> RifReaderEclipseSummary::getRestartFiles( const 
     m_warnings.clear();
     *hasWarnings = false;
 
+    std::set<QString> restartFilesOpened;
+
     RifRestartFileInfo currFile;
     currFile.fileName = headerFileName;
     while ( !currFile.fileName.isEmpty() )
@@ -216,6 +218,12 @@ std::vector<RifRestartFileInfo> RifReaderEclipseSummary::getRestartFiles( const 
                 *hasWarnings = true;
                 break;
             }
+            else if ( restartFilesOpened.count( currFile.fileName ) != 0u )
+            {
+                m_warnings.push_back( "RifReaderEclipseSummary: Same restart file being opened multiple times" );
+                *hasWarnings = true;
+            }
+            restartFilesOpened.insert( currFile.fileName );
         }
 
         if ( !currFile.fileName.isEmpty() ) restartFiles.push_back( currFile );
