@@ -170,13 +170,13 @@ QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefin
                                 .arg( eclipseInputFilePattern )
                                 .arg( eclipseSummaryFilePattern );
     }
-    if ( fileTypes & ECLIPSE_GRID_FILE )
-    {
-        filePatternTexts += QString( "Eclipse Grid Files (%1)" ).arg( eclipseGridFilePattern );
-    }
     if ( fileTypes & ECLIPSE_EGRID_FILE )
     {
         filePatternTexts += QString( "Eclipse EGrid Files (%1)" ).arg( eclipseEGridFilePattern );
+    }
+    if ( fileTypes & ECLIPSE_GRID_FILE )
+    {
+        filePatternTexts += QString( "Eclipse Grid Files (%1)" ).arg( eclipseGridFilePattern );
     }
     if ( fileTypes & ECLIPSE_INPUT_FILE )
     {

@@ -889,6 +889,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicAddEclipseInputPropertyFeature";
             menuBuilder << "RicReloadCaseFeature";
+            menuBuilder << "RicReplaceCaseFeature";
             createExecuteScriptForCasesFeatureMenu( menuBuilder );
             menuBuilder << "RicCloseSourSimDataFeature";
         }

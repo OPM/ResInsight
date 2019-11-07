@@ -66,6 +66,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicCloseSourSimDataFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicCommandFeature.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RicReloadCaseFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicReplaceCaseFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicReloadSummaryCaseFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicReloadSummaryCasesFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicReplaceSummaryCaseFeature.h
@@ -150,6 +151,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicDeleteSummaryCaseCollectionFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicCloseSourSimDataFeature.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RicReloadCaseFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicReplaceCaseFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicReloadSummaryCaseFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicReplaceSummaryCaseFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicFlyToObjectFeature.cpp
