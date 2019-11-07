@@ -2240,7 +2240,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                 caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
 
                 std::vector<QString> sourceNames =
-                    { "", "PP=Grid", "PP=Las-File", "PP=Element Property Table", "", "PP=Hydrostatic" };
+                    {"", "PP=Grid", "PP=Las-File", "PP=Element Property Table", "", "PP=Hydrostatic"};
                 curveData.data = ppValues;
 
                 std::vector<QString>                   sourceNamesToPlot;
@@ -2264,12 +2264,12 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                 caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
 
                 std::vector<QString> sourceNames =
-                    { "",
-                      "",
-                      "Poisson=Las-File",
-                      "Poisson=Element Property Table",
-                      QString( "Poisson=%1" ).arg( wellBoreStabilityPlot->userDefinedPoissonRatio() ),
-                      "" };
+                    {"",
+                     "",
+                     "Poisson=Las-File",
+                     "Poisson=Element Property Table",
+                     QString( "Poisson=%1" ).arg( wellBoreStabilityPlot->userDefinedPoissonRatio() ),
+                     ""};
                 curveData.data = poissonValues;
 
                 std::vector<QString>                   sourceNamesToPlot;
@@ -2292,12 +2292,12 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
             {
                 caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
 
-                std::vector<QString> sourceNames = { "",
-                                                     "",
-                                                     "UCS=Las-File",
-                                                     "UCS=Element Property Table",
-                                                     QString( "UCS=%1" ).arg( wellBoreStabilityPlot->userDefinedUcs() ),
-                                                     "" };
+                std::vector<QString> sourceNames = {"",
+                                                    "",
+                                                    "UCS=Las-File",
+                                                    "UCS=Element Property Table",
+                                                    QString( "UCS=%1" ).arg( wellBoreStabilityPlot->userDefinedUcs() ),
+                                                    ""};
 
                 curveData.data = ucsValues;
 
@@ -2367,16 +2367,16 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
             }
         }
 
-        const std::map<RiaDefines::WellPathComponentType, int> sortIndices = { { RiaDefines::WELL_PATH, 0 },
-                                                                               { RiaDefines::CASING, 1 },
-                                                                               { RiaDefines::LINER, 2 },
-                                                                               { RiaDefines::PERFORATION_INTERVAL, 3 },
-                                                                               { RiaDefines::FISHBONES, 4 },
-                                                                               { RiaDefines::FRACTURE, 5 },
-                                                                               { RiaDefines::PACKER, 6 },
-                                                                               { RiaDefines::ICD, 7 },
-                                                                               { RiaDefines::AICD, 8 },
-                                                                               { RiaDefines::ICV, 9 } };
+        const std::map<RiaDefines::WellPathComponentType, int> sortIndices = {{RiaDefines::WELL_PATH, 0},
+                                                                              {RiaDefines::CASING, 1},
+                                                                              {RiaDefines::LINER, 2},
+                                                                              {RiaDefines::PERFORATION_INTERVAL, 3},
+                                                                              {RiaDefines::FISHBONES, 4},
+                                                                              {RiaDefines::FRACTURE, 5},
+                                                                              {RiaDefines::PACKER, 6},
+                                                                              {RiaDefines::ICD, 7},
+                                                                              {RiaDefines::AICD, 8},
+                                                                              {RiaDefines::ICV, 9}};
 
         std::stable_sort( allWellPathComponents.begin(),
                           allWellPathComponents.end(),
