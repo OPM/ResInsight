@@ -150,8 +150,6 @@ void RimGridPlotWindow::removePlot( RimPlotInterface* plot )
 void RimGridPlotWindow::movePlotsToThis( const std::vector<RimPlotInterface*>& plotsToMove,
                                          RimPlotInterface*                     plotToInsertAfter )
 {
-    std::set<caf::PdmObject*> objectsToUpdate;
-
     for ( size_t tIdx = 0; tIdx < plotsToMove.size(); tIdx++ )
     {
         RimPlotInterface* plot      = plotsToMove[tIdx];
