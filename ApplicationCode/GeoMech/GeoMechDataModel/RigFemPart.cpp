@@ -72,7 +72,8 @@ const RigFemPartGrid* RigFemPart::getOrCreateStructGrid() const
 {
     if ( m_structGrid.isNull() )
     {
-        m_structGrid = new RigFemPartGrid( this );
+        m_structGrid = new RigFemPartGrid();
+        m_structGrid->setFemPart( this );
     }
 
     return m_structGrid.p();
