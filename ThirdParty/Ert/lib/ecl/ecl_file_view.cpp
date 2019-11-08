@@ -169,10 +169,6 @@ void ecl_file_view_index_fload_kw(const ecl_file_view_type * ecl_file_view, cons
         int element_count = ecl_file_kw_get_size(file_kw);
 
         ecl_kw_fread_indexed_data(ecl_file_view->fortio, offset + ECL_KW_HEADER_FORTIO_SIZE, data_type, element_count, index_map, io_buffer);
-
-        if (ecl_file_view_flags_set(ecl_file_view, ECL_FILE_CLOSE_STREAM))
-          fortio_fclose_stream(ecl_file_view->fortio);
-
     }
 }
 
