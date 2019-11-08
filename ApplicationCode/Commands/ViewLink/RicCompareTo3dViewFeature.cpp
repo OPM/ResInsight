@@ -19,6 +19,7 @@
 
 #include "RiaApplication.h"
 
+#include "Rim3dOverlayInfoConfig.h"
 #include "RimGridView.h"
 
 #include "RiuViewer.h"
@@ -50,6 +51,7 @@ void RicCompareTo3dViewFeature::onActionTriggered( bool isChecked )
     {
         activeView->setComparisonView( view );
         activeView->scheduleCreateDisplayModelAndRedraw();
+        activeView->overlayInfoConfig()->updateConnectedEditors();
     }
 }
 

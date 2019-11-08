@@ -728,6 +728,19 @@ void RimGeoMechView::onClampCurrentTimestep()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RimGeoMechView::onTimeStepCountRequested()
+{
+    if ( m_geomechCase )
+    {
+        return m_geomechCase->geoMechData()->femPartResults()->frameCount();
+    }
+
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimGeoMechView::isTimeStepDependentDataVisible() const
 {
     if ( this->hasUserRequestedAnimation() &&

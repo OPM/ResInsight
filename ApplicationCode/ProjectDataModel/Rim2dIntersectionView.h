@@ -106,7 +106,8 @@ protected:
                                                          bool*                      useOptionsOnly ) override;
 
     bool hasResults();
-    int  timeStepCount();
+
+    virtual size_t onTimeStepCountRequested() override;
 
 private:
     QString createAutoName() const override;

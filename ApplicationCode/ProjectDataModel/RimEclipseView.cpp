@@ -271,6 +271,19 @@ void RimEclipseView::onClampCurrentTimestep()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RimEclipseView::onTimeStepCountRequested()
+{
+    if ( this->currentGridCellResults() )
+    {
+        return this->currentGridCellResults()->maxTimeStepCount();
+    }
+
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseView::setVisibleGridParts( const std::vector<RivCellSetEnum>& cellSets )
 {
     m_visibleGridParts = cellSets;

@@ -166,7 +166,11 @@ private:
 
 private:
     QLabel* m_infoLabel;
-    QRect   m_infoLabelOverlayArea;
+    QRect   m_infoPickArea;
+    QRect   m_infoPickAreaCompView;
+
+    QLabel* m_shortInfoLabel; // Used when in comparison view mode
+    QLabel* m_shortInfoLabelCompView;
 
     QLabel* m_versionInfoLabel;
     bool    m_showInfoText;
@@ -178,6 +182,7 @@ private:
     double  m_zScale;
 
     caf::QStyledProgressBar*  m_animationProgress;
+    caf::QStyledProgressBar*  m_animationProgressCompView;
     bool                      m_showAnimProgress;
     RiuSimpleHistogramWidget* m_histogramWidget;
     bool                      m_showHistogram;

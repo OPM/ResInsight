@@ -926,7 +926,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         return;
     }
 
-    m_viewDef->viewer()->showInfoText( m_showCaseInfo() || m_showResultInfo() );
+    m_viewDef->viewer()->showInfoText( m_showCaseInfo() || ( m_showResultInfo() && !m_viewDef->activeComparisonView() ) );
     m_viewDef->viewer()->showHistogram( false );
     m_viewDef->viewer()->showAnimationProgress( m_showAnimProgress() );
     m_viewDef->viewer()->showVersionInfo( m_showVersionInfo() );
@@ -1024,6 +1024,12 @@ void Rim3dOverlayInfoConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         }
         statGroup->add( &m_statisticsCellRange );
     }
+
+    bool isUsingComparisonView = m_viewDef->activeComparisonView();
+    m_showResultInfo.uiCapability()->setUiReadOnly( isUsingComparisonView );
+    m_showVolumeWeightedMean.uiCapability()->setUiReadOnly( isUsingComparisonView );
+    m_showHistogram.uiCapability()->setUiReadOnly( isUsingComparisonView );
+
     uiOrdering.skipRemainingFields( true );
 }
 

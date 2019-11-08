@@ -456,6 +456,14 @@ bool Rim3dView::isTimeStepDependentDataVisibleInThisOrComparisonView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t Rim3dView::timeStepCount()
+{
+    return this->onTimeStepCountRequested();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString Rim3dView::timeStepName( int frameIdx ) const
 {
     return this->ownerCase()->timeStepName( frameIdx );
