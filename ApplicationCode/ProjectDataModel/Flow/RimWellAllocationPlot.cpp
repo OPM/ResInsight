@@ -127,6 +127,8 @@ RimWellAllocationPlot::RimWellAllocationPlot()
         {RimWellLogPlot::CONNECTION_NUMBER, RimWellLogPlot::TRUE_VERTICAL_DEPTH, RimWellLogPlot::PSEUDO_LENGTH} );
 
     m_accumulatedWellFlowPlot->setCommonDataSourceEnabled( false );
+
+    m_showWindow = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,6 +169,8 @@ void RimWellAllocationPlot::setFromSimulationWell( RimSimWellInView* simWell )
     {
         m_flowDiagSolution = m_case->defaultFlowDiagSolution();
     }
+
+    m_showWindow = true;
 
     onLoadDataAndUpdate();
 }
@@ -646,6 +650,11 @@ QList<caf::PdmOptionItemInfo>
         for ( int i = 0; i < timeStepNames.size(); i++ )
         {
             options.push_back( caf::PdmOptionItemInfo( timeStepNames[i], i ) );
+        }
+
+        if ( options.size() == 0 )
+        {
+            options.push_front( caf::PdmOptionItemInfo( "None", -1 ) );
         }
     }
     else if ( fieldNeedingOptions == &m_case )

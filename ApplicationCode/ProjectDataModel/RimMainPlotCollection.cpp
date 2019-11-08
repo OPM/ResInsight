@@ -299,3 +299,11 @@ void RimMainPlotCollection::deleteAllCachedData()
     m_rftPlotCollection()->deleteAllExtractors();
     m_pltPlotCollection()->deleteAllExtractors();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMainPlotCollection::ensureDefaultFlowPlotsAreCreated()
+{
+    m_flowPlotCollection()->ensureDefaultPlotsAreCreated();
+}

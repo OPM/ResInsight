@@ -67,6 +67,8 @@ public:
     void updatePlotsWithCompletions();
     void deleteAllCachedData();
 
+    void ensureDefaultFlowPlotsAreCreated();
+
 private:
     // Overridden PDM methods
     caf::PdmFieldHandle* objectToggleField() override;
