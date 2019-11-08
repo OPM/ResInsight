@@ -186,7 +186,9 @@ private:
 
     void syncronizeWellsWithResults();
 
-    void onClampCurrentTimestep() override;
+    void   onClampCurrentTimestep() override;
+    size_t onTimeStepCountRequested() override;
+
     void setVisibleGridParts( const std::vector<RivCellSetEnum>& cellSets );
     void setVisibleGridPartsWatertight();
 

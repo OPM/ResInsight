@@ -387,7 +387,8 @@ void RimEclipseContourMapView::onUpdateLegends()
                 m_contourMapProjection->updateLegend();
                 if ( projectionLegend->showLegend() )
                 {
-                    nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( projectionLegend->titledOverlayFrame() );
+                    nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( projectionLegend->titledOverlayFrame(),
+                                                                                isUsingOverrideViewer() );
                 }
             }
         }

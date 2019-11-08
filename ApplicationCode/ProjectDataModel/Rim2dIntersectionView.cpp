@@ -425,11 +425,11 @@ bool Rim2dIntersectionView::hasResults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int Rim2dIntersectionView::timeStepCount()
+size_t Rim2dIntersectionView::onTimeStepCountRequested()
 {
     if ( isTimeStepDependentDataVisible() )
     {
-        return static_cast<int>( this->ownerCase()->timeStepStrings().size() );
+        return this->ownerCase()->timeStepStrings().size();
     }
 
     return 0;
@@ -484,9 +484,9 @@ void Rim2dIntersectionView::onCreateDisplayModel()
 
     nativeOrOverrideViewer()->removeAllFrames( isUsingOverrideViewer() );
 
-    int tsCount = this->timeStepCount();
+    size_t tsCount = this->timeStepCount();
 
-    for ( int i = 0; i < tsCount; ++i )
+    for ( size_t i = 0; i < tsCount; ++i )
     {
         nativeOrOverrideViewer()->addFrame( new cvf::Scene(), isUsingOverrideViewer() );
     }
@@ -679,7 +679,7 @@ void Rim2dIntersectionView::onUpdateLegends()
 
     if ( legend )
     {
-        nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( legend );
+        nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( legend, isUsingOverrideViewer() );
     }
 }
 

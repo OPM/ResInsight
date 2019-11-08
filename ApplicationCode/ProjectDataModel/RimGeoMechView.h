@@ -121,7 +121,8 @@ private:
 
     void onUpdateScaleTransform() override;
 
-    void onClampCurrentTimestep() override;
+    void   onClampCurrentTimestep() override;
+    size_t onTimeStepCountRequested() override;
 
     void onUpdateDisplayModelForCurrentTimeStep() override;
     void onUpdateStaticCellColors() override;

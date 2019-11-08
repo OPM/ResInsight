@@ -142,10 +142,12 @@ public:
     void   forceShowWindowOn();
 
     // Animation
-    int  currentTimeStep() const;
-    void setCurrentTimeStep( int frameIdx );
-    void setCurrentTimeStepAndUpdate( int frameIdx ) override;
-    bool isTimeStepDependentDataVisibleInThisOrComparisonView() const;
+    int     currentTimeStep() const;
+    void    setCurrentTimeStep( int frameIdx );
+    void    setCurrentTimeStepAndUpdate( int frameIdx ) override;
+    bool    isTimeStepDependentDataVisibleInThisOrComparisonView() const;
+    size_t  timeStepCount();
+    QString timeStepName( int frameIdx ) const override;
 
     // Updating
     void         scheduleCreateDisplayModelAndRedraw();
@@ -200,10 +202,12 @@ protected:
 
     // Abstract methods to implement in subclasses
 
-    virtual void onCreateDisplayModel()                   = 0;
-    virtual void onUpdateDisplayModelForCurrentTimeStep() = 0;
-    virtual void onUpdateDisplayModelVisibility(){};
-    virtual void onClampCurrentTimestep() = 0;
+    virtual void   onCreateDisplayModel()                   = 0;
+    virtual void   onUpdateDisplayModelForCurrentTimeStep() = 0;
+    virtual void   onUpdateDisplayModelVisibility(){};
+    virtual void   onClampCurrentTimestep()   = 0;
+    virtual size_t onTimeStepCountRequested() = 0;
+
     virtual void onClearReservoirCellVisibilitiesIfNeccessary(){};
     virtual bool isTimeStepDependentDataVisible() const                                            = 0;
     virtual void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) = 0;
@@ -258,8 +262,7 @@ private:
     void setCameraPosition( const cvf::Mat4d& cameraPosition ) override;
     void setCameraPointOfInterest( const cvf::Vec3d& cameraPointOfInterest ) override;
 
-    QString timeStepName( int frameIdx ) const override;
-    void    endAnimation() override;
+    void endAnimation() override;
 
     caf::PdmObjectHandle* implementingPdmObject() override;
 

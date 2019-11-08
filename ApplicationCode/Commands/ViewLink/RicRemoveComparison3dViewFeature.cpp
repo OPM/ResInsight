@@ -19,7 +19,9 @@
 
 #include "RiaApplication.h"
 
+#include "Rim3dOverlayInfoConfig.h"
 #include "Rim3dView.h"
+#include "RimGridView.h"
 
 #include "RiuViewer.h"
 #include "RiuViewerCommands.h"
@@ -48,6 +50,9 @@ public:
     {
         m_activeView->setComparisonView( nullptr );
         m_activeView->scheduleCreateDisplayModelAndRedraw();
+
+        auto gridView = dynamic_cast<RimGridView*>( m_activeView );
+        if ( gridView ) gridView->overlayInfoConfig()->updateConnectedEditors();
     }
 
 private:

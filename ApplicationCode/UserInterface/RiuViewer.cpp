@@ -118,6 +118,20 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
     m_infoLabel->setFont( font );
     m_showInfoText = true;
 
+    m_shortInfoLabel = new QLabel();
+    m_shortInfoLabel->setObjectName( "ShortInfoLabel" );
+    m_shortInfoLabel->setFrameShape( QFrame::Box );
+    m_shortInfoLabel->setFrameShadow( QFrame::Plain );
+    m_shortInfoLabel->setMinimumWidth( 100 );
+    m_shortInfoLabel->setFont( font );
+
+    m_shortInfoLabelCompView = new QLabel();
+    m_shortInfoLabelCompView->setObjectName( "ShortInfoLabelCompView" );
+    m_shortInfoLabelCompView->setFrameShape( QFrame::Box );
+    m_shortInfoLabelCompView->setFrameShadow( QFrame::Plain );
+    m_shortInfoLabelCompView->setMinimumWidth( 100 );
+    m_shortInfoLabelCompView->setFont( font );
+
     // Version info label
     m_versionInfoLabel = new QLabel();
     m_versionInfoLabel->setFrameShape( QFrame::NoFrame );
@@ -144,6 +158,13 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
     m_animationProgress->setObjectName( "AnimationProgress" );
     m_animationProgress->setFont( font );
 
+    m_animationProgressCompView = new caf::QStyledProgressBar( "AnimationProgress" );
+    m_animationProgressCompView->setFormat( "Time Step: %v/%m" );
+    m_animationProgressCompView->setTextVisible( true );
+    m_animationProgressCompView->setAlignment( Qt::AlignCenter );
+    m_animationProgressCompView->setObjectName( "AnimationProgress" );
+    m_animationProgressCompView->setFont( font );
+
     m_showAnimProgress = false;
 
     // Histogram
@@ -158,6 +179,8 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
         regTestFont.setPixelSize( 11 );
 
         m_infoLabel->setFont( regTestFont );
+        m_shortInfoLabel->setFont( regTestFont );
+        m_shortInfoLabelCompView->setFont( regTestFont );
         m_versionInfoLabel->setFont( regTestFont );
         m_animationProgress->setFont( regTestFont );
         m_histogramWidget->setFont( regTestFont );
@@ -198,7 +221,10 @@ RiuViewer::~RiuViewer()
     }
 
     delete m_infoLabel;
+    delete m_shortInfoLabel;
+    delete m_shortInfoLabelCompView;
     delete m_animationProgress;
+    delete m_animationProgressCompView;
     delete m_histogramWidget;
     delete m_gridBoxGenerator;
     delete m_comparisonGridBoxGenerator;
@@ -255,11 +281,23 @@ void RiuViewer::mouseReleaseEvent( QMouseEvent* event )
             return;
         }
 
-        if ( !m_infoLabelOverlayArea.isNull() )
+        if ( !m_infoPickArea.isNull() )
         {
-            if ( m_infoLabelOverlayArea.contains( event->x(), event->y() ) )
+            if ( m_infoPickArea.contains( event->x(), event->y() ) )
             {
                 m_rimView->selectOverlayInfoConfig();
+
+                return;
+            }
+        }
+
+        if ( !m_infoPickAreaCompView.isNull() )
+        {
+            if ( m_infoPickAreaCompView.contains( event->x(), event->y() ) )
+            {
+                Rim3dView* compView = dynamic_cast<Rim3dView*>( m_rimView.p() )->activeComparisonView();
+
+                if ( compView ) compView->selectOverlayInfoConfig();
 
                 return;
             }
@@ -366,8 +404,9 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
     int edgeAxisFrameBorderWidth  = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderWidth() : 0;
     int edgeAxisFrameBorderHeight = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderHeight() : 0;
 
-    int margin = 5;
-    int yPos   = margin + edgeAxisFrameBorderHeight;
+    int margin    = 5;
+    int startYPos = margin + edgeAxisFrameBorderHeight;
+    int yPos      = startYPos;
 
     bool showAnimBar = false;
     if ( isAnimationActive() && frameCount() > 1 ) showAnimBar = true;
@@ -376,37 +415,101 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
 
     int columnPos = this->width() - columnWidth - margin - edgeAxisFrameBorderWidth;
 
+    if ( this->isComparisonViewActive() )
+    {
+        Rim3dView* compView = dynamic_cast<Rim3dView*>( m_rimView.p() )->activeComparisonView();
+        columnWidth         = 200;
+
+        // int sliderPos = this->width() * this->comparisonViewVisibleNormalizedRect().min().x();
+        int sliderPos         = 0.5 * this->width();
+        int compViewItemsXPos = sliderPos + 0.5 * ( this->width() - sliderPos ) - 0.5 * columnWidth;
+        columnPos             = 0.5 * sliderPos - 0.5 * columnWidth;
+
+        if ( m_showInfoText )
+        {
+            {
+                Rim3dView* view = dynamic_cast<Rim3dView*>( m_rimView.p() );
+                m_shortInfoLabel->setText( "<center>" + view->ownerCase()->caseUserDescription() + "</center>" );
+
+                QPoint topLeft = QPoint( columnPos, yPos );
+                m_shortInfoLabel->resize( columnWidth, m_shortInfoLabel->sizeHint().height() );
+                m_shortInfoLabel->render( painter, topLeft );
+            }
+
+            {
+                m_shortInfoLabelCompView->setText( "<center>" + compView->ownerCase()->caseUserDescription() +
+                                                   "</center>" );
+                QPoint topLeft = QPoint( compViewItemsXPos, yPos );
+                m_shortInfoLabelCompView->resize( columnWidth, m_shortInfoLabelCompView->sizeHint().height() );
+                m_shortInfoLabelCompView->render( painter, topLeft );
+            }
+
+            yPos += m_shortInfoLabel->height();
+        }
+
+        int pickAreaHeight = yPos - startYPos;
+        if ( m_showAnimProgress && isAnimationActive( true ) && compView->timeStepCount() > 1 )
+        {
+            QString stepName = compView->timeStepName( compView->currentTimeStep() );
+
+            m_animationProgressCompView->setFormat( "Time Step: %v/%m " + stepName );
+            m_animationProgressCompView->setMinimum( 0 );
+            m_animationProgressCompView->setMaximum( static_cast<int>( compView->timeStepCount() ) - 1 );
+            m_animationProgressCompView->setValue( compView->currentTimeStep() );
+
+            m_animationProgressCompView->resize( columnWidth, m_animationProgressCompView->sizeHint().height() );
+
+            m_animationProgressCompView->render( painter, QPoint( compViewItemsXPos, yPos ) );
+
+            pickAreaHeight += m_animationProgressCompView->height();
+        }
+
+        m_infoPickArea.setLeft( columnPos );
+        m_infoPickArea.setWidth( columnWidth );
+        m_infoPickArea.setHeight( pickAreaHeight );
+        m_infoPickArea.setTop( startYPos );
+
+        m_infoPickAreaCompView.setLeft( compViewItemsXPos );
+        m_infoPickAreaCompView.setWidth( columnWidth );
+        m_infoPickAreaCompView.setHeight( pickAreaHeight );
+        m_infoPickAreaCompView.setTop( startYPos );
+    }
+
     if ( showAnimBar && m_showAnimProgress )
     {
-        QString stepName = m_rimView->timeStepName( currentFrameIndex() );
+        Rim3dView* view = dynamic_cast<Rim3dView*>( m_rimView.p() );
+
+        QString stepName = view->timeStepName( view->currentTimeStep() );
+
         m_animationProgress->setFormat( "Time Step: %v/%m " + stepName );
         m_animationProgress->setMinimum( 0 );
-        m_animationProgress->setMaximum( static_cast<int>( frameCount() ) - 1 );
-        m_animationProgress->setValue( currentFrameIndex() );
-        m_animationProgress->resize( columnWidth, m_animationProgress->sizeHint().height() );
+        m_animationProgress->setMaximum( static_cast<int>( view->timeStepCount() ) - 1 );
+        m_animationProgress->setValue( view->currentTimeStep() );
 
+        m_animationProgress->resize( columnWidth, m_animationProgress->sizeHint().height() );
         m_animationProgress->render( painter, QPoint( columnPos, yPos ) );
+
         yPos += m_animationProgress->height() + margin;
     }
 
-    if ( m_showInfoText )
+    if ( m_showInfoText && !this->isComparisonViewActive() )
     {
         QPoint topLeft = QPoint( columnPos, yPos );
         m_infoLabel->resize( columnWidth, m_infoLabel->sizeHint().height() );
         m_infoLabel->render( painter, topLeft );
 
-        m_infoLabelOverlayArea.setTopLeft( topLeft );
-        m_infoLabelOverlayArea.setBottom( yPos + m_infoLabel->height() );
-        m_infoLabelOverlayArea.setRight( columnPos + columnWidth );
+        m_infoPickArea.setTopLeft( topLeft );
+        m_infoPickArea.setBottom( yPos + m_infoLabel->height() );
+        m_infoPickArea.setRight( columnPos + columnWidth );
 
         yPos += m_infoLabel->height() + margin;
     }
-    else
+    else if ( !this->isComparisonViewActive() )
     {
-        m_infoLabelOverlayArea = QRect();
+        m_infoPickArea = QRect();
     }
 
-    if ( m_showHistogram )
+    if ( m_showHistogram && !this->isComparisonViewActive() )
     {
         m_histogramWidget->resize( columnWidth, 40 );
         m_histogramWidget->render( painter, QPoint( columnPos, yPos ) );
@@ -582,40 +685,49 @@ void RiuViewer::removeAllColorLegends()
     {
         overlayItemsRendering()->removeOverlayItem( m_visibleLegends[i].p() );
     }
+    for ( auto legend : m_visibleComparisonLegends )
+    {
+        overlayItemsRendering()->removeOverlayItem( legend.p() );
+    }
 
     m_visibleLegends.clear();
+    m_visibleComparisonLegends.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* addedLegend )
+void RiuViewer::addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* addedLegend, bool isForComparisonView )
 {
-    RiaGuiApplication* app = RiaGuiApplication::instance();
-    CVF_ASSERT( app );
-    RiaPreferences* preferences      = app->preferences();
-    cvf::Rendering* overlayRendering = overlayItemsRendering();
-    CVF_ASSERT( preferences );
+    if ( !addedLegend || m_visibleLegends.contains( addedLegend ) ) return;
+
+    RiaGuiApplication* app              = RiaGuiApplication::instance();
+    RiaPreferences*    preferences      = app->preferences();
+    cvf::Rendering*    overlayRendering = overlayItemsRendering();
     CVF_ASSERT( overlayRendering );
 
-    if ( addedLegend )
+    cvf::Color4f backgroundColor = mainCamera()->viewport()->clearColor();
+    backgroundColor.a()          = 0.8f;
+
+    cvf::Color3f backgroundColor3f( backgroundColor.r(), backgroundColor.g(), backgroundColor.b() );
+    cvf::Color4f frameColor = cvf::Color4f( RiaColorTools::computeOffsetColor( backgroundColor3f, 0.3f ), 0.9f );
+
+    updateLegendTextAndTickMarkColor( addedLegend );
+
+    addedLegend->enableBackground( preferences->showLegendBackground() );
+    addedLegend->setBackgroundColor( backgroundColor );
+    addedLegend->setBackgroundFrameColor( frameColor );
+    addedLegend->setFont( app->defaultSceneFont() );
+
+    overlayRendering->addOverlayItem( addedLegend );
+
+    if ( isForComparisonView )
     {
-        cvf::Color4f backgroundColor = mainCamera()->viewport()->clearColor();
-        backgroundColor.a()          = 0.8f;
-        cvf::Color3f frameColor( backgroundColor.r(), backgroundColor.g(), backgroundColor.b() );
-        updateLegendTextAndTickMarkColor( addedLegend );
-
-        overlayRendering->addOverlayItem( addedLegend );
-        addedLegend->enableBackground( preferences->showLegendBackground() );
-        addedLegend->setBackgroundColor( backgroundColor );
-        addedLegend->setBackgroundFrameColor(
-            cvf::Color4f( RiaColorTools::computeOffsetColor( frameColor, 0.3f ), 0.9f ) );
-        addedLegend->setFont( app->defaultSceneFont() );
-
-        if ( !m_visibleLegends.contains( addedLegend ) )
-        {
-            m_visibleLegends.push_back( addedLegend );
-        }
+        m_visibleComparisonLegends.push_back( addedLegend );
+    }
+    else
+    {
+        m_visibleLegends.push_back( addedLegend );
     }
 }
 
@@ -626,6 +738,7 @@ void RiuViewer::removeColorLegend( caf::TitledOverlayFrame* legend )
 {
     overlayItemsRendering()->removeOverlayItem( legend );
     m_visibleLegends.erase( legend );
+    m_visibleComparisonLegends.erase( legend );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -640,6 +753,7 @@ void RiuViewer::updateLegendLayout()
     int         edgeAxisBorderWidth  = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderWidth() : 0;
     int         edgeAxisBorderHeight = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderHeight() : 0;
 
+    // Place the main view legends from left to right
     {
         int xPos = border + edgeAxisBorderWidth;
         int yPos = border + edgeAxisBorderHeight;
@@ -705,6 +819,90 @@ void RiuViewer::updateLegendLayout()
         }
     }
 
+    // Place the comparison view legends from right to left
+    {
+        int viewPortWidth = static_cast<int>( m_mainCamera->viewport()->width() );
+
+        int xPos      = viewPortWidth - border + edgeAxisBorderWidth;
+        int yPosStart = border + edgeAxisBorderHeight + m_versionInfoLabel->sizeHint().height() + 5;
+        int yPos      = yPosStart;
+
+        std::vector<caf::TitledOverlayFrame*> standardHeightLegends;
+
+        // Place the legends needing the full height, and sort out the standard height legends
+
+        for ( cvf::ref<caf::TitledOverlayFrame> legend : m_visibleComparisonLegends )
+        {
+            cvf::Vec2ui prefSize = legend->preferredSize();
+            if ( prefSize.y() > maxFreeLegendHeight )
+            {
+                int legendWidth = prefSize.x();
+                legend->setLayoutFixedPosition( cvf::Vec2i( xPos - legendWidth, yPos ) );
+                legend->setRenderSize(
+                    cvf::Vec2ui( legendWidth, viewPortHeight - yPosStart - border - edgeAxisBorderHeight ) );
+                xPos -= legendWidth + border;
+            }
+            else
+            {
+                standardHeightLegends.push_back( legend.p() );
+            }
+        }
+
+        // Place the rest of the legends in columns that fits within the screen height
+
+        std::vector<caf::TitledOverlayFrame*> columnLegends;
+
+        int maxColumnWidht = 0;
+
+        for ( caf::TitledOverlayFrame* legend : standardHeightLegends )
+        {
+            cvf::Vec2ui prefSize = legend->preferredSize();
+
+            // Check if we need a new column
+            if ( ( yPos + (int)prefSize.y() + border ) > viewPortHeight )
+            {
+                // Finish the previous column setting same width to all legends and correcting the xposition accordingly
+                for ( caf::TitledOverlayFrame* columnLegend : columnLegends )
+                {
+                    columnLegend->setRenderSize( cvf::Vec2ui( maxColumnWidht, columnLegend->renderSize().y() ) );
+                    columnLegend->setLayoutFixedPosition(
+                        cvf::Vec2i( xPos - maxColumnWidht, columnLegend->fixedPosition().y() ) );
+                }
+
+                // Increment to make ready for a new column
+                xPos -= border + maxColumnWidht;
+                yPos = yPosStart;
+
+                maxColumnWidht = 0;
+                columnLegends.clear();
+            }
+
+            legend->setLayoutFixedPosition( cvf::Vec2i( xPos - prefSize.x(), yPos ) );
+            legend->setRenderSize( cvf::Vec2ui( prefSize.x(), prefSize.y() ) );
+            columnLegends.push_back( legend );
+
+            yPos += legend->renderSize().y() + border;
+            maxColumnWidht = std::max( maxColumnWidht, (int)prefSize.x() );
+        }
+
+        // Finish the last column setting same width to all legends and correcting the xposition accordingly
+
+        for ( caf::TitledOverlayFrame* columnLegend : columnLegends )
+        {
+            columnLegend->setRenderSize( cvf::Vec2ui( maxColumnWidht, columnLegend->renderSize().y() ) );
+            columnLegend->setLayoutFixedPosition( cvf::Vec2i( xPos - maxColumnWidht, columnLegend->fixedPosition().y() ) );
+        }
+
+        xPos -= maxColumnWidht;
+
+        // Set axis cross position at the bottom besides the last column
+        {
+            m_axisCross->setLayoutFixedPosition(
+                cvf::Vec2i( xPos + border - m_axisCross->sizeHint().x(), edgeAxisBorderHeight ) );
+        }
+    }
+
+    // Set the position of the scale bar used in contour map views
     {
         int  margin           = 5;
         auto scaleLegendSize  = m_scaleLegend->renderSize();
@@ -1020,6 +1218,18 @@ cvf::OverlayItem* RiuViewer::pickFixedPositionedLegend( int winPosX, int winPosY
         }
     }
 
+    for ( auto overlayItem : m_visibleComparisonLegends )
+    {
+        if ( overlayItem->layoutScheme() == cvf::OverlayItem::FIXED_POSITION &&
+             overlayItem->pick( translatedMousePosX,
+                                translatedMousePosY,
+                                overlayItem->fixedPosition(),
+                                overlayItem->renderSize() ) )
+        {
+            return overlayItem.p();
+        }
+    }
+
     return nullptr;
 }
 
@@ -1126,7 +1336,10 @@ void RiuViewer::updateFonts()
 
     m_zScaleLabel->setFont( font );
     m_infoLabel->setFont( font );
+    m_shortInfoLabel->setFont( font );
+    m_shortInfoLabelCompView->setFont( font );
     m_animationProgress->setFont( font );
+    m_animationProgressCompView->setFont( font );
     m_versionInfoLabel->setFont( font );
 }
 
@@ -1168,6 +1381,11 @@ void RiuViewer::updateTextAndTickMarkColorForOverlayItems()
     for ( size_t i = 0; i < m_visibleLegends.size(); i++ )
     {
         updateLegendTextAndTickMarkColor( m_visibleLegends.at( i ) );
+    }
+
+    for ( auto legend : m_visibleComparisonLegends )
+    {
+        updateLegendTextAndTickMarkColor( legend.p() );
     }
 
     updateAxisCrossTextColor();
@@ -1225,6 +1443,16 @@ void RiuViewer::updateOverlayItemsStyle()
                                                                              contrastColor,
                                                                              backgroundColor,
                                                                              backgroundFrameColor ) );
+    m_shortInfoLabel->setStyleSheet( caf::StyleSheetTools::createFrameStyleSheet( "QLabel",
+                                                                                  "ShortInfoLabel",
+                                                                                  contrastColor,
+                                                                                  backgroundColor,
+                                                                                  backgroundFrameColor ) );
+    m_shortInfoLabelCompView->setStyleSheet( caf::StyleSheetTools::createFrameStyleSheet( "QLabel",
+                                                                                          "ShortInfoLabelCompView",
+                                                                                          contrastColor,
+                                                                                          backgroundColor,
+                                                                                          backgroundFrameColor ) );
     m_histogramWidget->setStyleSheet( caf::StyleSheetTools::createFrameStyleSheet( "",
                                                                                    "HistogramWidget",
                                                                                    contrastColor,
@@ -1242,6 +1470,10 @@ void RiuViewer::updateOverlayItemsStyle()
                                                             backgroundColor,
                                                             backgroundFrameColor,
                                                             progressColor );
+    m_animationProgressCompView->setTextBackgroundAndProgressColor( contrastColor,
+                                                                    backgroundColor,
+                                                                    backgroundFrameColor,
+                                                                    progressColor );
 }
 
 //--------------------------------------------------------------------------------------------------

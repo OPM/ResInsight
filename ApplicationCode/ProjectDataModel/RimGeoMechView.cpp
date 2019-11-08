@@ -451,7 +451,8 @@ void RimGeoMechView::onUpdateLegends()
 
         if ( cellResult()->hasResult() && cellResult()->legendConfig()->showLegend() )
         {
-            nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( cellResult()->legendConfig->titledOverlayFrame() );
+            nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( cellResult()->legendConfig->titledOverlayFrame(),
+                                                                        isUsingOverrideViewer() );
         }
 
         if ( tensorResults()->showTensors() )
@@ -461,8 +462,9 @@ void RimGeoMechView::onUpdateLegends()
             if ( tensorResults()->vectorColors() == RimTensorResults::RESULT_COLORS &&
                  tensorResults()->arrowColorLegendConfig()->showLegend() )
             {
-                nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner(
-                    m_tensorResults->arrowColorLegendConfig->titledOverlayFrame() );
+                nativeOrOverrideViewer()
+                    ->addColorLegendToBottomLeftCorner( m_tensorResults->arrowColorLegendConfig->titledOverlayFrame(),
+                                                        isUsingOverrideViewer() );
             }
         }
     }
@@ -721,6 +723,19 @@ void RimGeoMechView::onClampCurrentTimestep()
 
     if ( m_currentTimeStep >= maxFrameCount ) m_currentTimeStep = maxFrameCount - 1;
     if ( m_currentTimeStep < 0 ) m_currentTimeStep = 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimGeoMechView::onTimeStepCountRequested()
+{
+    if ( m_geomechCase )
+    {
+        return m_geomechCase->geoMechData()->femPartResults()->frameCount();
+    }
+
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------------

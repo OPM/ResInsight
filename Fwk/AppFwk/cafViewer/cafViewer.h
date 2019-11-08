@@ -124,7 +124,7 @@ public:
     // As of yet: Only updates bounding boxes. Other things might be added later.
     void                    updateCachedValuesInScene();
 
-    bool                    isAnimationActive();
+    bool                    isAnimationActive(bool isForComparisonView = false);
     caf::FrameAnimationControl* 
                             animationControl()                                             { return m_animationControl;}
     void                    setReleaseOGLResourcesEachFrame(bool releaseOGLResourcesEachFrame) { m_releaseOGLResourcesEachFrame = releaseOGLResourcesEachFrame; }

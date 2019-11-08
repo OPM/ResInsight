@@ -110,7 +110,7 @@ public:
     void showAnimationProgress( bool enable );
 
     void removeAllColorLegends();
-    void addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* legend );
+    void addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* legend, bool isForComparisonView );
     void removeColorLegend( caf::TitledOverlayFrame* legend );
 
     void enableNavigationRotation( bool disable );
@@ -166,7 +166,11 @@ private:
 
 private:
     QLabel* m_infoLabel;
-    QRect   m_infoLabelOverlayArea;
+    QRect   m_infoPickArea;
+    QRect   m_infoPickAreaCompView;
+
+    QLabel* m_shortInfoLabel; // Used when in comparison view mode
+    QLabel* m_shortInfoLabelCompView;
 
     QLabel* m_versionInfoLabel;
     bool    m_showInfoText;
@@ -178,6 +182,7 @@ private:
     double  m_zScale;
 
     caf::QStyledProgressBar*  m_animationProgress;
+    caf::QStyledProgressBar*  m_animationProgressCompView;
     bool                      m_showAnimProgress;
     RiuSimpleHistogramWidget* m_histogramWidget;
     bool                      m_showHistogram;
@@ -185,6 +190,7 @@ private:
     cvf::ref<cvf::OverlayAxisCross>          m_axisCross;
     bool                                     m_showAxisCross;
     cvf::Collection<caf::TitledOverlayFrame> m_visibleLegends;
+    cvf::Collection<caf::TitledOverlayFrame> m_visibleComparisonLegends;
 
     caf::PdmInterfacePointer<RiuViewerToViewInterface> m_rimView;
     QPoint                                             m_lastMousePressPosition;
