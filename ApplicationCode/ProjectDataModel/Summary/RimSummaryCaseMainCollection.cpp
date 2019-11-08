@@ -348,6 +348,7 @@ void RimSummaryCaseMainCollection::loadSummaryCaseData( std::vector<RimSummaryCa
 {
     caf::ProgressInfo progInfo( summaryCases.size(), "Loading Summary Cases" );
 
+#pragma omp parallel for
     for ( int cIdx = 0; cIdx < static_cast<int>( summaryCases.size() ); ++cIdx )
     {
         RimSummaryCase* sumCase = summaryCases[cIdx];
