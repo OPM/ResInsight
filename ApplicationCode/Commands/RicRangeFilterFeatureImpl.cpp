@@ -70,29 +70,17 @@ RicRangeFilterNewExec* RicRangeFilterFeatureImpl::createRangeFilterExecCommand()
 RimCellRangeFilterCollection* RicRangeFilterFeatureImpl::findRangeFilterCollection()
 {
     RimCellRangeFilterCollection* rangeFilterCollection = nullptr;
+    
+    rangeFilterCollection = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimCellRangeFilterCollection>();
 
-    std::vector<RimCellRangeFilter*> selectedRangeFilter;
-    caf::SelectionManager::instance()->objectsByType( &selectedRangeFilter );
-
-    std::vector<RimCellRangeFilterCollection*> selectedRangeFilterCollection;
-    caf::SelectionManager::instance()->objectsByType( &selectedRangeFilterCollection );
-
-    if ( selectedRangeFilterCollection.size() == 1 )
+    if ( !rangeFilterCollection )
     {
-        rangeFilterCollection = selectedRangeFilterCollection[0];
+        RimGridView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
+        if ( view )
+        {
+            rangeFilterCollection = view->rangeFilterCollection();
+        }
     }
-    else if ( selectedRangeFilter.size() > 0 )
-    {
-        selectedRangeFilter[0]->firstAncestorOrThisOfType( rangeFilterCollection );
-    }
-
-    RimGridView* view = RiaApplication::instance()->activeGridView();
-    if ( view )
-    {
-        rangeFilterCollection = view->rangeFilterCollection();
-    }
-
-    assert( rangeFilterCollection );
 
     return rangeFilterCollection;
 }
