@@ -80,7 +80,7 @@ bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
     progOpt->registerOption( "startdir", "<folder>", "Set startup directory.\n", cvf::ProgramOptions::SINGLE_VALUE );
 
     progOpt->registerOption( "summaryplot",
-                             "[<plotOptions>] <eclipsesummaryvectors> [<eclipsedatafiles>]",
+                             "[<plotOptions>] <eclipsesummaryvectors> <eclipsedatafiles>",
                              "Creates a summary plot using all the <eclipsedatafiles>,"
                              "and all the summary vectors defined in <eclipsesummaryvectors>."
                              "Use --summaryplot -help to show a more detailed help text.\n",
