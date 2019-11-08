@@ -980,21 +980,40 @@ void caf::Viewer::removeAllFrames(bool isForComparisonView)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool caf::Viewer::isAnimationActive()
+bool caf::Viewer::isAnimationActive(bool isForComparisonView)
 {
-    cvf::Scene* currentScene = m_mainRendering->scene();
-
-    if (!currentScene)
+    if ( !isForComparisonView )
     {
-        return false;
-    }
+        cvf::Scene* currentScene = m_mainRendering->scene();
 
-    if (m_mainScene.notNull() && m_mainScene.p() == currentScene)
+        if ( !currentScene )
+        {
+            return false;
+        }
+
+        if ( m_mainScene.notNull() && m_mainScene.p() == currentScene )
+        {
+            return false;
+        }
+
+        return true;
+    }
+    else
     {
-        return false;
-    }
+        cvf::Scene* currentScene = m_comparisonMainRendering->scene();
 
-    return true;
+        if ( !currentScene )
+        {
+            return false;
+        }
+
+        if ( m_comparisonMainScene.notNull() && m_comparisonMainScene.p() == currentScene )
+        {
+            return false;
+        }
+
+        return true;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
