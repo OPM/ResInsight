@@ -46,6 +46,8 @@ public:
     RimWellAllocationPlot*      defaultWellAllocPlot();
     RimFlowCharacteristicsPlot* defaultFlowCharacteristicsPlot();
 
+    void ensureDefaultPlotsAreCreated();
+
 private:
     caf::PdmChildField<RimFlowCharacteristicsPlot*>      m_flowCharacteristicsPlot;
     caf::PdmChildField<RimWellAllocationPlot*>           m_defaultWellAllocPlot;

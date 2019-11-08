@@ -144,14 +144,6 @@ void RimFlowPlotCollection::addFlowCharacteristicsPlotToStoredPlots( RimFlowChar
 //--------------------------------------------------------------------------------------------------
 RimWellAllocationPlot* RimFlowPlotCollection::defaultWellAllocPlot()
 {
-    if ( !m_defaultWellAllocPlot() )
-    {
-        m_defaultWellAllocPlot = new RimWellAllocationPlot;
-        m_defaultWellAllocPlot->setDescription( "Default Flow Diagnostics Plot" );
-    }
-
-    this->updateConnectedEditors();
-
     return m_defaultWellAllocPlot();
 }
 
@@ -160,12 +152,32 @@ RimWellAllocationPlot* RimFlowPlotCollection::defaultWellAllocPlot()
 //--------------------------------------------------------------------------------------------------
 RimFlowCharacteristicsPlot* RimFlowPlotCollection::defaultFlowCharacteristicsPlot()
 {
+    return m_flowCharacteristicsPlot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFlowPlotCollection::ensureDefaultPlotsAreCreated()
+{
+    bool isUpdateRequired = false;
+
     if ( !m_flowCharacteristicsPlot() )
     {
         m_flowCharacteristicsPlot = new RimFlowCharacteristicsPlot;
+        isUpdateRequired          = true;
     }
 
-    this->updateConnectedEditors();
+    if ( !m_defaultWellAllocPlot() )
+    {
+        m_defaultWellAllocPlot = new RimWellAllocationPlot;
+        m_defaultWellAllocPlot->setDescription( "Default Flow Diagnostics Plot" );
 
-    return m_flowCharacteristicsPlot();
+        isUpdateRequired = true;
+    }
+
+    if ( isUpdateRequired )
+    {
+        this->updateConnectedEditors();
+    }
 }
