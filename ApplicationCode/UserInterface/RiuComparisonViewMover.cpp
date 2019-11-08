@@ -65,11 +65,15 @@ bool RiuComparisonViewMover::eventFilter( QObject* watched, QEvent* event )
                     QPointF    normMousePos = {mousePos.x() / m_viewer->width(), mousePos.y() / m_viewer->height()};
                     cvf::Rectf orgCompViewWindow = m_viewer->comparisonViewVisibleNormalizedRect();
 
-                    m_viewer->setComparisonViewVisibleNormalizedRect(
-                        cvf::Rectf( normMousePos.x(),
-                                    orgCompViewWindow.min().y(),
-                                    ( orgCompViewWindow.min().x() + orgCompViewWindow.width() ) - normMousePos.x(),
-                                    orgCompViewWindow.height() ) );
+                    float minx   = normMousePos.x();
+                    minx         = minx > 1.0 ? 1.0 : minx;
+                    minx         = minx < 0.0 ? 0.0 : minx;
+                    float miny   = orgCompViewWindow.min().y();
+                    float width  = ( orgCompViewWindow.min().x() + orgCompViewWindow.width() ) - normMousePos.x();
+                    width        = width < 0.0f ? 0.0 : width;
+                    float height = orgCompViewWindow.height();
+
+                    m_viewer->setComparisonViewVisibleNormalizedRect( cvf::Rectf( minx, miny, width, height ) );
 
                     return true;
                 }
