@@ -346,11 +346,39 @@ void RimSummaryCaseMainCollection::loadAllSummaryCaseData()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::loadSummaryCaseData( std::vector<RimSummaryCase*> summaryCases )
 {
-    caf::ProgressInfo progInfo( summaryCases.size(), "Loading Summary Cases" );
+    std::vector<RimFileSummaryCase*> fileSummaryCases;
+    std::vector<RimSummaryCase*>     otherSummaryCases;
 
-    for ( int cIdx = 0; cIdx < static_cast<int>( summaryCases.size() ); ++cIdx )
+    if ( RiaApplication::instance()->preferences()->useMultipleThreadsWhenReadingSummaryData() )
     {
-        RimSummaryCase* sumCase = summaryCases[cIdx];
+        for ( auto c : summaryCases )
+        {
+            auto fileCase = dynamic_cast<RimFileSummaryCase*>( c );
+            if ( fileCase )
+            {
+                fileSummaryCases.push_back( fileCase );
+            }
+            else
+            {
+                otherSummaryCases.push_back( c );
+            }
+        }
+    }
+    else
+    {
+        otherSummaryCases = summaryCases;
+    }
+
+    if ( !fileSummaryCases.empty() )
+    {
+        loadFileSummaryCaseData( fileSummaryCases );
+    }
+
+    caf::ProgressInfo progInfo( otherSummaryCases.size(), "Loading Summary Cases" );
+
+    for ( int cIdx = 0; cIdx < static_cast<int>( otherSummaryCases.size() ); ++cIdx )
+    {
+        RimSummaryCase* sumCase = otherSummaryCases[cIdx];
         if ( sumCase )
         {
             sumCase->createSummaryReaderInterface();
@@ -360,6 +388,27 @@ void RimSummaryCaseMainCollection::loadSummaryCaseData( std::vector<RimSummaryCa
 
         {
             progInfo.incrementProgress();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases )
+{
+    // Use openMP when reading file summary case meta data. Avoid using the virtual interface of base class
+    // RimSummaryCase, as it is difficult to make sure all variants of the leaf classes are thread safe.
+
+#pragma omp parallel for
+    for ( int cIdx = 0; cIdx < static_cast<int>( fileSummaryCases.size() ); ++cIdx )
+    {
+        RimFileSummaryCase* fileSummaryCase = fileSummaryCases[cIdx];
+        if ( fileSummaryCase )
+        {
+            fileSummaryCase->createSummaryReaderInterface();
+            fileSummaryCase->createRftReaderInterface();
+            addCaseRealizationParametersIfFound( *fileSummaryCase, fileSummaryCase->summaryHeaderFilename() );
         }
     }
 }

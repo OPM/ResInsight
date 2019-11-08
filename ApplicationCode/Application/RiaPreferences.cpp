@@ -328,6 +328,15 @@ RiaPreferences::RiaPreferences( void )
                        "",
                        "" );
     m_showSummaryTimeAsLongString.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_useMultipleThreadsWhenLoadingSummaryData,
+                       "useMultipleThreadsWhenLoadingSummaryData",
+                       false,
+                       "Use multiple threads when loading summary data",
+                       "",
+                       "",
+                       "" );
+    m_useMultipleThreadsWhenLoadingSummaryData.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -365,7 +374,8 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
          field == &m_showTestToolbar || field == &m_includeFractureDebugInfoFile ||
          field == &showLasCurveWithoutTvdWarning || field == &holoLensDisableCertificateVerification ||
          field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
-         field == &showLegendBackground || field == &m_showSummaryTimeAsLongString || field == &m_showViewIdInProjectTree )
+         field == &showLegendBackground || field == &m_showSummaryTimeAsLongString ||
+         field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -452,6 +462,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         uiOrdering.add( &m_dateFormat );
         uiOrdering.add( &m_timeFormat );
         uiOrdering.add( &m_showSummaryTimeAsLongString );
+        uiOrdering.add( &m_useMultipleThreadsWhenLoadingSummaryData );
 
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Plot Templates" );
         group->add( &m_plotTemplateFolders );
@@ -810,6 +821,14 @@ void RiaPreferences::setDefaultPlotTemplatePath( const QString& templatePath )
 bool RiaPreferences::showSummaryTimeAsLongString() const
 {
     return m_showSummaryTimeAsLongString;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::useMultipleThreadsWhenReadingSummaryData() const
+{
+    return m_useMultipleThreadsWhenLoadingSummaryData;
 }
 
 //--------------------------------------------------------------------------------------------------
