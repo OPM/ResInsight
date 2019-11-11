@@ -49,6 +49,7 @@ class RimFishboneWellPathCollection;
 class RimFishbonesCollection;
 class RimPerforationCollection;
 class RimWellPathAttributeCollection;
+class RimWellMeasurementCollection;
 class RimWellPathCompletions;
 class RigWellPathFormations;
 
@@ -110,6 +111,8 @@ public:
     const RimWellPathFractureCollection*  fractureCollection() const;
     RimWellPathAttributeCollection*       attributeCollection();
     const RimWellPathAttributeCollection* attributeCollection() const;
+    RimWellMeasurementCollection*         measurementCollection();
+    const RimWellMeasurementCollection*   measurementCollection() const;
 
     bool showWellPathLabel() const;
     bool showWellPath() const;
@@ -171,6 +174,7 @@ private:
     caf::PdmChildField<Rim3dWellLogCurveCollection*>    m_3dWellLogCurves;
     caf::PdmChildField<RimWellPathCompletions*>         m_completions;
     caf::PdmChildField<RimWellPathAttributeCollection*> m_wellPathAttributes;
+    caf::PdmChildField<RimWellMeasurementCollection*>   m_wellMeasurements;
 
 private:
     static size_t simulationWellBranchCount( const QString& simWellName );

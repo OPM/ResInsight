@@ -27,6 +27,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellPath.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFileWellPath.h
 ${CMAKE_CURRENT_LIST_DIR}/RimModeledWellPath.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurement.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGeometryDef.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttribute.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttributeCollection.h
@@ -173,6 +174,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellPath.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFileWellPath.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimModeledWellPath.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurement.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGeometryDef.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttribute.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttributeCollection.cpp
