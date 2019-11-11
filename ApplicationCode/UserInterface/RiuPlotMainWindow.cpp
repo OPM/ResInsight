@@ -24,7 +24,6 @@
 #include "RiaSummaryTools.h"
 
 #include "RimEnsembleCurveSetCollection.h"
-#include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurveCollection.h"
@@ -99,8 +98,7 @@ QString RiuPlotMainWindow::mainWindowName()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
 {
-    auto project = RiaApplication::instance()->project();
-    setPdmRoot( project );
+    setPdmRoot( RiaApplication::instance()->project() );
     restoreTreeViewState();
 
     if ( m_pdmUiPropertyView && m_pdmUiPropertyView->currentObject() )
@@ -142,11 +140,6 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
     }
 
     refreshToolbars();
-
-    if ( project && project->mainPlotCollection() )
-    {
-        project->mainPlotCollection()->ensureDefaultFlowPlotsAreCreated();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -305,5 +305,5 @@ void RimMainPlotCollection::deleteAllCachedData()
 //--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::ensureDefaultFlowPlotsAreCreated()
 {
-    m_flowPlotCollection()->ensureDefaultPlotsAreCreated();
+    m_flowPlotCollection()->ensureDefaultFlowPlotsAreCreated();
 }

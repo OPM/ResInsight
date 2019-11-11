@@ -45,8 +45,7 @@ public:
     void                        addFlowCharacteristicsPlotToStoredPlots( RimFlowCharacteristicsPlot* plot );
     RimWellAllocationPlot*      defaultWellAllocPlot();
     RimFlowCharacteristicsPlot* defaultFlowCharacteristicsPlot();
-
-    void ensureDefaultPlotsAreCreated();
+    void                        ensureDefaultFlowPlotsAreCreated();
 
 private:
     caf::PdmChildField<RimFlowCharacteristicsPlot*>      m_flowCharacteristicsPlot;
