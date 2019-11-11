@@ -225,11 +225,11 @@ void RiuMultiPlotWindow::setSelectionsVisible( bool visible )
     {
         if ( visible && caf::SelectionManager::instance()->isSelected( plotWidget->plotDefinition(), 0 ) )
         {
-            plotWidget->setWidgetState( RiuWidgetStyleSheet::SELECTED );
+            plotWidget->setWidgetState( "selected" );
         }
         else
         {
-            plotWidget->setWidgetState( RiuWidgetStyleSheet::DEFAULT );
+            caf::UiStyleSheet::clearWidgetStates( plotWidget );
         }
     }
 }
@@ -361,7 +361,7 @@ void RiuMultiPlotWindow::dragEnterEvent( QDragEnterEvent* event )
     RiuQwtPlotWidget* source = dynamic_cast<RiuQwtPlotWidget*>( event->source() );
     if ( source )
     {
-        setWidgetState( RiuWidgetStyleSheet::DRAG_TARGET_INTO );
+        setWidgetState( "dragTargetInto" );
         event->acceptProposedAction();
     }
 }
@@ -376,7 +376,7 @@ void RiuMultiPlotWindow::dragMoveEvent( QDragMoveEvent* event )
         RiuQwtPlotWidget* source = dynamic_cast<RiuQwtPlotWidget*>( event->source() );
         if ( source && willAcceptDroppedPlot( source ) )
         {
-            setWidgetState( RiuWidgetStyleSheet::DRAG_TARGET_INTO );
+            setWidgetState( "dragTargetInto" );
 
             QRect  originalGeometry = source->geometry();
             QPoint offset           = source->dragStartPosition();
@@ -387,7 +387,7 @@ void RiuMultiPlotWindow::dragMoveEvent( QDragMoveEvent* event )
             int insertBeforeIndex = visiblePlotWidgets.size();
             for ( int visibleIndex = 0; visibleIndex < visiblePlotWidgets.size(); ++visibleIndex )
             {
-                visiblePlotWidgets[visibleIndex]->setWidgetState( RiuWidgetStyleSheet::DEFAULT );
+                caf::UiStyleSheet::clearWidgetStates( visiblePlotWidgets[visibleIndex] );
 
                 if ( visiblePlotWidgets[visibleIndex]->frameIsInFrontOfThis( newRect ) )
                 {
@@ -396,13 +396,13 @@ void RiuMultiPlotWindow::dragMoveEvent( QDragMoveEvent* event )
             }
             if ( insertBeforeIndex >= 0 && insertBeforeIndex < visiblePlotWidgets.size() )
             {
-                visiblePlotWidgets[insertBeforeIndex]->setWidgetState( RiuWidgetStyleSheet::DRAG_TARGET_BEFORE );
+                visiblePlotWidgets[insertBeforeIndex]->setWidgetState( "dragTargetBefore" );
             }
 
             if ( insertBeforeIndex > 0 )
             {
                 int insertAfterIndex = insertBeforeIndex - 1;
-                visiblePlotWidgets[insertAfterIndex]->setWidgetState( RiuWidgetStyleSheet::DRAG_TARGET_AFTER );
+                visiblePlotWidgets[insertAfterIndex]->setWidgetState( "dragTargetAfter" );
             }
             event->acceptProposedAction();
         }
@@ -414,11 +414,11 @@ void RiuMultiPlotWindow::dragMoveEvent( QDragMoveEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotWindow::dragLeaveEvent( QDragLeaveEvent* event )
 {
-    setWidgetState( RiuWidgetStyleSheet::DEFAULT );
+    caf::UiStyleSheet::clearWidgetStates( this );
 
     for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
     {
-        m_plotWidgets[tIdx]->setWidgetState( RiuWidgetStyleSheet::DEFAULT );
+        caf::UiStyleSheet::clearWidgetStates( m_plotWidgets[tIdx] );
     }
 }
 
@@ -427,11 +427,11 @@ void RiuMultiPlotWindow::dragLeaveEvent( QDragLeaveEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotWindow::dropEvent( QDropEvent* event )
 {
-    setWidgetState( RiuWidgetStyleSheet::DEFAULT );
+    caf::UiStyleSheet::clearWidgetStates( this );
 
     for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
     {
-        m_plotWidgets[tIdx]->setWidgetState( RiuWidgetStyleSheet::DEFAULT );
+        caf::UiStyleSheet::clearWidgetStates( m_plotWidgets[tIdx] );
     }
 
     if ( this->geometry().contains( event->pos() ) )
@@ -468,7 +468,7 @@ void RiuMultiPlotWindow::dropEvent( QDropEvent* event )
 
             if ( insertAfter != plotToMove )
             {
-                m_plotDefinition->movePlotsToThis( {plotToMove}, insertAfter );
+                m_plotDefinition->movePlotsToThis( { plotToMove }, insertAfter );
             }
         }
     }
@@ -514,11 +514,11 @@ void RiuMultiPlotWindow::onSelectionManagerSelectionChanged( const std::set<int>
         }
         if ( isSelected )
         {
-            plotWidget->setWidgetState( RiuWidgetStyleSheet::SELECTED );
+            plotWidget->setWidgetState( "selected" );
         }
         else
         {
-            plotWidget->setWidgetState( RiuWidgetStyleSheet::DEFAULT );
+            caf::UiStyleSheet::clearWidgetStates( plotWidget );
         }
     }
 }
@@ -526,7 +526,7 @@ void RiuMultiPlotWindow::onSelectionManagerSelectionChanged( const std::set<int>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::setWidgetState( RiuWidgetStyleSheet::StateTag widgetState )
+void RiuMultiPlotWindow::setWidgetState( const QString& widgetState )
 {
     m_dropTargetStyleSheet.setWidgetState( m_dropTargetPlaceHolder, widgetState );
 }
@@ -692,15 +692,15 @@ void RiuMultiPlotWindow::clearGridLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWidgetStyleSheet RiuMultiPlotWindow::createDropTargetStyleSheet()
+caf::UiStyleSheet RiuMultiPlotWindow::createDropTargetStyleSheet()
 {
-    RiuWidgetStyleSheet styleSheet;
+    caf::UiStyleSheet styleSheet;
 
     styleSheet.set( "background-color", "white" );
     styleSheet.set( "border", "1px dashed black" );
     styleSheet.set( "font-size", "14pt" );
-    styleSheet.state( RiuWidgetStyleSheet::DRAG_TARGET_INTO ).set( "border", "1px dashed lime" );
-    styleSheet.state( RiuWidgetStyleSheet::DRAG_TARGET_INTO ).set( "background-color", "#DDFFDD" );
+    styleSheet.property( "dragTargetInto" ).set( "border", "1px dashed lime" );
+    styleSheet.property( "dragTargetInto" ).set( "background-color", "#DDFFDD" );
 
     return styleSheet;
 }

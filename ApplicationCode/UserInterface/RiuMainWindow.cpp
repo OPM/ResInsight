@@ -680,6 +680,7 @@ void RiuMainWindow::createDockPanels()
 
         m_projectTreeView = new caf::PdmUiTreeView( this );
         m_projectTreeView->enableSelectionManagerUpdating( true );
+        m_styleSheet.applyToWidgetAndChildren( m_projectTreeView );
 
         RiaApplication* app = RiaApplication::instance();
         m_projectTreeView->enableAppendOfClassNameToUiItemText( app->preferences()->appendClassNameToUiText() );

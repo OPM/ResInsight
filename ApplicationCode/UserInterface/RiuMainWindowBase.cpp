@@ -46,6 +46,7 @@ RiuMainWindowBase::RiuMainWindowBase()
     , m_blockSubWindowProjectTreeSelection( false )
 {
     setDockNestingEnabled( true );
+    m_styleSheet = createStyleSheet();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -311,6 +312,17 @@ void RiuMainWindowBase::removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* vie
             tileSubWindows();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::UiStyleSheet RiuMainWindowBase::createStyleSheet()
+{
+    caf::UiStyleSheet styleSheet;
+    styleSheet.set( "background-color", QColor( Qt::lightGray ).name() );
+    styleSheet.set( "border", "1px dashed black" );
+    return styleSheet;
 }
 
 //--------------------------------------------------------------------------------------------------

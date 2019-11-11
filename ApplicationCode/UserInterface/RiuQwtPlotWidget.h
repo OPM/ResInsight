@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RiuWidgetStyleSheet.h"
+#include "cafUiStyleSheet.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -98,7 +98,7 @@ public:
     QPoint dragStartPosition() const;
 
     void scheduleReplot();
-    void setWidgetState( RiuWidgetStyleSheet::StateTag widgetState );
+    void setWidgetState( const QString& widgetState );
 
 protected:
     QSize sizeHint() const override;
@@ -125,8 +125,8 @@ private:
     void resetCurveHighlighting();
     void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
 
-    RiuWidgetStyleSheet createPlotStyleSheet() const;
-    RiuWidgetStyleSheet createCanvasStyleSheet() const;
+    caf::UiStyleSheet createPlotStyleSheet() const;
+    caf::UiStyleSheet createCanvasStyleSheet() const;
 
 private:
     caf::PdmPointer<RimPlot>         m_plotDefinition;
@@ -146,8 +146,8 @@ private:
     std::map<QwtPlotCurve*, CurveColors> m_originalCurveColors;
     std::map<QwtPlotCurve*, double>      m_originalZValues;
 
-    RiuWidgetStyleSheet m_plotStyleSheet;
-    RiuWidgetStyleSheet m_canvasStyleSheet;
+    caf::UiStyleSheet m_plotStyleSheet;
+    caf::UiStyleSheet m_canvasStyleSheet;
 
     friend class RiaPlotWindowRedrawScheduler;
 };

@@ -20,7 +20,7 @@
 #pragma once
 
 #include "RiuInterfaceToViewWindow.h"
-#include "RiuWidgetStyleSheet.h"
+#include "cafUiStyleSheet.h"
 
 #include "cafPdmPointer.h"
 #include "cafSelectionChangedReceiver.h"
@@ -93,15 +93,15 @@ protected:
 
     virtual void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
 
-    void setWidgetState( RiuWidgetStyleSheet::StateTag widgetState );
+    void setWidgetState( const QString& widgetState );
 
     virtual bool showYAxis( int row, int column ) const;
 
     void reinsertPlotWidgets();
     int  alignCanvasTops();
 
-    void                clearGridLayout();
-    RiuWidgetStyleSheet createDropTargetStyleSheet();
+    void              clearGridLayout();
+    caf::UiStyleSheet createDropTargetStyleSheet();
 
     QList<QPointer<RiuQwtPlotWidget>> visiblePlotWidgets() const;
     QList<QPointer<RiuQwtPlotLegend>> visibleLegends() const;
@@ -125,7 +125,7 @@ protected:
     caf::PdmPointer<RimMultiPlotWindow> m_plotDefinition;
     QPointer<QLabel>                    m_dropTargetPlaceHolder;
 
-    RiuWidgetStyleSheet m_dropTargetStyleSheet;
+    caf::UiStyleSheet m_dropTargetStyleSheet;
 
 private:
     friend class RiaPlotWindowRedrawScheduler;

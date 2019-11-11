@@ -422,8 +422,9 @@ void RiuQwtPlotWidget::scheduleReplot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setWidgetState( RiuWidgetStyleSheet::StateTag widgetState )
+void RiuQwtPlotWidget::setWidgetState( const QString& widgetState )
 {
+    caf::UiStyleSheet::clearWidgetStates( this );
     m_plotStyleSheet.setWidgetState( this, widgetState );
 }
 
@@ -608,18 +609,18 @@ void RiuQwtPlotWidget::onAxisSelected( QwtScaleWidget* scale, bool toggleItemInS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWidgetStyleSheet RiuQwtPlotWidget::createPlotStyleSheet() const
+caf::UiStyleSheet RiuQwtPlotWidget::createPlotStyleSheet() const
 {
     QColor backgroundColor       = QColor( "white" );
     QColor highlightColor        = QApplication::palette().highlight().color();
     QColor blendedHighlightColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 20 );
     QColor nearlyBackgroundColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 40 );
 
-    RiuWidgetStyleSheet styleSheet;
+    caf::UiStyleSheet styleSheet;
     styleSheet.set( "background-color", backgroundColor.name() );
     styleSheet.set( "border", "1 px solid transparent" );
 
-    styleSheet.state( RiuWidgetStyleSheet::SELECTED ).set( "border", QString( "1px solid %1" ).arg( highlightColor.name() ) );
+    styleSheet.property( "selected" ).set( "border", QString( "1px solid %1" ).arg( highlightColor.name() ) );
 
     if ( m_draggable )
     {
@@ -629,21 +630,20 @@ RiuWidgetStyleSheet RiuQwtPlotWidget::createPlotStyleSheet() const
                                                   .arg( nearlyBackgroundColor.name() )
                                                   .arg( backgroundColor.name() ) );
 
-        styleSheet.state( RiuWidgetStyleSheet::HOVER ).set( "background", backgroundGradient );
-        styleSheet.state( RiuWidgetStyleSheet::HOVER )
-            .set( "border", QString( "1px dashed %1" ).arg( blendedHighlightColor.name() ) );
+        styleSheet.pseudoState( "hover" ).set( "background", backgroundGradient );
+        styleSheet.pseudoState( "hover" ).set( "border", QString( "1px dashed %1" ).arg( blendedHighlightColor.name() ) );
     }
-    styleSheet.state( RiuWidgetStyleSheet::DRAG_TARGET_BEFORE ).set( "border-left", "1px solid lime" );
-    styleSheet.state( RiuWidgetStyleSheet::DRAG_TARGET_AFTER ).set( "border-right", "1px solid lime" );
+    styleSheet.property( "dropTargetBefore" ).set( "border-left", "1px solid lime" );
+    styleSheet.property( "dropTargetAfter" ).set( "border-right", "1px solid lime" );
     return styleSheet;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWidgetStyleSheet RiuQwtPlotWidget::createCanvasStyleSheet() const
+caf::UiStyleSheet RiuQwtPlotWidget::createCanvasStyleSheet() const
 {
-    RiuWidgetStyleSheet styleSheet;
+    caf::UiStyleSheet styleSheet;
     styleSheet.set( "background-color", "#FAFAFA" );
     styleSheet.set( "border", "1px solid LightGray" );
     return styleSheet;
@@ -654,7 +654,7 @@ RiuWidgetStyleSheet RiuQwtPlotWidget::createCanvasStyleSheet() const
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setDefaults()
 {
-    setEnabledAxes( {QwtPlot::xTop, QwtPlot::yLeft} );
+    setEnabledAxes( { QwtPlot::xTop, QwtPlot::yLeft } );
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
 }
 
@@ -796,7 +796,7 @@ void RiuQwtPlotWidget::highlightCurve( const QwtPlotCurve* closestCurve )
                     symbol->setPen( blendedSymbolLineColor, symbol->pen().width(), symbol->pen().style() );
                 }
             }
-            CurveColors curveColors = {curveColor, symbolColor, symbolLineColor};
+            CurveColors curveColors = { curveColor, symbolColor, symbolLineColor };
             m_originalCurveColors.insert( std::make_pair( plotCurve, curveColors ) );
             m_originalCurveColors.insert( std::make_pair( plotCurve, curveColors ) );
             m_originalZValues.insert( std::make_pair( plotCurve, zValue ) );
