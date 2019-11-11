@@ -25,6 +25,7 @@
 
 class RimGridSummaryCase;
 class RimSummaryCase;
+class RimFileSummaryCase;
 class RimEclipseResultCase;
 class RimSummaryCaseCollection;
 class RifSummaryCaseFileResultInfo;
@@ -73,6 +74,7 @@ public:
 
 private:
     static void                      loadSummaryCaseData( std::vector<RimSummaryCase*> summaryCases );
+    static void                      loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases );
     static RimSummaryCaseCollection* defaultAllocator();
 
 private:
