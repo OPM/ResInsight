@@ -61,6 +61,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveAnalyzer-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaStdStringTools-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifWellMeasurementReader-Test.cpp
 )
 
 if (RESINSIGHT_ENABLE_GRPC)
