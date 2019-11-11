@@ -154,6 +154,8 @@ RimWellAllocationPlot::~RimWellAllocationPlot()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::setFromSimulationWell( RimSimWellInView* simWell )
 {
+    m_showWindow = true;
+
     RimEclipseView* eclView;
     simWell->firstAncestorOrThisOfType( eclView );
     RimEclipseResultCase* eclCase;
@@ -169,8 +171,6 @@ void RimWellAllocationPlot::setFromSimulationWell( RimSimWellInView* simWell )
     {
         m_flowDiagSolution = m_case->defaultFlowDiagSolution();
     }
-
-    m_showWindow = true;
 
     onLoadDataAndUpdate();
 }

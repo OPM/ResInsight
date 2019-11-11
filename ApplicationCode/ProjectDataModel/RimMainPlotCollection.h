@@ -66,7 +66,6 @@ public:
     void updatePlotsWithFormations();
     void updatePlotsWithCompletions();
     void deleteAllCachedData();
-
     void ensureDefaultFlowPlotsAreCreated();
 
 private:
