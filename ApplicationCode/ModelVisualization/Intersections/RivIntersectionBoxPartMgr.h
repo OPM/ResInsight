@@ -55,8 +55,6 @@ private:
     void updatePartEffect();
     void generatePartGeometry();
 
-    cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
-
 private:
     RimIntersectionBox* m_rimIntersectionBox;
 

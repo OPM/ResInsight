@@ -64,7 +64,7 @@ RivIntersectionBoxPartMgr::RivIntersectionBoxPartMgr( RimIntersectionBox* inters
 
     m_intersectionBoxFacesTextureCoords = new cvf::Vec2fArray;
 
-    cvf::ref<RivIntersectionHexGridInterface> hexGrid = createHexGridInterface();
+    cvf::ref<RivIntersectionHexGridInterface> hexGrid = intersectionBox->createHexGridInterface();
     m_intersectionBoxGenerator = new RivIntersectionBoxGeometryGenerator( m_rimIntersectionBox, hexGrid.p() );
 }
 
@@ -355,31 +355,4 @@ void RivIntersectionBoxPartMgr::appendMeshLinePartsToModel( cvf::ModelBasicList*
         m_intersectionBoxGridLines->setTransform( scaleTransform );
         model->addPart( m_intersectionBoxGridLines.p() );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<RivIntersectionHexGridInterface> RivIntersectionBoxPartMgr::createHexGridInterface()
-{
-    RimEclipseView* eclipseView;
-    m_rimIntersectionBox->firstAncestorOrThisOfType( eclipseView );
-    if ( eclipseView )
-    {
-        RigMainGrid* grid = eclipseView->mainGrid();
-
-        return new RivEclipseIntersectionGrid( grid,
-                                               eclipseView->currentActiveCellInfo(),
-                                               m_rimIntersectionBox->isInactiveCellsVisible() );
-    }
-
-    RimGeoMechView* geoView;
-    m_rimIntersectionBox->firstAncestorOrThisOfType( geoView );
-    if ( geoView )
-    {
-        RigFemPart* femPart = geoView->femParts()->part( 0 );
-        return new RivFemIntersectionGrid( femPart );
-    }
-
-    return nullptr;
 }

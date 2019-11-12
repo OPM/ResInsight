@@ -97,7 +97,7 @@ RivIntersectionPartMgr::RivIntersectionPartMgr( RimIntersection* rimCrossSection
     if ( polyLines.size() > 0 )
     {
         cvf::Vec3d                                direction = m_rimCrossSection->extrusionDirection();
-        cvf::ref<RivIntersectionHexGridInterface> hexGrid   = createHexGridInterface();
+        cvf::ref<RivIntersectionHexGridInterface> hexGrid   = m_rimCrossSection->createHexGridInterface();
         m_crossSectionGenerator                             = new RivIntersectionGeometryGenerator( m_rimCrossSection,
                                                                         polyLines,
                                                                         direction,
@@ -997,31 +997,4 @@ const RimIntersection* RivIntersectionPartMgr::intersection() const
 cvf::Mat4d RivIntersectionPartMgr::unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat )
 {
     return m_crossSectionGenerator->unflattenTransformMatrix( intersectionPointFlat );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<RivIntersectionHexGridInterface> RivIntersectionPartMgr::createHexGridInterface()
-{
-    RimEclipseView* eclipseView;
-    m_rimCrossSection->firstAncestorOrThisOfType( eclipseView );
-    if ( eclipseView )
-    {
-        RigMainGrid* grid = eclipseView->mainGrid();
-        return new RivEclipseIntersectionGrid( grid,
-                                               eclipseView->currentActiveCellInfo(),
-                                               m_rimCrossSection->isInactiveCellsVisible() );
-    }
-
-    RimGeoMechView* geoView;
-    m_rimCrossSection->firstAncestorOrThisOfType( geoView );
-    if ( geoView && geoView->femParts() && geoView->femParts()->partCount() )
-    {
-        RigFemPart* femPart = geoView->femParts()->part( 0 );
-
-        return new RivFemIntersectionGrid( femPart );
-    }
-
-    return nullptr;
 }

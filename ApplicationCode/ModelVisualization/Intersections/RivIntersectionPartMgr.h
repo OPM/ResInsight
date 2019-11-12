@@ -117,8 +117,6 @@ private:
     void createPolyLineParts( bool useBufferObjects );
     void createExtrusionDirParts( bool useBufferObjects );
 
-    cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
-
 private:
     caf::PdmPointer<RimIntersection> m_rimCrossSection;
 
