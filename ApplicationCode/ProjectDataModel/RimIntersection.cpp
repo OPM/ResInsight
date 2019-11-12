@@ -146,14 +146,14 @@ void RimIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                         const QVariant&            oldValue,
                                         const QVariant&            newValue )
 {
-    if ( changedField == &isActive || changedField == &type || changedField == &direction || changedField == &wellPath ||
+    if ( changedField == &m_isActive || changedField == &type || changedField == &direction || changedField == &wellPath ||
          changedField == &simulationWell || changedField == &m_branchIndex || changedField == &m_extentLength ||
-         changedField == &m_lengthUp || changedField == &m_lengthDown || changedField == &showInactiveCells )
+         changedField == &m_lengthUp || changedField == &m_lengthDown || changedField == &m_showInactiveCells )
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
 
-    if ( changedField == &simulationWell || changedField == &isActive || changedField == &type )
+    if ( changedField == &simulationWell || changedField == &m_isActive || changedField == &type )
     {
         recomputeSimulationWellBranchData();
     }
@@ -163,7 +163,7 @@ void RimIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateName();
     }
 
-    if ( changedField == &name )
+    if ( changedField == &m_name )
     {
         Rim2dIntersectionView* iView = correspondingIntersectionView();
         if ( iView )
@@ -223,7 +223,7 @@ void RimIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &name );
+    uiOrdering.add( &m_name );
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup( "Intersecting Geometry" );
     geometryGroup->add( &type );
 
@@ -272,7 +272,7 @@ void RimIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         optionsGroup->add( &inputExtrusionPointsFromViewerEnabled );
     }
 
-    optionsGroup->add( &showInactiveCells );
+    optionsGroup->add( &m_showInactiveCells );
 
     if ( type == CS_POLYLINE )
     {
@@ -283,7 +283,7 @@ void RimIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         m_extentLength.uiCapability()->setUiReadOnly( false );
     }
 
-    this->defineSeparateDataSourceUi(uiConfigName, uiOrdering);
+    this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
 
     updateWellExtentDefaultValue();
 
@@ -339,9 +339,9 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions( const caf:
             options.push_back( caf::PdmOptionItemInfo( QString::number( bIdx + 1 ), QVariant::fromValue( bIdx ) ) );
         }
     }
-    else 
+    else
     {
-        options = RimIntersectionHandle::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+        options = RimIntersectionHandle::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
     }
 
     return options;
@@ -509,7 +509,7 @@ std::vector<cvf::Vec3d> RimIntersection::polyLinesForExtrusionDirection() const
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::updateSimulationWellCenterline() const
 {
-    if ( isActive() && type == CS_SIMULATION_WELL && simulationWell() )
+    if ( m_isActive() && type == CS_SIMULATION_WELL && simulationWell() )
     {
         if ( m_simulationWellBranchCenterlines.empty() )
         {
@@ -607,15 +607,15 @@ void RimIntersection::updateName()
 {
     if ( type == CS_SIMULATION_WELL && simulationWell() )
     {
-        name = simulationWell()->name();
+        m_name = simulationWell()->name();
         if ( branchIndex() != -1 )
         {
-            name = name() + " Branch " + QString::number( branchIndex() + 1 );
+            m_name = m_name() + " Branch " + QString::number( branchIndex() + 1 );
         }
     }
     else if ( type() == CS_WELL_PATH && wellPath() )
     {
-        name = wellPath()->name();
+        m_name = wellPath()->name();
     }
 
     Rim2dIntersectionView* iView = correspondingIntersectionView();
@@ -939,10 +939,10 @@ CAF_PDM_SOURCE_INIT( RimIntersectionHandle, "RimIntersectionHandle" );
 //--------------------------------------------------------------------------------------------------
 RimIntersectionHandle::RimIntersectionHandle()
 {
-    CAF_PDM_InitField( &name, "UserDescription", QString( "Intersection Name" ), "Name", "", "", "" );
-    CAF_PDM_InitField( &isActive, "Active", true, "Active", "", "", "" );
-    isActive.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitField( &showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "" );
+    CAF_PDM_InitField( &m_name, "UserDescription", QString( "Intersection Name" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "Active", true, "Active", "", "", "" );
+    m_isActive.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &m_showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_separateDataSource, "SeparateIntersectionDataSource", "Source", "", "", "" );
 }
 
@@ -950,6 +950,46 @@ RimIntersectionHandle::RimIntersectionHandle()
 ///
 //--------------------------------------------------------------------------------------------------
 RimIntersectionHandle::~RimIntersectionHandle() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimIntersectionHandle::name() const
+{
+    return m_name();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionHandle::setName( const QString& newName )
+{
+    m_name = newName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimIntersectionHandle::isActive() const
+{
+    return m_isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionHandle::setActive( bool isActive )
+{
+    m_isActive = isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimIntersectionHandle::isInactiveCellsVisible() const
+{
+    return m_showInactiveCells;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1002,7 +1042,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimIntersectionHandle::userDescriptionField()
 {
-    return &name;
+    return &m_name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1010,7 +1050,7 @@ caf::PdmFieldHandle* RimIntersectionHandle::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimIntersectionHandle::objectToggleField()
 {
-    return &isActive;
+    return &m_isActive;
 }
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1023,7 +1063,7 @@ void RimIntersectionHandle::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionHandle::defineSeparateDataSourceUi( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) 
+void RimIntersectionHandle::defineSeparateDataSourceUi( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     QString inactiveText;
     if ( !this->activeSeparateResultDefinition() )

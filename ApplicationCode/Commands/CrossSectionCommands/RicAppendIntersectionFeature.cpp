@@ -99,7 +99,7 @@ void RicAppendIntersectionFeatureCmd::redo()
     CVF_ASSERT( m_intersectionCollection );
 
     RimIntersection* intersection = new RimIntersection();
-    intersection->name            = QString( "Intersection" );
+    intersection->setName( "Intersection" );
     m_intersectionCollection->appendIntersectionAndUpdate( intersection );
 
     RimGridView* view = nullptr;

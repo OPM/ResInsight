@@ -103,8 +103,8 @@ void RicNewPolylineIntersectionFeatureCmd::redo()
 {
     CVF_ASSERT( m_intersectionCollection );
 
-    RimIntersection* intersection                = new RimIntersection();
-    intersection->name                           = "Polyline";
+    RimIntersection* intersection = new RimIntersection();
+    intersection->setName( "Polyline" );
     intersection->type                           = RimIntersection::CS_POLYLINE;
     intersection->inputPolyLineFromViewerEnabled = true;
 

@@ -79,7 +79,7 @@ void RimIntersectionCollection::applySingleColorEffect()
 
     for ( RimIntersection* cs : m_intersections )
     {
-        if ( cs->isActive )
+        if ( cs->isActive() )
         {
             cs->intersectionPartMgr()->applySingleColorEffect();
         }
@@ -105,7 +105,7 @@ void RimIntersectionCollection::updateCellResultColor( size_t                   
 
     for ( RimIntersection* cs : m_intersections )
     {
-        if ( cs->isActive )
+        if ( cs->isActive() )
         {
             cs->intersectionPartMgr()->updateCellResultColor( timeStepIndex, scalarColorMapper, ternaryColorMapper );
         }
@@ -127,11 +127,11 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView&           view,
                                                     cvf::ModelBasicList* model,
                                                     cvf::Transform*      scaleTransform )
 {
-    if ( !isActive ) return;
+    if ( !isActive() ) return;
 
     for ( RimIntersection* cs : m_intersections )
     {
-        if ( cs->isActive )
+        if ( cs->isActive() )
         {
             cs->intersectionPartMgr()->appendNativeCrossSectionFacesToModel( model, scaleTransform );
             cs->intersectionPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
@@ -141,7 +141,7 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView&           view,
 
     for ( RimIntersectionBox* cs : m_intersectionBoxes )
     {
-        if ( cs->isActive )
+        if ( cs->isActive() )
         {
             cs->intersectionBoxPartMgr()->appendNativeCrossSectionFacesToModel( model, scaleTransform );
             cs->intersectionBoxPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
@@ -302,11 +302,11 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 bool RimIntersectionCollection::hasActiveIntersectionForSimulationWell( const RimSimWellInView* simWell ) const
 {
-    if ( !isActive ) return false;
+    if ( !isActive() ) return false;
 
     for ( RimIntersection* cs : m_intersections )
     {
-        if ( cs->isActive && cs->type() == RimIntersection::CS_SIMULATION_WELL && cs->simulationWell() == simWell )
+        if ( cs->isActive() && cs->type() == RimIntersection::CS_SIMULATION_WELL && cs->simulationWell() == simWell )
         {
             return true;
         }

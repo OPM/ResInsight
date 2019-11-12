@@ -89,8 +89,8 @@ void RicPasteIntersectionsFeature::onActionTriggered( bool isChecked )
         RimIntersection* intersection = dynamic_cast<RimIntersection*>(
             intersectionObjects[i]->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
-        QString nameOfCopy = QString( "Copy of " ) + intersection->name;
-        intersection->name = nameOfCopy;
+        QString nameOfCopy = QString( "Copy of " ) + intersection->name();
+        intersection->setName( nameOfCopy );
 
         if ( i == intersectionObjects.size() - 1 )
         {

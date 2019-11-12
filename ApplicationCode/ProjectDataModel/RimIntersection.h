@@ -49,9 +49,13 @@ public:
     RimIntersectionHandle();
     ~RimIntersectionHandle() override;
 
-    caf::PdmField<QString> name;
-    caf::PdmField<bool>    isActive;
-    caf::PdmField<bool>    showInactiveCells;
+    QString name() const;
+    void    setName( const QString& newName );
+
+    bool isActive() const;
+    void setActive( bool isActive );
+
+    bool isInactiveCellsVisible() const;
 
     RimIntersectionResultDefinition* activeSeparateResultDefinition();
 
@@ -64,6 +68,10 @@ protected:
 
     void defineSeparateDataSourceUi( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     void updateDefaultSeparateDataSource();
+
+    caf::PdmField<QString> m_name;
+    caf::PdmField<bool>    m_isActive;
+    caf::PdmField<bool>    m_showInactiveCells;
 
     caf::PdmPtrField<RimIntersectionResultDefinition*> m_separateDataSource;
 };

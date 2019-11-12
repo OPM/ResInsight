@@ -1011,7 +1011,7 @@ cvf::ref<RivIntersectionHexGridInterface> RivIntersectionPartMgr::createHexGridI
         RigMainGrid* grid = eclipseView->mainGrid();
         return new RivEclipseIntersectionGrid( grid,
                                                eclipseView->currentActiveCellInfo(),
-                                               m_rimCrossSection->showInactiveCells() );
+                                               m_rimCrossSection->isInactiveCellsVisible() );
     }
 
     RimGeoMechView* geoView;
