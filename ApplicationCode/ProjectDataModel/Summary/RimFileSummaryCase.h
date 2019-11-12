@@ -50,7 +50,9 @@ public:
 
     void setIncludeRestartFiles( bool includeRestartFiles );
 
-    static RifReaderEclipseRft* findRftDataAndCreateReader( const QString& headerFileName );
+    static RifReaderEclipseSummary* findRelatedFilesAndCreateReader( const QString& headerFileName,
+                                                                     bool           includeRestartFiles );
+    static RifReaderEclipseRft*     findRftDataAndCreateReader( const QString& headerFileName );
 
 private:
     cvf::ref<RifReaderEclipseSummary> m_summaryFileReader;

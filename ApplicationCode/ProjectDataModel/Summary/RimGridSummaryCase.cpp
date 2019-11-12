@@ -52,8 +52,6 @@ RimGridSummaryCase::RimGridSummaryCase()
 
     CAF_PDM_InitField( &m_includeRestartFiles, "IncludeRestartFiles", false, "Include Restart Files", "", "", "" );
     m_includeRestartFiles.uiCapability()->setUiHidden( true );
-
-    m_summaryFileReader = new RifReaderEclipseSummary;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,10 +173,8 @@ void RimGridSummaryCase::updateFilePathsFromProjectPath( const QString& newProje
 //--------------------------------------------------------------------------------------------------
 void RimGridSummaryCase::createSummaryReaderInterface()
 {
-    if ( !m_summaryFileReader->open( this->summaryHeaderFilename(), m_includeRestartFiles ) )
-    {
-        m_summaryFileReader = nullptr;
-    }
+    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
+                                                                               m_includeRestartFiles );
 }
 
 //--------------------------------------------------------------------------------------------------
