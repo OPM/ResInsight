@@ -570,14 +570,6 @@ void RifReaderEclipseSummary::markForCachePurge( const RifEclipseSummaryAddress&
     m_valuesCache->markAddressForPurge( address );
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifReaderEclipseSummary::purgeCache()
-{
-    ValuesCache::purge();
-}
-
 #if 0
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -597,26 +589,17 @@ void RifReaderEclipseSummary::populateVectorFromStringList(stringlist_type* stri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>                       RifReaderEclipseSummary::ValuesCache::EMPTY_VECTOR;
-std::set<RifReaderEclipseSummary::ValuesCache*> RifReaderEclipseSummary::ValuesCache::m_instances;
+const std::vector<double> RifReaderEclipseSummary::ValuesCache::EMPTY_VECTOR;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary::ValuesCache::ValuesCache()
-{
-    // Register instance
-    m_instances.insert( this );
-}
+RifReaderEclipseSummary::ValuesCache::ValuesCache() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary::ValuesCache::~ValuesCache()
-{
-    // Deregister instance
-    m_instances.erase( this );
-}
+RifReaderEclipseSummary::ValuesCache::~ValuesCache() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -646,15 +629,6 @@ const std::vector<double>& RifReaderEclipseSummary::ValuesCache::getValues( cons
 void RifReaderEclipseSummary::ValuesCache::markAddressForPurge( const RifEclipseSummaryAddress& address )
 {
     m_purgeList.insert( address );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifReaderEclipseSummary::ValuesCache::purge()
-{
-    for ( auto instance : m_instances )
-        instance->purgeData();
 }
 
 //--------------------------------------------------------------------------------------------------

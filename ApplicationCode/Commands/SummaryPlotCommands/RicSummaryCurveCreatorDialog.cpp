@@ -84,5 +84,4 @@ void RicSummaryCurveCreatorDialog::slotDialogFinished()
     {
         plotwindow->cleanUpTemporaryWidgets();
     }
-    RifReaderEclipseSummary::purgeCache();
 }

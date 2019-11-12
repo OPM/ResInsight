@@ -399,6 +399,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
 {
     // Use openMP when reading file summary case meta data. Avoid using the virtual interface of base class
     // RimSummaryCase, as it is difficult to make sure all variants of the leaf classes are thread safe.
+    // Only open the summary file reader in parallel loop to reduce risk of multithreading issues
 
 #pragma omp parallel for
     for ( int cIdx = 0; cIdx < static_cast<int>( fileSummaryCases.size() ); ++cIdx )
@@ -407,6 +408,14 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
         if ( fileSummaryCase )
         {
             fileSummaryCase->createSummaryReaderInterface();
+        }
+    }
+
+    for ( int cIdx = 0; cIdx < static_cast<int>( fileSummaryCases.size() ); ++cIdx )
+    {
+        RimFileSummaryCase* fileSummaryCase = fileSummaryCases[cIdx];
+        if ( fileSummaryCase )
+        {
             fileSummaryCase->createRftReaderInterface();
             addCaseRealizationParametersIfFound( *fileSummaryCase, fileSummaryCase->summaryHeaderFilename() );
         }
