@@ -41,12 +41,39 @@ class PdmUiListEditorAttribute;
 class PdmUiPushButtonEditorAttribute;
 } // namespace caf
 
+class RimIntersectionHandle : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimIntersectionHandle();
+    ~RimIntersectionHandle() override;
+
+    caf::PdmField<QString> name;
+    caf::PdmField<bool>    isActive;
+    caf::PdmField<bool>    showInactiveCells;
+
+    RimIntersectionResultDefinition* activeSeparateResultDefinition();
+
+protected:
+    caf::PdmFieldHandle*          userDescriptionField() override;
+    caf::PdmFieldHandle*          objectToggleField() override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+    void                          initAfterRead() override;
+
+    void defineSeparateDataSourceUi( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void updateDefaultSeparateDataSource();
+
+    caf::PdmPtrField<RimIntersectionResultDefinition*> m_separateDataSource;
+};
+
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
-class RimIntersection : public caf::PdmObject
+class RimIntersection : public RimIntersectionHandle
 {
     CAF_PDM_HEADER_INIT;
 
@@ -70,12 +97,8 @@ public:
     RimIntersection();
     ~RimIntersection() override;
 
-    caf::PdmField<QString> name;
-    caf::PdmField<bool>    isActive;
-
     caf::PdmField<caf::AppEnum<CrossSectionEnum>>    type;
     caf::PdmField<caf::AppEnum<CrossSectionDirEnum>> direction;
-    caf::PdmField<bool>                              showInactiveCells;
 
     caf::PdmPtrField<RimWellPath*>      wellPath;
     caf::PdmPtrField<RimSimWellInView*> simulationWell;
@@ -86,8 +109,6 @@ public:
 
     std::vector<std::vector<cvf::Vec3d>> polyLines( cvf::Vec3d* flattenedPolylineStartPoint = nullptr ) const;
     void                                 appendPointToPolyLine( const cvf::Vec3d& point );
-
-    RimIntersectionResultDefinition* activeSeparateResultDefinition();
 
     Rim2dIntersectionView*  correspondingIntersectionView();
     RivIntersectionPartMgr* intersectionPartMgr();
@@ -111,8 +132,6 @@ public:
     void rebuildGeometryAndScheduleCreateDisplayModel();
 
 protected:
-    caf::PdmFieldHandle*          userDescriptionField() override;
-    caf::PdmFieldHandle*          objectToggleField() override;
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                     const QVariant&            oldValue,
                                                     const QVariant&            newValue ) override;
@@ -122,7 +141,6 @@ protected:
                                                          caf::PdmUiEditorAttribute* attribute ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
-    virtual void                  initAfterRead() override;
 
 private:
     caf::PdmField<int>    m_branchIndex;
@@ -136,8 +154,6 @@ private:
     caf::PdmField<std::vector<cvf::Vec3d>> m_customExtrusionPoints;
     caf::PdmField<std::vector<cvf::Vec3d>> m_twoAzimuthPoints;
 
-    caf::PdmPtrField<RimIntersectionResultDefinition*> m_separateDataSource;
-
     static void setPushButtonText( bool buttonEnable, caf::PdmUiPushButtonEditorAttribute* attribute );
     static void setBaseColor( bool enable, caf::PdmUiListEditorAttribute* attribute );
 
@@ -148,7 +164,6 @@ private:
     void                        addExtents( std::vector<cvf::Vec3d>& polyLine ) const;
     void                        updateName();
     static double               azimuthInRadians( cvf::Vec3d vec );
-    void                        updateDefaultSeparateDataSource();
 
 private:
     cvf::ref<RivIntersectionPartMgr> m_crossSectionPartMgr;

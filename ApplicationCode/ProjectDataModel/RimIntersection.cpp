@@ -84,10 +84,6 @@ RimIntersection::RimIntersection()
 {
     CAF_PDM_InitObject( "Intersection", ":/CrossSection16x16.png", "", "" );
 
-    CAF_PDM_InitField( &name, "UserDescription", QString( "Intersection Name" ), "Name", "", "", "" );
-    CAF_PDM_InitField( &isActive, "Active", true, "Active", "", "", "" );
-    isActive.uiCapability()->setUiHidden( true );
-
     CAF_PDM_InitFieldNoDefault( &type, "Type", "Type", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &direction, "Direction", "Direction", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &wellPath, "WellPath", "Well Path        ", "", "", "" );
@@ -113,8 +109,6 @@ RimIntersection::RimIntersection()
     CAF_PDM_InitField( &m_lengthUp, "lengthUp", 1000.0, "Length Up", "", "", "" );
     CAF_PDM_InitField( &m_lengthDown, "lengthDown", 1000.0, "Length Down", "", "", "" );
 
-    CAF_PDM_InitField( &showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "" );
-
     CAF_PDM_InitFieldNoDefault( &inputPolyLineFromViewerEnabled, "m_activateUiAppendPointsCommand", "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &inputPolyLineFromViewerEnabled );
     inputPolyLineFromViewerEnabled = false;
@@ -136,8 +130,6 @@ RimIntersection::RimIntersection()
                                 "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &inputTwoAzimuthPointsFromViewerEnabled );
     inputTwoAzimuthPointsFromViewerEnabled = false;
-
-    CAF_PDM_InitFieldNoDefault( &m_separateDataSource, "SeparateIntersectionDataSource", "Source", "", "", "" );
 
     uiCapability()->setUiTreeChildrenHidden( true );
 }
@@ -291,16 +283,7 @@ void RimIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         m_extentLength.uiCapability()->setUiReadOnly( false );
     }
 
-    QString inactiveText;
-    if (!this->activeSeparateResultDefinition()) 
-    {
-        inactiveText = " (Inactive)";
-    }
-
-    caf::PdmUiGroup* separateResultsGroup = uiOrdering.addNewGroup( "Separate Data Source Reference" + inactiveText );
-    separateResultsGroup->setCollapsedByDefault(true);
-    separateResultsGroup->add(&m_separateDataSource);
-    m_separateDataSource.uiCapability()->setUiName("Source" + inactiveText);
+    this->defineSeparateDataSourceUi(uiConfigName, uiOrdering);
 
     updateWellExtentDefaultValue();
 
@@ -356,66 +339,12 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions( const caf:
             options.push_back( caf::PdmOptionItemInfo( QString::number( bIdx + 1 ), QVariant::fromValue( bIdx ) ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_separateDataSource )
+    else 
     {
-        RimGridView* view;
-        this->firstAncestorOrThisOfTypeAsserted( view );
-
-        std::vector<RimIntersectionResultDefinition*> iResDefs =
-            view->separateIntersectionResultsCollection()->intersectionResultsDefinitions();
-
-        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
-
-        for ( auto iresdef : iResDefs )
-        {
-            options.push_back( caf::PdmOptionItemInfo( iresdef->autoName(), iresdef ) );
-        }
+        options = RimIntersectionHandle::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
     }
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimIntersection::initAfterRead()
-{
-    updateDefaultSeparateDataSource();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimIntersection::updateDefaultSeparateDataSource()
-{
-    if ( m_separateDataSource() == nullptr )
-    {
-        RimGridView* view;
-        this->firstAncestorOrThisOfTypeAsserted( view );
-
-        std::vector<RimIntersectionResultDefinition*> iResDefs =
-            view->separateIntersectionResultsCollection()->intersectionResultsDefinitions();
-        if ( iResDefs.size() )
-        {
-            m_separateDataSource = iResDefs[0];
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimIntersection::userDescriptionField()
-{
-    return &name;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimIntersection::objectToggleField()
-{
-    return &isActive;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -814,25 +743,6 @@ void RimIntersection::appendPointToPolyLine( const cvf::Vec3d& point )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersectionResultDefinition* RimIntersection::activeSeparateResultDefinition() 
-{
-    updateDefaultSeparateDataSource();
-
-    if (!m_separateDataSource) return nullptr;
-    
-    if (!m_separateDataSource->isActive()) return nullptr;
-
-    RimGridView* view;
-    this->firstAncestorOrThisOfTypeAsserted( view );
-    
-    if (!view->separateIntersectionResultsCollection()->isActive()) return nullptr;
-     
-    return m_separateDataSource;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 Rim2dIntersectionView* RimIntersection::correspondingIntersectionView()
 {
     std::vector<Rim2dIntersectionView*> objects;
@@ -1020,4 +930,128 @@ void RimIntersection::rebuildGeometryAndScheduleCreateDisplayModel()
 double RimIntersection::azimuthInRadians( cvf::Vec3d vec )
 {
     return cvf::GeometryTools::getAngle( -cvf::Vec3d::Z_AXIS, cvf::Vec3d::Y_AXIS, vec );
+}
+
+CAF_PDM_SOURCE_INIT( RimIntersectionHandle, "RimIntersectionHandle" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimIntersectionHandle::RimIntersectionHandle()
+{
+    CAF_PDM_InitField( &name, "UserDescription", QString( "Intersection Name" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &isActive, "Active", true, "Active", "", "", "" );
+    isActive.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_separateDataSource, "SeparateIntersectionDataSource", "Source", "", "", "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimIntersectionHandle::~RimIntersectionHandle() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimIntersectionResultDefinition* RimIntersectionHandle::activeSeparateResultDefinition()
+{
+    updateDefaultSeparateDataSource();
+
+    if ( !m_separateDataSource ) return nullptr;
+
+    if ( !m_separateDataSource->isActive() ) return nullptr;
+
+    RimGridView* view;
+    this->firstAncestorOrThisOfTypeAsserted( view );
+
+    if ( !view->separateIntersectionResultsCollection()->isActive() ) return nullptr;
+
+    return m_separateDataSource;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo>
+    RimIntersectionHandle::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_separateDataSource )
+    {
+        RimGridView* view;
+        this->firstAncestorOrThisOfTypeAsserted( view );
+
+        std::vector<RimIntersectionResultDefinition*> iResDefs =
+            view->separateIntersectionResultsCollection()->intersectionResultsDefinitions();
+
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+        for ( auto iresdef : iResDefs )
+        {
+            options.push_back( caf::PdmOptionItemInfo( iresdef->autoName(), iresdef ) );
+        }
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimIntersectionHandle::userDescriptionField()
+{
+    return &name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimIntersectionHandle::objectToggleField()
+{
+    return &isActive;
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionHandle::initAfterRead()
+{
+    updateDefaultSeparateDataSource();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionHandle::defineSeparateDataSourceUi( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) 
+{
+    QString inactiveText;
+    if ( !this->activeSeparateResultDefinition() )
+    {
+        inactiveText = " (Inactive)";
+    }
+
+    caf::PdmUiGroup* separateResultsGroup = uiOrdering.addNewGroup( "Separate Data Source Reference" + inactiveText );
+    separateResultsGroup->setCollapsedByDefault( true );
+    separateResultsGroup->add( &m_separateDataSource );
+    m_separateDataSource.uiCapability()->setUiName( "Source" + inactiveText );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionHandle::updateDefaultSeparateDataSource()
+{
+    if ( m_separateDataSource() == nullptr )
+    {
+        RimGridView* view;
+        this->firstAncestorOrThisOfTypeAsserted( view );
+
+        std::vector<RimIntersectionResultDefinition*> iResDefs =
+            view->separateIntersectionResultsCollection()->intersectionResultsDefinitions();
+        if ( iResDefs.size() )
+        {
+            m_separateDataSource = iResDefs[0];
+        }
+    }
 }
