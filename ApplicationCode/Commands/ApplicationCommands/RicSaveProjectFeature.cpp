@@ -80,6 +80,11 @@ void RicSaveProjectFeature::onActionTriggered( bool isChecked )
     if ( guiApp && !guiApp->isProjectSavedToDisc() )
     {
         m_filePath = guiApp->promptForProjectSaveAsFileName();
+
+        if ( m_filePath().isEmpty() )
+        {
+            return;
+        }
     }
 
     auto response = execute();
