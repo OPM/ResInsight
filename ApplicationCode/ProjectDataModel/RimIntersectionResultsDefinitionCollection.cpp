@@ -54,6 +54,14 @@ bool RimIntersectionResultsDefinitionCollection::isActive()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimIntersectionResultDefinition*> RimIntersectionResultsDefinitionCollection::intersectionResultsDefinitions()
+{
+    return m_intersectionResultsDefs.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimIntersectionResultsDefinitionCollection::objectToggleField()
 {
     return &m_isActive;
@@ -66,4 +74,13 @@ void RimIntersectionResultsDefinitionCollection::fieldChangedByUi( const caf::Pd
                                                                    const QVariant&            oldValue,
                                                                    const QVariant&            newValue )
 {
+    this->updateUiIconFromToggleField();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionResultsDefinitionCollection::initAfterRead()
+{
+    this->updateUiIconFromToggleField();
 }

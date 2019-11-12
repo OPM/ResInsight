@@ -34,11 +34,14 @@ public:
 
     bool isActive();
 
+    std::vector<RimIntersectionResultDefinition*> intersectionResultsDefinitions();
+
 protected:
     caf::PdmFieldHandle* objectToggleField() override;
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                            const QVariant&            oldValue,
                                            const QVariant&            newValue ) override;
+    virtual void         initAfterRead() override;
 
 private:
     caf::PdmField<bool>                                       m_isActive;

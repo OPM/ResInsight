@@ -45,15 +45,14 @@ public:
 
     cvf::ref<cvf::UByteArray> currentTotalCellVisibility();
 
-    RimIntersectionCollection* crossSectionCollection() const;
+    RimIntersectionCollection*                  crossSectionCollection() const;
+    RimIntersectionResultsDefinitionCollection* separateIntersectionResultsCollection() const;
+    RimAnnotationInViewCollection*              annotationCollection() const;
 
     virtual const RimPropertyFilterCollection* propertyFilterCollection() const = 0;
-
-    void                                rangeFiltersUpdated();
-    RimCellRangeFilterCollection*       rangeFilterCollection();
-    const RimCellRangeFilterCollection* rangeFilterCollection() const;
-
-    RimAnnotationInViewCollection* annotationCollection() const;
+    void                                       rangeFiltersUpdated();
+    RimCellRangeFilterCollection*              rangeFilterCollection();
+    const RimCellRangeFilterCollection*        rangeFilterCollection() const;
 
     bool hasOverridenRangeFilterCollection();
     void setOverrideRangeFilterCollection( RimCellRangeFilterCollection* rfc );
@@ -71,24 +70,22 @@ public:
                         bool                        forceChange = false ) override;
 
 protected:
-    virtual void updateViewFollowingRangeFilterUpdates();
-    void         initAfterRead() override;
-    void         onClearReservoirCellVisibilitiesIfNeccessary() override;
-    virtual void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep ) = 0;
-    void         selectOverlayInfoConfig() override;
+    virtual void       updateViewFollowingRangeFilterUpdates();
+    void               onClearReservoirCellVisibilitiesIfNeccessary() override;
+    virtual void       calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep ) = 0;
+    void               selectOverlayInfoConfig() override;
+    RimGridCollection* gridCollection() const;
+    void               clearReservoirCellVisibilities();
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
                            const QVariant&            newValue ) override;
-
-    RimGridCollection* gridCollection() const;
-
-    void clearReservoirCellVisibilities();
+    void initAfterRead() override;
 
 protected: // Fields
-    caf::PdmChildField<RimIntersectionCollection*>     m_crossSectionCollection;
+    caf::PdmChildField<RimIntersectionCollection*> m_crossSectionCollection;
 
-    caf::PdmChildField<RimIntersectionResultsDefinitionCollection*>     m_intersectionResultDefCollection;
+    caf::PdmChildField<RimIntersectionResultsDefinitionCollection*> m_intersectionResultDefCollection;
 
     caf::PdmChildField<Rim3dOverlayInfoConfig*>        m_overlayInfoConfig;
     caf::PdmChildField<RimCellRangeFilterCollection*>  m_rangeFilterCollection;

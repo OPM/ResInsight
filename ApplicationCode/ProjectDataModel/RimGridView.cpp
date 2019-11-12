@@ -164,6 +164,14 @@ RimIntersectionCollection* RimGridView::crossSectionCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimIntersectionResultsDefinitionCollection* RimGridView::separateIntersectionResultsCollection() const 
+{
+    return m_intersectionResultDefCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridView::rangeFiltersUpdated()
 {
     updateViewFollowingRangeFilterUpdates();

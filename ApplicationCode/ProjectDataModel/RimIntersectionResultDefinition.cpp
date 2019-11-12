@@ -89,7 +89,7 @@ bool RimIntersectionResultDefinition::isActive()
 QString RimIntersectionResultDefinition::autoName() const
 {
     QString timestepName;
-    QString caseName;
+    QString caseName = "Default undefined source";
 
     if ( m_case )
     {
@@ -115,7 +115,7 @@ QString RimIntersectionResultDefinition::autoName() const
                           m_geomResultDefinition->resultComponentUiName();
     }
 
-    return caseName + " " + resultVarUiName + " " + timestepName;
+    return resultVarUiName + " " + timestepName + " " +  caseName;
 }
 
 //--------------------------------------------------------------------------------------------------
