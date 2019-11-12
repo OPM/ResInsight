@@ -25,6 +25,7 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
+#include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
 #include "RimTextAnnotation.h"
@@ -64,6 +65,15 @@ RimGridView::RimGridView()
     CAF_PDM_InitFieldNoDefault( &m_crossSectionCollection, "CrossSections", "Intersections", "", "", "" );
     m_crossSectionCollection.uiCapability()->setUiHidden( true );
     m_crossSectionCollection = new RimIntersectionCollection();
+
+    CAF_PDM_InitFieldNoDefault( &m_intersectionResultDefCollection,
+                                "IntersectionResultDefColl",
+                                "Separate Intersection Results",
+                                "",
+                                "",
+                                "" );
+    m_intersectionResultDefCollection.uiCapability()->setUiTreeHidden( true );
+    m_intersectionResultDefCollection = new RimIntersectionResultsDefinitionCollection;
 
     CAF_PDM_InitFieldNoDefault( &m_gridCollection, "GridCollection", "GridCollection", "", "", "" );
     m_gridCollection.uiCapability()->setUiHidden( true );

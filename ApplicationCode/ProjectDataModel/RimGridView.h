@@ -26,6 +26,7 @@ class RimAnnotationInViewCollection;
 class RimEclipseContourMapProjection;
 class Rim3dOverlayInfoConfig;
 class RimIntersectionCollection;
+class RimIntersectionResultsDefinitionCollection;
 class RimPropertyFilterCollection;
 class RimGridCollection;
 class RimCellRangeFilterCollection;
@@ -86,6 +87,9 @@ protected:
 
 protected: // Fields
     caf::PdmChildField<RimIntersectionCollection*>     m_crossSectionCollection;
+
+    caf::PdmChildField<RimIntersectionResultsDefinitionCollection*>     m_intersectionResultDefCollection;
+
     caf::PdmChildField<Rim3dOverlayInfoConfig*>        m_overlayInfoConfig;
     caf::PdmChildField<RimCellRangeFilterCollection*>  m_rangeFilterCollection;
     caf::PdmChildField<RimCellRangeFilterCollection*>  m_overrideRangeFilterCollection;

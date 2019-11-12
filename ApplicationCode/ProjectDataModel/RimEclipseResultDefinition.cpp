@@ -60,6 +60,7 @@
 #include "cafPdmUiToolButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafUtils.h"
+#include "RimIntersectionResultDefinition.h"
 
 namespace caf
 {
@@ -440,6 +441,13 @@ void RimEclipseResultDefinition::updateAnyFieldHasChanged()
     if ( cellColors )
     {
         cellColors->updateConnectedEditors();
+    }
+
+    RimIntersectionResultDefinition* intersectResDef = nullptr;
+    this->firstAncestorOrThisOfType( intersectResDef );
+    if ( intersectResDef )
+    {
+        intersectResDef->updateConnectedEditors();
     }
 
     RimGridCrossPlotDataSet* crossPlotCurveSet = nullptr;

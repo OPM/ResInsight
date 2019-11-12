@@ -1714,6 +1714,7 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( cellEdgeResult() );
     uiTreeOrdering.add( faultResultSettings() );
+    uiTreeOrdering.add( &m_intersectionResultDefCollection );
     uiTreeOrdering.add( wellCollection() );
 
     {

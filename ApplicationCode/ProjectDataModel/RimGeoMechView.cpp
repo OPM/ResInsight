@@ -946,6 +946,7 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( m_tensorResults() );
+    uiTreeOrdering.add( &m_intersectionResultDefCollection );
 
     uiTreeOrdering.add( m_crossSectionCollection() );
 

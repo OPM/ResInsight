@@ -74,6 +74,7 @@ protected:
     virtual void updateLegendCategorySettings(){};
     void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
+    friend class RimIntersectionResultDefinition;
 private:
     // Overridden PDM methods
 
