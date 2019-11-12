@@ -84,8 +84,7 @@ public:
         return m_warnings;
     }
 
-    void        markForCachePurge( const RifEclipseSummaryAddress& address ) override;
-    static void purgeCache();
+    void markForCachePurge( const RifEclipseSummaryAddress& address ) override;
 
 private:
     int                timeStepCount() const;
@@ -122,15 +121,12 @@ private:
         void insertValues( const RifEclipseSummaryAddress& address, const std::vector<double>& values );
         const std::vector<double>& getValues( const RifEclipseSummaryAddress& address ) const;
         void                       markAddressForPurge( const RifEclipseSummaryAddress& address );
-        static void                purge();
 
     private:
         void purgeData();
 
         std::map<const RifEclipseSummaryAddress, std::vector<double>> m_cachedValues;
         std::set<RifEclipseSummaryAddress>                            m_purgeList;
-
-        static std::set<ValuesCache*> m_instances;
     };
 
     std::unique_ptr<ValuesCache> m_valuesCache;
