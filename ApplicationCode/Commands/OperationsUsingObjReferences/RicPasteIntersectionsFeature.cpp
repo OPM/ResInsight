@@ -111,8 +111,8 @@ void RicPasteIntersectionsFeature::onActionTriggered( bool isChecked )
             intersectionBoxObjects[i]->xmlCapability()->copyByXmlSerialization(
                 caf::PdmDefaultObjectFactory::instance() ) );
 
-        QString nameOfCopy    = QString( "Copy of " ) + intersectionBox->name;
-        intersectionBox->name = nameOfCopy;
+        QString nameOfCopy    = QString( "Copy of " ) + intersectionBox->name();
+        intersectionBox->setName(nameOfCopy);
 
         if ( i == intersectionBoxObjects.size() - 1 )
         {

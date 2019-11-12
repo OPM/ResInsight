@@ -87,7 +87,7 @@ void RimIntersectionCollection::applySingleColorEffect()
 
     for ( RimIntersectionBox* cs : m_intersectionBoxes )
     {
-        if ( cs->isActive )
+        if ( cs->isActive() )
         {
             cs->intersectionBoxPartMgr()->applySingleColorEffect();
         }
@@ -113,7 +113,7 @@ void RimIntersectionCollection::updateCellResultColor( size_t                   
 
     for ( RimIntersectionBox* cs : m_intersectionBoxes )
     {
-        if ( cs->isActive )
+        if ( cs->isActive() )
         {
             cs->intersectionBoxPartMgr()->updateCellResultColor( timeStepIndex );
         }

@@ -121,6 +121,30 @@ QString RimIntersectionResultDefinition::autoName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimCase* RimIntersectionResultDefinition::activeCase() const
+{
+    return m_case();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimEclipseResultDefinition* RimIntersectionResultDefinition::eclipseResultDefinition() const
+{
+    return m_eclipseResultDefinition();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimGeoMechResultDefinition* RimIntersectionResultDefinition::geoMechResultDefinition() const
+{
+    return m_geomResultDefinition();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimIntersectionResultDefinition::userDescriptionField()
 {
     return &m_autoName;

@@ -27,6 +27,7 @@
 
 #include "cvfObject.h"
 #include "cvfVector3.h"
+#include "RimIntersectionHandle.h"
 
 class RimWellPath;
 class RivIntersectionPartMgr;
@@ -40,41 +41,6 @@ namespace caf
 class PdmUiListEditorAttribute;
 class PdmUiPushButtonEditorAttribute;
 } // namespace caf
-
-class RimIntersectionHandle : public caf::PdmObject
-{
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimIntersectionHandle();
-    ~RimIntersectionHandle() override;
-
-    QString name() const;
-    void    setName( const QString& newName );
-
-    bool isActive() const;
-    void setActive( bool isActive );
-
-    bool isInactiveCellsVisible() const;
-
-    RimIntersectionResultDefinition* activeSeparateResultDefinition();
-
-protected:
-    caf::PdmFieldHandle*          userDescriptionField() override;
-    caf::PdmFieldHandle*          objectToggleField() override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
-    void                          initAfterRead() override;
-
-    void defineSeparateDataSourceUi( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
-    void updateDefaultSeparateDataSource();
-
-    caf::PdmField<QString> m_name;
-    caf::PdmField<bool>    m_isActive;
-    caf::PdmField<bool>    m_showInactiveCells;
-
-    caf::PdmPtrField<RimIntersectionResultDefinition*> m_separateDataSource;
-};
 
 //==================================================================================================
 //

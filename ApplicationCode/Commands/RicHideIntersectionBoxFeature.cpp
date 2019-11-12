@@ -68,7 +68,7 @@ void RicHideIntersectionBoxFeature::onActionTriggered( bool isChecked )
     RimIntersectionBox* intersectionBox = dynamic_cast<RimIntersectionBox*>( generalSelectionItem->m_object );
     if ( intersectionBox )
     {
-        intersectionBox->isActive = false;
+        intersectionBox->setActive(false);
         intersectionBox->updateConnectedEditors();
 
         activeView->scheduleCreateDisplayModelAndRedraw();

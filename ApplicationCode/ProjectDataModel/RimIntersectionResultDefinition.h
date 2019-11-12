@@ -38,9 +38,13 @@ public:
     RimIntersectionResultDefinition();
     ~RimIntersectionResultDefinition() override;
 
-    bool isActive();
+    bool     isActive();
+    QString  autoName() const;
+    RimCase* activeCase() const;
+    int      timeStep() const { return m_timeStep();}
 
-    QString autoName() const;
+    const RimEclipseResultDefinition* eclipseResultDefinition() const;
+    const RimGeoMechResultDefinition* geoMechResultDefinition() const;
 
 protected:
     virtual caf::PdmFieldHandle* userDescriptionField() override;
