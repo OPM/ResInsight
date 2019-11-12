@@ -44,6 +44,8 @@ RimFileSummaryCase::RimFileSummaryCase()
     CAF_PDM_InitField( &m_includeRestartFiles, "IncludeRestartFiles", false, "Include Restart Files", "", "", "" );
 
     m_includeRestartFiles.uiCapability()->setUiHidden( true );
+
+    m_summaryFileReader = new RifReaderEclipseSummary;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,8 +85,12 @@ void RimFileSummaryCase::updateFilePathsFromProjectPath( const QString& newProje
 //--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::createSummaryReaderInterface()
 {
-    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
-                                                                               m_includeRestartFiles );
+    if ( !m_summaryFileReader->open( this->summaryHeaderFilename(), m_includeRestartFiles ) )
+    {
+        RiaLogging::warning( QString( "Failed to open summary file %1" ).arg( this->summaryHeaderFilename() ) );
+
+        m_summaryFileReader = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,25 +103,6 @@ void RimFileSummaryCase::createRftReaderInterface()
     {
         RiaLogging::info( QString( "Found RFT Data for %1" ).arg( this->summaryHeaderFilename() ) );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RimFileSummaryCase::findRelatedFilesAndCreateReader( const QString& headerFileName,
-                                                                              bool           includeRestartFiles )
-{
-    RifReaderEclipseSummary* summaryFileReader = new RifReaderEclipseSummary;
-
-    if ( !summaryFileReader->open( headerFileName, includeRestartFiles ) )
-    {
-        RiaLogging::warning( QString( "Failed to open summary file %1" ).arg( headerFileName ) );
-
-        delete summaryFileReader;
-        summaryFileReader = nullptr;
-    }
-
-    return summaryFileReader;
 }
 
 //--------------------------------------------------------------------------------------------------
