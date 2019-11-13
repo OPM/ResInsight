@@ -18,7 +18,7 @@
 #pragma once
 
 #include "RimPlotWindow.h"
-#include "RiuGridPlotWindow.h"
+#include "RiuMultiPlotWindow.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
@@ -34,7 +34,7 @@
 
 class RimPlotInterface;
 
-class RimGridPlotWindow : public RimPlotWindow
+class RimMultiPlot : public RimPlotWindow
 {
     CAF_PDM_HEADER_INIT;
 
@@ -50,10 +50,10 @@ public:
     typedef caf::AppEnum<ColumnCount> ColumnCountEnum;
 
 public:
-    RimGridPlotWindow();
-    ~RimGridPlotWindow() override;
+    RimMultiPlot();
+    ~RimMultiPlot() override;
 
-    RimGridPlotWindow& operator=( RimGridPlotWindow&& rhs );
+    RimMultiPlot& operator=( RimMultiPlot&& rhs );
 
     QWidget* viewWidget() override;
 
@@ -136,8 +136,8 @@ protected:
     caf::PdmField<ColumnCountEnum> m_columnCountEnum;
     caf::PdmField<bool>            m_showIndividualPlotTitles;
 
-    friend class RiuGridPlotWindow;
-    QPointer<RiuGridPlotWindow> m_viewer;
+    friend class RiuMultiPlotWindow;
+    QPointer<RiuMultiPlotWindow> m_viewer;
 
 private:
     caf::PdmChildArrayField<caf::PdmObject*> m_plots;

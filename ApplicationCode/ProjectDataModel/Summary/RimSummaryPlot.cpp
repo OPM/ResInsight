@@ -32,8 +32,8 @@
 #include "RimAsciiDataCurve.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
-#include "RimGridPlotWindow.h"
 #include "RimGridTimeHistoryCurve.h"
+#include "RimMultiPlot.h"
 #include "RimPlotAxisProperties.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -1577,7 +1577,7 @@ void RimSummaryPlot::removeFromMdiAreaAndCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateAfterInsertingIntoGridPlotWindow()
+void RimSummaryPlot::updateAfterInsertingIntoMultiPlot()
 {
     if ( m_plotWidget )
     {
@@ -1887,7 +1887,7 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateWindowVisibility()
 {
-    RimGridPlotWindow* plotWindow = nullptr;
+    RimMultiPlot* plotWindow = nullptr;
     this->firstAncestorOrThisOfType( plotWindow );
     if ( plotWindow )
     {

@@ -17,13 +17,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewGridPlotWindowFeature.h"
+#include "RicNewMultiPlotFeature.h"
 
 #include "RiaApplication.h"
 
-#include "RimGridPlotWindow.h"
-#include "RimGridPlotWindowCollection.h"
 #include "RimMainPlotCollection.h"
+#include "RimMultiPlot.h"
+#include "RimMultiPlotCollection.h"
 #include "RimPlotInterface.h"
 #include "RimProject.h"
 
@@ -34,12 +34,12 @@
 
 #include "cvfAssert.h"
 
-RICF_SOURCE_INIT( RicNewGridPlotWindowFeature, "RicNewGridPlotWindowFeature", "createMultiPlot" );
+RICF_SOURCE_INIT( RicNewMultiPlotFeature, "RicNewMultiPlotFeature", "createMultiPlot" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicNewGridPlotWindowFeature::RicNewGridPlotWindowFeature()
+RicNewMultiPlotFeature::RicNewMultiPlotFeature()
 {
     CAF_PDM_InitObject( "Create Multi Plot", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_plots, "plots", "Plots", "", "", "" );
@@ -48,15 +48,15 @@ RicNewGridPlotWindowFeature::RicNewGridPlotWindowFeature()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicNewGridPlotWindowFeature::execute()
+RicfCommandResponse RicNewMultiPlotFeature::execute()
 {
-    RimProject*                  project        = RiaApplication::instance()->project();
-    RimGridPlotWindowCollection* plotCollection = project->mainPlotCollection()->multiPlotCollection();
+    RimProject*             project        = RiaApplication::instance()->project();
+    RimMultiPlotCollection* plotCollection = project->mainPlotCollection()->multiPlotCollection();
 
-    RimGridPlotWindow* plotWindow = new RimGridPlotWindow;
-    plotWindow->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( plotCollection->gridPlotWindows().size() + 1 ) );
+    RimMultiPlot* plotWindow = new RimMultiPlot;
+    plotWindow->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( plotCollection->multiPlots().size() + 1 ) );
     plotWindow->setAsPlotMdiWindow();
-    plotCollection->addGridPlotWindow( plotWindow );
+    plotCollection->addMultiPlot( plotWindow );
 
     if ( !m_plots().empty() )
     {
@@ -80,11 +80,11 @@ RicfCommandResponse RicNewGridPlotWindowFeature::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewGridPlotWindowFeature::isCommandEnabled()
+bool RicNewMultiPlotFeature::isCommandEnabled()
 {
-    RimGridPlotWindowCollection* gridPlotCollection =
-        caf::SelectionManager::instance()->selectedItemOfType<RimGridPlotWindowCollection>();
-    if ( gridPlotCollection )
+    RimMultiPlotCollection* multiPlotCollection =
+        caf::SelectionManager::instance()->selectedItemOfType<RimMultiPlotCollection>();
+    if ( multiPlotCollection )
     {
         return true;
     }
@@ -100,7 +100,7 @@ bool RicNewGridPlotWindowFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewGridPlotWindowFeature::onActionTriggered( bool isChecked )
+void RicNewMultiPlotFeature::onActionTriggered( bool isChecked )
 {
     m_plots.v().clear();
     auto selectedPlots = selectedPlotInterfaces();
@@ -114,7 +114,7 @@ void RicNewGridPlotWindowFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewGridPlotWindowFeature::setupActionLook( QAction* actionToSetup )
+void RicNewMultiPlotFeature::setupActionLook( QAction* actionToSetup )
 {
     if ( selectedPlotInterfaces().empty() )
     {
@@ -131,7 +131,7 @@ void RicNewGridPlotWindowFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlotInterface*> RicNewGridPlotWindowFeature::selectedPlotInterfaces()
+std::vector<RimPlotInterface*> RicNewMultiPlotFeature::selectedPlotInterfaces()
 {
     std::vector<caf::PdmUiItem*> uiItems;
     caf::SelectionManager::instance()->selectedItems( uiItems );

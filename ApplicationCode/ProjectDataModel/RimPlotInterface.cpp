@@ -1,6 +1,6 @@
 #include "RimPlotInterface.h"
 
-#include "RimGridPlotWindow.h"
+#include "RimMultiPlot.h"
 #include "RimPlotWindow.h"
 
 #include "RiuQwtPlotWidget.h"
@@ -42,9 +42,9 @@ bool RimPlotInterface::isStandalonePlot() const
 
     if ( thisPdm )
     {
-        RimGridPlotWindow* gridPlotWindow = nullptr;
-        thisPdm->firstAncestorOrThisOfType( gridPlotWindow );
-        return gridPlotWindow == nullptr;
+        RimMultiPlot* multiPlot = nullptr;
+        thisPdm->firstAncestorOrThisOfType( multiPlot );
+        return multiPlot == nullptr;
     }
     return false;
 }
@@ -65,7 +65,7 @@ void RimPlotInterface::updatePlotWindowLayout()
     const caf::PdmObject* thisPdm = dynamic_cast<const caf::PdmObject*>( this );
     CAF_ASSERT( thisPdm );
 
-    RimGridPlotWindow* plotWindow;
+    RimMultiPlot* plotWindow;
     thisPdm->firstAncestorOrThisOfType( plotWindow );
     if ( plotWindow )
     {

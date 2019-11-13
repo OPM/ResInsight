@@ -71,12 +71,12 @@
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
 #include "RimGridCrossPlotDataSet.h"
-#include "RimGridPlotWindowCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
 #include "RimModeledWellPath.h"
+#include "RimMultiPlotCollection.h"
 #include "RimObservedSummaryData.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
@@ -866,7 +866,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicDeleteSummaryCaseCollectionFeature";
         menuBuilder << "RicCloseObservedDataFeature";
 
-        menuBuilder << "RicNewGridPlotWindowFeature";
+        menuBuilder << "RicNewMultiPlotFeature";
 
         // Work in progress -- End
         appendCreateCompletions( menuBuilder, menuBuilder.itemCount() > 0u );

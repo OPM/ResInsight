@@ -29,7 +29,7 @@
 #include "RimGridCrossPlotCollection.h"
 #include "RimGridCrossPlotCurve.h"
 #include "RimGridCrossPlotDataSet.h"
-#include "RimGridPlotWindow.h"
+#include "RimMultiPlot.h"
 #include "RimPlotAxisProperties.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
@@ -430,7 +430,7 @@ void RimGridCrossPlot::removeFromMdiAreaAndCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::updateAfterInsertingIntoGridPlotWindow()
+void RimGridCrossPlot::updateAfterInsertingIntoMultiPlot()
 {
     if ( m_plotWidget )
     {
@@ -763,7 +763,7 @@ void RimGridCrossPlot::setYAxisInverted( bool inverted )
 //--------------------------------------------------------------------------------------------------
 int RimGridCrossPlot::legendFontSize() const
 {
-    RimGridPlotWindow* plotWindow = nullptr;
+    RimMultiPlot* plotWindow = nullptr;
     this->firstAncestorOrThisOfType( plotWindow );
     if ( plotWindow )
     {

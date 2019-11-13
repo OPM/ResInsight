@@ -31,7 +31,7 @@
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogTrack.h"
 
-#include "RiuGridPlotWindow.h"
+#include "RiuMultiPlotWindow.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotWidget.h"
@@ -104,7 +104,7 @@ RimWellLogPlot::RimWellLogPlot()
     m_maxAvailableDepth = -HUGE_VAL;
 
     m_commonDataSourceEnabled = true;
-    m_columnCountEnum         = RimGridPlotWindow::COLUMNS_UNLIMITED;
+    m_columnCountEnum         = RimMultiPlot::COLUMNS_UNLIMITED;
 
     setMultiPlotTitleVisible( false );
 }
@@ -114,7 +114,7 @@ RimWellLogPlot::RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot& RimWellLogPlot::operator=( RimWellLogPlot&& rhs )
 {
-    RimGridPlotWindow::operator=( std::move( rhs ) );
+    RimMultiPlot::operator=( std::move( rhs ) );
 
     auto dataSource = rhs.m_commonDataSource();
     rhs.m_commonDataSource.removeChildObject( dataSource );
@@ -181,7 +181,7 @@ void RimWellLogPlot::updateZoom()
                                            m_maxAvailableDepth );
     }
 
-    RimGridPlotWindow::updateZoom();
+    RimMultiPlot::updateZoom();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -503,7 +503,7 @@ void RimWellLogPlot::onPlotAdditionOrRemoval()
 {
     calculateAvailableDepthRange();
     updateZoom();
-    RimGridPlotWindow::onPlotAdditionOrRemoval();
+    RimMultiPlot::onPlotAdditionOrRemoval();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -533,7 +533,7 @@ void RimWellLogPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            oldValue,
                                        const QVariant&            newValue )
 {
-    RimGridPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
+    RimMultiPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
     if ( changedField == &m_minVisibleDepth || changedField == &m_maxVisibleDepth )
     {
@@ -599,8 +599,7 @@ void RimWellLogPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 QList<caf::PdmOptionItemInfo> RimWellLogPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                      bool*                      useOptionsOnly )
 {
-    QList<caf::PdmOptionItemInfo> options = RimGridPlotWindow::calculateValueOptions( fieldNeedingOptions,
-                                                                                      useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimMultiPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
 
     if ( fieldNeedingOptions == &m_depthType )
     {
@@ -633,7 +632,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogPlot::calculateValueOptions( const caf::
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::initAfterRead()
 {
-    RimGridPlotWindow::initAfterRead();
+    RimMultiPlot::initAfterRead();
 
     updateCommonDataSource();
     if ( !m_plotWindowTitle().isEmpty() )
@@ -677,7 +676,7 @@ QImage RimWellLogPlot::snapshotWindowContent()
         CAF_ASSERT( wellLogViewer );
         bool isScrollbarVisible = wellLogViewer->isScrollbarVisible();
         wellLogViewer->setScrollbarVisible( false );
-        image = RimGridPlotWindow::snapshotWindowContent();
+        image = RimMultiPlot::snapshotWindowContent();
         wellLogViewer->setScrollbarVisible( isScrollbarVisible );
     }
 

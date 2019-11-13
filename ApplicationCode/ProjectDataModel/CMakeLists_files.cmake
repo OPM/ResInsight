@@ -74,7 +74,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.h
-${CMAKE_CURRENT_LIST_DIR}/RimGridPlotWindow.h
+${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurve.h
@@ -137,7 +137,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.h
-${CMAKE_CURRENT_LIST_DIR}/RimGridPlotWindowCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.h
 )
 
 
@@ -216,7 +216,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotInterface.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGridPlotWindow.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellBoreStabilityPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.cpp
@@ -279,7 +279,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGridPlotWindowCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
