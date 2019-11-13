@@ -27,7 +27,7 @@
 #include "cafPdmObject.h"
 
 #include "RiaDefines.h"
-#include "RimGridPlotWindow.h"
+#include "RimMultiPlot.h"
 #include "RimWellLogPlotNameConfig.h"
 
 #include <QPointer>
@@ -35,7 +35,7 @@
 #include <set>
 
 class RimWellLogCurveCommonDataSource;
-class RiuGridPlotWindow;
+class RiuMultiPlotWindow;
 class RimPlotInterface;
 class QKeyEvent;
 
@@ -43,7 +43,7 @@ class QKeyEvent;
 ///
 ///
 //==================================================================================================
-class RimWellLogPlot : public RimGridPlotWindow, public RimNameConfigHolderInterface
+class RimWellLogPlot : public RimMultiPlot, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 

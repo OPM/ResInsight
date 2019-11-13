@@ -17,12 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiuGridPlotWindow.h"
+#include "RiuMultiPlotWindow.h"
 
 class RiuQwtPlotWidget;
 class RimWellLogPlot;
 
-class RiuWellLogPlot : public RiuGridPlotWindow
+class RiuWellLogPlot : public RiuMultiPlotWindow
 {
     Q_OBJECT
 public:

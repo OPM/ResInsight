@@ -66,8 +66,8 @@
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
 
-#include "RiuGridPlotWindow.h"
 #include "RiuMainWindow.h"
+#include "RiuMultiPlotWindow.h"
 #include "RiuPlotAnnotationTool.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotWidget.h"

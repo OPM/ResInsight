@@ -21,11 +21,11 @@
 #include "RicWellLogPlotCurveFeatureImpl.h"
 
 #include "RiaGuiApplication.h"
-#include "RiuGridPlotWindow.h"
+#include "RiuMultiPlotWindow.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotWidget.h"
 
-#include "RimGridPlotWindow.h"
+#include "RimMultiPlot.h"
 #include "RimPlotInterface.h"
 #include "RimWellLogTrack.h"
 
@@ -50,9 +50,9 @@ bool RicDeleteSubPlotFeature::isCommandEnabled()
         size_t plotsSelected = 0;
         for ( caf::PdmObject* object : selection )
         {
-            RimGridPlotWindow* gridPlotWindow = nullptr;
-            object->firstAncestorOrThisOfType( gridPlotWindow );
-            if ( dynamic_cast<RimPlotInterface*>( object ) && gridPlotWindow )
+            RimMultiPlot* multiPlot = nullptr;
+            object->firstAncestorOrThisOfType( multiPlot );
+            if ( dynamic_cast<RimPlotInterface*>( object ) && multiPlot )
             {
                 plotsSelected++;
             }
@@ -72,13 +72,13 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
 
     std::vector<caf::PdmObject*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
-    std::set<RimGridPlotWindow*> alteredPlotWindows;
+    std::set<RimMultiPlot*> alteredPlotWindows;
 
     for ( size_t i = 0; i < selection.size(); i++ )
     {
         RimPlotInterface* plot = dynamic_cast<RimPlotInterface*>( selection[i] );
 
-        RimGridPlotWindow* plotWindow = nullptr;
+        RimMultiPlot* plotWindow = nullptr;
         selection[i]->firstAncestorOrThisOfType( plotWindow );
         if ( plot && plotWindow )
         {
@@ -91,7 +91,7 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    for ( RimGridPlotWindow* plotWindow : alteredPlotWindows )
+    for ( RimMultiPlot* plotWindow : alteredPlotWindows )
     {
         plotWindow->uiCapability()->updateConnectedEditors();
     }

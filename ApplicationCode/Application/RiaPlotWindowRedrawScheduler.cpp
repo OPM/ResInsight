@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiaPlotWindowRedrawScheduler.h"
 
-#include "RiuGridPlotWindow.h"
+#include "RiuMultiPlotWindow.h"
 #include "RiuQwtPlotWidget.h"
 
 #include <QCoreApplication>
@@ -40,7 +40,7 @@ RiaPlotWindowRedrawScheduler* RiaPlotWindowRedrawScheduler::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPlotWindowRedrawScheduler::schedulePlotWindowUpdate( RiuGridPlotWindow* plotWindow )
+void RiaPlotWindowRedrawScheduler::schedulePlotWindowUpdate( RiuMultiPlotWindow* plotWindow )
 {
     m_plotWindowsToUpdate.push_back( plotWindow );
 
@@ -78,10 +78,10 @@ void RiaPlotWindowRedrawScheduler::clearAllScheduledUpdates()
 //--------------------------------------------------------------------------------------------------
 void RiaPlotWindowRedrawScheduler::performScheduledUpdatesAndReplots()
 {
-    std::set<RiuQwtPlotWidget*>  updatedPlots;
-    std::set<RiuGridPlotWindow*> updatedPlotWindows;
+    std::set<RiuQwtPlotWidget*>   updatedPlots;
+    std::set<RiuMultiPlotWindow*> updatedPlotWindows;
 
-    for ( RiuGridPlotWindow* plotWindow : m_plotWindowsToUpdate )
+    for ( RiuMultiPlotWindow* plotWindow : m_plotWindowsToUpdate )
     {
         if ( plotWindow && !updatedPlotWindows.count( plotWindow ) )
         {

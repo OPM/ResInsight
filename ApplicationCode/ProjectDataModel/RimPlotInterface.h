@@ -104,7 +104,7 @@ public:
     virtual void onAxisSelected( int axis, bool toggle ) {}
 
     virtual void removeFromMdiAreaAndCollection() {}
-    virtual void updateAfterInsertingIntoGridPlotWindow() {}
+    virtual void updateAfterInsertingIntoMultiPlot() {}
 
 protected:
     void         updatePlotWindowLayout();

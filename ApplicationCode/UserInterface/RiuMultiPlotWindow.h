@@ -35,7 +35,7 @@
 #include <map>
 
 class RiaPlotWindowRedrawScheduler;
-class RimGridPlotWindow;
+class RimMultiPlot;
 class RiuQwtPlotLegend;
 class RiuQwtPlotWidget;
 
@@ -45,18 +45,19 @@ class QScrollBar;
 
 //==================================================================================================
 //
-// RiuGridPlotWindow
+// RiuMultiPlotWidget
 //
 //==================================================================================================
-class RiuGridPlotWindow : public QWidget, public RiuInterfaceToViewWindow, public caf::SelectionChangedReceiver
+class RiuMultiPlotWindow : public QWidget, public RiuInterfaceToViewWindow, public caf::SelectionChangedReceiver
 {
     Q_OBJECT
 
 public:
-    RiuGridPlotWindow( RimGridPlotWindow* plotDefinition, QWidget* parent = nullptr );
+    RiuMultiPlotWindow( RimMultiPlot* plotDefinition, QWidget* parent = nullptr );
+    ~RiuMultiPlotWindow() override;
 
-    RimGridPlotWindow* ownerPlotDefinition();
-    RimViewWindow*     ownerViewWindow() const override;
+    RimMultiPlot*  ownerPlotDefinition();
+    RimViewWindow* ownerViewWindow() const override;
 
     void addPlot( RiuQwtPlotWidget* plotWidget );
     void insertPlot( RiuQwtPlotWidget* plotWidget, size_t index );
@@ -113,17 +114,17 @@ private slots:
     virtual void performUpdate();
 
 protected:
-    QPointer<QVBoxLayout>              m_layout;
-    QPointer<QHBoxLayout>              m_plotLayout;
-    QPointer<QFrame>                   m_plotWidgetFrame;
-    QPointer<QGridLayout>              m_gridLayout;
-    QPointer<QLabel>                   m_plotTitle;
-    QList<int>                         m_legendColumns;
-    QList<QPointer<QLabel>>            m_subTitles;
-    QList<QPointer<RiuQwtPlotLegend>>  m_legends;
-    QList<QPointer<RiuQwtPlotWidget>>  m_plotWidgets;
-    caf::PdmPointer<RimGridPlotWindow> m_plotDefinition;
-    QPointer<QLabel>                   m_dropTargetPlaceHolder;
+    QPointer<QVBoxLayout>             m_layout;
+    QPointer<QHBoxLayout>             m_plotLayout;
+    QPointer<QFrame>                  m_plotWidgetFrame;
+    QPointer<QGridLayout>             m_gridLayout;
+    QPointer<QLabel>                  m_plotTitle;
+    QList<int>                        m_legendColumns;
+    QList<QPointer<QLabel>>           m_subTitles;
+    QList<QPointer<RiuQwtPlotLegend>> m_legends;
+    QList<QPointer<RiuQwtPlotWidget>> m_plotWidgets;
+    caf::PdmPointer<RimMultiPlot>     m_plotDefinition;
+    QPointer<QLabel>                  m_dropTargetPlaceHolder;
 
     RiuWidgetStyleSheet m_dropTargetStyleSheet;
 

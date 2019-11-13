@@ -23,7 +23,7 @@
 #include "RimFlowPlotCollection.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
-#include "RimGridPlotWindowCollection.h"
+#include "RimMultiPlotCollection.h"
 #include "RimPltPlotCollection.h"
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
@@ -85,7 +85,7 @@ RimMainPlotCollection::RimMainPlotCollection()
                                 "" );
     m_saturationPressurePlotCollection.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_multiPlotCollection, "RimGridPlotWindowCollection", "Multi Plots", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_multiPlotCollection, "RimMultiPlotCollection", "Multi Plots", "", "", "" );
     m_multiPlotCollection.uiCapability()->setUiHidden( true );
 
     m_wellLogPlotCollection            = new RimWellLogPlotCollection();
@@ -96,7 +96,7 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_flowPlotCollection               = new RimFlowPlotCollection();
     m_gridCrossPlotCollection          = new RimGridCrossPlotCollection;
     m_saturationPressurePlotCollection = new RimSaturationPressurePlotCollection;
-    m_multiPlotCollection              = new RimGridPlotWindowCollection;
+    m_multiPlotCollection              = new RimMultiPlotCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,7 +188,7 @@ RimSaturationPressurePlotCollection* RimMainPlotCollection::saturationPressurePl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridPlotWindowCollection* RimMainPlotCollection::multiPlotCollection()
+RimMultiPlotCollection* RimMainPlotCollection::multiPlotCollection()
 {
     return m_multiPlotCollection();
 }
@@ -261,7 +261,7 @@ void RimMainPlotCollection::updatePlotsWithFormations()
 
     if ( m_multiPlotCollection )
     {
-        for ( RimGridPlotWindow* plotWindow : m_multiPlotCollection->gridPlotWindows() )
+        for ( RimMultiPlot* plotWindow : m_multiPlotCollection->multiPlots() )
         {
             plotWindow->loadDataAndUpdate();
         }
@@ -283,7 +283,7 @@ void RimMainPlotCollection::updatePlotsWithCompletions()
 
     if ( m_multiPlotCollection )
     {
-        for ( RimGridPlotWindow* plotWindow : m_multiPlotCollection->gridPlotWindows() )
+        for ( RimMultiPlot* plotWindow : m_multiPlotCollection->multiPlots() )
         {
             plotWindow->loadDataAndUpdate();
         }

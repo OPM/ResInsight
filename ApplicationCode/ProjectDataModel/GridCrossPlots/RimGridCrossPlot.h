@@ -115,7 +115,7 @@ public:
     void removeDataSetLegend( RimGridCrossPlotDataSet* dataSet );
 
     void removeFromMdiAreaAndCollection() override;
-    void updateAfterInsertingIntoGridPlotWindow() override;
+    void updateAfterInsertingIntoMultiPlot() override;
 
     int rowSpan() const override;
     int colSpan() const override;

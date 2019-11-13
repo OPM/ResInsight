@@ -15,7 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#include "RimGridPlotWindow.h"
+#include "RimMultiPlot.h"
 
 #include "RimPlotInterface.h"
 #include "RiuPlotMainWindow.h"
@@ -28,23 +28,23 @@
 namespace caf
 {
 template <>
-void RimGridPlotWindow::ColumnCountEnum::setUp()
+void RimMultiPlot::ColumnCountEnum::setUp()
 {
-    addItem( RimGridPlotWindow::COLUMNS_1, "1", "1 Column" );
-    addItem( RimGridPlotWindow::COLUMNS_2, "2", "2 Columns" );
-    addItem( RimGridPlotWindow::COLUMNS_3, "3", "3 Columns" );
-    addItem( RimGridPlotWindow::COLUMNS_4, "4", "4 Columns" );
-    addItem( RimGridPlotWindow::COLUMNS_UNLIMITED, "UNLIMITED", "Unlimited" );
-    setDefault( RimGridPlotWindow::COLUMNS_2 );
+    addItem( RimMultiPlot::COLUMNS_1, "1", "1 Column" );
+    addItem( RimMultiPlot::COLUMNS_2, "2", "2 Columns" );
+    addItem( RimMultiPlot::COLUMNS_3, "3", "3 Columns" );
+    addItem( RimMultiPlot::COLUMNS_4, "4", "4 Columns" );
+    addItem( RimMultiPlot::COLUMNS_UNLIMITED, "UNLIMITED", "Unlimited" );
+    setDefault( RimMultiPlot::COLUMNS_2 );
 }
 } // namespace caf
 
-CAF_PDM_SOURCE_INIT( RimGridPlotWindow, "GridPlotWindow" );
+CAF_PDM_SOURCE_INIT( RimMultiPlot, "MultiPlot" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridPlotWindow::RimGridPlotWindow()
+RimMultiPlot::RimMultiPlot()
 {
     CAF_PDM_InitObject( "Multi Plot", ":/WellLogPlot16x16.png", "", "" );
 
@@ -64,7 +64,7 @@ RimGridPlotWindow::RimGridPlotWindow()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridPlotWindow::~RimGridPlotWindow()
+RimMultiPlot::~RimMultiPlot()
 {
     removeMdiWindowFromMdiArea();
     m_plots.deleteAllChildObjects();
@@ -75,7 +75,7 @@ RimGridPlotWindow::~RimGridPlotWindow()
 //--------------------------------------------------------------------------------------------------
 /// Move-assignment operator. Argument has to be passed with std::move()
 //--------------------------------------------------------------------------------------------------
-RimGridPlotWindow& RimGridPlotWindow::operator=( RimGridPlotWindow&& rhs )
+RimMultiPlot& RimMultiPlot::operator=( RimMultiPlot&& rhs )
 {
     RimPlotWindow::operator=( std::move( rhs ) );
 
@@ -99,7 +99,7 @@ RimGridPlotWindow& RimGridPlotWindow::operator=( RimGridPlotWindow&& rhs )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RimGridPlotWindow::viewWidget()
+QWidget* RimMultiPlot::viewWidget()
 {
     return m_viewer;
 }
@@ -107,7 +107,7 @@ QWidget* RimGridPlotWindow::viewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridPlotWindow::isMultiPlotTitleVisible() const
+bool RimMultiPlot::isMultiPlotTitleVisible() const
 {
     return m_showPlotWindowTitle;
 }
@@ -115,7 +115,7 @@ bool RimGridPlotWindow::isMultiPlotTitleVisible() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::setMultiPlotTitleVisible( bool visible )
+void RimMultiPlot::setMultiPlotTitleVisible( bool visible )
 {
     m_showPlotWindowTitle = visible;
 }
@@ -123,7 +123,7 @@ void RimGridPlotWindow::setMultiPlotTitleVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGridPlotWindow::multiPlotTitle() const
+QString RimMultiPlot::multiPlotTitle() const
 {
     return m_plotWindowTitle;
 }
@@ -131,7 +131,7 @@ QString RimGridPlotWindow::multiPlotTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::setMultiPlotTitle( const QString& title )
+void RimMultiPlot::setMultiPlotTitle( const QString& title )
 {
     m_plotWindowTitle = title;
 }
@@ -139,7 +139,7 @@ void RimGridPlotWindow::setMultiPlotTitle( const QString& title )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::addPlot( RimPlotInterface* plot )
+void RimMultiPlot::addPlot( RimPlotInterface* plot )
 {
     insertPlot( plot, m_plots.size() );
 }
@@ -147,7 +147,7 @@ void RimGridPlotWindow::addPlot( RimPlotInterface* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::insertPlot( RimPlotInterface* plot, size_t index )
+void RimMultiPlot::insertPlot( RimPlotInterface* plot, size_t index )
 {
     if ( plot )
     {
@@ -159,7 +159,7 @@ void RimGridPlotWindow::insertPlot( RimPlotInterface* plot, size_t index )
             plot->createPlotWidget();
             m_viewer->insertPlot( plot->viewer(), index );
         }
-        plot->updateAfterInsertingIntoGridPlotWindow();
+        plot->updateAfterInsertingIntoMultiPlot();
 
         onPlotAdditionOrRemoval();
     }
@@ -168,7 +168,7 @@ void RimGridPlotWindow::insertPlot( RimPlotInterface* plot, size_t index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::removePlot( RimPlotInterface* plot )
+void RimMultiPlot::removePlot( RimPlotInterface* plot )
 {
     if ( plot )
     {
@@ -185,15 +185,15 @@ void RimGridPlotWindow::removePlot( RimPlotInterface* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::movePlotsToThis( const std::vector<RimPlotInterface*>& plotsToMove,
-                                         RimPlotInterface*                     plotToInsertAfter )
+void RimMultiPlot::movePlotsToThis( const std::vector<RimPlotInterface*>& plotsToMove,
+                                    RimPlotInterface*                     plotToInsertAfter )
 {
     for ( size_t tIdx = 0; tIdx < plotsToMove.size(); tIdx++ )
     {
         RimPlotInterface* plot      = plotsToMove[tIdx];
         caf::PdmObject*   pdmObject = dynamic_cast<caf::PdmObject*>( plot );
 
-        RimGridPlotWindow* srcPlot = nullptr;
+        RimMultiPlot* srcPlot = nullptr;
         pdmObject->firstAncestorOrThisOfType( srcPlot );
         if ( srcPlot )
         {
@@ -220,7 +220,7 @@ void RimGridPlotWindow::movePlotsToThis( const std::vector<RimPlotInterface*>& p
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimGridPlotWindow::plotCount() const
+size_t RimMultiPlot::plotCount() const
 {
     return m_plots.size();
 }
@@ -228,7 +228,7 @@ size_t RimGridPlotWindow::plotCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimGridPlotWindow::plotIndex( const RimPlotInterface* plot ) const
+size_t RimMultiPlot::plotIndex( const RimPlotInterface* plot ) const
 {
     return m_plots.index( toPdmObjectAsserted( plot ) );
 }
@@ -236,7 +236,7 @@ size_t RimGridPlotWindow::plotIndex( const RimPlotInterface* plot ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlotInterface* RimGridPlotWindow::plotByIndex( size_t index ) const
+RimPlotInterface* RimMultiPlot::plotByIndex( size_t index ) const
 {
     return toPlotInterfaceAsserted( m_plots[index] );
 }
@@ -244,7 +244,7 @@ RimPlotInterface* RimGridPlotWindow::plotByIndex( size_t index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlotInterface*> RimGridPlotWindow::plots() const
+std::vector<RimPlotInterface*> RimMultiPlot::plots() const
 {
     std::vector<RimPlotInterface*> allPlots;
     allPlots.reserve( m_plots.size() );
@@ -259,7 +259,7 @@ std::vector<RimPlotInterface*> RimGridPlotWindow::plots() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlotInterface*> RimGridPlotWindow::visiblePlots() const
+std::vector<RimPlotInterface*> RimMultiPlot::visiblePlots() const
 {
     std::vector<RimPlotInterface*> allPlots;
     for ( caf::PdmObject* pdmObject : m_plots() )
@@ -276,7 +276,7 @@ std::vector<RimPlotInterface*> RimGridPlotWindow::visiblePlots() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::updateLayout()
+void RimMultiPlot::updateLayout()
 {
     if ( m_showWindow )
     {
@@ -287,12 +287,12 @@ void RimGridPlotWindow::updateLayout()
 //--------------------------------------------------------------------------------------------------
 /// Empty default implementation
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::updatePlotNames() {}
+void RimMultiPlot::updatePlotNames() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::updatePlotOrderFromGridWidget()
+void RimMultiPlot::updatePlotOrderFromGridWidget()
 {
     std::sort( m_plots.begin(), m_plots.end(), [this]( caf::PdmObject* lhs, caf::PdmObject* rhs ) {
         auto indexLhs = m_viewer->indexOfPlotWidget( toPlotInterfaceAsserted( lhs )->viewer() );
@@ -306,7 +306,7 @@ void RimGridPlotWindow::updatePlotOrderFromGridWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::setAutoScaleXEnabled( bool enabled )
+void RimMultiPlot::setAutoScaleXEnabled( bool enabled )
 {
     for ( RimPlotInterface* plot : plots() )
     {
@@ -317,7 +317,7 @@ void RimGridPlotWindow::setAutoScaleXEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::setAutoScaleYEnabled( bool enabled )
+void RimMultiPlot::setAutoScaleYEnabled( bool enabled )
 {
     for ( RimPlotInterface* plot : plots() )
     {
@@ -328,7 +328,7 @@ void RimGridPlotWindow::setAutoScaleYEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimGridPlotWindow::columnCount() const
+int RimMultiPlot::columnCount() const
 {
     if ( m_columnCountEnum() == COLUMNS_UNLIMITED )
     {
@@ -340,7 +340,7 @@ int RimGridPlotWindow::columnCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimGridPlotWindow::columnCountField()
+caf::PdmFieldHandle* RimMultiPlot::columnCountField()
 {
     return &m_columnCountEnum;
 }
@@ -348,7 +348,7 @@ caf::PdmFieldHandle* RimGridPlotWindow::columnCountField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridPlotWindow::showPlotTitles() const
+bool RimMultiPlot::showPlotTitles() const
 {
     return m_showIndividualPlotTitles;
 }
@@ -356,7 +356,7 @@ bool RimGridPlotWindow::showPlotTitles() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::zoomAll()
+void RimMultiPlot::zoomAll()
 {
     setAutoScaleXEnabled( true );
     setAutoScaleYEnabled( true );
@@ -366,7 +366,7 @@ void RimGridPlotWindow::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGridPlotWindow::asciiDataForPlotExport() const
+QString RimMultiPlot::asciiDataForPlotExport() const
 {
     QString out = multiPlotTitle() + "\n";
 
@@ -384,7 +384,7 @@ QString RimGridPlotWindow::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::onPlotAdditionOrRemoval()
+void RimMultiPlot::onPlotAdditionOrRemoval()
 {
     updatePlotNames();
     updateConnectedEditors();
@@ -395,7 +395,7 @@ void RimGridPlotWindow::onPlotAdditionOrRemoval()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimGridPlotWindow::snapshotWindowContent()
+QImage RimMultiPlot::snapshotWindowContent()
 {
     QImage image;
 
@@ -413,9 +413,9 @@ QImage RimGridPlotWindow::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RimGridPlotWindow::createViewWidget( QWidget* mainWindowParent )
+QWidget* RimMultiPlot::createViewWidget( QWidget* mainWindowParent )
 {
-    m_viewer = new RiuGridPlotWindow( this, mainWindowParent );
+    m_viewer = new RiuMultiPlotWindow( this, mainWindowParent );
     recreatePlotWidgets();
     return m_viewer;
 }
@@ -423,7 +423,7 @@ QWidget* RimGridPlotWindow::createViewWidget( QWidget* mainWindowParent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::deleteViewWidget()
+void RimMultiPlot::deleteViewWidget()
 {
     cleanupBeforeClose();
 }
@@ -431,7 +431,7 @@ void RimGridPlotWindow::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimGridPlotWindow::userDescriptionField()
+caf::PdmFieldHandle* RimMultiPlot::userDescriptionField()
 {
     return &m_plotWindowTitle;
 }
@@ -439,9 +439,9 @@ caf::PdmFieldHandle* RimGridPlotWindow::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                          const QVariant&            oldValue,
-                                          const QVariant&            newValue )
+void RimMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                     const QVariant&            oldValue,
+                                     const QVariant&            newValue )
 {
     RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -464,7 +464,7 @@ void RimGridPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* titleAndLegendsGroup = uiOrdering.addNewGroup( "Plot Layout" );
     uiOrderingForPlotLayout( *titleAndLegendsGroup );
@@ -473,7 +473,7 @@ void RimGridPlotWindow::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering )
+void RimMultiPlot::uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_showPlotWindowTitle );
     uiOrdering.add( &m_plotWindowTitle );
@@ -485,8 +485,8 @@ void RimGridPlotWindow::uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimGridPlotWindow::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                        bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimMultiPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                   bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
 
@@ -519,7 +519,7 @@ QList<caf::PdmOptionItemInfo> RimGridPlotWindow::calculateValueOptions( const ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::onLoadDataAndUpdate()
+void RimMultiPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
     updatePlotTitleInWidgets();
@@ -530,7 +530,7 @@ void RimGridPlotWindow::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::initAfterRead()
+void RimMultiPlot::initAfterRead()
 {
     RimPlotWindow::initAfterRead();
 }
@@ -538,7 +538,7 @@ void RimGridPlotWindow::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::updatePlotTitleInWidgets()
+void RimMultiPlot::updatePlotTitleInWidgets()
 {
     if ( m_viewer )
     {
@@ -551,7 +551,7 @@ void RimGridPlotWindow::updatePlotTitleInWidgets()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::updatePlots()
+void RimMultiPlot::updatePlots()
 {
     if ( m_showWindow )
     {
@@ -566,7 +566,7 @@ void RimGridPlotWindow::updatePlots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::updateZoom()
+void RimMultiPlot::updateZoom()
 {
     for ( RimPlotInterface* plot : plots() )
     {
@@ -577,7 +577,7 @@ void RimGridPlotWindow::updateZoom()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::recreatePlotWidgets()
+void RimMultiPlot::recreatePlotWidgets()
 {
     CVF_ASSERT( m_viewer );
 
@@ -593,7 +593,7 @@ void RimGridPlotWindow::recreatePlotWidgets()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridPlotWindow::hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
+bool RimMultiPlot::hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
 {
     if ( fontSettingType == RiaDefines::PLOT_FONT && m_viewer )
     {
@@ -619,10 +619,10 @@ bool RimGridPlotWindow::hasCustomFontSizes( RiaDefines::FontSettingType fontSett
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridPlotWindow::applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                                       int                         oldFontSize,
-                                       int                         fontSize,
-                                       bool                        forceChange /*= false */ )
+bool RimMultiPlot::applyFontSize( RiaDefines::FontSettingType fontSettingType,
+                                  int                         oldFontSize,
+                                  int                         fontSize,
+                                  bool                        forceChange /*= false */ )
 {
     bool somethingChanged = false;
     if ( fontSettingType == RiaDefines::PLOT_FONT && m_viewer )
@@ -657,7 +657,7 @@ bool RimGridPlotWindow::applyFontSize( RiaDefines::FontSettingType fontSettingTy
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::cleanupBeforeClose()
+void RimMultiPlot::cleanupBeforeClose()
 {
     auto plotVector = plots();
     for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
@@ -675,7 +675,7 @@ void RimGridPlotWindow::cleanupBeforeClose()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlotInterface* RimGridPlotWindow::toPlotInterfaceAsserted( caf::PdmObject* pdmObject )
+RimPlotInterface* RimMultiPlot::toPlotInterfaceAsserted( caf::PdmObject* pdmObject )
 {
     RimPlotInterface* plotInterface = dynamic_cast<RimPlotInterface*>( pdmObject );
     CAF_ASSERT( plotInterface );
@@ -685,7 +685,7 @@ RimPlotInterface* RimGridPlotWindow::toPlotInterfaceAsserted( caf::PdmObject* pd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimPlotInterface* RimGridPlotWindow::toPlotInterfaceAsserted( const caf::PdmObject* pdmObject )
+const RimPlotInterface* RimMultiPlot::toPlotInterfaceAsserted( const caf::PdmObject* pdmObject )
 {
     const RimPlotInterface* plotInterface = dynamic_cast<const RimPlotInterface*>( pdmObject );
     CAF_ASSERT( plotInterface );
@@ -695,7 +695,7 @@ const RimPlotInterface* RimGridPlotWindow::toPlotInterfaceAsserted( const caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimGridPlotWindow::toPdmObjectAsserted( RimPlotInterface* plotInterface )
+caf::PdmObject* RimMultiPlot::toPdmObjectAsserted( RimPlotInterface* plotInterface )
 {
     caf::PdmObject* pdmObject = dynamic_cast<caf::PdmObject*>( plotInterface );
     CAF_ASSERT( pdmObject );
@@ -705,7 +705,7 @@ caf::PdmObject* RimGridPlotWindow::toPdmObjectAsserted( RimPlotInterface* plotIn
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const caf::PdmObject* RimGridPlotWindow::toPdmObjectAsserted( const RimPlotInterface* plotInterface )
+const caf::PdmObject* RimMultiPlot::toPdmObjectAsserted( const RimPlotInterface* plotInterface )
 {
     const caf::PdmObject* pdmObject = dynamic_cast<const caf::PdmObject*>( plotInterface );
     CAF_ASSERT( pdmObject );
