@@ -1302,9 +1302,9 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                 itemCollection->add( mainPlotCollection->saturationPressurePlotCollection() );
             }
 
-            if ( mainPlotCollection->combinationPlotCollection() )
+            if ( mainPlotCollection->multiPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->combinationPlotCollection() );
+                itemCollection->add( mainPlotCollection->multiPlotCollection() );
             }
         }
     }

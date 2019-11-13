@@ -383,7 +383,7 @@ void RiuPlotMainWindow::createToolBars()
     m_summaryPlotToolBarEditor = new caf::PdmUiToolBarEditor( "Summary Plot", this );
     m_summaryPlotToolBarEditor->hide();
 
-    m_gridPlotWindowToolBarEditor = new caf::PdmUiToolBarEditor( "Combination Plot", this );
+    m_gridPlotWindowToolBarEditor = new caf::PdmUiToolBarEditor( "Multi Plot", this );
     m_gridPlotWindowToolBarEditor->hide();
 }
 

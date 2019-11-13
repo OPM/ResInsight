@@ -179,7 +179,7 @@ void RimReloadCaseTools::updateAllPlots()
             flowPlotCollection->loadDataAndUpdate();
         }
 
-        RimGridPlotWindowCollection* gridPlotWindowCollection = project->mainPlotCollection()->combinationPlotCollection();
+        RimGridPlotWindowCollection* gridPlotWindowCollection = project->mainPlotCollection()->multiPlotCollection();
         if ( gridPlotWindowCollection )
         {
             for ( RimGridPlotWindow* plotWindow : gridPlotWindowCollection->gridPlotWindows() )
