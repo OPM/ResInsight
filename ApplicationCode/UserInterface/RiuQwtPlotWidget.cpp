@@ -431,18 +431,6 @@ QPoint RiuQwtPlotWidget::dragStartPosition() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuQwtPlotWidget::widthScaleFactor() const
-{
-    if ( plotOwner() )
-    {
-        return plotDefinition()->widthScaleFactor();
-    }
-    return 1;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::scheduleReplot()
 {
     RiaPlotWindowRedrawScheduler::instance()->schedulePlotWidgetReplot( this );

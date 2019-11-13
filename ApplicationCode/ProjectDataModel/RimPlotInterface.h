@@ -33,22 +33,14 @@ class QwtPlotCurve;
 class RimPlotInterface
 {
 public:
-    enum WidthScaleFactor
-    {
-        EXTRA_NARROW = 3,
-        NARROW       = 4,
-        NORMAL       = 5,
-        WIDE         = 7,
-        EXTRA_WIDE   = 10
-    };
-    typedef caf::AppEnum<WidthScaleFactor> WidthScaleFactorEnum;
-
     enum RowOrColSpan
     {
-        ONE   = 1,
-        TWO   = 2,
-        THREE = 3,
-        FOUR  = 4
+        UNLIMITED = -1,
+        ONE       = 1,
+        TWO       = 2,
+        THREE     = 3,
+        FOUR      = 4,
+        FIVE      = 5
     };
     typedef caf::AppEnum<RowOrColSpan> RowOrColSpanEnum;
 
@@ -64,12 +56,6 @@ public:
 
     virtual QString description() const = 0;
 
-    virtual int widthScaleFactor() const
-    {
-        return NORMAL;
-    }
-    virtual void setWidthScaleFactor( WidthScaleFactor scaleFactor ) {}
-
     virtual int rowSpan() const
     {
         return 1;
@@ -78,6 +64,8 @@ public:
     {
         return 1;
     }
+    virtual void setRowSpan( RowOrColSpan rowSpan ) {}
+    virtual void setColSpan( RowOrColSpan colSpan ) {}
 
     virtual bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const = 0;
     virtual bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
@@ -108,5 +96,5 @@ public:
 
 protected:
     void         updatePlotWindowLayout();
-    virtual void onWidthScaleFactorChange() {}
+    virtual void onRowOrColSpanChange() {}
 };

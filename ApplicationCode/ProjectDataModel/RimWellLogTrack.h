@@ -93,8 +93,9 @@ public:
     void    setChecked( bool checked ) override;
     QString description() const override;
     void    setDescription( const QString& description );
-    int     widthScaleFactor() const override;
-    void    setWidthScaleFactor( WidthScaleFactor scaleFactor ) override;
+
+    int  colSpan() const override;
+    void setColSpan( RowOrColSpan colSpan ) override;
 
     void addCurve( RimWellLogCurve* curve );
     void insertCurve( RimWellLogCurve* curve, size_t index );
@@ -123,8 +124,8 @@ public:
     void           setFormationTrajectoryType( TrajectoryType trajectoryType );
     TrajectoryType formationTrajectoryType() const;
 
-    void createPlotWidget();
-    void detachAllCurves();
+    void createPlotWidget() override;
+    void detachAllCurves() override;
     void reattachAllCurves();
 
     void loadDataAndUpdate() override;
@@ -261,16 +262,16 @@ private:
 
     void updateWellPathAttributesCollection();
 
-    void onWidthScaleFactorChange() override;
+    void onRowOrColSpanChange() override;
 
     RimWellLogPlot* parentWellLogPlot() const;
 
 private:
     QString m_xAxisTitle;
 
-    caf::PdmField<bool>                                   m_show;
-    caf::PdmField<QString>                                m_description;
-    caf::PdmField<RimPlotInterface::WidthScaleFactorEnum> m_widthScaleFactor;
+    caf::PdmField<bool>                               m_show;
+    caf::PdmField<QString>                            m_description;
+    caf::PdmField<RimPlotInterface::RowOrColSpanEnum> m_colSpan;
 
     caf::PdmChildArrayField<RimWellLogCurve*> m_curves;
     caf::PdmField<double>                     m_visibleXRangeMin;

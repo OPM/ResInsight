@@ -10,23 +10,14 @@
 namespace caf
 {
 template <>
-void RimPlotInterface::WidthScaleFactorEnum::setUp()
-{
-    addItem( RimPlotInterface::EXTRA_NARROW, "EXTRA_NARROW_TRACK", "Extra Narrow" );
-    addItem( RimPlotInterface::NARROW, "NARROW_TRACK", "Narrow" );
-    addItem( RimPlotInterface::NORMAL, "NORMAL_TRACK", "Normal" );
-    addItem( RimPlotInterface::WIDE, "WIDE_TRACK", "Wide" );
-    addItem( RimPlotInterface::EXTRA_WIDE, "EXTRA_WIDE_TRACK", "Extra wide" );
-    setDefault( RimPlotInterface::NORMAL );
-}
-
-template <>
 void RimPlotInterface::RowOrColSpanEnum::setUp()
 {
+    addItem( RimPlotInterface::UNLIMITED, "UNLIMITED", "Unlimited" );
     addItem( RimPlotInterface::ONE, "ONE", "1" );
     addItem( RimPlotInterface::TWO, "TWO", "2" );
     addItem( RimPlotInterface::THREE, "THREE", "3" );
     addItem( RimPlotInterface::FOUR, "FOUR", "4" );
+    addItem( RimPlotInterface::FIVE, "FIVE", "5" );
     setDefault( RimPlotInterface::ONE );
 }
 

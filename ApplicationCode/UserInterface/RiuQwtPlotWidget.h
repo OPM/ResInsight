@@ -98,8 +98,6 @@ public:
     bool   frameIsInFrontOfThis( const QRect& frameGeometry );
     QPoint dragStartPosition() const;
 
-    int widthScaleFactor() const;
-
     void scheduleReplot();
     void setWidgetState( RiuWidgetStyleSheet::StateTag widgetState );
 
