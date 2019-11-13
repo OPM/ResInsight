@@ -85,8 +85,8 @@ RimMainPlotCollection::RimMainPlotCollection()
                                 "" );
     m_saturationPressurePlotCollection.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_combinationPlotCollection, "RimGridPlotWindowCollection", "Combination Plots", "", "", "" );
-    m_combinationPlotCollection.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_multiPlotCollection, "RimGridPlotWindowCollection", "Multi Plots", "", "", "" );
+    m_multiPlotCollection.uiCapability()->setUiHidden( true );
 
     m_wellLogPlotCollection            = new RimWellLogPlotCollection();
     m_rftPlotCollection                = new RimRftPlotCollection();
@@ -96,7 +96,7 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_flowPlotCollection               = new RimFlowPlotCollection();
     m_gridCrossPlotCollection          = new RimGridCrossPlotCollection;
     m_saturationPressurePlotCollection = new RimSaturationPressurePlotCollection;
-    m_combinationPlotCollection        = new RimGridPlotWindowCollection;
+    m_multiPlotCollection              = new RimGridPlotWindowCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,9 +188,9 @@ RimSaturationPressurePlotCollection* RimMainPlotCollection::saturationPressurePl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridPlotWindowCollection* RimMainPlotCollection::combinationPlotCollection()
+RimGridPlotWindowCollection* RimMainPlotCollection::multiPlotCollection()
 {
-    return m_combinationPlotCollection();
+    return m_multiPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,7 +206,7 @@ void RimMainPlotCollection::deleteAllContainedObjects()
     m_gridCrossPlotCollection->deleteAllChildObjects();
     m_flowPlotCollection()->closeDefaultPlotWindowAndDeletePlots();
     m_saturationPressurePlotCollection()->deleteAllChildObjects();
-    m_combinationPlotCollection()->deleteAllChildObjects();
+    m_multiPlotCollection()->deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -259,9 +259,9 @@ void RimMainPlotCollection::updatePlotsWithFormations()
         }
     }
 
-    if ( m_combinationPlotCollection )
+    if ( m_multiPlotCollection )
     {
-        for ( RimGridPlotWindow* plotWindow : m_combinationPlotCollection->gridPlotWindows() )
+        for ( RimGridPlotWindow* plotWindow : m_multiPlotCollection->gridPlotWindows() )
         {
             plotWindow->loadDataAndUpdate();
         }
@@ -281,9 +281,9 @@ void RimMainPlotCollection::updatePlotsWithCompletions()
         }
     }
 
-    if ( m_combinationPlotCollection )
+    if ( m_multiPlotCollection )
     {
-        for ( RimGridPlotWindow* plotWindow : m_combinationPlotCollection->gridPlotWindows() )
+        for ( RimGridPlotWindow* plotWindow : m_multiPlotCollection->gridPlotWindows() )
         {
             plotWindow->loadDataAndUpdate();
         }

@@ -34,14 +34,14 @@
 
 #include "cvfAssert.h"
 
-RICF_SOURCE_INIT( RicNewGridPlotWindowFeature, "RicNewGridPlotWindowFeature", "createCombinationPlot" );
+RICF_SOURCE_INIT( RicNewGridPlotWindowFeature, "RicNewGridPlotWindowFeature", "createMultiPlot" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicNewGridPlotWindowFeature::RicNewGridPlotWindowFeature()
 {
-    CAF_PDM_InitObject( "Create Combination Plot", "", "", "" );
+    CAF_PDM_InitObject( "Create Multi Plot", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_plots, "plots", "Plots", "", "", "" );
 }
 
@@ -51,10 +51,10 @@ RicNewGridPlotWindowFeature::RicNewGridPlotWindowFeature()
 RicfCommandResponse RicNewGridPlotWindowFeature::execute()
 {
     RimProject*                  project        = RiaApplication::instance()->project();
-    RimGridPlotWindowCollection* plotCollection = project->mainPlotCollection()->combinationPlotCollection();
+    RimGridPlotWindowCollection* plotCollection = project->mainPlotCollection()->multiPlotCollection();
 
     RimGridPlotWindow* plotWindow = new RimGridPlotWindow;
-    plotWindow->setMultiPlotTitle( QString( "Combination Plot %1" ).arg( plotCollection->gridPlotWindows().size() + 1 ) );
+    plotWindow->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( plotCollection->gridPlotWindows().size() + 1 ) );
     plotWindow->setAsPlotMdiWindow();
     plotCollection->addGridPlotWindow( plotWindow );
 
@@ -118,12 +118,12 @@ void RicNewGridPlotWindowFeature::setupActionLook( QAction* actionToSetup )
 {
     if ( selectedPlotInterfaces().empty() )
     {
-        actionToSetup->setText( "New Empty Plot Report" );
+        actionToSetup->setText( "New Empty Multi Plot" );
         actionToSetup->setIcon( QIcon( ":/WellLogPlot16x16.png" ) );
     }
     else
     {
-        actionToSetup->setText( "Create Plot Report from Selected Plots" );
+        actionToSetup->setText( "Create Multi Plot from Selected Plots" );
         actionToSetup->setIcon( QIcon( ":/WellLogPlot16x16.png" ) );
     }
 }

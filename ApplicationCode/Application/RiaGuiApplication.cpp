@@ -347,9 +347,9 @@ void RiaGuiApplication::loadAndUpdatePlotData()
         {
             sppColl = m_project->mainPlotCollection()->saturationPressurePlotCollection();
         }
-        if ( m_project->mainPlotCollection()->combinationPlotCollection() )
+        if ( m_project->mainPlotCollection()->multiPlotCollection() )
         {
-            gpwColl = m_project->mainPlotCollection()->combinationPlotCollection();
+            gpwColl = m_project->mainPlotCollection()->multiPlotCollection();
         }
     }
 

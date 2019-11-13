@@ -46,7 +46,7 @@ CAF_PDM_SOURCE_INIT( RimGridPlotWindow, "GridPlotWindow" );
 //--------------------------------------------------------------------------------------------------
 RimGridPlotWindow::RimGridPlotWindow()
 {
-    CAF_PDM_InitObject( "Plot Report", ":/WellLogPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Multi Plot", ":/WellLogPlot16x16.png", "", "" );
 
     CAF_PDM_InitField( &m_showPlotWindowTitle, "ShowTitleInPlot", true, "Show Title", "", "", "" );
     CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name", "", "", "" );
