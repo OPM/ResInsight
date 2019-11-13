@@ -156,7 +156,7 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitFieldNoDefault( &m_description, "TrackDescription", "Name", "", "", "" );
 
     m_description.uiCapability()->setUiReadOnly( true );
-    CAF_PDM_InitFieldNoDefault( &m_widthScaleFactor, "Width", "Track Width", "", "Set width of track. ", "" );
+    CAF_PDM_InitFieldNoDefault( &m_colSpan, "ColSpan", "Column Span", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_curves, "Curves", "", "", "", "" );
     m_curves.uiCapability()->setUiHidden( true );
@@ -295,17 +295,17 @@ void RimWellLogTrack::setDescription( const QString& description )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimWellLogTrack::widthScaleFactor() const
+int RimWellLogTrack::colSpan() const
 {
-    return static_cast<int>( m_widthScaleFactor() );
+    return m_colSpan();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setWidthScaleFactor( WidthScaleFactor scaleFactor )
+void RimWellLogTrack::setColSpan( RowOrColSpan colSpan )
 {
-    m_widthScaleFactor = scaleFactor;
+    m_colSpan = colSpan;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -471,7 +471,7 @@ void RimWellLogTrack::updateXZoom()
 
     // Attribute range. Fixed range where well components are positioned [-1, 1].
     // Set an extended range here to allow for some label space.
-    double componentRangeMax = 1.5 * ( 10.0 / ( m_widthScaleFactor() ) );
+    double componentRangeMax = 1.5 * ( 4 / ( static_cast<int>( m_colSpan() ) ) );
     double componentRangeMin = -0.25;
     if ( m_showWellPathComponentsBothSides )
     {
@@ -511,9 +511,9 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         updatePlotWindowLayout();
     }
-    else if ( changedField == &m_widthScaleFactor )
+    else if ( changedField == &m_colSpan )
     {
-        onWidthScaleFactorChange();
+        onRowOrColSpanChange();
         updatePlotWindowLayout();
     }
     else if ( changedField == &m_explicitTickIntervals )
@@ -703,25 +703,25 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
     {
         int majorTickIntervals = 3;
         int minorTickIntervals = 0;
-        switch ( m_widthScaleFactor() )
+        switch ( m_colSpan() )
         {
-            case EXTRA_NARROW:
+            case ONE:
                 majorTickIntervals = 3;
                 minorTickIntervals = 2;
                 break;
-            case NARROW:
+            case TWO:
                 majorTickIntervals = 3;
                 minorTickIntervals = 5;
                 break;
-            case NORMAL:
+            case THREE:
                 majorTickIntervals = 5;
                 minorTickIntervals = 5;
                 break;
-            case WIDE:
+            case FOUR:
                 majorTickIntervals = 5;
                 minorTickIntervals = 10;
                 break;
-            case EXTRA_WIDE:
+            case FIVE:
                 majorTickIntervals = 10;
                 minorTickIntervals = 10;
                 break;
@@ -1541,7 +1541,7 @@ caf::PdmObject* RimWellLogTrack::findPdmObjectFromQwtCurve( const QwtPlotCurve* 
 void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_description );
-    uiOrdering.add( &m_widthScaleFactor );
+    uiOrdering.add( &m_colSpan );
 
     caf::PdmUiGroup* annotationGroup = uiOrdering.addNewGroup( "Regions/Annotations" );
 
@@ -1729,7 +1729,7 @@ void RimWellLogTrack::updateWellPathAttributesCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::onWidthScaleFactorChange()
+void RimWellLogTrack::onRowOrColSpanChange()
 {
     updateXZoom();
 }

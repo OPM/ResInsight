@@ -155,7 +155,7 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_rowSpan, "RowSpan", "Row Span", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_colSpan, "ColSpan", "Col Span", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_colSpan, "ColSpan", "Column Span", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "", "", "", "" );
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden( true );

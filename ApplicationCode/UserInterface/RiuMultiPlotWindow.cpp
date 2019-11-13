@@ -633,17 +633,10 @@ void RiuMultiPlotWindow::reinsertPlotWidgets()
             }
             for ( int c = column; c < column + colSpan; ++c )
             {
-                m_gridLayout->setColumnStretch( c, std::max( 1, m_gridLayout->columnStretch( c ) ) );
+                int colStretch = 1;
+                if ( showYAxis( row, column ) ) colStretch += 1;
+                m_gridLayout->setColumnStretch( c, std::max( colStretch, m_gridLayout->columnStretch( c ) ) );
             }
-
-            // Set column stretches for main widget column based on width scale factor
-            int widthScaleFactor = plotWidgets[visibleIndex]->widthScaleFactor();
-            if ( showYAxis( row, column ) )
-            {
-                widthScaleFactor += 1; // Give it a bit extra room due to axis
-            }
-
-            m_gridLayout->setColumnStretch( column, std::max( m_gridLayout->columnStretch( column ), widthScaleFactor ) );
         }
     }
 }
