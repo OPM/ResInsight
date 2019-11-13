@@ -324,6 +324,12 @@ void RimWellRftPlot::updateEditorsFromPreviousSelection()
             m_selectedTimeSteps.v().push_back( timeStep );
         }
     }
+
+    if ( m_selectedTimeSteps.v().empty() && !timeStepOptions.empty() )
+    {
+        QDateTime timeStep = timeStepOptions.first().value().toDateTime();
+        m_selectedTimeSteps.v().push_back( timeStep );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
