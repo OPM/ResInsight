@@ -51,7 +51,7 @@ public:
 
 public:
     RimGridPlotWindow();
-    ~RimGridPlotWindow();
+    ~RimGridPlotWindow() override;
 
     RimGridPlotWindow& operator=( RimGridPlotWindow&& rhs );
 
@@ -116,8 +116,6 @@ protected:
                         bool                        forceChange = false ) override;
 
 private:
-    void detachAllCurves() override;
-
     void cleanupBeforeClose();
 
     static RimPlotInterface*       toPlotInterfaceAsserted( caf::PdmObject* pdmObject );

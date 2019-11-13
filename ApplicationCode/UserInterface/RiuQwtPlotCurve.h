@@ -81,7 +81,6 @@ public:
 
 public:
     explicit RiuQwtPlotCurve( const QString& title = QString() );
-    ~RiuQwtPlotCurve() override;
 
     void setSamplesFromXValuesAndYValues( const std::vector<double>& xValues,
                                           const std::vector<double>& yValues,

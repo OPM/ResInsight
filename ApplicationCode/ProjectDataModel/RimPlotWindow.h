@@ -32,7 +32,6 @@ class RimPlotWindow : public RimViewWindow
 
 public:
     RimPlotWindow();
-    ~RimPlotWindow();
 
     RimPlotWindow& operator=( RimPlotWindow&& rhs );
 
@@ -49,7 +48,6 @@ public:
     int  legendFontSize() const;
     void setLegendFontSize( int fontSize );
 
-    virtual void detachAllCurves() = 0;
     virtual void handleKeyPressEvent( QKeyEvent* keyEvent ) {}
     virtual void updateLayout() = 0;
 

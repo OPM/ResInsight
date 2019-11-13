@@ -607,18 +607,6 @@ bool RimGridPlotWindow::applyFontSize( RiaDefines::FontSettingType fontSettingTy
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::detachAllCurves()
-{
-    auto plotVector = plots();
-    for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
-    {
-        plotVector[tIdx]->detachAllCurves();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimGridPlotWindow::cleanupBeforeClose()
 {
     auto plotVector = plots();

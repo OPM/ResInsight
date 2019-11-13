@@ -76,7 +76,13 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlotInterface* plotTrackDefinition, QWidg
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget::~RiuQwtPlotWidget() {}
+RiuQwtPlotWidget::~RiuQwtPlotWidget()
+{
+    if ( plotDefinition() )
+    {
+        plotDefinition()->detachAllCurves();
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
