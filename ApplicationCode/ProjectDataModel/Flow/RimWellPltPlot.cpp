@@ -891,7 +891,7 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
     if ( changedField == &m_wellPathName )
     {
-        setDescription( QString( plotNameFormatString() ).arg( m_wellPathName ) );
+        setMultiPlotTitle( QString( plotNameFormatString() ).arg( m_wellPathName ) );
     }
 
     if ( changedField == &m_wellPathName )
@@ -1039,9 +1039,9 @@ void RimWellPltPlot::initAfterRead()
         wellLogPlot                 = std::move( *m_wellLogPlot_OBSOLETE.value() );
     }
 
-    if ( m_showPlotTitle_OBSOLETE() && !m_showTitleInPlot() )
+    if ( m_showPlotTitle_OBSOLETE() && !m_showPlotWindowTitle() )
     {
-        m_showTitleInPlot = m_showPlotTitle_OBSOLETE();
+        m_showPlotWindowTitle = m_showPlotTitle_OBSOLETE();
     }
 
     RimWellLogPlot::initAfterRead();

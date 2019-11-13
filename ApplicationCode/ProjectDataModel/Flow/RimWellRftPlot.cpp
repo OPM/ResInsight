@@ -851,7 +851,7 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
     if ( changedField == &m_wellPathNameOrSimWellName )
     {
-        setDescription( QString( plotNameFormatString() ).arg( m_wellPathNameOrSimWellName ) );
+        setMultiPlotTitle( QString( plotNameFormatString() ).arg( m_wellPathNameOrSimWellName ) );
 
         m_branchIndex = 0;
 
@@ -886,7 +886,7 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         syncCurvesFromUiSelection();
     }
 
-    else if ( changedField == &m_showTitleInPlot )
+    else if ( changedField == &m_showPlotWindowTitle )
     {
         // m_wellLogPlot->setShowDescription(m_showPlotTitle);
     }
@@ -1071,9 +1071,9 @@ void RimWellRftPlot::initAfterRead()
         RimWellLogPlot& wellLogPlot = dynamic_cast<RimWellLogPlot&>( *this );
         wellLogPlot                 = std::move( *m_wellLogPlot_OBSOLETE.value() );
     }
-    if ( m_showPlotTitle_OBSOLETE() && !m_showTitleInPlot() )
+    if ( m_showPlotTitle_OBSOLETE() && !m_showPlotWindowTitle() )
     {
-        m_showTitleInPlot = m_showPlotTitle_OBSOLETE();
+        m_showPlotWindowTitle = m_showPlotTitle_OBSOLETE();
     }
 
     RimWellLogPlot::initAfterRead();

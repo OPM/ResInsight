@@ -104,8 +104,9 @@ RimWellLogPlot::RimWellLogPlot()
     m_maxAvailableDepth = -HUGE_VAL;
 
     m_commonDataSourceEnabled = true;
-    m_showTitleInPlot         = false;
     m_columnCountEnum         = RimGridPlotWindow::COLUMNS_UNLIMITED;
+
+    setMultiPlotTitleVisible( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,14 +151,6 @@ RimWellLogPlot::~RimWellLogPlot()
 QWidget* RimWellLogPlot::createPlotWidget( QWidget* mainWindowParent /*= nullptr */ )
 {
     return createViewWidget( mainWindowParent );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimWellLogPlot::fullPlotTitle() const
-{
-    return createAutoName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -315,7 +308,7 @@ void RimWellLogPlot::uiOrderingForDepthAxis( caf::PdmUiOrdering& uiOrdering )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_showTitleInPlot );
+    uiOrdering.add( &m_showPlotWindowTitle );
     m_nameConfig->uiOrdering( "", uiOrdering );
     uiOrdering.add( &m_showIndividualPlotTitles );
     RimPlotWindow::uiOrderingForPlotLayout( uiOrdering );
@@ -416,7 +409,8 @@ QWidget* RimWellLogPlot::createViewWidget( QWidget* mainWindowParent )
 void RimWellLogPlot::performAutoNameUpdate()
 {
     updateCommonDataSource();
-    updatePlotTitle();
+    setMultiPlotTitle( m_nameConfig->name() );
+    updatePlotTitleInWidgets();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -535,14 +529,6 @@ void RimWellLogPlot::updatePlotNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellLogPlot::userDescriptionField()
-{
-    return m_nameConfig->nameField();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            oldValue,
                                        const QVariant&            newValue )
@@ -650,9 +636,9 @@ void RimWellLogPlot::initAfterRead()
     RimGridPlotWindow::initAfterRead();
 
     updateCommonDataSource();
-    if ( !m_description().isEmpty() )
+    if ( !m_plotWindowTitle().isEmpty() )
     {
-        m_nameConfig->setCustomName( m_description() );
+        m_nameConfig->setCustomName( m_plotWindowTitle() );
     }
 
     if ( m_depthAxisGridVisibility() == AXIS_GRID_MINOR )

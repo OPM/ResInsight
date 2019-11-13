@@ -64,7 +64,6 @@ public:
     ~RimWellLogPlot() override;
 
     QWidget* createPlotWidget( QWidget* mainWindowParent = nullptr );
-    QString  fullPlotTitle() const override;
 
     RimWellLogPlot& operator=( RimWellLogPlot&& rhs );
 
@@ -106,10 +105,9 @@ public:
     void updatePlotNames() override;
 
 protected:
-    QWidget*             createViewWidget( QWidget* mainWindowParent ) override;
-    void                 performAutoNameUpdate() override;
-    void                 handleKeyPressEvent( QKeyEvent* keyEvent ) override;
-    caf::PdmFieldHandle* userDescriptionField() override;
+    QWidget* createViewWidget( QWidget* mainWindowParent ) override;
+    void     performAutoNameUpdate() override;
+    void     handleKeyPressEvent( QKeyEvent* keyEvent ) override;
 
     // Overridden PDM methods
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,

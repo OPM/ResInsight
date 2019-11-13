@@ -57,6 +57,11 @@ public:
 
     QWidget* viewWidget() override;
 
+    bool    isMultiPlotTitleVisible() const;
+    void    setMultiPlotTitleVisible( bool visible );
+    QString multiPlotTitle() const;
+    void    setMultiPlotTitle( const QString& title );
+
     void addPlot( RimPlotInterface* plot );
     void insertPlot( RimPlotInterface* plot, size_t index );
     void removePlot( RimPlotInterface* plot );
@@ -92,6 +97,8 @@ protected:
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
     void     deleteViewWidget() override;
 
+    caf::PdmFieldHandle* userDescriptionField() override;
+
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
                            const QVariant&            newValue ) override;
@@ -104,7 +111,7 @@ protected:
     void                          onLoadDataAndUpdate() override;
     void                          initAfterRead() override;
 
-    void         updatePlotTitle() override;
+    void         updatePlotTitleInWidgets();
     void         updatePlots();
     virtual void updateZoom();
     void         recreatePlotWidgets();
@@ -124,6 +131,8 @@ private:
     static const caf::PdmObject*   toPdmObjectAsserted( const RimPlotInterface* plotInterface );
 
 protected:
+    caf::PdmField<bool>            m_showPlotWindowTitle;
+    caf::PdmField<QString>         m_plotWindowTitle;
     caf::PdmField<ColumnCountEnum> m_columnCountEnum;
     caf::PdmField<bool>            m_showIndividualPlotTitles;
 

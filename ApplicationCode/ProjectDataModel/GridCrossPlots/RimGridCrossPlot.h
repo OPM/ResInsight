@@ -151,8 +151,6 @@ protected:
 
     std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
 
-    void updatePlotTitle() override;
-
 private:
     void cleanupBeforeClose();
 

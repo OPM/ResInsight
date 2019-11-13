@@ -48,6 +48,9 @@ RimGridPlotWindow::RimGridPlotWindow()
 {
     CAF_PDM_InitObject( "Plot Report", ":/WellLogPlot16x16.png", "", "" );
 
+    CAF_PDM_InitField( &m_showPlotWindowTitle, "ShowTitleInPlot", true, "Show Title", "", "", "" );
+    CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name", "", "", "" );
+
     CAF_PDM_InitFieldNoDefault( &m_plots, "Tracks", "", "", "", "" );
     m_plots.uiCapability()->setUiHidden( true );
 
@@ -76,6 +79,9 @@ RimGridPlotWindow& RimGridPlotWindow::operator=( RimGridPlotWindow&& rhs )
 {
     RimPlotWindow::operator=( std::move( rhs ) );
 
+    m_showPlotWindowTitle = rhs.m_showPlotWindowTitle;
+    m_plotWindowTitle     = rhs.m_plotWindowTitle;
+
     // Move all tracks
     std::vector<caf::PdmObject*> plots = rhs.m_plots.childObjects();
     rhs.m_plots.clear();
@@ -96,6 +102,38 @@ RimGridPlotWindow& RimGridPlotWindow::operator=( RimGridPlotWindow&& rhs )
 QWidget* RimGridPlotWindow::viewWidget()
 {
     return m_viewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridPlotWindow::isMultiPlotTitleVisible() const
+{
+    return m_showPlotWindowTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridPlotWindow::setMultiPlotTitleVisible( bool visible )
+{
+    m_showPlotWindowTitle = visible;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGridPlotWindow::multiPlotTitle() const
+{
+    return m_plotWindowTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridPlotWindow::setMultiPlotTitle( const QString& title )
+{
+    m_plotWindowTitle = title;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -330,7 +368,7 @@ void RimGridPlotWindow::zoomAll()
 //--------------------------------------------------------------------------------------------------
 QString RimGridPlotWindow::asciiDataForPlotExport() const
 {
-    QString out = description() + "\n";
+    QString out = multiPlotTitle() + "\n";
 
     for ( RimPlotInterface* plot : plots() )
     {
@@ -393,6 +431,14 @@ void RimGridPlotWindow::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimGridPlotWindow::userDescriptionField()
+{
+    return &m_plotWindowTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                           const QVariant&            oldValue,
                                           const QVariant&            newValue )
@@ -403,7 +449,11 @@ void RimGridPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     {
         updateLayout();
     }
-    if ( changedField == &m_columnCountEnum )
+    else if ( changedField == &m_showPlotWindowTitle || changedField == &m_plotWindowTitle )
+    {
+        updatePlotTitleInWidgets();
+    }
+    else if ( changedField == &m_columnCountEnum )
     {
         updateLayout();
         RiuPlotMainWindowTools::refreshToolbars();
@@ -425,8 +475,8 @@ void RimGridPlotWindow::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 void RimGridPlotWindow::uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_showTitleInPlot );
-    uiOrdering.add( &m_description );
+    uiOrdering.add( &m_showPlotWindowTitle );
+    uiOrdering.add( &m_plotWindowTitle );
     uiOrdering.add( &m_showIndividualPlotTitles );
     RimPlotWindow::uiOrderingForPlotLayout( uiOrdering );
     uiOrdering.add( &m_columnCountEnum );
@@ -472,7 +522,7 @@ QList<caf::PdmOptionItemInfo> RimGridPlotWindow::calculateValueOptions( const ca
 void RimGridPlotWindow::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
-    updatePlotTitle();
+    updatePlotTitleInWidgets();
     updatePlots();
     updateLayout();
 }
@@ -488,12 +538,12 @@ void RimGridPlotWindow::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindow::updatePlotTitle()
+void RimGridPlotWindow::updatePlotTitleInWidgets()
 {
     if ( m_viewer )
     {
-        m_viewer->setTitleVisible( m_showTitleInPlot() );
-        m_viewer->setPlotTitle( fullPlotTitle() );
+        m_viewer->setTitleVisible( m_showPlotWindowTitle() );
+        m_viewer->setPlotTitle( multiPlotTitle() );
     }
     updateMdiWindowTitle();
 }
