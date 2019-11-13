@@ -112,17 +112,6 @@ RiuGridPlotWindow::RiuGridPlotWindow( RimGridPlotWindow* plotDefinition, QWidget
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuGridPlotWindow::~RiuGridPlotWindow()
-{
-    if ( m_plotDefinition )
-    {
-        m_plotDefinition->detachAllCurves();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimGridPlotWindow* RiuGridPlotWindow::ownerPlotDefinition()
 {
     return m_plotDefinition;

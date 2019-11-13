@@ -1513,22 +1513,7 @@ std::set<RimPlotAxisPropertiesInterface*> RimSummaryPlot::allPlotAxes() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::cleanupBeforeClose()
 {
-    if ( m_summaryCurveCollection )
-    {
-        m_summaryCurveCollection->detachQwtCurves();
-    }
-
-    m_ensembleCurveSetCollection->detachQwtCurves();
-
-    for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
-    {
-        curve->detachQwtCurve();
-    }
-
-    for ( RimAsciiDataCurve* curve : m_asciiDataCurves )
-    {
-        curve->detachQwtCurve();
-    }
+    detachAllCurves();
 
     if ( m_plotWidget )
     {

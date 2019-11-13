@@ -55,8 +55,6 @@ class RiuGridPlotWindow : public QWidget, public RiuInterfaceToViewWindow, publi
 public:
     RiuGridPlotWindow( RimGridPlotWindow* plotDefinition, QWidget* parent = nullptr );
 
-    ~RiuGridPlotWindow() override;
-
     RimGridPlotWindow* ownerPlotDefinition();
     RimViewWindow*     ownerViewWindow() const override;
 
