@@ -48,6 +48,7 @@ public:
 
     static OpenCaseResults openEclipseFilesFromFileNames( const QStringList& fileNames, bool doCreateDefaultPlot );
     static QStringList     fileNamesFromCaseNames( const QStringList& caseNames );
+    static QStringList     getEclipseFileNamesWithDialog( RiaDefines::ImportFileType fileTypes );
 
 protected:
     // Overrides

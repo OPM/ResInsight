@@ -847,6 +847,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicImportObservedDataFeature";
         menuBuilder << "RicImportObservedFmuDataFeature";
         menuBuilder << "RicReloadSummaryCaseFeature";
+        menuBuilder << "RicReplaceSummaryCaseFeature";
         menuBuilder << "RicCreateSummaryCaseCollectionFeature";
         menuBuilder << "Separator";
         menuBuilder << "RicCutReferencesToClipboardFeature";
@@ -888,6 +889,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicAddEclipseInputPropertyFeature";
             menuBuilder << "RicReloadCaseFeature";
+            menuBuilder << "RicReplaceCaseFeature";
             createExecuteScriptForCasesFeatureMenu( menuBuilder );
             menuBuilder << "RicCloseSourSimDataFeature";
         }

@@ -50,6 +50,7 @@ public:
     RiaEclipseUnitTools::UnitSystemType unitsSystem();
 
     void updateAutoShortName();
+    void resetAutoShortName();
     void updateOptionSensitivity();
 
     virtual void                       createSummaryReaderInterface() = 0;
@@ -86,6 +87,8 @@ protected:
     bool                   m_isObservedData;
 
     std::shared_ptr<RigCaseRealizationParameters> m_crlParameters;
+
+    static const QString DEFAULT_DISPLAY_NAME;
 
 private:
     void initAfterRead() override;

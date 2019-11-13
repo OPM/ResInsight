@@ -154,7 +154,7 @@ void RicImportGeneralDataFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
+QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefines::ImportFileType fileTypes )
 {
     QString eclipseGridFilePattern( "*.GRID" );
     QString eclipseEGridFilePattern( "*.EGRID" );
@@ -170,13 +170,13 @@ void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
                                 .arg( eclipseInputFilePattern )
                                 .arg( eclipseSummaryFilePattern );
     }
-    if ( fileTypes & ECLIPSE_GRID_FILE )
-    {
-        filePatternTexts += QString( "Eclipse Grid Files (%1)" ).arg( eclipseGridFilePattern );
-    }
     if ( fileTypes & ECLIPSE_EGRID_FILE )
     {
         filePatternTexts += QString( "Eclipse EGrid Files (%1)" ).arg( eclipseEGridFilePattern );
+    }
+    if ( fileTypes & ECLIPSE_GRID_FILE )
+    {
+        filePatternTexts += QString( "Eclipse Grid Files (%1)" ).arg( eclipseGridFilePattern );
     }
     if ( fileTypes & ECLIPSE_INPUT_FILE )
     {
@@ -195,7 +195,15 @@ void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
                                                            "Import Data File",
                                                            defaultDir,
                                                            fullPattern );
+    return fileNames;
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
+{
+    QStringList fileNames = getEclipseFileNamesWithDialog( fileTypes );
     if ( fileNames.empty() ) return;
 
     if ( fileTypes == ANY_ECLIPSE_FILE )

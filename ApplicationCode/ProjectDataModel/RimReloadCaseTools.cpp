@@ -117,6 +117,7 @@ void RimReloadCaseTools::updateAll3dViews( RimEclipseCase* eclipseCase )
     for ( RimEclipseView* reservoirView : eclipseCase->reservoirViews() )
     {
         CVF_ASSERT( reservoirView );
+        reservoirView->setEclipseCase( eclipseCase );
         reservoirView->loadDataAndUpdate();
         reservoirView->updateGridBoxData();
         reservoirView->updateAnnotationItems();
