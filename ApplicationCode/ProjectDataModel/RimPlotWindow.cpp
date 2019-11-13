@@ -31,9 +31,6 @@ RimPlotWindow::RimPlotWindow()
 {
     CAF_PDM_InitObject( "Plot", "", "", "" );
 
-    CAF_PDM_InitField( &m_description, "PlotDescription", QString( "" ), "Name", "", "", "" );
-
-    CAF_PDM_InitField( &m_showTitleInPlot, "ShowTitleInPlot", true, "Show Title", "", "", "" );
     CAF_PDM_InitField( &m_showPlotLegends, "ShowTrackLegends", true, "Show Legends", "", "", "" );
     CAF_PDM_InitField( &m_plotLegendsHorizontal, "TrackLegendsHorizontal", true, "Legend Orientation", "", "", "" );
     m_plotLegendsHorizontal.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -52,50 +49,9 @@ RimPlotWindow::~RimPlotWindow() {}
 //--------------------------------------------------------------------------------------------------
 RimPlotWindow& RimPlotWindow::operator=( RimPlotWindow&& rhs )
 {
-    m_showTitleInPlot       = rhs.m_showTitleInPlot();
     m_showPlotLegends       = rhs.m_showPlotLegends();
     m_plotLegendsHorizontal = rhs.m_plotLegendsHorizontal();
     return *this;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotWindow::setDescription( const QString& description )
-{
-    m_description = description;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimPlotWindow::description() const
-{
-    return m_description;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimPlotWindow::fullPlotTitle() const
-{
-    return m_description;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimPlotWindow::isPlotTitleVisible() const
-{
-    return m_showTitleInPlot();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotWindow::setPlotTitleVisible( bool visible )
-{
-    m_showTitleInPlot = visible;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,10 +115,6 @@ void RimPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         updateLayout();
     }
-    else if ( changedField == &m_showTitleInPlot || changedField == &m_description )
-    {
-        updatePlotTitle();
-    }
     else if ( changedField == &m_legendFontSize )
     {
         updateLayout();
@@ -203,14 +155,6 @@ QList<caf::PdmOptionItemInfo> RimPlotWindow::calculateValueOptions( const caf::P
         options.push_back( caf::PdmOptionItemInfo( "Horizontal", QVariant::fromValue( true ) ) );
     }
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimPlotWindow::userDescriptionField()
-{
-    return &m_description;
 }
 
 //--------------------------------------------------------------------------------------------------

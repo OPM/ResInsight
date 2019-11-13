@@ -54,7 +54,7 @@ RicfCommandResponse RicNewGridPlotWindowFeature::execute()
     RimGridPlotWindowCollection* plotCollection = project->mainPlotCollection()->combinationPlotCollection();
 
     RimGridPlotWindow* plotWindow = new RimGridPlotWindow;
-    plotWindow->setDescription( QString( "Combination Plot %1" ).arg( plotCollection->gridPlotWindows().size() + 1 ) );
+    plotWindow->setMultiPlotTitle( QString( "Combination Plot %1" ).arg( plotCollection->gridPlotWindows().size() + 1 ) );
     plotWindow->setAsPlotMdiWindow();
     plotCollection->addGridPlotWindow( plotWindow );
 

@@ -1105,14 +1105,6 @@ std::set<RimPlotAxisPropertiesInterface*> RimGridCrossPlot::allPlotAxes() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::updatePlotTitle()
-{
-    updateCurveNamesAndPlotTitle();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::cleanupBeforeClose()
 {
     for ( auto dataSet : m_crossPlotDataSets() )

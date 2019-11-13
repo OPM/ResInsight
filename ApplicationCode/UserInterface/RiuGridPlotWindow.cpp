@@ -311,7 +311,7 @@ void RiuGridPlotWindow::keyPressEvent( QKeyEvent* keyEvent )
 QLabel* RiuGridPlotWindow::createTitleLabel() const
 {
     QLabel* plotTitle = new QLabel( "PLOT TITLE HERE", nullptr );
-    plotTitle->setVisible( m_plotDefinition->isPlotTitleVisible() );
+    plotTitle->setVisible( m_plotDefinition->isMultiPlotTitleVisible() );
     plotTitle->setAlignment( Qt::AlignHCenter );
     plotTitle->setWordWrap( true );
     plotTitle->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );

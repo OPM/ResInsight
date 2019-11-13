@@ -65,7 +65,7 @@ void RicAsciiExportWellLogPlotFeature::onActionTriggered( bool isChecked )
     {
         RimWellLogPlot* wellLogPlot     = selectedWellLogPlots.at( 0 );
         QString         defaultFileName = defaultDir + "/" +
-                                  caf::Utils::makeValidFileBasename( ( wellLogPlot->description() ) ) + ".ascii";
+                                  caf::Utils::makeValidFileBasename( ( wellLogPlot->multiPlotTitle() ) ) + ".ascii";
         QString fileName = QFileDialog::getSaveFileName( nullptr,
                                                          "Select File for Plot Data Export",
                                                          defaultFileName,
@@ -81,7 +81,7 @@ void RicAsciiExportWellLogPlotFeature::onActionTriggered( bool isChecked )
         std::vector<QString> fileNames;
         for ( RimWellLogPlot* wellLogPlot : selectedWellLogPlots )
         {
-            QString fileName = caf::Utils::makeValidFileBasename( wellLogPlot->description() ) + ".ascii";
+            QString fileName = caf::Utils::makeValidFileBasename( wellLogPlot->multiPlotTitle() ) + ".ascii";
             fileNames.push_back( fileName );
         }
 
@@ -92,7 +92,8 @@ void RicAsciiExportWellLogPlotFeature::onActionTriggered( bool isChecked )
         RiaLogging::info( QString( "Writing to directory %!" ).arg( saveDir ) );
         for ( RimWellLogPlot* wellLogPlot : selectedWellLogPlots )
         {
-            QString fileName = saveDir + "/" + caf::Utils::makeValidFileBasename( wellLogPlot->description() ) + ".ascii";
+            QString fileName = saveDir + "/" + caf::Utils::makeValidFileBasename( wellLogPlot->multiPlotTitle() ) +
+                               ".ascii";
             RicAsciiExportWellLogPlotFeature::exportAsciiForWellLogPlot( fileName, wellLogPlot );
 
             progress++;
@@ -118,7 +119,8 @@ QString RicAsciiExportWellLogPlotFeature::makeValidExportFileName( const RimWell
                                                                    const QString&        prefix,
                                                                    bool                  capitalizeFileName )
 {
-    QString fileName = folder + "/" + prefix + caf::Utils::makeValidFileBasename( wellLogPlot->description() ) + ".ascii";
+    QString fileName = folder + "/" + prefix + caf::Utils::makeValidFileBasename( wellLogPlot->multiPlotTitle() ) +
+                       ".ascii";
     if ( capitalizeFileName ) fileName = fileName.toUpper();
 
     QDir dir( folder );
@@ -141,7 +143,7 @@ bool RicAsciiExportWellLogPlotFeature::exportAsciiForWellLogPlot( const QString&
 
     QTextStream out( &file );
 
-    out << wellLogPlot->description();
+    out << wellLogPlot->multiPlotTitle();
     out << "\n";
     out << wellLogPlot->asciiDataForPlotExport();
     out << "\n\n";

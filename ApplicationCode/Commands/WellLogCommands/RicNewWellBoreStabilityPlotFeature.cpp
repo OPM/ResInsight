@@ -98,7 +98,7 @@ RimWellBoreStabilityPlot*
         auto task = progInfo.task( "Updating all tracks", 5 );
 
         plot->enableAllAutoNameTags( true );
-        plot->setPlotTitleVisible( true );
+        plot->setMultiPlotTitleVisible( true );
         plot->setLegendsVisible( true );
         plot->setLegendsHorizontal( true );
         plot->setDepthType( RiaDefines::TRUE_VERTICAL_DEPTH );

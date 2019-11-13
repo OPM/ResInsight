@@ -72,11 +72,14 @@ public:
     RimSummaryPlot();
     ~RimSummaryPlot() override;
 
-    void    setDescription( const QString& description ) override;
+    bool    showPlotTitle() const;
+    void    setShowPlotTitle( bool showTitle );
+    void    setDescription( const QString& description );
     QString description() const override;
-    bool    isChecked() const override;
-    void    setChecked( bool checked ) override;
-    void    setDraggable( bool draggable );
+
+    bool isChecked() const override;
+    void setChecked( bool checked ) override;
+    void setDraggable( bool draggable );
 
     void enableAutoPlotTitle( bool enable );
     bool autoPlotTitle() const;
@@ -125,7 +128,7 @@ public:
 
     std::vector<RimEnsembleCurveSet*> curveSets() const;
 
-    void updatePlotTitle() override;
+    void updatePlotTitle();
 
     const RimSummaryPlotNameHelper* activePlotTitleHelperAllCurves() const;
     void                            updateCurveNames();
@@ -229,7 +232,9 @@ private:
 private:
     caf::PdmField<bool> m_normalizeCurveYValues;
 
-    caf::PdmField<bool> m_useAutoPlotTitle;
+    caf::PdmField<bool>    m_showPlotTitle;
+    caf::PdmField<bool>    m_useAutoPlotTitle;
+    caf::PdmField<QString> m_description;
 
     caf::PdmField<RimPlotInterface::RowOrColSpanEnum> m_rowSpan;
     caf::PdmField<RimPlotInterface::RowOrColSpanEnum> m_colSpan;
@@ -261,6 +266,5 @@ private:
     caf::PdmChildArrayField<RimSummaryCurveFilter_OBSOLETE*> m_curveFilters_OBSOLETE;
     caf::PdmField<bool>                                      m_isAutoZoom_OBSOLETE;
 
-    caf::PdmField<bool> m_showPlotTitle_OBSOLETE;
     caf::PdmField<bool> m_showLegend_OBSOLETE;
 };

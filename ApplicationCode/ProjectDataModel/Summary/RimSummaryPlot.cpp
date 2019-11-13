@@ -145,22 +145,17 @@ RimSummaryPlot::RimSummaryPlot()
 {
     CAF_PDM_InitObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "" );
 
-    m_description = "Summary Plot";
-
-    CAF_PDM_InitField( &m_showPlotTitle_OBSOLETE, "ShowPlotTitle", true, "Plot Title", "", "", "" );
-    m_showPlotTitle_OBSOLETE.xmlCapability()->setIOWritable( false );
-    CAF_PDM_InitField( &m_showLegend_OBSOLETE, "ShowLegend", true, "Legend", "", "", "" );
-    m_showLegend_OBSOLETE.xmlCapability()->setIOWritable( false );
+    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Plot Title", "", "", "" );
+    m_showPlotTitle.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title", "", "", "" );
+
+    CAF_PDM_InitField( &m_description, "PlotDescription", QString( "Summary Plot" ), "Name", "", "", "" );
 
     CAF_PDM_InitField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_rowSpan, "RowSpan", "Row Span", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_colSpan, "ColSpan", "Col Span", "", "", "" );
-
-    CAF_PDM_InitFieldNoDefault( &m_curveFilters_OBSOLETE, "SummaryCurveFilters", "", "", "", "" );
-    m_curveFilters_OBSOLETE.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "", "", "", "" );
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden( true );
@@ -170,9 +165,6 @@ RimSummaryPlot::RimSummaryPlot()
     m_ensembleCurveSetCollection.uiCapability()->setUiTreeHidden( true );
     m_ensembleCurveSetCollection.uiCapability()->setUiHidden( true );
     m_ensembleCurveSetCollection = new RimEnsembleCurveSetCollection();
-
-    CAF_PDM_InitFieldNoDefault( &m_summaryCurves_OBSOLETE, "SummaryCurves", "", "", "", "" );
-    m_summaryCurves_OBSOLETE.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_gridTimeHistoryCurves, "GridTimeHistoryCurves", "", "", "", "" );
     m_gridTimeHistoryCurves.uiCapability()->setUiTreeHidden( true );
@@ -199,9 +191,6 @@ RimSummaryPlot::RimSummaryPlot()
     m_timeAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_timeAxisProperties = new RimSummaryTimeAxisProperties;
 
-    CAF_PDM_InitField( &m_isAutoZoom_OBSOLETE, "AutoZoom", true, "Auto Zoom", "", "", "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_isAutoZoom_OBSOLETE );
-
     CAF_PDM_InitFieldNoDefault( &m_textCurveSetEditor,
                                 "SummaryPlotFilterTextCurveSetEditor",
                                 "Text Filter Curve Creator",
@@ -210,6 +199,16 @@ RimSummaryPlot::RimSummaryPlot()
                                 "" );
     m_textCurveSetEditor.uiCapability()->setUiTreeHidden( true );
     m_textCurveSetEditor = new RimSummaryPlotFilterTextCurveSetEditor;
+
+    // Obsolete fields
+    CAF_PDM_InitField( &m_isAutoZoom_OBSOLETE, "AutoZoom", true, "Auto Zoom", "", "", "" );
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_isAutoZoom_OBSOLETE );
+    CAF_PDM_InitField( &m_showLegend_OBSOLETE, "ShowLegend", true, "Legend", "", "", "" );
+    m_showLegend_OBSOLETE.xmlCapability()->setIOWritable( false );
+    CAF_PDM_InitFieldNoDefault( &m_curveFilters_OBSOLETE, "SummaryCurveFilters", "", "", "", "" );
+    m_curveFilters_OBSOLETE.uiCapability()->setUiTreeHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCurves_OBSOLETE, "SummaryCurves", "", "", "", "" );
+    m_summaryCurves_OBSOLETE.uiCapability()->setUiTreeHidden( true );
 
     m_isCrossPlot = false;
     m_isDraggable = true;
@@ -232,6 +231,22 @@ RimSummaryPlot::~RimSummaryPlot()
     m_curveFilters_OBSOLETE.deleteAllChildObjects();
     delete m_summaryCurveCollection;
     delete m_ensembleCurveSetCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::showPlotTitle() const
+{
+    return m_showPlotTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::setShowPlotTitle( bool showTitle )
+{
+    m_showPlotTitle = showTitle;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1330,7 +1345,7 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateWindowVisibility();
     }
 
-    if ( changedField == &m_useAutoPlotTitle )
+    if ( changedField == &m_showPlotTitle || changedField == &m_description || changedField == &m_useAutoPlotTitle )
     {
         updatePlotTitle();
         updateConnectedEditors();
@@ -1681,8 +1696,8 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     if ( isStandalonePlot() )
     {
-        mainOptions->add( &m_showTitleInPlot );
-        if ( m_showTitleInPlot )
+        mainOptions->add( &m_showPlotTitle );
+        if ( m_showPlotTitle )
         {
             mainOptions->add( &m_useAutoPlotTitle );
             mainOptions->add( &m_description );
@@ -1795,11 +1810,6 @@ void RimSummaryPlot::initAfterRead()
         }
     }
 
-    if ( m_showPlotTitle_OBSOLETE() )
-    {
-        m_showTitleInPlot = true;
-    }
-
     if ( m_showLegend_OBSOLETE() )
     {
         m_showPlotLegends = true;
@@ -1813,11 +1823,11 @@ void RimSummaryPlot::updateMdiWindowTitle()
 {
     if ( m_plotWidget && isStandalonePlot() )
     {
-        QString plotTitle = fullPlotTitle();
+        QString plotTitle = description();
 
         m_plotWidget->setWindowTitle( plotTitle );
 
-        if ( m_showTitleInPlot )
+        if ( m_showPlotTitle )
         {
             m_plotWidget->setTitle( plotTitle );
         }

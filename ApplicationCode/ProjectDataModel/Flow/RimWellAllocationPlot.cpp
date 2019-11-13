@@ -210,7 +210,7 @@ void RimWellAllocationPlot::updateFromWell()
     if ( m_flowType() == ACCUMULATED ) description = "Accumulated Flow";
     if ( m_flowType() == INFLOW ) description = "Inflow Rates";
 
-    accumulatedWellFlowPlot()->setDescription( description + " (" + m_wellName + ")" );
+    accumulatedWellFlowPlot()->setMultiPlotTitle( description + " (" + m_wellName + ")" );
 
     if ( !m_case ) return;
 
