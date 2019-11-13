@@ -93,6 +93,10 @@ private:
                                           const caf::DisplayCoordTransform* displayCoordTransform,
                                           double                            characteristicCellSize );
 
+    void appendWellMeasurementsToModel( cvf::ModelBasicList*              model,
+                                        const caf::DisplayCoordTransform* displayCoordTransform,
+                                        double                            characteristicCellSize );
+
     void appendImportedFishbonesToModel( cvf::ModelBasicList*              model,
                                          const caf::DisplayCoordTransform* displayCoordTransform,
                                          double                            characteristicCellSize );
@@ -124,6 +128,8 @@ private:
     inline double wellPathRadius( double characteristicCellSize, RimWellPathCollection* wellPathCollection );
 
     bool isWellPathWithinBoundingBox( const cvf::BoundingBox& wellPathClipBoundingBox ) const;
+
+    static cvf::Color3f mapWellMeasurementToColor( const QString& measurementKind, double value );
 
 private:
     caf::PdmPointer<RimWellPath> m_rimWellPath;
