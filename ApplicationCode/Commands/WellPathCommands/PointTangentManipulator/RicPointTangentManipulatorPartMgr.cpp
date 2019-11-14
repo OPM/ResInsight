@@ -337,21 +337,21 @@ cvf::ref<cvf::DrawableGeo> RicPointTangentManipulatorPartMgr::createVerticalAxis
     float s = 0.5 * m_handleSize;
     Vec3f origin( m_origin );
 
-    geomBuilder->transformVertexRange( 0, geomBuilder->vertexCount(), cvf::Mat4f::fromScaling( {s, s, s} ) );
-    geomBuilder->transformVertexRange( 0, geomBuilder->vertexCount(), cvf::Mat4f::fromTranslation( origin ) );
+    geomBuilder->transformVertexRange( 0, geomBuilder->vertexCount() - 1, cvf::Mat4f::fromScaling( {s, s, s} ) );
+    geomBuilder->transformVertexRange( 0, geomBuilder->vertexCount() - 1, cvf::Mat4f::fromTranslation( origin ) );
 
     unsigned vxArraySizeFirstCylinder = geomBuilder->vertexCount();
 
     cvf::GeometryUtils::createObliqueCylinder( 0.05f, 0.3f, 1.0f, 0.0f, 0.0, 12, true, true, true, 1, geomBuilder.p() );
 
     geomBuilder->transformVertexRange( vxArraySizeFirstCylinder,
-                                       geomBuilder->vertexCount(),
+                                       geomBuilder->vertexCount() - 1,
                                        cvf::Mat4f::fromTranslation( {0.0f, 0.0f, -1.0f} ) );
     geomBuilder->transformVertexRange( vxArraySizeFirstCylinder,
-                                       geomBuilder->vertexCount(),
+                                       geomBuilder->vertexCount() - 1,
                                        cvf::Mat4f::fromScaling( {s, s, s} ) );
     geomBuilder->transformVertexRange( vxArraySizeFirstCylinder,
-                                       geomBuilder->vertexCount(),
+                                       geomBuilder->vertexCount() - 1,
                                        cvf::Mat4f::fromTranslation( origin ) );
 
     cvf::ref<cvf::Vec3fArray> vertexArray = geomBuilder->vertices();
