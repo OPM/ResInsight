@@ -42,7 +42,7 @@ PdmXmlObjectHandle* xmlObj(PdmObjectHandle* obj)
 /// This makes attribute based field storage possible.
 /// Leaves the xmlStream pointing to the EndElement of the PdmObject.
 //--------------------------------------------------------------------------------------------------
-void PdmXmlObjectHandle::readFields(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory)
+void PdmXmlObjectHandle::readFields(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory, bool isCopyOperation)
 {
     bool isObjectFinished = false;
     QXmlStreamReader::TokenType type;
@@ -60,7 +60,12 @@ void PdmXmlObjectHandle::readFields(QXmlStreamReader& xmlStream, PdmObjectFactor
             if (fieldHandle && fieldHandle->xmlCapability())
             {
                 PdmXmlFieldHandle* xmlFieldHandle = fieldHandle->xmlCapability();
-                if (xmlFieldHandle->isIOReadable())
+                bool readable = xmlFieldHandle->isIOReadable();
+                if (isCopyOperation && !xmlFieldHandle->isCopyable())
+                {
+                    readable = false;
+                }
+                if (readable)
                 {
                     // readFieldData assumes that the xmlStream points to first token of field content.
                     // After reading, the xmlStream is supposed to point to the first token after the field content.
@@ -153,13 +158,13 @@ void PdmXmlObjectHandle::readObjectFromXmlString(const QString& xmlString,  PdmO
     QString classKeyword = inputStream.name().toString();
     CAF_ASSERT(classKeyword == this->classKeyword());
    
-    this->readFields(inputStream, objectFactory);
+    this->readFields(inputStream, objectFactory, false);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle* PdmXmlObjectHandle::readUnknownObjectFromXmlString(const QString& xmlString, PdmObjectFactory* objectFactory)
+PdmObjectHandle* PdmXmlObjectHandle::readUnknownObjectFromXmlString(const QString& xmlString, PdmObjectFactory* objectFactory, bool isCopyOperation)
 {
     QXmlStreamReader inputStream(xmlString);
 
@@ -171,7 +176,7 @@ PdmObjectHandle* PdmXmlObjectHandle::readUnknownObjectFromXmlString(const QStrin
 
     if (!newObject) return nullptr;
 
-    xmlObj(newObject)->readFields(inputStream, objectFactory);
+    xmlObj(newObject)->readFields(inputStream, objectFactory, isCopyOperation);
 
     return newObject;
 }
@@ -185,7 +190,7 @@ PdmObjectHandle* PdmXmlObjectHandle::copyByXmlSerialization(PdmObjectFactory* ob
 
     QString xmlString = this->writeObjectToXmlString();
 
-    PdmObjectHandle* objectCopy = PdmXmlObjectHandle::readUnknownObjectFromXmlString(xmlString, objectFactory);
+    PdmObjectHandle* objectCopy = PdmXmlObjectHandle::readUnknownObjectFromXmlString(xmlString, objectFactory, true);
     if (!objectCopy) return nullptr;
 
     objectCopy->xmlCapability()->initAfterReadRecursively();
@@ -213,7 +218,9 @@ caf::PdmObjectHandle* PdmXmlObjectHandle::copyAndCastByXmlSerialization(const QS
     QString classKeyword = inputStream.name().toString();
     CAF_ASSERT(classKeyword == sourceClassKeyword);
 
-    xmlObj(upgradedObject)->readFields(inputStream, objectFactory);
+    xmlObj(upgradedObject)->readFields(inputStream, objectFactory, true);
+
+    xmlObj(upgradedObject)->initAfterReadRecursively();
 
     return upgradedObject;
 }

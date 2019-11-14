@@ -49,21 +49,12 @@ RimViewWindow::RimViewWindow( void )
     m_windowController.uiCapability()->setUiHidden( true );
     m_windowController.uiCapability()->setUiTreeChildrenHidden( true );
 
-    RICF_InitField( &m_viewId, "ViewId", -1, "View ID", "", "", "" );
-    m_viewId.uiCapability()->setUiReadOnly( true );
-    m_viewId.uiCapability()->setUiHidden( true );
-    m_viewId.capability<RicfFieldHandle>()->setIOWriteable( false );
-
     CAF_PDM_InitField( &m_showWindow, "ShowWindow", true, "Show Window", "", "", "" );
     m_showWindow.uiCapability()->setUiHidden( true );
 
     // Obsolete field
     CAF_PDM_InitFieldNoDefault( &obsoleteField_windowGeometry, "WindowGeometry", "", "", "", "" );
     RiaFieldhandleTools::disableWriteAndSetFieldHidden( &obsoleteField_windowGeometry );
-
-    RiaApplication::instance()->project()->assignViewIdToView( this );
-    QString viewIdTooltip = QString( "View id: %1" ).arg( m_viewId );
-    this->setUiToolTip( viewIdTooltip );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,22 +63,6 @@ RimViewWindow::RimViewWindow( void )
 RimViewWindow::~RimViewWindow( void )
 {
     if ( m_windowController() ) delete m_windowController();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RimViewWindow::id() const
-{
-    return m_viewId;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimViewWindow::setId( int id )
-{
-    m_viewId = id;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,6 +86,7 @@ void RimViewWindow::setShowWindow( bool showWindow )
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::loadDataAndUpdate()
 {
+    assignIdIfNecessary();
     onLoadDataAndUpdate();
 }
 
@@ -352,8 +328,8 @@ void RimViewWindow::defineObjectEditorAttribute( QString uiConfigName, caf::PdmU
     caf::PdmUiTreeViewItemAttribute* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
     if ( treeItemAttribute && RiaApplication::instance()->preferences()->showViewIdInProjectTree() )
     {
-        treeItemAttribute->tag     = QString( "%1" ).arg( m_viewId );
-        cvf::Color3f viewColor     = RiaColorTables::contrastCategoryPaletteColors().cycledColor3f( (size_t)m_viewId );
+        treeItemAttribute->tag     = QString( "%1" ).arg( id() );
+        cvf::Color3f viewColor     = RiaColorTables::contrastCategoryPaletteColors().cycledColor3f( (size_t)id() );
         cvf::Color3f viewTextColor = RiaColorTools::contrastColor( viewColor );
         treeItemAttribute->bgColor = QColor( RiaColorTools::toQColor( viewColor ) );
         treeItemAttribute->fgColor = QColor( RiaColorTools::toQColor( viewTextColor ) );

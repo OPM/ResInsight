@@ -24,7 +24,9 @@
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
 
+class RimProject;
 class QwtPlotCurve;
+
 class QKeyEvent;
 
 class RimPlotWindow : public RimViewWindow
@@ -34,6 +36,8 @@ class RimPlotWindow : public RimViewWindow
 public:
     RimPlotWindow();
     ~RimPlotWindow() override;
+
+    int id() const final;
 
     RimPlotWindow& operator=( RimPlotWindow&& rhs );
 
@@ -62,7 +66,14 @@ protected:
 private:
     virtual void performLayoutUpdate() {}
 
+private:
+    friend class RimProject;
+    void setId( int id );
+
+    void assignIdIfNecessary() final;
+
 protected:
+    caf::PdmField<int>     m_id;
     caf::PdmField<bool> m_showPlotLegends;
     caf::PdmField<bool> m_plotLegendsHorizontal;
     caf::PdmField<int>  m_legendFontSize;

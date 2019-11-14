@@ -84,7 +84,7 @@ void PdmDocument::readFile(QIODevice* xmlFile)
                 // Error: This is not a Ceetron Pdm based xml document
                 return;
             }
-            readFields(xmlStream, PdmDefaultObjectFactory::instance());
+            readFields(xmlStream, PdmDefaultObjectFactory::instance(), false);
         }
     }
 

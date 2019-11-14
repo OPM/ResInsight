@@ -59,6 +59,7 @@
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"
 #include "RimOilField.h"
+#include "RimPlotWindow.h"
 #include "RimPltPlotCollection.h"
 #include "RimPolylinesFromFileAnnotation.h"
 #include "RimRftPlotCollection.h"
@@ -104,6 +105,7 @@ RimProject::RimProject( void )
     : m_nextValidCaseId( 1 )
     , m_nextValidCaseGroupId( 1 )
     , m_nextValidViewId( 1 )
+    , m_nextValidPlotId( 1 )
 {
     CAF_PDM_InitObject( "Project", "", "", "" );
 
@@ -247,9 +249,10 @@ void RimProject::close()
     plotWindowCurrentModelIndexPath = "";
     plotWindowTreeViewState         = "";
 
-    m_nextValidCaseId      = 0;
-    m_nextValidCaseGroupId = 0;
-    m_nextValidViewId      = 0;
+    m_nextValidCaseId      = 1;
+    m_nextValidCaseGroupId = 1;
+    m_nextValidViewId      = 1;
+    m_nextValidPlotId      = 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -507,19 +510,38 @@ void RimProject::assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProject::assignViewIdToView( RimViewWindow* view )
+void RimProject::assignViewIdToView( Rim3dView* view )
 {
     if ( view )
     {
-        std::vector<RimViewWindow*> viewWindows;
-        this->descendantsIncludingThisOfType( viewWindows );
+        std::vector<Rim3dView*> views;
+        this->descendantsIncludingThisOfType( views );
 
-        for ( RimViewWindow* existingView : viewWindows )
+        for ( Rim3dView* existingView : views )
         {
             m_nextValidViewId = std::max( m_nextValidViewId, existingView->id() + 1 );
         }
 
         view->setId( m_nextValidViewId++ );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::assignPlotIdToPlotWindow( RimPlotWindow* plotWindow )
+{
+    if ( plotWindow )
+    {
+        std::vector<RimPlotWindow*> plotWindows;
+        this->descendantsIncludingThisOfType( plotWindows );
+
+        for ( RimPlotWindow* existingPlotWindow : plotWindows )
+        {
+            m_nextValidPlotId = std::max( m_nextValidPlotId, existingPlotWindow->id() + 1 );
+        }
+
+        plotWindow->setId( m_nextValidPlotId++ );
     }
 }
 

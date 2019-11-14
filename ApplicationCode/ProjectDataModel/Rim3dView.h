@@ -86,6 +86,8 @@ public:
     Rim3dView( void );
     ~Rim3dView( void ) override;
 
+    int id() const final;
+
     // Public fields:
 
     caf::PdmField<double> scaleZ;
@@ -250,6 +252,11 @@ protected:
     cvf::ref<RivWellPathsPartMgr> m_wellPathsPartManager;
 
 private:
+    friend class RimProject;
+
+    void setId( int id );
+    void assignIdIfNecessary() final;
+
     void     updateMdiWindowTitle() override;
     void     deleteViewWidget() override;
     QWidget* viewWidget() override;
@@ -287,7 +294,7 @@ private:
     bool                m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw; // To avoid infinite recursion if comparison views are pointing to each other.
 
     // Fields
-
+    caf::PdmField<int>                     m_id;
     caf::PdmField<QString>                 m_name_OBSOLETE;
     caf::PdmChildField<RimViewNameConfig*> m_nameConfig;
     caf::PdmField<bool>                    m_disableLighting;
