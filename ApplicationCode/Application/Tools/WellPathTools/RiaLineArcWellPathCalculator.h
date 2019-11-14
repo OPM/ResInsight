@@ -45,8 +45,11 @@ public:
         double resultAzimuth;
         double resultInclination;
 
+        bool   isRadius1Editable;
         bool   hasOverriddenRadius1;
         double resultRadius1;
+
+        bool   isRadius2Editable;
         bool   hasOverriddenRadius2;
         double resultRadius2;
     };

@@ -46,8 +46,10 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
                                      {!activeWellPathTargets[0].isTangentConstrained,
                                       0.0,
                                       0.0,
+                                      false,
                                       true,
                                       std::numeric_limits<double>::infinity(),
+                                      false,
                                       true,
                                       std::numeric_limits<double>::infinity()} );
         }
@@ -60,7 +62,9 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
                               0.0,
                               0.0,
                               false,
+                              false,
                               std::numeric_limits<double>::infinity(),
+                              false,
                               false,
                               std::numeric_limits<double>::infinity()} );
 
@@ -130,6 +134,8 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
             target1Status.hasDerivedTangent = true;
             target1Status.resultAzimuth     = jCurve.endAzimuth() + M_PI;
             target1Status.resultInclination = M_PI - jCurve.endInclination();
+
+            target2Status.isRadius1Editable = true;
         }
         else // The complete wellpath is a straight line from target 1 to 2
         {
@@ -210,6 +216,9 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
                 m_lineArcEndpoints.push_back( sCurveCalc.firstArcEndpoint() + referencePointXyz );
                 m_lineArcEndpoints.push_back( sCurveCalc.secondArcStartpoint() + referencePointXyz );
                 m_lineArcEndpoints.push_back( target2.targetPointXYZ + referencePointXyz );
+
+                target1Status.isRadius2Editable = true;
+                target2Status.isRadius1Editable = true;
             }
         }
     }
@@ -243,6 +252,8 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
         }
 
         m_lineArcEndpoints.push_back( target2.targetPointXYZ + referencePointXyz );
+
+        target1Status.isRadius2Editable = true;
 
         target2Status.hasDerivedTangent = true;
         target2Status.resultAzimuth     = jCurve.endAzimuth();

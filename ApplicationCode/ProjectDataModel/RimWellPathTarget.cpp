@@ -201,37 +201,61 @@ double doglegFromRadius( double radius )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::flagRadius1AsIncorrect( bool isIncorrect, double actualRadius )
+void RimWellPathTarget::flagRadius1AsIncorrect( bool isEditable, bool isIncorrect, double actualRadius )
 {
     if ( isIncorrect )
     {
-        m_dogleg1.uiCapability()->setUiContentTextColor( Qt::red );
-        m_dogleg1.uiCapability()->setUiToolTip( "The dogleg constraint is not satisfied! Actual Dogleg: " +
-                                                QString::number( doglegFromRadius( actualRadius ) ) );
+        if ( actualRadius < radius1() )
+        {
+            m_dogleg1.uiCapability()->setUiContentTextColor( Qt::red );
+            m_dogleg1.uiCapability()->setUiToolTip(
+                "Actual Dogleg: " + QString::number( doglegFromRadius( actualRadius ) ) +
+                "\nThe dogleg constraint is not satisfied!" );
+        }
+        else
+        {
+            m_dogleg1.uiCapability()->setUiContentTextColor( Qt::darkGreen );
+            m_dogleg1.uiCapability()->setUiToolTip( "Actual Dogleg: " +
+                                                    QString::number( doglegFromRadius( actualRadius ) ) );
+        }
     }
     else
     {
         m_dogleg1.uiCapability()->setUiContentTextColor( QColor() );
         m_dogleg1.uiCapability()->setUiToolTip( "" );
     }
+
+    m_dogleg1.uiCapability()->setUiReadOnly( !isEditable );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::flagRadius2AsIncorrect( bool isIncorrect, double actualRadius )
+void RimWellPathTarget::flagRadius2AsIncorrect( bool isEditable, bool isIncorrect, double actualRadius )
 {
     if ( isIncorrect )
     {
-        m_dogleg2.uiCapability()->setUiContentTextColor( Qt::red );
-        m_dogleg2.uiCapability()->setUiToolTip( "The dogleg constraint is not satisfied! Actual Dogleg: " +
-                                                QString::number( doglegFromRadius( actualRadius ) ) );
+        if ( actualRadius < radius2() )
+        {
+            m_dogleg2.uiCapability()->setUiContentTextColor( Qt::red );
+            m_dogleg2.uiCapability()->setUiToolTip(
+                "Actual Dogleg: " + QString::number( doglegFromRadius( actualRadius ) ) +
+                "\nThe dogleg constraint is not satisfied!" );
+        }
+        else
+        {
+            m_dogleg2.uiCapability()->setUiContentTextColor( Qt::darkGreen );
+            m_dogleg2.uiCapability()->setUiToolTip( "Actual Dogleg: " +
+                                                    QString::number( doglegFromRadius( actualRadius ) ) );
+        }
     }
     else
     {
         m_dogleg2.uiCapability()->setUiContentTextColor( QColor() );
         m_dogleg2.uiCapability()->setUiToolTip( "" );
     }
+
+    m_dogleg2.uiCapability()->setUiReadOnly( !isEditable );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,33 +320,33 @@ void RimWellPathTarget::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         m_hasTangentConstraintUiField.uiCapability()->setUiReadOnly( false );
         m_targetType.uiCapability()->setUiReadOnly( false );
         m_targetPoint.uiCapability()->setUiReadOnly( false );
-        m_dogleg2.uiCapability()->setUiReadOnly( false );
+        // m_dogleg2.uiCapability()->setUiReadOnly( false );
 
         if ( m_targetType == POINT )
         {
             m_azimuth.uiCapability()->setUiReadOnly( true );
             m_inclination.uiCapability()->setUiReadOnly( true );
-            m_dogleg1.uiCapability()->setUiReadOnly( true );
+            // m_dogleg1.uiCapability()->setUiReadOnly( true );
         }
         else
         {
             m_azimuth.uiCapability()->setUiReadOnly( false );
             m_inclination.uiCapability()->setUiReadOnly( false );
-            m_dogleg1.uiCapability()->setUiReadOnly( false );
+            // m_dogleg1.uiCapability()->setUiReadOnly( false );
         }
 
         RimWellPathGeometryDef* geomDef = nullptr;
         firstAncestorOrThisOfTypeAsserted( geomDef );
 
-        if ( this == geomDef->firstActiveTarget() )
-        {
-            m_dogleg1.uiCapability()->setUiReadOnly( true );
-        }
-
-        if ( this == geomDef->lastActiveTarget() )
-        {
-            m_dogleg2.uiCapability()->setUiReadOnly( true );
-        }
+        // if ( this == geomDef->firstActiveTarget() )
+        //{
+        //    m_dogleg1.uiCapability()->setUiReadOnly( true );
+        //}
+        //
+        // if ( this == geomDef->lastActiveTarget() )
+        //{
+        //    m_dogleg2.uiCapability()->setUiReadOnly( true );
+        //}
     }
     else
     {
