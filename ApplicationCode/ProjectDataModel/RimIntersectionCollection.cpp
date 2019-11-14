@@ -32,6 +32,8 @@
 #include "RivIntersectionBoxPartMgr.h"
 #include "RivIntersectionPartMgr.h"
 
+#include "cvfModelBasicList.h"
+
 CAF_PDM_SOURCE_INIT( RimIntersectionCollection, "CrossSectionCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -150,6 +152,8 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView&           view,
             }
         }
     }
+
+    model->updateBoundingBoxesRecursive();
 }
 
 //--------------------------------------------------------------------------------------------------
