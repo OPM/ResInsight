@@ -29,7 +29,7 @@ RiaPolyArcLineSampler::RiaPolyArcLineSampler( const cvf::Vec3d&              sta
                                               const std::vector<cvf::Vec3d>& lineArcEndPoints )
     : m_startTangent( startTangent )
     , m_lineArcEndPoints( lineArcEndPoints )
-    , m_samplingsInterval( 0.15 )
+    , m_maxSamplingsInterval( 0.15 )
     , m_isResamplingLines( true )
     , m_totalMD( 0.0 )
     , m_points( nullptr )
@@ -48,7 +48,7 @@ void RiaPolyArcLineSampler::sampledPointsAndMDs( double                   sample
 {
     CVF_ASSERT( sampleInterval > 0.0 );
 
-    m_samplingsInterval = sampleInterval;
+    m_maxSamplingsInterval = sampleInterval;
     m_isResamplingLines = isResamplingLines;
 
     double startMD = 0.0;
@@ -126,18 +126,20 @@ void RiaPolyArcLineSampler::sampleLine( cvf::Vec3d p1, cvf::Vec3d p2, cvf::Vec3d
     cvf::Vec3d p1p2 = p2 - p1;
 
     double p1p2Length = p1p2.length();
-    if ( p1p2Length > m_samplingsInterval && m_isResamplingLines )
+
+    if ( m_isResamplingLines && p1p2Length > m_maxSamplingsInterval )
     {
         cvf::Vec3d tp1p2 = p1p2 / p1p2Length;
-        double     mdInc = m_samplingsInterval;
+        double     mdInc = m_maxSamplingsInterval;
         while ( mdInc < p1p2Length )
         {
             cvf::Vec3d ps = p1 + mdInc * tp1p2;
             m_points->push_back( ps );
             m_meshDs->push_back( m_totalMD + mdInc );
-            mdInc += m_samplingsInterval;
+            mdInc += m_maxSamplingsInterval;
         }
     }
+
     m_totalMD += p1p2Length;
     m_points->push_back( p2 );
     m_meshDs->push_back( m_totalMD );
@@ -156,7 +158,9 @@ void RiaPolyArcLineSampler::sampleArc( cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d 
     double     radius = CS_rad.radius();
     cvf::Mat4d arcCS  = CS_rad.arcCS();
 
-    double angleInc = m_samplingsInterval / radius;
+    double angleInc = m_maxSamplingsInterval / radius;
+
+    angleInc = angleInc < m_maxSamplingArcAngle ? angleInc: m_maxSamplingArcAngle; // Angle from 6 deg dogleg on 10 m
 
     cvf::Vec3d C = CS_rad.center();
     cvf::Vec3d N = CS_rad.normal();
@@ -181,6 +185,7 @@ void RiaPolyArcLineSampler::sampleArc( cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d 
         m_points->push_back( C_to_incP );
         m_meshDs->push_back( m_totalMD + angle * radius );
     }
+
     m_totalMD += arcAngle * radius;
     m_points->push_back( p2 );
     m_meshDs->push_back( m_totalMD );
