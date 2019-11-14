@@ -55,6 +55,8 @@ public:
     RimTofAccumulatedPhaseFractionsPlot();
     ~RimTofAccumulatedPhaseFractionsPlot() override;
 
+    int id() const final;
+
     void    setDescription( const QString& description );
     QString description() const;
 
@@ -73,7 +75,7 @@ public:
 
 protected:
     // RimViewWindow overrides
-
+    void   assignIdIfNecessary() final;
     void   onLoadDataAndUpdate() override;
     QImage snapshotWindowContent() override;
 

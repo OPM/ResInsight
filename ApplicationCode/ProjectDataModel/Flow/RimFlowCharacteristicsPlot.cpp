@@ -124,6 +124,14 @@ RimFlowCharacteristicsPlot::~RimFlowCharacteristicsPlot()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// TODO: implement properly
+//--------------------------------------------------------------------------------------------------
+int RimFlowCharacteristicsPlot::id() const
+{
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimFlowCharacteristicsPlot::setFromFlowSolution( RimFlowDiagSolution* flowSolution )
@@ -722,6 +730,11 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// TODO: implement properly
+//--------------------------------------------------------------------------------------------------
+void RimFlowCharacteristicsPlot::assignIdIfNecessary() {}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimFlowCharacteristicsPlot::viewGeometryUpdated()
@@ -790,7 +803,7 @@ QString RimFlowCharacteristicsPlot::curveDataAsText() const
 
     std::vector<QDateTime> timeStepDates = m_case->timeStepDates();
 
-    std::vector<double> storageCapacitySamplingValues = {0.08, 0.1, 0.2, 0.3, 0.4};
+    std::vector<double> storageCapacitySamplingValues = { 0.08, 0.1, 0.2, 0.3, 0.4 };
     size_t              sampleCount                   = storageCapacitySamplingValues.size();
 
     for ( const auto& timeIndex : m_currentlyPlottedTimeSteps )

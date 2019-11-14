@@ -61,8 +61,7 @@ public:
     RimViewWindow( void );
     ~RimViewWindow( void ) override;
 
-    int  id() const;
-    void setId( int id );
+    virtual int id() const = 0;
 
     bool showWindow() const;
     void setShowWindow( bool showWindow );
@@ -111,6 +110,7 @@ protected:
     virtual void     updateMdiWindowTitle(); // Has real default implementation
     virtual void     deleteViewWidget()    = 0;
     virtual void     onLoadDataAndUpdate() = 0;
+    virtual void     assignIdIfNecessary() = 0;
     virtual void     onViewNavigationChanged();
     virtual bool     isWindowVisible() const; // Virtual To allow special visibility control
     //////////
@@ -127,6 +127,8 @@ protected:
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
+    friend class RimProject;
+
     void setAsMdiWindow( int mainWindowID );
 
 protected:
@@ -134,7 +136,6 @@ protected:
 
 private:
     caf::PdmChildField<RimMdiWindowController*> m_windowController;
-    caf::PdmField<int>                          m_viewId;
 
     // Obsoleted field
     caf::PdmField<std::vector<int>> obsoleteField_windowGeometry;

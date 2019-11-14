@@ -77,6 +77,14 @@ RimTofAccumulatedPhaseFractionsPlot::~RimTofAccumulatedPhaseFractionsPlot()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// TODO: implement properly
+//--------------------------------------------------------------------------------------------------
+int RimTofAccumulatedPhaseFractionsPlot::id() const
+{
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimTofAccumulatedPhaseFractionsPlot::deleteViewWidget()
@@ -189,6 +197,11 @@ QString RimTofAccumulatedPhaseFractionsPlot::description() const
 {
     return m_userName();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// TODO: Implement properly
+//--------------------------------------------------------------------------------------------------
+void RimTofAccumulatedPhaseFractionsPlot::assignIdIfNecessary() {}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -56,6 +56,8 @@ public:
     RimFlowCharacteristicsPlot();
     ~RimFlowCharacteristicsPlot() override;
 
+    int id() const final;
+
     void setFromFlowSolution( RimFlowDiagSolution* flowSolution );
     void updateCurrentTimeStep();
 
@@ -96,6 +98,9 @@ protected:
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute ) override;
     void                          onLoadDataAndUpdate() override;
+
+private:
+    void assignIdIfNecessary() final;
 
 private:
     caf::PdmPtrField<RimEclipseResultCase*>        m_case;

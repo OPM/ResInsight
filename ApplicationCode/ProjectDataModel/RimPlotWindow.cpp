@@ -20,6 +20,10 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
+#include "RicfCommandObject.h"
+
+#include "RimProject.h"
+
 #include "cafPdmUiComboBoxEditor.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotWindow, "RimPlotWindow" ); // Do not use. Abstract class
@@ -30,6 +34,12 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotWindow, "RimPlotWindow" ); // Do not us
 RimPlotWindow::RimPlotWindow()
 {
     CAF_PDM_InitObject( "PlotWindow", "", "", "" );
+
+    RICF_InitField( &m_id, "ViewId", -1, "View ID", "", "", "" );
+    m_id.uiCapability()->setUiReadOnly( true );
+    m_id.uiCapability()->setUiHidden( true );
+    m_id.capability<RicfFieldHandle>()->setIOWriteable( false );
+    m_id.xmlCapability()->setCopyable( false );
 
     CAF_PDM_InitField( &m_showPlotLegends, "ShowTrackLegends", true, "Show Legends", "", "", "" );
     CAF_PDM_InitField( &m_plotLegendsHorizontal, "TrackLegendsHorizontal", true, "Legend Orientation", "", "", "" );
@@ -49,6 +59,14 @@ RimPlotWindow::RimPlotWindow()
 ///
 //--------------------------------------------------------------------------------------------------
 RimPlotWindow::~RimPlotWindow() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimPlotWindow::id() const
+{
+    return m_id;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -198,4 +216,25 @@ void RimPlotWindow::uiOrderingForLegendSettings( QString uiConfigName, caf::PdmU
     uiOrdering.add( &m_showPlotLegends );
     uiOrdering.add( &m_plotLegendsHorizontal );
     uiOrdering.add( &m_legendFontSize );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::setId( int id )
+{
+    m_id                  = id;
+    QString viewIdTooltip = QString( "Plot id: %1" ).arg( m_id );
+    this->setUiToolTip( viewIdTooltip );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::assignIdIfNecessary()
+{
+    if ( m_id == -1 )
+    {
+        RiaApplication::instance()->project()->assignPlotIdToPlotWindow( this );
+    }
 }

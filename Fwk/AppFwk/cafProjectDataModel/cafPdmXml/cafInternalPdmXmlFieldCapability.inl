@@ -281,7 +281,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::readFieldData(QXmlStr
 
     // Everything seems ok, so read the contents of the object:
 
-    xmlObject->readFields(xmlStream, objectFactory);
+    xmlObject->readFields(xmlStream, objectFactory, false);
 
     // Make stream point to endElement of this field
 
@@ -397,7 +397,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::readFieldData(QX
             continue;
         }
 
-        xmlObject->readFields(xmlStream, objectFactory);
+        xmlObject->readFields(xmlStream, objectFactory, false);
 
         m_field->m_pointers.push_back(PdmPointer<DataType>());
         m_field->m_pointers.back().setRawPtr(obj);

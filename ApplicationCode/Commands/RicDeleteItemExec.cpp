@@ -333,7 +333,8 @@ void RicDeleteItemExec::undo()
     {
         caf::PdmObjectHandle* obj =
             caf::PdmXmlObjectHandle::readUnknownObjectFromXmlString( m_commandData->m_deletedObjectAsXml(),
-                                                                     caf::PdmDefaultObjectFactory::instance() );
+                                                                     caf::PdmDefaultObjectFactory::instance(),
+                                                                     false );
 
         listField->insertAt( m_commandData->m_indexToObject, obj );
 

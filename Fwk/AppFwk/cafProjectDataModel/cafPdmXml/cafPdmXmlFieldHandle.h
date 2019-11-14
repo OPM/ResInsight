@@ -30,10 +30,12 @@ public:
 
     bool            isIOReadable() const                { return m_isIOReadable; }
     bool            isIOWritable() const                { return m_isIOWritable; }
+    bool            isCopyable()  const                 { return m_isCopyable;}
     
     void            disableIO();
     void            setIOWritable(bool isWritable)      { m_isIOWritable = isWritable; }
     void            setIOReadable(bool isReadable)      { m_isIOReadable = isReadable; }
+    void            setCopyable(bool isCopyable)        { m_isCopyable  = isCopyable; }
 
     QString         childClassKeyword();
 
@@ -51,6 +53,7 @@ protected:
 private:
     bool            m_isIOReadable;
     bool            m_isIOWritable;
+    bool            m_isCopyable;
 
     PdmFieldHandle* m_owner;
 };

@@ -66,6 +66,7 @@ public:
     RimWellAllocationPlot();
     ~RimWellAllocationPlot() override;
 
+    int  id() const final;
     void setFromSimulationWell( RimSimWellInView* simWell );
 
     void    setDescription( const QString& description );
@@ -126,6 +127,7 @@ private:
                                               size_t                      timeStep );
 
     // RimViewWindow overrides
+    void assignIdIfNecessary() final;
 
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
     void     deleteViewWidget() override;
