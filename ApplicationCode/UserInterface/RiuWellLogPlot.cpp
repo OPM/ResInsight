@@ -75,6 +75,14 @@ void RiuWellLogPlot::updateVerticalScrollBar( double minVisible, double maxVisib
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::keyPressEvent( QKeyEvent* event )
+{
+    wellLogPlotDefinition()->handleKeyPressEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiuWellLogPlot::willAcceptDroppedPlot( const RiuQwtPlotWidget* plotWidget ) const
 {
     return dynamic_cast<const RiuWellLogTrack*>( plotWidget ) != nullptr;

@@ -23,8 +23,7 @@
 
 #include "RiaDefines.h"
 #include "RimNameConfig.h"
-#include "RimPlotInterface.h"
-#include "RimPlotWindow.h"
+#include "RimPlot.h"
 
 #include <QPointer>
 
@@ -49,16 +48,13 @@ protected:
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 };
 
-class RimGridCrossPlot : public RimPlotWindow, public RimPlotInterface, public RimNameConfigHolderInterface
+class RimGridCrossPlot : public RimPlot, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimGridCrossPlot();
     ~RimGridCrossPlot();
-
-    bool isChecked() const override;
-    void setChecked( bool checked ) override;
 
     QString description() const override;
 
@@ -83,13 +79,14 @@ public:
     void                 performAutoNameUpdate() override;
     void                 updateCurveNamesAndPlotTitle();
     void                 swapAxes();
-    QString              asciiTitleForPlotExport( int dataSetIndex ) const;
-    QString              asciiDataForGridCrossPlotExport( int dataSetIndex ) const;
+
+    QString asciiDataForPlotExport() const override;
+    QString asciiTitleForPlotExport( int dataSetIndex ) const;
+    QString asciiDataForGridCrossPlotExport( int dataSetIndex ) const;
 
     bool isXAxisLogarithmic() const;
     bool isYAxisLogarithmic() const;
     void setYAxisInverted( bool inverted );
-    int  legendFontSize() const;
 
     bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
     bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
@@ -97,17 +94,13 @@ public:
                         int                         fontSize,
                         bool                        forceChange = false ) override;
 
-    void updateLayout() override;
     void updateLegend();
 
     void updateZoomInQwt() override;
     void updateZoomFromQwt() override;
 
-    void loadDataAndUpdate() override;
-
     void            setAutoScaleXEnabled( bool enabled ) override;
     void            setAutoScaleYEnabled( bool enabled ) override;
-    void            createPlotWidget() override;
     caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
     void            onAxisSelected( int axis, bool toggle ) override;
 
@@ -117,24 +110,20 @@ public:
     void removeFromMdiAreaAndCollection() override;
     void updateAfterInsertingIntoMultiPlot() override;
 
-    int rowSpan() const override;
-    int colSpan() const override;
-
 protected:
-    QWidget* createViewWidget( QWidget* mainWindowParent ) override;
+    QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;
     void     deleteViewWidget() override;
     void     onLoadDataAndUpdate() override;
     void     initAfterRead() override;
     void     defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void     defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
-    void                          updateAxes() override;
-    void                          updatePlot();
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
+
+    void updateAxes() override;
+    void updatePlot();
 
     virtual QString xAxisParameterString() const;
     QString         yAxisParameterString() const;
@@ -152,15 +141,14 @@ protected:
     std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
 
 private:
+    void performLayoutUpdate() override;
+
     void cleanupBeforeClose();
 
 private:
     caf::PdmField<bool>                             m_showInfoBox;
     caf::PdmField<bool>                             m_showLegend_OBSOLETE;
     caf::PdmChildField<RimGridCrossPlotNameConfig*> m_nameConfig;
-
-    caf::PdmField<RimPlotInterface::RowOrColSpanEnum> m_rowSpan;
-    caf::PdmField<RimPlotInterface::RowOrColSpanEnum> m_colSpan;
 
     caf::PdmChildField<RimPlotAxisProperties*> m_yAxisProperties;
     caf::PdmChildField<RimPlotAxisProperties*> m_xAxisProperties;

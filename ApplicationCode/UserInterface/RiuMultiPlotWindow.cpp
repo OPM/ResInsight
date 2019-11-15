@@ -223,7 +223,7 @@ void RiuMultiPlotWindow::setSelectionsVisible( bool visible )
 {
     for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
     {
-        if ( visible && caf::SelectionManager::instance()->isSelected( plotWidget->plotOwner(), 0 ) )
+        if ( visible && caf::SelectionManager::instance()->isSelected( plotWidget->plotDefinition(), 0 ) )
         {
             plotWidget->setWidgetState( RiuWidgetStyleSheet::SELECTED );
         }
@@ -300,14 +300,6 @@ void RiuMultiPlotWindow::contextMenuEvent( QContextMenuEvent* event )
     {
         menu.exec( event->globalPos() );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::keyPressEvent( QKeyEvent* keyEvent )
-{
-    m_plotDefinition->handleKeyPressEvent( keyEvent );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -466,13 +458,13 @@ void RiuMultiPlotWindow::dropEvent( QDropEvent* event )
                     }
                 }
             }
-            RimPlotInterface* insertAfter = nullptr;
+            RimPlot* insertAfter = nullptr;
             if ( beforeIndex > 0 )
             {
                 insertAfter = m_plotWidgets[beforeIndex - 1]->plotDefinition();
             }
 
-            RimPlotInterface* plotToMove = source->plotDefinition();
+            RimPlot* plotToMove = source->plotDefinition();
 
             if ( insertAfter != plotToMove )
             {
@@ -518,7 +510,7 @@ void RiuMultiPlotWindow::onSelectionManagerSelectionChanged( const std::set<int>
         for ( int changedLevel : changedSelectionLevels )
         {
             isSelected = isSelected ||
-                         caf::SelectionManager::instance()->isSelected( plotWidget->plotOwner(), changedLevel );
+                         caf::SelectionManager::instance()->isSelected( plotWidget->plotDefinition(), changedLevel );
         }
         if ( isSelected )
         {
@@ -590,8 +582,9 @@ void RiuMultiPlotWindow::reinsertPlotWidgets()
         int column = 0;
         for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
         {
-            int colSpan = std::min( plotWidgets[visibleIndex]->plotDefinition()->colSpan(), rowAndColumnCount.second );
-            int rowSpan = plotWidgets[visibleIndex]->plotDefinition()->rowSpan();
+            int expextedColSpan = static_cast<int>( plotWidgets[visibleIndex]->plotDefinition()->colSpan() );
+            int colSpan         = std::min( expextedColSpan, rowAndColumnCount.second );
+            int rowSpan         = plotWidgets[visibleIndex]->plotDefinition()->rowSpan();
 
             std::tie( row, column ) = findAvailableRowAndColumn( row, column, colSpan, rowAndColumnCount.second );
 

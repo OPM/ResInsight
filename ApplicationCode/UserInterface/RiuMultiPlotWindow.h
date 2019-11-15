@@ -79,7 +79,6 @@ public:
 
 protected:
     void    contextMenuEvent( QContextMenuEvent* ) override;
-    void    keyPressEvent( QKeyEvent* keyEvent ) override;
     QLabel* createTitleLabel() const;
 
     void         resizeEvent( QResizeEvent* event ) override;

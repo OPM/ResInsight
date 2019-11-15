@@ -30,7 +30,7 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMimeData.h"
 #include "RimMultiPlot.h"
-#include "RimPlotInterface.h"
+#include "RimPlot.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -163,7 +163,7 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
         }
 
         if ( dynamic_cast<RimEclipseCase*>( uiItem ) || dynamic_cast<RimWellLogCurve*>( uiItem ) ||
-             dynamic_cast<RimWellLogFileChannel*>( uiItem ) || dynamic_cast<RimPlotInterface*>( uiItem ) ||
+             dynamic_cast<RimWellLogFileChannel*>( uiItem ) || dynamic_cast<RimPlot*>( uiItem ) ||
              dynamic_cast<RimSummaryCase*>( uiItem ) )
         {
             // TODO: Remember to handle reservoir holding the main grid
@@ -188,14 +188,14 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
             }
             else if ( dynamic_cast<RimMultiPlot*>( uiItem ) )
             {
-                if ( RiuTypedPdmObjects<RimPlotInterface>::containsTypedObjects( m_dragItems ) )
+                if ( RiuTypedPdmObjects<RimPlot>::containsTypedObjects( m_dragItems ) )
                 {
                     itemflags |= Qt::ItemIsDropEnabled;
                 }
             }
-            else if ( dynamic_cast<RimPlotInterface*>( uiItem ) )
+            else if ( dynamic_cast<RimPlot*>( uiItem ) )
             {
-                if ( RiuTypedPdmObjects<RimPlotInterface>::containsTypedObjects( m_dragItems ) )
+                if ( RiuTypedPdmObjects<RimPlot>::containsTypedObjects( m_dragItems ) )
                 {
                     itemflags |= Qt::ItemIsDropEnabled;
                 }
@@ -459,19 +459,19 @@ bool RiuDragDrop::handleMultiPlotDrop( Qt::DropAction       action,
                                        RimMultiPlot*        multiPlot,
                                        int                  insertAtPosition )
 {
-    std::vector<RimPlotInterface*> plots = RiuTypedPdmObjects<RimPlotInterface>::typedObjectsFromGroup( draggedObjects );
+    std::vector<RimPlot*> plots = RiuTypedPdmObjects<RimPlot>::typedObjectsFromGroup( draggedObjects );
     if ( plots.size() > 0 )
     {
         if ( action == Qt::MoveAction )
         {
-            RimPlotInterface* insertAfter = nullptr;
+            RimPlot* insertAfter = nullptr;
             if ( insertAtPosition > 0 )
             {
                 auto visibleTracks = multiPlot->visiblePlots();
                 if ( !visibleTracks.empty() )
                 {
                     int insertAfterPosition = std::min( insertAtPosition - 1, (int)visibleTracks.size() - 1 );
-                    insertAfter             = dynamic_cast<RimPlotInterface*>( visibleTracks[insertAfterPosition] );
+                    insertAfter             = dynamic_cast<RimPlot*>( visibleTracks[insertAfterPosition] );
                 }
             }
             multiPlot->movePlotsToThis( plots, insertAfter );

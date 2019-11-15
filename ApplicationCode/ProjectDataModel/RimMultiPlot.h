@@ -32,7 +32,7 @@
 
 #include <vector>
 
-class RimPlotInterface;
+class RimPlot;
 
 class RimMultiPlot : public RimPlotWindow
 {
@@ -47,7 +47,7 @@ public:
         COLUMNS_4         = 4,
         COLUMNS_UNLIMITED = 1000,
     };
-    typedef caf::AppEnum<ColumnCount> ColumnCountEnum;
+    using ColumnCountEnum = caf::AppEnum<ColumnCount>;
 
 public:
     RimMultiPlot();
@@ -57,29 +57,30 @@ public:
 
     QWidget* viewWidget() override;
 
+    QString description() const override;
+
     bool    isMultiPlotTitleVisible() const;
     void    setMultiPlotTitleVisible( bool visible );
     QString multiPlotTitle() const;
     void    setMultiPlotTitle( const QString& title );
 
-    void addPlot( RimPlotInterface* plot );
-    void insertPlot( RimPlotInterface* plot, size_t index );
-    void removePlot( RimPlotInterface* plot );
-    void movePlotsToThis( const std::vector<RimPlotInterface*>& plots, RimPlotInterface* plotToInsertAfter );
+    void addPlot( RimPlot* plot );
+    void insertPlot( RimPlot* plot, size_t index );
+    void removePlot( RimPlot* plot );
+    void movePlotsToThis( const std::vector<RimPlot*>& plots, RimPlot* plotToInsertAfter );
 
-    size_t            plotCount() const;
-    size_t            plotIndex( const RimPlotInterface* plot ) const;
-    RimPlotInterface* plotByIndex( size_t index ) const;
+    size_t   plotCount() const;
+    size_t   plotIndex( const RimPlot* plot ) const;
+    RimPlot* plotByIndex( size_t index ) const;
 
-    std::vector<RimPlotInterface*> plots() const;
-    std::vector<RimPlotInterface*> visiblePlots() const;
+    std::vector<RimPlot*> plots() const;
+    std::vector<RimPlot*> visiblePlots() const;
 
-    void         updateLayout() override;
     virtual void updatePlotNames();
     void         updatePlotOrderFromGridWidget();
 
-    virtual void setAutoScaleXEnabled( bool enabled );
-    virtual void setAutoScaleYEnabled( bool enabled );
+    void setAutoScaleXEnabled( bool enabled );
+    void setAutoScaleYEnabled( bool enabled );
 
     int                  columnCount() const;
     caf::PdmFieldHandle* columnCountField();
@@ -87,8 +88,7 @@ public:
 
     void zoomAll() override;
 
-    QString asciiDataForPlotExport() const;
-
+    QString      asciiDataForPlotExport() const;
     virtual void onPlotAdditionOrRemoval();
 
 protected:
@@ -104,7 +104,7 @@ protected:
                            const QVariant&            newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    void uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering ) override;
+    void uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
@@ -124,11 +124,7 @@ protected:
 
 private:
     void cleanupBeforeClose();
-
-    static RimPlotInterface*       toPlotInterfaceAsserted( caf::PdmObject* pdmObject );
-    static const RimPlotInterface* toPlotInterfaceAsserted( const caf::PdmObject* pdmObject );
-    static caf::PdmObject*         toPdmObjectAsserted( RimPlotInterface* plotInterface );
-    static const caf::PdmObject*   toPdmObjectAsserted( const RimPlotInterface* plotInterface );
+    void performLayoutUpdate() override;
 
 protected:
     caf::PdmField<bool>            m_showPlotWindowTitle;
@@ -140,5 +136,5 @@ protected:
     QPointer<RiuMultiPlotWindow> m_viewer;
 
 private:
-    caf::PdmChildArrayField<caf::PdmObject*> m_plots;
+    caf::PdmChildArrayField<RimPlot*> m_plots;
 };

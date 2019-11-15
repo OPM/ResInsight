@@ -24,7 +24,7 @@
 #include "RigWellPathFormations.h"
 #include "RiuPlotAnnotationTool.h"
 
-#include "RimPlotInterface.h"
+#include "RimPlot.h"
 #include "RimRegularLegendConfig.h"
 
 #include "cafPdmChildArrayField.h"
@@ -67,14 +67,11 @@ struct CurveSamplingPointData
 ///
 ///
 //==================================================================================================
-class RimWellLogTrack : public caf::PdmObject, public RimPlotInterface
+class RimWellLogTrack : public RimPlot
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellLogTrack();
-    ~RimWellLogTrack() override;
-
     enum TrajectoryType
     {
         WELL_PATH,
@@ -86,16 +83,20 @@ public:
         WELL_PICK_FILTER
     };
 
-    typedef caf::AppEnum<RiuPlotAnnotationTool::RegionAnnotationType> RegionAnnotationTypeEnum;
-    typedef caf::AppEnum<RiuPlotAnnotationTool::RegionDisplay>        RegionAnnotationDisplayEnum;
+    using RegionAnnotationTypeEnum    = caf::AppEnum<RiuPlotAnnotationTool::RegionAnnotationType>;
+    using RegionAnnotationDisplayEnum = caf::AppEnum<RiuPlotAnnotationTool::RegionDisplay>;
 
-    bool    isChecked() const override;
-    void    setChecked( bool checked ) override;
+public:
+    RimWellLogTrack();
+    ~RimWellLogTrack() override;
+
+    QWidget*          viewWidget() override;
+    RiuQwtPlotWidget* viewer() override;
+    QImage            snapshotWindowContent() override;
+    void              zoomAll() override;
+
     QString description() const override;
     void    setDescription( const QString& description );
-
-    int  colSpan() const override;
-    void setColSpan( RowOrColSpan colSpan ) override;
 
     void addCurve( RimWellLogCurve* curve );
     void insertCurve( RimWellLogCurve* curve, size_t index );
@@ -124,11 +125,8 @@ public:
     void           setFormationTrajectoryType( TrajectoryType trajectoryType );
     TrajectoryType formationTrajectoryType() const;
 
-    void createPlotWidget() override;
     void detachAllCurves() override;
     void reattachAllCurves();
-
-    void loadDataAndUpdate() override;
 
     void setAndUpdateWellPathFormationNamesData( RimCase* rimCase, RimWellPath* wellPath );
 
@@ -171,8 +169,7 @@ public:
     void setShowWellPathAttributes( bool on );
     void setWellPathAttributesSource( RimWellPath* wellPath );
 
-    RimWellPath*      wellPathAttributeSource() const;
-    RiuQwtPlotWidget* viewer() override;
+    RimWellPath* wellPathAttributeSource() const;
 
     caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
 
@@ -191,7 +188,7 @@ public:
 
     void updateAllLegendItems();
 
-    QString asciiDataForPlotExport() const;
+    QString asciiDataForPlotExport() const override;
 
     bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
     bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
@@ -203,7 +200,15 @@ public:
 
     void updateAxes() override;
 
+protected:
+    // RimViewWindow overrides
+    QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;
+    void     deleteViewWidget() override;
+    void     onLoadDataAndUpdate() override;
+
 private:
+    void cleanupBeforeClose();
+    void detachAllPlotItems();
     void calculateXZoomRange();
     void calculateYZoomRange();
 
@@ -223,7 +228,6 @@ private:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
-    caf::PdmFieldHandle* objectToggleField() override;
     caf::PdmFieldHandle* userDescriptionField() override;
 
     void computeAndSetXRangeMinForLogarithmicScale();
@@ -262,16 +266,12 @@ private:
 
     void updateWellPathAttributesCollection();
 
-    void onRowOrColSpanChange() override;
-
     RimWellLogPlot* parentWellLogPlot() const;
 
 private:
     QString m_xAxisTitle;
 
-    caf::PdmField<bool>                               m_show;
-    caf::PdmField<QString>                            m_description;
-    caf::PdmField<RimPlotInterface::RowOrColSpanEnum> m_colSpan;
+    caf::PdmField<QString> m_description;
 
     caf::PdmChildArrayField<RimWellLogCurve*> m_curves;
     caf::PdmField<double>                     m_visibleXRangeMin;
@@ -311,6 +311,7 @@ private:
     caf::PdmPtrField<RimWellPathAttributeCollection*>                  m_wellPathAttributeCollection;
 
     caf::PdmField<bool> m_showFormations_OBSOLETE;
+    caf::PdmField<bool> m_show_OBSOLETE;
 
     std::vector<std::unique_ptr<RiuWellPathComponentPlotItem>> m_wellPathAttributePlotObjects;
 

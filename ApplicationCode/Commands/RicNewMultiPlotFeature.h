@@ -25,7 +25,7 @@
 
 #include <vector>
 
-class RimPlotInterface;
+class RimPlot;
 
 //==================================================================================================
 ///
@@ -45,7 +45,7 @@ protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    static std::vector<RimPlotInterface*> selectedPlotInterfaces();
+    static std::vector<RimPlot*> selectedPlots();
 
 private:
     caf::PdmField<std::vector<uint64_t>> m_plots;

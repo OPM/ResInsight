@@ -26,6 +26,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
+#include "RimPlot.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
@@ -106,6 +107,7 @@ RimWellLogPlot::RimWellLogPlot()
     m_commonDataSourceEnabled = true;
     m_columnCountEnum         = RimMultiPlot::COLUMNS_UNLIMITED;
 
+    m_plotLegendsHorizontal = false;
     setMultiPlotTitleVisible( false );
 }
 
@@ -168,7 +170,7 @@ void RimWellLogPlot::updateZoom()
         }
     }
 
-    for ( RimPlotInterface* plot : plots() )
+    for ( RimPlot* plot : plots() )
     {
         static_cast<RimWellLogTrack*>( plot )->setVisibleYRange( m_minVisibleDepth(), m_maxVisibleDepth() );
     }
@@ -234,7 +236,7 @@ void RimWellLogPlot::calculateAvailableDepthRange()
         double minTrackDepth = HUGE_VAL;
         double maxTrackDepth = -HUGE_VAL;
 
-        if ( plots[tIdx]->isChecked() )
+        if ( plots[tIdx]->showWindow() )
         {
             static_cast<RimWellLogTrack*>( plots[tIdx] )->availableDepthRange( &minTrackDepth, &maxTrackDepth );
 
@@ -286,7 +288,7 @@ void RimWellLogPlot::enableAllAutoNameTags( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::uiOrderingForDepthAxis( caf::PdmUiOrdering& uiOrdering )
+void RimWellLogPlot::uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     if ( m_availableDepthTypes.size() > 1u )
     {
@@ -306,13 +308,11 @@ void RimWellLogPlot::uiOrderingForDepthAxis( caf::PdmUiOrdering& uiOrdering )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering )
+void RimWellLogPlot::uiOrderingForAutoName( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_showPlotWindowTitle );
-    m_nameConfig->uiOrdering( "", uiOrdering );
+    m_nameConfig->uiOrdering( uiConfigName, uiOrdering );
     uiOrdering.add( &m_showIndividualPlotTitles );
-    RimPlotWindow::uiOrderingForPlotLayout( uiOrdering );
-    uiOrdering.add( &m_columnCountEnum );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -409,7 +409,7 @@ QWidget* RimWellLogPlot::createViewWidget( QWidget* mainWindowParent )
 void RimWellLogPlot::performAutoNameUpdate()
 {
     updateCommonDataSource();
-    setMultiPlotTitle( m_nameConfig->name() );
+    setMultiPlotTitle( createAutoName() );
     updatePlotTitleInWidgets();
 }
 
@@ -585,10 +585,12 @@ void RimWellLogPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
 
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup( "Depth Axis" );
-    uiOrderingForDepthAxis( *gridGroup );
+    uiOrderingForDepthAxis( uiConfigName, *gridGroup );
 
     caf::PdmUiGroup* titleAndLegendsGroup = uiOrdering.addNewGroup( "Plot Layout" );
-    uiOrderingForPlotLayout( *titleAndLegendsGroup );
+    uiOrderingForAutoName( uiConfigName, *titleAndLegendsGroup );
+    RimPlotWindow::uiOrderingForLegendSettings( uiConfigName, uiOrdering );
+    titleAndLegendsGroup->add( &m_columnCountEnum );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -634,16 +636,17 @@ void RimWellLogPlot::initAfterRead()
 {
     RimMultiPlot::initAfterRead();
 
-    updateCommonDataSource();
-    if ( !m_plotWindowTitle().isEmpty() )
-    {
-        m_nameConfig->setCustomName( m_plotWindowTitle() );
-    }
-
     if ( m_depthAxisGridVisibility() == AXIS_GRID_MINOR )
     {
         m_depthAxisGridVisibility = AXIS_GRID_MAJOR_AND_MINOR;
     }
+
+    if ( !m_plotWindowTitle().isEmpty() )
+    {
+        m_nameConfig->setCustomName( m_plotWindowTitle );
+    }
+
+    performAutoNameUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
