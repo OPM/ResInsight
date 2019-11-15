@@ -159,6 +159,7 @@ cvf::ref<RigWellPath> RimWellPathGeometryDef::createWellPathGeometry()
 
     RiaPolyArcLineSampler arcLineSampler( wellPathCalculator.startTangent(), wellPathCalculator.lineArcEndpoints() );
 
+
     arcLineSampler.sampledPointsAndMDs( 30,
                                         false,
                                         &( wellPathGeometry->m_wellPathPoints ),
@@ -562,8 +563,8 @@ RiaLineArcWellPathCalculator RimWellPathGeometryDef::lineArcWellPathCalculator()
 
     for ( size_t tIdx = 0; tIdx < wellTargets.size(); ++tIdx )
     {
-        wellTargets[tIdx]->flagRadius1AsIncorrect( false, 0 );
-        wellTargets[tIdx]->flagRadius2AsIncorrect( false, 0 );
+        wellTargets[tIdx]->flagRadius1AsIncorrect(targetStatuses[tIdx].isRadius1Editable, false, 0 );
+        wellTargets[tIdx]->flagRadius2AsIncorrect(targetStatuses[tIdx].isRadius2Editable, false, 0 );
 
         if ( targetStatuses[tIdx].hasDerivedTangent )
         {
@@ -573,12 +574,12 @@ RiaLineArcWellPathCalculator RimWellPathGeometryDef::lineArcWellPathCalculator()
 
         if ( targetStatuses[tIdx].hasOverriddenRadius1 )
         {
-            wellTargets[tIdx]->flagRadius1AsIncorrect( true, targetStatuses[tIdx].resultRadius1 );
+            wellTargets[tIdx]->flagRadius1AsIncorrect( targetStatuses[tIdx].isRadius1Editable, true, targetStatuses[tIdx].resultRadius1 );
         }
 
         if ( targetStatuses[tIdx].hasOverriddenRadius2 )
         {
-            wellTargets[tIdx]->flagRadius2AsIncorrect( true, targetStatuses[tIdx].resultRadius2 );
+            wellTargets[tIdx]->flagRadius2AsIncorrect( targetStatuses[tIdx].isRadius2Editable, true, targetStatuses[tIdx].resultRadius2 );
         }
     }
 
