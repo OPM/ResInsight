@@ -357,6 +357,7 @@ set( EXE_FILES
     .clang-format
     .clang-tidy
     Adm/RiaVersionInfo.h.cmake
+    $<TARGET_OBJECTS:cafCommandFeatures> # Needed for cmake version < 3.12. Remove when we can use target_link_libraries with OBJECT libraries
 )
 
 if (RESINSIGHT_ENABLE_GRPC)
@@ -475,6 +476,7 @@ if(RESINSIGHT_ENABLE_COTIRE)
         # QT 5
         qrc_cafAnimControl.cpp
         qrc_ResInsight.cpp
+        qrc_cafCommandFeatures.cpp
         ProjectDataModel/RimContourMapView.cpp
         Commands/CompletionExportCommands/RicExportFractureCompletionsImpl.cpp
     )
