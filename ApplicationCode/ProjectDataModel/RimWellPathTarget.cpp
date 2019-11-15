@@ -2,7 +2,11 @@
 #include "RimModeledWellPath.h"
 
 #include "RimWellPathGeometryDef.h"
+
+#include "RiaOffshoreSphericalCoords.h"
+
 #include "cafPdmUiCheckBoxEditor.h"
+
 #include <cmath>
 
 CAF_PDM_SOURCE_INIT( RimWellPathTarget, "WellPathTarget" );
@@ -159,7 +163,8 @@ cvf::Vec3d RimWellPathTarget::tangent() const
 {
     double aziRad = cvf::Math::toRadians( m_azimuth );
     double incRad = cvf::Math::toRadians( m_inclination );
-    return cvf::Vec3d( sin( aziRad ) * sin( incRad ), cos( aziRad ) * sin( incRad ), -cos( incRad ) );
+
+    return RiaOffshoreSphericalCoords::unitVectorFromAziInc(aziRad, incRad);
 }
 
 //--------------------------------------------------------------------------------------------------
