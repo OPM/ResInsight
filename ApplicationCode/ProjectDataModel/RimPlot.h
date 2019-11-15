@@ -19,6 +19,8 @@
 
 #include "RiaDefines.h"
 
+#include "RimPlotWindow.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -30,8 +32,10 @@ class RiuQwtPlotWidget;
 class RimPlotCurve;
 class QwtPlotCurve;
 
-class RimPlotInterface
+class RimPlot : public RimPlotWindow
 {
+    CAF_PDM_HEADER_INIT;
+
 public:
     enum RowOrColSpan
     {
@@ -42,36 +46,21 @@ public:
         FOUR      = 4,
         FIVE      = 5
     };
-    typedef caf::AppEnum<RowOrColSpan> RowOrColSpanEnum;
+    using RowOrColSpanEnum = caf::AppEnum<RowOrColSpan>;
 
 public:
-    RimPlotInterface()          = default;
-    virtual ~RimPlotInterface() = default;
+    RimPlot();
+    virtual ~RimPlot() = default;
 
-    bool isStandalonePlot() const;
+    // Real implementations
+    void         createPlotWidget();
+    RowOrColSpan rowSpan() const;
+    RowOrColSpan colSpan() const;
+    void         setRowSpan( RowOrColSpan rowSpan );
+    void         setColSpan( RowOrColSpan colSpan );
 
-    virtual RiuQwtPlotWidget* viewer()                   = 0;
-    virtual bool              isChecked() const          = 0;
-    virtual void              setChecked( bool checked ) = 0;
-
-    virtual QString description() const = 0;
-
-    virtual int rowSpan() const
-    {
-        return 1;
-    }
-    virtual int colSpan() const
-    {
-        return 1;
-    }
-    virtual void setRowSpan( RowOrColSpan rowSpan ) {}
-    virtual void setColSpan( RowOrColSpan colSpan ) {}
-
-    virtual bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const = 0;
-    virtual bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                                int                         oldFontSize,
-                                int                         fontSize,
-                                bool                        forceChange = false )                                                    = 0;
+    // Pure virtual interface methods
+    virtual RiuQwtPlotWidget* viewer() = 0;
 
     virtual void setAutoScaleXEnabled( bool enabled ) = 0;
     virtual void setAutoScaleYEnabled( bool enabled ) = 0;
@@ -80,21 +69,27 @@ public:
     virtual void updateZoomInQwt()   = 0;
     virtual void updateZoomFromQwt() = 0;
 
-    virtual QString asciiDataForPlotExport() const;
+    virtual QString asciiDataForPlotExport() const = 0;
 
-    virtual void createPlotWidget() = 0;
-    virtual void detachAllCurves()  = 0;
+    virtual void detachAllCurves() = 0;
 
     virtual caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const = 0;
 
-    virtual void loadDataAndUpdate() = 0;
+    virtual void onAxisSelected( int axis, bool toggle ) = 0;
 
-    virtual void onAxisSelected( int axis, bool toggle ) {}
-
+    // TODO: Refactor
     virtual void removeFromMdiAreaAndCollection() {}
     virtual void updateAfterInsertingIntoMultiPlot() {}
 
 protected:
-    void         updatePlotWindowLayout();
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
+
+private:
     virtual void onRowOrColSpanChange() {}
+
+protected:
+    caf::PdmField<RowOrColSpanEnum> m_rowSpan;
+    caf::PdmField<RowOrColSpanEnum> m_colSpan;
 };

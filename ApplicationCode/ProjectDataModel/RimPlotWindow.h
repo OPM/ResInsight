@@ -24,6 +24,7 @@
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
 
+class QwtPlotCurve;
 class QKeyEvent;
 
 class RimPlotWindow : public RimViewWindow
@@ -36,6 +37,8 @@ public:
 
     RimPlotWindow& operator=( RimPlotWindow&& rhs );
 
+    virtual QString description() const = 0;
+
     bool legendsVisible() const;
     void setLegendsVisible( bool doShow );
     bool legendsHorizontal() const;
@@ -43,17 +46,21 @@ public:
     int  legendFontSize() const;
     void setLegendFontSize( int fontSize );
 
-    virtual void handleKeyPressEvent( QKeyEvent* keyEvent ) {}
-    virtual void updateLayout() = 0;
+    void updateLayout();
+    void updateParentLayout();
 
 protected:
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
+
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-    virtual void uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering );
+    void uiOrderingForLegendSettings( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+
+private:
+    virtual void performLayoutUpdate() {}
 
 protected:
     caf::PdmField<bool> m_showPlotLegends;

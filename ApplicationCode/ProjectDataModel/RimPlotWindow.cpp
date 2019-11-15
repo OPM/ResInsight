@@ -29,14 +29,20 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotWindow, "RimPlotWindow" ); // Do not us
 //--------------------------------------------------------------------------------------------------
 RimPlotWindow::RimPlotWindow()
 {
-    CAF_PDM_InitObject( "Plot", "", "", "" );
+    CAF_PDM_InitObject( "PlotWindow", "", "", "" );
 
     CAF_PDM_InitField( &m_showPlotLegends, "ShowTrackLegends", true, "Show Legends", "", "", "" );
     CAF_PDM_InitField( &m_plotLegendsHorizontal, "TrackLegendsHorizontal", true, "Legend Orientation", "", "", "" );
     m_plotLegendsHorizontal.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    int fontSize = RiaFontCache::pointSizeFromFontSizeEnum(
+    int defaultFontSize = RiaFontCache::pointSizeFromFontSizeEnum(
         RiaApplication::instance()->preferences()->defaultPlotFontSize() );
-    CAF_PDM_InitField( &m_legendFontSize, "LegendFontSize", fontSize, "Legend Font Size", "", "", "" );
+    CAF_PDM_InitField( &m_legendFontSize,
+                       "LegendFontSize",
+                       std::max( 8, defaultFontSize - 2 ),
+                       "Legend Font Size",
+                       "",
+                       "",
+                       "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,6 +57,7 @@ RimPlotWindow& RimPlotWindow::operator=( RimPlotWindow&& rhs )
 {
     m_showPlotLegends       = rhs.m_showPlotLegends();
     m_plotLegendsHorizontal = rhs.m_plotLegendsHorizontal();
+    m_legendFontSize        = rhs.m_legendFontSize();
     return *this;
 }
 
@@ -100,6 +107,32 @@ int RimPlotWindow::legendFontSize() const
 void RimPlotWindow::setLegendFontSize( int fontSize )
 {
     m_legendFontSize = fontSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::updateLayout()
+{
+    performLayoutUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::updateParentLayout()
+{
+    caf::PdmFieldHandle* parentField = this->parentField();
+    if ( parentField )
+    {
+        caf::PdmObjectHandle* parentObject = parentField->ownerObject();
+        RimPlotWindow*        plotWindow   = nullptr;
+        parentObject->firstAncestorOrThisOfType( plotWindow );
+        if ( plotWindow )
+        {
+            plotWindow->updateLayout();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -160,7 +193,7 @@ QList<caf::PdmOptionItemInfo> RimPlotWindow::calculateValueOptions( const caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotWindow::uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering )
+void RimPlotWindow::uiOrderingForLegendSettings( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_showPlotLegends );
     uiOrdering.add( &m_plotLegendsHorizontal );

@@ -30,7 +30,7 @@
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
 #include "RimGridCrossPlotDataSet.h"
-#include "RimPlotInterface.h"
+#include "RimPlot.h"
 #include "RimRegularLegendConfig.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -58,7 +58,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimPlotInterface* plotDefinition, QWidget* parent /*= nullptr*/ )
+RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimPlot* plotDefinition, QWidget* parent /*= nullptr*/ )
     : RiuQwtPlotWidget( plotDefinition, parent )
 {
     // LeftButton for the zooming

@@ -64,18 +64,15 @@ public:
     int  id() const;
     void setId( int id );
 
+    bool showWindow() const;
+    void setShowWindow( bool showWindow );
+
     void loadDataAndUpdate();
     void handleMdiWindowClosed();
     void updateMdiWindowVisibility();
 
-    void setAs3DViewMdiWindow()
-    {
-        setAsMdiWindow( 0 );
-    }
-    void setAsPlotMdiWindow()
-    {
-        setAsMdiWindow( 1 );
-    }
+    void setAs3DViewMdiWindow();
+    void setAsPlotMdiWindow();
     void revokeMdiWindowStatus();
 
     bool isMdiWindow() const;
@@ -109,7 +106,7 @@ protected:
     friend class RimMdiWindowController;
 
     QString          windowTitle();
-    virtual QWidget* createViewWidget( QWidget* mainWindowParent ) = 0;
+    virtual QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) = 0;
     virtual void     updateViewWidgetAfterCreation(){};
     virtual void     updateMdiWindowTitle(); // Has real default implementation
     virtual void     deleteViewWidget()    = 0;

@@ -40,7 +40,8 @@ class RiuSummaryQwtPlot : public RiuQwtPlotWidget, public RiuInterfaceToViewWind
     Q_OBJECT;
 
 public:
-    RiuSummaryQwtPlot( RimPlotInterface* plotDefinition, QWidget* parent = nullptr );
+    RiuSummaryQwtPlot( RimPlot* plotDefinition, QWidget* parent = nullptr );
+    ~RiuSummaryQwtPlot() override;
 
     void useDateBasedTimeAxis(
         const QString&                          dateFormat,

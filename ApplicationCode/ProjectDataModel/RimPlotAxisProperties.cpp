@@ -25,8 +25,8 @@
 #include "RiaPreferences.h"
 #include "RigStatisticsCalculator.h"
 
+#include "RimPlot.h"
 #include "RimPlotAxisAnnotation.h"
-#include "RimPlotInterface.h"
 
 #include "cafPdmUiSliderEditor.h"
 
@@ -416,7 +416,7 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
         m_isAutoZoom = false;
     }
 
-    RimPlotInterface* parentPlot = nullptr;
+    RimPlot* parentPlot = nullptr;
     this->firstAncestorOrThisOfType( parentPlot );
     if ( parentPlot )
     {

@@ -50,10 +50,10 @@ std::vector<QString> RicExportToLasFileFeature::exportToLasFiles( const QString&
                                                                   bool                  capitalizeFileNames,
                                                                   double                resampleInterval )
 {
-    std::vector<RimWellLogCurve*>  allCurves;
-    std::vector<RimPlotInterface*> plots = plotWindow->visiblePlots();
+    std::vector<RimWellLogCurve*> allCurves;
+    std::vector<RimPlot*>         plots = plotWindow->visiblePlots();
 
-    for ( RimPlotInterface* plot : plots )
+    for ( RimPlot* plot : plots )
     {
         RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plot );
         if ( track )

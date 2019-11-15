@@ -118,7 +118,7 @@ RimWellRftPlot::RimWellRftPlot()
     m_wellPathCollection = RiaApplication::instance()->project()->activeOilField()->wellPathCollection();
 
     m_nameConfig->setCustomName( "RFT Plot" );
-    m_plotLegendsHorizontal = true;
+    m_plotLegendsHorizontal = false;
 
     this->setAsPlotMdiWindow();
     m_isOnLoad = true;
@@ -940,13 +940,14 @@ void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         if ( track )
         {
             track->uiOrderingForRftPltFormations( uiOrdering );
-            caf::PdmUiGroup* axesGroup = uiOrdering.addNewGroup( "Axes" );
-            track->uiOrderingForXAxisSettings( *axesGroup );
-            uiOrderingForDepthAxis( *axesGroup );
+            track->uiOrderingForXAxisSettings( uiOrdering );
+            caf::PdmUiGroup* depthGroup = uiOrdering.addNewGroup( "Depth Axis Settings" );
+            uiOrderingForDepthAxis( uiConfigName, *depthGroup );
 
             caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
             plotLayoutGroup->setCollapsedByDefault( true );
-            RimWellLogPlot::uiOrderingForPlotLayout( *plotLayoutGroup );
+            RimWellLogPlot::uiOrderingForAutoName( uiConfigName, *plotLayoutGroup );
+            RimWellLogPlot::uiOrderingForLegendSettings( uiConfigName, *plotLayoutGroup );
         }
     }
 

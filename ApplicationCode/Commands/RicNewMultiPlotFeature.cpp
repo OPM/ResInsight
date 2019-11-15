@@ -24,7 +24,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlot.h"
 #include "RimMultiPlotCollection.h"
-#include "RimPlotInterface.h"
+#include "RimPlot.h"
 #include "RimProject.h"
 
 #include "RiuPlotMainWindowTools.h"
@@ -60,12 +60,12 @@ RicfCommandResponse RicNewMultiPlotFeature::execute()
 
     if ( !m_plots().empty() )
     {
-        std::vector<RimPlotInterface*> plotInterfaces;
+        std::vector<RimPlot*> plots;
         for ( auto ptr : m_plots() )
         {
-            plotInterfaces.push_back( reinterpret_cast<RimPlotInterface*>( ptr ) );
+            plots.push_back( reinterpret_cast<RimPlot*>( ptr ) );
         }
-        plotWindow->movePlotsToThis( plotInterfaces, nullptr );
+        plotWindow->movePlotsToThis( plots, nullptr );
     }
 
     plotCollection->updateAllRequiredEditors();
@@ -89,12 +89,12 @@ bool RicNewMultiPlotFeature::isCommandEnabled()
         return true;
     }
 
-    auto selectedPlots = selectedPlotInterfaces();
+    auto plots = selectedPlots();
 
     std::vector<caf::PdmUiItem*> selectedUiItems;
     caf::SelectionManager::instance()->selectedItems( selectedUiItems );
 
-    return !selectedPlots.empty() && selectedPlots.size() == selectedUiItems.size();
+    return !plots.empty() && plots.size() == selectedUiItems.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,10 +103,10 @@ bool RicNewMultiPlotFeature::isCommandEnabled()
 void RicNewMultiPlotFeature::onActionTriggered( bool isChecked )
 {
     m_plots.v().clear();
-    auto selectedPlots = selectedPlotInterfaces();
-    for ( RimPlotInterface* plotInterface : selectedPlots )
+    auto plots = selectedPlots();
+    for ( RimPlot* plot : plots )
     {
-        m_plots.v().push_back( reinterpret_cast<uintptr_t>( plotInterface ) );
+        m_plots.v().push_back( reinterpret_cast<uintptr_t>( plot ) );
     }
     execute();
 }
@@ -116,7 +116,7 @@ void RicNewMultiPlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewMultiPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    if ( selectedPlotInterfaces().empty() )
+    if ( selectedPlots().empty() )
     {
         actionToSetup->setText( "New Empty Multi Plot" );
         actionToSetup->setIcon( QIcon( ":/WellLogPlot16x16.png" ) );
@@ -131,19 +131,19 @@ void RicNewMultiPlotFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlotInterface*> RicNewMultiPlotFeature::selectedPlotInterfaces()
+std::vector<RimPlot*> RicNewMultiPlotFeature::selectedPlots()
 {
     std::vector<caf::PdmUiItem*> uiItems;
     caf::SelectionManager::instance()->selectedItems( uiItems );
 
-    std::vector<RimPlotInterface*> plotInterfaces;
+    std::vector<RimPlot*> plots;
     for ( caf::PdmUiItem* uiItem : uiItems )
     {
-        RimPlotInterface* plotInterface = dynamic_cast<RimPlotInterface*>( uiItem );
+        RimPlot* plotInterface = dynamic_cast<RimPlot*>( uiItem );
         if ( plotInterface )
         {
-            plotInterfaces.push_back( plotInterface );
+            plots.push_back( plotInterface );
         }
     }
-    return plotInterfaces;
+    return plots;
 }

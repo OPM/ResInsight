@@ -36,7 +36,7 @@
 
 class RimWellLogCurveCommonDataSource;
 class RiuMultiPlotWindow;
-class RimPlotInterface;
+class RimPlotWindow;
 class QKeyEvent;
 
 //==================================================================================================
@@ -85,11 +85,11 @@ public:
     void calculateAvailableDepthRange();
     void availableDepthRange( double* minimumDepth, double* maximumDepth ) const;
 
-    void setAutoScaleYEnabled( bool enabled ) override;
+    void setAutoScaleYEnabled( bool enabled );
     void enableAllAutoNameTags( bool enable );
 
-    void uiOrderingForDepthAxis( caf::PdmUiOrdering& uiOrdering );
-    void uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering ) override;
+    void uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void uiOrderingForAutoName( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
     QString createAutoName() const override;
 
@@ -103,11 +103,11 @@ public:
     void onPlotAdditionOrRemoval() override;
 
     void updatePlotNames() override;
+    void handleKeyPressEvent( QKeyEvent* keyEvent );
 
 protected:
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
     void     performAutoNameUpdate() override;
-    void     handleKeyPressEvent( QKeyEvent* keyEvent ) override;
 
     // Overridden PDM methods
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,

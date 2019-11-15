@@ -141,7 +141,7 @@ CurvesData concatCurvesData( const std::vector<CurvesData>& curvesData );
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot::RimSummaryPlot()
-    : RimPlotWindow()
+    : RimPlot()
 {
     CAF_PDM_InitObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "" );
 
@@ -153,9 +153,6 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitField( &m_description, "PlotDescription", QString( "Summary Plot" ), "Name", "", "", "" );
 
     CAF_PDM_InitField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves", "", "", "" );
-
-    CAF_PDM_InitFieldNoDefault( &m_rowSpan, "RowSpan", "Row Span", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_colSpan, "ColSpan", "Column Span", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "", "", "", "" );
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden( true );
@@ -330,6 +327,14 @@ RiuQwtPlotWidget* RimSummaryPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimSummaryPlot::asciiDataForPlotExport() const
+{
+    return asciiDataForSummaryPlotExport( DateTimePeriod::YEAR, false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimSummaryPlot::asciiDataForSummaryPlotExport( DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const
 {
     QString                      out;
@@ -375,14 +380,6 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( DateTimePeriod resampling
     }
 
     return out;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::createPlotWidget()
-{
-    createViewWidget( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1318,14 +1315,6 @@ void RimSummaryPlot::addAsciiDataCruve( RimAsciiDataCurve* curve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::loadDataAndUpdate()
-{
-    onLoadDataAndUpdate();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSummaryPlot::userDescriptionField()
 {
     return &m_description;
@@ -1338,7 +1327,7 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            oldValue,
                                        const QVariant&            newValue )
 {
-    RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
+    RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
     if ( changedField == &m_showWindow )
     {
@@ -1359,11 +1348,6 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                 c->updateCurveNameNoLegendUpdate();
             }
         }
-    }
-
-    if ( changedField == &m_rowSpan || changedField == &m_colSpan )
-    {
-        updatePlotWindowLayout();
     }
 
     if ( changedField == &m_normalizeCurveYValues )
@@ -1456,7 +1440,7 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 
     if ( m_plotWidget )
     {
-        m_plotWidget->setLegendVisible( m_showPlotLegends && isStandalonePlot() );
+        m_plotWidget->setLegendVisible( m_showPlotLegends && isMdiWindow() );
         m_plotWidget->setLegendFontSize( m_legendFontSize() );
         m_plotWidget->updateLegend();
     }
@@ -1528,7 +1512,7 @@ std::set<RimPlotAxisPropertiesInterface*> RimSummaryPlot::allPlotAxes() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::cleanupBeforeClose()
 {
-    detachAllCurves();
+    detachAllPlotItems();
 
     if ( m_plotWidget )
     {
@@ -1564,13 +1548,16 @@ void RimSummaryPlot::removeEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::removeFromMdiAreaAndCollection()
 {
-    RimSummaryPlotCollection* summaryCollection = nullptr;
-    this->firstAncestorOrThisOfType( summaryCollection );
-    if ( summaryCollection )
+    if ( isMdiWindow() )
     {
-        summaryCollection->removeSummaryPlot( this );
-        this->revokeMdiWindowStatus();
-        summaryCollection->updateAllRequiredEditors();
+        RimSummaryPlotCollection* summaryCollection = nullptr;
+        this->firstAncestorOrThisOfType( summaryCollection );
+        if ( summaryCollection )
+        {
+            summaryCollection->removeSummaryPlot( this );
+            this->revokeMdiWindowStatus();
+            summaryCollection->updateAllRequiredEditors();
+        }
     }
 }
 
@@ -1595,22 +1582,6 @@ void RimSummaryPlot::updateAfterInsertingIntoMultiPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimSummaryPlot::rowSpan() const
-{
-    return static_cast<int>( m_rowSpan() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RimSummaryPlot::colSpan() const
-{
-    return static_cast<int>( m_colSpan() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteAllGridTimeHistoryCurves()
 {
     m_gridTimeHistoryCurves.deleteAllChildObjects();
@@ -1630,22 +1601,6 @@ void RimSummaryPlot::setDescription( const QString& description )
 QString RimSummaryPlot::description() const
 {
     return m_description();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSummaryPlot::isChecked() const
-{
-    return isWindowVisible();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::setChecked( bool checked )
-{
-    m_showWindow = checked;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1694,7 +1649,7 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     caf::PdmUiGroup* mainOptions = uiOrdering.addNewGroup( "General Plot Options" );
     mainOptions->setCollapsedByDefault( true );
 
-    if ( isStandalonePlot() )
+    if ( isMdiWindow() )
     {
         mainOptions->add( &m_showPlotTitle );
         if ( m_showPlotTitle )
@@ -1712,7 +1667,7 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle );
 
-    if ( isStandalonePlot() )
+    if ( isMdiWindow() )
     {
         mainOptions->add( &m_showPlotLegends );
         if ( m_showPlotLegends() )
@@ -1821,7 +1776,7 @@ void RimSummaryPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateMdiWindowTitle()
 {
-    if ( m_plotWidget && isStandalonePlot() )
+    if ( m_plotWidget && isMdiWindow() )
     {
         QString plotTitle = description();
 
@@ -1887,24 +1842,46 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateWindowVisibility()
 {
-    RimMultiPlot* plotWindow = nullptr;
-    this->firstAncestorOrThisOfType( plotWindow );
-    if ( plotWindow )
-    {
-        plotWindow->updateLayout();
-    }
-    else
+    if ( isMdiWindow() )
     {
         updateMdiWindowVisibility();
     }
+    else
+    {
+        updateParentLayout();
+    }
+    updateAxes();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateLayout()
+void RimSummaryPlot::performLayoutUpdate()
 {
     this->loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::detachAllPlotItems()
+{
+    if ( m_summaryCurveCollection )
+    {
+        m_summaryCurveCollection->detachQwtCurves();
+    }
+
+    m_ensembleCurveSetCollection->detachQwtCurves();
+
+    for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
+    {
+        curve->detachQwtCurve();
+    }
+
+    for ( RimAsciiDataCurve* curve : m_asciiDataCurves )
+    {
+        curve->detachQwtCurve();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1931,22 +1908,7 @@ void RimSummaryPlot::updateCurveNames()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::detachAllCurves()
 {
-    if ( m_summaryCurveCollection )
-    {
-        m_summaryCurveCollection->detachQwtCurves();
-    }
-
-    m_ensembleCurveSetCollection->detachQwtCurves();
-
-    for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
-    {
-        curve->detachQwtCurve();
-    }
-
-    for ( RimAsciiDataCurve* curve : m_asciiDataCurves )
-    {
-        curve->detachQwtCurve();
-    }
+    detachAllPlotItems();
 }
 
 //--------------------------------------------------------------------------------------------------

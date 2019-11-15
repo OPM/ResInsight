@@ -136,8 +136,9 @@ RimWellPltPlot::RimWellPltPlot()
     m_nameConfig->setCustomName( "PLT Plot" );
 
     this->setAsPlotMdiWindow();
-    m_doInitAfterLoad = false;
-    m_isOnLoad        = true;
+    m_doInitAfterLoad       = false;
+    m_isOnLoad              = true;
+    m_plotLegendsHorizontal = false;
 
     setAvailableDepthTypes( {RiaDefines::MEASURED_DEPTH} );
 }
@@ -199,6 +200,7 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
         axisTitle += RimWellPlotTools::flowPlotAxisTitle( RimWellLogFile::WELL_FLOW_COND_STANDARD, unitSet );
 
     plotTrack->setXAxisTitle( axisTitle );
+
 #if 0
     QString unitText;
     for ( auto unitSet: presentUnitSystems )
@@ -997,13 +999,14 @@ void RimWellPltPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         if ( track )
         {
             track->uiOrderingForRftPltFormations( uiOrdering );
-            caf::PdmUiGroup* axesGroup = uiOrdering.addNewGroup( "Axes" );
-            track->uiOrderingForXAxisSettings( *axesGroup );
-            uiOrderingForDepthAxis( *axesGroup );
+            track->uiOrderingForXAxisSettings( uiOrdering );
+            caf::PdmUiGroup* depthGroup = uiOrdering.addNewGroup( "Depth Axis Settings" );
+            uiOrderingForDepthAxis( uiConfigName, *depthGroup );
 
             caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
             plotLayoutGroup->setCollapsedByDefault( true );
-            RimWellLogPlot::uiOrderingForPlotLayout( *plotLayoutGroup );
+            RimWellLogPlot::uiOrderingForAutoName( uiConfigName, *plotLayoutGroup );
+            RimWellLogPlot::uiOrderingForLegendSettings( uiConfigName, *plotLayoutGroup );
         }
     }
 
