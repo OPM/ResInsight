@@ -22,8 +22,8 @@
 #include "RiaApplication.h"
 
 #include "RimMainPlotCollection.h"
-#include "RimMultiPlot.h"
 #include "RimMultiPlotCollection.h"
+#include "RimMultiPlotWindow.h"
 #include "RimPlot.h"
 #include "RimProject.h"
 
@@ -53,7 +53,7 @@ RicfCommandResponse RicNewMultiPlotFeature::execute()
     RimProject*             project        = RiaApplication::instance()->project();
     RimMultiPlotCollection* plotCollection = project->mainPlotCollection()->multiPlotCollection();
 
-    RimMultiPlot* plotWindow = new RimMultiPlot;
+    RimMultiPlotWindow* plotWindow = new RimMultiPlotWindow;
     plotWindow->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( plotCollection->multiPlots().size() + 1 ) );
     plotWindow->setAsPlotMdiWindow();
     plotCollection->addMultiPlot( plotWindow );

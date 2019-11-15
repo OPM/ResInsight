@@ -105,7 +105,7 @@ RimWellLogPlot::RimWellLogPlot()
     m_maxAvailableDepth = -HUGE_VAL;
 
     m_commonDataSourceEnabled = true;
-    m_columnCountEnum         = RimMultiPlot::COLUMNS_UNLIMITED;
+    m_columnCountEnum         = RimMultiPlotWindow::COLUMNS_UNLIMITED;
 
     m_plotLegendsHorizontal = false;
     setMultiPlotTitleVisible( false );
@@ -116,7 +116,7 @@ RimWellLogPlot::RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot& RimWellLogPlot::operator=( RimWellLogPlot&& rhs )
 {
-    RimMultiPlot::operator=( std::move( rhs ) );
+    RimMultiPlotWindow::operator=( std::move( rhs ) );
 
     auto dataSource = rhs.m_commonDataSource();
     rhs.m_commonDataSource.removeChildObject( dataSource );
@@ -183,7 +183,7 @@ void RimWellLogPlot::updateZoom()
                                            m_maxAvailableDepth );
     }
 
-    RimMultiPlot::updateZoom();
+    RimMultiPlotWindow::updateZoom();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -503,7 +503,7 @@ void RimWellLogPlot::onPlotAdditionOrRemoval()
 {
     calculateAvailableDepthRange();
     updateZoom();
-    RimMultiPlot::onPlotAdditionOrRemoval();
+    RimMultiPlotWindow::onPlotAdditionOrRemoval();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -533,7 +533,7 @@ void RimWellLogPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            oldValue,
                                        const QVariant&            newValue )
 {
-    RimMultiPlot::fieldChangedByUi( changedField, oldValue, newValue );
+    RimMultiPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
     if ( changedField == &m_minVisibleDepth || changedField == &m_maxVisibleDepth )
     {
@@ -589,7 +589,7 @@ void RimWellLogPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     caf::PdmUiGroup* titleAndLegendsGroup = uiOrdering.addNewGroup( "Plot Layout" );
     uiOrderingForAutoName( uiConfigName, *titleAndLegendsGroup );
-    RimPlotWindow::uiOrderingForLegendSettings( uiConfigName, uiOrdering );
+    RimPlotWindow::uiOrderingForLegendSettings( uiConfigName, *titleAndLegendsGroup );
     titleAndLegendsGroup->add( &m_columnCountEnum );
 
     uiOrdering.skipRemainingFields( true );
@@ -601,7 +601,8 @@ void RimWellLogPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 QList<caf::PdmOptionItemInfo> RimWellLogPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                      bool*                      useOptionsOnly )
 {
-    QList<caf::PdmOptionItemInfo> options = RimMultiPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimMultiPlotWindow::calculateValueOptions( fieldNeedingOptions,
+                                                                                       useOptionsOnly );
 
     if ( fieldNeedingOptions == &m_depthType )
     {
@@ -634,7 +635,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogPlot::calculateValueOptions( const caf::
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::initAfterRead()
 {
-    RimMultiPlot::initAfterRead();
+    RimMultiPlotWindow::initAfterRead();
 
     if ( m_depthAxisGridVisibility() == AXIS_GRID_MINOR )
     {
@@ -679,7 +680,7 @@ QImage RimWellLogPlot::snapshotWindowContent()
         CAF_ASSERT( wellLogViewer );
         bool isScrollbarVisible = wellLogViewer->isScrollbarVisible();
         wellLogViewer->setScrollbarVisible( false );
-        image = RimMultiPlot::snapshotWindowContent();
+        image = RimMultiPlotWindow::snapshotWindowContent();
         wellLogViewer->setScrollbarVisible( isScrollbarVisible );
     }
 

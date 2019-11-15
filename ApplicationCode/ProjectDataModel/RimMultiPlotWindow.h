@@ -34,7 +34,7 @@
 
 class RimPlot;
 
-class RimMultiPlot : public RimPlotWindow
+class RimMultiPlotWindow : public RimPlotWindow
 {
     CAF_PDM_HEADER_INIT;
 
@@ -50,10 +50,10 @@ public:
     using ColumnCountEnum = caf::AppEnum<ColumnCount>;
 
 public:
-    RimMultiPlot();
-    ~RimMultiPlot() override;
+    RimMultiPlotWindow();
+    ~RimMultiPlotWindow() override;
 
-    RimMultiPlot& operator=( RimMultiPlot&& rhs );
+    RimMultiPlotWindow& operator=( RimMultiPlotWindow&& rhs );
 
     QWidget* viewWidget() override;
 
@@ -90,6 +90,8 @@ public:
 
     QString      asciiDataForPlotExport() const;
     virtual void onPlotAdditionOrRemoval();
+    void         setAcceptDrops( bool acceptDrops );
+    bool         acceptDrops() const;
 
 protected:
     QImage snapshotWindowContent() override;
@@ -124,7 +126,7 @@ protected:
 
 private:
     void cleanupBeforeClose();
-    void performLayoutUpdate() override;
+    void doUpdateLayout() override;
 
 protected:
     caf::PdmField<bool>            m_showPlotWindowTitle;
@@ -137,4 +139,6 @@ protected:
 
 private:
     caf::PdmChildArrayField<RimPlot*> m_plots;
+
+    bool m_acceptDrops;
 };

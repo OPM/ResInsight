@@ -490,10 +490,25 @@ void RimWellLogTrack::updateYZoom()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::doRemoveFromCollection()
+{
+    RimMultiPlotWindow* multiPlot = nullptr;
+    this->firstAncestorOrThisOfType( multiPlot );
+    if ( multiPlot )
+    {
+        multiPlot->removePlot( this );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                         const QVariant&            oldValue,
                                         const QVariant&            newValue )
 {
+    RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
+
     if ( changedField == &m_showWindow )
     {
         if ( m_plotWidget )
@@ -716,7 +731,7 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateAllLegendItems()
+void RimWellLogTrack::updateLegend()
 {
     reattachAllCurves();
     if ( m_plotWidget )
@@ -1087,7 +1102,7 @@ void RimWellLogTrack::onLoadDataAndUpdate()
     m_explicitTickIntervals.uiCapability()->setUiReadOnly( emptyRange );
     m_xAxisGridVisibility.uiCapability()->setUiReadOnly( emptyRange );
 
-    updateAllLegendItems();
+    updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

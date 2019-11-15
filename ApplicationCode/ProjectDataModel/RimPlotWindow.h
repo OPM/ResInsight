@@ -25,10 +25,14 @@
 #include "cafPdmObject.h"
 
 class RimProject;
-class QwtPlotCurve;
 
+class QwtPlotCurve;
 class QKeyEvent;
 
+//==================================================================================================
+///
+///
+//==================================================================================================
 class RimPlotWindow : public RimViewWindow
 {
     CAF_PDM_HEADER_INIT;
@@ -64,7 +68,7 @@ protected:
     void uiOrderingForLegendSettings( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
 private:
-    virtual void performLayoutUpdate() {}
+    virtual void doUpdateLayout() {}
 
 private:
     friend class RimProject;
@@ -73,7 +77,7 @@ private:
     void assignIdIfNecessary() final;
 
 protected:
-    caf::PdmField<int>     m_id;
+    caf::PdmField<int>  m_id;
     caf::PdmField<bool> m_showPlotLegends;
     caf::PdmField<bool> m_plotLegendsHorizontal;
     caf::PdmField<int>  m_legendFontSize;

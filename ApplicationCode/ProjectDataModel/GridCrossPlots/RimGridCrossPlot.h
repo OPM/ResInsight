@@ -94,7 +94,7 @@ public:
                         int                         fontSize,
                         bool                        forceChange = false ) override;
 
-    void updateLegend();
+    void updateLegend() override;
 
     void updateZoomInQwt() override;
     void updateZoomFromQwt() override;
@@ -106,9 +106,6 @@ public:
 
     void addOrUpdateDataSetLegend( RimGridCrossPlotDataSet* dataSet );
     void removeDataSetLegend( RimGridCrossPlotDataSet* dataSet );
-
-    void removeFromMdiAreaAndCollection() override;
-    void updateAfterInsertingIntoMultiPlot() override;
 
 protected:
     QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;
@@ -141,9 +138,10 @@ protected:
     std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
 
 private:
-    void performLayoutUpdate() override;
-
+    void doUpdateLayout() override;
     void cleanupBeforeClose();
+
+    void doRemoveFromCollection() override;
 
 private:
     caf::PdmField<bool>                             m_showInfoBox;

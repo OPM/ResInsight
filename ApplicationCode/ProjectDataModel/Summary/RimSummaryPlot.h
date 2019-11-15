@@ -135,7 +135,7 @@ public:
     void copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSummaryPlot );
 
     void updateAll();
-    void updateAllLegendItems();
+    void updateLegend() override;
 
     void setPlotInfoLabel( const QString& label );
     void showPlotInfoLabel( bool show );
@@ -173,9 +173,6 @@ public:
     void addOrUpdateEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet );
     void removeEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet );
 
-    void removeFromMdiAreaAndCollection() override;
-    void updateAfterInsertingIntoMultiPlot() override;
-
 public:
     // RimViewWindow overrides
     QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;
@@ -187,9 +184,11 @@ private:
     void updateNameHelperWithCurveData( RimSummaryPlotNameHelper* nameHelper ) const;
 
     void updateWindowVisibility();
-    void performLayoutUpdate() override;
+    void doUpdateLayout() override;
 
     void detachAllPlotItems();
+
+    void doRemoveFromCollection() override;
 
 protected:
     // Overridden PDM methods

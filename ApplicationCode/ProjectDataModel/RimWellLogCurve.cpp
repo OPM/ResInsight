@@ -187,7 +187,7 @@ void RimWellLogCurve::updateLegendsInPlot()
     firstAncestorOrThisOfType( wellLogTrack );
     if ( wellLogTrack )
     {
-        wellLogTrack->updateAllLegendItems();
+        wellLogTrack->updateLegend();
     }
 }
 

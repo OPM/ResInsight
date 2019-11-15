@@ -35,7 +35,7 @@
 #include <map>
 
 class RiaPlotWindowRedrawScheduler;
-class RimMultiPlot;
+class RimMultiPlotWindow;
 class RiuQwtPlotLegend;
 class RiuQwtPlotWidget;
 
@@ -53,11 +53,11 @@ class RiuMultiPlotWindow : public QWidget, public RiuInterfaceToViewWindow, publ
     Q_OBJECT
 
 public:
-    RiuMultiPlotWindow( RimMultiPlot* plotDefinition, QWidget* parent = nullptr );
+    RiuMultiPlotWindow( RimMultiPlotWindow* plotDefinition, QWidget* parent = nullptr );
     ~RiuMultiPlotWindow() override;
 
-    RimMultiPlot*  ownerPlotDefinition();
-    RimViewWindow* ownerViewWindow() const override;
+    RimMultiPlotWindow* ownerPlotDefinition();
+    RimViewWindow*      ownerViewWindow() const override;
 
     void addPlot( RiuQwtPlotWidget* plotWidget );
     void insertPlot( RiuQwtPlotWidget* plotWidget, size_t index );
@@ -113,17 +113,17 @@ private slots:
     virtual void performUpdate();
 
 protected:
-    QPointer<QVBoxLayout>             m_layout;
-    QPointer<QHBoxLayout>             m_plotLayout;
-    QPointer<QFrame>                  m_plotWidgetFrame;
-    QPointer<QGridLayout>             m_gridLayout;
-    QPointer<QLabel>                  m_plotTitle;
-    QList<int>                        m_legendColumns;
-    QList<QPointer<QLabel>>           m_subTitles;
-    QList<QPointer<RiuQwtPlotLegend>> m_legends;
-    QList<QPointer<RiuQwtPlotWidget>> m_plotWidgets;
-    caf::PdmPointer<RimMultiPlot>     m_plotDefinition;
-    QPointer<QLabel>                  m_dropTargetPlaceHolder;
+    QPointer<QVBoxLayout>               m_layout;
+    QPointer<QHBoxLayout>               m_plotLayout;
+    QPointer<QFrame>                    m_plotWidgetFrame;
+    QPointer<QGridLayout>               m_gridLayout;
+    QPointer<QLabel>                    m_plotTitle;
+    QList<int>                          m_legendColumns;
+    QList<QPointer<QLabel>>             m_subTitles;
+    QList<QPointer<RiuQwtPlotLegend>>   m_legends;
+    QList<QPointer<RiuQwtPlotWidget>>   m_plotWidgets;
+    caf::PdmPointer<RimMultiPlotWindow> m_plotDefinition;
+    QPointer<QLabel>                    m_dropTargetPlaceHolder;
 
     RiuWidgetStyleSheet m_dropTargetStyleSheet;
 

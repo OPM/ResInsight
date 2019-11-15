@@ -186,7 +186,7 @@ public:
     void setFormationsForCaseWithSimWellOnly( bool caseWithSimWellOnly );
     void updateXAxisAndGridTickIntervals();
 
-    void updateAllLegendItems();
+    void updateLegend() override;
 
     QString asciiDataForPlotExport() const override;
 
@@ -214,6 +214,8 @@ private:
 
     void updateXZoom();
     void updateYZoom();
+
+    void doRemoveFromCollection() override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
