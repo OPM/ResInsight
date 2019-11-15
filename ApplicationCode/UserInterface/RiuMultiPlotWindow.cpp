@@ -26,7 +26,7 @@
 #include "WellLogCommands/RicWellLogPlotTrackFeatureImpl.h"
 
 #include "RimContextCommandBuilder.h"
-#include "RimMultiPlot.h"
+#include "RimMultiPlotWindow.h"
 #include "RimWellLogTrack.h"
 
 #include "RiuMainWindow.h"
@@ -57,7 +57,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuMultiPlotWindow::RiuMultiPlotWindow( RimMultiPlot* plotDefinition, QWidget* parent )
+RiuMultiPlotWindow::RiuMultiPlotWindow( RimMultiPlotWindow* plotDefinition, QWidget* parent )
     : QWidget( parent )
 {
     Q_ASSERT( plotDefinition );
@@ -100,7 +100,7 @@ RiuMultiPlotWindow::RiuMultiPlotWindow( RimMultiPlot* plotDefinition, QWidget* p
 
     setFocusPolicy( Qt::StrongFocus );
 
-    setAcceptDrops( true );
+    setAcceptDrops( m_plotDefinition->acceptDrops() );
 
     RiaApplication* app = RiaApplication::instance();
     int defaultFontSize = RiaFontCache::pointSizeFromFontSizeEnum( app->preferences()->defaultPlotFontSize() );
@@ -117,7 +117,7 @@ RiuMultiPlotWindow::~RiuMultiPlotWindow() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMultiPlot* RiuMultiPlotWindow::ownerPlotDefinition()
+RimMultiPlotWindow* RiuMultiPlotWindow::ownerPlotDefinition()
 {
     return m_plotDefinition;
 }
@@ -566,7 +566,7 @@ void RiuMultiPlotWindow::reinsertPlotWidgets()
     QList<QPointer<RiuQwtPlotLegend>> legends     = this->visibleLegends();
     QList<QPointer<RiuQwtPlotWidget>> plotWidgets = this->visiblePlotWidgets();
 
-    if ( plotWidgets.empty() )
+    if ( plotWidgets.empty() && acceptDrops() )
     {
         m_gridLayout->addWidget( m_dropTargetPlaceHolder, 0, 0 );
         m_gridLayout->setRowStretch( 0, 1 );

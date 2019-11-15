@@ -110,7 +110,6 @@ protected:
     virtual void     updateMdiWindowTitle(); // Has real default implementation
     virtual void     deleteViewWidget()    = 0;
     virtual void     onLoadDataAndUpdate() = 0;
-    virtual void     assignIdIfNecessary() = 0;
     virtual void     onViewNavigationChanged();
     virtual bool     isWindowVisible() const; // Virtual To allow special visibility control
     //////////
@@ -129,7 +128,8 @@ protected:
 private:
     friend class RimProject;
 
-    void setAsMdiWindow( int mainWindowID );
+    void         setAsMdiWindow( int mainWindowID );
+    virtual void assignIdIfNecessary() = 0;
 
 protected:
     caf::PdmField<bool> m_showWindow;

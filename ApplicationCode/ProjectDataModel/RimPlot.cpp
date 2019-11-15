@@ -1,6 +1,6 @@
 #include "RimPlot.h"
 
-#include "RimMultiPlot.h"
+#include "RimMultiPlotWindow.h"
 #include "RimPlotWindow.h"
 
 #include "RiuQwtPlotWidget.h"
@@ -34,6 +34,11 @@ RimPlot::RimPlot()
     CAF_PDM_InitFieldNoDefault( &m_rowSpan, "RowSpan", "Row Span", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_colSpan, "ColSpan", "Col Span", "", "", "" );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlot::~RimPlot() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -78,11 +83,44 @@ void RimPlot::setColSpan( RowOrColSpan colSpan )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlot::removeFromMdiAreaAndCollection()
+{
+    if ( isMdiWindow() )
+    {
+        revokeMdiWindowStatus();
+    }
+    doRemoveFromCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlot::updateAfterInsertingIntoMultiPlot()
+{
+    updateLegend();
+    updateAxes();
+    updateLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    if ( !isMdiWindow() )
+    {
+        uiOrdering.add( &m_rowSpan );
+        uiOrdering.add( &m_colSpan );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_colSpan || changedField == &m_rowSpan )
     {
-        onRowOrColSpanChange();
         updateParentLayout();
     }
 }

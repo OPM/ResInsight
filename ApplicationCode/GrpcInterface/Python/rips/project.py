@@ -146,7 +146,7 @@ class Project(PdmObject):
 
     def plots(self):
         """Get a list of all plots belonging to a project"""
-        pdm_objects = self.descendants("RimPlot")
+        pdm_objects = self.descendants("RimPlotWindow")
         plot_list = []
         for pdm_object in pdm_objects:
             plot_list.append(Plot(pdm_object))

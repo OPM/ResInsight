@@ -29,7 +29,7 @@
 #include "RimGridCrossPlotCollection.h"
 #include "RimGridCrossPlotCurve.h"
 #include "RimGridCrossPlotDataSet.h"
-#include "RimMultiPlot.h"
+#include "RimMultiPlotWindow.h"
 #include "RimPlotAxisProperties.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
@@ -380,30 +380,15 @@ void RimGridCrossPlot::removeDataSetLegend( RimGridCrossPlotDataSet* dataSet )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::removeFromMdiAreaAndCollection()
+void RimGridCrossPlot::doRemoveFromCollection()
 {
     RimGridCrossPlotCollection* crossPlotCollection = nullptr;
     this->firstAncestorOrThisOfType( crossPlotCollection );
     if ( crossPlotCollection )
     {
         crossPlotCollection->removeGridCrossPlot( this );
-        this->revokeMdiWindowStatus();
         crossPlotCollection->updateAllRequiredEditors();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::updateAfterInsertingIntoMultiPlot()
-{
-    if ( m_plotWidget )
-    {
-        m_plotWidget->setTitle( "" );
-        m_plotWidget->setInternalQwtLegendVisible( false );
-    }
-    updateAxes();
-    updateLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -574,9 +559,12 @@ void RimGridCrossPlot::updateCurveNamesAndPlotTitle()
         m_crossPlotDataSets[i]->updateCurveNames( i, m_crossPlotDataSets.size() );
     }
 
-    if ( m_plotWidget && isMdiWindow() )
+    if ( m_plotWidget )
     {
-        m_plotWidget->setTitle( this->createAutoName() );
+        if ( isMdiWindow() )
+        {
+            m_plotWidget->setTitle( this->createAutoName() );
+        }
     }
     updateMdiWindowTitle();
 }
@@ -747,7 +735,7 @@ bool RimGridCrossPlot::applyFontSize( RiaDefines::FontSettingType fontSettingTyp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::performLayoutUpdate()
+void RimGridCrossPlot::doUpdateLayout()
 {
     updateLegend();
     updatePlot();

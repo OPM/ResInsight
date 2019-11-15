@@ -182,7 +182,7 @@ void RimReloadCaseTools::updateAllPlots()
         RimMultiPlotCollection* multiPlotCollection = project->mainPlotCollection()->multiPlotCollection();
         if ( multiPlotCollection )
         {
-            for ( RimMultiPlot* plotWindow : multiPlotCollection->multiPlots() )
+            for ( RimMultiPlotWindow* plotWindow : multiPlotCollection->multiPlots() )
             {
                 plotWindow->loadDataAndUpdate();
             }

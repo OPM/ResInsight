@@ -33,7 +33,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimGridTimeHistoryCurve.h"
-#include "RimMultiPlot.h"
+#include "RimMultiPlotWindow.h"
 #include "RimPlotAxisProperties.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -603,8 +603,10 @@ void RimSummaryPlot::updateAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateAllLegendItems()
+void RimSummaryPlot::updateLegend()
 {
+    m_plotWidget->setLegendVisible( m_showPlotLegends && isMdiWindow() );
+
     reattachAllCurves();
     if ( m_plotWidget )
     {
@@ -1546,37 +1548,15 @@ void RimSummaryPlot::removeEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::removeFromMdiAreaAndCollection()
+void RimSummaryPlot::doRemoveFromCollection()
 {
-    if ( isMdiWindow() )
+    RimSummaryPlotCollection* summaryCollection = nullptr;
+    this->firstAncestorOrThisOfType( summaryCollection );
+    if ( summaryCollection )
     {
-        RimSummaryPlotCollection* summaryCollection = nullptr;
-        this->firstAncestorOrThisOfType( summaryCollection );
-        if ( summaryCollection )
-        {
-            summaryCollection->removeSummaryPlot( this );
-            this->revokeMdiWindowStatus();
-            summaryCollection->updateAllRequiredEditors();
-        }
+        summaryCollection->removeSummaryPlot( this );
+        summaryCollection->updateAllRequiredEditors();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateAfterInsertingIntoMultiPlot()
-{
-    if ( m_plotWidget )
-    {
-        m_plotWidget->setTitle( "" );
-        m_plotWidget->setLegendVisible( false );
-    }
-
-    if ( m_timeAxisProperties )
-    {
-        m_timeAxisProperties->showTitle = true;
-    }
-    updateAxes();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1776,15 +1756,22 @@ void RimSummaryPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateMdiWindowTitle()
 {
-    if ( m_plotWidget && isMdiWindow() )
+    if ( m_plotWidget )
     {
-        QString plotTitle = description();
-
-        m_plotWidget->setWindowTitle( plotTitle );
-
-        if ( m_showPlotTitle )
+        if ( isMdiWindow() )
         {
-            m_plotWidget->setTitle( plotTitle );
+            QString plotTitle = description();
+
+            m_plotWidget->setWindowTitle( plotTitle );
+
+            if ( m_showPlotTitle )
+            {
+                m_plotWidget->setTitle( plotTitle );
+            }
+            else
+            {
+                m_plotWidget->setTitle( "" );
+            }
         }
         else
         {
@@ -1856,7 +1843,7 @@ void RimSummaryPlot::updateWindowVisibility()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::performLayoutUpdate()
+void RimSummaryPlot::doUpdateLayout()
 {
     this->loadDataAndUpdate();
 }

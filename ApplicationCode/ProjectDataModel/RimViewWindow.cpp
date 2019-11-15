@@ -326,7 +326,7 @@ void RimViewWindow::initAfterRead()
 void RimViewWindow::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     caf::PdmUiTreeViewItemAttribute* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
-    if ( treeItemAttribute && RiaApplication::instance()->preferences()->showViewIdInProjectTree() )
+    if ( treeItemAttribute && RiaApplication::instance()->preferences()->showViewIdInProjectTree() && id() >= 0 )
     {
         treeItemAttribute->tag     = QString( "%1" ).arg( id() );
         cvf::Color3f viewColor     = RiaColorTables::contrastCategoryPaletteColors().cycledColor3f( (size_t)id() );

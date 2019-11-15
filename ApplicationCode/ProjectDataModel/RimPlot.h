@@ -32,6 +32,10 @@ class RiuQwtPlotWidget;
 class RimPlotCurve;
 class QwtPlotCurve;
 
+//==================================================================================================
+///
+///
+//==================================================================================================
 class RimPlot : public RimPlotWindow
 {
     CAF_PDM_HEADER_INIT;
@@ -50,7 +54,7 @@ public:
 
 public:
     RimPlot();
-    virtual ~RimPlot() = default;
+    virtual ~RimPlot();
 
     // Real implementations
     void         createPlotWidget();
@@ -58,6 +62,8 @@ public:
     RowOrColSpan colSpan() const;
     void         setRowSpan( RowOrColSpan rowSpan );
     void         setColSpan( RowOrColSpan colSpan );
+    void         removeFromMdiAreaAndCollection();
+    void         updateAfterInsertingIntoMultiPlot();
 
     // Pure virtual interface methods
     virtual RiuQwtPlotWidget* viewer() = 0;
@@ -66,6 +72,7 @@ public:
     virtual void setAutoScaleYEnabled( bool enabled ) = 0;
     virtual void updateAxes()                         = 0;
 
+    virtual void updateLegend()      = 0;
     virtual void updateZoomInQwt()   = 0;
     virtual void updateZoomFromQwt() = 0;
 
@@ -77,17 +84,14 @@ public:
 
     virtual void onAxisSelected( int axis, bool toggle ) = 0;
 
-    // TODO: Refactor
-    virtual void removeFromMdiAreaAndCollection() {}
-    virtual void updateAfterInsertingIntoMultiPlot() {}
-
 protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
                            const QVariant&            newValue ) override;
 
 private:
-    virtual void onRowOrColSpanChange() {}
+    virtual void doRemoveFromCollection() = 0;
 
 protected:
     caf::PdmField<RowOrColSpanEnum> m_rowSpan;

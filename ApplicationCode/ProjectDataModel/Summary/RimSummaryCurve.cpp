@@ -578,7 +578,7 @@ void RimSummaryCurve::updateLegendsInPlot()
 {
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
-    plot->updateAllLegendItems();
+    plot->updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

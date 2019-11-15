@@ -132,7 +132,7 @@ void RimPlotWindow::setLegendFontSize( int fontSize )
 //--------------------------------------------------------------------------------------------------
 void RimPlotWindow::updateLayout()
 {
-    performLayoutUpdate();
+    doUpdateLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -233,7 +233,7 @@ void RimPlotWindow::setId( int id )
 //--------------------------------------------------------------------------------------------------
 void RimPlotWindow::assignIdIfNecessary()
 {
-    if ( m_id == -1 )
+    if ( m_id == -1 && isMdiWindow() )
     {
         RiaApplication::instance()->project()->assignPlotIdToPlotWindow( this );
     }

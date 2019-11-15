@@ -29,7 +29,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMimeData.h"
-#include "RimMultiPlot.h"
+#include "RimMultiPlotWindow.h"
 #include "RimPlot.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -186,7 +186,7 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
                     itemflags |= Qt::ItemIsDropEnabled;
                 }
             }
-            else if ( dynamic_cast<RimMultiPlot*>( uiItem ) )
+            else if ( dynamic_cast<RimMultiPlotWindow*>( uiItem ) )
             {
                 if ( RiuTypedPdmObjects<RimPlot>::containsTypedObjects( m_dragItems ) )
                 {
@@ -304,7 +304,7 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
             return handleWellLogPlotTrackDrop( action, draggedObjects, wellLogPlotTrack, row );
         }
 
-        RimMultiPlot* multiPlot;
+        RimMultiPlotWindow* multiPlot;
         dropTarget->firstAncestorOrThisOfType( multiPlot );
         if ( multiPlot )
         {
@@ -456,7 +456,7 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop( Qt::DropAction       action,
 //--------------------------------------------------------------------------------------------------
 bool RiuDragDrop::handleMultiPlotDrop( Qt::DropAction       action,
                                        caf::PdmObjectGroup& draggedObjects,
-                                       RimMultiPlot*        multiPlot,
+                                       RimMultiPlotWindow*  multiPlot,
                                        int                  insertAtPosition )
 {
     std::vector<RimPlot*> plots = RiuTypedPdmObjects<RimPlot>::typedObjectsFromGroup( draggedObjects );
