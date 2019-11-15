@@ -104,18 +104,7 @@ bool RimWellLogCurve::yValueRangeInData( double* minimumValue, double* maximumVa
     RimWellLogPlot* wellLogPlot = nullptr;
     firstAncestorOrThisOfTypeAsserted( wellLogPlot );
 
-    if ( wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH )
-    {
-        if ( m_curveDataMDRange.first == -std::numeric_limits<double>::infinity() ||
-             m_curveDataMDRange.second == std::numeric_limits<double>::infinity() )
-        {
-            return false;
-        }
-
-        *minimumValue = m_curveDataMDRange.first;
-        *maximumValue = m_curveDataMDRange.second;
-    }
-    else
+    if ( wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH )
     {
         if ( m_curveDataTVDRange.first == -std::numeric_limits<double>::infinity() ||
              m_curveDataTVDRange.second == std::numeric_limits<double>::infinity() )
@@ -125,6 +114,17 @@ bool RimWellLogCurve::yValueRangeInData( double* minimumValue, double* maximumVa
 
         *minimumValue = m_curveDataTVDRange.first;
         *maximumValue = m_curveDataTVDRange.second;
+    }
+    else
+    {
+        if ( m_curveDataMDRange.first == -std::numeric_limits<double>::infinity() ||
+             m_curveDataMDRange.second == std::numeric_limits<double>::infinity() )
+        {
+            return false;
+        }
+
+        *minimumValue = m_curveDataMDRange.first;
+        *maximumValue = m_curveDataMDRange.second;
     }
 
     return true;
