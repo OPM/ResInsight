@@ -278,11 +278,27 @@ void RimWellRftPlot::applyInitialSelections()
                                                                                         m_selectedSources,
                                                                                         channelTypesToUse );
 
-        std::vector<QDateTime> timeStepVector;
-        for ( const auto& item : relevantTimeSteps )
-            timeStepVector.push_back( item.first );
+        if ( !relevantTimeSteps.empty() )
+        {
+            std::vector<QDateTime> timeStepVector;
 
-        m_selectedTimeSteps = timeStepVector;
+            // If we have RFT data from multiple sources, relevant time steps end up with a small number of time steps
+            // If this is the case, pre-select all time steps
+            const size_t maxCountToPreSelect = 3;
+            if ( relevantTimeSteps.size() <= maxCountToPreSelect )
+            {
+                for ( const auto& item : relevantTimeSteps )
+                    timeStepVector.push_back( item.first );
+            }
+            else
+            {
+                // If only one RFT source is available, we might get a large number of time steps causing performance
+                // issues Only select the first available time step
+                timeStepVector.push_back( relevantTimeSteps.begin()->first );
+            }
+
+            m_selectedTimeSteps = timeStepVector;
+        }
     }
 
     syncCurvesFromUiSelection();
