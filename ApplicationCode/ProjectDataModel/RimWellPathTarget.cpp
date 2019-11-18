@@ -7,6 +7,7 @@
 
 #include "cafPdmUiCheckBoxEditor.h"
 
+#include "cafPdmUiLineEditor.h"
 #include <cmath>
 
 CAF_PDM_SOURCE_INIT( RimWellPathTarget, "WellPathTarget" );
@@ -164,7 +165,7 @@ cvf::Vec3d RimWellPathTarget::tangent() const
     double aziRad = cvf::Math::toRadians( m_azimuth );
     double incRad = cvf::Math::toRadians( m_inclination );
 
-    return RiaOffshoreSphericalCoords::unitVectorFromAziInc(aziRad, incRad);
+    return RiaOffshoreSphericalCoords::unitVectorFromAziInc( aziRad, incRad );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -274,6 +275,27 @@ void RimWellPathTarget::enableFullUpdate( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathTarget::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                               QString                    uiConfigName,
+                                               caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_targetPoint )
+    {
+        auto uiDisplayStringAttr =
+            dynamic_cast<caf::PdmUiLineEditorAttributeUiDisplayString*>( attribute );
+
+        if ( uiDisplayStringAttr )
+        {
+            uiDisplayStringAttr->m_displayString = QString::number( m_targetPoint()[0], 'f', 2 ) + " " +
+                                                   QString::number( m_targetPoint()[1], 'f', 2 ) + " " +
+                                                   QString::number( m_targetPoint()[2], 'f', 2 );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellPathTarget::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                         bool*                      useOptionsOnly )
 {
@@ -325,33 +347,20 @@ void RimWellPathTarget::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         m_hasTangentConstraintUiField.uiCapability()->setUiReadOnly( false );
         m_targetType.uiCapability()->setUiReadOnly( false );
         m_targetPoint.uiCapability()->setUiReadOnly( false );
-        // m_dogleg2.uiCapability()->setUiReadOnly( false );
 
         if ( m_targetType == POINT )
         {
             m_azimuth.uiCapability()->setUiReadOnly( true );
             m_inclination.uiCapability()->setUiReadOnly( true );
-            // m_dogleg1.uiCapability()->setUiReadOnly( true );
         }
         else
         {
             m_azimuth.uiCapability()->setUiReadOnly( false );
             m_inclination.uiCapability()->setUiReadOnly( false );
-            // m_dogleg1.uiCapability()->setUiReadOnly( false );
         }
 
         RimWellPathGeometryDef* geomDef = nullptr;
         firstAncestorOrThisOfTypeAsserted( geomDef );
-
-        // if ( this == geomDef->firstActiveTarget() )
-        //{
-        //    m_dogleg1.uiCapability()->setUiReadOnly( true );
-        //}
-        //
-        // if ( this == geomDef->lastActiveTarget() )
-        //{
-        //    m_dogleg2.uiCapability()->setUiReadOnly( true );
-        //}
     }
     else
     {
