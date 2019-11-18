@@ -247,6 +247,7 @@ void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(
 
     RivTernaryTextureCoordsCreator texturer( cellResultColors,
                                              cellResultColors->ternaryLegendConfig(),
+                                             cellResultColors->reservoirView()->wellCollection(),
                                              timeStepIndex,
                                              gridIndex,
                                              quadToCellFaceMapper );

@@ -115,7 +115,7 @@ void RimIntersectionCollection::updateCellResultColor( size_t                   
     {
         if ( cs->isActive() )
         {
-            cs->intersectionBoxPartMgr()->updateCellResultColor( timeStepIndex );
+            cs->intersectionBoxPartMgr()->updateCellResultColor( timeStepIndex, scalarColorMapper, ternaryColorMapper );
         }
     }
 }

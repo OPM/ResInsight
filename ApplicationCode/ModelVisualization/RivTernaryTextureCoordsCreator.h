@@ -25,8 +25,9 @@
 #include "cvfArray.h"
 #include "cvfObject.h"
 
-class RimEclipseCellColors;
+class RimEclipseResultDefinition;
 class RimTernaryLegendConfig;
+class RimSimWellInViewCollection;
 
 namespace cvf
 {
@@ -39,13 +40,14 @@ class StructGridQuadToCellFaceMapper;
 class RivTernaryTextureCoordsCreator
 {
 public:
-    RivTernaryTextureCoordsCreator( RimEclipseCellColors*                      cellResultColors,
+    RivTernaryTextureCoordsCreator( RimEclipseResultDefinition*                cellResultColors,
                                     RimTernaryLegendConfig*                    ternaryLegendConfig,
+                                    RimSimWellInViewCollection*                simWellInViewCollection,
                                     size_t                                     timeStepIndex,
                                     size_t                                     gridIndex,
                                     const cvf::StructGridQuadToCellFaceMapper* quadMapper );
 
-    RivTernaryTextureCoordsCreator( RimEclipseCellColors*         cellResultColors,
+    RivTernaryTextureCoordsCreator( RimEclipseResultDefinition*   cellResultColors,
                                     const RivTernaryScalarMapper* ternaryColorMapper,
                                     size_t                        timeStepIndex );
 

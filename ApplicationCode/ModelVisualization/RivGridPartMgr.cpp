@@ -254,6 +254,7 @@ void RivGridPartMgr::updateCellResultColor( size_t timeStepIndex, RimEclipseCell
         {
             RivTernaryTextureCoordsCreator texturer( cellResultColors,
                                                      cellResultColors->ternaryLegendConfig(),
+                                                     cellResultColors->reservoirView()->wellCollection(),
                                                      timeStepIndex,
                                                      m_grid->gridIndex(),
                                                      m_surfaceGenerator.quadToCellFaceMapper() );

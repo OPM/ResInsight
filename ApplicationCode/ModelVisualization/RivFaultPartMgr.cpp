@@ -120,6 +120,7 @@ void RivFaultPartMgr::updateCellResultColor( size_t timeStepIndex, RimEclipseCel
         {
             RivTernaryTextureCoordsCreator texturer( cellResultColors,
                                                      cellResultColors->ternaryLegendConfig(),
+                                                     eclipseView->wellCollection(),
                                                      timeStepIndex,
                                                      m_grid->gridIndex(),
                                                      m_nativeFaultGenerator->quadToCellFaceMapper() );
@@ -164,6 +165,7 @@ void RivFaultPartMgr::updateCellResultColor( size_t timeStepIndex, RimEclipseCel
         {
             RivTernaryTextureCoordsCreator texturer( cellResultColors,
                                                      cellResultColors->ternaryLegendConfig(),
+                                                     eclipseView->wellCollection(),
                                                      timeStepIndex,
                                                      m_grid->gridIndex(),
                                                      m_oppositeFaultGenerator->quadToCellFaceMapper() );

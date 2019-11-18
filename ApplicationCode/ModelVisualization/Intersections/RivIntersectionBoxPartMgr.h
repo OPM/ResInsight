@@ -27,6 +27,7 @@ namespace cvf
 class ModelBasicList;
 class Transform;
 class Part;
+class ScalarMapper;
 } // namespace cvf
 
 class RigMainGrid;
@@ -34,6 +35,7 @@ class RigResultAccessor;
 class RimCellEdgeColors;
 class RimEclipseCellColors;
 class RimIntersectionBox;
+class RivTernaryScalarMapper;
 
 //==================================================================================================
 ///
@@ -46,7 +48,9 @@ public:
     explicit RivIntersectionBoxPartMgr( RimIntersectionBox* intersectionBox );
 
     void applySingleColorEffect();
-    void updateCellResultColor( size_t timeStepIndex );
+    void updateCellResultColor( size_t timeStepIndex,
+                               const cvf::ScalarMapper*      scalarColorMapper,
+                               const RivTernaryScalarMapper* ternaryColorMapper );
 
     void appendNativeCrossSectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
