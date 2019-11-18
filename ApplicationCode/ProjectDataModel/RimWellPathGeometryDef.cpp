@@ -35,6 +35,7 @@
 
 #include "WellPathCommands/PointTangentManipulator/RicWellPathGeometry3dEditor.h"
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -158,7 +159,6 @@ cvf::ref<RigWellPath> RimWellPathGeometryDef::createWellPathGeometry()
     if ( wellPathCalculator.lineArcEndpoints().size() < 2 ) return wellPathGeometry;
 
     RiaPolyArcLineSampler arcLineSampler( wellPathCalculator.startTangent(), wellPathCalculator.lineArcEndpoints() );
-
 
     arcLineSampler.sampledPointsAndMDs( 30,
                                         false,
@@ -563,8 +563,8 @@ RiaLineArcWellPathCalculator RimWellPathGeometryDef::lineArcWellPathCalculator()
 
     for ( size_t tIdx = 0; tIdx < wellTargets.size(); ++tIdx )
     {
-        wellTargets[tIdx]->flagRadius1AsIncorrect(targetStatuses[tIdx].isRadius1Editable, false, 0 );
-        wellTargets[tIdx]->flagRadius2AsIncorrect(targetStatuses[tIdx].isRadius2Editable, false, 0 );
+        wellTargets[tIdx]->flagRadius1AsIncorrect( targetStatuses[tIdx].isRadius1Editable, false, 0 );
+        wellTargets[tIdx]->flagRadius2AsIncorrect( targetStatuses[tIdx].isRadius2Editable, false, 0 );
 
         if ( targetStatuses[tIdx].hasDerivedTangent )
         {
@@ -574,12 +574,16 @@ RiaLineArcWellPathCalculator RimWellPathGeometryDef::lineArcWellPathCalculator()
 
         if ( targetStatuses[tIdx].hasOverriddenRadius1 )
         {
-            wellTargets[tIdx]->flagRadius1AsIncorrect( targetStatuses[tIdx].isRadius1Editable, true, targetStatuses[tIdx].resultRadius1 );
+            wellTargets[tIdx]->flagRadius1AsIncorrect( targetStatuses[tIdx].isRadius1Editable,
+                                                       true,
+                                                       targetStatuses[tIdx].resultRadius1 );
         }
 
         if ( targetStatuses[tIdx].hasOverriddenRadius2 )
         {
-            wellTargets[tIdx]->flagRadius2AsIncorrect( targetStatuses[tIdx].isRadius2Editable, true, targetStatuses[tIdx].resultRadius2 );
+            wellTargets[tIdx]->flagRadius2AsIncorrect( targetStatuses[tIdx].isRadius2Editable,
+                                                       true,
+                                                       targetStatuses[tIdx].resultRadius2 );
         }
     }
 
@@ -637,6 +641,18 @@ void RimWellPathGeometryDef::defineEditorAttribute( const caf::PdmFieldHandle* f
                 tvAttribute->baseColor.setRgb( 255, 220, 255 );
                 tvAttribute->alwaysEnforceResizePolicy = true;
             }
+        }
+    }
+
+    if ( field == &m_referencePointUtmXyd )
+    {
+        auto uiDisplayStringAttr = dynamic_cast<caf::PdmUiLineEditorAttributeUiDisplayString*>( attribute );
+
+        if ( uiDisplayStringAttr )
+        {
+            uiDisplayStringAttr->m_displayString = QString::number( m_referencePointUtmXyd()[0], 'f', 2 ) + " " +
+                                                   QString::number( m_referencePointUtmXyd()[1], 'f', 2 ) + " " +
+                                                   QString::number( m_referencePointUtmXyd()[2], 'f', 2 );
         }
     }
 }

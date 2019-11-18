@@ -63,6 +63,9 @@ private:
                                                     const QVariant&            oldValue,
                                                     const QVariant&            newValue ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     friend class RicWellTarget3dEditor;

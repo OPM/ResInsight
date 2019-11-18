@@ -427,6 +427,7 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors(PdmChildArrayFieldHandle
             else
             {
                 fieldEditor = it->second;
+                fieldEditor->setUiField(field);
             }
 
             if (fieldEditor)
@@ -575,7 +576,7 @@ void PdmUiTableViewQModel::notifyDataChanged(const QModelIndex& topLeft, const Q
 //--------------------------------------------------------------------------------------------------
 void PdmUiTableViewQModel::recreateTableItemEditors()
 {
-    for (auto tableItemEditor : m_tableRowEditors)
+    for (PdmUiTableRowEditor* tableItemEditor : m_tableRowEditors)
     {
         delete tableItemEditor;
     }

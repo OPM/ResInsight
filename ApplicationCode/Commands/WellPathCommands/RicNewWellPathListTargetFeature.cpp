@@ -22,6 +22,9 @@ CAF_CMD_SOURCE_INIT( RicNewWellPathListTargetFeature, "RicNewWellPathListTargetF
 #include "RimModeledWellPath.h"
 #include "RimWellPathGeometryDef.h"
 #include "RimWellPathTarget.h"
+
+#include "RiaOffshoreSphericalCoords.h"
+
 #include "cafSelectionManager.h"
 #include <QAction>
 
@@ -61,7 +64,7 @@ void RicNewWellPathListTargetFeature::onActionTriggered( bool isChecked )
     caf::SelectionManager::instance()->objectsByType( &selectedTargets, caf::SelectionManager::FIRST_LEVEL );
     if ( selectedTargets.size() > 0 )
     {
-        auto                    firstTarget = selectedTargets.front();
+        RimWellPathTarget*      firstTarget = selectedTargets.front();
         RimWellPathGeometryDef* wellGeomDef = nullptr;
         firstTarget->firstAncestorOrThisOfTypeAsserted( wellGeomDef );
 
@@ -69,10 +72,30 @@ void RicNewWellPathListTargetFeature::onActionTriggered( bool isChecked )
 
         cvf::Vec3d newPos = cvf::Vec3d::ZERO;
 
+        bool isSeaLevelTarget = false;
+
         if ( !afterBeforePair.first && afterBeforePair.second )
         {
-            newPos     = afterBeforePair.second->targetPointXYZ();
+            if ( afterBeforePair.second->targetPointXYZ().z() == -wellGeomDef->referencePointXyz().z() )
+            {
+                return; // We already have a target at sealevel.
+            }
+
+            cvf::Vec3d targetTangent            = afterBeforePair.second->tangent();
+            double     radius                   = afterBeforePair.second->radius1();
+
+            cvf::Vec3d tangentInHorizontalPlane = targetTangent;
+            tangentInHorizontalPlane[2]         = 0.0;
+            tangentInHorizontalPlane.normalize();
+
+            RiaOffshoreSphericalCoords sphTangent( targetTangent );
+            double inc                        = sphTangent.inc();
+            double horizontalLengthFromTarget = radius - radius * cvf::Math::cos( inc );
+
+            newPos = afterBeforePair.second->targetPointXYZ() - horizontalLengthFromTarget * tangentInHorizontalPlane;
             newPos.z() = -wellGeomDef->referencePointXyz().z();
+
+            isSeaLevelTarget = true;
         }
         else if ( afterBeforePair.first && afterBeforePair.second )
         {
@@ -95,7 +118,14 @@ void RicNewWellPathListTargetFeature::onActionTriggered( bool isChecked )
         }
 
         RimWellPathTarget* newTarget = new RimWellPathTarget;
-        newTarget->setAsPointTargetXYD( {newPos[0], newPos[1], -newPos[2]} );
+        if ( isSeaLevelTarget )
+        {
+            newTarget->setAsPointXYZAndTangentTarget( {newPos[0], newPos[1], newPos[2]}, 0, 0 );
+        }
+        else
+        {
+            newTarget->setAsPointTargetXYD( {newPos[0], newPos[1], -newPos[2]} );
+        }
 
         wellGeomDef->insertTarget( firstTarget, newTarget );
         wellGeomDef->updateConnectedEditors();
@@ -147,6 +177,25 @@ void RicNewWellPathListTargetFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathListTargetFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New Target" );
-    actionToSetup->setIcon( QIcon( ":/Well.png" ) );
+    std::vector<RimWellPathTarget*> selectedTargets;
+    caf::SelectionManager::instance()->objectsByType( &selectedTargets, caf::SelectionManager::FIRST_LEVEL );
+
+    if ( selectedTargets.size() > 0 )
+    {
+        auto                    firstTarget = selectedTargets.front();
+        RimWellPathGeometryDef* wellGeomDef = nullptr;
+        firstTarget->firstAncestorOrThisOfTypeAsserted( wellGeomDef );
+
+        auto afterBeforePair = wellGeomDef->findActiveTargetsAroundInsertionPoint( firstTarget );
+
+        if ( !afterBeforePair.first )
+        {
+            actionToSetup->setText( "Insert New Target At Sea Level" );
+            actionToSetup->setIcon( QIcon( ":/WellTargets.png" ) );
+            return;
+        }
+    }
+
+    actionToSetup->setText( "Insert New Target Above" );
+    actionToSetup->setIcon( QIcon( ":/WellTargets.png" ) );
 }
