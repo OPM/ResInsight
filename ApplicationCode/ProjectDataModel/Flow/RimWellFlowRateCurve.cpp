@@ -218,7 +218,8 @@ void RimWellFlowRateCurve::updateStackedPlotData()
 
     bool isFirstTrack = ( wellLogTrack == wellLogPlot->plotByIndex( 0 ) );
 
-    RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_NONE;
+    RimWellLogPlot::DepthTypeEnum depthType   = wellLogPlot->depthType();
+    RiaDefines::DepthUnitType     displayUnit = RiaDefines::UNIT_NONE;
 
     std::vector<double>                    depthValues;
     std::vector<double>                    stackedValues;
@@ -236,7 +237,7 @@ void RimWellFlowRateCurve::updateStackedPlotData()
             stackedCurves = stackedCurveGroups[groupId()];
         }
 
-        std::vector<double> allDepthValues = curveData()->measuredDepths();
+        std::vector<double> allDepthValues = curveData()->depths( depthType );
         std::vector<double> allStackedValues( allDepthValues.size() );
 
         for ( RimWellFlowRateCurve* stCurve : stackedCurves )
@@ -256,9 +257,9 @@ void RimWellFlowRateCurve::updateStackedPlotData()
         }
 
         RigWellLogCurveData tempCurveData;
-        tempCurveData.setValuesAndMD( allStackedValues, allDepthValues, RiaDefines::UNIT_NONE, false );
+        tempCurveData.setValuesAndDepths( allStackedValues, allDepthValues, depthType, RiaDefines::UNIT_NONE, false );
 
-        depthValues              = tempCurveData.measuredDepthPlotValues( displayUnit );
+        depthValues              = tempCurveData.depthPlotValues( depthType, displayUnit );
         stackedValues            = tempCurveData.xPlotValues();
         polyLineStartStopIndices = tempCurveData.polylineStartStopIndices();
     }
@@ -321,7 +322,7 @@ bool RimWellFlowRateCurve::isUsingConnectionNumberDepthType() const
 {
     RimWellLogPlot* wellLogPlot;
     firstAncestorOrThisOfType( wellLogPlot );
-    if ( wellLogPlot && wellLogPlot->depthType() == RimWellLogPlot::CONNECTION_NUMBER )
+    if ( wellLogPlot && wellLogPlot->depthType() == RiaDefines::CONNECTION_NUMBER )
     {
         return true;
     }
@@ -344,10 +345,11 @@ RimWellAllocationPlot* RimWellFlowRateCurve::wellAllocationPlot() const
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellFlowRateCurve::setFlowValuesPrDepthValue( const QString&             curveName,
+                                                      RiaDefines::DepthTypeEnum  depthType,
                                                       const std::vector<double>& depthValues,
                                                       const std::vector<double>& flowRates )
 {
-    this->setValuesAndMD( flowRates, depthValues, RiaDefines::UNIT_NONE, false );
+    this->setValuesAndDepths( flowRates, depthValues, depthType, RiaDefines::UNIT_NONE, false );
 
     m_curveAutoName = curveName;
 }

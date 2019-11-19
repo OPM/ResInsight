@@ -202,26 +202,32 @@ public:
 
         if ( firstCurveData->depthUnit() == RiaDefines::UNIT_METER )
         {
-            lasFile->AddLog( "DEPTH", "M", "Depth in meters", firstCurveData->measuredDepths() );
+            lasFile->AddLog( "DEPTH", "M", "Depth in meters", firstCurveData->depths( RiaDefines::MEASURED_DEPTH ) );
         }
         else if ( firstCurveData->depthUnit() == RiaDefines::UNIT_FEET )
         {
-            lasFile->AddLog( "DEPTH", "FT", "Depth in feet", firstCurveData->measuredDepths() );
+            lasFile->AddLog( "DEPTH", "FT", "Depth in feet", firstCurveData->depths( RiaDefines::MEASURED_DEPTH ) );
         }
         else if ( firstCurveData->depthUnit() == RiaDefines::UNIT_NONE )
         {
             CVF_ASSERT( false );
-            lasFile->AddLog( "DEPTH", "", "Depth in Connection number", firstCurveData->measuredDepths() );
+            lasFile->AddLog( "DEPTH",
+                             "",
+                             "Depth in Connection number",
+                             firstCurveData->depths( RiaDefines::MEASURED_DEPTH ) );
         }
 
-        if ( firstCurveData->tvDepths().size() )
+        if ( firstCurveData->depths( RiaDefines::TRUE_VERTICAL_DEPTH ).size() )
         {
-            lasFile->AddLog( "TVDMSL", "M", "True vertical depth in meters", firstCurveData->tvDepths() );
+            lasFile->AddLog( "TVDMSL",
+                             "M",
+                             "True vertical depth in meters",
+                             firstCurveData->depths( RiaDefines::TRUE_VERTICAL_DEPTH ) );
 
             if ( m_exportTvdrkb && m_rkbDiff != -1.0 )
             {
                 // Export True Vertical Depth Rotary Kelly Bushing - TVDRKB
-                std::vector<double> tvdrkbValues = firstCurveData->tvDepths();
+                std::vector<double> tvdrkbValues = firstCurveData->depths( RiaDefines::TRUE_VERTICAL_DEPTH );
                 for ( auto& value : tvdrkbValues )
                 {
                     value += m_rkbDiff;
@@ -245,7 +251,7 @@ public:
 
         double minDepth = 0.0;
         double maxDepth = 0.0;
-        firstCurveData->calculateMDRange( &minDepth, &maxDepth );
+        firstCurveData->calculateDepthRange( RiaDefines::MEASURED_DEPTH, &minDepth, &maxDepth );
 
         lasFile->setStartDepth( minDepth );
         lasFile->setStopDepth( maxDepth );

@@ -99,7 +99,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_accumulatedWellFlowPlot.uiCapability()->setUiHidden( true );
     m_accumulatedWellFlowPlot = new RimWellLogPlot;
     m_accumulatedWellFlowPlot->setDepthUnit( RiaDefines::UNIT_NONE );
-    m_accumulatedWellFlowPlot->setDepthType( RimWellLogPlot::CONNECTION_NUMBER );
+    m_accumulatedWellFlowPlot->setDepthType( RiaDefines::CONNECTION_NUMBER );
     m_accumulatedWellFlowPlot->setLegendsVisible( false );
     m_accumulatedWellFlowPlot->uiCapability()->setUiIconFromResourceString( ":/WellFlowPlot16x16.png" );
 
@@ -124,7 +124,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
 
     m_accumulatedWellFlowPlot->setAvailableDepthUnits( {} );
     m_accumulatedWellFlowPlot->setAvailableDepthTypes(
-        {RimWellLogPlot::CONNECTION_NUMBER, RimWellLogPlot::TRUE_VERTICAL_DEPTH, RimWellLogPlot::PSEUDO_LENGTH} );
+        {RiaDefines::CONNECTION_NUMBER, RiaDefines::TRUE_VERTICAL_DEPTH, RiaDefines::PSEUDO_LENGTH} );
 
     m_accumulatedWellFlowPlot->setCommonDataSourceEnabled( false );
 
@@ -264,7 +264,7 @@ void RimWellAllocationPlot::updateFromWell()
 
     auto depthType = accumulatedWellFlowPlot()->depthType();
 
-    if ( depthType == RimWellLogPlot::MEASURED_DEPTH ) return;
+    if ( depthType == RiaDefines::MEASURED_DEPTH ) return;
 
     // Create tracks and curves from the calculated data
 
@@ -282,11 +282,11 @@ void RimWellAllocationPlot::updateFromWell()
 
         accumulatedWellFlowPlot()->addPlot( plotTrack );
 
-        const std::vector<double>& depthValues = depthType == RimWellLogPlot::CONNECTION_NUMBER
+        const std::vector<double>& depthValues = depthType == RiaDefines::CONNECTION_NUMBER
                                                      ? wfCalculator->connectionNumbersFromTop( brIdx )
-                                                     : depthType == RimWellLogPlot::PSEUDO_LENGTH
+                                                     : depthType == RiaDefines::PSEUDO_LENGTH
                                                            ? wfCalculator->pseudoLengthFromTop( brIdx )
-                                                           : depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH
+                                                           : depthType == RiaDefines::TRUE_VERTICAL_DEPTH
                                                                  ? wfCalculator->trueVerticalDepth( brIdx )
                                                                  : std::vector<double>();
 
@@ -295,13 +295,13 @@ void RimWellAllocationPlot::updateFromWell()
             for ( const QString& tracerName : tracerNames )
             {
                 const std::vector<double>* accFlow = nullptr;
-                if ( depthType == RimWellLogPlot::CONNECTION_NUMBER )
+                if ( depthType == RiaDefines::CONNECTION_NUMBER )
                 {
                     accFlow = &( m_flowType == ACCUMULATED
                                      ? wfCalculator->accumulatedTracerFlowPrConnection( tracerName, brIdx )
                                      : wfCalculator->tracerFlowPrConnection( tracerName, brIdx ) );
                 }
-                else if ( depthType == RimWellLogPlot::PSEUDO_LENGTH || depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH )
+                else if ( depthType == RiaDefines::PSEUDO_LENGTH || depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
                 {
                     accFlow = &( m_flowType == ACCUMULATED
                                      ? wfCalculator->accumulatedTracerFlowPrPseudoLength( tracerName, brIdx )
@@ -310,7 +310,7 @@ void RimWellAllocationPlot::updateFromWell()
 
                 if ( accFlow )
                 {
-                    addStackedCurve( tracerName, depthValues, *accFlow, plotTrack );
+                    addStackedCurve( tracerName, depthType, depthValues, *accFlow, plotTrack );
                     // TODO: THIs is the data to be plotted...
                 }
             }
@@ -463,12 +463,13 @@ void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle( RimWellLogTrack* plotT
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::addStackedCurve( const QString&             tracerName,
+                                             RiaDefines::DepthTypeEnum  depthType,
                                              const std::vector<double>& depthValues,
                                              const std::vector<double>& accFlow,
                                              RimWellLogTrack*           plotTrack )
 {
     RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
-    curve->setFlowValuesPrDepthValue( tracerName, depthValues, accFlow );
+    curve->setFlowValuesPrDepthValue( tracerName, depthType, depthValues, accFlow );
 
     if ( m_flowDiagSolution )
     {

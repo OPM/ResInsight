@@ -49,6 +49,16 @@ void caf::AppEnum<RiaDefines::DepthUnitType>::setUp()
 }
 
 template <>
+void caf::AppEnum<RiaDefines::DepthTypeEnum>::setUp()
+{
+    addItem( RiaDefines::MEASURED_DEPTH, "MEASURED_DEPTH", "Measured Depth" );
+    addItem( RiaDefines::TRUE_VERTICAL_DEPTH, "TRUE_VERTICAL_DEPTH", "True Vertical Depth (MSL)" );
+    addItem( RiaDefines::PSEUDO_LENGTH, "PSEUDO_LENGTH", "Pseudo Length" );
+    addItem( RiaDefines::CONNECTION_NUMBER, "CONNECTION_NUMBER", "Connection Number" );
+    setDefault( RiaDefines::MEASURED_DEPTH );
+}
+
+template <>
 void caf::AppEnum<RiaDefines::PlotAxis>::setUp()
 {
     addItem( RiaDefines::PLOT_AXIS_LEFT, "PLOT_AXIS_LEFT", "Left" );

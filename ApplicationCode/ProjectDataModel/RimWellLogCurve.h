@@ -42,16 +42,20 @@ public:
     bool xValueRangeInData( double* minimumValue, double* maximumValue ) const;
     bool yValueRangeInData( double* minimumValue, double* maximumValue ) const;
 
-    void setValuesAndMD( const std::vector<double>& xValues,
-                         const std::vector<double>& measuredDepths,
-                         RiaDefines::DepthUnitType  depthUnit,
-                         bool                       isExtractionCurve );
-
+    void setValuesAndDepths( const std::vector<double>& xValues,
+                             const std::vector<double>& depths,
+                             RiaDefines::DepthTypeEnum  depthType,
+                             RiaDefines::DepthUnitType  depthUnit,
+                             bool                       isExtractionCurve );
     void setValuesWithTVD( const std::vector<double>& xValues,
                            const std::vector<double>& measuredDepths,
                            const std::vector<double>& tvDepths,
                            RiaDefines::DepthUnitType  depthUnit,
                            bool                       isExtractionCurve );
+    void setValuesAndDepths( const std::vector<double>&                                      xValues,
+                             const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
+                             RiaDefines::DepthUnitType                                       depthUnit,
+                             bool                                                            isExtractionCurve );
 
     const RigWellLogCurveData* curveData() const;
 
@@ -71,8 +75,7 @@ private:
     void calculateCurveDataRanges();
 
 private:
-    cvf::ref<RigWellLogCurveData> m_curveData;
-    std::pair<double, double>     m_curveDataXRange;
-    std::pair<double, double>     m_curveDataMDRange;
-    std::pair<double, double>     m_curveDataTVDRange;
+    cvf::ref<RigWellLogCurveData>                                  m_curveData;
+    std::pair<double, double>                                      m_curveDataXRange;
+    std::map<RiaDefines::DepthTypeEnum, std::pair<double, double>> m_curveDataDepthRange;
 };

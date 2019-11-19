@@ -338,27 +338,16 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
         bool isUsingPseudoLength = false;
         performDataExtraction( &isUsingPseudoLength );
 
-        RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
-
         RimWellLogPlot* wellLogPlot;
         firstAncestorOrThisOfType( wellLogPlot );
         if ( !wellLogPlot ) return;
 
-        displayUnit = wellLogPlot->depthUnit();
+        RiaDefines::DepthTypeEnum depthType   = wellLogPlot->depthType();
+        RiaDefines::DepthUnitType displayUnit = wellLogPlot->depthUnit();
 
-        if ( wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH )
-        {
-            m_qwtPlotCurve->setSamples( curveData()->xPlotValues().data(),
-                                        curveData()->trueDepthPlotValues( displayUnit ).data(),
-                                        static_cast<int>( curveData()->xPlotValues().size() ) );
-            isUsingPseudoLength = false;
-        }
-        else if ( wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH )
-        {
-            m_qwtPlotCurve->setSamples( curveData()->xPlotValues().data(),
-                                        curveData()->measuredDepthPlotValues( displayUnit ).data(),
-                                        static_cast<int>( curveData()->xPlotValues().size() ) );
-        }
+        m_qwtPlotCurve->setSamples( curveData()->xPlotValues().data(),
+                                    curveData()->depthPlotValues( depthType, displayUnit ).data(),
+                                    static_cast<int>( curveData()->xPlotValues().size() ) );
 
         m_qwtPlotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
 
@@ -523,7 +512,11 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
     {
         if ( !tvDepthValues.size() )
         {
-            this->setValuesAndMD( values, measuredDepthValues, depthUnit, !performDataSmoothing );
+            this->setValuesAndDepths( values,
+                                      measuredDepthValues,
+                                      RiaDefines::MEASURED_DEPTH,
+                                      depthUnit,
+                                      !performDataSmoothing );
         }
         else
         {
