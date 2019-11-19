@@ -115,7 +115,7 @@ bool RimWellLogCurve::yValueRangeInData( double* minimumValue, double* maximumVa
         *minimumValue = m_curveDataTVDRange.first;
         *maximumValue = m_curveDataTVDRange.second;
     }
-    else
+    else // MD, Connection number and Pseudo length.
     {
         if ( m_curveDataMDRange.first == -std::numeric_limits<double>::infinity() ||
              m_curveDataMDRange.second == std::numeric_limits<double>::infinity() )
