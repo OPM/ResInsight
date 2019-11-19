@@ -21,8 +21,8 @@
 
 #include "RicSaveEclipseResultAsInputPropertyExec.h"
 
-#include "Rim3dView.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseView.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
@@ -36,10 +36,39 @@ CAF_CMD_SOURCE_INIT( RicSaveEclipseResultAsInputPropertyFeature, "RicSaveEclipse
 //--------------------------------------------------------------------------------------------------
 bool RicSaveEclipseResultAsInputPropertyFeature::isCommandEnabled()
 {
+    return selectedEclipseCellColors() != nullptr || selectedEclipseView() != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseView* RicSaveEclipseResultAsInputPropertyFeature::selectedEclipseView() const
+{
+    std::vector<RimEclipseView*> selection;
+    caf::SelectionManager::instance()->objectsByType( &selection );
+
+    if ( selection.size() > 0 )
+    {
+        return selection[0];
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCellColors* RicSaveEclipseResultAsInputPropertyFeature::selectedEclipseCellColors() const
+{
     std::vector<RimEclipseCellColors*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
 
-    return selection.size() == 1;
+    if ( selection.size() > 0 )
+    {
+        return selection[0];
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,12 +78,21 @@ void RicSaveEclipseResultAsInputPropertyFeature::onActionTriggered( bool isCheck
 {
     this->disableModelChangeContribution();
 
-    std::vector<RimEclipseCellColors*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-    if ( selection.size() == 1 )
+    RimEclipseCellColors* eclipseCellColors = selectedEclipseCellColors();
+    if ( !eclipseCellColors )
+    {
+        // Get the cell colors from the eclipse view if possible.
+        RimEclipseView* eclipseView = selectedEclipseView();
+        if ( eclipseView )
+        {
+            eclipseCellColors = eclipseView->cellResult();
+        }
+    }
+
+    if ( eclipseCellColors )
     {
         RicSaveEclipseResultAsInputPropertyExec* cellResultSaveExec = new RicSaveEclipseResultAsInputPropertyExec(
-            selection[0] );
+            eclipseCellColors );
         caf::CmdExecCommandManager::instance()->processExecuteCommand( cellResultSaveExec );
     }
 }

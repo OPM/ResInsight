@@ -21,6 +21,9 @@
 
 #include "cafCmdFeature.h"
 
+class RimEclipseView;
+class RimEclipseCellColors;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -33,4 +36,8 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    RimEclipseView*       selectedEclipseView() const;
+    RimEclipseCellColors* selectedEclipseCellColors() const;
 };
