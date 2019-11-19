@@ -550,11 +550,6 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
         uiTreeOrdering.add( &m_contourMapCollection );
     }
 
-    if ( !m_inputPropertyCollection->inputProperties.empty() )
-    {
-        uiTreeOrdering.add( &m_inputPropertyCollection );
-    }
-
     uiTreeOrdering.skipRemainingChildren( true );
 }
 

@@ -43,7 +43,6 @@
 #include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseInputProperty.h"
-#include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
@@ -263,10 +262,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicExportEclipseInputGridFeature";
             menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
             menuBuilder << "RicCreateGridCrossPlotFeature";
-        }
-        else if ( dynamic_cast<RimEclipseInputPropertyCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicAddEclipseInputPropertyFeature";
         }
         else if ( dynamic_cast<RimEclipseInputProperty*>( firstUiItem ) )
         {
