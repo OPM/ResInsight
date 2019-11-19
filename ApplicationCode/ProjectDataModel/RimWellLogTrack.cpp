@@ -1093,7 +1093,7 @@ void RimWellLogTrack::loadDataAndUpdate()
 
     if ( wellLogPlot && m_plotWidget )
     {
-        m_plotWidget->setAxisTitleText( QwtPlot::yLeft, m_xAxisTitle );
+        m_plotWidget->setAxisTitleText( QwtPlot::xTop, m_xAxisTitle );
         m_plotWidget->setAxisTitleText( QwtPlot::yLeft, wellLogPlot->depthAxisTitle() );
     }
 
