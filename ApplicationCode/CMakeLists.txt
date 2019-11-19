@@ -434,6 +434,7 @@ if (RESINSIGHT_ENABLE_GRPC)
 		endforeach()
 	else()		
 		list(APPEND LINK_LIBRARIES ${GRPC_LIBRARIES})
+		set_target_properties(ResInsight PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/NODEFAULTLIB:MSVCRTD.lib")
 	endif()
 endif()
 
