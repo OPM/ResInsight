@@ -40,8 +40,7 @@ CAF_CMD_SOURCE_INIT( RicAddEclipseInputPropertyFeature, "RicAddEclipseInputPrope
 //--------------------------------------------------------------------------------------------------
 bool RicAddEclipseInputPropertyFeature::isCommandEnabled()
 {
-    return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseInputPropertyCollection>() ||
-           caf::SelectionManager::instance()->selectedItemOfType<RimEclipseInputCase>() ||
+    return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseInputCase>() ||
            caf::SelectionManager::instance()->selectedItemOfType<RimEclipseResultCase>();
 }
 
@@ -50,26 +49,11 @@ bool RicAddEclipseInputPropertyFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAddEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
 {
-    RimEclipseCase* eclipseCase = nullptr;
+    RimEclipseCase* eclipseCase = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCase>();
+    if ( !eclipseCase ) return;
 
-    RimEclipseInputPropertyCollection* inputPropertyCollection =
-        caf::SelectionManager::instance()->selectedItemOfType<RimEclipseInputPropertyCollection>();
-    if ( !inputPropertyCollection )
-    {
-        // No property collection selected: triggered from RimEclipseInputCase/RimEclipseResultCase.
-        eclipseCase = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCase>();
-        if ( eclipseCase )
-        {
-            inputPropertyCollection = eclipseCase->inputPropertyCollection();
-        }
-    }
-    else
-    {
-        // Triggered from collection: get eclipse case ancestor
-        inputPropertyCollection->firstAncestorOrThisOfTypeAsserted( eclipseCase );
-    }
-
-    if ( !inputPropertyCollection || !eclipseCase ) return;
+    RimEclipseInputPropertyCollection* inputPropertyCollection = eclipseCase->inputPropertyCollection();
+    if ( !inputPropertyCollection ) return;
 
     QFileInfo fi( eclipseCase->gridFileName() );
     QString   casePath = fi.absolutePath();
