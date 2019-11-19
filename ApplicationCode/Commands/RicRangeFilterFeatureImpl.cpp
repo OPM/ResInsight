@@ -70,7 +70,7 @@ RicRangeFilterNewExec* RicRangeFilterFeatureImpl::createRangeFilterExecCommand()
 RimCellRangeFilterCollection* RicRangeFilterFeatureImpl::findRangeFilterCollection()
 {
     RimCellRangeFilterCollection* rangeFilterCollection = nullptr;
-    
+
     rangeFilterCollection = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimCellRangeFilterCollection>();
 
     if ( !rangeFilterCollection )

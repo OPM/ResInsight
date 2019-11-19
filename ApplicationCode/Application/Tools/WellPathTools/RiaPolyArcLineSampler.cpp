@@ -49,7 +49,7 @@ void RiaPolyArcLineSampler::sampledPointsAndMDs( double                   sample
     CVF_ASSERT( sampleInterval > 0.0 );
 
     m_maxSamplingsInterval = sampleInterval;
-    m_isResamplingLines = isResamplingLines;
+    m_isResamplingLines    = isResamplingLines;
 
     double startMD = 0.0;
     points->clear();
@@ -160,7 +160,7 @@ void RiaPolyArcLineSampler::sampleArc( cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d 
 
     double angleInc = m_maxSamplingsInterval / radius;
 
-    angleInc = angleInc < m_maxSamplingArcAngle ? angleInc: m_maxSamplingArcAngle; // Angle from 6 deg dogleg on 10 m
+    angleInc = angleInc < m_maxSamplingArcAngle ? angleInc : m_maxSamplingArcAngle; // Angle from 6 deg dogleg on 10 m
 
     cvf::Vec3d C = CS_rad.center();
     cvf::Vec3d N = CS_rad.normal();

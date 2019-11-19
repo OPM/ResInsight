@@ -42,10 +42,10 @@ private:
     std::vector<cvf::Vec3d>* m_points; // Internal temporary pointers to collections beeing filled.
     std::vector<double>*     m_meshDs;
 
-    double m_maxSamplingsInterval;
-    const double m_maxSamplingArcAngle = 0.07310818;// Angle from 6 deg dogleg on 10 m
-    bool   m_isResamplingLines;
-    double m_totalMD;
+    double       m_maxSamplingsInterval;
+    const double m_maxSamplingArcAngle = 0.07310818; // Angle from 6 deg dogleg on 10 m
+    bool         m_isResamplingLines;
+    double       m_totalMD;
 
     cvf::Vec3d              m_startTangent;
     std::vector<cvf::Vec3d> m_lineArcEndPoints;

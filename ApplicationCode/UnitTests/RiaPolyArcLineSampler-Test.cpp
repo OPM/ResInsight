@@ -15,11 +15,10 @@ TEST( RiaPolyArcLineSampler, Basic )
 
     sampler.sampledPointsAndMDs( 2, true, &sampledPoints, &mds );
 #if 1
-    for (size_t pIdx = 0; pIdx < sampledPoints.size(); ++pIdx)
+    for ( size_t pIdx = 0; pIdx < sampledPoints.size(); ++pIdx )
     {
-        std::cout <<  sampledPoints[pIdx].x() << " " 
-                  <<  sampledPoints[pIdx].y() << " " 
-                  <<  sampledPoints[pIdx].z() << " md: " << mds[pIdx] << std::endl;
+        std::cout << sampledPoints[pIdx].x() << " " << sampledPoints[pIdx].y() << " " << sampledPoints[pIdx].z()
+                  << " md: " << mds[pIdx] << std::endl;
     }
 #endif
     EXPECT_EQ( 55, (int)sampledPoints.size() );

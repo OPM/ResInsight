@@ -81,16 +81,16 @@ void RicNewWellPathListTargetFeature::onActionTriggered( bool isChecked )
                 return; // We already have a target at sealevel.
             }
 
-            cvf::Vec3d targetTangent            = afterBeforePair.second->tangent();
-            double     radius                   = afterBeforePair.second->radius1();
+            cvf::Vec3d targetTangent = afterBeforePair.second->tangent();
+            double     radius        = afterBeforePair.second->radius1();
 
             cvf::Vec3d tangentInHorizontalPlane = targetTangent;
             tangentInHorizontalPlane[2]         = 0.0;
             tangentInHorizontalPlane.normalize();
 
             RiaOffshoreSphericalCoords sphTangent( targetTangent );
-            double inc                        = sphTangent.inc();
-            double horizontalLengthFromTarget = radius - radius * cvf::Math::cos( inc );
+            double                     inc                        = sphTangent.inc();
+            double                     horizontalLengthFromTarget = radius - radius * cvf::Math::cos( inc );
 
             newPos = afterBeforePair.second->targetPointXYZ() - horizontalLengthFromTarget * tangentInHorizontalPlane;
             newPos.z() = -wellGeomDef->referencePointXyz().z();
