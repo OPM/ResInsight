@@ -49,16 +49,6 @@
 namespace caf
 {
 template <>
-void caf::AppEnum<RimWellLogPlot::DepthTypeEnum>::setUp()
-{
-    addItem( RimWellLogPlot::MEASURED_DEPTH, "MEASURED_DEPTH", "Measured Depth" );
-    addItem( RimWellLogPlot::TRUE_VERTICAL_DEPTH, "TRUE_VERTICAL_DEPTH", "True Vertical Depth (MSL)" );
-    addItem( RimWellLogPlot::PSEUDO_LENGTH, "PSEUDO_LENGTH", "Pseudo Length" );
-    addItem( RimWellLogPlot::CONNECTION_NUMBER, "CONNECTION_NUMBER", "Connection Number" );
-    setDefault( RimWellLogPlot::MEASURED_DEPTH );
-}
-
-template <>
 void RimWellLogPlot::AxisGridEnum::setUp()
 {
     addItem( RimWellLogPlot::AXIS_GRID_NONE, "GRID_X_NONE", "No Grid Lines" );
@@ -89,7 +79,7 @@ RimWellLogPlot::RimWellLogPlot()
     m_commonDataSource.xmlCapability()->disableIO();
     m_commonDataSource = new RimWellLogCurveCommonDataSource;
 
-    caf::AppEnum<RimWellLogPlot::DepthTypeEnum> depthType = MEASURED_DEPTH;
+    caf::AppEnum<RimWellLogPlot::DepthTypeEnum> depthType = RiaDefines::MEASURED_DEPTH;
     CAF_PDM_InitField( &m_depthType, "DepthType", depthType, "Type", "", "", "" );
 
     caf::AppEnum<RiaDefines::DepthUnitType> depthUnit = RiaDefines::UNIT_METER;
@@ -107,7 +97,7 @@ RimWellLogPlot::RimWellLogPlot()
     m_nameConfig = new RimWellLogPlotNameConfig();
 
     m_availableDepthUnits = {RiaDefines::UNIT_METER, RiaDefines::UNIT_FEET};
-    m_availableDepthTypes = {MEASURED_DEPTH, TRUE_VERTICAL_DEPTH};
+    m_availableDepthTypes = {RiaDefines::MEASURED_DEPTH, RiaDefines::TRUE_VERTICAL_DEPTH};
 
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
@@ -731,24 +721,24 @@ QString RimWellLogPlot::depthAxisTitle() const
 
     switch ( m_depthType.value() )
     {
-        case MEASURED_DEPTH:
+        case RiaDefines::MEASURED_DEPTH:
             depthTitle = "MD";
             break;
 
-        case TRUE_VERTICAL_DEPTH:
+        case RiaDefines::TRUE_VERTICAL_DEPTH:
             depthTitle = "TVDMSL";
             break;
 
-        case PSEUDO_LENGTH:
+        case RiaDefines::PSEUDO_LENGTH:
             depthTitle = "PL";
             break;
 
-        case CONNECTION_NUMBER:
+        case RiaDefines::CONNECTION_NUMBER:
             depthTitle = "Connection";
             break;
     }
 
-    if ( m_depthType() == CONNECTION_NUMBER ) return depthTitle;
+    if ( m_depthType() == RiaDefines::CONNECTION_NUMBER ) return depthTitle;
 
     if ( m_depthUnit == RiaDefines::UNIT_METER )
     {

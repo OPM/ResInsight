@@ -137,6 +137,15 @@ enum DepthUnitType
     UNIT_NONE
 };
 
+// Depth types used for well log plots
+enum DepthTypeEnum
+{
+    MEASURED_DEPTH,
+    TRUE_VERTICAL_DEPTH,
+    PSEUDO_LENGTH,
+    CONNECTION_NUMBER
+};
+
 // Defines relate to plotting
 enum PlotAxis
 {

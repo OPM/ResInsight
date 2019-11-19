@@ -139,7 +139,7 @@ RimWellPltPlot::RimWellPltPlot()
     m_doInitAfterLoad = false;
     m_isOnLoad        = true;
 
-    setAvailableDepthTypes( {RimWellLogPlot::MEASURED_DEPTH} );
+    setAvailableDepthTypes( {RiaDefines::MEASURED_DEPTH} );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -725,7 +725,7 @@ void RimWellPltPlot::addStackedCurve( const QString&             curveName,
                                       bool                       doFillCurve )
 {
     RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
-    curve->setFlowValuesPrDepthValue( curveName, depthValues, accFlow );
+    curve->setFlowValuesPrDepthValue( curveName, depthType(), depthValues, accFlow );
 
     curve->setColor( color );
     curve->setGroupId( curveGroupId );

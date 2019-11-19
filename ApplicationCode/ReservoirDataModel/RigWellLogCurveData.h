@@ -23,6 +23,8 @@
 
 #include "cvfObject.h"
 
+#include <map>
+#include <set>
 #include <vector>
 
 class RigWellLogCurveDataTestInterface;
@@ -36,28 +38,29 @@ public:
     RigWellLogCurveData();
     ~RigWellLogCurveData() override;
 
-    void setValuesAndMD( const std::vector<double>& xValues,
-                         const std::vector<double>& measuredDepths,
-                         RiaDefines::DepthUnitType  depthUnit,
-                         bool                       isExtractionCurve );
-
-    void setValuesWithTVD( const std::vector<double>& xValues,
-                           const std::vector<double>& measuredDepths,
-                           const std::vector<double>& tvDepths,
-                           RiaDefines::DepthUnitType  depthUnit,
-                           bool                       isExtractionCurve );
+    void setValuesAndDepths( const std::vector<double>& xValues,
+                             const std::vector<double>& depths,
+                             RiaDefines::DepthTypeEnum  depthType,
+                             RiaDefines::DepthUnitType  depthUnit,
+                             bool                       isExtractionCurve );
+    void setValuesAndDepths( const std::vector<double>&                                      xValues,
+                             const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
+                             RiaDefines::DepthUnitType                                       depthUnit,
+                             bool                                                            isExtractionCurve );
 
     const std::vector<double>& xValues() const;
-    const std::vector<double>& measuredDepths() const;
-    const std::vector<double>& tvDepths() const;
-    bool                       calculateMDRange( double* minMD, double* maxMD ) const;
-    bool                       calculateTVDRange( double* minTVD, double* maxTVD ) const;
+
+    std::vector<double> depths( RiaDefines::DepthTypeEnum depthType ) const;
+
+    std::set<RiaDefines::DepthTypeEnum> availableDepthTypes() const;
+
+    bool calculateDepthRange( RiaDefines::DepthTypeEnum depthType, double* minMD, double* maxMD ) const;
 
     RiaDefines::DepthUnitType depthUnit() const;
 
-    std::vector<double> xPlotValues() const;
-    std::vector<double> trueDepthPlotValues( RiaDefines::DepthUnitType destinationDepthUnit ) const;
-    std::vector<double> measuredDepthPlotValues( RiaDefines::DepthUnitType destinationDepthUnit ) const;
+    std::vector<double>                    xPlotValues() const;
+    std::vector<double>                    depthPlotValues( RiaDefines::DepthTypeEnum depthType,
+                                                            RiaDefines::DepthUnitType destinationDepthUnit ) const;
     std::vector<std::pair<size_t, size_t>> polylineStartStopIndices() const;
 
     cvf::ref<RigWellLogCurveData> calculateResampledCurveData( double newMeasuredDepthStepSize ) const;
@@ -77,10 +80,9 @@ private:
     static std::vector<double> convertFromFeetToMeter( const std::vector<double>& valuesInFeet );
 
 private:
-    std::vector<double> m_xValues;
-    std::vector<double> m_measuredDepths;
-    std::vector<double> m_tvDepths;
-    bool                m_isExtractionCurve;
+    std::vector<double>                                      m_xValues;
+    std::map<RiaDefines::DepthTypeEnum, std::vector<double>> m_depths;
+    bool                                                     m_isExtractionCurve;
 
     std::vector<std::pair<size_t, size_t>> m_intervalsOfContinousValidValues;
 

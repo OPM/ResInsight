@@ -48,7 +48,7 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath* w
     : m_wellPath( wellPath )
     , m_componentType( RiaDefines::WELL_PATH )
     , m_columnOffset( 0.0 )
-    , m_depthType( RimWellLogPlot::MEASURED_DEPTH )
+    , m_depthType( RiaDefines::MEASURED_DEPTH )
     , m_maxColumnOffset( 0.0 )
     , m_showLabel( false )
 {
@@ -68,7 +68,7 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath*  
                                                             const RimWellPathComponentInterface* component )
     : m_wellPath( wellPath )
     , m_columnOffset( 0.0 )
-    , m_depthType( RimWellLogPlot::MEASURED_DEPTH )
+    , m_depthType( RiaDefines::MEASURED_DEPTH )
     , m_maxColumnOffset( 0.0 )
     , m_showLabel( false )
 {
@@ -333,7 +333,7 @@ std::pair<double, double> RiuWellPathComponentPlotItem::depthsOfDepthType() cons
     double startDepth = m_startMD;
     double endDepth   = m_endMD;
 
-    if ( m_depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH )
+    if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
     {
         cvf::Vec3d startPoint = m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_startMD );
         cvf::Vec3d endPoint   = m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_endMD );

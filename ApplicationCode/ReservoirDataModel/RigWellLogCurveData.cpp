@@ -45,17 +45,17 @@ RigWellLogCurveData::~RigWellLogCurveData() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellLogCurveData::setValuesAndMD( const std::vector<double>& xValues,
-                                          const std::vector<double>& measuredDepths,
-                                          RiaDefines::DepthUnitType  depthUnit,
-                                          bool                       isExtractionCurve )
+void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>& xValues,
+                                              const std::vector<double>& depths,
+                                              RiaDefines::DepthTypeEnum  depthType,
+                                              RiaDefines::DepthUnitType  depthUnit,
+                                              bool                       isExtractionCurve )
 {
-    CVF_ASSERT( xValues.size() == measuredDepths.size() );
+    CVF_ASSERT( xValues.size() == depths.size() );
 
-    m_xValues        = xValues;
-    m_measuredDepths = measuredDepths;
-    m_tvDepths.clear();
-    m_depthUnit = depthUnit;
+    m_xValues           = xValues;
+    m_depths[depthType] = depths;
+    m_depthUnit         = depthUnit;
 
     // Disable depth value filtering is intended to be used for
     // extraction curve data
@@ -67,19 +67,22 @@ void RigWellLogCurveData::setValuesAndMD( const std::vector<double>& xValues,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellLogCurveData::setValuesWithTVD( const std::vector<double>& xValues,
-                                            const std::vector<double>& measuredDepths,
-                                            const std::vector<double>& tvDepths,
-                                            RiaDefines::DepthUnitType  depthUnit,
-                                            bool                       isExtractionCurve )
+void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>&                                      xValues,
+                                              const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
+                                              RiaDefines::DepthUnitType                                       depthUnit,
+                                              bool isExtractionCurve )
 {
-    CVF_ASSERT( xValues.size() == measuredDepths.size() );
+    for ( auto it = depths.begin(); it != depths.end(); ++it )
+    {
+        CVF_ASSERT( xValues.size() == it->second.size() );
+    }
 
-    m_xValues        = xValues;
-    m_measuredDepths = measuredDepths;
-    m_tvDepths       = tvDepths;
-    m_depthUnit      = depthUnit;
+    m_xValues   = xValues;
+    m_depths    = depths;
+    m_depthUnit = depthUnit;
 
+    // Disable depth value filtering is intended to be used for
+    // extraction curve data
     m_isExtractionCurve = isExtractionCurve;
 
     calculateIntervalsOfContinousValidValues();
@@ -96,17 +99,24 @@ const std::vector<double>& RigWellLogCurveData::xValues() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigWellLogCurveData::measuredDepths() const
+std::vector<double> RigWellLogCurveData::depths( RiaDefines::DepthTypeEnum depthType ) const
 {
-    return m_measuredDepths;
+    auto it = m_depths.find( depthType );
+    return it != m_depths.end() ? it->second : std::vector<double>();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigWellLogCurveData::tvDepths() const
+std::set<RiaDefines::DepthTypeEnum> RigWellLogCurveData::availableDepthTypes() const
 {
-    return m_tvDepths;
+    std::set<RiaDefines::DepthTypeEnum> depthTypes;
+
+    for ( auto depthValuePair : m_depths )
+    {
+        depthTypes.insert( depthValuePair.first );
+    }
+    return depthTypes;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,40 +133,23 @@ std::vector<double> RigWellLogCurveData::xPlotValues() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogCurveData::trueDepthPlotValues( RiaDefines::DepthUnitType destinationDepthUnit ) const
+std::vector<double> RigWellLogCurveData::depthPlotValues( RiaDefines::DepthTypeEnum depthType,
+                                                          RiaDefines::DepthUnitType destinationDepthUnit ) const
 {
     std::vector<double> filteredValues;
-    if ( m_tvDepths.size() )
+
+    const std::vector<double> depthValues = depths( depthType );
+    if ( !depthValues.empty() )
     {
         if ( destinationDepthUnit == m_depthUnit )
         {
-            RiaCurveDataTools::getValuesByIntervals( m_tvDepths, m_intervalsOfContinousValidValues, &filteredValues );
+            RiaCurveDataTools::getValuesByIntervals( depthValues, m_intervalsOfContinousValidValues, &filteredValues );
         }
         else
         {
-            std::vector<double> convertedValues = convertDepthValues( destinationDepthUnit, m_tvDepths );
+            std::vector<double> convertedValues = convertDepthValues( destinationDepthUnit, depthValues );
             RiaCurveDataTools::getValuesByIntervals( convertedValues, m_intervalsOfContinousValidValues, &filteredValues );
         }
-    }
-
-    return filteredValues;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogCurveData::measuredDepthPlotValues( RiaDefines::DepthUnitType destinationDepthUnit ) const
-{
-    std::vector<double> filteredValues;
-
-    if ( destinationDepthUnit == m_depthUnit )
-    {
-        RiaCurveDataTools::getValuesByIntervals( m_measuredDepths, m_intervalsOfContinousValidValues, &filteredValues );
-    }
-    else
-    {
-        std::vector<double> convertedValues = convertDepthValues( destinationDepthUnit, m_measuredDepths );
-        RiaCurveDataTools::getValuesByIntervals( convertedValues, m_intervalsOfContinousValidValues, &filteredValues );
     }
 
     return filteredValues;
@@ -181,17 +174,20 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
     bool                isTvDepthsAvailable = false;
     std::vector<double> tvDepths;
 
-    if ( m_tvDepths.size() > 0 ) isTvDepthsAvailable = true;
+    auto mdIt  = m_depths.find( RiaDefines::MEASURED_DEPTH );
+    auto tvdIt = m_depths.find( RiaDefines::TRUE_VERTICAL_DEPTH );
 
-    if ( m_measuredDepths.size() > 0 )
+    if ( tvdIt != m_depths.end() && !tvdIt->second.empty() ) isTvDepthsAvailable = true;
+
+    if ( mdIt != m_depths.end() && !mdIt->second.empty() )
     {
-        double currentMd = m_measuredDepths[0];
+        double currentMd = mdIt->second.front();
 
         size_t segmentStartIdx = 0;
-        while ( segmentStartIdx < m_measuredDepths.size() - 1 )
+        while ( segmentStartIdx < mdIt->second.size() - 1 )
         {
-            double segmentStartMd = m_measuredDepths[segmentStartIdx];
-            double segmentEndMd   = m_measuredDepths[segmentStartIdx + 1];
+            double segmentStartMd = mdIt->second[segmentStartIdx];
+            double segmentEndMd   = mdIt->second[segmentStartIdx + 1];
             double segmentStartX  = m_xValues[segmentStartIdx];
             double segmentEndX    = m_xValues[segmentStartIdx + 1];
 
@@ -199,8 +195,8 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
             double segmentEndTvd   = 0.0;
             if ( isTvDepthsAvailable )
             {
-                segmentStartTvd = m_tvDepths[segmentStartIdx];
-                segmentEndTvd   = m_tvDepths[segmentStartIdx + 1];
+                segmentStartTvd = tvdIt->second[segmentStartIdx];
+                segmentEndTvd   = tvdIt->second[segmentStartIdx + 1];
             }
 
             while ( currentMd <= segmentEndMd )
@@ -228,11 +224,17 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
 
     if ( isTvDepthsAvailable )
     {
-        reSampledData->setValuesWithTVD( xValues, measuredDepths, tvDepths, m_depthUnit, true );
+        std::map<RiaDefines::DepthTypeEnum, std::vector<double>> resampledDepths =
+            {{RiaDefines::TRUE_VERTICAL_DEPTH, tvDepths}, {RiaDefines::MEASURED_DEPTH, measuredDepths}};
+        reSampledData->setValuesAndDepths( xValues, resampledDepths, m_depthUnit, true );
     }
     else
     {
-        reSampledData->setValuesAndMD( xValues, measuredDepths, m_depthUnit, m_isExtractionCurve );
+        reSampledData->setValuesAndDepths( xValues,
+                                           measuredDepths,
+                                           RiaDefines::MEASURED_DEPTH,
+                                           m_depthUnit,
+                                           m_isExtractionCurve );
     }
 
     return reSampledData;
@@ -258,7 +260,7 @@ void RigWellLogCurveData::calculateIntervalsOfContinousValidValues()
         for ( size_t intIdx = 0; intIdx < intervalsCount; intIdx++ )
         {
             std::vector<std::pair<size_t, size_t>> depthValuesIntervals;
-            splitIntervalAtEmptySpace( m_measuredDepths,
+            splitIntervalAtEmptySpace( m_depths[RiaDefines::MEASURED_DEPTH],
                                        intervalsOfValidValues[intIdx].first,
                                        intervalsOfValidValues[intIdx].second,
                                        &depthValuesIntervals );
@@ -323,16 +325,18 @@ void RigWellLogCurveData::splitIntervalAtEmptySpace( const std::vector<double>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigWellLogCurveData::calculateMDRange( double* minimumDepth, double* maximumDepth ) const
+bool RigWellLogCurveData::calculateDepthRange( RiaDefines::DepthTypeEnum depthType,
+                                               double*                   minimumDepth,
+                                               double*                   maximumDepth ) const
 {
     CVF_ASSERT( minimumDepth && maximumDepth );
 
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;
 
-    for ( size_t vIdx = 0; vIdx < m_measuredDepths.size(); vIdx++ )
+    for ( size_t vIdx = 0; vIdx < depths( depthType ).size(); vIdx++ )
     {
-        double value = m_measuredDepths[vIdx];
+        double value = depths( depthType )[vIdx];
 
         if ( value < minValue )
         {
@@ -349,42 +353,6 @@ bool RigWellLogCurveData::calculateMDRange( double* minimumDepth, double* maximu
     {
         *minimumDepth = minValue;
         *maximumDepth = maxValue;
-
-        return true;
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RigWellLogCurveData::calculateTVDRange( double* minTVD, double* maxTVD ) const
-{
-    CVF_ASSERT( minTVD && maxTVD );
-
-    double minValue = HUGE_VAL;
-    double maxValue = -HUGE_VAL;
-
-    for ( size_t vIdx = 0; vIdx < m_tvDepths.size(); vIdx++ )
-    {
-        double value = m_tvDepths[vIdx];
-
-        if ( value < minValue )
-        {
-            minValue = value;
-        }
-
-        if ( value > maxValue )
-        {
-            maxValue = value;
-        }
-    }
-
-    if ( maxValue >= minValue )
-    {
-        *minTVD = minValue;
-        *maxTVD = maxValue;
 
         return true;
     }

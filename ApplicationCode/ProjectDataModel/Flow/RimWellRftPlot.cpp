@@ -88,7 +88,7 @@ RimWellRftPlot::RimWellRftPlot()
     m_wellLogPlot_OBSOLETE.uiCapability()->setUiHidden( true );
     m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    m_depthType = RimWellLogPlot::TRUE_VERTICAL_DEPTH;
+    m_depthType = RiaDefines::TRUE_VERTICAL_DEPTH;
 
     CAF_PDM_InitFieldNoDefault( &m_wellPathNameOrSimWellName, "WellName", "Well Name", "", "", "" );
     CAF_PDM_InitField( &m_branchIndex, "BranchIndex", 0, "Branch Index", "", "", "" );
@@ -620,7 +620,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
         }
     }
 
-    if ( depthType() == RimWellLogPlot::MEASURED_DEPTH )
+    if ( depthType() == RiaDefines::MEASURED_DEPTH )
     {
         assignWellPathToExtractionCurves();
     }
@@ -1038,7 +1038,7 @@ void RimWellRftPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     updateFormationsOnPlot();
 
-    if ( depthType() == RimWellLogPlot::MEASURED_DEPTH )
+    if ( depthType() == RiaDefines::MEASURED_DEPTH )
     {
         assignWellPathToExtractionCurves();
     }

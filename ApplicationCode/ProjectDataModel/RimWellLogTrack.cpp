@@ -781,14 +781,7 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
 
         if ( curveNames.size() == 1 )
         {
-            if ( depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH )
-            {
-                curveDepths = curveData->trueDepthPlotValues( depthUnit );
-            }
-            else
-            {
-                curveDepths = curveData->measuredDepthPlotValues( depthUnit );
-            }
+            curveDepths = curveData->depthPlotValues( depthType, depthUnit );
         }
 
         std::vector<double> xPlotValues = curveData->xPlotValues();
@@ -809,13 +802,13 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
     {
         if ( i == 0 )
         {
-            if ( depthType == RimWellLogPlot::CONNECTION_NUMBER )
+            if ( depthType == RiaDefines::CONNECTION_NUMBER )
                 out += "Connection";
-            else if ( depthType == RimWellLogPlot::MEASURED_DEPTH )
+            else if ( depthType == RiaDefines::MEASURED_DEPTH )
                 out += "MD   ";
-            else if ( depthType == RimWellLogPlot::PSEUDO_LENGTH )
+            else if ( depthType == RiaDefines::PSEUDO_LENGTH )
                 out += "PL   ";
-            else if ( depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH )
+            else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
                 out += "TVD  ";
             for ( QString name : curveNames )
                 out += "  \t" + name;
@@ -1971,11 +1964,11 @@ void RimWellLogTrack::findRegionNamesToPlot( const CurveSamplingPointData&      
 
     std::vector<double> depthVector;
 
-    if ( depthType == RimWellLogPlot::MEASURED_DEPTH || depthType == RimWellLogPlot::PSEUDO_LENGTH )
+    if ( depthType == RiaDefines::MEASURED_DEPTH || depthType == RiaDefines::PSEUDO_LENGTH )
     {
         depthVector = curveData.md;
     }
-    else if ( depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH )
+    else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
     {
         depthVector = curveData.tvd;
     }
@@ -2171,8 +2164,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     {
         if ( m_formationWellPathForSourceWellPath == nullptr ) return;
 
-        if ( !( plot->depthType() == RimWellLogPlot::MEASURED_DEPTH ||
-                plot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH ) )
+        if ( !( plot->depthType() == RiaDefines::MEASURED_DEPTH || plot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH ) )
         {
             return;
         }
