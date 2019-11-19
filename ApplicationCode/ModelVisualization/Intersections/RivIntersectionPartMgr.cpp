@@ -152,27 +152,29 @@ void RivIntersectionPartMgr::updateCellResultColor( size_t                      
                                                     const cvf::ScalarMapper*      scalarColorMapper,
                                                     const RivTernaryScalarMapper* ternaryColorMapper )
 {
-    CVF_ASSERT( scalarColorMapper );
-
-    if ( m_crossSectionGenerator.isNull() ) return;
-
     if ( !m_crossSectionGenerator->isAnyGeometryPresent() ) return;
+
+    CVF_ASSERT( scalarColorMapper );
 
     RimEclipseView* eclipseView = nullptr;
     m_rimCrossSection->firstAncestorOrThisOfType( eclipseView );
 
     if ( eclipseView )
     {
-        RimEclipseCellColors* cellResultColors = eclipseView->cellResult();
-        CVF_ASSERT( cellResultColors );
-        CVF_ASSERT( ternaryColorMapper );
+        bool isLightingDisabled = eclipseView->isLightingDisabled();
+
+        RimEclipseResultDefinition* eclipseResDef   = eclipseView->cellResult();
+        bool                        isTernaryResult = eclipseResDef->isTernarySaturationSelected();
+        RigEclipseCaseData*         eclipseCaseData = eclipseResDef->eclipseCase()->eclipseCaseData();
+
+        CVF_ASSERT( eclipseResDef );
 
         // CrossSections
         if ( m_crossSectionFaces.notNull() )
         {
-            if ( cellResultColors->isTernarySaturationSelected() )
+            if ( isTernaryResult )
             {
-                RivTernaryTextureCoordsCreator texturer( cellResultColors, ternaryColorMapper, timeStepIndex );
+                RivTernaryTextureCoordsCreator texturer( eclipseResDef, ternaryColorMapper, timeStepIndex );
 
                 texturer.createTextureCoords( m_crossSectionFacesTextureCoords.p(),
                                               m_crossSectionGenerator->triangleToCellIndex() );
@@ -182,7 +184,7 @@ void RivIntersectionPartMgr::updateCellResultColor( size_t                      
                                                                         ternaryColorMapper,
                                                                         1.0,
                                                                         caf::FC_NONE,
-                                                                        eclipseView->isLightingDisabled() );
+                                                                        isLightingDisabled );
             }
             else
             {
@@ -190,19 +192,16 @@ void RivIntersectionPartMgr::updateCellResultColor( size_t                      
 
                 cvf::ref<RigResultAccessor> resultAccessor;
 
-                if ( RiaDefines::isPerCellFaceResult( cellResultColors->resultVariable() ) )
+                if ( RiaDefines::isPerCellFaceResult( eclipseResDef->resultVariable() ) )
                 {
                     resultAccessor = new RigHugeValResultAccessor;
                 }
                 else
                 {
-                    resultAccessor = RigResultAccessorFactory::createFromResultDefinition( cellResultColors
-                                                                                               ->reservoirView()
-                                                                                               ->eclipseCase()
-                                                                                               ->eclipseCaseData(),
+                    resultAccessor = RigResultAccessorFactory::createFromResultDefinition( eclipseCaseData,
                                                                                            0,
                                                                                            timeStepIndex,
-                                                                                           cellResultColors );
+                                                                                           eclipseResDef );
                 }
 
                 RivIntersectionPartMgr::calculateEclipseTextureCoordinates( m_crossSectionFacesTextureCoords.p(),
@@ -215,7 +214,7 @@ void RivIntersectionPartMgr::updateCellResultColor( size_t                      
                                                                  scalarColorMapper,
                                                                  1.0,
                                                                  caf::FC_NONE,
-                                                                 eclipseView->isLightingDisabled() );
+                                                                 isLightingDisabled );
             }
         }
     }
@@ -225,12 +224,17 @@ void RivIntersectionPartMgr::updateCellResultColor( size_t                      
 
     if ( geoView )
     {
-        RimGeoMechCellColors* cellResultColors = geoView->cellResult();
-        RigGeoMechCaseData*   caseData         = cellResultColors->ownerCaseData();
+        bool isLightingDisabled = geoView->isLightingDisabled();
+
+        RigGeoMechCaseData* caseData = nullptr;
+        RigFemResultAddress resVarAddress;
+        {
+            RimGeoMechResultDefinition* geomResultDef = geoView->cellResult();
+            caseData                                  = geomResultDef->ownerCaseData();
+            resVarAddress                             = geomResultDef->resultAddress();
+        }
 
         if ( !caseData ) return;
-
-        RigFemResultAddress resVarAddress = cellResultColors->resultAddress();
 
         if ( resVarAddress.resultPosType == RIG_ELEMENT )
         {
@@ -298,7 +302,7 @@ void RivIntersectionPartMgr::updateCellResultColor( size_t                      
                                                          scalarColorMapper,
                                                          1.0,
                                                          caf::FC_NONE,
-                                                         geoView->isLightingDisabled() );
+                                                         isLightingDisabled );
     }
 }
 

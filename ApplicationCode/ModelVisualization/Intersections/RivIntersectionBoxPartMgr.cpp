@@ -86,7 +86,9 @@ void RivIntersectionBoxPartMgr::updateCellResultColor( size_t                   
 {
     if ( !m_intersectionBoxGenerator->isAnyGeometryPresent() ) return;
 
-    RimEclipseView* eclipseView;
+    CVF_ASSERT( scalarColorMapper );
+
+    RimEclipseView* eclipseView = nullptr;
     m_rimIntersectionBox->firstAncestorOrThisOfType( eclipseView );
 
     if ( eclipseView )
