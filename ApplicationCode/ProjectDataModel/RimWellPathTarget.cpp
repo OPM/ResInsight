@@ -1,13 +1,31 @@
-#include "RimWellPathTarget.h"
-#include "RimModeledWellPath.h"
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2018 -    Equinor
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellPathGeometryDef.h"
+#include "RimWellPathTarget.h"
 
 #include "RiaOffshoreSphericalCoords.h"
 
-#include "cafPdmUiCheckBoxEditor.h"
+#include "RimModeledWellPath.h"
+#include "RimWellPathGeometryDef.h"
 
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
+
 #include <cmath>
 
 CAF_PDM_SOURCE_INIT( RimWellPathTarget, "WellPathTarget" );
@@ -281,8 +299,7 @@ void RimWellPathTarget::defineEditorAttribute( const caf::PdmFieldHandle* field,
 {
     if ( field == &m_targetPoint )
     {
-        auto uiDisplayStringAttr =
-            dynamic_cast<caf::PdmUiLineEditorAttributeUiDisplayString*>( attribute );
+        auto uiDisplayStringAttr = dynamic_cast<caf::PdmUiLineEditorAttributeUiDisplayString*>( attribute );
 
         if ( uiDisplayStringAttr )
         {
