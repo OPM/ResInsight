@@ -445,12 +445,13 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             displayUnit = wellLogPlot->depthUnit();
         }
 
-        if ( wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH )
+        if ( wellLogPlot->depthType() == RiaDefines::MEASURED_DEPTH )
         {
             m_qwtPlotCurve->showErrorBars( showErrorBarsInObservedData );
             m_qwtPlotCurve->setPerPointLabels( perPointLabels );
             m_qwtPlotCurve->setSamplesFromXValuesAndYValues( this->curveData()->xPlotValues(),
-                                                             this->curveData()->measuredDepthPlotValues( displayUnit ),
+                                                             this->curveData()->depthPlotValues( RiaDefines::MEASURED_DEPTH,
+                                                                                                 displayUnit ),
                                                              errors,
                                                              false,
                                                              RiuQwtPlotCurve::ERROR_ALONG_X_AXIS );
@@ -485,7 +486,8 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             m_qwtPlotCurve->showErrorBars( showErrorBarsInObservedData );
             m_qwtPlotCurve->setPerPointLabels( perPointLabels );
             m_qwtPlotCurve->setSamplesFromXValuesAndYValues( this->curveData()->xPlotValues(),
-                                                             this->curveData()->trueDepthPlotValues( displayUnit ),
+                                                             this->curveData()->depthPlotValues( RiaDefines::TRUE_VERTICAL_DEPTH,
+                                                                                                 displayUnit ),
                                                              errors,
                                                              false,
                                                              RiuQwtPlotCurve::ERROR_ALONG_X_AXIS );

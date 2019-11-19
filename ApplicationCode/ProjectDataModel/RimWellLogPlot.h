@@ -48,14 +48,6 @@ class RimWellLogPlot : public RimGridPlotWindow, public RimNameConfigHolderInter
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum DepthTypeEnum
-    {
-        MEASURED_DEPTH,
-        TRUE_VERTICAL_DEPTH,
-        PSEUDO_LENGTH,
-        CONNECTION_NUMBER
-    };
-
     enum AxisGridVisibility
     {
         AXIS_GRID_NONE            = 0x00,
@@ -65,6 +57,7 @@ public:
     };
 
     typedef caf::AppEnum<AxisGridVisibility> AxisGridEnum;
+    using DepthTypeEnum = RiaDefines::DepthTypeEnum;
 
 public:
     RimWellLogPlot();
@@ -106,7 +99,7 @@ public:
     void                             setCommonDataSourceEnabled( bool enable );
 
     void setAvailableDepthUnits( const std::set<RiaDefines::DepthUnitType>& depthUnits );
-    void setAvailableDepthTypes( const std::set<RimWellLogPlot::DepthTypeEnum>& depthTypes );
+    void setAvailableDepthTypes( const std::set<DepthTypeEnum>& depthTypes );
 
     void onPlotAdditionOrRemoval() override;
 
@@ -146,8 +139,8 @@ protected:
 
     caf::PdmChildField<RimWellLogPlotNameConfig*> m_nameConfig;
 
-    std::set<RiaDefines::DepthUnitType>     m_availableDepthUnits;
-    std::set<RimWellLogPlot::DepthTypeEnum> m_availableDepthTypes;
+    std::set<RiaDefines::DepthUnitType> m_availableDepthUnits;
+    std::set<DepthTypeEnum>             m_availableDepthTypes;
 
     double m_minAvailableDepth;
     double m_maxAvailableDepth;

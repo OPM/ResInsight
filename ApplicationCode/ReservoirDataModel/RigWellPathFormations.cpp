@@ -55,7 +55,7 @@ void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth( std:
 {
     std::map<double, bool, DepthComp> tempMakeVectorUniqueOnMeasuredDepth;
 
-    if ( depthType == RimWellLogPlot::MEASURED_DEPTH )
+    if ( depthType == RiaDefines::MEASURED_DEPTH )
     {
         for ( const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations )
         {
@@ -77,7 +77,7 @@ void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth( std:
             }
         }
     }
-    else if ( depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH )
+    else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
     {
         for ( const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations )
         {
@@ -106,11 +106,11 @@ void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth( std:
         if (!tempMakeVectorUniqueOnMeasuredDepth.count(formation.first.mdTop))
         {
             double depth;
-            if (depthType == RimWellLogPlot::MEASURED_DEPTH)
+            if (depthType == RiaDefines::MEASURED_DEPTH)
             {
                 depth = formation.first.mdTop;
             }
-            else if (depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
+            else if (depthType == RiaDefines::TRUE_VERTICAL_DEPTH)
             {
                 depth = formation.first.tvdTop;
             }
@@ -125,11 +125,11 @@ void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth( std:
     for (const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations)
     {
         double depth;
-        if (depthType == RimWellLogPlot::MEASURED_DEPTH)
+        if (depthType == RiaDefines::MEASURED_DEPTH)
         {
             depth = formation.first.mdBase;
         }
-        else if (depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
+        else if (depthType == RiaDefines::TRUE_VERTICAL_DEPTH)
         {
             depth = formation.first.tvdBase;
         }
@@ -169,7 +169,7 @@ void RigWellPathFormations::evaluateFormationsForOnePosition(
     {
         double depth;
 
-        if ( depthType == RimWellLogPlot::MEASURED_DEPTH )
+        if ( depthType == RiaDefines::MEASURED_DEPTH )
         {
             if ( position == TOP )
             {
@@ -180,7 +180,7 @@ void RigWellPathFormations::evaluateFormationsForOnePosition(
                 depth = formation.first.mdBase;
             }
         }
-        else if ( depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH )
+        else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
         {
             if ( position == TOP )
             {
@@ -237,11 +237,11 @@ void RigWellPathFormations::evaluateFluids( const std::vector<RigWellPathFormati
     for ( const RigWellPathFormation& formation : fluidFormations )
     {
         double depthBase;
-        if ( depthType == RimWellLogPlot::MEASURED_DEPTH )
+        if ( depthType == RiaDefines::MEASURED_DEPTH )
         {
             depthBase = formation.mdBase;
         }
-        else if ( depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH )
+        else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
         {
             depthBase = formation.tvdBase;
         }
@@ -254,11 +254,11 @@ void RigWellPathFormations::evaluateFluids( const std::vector<RigWellPathFormati
     for ( const RigWellPathFormation& formation : fluidFormations )
     {
         double depthTop;
-        if ( depthType == RimWellLogPlot::MEASURED_DEPTH )
+        if ( depthType == RiaDefines::MEASURED_DEPTH )
         {
             depthTop = formation.mdTop;
         }
-        else if ( depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH )
+        else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
         {
             depthTop = formation.tvdTop;
         }
