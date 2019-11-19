@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimWellMeasurement.h"
 
+#include "RimProject.h"
+#include "RimWellMeasurementCollection.h"
 #include "RimWellPath.h"
 
 CAF_PDM_SOURCE_INIT( RimWellMeasurement, "WellMeasurement" );
@@ -161,6 +163,13 @@ void RimWellMeasurement::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
                                            const QVariant&            oldValue,
                                            const QVariant&            newValue )
 {
+    RimProject* proj;
+    this->firstAncestorOrThisOfTypeAsserted( proj );
+    proj->scheduleCreateDisplayModelAndRedrawAllViews();
+
+    RimWellMeasurementCollection* wellMeasurementCollection;
+    this->firstAncestorOrThisOfTypeAsserted( wellMeasurementCollection );
+    wellMeasurementCollection->updateAllReferringTracks();
 }
 
 //--------------------------------------------------------------------------------------------------
