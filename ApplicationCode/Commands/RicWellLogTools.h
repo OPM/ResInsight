@@ -33,6 +33,7 @@ class RimWellLogRftCurve;
 class RimWellLogTrack;
 class RimWellLogWbsCurve;
 class RimWellPath;
+class RimWellMeasurementCurve;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -66,6 +67,10 @@ public:
                                                           int              branchIndex,
                                                           bool             useBranchDetection,
                                                           bool             showPlotWindow = true );
+    static RimWellMeasurementCurve*   addWellMeasurementCurve( RimWellLogTrack* plotTrack,
+                                                               RimWellPath*     wellPath,
+                                                               const QString&   measurementName,
+                                                               bool             showPlotWindow = true );
 
 private:
     template <typename ExtractionCurveType>

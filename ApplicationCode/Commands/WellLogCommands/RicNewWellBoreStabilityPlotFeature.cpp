@@ -321,6 +321,14 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
         curve->setSmoothCurve( true );
         curve->setSmoothingThreshold( 0.002 );
     }
+
+    std::vector<QString> measurementNames;
+    measurementNames.push_back( "XLOT" );
+    for ( size_t i = 0; i < measurementNames.size(); i++ )
+    {
+        RicWellLogTools::addWellMeasurementCurve( stabilityCurvesTrack, wellPath, measurementNames[i] );
+    }
+
     stabilityCurvesTrack->setAutoScaleXEnabled( true );
 }
 
