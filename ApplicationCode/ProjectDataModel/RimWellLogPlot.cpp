@@ -26,6 +26,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
+#include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogTrack.h"
@@ -576,8 +577,17 @@ void RimWellLogPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_depthType )
     {
-        m_isAutoScaleDepthEnabled = true;
-        loadDataAndUpdate();
+        m_isAutoScaleDepthEnabled                   = true;
+        RimWellAllocationPlot* parentWellAllocation = nullptr;
+        this->firstAncestorOrThisOfType( parentWellAllocation );
+        if ( parentWellAllocation )
+        {
+            parentWellAllocation->loadDataAndUpdate();
+        }
+        else
+        {
+            loadDataAndUpdate();
+        }
     }
     else if ( changedField == &m_depthUnit )
     {
