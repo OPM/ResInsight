@@ -83,17 +83,17 @@ void RivIntersectionBoxPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 void RivIntersectionBoxPartMgr::updateCellResultColor( size_t timeStepIndex )
 {
-    RivIntersectionBoxPartMgr::updateCellResultColorStatic( timeStepIndex,
-                                                            m_rimIntersectionBox,
-                                                            m_intersectionBoxGenerator.p(),
-                                                            m_intersectionBoxFaces.p(),
-                                                            m_intersectionBoxFacesTextureCoords.p() );
+    RivIntersectionResultsColoringTools::updateCellResultColorStatic( timeStepIndex,
+                                                                      m_rimIntersectionBox,
+                                                                      m_intersectionBoxGenerator.p(),
+                                                                      m_intersectionBoxFaces.p(),
+                                                                      m_intersectionBoxFacesTextureCoords.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxPartMgr::updateCellResultColorStatic(
+void RivIntersectionResultsColoringTools::updateCellResultColorStatic(
     size_t                                    timeStepIndex,
     RimIntersectionHandle*                    rimIntersectionHandle,
     const RivIntersectionGeometryGeneratorIF* intersectionGeomGenIF,
@@ -163,34 +163,35 @@ void RivIntersectionBoxPartMgr::updateCellResultColorStatic(
     {
         if ( eclipseResDef->isTernarySaturationSelected() )
         {
-            updateEclipseTernaryCellResultColors( eclipseResDef,
-                                                  ternaryColorMapper,
-                                                  timeStepIndex,
-                                                  isLightingDisabled,
-                                                  intersectionGeomGenIF->triangleToCellIndex(),
-                                                  intersectionFacesPart,
-                                                  intersectionFacesTextureCoords );
+            RivIntersectionResultsColoringTools::updateEclipseTernaryCellResultColors( eclipseResDef,
+                                                                                       ternaryColorMapper,
+                                                                                       timeStepIndex,
+                                                                                       isLightingDisabled,
+                                                                                       intersectionGeomGenIF
+                                                                                           ->triangleToCellIndex(),
+                                                                                       intersectionFacesPart,
+                                                                                       intersectionFacesTextureCoords );
         }
         else
         {
-            updateEclipseCellResultColors( eclipseResDef,
-                                           scalarColorMapper,
-                                           timeStepIndex,
-                                           isLightingDisabled,
-                                           intersectionGeomGenIF->triangleToCellIndex(),
-                                           intersectionFacesPart,
-                                           intersectionFacesTextureCoords );
+            RivIntersectionResultsColoringTools::updateEclipseCellResultColors( eclipseResDef,
+                                                                                scalarColorMapper,
+                                                                                timeStepIndex,
+                                                                                isLightingDisabled,
+                                                                                intersectionGeomGenIF->triangleToCellIndex(),
+                                                                                intersectionFacesPart,
+                                                                                intersectionFacesTextureCoords );
         }
     }
     else if ( geomResultDef )
     {
-        updateGeoMechCellResultColors( geomResultDef,
-                                       timeStepIndex,
-                                       scalarColorMapper,
-                                       isLightingDisabled,
-                                       intersectionGeomGenIF,
-                                       intersectionFacesPart,
-                                       intersectionFacesTextureCoords );
+        RivIntersectionResultsColoringTools::updateGeoMechCellResultColors( geomResultDef,
+                                                                            timeStepIndex,
+                                                                            scalarColorMapper,
+                                                                            isLightingDisabled,
+                                                                            intersectionGeomGenIF,
+                                                                            intersectionFacesPart,
+                                                                            intersectionFacesTextureCoords );
         return;
     }
 }
@@ -198,13 +199,14 @@ void RivIntersectionBoxPartMgr::updateCellResultColorStatic(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxPartMgr::updateEclipseCellResultColors( const RimEclipseResultDefinition* eclipseResDef,
-                                                               const cvf::ScalarMapper*          scalarColorMapper,
-                                                               size_t                            timeStepIndex,
-                                                               bool                              isLightingDisabled,
-                                                               const std::vector<size_t>& triangleToCellIndexMapping,
-                                                               cvf::Part*                 intersectionFacesPart,
-                                                               cvf::Vec2fArray* intersectionFacesTextureCoords )
+void RivIntersectionResultsColoringTools::updateEclipseCellResultColors(
+    const RimEclipseResultDefinition* eclipseResDef,
+    const cvf::ScalarMapper*          scalarColorMapper,
+    size_t                            timeStepIndex,
+    bool                              isLightingDisabled,
+    const std::vector<size_t>&        triangleToCellIndexMapping,
+    cvf::Part*                        intersectionFacesPart,
+    cvf::Vec2fArray*                  intersectionFacesTextureCoords )
 {
     RigEclipseCaseData* eclipseCaseData = eclipseResDef->eclipseCase()->eclipseCaseData();
 
@@ -222,10 +224,10 @@ void RivIntersectionBoxPartMgr::updateEclipseCellResultColors( const RimEclipseR
                                                                                eclipseResDef );
     }
 
-    RivIntersectionPartMgr::calculateEclipseTextureCoordinates( intersectionFacesTextureCoords,
-                                                                triangleToCellIndexMapping,
-                                                                resultAccessor.p(),
-                                                                scalarColorMapper );
+    RivIntersectionResultsColoringTools::calculateEclipseTextureCoordinates( intersectionFacesTextureCoords,
+                                                                             triangleToCellIndexMapping,
+                                                                             resultAccessor.p(),
+                                                                             scalarColorMapper );
 
     RivScalarMapperUtils::applyTextureResultsToPart( intersectionFacesPart,
                                                      intersectionFacesTextureCoords,
@@ -238,13 +240,14 @@ void RivIntersectionBoxPartMgr::updateEclipseCellResultColors( const RimEclipseR
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxPartMgr::updateEclipseTernaryCellResultColors( const RimEclipseResultDefinition* eclipseResDef,
-                                                                      const RivTernaryScalarMapper* ternaryColorMapper,
-                                                                      size_t                        timeStepIndex,
-                                                                      bool                          isLightingDisabled,
-                                                                      const std::vector<size_t>& triangleToCellIndexMapping,
-                                                                      cvf::Part*                 intersectionFacesPart,
-                                                                      cvf::Vec2fArray* intersectionFacesTextureCoords )
+void RivIntersectionResultsColoringTools::updateEclipseTernaryCellResultColors(
+    const RimEclipseResultDefinition* eclipseResDef,
+    const RivTernaryScalarMapper*     ternaryColorMapper,
+    size_t                            timeStepIndex,
+    bool                              isLightingDisabled,
+    const std::vector<size_t>&        triangleToCellIndexMapping,
+    cvf::Part*                        intersectionFacesPart,
+    cvf::Vec2fArray*                  intersectionFacesTextureCoords )
 {
     RivTernaryTextureCoordsCreator texturer( eclipseResDef, ternaryColorMapper, timeStepIndex );
 
@@ -261,13 +264,14 @@ void RivIntersectionBoxPartMgr::updateEclipseTernaryCellResultColors( const RimE
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxPartMgr::updateGeoMechCellResultColors( const RimGeoMechResultDefinition* geomResultDef,
-                                                               size_t                            timeStepIndex,
-                                                               const cvf::ScalarMapper*          scalarColorMapper,
-                                                               bool                              isLightingDisabled,
-                                                               const RivIntersectionGeometryGeneratorIF* geomGenerator,
-                                                               cvf::Part*       intersectionFacesPart,
-                                                               cvf::Vec2fArray* intersectionFacesTextureCoords )
+void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors(
+    const RimGeoMechResultDefinition*         geomResultDef,
+    size_t                                    timeStepIndex,
+    const cvf::ScalarMapper*                  scalarColorMapper,
+    bool                                      isLightingDisabled,
+    const RivIntersectionGeometryGeneratorIF* geomGenerator,
+    cvf::Part*                                intersectionFacesPart,
+    cvf::Vec2fArray*                          intersectionFacesTextureCoords )
 {
     RigGeoMechCaseData* caseData = nullptr;
     RigFemResultAddress resVarAddress;
@@ -289,10 +293,10 @@ void RivIntersectionBoxPartMgr::updateGeoMechCellResultColors( const RimGeoMechR
                                                                                            0,
                                                                                            (int)timeStepIndex );
 
-        RivIntersectionPartMgr::calculateElementBasedGeoMechTextureCoords( intersectionFacesTextureCoords,
-                                                                           resultValues,
-                                                                           triangleToCellIdx,
-                                                                           scalarColorMapper );
+        RivIntersectionResultsColoringTools::calculateElementBasedGeoMechTextureCoords( intersectionFacesTextureCoords,
+                                                                                        resultValues,
+                                                                                        triangleToCellIdx,
+                                                                                        scalarColorMapper );
     }
     else if ( resVarAddress.resultPosType == RIG_ELEMENT_NODAL_FACE )
     {
@@ -300,20 +304,20 @@ void RivIntersectionBoxPartMgr::updateGeoMechCellResultColors( const RimGeoMechR
 
         if ( resVarAddress.componentName == "Pazi" || resVarAddress.componentName == "Pinc" )
         {
-            RivIntersectionPartMgr::calculatePlaneAngleTextureCoords( intersectionFacesTextureCoords,
-                                                                      triangelVxes,
-                                                                      resVarAddress,
-                                                                      scalarColorMapper );
+            RivIntersectionResultsColoringTools::calculatePlaneAngleTextureCoords( intersectionFacesTextureCoords,
+                                                                                   triangelVxes,
+                                                                                   resVarAddress,
+                                                                                   scalarColorMapper );
         }
         else
         {
-            RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords( intersectionFacesTextureCoords,
-                                                                           triangelVxes,
-                                                                           vertexWeights,
-                                                                           caseData,
-                                                                           resVarAddress,
-                                                                           (int)timeStepIndex,
-                                                                           scalarColorMapper );
+            RivIntersectionResultsColoringTools::calculateGeoMechTensorXfTextureCoords( intersectionFacesTextureCoords,
+                                                                                        triangelVxes,
+                                                                                        vertexWeights,
+                                                                                        caseData,
+                                                                                        resVarAddress,
+                                                                                        (int)timeStepIndex,
+                                                                                        scalarColorMapper );
         }
     }
     else
@@ -332,12 +336,12 @@ void RivIntersectionBoxPartMgr::updateGeoMechCellResultColors( const RimGeoMechR
         RigFemPart* femPart              = caseData->femParts()->part( 0 );
         bool        isElementNodalResult = !( resVarAddress.resultPosType == RIG_NODAL );
 
-        RivIntersectionPartMgr::calculateNodeOrElementNodeBasedGeoMechTextureCoords( intersectionFacesTextureCoords,
-                                                                                     vertexWeights,
-                                                                                     resultValues,
-                                                                                     isElementNodalResult,
-                                                                                     femPart,
-                                                                                     scalarColorMapper );
+        RivIntersectionResultsColoringTools::calculateNodeOrElementNodeBasedGeoMechTextureCoords( intersectionFacesTextureCoords,
+                                                                                                  vertexWeights,
+                                                                                                  resultValues,
+                                                                                                  isElementNodalResult,
+                                                                                                  femPart,
+                                                                                                  scalarColorMapper );
     }
 
     RivScalarMapperUtils::applyTextureResultsToPart( intersectionFacesPart,

@@ -152,164 +152,17 @@ void RivIntersectionPartMgr::updateCellResultColor( size_t                      
                                                     const cvf::ScalarMapper*      scalarColorMapper,
                                                     const RivTernaryScalarMapper* ternaryColorMapper )
 {
-    if ( !m_crossSectionGenerator->isAnyGeometryPresent() ) return;
-
-    CVF_ASSERT( scalarColorMapper );
-
-    RimEclipseView* eclipseView = nullptr;
-    m_rimCrossSection->firstAncestorOrThisOfType( eclipseView );
-
-    if ( eclipseView )
-    {
-        bool isLightingDisabled = eclipseView->isLightingDisabled();
-
-        RimEclipseResultDefinition* eclipseResDef   = eclipseView->cellResult();
-        bool                        isTernaryResult = eclipseResDef->isTernarySaturationSelected();
-        RigEclipseCaseData*         eclipseCaseData = eclipseResDef->eclipseCase()->eclipseCaseData();
-
-        CVF_ASSERT( eclipseResDef );
-
-        // CrossSections
-        if ( m_crossSectionFaces.notNull() )
-        {
-            if ( isTernaryResult )
-            {
-                RivTernaryTextureCoordsCreator texturer( eclipseResDef, ternaryColorMapper, timeStepIndex );
-
-                texturer.createTextureCoords( m_crossSectionFacesTextureCoords.p(),
-                                              m_crossSectionGenerator->triangleToCellIndex() );
-
-                RivScalarMapperUtils::applyTernaryTextureResultsToPart( m_crossSectionFaces.p(),
-                                                                        m_crossSectionFacesTextureCoords.p(),
-                                                                        ternaryColorMapper,
-                                                                        1.0,
-                                                                        caf::FC_NONE,
-                                                                        isLightingDisabled );
-            }
-            else
-            {
-                CVF_ASSERT( m_crossSectionGenerator.notNull() );
-
-                cvf::ref<RigResultAccessor> resultAccessor;
-
-                if ( RiaDefines::isPerCellFaceResult( eclipseResDef->resultVariable() ) )
-                {
-                    resultAccessor = new RigHugeValResultAccessor;
-                }
-                else
-                {
-                    resultAccessor = RigResultAccessorFactory::createFromResultDefinition( eclipseCaseData,
-                                                                                           0,
-                                                                                           timeStepIndex,
-                                                                                           eclipseResDef );
-                }
-
-                RivIntersectionPartMgr::calculateEclipseTextureCoordinates( m_crossSectionFacesTextureCoords.p(),
-                                                                            m_crossSectionGenerator->triangleToCellIndex(),
-                                                                            resultAccessor.p(),
-                                                                            scalarColorMapper );
-
-                RivScalarMapperUtils::applyTextureResultsToPart( m_crossSectionFaces.p(),
-                                                                 m_crossSectionFacesTextureCoords.p(),
-                                                                 scalarColorMapper,
-                                                                 1.0,
-                                                                 caf::FC_NONE,
-                                                                 isLightingDisabled );
-            }
-        }
-    }
-
-    RimGeoMechView* geoView;
-    m_rimCrossSection->firstAncestorOrThisOfType( geoView );
-
-    if ( geoView )
-    {
-        bool isLightingDisabled = geoView->isLightingDisabled();
-
-        RigGeoMechCaseData* caseData = nullptr;
-        RigFemResultAddress resVarAddress;
-        {
-            RimGeoMechResultDefinition* geomResultDef = geoView->cellResult();
-            caseData                                  = geomResultDef->ownerCaseData();
-            resVarAddress                             = geomResultDef->resultAddress();
-        }
-
-        if ( !caseData ) return;
-
-        if ( resVarAddress.resultPosType == RIG_ELEMENT )
-        {
-            const std::vector<float>&  resultValues      = caseData->femPartResults()->resultValues( resVarAddress,
-                                                                                               0,
-                                                                                               (int)timeStepIndex );
-            const std::vector<size_t>& triangleToCellIdx = m_crossSectionGenerator->triangleToCellIndex();
-
-            RivIntersectionPartMgr::calculateElementBasedGeoMechTextureCoords( m_crossSectionFacesTextureCoords.p(),
-                                                                               resultValues,
-                                                                               triangleToCellIdx,
-                                                                               scalarColorMapper );
-        }
-        else if ( resVarAddress.resultPosType == RIG_ELEMENT_NODAL_FACE )
-        {
-            // Special direction sensitive result calculation
-            const cvf::Vec3fArray* triangelVxes = m_crossSectionGenerator->triangleVxes();
-
-            if ( resVarAddress.componentName == "Pazi" || resVarAddress.componentName == "Pinc" )
-            {
-                RivIntersectionPartMgr::calculatePlaneAngleTextureCoords( m_crossSectionFacesTextureCoords.p(),
-                                                                          triangelVxes,
-                                                                          resVarAddress,
-                                                                          scalarColorMapper );
-            }
-            else
-            {
-                const std::vector<RivIntersectionVertexWeights>& vertexWeights =
-                    m_crossSectionGenerator->triangleVxToCellCornerInterpolationWeights();
-
-                RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords( m_crossSectionFacesTextureCoords.p(),
-                                                                               triangelVxes,
-                                                                               vertexWeights,
-                                                                               caseData,
-                                                                               resVarAddress,
-                                                                               (int)timeStepIndex,
-                                                                               scalarColorMapper );
-            }
-        }
-        else
-        {
-            // Do a "Hack" to show elm nodal and not nodal POR results
-            if ( resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar" )
-                resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
-
-            const std::vector<float>& resultValues         = caseData->femPartResults()->resultValues( resVarAddress,
-                                                                                               0,
-                                                                                               (int)timeStepIndex );
-            RigFemPart*               femPart              = caseData->femParts()->part( 0 );
-            bool                      isElementNodalResult = !( resVarAddress.resultPosType == RIG_NODAL );
-            const std::vector<RivIntersectionVertexWeights>& vertexWeights =
-                m_crossSectionGenerator->triangleVxToCellCornerInterpolationWeights();
-
-            RivIntersectionPartMgr::calculateNodeOrElementNodeBasedGeoMechTextureCoords( m_crossSectionFacesTextureCoords
-                                                                                             .p(),
-                                                                                         vertexWeights,
-                                                                                         resultValues,
-                                                                                         isElementNodalResult,
-                                                                                         femPart,
-                                                                                         scalarColorMapper );
-        }
-
-        RivScalarMapperUtils::applyTextureResultsToPart( m_crossSectionFaces.p(),
-                                                         m_crossSectionFacesTextureCoords.p(),
-                                                         scalarColorMapper,
-                                                         1.0,
-                                                         caf::FC_NONE,
-                                                         isLightingDisabled );
-    }
+    RivIntersectionResultsColoringTools::updateCellResultColorStatic( timeStepIndex,
+                                                                      m_rimCrossSection,
+                                                                      m_crossSectionGenerator.p(),
+                                                                      m_crossSectionFaces.p(),
+                                                                      m_crossSectionFacesTextureCoords.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionPartMgr::calculateNodeOrElementNodeBasedGeoMechTextureCoords(
+void RivIntersectionResultsColoringTools::calculateNodeOrElementNodeBasedGeoMechTextureCoords(
     cvf::Vec2fArray*                                 textureCoords,
     const std::vector<RivIntersectionVertexWeights>& vertexWeights,
     const std::vector<float>&                        resultValues,
@@ -364,10 +217,11 @@ void RivIntersectionPartMgr::calculateNodeOrElementNodeBasedGeoMechTextureCoords
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionPartMgr::calculateElementBasedGeoMechTextureCoords( cvf::Vec2fArray*           textureCoords,
-                                                                        const std::vector<float>&  resultValues,
-                                                                        const std::vector<size_t>& triangleToCellIdx,
-                                                                        const cvf::ScalarMapper*   mapper )
+void RivIntersectionResultsColoringTools::calculateElementBasedGeoMechTextureCoords(
+    cvf::Vec2fArray*           textureCoords,
+    const std::vector<float>&  resultValues,
+    const std::vector<size_t>& triangleToCellIdx,
+    const cvf::ScalarMapper*   mapper )
 {
     textureCoords->resize( triangleToCellIdx.size() * 3 );
 
@@ -405,7 +259,7 @@ void RivIntersectionPartMgr::calculateElementBasedGeoMechTextureCoords( cvf::Vec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords(
+void RivIntersectionResultsColoringTools::calculateGeoMechTensorXfTextureCoords(
     cvf::Vec2fArray*                                 textureCoords,
     const cvf::Vec3fArray*                           triangelVertices,
     const std::vector<RivIntersectionVertexWeights>& vertexWeights,
@@ -446,10 +300,10 @@ void RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionPartMgr::calculatePlaneAngleTextureCoords( cvf::Vec2fArray*           textureCoords,
-                                                               const cvf::Vec3fArray*     triangelVertices,
-                                                               const RigFemResultAddress& resVarAddress,
-                                                               const cvf::ScalarMapper*   mapper )
+void RivIntersectionResultsColoringTools::calculatePlaneAngleTextureCoords( cvf::Vec2fArray*           textureCoords,
+                                                                            const cvf::Vec3fArray*     triangelVertices,
+                                                                            const RigFemResultAddress& resVarAddress,
+                                                                            const cvf::ScalarMapper*   mapper )
 {
     textureCoords->resize( triangelVertices->size() );
     cvf::Vec2f* rawPtr   = textureCoords->ptr();
@@ -493,10 +347,10 @@ void RivIntersectionPartMgr::calculatePlaneAngleTextureCoords( cvf::Vec2fArray* 
 /// Calculates the texture coordinates in a "nearly" one dimensional texture.
 /// Undefined values are coded with a y-texturecoordinate value of 1.0 instead of the normal 0.5
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionPartMgr::calculateEclipseTextureCoordinates( cvf::Vec2fArray*           textureCoords,
-                                                                 const std::vector<size_t>& triangleToCellIdxMap,
-                                                                 const RigResultAccessor*   resultAccessor,
-                                                                 const cvf::ScalarMapper*   mapper )
+void RivIntersectionResultsColoringTools::calculateEclipseTextureCoordinates( cvf::Vec2fArray*           textureCoords,
+                                                                              const std::vector<size_t>& triangleToCellIdxMap,
+                                                                              const RigResultAccessor* resultAccessor,
+                                                                              const cvf::ScalarMapper* mapper )
 {
     if ( !resultAccessor ) return;
 

@@ -21,6 +21,8 @@
 
 #include "cafPdmPointer.h"
 
+#include "RivHexGridIntersectionTools.h"
+
 #include "cvfArray.h"
 
 #include "cvfBoundingBox.h"
@@ -44,7 +46,7 @@ class ScalarMapper;
 class DrawableGeo;
 } // namespace cvf
 
-class RivIntersectionGeometryGenerator : public cvf::Object
+class RivIntersectionGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorIF
 {
 public:
     RivIntersectionGeometryGenerator( RimIntersection*                       crossSection,

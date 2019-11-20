@@ -80,37 +80,6 @@ public:
     cvf::Mat4d unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat );
 
 public:
-    static void calculateEclipseTextureCoordinates( cvf::Vec2fArray*           textureCoords,
-                                                    const std::vector<size_t>& triangleToCellIdxMap,
-                                                    const RigResultAccessor*   resultAccessor,
-                                                    const cvf::ScalarMapper*   mapper );
-
-    static void calculateNodeOrElementNodeBasedGeoMechTextureCoords(
-        cvf::Vec2fArray*                                 textureCoords,
-        const std::vector<RivIntersectionVertexWeights>& vertexWeights,
-        const std::vector<float>&                        resultValues,
-        bool                                             isElementNodalResult,
-        const RigFemPart*                                femPart,
-        const cvf::ScalarMapper*                         mapper );
-
-    static void calculateElementBasedGeoMechTextureCoords( cvf::Vec2fArray*           textureCoords,
-                                                           const std::vector<float>&  resultValues,
-                                                           const std::vector<size_t>& triangleToCellIdx,
-                                                           const cvf::ScalarMapper*   mapper );
-
-    static void calculateGeoMechTensorXfTextureCoords( cvf::Vec2fArray*       textureCoords,
-                                                       const cvf::Vec3fArray* triangelVertices,
-                                                       const std::vector<RivIntersectionVertexWeights>& vertexWeights,
-                                                       RigGeoMechCaseData*                              caseData,
-                                                       const RigFemResultAddress&                       resVarAddress,
-                                                       int                                              timeStepIdx,
-                                                       const cvf::ScalarMapper*                         mapper );
-
-    static void calculatePlaneAngleTextureCoords( cvf::Vec2fArray*           textureCoords,
-                                                  const cvf::Vec3fArray*     triangelVertices,
-                                                  const RigFemResultAddress& resVarAddress,
-                                                  const cvf::ScalarMapper*   mapper );
-
 private:
     void generatePartGeometry();
     void createFaultLabelParts( const std::vector<std::pair<QString, cvf::Vec3d>>& labelAndAnchors );
@@ -143,4 +112,75 @@ private:
     std::list<RivPipeBranchData> m_wellBranches;
 
     bool m_isFlattened;
+};
+
+class RimIntersectionHandle;
+class RivIntersectionGeometryGeneratorIF;
+class RimEclipseResultDefinition;
+class RimGeoMechResultDefinition;
+
+class RivIntersectionResultsColoringTools
+{
+public:
+    static void updateCellResultColorStatic( size_t                                    timeStepIndex,
+                                             RimIntersectionHandle*                    m_rimIntersectionBox,
+                                             const RivIntersectionGeometryGeneratorIF* m_intersectionBoxGenerator,
+                                             cvf::Part*                                m_intersectionBoxFaces,
+                                             cvf::Vec2fArray* m_intersectionBoxFacesTextureCoords );
+
+private:
+    static void updateEclipseCellResultColors( const RimEclipseResultDefinition* eclipseResDef,
+                                               const cvf::ScalarMapper*          scalarColorMapper,
+                                               size_t                            timeStepIndex,
+                                               bool                              isLightingDisabled,
+                                               const std::vector<size_t>&        triangleToCellIndexMapping,
+                                               cvf::Part*                        m_intersectionBoxFaces,
+                                               cvf::Vec2fArray*                  m_intersectionBoxFacesTextureCoords );
+
+    static void updateEclipseTernaryCellResultColors( const RimEclipseResultDefinition* eclipseResDef,
+                                                      const RivTernaryScalarMapper*     ternaryColorMapper,
+                                                      size_t                            timeStepIndex,
+                                                      bool                              isLightingDisabled,
+                                                      const std::vector<size_t>&        triangleToCellIndexMapping,
+                                                      cvf::Part*                        m_intersectionBoxFaces,
+                                                      cvf::Vec2fArray* m_intersectionBoxFacesTextureCoords );
+
+    static void updateGeoMechCellResultColors( const RimGeoMechResultDefinition*         geomResultDef,
+                                               size_t                                    timeStepIndex,
+                                               const cvf::ScalarMapper*                  scalarColorMapper,
+                                               bool                                      isLightingDisabled,
+                                               const RivIntersectionGeometryGeneratorIF* geomGenerator,
+                                               cvf::Part*                                m_intersectionBoxFaces,
+                                               cvf::Vec2fArray* m_intersectionBoxFacesTextureCoords );
+
+    static void calculateEclipseTextureCoordinates( cvf::Vec2fArray*           textureCoords,
+                                                    const std::vector<size_t>& triangleToCellIdxMap,
+                                                    const RigResultAccessor*   resultAccessor,
+                                                    const cvf::ScalarMapper*   mapper );
+
+    static void calculateNodeOrElementNodeBasedGeoMechTextureCoords(
+        cvf::Vec2fArray*                                 textureCoords,
+        const std::vector<RivIntersectionVertexWeights>& vertexWeights,
+        const std::vector<float>&                        resultValues,
+        bool                                             isElementNodalResult,
+        const RigFemPart*                                femPart,
+        const cvf::ScalarMapper*                         mapper );
+
+    static void calculateElementBasedGeoMechTextureCoords( cvf::Vec2fArray*           textureCoords,
+                                                           const std::vector<float>&  resultValues,
+                                                           const std::vector<size_t>& triangleToCellIdx,
+                                                           const cvf::ScalarMapper*   mapper );
+
+    static void calculateGeoMechTensorXfTextureCoords( cvf::Vec2fArray*       textureCoords,
+                                                       const cvf::Vec3fArray* triangelVertices,
+                                                       const std::vector<RivIntersectionVertexWeights>& vertexWeights,
+                                                       RigGeoMechCaseData*                              caseData,
+                                                       const RigFemResultAddress&                       resVarAddress,
+                                                       int                                              timeStepIdx,
+                                                       const cvf::ScalarMapper*                         mapper );
+
+    static void calculatePlaneAngleTextureCoords( cvf::Vec2fArray*           textureCoords,
+                                                  const cvf::Vec3fArray*     triangelVertices,
+                                                  const RigFemResultAddress& resVarAddress,
+                                                  const cvf::ScalarMapper*   mapper );
 };

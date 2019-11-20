@@ -44,7 +44,6 @@ class RimGeoMechView;
 class RimEclipseResultDefinition;
 class RimGeoMechResultDefinition;
 
-
 //==================================================================================================
 ///
 ///
@@ -55,8 +54,8 @@ class RivIntersectionBoxPartMgr : public cvf::Object
 public:
     explicit RivIntersectionBoxPartMgr( RimIntersectionBox* intersectionBox );
 
-    void        applySingleColorEffect();
-    void        updateCellResultColor( size_t timeStepIndex );
+    void applySingleColorEffect();
+    void updateCellResultColor( size_t timeStepIndex );
 
     void appendNativeCrossSectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
@@ -64,35 +63,6 @@ public:
 private:
     void updatePartEffect();
     void generatePartGeometry();
-
-    static void updateCellResultColorStatic( size_t                                    timeStepIndex,
-                                             RimIntersectionHandle*                    m_rimIntersectionBox,
-                                             const RivIntersectionGeometryGeneratorIF* m_intersectionBoxGenerator,
-                                             cvf::Part*                                m_intersectionBoxFaces,
-                                             cvf::Vec2fArray* m_intersectionBoxFacesTextureCoords );
-    static void updateEclipseCellResultColors( const RimEclipseResultDefinition* eclipseResDef,
-                                               const cvf::ScalarMapper*          scalarColorMapper,
-                                               size_t                            timeStepIndex,
-                                               bool                              isLightingDisabled,
-                                               const std::vector<size_t>&        triangleToCellIndexMapping,
-                                               cvf::Part*                        m_intersectionBoxFaces,
-                                               cvf::Vec2fArray*                  m_intersectionBoxFacesTextureCoords );
-
-    static void updateEclipseTernaryCellResultColors( const RimEclipseResultDefinition* eclipseResDef,
-                                                      const RivTernaryScalarMapper*     ternaryColorMapper,
-                                                      size_t                            timeStepIndex,
-                                                      bool                              isLightingDisabled,
-                                                      const std::vector<size_t>&        triangleToCellIndexMapping,
-                                                      cvf::Part*                        m_intersectionBoxFaces,
-                                                      cvf::Vec2fArray* m_intersectionBoxFacesTextureCoords );
-
-    static void updateGeoMechCellResultColors( const RimGeoMechResultDefinition*         geomResultDef,
-                                               size_t                                    timeStepIndex,
-                                               const cvf::ScalarMapper*                  scalarColorMapper,
-                                               bool                                      isLightingDisabled,
-                                               const RivIntersectionGeometryGeneratorIF* geomGenerator,
-                                               cvf::Part*                                m_intersectionBoxFaces,
-                                               cvf::Vec2fArray* m_intersectionBoxFacesTextureCoords );
 
 private:
     RimIntersectionBox* m_rimIntersectionBox;
