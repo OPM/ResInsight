@@ -416,7 +416,10 @@ QImage RimMultiPlotWindow::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 QWidget* RimMultiPlotWindow::createViewWidget( QWidget* mainWindowParent )
 {
-    m_viewer = new RiuMultiPlotWindow( this, mainWindowParent );
+    if ( m_viewer.isNull() )
+    {
+        m_viewer = new RiuMultiPlotWindow( this, mainWindowParent );
+    }
     recreatePlotWidgets();
     return m_viewer;
 }
