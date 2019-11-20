@@ -37,7 +37,16 @@ class ScalarMapper;
 class DrawableGeo;
 } // namespace cvf
 
-class RivIntersectionBoxGeometryGenerator : public cvf::Object
+class RivIntersectionGeometryGeneratorIF
+{
+public:
+    virtual bool                                             isAnyGeometryPresent() const                       = 0;
+    virtual const std::vector<size_t>&                       triangleToCellIndex() const                        = 0;
+    virtual const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const = 0;
+    virtual const cvf::Vec3fArray*                           triangleVxes() const                               = 0;
+};
+
+class RivIntersectionBoxGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorIF
 {
 public:
     RivIntersectionBoxGeometryGenerator( RimIntersectionBox*                    intersectionBox,
@@ -45,16 +54,16 @@ public:
 
     ~RivIntersectionBoxGeometryGenerator() override;
 
-    bool isAnyGeometryPresent() const;
+    bool isAnyGeometryPresent() const override;
+    // Mapping between cells and geometry
+    const std::vector<size_t>&                       triangleToCellIndex() const override;
+    const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const override;
+    const cvf::Vec3fArray*                           triangleVxes() const override;
 
     // Generate geometry
     cvf::ref<cvf::DrawableGeo> generateSurface();
     cvf::ref<cvf::DrawableGeo> createMeshDrawable();
 
-    // Mapping between cells and geometry
-    const std::vector<size_t>&                       triangleToCellIndex() const;
-    const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
-    const cvf::Vec3fArray*                           triangleVxes() const;
 
     RimIntersectionBox* intersectionBox() const;
 
