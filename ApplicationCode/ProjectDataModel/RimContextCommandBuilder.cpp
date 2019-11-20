@@ -190,6 +190,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "RicExportEclipseInputGridFeature";
+            menuBuilder << "RicSaveEclipseResultAsInputPropertyFeature";
             menuBuilder << "RicExportContourMapToTextFeature";
             menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
         }
