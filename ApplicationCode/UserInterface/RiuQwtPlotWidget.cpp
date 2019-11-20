@@ -571,9 +571,9 @@ void RiuQwtPlotWidget::showEvent( QShowEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::closeEvent( QCloseEvent* event )
 {
-    if ( m_plotDefinition )
+    if ( plotDefinition() )
     {
-        m_plotDefinition->detachAllCurves();
+        plotDefinition()->detachAllCurves();
     }
     QwtPlot::closeEvent( event );
 }
