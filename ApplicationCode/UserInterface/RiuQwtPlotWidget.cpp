@@ -553,7 +553,7 @@ void RiuQwtPlotWidget::closeEvent( QCloseEvent* event )
     {
         m_plotDefinition->detachAllCurves();
     }
-    RiuQwtPlotWidget::closeEvent( event );
+    QwtPlot::closeEvent( event );
 }
 
 //--------------------------------------------------------------------------------------------------
