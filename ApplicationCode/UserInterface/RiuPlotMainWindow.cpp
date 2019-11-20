@@ -717,7 +717,6 @@ void RiuPlotMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
 
     updateWellLogPlotToolBar();
     updateSummaryPlotToolBar();
-    updateGridPlotWindowToolBar();
 }
 
 //--------------------------------------------------------------------------------------------------

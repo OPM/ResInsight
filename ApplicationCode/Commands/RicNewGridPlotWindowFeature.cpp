@@ -50,30 +50,6 @@ RicNewGridPlotWindowFeature::RicNewGridPlotWindowFeature()
 //--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicNewGridPlotWindowFeature::execute()
 {
-    RimProject*                  project        = RiaApplication::instance()->project();
-    RimGridPlotWindowCollection* plotCollection = project->mainPlotCollection()->combinationPlotCollection();
-
-    RimGridPlotWindow* plotWindow = new RimGridPlotWindow;
-    plotWindow->setDescription( QString( "Combination Plot %1" ).arg( plotCollection->gridPlotWindows().size() + 1 ) );
-    plotWindow->setAsPlotMdiWindow();
-    plotCollection->addGridPlotWindow( plotWindow );
-
-    if ( !m_plots().empty() )
-    {
-        std::vector<RimPlotInterface*> plotInterfaces;
-        for ( auto ptr : m_plots() )
-        {
-            plotInterfaces.push_back( reinterpret_cast<RimPlotInterface*>( ptr ) );
-        }
-        plotWindow->movePlotsToThis( plotInterfaces, nullptr );
-    }
-
-    plotCollection->updateAllRequiredEditors();
-    plotWindow->loadDataAndUpdate();
-
-    RiuPlotMainWindowTools::setExpanded( plotCollection, true );
-    RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
-
     return RicfCommandResponse();
 }
 
@@ -82,19 +58,7 @@ RicfCommandResponse RicNewGridPlotWindowFeature::execute()
 //--------------------------------------------------------------------------------------------------
 bool RicNewGridPlotWindowFeature::isCommandEnabled()
 {
-    RimGridPlotWindowCollection* gridPlotCollection =
-        caf::SelectionManager::instance()->selectedItemOfType<RimGridPlotWindowCollection>();
-    if ( gridPlotCollection )
-    {
-        return true;
-    }
-
-    auto selectedPlots = selectedPlotInterfaces();
-
-    std::vector<caf::PdmUiItem*> selectedUiItems;
-    caf::SelectionManager::instance()->selectedItems( selectedUiItems );
-
-    return !selectedPlots.empty() && selectedPlots.size() == selectedUiItems.size();
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
