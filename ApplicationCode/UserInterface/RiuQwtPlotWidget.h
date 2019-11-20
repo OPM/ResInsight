@@ -109,6 +109,7 @@ protected:
     bool  eventFilter( QObject* watched, QEvent* event ) override;
     void  hideEvent( QHideEvent* event ) override;
     void  showEvent( QShowEvent* event ) override;
+    void  closeEvent( QCloseEvent* event ) override;
 
     void applyAxisTitleToQwt( QwtPlot::Axis axis );
 
