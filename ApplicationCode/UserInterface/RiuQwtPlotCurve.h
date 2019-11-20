@@ -23,6 +23,8 @@
 #include "qwt_plot_intervalcurve.h"
 #include "qwt_symbol.h"
 
+#include <memory>
+
 class RiuErrorBarsQwtPlotCurve;
 
 //==================================================================================================

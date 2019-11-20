@@ -33,6 +33,8 @@
 
 #include <QAction>
 
+#include <memory>
+
 CAF_CMD_SOURCE_INIT( RicEditSummaryPlotFeature, "RicEditSummaryPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------

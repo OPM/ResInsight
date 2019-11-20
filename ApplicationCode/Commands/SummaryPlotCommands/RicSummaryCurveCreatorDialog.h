@@ -20,6 +20,8 @@
 
 #include <QDialog>
 
+#include <memory>
+
 namespace caf
 {
 class PdmObject;
