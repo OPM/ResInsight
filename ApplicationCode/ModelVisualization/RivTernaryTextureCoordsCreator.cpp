@@ -39,8 +39,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator( RimEclipseResultDefinition* cellResultColors,
-                                                                RimTernaryLegendConfig*     ternaryLegendConfig,
+RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator( const RimEclipseResultDefinition* cellResultColors,
+                                                                RimTernaryLegendConfig*           ternaryLegendConfig,
                                                                 RimSimWellInViewCollection* simWellInViewCollection,
                                                                 size_t                      timeStepIndex,
                                                                 size_t                      gridIndex,
@@ -92,9 +92,9 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator( RimEclipseResult
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator( RimEclipseResultDefinition*   cellResultColors,
-                                                                const RivTernaryScalarMapper* ternaryColorMapper,
-                                                                size_t                        timeStepIndex )
+RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator( const RimEclipseResultDefinition* cellResultColors,
+                                                                const RivTernaryScalarMapper*     ternaryColorMapper,
+                                                                size_t                            timeStepIndex )
     : m_quadMapper( nullptr )
 {
     RigEclipseCaseData* eclipseCase = cellResultColors->eclipseCase()->eclipseCaseData();

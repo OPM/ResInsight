@@ -225,7 +225,7 @@ void RimEclipseResultDefinition::setEclipseCase( RimEclipseCase* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimEclipseResultDefinition::eclipseCase()
+RimEclipseCase* RimEclipseResultDefinition::eclipseCase() const 
 {
     return m_eclipseCase;
 }
@@ -1230,7 +1230,7 @@ void RimEclipseResultDefinition::setResultVariable( const QString& val )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFlowDiagSolution* RimEclipseResultDefinition::flowDiagSolution()
+RimFlowDiagSolution* RimEclipseResultDefinition::flowDiagSolution() const
 {
     return m_flowSolution();
 }

@@ -40,16 +40,16 @@ class StructGridQuadToCellFaceMapper;
 class RivTernaryTextureCoordsCreator
 {
 public:
-    RivTernaryTextureCoordsCreator( RimEclipseResultDefinition*                cellResultColors,
+    RivTernaryTextureCoordsCreator( const RimEclipseResultDefinition*          cellResultColors,
                                     RimTernaryLegendConfig*                    ternaryLegendConfig,
                                     RimSimWellInViewCollection*                simWellInViewCollection,
                                     size_t                                     timeStepIndex,
                                     size_t                                     gridIndex,
                                     const cvf::StructGridQuadToCellFaceMapper* quadMapper );
 
-    RivTernaryTextureCoordsCreator( RimEclipseResultDefinition*   cellResultColors,
-                                    const RivTernaryScalarMapper* ternaryColorMapper,
-                                    size_t                        timeStepIndex );
+    RivTernaryTextureCoordsCreator( const RimEclipseResultDefinition* cellResultColors,
+                                    const RivTernaryScalarMapper*     ternaryColorMapper,
+                                    size_t                            timeStepIndex );
 
     void createTextureCoords( cvf::Vec2fArray* quadTextureCoords );
     void createTextureCoords( cvf::Vec2fArray* triTextureCoords, const std::vector<size_t>& triangleToCellIdx );

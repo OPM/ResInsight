@@ -576,7 +576,7 @@ QString RimGeoMechResultDefinition::diffResultUiShortName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGeoMechCaseData* RimGeoMechResultDefinition::ownerCaseData()
+RigGeoMechCaseData* RimGeoMechResultDefinition::ownerCaseData() const
 {
     return m_geomCase->geoMechData();
 }

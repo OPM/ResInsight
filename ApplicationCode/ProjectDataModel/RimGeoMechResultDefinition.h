@@ -47,7 +47,7 @@ public:
 
     void setGeoMechCase( RimGeoMechCase* geomCase );
 
-    RigGeoMechCaseData* ownerCaseData();
+    RigGeoMechCaseData* ownerCaseData() const;
     bool                hasResult();
     void                loadResult();
     void                setAddWellPathDerivedResults( bool addWellPathDerivedResults );

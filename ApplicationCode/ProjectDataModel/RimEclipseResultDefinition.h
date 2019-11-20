@@ -75,7 +75,7 @@ public:
     void simpleCopy( const RimEclipseResultDefinition* other );
 
     void            setEclipseCase( RimEclipseCase* eclipseCase );
-    RimEclipseCase* eclipseCase();
+    RimEclipseCase* eclipseCase() const;
 
     RiaDefines::ResultCatType resultType() const
     {
@@ -94,7 +94,7 @@ public:
     virtual void setResultVariable( const QString& val );
 
     void                     setFlowSolution( RimFlowDiagSolution* flowSol );
-    RimFlowDiagSolution*     flowDiagSolution();
+    RimFlowDiagSolution*     flowDiagSolution() const;
     RigFlowDiagResultAddress flowDiagResAddress() const;
 
     void setFlowDiagTracerSelectionType( FlowTracerSelectionType selectionType );

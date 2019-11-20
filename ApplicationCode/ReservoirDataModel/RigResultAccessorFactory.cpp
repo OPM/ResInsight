@@ -40,10 +40,10 @@
 ///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultAccessor>
-    RigResultAccessorFactory::createFromResultDefinition( const RigEclipseCaseData*   eclipseCase,
-                                                          size_t                      gridIndex,
-                                                          size_t                      timeStepIndex,
-                                                          RimEclipseResultDefinition* resultDefinition )
+    RigResultAccessorFactory::createFromResultDefinition( const RigEclipseCaseData*         eclipseCase,
+                                                          size_t                            gridIndex,
+                                                          size_t                            timeStepIndex,
+                                                          const RimEclipseResultDefinition* resultDefinition )
 {
     if ( resultDefinition->isFlowDiagOrInjectionFlooding() )
     {
