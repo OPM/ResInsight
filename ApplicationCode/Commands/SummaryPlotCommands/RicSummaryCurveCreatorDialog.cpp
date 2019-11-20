@@ -36,7 +36,7 @@
 RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog( QWidget* parent )
     : QDialog( parent, RiuTools::defaultDialogFlags() )
 {
-    m_curveCreatorSplitterUi = new RicSummaryCurveCreatorSplitterUi( this );
+    m_curveCreatorSplitterUi.reset( new RicSummaryCurveCreatorSplitterUi( this ) );
 
     QWidget* propertyWidget = m_curveCreatorSplitterUi->getOrCreateWidget( this );
 
@@ -46,7 +46,7 @@ RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog( QWidget* parent )
 
     setWindowTitle( "Plot Editor" );
     resize( 1200, 800 );
-    connect( m_curveCreatorSplitterUi, SIGNAL( signalCloseButtonPressed() ), this, SLOT( accept() ) );
+    connect( m_curveCreatorSplitterUi.get(), SIGNAL( signalCloseButtonPressed() ), this, SLOT( accept() ) );
 
     connect( this, SIGNAL( finished( int ) ), this, SLOT( slotDialogFinished() ) );
 }
@@ -54,7 +54,10 @@ RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreatorDialog::~RicSummaryCurveCreatorDialog() {}
+RicSummaryCurveCreatorDialog::~RicSummaryCurveCreatorDialog()
+{
+    m_curveCreatorSplitterUi->setPdmObject( nullptr );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

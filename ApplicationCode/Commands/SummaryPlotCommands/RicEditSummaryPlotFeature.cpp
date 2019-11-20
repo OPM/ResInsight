@@ -60,9 +60,14 @@ void RicEditSummaryPlotFeature::closeDialogAndResetTargetPlot()
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreatorDialog* RicEditSummaryPlotFeature::curveCreatorDialog()
 {
-    static RicSummaryCurveCreatorDialog* singletonDialog = new RicSummaryCurveCreatorDialog( nullptr );
+    static std::unique_ptr<RicSummaryCurveCreatorDialog> singletonDialog;
 
-    return singletonDialog;
+    if ( !singletonDialog )
+    {
+        singletonDialog.reset( new RicSummaryCurveCreatorDialog( nullptr ) );
+    }
+
+    return singletonDialog.get();
 }
 
 //--------------------------------------------------------------------------------------------------
