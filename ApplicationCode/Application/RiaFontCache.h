@@ -56,6 +56,8 @@ public:
     static int                           pointSizeFromFontSizeEnum( FontSize fontSize );
     static FontSize                      fontSizeEnumFromPointSize( int pointSize );
 
+    static void clear();
+
 private:
     static std::map<FontSize, cvf::ref<caf::FixedAtlasFont>> ms_fonts;
 };
