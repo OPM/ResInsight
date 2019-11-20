@@ -41,10 +41,14 @@ public:
     bool     isActive();
     QString  autoName() const;
     RimCase* activeCase() const;
-    int      timeStep() const { return m_timeStep();}
+    bool     isEclipseResultDefinition();
+    int      timeStep() const;
 
-    const RimEclipseResultDefinition* eclipseResultDefinition() const;
-    const RimGeoMechResultDefinition* geoMechResultDefinition() const;
+    RimRegularLegendConfig* regularLegendConfig() const;
+    RimTernaryLegendConfig* ternaryLegendConfig() const;
+
+    RimEclipseResultDefinition* eclipseResultDefinition() const;
+    RimGeoMechResultDefinition* geoMechResultDefinition() const;
 
 protected:
     virtual caf::PdmFieldHandle* userDescriptionField() override;
@@ -58,6 +62,7 @@ protected:
                                                                  bool*                      useOptionsOnly ) override;
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     virtual void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    virtual void initAfterRead() override;
 
 private:
     caf::PdmField<bool>              m_isActive;

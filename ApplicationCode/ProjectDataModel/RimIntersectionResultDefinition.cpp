@@ -115,7 +115,7 @@ QString RimIntersectionResultDefinition::autoName() const
                           m_geomResultDefinition->resultComponentUiName();
     }
 
-    return resultVarUiName + " " + timestepName + " " +  caseName;
+    return resultVarUiName + " " + timestepName + " " + caseName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,7 +129,46 @@ RimCase* RimIntersectionResultDefinition::activeCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimEclipseResultDefinition* RimIntersectionResultDefinition::eclipseResultDefinition() const
+int RimIntersectionResultDefinition::timeStep() const
+{
+    return m_timeStep();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimRegularLegendConfig* RimIntersectionResultDefinition::regularLegendConfig() const
+{
+    return m_legendConfig();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimTernaryLegendConfig* RimIntersectionResultDefinition::ternaryLegendConfig() const
+{
+    return m_ternaryLegendConfig();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimIntersectionResultDefinition::isEclipseResultDefinition()
+{
+    if ( dynamic_cast<RimEclipseCase*>( m_case() ) )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseResultDefinition* RimIntersectionResultDefinition::eclipseResultDefinition() const
 {
     return m_eclipseResultDefinition();
 }
@@ -137,7 +176,7 @@ const RimEclipseResultDefinition* RimIntersectionResultDefinition::eclipseResult
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimGeoMechResultDefinition* RimIntersectionResultDefinition::geoMechResultDefinition() const
+RimGeoMechResultDefinition* RimIntersectionResultDefinition::geoMechResultDefinition() const
 {
     return m_geomResultDefinition();
 }
@@ -252,4 +291,22 @@ void RimIntersectionResultDefinition::defineUiTreeOrdering( caf::PdmUiTreeOrderi
     }
 
     uiTreeOrdering.skipRemainingChildren( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionResultDefinition::initAfterRead()
+{
+    RimGeoMechCase* geomCase    = dynamic_cast<RimGeoMechCase*>( m_case.value() );
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
+
+    if ( eclipseCase )
+    {
+        m_eclipseResultDefinition->setEclipseCase( eclipseCase );
+    }
+    else if ( geomCase )
+    {
+        m_geomResultDefinition->setGeoMechCase( geomCase );
+    }
 }
