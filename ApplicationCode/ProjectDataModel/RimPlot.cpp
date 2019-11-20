@@ -99,7 +99,6 @@ void RimPlot::updateAfterInsertingIntoMultiPlot()
 {
     updateLegend();
     updateAxes();
-    updateLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
