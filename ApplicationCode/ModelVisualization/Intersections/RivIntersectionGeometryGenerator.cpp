@@ -23,6 +23,8 @@
 #include "RigResultAccessor.h"
 
 #include "Rim3dView.h"
+#include "RimCase.h"
+#include "RimGridView.h"
 #include "RimIntersection.h"
 
 #include "RivHexGridIntersectionTools.h"
@@ -107,7 +109,17 @@ void RivIntersectionGeometryGenerator::calculateSegementTransformPrLinePoint()
     {
         m_segementTransformPrLinePoint.clear();
 
-        cvf::Mat4d invSectionCS = cvf::Mat4d::fromTranslation( -m_hexGrid->displayOffset() );
+        cvf::Vec3d displayOffset( 0, 0, 0 );
+        {
+            RimGridView* gridView = nullptr;
+            m_crossSection->firstAncestorOrThisOfType( gridView );
+            if ( gridView && gridView->ownerCase() )
+            {
+                displayOffset = gridView->ownerCase()->displayModelOffset();
+            }
+        }
+
+        cvf::Mat4d invSectionCS = cvf::Mat4d::fromTranslation( -displayOffset );
 
         for ( const auto& polyLine : m_polyLines )
         {
@@ -211,8 +223,7 @@ void RivIntersectionGeometryGenerator::calculateArrays()
 
     MeshLinesAccumulator meshAcc( m_hexGrid.p() );
 
-    cvf::Vec3d       displayOffset = m_hexGrid->displayOffset();
-    cvf::BoundingBox gridBBox      = m_hexGrid->boundingBox();
+    cvf::BoundingBox gridBBox = m_hexGrid->boundingBox();
 
     calculateSegementTransformPrLinePoint();
     calculateFlattenedOrOffsetedPolyline();

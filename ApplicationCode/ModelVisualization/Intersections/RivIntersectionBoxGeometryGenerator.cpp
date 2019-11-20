@@ -18,12 +18,17 @@
 
 #include "RivIntersectionBoxGeometryGenerator.h"
 
+#include "RimCase.h"
+#include "RimGridView.h"
 #include "RimIntersectionBox.h"
+
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
+
 #include "cvfDrawableGeo.h"
 #include "cvfPlane.h"
 #include "cvfPrimitiveSetDirect.h"
 #include "cvfStructGrid.h"
+
 #include <array>
 
 //--------------------------------------------------------------------------------------------------
@@ -245,8 +250,16 @@ void RivIntersectionBoxGeometryGenerator::calculateArrays()
 
     std::vector<cvf::Vec3f> triangleVertices;
     std::vector<cvf::Vec3f> cellBorderLineVxes;
-    cvf::Vec3d              displayOffset = m_hexGrid->displayOffset();
-    cvf::BoundingBox        gridBBox      = m_hexGrid->boundingBox();
+
+    cvf::Vec3d displayOffset( 0, 0, 0 );
+    {
+        RimGridView* gridView = nullptr;
+        m_intersectionBoxDefinition->firstAncestorOrThisOfType( gridView );
+        if ( gridView && gridView->ownerCase() )
+        {
+            displayOffset = gridView->ownerCase()->displayModelOffset();
+        }
+    }
 
     Box                       box( m_intersectionBoxDefinition->boxOrigin(), m_intersectionBoxDefinition->boxSize() );
     std::array<cvf::Plane, 6> boxPlanes = box.planes();
