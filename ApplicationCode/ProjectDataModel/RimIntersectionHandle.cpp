@@ -184,13 +184,17 @@ void RimIntersectionHandle::updateDefaultSeparateDataSource()
     if ( m_separateDataSource() == nullptr )
     {
         RimGridView* view;
-        this->firstAncestorOrThisOfTypeAsserted( view );
+        this->firstAncestorOrThisOfType( view );
 
-        std::vector<RimIntersectionResultDefinition*> iResDefs =
-            view->separateIntersectionResultsCollection()->intersectionResultsDefinitions();
-        if ( iResDefs.size() )
+        if ( view )
         {
-            m_separateDataSource = iResDefs[0];
+            std::vector<RimIntersectionResultDefinition*> iResDefs =
+                view->separateIntersectionResultsCollection()->intersectionResultsDefinitions();
+
+            if ( iResDefs.size() )
+            {
+                m_separateDataSource = iResDefs[0];
+            }
         }
     }
 }
@@ -203,6 +207,8 @@ cvf::ref<RivIntersectionHexGridInterface> RimIntersectionHandle::createHexGridIn
     RimIntersectionResultDefinition* resDef = activeSeparateResultDefinition();
     if ( resDef && resDef->activeCase() )
     {
+        // Eclipse case
+
         RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( resDef->activeCase() );
         if ( eclipseCase && eclipseCase->eclipseCaseData() )
         {
@@ -211,6 +217,8 @@ cvf::ref<RivIntersectionHexGridInterface> RimIntersectionHandle::createHexGridIn
                                                        resDef->eclipseResultDefinition()->porosityModel() ),
                                                    this->isInactiveCellsVisible() );
         }
+
+        // Geomech case
 
         RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( resDef->activeCase() );
 
