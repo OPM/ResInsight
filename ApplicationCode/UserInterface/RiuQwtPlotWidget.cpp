@@ -76,10 +76,9 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plot, QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget::~RiuQwtPlotWidget()
 {
-    if ( m_plotDefinition )
-    {
-        m_plotDefinition->detachAllCurves();
-    }
+    // The destructor may be called later when deleting with QWidget::deleteLater()
+    // If you are recreating the widget, then calling something that detaches QwtCurves
+    // here may cause them to detach from the new widget rather than the old.
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -543,6 +542,18 @@ void RiuQwtPlotWidget::showEvent( QShowEvent* event )
     m_canvasStyleSheet.applyToWidget( canvas() );
 
     QwtPlot::showEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::closeEvent( QCloseEvent* event )
+{
+    if ( m_plotDefinition )
+    {
+        m_plotDefinition->detachAllCurves();
+    }
+    RiuQwtPlotWidget::closeEvent( event );
 }
 
 //--------------------------------------------------------------------------------------------------
