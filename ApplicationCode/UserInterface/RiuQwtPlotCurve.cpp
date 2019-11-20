@@ -52,7 +52,7 @@ RiuQwtPlotCurve::RiuQwtPlotCurve( const QString& title )
 
     m_symbolSkipPixelDistance = 10.0f;
 
-    m_errorBars = std::unique_ptr<QwtPlotIntervalCurve>( new QwtPlotIntervalCurve() );
+    m_errorBars = new QwtPlotIntervalCurve();
     m_errorBars->setStyle( QwtPlotIntervalCurve::CurveStyle::NoCurve );
     m_errorBars->setSymbol( new QwtIntervalSymbol( QwtIntervalSymbol::Bar ) );
     m_errorBars->setItemAttribute( QwtPlotItem::Legend, false );
