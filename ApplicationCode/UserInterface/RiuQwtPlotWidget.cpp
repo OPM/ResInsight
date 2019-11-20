@@ -62,7 +62,7 @@
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlotInterface* plotTrackDefinition, QWidget* parent )
     : QwtPlot( parent )
-    , m_draggable( true )
+    , m_draggable( false )
 {
     m_plotOwner = dynamic_cast<caf::PdmObject*>( plotTrackDefinition );
     CAF_ASSERT( m_plotOwner );
