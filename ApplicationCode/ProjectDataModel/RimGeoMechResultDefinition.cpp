@@ -601,7 +601,7 @@ bool RimGeoMechResultDefinition::hasResult()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGeoMechResultDefinition::resultFieldUiName()
+QString RimGeoMechResultDefinition::resultFieldUiName() const
 {
     return convertToUiResultFieldName( m_resultFieldName() );
 }
@@ -609,7 +609,7 @@ QString RimGeoMechResultDefinition::resultFieldUiName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGeoMechResultDefinition::resultComponentUiName()
+QString RimGeoMechResultDefinition::resultComponentUiName() const
 {
     return m_resultComponentName();
 }

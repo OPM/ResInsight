@@ -62,10 +62,10 @@ public:
     QString             diffResultUiShortName() const;
     void                setResultAddress( const RigFemResultAddress& resultAddress );
 
-    QString resultFieldUiName();
-    QString resultComponentUiName();
+    QString resultFieldUiName() const;
+    QString resultComponentUiName() const;
 
-    bool hasCategoryResult()
+    bool hasCategoryResult() const
     {
         return m_resultPositionType() == RIG_FORMATION_NAMES;
     }
