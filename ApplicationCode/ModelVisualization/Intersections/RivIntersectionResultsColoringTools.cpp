@@ -55,7 +55,7 @@ void RivIntersectionResultsColoringTools::updateCellResultColorStatic(
     cvf::Part*                                intersectionFacesPart,
     cvf::Vec2fArray*                          intersectionFacesTextureCoords )
 {
-    if ( !intersectionGeomGenIF->isAnyGeometryPresent() ) return;
+    if ( !intersectionGeomGenIF || !intersectionGeomGenIF->isAnyGeometryPresent() ) return;
 
     RimGridView* gridView = nullptr;
     rimIntersectionHandle->firstAncestorOrThisOfType( gridView );
