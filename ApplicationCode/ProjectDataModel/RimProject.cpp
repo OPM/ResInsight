@@ -102,8 +102,8 @@ CAF_PDM_SOURCE_INIT( RimProject, "ResInsightProject" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimProject::RimProject( void )
-    : m_nextValidCaseId( 1 )
-    , m_nextValidCaseGroupId( 1 )
+    : m_nextValidCaseId( 0 )
+    , m_nextValidCaseGroupId( 0 )
     , m_nextValidViewId( 1 )
     , m_nextValidPlotId( 1 )
 {
@@ -249,8 +249,8 @@ void RimProject::close()
     plotWindowCurrentModelIndexPath = "";
     plotWindowTreeViewState         = "";
 
-    m_nextValidCaseId      = 1;
-    m_nextValidCaseGroupId = 1;
+    m_nextValidCaseId      = 0;
+    m_nextValidCaseGroupId = 0;
     m_nextValidViewId      = 1;
     m_nextValidPlotId      = 1;
 }
