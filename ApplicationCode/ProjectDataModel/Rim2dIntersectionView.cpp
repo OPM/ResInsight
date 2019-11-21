@@ -26,6 +26,7 @@
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
 #include "RimIntersection.h"
+#include "RimIntersectionResultDefinition.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
 #include "RimTernaryLegendConfig.h"
@@ -644,8 +645,20 @@ void Rim2dIntersectionView::onUpdateLegends()
 
     if ( eclView )
     {
-        m_legendConfig()->setUiValuesFromLegendConfig( eclView->cellResult()->legendConfig() );
-        m_ternaryLegendConfig()->setUiValuesFromLegendConfig( eclView->cellResult()->ternaryLegendConfig() );
+        // Copy the legend settings from the real view
+
+        RimIntersectionResultDefinition* sepInterResDef = m_intersection->activeSeparateResultDefinition();
+        if ( sepInterResDef )
+        {
+            m_legendConfig()->setUiValuesFromLegendConfig( sepInterResDef->regularLegendConfig() );
+            m_ternaryLegendConfig()->setUiValuesFromLegendConfig( sepInterResDef->ternaryLegendConfig() );
+        }
+        else
+        {
+            m_legendConfig()->setUiValuesFromLegendConfig( eclView->cellResult()->legendConfig() );
+            m_ternaryLegendConfig()->setUiValuesFromLegendConfig( eclView->cellResult()->ternaryLegendConfig() );
+        }
+
         eclView->cellResult()->updateLegendData( eclView->eclipseCase(),
                                                  m_currentTimeStep(),
                                                  m_legendConfig(),
@@ -669,7 +682,15 @@ void Rim2dIntersectionView::onUpdateLegends()
 
     if ( geoView )
     {
-        m_legendConfig()->setUiValuesFromLegendConfig( geoView->cellResult()->legendConfig() );
+        RimIntersectionResultDefinition* sepInterResDef = m_intersection->activeSeparateResultDefinition();
+        if ( sepInterResDef )
+        {
+            m_legendConfig()->setUiValuesFromLegendConfig( sepInterResDef->regularLegendConfig() );
+        }
+        else
+        {
+            m_legendConfig()->setUiValuesFromLegendConfig( geoView->cellResult()->legendConfig() );
+        }
 
         geoView->updateLegendTextAndRanges( m_legendConfig(), m_currentTimeStep() );
         legend = m_legendConfig()->titledOverlayFrame();

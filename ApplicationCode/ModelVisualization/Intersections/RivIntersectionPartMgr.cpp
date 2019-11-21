@@ -156,6 +156,8 @@ void RivIntersectionPartMgr::updateCellResultColor( size_t                      
     RivIntersectionResultsColoringTools::updateCellResultColorStatic( timeStepIndex,
                                                                       m_rimCrossSection,
                                                                       m_crossSectionGenerator.p(),
+                                                                      scalarColorMapper,
+                                                                      ternaryColorMapper,
                                                                       m_crossSectionFaces.p(),
                                                                       m_crossSectionFacesTextureCoords.p() );
 }

@@ -44,10 +44,12 @@ class RivIntersectionResultsColoringTools
 {
 public:
     static void updateCellResultColorStatic( size_t                                    timeStepIndex,
-                                             RimIntersectionHandle*                    m_rimIntersectionBox,
-                                             const RivIntersectionGeometryGeneratorIF* m_intersectionBoxGenerator,
-                                             cvf::Part*                                m_intersectionBoxFaces,
-                                             cvf::Vec2fArray* m_intersectionBoxFacesTextureCoords );
+                                             RimIntersectionHandle*                    rimIntersectionHandle,
+                                             const RivIntersectionGeometryGeneratorIF* intersectionGeomGenIF,
+                                             const cvf::ScalarMapper*                  explicitScalarColorMapper,
+                                             const RivTernaryScalarMapper*             explicitTernaryColorMapper,
+                                             cvf::Part*                                intersectionFacesPart,
+                                             cvf::Vec2fArray*                          intersectionFacesTextureCoords );
 
 private:
     static void updateEclipseCellResultColors( const RimEclipseResultDefinition* eclipseResDef,

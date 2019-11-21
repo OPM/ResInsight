@@ -52,6 +52,8 @@ void RivIntersectionResultsColoringTools::updateCellResultColorStatic(
     size_t                                    timeStepIndex,
     RimIntersectionHandle*                    rimIntersectionHandle,
     const RivIntersectionGeometryGeneratorIF* intersectionGeomGenIF,
+    const cvf::ScalarMapper*                  explicitScalarColorMapper,
+    const RivTernaryScalarMapper*             explicitTernaryColorMapper,
     cvf::Part*                                intersectionFacesPart,
     cvf::Vec2fArray*                          intersectionFacesTextureCoords )
 {
@@ -66,8 +68,8 @@ void RivIntersectionResultsColoringTools::updateCellResultColorStatic(
 
     RimEclipseResultDefinition*   eclipseResDef      = nullptr;
     RimGeoMechResultDefinition*   geomResultDef      = nullptr;
-    const cvf::ScalarMapper*      scalarColorMapper  = nullptr;
-    const RivTernaryScalarMapper* ternaryColorMapper = nullptr;
+    const cvf::ScalarMapper*      scalarColorMapper  = explicitScalarColorMapper;
+    const RivTernaryScalarMapper* ternaryColorMapper = explicitTernaryColorMapper;
 
     // Separate intersection result
 
@@ -83,9 +85,9 @@ void RivIntersectionResultsColoringTools::updateCellResultColorStatic(
             geomResultDef = sepResDef->geoMechResultDefinition();
         }
 
-        scalarColorMapper  = sepResDef->regularLegendConfig()->scalarMapper();
-        ternaryColorMapper = sepResDef->ternaryLegendConfig()->scalarMapper();
-        timeStepIndex      = sepResDef->timeStep();
+        if ( !scalarColorMapper ) scalarColorMapper = sepResDef->regularLegendConfig()->scalarMapper();
+        if ( !ternaryColorMapper ) ternaryColorMapper = sepResDef->ternaryLegendConfig()->scalarMapper();
+        timeStepIndex = sepResDef->timeStep();
     }
 
     // Ordinary result
@@ -97,10 +99,10 @@ void RivIntersectionResultsColoringTools::updateCellResultColorStatic(
 
         if ( eclipseView )
         {
-            eclipseResDef      = eclipseView->cellResult();
-            scalarColorMapper  = eclipseView->cellResult()->legendConfig()->scalarMapper();
-            ternaryColorMapper = eclipseView->cellResult()->ternaryLegendConfig()->scalarMapper();
-            timeStepIndex      = eclipseView->currentTimeStep();
+            eclipseResDef = eclipseView->cellResult();
+            if ( !scalarColorMapper ) scalarColorMapper = eclipseView->cellResult()->legendConfig()->scalarMapper();
+            if ( !ternaryColorMapper )
+                ternaryColorMapper = eclipseView->cellResult()->ternaryLegendConfig()->scalarMapper();
         }
 
         RimGeoMechView* geoView;
@@ -108,9 +110,8 @@ void RivIntersectionResultsColoringTools::updateCellResultColorStatic(
 
         if ( geoView )
         {
-            geomResultDef     = geoView->cellResult();
-            scalarColorMapper = geoView->cellResult()->legendConfig()->scalarMapper();
-            timeStepIndex     = geoView->currentTimeStep();
+            geomResultDef = geoView->cellResult();
+            if ( !scalarColorMapper ) scalarColorMapper = geoView->cellResult()->legendConfig()->scalarMapper();
         }
     }
 

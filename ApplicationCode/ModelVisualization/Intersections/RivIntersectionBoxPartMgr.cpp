@@ -87,10 +87,11 @@ void RivIntersectionBoxPartMgr::updateCellResultColor( size_t timeStepIndex )
     RivIntersectionResultsColoringTools::updateCellResultColorStatic( timeStepIndex,
                                                                       m_rimIntersectionBox,
                                                                       m_intersectionBoxGenerator.p(),
+                                                                      nullptr,
+                                                                      nullptr,
                                                                       m_intersectionBoxFaces.p(),
                                                                       m_intersectionBoxFacesTextureCoords.p() );
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
