@@ -17,7 +17,7 @@ resinsight.set_plot_window_size(width=1000, height=1000)
 case = resinsight.project.cases()[0]
 
 # Get a view
-view1 = case.view(view_id=0)
+view1 = case.views()[0]
 
 # Clone the view
 view2 = view1.clone()

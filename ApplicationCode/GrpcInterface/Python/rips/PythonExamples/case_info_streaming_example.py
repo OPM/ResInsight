@@ -8,8 +8,8 @@ import rips
 # Connect to ResInsight
 resinsight  = rips.Instance.find()
 
-# Get the case with id == 0. This will fail if your project doesn't have a case with id == 0
-case = resinsight.project.case(case_id=0)
+# Get the first case. This will fail if you haven't loaded any cases
+case = resinsight.project.cases()[0]
 
 # Get the cell count object
 cell_counts = case.cell_count()
