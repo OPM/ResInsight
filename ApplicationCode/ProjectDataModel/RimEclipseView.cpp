@@ -1853,6 +1853,7 @@ void RimEclipseView::onResetLegendsInViewer()
           this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
     {
         sepInterResDef->regularLegendConfig()->recreateLegend();
+        sepInterResDef->ternaryLegendConfig()->recreateLegend();
     }
 
     nativeOrOverrideViewer()->removeAllColorLegends();

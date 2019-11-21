@@ -38,8 +38,11 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
+#include "RimIntersectionResultDefinition.h"
+#include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTensorResults.h"
+#include "RimTernaryLegendConfig.h"
 #include "RimViewLinker.h"
 #include "RimViewNameConfig.h"
 
@@ -286,6 +289,7 @@ void RimGeoMechView::onCreateDisplayModel()
     // Cross sections
 
     m_crossSectionVizModel->removeAllParts();
+    m_crossSectionCollection->rebuildGeometry();
     m_crossSectionCollection->appendPartsToModel( *this, m_crossSectionVizModel.p(), scaleTransform() );
     nativeOrOverrideViewer()->addStaticModelOnce( m_crossSectionVizModel.p(), isUsingOverrideViewer() );
 
@@ -422,6 +426,13 @@ void RimGeoMechView::setGeoMechCase( RimGeoMechCase* gmCase )
 void RimGeoMechView::onResetLegendsInViewer()
 {
     this->cellResult()->legendConfig->recreateLegend();
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+    {
+        sepInterResDef->regularLegendConfig()->recreateLegend();
+        sepInterResDef->ternaryLegendConfig()->recreateLegend();
+    }
 
     nativeOrOverrideViewer()->removeAllColorLegends();
 }
