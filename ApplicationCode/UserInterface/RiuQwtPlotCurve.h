@@ -23,6 +23,8 @@
 #include "qwt_plot_intervalcurve.h"
 #include "qwt_symbol.h"
 
+#include <memory>
+
 class RiuErrorBarsQwtPlotCurve;
 
 //==================================================================================================
@@ -150,10 +152,10 @@ private:
     std::vector<std::pair<size_t, size_t>> m_polyLineStartStopIndices;
     float                                  m_symbolSkipPixelDistance;
 
-    bool                  m_showErrorBars;
-    QwtPlotIntervalCurve* m_errorBars;
-    QwtPlot*              m_attachedToPlot;
-    bool                  m_blackAndWhiteLegendIcon;
+    bool                                  m_showErrorBars;
+    std::unique_ptr<QwtPlotIntervalCurve> m_errorBars;
+    QwtPlot*                              m_attachedToPlot;
+    bool                                  m_blackAndWhiteLegendIcon;
 
     std::vector<QString> m_perPointLabels;
 };
