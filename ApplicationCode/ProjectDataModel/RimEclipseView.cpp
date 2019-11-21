@@ -101,6 +101,9 @@
 
 #include <QMessageBox>
 
+#include "RimGridView.h"
+#include "RimIntersectionResultDefinition.h"
+#include "RimIntersectionResultsDefinitionCollection.h"
 #include <climits>
 
 CAF_PDM_SOURCE_INIT( RimEclipseView, "ReservoirView" );
@@ -1845,6 +1848,12 @@ void RimEclipseView::onResetLegendsInViewer()
 
     this->cellResult()->ternaryLegendConfig()->recreateLegend();
     this->cellEdgeResult()->legendConfig()->recreateLegend();
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+    {
+        sepInterResDef->regularLegendConfig()->recreateLegend();
+    }
 
     nativeOrOverrideViewer()->removeAllColorLegends();
 }
