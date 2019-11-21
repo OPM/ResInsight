@@ -38,7 +38,8 @@ public:
     RimIntersectionResultDefinition();
     ~RimIntersectionResultDefinition() override;
 
-    bool     isActive();
+    bool     isActive() const;
+    bool     isInAction() const;
     QString  autoName() const;
     RimCase* activeCase() const;
     bool     isEclipseResultDefinition();

@@ -553,6 +553,15 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
         }
     }
 
+    RimIntersectionResultDefinition* sepIntersectionResDef = nullptr;
+    this->firstAncestorOrThisOfType( sepIntersectionResDef );
+    if (sepIntersectionResDef && sepIntersectionResDef->isInAction())
+    {
+        if ( view ) view->scheduleCreateDisplayModelAndRedraw();
+        RimGridView* eclView = dynamic_cast<RimGridView*>( view );
+        if ( eclView ) eclView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+    }
+
     RimCellEdgeColors* cellEdgeColors = nullptr;
     this->firstAncestorOrThisOfType( cellEdgeColors );
     if ( cellEdgeColors )

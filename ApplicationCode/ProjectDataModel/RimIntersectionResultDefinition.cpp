@@ -23,6 +23,8 @@
 #include "RimEclipseCellColors.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
+#include "RimGridView.h"
+#include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimTools.h"
@@ -78,7 +80,7 @@ RimIntersectionResultDefinition::~RimIntersectionResultDefinition() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimIntersectionResultDefinition::isActive()
+bool RimIntersectionResultDefinition::isActive() const
 {
     return m_isActive();
 }
@@ -213,6 +215,17 @@ void RimIntersectionResultDefinition::fieldChangedByUi( const caf::PdmFieldHandl
     }
 
     this->updateConnectedEditors();
+
+    RimIntersectionResultsDefinitionCollection* interResDefColl = nullptr;
+    this->firstAncestorOrThisOfType( interResDefColl );
+    bool isInAction = isActive() && interResDefColl && interResDefColl->isActive();
+
+    if ( changedField == &m_isActive || ( changedField == &m_timeStep && isInAction ) )
+    {
+        RimGridView* gridView = nullptr;
+        this->firstAncestorOrThisOfType( gridView );
+        if ( gridView ) gridView->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -309,4 +322,15 @@ void RimIntersectionResultDefinition::initAfterRead()
     {
         m_geomResultDefinition->setGeoMechCase( geomCase );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimIntersectionResultDefinition::isInAction() const
+{
+    RimIntersectionResultsDefinitionCollection* interResDefColl = nullptr;
+    this->firstAncestorOrThisOfType( interResDefColl );
+
+    return isActive() && interResDefColl && interResDefColl->isActive();
 }

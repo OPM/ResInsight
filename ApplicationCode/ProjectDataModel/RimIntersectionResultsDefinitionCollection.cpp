@@ -19,6 +19,7 @@
 #include "RimIntersectionResultsDefinitionCollection.h"
 
 #include "RimIntersectionResultDefinition.h"
+#include "RimGridView.h"
 
 CAF_PDM_SOURCE_INIT( RimIntersectionResultsDefinitionCollection, "RimIntersectionResultsDefinitionCollection" );
 
@@ -78,6 +79,10 @@ void RimIntersectionResultsDefinitionCollection::fieldChangedByUi( const caf::Pd
                                                                    const QVariant&            newValue )
 {
     this->updateUiIconFromToggleField();
+
+    RimGridView* gridView = nullptr;
+    this->firstAncestorOrThisOfType(gridView);
+    if ( gridView ) gridView->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
