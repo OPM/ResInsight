@@ -94,8 +94,9 @@ public:
 
     virtual QString asciiDataForPlotExport() const;
 
-    virtual void createPlotWidget() = 0;
-    virtual void detachAllCurves()  = 0;
+    virtual void createPlotWidget()  = 0;
+    virtual void detachAllCurves()   = 0;
+    virtual void reattachAllCurves() = 0;
 
     virtual caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const = 0;
 

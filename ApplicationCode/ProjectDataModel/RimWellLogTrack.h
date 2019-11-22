@@ -125,7 +125,7 @@ public:
 
     void createPlotWidget();
     void detachAllCurves();
-    void reattachAllCurves();
+    void reattachAllCurves() override;
 
     void loadDataAndUpdate() override;
 

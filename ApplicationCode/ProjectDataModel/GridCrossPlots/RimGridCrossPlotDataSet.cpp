@@ -1216,7 +1216,7 @@ void RimGridCrossPlotDataSet::triggerPlotNameUpdateAndReplot()
     if ( parent )
     {
         parent->updateCurveNamesAndPlotTitle();
-        parent->reattachCurvesToQwtAndReplot();
+        parent->reattachAllCurves();
         parent->updateConnectedEditors();
     }
 }

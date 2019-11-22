@@ -217,7 +217,7 @@ void RimGridCrossPlot::calculateZoomRangeAndUpdateQwt()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::reattachCurvesToQwtAndReplot()
+void RimGridCrossPlot::reattachAllCurves()
 {
     if ( m_plotWidget )
     {
