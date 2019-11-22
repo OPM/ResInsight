@@ -45,10 +45,7 @@ public:
     void            setReservoirView( RimEclipseView* ownerReservoirView );
     RimEclipseView* reservoirView();
 
-    void                    updateLegendData( RimEclipseCase*         rimEclipseCase,
-                                              int                     timestep,
-                                              RimRegularLegendConfig* legendConfig        = nullptr,
-                                              RimTernaryLegendConfig* ternaryLegendConfig = nullptr );
+    void                    updateRangesForEmbeddedLegends( int timestep );
     RimRegularLegendConfig* legendConfig();
     RimTernaryLegendConfig* ternaryLegendConfig();
 

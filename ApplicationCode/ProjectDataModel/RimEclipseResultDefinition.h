@@ -41,6 +41,8 @@ class RigCaseCellResultsData;
 class RimEclipseCase;
 class RimEclipseView;
 class RimReservoirCellResultsStorage;
+class RimRegularLegendConfig;
+class RimTernaryLegendConfig;
 
 //==================================================================================================
 ///
@@ -144,6 +146,11 @@ public:
                                                                                 bool enableTernary = false );
 
     void setTernaryEnabled( bool enabled );
+
+    void updateRangesForExplicitLegends( RimRegularLegendConfig* legendConfig,
+                                         RimTernaryLegendConfig* ternaryLegendConfig,
+                                         int                     currentTimeStep );
+    void updateLegendTitle( RimRegularLegendConfig* legendConfig, const QString& legendHeading );
 
 protected:
     virtual void updateLegendCategorySettings(){};

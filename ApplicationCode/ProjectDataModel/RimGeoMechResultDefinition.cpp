@@ -26,6 +26,7 @@
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
+#include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
 
 #include "RiaDefines.h"
@@ -37,6 +38,7 @@
 #include "RimGeoMechView.h"
 #include "RimIntersectionCollection.h"
 #include "RimPlotCurve.h"
+#include "RimRegularLegendConfig.h"
 #include "RimViewLinker.h"
 
 #include "cafPdmUiListEditor.h"
@@ -646,4 +648,78 @@ void RimGeoMechResultDefinition::setResultAddress( const RigFemResultAddress& re
     m_resultPositionTypeUiField = m_resultPositionType;
     m_resultVariableUiField     = composeFieldCompString( m_resultFieldName(), m_resultComponentName() );
     m_compactionRefLayerUiField = m_compactionRefLayer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConfig* legendConfigToUpdate,
+                                                            const QString&          legendHeading,
+                                                            int                     timeStepIndex )
+{
+    if ( !this->ownerCaseData() || !( this->resultAddress().isValid() ) )
+    {
+        return;
+    }
+
+    double localMin, localMax;
+    double localPosClosestToZero, localNegClosestToZero;
+    double globalMin, globalMax;
+    double globalPosClosestToZero, globalNegClosestToZero;
+
+    RigGeoMechCaseData* gmCase = this->ownerCaseData();
+    CVF_ASSERT( gmCase );
+
+    RigFemResultAddress resVarAddress = this->resultAddress();
+
+    gmCase->femPartResults()->minMaxScalarValues( resVarAddress, timeStepIndex, &localMin, &localMax );
+    gmCase->femPartResults()->posNegClosestToZero( resVarAddress,
+                                                   timeStepIndex,
+                                                   &localPosClosestToZero,
+                                                   &localNegClosestToZero );
+
+    gmCase->femPartResults()->minMaxScalarValues( resVarAddress, &globalMin, &globalMax );
+    gmCase->femPartResults()->posNegClosestToZero( resVarAddress, &globalPosClosestToZero, &globalNegClosestToZero );
+
+    legendConfigToUpdate->setClosestToZeroValues( globalPosClosestToZero,
+                                                  globalNegClosestToZero,
+                                                  localPosClosestToZero,
+                                                  localNegClosestToZero );
+    legendConfigToUpdate->setAutomaticRanges( globalMin, globalMax, localMin, localMax );
+
+    if ( this->hasCategoryResult() )
+    {
+        std::vector<QString> fnVector;
+        if ( gmCase->femPartResults()->activeFormationNames() )
+        {
+            fnVector = gmCase->femPartResults()->activeFormationNames()->formationNames();
+        }
+        legendConfigToUpdate->setNamedCategoriesInverse( fnVector );
+    }
+
+    QString legendTitle = legendHeading + caf::AppEnum<RigFemResultPosEnum>( this->resultPositionType() ).uiText() +
+                          "\n" + this->resultFieldUiName();
+
+    if ( !this->resultComponentUiName().isEmpty() )
+    {
+        legendTitle += ", " + this->resultComponentUiName();
+    }
+
+    if ( this->resultFieldName() == "SE" || this->resultFieldName() == "ST" || this->resultFieldName() == "POR-Bar" ||
+         this->resultFieldName() == "SM" || this->resultFieldName() == "SEM" || this->resultFieldName() == "Q" )
+    {
+        legendTitle += " [Bar]";
+    }
+
+    if ( this->resultFieldName() == "MODULUS" )
+    {
+        legendTitle += " [GPa]";
+    }
+
+    if ( !this->diffResultUiShortName().isEmpty() )
+    {
+        legendTitle += QString( "\nTime Diff:\n%1" ).arg( this->diffResultUiShortName() );
+    }
+
+    legendConfigToUpdate->setTitle( legendTitle );
 }
