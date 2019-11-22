@@ -1204,48 +1204,25 @@ void RimEclipseView::onUpdateLegends()
     RigCaseCellResultsData* results = eclipseCase->results( cellResult()->porosityModel() );
     CVF_ASSERT( results );
 
-    updateLegendTextAndRanges( this->cellResult()->legendConfig(),
-                               this->cellResult()->ternaryLegendConfig(),
-                               QString( "Cell Results: \n" ),
-                               this->cellResult(),
-                               m_currentTimeStep );
+    updateLegendRangesTextAndVisibility( this->cellResult()->legendConfig(),
+                                         this->cellResult()->ternaryLegendConfig(),
+                                         QString( "Cell Results: \n" ),
+                                         this->cellResult(),
+                                         m_currentTimeStep );
 
     if ( this->faultResultSettings()->showCustomFaultResult() && this->faultResultSettings()->hasValidCustomResult() )
     {
-        updateLegendTextAndRanges( currentFaultResultColors()->legendConfig(),
-                                   currentFaultResultColors()->ternaryLegendConfig(),
-                                   QString( "Fault Results: \n" ),
-                                   this->currentFaultResultColors(),
-                                   m_currentTimeStep );
+        updateLegendRangesTextAndVisibility( currentFaultResultColors()->legendConfig(),
+                                             currentFaultResultColors()->ternaryLegendConfig(),
+                                             QString( "Fault Results: \n" ),
+                                             this->currentFaultResultColors(),
+                                             m_currentTimeStep );
     }
 
     for ( RimIntersectionResultDefinition* sepInterResDef :
           this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
     {
-        if ( !sepInterResDef->isInAction() ) continue;
-
-        if ( sepInterResDef->isEclipseResultDefinition() )
-        {
-            updateLegendTextAndRanges( sepInterResDef->regularLegendConfig(),
-                                       sepInterResDef->ternaryLegendConfig(),
-                                       QString( "Intersection Results: \n" ),
-                                       sepInterResDef->eclipseResultDefinition(),
-                                       sepInterResDef->timeStep() );
-        }
-        else
-        {
-            sepInterResDef->geoMechResultDefinition()->updateLegendTextAndRanges( sepInterResDef->regularLegendConfig(),
-                                                                                  "Intersection Results:\n",
-                                                                                  sepInterResDef->timeStep() );
-
-            if ( sepInterResDef->geoMechResultDefinition()->hasResult() &&
-                 sepInterResDef->regularLegendConfig()->showLegend() )
-            {
-                nativeOrOverrideViewer()
-                    ->addColorLegendToBottomLeftCorner( sepInterResDef->regularLegendConfig()->titledOverlayFrame(),
-                                                        isUsingOverrideViewer() );
-            }
-        }
+        sepInterResDef->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
     }
 
     if ( this->cellEdgeResult()->legendConfig()->showLegend() )
@@ -1341,11 +1318,11 @@ void RimEclipseView::onUpdateLegends()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateLegendTextAndRanges( RimRegularLegendConfig*     legendConfig,
-                                                RimTernaryLegendConfig*     ternaryLegendConfig,
-                                                QString                     legendHeading,
-                                                RimEclipseResultDefinition* eclResultDef,
-                                                int                         timeStepIndex )
+void RimEclipseView::updateLegendRangesTextAndVisibility( RimRegularLegendConfig*     legendConfig,
+                                                          RimTernaryLegendConfig*     ternaryLegendConfig,
+                                                          QString                     legendHeading,
+                                                          RimEclipseResultDefinition* eclResultDef,
+                                                          int                         timeStepIndex )
 {
     eclResultDef->updateRangesForExplicitLegends( legendConfig, ternaryLegendConfig, timeStepIndex );
 

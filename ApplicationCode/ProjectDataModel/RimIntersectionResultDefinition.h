@@ -29,6 +29,7 @@ class RimGeoMechResultDefinition;
 class RimCase;
 class RimRegularLegendConfig;
 class RimTernaryLegendConfig;
+class RiuViewer;
 
 class RimIntersectionResultDefinition : public caf::PdmObject
 {
@@ -50,6 +51,8 @@ public:
 
     RimEclipseResultDefinition* eclipseResultDefinition() const;
     RimGeoMechResultDefinition* geoMechResultDefinition() const;
+
+    void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
 protected:
     virtual caf::PdmFieldHandle* userDescriptionField() override;

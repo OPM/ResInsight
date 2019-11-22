@@ -28,6 +28,9 @@
 #include "RimRegularLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimTools.h"
+
+#include "RiuViewer.h"
+
 #include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT( RimIntersectionResultDefinition, "IntersectionResultDefinition" );
@@ -181,6 +184,51 @@ RimEclipseResultDefinition* RimIntersectionResultDefinition::eclipseResultDefini
 RimGeoMechResultDefinition* RimIntersectionResultDefinition::geoMechResultDefinition() const
 {
     return m_geomResultDefinition();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionResultDefinition::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer,
+                                                                           bool       isUsingOverrideViewer )
+{
+    if ( !this->isInAction() ) return;
+
+    if ( this->isEclipseResultDefinition() )
+    {
+        RimEclipseResultDefinition* eclResultDef = this->eclipseResultDefinition();
+        eclResultDef->updateRangesForExplicitLegends( this->regularLegendConfig(),
+                                                      this->ternaryLegendConfig(),
+                                                      this->timeStep() );
+
+        eclResultDef->updateLegendTitle( this->regularLegendConfig(), "Intersection Results:\n" );
+
+        if ( this->regularLegendConfig()->showLegend() && eclResultDef->hasResult() )
+        {
+            nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( this->regularLegendConfig()->titledOverlayFrame(),
+                                                                      isUsingOverrideViewer );
+        }
+        else if ( eclResultDef->isTernarySaturationSelected() &&
+                  eclResultDef->currentGridCellResults()->maxTimeStepCount() > 1 &&
+                  this->ternaryLegendConfig()->showLegend() && this->ternaryLegendConfig()->titledOverlayFrame() )
+        {
+            this->ternaryLegendConfig()->setTitle( "Intersection Results: \n" );
+            nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( this->ternaryLegendConfig()->titledOverlayFrame(),
+                                                                      isUsingOverrideViewer );
+        }
+    }
+    else
+    {
+        this->geoMechResultDefinition()->updateLegendTextAndRanges( this->regularLegendConfig(),
+                                                                    "Intersection Results:\n",
+                                                                    this->timeStep() );
+
+        if ( this->geoMechResultDefinition()->hasResult() && this->regularLegendConfig()->showLegend() )
+        {
+            nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( this->regularLegendConfig()->titledOverlayFrame(),
+                                                                      isUsingOverrideViewer );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

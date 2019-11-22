@@ -179,11 +179,11 @@ private:
     void updateStaticCellColors( RivCellSetEnum geometryType );
 
     void onUpdateLegends() override;
-    void updateLegendTextAndRanges( RimRegularLegendConfig*     legendConfig,
-                                    RimTernaryLegendConfig*     ternaryLegendConfig,
-                                    QString                     legendLabel,
-                                    RimEclipseResultDefinition* eclResDef,
-                                    int                         timeStepIndex );
+    void updateLegendRangesTextAndVisibility( RimRegularLegendConfig*     legendConfig,
+                                              RimTernaryLegendConfig*     ternaryLegendConfig,
+                                              QString                     legendLabel,
+                                              RimEclipseResultDefinition* eclResDef,
+                                              int                         timeStepIndex );
 
     void onResetLegendsInViewer() override;
     void updateVirtualConnectionLegendRanges();

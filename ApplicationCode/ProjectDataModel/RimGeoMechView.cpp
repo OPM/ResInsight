@@ -470,48 +470,7 @@ void RimGeoMechView::onUpdateLegends()
         for ( RimIntersectionResultDefinition* sepInterResDef :
               this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
         {
-            if ( !sepInterResDef->isInAction() ) continue;
-
-            if ( sepInterResDef->isEclipseResultDefinition() )
-            {
-                RimEclipseResultDefinition* eclResultDef = sepInterResDef->eclipseResultDefinition();
-                eclResultDef->updateRangesForExplicitLegends( sepInterResDef->regularLegendConfig(),
-                                                              sepInterResDef->ternaryLegendConfig(),
-                                                              sepInterResDef->timeStep() );
-
-                eclResultDef->updateLegendTitle( sepInterResDef->regularLegendConfig(), "Intersection Results:\n" );
-
-                if ( sepInterResDef->regularLegendConfig()->showLegend() && eclResultDef->hasResult() )
-                {
-                    nativeOrOverrideViewer()
-                        ->addColorLegendToBottomLeftCorner( sepInterResDef->regularLegendConfig()->titledOverlayFrame(),
-                                                            isUsingOverrideViewer() );
-                }
-                else if ( eclResultDef->isTernarySaturationSelected() &&
-                          eclResultDef->currentGridCellResults()->maxTimeStepCount() > 1 &&
-                          sepInterResDef->ternaryLegendConfig()->showLegend() &&
-                          sepInterResDef->ternaryLegendConfig()->titledOverlayFrame() )
-                {
-                    sepInterResDef->ternaryLegendConfig()->setTitle( "Intersection Results: \n" );
-                    nativeOrOverrideViewer()
-                        ->addColorLegendToBottomLeftCorner( sepInterResDef->ternaryLegendConfig()->titledOverlayFrame(),
-                                                            isUsingOverrideViewer() );
-                }
-            }
-            else
-            {
-                sepInterResDef->geoMechResultDefinition()->updateLegendTextAndRanges( sepInterResDef->regularLegendConfig(),
-                                                                                      "Intersection Results:\n",
-                                                                                      sepInterResDef->timeStep() );
-
-                if ( sepInterResDef->geoMechResultDefinition()->hasResult() &&
-                     sepInterResDef->regularLegendConfig()->showLegend() )
-                {
-                    nativeOrOverrideViewer()
-                        ->addColorLegendToBottomLeftCorner( sepInterResDef->regularLegendConfig()->titledOverlayFrame(),
-                                                            isUsingOverrideViewer() );
-                }
-            }
+            sepInterResDef->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
         }
 
         if ( tensorResults()->showTensors() )
