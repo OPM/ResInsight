@@ -126,7 +126,7 @@ public:
     TrajectoryType formationTrajectoryType() const;
 
     void detachAllCurves() override;
-    void reattachAllCurves();
+    void reattachAllCurves() override;
 
     void setAndUpdateWellPathFormationNamesData( RimCase* rimCase, RimWellPath* wellPath );
 
