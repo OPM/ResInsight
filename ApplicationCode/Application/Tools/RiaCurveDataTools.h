@@ -36,6 +36,12 @@ class RiaCurveDataTools
 public:
     typedef std::vector<std::pair<size_t, size_t>> CurveIntervals;
 
+    enum ErrorAxis
+    {
+        ERROR_ALONG_X_AXIS,
+        ERROR_ALONG_Y_AXIS
+    };
+
 public:
     static CurveIntervals calculateIntervalsOfValidValues( const std::vector<double>& values,
                                                            bool                       includePositiveValuesOnly );

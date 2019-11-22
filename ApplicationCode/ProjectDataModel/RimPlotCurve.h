@@ -18,6 +18,9 @@
 #pragma once
 
 #include "RifEclipseSummaryAddress.h"
+
+#include "RiaCurveDataTools.h"
+
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtSymbol.h"
 
@@ -29,6 +32,7 @@
 
 class QwtPlot;
 class QwtPlotCurve;
+class QwtPlotIntervalCurve;
 
 //==================================================================================================
 ///
@@ -120,6 +124,12 @@ protected:
     virtual void updateLegendsInPlot();
     void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
+    void setSamplesFromXYErrorValues( const std::vector<double>&   xValues,
+                                      const std::vector<double>&   yValues,
+                                      const std::vector<double>&   errorValues,
+                                      bool                         keepOnlyPositiveValues,
+                                      RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ERROR_ALONG_Y_AXIS );
+
 protected:
     // Overridden PDM methods
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
@@ -134,10 +144,13 @@ protected:
 
 private:
     bool canCurveBeAttached() const;
+    void attachCurveAndErrorBars();
 
 protected:
     QPointer<QwtPlot> m_parentQwtPlot;
-    RiuQwtPlotCurve*  m_qwtPlotCurve;
+
+    RiuQwtPlotCurve*      m_qwtPlotCurve;
+    QwtPlotIntervalCurve* m_qwtCurveErrorBars;
 
     caf::PdmField<bool>    m_showCurve;
     caf::PdmField<QString> m_curveName;
