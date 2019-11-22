@@ -527,6 +527,10 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 void RiuQwtPlotWidget::hideEvent( QHideEvent* event )
 {
     resetCurveHighlighting();
+    if ( m_plotDefinition )
+    {
+        m_plotDefinition->detachAllCurves();
+    }
     QwtPlot::hideEvent( event );
 }
 
@@ -541,19 +545,11 @@ void RiuQwtPlotWidget::showEvent( QShowEvent* event )
     m_canvasStyleSheet = createCanvasStyleSheet();
     m_canvasStyleSheet.applyToWidget( canvas() );
 
-    QwtPlot::showEvent( event );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::closeEvent( QCloseEvent* event )
-{
     if ( m_plotDefinition )
     {
-        m_plotDefinition->detachAllCurves();
+        m_plotDefinition->reattachAllCurves();
     }
-    QwtPlot::closeEvent( event );
+    QwtPlot::showEvent( event );
 }
 
 //--------------------------------------------------------------------------------------------------

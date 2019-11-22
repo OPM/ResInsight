@@ -102,7 +102,7 @@ public:
     size_t curveCount() const;
 
     void detachAllCurves() override;
-    void reattachAllCurves();
+    void reattachAllCurves() override;
     void updateCaseNameHasChanged();
 
     void updateAxes() override;

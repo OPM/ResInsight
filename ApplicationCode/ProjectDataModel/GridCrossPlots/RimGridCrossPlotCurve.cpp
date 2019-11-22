@@ -147,7 +147,7 @@ void RimGridCrossPlotCurve::updateLegendsInPlot()
     this->firstAncestorOrThisOfType( plot );
     if ( plot )
     {
-        plot->reattachCurvesToQwtAndReplot();
+        plot->reattachAllCurves();
     }
     RimPlotCurve::updateLegendsInPlot();
 }
