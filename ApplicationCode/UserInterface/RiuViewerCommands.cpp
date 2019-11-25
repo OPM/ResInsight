@@ -59,6 +59,7 @@
 #include "RimGeoMechView.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
+#include "RimIntersectionResultDefinition.h"
 #include "RimLegendConfig.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
@@ -1142,22 +1143,30 @@ void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                       m
                                               size_t*                          gridIndex )
 {
     CVF_ASSERT( cellIndex && gridIndex );
+    RimEclipseCase* eclipseCase = nullptr;
 
-    RimCase*        ownerCase   = mainOrComparisonView->ownerCase();
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( ownerCase );
-    RimGeoMechCase* geomCase    = dynamic_cast<RimGeoMechCase*>( ownerCase );
+    if ( RimIntersectionResultDefinition* sepInterResDef =
+             crossSectionSourceInfo->crossSection()->activeSeparateResultDefinition() )
+    {
+        if ( sepInterResDef->isEclipseResultDefinition() )
+        {
+            eclipseCase = dynamic_cast<RimEclipseCase*>( sepInterResDef->activeCase() );
+        }
+    }
+    else
+    {
+        eclipseCase = dynamic_cast<RimEclipseCase*>( mainOrComparisonView->ownerCase() );
+    }
+
+    size_t globalCellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
+
     if ( eclipseCase )
     {
-        // RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
-        RimEclipseView* eclipseView;
-        crossSectionSourceInfo->crossSection()->firstAncestorOrThisOfType( eclipseView );
-
-        size_t             globalCellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
-        const RigGridBase* hostGrid = eclipseView->mainGrid()->gridAndGridLocalIdxFromGlobalCellIdx( globalCellIndex,
-                                                                                                     cellIndex );
-        *gridIndex                  = hostGrid->gridIndex();
+        const RigCell& cell = eclipseCase->mainGrid()->globalCellArray()[globalCellIndex];
+        *cellIndex          = cell.gridLocalCellIndex();
+        *gridIndex          = cell.hostGrid()->gridIndex();
     }
-    else if ( geomCase )
+    else
     {
         *cellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
         *gridIndex = 0;
@@ -1174,19 +1183,30 @@ void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                        
                                               size_t*                             gridIndex )
 {
     CVF_ASSERT( cellIndex && gridIndex );
+    RimEclipseCase* eclipseCase = nullptr;
 
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
-    RimGeoMechView* geomView    = dynamic_cast<RimGeoMechView*>( mainOrComparisonView );
-
-    if ( eclipseView )
+    if ( RimIntersectionResultDefinition* sepInterResDef =
+             intersectionBoxSourceInfo->intersectionBox()->activeSeparateResultDefinition() )
     {
-        size_t globalCellIndex = intersectionBoxSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
+        if ( sepInterResDef->isEclipseResultDefinition() )
+        {
+            eclipseCase = dynamic_cast<RimEclipseCase*>( sepInterResDef->activeCase() );
+        }
+    }
+    else
+    {
+        eclipseCase = dynamic_cast<RimEclipseCase*>( mainOrComparisonView->ownerCase() );
+    }
 
-        const RigCell& cell = eclipseView->mainGrid()->globalCellArray()[globalCellIndex];
+    size_t globalCellIndex = intersectionBoxSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
+
+    if ( eclipseCase )
+    {
+        const RigCell& cell = eclipseCase->mainGrid()->globalCellArray()[globalCellIndex];
         *cellIndex          = cell.gridLocalCellIndex();
         *gridIndex          = cell.hostGrid()->gridIndex();
     }
-    else if ( geomView )
+    else
     {
         *cellIndex = intersectionBoxSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
         *gridIndex = 0;
