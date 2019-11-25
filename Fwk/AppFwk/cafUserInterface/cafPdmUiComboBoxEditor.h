@@ -61,17 +61,18 @@ public:
         adjustWidthToContents      = false;
         showPreviousAndNextButtons = false;
         minimumContentsLength      = 8;
+        maximumMenuContentsLength  = 40;
         enableEditableContent      = false;
         minimumWidth               = -1;
         iconSize = QSize(14, 14);
     }
 
 public:
-    bool adjustWidthToContents;
-    bool showPreviousAndNextButtons;
-    int  minimumContentsLength; // The length of string to adjust to if adjustWidthToContents = false.
-                                // Set to <= 0 to ignore and use AdjustToContentsOnFirstShow instead
-
+    bool    adjustWidthToContents;
+    bool    showPreviousAndNextButtons;
+    int     minimumContentsLength; // The length of string to adjust to if adjustWidthToContents = false.
+                                   // Set to <= 0 to ignore and use AdjustToContentsOnFirstShow instead
+    int     maximumMenuContentsLength;
     bool    enableEditableContent;
     int     minimumWidth;
     QString placeholderText;
