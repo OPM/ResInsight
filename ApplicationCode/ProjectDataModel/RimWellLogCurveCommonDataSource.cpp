@@ -21,10 +21,12 @@
 #include "RimCase.h"
 #include "RimDataSourceSteppingTools.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseResultCase.h"
 #include "RimGeoMechCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimTools.h"
+#include "RimWellFlowRateCurve.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFileCurve.h"
 #include "RimWellLogPlot.h"
@@ -285,6 +287,7 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions( const std::vector<Ri
         }
         RimWellLogExtractionCurve* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( curve );
         RimWellLogFileCurve*       fileCurve       = dynamic_cast<RimWellLogFileCurve*>( curve );
+        RimWellFlowRateCurve*      flowRateCurve   = dynamic_cast<RimWellFlowRateCurve*>( curve );
         if ( extractionCurve )
         {
             RimWellLogWbsCurve* wbsCurve = dynamic_cast<RimWellLogWbsCurve*>( extractionCurve );
@@ -321,6 +324,13 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions( const std::vector<Ri
         {
             m_uniqueWellPaths.insert( fileCurve->wellPath() );
             m_uniqueWellNames.insert( fileCurve->wellName() );
+        }
+        else if ( flowRateCurve )
+        {
+            m_uniqueTrajectoryTypes.insert( RimWellLogExtractionCurve::SIMULATION_WELL );
+            m_uniqueWellNames.insert( flowRateCurve->wellName() );
+            m_uniqueCases.insert( flowRateCurve->rimCase() );
+            m_uniqueTimeSteps.insert( flowRateCurve->timeStep() );
         }
     }
     for ( RimWellLogTrack* track : tracks )

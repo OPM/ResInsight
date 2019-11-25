@@ -40,6 +40,7 @@
 #include "RimTotalWellAllocationPlot.h"
 #include "RimWellAllocationPlotLegend.h"
 #include "RimWellFlowRateCurve.h"
+#include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
@@ -210,7 +211,11 @@ void RimWellAllocationPlot::updateFromWell()
     if ( m_flowType() == ACCUMULATED ) description = "Accumulated Flow";
     if ( m_flowType() == INFLOW ) description = "Inflow Rates";
 
-    accumulatedWellFlowPlot()->setDescription( description + " (" + m_wellName + ")" );
+    RimWellLogPlotNameConfig* nameConfig = accumulatedWellFlowPlot()->nameConfig();
+    nameConfig->setCustomName( description );
+    nameConfig->setAutoNameTags( false, true, false, false, false );
+    nameConfig->setFieldVisibility( true, true, true, false, false );
+    accumulatedWellFlowPlot()->updateAutoName();
 
     if ( !m_case ) return;
 
@@ -356,7 +361,6 @@ void RimWellAllocationPlot::updateFromWell()
     m_totalWellAllocationPlot->updateConnectedEditors();
 
     accumulatedWellFlowPlot()->updateConnectedEditors();
-
     m_tofAccumulatedPhaseFractionsPlot->reloadFromWell();
     m_tofAccumulatedPhaseFractionsPlot->updateConnectedEditors();
 

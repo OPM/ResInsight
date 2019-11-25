@@ -59,6 +59,33 @@ RimWellFlowRateCurve::~RimWellFlowRateCurve() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEclipseResultCase* RimWellFlowRateCurve::rimCase()
+{
+    RimWellAllocationPlot* wap = wellAllocationPlot();
+    if ( wap )
+    {
+        return wap->rimCase();
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimWellFlowRateCurve::timeStep()
+{
+    RimWellAllocationPlot* wap = wellAllocationPlot();
+
+    if ( wap )
+    {
+        return wap->timeStep();
+    }
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWellFlowRateCurve::wellName() const
 {
     QString name;
