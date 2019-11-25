@@ -98,7 +98,7 @@ RimViewController::~RimViewController()
     RimGridView* managedView = m_managedView;
     m_managedView            = nullptr;
 
-    if ( managedView ) managedView->updateHolder();
+    if ( managedView ) managedView->updateAutoName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -482,7 +482,7 @@ void RimViewController::setManagedView( RimGridView* view )
 
     if ( m_managedView )
     {
-        m_managedView->updateHolder();
+        m_managedView->updateAutoName();
     }
 }
 

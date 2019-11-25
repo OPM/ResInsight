@@ -29,7 +29,7 @@ CAF_PDM_SOURCE_INIT( RimWellLogPlotNameConfig, "RimWellLogPlotNameConfig" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlotNameConfig::RimWellLogPlotNameConfig()
-    : RimNameConfig()
+    : RimNameConfig( "Well Log Plot" )
 {
     CAF_PDM_InitObject( "Well Log Plot Name Generator", "", "", "" );
 
@@ -38,8 +38,6 @@ RimWellLogPlotNameConfig::RimWellLogPlotNameConfig()
     CAF_PDM_InitField( &m_addTimestep, "AddTimeStep", false, "Add Time Step", "", "", "" );
     CAF_PDM_InitField( &m_addAirGap, "AddAirGap", false, "Add Air Gap", "", "", "" );
     CAF_PDM_InitField( &m_addWaterDepth, "AddWaterDepth", false, "Add Water Depth", "", "", "" );
-
-    m_customName = "Well Log Plot";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,13 +83,25 @@ bool RimWellLogPlotNameConfig::addWaterDepth() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotNameConfig::enableAllAutoNameTags( bool enable )
+void RimWellLogPlotNameConfig::setAutoNameTags( bool addCaseName,
+                                                bool addWellName,
+                                                bool addTimeStep,
+                                                bool addAirGap,
+                                                bool addWaterDepth )
 {
-    m_addCaseName   = enable;
-    m_addWellName   = enable;
-    m_addTimestep   = enable;
-    m_addAirGap     = enable;
-    m_addWaterDepth = enable;
+    m_addCaseName   = addCaseName;
+    m_addWellName   = addWellName;
+    m_addTimestep   = addTimeStep;
+    m_addAirGap     = addAirGap;
+    m_addWaterDepth = addWaterDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotNameConfig::doEnableAllAutoNameTags( bool enable )
+{
+    setAutoNameTags( enable, enable, enable, enable, enable );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,6 +110,7 @@ void RimWellLogPlotNameConfig::enableAllAutoNameTags( bool enable )
 void RimWellLogPlotNameConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     RimNameConfig::defineUiOrdering( uiConfigName, uiOrdering );
+
     uiOrdering.add( &m_addCaseName );
     uiOrdering.add( &m_addWellName );
     uiOrdering.add( &m_addTimestep );
