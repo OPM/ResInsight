@@ -403,6 +403,14 @@ QString RimWellLogPlot::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimWellLogPlotNameConfig* RimWellLogPlot::nameConfig() const
+{
+    return m_nameConfig;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QWidget* RimWellLogPlot::createViewWidget( QWidget* mainWindowParent )
 {
     m_viewer = new RiuWellLogPlot( this, mainWindowParent );

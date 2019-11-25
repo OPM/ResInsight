@@ -44,8 +44,10 @@ public:
                                     const std::vector<double>& flowRates );
     void updateStackedPlotData();
 
-    QString wellName() const override;
-    QString wellLogChannelName() const override;
+    RimEclipseResultCase* rimCase();
+    int                   timeStep();
+    QString               wellName() const override;
+    QString               wellLogChannelName() const override;
 
     void setGroupId( int groupId );
     int  groupId() const;

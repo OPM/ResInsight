@@ -99,6 +99,22 @@ void RimWellLogPlotNameConfig::setAutoNameTags( bool addCaseName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlotNameConfig::setFieldVisibility( bool caseNameVisible,
+                                                   bool wellNameVisible,
+                                                   bool timeStepVisible,
+                                                   bool airGapVisible,
+                                                   bool waterDepthVisible )
+{
+    m_addCaseName.uiCapability()->setUiHidden( !caseNameVisible );
+    m_addWellName.uiCapability()->setUiHidden( !wellNameVisible );
+    m_addTimestep.uiCapability()->setUiHidden( !timeStepVisible );
+    m_addAirGap.uiCapability()->setUiHidden( !airGapVisible );
+    m_addWaterDepth.uiCapability()->setUiHidden( !waterDepthVisible );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlotNameConfig::doEnableAllAutoNameTags( bool enable )
 {
     setAutoNameTags( enable, enable, enable, enable, enable );
