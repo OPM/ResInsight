@@ -45,7 +45,10 @@ public:
     caf::PdmField<bool> addDataSetNames;
 
 protected:
-    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+private:
+    void doEnableAllAutoNameTags( bool enable ) override;
 };
 
 class RimGridCrossPlot : public RimPlot, public RimNameConfigHolderInterface

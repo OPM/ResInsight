@@ -36,10 +36,14 @@ public:
     bool addTimeStep() const;
     bool addAirGap() const;
     bool addWaterDepth() const;
-    void enableAllAutoNameTags( bool enable ) override;
+
+    void setAutoNameTags( bool addCaseName, bool addWellName, bool addTimeStep, bool addAirGap, bool addWaterDepth );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+private:
+    void doEnableAllAutoNameTags( bool enable ) override;
 
 private:
     caf::PdmField<bool> m_addCaseName;

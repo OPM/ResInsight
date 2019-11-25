@@ -1033,13 +1033,11 @@ CAF_PDM_SOURCE_INIT( RimGridCrossPlotNameConfig, "RimGridCrossPlotNameConfig" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimGridCrossPlotNameConfig::RimGridCrossPlotNameConfig()
-    : RimNameConfig()
+    : RimNameConfig( "Cross Plot" )
 {
     CAF_PDM_InitObject( "Cross Plot Name Generator", "", "", "" );
 
     CAF_PDM_InitField( &addDataSetNames, "AddDataSetNames", true, "Add Data Set Names", "", "", "" );
-
-    setCustomName( "Cross Plot" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1049,4 +1047,12 @@ void RimGridCrossPlotNameConfig::defineUiOrdering( QString uiConfigName, caf::Pd
 {
     RimNameConfig::defineUiOrdering( uiConfigName, uiOrdering );
     uiOrdering.add( &addDataSetNames );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotNameConfig::doEnableAllAutoNameTags( bool enable )
+{
+    addDataSetNames = enable;
 }

@@ -40,8 +40,6 @@ public:
     void setAddSampleSpacing( bool add );
     bool addSampleSpacing() const;
 
-    void enableAllAutoNameTags( bool enable ) override;
-
     void hideCaseNameField( bool hide );
     void hideAggregationTypeField( bool hide );
     void hidePropertyField( bool hide );
@@ -49,6 +47,9 @@ public:
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+private:
+    void doEnableAllAutoNameTags( bool enable ) override;
 
 private:
     caf::PdmField<bool> m_addCaseName;
