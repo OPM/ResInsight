@@ -65,6 +65,10 @@ void RifEclipseSummaryTools::findSummaryFiles( const QString& inputFile, QString
     std::string extention;
     if ( myExtention ) extention = myExtention;
 
+    free( myExtention );
+    free( myBase );
+    free( myPath );
+
     if ( path.isEmpty() || base.isEmpty() ) return;
 
     char*            myHeaderFile      = nullptr;

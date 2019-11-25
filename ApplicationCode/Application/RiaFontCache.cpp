@@ -129,3 +129,11 @@ RiaFontCache::FontSize RiaFontCache::fontSizeEnumFromPointSize( int pointSize )
     }
     return closestEnumValue;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaFontCache::clear()
+{
+    ms_fonts.clear();
+}
