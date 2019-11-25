@@ -168,10 +168,12 @@ RimCase* Rim2dIntersectionView::ownerCase() const
     {
         rimCase = sepInterResultDef->activeCase();
     }
-    else
+
+    if ( !rimCase )
     {
         this->firstAncestorOrThisOfTypeAsserted( rimCase );
     }
+
     return rimCase;
 }
 
