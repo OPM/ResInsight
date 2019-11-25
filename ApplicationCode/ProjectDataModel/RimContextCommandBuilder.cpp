@@ -541,10 +541,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteEnsembleCurveSetFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicEditSummaryPlotFeature";
-            menuBuilder << "RicNewSummaryPlotFeature";
-            menuBuilder << "RicNewDefaultSummaryPlotFeature";
             menuBuilder << "RicDuplicateSummaryPlotFeature";
-            menuBuilder << "RicNewSummaryCurveFeature";
             menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
             menuBuilder << "RicDuplicateSummaryCrossPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
