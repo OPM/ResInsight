@@ -42,6 +42,7 @@ RimIntersectionHandle::RimIntersectionHandle()
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "" );
+    CAF_PDM_InitField( &m_useSeparateDataSource, "UseSeparateIntersectionDataSource", true, "Enable", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_separateDataSource, "SeparateIntersectionDataSource", "Source", "", "", "" );
 }
 
@@ -97,6 +98,8 @@ RimIntersectionResultDefinition* RimIntersectionHandle::activeSeparateResultDefi
 {
     updateDefaultSeparateDataSource();
 
+    if ( !m_useSeparateDataSource ) return nullptr;
+
     if ( !m_separateDataSource ) return nullptr;
 
     if ( !m_separateDataSource->isActive() ) return nullptr;
@@ -124,8 +127,6 @@ QList<caf::PdmOptionItemInfo>
 
         std::vector<RimIntersectionResultDefinition*> iResDefs =
             view->separateIntersectionResultsCollection()->intersectionResultsDefinitions();
-
-        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
         for ( auto iresdef : iResDefs )
         {
@@ -170,9 +171,12 @@ void RimIntersectionHandle::defineSeparateDataSourceUi( QString uiConfigName, ca
         inactiveText = " (Inactive)";
     }
 
-    caf::PdmUiGroup* separateResultsGroup = uiOrdering.addNewGroup( "Separate Data Source Reference" + inactiveText );
+    caf::PdmUiGroup* separateResultsGroup = uiOrdering.addNewGroup( "Separate Result Reference" + inactiveText );
     separateResultsGroup->setCollapsedByDefault( true );
+    separateResultsGroup->add( &m_useSeparateDataSource );
     separateResultsGroup->add( &m_separateDataSource );
+    m_separateDataSource.uiCapability()->setUiReadOnly( !m_useSeparateDataSource() );
+
     m_separateDataSource.uiCapability()->setUiName( "Source" + inactiveText );
 }
 

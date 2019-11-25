@@ -146,12 +146,23 @@ void RimIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                         const QVariant&            oldValue,
                                         const QVariant&            newValue )
 {
-    if ( changedField == &m_isActive || changedField == &type || changedField == &direction || changedField == &wellPath ||
-         changedField == &simulationWell || changedField == &m_branchIndex || changedField == &m_extentLength ||
-         changedField == &m_lengthUp || changedField == &m_lengthDown || changedField == &m_showInactiveCells )
+    // clang-format off
+    if ( changedField == &m_isActive || 
+         changedField == &type || 
+         changedField == &direction || 
+         changedField == &wellPath ||
+         changedField == &simulationWell || 
+         changedField == &m_branchIndex || 
+         changedField == &m_extentLength ||
+         changedField == &m_lengthUp || 
+         changedField == &m_lengthDown || 
+         changedField == &m_showInactiveCells ||
+         changedField == &m_useSeparateDataSource || 
+         changedField == &m_separateDataSource )
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
+    // clang-format on
 
     if ( changedField == &simulationWell || changedField == &m_isActive || changedField == &type )
     {
@@ -931,4 +942,3 @@ double RimIntersection::azimuthInRadians( cvf::Vec3d vec )
 {
     return cvf::GeometryTools::getAngle( -cvf::Vec3d::Z_AXIS, cvf::Vec3d::Y_AXIS, vec );
 }
-

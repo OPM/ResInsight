@@ -57,5 +57,6 @@ protected:
     caf::PdmField<QString>                             m_name;
     caf::PdmField<bool>                                m_isActive;
     caf::PdmField<bool>                                m_showInactiveCells;
+    caf::PdmField<bool>                                m_useSeparateDataSource;
     caf::PdmPtrField<RimIntersectionResultDefinition*> m_separateDataSource;
 };
