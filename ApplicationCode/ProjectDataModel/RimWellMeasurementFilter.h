@@ -23,12 +23,15 @@ class RimWellPath;
 class RimWellMeasurement;
 class RimWellPathCollection;
 
+class QString;
+
 class RimWellMeasurementFilter
 {
 public:
     static std::vector<RimWellMeasurement*> filterMeasurements( const std::vector<RimWellMeasurement*>& measurements,
                                                                 const RimWellPathCollection& wellPathCollection,
-                                                                const RimWellPath&           rimWellPath );
+                                                                const RimWellPath&           rimWellPath,
+                                                                const std::vector<QString>&  measurementKinds );
 
 private:
     RimWellMeasurementFilter();

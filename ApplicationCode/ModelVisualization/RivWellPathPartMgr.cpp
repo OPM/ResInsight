@@ -294,11 +294,16 @@ void RivWellPathPartMgr::appendWellMeasurementsToModel( cvf::ModelBasicList*    
     RimWellMeasurementCollection* wellMeasurementCollection = wellPathCollection->measurementCollection();
     if ( !wellMeasurementCollection ) return;
 
+    if ( !wellMeasurementCollection->isChecked() ) return;
+
+    std::vector<QString> measurementKinds = wellMeasurementCollection->measurementKinds();
+
     RivPipeGeometryGenerator         geoGenerator;
     std::vector<RimWellMeasurement*> wellMeasurements =
         RimWellMeasurementFilter::filterMeasurements( wellMeasurementCollection->measurements(),
                                                       *wellPathCollection,
-                                                      *m_rimWellPath );
+                                                      *m_rimWellPath,
+                                                      measurementKinds );
 
     for ( RimWellMeasurement* wellMeasurement : wellMeasurements )
     {

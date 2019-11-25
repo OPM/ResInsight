@@ -22,6 +22,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 
 class RimWellMeasurement;
 
@@ -34,6 +35,7 @@ public:
     ~RimWellMeasurementCollection() override;
 
     std::vector<RimWellMeasurement*> measurements() const;
+    std::vector<QString>             measurementKinds() const;
 
     void updateAllReferringTracks();
     void insertMeasurement( RimWellMeasurement* insertBefore, RimWellMeasurement* measurement );
@@ -53,7 +55,10 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
                            const QVariant&            newValue ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly );
 
 private:
     caf::PdmChildArrayField<RimWellMeasurement*> m_measurements;
+    caf::PdmField<std::vector<QString>>          m_measurementKinds;
 };

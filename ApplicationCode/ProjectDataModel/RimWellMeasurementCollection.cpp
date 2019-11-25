@@ -24,6 +24,7 @@
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimWellMeasurementCollection, "WellMeasurements" );
 
@@ -38,6 +39,13 @@ RimWellMeasurementCollection::RimWellMeasurementCollection()
     m_measurements.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_measurements.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_measurements.uiCapability()->setCustomContextMenuEnabled( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_measurementKinds, "MeasurementKinds", "Measurent Kinds", "", "", "" );
+    m_measurementKinds.uiCapability()->setAutoAddingOptionFromValue( false );
+    m_measurementKinds.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_measurementKinds.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_measurementKinds.xmlCapability()->disableIO();
+
     this->setName( "Well Measurements" );
 }
 
@@ -177,11 +185,41 @@ void RimWellMeasurementCollection::fieldChangedByUi( const caf::PdmFieldHandle* 
                                                      const QVariant&            oldValue,
                                                      const QVariant&            newValue )
 {
-    if ( changedField == &m_isChecked )
+    if ( changedField == &m_isChecked || changedField == &m_measurementKinds )
     {
         RimProject* proj;
         this->firstAncestorOrThisOfTypeAsserted( proj );
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
         this->updateAllReferringTracks();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo>
+    RimWellMeasurementCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly )
+{
+    QList<caf::PdmOptionItemInfo> options;
+    if ( fieldNeedingOptions == &m_measurementKinds )
+    {
+        std::set<QString> measurementKindsInData;
+        for ( auto measurement : measurements() )
+        {
+            measurementKindsInData.insert( measurement->kind() );
+        }
+
+        for ( auto measurementKind : measurementKindsInData )
+        {
+            options.push_back( caf::PdmOptionItemInfo( measurementKind, measurementKind ) );
+        }
+    }
+
+    return options;
+}
+
+std::vector<QString> RimWellMeasurementCollection::measurementKinds() const
+{
+    return m_measurementKinds;
 }

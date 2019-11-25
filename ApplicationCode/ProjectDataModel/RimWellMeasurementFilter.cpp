@@ -28,16 +28,20 @@
 std::vector<RimWellMeasurement*>
     RimWellMeasurementFilter::filterMeasurements( const std::vector<RimWellMeasurement*>& measurements,
                                                   const RimWellPathCollection&            wellPathCollection,
-                                                  const RimWellPath&                      wellPath )
+                                                  const RimWellPath&                      wellPath,
+                                                  const std::vector<QString>&             measurementKinds )
 {
     std::vector<RimWellMeasurement*> filteredMeasurements;
 
     for ( auto& measurement : measurements )
     {
-        RimWellPath* matchedWellPath = wellPathCollection.tryFindMatchingWellPath( measurement->wellName() );
-        if ( matchedWellPath && matchedWellPath == &wellPath )
+        if ( std::find( measurementKinds.begin(), measurementKinds.end(), measurement->kind() ) != measurementKinds.end() )
         {
-            filteredMeasurements.push_back( measurement );
+            RimWellPath* matchedWellPath = wellPathCollection.tryFindMatchingWellPath( measurement->wellName() );
+            if ( matchedWellPath && matchedWellPath == &wellPath )
+            {
+                filteredMeasurements.push_back( measurement );
+            }
         }
     }
 
