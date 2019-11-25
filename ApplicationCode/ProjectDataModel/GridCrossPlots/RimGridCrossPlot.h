@@ -74,15 +74,17 @@ public:
     QImage  snapshotWindowContent() override;
     void    zoomAll() override;
     void    calculateZoomRangeAndUpdateQwt();
-    void    reattachCurvesToQwtAndReplot();
     QString createAutoName() const override;
 
     bool                 showInfoBox() const;
     caf::PdmFieldHandle* userDescriptionField() override;
-    void                 detachAllCurves() override;
-    void                 performAutoNameUpdate() override;
-    void                 updateCurveNamesAndPlotTitle();
-    void                 swapAxes();
+
+    void detachAllCurves() override;
+    void reattachAllCurves() override;
+
+    void performAutoNameUpdate() override;
+    void updateCurveNamesAndPlotTitle();
+    void swapAxes();
     QString              asciiTitleForPlotExport( int dataSetIndex ) const;
     QString              asciiDataForGridCrossPlotExport( int dataSetIndex ) const;
 
