@@ -50,6 +50,7 @@
 //--------------------------------------------------------------------------------------------------
 void RivIntersectionResultsColoringTools::updateCellResultColorStatic(
     size_t                                    timeStepIndex,
+    bool                                      useSeparateIntersectionResDefTimeStep,
     RimIntersectionHandle*                    rimIntersectionHandle,
     const RivIntersectionGeometryGeneratorIF* intersectionGeomGenIF,
     const cvf::ScalarMapper*                  explicitScalarColorMapper,
@@ -87,7 +88,10 @@ void RivIntersectionResultsColoringTools::updateCellResultColorStatic(
 
         if ( !scalarColorMapper ) scalarColorMapper = sepResDef->regularLegendConfig()->scalarMapper();
         if ( !ternaryColorMapper ) ternaryColorMapper = sepResDef->ternaryLegendConfig()->scalarMapper();
-        timeStepIndex = sepResDef->timeStep();
+        if ( useSeparateIntersectionResDefTimeStep )
+        {
+            timeStepIndex = sepResDef->timeStep();
+        }
     }
 
     // Ordinary result

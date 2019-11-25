@@ -154,6 +154,7 @@ void RivIntersectionPartMgr::updateCellResultColor( size_t                      
                                                     const RivTernaryScalarMapper* ternaryColorMapper )
 {
     RivIntersectionResultsColoringTools::updateCellResultColorStatic( timeStepIndex,
+                                                                      !m_isFlattened,
                                                                       m_rimCrossSection,
                                                                       m_crossSectionGenerator.p(),
                                                                       scalarColorMapper,
