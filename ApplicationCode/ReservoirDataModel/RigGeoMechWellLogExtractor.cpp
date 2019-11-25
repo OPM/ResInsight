@@ -85,10 +85,8 @@ void RigGeoMechWellLogExtractor::performCurveDataSmoothing( int                 
     const std::vector<float>& unscaledShValues = resultCollection->resultValues( shAddr, 0, frameIndex );
     const std::vector<float>& porePressures    = resultCollection->resultValues( porBarResAddr, 0, frameIndex );
 
-    const std::vector<float>& interfaceShValues = interpolateInterfaceValues( shAddr, frameIndex, unscaledShValues );
-    const std::vector<float>& interfacePorePressures = interpolateInterfaceValues( porBarResAddr,
-                                                                                   frameIndex,
-                                                                                   porePressures );
+    std::vector<float> interfaceShValues      = interpolateInterfaceValues( shAddr, frameIndex, unscaledShValues );
+    std::vector<float> interfacePorePressures = interpolateInterfaceValues( porBarResAddr, frameIndex, porePressures );
 
     std::vector<double> interfaceShValuesDbl( interfaceShValues.size(), std::numeric_limits<double>::infinity() );
     std::vector<double> interfacePorePressuresDbl( interfacePorePressures.size(),
@@ -185,7 +183,7 @@ void RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAddr, 
 
         if ( resultValues.empty() ) return;
 
-        const std::vector<float>& interfaceValues = interpolateInterfaceValues( convResAddr, frameIndex, resultValues );
+        std::vector<float> interfaceValues = interpolateInterfaceValues( convResAddr, frameIndex, resultValues );
 
         values->resize( interfaceValues.size(), std::numeric_limits<double>::infinity() );
 
@@ -229,9 +227,9 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
         RigFemResultAddress nativeAddr = parameter.femAddress( RigWbsParameter::GRID );
 
         const std::vector<float>& unscaledResultValues = resultCollection->resultValues( nativeAddr, 0, frameIndex );
-        const std::vector<float>& interpolatedInterfaceValues = interpolateInterfaceValues( nativeAddr,
-                                                                                            frameIndex,
-                                                                                            unscaledResultValues );
+        std::vector<float>        interpolatedInterfaceValues = interpolateInterfaceValues( nativeAddr,
+                                                                                     frameIndex,
+                                                                                     unscaledResultValues );
         gridValues.resize( m_intersections.size(), std::numeric_limits<double>::infinity() );
 
 #pragma omp parallel for
@@ -498,9 +496,9 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
         vertexStresses.push_back( caf::Ten3d( floatTensor ) );
     }
 
-    const std::vector<caf::Ten3d>& interpolatedInterfaceStressBar = interpolateInterfaceValues( stressResAddr,
-                                                                                                frameIndex,
-                                                                                                vertexStresses );
+    std::vector<caf::Ten3d> interpolatedInterfaceStressBar = interpolateInterfaceValues( stressResAddr,
+                                                                                         frameIndex,
+                                                                                         vertexStresses );
 
     values->resize( m_intersections.size(), 0.0f );
 
@@ -1149,6 +1147,7 @@ std::vector<T> RigGeoMechWellLogExtractor::interpolateInterfaceValues( RigFemRes
                                                                                       unscaledResultValues,
                                                                                       intersectionIdx );
     }
+    return interpolatedInterfaceValues;
 }
 
 //--------------------------------------------------------------------------------------------------

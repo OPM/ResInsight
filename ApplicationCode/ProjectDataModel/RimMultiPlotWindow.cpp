@@ -272,7 +272,12 @@ void RimMultiPlotWindow::doUpdateLayout()
 //--------------------------------------------------------------------------------------------------
 /// Empty default implementation
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlotWindow::updatePlotNames() {}
+void RimMultiPlotWindow::updateSubPlotNames() {}
+
+//--------------------------------------------------------------------------------------------------
+/// Empty default implementation
+//--------------------------------------------------------------------------------------------------
+void RimMultiPlotWindow::updatePlotWindowTitle() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -284,7 +289,7 @@ void RimMultiPlotWindow::updatePlotOrderFromGridWidget()
         auto indexRhs = m_viewer->indexOfPlotWidget( rhs->viewer() );
         return indexLhs < indexRhs;
     } );
-    updatePlotNames();
+    updateSubPlotNames();
     updateConnectedEditors();
 }
 
@@ -371,7 +376,9 @@ QString RimMultiPlotWindow::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlotWindow::onPlotAdditionOrRemoval()
 {
-    updatePlotNames();
+    updateSubPlotNames();
+    updatePlotWindowTitle();
+    applyPlotWindowTitleToWidgets();
     updateConnectedEditors();
     updateLayout();
     RiuPlotMainWindowTools::refreshToolbars();
@@ -455,7 +462,8 @@ void RimMultiPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     }
     else if ( changedField == &m_showPlotWindowTitle || changedField == &m_plotWindowTitle )
     {
-        updatePlotTitleInWidgets();
+        updatePlotWindowTitle();
+        applyPlotWindowTitleToWidgets();
     }
     else if ( changedField == &m_columnCountEnum )
     {
@@ -526,7 +534,8 @@ QList<caf::PdmOptionItemInfo> RimMultiPlotWindow::calculateValueOptions( const c
 void RimMultiPlotWindow::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
-    updatePlotTitleInWidgets();
+    updatePlotWindowTitle();
+    applyPlotWindowTitleToWidgets();
     updatePlots();
     updateLayout();
 }
@@ -542,7 +551,7 @@ void RimMultiPlotWindow::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlotWindow::updatePlotTitleInWidgets()
+void RimMultiPlotWindow::applyPlotWindowTitleToWidgets()
 {
     if ( m_viewer )
     {
