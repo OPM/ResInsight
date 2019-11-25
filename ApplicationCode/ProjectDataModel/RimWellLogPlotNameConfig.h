@@ -38,6 +38,11 @@ public:
     bool addWaterDepth() const;
 
     void setAutoNameTags( bool addCaseName, bool addWellName, bool addTimeStep, bool addAirGap, bool addWaterDepth );
+    void setFieldVisibility( bool caseNameVisible,
+                             bool wellNameVisible,
+                             bool timeStepVisible,
+                             bool airGapVisible,
+                             bool waterDepthVisible );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

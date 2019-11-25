@@ -91,7 +91,8 @@ public:
     void uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     void uiOrderingForAutoName( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
-    QString createAutoName() const override;
+    QString                   createAutoName() const override;
+    RimWellLogPlotNameConfig* nameConfig() const;
 
     RimWellLogCurveCommonDataSource* commonDataSource() const;
     void                             updateCommonDataSource();
