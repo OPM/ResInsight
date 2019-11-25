@@ -30,7 +30,7 @@ class RimNameConfigHolderInterface
 {
 public:
     virtual QString createAutoName() const = 0;
-    void            updateHolder()
+    void            updateAutoName()
     {
         performAutoNameUpdate();
     }
@@ -48,16 +48,16 @@ class RimNameConfig : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimNameConfig();
+    RimNameConfig( const QString& customName );
     ~RimNameConfig() override;
 
-    QString      customName() const;
-    void         setCustomName( const QString& name );
-    virtual void enableAllAutoNameTags( bool enable ) {}
+    QString customName() const;
+    void    setCustomName( const QString& name );
 
     caf::PdmFieldHandle* nameField();
     QString              name() const;
     void                 uiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void                 enableAllAutoNameTags( bool enable );
 
 protected:
     void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -68,7 +68,10 @@ protected:
     virtual void updateAllSettings();
     void         initAfterRead() override;
 
-protected:
+private:
+    virtual void doEnableAllAutoNameTags( bool enable ) = 0;
+
+private:
     caf::PdmField<bool>              m_isUsingAutoName_OBSOLETE;
     caf::PdmField<QString>           m_customName;
     caf::PdmProxyValueField<QString> m_autoName;

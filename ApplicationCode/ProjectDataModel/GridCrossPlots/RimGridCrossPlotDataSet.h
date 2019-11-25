@@ -67,6 +67,9 @@ public:
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+private:
+    void doEnableAllAutoNameTags( bool enable ) override;
 };
 
 //==================================================================================================

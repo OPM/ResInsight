@@ -29,7 +29,7 @@ CAF_PDM_SOURCE_INIT( RimWellLogExtractionCurveNameConfig, "RimWellLogExtractionC
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellLogExtractionCurveNameConfig::RimWellLogExtractionCurveNameConfig()
-    : RimNameConfig()
+    : RimNameConfig( "Log Extraction" )
 {
     CAF_PDM_InitObject( "Well Log Extraction Curve Name Generator", "", "", "" );
 
@@ -38,8 +38,6 @@ RimWellLogExtractionCurveNameConfig::RimWellLogExtractionCurveNameConfig()
     CAF_PDM_InitField( &m_addWellName, "AddWellName", true, "Add Well Name", "", "", "" );
     CAF_PDM_InitField( &m_addTimestep, "AddTimeStep", true, "Add Time Step", "", "", "" );
     CAF_PDM_InitField( &m_addDate, "AddDate", true, "Add Date", "", "", "" );
-
-    m_customName = "Log Extraction";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,7 +83,7 @@ bool RimWellLogExtractionCurveNameConfig::addDate() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurveNameConfig::enableAllAutoNameTags( bool enable )
+void RimWellLogExtractionCurveNameConfig::doEnableAllAutoNameTags( bool enable )
 {
     m_addCaseName = enable;
     m_addProperty = enable;
