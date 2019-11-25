@@ -29,7 +29,7 @@ CAF_PDM_SOURCE_INIT( RimViewNameConfig, "RimViewNameConfig" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimViewNameConfig::RimViewNameConfig()
-    : RimNameConfig()
+    : RimNameConfig( "" )
     , m_hideCaseNameField( false )
     , m_hideAggregationTypeField( false )
     , m_hidePropertyField( false )
@@ -41,8 +41,6 @@ RimViewNameConfig::RimViewNameConfig()
     CAF_PDM_InitField( &m_addAggregationType, "AddAggregationType", true, "Add Aggregation Type", "", "", "" );
     CAF_PDM_InitField( &m_addProperty, "AddProperty", true, "Add Property Type", "", "", "" );
     CAF_PDM_InitField( &m_addSampleSpacing, "AddSampleSpacing", false, "Add Sample Spacing", "", "", "" );
-
-    m_customName = "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,7 +110,7 @@ bool RimViewNameConfig::addSampleSpacing() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewNameConfig::enableAllAutoNameTags( bool enable )
+void RimViewNameConfig::doEnableAllAutoNameTags( bool enable )
 {
     m_addCaseName        = enable;
     m_addAggregationType = enable;

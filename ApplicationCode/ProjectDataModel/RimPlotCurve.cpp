@@ -484,7 +484,7 @@ void RimPlotCurve::updatePlotTitle()
     this->firstAncestorOrThisOfType( nameConfigHolder );
     if ( nameConfigHolder )
     {
-        nameConfigHolder->updateHolder();
+        nameConfigHolder->updateAutoName();
     }
 }
 

@@ -91,7 +91,7 @@ void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
 
             delete viewLinker;
         }
-        activeView->updateHolder();
+        activeView->updateAutoName();
     }
 
     RiaApplication::instance()->project()->viewLinkerCollection.uiCapability()->updateConnectedEditors();

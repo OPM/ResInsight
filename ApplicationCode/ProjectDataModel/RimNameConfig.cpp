@@ -26,12 +26,12 @@
 ///
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT( RimNameConfig, "RimCurveNameConfig" );
+CAF_PDM_ABSTRACT_SOURCE_INIT( RimNameConfig, "RimCurveNameConfig" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimNameConfig::RimNameConfig()
+RimNameConfig::RimNameConfig( const QString& customName )
 {
     CAF_PDM_InitObject( "Curve Name Generator", "", "", "" );
 
@@ -42,6 +42,8 @@ RimNameConfig::RimNameConfig()
     m_autoName.registerGetMethod( this, &RimNameConfig::autoName );
     m_autoName.xmlCapability()->disableIO();
     m_autoName.uiCapability()->setUiReadOnly( true );
+
+    m_customName = customName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,6 +123,14 @@ void RimNameConfig::setCustomName( const QString& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimNameConfig::enableAllAutoNameTags( bool enable )
+{
+    doEnableAllAutoNameTags( enable );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimNameConfig::updateAllSettings()
 {
     m_autoName.uiCapability()->updateConnectedEditors();
@@ -128,7 +138,7 @@ void RimNameConfig::updateAllSettings()
 
     RimNameConfigHolderInterface* holder;
     this->firstAncestorOrThisOfTypeAsserted( holder );
-    holder->updateHolder();
+    holder->updateAutoName();
     caf::PdmObject* pdmObject = dynamic_cast<caf::PdmObject*>( holder );
     if ( pdmObject )
     {
@@ -144,6 +154,6 @@ void RimNameConfig::initAfterRead()
     // Now we just switch them all individually.
     if ( !m_isUsingAutoName_OBSOLETE() )
     {
-        enableAllAutoNameTags( false );
+        doEnableAllAutoNameTags( false );
     }
 }
