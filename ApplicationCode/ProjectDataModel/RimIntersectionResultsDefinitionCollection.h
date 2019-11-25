@@ -36,6 +36,8 @@ public:
 
     std::vector<RimIntersectionResultDefinition*> intersectionResultsDefinitions();
 
+    void appendIntersectionResultDefinition( RimIntersectionResultDefinition* interResDef );
+
 protected:
     caf::PdmFieldHandle* objectToggleField() override;
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,

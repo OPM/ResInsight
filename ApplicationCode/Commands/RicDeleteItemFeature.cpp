@@ -44,6 +44,7 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
+#include "RimIntersectionResultDefinition.h"
 #include "RimPerforationInterval.h"
 #include "RimPolylinesAnnotation.h"
 #include "RimReachCircleAnnotation.h"
@@ -137,6 +138,8 @@ bool isDeletable( caf::PdmUiItem* uiItem )
     if ( dynamic_cast<RimTextAnnotation*>( uiItem ) ) return true;
     if ( dynamic_cast<RimReachCircleAnnotation*>( uiItem ) ) return true;
     if ( dynamic_cast<RimPolylinesAnnotation*>( uiItem ) ) return true;
+    if ( dynamic_cast<RimIntersectionResultDefinition*>( uiItem ) ) return true;
+
     if ( dynamic_cast<RimGridCrossPlot*>( uiItem ) )
     {
         RimGridPlotWindow* plotWindow = nullptr;

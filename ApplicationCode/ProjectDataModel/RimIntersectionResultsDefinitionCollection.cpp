@@ -64,6 +64,15 @@ std::vector<RimIntersectionResultDefinition*> RimIntersectionResultsDefinitionCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimIntersectionResultsDefinitionCollection::appendIntersectionResultDefinition(
+    RimIntersectionResultDefinition* interResDef )
+{
+    m_intersectionResultsDefs.push_back(interResDef);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimIntersectionResultsDefinitionCollection::objectToggleField()
 {
     return &m_isActive;

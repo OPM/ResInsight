@@ -76,6 +76,8 @@
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
+#include "RimIntersectionResultDefinition.h"
+#include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimModeledWellPath.h"
 #include "RimObservedSummaryData.h"
 #include "RimPerforationCollection.h"
@@ -687,6 +689,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicAppendIntersectionBoxFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
+        }
+        else if ( dynamic_cast<RimIntersectionResultsDefinitionCollection*>( uiItem ) ||
+                  dynamic_cast<RimIntersectionResultDefinition*>( uiItem ) )
+        {
+            menuBuilder << "RicAppendSeparateIntersectionResultFeature";
         }
         else if ( dynamic_cast<RimSimWellInView*>( uiItem ) )
         {
