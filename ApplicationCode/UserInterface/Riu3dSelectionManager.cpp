@@ -25,6 +25,8 @@
 #include "RimGridView.h"
 #include "RimSimWellInView.h"
 #include "RimWellPath.h"
+#include "RimEclipseResultDefinition.h"
+#include "RimGeoMechResultDefinition.h"
 
 #include "RivSimWellPipeSourceInfo.h"
 #include "RivWellPathSourceInfo.h"
@@ -156,6 +158,8 @@ void Riu3dSelectionManager::deleteAllItemsFromSelection( int role )
 ///
 //--------------------------------------------------------------------------------------------------
 RiuEclipseSelectionItem::RiuEclipseSelectionItem( RimEclipseView*                    view,
+                                                  RimEclipseResultDefinition*        resultDefinition,
+                                                  size_t                             timestepIdx,
                                                   size_t                             gridIndex,
                                                   size_t                             cellIndex,
                                                   size_t                             nncIndex,
@@ -163,6 +167,8 @@ RiuEclipseSelectionItem::RiuEclipseSelectionItem( RimEclipseView*               
                                                   cvf::StructGridInterface::FaceType face,
                                                   const cvf::Vec3d&                  localIntersectionPointInDisplay )
     : m_view( view )
+    , m_resultDefinition( resultDefinition )
+    , m_timestepIdx( timestepIdx )
     , m_gridIndex( gridIndex )
     , m_gridLocalCellIndex( cellIndex )
     , m_nncIndex( nncIndex )
@@ -175,13 +181,17 @@ RiuEclipseSelectionItem::RiuEclipseSelectionItem( RimEclipseView*               
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuGeoMechSelectionItem::RiuGeoMechSelectionItem( RimGeoMechView*   view,
-                                                  size_t            gridIndex,
-                                                  size_t            cellIndex,
-                                                  cvf::Color3f      color,
-                                                  int               elementFace,
-                                                  const cvf::Vec3d& localIntersectionPointInDisplay )
+RiuGeoMechSelectionItem::RiuGeoMechSelectionItem( RimGeoMechView*             view,
+                                                  RimGeoMechResultDefinition* resultDefinition,
+                                                  size_t                      timestepIdx,
+                                                  size_t                      gridIndex,
+                                                  size_t                      cellIndex,
+                                                  cvf::Color3f                color,
+                                                  int                         elementFace,
+                                                  const cvf::Vec3d&           localIntersectionPointInDisplay )
     : m_view( view )
+    , m_resultDefinition( resultDefinition )
+    , m_timestepIdx( timestepIdx )
     , m_gridIndex( gridIndex )
     , m_cellIndex( cellIndex )
     , m_color( color )
@@ -195,6 +205,8 @@ RiuGeoMechSelectionItem::RiuGeoMechSelectionItem( RimGeoMechView*   view,
 ///
 //--------------------------------------------------------------------------------------------------
 RiuGeoMechSelectionItem::RiuGeoMechSelectionItem( RimGeoMechView*                  view,
+                                                  RimGeoMechResultDefinition*      resultDefinition,
+                                                  size_t                           timestepIdx,
                                                   size_t                           gridIndex,
                                                   size_t                           cellIndex,
                                                   cvf::Color3f                     color,
@@ -202,6 +214,8 @@ RiuGeoMechSelectionItem::RiuGeoMechSelectionItem( RimGeoMechView*               
                                                   const cvf::Vec3d&                localIntersectionPointInDisplay,
                                                   const std::array<cvf::Vec3f, 3>& intersectionTriangle )
     : m_view( view )
+    , m_resultDefinition( resultDefinition )
+    , m_timestepIdx( timestepIdx )
     , m_gridIndex( gridIndex )
     , m_cellIndex( cellIndex )
     , m_color( color )
