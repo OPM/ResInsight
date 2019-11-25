@@ -69,6 +69,8 @@ protected:
     virtual void initAfterRead() override;
 
 private:
+    void update2dIntersectionViews();
+
     caf::PdmField<bool>              m_isActive;
     caf::PdmProxyValueField<QString> m_autoName;
 

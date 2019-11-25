@@ -18,8 +18,9 @@
 
 #include "RimIntersectionResultsDefinitionCollection.h"
 
-#include "RimIntersectionResultDefinition.h"
 #include "RimGridView.h"
+#include "RimIntersectionCollection.h"
+#include "RimIntersectionResultDefinition.h"
 
 CAF_PDM_SOURCE_INIT( RimIntersectionResultsDefinitionCollection, "RimIntersectionResultsDefinitionCollection" );
 
@@ -42,10 +43,7 @@ RimIntersectionResultsDefinitionCollection::RimIntersectionResultsDefinitionColl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersectionResultsDefinitionCollection::~RimIntersectionResultsDefinitionCollection() 
-{
-
-}
+RimIntersectionResultsDefinitionCollection::~RimIntersectionResultsDefinitionCollection() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -81,8 +79,12 @@ void RimIntersectionResultsDefinitionCollection::fieldChangedByUi( const caf::Pd
     this->updateUiIconFromToggleField();
 
     RimGridView* gridView = nullptr;
-    this->firstAncestorOrThisOfType(gridView);
-    if ( gridView ) gridView->scheduleCreateDisplayModelAndRedraw();
+    this->firstAncestorOrThisOfType( gridView );
+    if ( gridView )
+    {
+        gridView->scheduleCreateDisplayModelAndRedraw();
+        gridView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

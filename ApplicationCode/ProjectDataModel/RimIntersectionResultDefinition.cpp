@@ -18,12 +18,14 @@
 
 #include "RimIntersectionResultDefinition.h"
 
+#include "Rim2dIntersectionView.h"
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGridView.h"
+#include "RimIntersection.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
@@ -273,6 +275,27 @@ void RimIntersectionResultDefinition::fieldChangedByUi( const caf::PdmFieldHandl
         RimGridView* gridView = nullptr;
         this->firstAncestorOrThisOfType( gridView );
         if ( gridView ) gridView->scheduleCreateDisplayModelAndRedraw();
+
+        update2dIntersectionViews();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionResultDefinition::update2dIntersectionViews()
+{
+    // Update 2D Intersection views
+
+    std::vector<RimIntersection*> intersections;
+    this->objectsWithReferringPtrFieldsOfType( intersections );
+
+    for ( auto intersection : intersections )
+    {
+        if ( intersection && intersection->correspondingIntersectionView() )
+        {
+            intersection->correspondingIntersectionView()->scheduleCreateDisplayModelAndRedraw();
+        }
     }
 }
 
