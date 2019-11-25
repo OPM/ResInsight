@@ -794,9 +794,7 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
     if ( ( this->hasUserRequestedAnimation() && this->cellResult()->hasResult() ) ||
          this->cellResult()->isTernarySaturationSelected() )
     {
-        m_crossSectionCollection->updateCellResultColor( m_currentTimeStep,
-                                                         this->cellResult()->legendConfig()->scalarMapper(),
-                                                         this->cellResult()->ternaryLegendConfig()->scalarMapper() );
+        m_crossSectionCollection->updateCellResultColor( m_currentTimeStep );
     }
     else
     {

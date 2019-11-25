@@ -97,9 +97,7 @@ void RimIntersectionCollection::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::updateCellResultColor( size_t                        timeStepIndex,
-                                                       const cvf::ScalarMapper*      scalarColorMapper,
-                                                       const RivTernaryScalarMapper* ternaryColorMapper )
+void RimIntersectionCollection::updateCellResultColor( size_t timeStepIndex )
 {
     if ( !this->isActive() ) return;
 
@@ -107,7 +105,7 @@ void RimIntersectionCollection::updateCellResultColor( size_t                   
     {
         if ( cs->isActive() )
         {
-            cs->intersectionPartMgr()->updateCellResultColor( timeStepIndex, scalarColorMapper, ternaryColorMapper );
+            cs->intersectionPartMgr()->updateCellResultColor( timeStepIndex, nullptr, nullptr );
         }
     }
 

@@ -68,8 +68,8 @@ public:
 
     void applySingleColorEffect();
     void updateCellResultColor( size_t                        timeStepIndex,
-                                const cvf::ScalarMapper*      scalarColorMapper,
-                                const RivTernaryScalarMapper* ternaryColorMapper );
+                                const cvf::ScalarMapper*      explicitScalarColorMapper,
+                                const RivTernaryScalarMapper* explicitTernaryColorMapper );
 
     void appendNativeCrossSectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
@@ -113,4 +113,3 @@ private:
 
     bool m_isFlattened;
 };
-

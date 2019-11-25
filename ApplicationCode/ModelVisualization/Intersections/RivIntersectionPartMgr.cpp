@@ -150,15 +150,15 @@ void RivIntersectionPartMgr::applySingleColorEffect()
 ///
 //--------------------------------------------------------------------------------------------------
 void RivIntersectionPartMgr::updateCellResultColor( size_t                        timeStepIndex,
-                                                    const cvf::ScalarMapper*      scalarColorMapper,
-                                                    const RivTernaryScalarMapper* ternaryColorMapper )
+                                                    const cvf::ScalarMapper*      explicitScalarColorMapper,
+                                                    const RivTernaryScalarMapper* explicitTernaryColorMapper )
 {
     RivIntersectionResultsColoringTools::updateCellResultColorStatic( timeStepIndex,
                                                                       !m_isFlattened,
                                                                       m_rimCrossSection,
                                                                       m_crossSectionGenerator.p(),
-                                                                      scalarColorMapper,
-                                                                      ternaryColorMapper,
+                                                                      explicitScalarColorMapper,
+                                                                      explicitTernaryColorMapper,
                                                                       m_crossSectionFaces.p(),
                                                                       m_crossSectionFacesTextureCoords.p() );
 }

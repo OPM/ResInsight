@@ -580,7 +580,7 @@ QString RimGeoMechResultDefinition::diffResultUiShortName() const
 //--------------------------------------------------------------------------------------------------
 RigGeoMechCaseData* RimGeoMechResultDefinition::ownerCaseData() const
 {
-    return m_geomCase->geoMechData();
+    return m_geomCase ? m_geomCase->geoMechData() : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

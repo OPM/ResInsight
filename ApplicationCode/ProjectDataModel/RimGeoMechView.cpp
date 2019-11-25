@@ -384,9 +384,7 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
 
         if ( this->cellResult()->hasResult() )
         {
-            m_crossSectionCollection->updateCellResultColor( m_currentTimeStep,
-                                                             this->cellResult()->legendConfig()->scalarMapper(),
-                                                             nullptr );
+            m_crossSectionCollection->updateCellResultColor( m_currentTimeStep );
         }
         else
         {
