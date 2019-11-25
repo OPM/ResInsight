@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuGridPlotWindow.h"
+#include "RiuMultiPlotWindow.h"
 
 #include "RiaApplication.h"
 #include "RiaPlotWindowRedrawScheduler.h"
@@ -26,7 +26,7 @@
 #include "WellLogCommands/RicWellLogPlotTrackFeatureImpl.h"
 
 #include "RimContextCommandBuilder.h"
-#include "RimGridPlotWindow.h"
+#include "RimMultiPlotWindow.h"
 #include "RimWellLogTrack.h"
 
 #include "RiuMainWindow.h"
@@ -57,7 +57,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuGridPlotWindow::RiuGridPlotWindow( RimGridPlotWindow* plotDefinition, QWidget* parent )
+RiuMultiPlotWindow::RiuMultiPlotWindow( RimMultiPlotWindow* plotDefinition, QWidget* parent )
     : QWidget( parent )
 {
     Q_ASSERT( plotDefinition );
@@ -100,7 +100,7 @@ RiuGridPlotWindow::RiuGridPlotWindow( RimGridPlotWindow* plotDefinition, QWidget
 
     setFocusPolicy( Qt::StrongFocus );
 
-    setAcceptDrops( true );
+    setAcceptDrops( m_plotDefinition->acceptDrops() );
 
     RiaApplication* app = RiaApplication::instance();
     int defaultFontSize = RiaFontCache::pointSizeFromFontSizeEnum( app->preferences()->defaultPlotFontSize() );
@@ -112,7 +112,12 @@ RiuGridPlotWindow::RiuGridPlotWindow( RimGridPlotWindow* plotDefinition, QWidget
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridPlotWindow* RiuGridPlotWindow::ownerPlotDefinition()
+RiuMultiPlotWindow::~RiuMultiPlotWindow() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMultiPlotWindow* RiuMultiPlotWindow::ownerPlotDefinition()
 {
     return m_plotDefinition;
 }
@@ -120,7 +125,7 @@ RimGridPlotWindow* RiuGridPlotWindow::ownerPlotDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimViewWindow* RiuGridPlotWindow::ownerViewWindow() const
+RimViewWindow* RiuMultiPlotWindow::ownerViewWindow() const
 {
     return m_plotDefinition;
 }
@@ -128,7 +133,7 @@ RimViewWindow* RiuGridPlotWindow::ownerViewWindow() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::addPlot( RiuQwtPlotWidget* plotWidget )
+void RiuMultiPlotWindow::addPlot( RiuQwtPlotWidget* plotWidget )
 {
     // Insert the plot to the left of the scroll bar
     insertPlot( plotWidget, m_plotWidgets.size() );
@@ -137,7 +142,7 @@ void RiuGridPlotWindow::addPlot( RiuQwtPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
+void RiuMultiPlotWindow::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
 {
     plotWidget->setDraggable( true ); // Becomes draggable when added to a grid plot window
     m_plotWidgets.insert( static_cast<int>( index ), plotWidget );
@@ -171,7 +176,7 @@ void RiuGridPlotWindow::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::removePlot( RiuQwtPlotWidget* plotWidget )
+void RiuMultiPlotWindow::removePlot( RiuQwtPlotWidget* plotWidget )
 {
     if ( !plotWidget ) return;
 
@@ -198,7 +203,7 @@ void RiuGridPlotWindow::removePlot( RiuQwtPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::setPlotTitle( const QString& plotTitle )
+void RiuMultiPlotWindow::setPlotTitle( const QString& plotTitle )
 {
     m_plotTitle->setText( plotTitle );
 }
@@ -206,7 +211,7 @@ void RiuGridPlotWindow::setPlotTitle( const QString& plotTitle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::setTitleVisible( bool visible )
+void RiuMultiPlotWindow::setTitleVisible( bool visible )
 {
     m_plotTitle->setVisible( visible );
 }
@@ -214,11 +219,11 @@ void RiuGridPlotWindow::setTitleVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::setSelectionsVisible( bool visible )
+void RiuMultiPlotWindow::setSelectionsVisible( bool visible )
 {
     for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
     {
-        if ( visible && caf::SelectionManager::instance()->isSelected( plotWidget->plotOwner(), 0 ) )
+        if ( visible && caf::SelectionManager::instance()->isSelected( plotWidget->plotDefinition(), 0 ) )
         {
             plotWidget->setWidgetState( RiuWidgetStyleSheet::SELECTED );
         }
@@ -232,7 +237,7 @@ void RiuGridPlotWindow::setSelectionsVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::setFontSize( int fontSize )
+void RiuMultiPlotWindow::setFontSize( int fontSize )
 {
     QFont font = m_plotTitle->font();
 
@@ -244,7 +249,7 @@ void RiuGridPlotWindow::setFontSize( int fontSize )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuGridPlotWindow::fontSize() const
+int RiuMultiPlotWindow::fontSize() const
 {
     return m_plotTitle->font().pointSize() - 1;
 }
@@ -252,7 +257,7 @@ int RiuGridPlotWindow::fontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuGridPlotWindow::indexOfPlotWidget( RiuQwtPlotWidget* plotWidget )
+int RiuMultiPlotWindow::indexOfPlotWidget( RiuQwtPlotWidget* plotWidget )
 {
     return m_plotWidgets.indexOf( plotWidget );
 }
@@ -260,7 +265,7 @@ int RiuGridPlotWindow::indexOfPlotWidget( RiuQwtPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::scheduleUpdate()
+void RiuMultiPlotWindow::scheduleUpdate()
 {
     RiaPlotWindowRedrawScheduler::instance()->schedulePlotWindowUpdate( this );
 }
@@ -268,7 +273,7 @@ void RiuGridPlotWindow::scheduleUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::scheduleReplotOfAllPlots()
+void RiuMultiPlotWindow::scheduleReplotOfAllPlots()
 {
     for ( RiuQwtPlotWidget* plotWidget : visiblePlotWidgets() )
     {
@@ -279,7 +284,7 @@ void RiuGridPlotWindow::scheduleReplotOfAllPlots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::contextMenuEvent( QContextMenuEvent* event )
+void RiuMultiPlotWindow::contextMenuEvent( QContextMenuEvent* event )
 {
     QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
@@ -300,18 +305,10 @@ void RiuGridPlotWindow::contextMenuEvent( QContextMenuEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::keyPressEvent( QKeyEvent* keyEvent )
-{
-    m_plotDefinition->handleKeyPressEvent( keyEvent );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QLabel* RiuGridPlotWindow::createTitleLabel() const
+QLabel* RiuMultiPlotWindow::createTitleLabel() const
 {
     QLabel* plotTitle = new QLabel( "PLOT TITLE HERE", nullptr );
-    plotTitle->setVisible( m_plotDefinition->isPlotTitleVisible() );
+    plotTitle->setVisible( m_plotDefinition->isMultiPlotTitleVisible() );
     plotTitle->setAlignment( Qt::AlignHCenter );
     plotTitle->setWordWrap( true );
     plotTitle->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
@@ -321,7 +318,7 @@ QLabel* RiuGridPlotWindow::createTitleLabel() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::resizeEvent( QResizeEvent* event )
+void RiuMultiPlotWindow::resizeEvent( QResizeEvent* event )
 {
     QWidget::resizeEvent( event );
     bool needsUpdate = false;
@@ -350,7 +347,7 @@ void RiuGridPlotWindow::resizeEvent( QResizeEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::showEvent( QShowEvent* event )
+void RiuMultiPlotWindow::showEvent( QShowEvent* event )
 {
     QWidget::showEvent( event );
     performUpdate();
@@ -359,7 +356,7 @@ void RiuGridPlotWindow::showEvent( QShowEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::dragEnterEvent( QDragEnterEvent* event )
+void RiuMultiPlotWindow::dragEnterEvent( QDragEnterEvent* event )
 {
     RiuQwtPlotWidget* source = dynamic_cast<RiuQwtPlotWidget*>( event->source() );
     if ( source )
@@ -372,7 +369,7 @@ void RiuGridPlotWindow::dragEnterEvent( QDragEnterEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::dragMoveEvent( QDragMoveEvent* event )
+void RiuMultiPlotWindow::dragMoveEvent( QDragMoveEvent* event )
 {
     if ( event->answerRect().intersects( this->geometry() ) )
     {
@@ -415,7 +412,7 @@ void RiuGridPlotWindow::dragMoveEvent( QDragMoveEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::dragLeaveEvent( QDragLeaveEvent* event )
+void RiuMultiPlotWindow::dragLeaveEvent( QDragLeaveEvent* event )
 {
     setWidgetState( RiuWidgetStyleSheet::DEFAULT );
 
@@ -428,7 +425,7 @@ void RiuGridPlotWindow::dragLeaveEvent( QDragLeaveEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::dropEvent( QDropEvent* event )
+void RiuMultiPlotWindow::dropEvent( QDropEvent* event )
 {
     setWidgetState( RiuWidgetStyleSheet::DEFAULT );
 
@@ -461,13 +458,13 @@ void RiuGridPlotWindow::dropEvent( QDropEvent* event )
                     }
                 }
             }
-            RimPlotInterface* insertAfter = nullptr;
+            RimPlot* insertAfter = nullptr;
             if ( beforeIndex > 0 )
             {
                 insertAfter = m_plotWidgets[beforeIndex - 1]->plotDefinition();
             }
 
-            RimPlotInterface* plotToMove = source->plotDefinition();
+            RimPlot* plotToMove = source->plotDefinition();
 
             if ( insertAfter != plotToMove )
             {
@@ -480,7 +477,7 @@ void RiuGridPlotWindow::dropEvent( QDropEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuGridPlotWindow::willAcceptDroppedPlot( const RiuQwtPlotWidget* plotWidget ) const
+bool RiuMultiPlotWindow::willAcceptDroppedPlot( const RiuQwtPlotWidget* plotWidget ) const
 {
     return true;
 }
@@ -488,7 +485,7 @@ bool RiuGridPlotWindow::willAcceptDroppedPlot( const RiuQwtPlotWidget* plotWidge
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<int, int> RiuGridPlotWindow::rowAndColumnCount( int plotWidgetCount ) const
+std::pair<int, int> RiuMultiPlotWindow::rowAndColumnCount( int plotWidgetCount ) const
 {
     if ( plotWidgetCount == 0 )
     {
@@ -503,7 +500,7 @@ std::pair<int, int> RiuGridPlotWindow::rowAndColumnCount( int plotWidgetCount ) 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
+void RiuMultiPlotWindow::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
 {
     for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
     {
@@ -513,7 +510,7 @@ void RiuGridPlotWindow::onSelectionManagerSelectionChanged( const std::set<int>&
         for ( int changedLevel : changedSelectionLevels )
         {
             isSelected = isSelected ||
-                         caf::SelectionManager::instance()->isSelected( plotWidget->plotOwner(), changedLevel );
+                         caf::SelectionManager::instance()->isSelected( plotWidget->plotDefinition(), changedLevel );
         }
         if ( isSelected )
         {
@@ -529,7 +526,7 @@ void RiuGridPlotWindow::onSelectionManagerSelectionChanged( const std::set<int>&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::setWidgetState( RiuWidgetStyleSheet::StateTag widgetState )
+void RiuMultiPlotWindow::setWidgetState( RiuWidgetStyleSheet::StateTag widgetState )
 {
     m_dropTargetStyleSheet.setWidgetState( m_dropTargetPlaceHolder, widgetState );
 }
@@ -537,7 +534,7 @@ void RiuGridPlotWindow::setWidgetState( RiuWidgetStyleSheet::StateTag widgetStat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuGridPlotWindow::showYAxis( int row, int column ) const
+bool RiuMultiPlotWindow::showYAxis( int row, int column ) const
 {
     return true;
 }
@@ -545,7 +542,7 @@ bool RiuGridPlotWindow::showYAxis( int row, int column ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::performUpdate()
+void RiuMultiPlotWindow::performUpdate()
 {
     reinsertPlotWidgets();
     alignCanvasTops();
@@ -554,7 +551,7 @@ void RiuGridPlotWindow::performUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::reinsertPlotWidgets()
+void RiuMultiPlotWindow::reinsertPlotWidgets()
 {
     clearGridLayout();
 
@@ -569,7 +566,7 @@ void RiuGridPlotWindow::reinsertPlotWidgets()
     QList<QPointer<RiuQwtPlotLegend>> legends     = this->visibleLegends();
     QList<QPointer<RiuQwtPlotWidget>> plotWidgets = this->visiblePlotWidgets();
 
-    if ( plotWidgets.empty() )
+    if ( plotWidgets.empty() && acceptDrops() )
     {
         m_gridLayout->addWidget( m_dropTargetPlaceHolder, 0, 0 );
         m_gridLayout->setRowStretch( 0, 1 );
@@ -585,8 +582,9 @@ void RiuGridPlotWindow::reinsertPlotWidgets()
         int column = 0;
         for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
         {
-            int colSpan = std::min( plotWidgets[visibleIndex]->plotDefinition()->colSpan(), rowAndColumnCount.second );
-            int rowSpan = plotWidgets[visibleIndex]->plotDefinition()->rowSpan();
+            int expextedColSpan = static_cast<int>( plotWidgets[visibleIndex]->plotDefinition()->colSpan() );
+            int colSpan         = std::min( expextedColSpan, rowAndColumnCount.second );
+            int rowSpan         = plotWidgets[visibleIndex]->plotDefinition()->rowSpan();
 
             std::tie( row, column ) = findAvailableRowAndColumn( row, column, colSpan, rowAndColumnCount.second );
 
@@ -628,17 +626,10 @@ void RiuGridPlotWindow::reinsertPlotWidgets()
             }
             for ( int c = column; c < column + colSpan; ++c )
             {
-                m_gridLayout->setColumnStretch( c, std::max( 1, m_gridLayout->columnStretch( c ) ) );
+                int colStretch = 1;
+                if ( showYAxis( row, column ) ) colStretch += 1;
+                m_gridLayout->setColumnStretch( c, std::max( colStretch, m_gridLayout->columnStretch( c ) ) );
             }
-
-            // Set column stretches for main widget column based on width scale factor
-            int widthScaleFactor = plotWidgets[visibleIndex]->widthScaleFactor();
-            if ( showYAxis( row, column ) )
-            {
-                widthScaleFactor += 1; // Give it a bit extra room due to axis
-            }
-
-            m_gridLayout->setColumnStretch( column, std::max( m_gridLayout->columnStretch( column ), widthScaleFactor ) );
         }
     }
 }
@@ -646,7 +637,7 @@ void RiuGridPlotWindow::reinsertPlotWidgets()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuGridPlotWindow::alignCanvasTops()
+int RiuMultiPlotWindow::alignCanvasTops()
 {
     CVF_ASSERT( m_legends.size() == m_plotWidgets.size() );
 
@@ -677,7 +668,7 @@ int RiuGridPlotWindow::alignCanvasTops()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridPlotWindow::clearGridLayout()
+void RiuMultiPlotWindow::clearGridLayout()
 {
     if ( m_gridLayout )
     {
@@ -701,7 +692,7 @@ void RiuGridPlotWindow::clearGridLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWidgetStyleSheet RiuGridPlotWindow::createDropTargetStyleSheet()
+RiuWidgetStyleSheet RiuMultiPlotWindow::createDropTargetStyleSheet()
 {
     RiuWidgetStyleSheet styleSheet;
 
@@ -717,7 +708,7 @@ RiuWidgetStyleSheet RiuGridPlotWindow::createDropTargetStyleSheet()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<QPointer<RiuQwtPlotWidget>> RiuGridPlotWindow::visiblePlotWidgets() const
+QList<QPointer<RiuQwtPlotWidget>> RiuMultiPlotWindow::visiblePlotWidgets() const
 {
     QList<QPointer<RiuQwtPlotWidget>> plotWidgets;
     for ( QPointer<RiuQwtPlotWidget> plotWidget : m_plotWidgets )
@@ -733,7 +724,7 @@ QList<QPointer<RiuQwtPlotWidget>> RiuGridPlotWindow::visiblePlotWidgets() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<QPointer<RiuQwtPlotLegend>> RiuGridPlotWindow::visibleLegends() const
+QList<QPointer<RiuQwtPlotLegend>> RiuMultiPlotWindow::visibleLegends() const
 {
     QList<QPointer<RiuQwtPlotLegend>> legends;
     for ( int i = 0; i < m_plotWidgets.size(); ++i )
@@ -749,7 +740,7 @@ QList<QPointer<RiuQwtPlotLegend>> RiuGridPlotWindow::visibleLegends() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<QPointer<QLabel>> RiuGridPlotWindow::visibleTitles() const
+QList<QPointer<QLabel>> RiuMultiPlotWindow::visibleTitles() const
 {
     QList<QPointer<QLabel>> subTitles;
     for ( int i = 0; i < m_plotWidgets.size(); ++i )
@@ -766,7 +757,7 @@ QList<QPointer<QLabel>> RiuGridPlotWindow::visibleTitles() const
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<int, int>
-    RiuGridPlotWindow::findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const
+    RiuMultiPlotWindow::findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const
 {
     int availableRow    = startRow;
     int availableColumn = startColumn;

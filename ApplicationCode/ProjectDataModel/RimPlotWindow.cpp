@@ -20,6 +20,10 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
+#include "RicfCommandObject.h"
+
+#include "RimProject.h"
+
 #include "cafPdmUiComboBoxEditor.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotWindow, "RimPlotWindow" ); // Do not use. Abstract class
@@ -29,17 +33,26 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotWindow, "RimPlotWindow" ); // Do not us
 //--------------------------------------------------------------------------------------------------
 RimPlotWindow::RimPlotWindow()
 {
-    CAF_PDM_InitObject( "Plot", "", "", "" );
+    CAF_PDM_InitObject( "PlotWindow", "", "", "" );
 
-    CAF_PDM_InitField( &m_description, "PlotDescription", QString( "" ), "Name", "", "", "" );
+    RICF_InitField( &m_id, "ViewId", -1, "View ID", "", "", "" );
+    m_id.uiCapability()->setUiReadOnly( true );
+    m_id.uiCapability()->setUiHidden( true );
+    m_id.capability<RicfFieldHandle>()->setIOWriteable( false );
+    m_id.xmlCapability()->setCopyable( false );
 
-    CAF_PDM_InitField( &m_showTitleInPlot, "ShowTitleInPlot", true, "Show Title", "", "", "" );
     CAF_PDM_InitField( &m_showPlotLegends, "ShowTrackLegends", true, "Show Legends", "", "", "" );
     CAF_PDM_InitField( &m_plotLegendsHorizontal, "TrackLegendsHorizontal", true, "Legend Orientation", "", "", "" );
     m_plotLegendsHorizontal.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    int fontSize = RiaFontCache::pointSizeFromFontSizeEnum(
+    int defaultFontSize = RiaFontCache::pointSizeFromFontSizeEnum(
         RiaApplication::instance()->preferences()->defaultPlotFontSize() );
-    CAF_PDM_InitField( &m_legendFontSize, "LegendFontSize", fontSize, "Legend Font Size", "", "", "" );
+    CAF_PDM_InitField( &m_legendFontSize,
+                       "LegendFontSize",
+                       std::max( 8, defaultFontSize - 2 ),
+                       "Legend Font Size",
+                       "",
+                       "",
+                       "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,52 +63,20 @@ RimPlotWindow::~RimPlotWindow() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimPlotWindow::id() const
+{
+    return m_id;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimPlotWindow& RimPlotWindow::operator=( RimPlotWindow&& rhs )
 {
-    m_showTitleInPlot       = rhs.m_showTitleInPlot();
     m_showPlotLegends       = rhs.m_showPlotLegends();
     m_plotLegendsHorizontal = rhs.m_plotLegendsHorizontal();
+    m_legendFontSize        = rhs.m_legendFontSize();
     return *this;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotWindow::setDescription( const QString& description )
-{
-    m_description = description;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimPlotWindow::description() const
-{
-    return m_description;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimPlotWindow::fullPlotTitle() const
-{
-    return m_description;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimPlotWindow::isPlotTitleVisible() const
-{
-    return m_showTitleInPlot();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotWindow::setPlotTitleVisible( bool visible )
-{
-    m_showTitleInPlot = visible;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,6 +130,32 @@ void RimPlotWindow::setLegendFontSize( int fontSize )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotWindow::updateLayout()
+{
+    doUpdateLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::updateParentLayout()
+{
+    caf::PdmFieldHandle* parentField = this->parentField();
+    if ( parentField )
+    {
+        caf::PdmObjectHandle* parentObject = parentField->ownerObject();
+        RimPlotWindow*        plotWindow   = nullptr;
+        parentObject->firstAncestorOrThisOfType( plotWindow );
+        if ( plotWindow )
+        {
+            plotWindow->updateLayout();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                       const QVariant&            oldValue,
                                       const QVariant&            newValue )
@@ -158,10 +165,6 @@ void RimPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     if ( changedField == &m_showPlotLegends || changedField == &m_plotLegendsHorizontal )
     {
         updateLayout();
-    }
-    else if ( changedField == &m_showTitleInPlot || changedField == &m_description )
-    {
-        updatePlotTitle();
     }
     else if ( changedField == &m_legendFontSize )
     {
@@ -208,17 +211,30 @@ QList<caf::PdmOptionItemInfo> RimPlotWindow::calculateValueOptions( const caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimPlotWindow::userDescriptionField()
+void RimPlotWindow::uiOrderingForLegendSettings( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    return &m_description;
+    uiOrdering.add( &m_showPlotLegends );
+    uiOrdering.add( &m_plotLegendsHorizontal );
+    uiOrdering.add( &m_legendFontSize );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotWindow::uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering )
+void RimPlotWindow::setId( int id )
 {
-    uiOrdering.add( &m_showPlotLegends );
-    uiOrdering.add( &m_plotLegendsHorizontal );
-    uiOrdering.add( &m_legendFontSize );
+    m_id                  = id;
+    QString viewIdTooltip = QString( "Plot id: %1" ).arg( m_id );
+    this->setUiToolTip( viewIdTooltip );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::assignIdIfNecessary()
+{
+    if ( m_id == -1 && isMdiWindow() )
+    {
+        RiaApplication::instance()->project()->assignPlotIdToPlotWindow( this );
+    }
 }

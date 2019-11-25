@@ -29,7 +29,7 @@
 
 class RimGridCrossPlotDataSet;
 class RimPlotAxisProperties;
-class RimPlotInterface;
+class RimPlot;
 class RiuCvfOverlayItemWidget;
 class RiuDraggableOverlayFrame;
 class RiuPlotAnnotationTool;
@@ -50,7 +50,7 @@ class RiuGridCrossQwtPlot : public RiuQwtPlotWidget, public RiuInterfaceToViewWi
     Q_OBJECT;
 
 public:
-    RiuGridCrossQwtPlot( RimPlotInterface* plotDefinition, QWidget* parent = nullptr );
+    RiuGridCrossQwtPlot( RimPlot* plotDefinition, QWidget* parent = nullptr );
     ~RiuGridCrossQwtPlot();
 
     RiuGridCrossQwtPlot( const RiuGridCrossQwtPlot& ) = delete;

@@ -31,7 +31,7 @@
 #include <set>
 
 class RiaPlotWindowRedrawScheduler;
-class RimPlotInterface;
+class RimPlot;
 
 class QwtLegend;
 class QwtPicker;
@@ -53,11 +53,10 @@ class RiuQwtPlotWidget : public QwtPlot
     Q_OBJECT
 
 public:
-    RiuQwtPlotWidget( RimPlotInterface* plotTrackDefinition, QWidget* parent = nullptr );
+    RiuQwtPlotWidget( RimPlot* plotTrackDefinition, QWidget* parent = nullptr );
     ~RiuQwtPlotWidget() override;
 
-    RimPlotInterface* plotDefinition() const;
-    caf::PdmObject*   plotOwner() const;
+    RimPlot* plotDefinition() const;
 
     bool isChecked() const;
 
@@ -98,8 +97,6 @@ public:
     bool   frameIsInFrontOfThis( const QRect& frameGeometry );
     QPoint dragStartPosition() const;
 
-    int widthScaleFactor() const;
-
     void scheduleReplot();
     void setWidgetState( RiuWidgetStyleSheet::StateTag widgetState );
 
@@ -132,7 +129,7 @@ private:
     RiuWidgetStyleSheet createCanvasStyleSheet() const;
 
 private:
-    caf::PdmPointer<caf::PdmObject>  m_plotOwner;
+    caf::PdmPointer<RimPlot>         m_plotDefinition;
     QPoint                           m_clickPosition;
     std::map<QwtPlot::Axis, QString> m_axisTitles;
     std::map<QwtPlot::Axis, bool>    m_axisTitlesEnabled;

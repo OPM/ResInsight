@@ -39,12 +39,12 @@
 #include "RimGeoMechView.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotDataSet.h"
-#include "RimGridPlotWindow.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
 #include "RimIntersectionResultDefinition.h"
+#include "RimMultiPlotWindow.h"
 #include "RimPerforationInterval.h"
 #include "RimPolylinesAnnotation.h"
 #include "RimReachCircleAnnotation.h"
@@ -111,7 +111,7 @@ bool isDeletable( caf::PdmUiItem* uiItem )
     if ( dynamic_cast<RimWellLogCurve*>( uiItem ) ) return true;
     if ( dynamic_cast<RimSummaryPlot*>( uiItem ) )
     {
-        RimGridPlotWindow* plotWindow = nullptr;
+        RimMultiPlotWindow* plotWindow = nullptr;
         static_cast<RimSummaryPlot*>( uiItem )->firstAncestorOrThisOfType( plotWindow );
         return plotWindow == nullptr;
     }
@@ -142,7 +142,7 @@ bool isDeletable( caf::PdmUiItem* uiItem )
 
     if ( dynamic_cast<RimGridCrossPlot*>( uiItem ) )
     {
-        RimGridPlotWindow* plotWindow = nullptr;
+        RimMultiPlotWindow* plotWindow = nullptr;
         static_cast<RimGridCrossPlot*>( uiItem )->firstAncestorOrThisOfType( plotWindow );
         return plotWindow == nullptr;
     }

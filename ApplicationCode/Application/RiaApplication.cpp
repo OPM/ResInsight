@@ -153,6 +153,9 @@ RiaApplication::RiaApplication()
 RiaApplication::~RiaApplication()
 {
     delete m_preferences;
+    delete m_project;
+
+    RiaFontCache::clear();
 }
 
 //--------------------------------------------------------------------------------------------------

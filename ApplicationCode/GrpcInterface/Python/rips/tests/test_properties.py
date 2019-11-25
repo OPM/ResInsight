@@ -94,8 +94,8 @@ def test_exportPropertyInView(rips_instance, initialize_test):
     with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
         print("Temporary folder: ", tmpdirname)
         rips_instance.set_export_folder(export_type='PROPERTIES', path=tmpdirname)
-        case = rips_instance.project.case(case_id=0)
-        view = case.view(view_id=0)
+        case = rips_instance.project.cases()[0]
+        view = case.views()[0]
         view.export_property()
         expected_file_name = case.name + "-" + str("3D_View") + "-" + "T0" + "-SOIL"
         full_path = tmpdirname + "/" + expected_file_name

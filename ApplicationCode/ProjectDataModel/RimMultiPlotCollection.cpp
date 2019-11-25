@@ -15,62 +15,62 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#include "RimGridPlotWindowCollection.h"
+#include "RimMultiPlotCollection.h"
 
 #include "RiaApplication.h"
-#include "RimGridPlotWindow.h"
+#include "RimMultiPlotWindow.h"
 #include "RimProject.h"
 
-CAF_PDM_SOURCE_INIT( RimGridPlotWindowCollection, "RimGridPlotWindowCollection" );
+CAF_PDM_SOURCE_INIT( RimMultiPlotCollection, "RimMultiPlotCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridPlotWindowCollection::RimGridPlotWindowCollection()
+RimMultiPlotCollection::RimMultiPlotCollection()
 {
-    CAF_PDM_InitObject( "Plot Reports", ":/WellLogPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Multi Plots", ":/WellLogPlot16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_gridPlotWindows, "GridPlotWindows", "Plots Reports", "", "", "" );
-    m_gridPlotWindows.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_multiPlots, "MultiPlots", "Plots Reports", "", "", "" );
+    m_multiPlots.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridPlotWindowCollection::~RimGridPlotWindowCollection() {}
+RimMultiPlotCollection::~RimMultiPlotCollection() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindowCollection::deleteAllChildObjects()
+void RimMultiPlotCollection::deleteAllChildObjects()
 {
-    m_gridPlotWindows.deleteAllChildObjects();
+    m_multiPlots.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimGridPlotWindow*> RimGridPlotWindowCollection::gridPlotWindows() const
+std::vector<RimMultiPlotWindow*> RimMultiPlotCollection::multiPlots() const
 {
-    return m_gridPlotWindows.childObjects();
+    return m_multiPlots.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridPlotWindow* RimGridPlotWindowCollection::createGridPlotWindow()
+RimMultiPlotWindow* RimMultiPlotCollection::createMultiPlot()
 {
-    RimGridPlotWindow* plot = new RimGridPlotWindow();
+    RimMultiPlotWindow* plot = new RimMultiPlotWindow();
     plot->setAsPlotMdiWindow();
 
-    addGridPlotWindow( plot );
+    addMultiPlot( plot );
     return plot;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridPlotWindowCollection::addGridPlotWindow( RimGridPlotWindow* plot )
+void RimMultiPlotCollection::addMultiPlot( RimMultiPlotWindow* plot )
 {
-    m_gridPlotWindows().push_back( plot );
+    m_multiPlots().push_back( plot );
 }

@@ -98,7 +98,7 @@ RimViewController::~RimViewController()
     RimGridView* managedView = m_managedView;
     m_managedView            = nullptr;
 
-    if ( managedView ) managedView->updateHolder();
+    if ( managedView ) managedView->updateAutoName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -482,7 +482,7 @@ void RimViewController::setManagedView( RimGridView* view )
 
     if ( m_managedView )
     {
-        m_managedView->updateHolder();
+        m_managedView->updateAutoName();
     }
 }
 
@@ -999,7 +999,8 @@ void RimViewController::updateRangeFilterOverrides( RimCellRangeFilter* changedR
         QString                       xmlRangeFilterCollCopy = sourceFilterCollection->writeObjectToXmlString();
         PdmObjectHandle*              objectCopy =
             PdmXmlObjectHandle::readUnknownObjectFromXmlString( xmlRangeFilterCollCopy,
-                                                                caf::PdmDefaultObjectFactory::instance() );
+                                                                caf::PdmDefaultObjectFactory::instance(),
+                                                                true );
         RimCellRangeFilterCollection* overrideRangeFilterColl = dynamic_cast<RimCellRangeFilterCollection*>( objectCopy );
 
         // Convert the range filter to fit in the managed view if needed

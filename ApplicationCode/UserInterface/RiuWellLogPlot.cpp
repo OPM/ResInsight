@@ -15,7 +15,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiuWellLogPlot::RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent )
-    : RiuGridPlotWindow( plotDefinition, parent )
+    : RiuMultiPlotWindow( plotDefinition, parent )
 {
     m_trackScrollBar = new QScrollBar( nullptr );
     m_trackScrollBar->setOrientation( Qt::Vertical );
@@ -70,6 +70,14 @@ void RiuWellLogPlot::updateVerticalScrollBar( double minVisible, double maxVisib
         m_trackScrollBar->setVisible( true );
     }
     m_trackScrollBar->blockSignals( false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::keyPressEvent( QKeyEvent* event )
+{
+    wellLogPlotDefinition()->handleKeyPressEvent( event );
 }
 
 //--------------------------------------------------------------------------------------------------

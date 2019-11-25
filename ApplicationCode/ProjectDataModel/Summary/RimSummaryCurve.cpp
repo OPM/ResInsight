@@ -151,7 +151,7 @@ void RimSummaryCurve::setSummaryCaseY( RimSummaryCase* sumCase )
 {
     if ( m_yValuesSummaryCase != sumCase )
     {
-        m_qwtPlotCurve->clearErrorBars();
+        m_qwtCurveErrorBars->setSamples( nullptr );
     }
 
     m_yValuesSummaryCase = sumCase;
@@ -208,7 +208,7 @@ void RimSummaryCurve::setSummaryAddressY( const RifEclipseSummaryAddress& addres
 {
     if ( m_yValuesSummaryAddress->address() != address )
     {
-        m_qwtPlotCurve->clearErrorBars();
+        m_qwtCurveErrorBars->setSamples( nullptr );
     }
 
     m_yValuesSummaryAddress->setAddress( address );
@@ -520,10 +520,17 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         {
                             std::vector<double> errValues;
                             reader->values( errAddress, &errValues );
-                            m_qwtPlotCurve->setSamplesFromTimeTAndYValues( curveTimeStepsY,
-                                                                           curveValuesY,
-                                                                           errValues,
-                                                                           isLogCurve );
+
+                            auto timeSteps = RiuQwtPlotCurve::fromTime_t( curveTimeStepsY );
+
+                            if ( !errValues.empty() )
+                            {
+                                this->setSamplesFromXYErrorValues( timeSteps, curveValuesY, errValues, isLogCurve );
+                            }
+                            else
+                            {
+                                m_qwtPlotCurve->setSamplesFromXValuesAndYValues( timeSteps, curveValuesY, isLogCurve );
+                            }
                         }
                         else
                         {
@@ -564,8 +571,6 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
             updateZoomInParentPlot();
             m_parentQwtPlot->replot();
         }
-
-        m_qwtPlotCurve->showErrorBars( m_showErrorBars );
     }
 
     if ( updateParentPlot ) updateQwtPlotAxis();
@@ -578,7 +583,7 @@ void RimSummaryCurve::updateLegendsInPlot()
 {
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
-    plot->updateAllLegendItems();
+    plot->updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

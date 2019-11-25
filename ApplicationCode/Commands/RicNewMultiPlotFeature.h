@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2019- Equinor ASA
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,31 +15,38 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "RicfCommandObject.h"
 
-class RimGridPlotWindow;
+#include "cafCmdFeature.h"
+#include "cafPdmField.h"
+
+#include <vector>
+
+class RimPlot;
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RimGridPlotWindowCollection : public caf::PdmObject
+class RicNewMultiPlotFeature : public caf::CmdFeature, public RicfCommandObject
 {
-    CAF_PDM_HEADER_INIT;
+    RICF_HEADER_INIT;
 
 public:
-    RimGridPlotWindowCollection();
-    ~RimGridPlotWindowCollection() override;
+    RicNewMultiPlotFeature();
 
-    void deleteAllChildObjects();
+    virtual RicfCommandResponse execute() override;
 
-    std::vector<RimGridPlotWindow*> gridPlotWindows() const;
-    RimGridPlotWindow*              createGridPlotWindow();
-    void                            addGridPlotWindow( RimGridPlotWindow* plot );
+protected:
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
+
+    static std::vector<RimPlot*> selectedPlots();
 
 private:
-    caf::PdmChildArrayField<RimGridPlotWindow*> m_gridPlotWindows;
+    caf::PdmField<std::vector<uint64_t>> m_plots;
 };

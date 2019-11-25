@@ -105,11 +105,10 @@ template <typename ServiceT, typename RequestT, typename ReplyT>
 class RiaGrpcUnaryCallback : public RiaGrpcServiceCallback<ServiceT, RequestT, ReplyT>
 {
 public:
-    typedef ServerAsyncResponseWriter<ReplyT>                                            ResponseWriterT;
-    typedef std::function<Status( ServiceT&, ServerContext*, const RequestT*, ReplyT* )> MethodImplT;
-    typedef std::function<
-        void( ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void* )>
-        MethodRequestT;
+    using ResponseWriterT = ServerAsyncResponseWriter<ReplyT>;
+    using MethodImplT     = std::function<Status( ServiceT&, ServerContext*, const RequestT*, ReplyT* )>;
+    using MethodRequestT  = std::function<
+        void( ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void* )>;
 
     RiaGrpcUnaryCallback( ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest );
 
@@ -142,11 +141,10 @@ template <typename ServiceT, typename RequestT, typename ReplyT, typename StateH
 class RiaGrpcServerToClientStreamCallback : public RiaGrpcServiceCallback<ServiceT, RequestT, ReplyT>
 {
 public:
-    typedef ServerAsyncWriter<ReplyT> ResponseWriterT;
-    typedef std::function<Status( ServiceT&, ServerContext*, const RequestT*, ReplyT*, StateHandlerT* )> MethodImplT;
-    typedef std::function<
-        void( ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void* )>
-        MethodRequestT;
+    using ResponseWriterT = ServerAsyncWriter<ReplyT>;
+    using MethodImplT    = std::function<Status( ServiceT&, ServerContext*, const RequestT*, ReplyT*, StateHandlerT* )>;
+    using MethodRequestT = std::function<
+        void( ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void* )>;
 
     RiaGrpcServerToClientStreamCallback( ServiceT*      service,
                                          MethodImplT    methodImpl,
@@ -185,10 +183,10 @@ template <typename ServiceT, typename RequestT, typename ReplyT, typename StateH
 class RiaGrpcClientToServerStreamCallback : public RiaGrpcServiceCallback<ServiceT, RequestT, ReplyT>
 {
 public:
-    typedef ServerAsyncReader<ReplyT, RequestT>                                                          RequestReaderT;
-    typedef std::function<Status( ServiceT&, ServerContext*, const RequestT*, ReplyT*, StateHandlerT* )> MethodImplT;
-    typedef std::function<void( ServiceT&, ServerContext*, RequestReaderT*, CompletionQueue*, ServerCompletionQueue*, void* )>
-        MethodRequestT;
+    using RequestReaderT = ServerAsyncReader<ReplyT, RequestT>;
+    using MethodImplT    = std::function<Status( ServiceT&, ServerContext*, const RequestT*, ReplyT*, StateHandlerT* )>;
+    using MethodRequestT =
+        std::function<void( ServiceT&, ServerContext*, RequestReaderT*, CompletionQueue*, ServerCompletionQueue*, void* )>;
 
     RiaGrpcClientToServerStreamCallback( ServiceT*      service,
                                          MethodImplT    methodImpl,

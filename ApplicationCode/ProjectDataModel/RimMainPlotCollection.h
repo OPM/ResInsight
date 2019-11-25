@@ -30,7 +30,7 @@ class RimWellLogPlotCollection;
 class RimRftPlotCollection;
 class RimPltPlotCollection;
 class RimGridCrossPlotCollection;
-class RimGridPlotWindowCollection;
+class RimMultiPlotCollection;
 class RimSummaryPlotCollection;
 class RimSummaryCrossPlotCollection;
 class RimSummaryPlot;
@@ -59,7 +59,7 @@ public:
     RimFlowPlotCollection*               flowPlotCollection();
     RimGridCrossPlotCollection*          gridCrossPlotCollection();
     RimSaturationPressurePlotCollection* saturationPressurePlotCollection();
-    RimGridPlotWindowCollection*         combinationPlotCollection();
+    RimMultiPlotCollection*              multiPlotCollection();
 
     void deleteAllContainedObjects();
     void updateCurrentTimeStepInPlots();
@@ -84,7 +84,7 @@ private:
     caf::PdmChildField<RimFlowPlotCollection*>               m_flowPlotCollection;
     caf::PdmChildField<RimGridCrossPlotCollection*>          m_gridCrossPlotCollection;
     caf::PdmChildField<RimSaturationPressurePlotCollection*> m_saturationPressurePlotCollection;
-    caf::PdmChildField<RimGridPlotWindowCollection*>         m_combinationPlotCollection;
+    caf::PdmChildField<RimMultiPlotCollection*>              m_multiPlotCollection;
 
     caf::PdmField<bool> m_show;
 };

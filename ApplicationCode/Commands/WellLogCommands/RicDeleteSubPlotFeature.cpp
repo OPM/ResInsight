@@ -21,12 +21,12 @@
 #include "RicWellLogPlotCurveFeatureImpl.h"
 
 #include "RiaGuiApplication.h"
-#include "RiuGridPlotWindow.h"
+#include "RiuMultiPlotWindow.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotWidget.h"
 
-#include "RimGridPlotWindow.h"
-#include "RimPlotInterface.h"
+#include "RimMultiPlotWindow.h"
+#include "RimPlotWindow.h"
 #include "RimWellLogTrack.h"
 
 #include "cafSelectionManager.h"
@@ -50,9 +50,9 @@ bool RicDeleteSubPlotFeature::isCommandEnabled()
         size_t plotsSelected = 0;
         for ( caf::PdmObject* object : selection )
         {
-            RimGridPlotWindow* gridPlotWindow = nullptr;
-            object->firstAncestorOrThisOfType( gridPlotWindow );
-            if ( dynamic_cast<RimPlotInterface*>( object ) && gridPlotWindow )
+            RimMultiPlotWindow* multiPlot = nullptr;
+            object->firstAncestorOrThisOfType( multiPlot );
+            if ( dynamic_cast<RimPlotWindow*>( object ) && multiPlot )
             {
                 plotsSelected++;
             }
@@ -70,28 +70,26 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return;
 
-    std::vector<caf::PdmObject*> selection;
+    std::vector<RimPlot*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
-    std::set<RimGridPlotWindow*> alteredPlotWindows;
+    std::set<RimMultiPlotWindow*> alteredPlotWindows;
 
-    for ( size_t i = 0; i < selection.size(); i++ )
+    for ( RimPlot* plot : selection )
     {
-        RimPlotInterface* plot = dynamic_cast<RimPlotInterface*>( selection[i] );
-
-        RimGridPlotWindow* plotWindow = nullptr;
-        selection[i]->firstAncestorOrThisOfType( plotWindow );
+        RimMultiPlotWindow* plotWindow = nullptr;
+        plot->firstAncestorOrThisOfType( plotWindow );
         if ( plot && plotWindow )
         {
             alteredPlotWindows.insert( plotWindow );
             plotWindow->removePlot( plot );
-            caf::SelectionManager::instance()->removeObjectFromAllSelections( selection[i] );
+            caf::SelectionManager::instance()->removeObjectFromAllSelections( plot );
 
             plotWindow->updateConnectedEditors();
             delete plot;
         }
     }
 
-    for ( RimGridPlotWindow* plotWindow : alteredPlotWindows )
+    for ( RimMultiPlotWindow* plotWindow : alteredPlotWindows )
     {
         plotWindow->uiCapability()->updateConnectedEditors();
     }

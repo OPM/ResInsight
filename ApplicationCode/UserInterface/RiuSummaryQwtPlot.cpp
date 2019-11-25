@@ -23,7 +23,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimMainPlotCollection.h"
-#include "RimPlotInterface.h"
+#include "RimPlot.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
@@ -92,7 +92,7 @@ static EnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimPlotInterface* plotDefinition, QWidget* parent /*= nullptr*/ )
+RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimPlot* plotDefinition, QWidget* parent /*= nullptr*/ )
     : RiuQwtPlotWidget( plotDefinition, parent )
 {
     // LeftButton for the zooming
@@ -130,6 +130,11 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimPlotInterface* plotDefinition, QWidget*
 
     setLegendVisible( true );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuSummaryQwtPlot::~RiuSummaryQwtPlot() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -261,7 +266,7 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
     QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
 
-    caf::SelectionManager::instance()->setSelectedItem( plotOwner() );
+    caf::SelectionManager::instance()->setSelectedItem( plotDefinition() );
 
     menuBuilder << "RicShowPlotDataFeature";
     menuBuilder << "RicSavePlotTemplateFeature";

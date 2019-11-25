@@ -24,8 +24,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 
-#include "RimPlotInterface.h"
-#include "RimPlotWindow.h"
+#include "RimPlot.h"
 
 #include "qwt_plot_textlabel.h"
 
@@ -64,7 +63,7 @@ class QKeyEvent;
 ///
 ///
 //==================================================================================================
-class RimSummaryPlot : public RimPlotWindow, public RimPlotInterface
+class RimSummaryPlot : public RimPlot
 {
     CAF_PDM_HEADER_INIT;
 
@@ -72,11 +71,12 @@ public:
     RimSummaryPlot();
     ~RimSummaryPlot() override;
 
-    void    setDescription( const QString& description ) override;
+    bool    showPlotTitle() const;
+    void    setShowPlotTitle( bool showTitle );
+    void    setDescription( const QString& description );
     QString description() const override;
-    bool    isChecked() const override;
-    void    setChecked( bool checked ) override;
-    void    setDraggable( bool draggable );
+
+    void setDraggable( bool draggable );
 
     void enableAutoPlotTitle( bool enable );
     bool autoPlotTitle() const;
@@ -102,7 +102,7 @@ public:
     size_t curveCount() const;
 
     void detachAllCurves() override;
-    void reattachAllCurves();
+    void reattachAllCurves() override;
     void updateCaseNameHasChanged();
 
     void updateAxes() override;
@@ -115,6 +115,7 @@ public:
     QWidget*          viewWidget() override;
     RiuQwtPlotWidget* viewer() override;
 
+    QString asciiDataForPlotExport() const override;
     QString asciiDataForSummaryPlotExport( DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const;
 
     std::vector<RimSummaryCurve*>       summaryAndEnsembleCurves() const;
@@ -125,7 +126,7 @@ public:
 
     std::vector<RimEnsembleCurveSet*> curveSets() const;
 
-    void updatePlotTitle() override;
+    void updatePlotTitle();
 
     const RimSummaryPlotNameHelper* activePlotTitleHelperAllCurves() const;
     void                            updateCurveNames();
@@ -133,10 +134,8 @@ public:
 
     void copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSummaryPlot );
 
-    void updateLayout() override;
-
     void updateAll();
-    void updateAllLegendItems();
+    void updateLegend() override;
 
     void setPlotInfoLabel( const QString& label );
     void showPlotInfoLabel( bool show );
@@ -156,7 +155,7 @@ public:
     void setNormalizationEnabled( bool enable );
     bool isNormalizationEnabled();
 
-    void                                      handleKeyPressEvent( QKeyEvent* keyEvent ) override;
+    void                                      handleKeyPressEvent( QKeyEvent* keyEvent );
     virtual RimSummaryPlotSourceStepping*     sourceSteppingObjectForKeyEventHandling() const;
     virtual std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
@@ -167,24 +166,16 @@ public:
     void updateZoomInQwt() override;
     void updateZoomFromQwt() override;
 
-    void            createPlotWidget() override;
     caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
 
     void onAxisSelected( int axis, bool toggle ) override;
-    void loadDataAndUpdate() override;
 
     void addOrUpdateEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet );
     void removeEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet );
 
-    void removeFromMdiAreaAndCollection() override;
-    void updateAfterInsertingIntoGridPlotWindow() override;
-
-    int rowSpan() const override;
-    int colSpan() const override;
-
 public:
     // RimViewWindow overrides
-    QWidget* createViewWidget( QWidget* mainWindowParent ) override;
+    QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;
     void     deleteViewWidget() override;
     void     initAfterRead() override;
 
@@ -193,6 +184,11 @@ private:
     void updateNameHelperWithCurveData( RimSummaryPlotNameHelper* nameHelper ) const;
 
     void updateWindowVisibility();
+    void doUpdateLayout() override;
+
+    void detachAllPlotItems();
+
+    void doRemoveFromCollection() override;
 
 protected:
     // Overridden PDM methods
@@ -229,10 +225,9 @@ private:
 private:
     caf::PdmField<bool> m_normalizeCurveYValues;
 
-    caf::PdmField<bool> m_useAutoPlotTitle;
-
-    caf::PdmField<RimPlotInterface::RowOrColSpanEnum> m_rowSpan;
-    caf::PdmField<RimPlotInterface::RowOrColSpanEnum> m_colSpan;
+    caf::PdmField<bool>    m_showPlotTitle;
+    caf::PdmField<bool>    m_useAutoPlotTitle;
+    caf::PdmField<QString> m_description;
 
     caf::PdmChildArrayField<RimGridTimeHistoryCurve*>  m_gridTimeHistoryCurves;
     caf::PdmChildField<RimSummaryCurveCollection*>     m_summaryCurveCollection;
@@ -261,6 +256,5 @@ private:
     caf::PdmChildArrayField<RimSummaryCurveFilter_OBSOLETE*> m_curveFilters_OBSOLETE;
     caf::PdmField<bool>                                      m_isAutoZoom_OBSOLETE;
 
-    caf::PdmField<bool> m_showPlotTitle_OBSOLETE;
     caf::PdmField<bool> m_showLegend_OBSOLETE;
 };

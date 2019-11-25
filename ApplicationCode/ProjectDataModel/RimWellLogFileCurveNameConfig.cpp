@@ -29,8 +29,12 @@ CAF_PDM_SOURCE_INIT( RimWellLogFileCurveNameConfig, "RimWellLogFileCurveNameConf
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellLogFileCurveNameConfig::RimWellLogFileCurveNameConfig()
-    : RimNameConfig()
+    : RimNameConfig( "Las Curve" )
 {
     CAF_PDM_InitObject( "Well Log File Curve Name Generator", "", "", "" );
-    m_customName = "Las Curve";
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogFileCurveNameConfig::doEnableAllAutoNameTags( bool enable ) {}

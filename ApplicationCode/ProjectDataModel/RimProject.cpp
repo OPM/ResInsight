@@ -50,15 +50,16 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimGridCrossPlotCollection.h"
-#include "RimGridPlotWindowCollection.h"
 #include "RimGridSummaryCase.h"
 #include "RimGridView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimMeasurement.h"
+#include "RimMultiPlotCollection.h"
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"
 #include "RimOilField.h"
+#include "RimPlotWindow.h"
 #include "RimPltPlotCollection.h"
 #include "RimPolylinesFromFileAnnotation.h"
 #include "RimRftPlotCollection.h"
@@ -101,9 +102,10 @@ CAF_PDM_SOURCE_INIT( RimProject, "ResInsightProject" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimProject::RimProject( void )
-    : m_nextValidCaseId( 1 )
-    , m_nextValidCaseGroupId( 1 )
+    : m_nextValidCaseId( 0 )
+    , m_nextValidCaseGroupId( 0 )
     , m_nextValidViewId( 1 )
+    , m_nextValidPlotId( 1 )
 {
     CAF_PDM_InitObject( "Project", "", "", "" );
 
@@ -203,13 +205,7 @@ RimProject::RimProject( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimProject::~RimProject( void )
-{
-    close();
-
-    oilFields.deleteAllChildObjects();
-    if ( scriptCollection() ) delete scriptCollection();
-}
+RimProject::~RimProject( void ) {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -249,7 +245,8 @@ void RimProject::close()
 
     m_nextValidCaseId      = 0;
     m_nextValidCaseGroupId = 0;
-    m_nextValidViewId      = 0;
+    m_nextValidViewId      = 1;
+    m_nextValidPlotId      = 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -507,19 +504,38 @@ void RimProject::assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProject::assignViewIdToView( RimViewWindow* view )
+void RimProject::assignViewIdToView( Rim3dView* view )
 {
     if ( view )
     {
-        std::vector<RimViewWindow*> viewWindows;
-        this->descendantsIncludingThisOfType( viewWindows );
+        std::vector<Rim3dView*> views;
+        this->descendantsIncludingThisOfType( views );
 
-        for ( RimViewWindow* existingView : viewWindows )
+        for ( Rim3dView* existingView : views )
         {
             m_nextValidViewId = std::max( m_nextValidViewId, existingView->id() + 1 );
         }
 
         view->setId( m_nextValidViewId++ );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::assignPlotIdToPlotWindow( RimPlotWindow* plotWindow )
+{
+    if ( plotWindow )
+    {
+        std::vector<RimPlotWindow*> plotWindows;
+        this->descendantsIncludingThisOfType( plotWindows );
+
+        for ( RimPlotWindow* existingPlotWindow : plotWindows )
+        {
+            m_nextValidPlotId = std::max( m_nextValidPlotId, existingPlotWindow->id() + 1 );
+        }
+
+        plotWindow->setId( m_nextValidPlotId++ );
     }
 }
 
@@ -1302,9 +1318,9 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                 itemCollection->add( mainPlotCollection->saturationPressurePlotCollection() );
             }
 
-            if ( mainPlotCollection->combinationPlotCollection() )
+            if ( mainPlotCollection->multiPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->combinationPlotCollection() );
+                itemCollection->add( mainPlotCollection->multiPlotCollection() );
             }
         }
     }

@@ -18,7 +18,9 @@
 
 #include "RimPlotCurve.h"
 
+#include "RiaCurveDataTools.h"
 #include "RiaGuiApplication.h"
+
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimNameConfig.h"
@@ -35,11 +37,15 @@
 
 #include "cvfAssert.h"
 
+#include "qwt_date.h"
+#include "qwt_interval_symbol.h"
 #include "qwt_plot.h"
 #include "qwt_symbol.h"
 
 // NB! Special macro for pure virtual class
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotCurve, "PlotCurve" );
+
+#define DOUBLE_INF std::numeric_limits<double>::infinity()
 
 namespace caf
 {
@@ -147,7 +153,12 @@ RimPlotCurve::RimPlotCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_symbolLabelPosition, "SymbolLabelPosition", "Symbol Label Position", "", "", "" );
 
-    m_qwtPlotCurve = new RiuRimQwtPlotCurve( this );
+    m_qwtPlotCurve      = new RiuRimQwtPlotCurve( this );
+    m_qwtCurveErrorBars = new QwtPlotIntervalCurve();
+    m_qwtCurveErrorBars->setStyle( QwtPlotIntervalCurve::CurveStyle::NoCurve );
+    m_qwtCurveErrorBars->setSymbol( new QwtIntervalSymbol( QwtIntervalSymbol::Bar ) );
+    m_qwtCurveErrorBars->setItemAttribute( QwtPlotItem::Legend, false );
+    m_qwtCurveErrorBars->setZ( RiuQwtPlotCurve::Z_ERROR_BARS );
 
     m_parentQwtPlot = nullptr;
 }
@@ -162,6 +173,13 @@ RimPlotCurve::~RimPlotCurve()
         m_qwtPlotCurve->detach();
         delete m_qwtPlotCurve;
         m_qwtPlotCurve = nullptr;
+    }
+
+    if ( m_qwtCurveErrorBars )
+    {
+        m_qwtCurveErrorBars->detach();
+        delete m_qwtCurveErrorBars;
+        m_qwtCurveErrorBars = nullptr;
     }
 
     if ( m_parentQwtPlot )
@@ -220,7 +238,6 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_showErrorBars )
     {
-        m_qwtPlotCurve->showErrorBars( m_showErrorBars );
         updateCurveAppearance();
     }
     RiuPlotMainWindowTools::refreshToolbars();
@@ -271,11 +288,12 @@ void RimPlotCurve::updateCurveVisibility( bool updateParentPlot )
 {
     if ( canCurveBeAttached() )
     {
-        m_qwtPlotCurve->attach( m_parentQwtPlot );
+        attachCurveAndErrorBars();
     }
     else
     {
         m_qwtPlotCurve->detach();
+        m_qwtCurveErrorBars->detach();
     }
 
     if ( updateParentPlot )
@@ -323,7 +341,8 @@ void RimPlotCurve::setParentQwtPlotAndReplot( QwtPlot* plot )
     m_parentQwtPlot = plot;
     if ( canCurveBeAttached() )
     {
-        m_qwtPlotCurve->attach( m_parentQwtPlot );
+        attachCurveAndErrorBars();
+
         m_parentQwtPlot->replot();
     }
 }
@@ -336,11 +355,12 @@ void RimPlotCurve::setParentQwtPlotNoReplot( QwtPlot* plot )
     m_parentQwtPlot = plot;
     if ( canCurveBeAttached() )
     {
-        m_qwtPlotCurve->attach( m_parentQwtPlot );
+        attachCurveAndErrorBars();
     }
     else
     {
         m_qwtPlotCurve->detach();
+        m_qwtCurveErrorBars->detach();
     }
 }
 
@@ -366,6 +386,7 @@ void RimPlotCurve::setColor( const cvf::Color3f& color )
 void RimPlotCurve::detachQwtCurve()
 {
     m_qwtPlotCurve->detach();
+    m_qwtCurveErrorBars->detach();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -376,7 +397,7 @@ void RimPlotCurve::reattachQwtCurve()
     detachQwtCurve();
     if ( canCurveBeAttached() )
     {
-        m_qwtPlotCurve->attach( m_parentQwtPlot );
+        attachCurveAndErrorBars();
     }
 }
 
@@ -463,7 +484,7 @@ void RimPlotCurve::updatePlotTitle()
     this->firstAncestorOrThisOfType( nameConfigHolder );
     if ( nameConfigHolder )
     {
-        nameConfigHolder->updateHolder();
+        nameConfigHolder->updateAutoName();
     }
 }
 
@@ -484,6 +505,75 @@ void RimPlotCurve::updateLegendsInPlot()
 void RimPlotCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     throw std::logic_error( "The method or operation is not implemented." );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSamplesFromXYErrorValues(
+    const std::vector<double>&   xValues,
+    const std::vector<double>&   yValues,
+    const std::vector<double>&   errorValues,
+    bool                         keepOnlyPositiveValues,
+    RiaCurveDataTools::ErrorAxis errorAxis /*= RiuQwtPlotCurve::ERROR_ALONG_Y_AXIS */ )
+{
+    CVF_ASSERT( xValues.size() == yValues.size() );
+    CVF_ASSERT( xValues.size() == errorValues.size() );
+
+    auto intervalsOfValidValues = RiaCurveDataTools::calculateIntervalsOfValidValues( yValues, keepOnlyPositiveValues );
+    std::vector<double> filteredYValues;
+    std::vector<double> filteredXValues;
+
+    RiaCurveDataTools::getValuesByIntervals( yValues, intervalsOfValidValues, &filteredYValues );
+    RiaCurveDataTools::getValuesByIntervals( xValues, intervalsOfValidValues, &filteredXValues );
+
+    std::vector<double> filteredErrorValues;
+    RiaCurveDataTools::getValuesByIntervals( errorValues, intervalsOfValidValues, &filteredErrorValues );
+
+    QVector<QwtIntervalSample> errorIntervals;
+
+    errorIntervals.reserve( static_cast<int>( filteredXValues.size() ) );
+
+    for ( size_t i = 0; i < filteredXValues.size(); i++ )
+    {
+        if ( filteredYValues[i] != DOUBLE_INF && filteredErrorValues[i] != DOUBLE_INF )
+        {
+            if ( errorAxis == RiaCurveDataTools::ERROR_ALONG_Y_AXIS )
+            {
+                errorIntervals << QwtIntervalSample( filteredXValues[i],
+                                                     filteredYValues[i] - filteredErrorValues[i],
+                                                     filteredYValues[i] + filteredErrorValues[i] );
+            }
+            else
+            {
+                errorIntervals << QwtIntervalSample( filteredYValues[i],
+                                                     filteredXValues[i] - filteredErrorValues[i],
+                                                     filteredXValues[i] + filteredErrorValues[i] );
+            }
+        }
+    }
+
+    if ( m_qwtPlotCurve )
+    {
+        m_qwtPlotCurve->setSamples( filteredXValues.data(),
+                                    filteredYValues.data(),
+                                    static_cast<int>( filteredXValues.size() ) );
+
+        m_qwtPlotCurve->setLineSegmentStartStopIndices( intervalsOfValidValues );
+    }
+
+    if ( m_qwtCurveErrorBars )
+    {
+        m_qwtCurveErrorBars->setSamples( errorIntervals );
+        if ( errorAxis == RiaCurveDataTools::ERROR_ALONG_Y_AXIS )
+        {
+            m_qwtCurveErrorBars->setOrientation( Qt::Vertical );
+        }
+        else
+        {
+            m_qwtCurveErrorBars->setOrientation( Qt::Horizontal );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -560,6 +650,19 @@ bool RimPlotCurve::canCurveBeAttached() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotCurve::attachCurveAndErrorBars()
+{
+    m_qwtPlotCurve->attach( m_parentQwtPlot );
+
+    if ( m_showErrorBars )
+    {
+        m_qwtCurveErrorBars->attach( m_parentQwtPlot );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveAppearance()
 {
     CVF_ASSERT( m_qwtPlotCurve );
@@ -585,7 +688,11 @@ void RimPlotCurve::updateCurveAppearance()
     m_qwtPlotCurve->setSymbol( symbol );
     m_qwtPlotCurve->setSymbolSkipPixelDistance( m_symbolSkipPixelDistance() );
 
-    m_qwtPlotCurve->setErrorBarsColor( curveColor );
+    {
+        QwtIntervalSymbol* newSymbol = new QwtIntervalSymbol( QwtIntervalSymbol::Bar );
+        newSymbol->setPen( QPen( curveColor ) );
+        m_qwtCurveErrorBars->setSymbol( newSymbol );
+    }
 
     // Make sure the legend lines are long enough to distinguish between line types.
     // Standard width in Qwt is 8 which is too short.

@@ -37,10 +37,11 @@ public:
     bool addTimeStep() const;
     bool addDate() const;
 
-    void enableAllAutoNameTags( bool enable ) override;
-
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+private:
+    void doEnableAllAutoNameTags( bool enable ) override;
 
 private:
     caf::PdmField<bool> m_addCaseName;

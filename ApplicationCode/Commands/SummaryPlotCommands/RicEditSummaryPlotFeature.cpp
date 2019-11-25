@@ -33,6 +33,8 @@
 
 #include <QAction>
 
+#include <memory>
+
 CAF_CMD_SOURCE_INIT( RicEditSummaryPlotFeature, "RicEditSummaryPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------
@@ -60,9 +62,14 @@ void RicEditSummaryPlotFeature::closeDialogAndResetTargetPlot()
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreatorDialog* RicEditSummaryPlotFeature::curveCreatorDialog()
 {
-    static RicSummaryCurveCreatorDialog* singletonDialog = new RicSummaryCurveCreatorDialog( nullptr );
+    static std::unique_ptr<RicSummaryCurveCreatorDialog> singletonDialog;
 
-    return singletonDialog;
+    if ( !singletonDialog )
+    {
+        singletonDialog.reset( new RicSummaryCurveCreatorDialog( nullptr ) );
+    }
+
+    return singletonDialog.get();
 }
 
 //--------------------------------------------------------------------------------------------------

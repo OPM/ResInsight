@@ -27,6 +27,7 @@
 #include "RiaFontCache.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
+#include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 #include "RiaProjectModifier.h"
 #include "RiaRegressionTestRunner.h"
@@ -58,9 +59,9 @@
 #include "RimGeoMechView.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
-#include "RimGridPlotWindowCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
+#include "RimMultiPlotCollection.h"
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"
 #include "RimOilField.h"
@@ -311,7 +312,7 @@ void RiaGuiApplication::loadAndUpdatePlotData()
     RimPltPlotCollection*                pltColl  = nullptr;
     RimGridCrossPlotCollection*          gcpColl  = nullptr;
     RimSaturationPressurePlotCollection* sppColl  = nullptr;
-    RimGridPlotWindowCollection*         gpwColl  = nullptr;
+    RimMultiPlotCollection*              gpwColl  = nullptr;
 
     if ( m_project->mainPlotCollection() )
     {
@@ -347,9 +348,9 @@ void RiaGuiApplication::loadAndUpdatePlotData()
         {
             sppColl = m_project->mainPlotCollection()->saturationPressurePlotCollection();
         }
-        if ( m_project->mainPlotCollection()->combinationPlotCollection() )
+        if ( m_project->mainPlotCollection()->multiPlotCollection() )
         {
-            gpwColl = m_project->mainPlotCollection()->combinationPlotCollection();
+            gpwColl = m_project->mainPlotCollection()->multiPlotCollection();
         }
     }
 
@@ -362,7 +363,7 @@ void RiaGuiApplication::loadAndUpdatePlotData()
     plotCount += pltColl ? pltColl->pltPlots().size() : 0;
     plotCount += gcpColl ? gcpColl->gridCrossPlots().size() : 0;
     plotCount += sppColl ? sppColl->plots().size() : 0;
-    plotCount += gpwColl ? gpwColl->gridPlotWindows().size() : 0;
+    plotCount += gpwColl ? gpwColl->multiPlots().size() : 0;
 
     if ( plotCount > 0 )
     {
@@ -439,9 +440,9 @@ void RiaGuiApplication::loadAndUpdatePlotData()
 
         if ( gpwColl )
         {
-            for ( const auto& gridPlotWindow : gpwColl->gridPlotWindows() )
+            for ( const auto& multiPlot : gpwColl->multiPlots() )
             {
-                gridPlotWindow->loadDataAndUpdate();
+                multiPlot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
             }
         }
@@ -1449,6 +1450,7 @@ void RiaGuiApplication::onProjectBeingClosed()
     RicHoloLensSessionManager::refreshToolbarState();
 
     RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
+    RiaPlotWindowRedrawScheduler::instance()->clearAllScheduledUpdates();
 
     RiaGuiApplication::clearAllSelections();
 

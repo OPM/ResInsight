@@ -34,7 +34,8 @@ bool PdmXmlFieldHandle::assertValid() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmXmlFieldHandle::PdmXmlFieldHandle(PdmFieldHandle* owner, bool giveOwnership) : m_isIOReadable(true), m_isIOWritable(true)
+PdmXmlFieldHandle::PdmXmlFieldHandle(PdmFieldHandle* owner, bool giveOwnership)
+    : m_isIOReadable(true), m_isIOWritable(true), m_isCopyable(true)
 {
     m_owner = owner; 
     owner->addCapability(this, giveOwnership);
@@ -47,6 +48,7 @@ void PdmXmlFieldHandle::disableIO()
 {
     setIOReadable(false);
     setIOWritable(false);
+    setCopyable(false);
 }
 
 //--------------------------------------------------------------------------------------------------

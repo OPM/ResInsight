@@ -58,11 +58,11 @@ RimWellBoreStabilityPlot*
 
     if ( !plotDescription.isEmpty() )
     {
-        plot->setDescription( plotDescription );
+        plot->setMultiPlotTitle( plotDescription );
     }
     else
     {
-        plot->setDescription(
+        plot->setMultiPlotTitle(
             QString( "Well Bore Stability Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots.size() ) );
     }
 
@@ -92,11 +92,11 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot( bool showAfterC
 
     if ( !plotDescription.isEmpty() )
     {
-        plot->setDescription( plotDescription );
+        plot->setMultiPlotTitle( plotDescription );
     }
     else
     {
-        plot->setDescription( QString( "Well Log Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots.size() ) );
+        plot->setMultiPlotTitle( QString( "Well Log Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots.size() ) );
     }
 
     if ( showAfterCreation )

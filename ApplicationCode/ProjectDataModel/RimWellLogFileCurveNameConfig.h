@@ -30,4 +30,7 @@ class RimWellLogFileCurveNameConfig : public RimNameConfig
 
 public:
     RimWellLogFileCurveNameConfig();
+
+private:
+    void doEnableAllAutoNameTags( bool enable ) override;
 };

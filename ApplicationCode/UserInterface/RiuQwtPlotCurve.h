@@ -23,8 +23,6 @@
 #include "qwt_plot_intervalcurve.h"
 #include "qwt_symbol.h"
 
-class RiuErrorBarsQwtPlotCurve;
-
 //==================================================================================================
 //
 // If infinite data is present in the curve data, Qwt is not able to draw a nice curve.
@@ -48,12 +46,6 @@ class RiuErrorBarsQwtPlotCurve;
 class RiuQwtPlotCurve : public QwtPlotCurve
 {
 public:
-    enum ErrorAxis
-    {
-        ERROR_ALONG_X_AXIS,
-        ERROR_ALONG_Y_AXIS
-    };
-
     enum CurveInterpolationEnum
     {
         INTERPOLATION_POINT_TO_POINT,
@@ -87,12 +79,6 @@ public:
                                           const std::vector<double>& yValues,
                                           bool                       keepOnlyPositiveValues );
 
-    void setSamplesFromXValuesAndYValues( const std::vector<double>& xValues,
-                                          const std::vector<double>& yValues,
-                                          const std::vector<double>& errorValues,
-                                          bool                       keepOnlyPositiveValues,
-                                          ErrorAxis                  errorAxis = ERROR_ALONG_Y_AXIS );
-
     void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
                                         const std::vector<double>&    yValues,
                                         bool                          keepOnlyPositiveValues );
@@ -101,29 +87,21 @@ public:
                                         const std::vector<double>& yValues,
                                         bool                       keepOnlyPositiveValues );
 
-    void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
-                                        const std::vector<double>& yValues,
-                                        const std::vector<double>& yErrorValues,
-                                        bool                       keepOnlyPositiveValues );
-
     void setLineSegmentStartStopIndices( const std::vector<std::pair<size_t, size_t>>& lineSegmentStartStopIndices );
 
     void setSymbolSkipPixelDistance( float distance );
-
-    void attach( QwtPlot* plot );
-    void detach();
-    void clearErrorBars();
-    void showErrorBars( bool show );
-    void setErrorBarsColor( QColor color );
-    void setErrorBarsXAxis( int axis );
     void setPerPointLabels( const std::vector<QString>& labels );
 
-    void       setAppearance( LineStyleEnum          lineStyle,
-                              CurveInterpolationEnum interpolationType,
-                              int                    curveThickness,
-                              const QColor&          curveColor );
+    void setAppearance( LineStyleEnum          lineStyle,
+                        CurveInterpolationEnum interpolationType,
+                        int                    curveThickness,
+                        const QColor&          curveColor );
+
     void       setBlackAndWhiteLegendIcon( bool blackAndWhite );
     QwtGraphic legendIcon( int index, const QSizeF& size ) const override;
+
+    static std::vector<double> fromQDateTime( const std::vector<QDateTime>& dateTimes );
+    static std::vector<double> fromTime_t( const std::vector<time_t>& timeSteps );
 
 protected:
     void drawCurve( QPainter*          p,
@@ -143,17 +121,15 @@ protected:
                       int                to ) const override;
 
 private:
-    static std::vector<double> fromQDateTime( const std::vector<QDateTime>& dateTimes );
-    static std::vector<double> fromTime_t( const std::vector<time_t>& timeSteps );
+    void computeValidIntervalsAndSetCurveData( const std::vector<double>& xValues,
+                                               const std::vector<double>& yValues,
+                                               bool                       keepOnlyPositiveValues );
 
 private:
-    std::vector<std::pair<size_t, size_t>> m_polyLineStartStopIndices;
-    float                                  m_symbolSkipPixelDistance;
-
-    bool                  m_showErrorBars;
-    QwtPlotIntervalCurve* m_errorBars;
-    QwtPlot*              m_attachedToPlot;
-    bool                  m_blackAndWhiteLegendIcon;
+    float m_symbolSkipPixelDistance;
+    bool  m_blackAndWhiteLegendIcon;
 
     std::vector<QString> m_perPointLabels;
+
+    std::vector<std::pair<size_t, size_t>> m_polyLineStartStopIndices;
 };

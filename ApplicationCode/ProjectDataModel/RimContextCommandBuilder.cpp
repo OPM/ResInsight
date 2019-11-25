@@ -41,7 +41,6 @@
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseInputProperty.h"
-#include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
@@ -71,7 +70,6 @@
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
 #include "RimGridCrossPlotDataSet.h"
-#include "RimGridPlotWindowCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
@@ -79,6 +77,7 @@
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimModeledWellPath.h"
+#include "RimMultiPlotCollection.h"
 #include "RimObservedSummaryData.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
@@ -257,10 +256,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicExportEclipseInputGridFeature";
             menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
             menuBuilder << "RicCreateGridCrossPlotFeature";
-        }
-        else if ( dynamic_cast<RimEclipseInputPropertyCollection*>( uiItem ) )
-        {
-            menuBuilder << "RicAddEclipseInputPropertyFeature";
         }
         else if ( dynamic_cast<RimEclipseInputProperty*>( uiItem ) )
         {
@@ -873,7 +868,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicDeleteSummaryCaseCollectionFeature";
         menuBuilder << "RicCloseObservedDataFeature";
 
-        menuBuilder << "RicNewGridPlotWindowFeature";
+        menuBuilder << "RicNewMultiPlotFeature";
 
         // Work in progress -- End
         appendCreateCompletions( menuBuilder, menuBuilder.itemCount() > 0u );

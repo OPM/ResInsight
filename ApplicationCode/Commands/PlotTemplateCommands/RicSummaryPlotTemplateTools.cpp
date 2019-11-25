@@ -64,7 +64,9 @@ RimSummaryPlot* RicSummaryPlotTemplateTools::createPlotFromTemplateFile( const Q
     QString objectAsText = stream.readAll();
 
     caf::PdmObjectHandle* obj =
-        caf::PdmXmlObjectHandle::readUnknownObjectFromXmlString( objectAsText, caf::PdmDefaultObjectFactory::instance() );
+        caf::PdmXmlObjectHandle::readUnknownObjectFromXmlString( objectAsText,
+                                                                 caf::PdmDefaultObjectFactory::instance(),
+                                                                 true );
 
     RimSummaryPlot* newSummaryPlot = dynamic_cast<RimSummaryPlot*>( obj );
     if ( newSummaryPlot )

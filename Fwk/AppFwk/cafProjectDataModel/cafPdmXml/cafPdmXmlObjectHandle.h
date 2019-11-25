@@ -39,7 +39,7 @@ public:
     /// Convenience methods to serialize/de-serialize this particular object (with children)
     void                    readObjectFromXmlString(const QString& xmlString, PdmObjectFactory* objectFactory);
     QString                 writeObjectToXmlString() const;
-    static PdmObjectHandle* readUnknownObjectFromXmlString(const QString& xmlString, PdmObjectFactory* objectFactory);
+    static PdmObjectHandle* readUnknownObjectFromXmlString(const QString& xmlString, PdmObjectFactory* objectFactory, bool isCopyOperation);
     PdmObjectHandle*        copyByXmlSerialization(PdmObjectFactory* objectFactory);
     PdmObjectHandle*        copyAndCastByXmlSerialization(const QString&    destinationClassKeyword,
                                                           const QString&    sourceClassKeyword,
@@ -47,7 +47,7 @@ public:
 
     // Main XML serialization methods that is used internally by the document serialization system
     // Not supposed to be used directly. 
-    void                    readFields(QXmlStreamReader& inputStream, PdmObjectFactory* objectFactory);
+    void                    readFields(QXmlStreamReader& inputStream, PdmObjectFactory* objectFactory, bool isCopyOperation);
     void                    writeFields(QXmlStreamWriter& outputStream) const;
 
     /// Check if a string is a valid Xml element name

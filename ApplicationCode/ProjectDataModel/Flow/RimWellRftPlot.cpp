@@ -118,7 +118,7 @@ RimWellRftPlot::RimWellRftPlot()
     m_wellPathCollection = RiaApplication::instance()->project()->activeOilField()->wellPathCollection();
 
     m_nameConfig->setCustomName( "RFT Plot" );
-    m_plotLegendsHorizontal = true;
+    m_plotLegendsHorizontal = false;
 
     this->setAsPlotMdiWindow();
     m_isOnLoad = true;
@@ -851,7 +851,7 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
     if ( changedField == &m_wellPathNameOrSimWellName )
     {
-        setDescription( QString( plotNameFormatString() ).arg( m_wellPathNameOrSimWellName ) );
+        setMultiPlotTitle( QString( plotNameFormatString() ).arg( m_wellPathNameOrSimWellName ) );
 
         m_branchIndex = 0;
 
@@ -886,7 +886,7 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         syncCurvesFromUiSelection();
     }
 
-    else if ( changedField == &m_showTitleInPlot )
+    else if ( changedField == &m_showPlotWindowTitle )
     {
         // m_wellLogPlot->setShowDescription(m_showPlotTitle);
     }
@@ -940,13 +940,14 @@ void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         if ( track )
         {
             track->uiOrderingForRftPltFormations( uiOrdering );
-            caf::PdmUiGroup* axesGroup = uiOrdering.addNewGroup( "Axes" );
-            track->uiOrderingForXAxisSettings( *axesGroup );
-            uiOrderingForDepthAxis( *axesGroup );
+            track->uiOrderingForXAxisSettings( uiOrdering );
+            caf::PdmUiGroup* depthGroup = uiOrdering.addNewGroup( "Depth Axis Settings" );
+            uiOrderingForDepthAxis( uiConfigName, *depthGroup );
 
             caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
             plotLayoutGroup->setCollapsedByDefault( true );
-            RimWellLogPlot::uiOrderingForPlotLayout( *plotLayoutGroup );
+            RimWellLogPlot::uiOrderingForAutoName( uiConfigName, *plotLayoutGroup );
+            RimWellLogPlot::uiOrderingForLegendSettings( uiConfigName, *plotLayoutGroup );
         }
     }
 
@@ -1071,9 +1072,9 @@ void RimWellRftPlot::initAfterRead()
         RimWellLogPlot& wellLogPlot = dynamic_cast<RimWellLogPlot&>( *this );
         wellLogPlot                 = std::move( *m_wellLogPlot_OBSOLETE.value() );
     }
-    if ( m_showPlotTitle_OBSOLETE() && !m_showTitleInPlot() )
+    if ( m_showPlotTitle_OBSOLETE() && !m_showPlotWindowTitle() )
     {
-        m_showTitleInPlot = m_showPlotTitle_OBSOLETE();
+        m_showPlotWindowTitle = m_showPlotTitle_OBSOLETE();
     }
 
     RimWellLogPlot::initAfterRead();

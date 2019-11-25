@@ -40,6 +40,7 @@
 #include "RimTotalWellAllocationPlot.h"
 #include "RimWellAllocationPlotLegend.h"
 #include "RimWellFlowRateCurve.h"
+#include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
@@ -102,6 +103,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_accumulatedWellFlowPlot->setDepthType( RiaDefines::CONNECTION_NUMBER );
     m_accumulatedWellFlowPlot->setLegendsVisible( false );
     m_accumulatedWellFlowPlot->uiCapability()->setUiIconFromResourceString( ":/WellFlowPlot16x16.png" );
+    m_accumulatedWellFlowPlot->setAcceptDrops( false );
 
     CAF_PDM_InitFieldNoDefault( &m_totalWellAllocationPlot, "TotalWellFlowPlot", "Total Well Flow", "", "", "" );
     m_totalWellAllocationPlot.uiCapability()->setUiHidden( true );
@@ -147,6 +149,14 @@ RimWellAllocationPlot::~RimWellAllocationPlot()
         m_wellAllocationPlotWidget->deleteLater();
         m_wellAllocationPlotWidget = nullptr;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// TODO: implement properly
+//--------------------------------------------------------------------------------------------------
+int RimWellAllocationPlot::id() const
+{
+    return -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,7 +220,11 @@ void RimWellAllocationPlot::updateFromWell()
     if ( m_flowType() == ACCUMULATED ) description = "Accumulated Flow";
     if ( m_flowType() == INFLOW ) description = "Inflow Rates";
 
-    accumulatedWellFlowPlot()->setDescription( description + " (" + m_wellName + ")" );
+    RimWellLogPlotNameConfig* nameConfig = accumulatedWellFlowPlot()->nameConfig();
+    nameConfig->setCustomName( description );
+    nameConfig->setAutoNameTags( false, true, false, false, false );
+    nameConfig->setFieldVisibility( true, true, true, false, false );
+    accumulatedWellFlowPlot()->updateAutoName();
 
     if ( !m_case ) return;
 
@@ -356,7 +370,6 @@ void RimWellAllocationPlot::updateFromWell()
     m_totalWellAllocationPlot->updateConnectedEditors();
 
     accumulatedWellFlowPlot()->updateConnectedEditors();
-
     m_tofAccumulatedPhaseFractionsPlot->reloadFromWell();
     m_tofAccumulatedPhaseFractionsPlot->updateConnectedEditors();
 
@@ -551,6 +564,11 @@ QString RimWellAllocationPlot::wellStatusTextForTimeStep( const QString&        
 
     return statusText;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// TODO: Implement properly
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::assignIdIfNecessary() {}
 
 //--------------------------------------------------------------------------------------------------
 ///

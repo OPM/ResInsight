@@ -47,7 +47,7 @@ RimWellLogCurve::RimWellLogCurve()
     CAF_PDM_InitObject( "WellLogCurve", ":/WellLogCurve16x16.png", "", "" );
 
     m_qwtPlotCurve->setXAxis( QwtPlot::xTop );
-    m_qwtPlotCurve->setErrorBarsXAxis( QwtPlot::xTop );
+    m_qwtCurveErrorBars->setXAxis( QwtPlot::xTop );
     m_qwtPlotCurve->setYAxis( QwtPlot::yLeft );
 
     m_curveData = new RigWellLogCurveData;
@@ -187,7 +187,7 @@ void RimWellLogCurve::updateLegendsInPlot()
     firstAncestorOrThisOfType( wellLogTrack );
     if ( wellLogTrack )
     {
-        wellLogTrack->updateAllLegendItems();
+        wellLogTrack->updateLegend();
     }
 }
 

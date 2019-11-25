@@ -23,8 +23,8 @@
 #include "RiaColorTools.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 
+#include "RimPlot.h"
 #include "RimPlotCurve.h"
-#include "RimPlotInterface.h"
 
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtCurvePointTracker.h"
@@ -60,13 +60,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlotInterface* plotTrackDefinition, QWidget* parent )
+RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plot, QWidget* parent )
     : QwtPlot( parent )
+    , m_plotDefinition( plot )
     , m_draggable( true )
 {
-    m_plotOwner = dynamic_cast<caf::PdmObject*>( plotTrackDefinition );
-    CAF_ASSERT( m_plotOwner );
-
     setDefaults();
 
     this->installEventFilter( this );
@@ -78,10 +76,9 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlotInterface* plotTrackDefinition, QWidg
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget::~RiuQwtPlotWidget()
 {
-    if ( plotDefinition() )
-    {
-        plotDefinition()->detachAllCurves();
-    }
+    // The destructor may be called later when deleting with QWidget::deleteLater()
+    // If you are recreating the widget, then calling something that detaches QwtCurves
+    // here may cause them to detach from the new widget rather than the old.
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,9 +86,9 @@ RiuQwtPlotWidget::~RiuQwtPlotWidget()
 //--------------------------------------------------------------------------------------------------
 bool RiuQwtPlotWidget::isChecked() const
 {
-    if ( plotDefinition() )
+    if ( m_plotDefinition )
     {
-        return plotDefinition()->isChecked();
+        return m_plotDefinition->showWindow();
     }
 
     return false;
@@ -158,17 +155,9 @@ void RiuQwtPlotWidget::setAxisFontsAndAlignment( QwtPlot::Axis     axis,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlotInterface* RiuQwtPlotWidget::plotDefinition() const
+RimPlot* RiuQwtPlotWidget::plotDefinition() const
 {
-    return dynamic_cast<RimPlotInterface*>( m_plotOwner.p() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmObject* RiuQwtPlotWidget::plotOwner() const
-{
-    return m_plotOwner.p();
+    return m_plotDefinition;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -431,18 +420,6 @@ QPoint RiuQwtPlotWidget::dragStartPosition() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuQwtPlotWidget::widthScaleFactor() const
-{
-    if ( plotOwner() )
-    {
-        return plotDefinition()->widthScaleFactor();
-    }
-    return 1;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::scheduleReplot()
 {
     RiaPlotWindowRedrawScheduler::instance()->schedulePlotWidgetReplot( this );
@@ -550,6 +527,10 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 void RiuQwtPlotWidget::hideEvent( QHideEvent* event )
 {
     resetCurveHighlighting();
+    if ( m_plotDefinition )
+    {
+        m_plotDefinition->detachAllCurves();
+    }
     QwtPlot::hideEvent( event );
 }
 
@@ -564,6 +545,10 @@ void RiuQwtPlotWidget::showEvent( QShowEvent* event )
     m_canvasStyleSheet = createCanvasStyleSheet();
     m_canvasStyleSheet.applyToWidget( canvas() );
 
+    if ( m_plotDefinition )
+    {
+        m_plotDefinition->reattachAllCurves();
+    }
     QwtPlot::showEvent( event );
 }
 
@@ -623,7 +608,7 @@ void RiuQwtPlotWidget::onAxisSelected( QwtScaleWidget* scale, bool toggleItemInS
             axisId = i;
         }
     }
-    plotDefinition()->onAxisSelected( axisId, toggleItemInSelection );
+    m_plotDefinition->onAxisSelected( axisId, toggleItemInSelection );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -683,11 +668,11 @@ void RiuQwtPlotWidget::selectPlotOwner( bool toggleItemInSelection )
 {
     if ( toggleItemInSelection )
     {
-        RiuPlotMainWindowTools::toggleItemInSelection( plotOwner() );
+        RiuPlotMainWindowTools::toggleItemInSelection( m_plotDefinition );
     }
     else
     {
-        RiuPlotMainWindowTools::selectAsCurrentItem( plotOwner() );
+        RiuPlotMainWindowTools::selectAsCurrentItem( m_plotDefinition );
     }
     scheduleReplot();
 }
@@ -722,10 +707,10 @@ void RiuQwtPlotWidget::selectClosestCurve( const QPoint& pos, bool toggleItemInS
     resetCurveHighlighting();
     if ( closestCurve && distMin < 20 )
     {
-        if ( plotDefinition() )
+        if ( m_plotDefinition )
         {
             RimPlotCurve* selectedCurve = dynamic_cast<RimPlotCurve*>(
-                plotDefinition()->findPdmObjectFromQwtCurve( closestCurve ) );
+                m_plotDefinition->findPdmObjectFromQwtCurve( closestCurve ) );
             if ( selectedCurve )
             {
                 if ( toggleItemInSelection )

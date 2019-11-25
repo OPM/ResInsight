@@ -1216,7 +1216,7 @@ void RimGridCrossPlotDataSet::triggerPlotNameUpdateAndReplot()
     if ( parent )
     {
         parent->updateCurveNamesAndPlotTitle();
-        parent->reattachCurvesToQwtAndReplot();
+        parent->reattachAllCurves();
         parent->updateConnectedEditors();
     }
 }
@@ -1380,7 +1380,7 @@ CAF_PDM_SOURCE_INIT( RimGridCrossPlotDataSetNameConfig, "RimGridCrossPlotCurveSe
 ///
 //--------------------------------------------------------------------------------------------------
 RimGridCrossPlotDataSetNameConfig::RimGridCrossPlotDataSetNameConfig()
-    : RimNameConfig()
+    : RimNameConfig( "" )
 {
     CAF_PDM_InitObject( "Cross Plot Data Set NameGenerator", "", "", "" );
 
@@ -1388,8 +1388,6 @@ RimGridCrossPlotDataSetNameConfig::RimGridCrossPlotDataSetNameConfig()
     CAF_PDM_InitField( &addAxisVariables, "AddAxisVariables", true, "Add Axis Variables", "", "", "" );
     CAF_PDM_InitField( &addTimestep, "AddTimeStep", true, "Add Time Step", "", "", "" );
     CAF_PDM_InitField( &addGrouping, "AddGrouping", true, "Add Data Group", "", "", "" );
-
-    setCustomName( "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1401,4 +1399,15 @@ void RimGridCrossPlotDataSetNameConfig::defineUiOrdering( QString uiConfigName, 
     uiOrdering.add( &addAxisVariables );
     uiOrdering.add( &addTimestep );
     uiOrdering.add( &addGrouping );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotDataSetNameConfig::doEnableAllAutoNameTags( bool enable )
+{
+    addCaseName      = enable;
+    addAxisVariables = enable;
+    addTimestep      = enable;
+    addGrouping      = enable;
 }

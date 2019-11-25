@@ -29,7 +29,7 @@ namespace caf
 class PdmObjectHandle;
 }
 
-class RimGridPlotWindow;
+class RimMultiPlotWindow;
 class RimIdenticalGridCaseGroup;
 class RimSummaryCaseCollection;
 class RimSummaryCaseMainCollection;
@@ -65,10 +65,10 @@ private:
                                      caf::PdmObjectGroup& objectGroup,
                                      RimWellLogTrack*     wellLogPlotTrack,
                                      int                  insertAtPosition );
-    bool handleGridPlotWindowDrop( Qt::DropAction       action,
-                                   caf::PdmObjectGroup& objectGroup,
-                                   RimGridPlotWindow*   gridPlotWindow,
-                                   int                  insertAtPosition );
+    bool handleMultiPlotDrop( Qt::DropAction       action,
+                              caf::PdmObjectGroup& objectGroup,
+                              RimMultiPlotWindow*  multiPlot,
+                              int                  insertAtPosition );
     bool handleWellLogPlotCurveDrop( Qt::DropAction       action,
                                      caf::PdmObjectGroup& objectGroup,
                                      RimWellLogCurve*     wellLogPlotCurve );

@@ -24,8 +24,15 @@
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
 
+class RimProject;
+
+class QwtPlotCurve;
 class QKeyEvent;
 
+//==================================================================================================
+///
+///
+//==================================================================================================
 class RimPlotWindow : public RimViewWindow
 {
     CAF_PDM_HEADER_INIT;
@@ -34,14 +41,12 @@ public:
     RimPlotWindow();
     ~RimPlotWindow() override;
 
+    int id() const final;
+
     RimPlotWindow& operator=( RimPlotWindow&& rhs );
 
-    virtual void    setDescription( const QString& description );
-    QString         description() const;
-    virtual QString fullPlotTitle() const;
+    virtual QString description() const = 0;
 
-    bool isPlotTitleVisible() const;
-    void setPlotTitleVisible( bool visible );
     bool legendsVisible() const;
     void setLegendsVisible( bool doShow );
     bool legendsHorizontal() const;
@@ -49,24 +54,31 @@ public:
     int  legendFontSize() const;
     void setLegendFontSize( int fontSize );
 
-    virtual void handleKeyPressEvent( QKeyEvent* keyEvent ) {}
-    virtual void updateLayout() = 0;
+    void updateLayout();
+    void updateParentLayout();
 
 protected:
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
+
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
-    caf::PdmFieldHandle*          userDescriptionField() override;
 
-    virtual void uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering );
-    virtual void updatePlotTitle() = 0;
+    void uiOrderingForLegendSettings( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+
+private:
+    virtual void doUpdateLayout() {}
+
+private:
+    friend class RimProject;
+    void setId( int id );
+
+    void assignIdIfNecessary() final;
 
 protected:
-    caf::PdmField<QString> m_description;
-    caf::PdmField<bool>    m_showTitleInPlot;
-    caf::PdmField<bool>    m_showPlotLegends;
-    caf::PdmField<bool>    m_plotLegendsHorizontal;
-    caf::PdmField<int>     m_legendFontSize;
+    caf::PdmField<int>  m_id;
+    caf::PdmField<bool> m_showPlotLegends;
+    caf::PdmField<bool> m_plotLegendsHorizontal;
+    caf::PdmField<int>  m_legendFontSize;
 };

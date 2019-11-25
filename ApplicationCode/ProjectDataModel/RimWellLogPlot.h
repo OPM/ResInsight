@@ -27,7 +27,7 @@
 #include "cafPdmObject.h"
 
 #include "RiaDefines.h"
-#include "RimGridPlotWindow.h"
+#include "RimMultiPlotWindow.h"
 #include "RimWellLogPlotNameConfig.h"
 
 #include <QPointer>
@@ -35,15 +35,15 @@
 #include <set>
 
 class RimWellLogCurveCommonDataSource;
-class RiuGridPlotWindow;
-class RimPlotInterface;
+class RiuMultiPlotWindow;
+class RimPlotWindow;
 class QKeyEvent;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimWellLogPlot : public RimGridPlotWindow, public RimNameConfigHolderInterface
+class RimWellLogPlot : public RimMultiPlotWindow, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -64,7 +64,6 @@ public:
     ~RimWellLogPlot() override;
 
     QWidget* createPlotWidget( QWidget* mainWindowParent = nullptr );
-    QString  fullPlotTitle() const override;
 
     RimWellLogPlot& operator=( RimWellLogPlot&& rhs );
 
@@ -86,13 +85,14 @@ public:
     void calculateAvailableDepthRange();
     void availableDepthRange( double* minimumDepth, double* maximumDepth ) const;
 
-    void setAutoScaleYEnabled( bool enabled ) override;
+    void setAutoScaleYEnabled( bool enabled );
     void enableAllAutoNameTags( bool enable );
 
-    void uiOrderingForDepthAxis( caf::PdmUiOrdering& uiOrdering );
-    void uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering ) override;
+    void uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void uiOrderingForAutoName( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
-    QString createAutoName() const override;
+    QString                   createAutoName() const override;
+    RimWellLogPlotNameConfig* nameConfig() const;
 
     RimWellLogCurveCommonDataSource* commonDataSource() const;
     void                             updateCommonDataSource();
@@ -104,12 +104,11 @@ public:
     void onPlotAdditionOrRemoval() override;
 
     void updatePlotNames() override;
+    void handleKeyPressEvent( QKeyEvent* keyEvent );
 
 protected:
-    QWidget*             createViewWidget( QWidget* mainWindowParent ) override;
-    void                 performAutoNameUpdate() override;
-    void                 handleKeyPressEvent( QKeyEvent* keyEvent ) override;
-    caf::PdmFieldHandle* userDescriptionField() override;
+    QWidget* createViewWidget( QWidget* mainWindowParent ) override;
+    void     performAutoNameUpdate() override;
 
     // Overridden PDM methods
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,

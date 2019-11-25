@@ -86,6 +86,12 @@ Rim3dView::Rim3dView( void )
     RiaPreferences* preferences = app->preferences();
     CVF_ASSERT( preferences );
 
+    RICF_InitField( &m_id, "ViewId", -1, "View ID", "", "", "" );
+    m_id.uiCapability()->setUiReadOnly( true );
+    m_id.uiCapability()->setUiHidden( true );
+    m_id.capability<RicfFieldHandle>()->setIOWriteable( false );
+    m_id.xmlCapability()->setCopyable( false );
+
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "", "", "", "" );
     m_nameConfig = new RimViewNameConfig();
 
@@ -166,6 +172,14 @@ Rim3dView::~Rim3dView( void )
 
     delete m_viewer;
     m_viewer = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int Rim3dView::id() const
+{
+    return m_id;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -303,6 +317,27 @@ void Rim3dView::initAfterRead()
         nameConfig()->setAddAggregationType( false );
         nameConfig()->setAddProperty( false );
         nameConfig()->setAddSampleSpacing( false );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::setId( int id )
+{
+    m_id                  = id;
+    QString viewIdTooltip = QString( "View id: %1" ).arg( m_id );
+    this->setUiToolTip( viewIdTooltip );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::assignIdIfNecessary()
+{
+    if ( m_id == -1 )
+    {
+        RiaApplication::instance()->project()->assignViewIdToView( this );
     }
 }
 
