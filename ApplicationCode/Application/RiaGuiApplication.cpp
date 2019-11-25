@@ -27,6 +27,7 @@
 #include "RiaFontCache.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
+#include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 #include "RiaProjectModifier.h"
 #include "RiaRegressionTestRunner.h"
@@ -1449,6 +1450,7 @@ void RiaGuiApplication::onProjectBeingClosed()
     RicHoloLensSessionManager::refreshToolbarState();
 
     RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
+    RiaPlotWindowRedrawScheduler::instance()->clearAllScheduledUpdates();
 
     RiaGuiApplication::clearAllSelections();
 

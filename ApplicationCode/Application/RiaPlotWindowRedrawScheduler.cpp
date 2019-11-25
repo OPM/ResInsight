@@ -111,7 +111,7 @@ void RiaPlotWindowRedrawScheduler::slotUpdateAndReplotScheduledItemsWhenReady()
 {
     if ( caf::ProgressState::isActive() )
     {
-        startTimer( 10 );
+        startTimer( 100 );
         return;
     }
 

@@ -44,6 +44,9 @@ private slots:
     void slotUpdateAndReplotScheduledItemsWhenReady();
 
 private:
+    RiaPlotWindowRedrawScheduler()  = default;
+    ~RiaPlotWindowRedrawScheduler() = default;
+
     void startTimer( int msecs );
 
 private:
