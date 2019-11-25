@@ -29,6 +29,7 @@
 #include "RimWellLogTrack.h"
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"
+#include "RimWellMeasurementFilter.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPlotTools.h"
@@ -81,14 +82,20 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
         firstAncestorOrThisOfType( wellLogPlot );
         CVF_ASSERT( wellLogPlot );
 
-        if ( m_wellPath && !m_measurementKind().isEmpty() && m_wellPath->measurementCollection() )
+        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+        if ( m_wellPath && !m_measurementKind().isEmpty() && wellPathCollection )
         {
-            const RimWellMeasurementCollection* measurementCollection = m_wellPath->measurementCollection();
+            const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
+
+            std::vector<RimWellMeasurement*> measurements =
+                RimWellMeasurementFilter::filterMeasurements( measurementCollection->measurements(),
+                                                              *wellPathCollection,
+                                                              *m_wellPath );
 
             // Extract the values for this measurement kind
             std::vector<double> values;
             std::vector<double> measuredDepthValues;
-            for ( auto& measurement : measurementCollection->measurements() )
+            for ( auto& measurement : measurements )
             {
                 if ( measurement->kind() == measurementKind() )
                 {

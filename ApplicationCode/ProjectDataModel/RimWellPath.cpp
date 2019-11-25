@@ -42,7 +42,6 @@
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlotCollection.h"
-#include "RimWellMeasurementCollection.h"
 #include "RimWellPathAttributeCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
@@ -128,10 +127,6 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitFieldNoDefault( &m_wellPathAttributes, "WellPathAttributes", "Casing Design Rubbish", "", "", "" );
     m_wellPathAttributes = new RimWellPathAttributeCollection;
     m_wellPathAttributes->uiCapability()->setUiTreeHidden( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_wellMeasurements, "WellMeasurements", "Measurements", "", "", "" );
-    m_wellMeasurements = new RimWellMeasurementCollection;
-    m_wellMeasurements->uiCapability()->setUiTreeHidden( true );
 
     m_wellPath = nullptr;
 }
@@ -499,24 +494,6 @@ const RimWellPathAttributeCollection* RimWellPath::attributeCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
-RimWellMeasurementCollection* RimWellPath::measurementCollection()
-{
-    return m_wellMeasurements;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-
-const RimWellMeasurementCollection* RimWellPath::measurementCollection() const
-{
-    return m_wellMeasurements;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimWellPath::showWellPathLabel() const
 {
     return m_showWellPathLabel();
@@ -628,11 +605,6 @@ void RimWellPath::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, 
     if ( !m_wellPathAttributes->attributes().empty() )
     {
         uiTreeOrdering.add( m_wellPathAttributes() );
-    }
-
-    if ( !m_wellMeasurements->measurements().empty() )
-    {
-        uiTreeOrdering.add( m_wellMeasurements() );
     }
 
     uiTreeOrdering.skipRemainingChildren( true );

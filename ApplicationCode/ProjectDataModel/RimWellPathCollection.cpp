@@ -38,6 +38,7 @@
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimWellLogFile.h"
+#include "RimWellMeasurementCollection.h"
 #include "RimWellPath.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -103,8 +104,11 @@ RimWellPathCollection::RimWellPathCollection()
     CAF_PDM_InitField( &wellPathClipZDistance, "WellPathClipZDistance", 100, "Well Path Clipping Depth Distance", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &wellPaths, "WellPaths", "Well Paths", "", "", "" );
-
     wellPaths.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_wellMeasurements, "WellMeasurements", "Measurements", "", "", "" );
+    m_wellMeasurements = new RimWellMeasurementCollection;
+    m_wellMeasurements->uiCapability()->setUiTreeHidden( true );
 
     m_wellPathImporter            = new RifWellPathImporter;
     m_wellPathFormationsImporter  = new RifWellPathFormationsImporter;
@@ -221,7 +225,8 @@ std::vector<RimFileWellPath*> RimWellPathCollection::addWellPaths( QStringList f
             QString s2 = f2.fileName();
             if ( s1 == s2 )
             {
-                // printf("Attempting to open well path JSON file that is already open:\n  %s\n", (const char*) filePath.toLocal8Bit());
+                // printf("Attempting to open well path JSON file that is already open:\n  %s\n", (const char*)
+                // filePath.toLocal8Bit());
                 alreadyOpen = true;
                 errorMessages->push_back( QString( "%1 is already loaded" ).arg( filePath ) );
                 break;
@@ -653,4 +658,22 @@ RiaEclipseUnitTools::UnitSystemType RimWellPathCollection::findUnitSystemForWell
         return eclipseCaseData->unitsType();
     }
     return RiaEclipseUnitTools::UNITS_UNKNOWN;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+
+RimWellMeasurementCollection* RimWellPathCollection::measurementCollection()
+{
+    return m_wellMeasurements;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+
+const RimWellMeasurementCollection* RimWellPathCollection::measurementCollection() const
+{
+    return m_wellMeasurements;
 }

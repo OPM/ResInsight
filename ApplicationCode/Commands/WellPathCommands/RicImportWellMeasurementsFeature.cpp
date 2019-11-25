@@ -84,25 +84,16 @@ void RicImportWellMeasurementsFeature::onActionTriggered( bool isChecked )
     RimWellMeasurement* lastWellMeasurement = nullptr;
     for ( auto& measurement : wellMeasurements )
     {
-        RimWellPath* wellPath = wellPathCollection->tryFindMatchingWellPath( measurement.wellName );
-        if ( wellPath == nullptr )
-        {
-            RiaLogging::warning( QString( "Import Well Measurements : Imported file contains unknown well path '%1'." )
-                                     .arg( measurement.wellName ) );
-        }
-        else
-        {
-            RimWellMeasurement* wellMeasurement = new RimWellMeasurement;
-            wellMeasurement->setWellName( measurement.wellName );
-            wellMeasurement->setMD( measurement.MD );
-            wellMeasurement->setValue( measurement.value );
-            wellMeasurement->setDate( measurement.date );
-            wellMeasurement->setQuality( measurement.quality );
-            wellMeasurement->setKind( measurement.kind );
-            wellMeasurement->setRemark( measurement.remark );
-            wellPath->measurementCollection()->appendMeasurement( wellMeasurement );
-            lastWellMeasurement = wellMeasurement;
-        }
+        RimWellMeasurement* wellMeasurement = new RimWellMeasurement;
+        wellMeasurement->setWellName( measurement.wellName );
+        wellMeasurement->setMD( measurement.MD );
+        wellMeasurement->setValue( measurement.value );
+        wellMeasurement->setDate( measurement.date );
+        wellMeasurement->setQuality( measurement.quality );
+        wellMeasurement->setKind( measurement.kind );
+        wellMeasurement->setRemark( measurement.remark );
+        wellPathCollection->measurementCollection()->appendMeasurement( wellMeasurement );
+        lastWellMeasurement = wellMeasurement;
     }
     wellPathCollection->uiCapability()->updateConnectedEditors();
 

@@ -37,16 +37,17 @@
 #include "RimFishbonesMultipleSubs.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
+#include "RimTools.h"
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"
+#include "RimWellMeasurementFilter.h"
 #include "RimWellPath.h"
 #include "RimWellPathAttribute.h"
 #include "RimWellPathAttributeCollection.h"
 #include "RimWellPathCollection.h"
-#include "RimWellPathValve.h"
-
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
+#include "RimWellPathValve.h"
 
 #include "Riv3dWellLogPlanePartMgr.h"
 #include "RivFishbonesSubsPartMgr.h"
@@ -287,10 +288,17 @@ void RivWellPathPartMgr::appendWellMeasurementsToModel( cvf::ModelBasicList*    
 {
     if ( !m_rimWellPath ) return;
 
-    if ( !m_rimWellPath->measurementCollection()->isChecked() ) return;
+    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    if ( !wellPathCollection ) return;
+
+    RimWellMeasurementCollection* wellMeasurementCollection = wellPathCollection->measurementCollection();
+    if ( !wellMeasurementCollection ) return;
 
     RivPipeGeometryGenerator         geoGenerator;
-    std::vector<RimWellMeasurement*> wellMeasurements = m_rimWellPath->measurementCollection()->measurements();
+    std::vector<RimWellMeasurement*> wellMeasurements =
+        RimWellMeasurementFilter::filterMeasurements( wellMeasurementCollection->measurements(),
+                                                      *wellPathCollection,
+                                                      *m_rimWellPath );
 
     for ( RimWellMeasurement* wellMeasurement : wellMeasurements )
     {

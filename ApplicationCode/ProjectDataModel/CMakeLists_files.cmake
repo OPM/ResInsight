@@ -144,6 +144,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.h
 ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementFilter.h
 )
 
 
@@ -292,6 +293,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementFilter.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
