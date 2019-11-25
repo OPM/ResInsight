@@ -378,6 +378,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         RimWellRftPlot* rftPlot                     = dynamic_cast<RimWellRftPlot*>( wellLogPlot );
         bool            showErrorBarsInObservedData = rftPlot ? rftPlot->showErrorBarsForObservedData() : false;
+        m_showErrorBars                             = showErrorBarsInObservedData;
 
         std::vector<double>  measuredDepthVector = measuredDepthValues();
         std::vector<double>  tvDepthVector       = tvDepthValues();
@@ -447,14 +448,24 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( wellLogPlot->depthType() == RiaDefines::MEASURED_DEPTH )
         {
-            m_qwtPlotCurve->showErrorBars( showErrorBarsInObservedData );
             m_qwtPlotCurve->setPerPointLabels( perPointLabels );
-            m_qwtPlotCurve->setSamplesFromXValuesAndYValues( this->curveData()->xPlotValues(),
-                                                             this->curveData()->depthPlotValues( RiaDefines::MEASURED_DEPTH,
-                                                                                                 displayUnit ),
-                                                             errors,
-                                                             false,
-                                                             RiuQwtPlotCurve::ERROR_ALONG_X_AXIS );
+
+            auto xValues                = this->curveData()->xPlotValues();
+            auto yValues                = this->curveData()->depthPlotValues( RiaDefines::MEASURED_DEPTH, displayUnit );
+            bool keepOnlyPositiveValues = false;
+
+            if ( !errors.empty() )
+            {
+                this->setSamplesFromXYErrorValues( xValues,
+                                                   yValues,
+                                                   errors,
+                                                   keepOnlyPositiveValues,
+                                                   RiaCurveDataTools::ERROR_ALONG_X_AXIS );
+            }
+            else
+            {
+                m_qwtPlotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, keepOnlyPositiveValues );
+            }
 
             RimWellLogTrack* wellLogTrack;
             firstAncestorOrThisOfType( wellLogTrack );
@@ -483,14 +494,24 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         }
         else
         {
-            m_qwtPlotCurve->showErrorBars( showErrorBarsInObservedData );
             m_qwtPlotCurve->setPerPointLabels( perPointLabels );
-            m_qwtPlotCurve->setSamplesFromXValuesAndYValues( this->curveData()->xPlotValues(),
-                                                             this->curveData()->depthPlotValues( RiaDefines::TRUE_VERTICAL_DEPTH,
-                                                                                                 displayUnit ),
-                                                             errors,
-                                                             false,
-                                                             RiuQwtPlotCurve::ERROR_ALONG_X_AXIS );
+
+            auto xValues    = this->curveData()->xPlotValues();
+            auto yValues    = this->curveData()->depthPlotValues( RiaDefines::TRUE_VERTICAL_DEPTH, displayUnit );
+            bool isLogCurve = false;
+
+            if ( !errors.empty() )
+            {
+                this->setSamplesFromXYErrorValues( xValues,
+                                                   yValues,
+                                                   errors,
+                                                   isLogCurve,
+                                                   RiaCurveDataTools::ERROR_ALONG_X_AXIS );
+            }
+            else
+            {
+                m_qwtPlotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, isLogCurve );
+            }
         }
 
         m_qwtPlotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
