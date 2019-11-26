@@ -1055,7 +1055,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
             else
                 statCases = group->allSummaryCases();
         }
-        m_ensembleStatCase->calculate( statCases );
+        m_ensembleStatCase->calculate( statCases, m_statistics->includeIncompleteCurves() );
     }
 
     RimSummaryPlot* plot = nullptr;

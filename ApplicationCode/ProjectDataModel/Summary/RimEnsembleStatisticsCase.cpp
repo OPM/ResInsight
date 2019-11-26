@@ -117,12 +117,16 @@ const RimEnsembleCurveSet* RimEnsembleStatisticsCase::curveSet() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& sumCases )
+void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& sumCases, bool includeIncompleteCurves )
 {
     auto inputAddress = m_curveSet->summaryAddress();
     if ( m_statisticsReader && inputAddress.isValid() )
     {
-        calculate( validSummaryCases( sumCases, inputAddress ), inputAddress );
+        const std::vector<RimSummaryCase*>& validCases = validSummaryCases( sumCases,
+                                                                            inputAddress,
+                                                                            includeIncompleteCurves );
+
+        calculate( validCases, inputAddress, includeIncompleteCurves );
     }
 }
 
@@ -130,7 +134,8 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
 ///
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*> sumCases,
-                                           const RifEclipseSummaryAddress&    inputAddress )
+                                           const RifEclipseSummaryAddress&    inputAddress,
+                                           bool                               includeIncompleteCurves )
 {
     std::vector<time_t>              allTimeSteps;
     std::vector<std::vector<double>> caseAndTimeStepValues;
@@ -147,7 +152,7 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*> su
             std::vector<double>        values;
             reader->values( inputAddress, &values );
 
-            if ( timeSteps.size() != values.size() ) continue;
+            if ( !includeIncompleteCurves && timeSteps.size() != values.size() ) continue;
 
             RiaTimeHistoryCurveResampler resampler;
             resampler.setCurveData( values, timeSteps );
@@ -216,7 +221,8 @@ void RimEnsembleStatisticsCase::clearData()
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimEnsembleStatisticsCase::validSummaryCases( const std::vector<RimSummaryCase*> allSumCases,
-                                                                           const RifEclipseSummaryAddress& inputAddress )
+                                                                           const RifEclipseSummaryAddress& inputAddress,
+                                                                           bool includeIncompleteCurves )
 {
     std::vector<RimSummaryCase*>                             validCases;
     std::vector<std::tuple<RimSummaryCase*, time_t, time_t>> times;
@@ -248,8 +254,13 @@ std::vector<RimSummaryCase*> RimEnsembleStatisticsCase::validSummaryCases( const
         time_t          firstTimeStep = std::get<1>( item );
         time_t          lastTimeStep  = std::get<2>( item );
 
-        if ( firstTimeStep == minTimeStep && lastTimeStep == maxTimeStep )
+        if ( firstTimeStep == minTimeStep )
         {
+            if ( !includeIncompleteCurves && lastTimeStep != maxTimeStep )
+            {
+                continue;
+            }
+
             validCases.push_back( sumCase );
         }
     }
