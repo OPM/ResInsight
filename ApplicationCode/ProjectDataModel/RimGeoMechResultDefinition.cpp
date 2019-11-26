@@ -352,7 +352,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
             if ( view )
             {
                 view->scheduleCreateDisplayModelAndRedraw();
-                view->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+                view->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
             }
 
             if ( dynamic_cast<RimGeoMechCellColors*>( this ) )

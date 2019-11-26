@@ -24,7 +24,7 @@
 
 class RimEclipseResultDefinition;
 class RimGeoMechResultDefinition;
-class RimIntersectionHandle;
+class RimIntersection;
 
 class RivIntersectionGeometryGeneratorIF;
 class RivTernaryScalarMapper;
@@ -43,9 +43,9 @@ class ScalarMapper;
 class RivIntersectionResultsColoringTools
 {
 public:
-    static void calculateIntersectionResultColors( size_t                 timeStepIndex,
-                                                   bool                   useSeparateIntersectionResDefTimeStep,
-                                                   RimIntersectionHandle* rimIntersectionHandle,
+    static void calculateIntersectionResultColors( size_t           timeStepIndex,
+                                                   bool             useSeparateIntersectionResDefTimeStep,
+                                                   RimIntersection* rimIntersectionHandle,
                                                    const RivIntersectionGeometryGeneratorIF* intersectionGeomGenIF,
                                                    const cvf::ScalarMapper*                  explicitScalarColorMapper,
                                                    const RivTernaryScalarMapper*             explicitTernaryColorMapper,

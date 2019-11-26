@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,19 +23,18 @@
 #include "cvfObject.h"
 #include <array>
 
-class RivIntersectionBoxGeometryGenerator;
-class RimIntersectionBox;
+class RivExtrudedCurveIntersectionGeometryGenerator;
+class RimExtrudedCurveIntersection;
 
-class RivIntersectionBoxSourceInfo : public cvf::Object
+class RivExtrudedCurveIntersectionSourceInfo : public cvf::Object
 {
 public:
-    explicit RivIntersectionBoxSourceInfo( RivIntersectionBoxGeometryGenerator* geometryGenerator );
+    explicit RivExtrudedCurveIntersectionSourceInfo( RivExtrudedCurveIntersectionGeometryGenerator* geometryGenerator );
 
-    const std::vector<size_t>& triangleToCellIndex() const;
-
-    std::array<cvf::Vec3f, 3> triangle( int triangleIdx ) const;
-    RimIntersectionBox*       intersectionBox() const;
+    const std::vector<size_t>&    triangleToCellIndex() const;
+    std::array<cvf::Vec3f, 3>     triangle( int triangleIdx ) const;
+    RimExtrudedCurveIntersection* intersection() const;
 
 private:
-    cvf::cref<RivIntersectionBoxGeometryGenerator> m_intersectionBoxGeometryGenerator;
+    cvf::cref<RivExtrudedCurveIntersectionGeometryGenerator> m_intersectionGeometryGenerator;
 };

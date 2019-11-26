@@ -42,6 +42,7 @@
 
 #include "RiaOptionItemFactory.h"
 #include "Rim2dIntersectionView.h"
+#include "RimBoxIntersection.h"
 #include "RimCellEdgeColors.h"
 #include "RimContextCommandBuilder.h"
 #include "RimEclipseCase.h"
@@ -50,6 +51,7 @@
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimFracture.h"
@@ -57,8 +59,6 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechView.h"
-#include "RimIntersection.h"
-#include "RimIntersectionBox.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimLegendConfig.h"
 #include "RimPerforationInterval.h"
@@ -75,10 +75,10 @@
 #include "RiuResultTextBuilder.h"
 #include "RiuViewer.h"
 
+#include "RivBoxIntersectionSourceInfo.h"
+#include "RivExtrudedCurveIntersectionSourceInfo.h"
 #include "RivFemPartGeometryGenerator.h"
 #include "RivFemPickSourceInfo.h"
-#include "RivIntersectionBoxSourceInfo.h"
-#include "RivIntersectionSourceInfo.h"
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivSimWellConnectionSourceInfo.h"
@@ -270,9 +270,9 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
         const RivSourceInfo*        rivSourceInfo = dynamic_cast<const RivSourceInfo*>( firstHitPart->sourceInfo() );
         const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(
             firstHitPart->sourceInfo() );
-        const RivIntersectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivIntersectionSourceInfo*>(
-            firstHitPart->sourceInfo() );
-        const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo = dynamic_cast<const RivIntersectionBoxSourceInfo*>(
+        const RivExtrudedCurveIntersectionSourceInfo* crossSectionSourceInfo =
+            dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>( firstHitPart->sourceInfo() );
+        const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo = dynamic_cast<const RivBoxIntersectionSourceInfo*>(
             firstHitPart->sourceInfo() );
 
         if ( rivSourceInfo || femSourceInfo || crossSectionSourceInfo || intersectionBoxSourceInfo )
@@ -301,7 +301,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                                       &m_currentGridIdx );
                 m_currentFaceIndex = cvf::StructGridInterface::NO_FACE;
 
-                RiuSelectionItem* selItem = new RiuGeneralSelectionItem( crossSectionSourceInfo->crossSection() );
+                RiuSelectionItem* selItem = new RiuGeneralSelectionItem( crossSectionSourceInfo->intersection() );
                 Riu3dSelectionManager::instance()->setSelectedItem( selItem, Riu3dSelectionManager::RUI_TEMPORARY );
 
                 if ( gridView )
@@ -723,10 +723,10 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
             const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>( firstHitPart->sourceInfo() );
             const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(
                 firstHitPart->sourceInfo() );
-            const RivIntersectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivIntersectionSourceInfo*>(
-                firstHitPart->sourceInfo() );
-            const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo =
-                dynamic_cast<const RivIntersectionBoxSourceInfo*>( firstHitPart->sourceInfo() );
+            const RivExtrudedCurveIntersectionSourceInfo* crossSectionSourceInfo =
+                dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>( firstHitPart->sourceInfo() );
+            const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo =
+                dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() );
             const RivSimWellPipeSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>(
                 firstHitPart->sourceInfo() );
             const RivWellConnectionSourceInfo* wellConnectionSourceInfo = dynamic_cast<const RivWellConnectionSourceInfo*>(
@@ -831,7 +831,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                 bool allowActiveViewChange = dynamic_cast<Rim2dIntersectionView*>( m_viewer->ownerViewWindow() ) ==
                                              nullptr;
 
-                RiuMainWindow::instance()->selectAsCurrentItem( crossSectionSourceInfo->crossSection(),
+                RiuMainWindow::instance()->selectAsCurrentItem( crossSectionSourceInfo->intersection(),
                                                                 allowActiveViewChange );
             }
             else if ( intersectionBoxSourceInfo )
@@ -1136,17 +1136,17 @@ void RiuViewerCommands::removeDefaultPickEventHandler( RicDefaultPickEventHandle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                       mainOrComparisonView,
-                                              const RivIntersectionSourceInfo* crossSectionSourceInfo,
-                                              cvf::uint                        firstPartTriangleIndex,
-                                              size_t*                          cellIndex,
-                                              size_t*                          gridIndex )
+void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                                    mainOrComparisonView,
+                                              const RivExtrudedCurveIntersectionSourceInfo* crossSectionSourceInfo,
+                                              cvf::uint                                     firstPartTriangleIndex,
+                                              size_t*                                       cellIndex,
+                                              size_t*                                       gridIndex )
 {
     CVF_ASSERT( cellIndex && gridIndex );
     RimEclipseCase* eclipseCase = nullptr;
 
     if ( RimIntersectionResultDefinition* sepInterResDef =
-             crossSectionSourceInfo->crossSection()->activeSeparateResultDefinition() )
+             crossSectionSourceInfo->intersection()->activeSeparateResultDefinition() )
     {
         if ( sepInterResDef->isEclipseResultDefinition() )
         {
@@ -1177,7 +1177,7 @@ void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                       m
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                          mainOrComparisonView,
-                                              const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo,
+                                              const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo,
                                               cvf::uint                           firstPartTriangleIndex,
                                               size_t*                             cellIndex,
                                               size_t*                             gridIndex )

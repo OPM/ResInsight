@@ -596,7 +596,7 @@ public:
                         // generated data (from Octave) a full display model rebuild is required
                         m_currentReservoir->reservoirViews[i]->scheduleCreateDisplayModelAndRedraw();
                         m_currentReservoir->reservoirViews[i]
-                            ->crossSectionCollection()
+                            ->intersectionCollection()
                             ->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
                 }

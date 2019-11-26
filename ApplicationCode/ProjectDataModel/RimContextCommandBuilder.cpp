@@ -31,6 +31,7 @@
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationGroupCollection.h"
 #include "RimAnnotationInViewCollection.h"
+#include "RimBoxIntersection.h"
 #include "RimCalcScript.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
@@ -51,6 +52,7 @@
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInView.h"
 #include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesCollection.h"
@@ -74,8 +76,6 @@
 #include "RimGridCrossPlotCollection.h"
 #include "RimGridCrossPlotDataSet.h"
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimIntersection.h"
-#include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
@@ -666,7 +666,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
         }
-        else if ( dynamic_cast<RimIntersection*>( uiItem ) )
+        else if ( dynamic_cast<RimExtrudedCurveIntersection*>( uiItem ) )
         {
             menuBuilder << "RicPasteIntersectionsFeature";
             menuBuilder.addSeparator();
@@ -677,7 +677,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
         }
-        else if ( dynamic_cast<RimIntersectionBox*>( uiItem ) )
+        else if ( dynamic_cast<RimBoxIntersection*>( uiItem ) )
         {
             menuBuilder << "RicPasteIntersectionsFeature";
             menuBuilder.addSeparator();

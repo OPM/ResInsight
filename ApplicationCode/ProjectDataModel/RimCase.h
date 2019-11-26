@@ -34,7 +34,7 @@ class RimGridView;
 class RimFormationNames;
 class RimTimeStepFilter;
 class Rim2dIntersectionView;
-class RimIntersection;
+class RimExtrudedCurveIntersection;
 class Rim2dIntersectionViewCollection;
 
 namespace cvf

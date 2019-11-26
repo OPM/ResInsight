@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RivIntersectionBoxGeometryGenerator.h"
+#include "RivBoxIntersectionGeometryGenerator.h"
 
 #include "cvfObject.h"
 
@@ -37,8 +37,8 @@ class RivTernaryScalarMapper;
 
 class RimCellEdgeColors;
 class RimEclipseCellColors;
-class RimIntersectionBox;
-class RimIntersectionHandle;
+class RimBoxIntersection;
+class RimIntersection;
 class RimEclipseView;
 class RimGeoMechView;
 class RimEclipseResultDefinition;
@@ -49,15 +49,15 @@ class RimGeoMechResultDefinition;
 ///
 //==================================================================================================
 
-class RivIntersectionBoxPartMgr : public cvf::Object
+class RivBoxIntersectionPartMgr : public cvf::Object
 {
 public:
-    explicit RivIntersectionBoxPartMgr( RimIntersectionBox* intersectionBox );
+    explicit RivBoxIntersectionPartMgr( RimBoxIntersection* intersectionBox );
 
     void applySingleColorEffect();
     void updateCellResultColor( size_t timeStepIndex );
 
-    void appendNativeCrossSectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
+    void appendNativeIntersectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
 
 private:
@@ -65,7 +65,7 @@ private:
     void generatePartGeometry();
 
 private:
-    RimIntersectionBox* m_rimIntersectionBox;
+    RimBoxIntersection* m_rimIntersectionBox;
 
     cvf::Color3f m_defaultColor;
 
@@ -73,5 +73,5 @@ private:
     cvf::ref<cvf::Part>       m_intersectionBoxGridLines;
     cvf::ref<cvf::Vec2fArray> m_intersectionBoxFacesTextureCoords;
 
-    cvf::ref<RivIntersectionBoxGeometryGenerator> m_intersectionBoxGenerator;
+    cvf::ref<RivBoxIntersectionGeometryGenerator> m_intersectionBoxGenerator;
 };

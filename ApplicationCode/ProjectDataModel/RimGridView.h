@@ -45,7 +45,7 @@ public:
 
     cvf::ref<cvf::UByteArray> currentTotalCellVisibility();
 
-    RimIntersectionCollection*                  crossSectionCollection() const;
+    RimIntersectionCollection*                  intersectionCollection() const;
     RimIntersectionResultsDefinitionCollection* separateIntersectionResultsCollection() const;
     RimAnnotationInViewCollection*              annotationCollection() const;
 
@@ -83,7 +83,7 @@ protected:
     void initAfterRead() override;
 
 protected: // Fields
-    caf::PdmChildField<RimIntersectionCollection*> m_crossSectionCollection;
+    caf::PdmChildField<RimIntersectionCollection*> m_intersectionCollection;
 
     caf::PdmChildField<RimIntersectionResultsDefinitionCollection*> m_intersectionResultDefCollection;
 

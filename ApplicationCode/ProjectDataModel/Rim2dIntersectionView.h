@@ -22,13 +22,13 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
-class RimIntersection;
+class RimExtrudedCurveIntersection;
 class RimRegularLegendConfig;
 class RimTernaryLegendConfig;
 class RivSimWellPipesPartMgr;
 class RivWellHeadPartMgr;
 class RivWellPathPartMgr;
-class RivIntersectionPartMgr;
+class RivExtrudedCurveIntersectionPartMgr;
 
 namespace cvf
 {
@@ -48,9 +48,9 @@ public:
     Rim2dIntersectionView( void );
     ~Rim2dIntersectionView( void ) override;
 
-    void             setVisible( bool isVisible );
-    void             setIntersection( RimIntersection* intersection );
-    RimIntersection* intersection() const;
+    void                          setVisible( bool isVisible );
+    void                          setIntersection( RimExtrudedCurveIntersection* intersection );
+    RimExtrudedCurveIntersection* intersection() const;
 
     bool     isUsingFormationNames() const override;
     void     scheduleGeometryRegen( RivCellSetEnum geometryType ) override;
@@ -71,8 +71,8 @@ public:
     void update3dInfo();
     void updateName();
 
-    cvf::ref<RivIntersectionPartMgr> flatIntersectionPartMgr() const;
-    cvf::Vec3d                       transformToUtm( const cvf::Vec3d& unscaledPointInFlatDomain ) const;
+    cvf::ref<RivExtrudedCurveIntersectionPartMgr> flatIntersectionPartMgr() const;
+    cvf::Vec3d                                    transformToUtm( const cvf::Vec3d& unscaledPointInFlatDomain ) const;
 
     cvf::ref<caf::DisplayCoordTransform> displayCoordTransform() const override;
 
@@ -117,14 +117,14 @@ private:
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
     caf::PdmChildField<RimTernaryLegendConfig*> m_ternaryLegendConfig;
 
-    caf::PdmPtrField<RimIntersection*> m_intersection;
+    caf::PdmPtrField<RimExtrudedCurveIntersection*> m_intersection;
 
-    cvf::ref<RivIntersectionPartMgr> m_flatIntersectionPartMgr;
-    cvf::ref<RivSimWellPipesPartMgr> m_flatSimWellPipePartMgr;
-    cvf::ref<RivWellHeadPartMgr>     m_flatWellHeadPartMgr;
-    cvf::ref<RivWellPathPartMgr>     m_flatWellpathPartMgr;
-    cvf::ref<cvf::ModelBasicList>    m_intersectionVizModel;
-    cvf::ref<cvf::Transform>         m_scaleTransform;
+    cvf::ref<RivExtrudedCurveIntersectionPartMgr> m_flatIntersectionPartMgr;
+    cvf::ref<RivSimWellPipesPartMgr>              m_flatSimWellPipePartMgr;
+    cvf::ref<RivWellHeadPartMgr>                  m_flatWellHeadPartMgr;
+    cvf::ref<RivWellPathPartMgr>                  m_flatWellpathPartMgr;
+    cvf::ref<cvf::ModelBasicList>                 m_intersectionVizModel;
+    cvf::ref<cvf::Transform>                      m_scaleTransform;
 
     caf::PdmProxyValueField<QString> m_nameProxy;
     caf::PdmField<bool>              m_showDefiningPoints;

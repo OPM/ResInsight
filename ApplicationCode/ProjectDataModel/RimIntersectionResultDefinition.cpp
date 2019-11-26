@@ -22,10 +22,10 @@
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
@@ -287,7 +287,7 @@ void RimIntersectionResultDefinition::update2dIntersectionViews()
 {
     // Update 2D Intersection views
 
-    std::vector<RimIntersection*> intersections;
+    std::vector<RimExtrudedCurveIntersection*> intersections;
     this->objectsWithReferringPtrFieldsOfType( intersections );
 
     for ( auto intersection : intersections )

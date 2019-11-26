@@ -742,7 +742,7 @@ void RimEclipseStatisticsCase::updateConnectedEditorsAndReservoirViews()
             // (from Octave) a full display model rebuild is required
             reservoirViews[i]->hasUserRequestedAnimation = true;
             reservoirViews[i]->scheduleCreateDisplayModelAndRedraw();
-            reservoirViews[i]->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+            reservoirViews[i]->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
         }
     }
 

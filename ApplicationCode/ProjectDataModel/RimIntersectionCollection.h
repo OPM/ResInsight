@@ -24,8 +24,8 @@
 #include "cafPdmObject.h"
 
 class Rim3dView;
-class RimIntersection;
-class RimIntersectionBox;
+class RimExtrudedCurveIntersection;
+class RimBoxIntersection;
 class RimEclipseCellColors;
 class RimSimWellInView;
 class RivTernaryScalarMapper;
@@ -52,11 +52,11 @@ public:
 
     caf::PdmField<bool> isActive;
 
-    void appendIntersectionAndUpdate( RimIntersection* intersection, bool allowActiveViewChange = true );
-    void appendIntersectionNoUpdate( RimIntersection* intersection );
+    void appendIntersectionAndUpdate( RimExtrudedCurveIntersection* intersection, bool allowActiveViewChange = true );
+    void appendIntersectionNoUpdate( RimExtrudedCurveIntersection* intersection );
 
-    void appendIntersectionBoxAndUpdate( RimIntersectionBox* intersectionBox );
-    void appendIntersectionBoxNoUpdate( RimIntersectionBox* intersectionBox );
+    void appendIntersectionBoxAndUpdate( RimBoxIntersection* intersectionBox );
+    void appendIntersectionBoxNoUpdate( RimBoxIntersection* intersectionBox );
 
     bool hasActiveIntersectionForSimulationWell( const RimSimWellInView* simWell ) const;
 
@@ -73,8 +73,8 @@ public:
     void appendPartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void rebuildGeometry();
 
-    std::vector<RimIntersection*>    intersections() const;
-    std::vector<RimIntersectionBox*> intersectionBoxes() const;
+    std::vector<RimExtrudedCurveIntersection*> intersections() const;
+    std::vector<RimBoxIntersection*>           intersectionBoxes() const;
 
 protected:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
@@ -83,6 +83,6 @@ protected:
     caf::PdmFieldHandle* objectToggleField() override;
 
 private:
-    caf::PdmChildArrayField<RimIntersection*>    m_intersections;
-    caf::PdmChildArrayField<RimIntersectionBox*> m_intersectionBoxes;
+    caf::PdmChildArrayField<RimExtrudedCurveIntersection*> m_intersections;
+    caf::PdmChildArrayField<RimBoxIntersection*>           m_intersectionBoxes;
 };

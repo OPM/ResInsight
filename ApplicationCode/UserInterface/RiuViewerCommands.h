@@ -29,11 +29,11 @@ class RicDefaultPickEventHandler;
 class Ric3dViewPickEventHandler;
 class RimEclipseView;
 class RimGeoMechView;
-class RimIntersection;
+class RimExtrudedCurveIntersection;
 class Rim3dView;
 class RiuViewer;
-class RivIntersectionBoxSourceInfo;
-class RivIntersectionSourceInfo;
+class RivBoxIntersectionSourceInfo;
+class RivExtrudedCurveIntersectionSourceInfo;
 class RiuPickItemInfo;
 
 class QMouseEvent;
@@ -70,13 +70,13 @@ public:
     bool       isCurrentPickInComparisonView() const;
 
 private:
-    void findCellAndGridIndex( Rim3dView*                       mainOrComparisonView,
-                               const RivIntersectionSourceInfo* crossSectionSourceInfo,
-                               cvf::uint                        firstPartTriangleIndex,
-                               size_t*                          cellIndex,
-                               size_t*                          gridIndex );
+    void findCellAndGridIndex( Rim3dView*                                    mainOrComparisonView,
+                               const RivExtrudedCurveIntersectionSourceInfo* intersectionSourceInfo,
+                               cvf::uint                                     firstPartTriangleIndex,
+                               size_t*                                       cellIndex,
+                               size_t*                                       gridIndex );
     void findCellAndGridIndex( Rim3dView*                          mainOrComparisonView,
-                               const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo,
+                               const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo,
                                cvf::uint                           firstPartTriangleIndex,
                                size_t*                             cellIndex,
                                size_t*                             gridIndex );

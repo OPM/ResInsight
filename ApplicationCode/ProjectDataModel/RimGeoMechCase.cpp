@@ -693,7 +693,7 @@ void RimGeoMechCase::updateFormationNamesData()
 
                 view->scheduleGeometryRegen( PROPERTY_FILTERED );
                 view->scheduleCreateDisplayModelAndRedraw();
-                geomView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+                geomView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
             }
         }
     }

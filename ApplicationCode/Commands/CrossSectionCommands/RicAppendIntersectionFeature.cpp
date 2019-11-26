@@ -19,9 +19,9 @@
 
 #include "RicAppendIntersectionFeature.h"
 
+#include "RimExtrudedCurveIntersection.h"
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimTensorResults.h"
 
@@ -98,7 +98,7 @@ void RicAppendIntersectionFeatureCmd::redo()
 {
     CVF_ASSERT( m_intersectionCollection );
 
-    RimIntersection* intersection = new RimIntersection();
+    RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
     intersection->setName( "Intersection" );
     m_intersectionCollection->appendIntersectionAndUpdate( intersection );
 

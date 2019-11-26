@@ -523,7 +523,7 @@ void RimEclipseCase::updateFormationNamesData()
 
                 view->scheduleGeometryRegen( PROPERTY_FILTERED );
                 view->scheduleCreateDisplayModelAndRedraw();
-                eclView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+                eclView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
             }
         }
     }

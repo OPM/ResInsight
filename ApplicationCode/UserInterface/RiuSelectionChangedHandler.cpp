@@ -33,10 +33,10 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
-#include "RimIntersection.h"
 #include "RimProject.h"
 
 #include "Riu3dSelectionManager.h"

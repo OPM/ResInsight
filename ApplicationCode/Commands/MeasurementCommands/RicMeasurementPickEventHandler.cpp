@@ -23,8 +23,8 @@
 #include "RiuViewerCommands.h"
 
 #include "Rim3dView.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
 #include "RimMeasurement.h"
 #include "RimProject.h"
 

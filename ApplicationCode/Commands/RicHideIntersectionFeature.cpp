@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 
 #include "Rim3dView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 
 #include "Riu3dSelectionManager.h"
 
@@ -43,7 +43,8 @@ bool RicHideIntersectionFeature::isCommandEnabled()
     RiuGeneralSelectionItem* generalSelectionItem = static_cast<RiuGeneralSelectionItem*>( selItem );
     if ( !generalSelectionItem ) return false;
 
-    RimIntersection* intersection = dynamic_cast<RimIntersection*>( generalSelectionItem->m_object );
+    RimExtrudedCurveIntersection* intersection = dynamic_cast<RimExtrudedCurveIntersection*>(
+        generalSelectionItem->m_object );
     if ( intersection )
     {
         return true;
@@ -65,7 +66,8 @@ void RicHideIntersectionFeature::onActionTriggered( bool isChecked )
     RiuGeneralSelectionItem* generalSelectionItem = static_cast<RiuGeneralSelectionItem*>( selItem );
     if ( !generalSelectionItem ) return;
 
-    RimIntersection* intersection = dynamic_cast<RimIntersection*>( generalSelectionItem->m_object );
+    RimExtrudedCurveIntersection* intersection = dynamic_cast<RimExtrudedCurveIntersection*>(
+        generalSelectionItem->m_object );
     if ( intersection )
     {
         intersection->setActive( false );

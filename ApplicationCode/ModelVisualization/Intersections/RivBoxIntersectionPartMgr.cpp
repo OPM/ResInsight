@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RivIntersectionBoxPartMgr.h"
+#include "RivBoxIntersectionPartMgr.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigFemPartCollection.h"
@@ -25,19 +25,19 @@
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
+#include "RimBoxIntersection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
-#include "RimIntersectionBox.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 
-#include "RivIntersectionBoxSourceInfo.h"
-#include "RivIntersectionPartMgr.h"
+#include "RivBoxIntersectionSourceInfo.h"
+#include "RivExtrudedCurveIntersectionPartMgr.h"
 #include "RivIntersectionResultsColoringTools.h"
 #include "RivMeshLinesSourceInfo.h"
 #include "RivPartPriority.h"
@@ -58,7 +58,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivIntersectionBoxPartMgr::RivIntersectionBoxPartMgr( RimIntersectionBox* intersectionBox )
+RivBoxIntersectionPartMgr::RivBoxIntersectionPartMgr( RimBoxIntersection* intersectionBox )
     : m_rimIntersectionBox( intersectionBox )
     , m_defaultColor( cvf::Color3::WHITE )
 {
@@ -67,13 +67,13 @@ RivIntersectionBoxPartMgr::RivIntersectionBoxPartMgr( RimIntersectionBox* inters
     m_intersectionBoxFacesTextureCoords = new cvf::Vec2fArray;
 
     cvf::ref<RivIntersectionHexGridInterface> hexGrid = intersectionBox->createHexGridInterface();
-    m_intersectionBoxGenerator = new RivIntersectionBoxGeometryGenerator( m_rimIntersectionBox, hexGrid.p() );
+    m_intersectionBoxGenerator = new RivBoxIntersectionGeometryGenerator( m_rimIntersectionBox, hexGrid.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxPartMgr::applySingleColorEffect()
+void RivBoxIntersectionPartMgr::applySingleColorEffect()
 {
     m_defaultColor = cvf::Color3f::OLIVE; // m_rimCrossSection->CrossSectionColor();
     this->updatePartEffect();
@@ -82,7 +82,7 @@ void RivIntersectionBoxPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxPartMgr::updateCellResultColor( size_t timeStepIndex )
+void RivBoxIntersectionPartMgr::updateCellResultColor( size_t timeStepIndex )
 {
     RivIntersectionResultsColoringTools::calculateIntersectionResultColors( timeStepIndex,
                                                                             true,
@@ -97,7 +97,7 @@ void RivIntersectionBoxPartMgr::updateCellResultColor( size_t timeStepIndex )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxPartMgr::generatePartGeometry()
+void RivBoxIntersectionPartMgr::generatePartGeometry()
 {
     bool useBufferObjects = true;
     // Surface geometry
@@ -117,7 +117,7 @@ void RivIntersectionBoxPartMgr::generatePartGeometry()
             part->setDrawable( geo.p() );
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivIntersectionBoxSourceInfo> si = new RivIntersectionBoxSourceInfo( m_intersectionBoxGenerator.p() );
+            cvf::ref<RivBoxIntersectionSourceInfo> si = new RivBoxIntersectionSourceInfo( m_intersectionBoxGenerator.p() );
             part->setSourceInfo( si.p() );
 
             part->updateBoundingBox();
@@ -158,7 +158,7 @@ void RivIntersectionBoxPartMgr::generatePartGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxPartMgr::updatePartEffect()
+void RivBoxIntersectionPartMgr::updatePartEffect()
 {
     // Set deCrossSection effect
     caf::SurfaceEffectGenerator geometryEffgen( m_defaultColor, caf::PO_1 );
@@ -186,7 +186,7 @@ void RivIntersectionBoxPartMgr::updatePartEffect()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxPartMgr::appendNativeCrossSectionFacesToModel( cvf::ModelBasicList* model,
+void RivBoxIntersectionPartMgr::appendNativeIntersectionFacesToModel( cvf::ModelBasicList* model,
                                                                       cvf::Transform*      scaleTransform )
 {
     if ( m_intersectionBoxFaces.isNull() && m_intersectionBoxGridLines.isNull() )
@@ -204,7 +204,7 @@ void RivIntersectionBoxPartMgr::appendNativeCrossSectionFacesToModel( cvf::Model
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxPartMgr::appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
+void RivBoxIntersectionPartMgr::appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
     if ( m_intersectionBoxFaces.isNull() && m_intersectionBoxGridLines.isNull() )
     {

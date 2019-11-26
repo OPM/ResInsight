@@ -138,8 +138,8 @@ Rim3dView::Rim3dView( void )
 
     CAF_PDM_InitFieldNoDefault( &m_comparisonView, "ComparisonView", "Comparison View", "", "", "" );
 
-    m_crossSectionVizModel = new cvf::ModelBasicList;
-    m_crossSectionVizModel->setName( "CrossSectionModel" );
+    m_intersectionVizModel = new cvf::ModelBasicList;
+    m_intersectionVizModel->setName( "CrossSectionModel" );
 
     m_highlightVizModel = new cvf::ModelBasicList;
     m_highlightVizModel->setName( "HighlightModel" );

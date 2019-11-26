@@ -31,7 +31,7 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimPropertyFilterCollection.h"
 #include "RimSimWellFracture.h"
@@ -473,7 +473,7 @@ bool RimSimWellInView::isWellCellsVisible() const
 
     if ( !this->showWellCells() ) return false;
 
-    if ( reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
+    if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
 
     if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() &&
          reservoirView->rangeFilterCollection()->hasActiveFilters() )
@@ -514,7 +514,7 @@ bool RimSimWellInView::isWellPipeVisible( size_t frameIndex ) const
 
     if ( !this->showWellPipe() ) return false;
 
-    if ( reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
+    if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
 
     if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() &&
          ( reservoirView->rangeFilterCollection()->hasActiveFilters() ||
@@ -556,7 +556,7 @@ bool RimSimWellInView::isWellSpheresVisible( size_t frameIndex ) const
 
     if ( !this->showWellSpheres() ) return false;
 
-    if ( reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
+    if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
 
     if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() &&
          reservoirView->rangeFilterCollection()->hasActiveFilters() )

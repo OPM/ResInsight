@@ -130,11 +130,11 @@ void RicDeleteItemExec::redo()
 
         // Intersections
 
-        RimIntersectionCollection* crossSectionColl;
-        parentObj->firstAncestorOrThisOfType( crossSectionColl );
-        if ( view && crossSectionColl )
+        RimIntersectionCollection* intersectionColl;
+        parentObj->firstAncestorOrThisOfType( intersectionColl );
+        if ( view && intersectionColl )
         {
-            crossSectionColl->syncronize2dIntersectionViews();
+            intersectionColl->syncronize2dIntersectionViews();
             view->scheduleCreateDisplayModelAndRedraw();
         }
         else
@@ -153,7 +153,7 @@ void RicDeleteItemExec::redo()
         if ( gridView && separateIntersectResDefColl )
         {
             gridView->scheduleCreateDisplayModelAndRedraw();
-            gridView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+            gridView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
         }
 
         // SimWell Fractures

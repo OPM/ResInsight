@@ -22,6 +22,7 @@
 #include "RicDeleteItemExecData.h"
 
 #include "RimAsciiDataCurve.h"
+#include "RimBoxIntersection.h"
 #include "RimCellRangeFilter.h"
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEclipseInputProperty.h"
@@ -30,6 +31,7 @@
 #include "RimEllipseFractureTemplate.h"
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveSet.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimFishboneWellPath.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimFlowCharacteristicsPlot.h"
@@ -41,8 +43,6 @@
 #include "RimGridCrossPlotDataSet.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimIntersection.h"
-#include "RimIntersectionBox.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimMultiPlotWindow.h"
 #include "RimPerforationInterval.h"
@@ -117,8 +117,8 @@ bool isDeletable( caf::PdmUiItem* uiItem )
     }
     if ( dynamic_cast<RimSummaryCurve*>( uiItem ) ) return true;
     if ( dynamic_cast<RimGridTimeHistoryCurve*>( uiItem ) ) return true;
-    if ( dynamic_cast<RimIntersection*>( uiItem ) ) return true;
-    if ( dynamic_cast<RimIntersectionBox*>( uiItem ) ) return true;
+    if ( dynamic_cast<RimExtrudedCurveIntersection*>( uiItem ) ) return true;
+    if ( dynamic_cast<RimBoxIntersection*>( uiItem ) ) return true;
     if ( dynamic_cast<RimFormationNames*>( uiItem ) ) return true;
     if ( dynamic_cast<RimFormationNamesCollection*>( uiItem ) ) return true;
     if ( dynamic_cast<RimFishboneWellPath*>( uiItem ) ) return true;

@@ -289,10 +289,10 @@ void RimGeoMechView::onCreateDisplayModel()
 
     // Cross sections
 
-    m_crossSectionVizModel->removeAllParts();
-    m_crossSectionCollection->rebuildGeometry();
-    m_crossSectionCollection->appendPartsToModel( *this, m_crossSectionVizModel.p(), scaleTransform() );
-    nativeOrOverrideViewer()->addStaticModelOnce( m_crossSectionVizModel.p(), isUsingOverrideViewer() );
+    m_intersectionVizModel->removeAllParts();
+    m_intersectionCollection->rebuildGeometry();
+    m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
 
     // If the animation was active before recreating everything, make viewer view current frame
 
@@ -304,7 +304,7 @@ void RimGeoMechView::onCreateDisplayModel()
     {
         onUpdateLegends();
         m_vizLogic->updateStaticCellColors( -1 );
-        m_crossSectionCollection->applySingleColorEffect();
+        m_intersectionCollection->applySingleColorEffect();
 
         m_overlayInfoConfig()->update3DInfo();
     }
@@ -384,17 +384,17 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
 
         if ( this->cellResult()->hasResult() )
         {
-            m_crossSectionCollection->updateCellResultColor( m_currentTimeStep );
+            m_intersectionCollection->updateCellResultColor( m_currentTimeStep );
         }
         else
         {
-            m_crossSectionCollection->applySingleColorEffect();
+            m_intersectionCollection->applySingleColorEffect();
         }
     }
     else
     {
         m_vizLogic->updateStaticCellColors( -1 );
-        m_crossSectionCollection->applySingleColorEffect();
+        m_intersectionCollection->applySingleColorEffect();
 
         nativeOrOverrideViewer()->animationControl()->slotPause(); // To avoid animation timer spinning in the background
     }
@@ -908,7 +908,7 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( m_tensorResults() );
     uiTreeOrdering.add( &m_intersectionResultDefCollection );
 
-    uiTreeOrdering.add( m_crossSectionCollection() );
+    uiTreeOrdering.add( m_intersectionCollection() );
 
     uiTreeOrdering.add( m_rangeFilterCollection() );
     uiTreeOrdering.add( m_propertyFilterCollection() );

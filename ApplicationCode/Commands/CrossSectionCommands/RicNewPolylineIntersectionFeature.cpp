@@ -22,8 +22,8 @@
 #include "RiaApplication.h"
 
 #include "RimCase.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -61,7 +61,7 @@ void RicNewPolylineIntersectionFeature::onActionTriggered( bool isChecked )
     if ( !activeView ) return;
 
     RicNewPolylineIntersectionFeatureCmd* cmd = new RicNewPolylineIntersectionFeatureCmd(
-        activeView->crossSectionCollection() );
+        activeView->intersectionCollection() );
     caf::CmdExecCommandManager::instance()->processExecuteCommand( cmd );
 }
 
@@ -103,9 +103,9 @@ void RicNewPolylineIntersectionFeatureCmd::redo()
 {
     CVF_ASSERT( m_intersectionCollection );
 
-    RimIntersection* intersection = new RimIntersection();
+    RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
     intersection->setName( "Polyline" );
-    intersection->type                           = RimIntersection::CS_POLYLINE;
+    intersection->type                           = RimExtrudedCurveIntersection::CS_POLYLINE;
     intersection->inputPolyLineFromViewerEnabled = true;
 
     m_intersectionCollection->appendIntersectionAndUpdate( intersection, false );

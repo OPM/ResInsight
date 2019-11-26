@@ -21,8 +21,8 @@
 
 #include "RiaApplication.h"
 
+#include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimWellPath.h"
 
@@ -63,7 +63,7 @@ void RicNewWellPathIntersectionFeature::onActionTriggered( bool isChecked )
     RimWellPath* wellPath = collection[0];
 
     RicNewWellPathIntersectionFeatureCmd* cmd =
-        new RicNewWellPathIntersectionFeatureCmd( activeView->crossSectionCollection(), wellPath );
+        new RicNewWellPathIntersectionFeatureCmd( activeView->intersectionCollection(), wellPath );
     caf::CmdExecCommandManager::instance()->processExecuteCommand( cmd );
 }
 
@@ -108,9 +108,9 @@ void RicNewWellPathIntersectionFeatureCmd::redo()
     CVF_ASSERT( m_intersectionCollection );
     CVF_ASSERT( m_wellPath );
 
-    RimIntersection* intersection = new RimIntersection();
+    RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
     intersection->setName( m_wellPath->name() );
-    intersection->type     = RimIntersection::CS_WELL_PATH;
+    intersection->type     = RimExtrudedCurveIntersection::CS_WELL_PATH;
     intersection->wellPath = m_wellPath;
 
     m_intersectionCollection->appendIntersectionAndUpdate( intersection, false );

@@ -23,10 +23,10 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
@@ -37,7 +37,7 @@
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
 
-#include "RivIntersectionPartMgr.h"
+#include "RivExtrudedCurveIntersectionPartMgr.h"
 #include "RivSimWellPipesPartMgr.h"
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellHeadPartMgr.h"
@@ -123,7 +123,7 @@ void Rim2dIntersectionView::setVisible( bool isVisible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::setIntersection( RimIntersection* intersection )
+void Rim2dIntersectionView::setIntersection( RimExtrudedCurveIntersection* intersection )
 {
     CAF_ASSERT( intersection );
 
@@ -135,7 +135,7 @@ void Rim2dIntersectionView::setIntersection( RimIntersection* intersection )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersection* Rim2dIntersectionView::intersection() const
+RimExtrudedCurveIntersection* Rim2dIntersectionView::intersection() const
 {
     return m_intersection();
 }
@@ -354,7 +354,7 @@ void Rim2dIntersectionView::updateName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RivIntersectionPartMgr> Rim2dIntersectionView::flatIntersectionPartMgr() const
+cvf::ref<RivExtrudedCurveIntersectionPartMgr> Rim2dIntersectionView::flatIntersectionPartMgr() const
 {
     return m_flatIntersectionPartMgr;
 }
@@ -540,11 +540,11 @@ void Rim2dIntersectionView::onCreateDisplayModel()
         nativeOrOverrideViewer()->addFrame( new cvf::Scene(), isUsingOverrideViewer() );
     }
 
-    m_flatIntersectionPartMgr = new RivIntersectionPartMgr( m_intersection(), true );
+    m_flatIntersectionPartMgr = new RivExtrudedCurveIntersectionPartMgr( m_intersection(), true );
 
     m_intersectionVizModel->removeAllParts();
 
-    m_flatIntersectionPartMgr->appendNativeCrossSectionFacesToModel( m_intersectionVizModel.p(), scaleTransform() );
+    m_flatIntersectionPartMgr->appendNativeIntersectionFacesToModel( m_intersectionVizModel.p(), scaleTransform() );
     m_flatIntersectionPartMgr->appendMeshLinePartsToModel( m_intersectionVizModel.p(), scaleTransform() );
     m_flatIntersectionPartMgr->appendPolylinePartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
 
@@ -553,7 +553,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
     m_flatSimWellPipePartMgr = nullptr;
     m_flatWellHeadPartMgr    = nullptr;
 
-    if ( m_intersection->type() == RimIntersection::CS_SIMULATION_WELL && m_intersection->simulationWell() )
+    if ( m_intersection->type() == RimExtrudedCurveIntersection::CS_SIMULATION_WELL && m_intersection->simulationWell() )
     {
         RimEclipseView* eclipseView = nullptr;
         m_intersection->firstAncestorOrThisOfType( eclipseView );
@@ -566,7 +566,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
     }
 
     m_flatWellpathPartMgr = nullptr;
-    if ( m_intersection->type() == RimIntersection::CS_WELL_PATH && m_intersection->wellPath() )
+    if ( m_intersection->type() == RimExtrudedCurveIntersection::CS_WELL_PATH && m_intersection->wellPath() )
     {
         Rim3dView* settingsView = nullptr;
         m_intersection->firstAncestorOrThisOfType( settingsView );

@@ -190,7 +190,7 @@ void RimScaleLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* changedF
 
         view->updateDisplayModelForCurrentTimeStepAndRedraw();
 
-        view->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+        view->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
     // Update stim plan templates if relevant

@@ -36,7 +36,7 @@
 class RigMainGrid;
 class RigActiveCellInfo;
 class RigResultAccessor;
-class RimIntersection;
+class RimExtrudedCurveIntersection;
 class RivIntersectionHexGridInterface;
 class RivIntersectionVertexWeights;
 
@@ -46,17 +46,17 @@ class ScalarMapper;
 class DrawableGeo;
 } // namespace cvf
 
-class RivIntersectionGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorIF
+class RivExtrudedCurveIntersectionGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorIF
 {
 public:
-    RivIntersectionGeometryGenerator( RimIntersection*                       crossSection,
-                                      std::vector<std::vector<cvf::Vec3d>>&  polylines,
-                                      const cvf::Vec3d&                      extrusionDirection,
-                                      const RivIntersectionHexGridInterface* grid,
-                                      bool                                   isFlattened,
-                                      const cvf::Vec3d&                      flattenedPolylineStartPoint );
+    RivExtrudedCurveIntersectionGeometryGenerator( RimExtrudedCurveIntersection*          intersection,
+                                                   std::vector<std::vector<cvf::Vec3d>>&  polylines,
+                                                   const cvf::Vec3d&                      extrusionDirection,
+                                                   const RivIntersectionHexGridInterface* grid,
+                                                   bool                                   isFlattened,
+                                                   const cvf::Vec3d&                      flattenedPolylineStartPoint );
 
-    ~RivIntersectionGeometryGenerator() override;
+    ~RivExtrudedCurveIntersectionGeometryGenerator() override;
 
     // Generate geometry
     cvf::ref<cvf::DrawableGeo> generateSurface();
@@ -77,7 +77,7 @@ public:
         return m_faultMeshLabelAndAnchorPositions;
     }
 
-    RimIntersection* crossSection() const;
+    RimExtrudedCurveIntersection* intersection() const;
 
     cvf::Mat4d unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat );
 
@@ -93,7 +93,7 @@ private:
     void calculateSegementTransformPrLinePoint();
     void calculateFlattenedOrOffsetedPolyline();
 
-    RimIntersection*                           m_crossSection;
+    RimExtrudedCurveIntersection*              m_intersection;
     cvf::cref<RivIntersectionHexGridInterface> m_hexGrid;
     const std::vector<std::vector<cvf::Vec3d>> m_polyLines;
     cvf::Vec3d                                 m_extrusionDirection;

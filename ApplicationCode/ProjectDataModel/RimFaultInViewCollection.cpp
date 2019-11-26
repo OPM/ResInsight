@@ -130,7 +130,7 @@ void RimFaultInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
     if ( &faultLabelColor == changedField )
     {
         parentView()->scheduleReservoirGridGeometryRegen();
-        parentView()->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+        parentView()->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
     if ( &showFaultFaces == changedField || &showOppositeFaultFaces == changedField ||
@@ -139,7 +139,7 @@ void RimFaultInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
          &faultResult == changedField || &showNNCs == changedField || &hideNncsWhenNoResultIsAvailable == changedField )
     {
         parentView()->scheduleCreateDisplayModelAndRedraw();
-        parentView()->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+        parentView()->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
     if ( &showFaultLabel == changedField )
