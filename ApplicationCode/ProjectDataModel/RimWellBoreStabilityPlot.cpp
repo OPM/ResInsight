@@ -133,6 +133,9 @@ RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
             setParameterSource( parameterFieldPair.first, sources.front() );
         }
     }
+
+    m_nameConfig->setCustomName( "Well Bore Stability" );
+    m_nameConfig->enableAllAutoNameTags( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,9 +226,10 @@ void RimWellBoreStabilityPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
         parameterSources->add( &m_userDefinedK0FG );
     }
 
-    caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup( "Title, Legend and Axis" );
-    RimWellLogPlot::uiOrderingForLegendSettings( uiConfigName, *legendAndAxisGroup );
-    uiOrderingForDepthAxis( uiConfigName, *legendAndAxisGroup );
+    caf::PdmUiGroup* titleLegendAndAxisGroup = uiOrdering.addNewGroup( "Title, Legend and Axis" );
+    RimWellLogPlot::uiOrderingForAutoName( uiConfigName, *titleLegendAndAxisGroup );
+    RimWellLogPlot::uiOrderingForLegendSettings( uiConfigName, *titleLegendAndAxisGroup );
+    uiOrderingForDepthAxis( uiConfigName, *titleLegendAndAxisGroup );
 
     uiOrdering.skipRemainingFields( true );
 }

@@ -103,7 +103,6 @@ public:
 
     void onPlotAdditionOrRemoval() override;
 
-    void updatePlotNames() override;
     void handleKeyPressEvent( QKeyEvent* keyEvent );
 
 protected:
@@ -124,6 +123,10 @@ protected:
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
     QImage snapshotWindowContent() override;
+
+private:
+    void updateSubPlotNames() override;
+    void updatePlotWindowTitle() override;
 
 protected:
     caf::PdmChildField<RimWellLogCurveCommonDataSource*> m_commonDataSource;
