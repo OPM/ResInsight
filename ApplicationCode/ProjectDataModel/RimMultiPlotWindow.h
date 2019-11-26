@@ -76,8 +76,7 @@ public:
     std::vector<RimPlot*> plots() const;
     std::vector<RimPlot*> visiblePlots() const;
 
-    virtual void updatePlotNames();
-    void         updatePlotOrderFromGridWidget();
+    void updatePlotOrderFromGridWidget();
 
     void setAutoScaleXEnabled( bool enabled );
     void setAutoScaleYEnabled( bool enabled );
@@ -113,7 +112,7 @@ protected:
     void                          onLoadDataAndUpdate() override;
     void                          initAfterRead() override;
 
-    void         updatePlotTitleInWidgets();
+    void         applyPlotWindowTitleToWidgets();
     void         updatePlots();
     virtual void updateZoom();
     void         recreatePlotWidgets();
@@ -125,8 +124,10 @@ protected:
                         bool                        forceChange = false ) override;
 
 private:
-    void cleanupBeforeClose();
-    void doUpdateLayout() override;
+    void         cleanupBeforeClose();
+    void         doUpdateLayout() override;
+    virtual void updateSubPlotNames();
+    virtual void updatePlotWindowTitle();
 
 protected:
     caf::PdmField<bool>            m_showPlotWindowTitle;

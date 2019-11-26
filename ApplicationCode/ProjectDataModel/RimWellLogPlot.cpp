@@ -418,7 +418,7 @@ void RimWellLogPlot::performAutoNameUpdate()
 {
     updateCommonDataSource();
     setMultiPlotTitle( createAutoName() );
-    updatePlotTitleInWidgets();
+    applyPlotWindowTitleToWidgets();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -517,7 +517,7 @@ void RimWellLogPlot::onPlotAdditionOrRemoval()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::updatePlotNames()
+void RimWellLogPlot::updateSubPlotNames()
 {
     auto plotVector = plots();
     for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
@@ -532,6 +532,14 @@ void RimWellLogPlot::updatePlotNames()
             track->setDescription( description );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::updatePlotWindowTitle()
+{
+    performAutoNameUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
