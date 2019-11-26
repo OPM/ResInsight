@@ -33,7 +33,7 @@ if (MSVC)
 
     # Find Protobuf installation
     # Looks for protobuf-config.cmake file installed by Protobuf's cmake installation.
-    set(protobuf_MODULE_COMPATIBLE ON CACHE DBOOL "")
+    set(protobuf_MODULE_COMPATIBLE ON)
     find_package(Protobuf CONFIG 3.0 QUIET)
 	if (Protobuf_FOUND)
 		message(STATUS "Using protobuf ${protobuf_VERSION}")
