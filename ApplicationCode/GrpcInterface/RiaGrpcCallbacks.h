@@ -22,6 +22,10 @@
 #include <QString>
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
+#include <grpcpp/server_context.h>
+#include <grpcpp/support/async_stream.h>
+#include <grpcpp/support/async_unary_call.h>
+#include <grpcpp/support/sync_stream.h>
 
 using grpc::CompletionQueue;
 using grpc::ServerAsyncReader;
@@ -29,7 +33,6 @@ using grpc::ServerAsyncResponseWriter;
 using grpc::ServerAsyncWriter;
 using grpc::ServerCompletionQueue;
 using grpc::ServerContext;
-using grpc::ServerWriter;
 using grpc::Status;
 
 class RiaGrpcServiceInterface;
