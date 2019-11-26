@@ -21,8 +21,8 @@
 
 #include "RiaApplication.h"
 
-#include "RimGridView.h"
 #include "RimExtrudedCurveIntersection.h"
+#include "RimGridView.h"
 #include "RimIntersectionCollection.h"
 #include "RimWellPath.h"
 

@@ -19,9 +19,9 @@
 
 #include "RicAppendSeparateIntersectionResultFeature.h"
 
+#include "RimGridView.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
-#include "RimGridView.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
@@ -103,7 +103,7 @@ void RicAppendSeparateIntersectionResultFeatureCmd::redo()
 
     m_intersectionCollection->updateConnectedEditors();
 
-    //if ( m_intersectionCollection->intersectionResultsDefinitions().size() < 2 ) // New default created. Possible 
+    // if ( m_intersectionCollection->intersectionResultsDefinitions().size() < 2 ) // New default created. Possible
     //{
     //    RimGridView* gridView;
     //    m_intersectionCollection->firstAncestorOrThisOfTypeAsserted( gridView );

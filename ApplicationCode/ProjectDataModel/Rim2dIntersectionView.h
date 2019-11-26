@@ -48,8 +48,8 @@ public:
     Rim2dIntersectionView( void );
     ~Rim2dIntersectionView( void ) override;
 
-    void             setVisible( bool isVisible );
-    void             setIntersection( RimExtrudedCurveIntersection* intersection );
+    void                          setVisible( bool isVisible );
+    void                          setIntersection( RimExtrudedCurveIntersection* intersection );
     RimExtrudedCurveIntersection* intersection() const;
 
     bool     isUsingFormationNames() const override;
@@ -72,7 +72,7 @@ public:
     void updateName();
 
     cvf::ref<RivExtrudedCurveIntersectionPartMgr> flatIntersectionPartMgr() const;
-    cvf::Vec3d                       transformToUtm( const cvf::Vec3d& unscaledPointInFlatDomain ) const;
+    cvf::Vec3d                                    transformToUtm( const cvf::Vec3d& unscaledPointInFlatDomain ) const;
 
     cvf::ref<caf::DisplayCoordTransform> displayCoordTransform() const override;
 
@@ -120,11 +120,11 @@ private:
     caf::PdmPtrField<RimExtrudedCurveIntersection*> m_intersection;
 
     cvf::ref<RivExtrudedCurveIntersectionPartMgr> m_flatIntersectionPartMgr;
-    cvf::ref<RivSimWellPipesPartMgr> m_flatSimWellPipePartMgr;
-    cvf::ref<RivWellHeadPartMgr>     m_flatWellHeadPartMgr;
-    cvf::ref<RivWellPathPartMgr>     m_flatWellpathPartMgr;
-    cvf::ref<cvf::ModelBasicList>    m_intersectionVizModel;
-    cvf::ref<cvf::Transform>         m_scaleTransform;
+    cvf::ref<RivSimWellPipesPartMgr>              m_flatSimWellPipePartMgr;
+    cvf::ref<RivWellHeadPartMgr>                  m_flatWellHeadPartMgr;
+    cvf::ref<RivWellPathPartMgr>                  m_flatWellpathPartMgr;
+    cvf::ref<cvf::ModelBasicList>                 m_intersectionVizModel;
+    cvf::ref<cvf::Transform>                      m_scaleTransform;
 
     caf::PdmProxyValueField<QString> m_nameProxy;
     caf::PdmField<bool>              m_showDefiningPoints;

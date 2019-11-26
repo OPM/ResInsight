@@ -19,9 +19,9 @@
 
 #include "RicAppendIntersectionFeature.h"
 
+#include "RimExtrudedCurveIntersection.h"
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
-#include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimTensorResults.h"
 

@@ -43,8 +43,8 @@ class ScalarMapper;
 class RivIntersectionResultsColoringTools
 {
 public:
-    static void calculateIntersectionResultColors( size_t                 timeStepIndex,
-                                                   bool                   useSeparateIntersectionResDefTimeStep,
+    static void calculateIntersectionResultColors( size_t           timeStepIndex,
+                                                   bool             useSeparateIntersectionResDefTimeStep,
                                                    RimIntersection* rimIntersectionHandle,
                                                    const RivIntersectionGeometryGeneratorIF* intersectionGeomGenIF,
                                                    const cvf::ScalarMapper*                  explicitScalarColorMapper,

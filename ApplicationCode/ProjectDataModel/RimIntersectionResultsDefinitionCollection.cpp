@@ -67,7 +67,7 @@ std::vector<RimIntersectionResultDefinition*> RimIntersectionResultsDefinitionCo
 void RimIntersectionResultsDefinitionCollection::appendIntersectionResultDefinition(
     RimIntersectionResultDefinition* interResDef )
 {
-    m_intersectionResultsDefs.push_back(interResDef);
+    m_intersectionResultsDefs.push_back( interResDef );
 }
 
 //--------------------------------------------------------------------------------------------------

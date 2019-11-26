@@ -25,9 +25,9 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+#include "RimIntersection.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
-#include "RimIntersection.h"
 
 class RimWellPath;
 class RivExtrudedCurveIntersectionPartMgr;
@@ -84,9 +84,9 @@ public:
     std::vector<std::vector<cvf::Vec3d>> polyLines( cvf::Vec3d* flattenedPolylineStartPoint = nullptr ) const;
     void                                 appendPointToPolyLine( const cvf::Vec3d& point );
 
-    Rim2dIntersectionView*  correspondingIntersectionView();
+    Rim2dIntersectionView*               correspondingIntersectionView();
     RivExtrudedCurveIntersectionPartMgr* intersectionPartMgr();
-    void                    rebuildGeometry();
+    void                                 rebuildGeometry();
 
     std::vector<cvf::Vec3d> polyLinesForExtrusionDirection() const;
     void                    appendPointToExtrusionDirection( const cvf::Vec3d& point );

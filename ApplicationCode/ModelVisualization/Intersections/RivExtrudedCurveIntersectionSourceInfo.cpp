@@ -24,7 +24,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivExtrudedCurveIntersectionSourceInfo::RivExtrudedCurveIntersectionSourceInfo( RivExtrudedCurveIntersectionGeometryGenerator* geometryGenerator )
+RivExtrudedCurveIntersectionSourceInfo::RivExtrudedCurveIntersectionSourceInfo(
+    RivExtrudedCurveIntersectionGeometryGenerator* geometryGenerator )
     : m_intersectionGeometryGenerator( geometryGenerator )
 {
     CVF_ASSERT( m_intersectionGeometryGenerator.notNull() );

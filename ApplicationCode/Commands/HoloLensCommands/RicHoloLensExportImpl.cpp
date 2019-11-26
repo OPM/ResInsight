@@ -31,10 +31,10 @@
 #include "RimWellPath.h"
 
 #include "RiuViewer.h"
-#include "RivFemPickSourceInfo.h"
-#include "RivGeoMechVizLogic.h"
 #include "RivBoxIntersectionSourceInfo.h"
 #include "RivExtrudedCurveIntersectionSourceInfo.h"
+#include "RivFemPickSourceInfo.h"
+#include "RivGeoMechVizLogic.h"
 #include "RivMeshLinesSourceInfo.h"
 #include "RivSimWellPipeSourceInfo.h"
 #include "RivSourceInfo.h"

@@ -64,7 +64,8 @@ class RivPipeGeometryGenerator;
 class RivExtrudedCurveIntersectionPartMgr : public cvf::Object
 {
 public:
-    explicit RivExtrudedCurveIntersectionPartMgr( RimExtrudedCurveIntersection* rimIntersection, bool isFlattened = false );
+    explicit RivExtrudedCurveIntersectionPartMgr( RimExtrudedCurveIntersection* rimIntersection,
+                                                  bool                          isFlattened = false );
 
     void applySingleColorEffect();
     void updateCellResultColor( size_t                        timeStepIndex,

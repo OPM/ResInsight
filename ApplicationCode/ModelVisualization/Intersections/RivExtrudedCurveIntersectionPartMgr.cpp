@@ -34,12 +34,12 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
-#include "RimExtrudedCurveIntersection.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
@@ -49,10 +49,10 @@
 
 #include "RiuGeoMechXfTensorResultAccessor.h"
 
-#include "RivHexGridIntersectionTools.h"
 #include "RivExtrudedCurveIntersectionGeometryGenerator.h"
-#include "RivIntersectionResultsColoringTools.h"
 #include "RivExtrudedCurveIntersectionSourceInfo.h"
+#include "RivHexGridIntersectionTools.h"
+#include "RivIntersectionResultsColoringTools.h"
 #include "RivMeshLinesSourceInfo.h"
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
@@ -84,7 +84,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivExtrudedCurveIntersectionPartMgr::RivExtrudedCurveIntersectionPartMgr( RimExtrudedCurveIntersection* rimCrossSection, bool isFlattened )
+RivExtrudedCurveIntersectionPartMgr::RivExtrudedCurveIntersectionPartMgr( RimExtrudedCurveIntersection* rimCrossSection,
+                                                                          bool                          isFlattened )
     : m_rimIntersection( rimCrossSection )
     , m_isFlattened( isFlattened )
 {
@@ -99,12 +100,12 @@ RivExtrudedCurveIntersectionPartMgr::RivExtrudedCurveIntersectionPartMgr( RimExt
     {
         cvf::Vec3d                                direction = m_rimIntersection->extrusionDirection();
         cvf::ref<RivIntersectionHexGridInterface> hexGrid   = m_rimIntersection->createHexGridInterface();
-        m_intersectionGenerator                             = new RivExtrudedCurveIntersectionGeometryGenerator( m_rimIntersection,
-                                                                        polyLines,
-                                                                        direction,
-                                                                        hexGrid.p(),
-                                                                        m_isFlattened,
-                                                                        flattenedPolylineStartPoint );
+        m_intersectionGenerator = new RivExtrudedCurveIntersectionGeometryGenerator( m_rimIntersection,
+                                                                                     polyLines,
+                                                                                     direction,
+                                                                                     hexGrid.p(),
+                                                                                     m_isFlattened,
+                                                                                     flattenedPolylineStartPoint );
     }
 }
 
@@ -149,9 +150,9 @@ void RivExtrudedCurveIntersectionPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivExtrudedCurveIntersectionPartMgr::updateCellResultColor( size_t                        timeStepIndex,
-                                                    const cvf::ScalarMapper*      explicitScalarColorMapper,
-                                                    const RivTernaryScalarMapper* explicitTernaryColorMapper )
+void RivExtrudedCurveIntersectionPartMgr::updateCellResultColor( size_t                   timeStepIndex,
+                                                                 const cvf::ScalarMapper* explicitScalarColorMapper,
+                                                                 const RivTernaryScalarMapper* explicitTernaryColorMapper )
 {
     RivIntersectionResultsColoringTools::calculateIntersectionResultColors( timeStepIndex,
                                                                             !m_isFlattened,
@@ -243,7 +244,8 @@ void RivExtrudedCurveIntersectionPartMgr::generatePartGeometry()
             part->setDrawable( geo.p() );
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivExtrudedCurveIntersectionSourceInfo> si = new RivExtrudedCurveIntersectionSourceInfo( m_intersectionGenerator.p() );
+            cvf::ref<RivExtrudedCurveIntersectionSourceInfo> si = new RivExtrudedCurveIntersectionSourceInfo(
+                m_intersectionGenerator.p() );
             part->setSourceInfo( si.p() );
 
             part->updateBoundingBox();
@@ -313,7 +315,8 @@ void RivExtrudedCurveIntersectionPartMgr::generatePartGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivExtrudedCurveIntersectionPartMgr::createFaultLabelParts( const std::vector<std::pair<QString, cvf::Vec3d>>& labelAndAnchors )
+void RivExtrudedCurveIntersectionPartMgr::createFaultLabelParts(
+    const std::vector<std::pair<QString, cvf::Vec3d>>& labelAndAnchors )
 {
     m_faultMeshLabels     = nullptr;
     m_faultMeshLabelLines = nullptr;
@@ -588,7 +591,7 @@ void RivExtrudedCurveIntersectionPartMgr::createExtrusionDirParts( bool useBuffe
 ///
 //--------------------------------------------------------------------------------------------------
 void RivExtrudedCurveIntersectionPartMgr::appendNativeIntersectionFacesToModel( cvf::ModelBasicList* model,
-                                                                   cvf::Transform*      scaleTransform )
+                                                                                cvf::Transform*      scaleTransform )
 {
     if ( m_intersectionFaces.isNull() )
     {
@@ -605,7 +608,8 @@ void RivExtrudedCurveIntersectionPartMgr::appendNativeIntersectionFacesToModel( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivExtrudedCurveIntersectionPartMgr::appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
+void RivExtrudedCurveIntersectionPartMgr::appendMeshLinePartsToModel( cvf::ModelBasicList* model,
+                                                                      cvf::Transform*      scaleTransform )
 {
     if ( m_intersectionGridLines.isNull() )
     {
@@ -641,8 +645,8 @@ void RivExtrudedCurveIntersectionPartMgr::appendMeshLinePartsToModel( cvf::Model
 ///
 //--------------------------------------------------------------------------------------------------
 void RivExtrudedCurveIntersectionPartMgr::appendPolylinePartsToModel( Rim3dView&           view,
-                                                         cvf::ModelBasicList* model,
-                                                         cvf::Transform*      scaleTransform )
+                                                                      cvf::ModelBasicList* model,
+                                                                      cvf::Transform*      scaleTransform )
 {
     Rim2dIntersectionView* curr2dView = dynamic_cast<Rim2dIntersectionView*>( &view );
 

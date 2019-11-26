@@ -20,8 +20,8 @@
 
 #include "RicPasteFeatureImpl.h"
 
-#include "RimExtrudedCurveIntersection.h"
 #include "RimBoxIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionCollection.h"
 
 #include "RiuMainWindow.h"
@@ -111,8 +111,8 @@ void RicPasteIntersectionsFeature::onActionTriggered( bool isChecked )
             intersectionBoxObjects[i]->xmlCapability()->copyByXmlSerialization(
                 caf::PdmDefaultObjectFactory::instance() ) );
 
-        QString nameOfCopy    = QString( "Copy of " ) + intersectionBox->name();
-        intersectionBox->setName(nameOfCopy);
+        QString nameOfCopy = QString( "Copy of " ) + intersectionBox->name();
+        intersectionBox->setName( nameOfCopy );
 
         if ( i == intersectionBoxObjects.size() - 1 )
         {

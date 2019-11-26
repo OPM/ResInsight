@@ -24,11 +24,11 @@
 
 #include "Rim3dView.h"
 #include "RimCase.h"
-#include "RimGridView.h"
 #include "RimExtrudedCurveIntersection.h"
+#include "RimGridView.h"
 
-#include "RivHexGridIntersectionTools.h"
 #include "RivExtrudedCurveIntersectionPartMgr.h"
+#include "RivHexGridIntersectionTools.h"
 #include "RivPolylineGenerator.h"
 
 #include "cafDisplayCoordTransform.h"
@@ -58,12 +58,13 @@ cvf::ref<caf::DisplayCoordTransform> displayCoordTransform( const RimExtrudedCur
 /// isFlattened means to transform each flat section of the intersection onto the XZ plane
 /// placed adjacent to each other as if they were rotated around the common extrusion line like a hinge
 //--------------------------------------------------------------------------------------------------
-RivExtrudedCurveIntersectionGeometryGenerator::RivExtrudedCurveIntersectionGeometryGenerator( RimExtrudedCurveIntersection*                      crossSection,
-                                                                    std::vector<std::vector<cvf::Vec3d>>& polylines,
-                                                                    const cvf::Vec3d& extrusionDirection,
-                                                                    const RivIntersectionHexGridInterface* grid,
-                                                                    bool                                   isFlattened,
-                                                                    const cvf::Vec3d& flattenedPolylineStartPoint )
+RivExtrudedCurveIntersectionGeometryGenerator::RivExtrudedCurveIntersectionGeometryGenerator(
+    RimExtrudedCurveIntersection*          crossSection,
+    std::vector<std::vector<cvf::Vec3d>>&  polylines,
+    const cvf::Vec3d&                      extrusionDirection,
+    const RivIntersectionHexGridInterface* grid,
+    bool                                   isFlattened,
+    const cvf::Vec3d&                      flattenedPolylineStartPoint )
     : m_intersection( crossSection )
     , m_polyLines( polylines )
     , m_extrusionDirection( extrusionDirection )
@@ -508,8 +509,8 @@ cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::create
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo>
-    RivExtrudedCurveIntersectionGeometryGenerator::createLineAlongExtrusionLineDrawable( const std::vector<cvf::Vec3d>& extrusionLine )
+cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::createLineAlongExtrusionLineDrawable(
+    const std::vector<cvf::Vec3d>& extrusionLine )
 {
     cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform( intersection() );
     std::vector<cvf::Vec3d>              displayCoords;
@@ -534,8 +535,8 @@ cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::create
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo>
-    RivExtrudedCurveIntersectionGeometryGenerator::createPointsFromExtrusionLineDrawable( const std::vector<cvf::Vec3d>& extrusionLine )
+cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::createPointsFromExtrusionLineDrawable(
+    const std::vector<cvf::Vec3d>& extrusionLine )
 {
     cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform( intersection() );
     std::vector<cvf::Vec3d>              displayCoords;

@@ -65,7 +65,7 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
     parentCase->descendantsIncludingThisOfType( allOrderedIntersectionsInCase );
 
     std::set<RimExtrudedCurveIntersection*> currentIntersections( allOrderedIntersectionsInCase.begin(),
-                                                     allOrderedIntersectionsInCase.end() );
+                                                                  allOrderedIntersectionsInCase.end() );
 
     // Delete views without a valid intersection
 

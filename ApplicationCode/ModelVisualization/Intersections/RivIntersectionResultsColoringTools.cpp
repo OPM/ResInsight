@@ -51,7 +51,7 @@
 void RivIntersectionResultsColoringTools::calculateIntersectionResultColors(
     size_t                                    timeStepIndex,
     bool                                      useSeparateIntersectionResDefTimeStep,
-    RimIntersection*                    rimIntersectionHandle,
+    RimIntersection*                          rimIntersectionHandle,
     const RivIntersectionGeometryGeneratorIF* intersectionGeomGenIF,
     const cvf::ScalarMapper*                  explicitScalarColorMapper,
     const RivTernaryScalarMapper*             explicitTernaryColorMapper,

@@ -143,8 +143,8 @@ RimExtrudedCurveIntersection::~RimExtrudedCurveIntersection() {}
 ///
 //--------------------------------------------------------------------------------------------------
 void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                        const QVariant&            oldValue,
-                                        const QVariant&            newValue )
+                                                     const QVariant&            oldValue,
+                                                     const QVariant&            newValue )
 {
     // clang-format off
     if ( changedField == &m_isActive || 
@@ -304,8 +304,9 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimExtrudedCurveIntersection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                      bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo>
+    RimExtrudedCurveIntersection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -690,8 +691,8 @@ void RimExtrudedCurveIntersection::setBaseColor( bool enable, caf::PdmUiListEdit
 ///
 //--------------------------------------------------------------------------------------------------
 void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                             QString                    uiConfigName,
-                                             caf::PdmUiEditorAttribute* attribute )
+                                                          QString                    uiConfigName,
+                                                          caf::PdmUiEditorAttribute* attribute )
 {
     caf::PdmUiDoubleSliderEditorAttribute* doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(
         attribute );

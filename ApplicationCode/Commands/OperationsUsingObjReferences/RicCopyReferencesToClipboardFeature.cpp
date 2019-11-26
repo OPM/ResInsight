@@ -19,15 +19,15 @@
 
 #include "RicCopyReferencesToClipboardFeature.h"
 
+#include "RimBoxIntersection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEnsembleCurveSet.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimFractureTemplate.h"
 #include "RimGeoMechView.h"
 #include "RimGridCrossPlotCurve.h"
 #include "RimGridCrossPlotDataSet.h"
-#include "RimExtrudedCurveIntersection.h"
-#include "RimBoxIntersection.h"
 #include "RimMimeData.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"

@@ -19,8 +19,8 @@
 #include "RicIntersectionPickEventHandler.h"
 #include "RiaApplication.h"
 
-#include "RimGridView.h"
 #include "RimExtrudedCurveIntersection.h"
+#include "RimGridView.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"

@@ -164,7 +164,7 @@ RimIntersectionCollection* RimGridView::intersectionCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersectionResultsDefinitionCollection* RimGridView::separateIntersectionResultsCollection() const 
+RimIntersectionResultsDefinitionCollection* RimGridView::separateIntersectionResultsCollection() const
 {
     return m_intersectionResultDefCollection;
 }

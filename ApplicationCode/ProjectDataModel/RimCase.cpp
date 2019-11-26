@@ -32,8 +32,8 @@
 
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
-#include "RimGridView.h"
 #include "RimExtrudedCurveIntersection.h"
+#include "RimGridView.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCase, "RimCase" );
 

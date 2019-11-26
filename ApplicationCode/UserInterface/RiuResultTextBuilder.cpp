@@ -33,8 +33,8 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
-#include "RimFormationNames.h"
 #include "RimExtrudedCurveIntersection.h"
+#include "RimFormationNames.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 

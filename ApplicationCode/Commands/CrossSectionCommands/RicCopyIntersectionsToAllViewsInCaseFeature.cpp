@@ -19,11 +19,11 @@
 
 #include "RicCopyIntersectionsToAllViewsInCaseFeature.h"
 
+#include "RimBoxIntersection.h"
 #include "RimCase.h"
 #include "RimEclipseCase.h"
-#include "RimGridView.h"
 #include "RimExtrudedCurveIntersection.h"
-#include "RimBoxIntersection.h"
+#include "RimGridView.h"
 #include "RimIntersectionCollection.h"
 
 #include "cafCmdExecCommandManager.h"
@@ -48,11 +48,11 @@ enum SelectionComposition
     SEL_BOTH_INTERSECTION_TYPES
 };
 
-static RimIntersectionCollection*       selectedIntersectionCollection();
-static std::vector<RimExtrudedCurveIntersection*>    selectedIntersections();
-static std::vector<RimBoxIntersection*> selectedIntersectionBoxes();
-static SelectionComposition             selectionComposition();
-static RimCase*                         commonGridCase( std::vector<caf::PdmUiItem*> selectedItems );
+static RimIntersectionCollection*                 selectedIntersectionCollection();
+static std::vector<RimExtrudedCurveIntersection*> selectedIntersections();
+static std::vector<RimBoxIntersection*>           selectedIntersectionBoxes();
+static SelectionComposition                       selectionComposition();
+static RimCase*                                   commonGridCase( std::vector<caf::PdmUiItem*> selectedItems );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -83,8 +83,8 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::onActionTriggered( bool isChec
             copyIntersectionBoxesToOtherViews( *gridCase, coll->intersectionBoxes() );
         }
 
-        std::vector<RimExtrudedCurveIntersection*>    selIntersections     = selectedIntersections();
-        std::vector<RimBoxIntersection*> selIntersectionBoxes = selectedIntersectionBoxes();
+        std::vector<RimExtrudedCurveIntersection*> selIntersections     = selectedIntersections();
+        std::vector<RimBoxIntersection*>           selIntersectionBoxes = selectedIntersectionBoxes();
 
         if ( compostion == SEL_INTERSECTIONS || compostion == SEL_BOTH_INTERSECTION_TYPES )
         {
@@ -109,8 +109,9 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::setupActionLook( QAction* acti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionsToOtherViews( RimCase&                      gridCase,
-                                                                                 std::vector<RimExtrudedCurveIntersection*> intersections )
+void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionsToOtherViews(
+    RimCase&                                   gridCase,
+    std::vector<RimExtrudedCurveIntersection*> intersections )
 {
     for ( RimExtrudedCurveIntersection* intersection : intersections )
     {
@@ -203,9 +204,9 @@ SelectionComposition selectionComposition()
     RimCase* gridCase = commonGridCase( allSelectedObjects );
     if ( gridCase && gridCase->gridViews().size() > 1 )
     {
-        RimIntersectionCollection*       selColl              = selectedIntersectionCollection();
-        std::vector<RimExtrudedCurveIntersection*>    selIntersections     = selectedIntersections();
-        std::vector<RimBoxIntersection*> selIntersectionBoxes = selectedIntersectionBoxes();
+        RimIntersectionCollection*                 selColl              = selectedIntersectionCollection();
+        std::vector<RimExtrudedCurveIntersection*> selIntersections     = selectedIntersections();
+        std::vector<RimBoxIntersection*>           selIntersectionBoxes = selectedIntersectionBoxes();
 
         if ( selColl )
         {

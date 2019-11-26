@@ -22,9 +22,9 @@
 
 #include "RiaApplication.h"
 
+#include "RimBoxIntersection.h"
 #include "RimCase.h"
 #include "RimGridView.h"
-#include "RimBoxIntersection.h"
 #include "RimIntersectionCollection.h"
 
 #include "RiuMainWindow.h"

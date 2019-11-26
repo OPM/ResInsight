@@ -73,8 +73,8 @@ public:
     void appendPartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void rebuildGeometry();
 
-    std::vector<RimExtrudedCurveIntersection*>    intersections() const;
-    std::vector<RimBoxIntersection*> intersectionBoxes() const;
+    std::vector<RimExtrudedCurveIntersection*> intersections() const;
+    std::vector<RimBoxIntersection*>           intersectionBoxes() const;
 
 protected:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
@@ -83,6 +83,6 @@ protected:
     caf::PdmFieldHandle* objectToggleField() override;
 
 private:
-    caf::PdmChildArrayField<RimExtrudedCurveIntersection*>    m_intersections;
-    caf::PdmChildArrayField<RimBoxIntersection*> m_intersectionBoxes;
+    caf::PdmChildArrayField<RimExtrudedCurveIntersection*> m_intersections;
+    caf::PdmChildArrayField<RimBoxIntersection*>           m_intersectionBoxes;
 };

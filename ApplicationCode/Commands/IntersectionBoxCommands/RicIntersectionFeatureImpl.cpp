@@ -19,8 +19,8 @@
 
 #include "RiaApplication.h"
 
-#include "RimGridView.h"
 #include "RimBoxIntersection.h"
+#include "RimGridView.h"
 #include "RimIntersectionCollection.h"
 
 #include "RiuMainWindow.h"

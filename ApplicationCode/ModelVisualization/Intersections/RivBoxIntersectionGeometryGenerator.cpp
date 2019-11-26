@@ -18,9 +18,9 @@
 
 #include "RivBoxIntersectionGeometryGenerator.h"
 
+#include "RimBoxIntersection.h"
 #include "RimCase.h"
 #include "RimGridView.h"
-#include "RimBoxIntersection.h"
 
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 

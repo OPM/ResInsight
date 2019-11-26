@@ -70,11 +70,11 @@ public:
     bool       isCurrentPickInComparisonView() const;
 
 private:
-    void findCellAndGridIndex( Rim3dView*                       mainOrComparisonView,
+    void findCellAndGridIndex( Rim3dView*                                    mainOrComparisonView,
                                const RivExtrudedCurveIntersectionSourceInfo* intersectionSourceInfo,
-                               cvf::uint                        firstPartTriangleIndex,
-                               size_t*                          cellIndex,
-                               size_t*                          gridIndex );
+                               cvf::uint                                     firstPartTriangleIndex,
+                               size_t*                                       cellIndex,
+                               size_t*                                       gridIndex );
     void findCellAndGridIndex( Rim3dView*                          mainOrComparisonView,
                                const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo,
                                cvf::uint                           firstPartTriangleIndex,

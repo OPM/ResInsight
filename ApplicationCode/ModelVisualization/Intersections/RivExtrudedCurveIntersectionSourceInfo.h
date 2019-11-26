@@ -31,9 +31,9 @@ class RivExtrudedCurveIntersectionSourceInfo : public cvf::Object
 public:
     explicit RivExtrudedCurveIntersectionSourceInfo( RivExtrudedCurveIntersectionGeometryGenerator* geometryGenerator );
 
-    const std::vector<size_t>& triangleToCellIndex() const;
-    std::array<cvf::Vec3f, 3>  triangle( int triangleIdx ) const;
-    RimExtrudedCurveIntersection*           intersection() const;
+    const std::vector<size_t>&    triangleToCellIndex() const;
+    std::array<cvf::Vec3f, 3>     triangle( int triangleIdx ) const;
+    RimExtrudedCurveIntersection* intersection() const;
 
 private:
     cvf::cref<RivExtrudedCurveIntersectionGeometryGenerator> m_intersectionGeometryGenerator;

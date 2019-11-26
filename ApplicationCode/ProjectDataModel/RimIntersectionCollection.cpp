@@ -22,9 +22,9 @@
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "Rim3dView.h"
+#include "RimBoxIntersection.h"
 #include "RimCase.h"
 #include "RimExtrudedCurveIntersection.h"
-#include "RimBoxIntersection.h"
 #include "RimSimWellInView.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -200,7 +200,8 @@ void RimIntersectionCollection::recomputeSimWellBranchData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendIntersectionAndUpdate( RimExtrudedCurveIntersection* intersection, bool allowActiveViewChange )
+void RimIntersectionCollection::appendIntersectionAndUpdate( RimExtrudedCurveIntersection* intersection,
+                                                             bool                          allowActiveViewChange )
 {
     m_intersections.push_back( intersection );
 
@@ -304,7 +305,8 @@ bool RimIntersectionCollection::hasActiveIntersectionForSimulationWell( const Ri
 
     for ( RimExtrudedCurveIntersection* cs : m_intersections )
     {
-        if ( cs->isActive() && cs->type() == RimExtrudedCurveIntersection::CS_SIMULATION_WELL && cs->simulationWell() == simWell )
+        if ( cs->isActive() && cs->type() == RimExtrudedCurveIntersection::CS_SIMULATION_WELL &&
+             cs->simulationWell() == simWell )
         {
             return true;
         }

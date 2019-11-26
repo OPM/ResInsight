@@ -478,7 +478,7 @@ void RimBoxIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 
     uiOrdering.add( &m_show3DManipulator );
 
-    this->defineSeparateDataSourceUi(uiConfigName, uiOrdering);
+    this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -521,7 +521,6 @@ void RimBoxIntersection::slotUpdateGeometry( const cvf::Vec3d& origin, const cvf
         setFromOriginAndSize( domainOrigin, domainSize );
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
