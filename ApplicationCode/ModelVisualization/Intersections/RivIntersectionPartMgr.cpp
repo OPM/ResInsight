@@ -39,7 +39,7 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
@@ -84,7 +84,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivIntersectionPartMgr::RivIntersectionPartMgr( RimIntersection* rimCrossSection, bool isFlattened )
+RivIntersectionPartMgr::RivIntersectionPartMgr( RimExtrudedCurveIntersection* rimCrossSection, bool isFlattened )
     : m_rimCrossSection( rimCrossSection )
     , m_isFlattened( isFlattened )
 {
@@ -427,8 +427,8 @@ void RivIntersectionPartMgr::createPolyLineParts( bool useBufferObjects )
     m_highlightLineAlongPolyline = nullptr;
     m_highlightPointsForPolyline = nullptr;
 
-    if ( m_rimCrossSection->type == RimIntersection::CS_POLYLINE ||
-         m_rimCrossSection->type == RimIntersection::CS_AZIMUTHLINE )
+    if ( m_rimCrossSection->type == RimExtrudedCurveIntersection::CS_POLYLINE ||
+         m_rimCrossSection->type == RimExtrudedCurveIntersection::CS_AZIMUTHLINE )
     {
         {
             cvf::ref<cvf::DrawableGeo> polylineGeo = m_crossSectionGenerator->createLineAlongPolylineDrawable();
@@ -509,7 +509,7 @@ void RivIntersectionPartMgr::createExtrusionDirParts( bool useBufferObjects )
     m_highlightLineAlongExtrusionDir = nullptr;
     m_highlightPointsForExtrusionDir = nullptr;
 
-    if ( m_rimCrossSection->direction() == RimIntersection::CS_TWO_POINTS )
+    if ( m_rimCrossSection->direction() == RimExtrudedCurveIntersection::CS_TWO_POINTS )
     {
         {
             cvf::ref<cvf::DrawableGeo> polylineGeo = m_crossSectionGenerator->createLineAlongExtrusionLineDrawable(
@@ -695,7 +695,7 @@ void RivIntersectionPartMgr::appendPolylinePartsToModel( Rim3dView&           vi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimIntersection* RivIntersectionPartMgr::intersection() const
+const RimExtrudedCurveIntersection* RivIntersectionPartMgr::intersection() const
 {
     return m_rimCrossSection.p();
 }

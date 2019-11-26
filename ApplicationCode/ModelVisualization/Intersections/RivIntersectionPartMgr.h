@@ -49,7 +49,7 @@ class RigResultAccessor;
 class Rim3dView;
 class RimCellEdgeColors;
 class RimEclipseCellColors;
-class RimIntersection;
+class RimExtrudedCurveIntersection;
 class RivTernaryScalarMapper;
 class RivIntersectionGeometryGenerator;
 class RivIntersectionHexGridInterface;
@@ -64,7 +64,7 @@ class RivPipeGeometryGenerator;
 class RivIntersectionPartMgr : public cvf::Object
 {
 public:
-    explicit RivIntersectionPartMgr( RimIntersection* rimCrossSection, bool isFlattened = false );
+    explicit RivIntersectionPartMgr( RimExtrudedCurveIntersection* rimCrossSection, bool isFlattened = false );
 
     void applySingleColorEffect();
     void updateCellResultColor( size_t                        timeStepIndex,
@@ -75,7 +75,7 @@ public:
     void appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void appendPolylinePartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
 
-    const RimIntersection* intersection() const;
+    const RimExtrudedCurveIntersection* intersection() const;
 
     cvf::Mat4d unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat );
 
@@ -87,7 +87,7 @@ private:
     void createExtrusionDirParts( bool useBufferObjects );
 
 private:
-    caf::PdmPointer<RimIntersection> m_rimCrossSection;
+    caf::PdmPointer<RimExtrudedCurveIntersection> m_rimCrossSection;
 
     cvf::ref<RivIntersectionGeometryGenerator> m_crossSectionGenerator;
 

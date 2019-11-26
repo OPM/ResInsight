@@ -24,7 +24,7 @@
 #include "cafPdmObject.h"
 
 class Rim3dView;
-class RimIntersection;
+class RimExtrudedCurveIntersection;
 class RimIntersectionBox;
 class RimEclipseCellColors;
 class RimSimWellInView;
@@ -52,8 +52,8 @@ public:
 
     caf::PdmField<bool> isActive;
 
-    void appendIntersectionAndUpdate( RimIntersection* intersection, bool allowActiveViewChange = true );
-    void appendIntersectionNoUpdate( RimIntersection* intersection );
+    void appendIntersectionAndUpdate( RimExtrudedCurveIntersection* intersection, bool allowActiveViewChange = true );
+    void appendIntersectionNoUpdate( RimExtrudedCurveIntersection* intersection );
 
     void appendIntersectionBoxAndUpdate( RimIntersectionBox* intersectionBox );
     void appendIntersectionBoxNoUpdate( RimIntersectionBox* intersectionBox );
@@ -73,7 +73,7 @@ public:
     void appendPartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void rebuildGeometry();
 
-    std::vector<RimIntersection*>    intersections() const;
+    std::vector<RimExtrudedCurveIntersection*>    intersections() const;
     std::vector<RimIntersectionBox*> intersectionBoxes() const;
 
 protected:
@@ -83,6 +83,6 @@ protected:
     caf::PdmFieldHandle* objectToggleField() override;
 
 private:
-    caf::PdmChildArrayField<RimIntersection*>    m_intersections;
+    caf::PdmChildArrayField<RimExtrudedCurveIntersection*>    m_intersections;
     caf::PdmChildArrayField<RimIntersectionBox*> m_intersectionBoxes;
 };

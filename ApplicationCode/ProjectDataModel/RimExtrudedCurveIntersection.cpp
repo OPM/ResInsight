@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 
 #include "RiaApplication.h"
 
@@ -55,32 +55,32 @@
 namespace caf
 {
 template <>
-void caf::AppEnum<RimIntersection::CrossSectionEnum>::setUp()
+void caf::AppEnum<RimExtrudedCurveIntersection::CrossSectionEnum>::setUp()
 {
-    addItem( RimIntersection::CS_WELL_PATH, "CS_WELL_PATH", "Well Path" );
-    addItem( RimIntersection::CS_SIMULATION_WELL, "CS_SIMULATION_WELL", "Simulation Well" );
-    addItem( RimIntersection::CS_POLYLINE, "CS_POLYLINE", "Polyline" );
-    addItem( RimIntersection::CS_AZIMUTHLINE, "CS_AZIMUTHLINE", "Azimuth and Dip" );
-    setDefault( RimIntersection::CS_WELL_PATH );
+    addItem( RimExtrudedCurveIntersection::CS_WELL_PATH, "CS_WELL_PATH", "Well Path" );
+    addItem( RimExtrudedCurveIntersection::CS_SIMULATION_WELL, "CS_SIMULATION_WELL", "Simulation Well" );
+    addItem( RimExtrudedCurveIntersection::CS_POLYLINE, "CS_POLYLINE", "Polyline" );
+    addItem( RimExtrudedCurveIntersection::CS_AZIMUTHLINE, "CS_AZIMUTHLINE", "Azimuth and Dip" );
+    setDefault( RimExtrudedCurveIntersection::CS_WELL_PATH );
 }
 
 template <>
-void caf::AppEnum<RimIntersection::CrossSectionDirEnum>::setUp()
+void caf::AppEnum<RimExtrudedCurveIntersection::CrossSectionDirEnum>::setUp()
 {
-    addItem( RimIntersection::CS_VERTICAL, "CS_VERTICAL", "Vertical" );
-    addItem( RimIntersection::CS_HORIZONTAL, "CS_HORIZONTAL", "Horizontal" );
-    addItem( RimIntersection::CS_TWO_POINTS, "CS_TWO_POINTS", "Defined by Two Points" );
-    setDefault( RimIntersection::CS_VERTICAL );
+    addItem( RimExtrudedCurveIntersection::CS_VERTICAL, "CS_VERTICAL", "Vertical" );
+    addItem( RimExtrudedCurveIntersection::CS_HORIZONTAL, "CS_HORIZONTAL", "Horizontal" );
+    addItem( RimExtrudedCurveIntersection::CS_TWO_POINTS, "CS_TWO_POINTS", "Defined by Two Points" );
+    setDefault( RimExtrudedCurveIntersection::CS_VERTICAL );
 }
 
 } // namespace caf
 
-CAF_PDM_SOURCE_INIT( RimIntersection, "CrossSection" );
+CAF_PDM_SOURCE_INIT( RimExtrudedCurveIntersection, "CrossSection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersection::RimIntersection()
+RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
 {
     CAF_PDM_InitObject( "Intersection", ":/CrossSection16x16.png", "", "" );
 
@@ -137,12 +137,12 @@ RimIntersection::RimIntersection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersection::~RimIntersection() {}
+RimExtrudedCurveIntersection::~RimExtrudedCurveIntersection() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                         const QVariant&            oldValue,
                                         const QVariant&            newValue )
 {
@@ -232,7 +232,7 @@ void RimIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_name );
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup( "Intersecting Geometry" );
@@ -304,7 +304,7 @@ void RimIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+QList<caf::PdmOptionItemInfo> RimExtrudedCurveIntersection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                       bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -361,7 +361,7 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions( const caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSimWellInViewCollection* RimIntersection::simulationWellCollection() const
+RimSimWellInViewCollection* RimExtrudedCurveIntersection::simulationWellCollection() const
 {
     RimEclipseView* eclipseView = nullptr;
     firstAncestorOrThisOfType( eclipseView );
@@ -377,7 +377,7 @@ RimSimWellInViewCollection* RimIntersection::simulationWellCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::updateAzimuthLine()
+void RimExtrudedCurveIntersection::updateAzimuthLine()
 {
     if ( m_twoAzimuthPoints().size() == 2 )
     {
@@ -399,7 +399,7 @@ void RimIntersection::updateAzimuthLine()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::Vec3d>> RimIntersection::polyLines( cvf::Vec3d* flattenedPolylineStartPoint ) const
+std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cvf::Vec3d* flattenedPolylineStartPoint ) const
 {
     if ( flattenedPolylineStartPoint ) *flattenedPolylineStartPoint = cvf::Vec3d::ZERO;
 
@@ -492,7 +492,7 @@ std::vector<std::vector<cvf::Vec3d>> RimIntersection::polyLines( cvf::Vec3d* fla
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivIntersectionPartMgr* RimIntersection::intersectionPartMgr()
+RivIntersectionPartMgr* RimExtrudedCurveIntersection::intersectionPartMgr()
 {
     if ( m_crossSectionPartMgr.isNull() ) m_crossSectionPartMgr = new RivIntersectionPartMgr( this );
 
@@ -502,7 +502,7 @@ RivIntersectionPartMgr* RimIntersection::intersectionPartMgr()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::rebuildGeometry()
+void RimExtrudedCurveIntersection::rebuildGeometry()
 {
     m_crossSectionPartMgr = nullptr;
 }
@@ -510,7 +510,7 @@ void RimIntersection::rebuildGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RimIntersection::polyLinesForExtrusionDirection() const
+std::vector<cvf::Vec3d> RimExtrudedCurveIntersection::polyLinesForExtrusionDirection() const
 {
     return m_customExtrusionPoints;
 }
@@ -518,7 +518,7 @@ std::vector<cvf::Vec3d> RimIntersection::polyLinesForExtrusionDirection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::updateSimulationWellCenterline() const
+void RimExtrudedCurveIntersection::updateSimulationWellCenterline() const
 {
     if ( m_isActive() && type == CS_SIMULATION_WELL && simulationWell() )
     {
@@ -540,7 +540,7 @@ void RimIntersection::updateSimulationWellCenterline() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::addExtents( std::vector<cvf::Vec3d>& polyLine ) const
+void RimExtrudedCurveIntersection::addExtents( std::vector<cvf::Vec3d>& polyLine ) const
 {
     size_t lineVxCount = polyLine.size();
 
@@ -596,7 +596,7 @@ void RimIntersection::addExtents( std::vector<cvf::Vec3d>& polyLine ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::updateWellExtentDefaultValue()
+void RimExtrudedCurveIntersection::updateWellExtentDefaultValue()
 {
     RimCase* ownerCase = nullptr;
     firstAncestorOrThisOfType( ownerCase );
@@ -614,7 +614,7 @@ void RimIntersection::updateWellExtentDefaultValue()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::updateName()
+void RimExtrudedCurveIntersection::updateName()
 {
     if ( type == CS_SIMULATION_WELL && simulationWell() )
     {
@@ -640,7 +640,7 @@ void RimIntersection::updateName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimIntersection::branchIndex() const
+int RimExtrudedCurveIntersection::branchIndex() const
 {
     RimSimWellInViewCollection* coll = simulationWellCollection();
 
@@ -660,7 +660,7 @@ int RimIntersection::branchIndex() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::setPushButtonText( bool buttonEnable, caf::PdmUiPushButtonEditorAttribute* attribute )
+void RimExtrudedCurveIntersection::setPushButtonText( bool buttonEnable, caf::PdmUiPushButtonEditorAttribute* attribute )
 {
     if ( attribute )
     {
@@ -678,7 +678,7 @@ void RimIntersection::setPushButtonText( bool buttonEnable, caf::PdmUiPushButton
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::setBaseColor( bool enable, caf::PdmUiListEditorAttribute* attribute )
+void RimExtrudedCurveIntersection::setBaseColor( bool enable, caf::PdmUiListEditorAttribute* attribute )
 {
     if ( attribute && enable )
     {
@@ -689,7 +689,7 @@ void RimIntersection::setBaseColor( bool enable, caf::PdmUiListEditorAttribute* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::defineEditorAttribute( const caf::PdmFieldHandle* field,
+void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                              QString                    uiConfigName,
                                              caf::PdmUiEditorAttribute* attribute )
 {
@@ -742,7 +742,7 @@ void RimIntersection::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::appendPointToPolyLine( const cvf::Vec3d& point )
+void RimExtrudedCurveIntersection::appendPointToPolyLine( const cvf::Vec3d& point )
 {
     m_userPolyline.v().push_back( point );
 
@@ -754,7 +754,7 @@ void RimIntersection::appendPointToPolyLine( const cvf::Vec3d& point )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dIntersectionView* RimIntersection::correspondingIntersectionView()
+Rim2dIntersectionView* RimExtrudedCurveIntersection::correspondingIntersectionView()
 {
     std::vector<Rim2dIntersectionView*> objects;
     this->objectsWithReferringPtrFieldsOfType( objects );
@@ -771,7 +771,7 @@ Rim2dIntersectionView* RimIntersection::correspondingIntersectionView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::appendPointToExtrusionDirection( const cvf::Vec3d& point )
+void RimExtrudedCurveIntersection::appendPointToExtrusionDirection( const cvf::Vec3d& point )
 {
     if ( m_customExtrusionPoints().size() > 1 ) m_customExtrusionPoints.v().clear();
 
@@ -785,7 +785,7 @@ void RimIntersection::appendPointToExtrusionDirection( const cvf::Vec3d& point )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::appendPointToAzimuthLine( const cvf::Vec3d& point )
+void RimExtrudedCurveIntersection::appendPointToAzimuthLine( const cvf::Vec3d& point )
 {
     if ( m_twoAzimuthPoints().empty() )
     {
@@ -813,11 +813,11 @@ void RimIntersection::appendPointToAzimuthLine( const cvf::Vec3d& point )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimIntersection::extrusionDirection() const
+cvf::Vec3d RimExtrudedCurveIntersection::extrusionDirection() const
 {
     cvf::Vec3d dir = cvf::Vec3d::Z_AXIS;
 
-    if ( direction() == RimIntersection::CS_HORIZONTAL )
+    if ( direction() == RimExtrudedCurveIntersection::CS_HORIZONTAL )
     {
         std::vector<std::vector<cvf::Vec3d>> lines = this->polyLines();
         if ( lines.size() > 0 && lines[0].size() > 1 )
@@ -832,7 +832,7 @@ cvf::Vec3d RimIntersection::extrusionDirection() const
             dir                    = polyLineDir ^ up;
         }
     }
-    else if ( direction() == RimIntersection::CS_TWO_POINTS && m_customExtrusionPoints().size() > 1 )
+    else if ( direction() == RimExtrudedCurveIntersection::CS_TWO_POINTS && m_customExtrusionPoints().size() > 1 )
     {
         dir = m_customExtrusionPoints()[m_customExtrusionPoints().size() - 1] - m_customExtrusionPoints()[0];
     }
@@ -854,7 +854,7 @@ cvf::Vec3d RimIntersection::extrusionDirection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimIntersection::lengthUp() const
+double RimExtrudedCurveIntersection::lengthUp() const
 {
     return m_lengthUp;
 }
@@ -862,7 +862,7 @@ double RimIntersection::lengthUp() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimIntersection::lengthDown() const
+double RimExtrudedCurveIntersection::lengthDown() const
 {
     return m_lengthDown;
 }
@@ -870,7 +870,7 @@ double RimIntersection::lengthDown() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::setLengthDown( double lengthDown )
+void RimExtrudedCurveIntersection::setLengthDown( double lengthDown )
 {
     m_lengthDown = lengthDown;
 }
@@ -878,7 +878,7 @@ void RimIntersection::setLengthDown( double lengthDown )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimIntersection::extentLength()
+double RimExtrudedCurveIntersection::extentLength()
 {
     return m_extentLength();
 }
@@ -886,7 +886,7 @@ double RimIntersection::extentLength()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::recomputeSimulationWellBranchData()
+void RimExtrudedCurveIntersection::recomputeSimulationWellBranchData()
 {
     if ( type() == CS_SIMULATION_WELL )
     {
@@ -900,7 +900,7 @@ void RimIntersection::recomputeSimulationWellBranchData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimIntersection::hasDefiningPoints() const
+bool RimExtrudedCurveIntersection::hasDefiningPoints() const
 {
     return type == CS_POLYLINE || type == CS_AZIMUTHLINE;
 }
@@ -908,7 +908,7 @@ bool RimIntersection::hasDefiningPoints() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::setLengthUp( double lengthUp )
+void RimExtrudedCurveIntersection::setLengthUp( double lengthUp )
 {
     m_lengthUp = lengthUp;
 }
@@ -916,7 +916,7 @@ void RimIntersection::setLengthUp( double lengthUp )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::rebuildGeometryAndScheduleCreateDisplayModel()
+void RimExtrudedCurveIntersection::rebuildGeometryAndScheduleCreateDisplayModel()
 {
     m_crossSectionPartMgr = nullptr;
 
@@ -938,7 +938,7 @@ void RimIntersection::rebuildGeometryAndScheduleCreateDisplayModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimIntersection::azimuthInRadians( cvf::Vec3d vec )
+double RimExtrudedCurveIntersection::azimuthInRadians( cvf::Vec3d vec )
 {
     return cvf::GeometryTools::getAngle( -cvf::Vec3d::Z_AXIS, cvf::Vec3d::Y_AXIS, vec );
 }

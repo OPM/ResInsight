@@ -25,7 +25,7 @@
 
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RifTextDataTableFormatter.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimPlotCurve.h"
 #include "RimWellPath.h"
 #include "RimWellPathFracture.h"
@@ -83,7 +83,7 @@ void RimModeledWellPath::updateWellPathVisualization()
         fracture->loadDataAndUpdate();
     }
 
-    std::vector<RimIntersection*> refferingIntersections;
+    std::vector<RimExtrudedCurveIntersection*> refferingIntersections;
     this->objectsWithReferringPtrFieldsOfType( refferingIntersections );
 
     for ( auto intersection : refferingIntersections )

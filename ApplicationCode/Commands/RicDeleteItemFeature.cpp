@@ -41,7 +41,7 @@
 #include "RimGridCrossPlotDataSet.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionBox.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimMultiPlotWindow.h"
@@ -117,7 +117,7 @@ bool isDeletable( caf::PdmUiItem* uiItem )
     }
     if ( dynamic_cast<RimSummaryCurve*>( uiItem ) ) return true;
     if ( dynamic_cast<RimGridTimeHistoryCurve*>( uiItem ) ) return true;
-    if ( dynamic_cast<RimIntersection*>( uiItem ) ) return true;
+    if ( dynamic_cast<RimExtrudedCurveIntersection*>( uiItem ) ) return true;
     if ( dynamic_cast<RimIntersectionBox*>( uiItem ) ) return true;
     if ( dynamic_cast<RimFormationNames*>( uiItem ) ) return true;
     if ( dynamic_cast<RimFormationNamesCollection*>( uiItem ) ) return true;

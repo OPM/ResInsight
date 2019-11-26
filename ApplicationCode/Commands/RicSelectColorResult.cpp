@@ -26,7 +26,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 
 #include "Riu3DMainWindowTools.h"
 

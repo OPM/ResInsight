@@ -36,7 +36,7 @@
 class RigMainGrid;
 class RigActiveCellInfo;
 class RigResultAccessor;
-class RimIntersection;
+class RimExtrudedCurveIntersection;
 class RivIntersectionHexGridInterface;
 class RivIntersectionVertexWeights;
 
@@ -49,7 +49,7 @@ class DrawableGeo;
 class RivIntersectionGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorIF
 {
 public:
-    RivIntersectionGeometryGenerator( RimIntersection*                       crossSection,
+    RivIntersectionGeometryGenerator( RimExtrudedCurveIntersection*                       crossSection,
                                       std::vector<std::vector<cvf::Vec3d>>&  polylines,
                                       const cvf::Vec3d&                      extrusionDirection,
                                       const RivIntersectionHexGridInterface* grid,
@@ -77,7 +77,7 @@ public:
         return m_faultMeshLabelAndAnchorPositions;
     }
 
-    RimIntersection* crossSection() const;
+    RimExtrudedCurveIntersection* crossSection() const;
 
     cvf::Mat4d unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat );
 
@@ -93,7 +93,7 @@ private:
     void calculateSegementTransformPrLinePoint();
     void calculateFlattenedOrOffsetedPolyline();
 
-    RimIntersection*                           m_crossSection;
+    RimExtrudedCurveIntersection*                           m_crossSection;
     cvf::cref<RivIntersectionHexGridInterface> m_hexGrid;
     const std::vector<std::vector<cvf::Vec3d>> m_polyLines;
     cvf::Vec3d                                 m_extrusionDirection;

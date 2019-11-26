@@ -26,7 +26,7 @@
 #include "RimGeoMechView.h"
 #include "RimGridCrossPlotCurve.h"
 #include "RimGridCrossPlotDataSet.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionBox.h"
 #include "RimMimeData.h"
 #include "RimSummaryCurveFilter.h"
@@ -141,7 +141,7 @@ bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported( caf::PdmObjec
     {
         return true;
     }
-    else if ( dynamic_cast<RimIntersection*>( pdmObject ) )
+    else if ( dynamic_cast<RimExtrudedCurveIntersection*>( pdmObject ) )
     {
         return true;
     }

@@ -47,7 +47,7 @@ class PdmUiPushButtonEditorAttribute;
 //
 //
 //==================================================================================================
-class RimIntersection : public RimIntersectionHandle
+class RimExtrudedCurveIntersection : public RimIntersectionHandle
 {
     CAF_PDM_HEADER_INIT;
 
@@ -68,8 +68,8 @@ public:
     };
 
 public:
-    RimIntersection();
-    ~RimIntersection() override;
+    RimExtrudedCurveIntersection();
+    ~RimExtrudedCurveIntersection() override;
 
     caf::PdmField<caf::AppEnum<CrossSectionEnum>>    type;
     caf::PdmField<caf::AppEnum<CrossSectionDirEnum>> direction;

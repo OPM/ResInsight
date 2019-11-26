@@ -29,7 +29,7 @@ class RicDefaultPickEventHandler;
 class Ric3dViewPickEventHandler;
 class RimEclipseView;
 class RimGeoMechView;
-class RimIntersection;
+class RimExtrudedCurveIntersection;
 class Rim3dView;
 class RiuViewer;
 class RivIntersectionBoxSourceInfo;

@@ -23,7 +23,7 @@
 #include "Rim2dIntersectionViewCollection.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionBox.h"
 #include "RimSimWellInView.h"
 
@@ -77,7 +77,7 @@ void RimIntersectionCollection::applySingleColorEffect()
 {
     if ( !this->isActive() ) return;
 
-    for ( RimIntersection* cs : m_intersections )
+    for ( RimExtrudedCurveIntersection* cs : m_intersections )
     {
         if ( cs->isActive() )
         {
@@ -101,7 +101,7 @@ void RimIntersectionCollection::updateCellResultColor( size_t timeStepIndex )
 {
     if ( !this->isActive() ) return;
 
-    for ( RimIntersection* cs : m_intersections )
+    for ( RimExtrudedCurveIntersection* cs : m_intersections )
     {
         if ( cs->isActive() )
         {
@@ -127,7 +127,7 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView&           view,
 {
     if ( !isActive() ) return;
 
-    for ( RimIntersection* cs : m_intersections )
+    for ( RimExtrudedCurveIntersection* cs : m_intersections )
     {
         if ( cs->isActive() )
         {
@@ -159,7 +159,7 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView&           view,
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::rebuildGeometry()
 {
-    for ( RimIntersection* intersection : m_intersections )
+    for ( RimExtrudedCurveIntersection* intersection : m_intersections )
     {
         intersection->rebuildGeometry();
     }
@@ -173,7 +173,7 @@ void RimIntersectionCollection::rebuildGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimIntersection*> RimIntersectionCollection::intersections() const
+std::vector<RimExtrudedCurveIntersection*> RimIntersectionCollection::intersections() const
 {
     return m_intersections.childObjects();
 }
@@ -200,7 +200,7 @@ void RimIntersectionCollection::recomputeSimWellBranchData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendIntersectionAndUpdate( RimIntersection* intersection, bool allowActiveViewChange )
+void RimIntersectionCollection::appendIntersectionAndUpdate( RimExtrudedCurveIntersection* intersection, bool allowActiveViewChange )
 {
     m_intersections.push_back( intersection );
 
@@ -220,7 +220,7 @@ void RimIntersectionCollection::appendIntersectionAndUpdate( RimIntersection* in
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendIntersectionNoUpdate( RimIntersection* intersection )
+void RimIntersectionCollection::appendIntersectionNoUpdate( RimExtrudedCurveIntersection* intersection )
 {
     m_intersections.push_back( intersection );
 }
@@ -240,7 +240,7 @@ void RimIntersectionCollection::syncronize2dIntersectionViews()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::scheduleCreateDisplayModelAndRedraw2dIntersectionViews()
 {
-    for ( RimIntersection* isection : m_intersections )
+    for ( RimExtrudedCurveIntersection* isection : m_intersections )
     {
         if ( isection->correspondingIntersectionView() )
         {
@@ -302,9 +302,9 @@ bool RimIntersectionCollection::hasActiveIntersectionForSimulationWell( const Ri
 {
     if ( !isActive() ) return false;
 
-    for ( RimIntersection* cs : m_intersections )
+    for ( RimExtrudedCurveIntersection* cs : m_intersections )
     {
-        if ( cs->isActive() && cs->type() == RimIntersection::CS_SIMULATION_WELL && cs->simulationWell() == simWell )
+        if ( cs->isActive() && cs->type() == RimExtrudedCurveIntersection::CS_SIMULATION_WELL && cs->simulationWell() == simWell )
         {
             return true;
         }

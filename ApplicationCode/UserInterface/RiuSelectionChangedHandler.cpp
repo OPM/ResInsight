@@ -36,7 +36,7 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimProject.h"
 
 #include "Riu3dSelectionManager.h"

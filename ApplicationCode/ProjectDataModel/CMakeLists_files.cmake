@@ -88,7 +88,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionHandle.h
-${CMAKE_CURRENT_LIST_DIR}/RimIntersection.h
+${CMAKE_CURRENT_LIST_DIR}/RimExtrudedCurveIntersection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.h
@@ -233,7 +233,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionHandle.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimIntersection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimExtrudedCurveIntersection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.cpp

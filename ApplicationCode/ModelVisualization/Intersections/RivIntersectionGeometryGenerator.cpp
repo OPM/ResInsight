@@ -25,7 +25,7 @@
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 
 #include "RivHexGridIntersectionTools.h"
 #include "RivIntersectionPartMgr.h"
@@ -44,7 +44,7 @@
 
 #include "RivSectionFlattner.h"
 
-cvf::ref<caf::DisplayCoordTransform> displayCoordTransform( const RimIntersection* intersection )
+cvf::ref<caf::DisplayCoordTransform> displayCoordTransform( const RimExtrudedCurveIntersection* intersection )
 {
     Rim3dView* rimView = nullptr;
     intersection->firstAncestorOrThisOfType( rimView );
@@ -58,7 +58,7 @@ cvf::ref<caf::DisplayCoordTransform> displayCoordTransform( const RimIntersectio
 /// isFlattened means to transform each flat section of the intersection onto the XZ plane
 /// placed adjacent to each other as if they were rotated around the common extrusion line like a hinge
 //--------------------------------------------------------------------------------------------------
-RivIntersectionGeometryGenerator::RivIntersectionGeometryGenerator( RimIntersection*                      crossSection,
+RivIntersectionGeometryGenerator::RivIntersectionGeometryGenerator( RimExtrudedCurveIntersection*                      crossSection,
                                                                     std::vector<std::vector<cvf::Vec3d>>& polylines,
                                                                     const cvf::Vec3d& extrusionDirection,
                                                                     const RivIntersectionHexGridInterface* grid,
@@ -254,7 +254,7 @@ void RivIntersectionGeometryGenerator::calculateArrays()
             double maxSectionHeightUp   = 0;
             double maxSectionHeightDown = 0;
 
-            if ( m_crossSection->type == RimIntersection::CS_AZIMUTHLINE )
+            if ( m_crossSection->type == RimExtrudedCurveIntersection::CS_AZIMUTHLINE )
             {
                 maxSectionHeightUp   = m_crossSection->lengthUp();
                 maxSectionHeightDown = m_crossSection->lengthDown();
@@ -320,7 +320,7 @@ void RivIntersectionGeometryGenerator::calculateArrays()
                                                                        &hexPlaneCutTriangleVxes,
                                                                        &cellFaceForEachTriangleEdge );
 
-                if ( m_crossSection->type == RimIntersection::CS_AZIMUTHLINE )
+                if ( m_crossSection->type == RimExtrudedCurveIntersection::CS_AZIMUTHLINE )
                 {
                     bool hasAnyPointsOnSurface = false;
                     for ( caf::HexGridIntersectionTools::ClipVx vertex : hexPlaneCutTriangleVxes )
@@ -580,7 +580,7 @@ const cvf::Vec3fArray* RivIntersectionGeometryGenerator::triangleVxes() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersection* RivIntersectionGeometryGenerator::crossSection() const
+RimExtrudedCurveIntersection* RivIntersectionGeometryGenerator::crossSection() const
 {
     return m_crossSection;
 }

@@ -22,7 +22,7 @@
 
 #include "RimCase.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionCollection.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -105,9 +105,9 @@ void RicNewAzimuthDipIntersectionFeatureCmd::redo()
 {
     CVF_ASSERT( m_intersectionCollection );
 
-    RimIntersection* intersection = new RimIntersection();
+    RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
     intersection->setName( "Azimuth and Dip" );
-    intersection->type                                   = RimIntersection::CS_AZIMUTHLINE;
+    intersection->type                                   = RimExtrudedCurveIntersection::CS_AZIMUTHLINE;
     intersection->inputTwoAzimuthPointsFromViewerEnabled = true;
 
     RimCase* rimCase;

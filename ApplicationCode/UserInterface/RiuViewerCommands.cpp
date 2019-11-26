@@ -57,7 +57,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionBox.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimLegendConfig.h"

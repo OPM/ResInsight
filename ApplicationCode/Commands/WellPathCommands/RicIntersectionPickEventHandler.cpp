@@ -20,7 +20,7 @@
 #include "RiaApplication.h"
 
 #include "RimGridView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
@@ -41,13 +41,13 @@ RicIntersectionPickEventHandler* RicIntersectionPickEventHandler::instance()
 //--------------------------------------------------------------------------------------------------
 bool RicIntersectionPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eventObject )
 {
-    std::vector<RimIntersection*> selection;
+    std::vector<RimExtrudedCurveIntersection*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
 
     if ( selection.size() == 1 )
     {
         {
-            RimIntersection* intersection = selection[0];
+            RimExtrudedCurveIntersection* intersection = selection[0];
 
             RimGridView* gridView = nullptr;
             intersection->firstAncestorOrThisOfTypeAsserted( gridView );

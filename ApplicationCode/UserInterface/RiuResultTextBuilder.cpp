@@ -34,7 +34,7 @@
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimFormationNames.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 

@@ -22,7 +22,7 @@
 #include "RiaApplication.h"
 
 #include "RimGridView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimWellPath.h"
 
@@ -108,9 +108,9 @@ void RicNewWellPathIntersectionFeatureCmd::redo()
     CVF_ASSERT( m_intersectionCollection );
     CVF_ASSERT( m_wellPath );
 
-    RimIntersection* intersection = new RimIntersection();
+    RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
     intersection->setName( m_wellPath->name() );
-    intersection->type     = RimIntersection::CS_WELL_PATH;
+    intersection->type     = RimExtrudedCurveIntersection::CS_WELL_PATH;
     intersection->wellPath = m_wellPath;
 
     m_intersectionCollection->appendIntersectionAndUpdate( intersection, false );

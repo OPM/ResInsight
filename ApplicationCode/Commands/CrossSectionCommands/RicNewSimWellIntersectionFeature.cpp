@@ -20,7 +20,7 @@
 #include "RicNewSimWellIntersectionFeature.h"
 
 #include "RimEclipseView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimSimWellInView.h"
 
@@ -101,9 +101,9 @@ void RicNewSimWellIntersectionCmd::redo()
     CVF_ASSERT( m_intersectionCollection );
     CVF_ASSERT( m_simWell );
 
-    RimIntersection* intersection = new RimIntersection();
+    RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
     intersection->setName( m_simWell->name );
-    intersection->type           = RimIntersection::CS_SIMULATION_WELL;
+    intersection->type           = RimExtrudedCurveIntersection::CS_SIMULATION_WELL;
     intersection->simulationWell = m_simWell;
 
     m_intersectionCollection->appendIntersectionAndUpdate( intersection, false );

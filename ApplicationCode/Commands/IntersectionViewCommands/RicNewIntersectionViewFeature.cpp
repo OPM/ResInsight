@@ -20,7 +20,7 @@
 
 #include "Rim2dIntersectionView.h"
 #include "RimCase.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "Riu3dSelectionManager.h"
@@ -40,7 +40,7 @@ CAF_CMD_SOURCE_INIT( RicNewIntersectionViewFeature, "RicNewIntersectionViewFeatu
 //--------------------------------------------------------------------------------------------------
 bool RicNewIntersectionViewFeature::isCommandEnabled()
 {
-    std::set<RimIntersection*> objects = selectedIntersections();
+    std::set<RimExtrudedCurveIntersection*> objects = selectedIntersections();
 
     return !objects.empty();
 }
@@ -50,7 +50,7 @@ bool RicNewIntersectionViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewIntersectionViewFeature::onActionTriggered( bool isChecked )
 {
-    std::set<RimIntersection*> intersections = selectedIntersections();
+    std::set<RimExtrudedCurveIntersection*> intersections = selectedIntersections();
 
     Rim2dIntersectionView* objectToSelect = nullptr;
 
@@ -62,7 +62,7 @@ void RicNewIntersectionViewFeature::onActionTriggered( bool isChecked )
         intersection->firstAncestorOrThisOfType( rimCase );
         if ( rimCase )
         {
-            if ( intersection->direction() != RimIntersection::CS_VERTICAL )
+            if ( intersection->direction() != RimExtrudedCurveIntersection::CS_VERTICAL )
             {
                 QString text =
                     QString(
@@ -101,9 +101,9 @@ void RicNewIntersectionViewFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RimIntersection*> RicNewIntersectionViewFeature::selectedIntersections()
+std::set<RimExtrudedCurveIntersection*> RicNewIntersectionViewFeature::selectedIntersections()
 {
-    std::set<RimIntersection*> objects;
+    std::set<RimExtrudedCurveIntersection*> objects;
 
     Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
     RiuSelectionItem*      selItem       = riuSelManager->selectedItem( Riu3dSelectionManager::RUI_TEMPORARY );
@@ -111,7 +111,7 @@ std::set<RimIntersection*> RicNewIntersectionViewFeature::selectedIntersections(
     RiuGeneralSelectionItem* generalSelectionItem = static_cast<RiuGeneralSelectionItem*>( selItem );
     if ( generalSelectionItem )
     {
-        RimIntersection* intersection = dynamic_cast<RimIntersection*>( generalSelectionItem->m_object );
+        RimExtrudedCurveIntersection* intersection = dynamic_cast<RimExtrudedCurveIntersection*>( generalSelectionItem->m_object );
         if ( intersection )
         {
             objects.insert( intersection );
@@ -123,7 +123,7 @@ std::set<RimIntersection*> RicNewIntersectionViewFeature::selectedIntersections(
     }
 
     {
-        std::vector<RimIntersection*> selectedObjects = caf::selectedObjectsByType<RimIntersection*>();
+        std::vector<RimExtrudedCurveIntersection*> selectedObjects = caf::selectedObjectsByType<RimExtrudedCurveIntersection*>();
         for ( auto obj : selectedObjects )
         {
             objects.insert( obj );

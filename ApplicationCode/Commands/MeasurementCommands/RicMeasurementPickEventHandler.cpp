@@ -24,7 +24,7 @@
 
 #include "Rim3dView.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimMeasurement.h"
 #include "RimProject.h"
 

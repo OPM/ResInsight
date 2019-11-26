@@ -31,7 +31,7 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimPropertyFilterCollection.h"
 #include "RimSimWellFracture.h"

@@ -59,7 +59,7 @@
 #include "RimGridCollection.h"
 #include "RimGridCrossPlotDataSet.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
@@ -1633,7 +1633,7 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
     {
         this->loadDataAndUpdate();
 
-        std::vector<RimIntersection*> intersections = m_crossSectionCollection->intersections();
+        std::vector<RimExtrudedCurveIntersection*> intersections = m_crossSectionCollection->intersections();
         for ( auto intersection : intersections )
         {
             if ( intersection && intersection->correspondingIntersectionView() )

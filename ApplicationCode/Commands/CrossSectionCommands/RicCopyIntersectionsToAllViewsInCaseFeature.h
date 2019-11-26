@@ -24,7 +24,7 @@
 #include "cafPdmPointer.h"
 
 class RimCase;
-class RimIntersection;
+class RimExtrudedCurveIntersection;
 class RimIntersectionBox;
 class RimIntersectionCollection;
 
@@ -41,6 +41,6 @@ protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    void copyIntersectionsToOtherViews( RimCase& gridCase, std::vector<RimIntersection*> intersections );
+    void copyIntersectionsToOtherViews( RimCase& gridCase, std::vector<RimExtrudedCurveIntersection*> intersections );
     void copyIntersectionBoxesToOtherViews( RimCase& gridCase, std::vector<RimIntersectionBox*> intersectionBoxes );
 };

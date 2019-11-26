@@ -26,7 +26,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
@@ -123,7 +123,7 @@ void Rim2dIntersectionView::setVisible( bool isVisible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::setIntersection( RimIntersection* intersection )
+void Rim2dIntersectionView::setIntersection( RimExtrudedCurveIntersection* intersection )
 {
     CAF_ASSERT( intersection );
 
@@ -135,7 +135,7 @@ void Rim2dIntersectionView::setIntersection( RimIntersection* intersection )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersection* Rim2dIntersectionView::intersection() const
+RimExtrudedCurveIntersection* Rim2dIntersectionView::intersection() const
 {
     return m_intersection();
 }
@@ -553,7 +553,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
     m_flatSimWellPipePartMgr = nullptr;
     m_flatWellHeadPartMgr    = nullptr;
 
-    if ( m_intersection->type() == RimIntersection::CS_SIMULATION_WELL && m_intersection->simulationWell() )
+    if ( m_intersection->type() == RimExtrudedCurveIntersection::CS_SIMULATION_WELL && m_intersection->simulationWell() )
     {
         RimEclipseView* eclipseView = nullptr;
         m_intersection->firstAncestorOrThisOfType( eclipseView );
@@ -566,7 +566,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
     }
 
     m_flatWellpathPartMgr = nullptr;
-    if ( m_intersection->type() == RimIntersection::CS_WELL_PATH && m_intersection->wellPath() )
+    if ( m_intersection->type() == RimExtrudedCurveIntersection::CS_WELL_PATH && m_intersection->wellPath() )
     {
         Rim3dView* settingsView = nullptr;
         m_intersection->firstAncestorOrThisOfType( settingsView );

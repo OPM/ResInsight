@@ -22,7 +22,7 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
-class RimIntersection;
+class RimExtrudedCurveIntersection;
 class RimRegularLegendConfig;
 class RimTernaryLegendConfig;
 class RivSimWellPipesPartMgr;
@@ -49,8 +49,8 @@ public:
     ~Rim2dIntersectionView( void ) override;
 
     void             setVisible( bool isVisible );
-    void             setIntersection( RimIntersection* intersection );
-    RimIntersection* intersection() const;
+    void             setIntersection( RimExtrudedCurveIntersection* intersection );
+    RimExtrudedCurveIntersection* intersection() const;
 
     bool     isUsingFormationNames() const override;
     void     scheduleGeometryRegen( RivCellSetEnum geometryType ) override;
@@ -117,7 +117,7 @@ private:
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
     caf::PdmChildField<RimTernaryLegendConfig*> m_ternaryLegendConfig;
 
-    caf::PdmPtrField<RimIntersection*> m_intersection;
+    caf::PdmPtrField<RimExtrudedCurveIntersection*> m_intersection;
 
     cvf::ref<RivIntersectionPartMgr> m_flatIntersectionPartMgr;
     cvf::ref<RivSimWellPipesPartMgr> m_flatSimWellPipePartMgr;

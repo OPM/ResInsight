@@ -32,7 +32,7 @@
 #include "Rim3dView.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 
 //#include "cvfTrace.h"
 

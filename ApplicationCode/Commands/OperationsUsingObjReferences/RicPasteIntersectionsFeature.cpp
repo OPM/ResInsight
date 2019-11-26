@@ -20,7 +20,7 @@
 
 #include "RicPasteFeatureImpl.h"
 
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
 
@@ -41,7 +41,7 @@ bool RicPasteIntersectionsFeature::isCommandEnabled()
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
-    std::vector<caf::PdmPointer<RimIntersection>> intersectionObjects;
+    std::vector<caf::PdmPointer<RimExtrudedCurveIntersection>> intersectionObjects;
     objectGroup.objectsByType( &intersectionObjects );
 
     std::vector<caf::PdmPointer<RimIntersectionBox>> intersectionBoxObjects;
@@ -81,12 +81,12 @@ void RicPasteIntersectionsFeature::onActionTriggered( bool isChecked )
 
     if ( objectGroup.objects.size() == 0 ) return;
 
-    std::vector<caf::PdmPointer<RimIntersection>> intersectionObjects;
+    std::vector<caf::PdmPointer<RimExtrudedCurveIntersection>> intersectionObjects;
     objectGroup.objectsByType( &intersectionObjects );
 
     for ( size_t i = 0; i < intersectionObjects.size(); i++ )
     {
-        RimIntersection* intersection = dynamic_cast<RimIntersection*>(
+        RimExtrudedCurveIntersection* intersection = dynamic_cast<RimExtrudedCurveIntersection*>(
             intersectionObjects[i]->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
         QString nameOfCopy = QString( "Copy of " ) + intersection->name();
@@ -146,7 +146,7 @@ RimIntersectionCollection* RicPasteIntersectionsFeature::findIntersectionCollect
         return intersectionCollection;
     }
 
-    RimIntersection* intersection = dynamic_cast<RimIntersection*>( objectHandle );
+    RimExtrudedCurveIntersection* intersection = dynamic_cast<RimExtrudedCurveIntersection*>( objectHandle );
     if ( intersection )
     {
         intersection->firstAncestorOrThisOfType( intersectionCollection );

@@ -23,7 +23,7 @@
 
 #include "RimCase.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionCollection.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -103,9 +103,9 @@ void RicNewPolylineIntersectionFeatureCmd::redo()
 {
     CVF_ASSERT( m_intersectionCollection );
 
-    RimIntersection* intersection = new RimIntersection();
+    RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
     intersection->setName( "Polyline" );
-    intersection->type                           = RimIntersection::CS_POLYLINE;
+    intersection->type                           = RimExtrudedCurveIntersection::CS_POLYLINE;
     intersection->inputPolyLineFromViewerEnabled = true;
 
     m_intersectionCollection->appendIntersectionAndUpdate( intersection, false );

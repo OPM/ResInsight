@@ -39,7 +39,7 @@
 #include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimProject.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimViewLinker.h"
