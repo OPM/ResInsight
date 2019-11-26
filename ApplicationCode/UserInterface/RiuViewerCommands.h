@@ -32,7 +32,7 @@ class RimGeoMechView;
 class RimExtrudedCurveIntersection;
 class Rim3dView;
 class RiuViewer;
-class RivIntersectionBoxSourceInfo;
+class RivBoxIntersectionSourceInfo;
 class RivExtrudedCurveIntersectionSourceInfo;
 class RiuPickItemInfo;
 
@@ -76,7 +76,7 @@ private:
                                size_t*                          cellIndex,
                                size_t*                          gridIndex );
     void findCellAndGridIndex( Rim3dView*                          mainOrComparisonView,
-                               const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo,
+                               const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo,
                                cvf::uint                           firstPartTriangleIndex,
                                size_t*                             cellIndex,
                                size_t*                             gridIndex );

@@ -37,13 +37,13 @@ class ScalarMapper;
 class DrawableGeo;
 } // namespace cvf
 
-class RivIntersectionBoxGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorIF
+class RivBoxIntersectionGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorIF
 {
 public:
-    RivIntersectionBoxGeometryGenerator( RimBoxIntersection*                    intersectionBox,
+    RivBoxIntersectionGeometryGenerator( RimBoxIntersection*                    intersectionBox,
                                          const RivIntersectionHexGridInterface* grid );
 
-    ~RivIntersectionBoxGeometryGenerator() override;
+    ~RivBoxIntersectionGeometryGenerator() override;
 
     // Generate geometry
     cvf::ref<cvf::DrawableGeo> generateSurface();

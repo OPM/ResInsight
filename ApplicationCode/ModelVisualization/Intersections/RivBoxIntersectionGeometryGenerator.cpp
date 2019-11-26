@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RivIntersectionBoxGeometryGenerator.h"
+#include "RivBoxIntersectionGeometryGenerator.h"
 
 #include "RimCase.h"
 #include "RimGridView.h"
@@ -34,7 +34,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivIntersectionBoxGeometryGenerator::RivIntersectionBoxGeometryGenerator( RimBoxIntersection* intersectionBox,
+RivBoxIntersectionGeometryGenerator::RivBoxIntersectionGeometryGenerator( RimBoxIntersection* intersectionBox,
                                                                           const RivIntersectionHexGridInterface* grid )
     : m_intersectionBoxDefinition( intersectionBox )
     , m_hexGrid( grid )
@@ -46,12 +46,12 @@ RivIntersectionBoxGeometryGenerator::RivIntersectionBoxGeometryGenerator( RimBox
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivIntersectionBoxGeometryGenerator::~RivIntersectionBoxGeometryGenerator() {}
+RivBoxIntersectionGeometryGenerator::~RivBoxIntersectionGeometryGenerator() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RivIntersectionBoxGeometryGenerator::isAnyGeometryPresent() const
+bool RivBoxIntersectionGeometryGenerator::isAnyGeometryPresent() const
 {
     if ( m_triangleVxes->size() == 0 )
     {
@@ -66,7 +66,7 @@ bool RivIntersectionBoxGeometryGenerator::isAnyGeometryPresent() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivIntersectionBoxGeometryGenerator::generateSurface()
+cvf::ref<cvf::DrawableGeo> RivBoxIntersectionGeometryGenerator::generateSurface()
 {
     calculateArrays();
 
@@ -83,7 +83,7 @@ cvf::ref<cvf::DrawableGeo> RivIntersectionBoxGeometryGenerator::generateSurface(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivIntersectionBoxGeometryGenerator::createMeshDrawable()
+cvf::ref<cvf::DrawableGeo> RivBoxIntersectionGeometryGenerator::createMeshDrawable()
 {
     if ( !( m_cellBorderLineVxes.notNull() && m_cellBorderLineVxes->size() != 0 ) ) return nullptr;
 
@@ -100,7 +100,7 @@ cvf::ref<cvf::DrawableGeo> RivIntersectionBoxGeometryGenerator::createMeshDrawab
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RivIntersectionBoxGeometryGenerator::triangleToCellIndex() const
+const std::vector<size_t>& RivBoxIntersectionGeometryGenerator::triangleToCellIndex() const
 {
     CVF_ASSERT( m_triangleVxes->size() );
     return m_triangleToCellIdxMap;
@@ -110,7 +110,7 @@ const std::vector<size_t>& RivIntersectionBoxGeometryGenerator::triangleToCellIn
 ///
 //--------------------------------------------------------------------------------------------------
 const std::vector<RivIntersectionVertexWeights>&
-    RivIntersectionBoxGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
+    RivBoxIntersectionGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
 {
     CVF_ASSERT( m_triangleVxes->size() );
     return m_triVxToCellCornerWeights;
@@ -119,7 +119,7 @@ const std::vector<RivIntersectionVertexWeights>&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const cvf::Vec3fArray* RivIntersectionBoxGeometryGenerator::triangleVxes() const
+const cvf::Vec3fArray* RivBoxIntersectionGeometryGenerator::triangleVxes() const
 {
     CVF_ASSERT( m_triangleVxes->size() );
 
@@ -236,7 +236,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimBoxIntersection* RivIntersectionBoxGeometryGenerator::intersectionBox() const
+RimBoxIntersection* RivBoxIntersectionGeometryGenerator::intersectionBox() const
 {
     return m_intersectionBoxDefinition;
 }
@@ -244,7 +244,7 @@ RimBoxIntersection* RivIntersectionBoxGeometryGenerator::intersectionBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxGeometryGenerator::calculateArrays()
+void RivBoxIntersectionGeometryGenerator::calculateArrays()
 {
     if ( m_triangleVxes->size() ) return;
 

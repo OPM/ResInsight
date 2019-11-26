@@ -36,7 +36,7 @@
 #include "RimRegularLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 
-#include "RivIntersectionBoxSourceInfo.h"
+#include "RivBoxIntersectionSourceInfo.h"
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 #include "RivIntersectionResultsColoringTools.h"
 #include "RivMeshLinesSourceInfo.h"
@@ -67,7 +67,7 @@ RivBoxIntersectionPartMgr::RivBoxIntersectionPartMgr( RimBoxIntersection* inters
     m_intersectionBoxFacesTextureCoords = new cvf::Vec2fArray;
 
     cvf::ref<RivIntersectionHexGridInterface> hexGrid = intersectionBox->createHexGridInterface();
-    m_intersectionBoxGenerator = new RivIntersectionBoxGeometryGenerator( m_rimIntersectionBox, hexGrid.p() );
+    m_intersectionBoxGenerator = new RivBoxIntersectionGeometryGenerator( m_rimIntersectionBox, hexGrid.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,7 +117,7 @@ void RivBoxIntersectionPartMgr::generatePartGeometry()
             part->setDrawable( geo.p() );
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivIntersectionBoxSourceInfo> si = new RivIntersectionBoxSourceInfo( m_intersectionBoxGenerator.p() );
+            cvf::ref<RivBoxIntersectionSourceInfo> si = new RivBoxIntersectionSourceInfo( m_intersectionBoxGenerator.p() );
             part->setSourceInfo( si.p() );
 
             part->updateBoundingBox();

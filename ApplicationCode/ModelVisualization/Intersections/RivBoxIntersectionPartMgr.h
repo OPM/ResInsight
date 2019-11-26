@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RivIntersectionBoxGeometryGenerator.h"
+#include "RivBoxIntersectionGeometryGenerator.h"
 
 #include "cvfObject.h"
 
@@ -73,5 +73,5 @@ private:
     cvf::ref<cvf::Part>       m_intersectionBoxGridLines;
     cvf::ref<cvf::Vec2fArray> m_intersectionBoxFacesTextureCoords;
 
-    cvf::ref<RivIntersectionBoxGeometryGenerator> m_intersectionBoxGenerator;
+    cvf::ref<RivBoxIntersectionGeometryGenerator> m_intersectionBoxGenerator;
 };
