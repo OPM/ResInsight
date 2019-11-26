@@ -153,14 +153,14 @@ void RivIntersectionPartMgr::updateCellResultColor( size_t                      
                                                     const cvf::ScalarMapper*      explicitScalarColorMapper,
                                                     const RivTernaryScalarMapper* explicitTernaryColorMapper )
 {
-    RivIntersectionResultsColoringTools::updateCellResultColorStatic( timeStepIndex,
-                                                                      !m_isFlattened,
-                                                                      m_rimCrossSection,
-                                                                      m_crossSectionGenerator.p(),
-                                                                      explicitScalarColorMapper,
-                                                                      explicitTernaryColorMapper,
-                                                                      m_crossSectionFaces.p(),
-                                                                      m_crossSectionFacesTextureCoords.p() );
+    RivIntersectionResultsColoringTools::calculateIntersectionResultColors( timeStepIndex,
+                                                                            !m_isFlattened,
+                                                                            m_rimCrossSection,
+                                                                            m_crossSectionGenerator.p(),
+                                                                            explicitScalarColorMapper,
+                                                                            explicitTernaryColorMapper,
+                                                                            m_crossSectionFaces.p(),
+                                                                            m_crossSectionFacesTextureCoords.p() );
 }
 
 //--------------------------------------------------------------------------------------------------

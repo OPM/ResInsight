@@ -48,7 +48,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionResultsColoringTools::updateCellResultColorStatic(
+void RivIntersectionResultsColoringTools::calculateIntersectionResultColors(
     size_t                                    timeStepIndex,
     bool                                      useSeparateIntersectionResDefTimeStep,
     RimIntersectionHandle*                    rimIntersectionHandle,

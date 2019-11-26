@@ -43,14 +43,14 @@ class ScalarMapper;
 class RivIntersectionResultsColoringTools
 {
 public:
-    static void updateCellResultColorStatic( size_t                 timeStepIndex,
-                                             bool                   useSeparateIntersectionResDefTimeStep,
-                                             RimIntersectionHandle* rimIntersectionHandle,
-                                             const RivIntersectionGeometryGeneratorIF* intersectionGeomGenIF,
-                                             const cvf::ScalarMapper*                  explicitScalarColorMapper,
-                                             const RivTernaryScalarMapper*             explicitTernaryColorMapper,
-                                             cvf::Part*                                intersectionFacesPart,
-                                             cvf::Vec2fArray*                          intersectionFacesTextureCoords );
+    static void calculateIntersectionResultColors( size_t                 timeStepIndex,
+                                                   bool                   useSeparateIntersectionResDefTimeStep,
+                                                   RimIntersectionHandle* rimIntersectionHandle,
+                                                   const RivIntersectionGeometryGeneratorIF* intersectionGeomGenIF,
+                                                   const cvf::ScalarMapper*                  explicitScalarColorMapper,
+                                                   const RivTernaryScalarMapper*             explicitTernaryColorMapper,
+                                                   cvf::Part*                                intersectionFacesPart,
+                                                   cvf::Vec2fArray* intersectionFacesTextureCoords );
 
 private:
     static void updateEclipseCellResultColors( const RimEclipseResultDefinition* eclipseResDef,

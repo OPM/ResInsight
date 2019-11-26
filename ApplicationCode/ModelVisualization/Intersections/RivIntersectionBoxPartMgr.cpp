@@ -84,14 +84,14 @@ void RivIntersectionBoxPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 void RivIntersectionBoxPartMgr::updateCellResultColor( size_t timeStepIndex )
 {
-    RivIntersectionResultsColoringTools::updateCellResultColorStatic( timeStepIndex,
-                                                                      true,
-                                                                      m_rimIntersectionBox,
-                                                                      m_intersectionBoxGenerator.p(),
-                                                                      nullptr,
-                                                                      nullptr,
-                                                                      m_intersectionBoxFaces.p(),
-                                                                      m_intersectionBoxFacesTextureCoords.p() );
+    RivIntersectionResultsColoringTools::calculateIntersectionResultColors( timeStepIndex,
+                                                                            true,
+                                                                            m_rimIntersectionBox,
+                                                                            m_intersectionBoxGenerator.p(),
+                                                                            nullptr,
+                                                                            nullptr,
+                                                                            m_intersectionBoxFaces.p(),
+                                                                            m_intersectionBoxFacesTextureCoords.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
