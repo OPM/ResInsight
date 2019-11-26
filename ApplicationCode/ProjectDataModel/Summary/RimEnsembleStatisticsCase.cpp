@@ -152,6 +152,8 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*> su
             std::vector<double>        values;
             reader->values( inputAddress, &values );
 
+            if ( values.empty() ) continue;
+
             if ( !includeIncompleteCurves && timeSteps.size() != values.size() ) continue;
 
             RiaTimeHistoryCurveResampler resampler;
