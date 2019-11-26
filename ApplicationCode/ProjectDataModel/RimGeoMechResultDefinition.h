@@ -32,6 +32,7 @@ class RimGeoMechPropertyFilter;
 class RifGeoMechReaderInterface;
 class RigGeoMechCaseData;
 class RimGeoMechCase;
+class RimRegularLegendConfig;
 
 //==================================================================================================
 ///
@@ -47,7 +48,7 @@ public:
 
     void setGeoMechCase( RimGeoMechCase* geomCase );
 
-    RigGeoMechCaseData* ownerCaseData();
+    RigGeoMechCaseData* ownerCaseData() const;
     bool                hasResult();
     void                loadResult();
     void                setAddWellPathDerivedResults( bool addWellPathDerivedResults );
@@ -62,17 +63,23 @@ public:
     QString             diffResultUiShortName() const;
     void                setResultAddress( const RigFemResultAddress& resultAddress );
 
-    QString resultFieldUiName();
-    QString resultComponentUiName();
+    QString resultFieldUiName() const;
+    QString resultComponentUiName() const;
 
-    bool hasCategoryResult()
+    bool hasCategoryResult() const
     {
         return m_resultPositionType() == RIG_FORMATION_NAMES;
     }
 
+    void updateLegendTextAndRanges( RimRegularLegendConfig* legendConfigToUpdate,
+                                    const QString&          legendHeading,
+                                    int                     timeStepIndex );
+
 protected:
     virtual void updateLegendCategorySettings(){};
     void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    friend class RimIntersectionResultDefinition;
 
 private:
     // Overridden PDM methods

@@ -41,6 +41,8 @@ class RigCaseCellResultsData;
 class RimEclipseCase;
 class RimEclipseView;
 class RimReservoirCellResultsStorage;
+class RimRegularLegendConfig;
+class RimTernaryLegendConfig;
 
 //==================================================================================================
 ///
@@ -75,7 +77,7 @@ public:
     void simpleCopy( const RimEclipseResultDefinition* other );
 
     void            setEclipseCase( RimEclipseCase* eclipseCase );
-    RimEclipseCase* eclipseCase();
+    RimEclipseCase* eclipseCase() const;
 
     RiaDefines::ResultCatType resultType() const
     {
@@ -94,7 +96,7 @@ public:
     virtual void setResultVariable( const QString& val );
 
     void                     setFlowSolution( RimFlowDiagSolution* flowSol );
-    RimFlowDiagSolution*     flowDiagSolution();
+    RimFlowDiagSolution*     flowDiagSolution() const;
     RigFlowDiagResultAddress flowDiagResAddress() const;
 
     void setFlowDiagTracerSelectionType( FlowTracerSelectionType selectionType );
@@ -144,6 +146,11 @@ public:
                                                                                 bool enableTernary = false );
 
     void setTernaryEnabled( bool enabled );
+
+    void updateRangesForExplicitLegends( RimRegularLegendConfig* legendConfig,
+                                         RimTernaryLegendConfig* ternaryLegendConfig,
+                                         int                     currentTimeStep );
+    void updateLegendTitle( RimRegularLegendConfig* legendConfig, const QString& legendHeading );
 
 protected:
     virtual void updateLegendCategorySettings(){};

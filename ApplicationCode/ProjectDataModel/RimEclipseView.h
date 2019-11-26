@@ -59,6 +59,9 @@ class RiuViewer;
 class RivReservoirSimWellsPartMgr;
 class RivIntersectionPartMgr;
 class RivReservoirViewPartMgr;
+class RimRegularLegendConfig;
+class RimTernaryLegendConfig;
+class RimEclipseResultDefinition;
 
 namespace cvf
 {
@@ -176,9 +179,12 @@ private:
     void updateStaticCellColors( RivCellSetEnum geometryType );
 
     void onUpdateLegends() override;
-    void updateMinMaxValuesAndAddLegendToView( QString                 legendLabel,
-                                               RimEclipseCellColors*   resultColors,
-                                               RigCaseCellResultsData* cellResultsData );
+    void updateLegendRangesTextAndVisibility( RimRegularLegendConfig*     legendConfig,
+                                              RimTernaryLegendConfig*     ternaryLegendConfig,
+                                              QString                     legendLabel,
+                                              RimEclipseResultDefinition* eclResDef,
+                                              int                         timeStepIndex );
+
     void onResetLegendsInViewer() override;
     void updateVirtualConnectionLegendRanges();
 

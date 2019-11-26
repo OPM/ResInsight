@@ -69,9 +69,7 @@ public:
     // Visualization interface
 
     void applySingleColorEffect();
-    void updateCellResultColor( size_t                        timeStepIndex,
-                                const cvf::ScalarMapper*      scalarColorMapper,
-                                const RivTernaryScalarMapper* ternaryColorMapper );
+    void updateCellResultColor( size_t timeStepIndex );
     void appendPartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void rebuildGeometry();
 

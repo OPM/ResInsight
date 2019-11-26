@@ -105,8 +105,8 @@ void RicNewAzimuthDipIntersectionFeatureCmd::redo()
 {
     CVF_ASSERT( m_intersectionCollection );
 
-    RimIntersection* intersection                        = new RimIntersection();
-    intersection->name                                   = "Azimuth and Dip";
+    RimIntersection* intersection = new RimIntersection();
+    intersection->setName( "Azimuth and Dip" );
     intersection->type                                   = RimIntersection::CS_AZIMUTHLINE;
     intersection->inputTwoAzimuthPointsFromViewerEnabled = true;
 

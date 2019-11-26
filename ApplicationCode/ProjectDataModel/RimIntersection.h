@@ -27,9 +27,11 @@
 
 #include "cvfObject.h"
 #include "cvfVector3.h"
+#include "RimIntersectionHandle.h"
 
 class RimWellPath;
 class RivIntersectionPartMgr;
+class RimIntersectionResultDefinition;
 class RimSimWellInView;
 class RimSimWellInViewCollection;
 class Rim2dIntersectionView;
@@ -45,7 +47,7 @@ class PdmUiPushButtonEditorAttribute;
 //
 //
 //==================================================================================================
-class RimIntersection : public caf::PdmObject
+class RimIntersection : public RimIntersectionHandle
 {
     CAF_PDM_HEADER_INIT;
 
@@ -69,12 +71,8 @@ public:
     RimIntersection();
     ~RimIntersection() override;
 
-    caf::PdmField<QString> name;
-    caf::PdmField<bool>    isActive;
-
     caf::PdmField<caf::AppEnum<CrossSectionEnum>>    type;
     caf::PdmField<caf::AppEnum<CrossSectionDirEnum>> direction;
-    caf::PdmField<bool>                              showInactiveCells;
 
     caf::PdmPtrField<RimWellPath*>      wellPath;
     caf::PdmPtrField<RimSimWellInView*> simulationWell;
@@ -108,22 +106,16 @@ public:
     void rebuildGeometryAndScheduleCreateDisplayModel();
 
 protected:
-    caf::PdmFieldHandle* userDescriptionField() override;
-    caf::PdmFieldHandle* objectToggleField() override;
-
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
-
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
-
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-private:
 private:
     caf::PdmField<int>    m_branchIndex;
     caf::PdmField<double> m_extentLength;

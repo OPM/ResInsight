@@ -17,13 +17,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicAppendIntersectionFeature.h"
+#include "RicAppendSeparateIntersectionResultFeature.h"
 
-#include "RimGeoMechView.h"
+#include "RimIntersectionResultDefinition.h"
+#include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
-#include "RimIntersectionCollection.h"
-#include "RimTensorResults.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
@@ -32,12 +30,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicAppendIntersectionFeature, "RicAppendIntersectionFeature" );
+CAF_CMD_SOURCE_INIT( RicAppendSeparateIntersectionResultFeature, "RicAppendSeparateIntersectionResultFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAppendIntersectionFeature::isCommandEnabled()
+bool RicAppendSeparateIntersectionResultFeature::isCommandEnabled()
 {
     return true;
 }
@@ -45,34 +43,36 @@ bool RicAppendIntersectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendIntersectionFeature::onActionTriggered( bool isChecked )
+void RicAppendSeparateIntersectionResultFeature::onActionTriggered( bool isChecked )
 {
     std::vector<caf::PdmObjectHandle*> collection;
     caf::SelectionManager::instance()->objectsByType( &collection );
     CVF_ASSERT( collection.size() == 1 );
 
-    RimIntersectionCollection* intersectionCollection = nullptr;
-    collection[0]->firstAncestorOrThisOfType( intersectionCollection );
+    RimIntersectionResultsDefinitionCollection* intersectionResCollection = nullptr;
+    collection[0]->firstAncestorOrThisOfType( intersectionResCollection );
 
-    CVF_ASSERT( intersectionCollection );
+    CVF_ASSERT( intersectionResCollection );
 
-    RicAppendIntersectionFeatureCmd* cmd = new RicAppendIntersectionFeatureCmd( intersectionCollection );
+    RicAppendSeparateIntersectionResultFeatureCmd* cmd = new RicAppendSeparateIntersectionResultFeatureCmd(
+        intersectionResCollection );
     caf::CmdExecCommandManager::instance()->processExecuteCommand( cmd );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendIntersectionFeature::setupActionLook( QAction* actionToSetup )
+void RicAppendSeparateIntersectionResultFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/CrossSection16x16.png" ) );
-    actionToSetup->setText( "New Intersection" );
+    // actionToSetup->setIcon( QIcon( ":/CrossSection16x16.png" ) );
+    actionToSetup->setText( "New Separate Intersection Result" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicAppendIntersectionFeatureCmd::RicAppendIntersectionFeatureCmd( RimIntersectionCollection* intersectionCollection )
+RicAppendSeparateIntersectionResultFeatureCmd::RicAppendSeparateIntersectionResultFeatureCmd(
+    RimIntersectionResultsDefinitionCollection* intersectionCollection )
     : CmdExecuteCommand( nullptr )
     , m_intersectionCollection( intersectionCollection )
 {
@@ -81,12 +81,12 @@ RicAppendIntersectionFeatureCmd::RicAppendIntersectionFeatureCmd( RimIntersectio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicAppendIntersectionFeatureCmd::~RicAppendIntersectionFeatureCmd() {}
+RicAppendSeparateIntersectionResultFeatureCmd::~RicAppendSeparateIntersectionResultFeatureCmd() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicAppendIntersectionFeatureCmd::name()
+QString RicAppendSeparateIntersectionResultFeatureCmd::name()
 {
     return "New Intersection";
 }
@@ -94,26 +94,26 @@ QString RicAppendIntersectionFeatureCmd::name()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendIntersectionFeatureCmd::redo()
+void RicAppendSeparateIntersectionResultFeatureCmd::redo()
 {
     CVF_ASSERT( m_intersectionCollection );
 
-    RimIntersection* intersection = new RimIntersection();
-    intersection->setName( "Intersection" );
-    m_intersectionCollection->appendIntersectionAndUpdate( intersection );
+    RimIntersectionResultDefinition* intersectionResDef = new RimIntersectionResultDefinition();
+    m_intersectionCollection->appendIntersectionResultDefinition( intersectionResDef );
 
-    RimGridView* view = nullptr;
-    m_intersectionCollection->firstAncestorOrThisOfTypeAsserted( view );
+    m_intersectionCollection->updateConnectedEditors();
 
-    RimGeoMechView* geoMechView = nullptr;
-    geoMechView                 = dynamic_cast<RimGeoMechView*>( view );
-    if ( geoMechView )
-    {
-        geoMechView->tensorResults()->setShowTensors( false );
-    }
+    //if ( m_intersectionCollection->intersectionResultsDefinitions().size() < 2 ) // New default created. Possible 
+    //{
+    //    RimGridView* gridView;
+    //    m_intersectionCollection->firstAncestorOrThisOfTypeAsserted( gridView );
+    //
+    //    gridView->scheduleCreateDisplayModelAndRedraw();
+    //    gridView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+    //}
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendIntersectionFeatureCmd::undo() {}
+void RicAppendSeparateIntersectionResultFeatureCmd::undo() {}

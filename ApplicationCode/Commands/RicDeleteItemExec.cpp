@@ -35,6 +35,7 @@
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimIntersectionCollection.h"
+#include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
 #include "RimSummaryCrossPlotCollection.h"
@@ -101,6 +102,7 @@ void RicDeleteItemExec::redo()
 
         Rim3dView* view = nullptr;
         parentObj->firstAncestorOrThisOfType( view );
+        RimGridView* gridView = dynamic_cast<RimGridView*>( view );
 
         // Range Filters
 
@@ -142,6 +144,16 @@ void RicDeleteItemExec::redo()
             {
                 parentCase->intersectionViewCollection()->syncFromExistingIntersections( true );
             }
+        }
+
+        // Intersection Result Definitions
+
+        RimIntersectionResultsDefinitionCollection* separateIntersectResDefColl;
+        parentObj->firstAncestorOrThisOfType( separateIntersectResDefColl );
+        if ( gridView && separateIntersectResDefColl )
+        {
+            gridView->scheduleCreateDisplayModelAndRedraw();
+            gridView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
         }
 
         // SimWell Fractures

@@ -55,10 +55,14 @@
 #include "RimFlowDiagSolution.h"
 #include "RimFracture.h"
 #include "RimFractureTemplateCollection.h"
+#include "RimGeoMechResultDefinition.h"
 #include "RimGridCollection.h"
 #include "RimGridCrossPlotDataSet.h"
+#include "RimGridView.h"
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
+#include "RimIntersectionResultDefinition.h"
+#include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
@@ -790,9 +794,7 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
     if ( ( this->hasUserRequestedAnimation() && this->cellResult()->hasResult() ) ||
          this->cellResult()->isTernarySaturationSelected() )
     {
-        m_crossSectionCollection->updateCellResultColor( m_currentTimeStep,
-                                                         this->cellResult()->legendConfig()->scalarMapper(),
-                                                         this->cellResult()->ternaryLegendConfig()->scalarMapper() );
+        m_crossSectionCollection->updateCellResultColor( m_currentTimeStep );
     }
     else
     {
@@ -1200,11 +1202,25 @@ void RimEclipseView::onUpdateLegends()
     RigCaseCellResultsData* results = eclipseCase->results( cellResult()->porosityModel() );
     CVF_ASSERT( results );
 
-    updateMinMaxValuesAndAddLegendToView( QString( "Cell Results: \n" ), this->cellResult(), results );
+    updateLegendRangesTextAndVisibility( this->cellResult()->legendConfig(),
+                                         this->cellResult()->ternaryLegendConfig(),
+                                         QString( "Cell Results: \n" ),
+                                         this->cellResult(),
+                                         m_currentTimeStep );
 
     if ( this->faultResultSettings()->showCustomFaultResult() && this->faultResultSettings()->hasValidCustomResult() )
     {
-        updateMinMaxValuesAndAddLegendToView( QString( "Fault Results: \n" ), this->currentFaultResultColors(), results );
+        updateLegendRangesTextAndVisibility( currentFaultResultColors()->legendConfig(),
+                                             currentFaultResultColors()->ternaryLegendConfig(),
+                                             QString( "Fault Results: \n" ),
+                                             this->currentFaultResultColors(),
+                                             m_currentTimeStep );
+    }
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+    {
+        sepInterResDef->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
     }
 
     if ( this->cellEdgeResult()->legendConfig()->showLegend() )
@@ -1213,7 +1229,7 @@ void RimEclipseView::onUpdateLegends()
         {
             if ( this->cellEdgeResult()->isUsingSingleVariable() )
             {
-                this->cellEdgeResult()->singleVarEdgeResultColors()->updateLegendData( m_eclipseCase, m_currentTimeStep );
+                this->cellEdgeResult()->singleVarEdgeResultColors()->updateRangesForEmbeddedLegends( m_currentTimeStep );
             }
             else
             {
@@ -1300,43 +1316,30 @@ void RimEclipseView::onUpdateLegends()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateMinMaxValuesAndAddLegendToView( QString                 legendLabel,
-                                                           RimEclipseCellColors*   resultColors,
-                                                           RigCaseCellResultsData* cellResultsData )
+void RimEclipseView::updateLegendRangesTextAndVisibility( RimRegularLegendConfig*     legendConfig,
+                                                          RimTernaryLegendConfig*     ternaryLegendConfig,
+                                                          QString                     legendHeading,
+                                                          RimEclipseResultDefinition* eclResultDef,
+                                                          int                         timeStepIndex )
 {
-    resultColors->updateLegendData( m_eclipseCase, m_currentTimeStep );
+    eclResultDef->updateRangesForExplicitLegends( legendConfig, ternaryLegendConfig, timeStepIndex );
 
-    if ( resultColors->hasResult() && resultColors->legendConfig()->showLegend() )
+    if ( eclResultDef->hasResult() && legendConfig->showLegend() )
     {
-        QString title = legendLabel + resultColors->resultVariableUiName();
-        if ( !resultColors->diffResultUiShortName().isEmpty() )
-        {
-            title += QString( "\n%1" ).arg( resultColors->diffResultUiShortName() );
-        }
+        eclResultDef->updateLegendTitle( legendConfig, legendHeading );
 
-        if ( resultColors->hasDualPorFractureResult() )
-        {
-            QString porosityModelText = caf::AppEnum<RiaDefines::PorosityModelType>::uiText(
-                resultColors->porosityModel() );
-
-            title += QString( "\nDual Por : %1" ).arg( porosityModelText );
-        }
-
-        resultColors->legendConfig()->setTitle( title );
-        nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( resultColors->legendConfig()->titledOverlayFrame(),
+        nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( legendConfig->titledOverlayFrame(),
                                                                     isUsingOverrideViewer() );
     }
 
-    size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
-    if ( resultColors->isTernarySaturationSelected() && maxTimeStepCount > 1 )
+    size_t maxTimeStepCount = eclResultDef->currentGridCellResults()->maxTimeStepCount();
+    if ( eclResultDef->isTernarySaturationSelected() && maxTimeStepCount > 1 )
     {
-        if ( resultColors->ternaryLegendConfig()->showLegend() &&
-             resultColors->ternaryLegendConfig()->titledOverlayFrame() )
+        if ( ternaryLegendConfig->showLegend() && ternaryLegendConfig->titledOverlayFrame() )
         {
-            resultColors->ternaryLegendConfig()->setTitle( legendLabel );
-            nativeOrOverrideViewer()
-                ->addColorLegendToBottomLeftCorner( resultColors->ternaryLegendConfig()->titledOverlayFrame(),
-                                                    isUsingOverrideViewer() );
+            ternaryLegendConfig->setTitle( legendHeading );
+            nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( ternaryLegendConfig->titledOverlayFrame(),
+                                                                        isUsingOverrideViewer() );
         }
     }
 }
@@ -1714,6 +1717,7 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( cellEdgeResult() );
     uiTreeOrdering.add( faultResultSettings() );
+    uiTreeOrdering.add( &m_intersectionResultDefCollection );
     uiTreeOrdering.add( wellCollection() );
 
     {
@@ -1844,6 +1848,13 @@ void RimEclipseView::onResetLegendsInViewer()
 
     this->cellResult()->ternaryLegendConfig()->recreateLegend();
     this->cellEdgeResult()->legendConfig()->recreateLegend();
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+    {
+        sepInterResDef->regularLegendConfig()->recreateLegend();
+        sepInterResDef->ternaryLegendConfig()->recreateLegend();
+    }
 
     nativeOrOverrideViewer()->removeAllColorLegends();
 }
@@ -1995,6 +2006,13 @@ std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
     absLegends.push_back( cellEdgeResult()->legendConfig() );
     absLegends.push_back( fractureColors()->activeLegend() );
     absLegends.push_back( virtualPerforationResult()->legendConfig() );
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+    {
+        absLegends.push_back( sepInterResDef->regularLegendConfig() );
+        absLegends.push_back( sepInterResDef->ternaryLegendConfig() );
+    }
 
     return absLegends;
 }

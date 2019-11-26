@@ -55,10 +55,6 @@ RimIntersectionBox::RimIntersectionBox()
 {
     CAF_PDM_InitObject( "Intersection Box", ":/IntersectionBox16x16.png", "", "" );
 
-    CAF_PDM_InitField( &name, "UserDescription", QString( "Intersection Name" ), "Name", "", "", "" );
-    CAF_PDM_InitField( &isActive, "Active", true, "Active", "", "", "" );
-    isActive.uiCapability()->setUiHidden( true );
-
     CAF_PDM_InitField( &m_singlePlaneState,
                        "singlePlaneState",
                        caf::AppEnum<SinglePlaneState>( SinglePlaneState::PLANE_STATE_NONE ),
@@ -85,7 +81,6 @@ RimIntersectionBox::RimIntersectionBox()
     CAF_PDM_InitField( &m_maxDepth, "MaxDepth", 0.0, "Max", "", "", "" );
     m_maxDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "" );
     CAF_PDM_InitField( &m_xySliderStepSize, "xySliderStepSize", 1.0, "XY Slider Step Size", "", "", "" );
     CAF_PDM_InitField( &m_depthSliderStepSize, "DepthSliderStepSize", 0.5, "Depth Slider Step Size", "", "", "" );
 
@@ -355,7 +350,7 @@ void RimIntersectionBox::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         }
     }
 
-    if ( changedField != &name )
+    if ( changedField != &m_name )
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
@@ -444,12 +439,12 @@ void RimIntersectionBox::defineEditorAttribute( const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &name );
+    uiOrdering.add( &m_name );
 
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Options" );
         group->add( &m_singlePlaneState );
-        group->add( &showInactiveCells );
+        group->add( &m_showInactiveCells );
     }
 
     cvf::BoundingBox cellsBoundingBox = currentCellBoundingBox();
@@ -482,6 +477,8 @@ void RimIntersectionBox::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     }
 
     uiOrdering.add( &m_show3DManipulator );
+
+    this->defineSeparateDataSourceUi(uiConfigName, uiOrdering);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -489,6 +486,7 @@ void RimIntersectionBox::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::initAfterRead()
 {
+    RimIntersectionHandle::initAfterRead();
     updateVisibility();
 }
 
@@ -524,21 +522,6 @@ void RimIntersectionBox::slotUpdateGeometry( const cvf::Vec3d& origin, const cvf
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimIntersectionBox::userDescriptionField()
-{
-    return &name;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimIntersectionBox::objectToggleField()
-{
-    return &isActive;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

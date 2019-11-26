@@ -21,6 +21,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "RimIntersectionHandle.h"
+
 #include "cvfBoundingBox.h"
 #include "cvfVector3.h"
 
@@ -41,7 +43,7 @@ class ModelBasicList;
 //
 //
 //==================================================================================================
-class RimIntersectionBox : public QObject, public caf::PdmObject
+class RimIntersectionBox : public QObject, public RimIntersectionHandle
 {
     Q_OBJECT;
 
@@ -60,11 +62,6 @@ public:
     RimIntersectionBox();
     ~RimIntersectionBox() override;
 
-    // Fields
-    caf::PdmField<QString> name;
-    caf::PdmField<bool>    isActive;
-    caf::PdmField<bool>    showInactiveCells;
-
     cvf::Mat4d       boxOrigin() const;
     cvf::Vec3d       boxSize() const;
     SinglePlaneState singlePlaneState() const;
@@ -79,9 +76,6 @@ public:
     void setToDefaultSizeSlice( SinglePlaneState plane, const cvf::Vec3d& position );
 
 protected:
-    caf::PdmFieldHandle* userDescriptionField() override;
-    caf::PdmFieldHandle* objectToggleField() override;
-
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;

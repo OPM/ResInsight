@@ -21,6 +21,8 @@
 
 #include "cafPdmPointer.h"
 
+#include "RivHexGridIntersectionTools.h"
+
 #include "cvfArray.h"
 
 #include "cvfBoundingBox.h"
@@ -44,7 +46,7 @@ class ScalarMapper;
 class DrawableGeo;
 } // namespace cvf
 
-class RivIntersectionGeometryGenerator : public cvf::Object
+class RivIntersectionGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorIF
 {
 public:
     RivIntersectionGeometryGenerator( RimIntersection*                       crossSection,
@@ -55,8 +57,6 @@ public:
                                       const cvf::Vec3d&                      flattenedPolylineStartPoint );
 
     ~RivIntersectionGeometryGenerator() override;
-
-    bool isAnyGeometryPresent() const;
 
     // Generate geometry
     cvf::ref<cvf::DrawableGeo> generateSurface();
@@ -77,23 +77,21 @@ public:
         return m_faultMeshLabelAndAnchorPositions;
     }
 
-    // Mapping between cells and geometry
-    const std::vector<size_t>&                       triangleToCellIndex() const;
-    const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
-    const cvf::Vec3fArray*                           triangleVxes() const;
-
     RimIntersection* crossSection() const;
 
     cvf::Mat4d unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat );
+
+    // GeomGen Interface
+    bool isAnyGeometryPresent() const override;
+
+    const std::vector<size_t>&                       triangleToCellIndex() const override;
+    const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const override;
+    const cvf::Vec3fArray*                           triangleVxes() const override;
 
 private:
     void calculateArrays();
     void calculateSegementTransformPrLinePoint();
     void calculateFlattenedOrOffsetedPolyline();
-
-    // static size_t               indexToNextValidPoint(const std::vector<cvf::Vec3d>& polyLine,
-    //                                                  const cvf::Vec3d extrDir,
-    //                                                  size_t idxToStartOfLineSegment);
 
     RimIntersection*                           m_crossSection;
     cvf::cref<RivIntersectionHexGridInterface> m_hexGrid;

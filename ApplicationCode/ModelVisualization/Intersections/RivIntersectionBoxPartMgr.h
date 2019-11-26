@@ -27,13 +27,22 @@ namespace cvf
 class ModelBasicList;
 class Transform;
 class Part;
+class ScalarMapper;
 } // namespace cvf
 
 class RigMainGrid;
 class RigResultAccessor;
+
+class RivTernaryScalarMapper;
+
 class RimCellEdgeColors;
 class RimEclipseCellColors;
 class RimIntersectionBox;
+class RimIntersectionHandle;
+class RimEclipseView;
+class RimGeoMechView;
+class RimEclipseResultDefinition;
+class RimGeoMechResultDefinition;
 
 //==================================================================================================
 ///
@@ -54,8 +63,6 @@ public:
 private:
     void updatePartEffect();
     void generatePartGeometry();
-
-    cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
 
 private:
     RimIntersectionBox* m_rimIntersectionBox;

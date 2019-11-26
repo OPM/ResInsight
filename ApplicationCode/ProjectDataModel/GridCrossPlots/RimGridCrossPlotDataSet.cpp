@@ -1017,7 +1017,7 @@ void RimGridCrossPlotDataSet::updateLegendRange()
                 RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
                 if ( eclipseCase )
                 {
-                    m_groupingProperty->updateLegendData( eclipseCase, m_timeStep() );
+                    m_groupingProperty->updateRangesForEmbeddedLegends( m_timeStep() );
                 }
             }
             parent->addOrUpdateDataSetLegend( this );

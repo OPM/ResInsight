@@ -59,7 +59,7 @@ void RicIntersectionBoxAtPosFeature::onActionTriggered( bool isChecked )
         CVF_ASSERT( coll );
 
         RimIntersectionBox* intersectionBox = new RimIntersectionBox();
-        intersectionBox->name               = QString( "Intersection box" );
+        intersectionBox->setName( "Intersection box" );
 
         coll->appendIntersectionBoxAndUpdate( intersectionBox );
 

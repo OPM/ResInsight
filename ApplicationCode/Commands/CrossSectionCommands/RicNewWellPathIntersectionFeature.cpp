@@ -109,9 +109,9 @@ void RicNewWellPathIntersectionFeatureCmd::redo()
     CVF_ASSERT( m_wellPath );
 
     RimIntersection* intersection = new RimIntersection();
-    intersection->name            = m_wellPath->name();
-    intersection->type            = RimIntersection::CS_WELL_PATH;
-    intersection->wellPath        = m_wellPath;
+    intersection->setName( m_wellPath->name() );
+    intersection->type     = RimIntersection::CS_WELL_PATH;
+    intersection->wellPath = m_wellPath;
 
     m_intersectionCollection->appendIntersectionAndUpdate( intersection, false );
 }

@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,103 +16,90 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicAppendIntersectionFeature.h"
+#include "RimIntersectionResultsDefinitionCollection.h"
 
-#include "RimGeoMechView.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
-#include "RimTensorResults.h"
+#include "RimIntersectionResultDefinition.h"
 
-#include "cafCmdExecCommandManager.h"
-#include "cafSelectionManager.h"
-
-#include "cvfAssert.h"
-
-#include <QAction>
-
-CAF_CMD_SOURCE_INIT( RicAppendIntersectionFeature, "RicAppendIntersectionFeature" );
+CAF_PDM_SOURCE_INIT( RimIntersectionResultsDefinitionCollection, "RimIntersectionResultsDefinitionCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAppendIntersectionFeature::isCommandEnabled()
+RimIntersectionResultsDefinitionCollection::RimIntersectionResultsDefinitionCollection()
 {
-    return true;
+    CAF_PDM_InitObject( "Separate Intersection Results", ":/CrossSections16x16.png", "", "" );
+
+    CAF_PDM_InitField( &m_isActive, "isActive", false, "Active", "", "", "" );
+    m_isActive.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_intersectionResultsDefs, "IntersectionResultDefinitions", "Data Sources", "", "", "" );
+    m_intersectionResultsDefs.uiCapability()->setUiTreeHidden( true );
+
+    m_intersectionResultsDefs.push_back( new RimIntersectionResultDefinition ); // Add the default result definition
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendIntersectionFeature::onActionTriggered( bool isChecked )
+RimIntersectionResultsDefinitionCollection::~RimIntersectionResultsDefinitionCollection() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimIntersectionResultsDefinitionCollection::isActive()
 {
-    std::vector<caf::PdmObjectHandle*> collection;
-    caf::SelectionManager::instance()->objectsByType( &collection );
-    CVF_ASSERT( collection.size() == 1 );
-
-    RimIntersectionCollection* intersectionCollection = nullptr;
-    collection[0]->firstAncestorOrThisOfType( intersectionCollection );
-
-    CVF_ASSERT( intersectionCollection );
-
-    RicAppendIntersectionFeatureCmd* cmd = new RicAppendIntersectionFeatureCmd( intersectionCollection );
-    caf::CmdExecCommandManager::instance()->processExecuteCommand( cmd );
+    return m_isActive();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendIntersectionFeature::setupActionLook( QAction* actionToSetup )
+std::vector<RimIntersectionResultDefinition*> RimIntersectionResultsDefinitionCollection::intersectionResultsDefinitions()
 {
-    actionToSetup->setIcon( QIcon( ":/CrossSection16x16.png" ) );
-    actionToSetup->setText( "New Intersection" );
+    return m_intersectionResultsDefs.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicAppendIntersectionFeatureCmd::RicAppendIntersectionFeatureCmd( RimIntersectionCollection* intersectionCollection )
-    : CmdExecuteCommand( nullptr )
-    , m_intersectionCollection( intersectionCollection )
+void RimIntersectionResultsDefinitionCollection::appendIntersectionResultDefinition(
+    RimIntersectionResultDefinition* interResDef )
 {
+    m_intersectionResultsDefs.push_back(interResDef);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicAppendIntersectionFeatureCmd::~RicAppendIntersectionFeatureCmd() {}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RicAppendIntersectionFeatureCmd::name()
+caf::PdmFieldHandle* RimIntersectionResultsDefinitionCollection::objectToggleField()
 {
-    return "New Intersection";
+    return &m_isActive;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendIntersectionFeatureCmd::redo()
+void RimIntersectionResultsDefinitionCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                                   const QVariant&            oldValue,
+                                                                   const QVariant&            newValue )
 {
-    CVF_ASSERT( m_intersectionCollection );
+    this->updateUiIconFromToggleField();
 
-    RimIntersection* intersection = new RimIntersection();
-    intersection->setName( "Intersection" );
-    m_intersectionCollection->appendIntersectionAndUpdate( intersection );
-
-    RimGridView* view = nullptr;
-    m_intersectionCollection->firstAncestorOrThisOfTypeAsserted( view );
-
-    RimGeoMechView* geoMechView = nullptr;
-    geoMechView                 = dynamic_cast<RimGeoMechView*>( view );
-    if ( geoMechView )
+    RimGridView* gridView = nullptr;
+    this->firstAncestorOrThisOfType( gridView );
+    if ( gridView )
     {
-        geoMechView->tensorResults()->setShowTensors( false );
+        gridView->scheduleCreateDisplayModelAndRedraw();
+        gridView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendIntersectionFeatureCmd::undo() {}
+void RimIntersectionResultsDefinitionCollection::initAfterRead()
+{
+    this->updateUiIconFromToggleField();
+}

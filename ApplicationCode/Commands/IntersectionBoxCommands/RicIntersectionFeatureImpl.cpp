@@ -44,7 +44,7 @@ void RicIntersectionFeatureImpl::createIntersectionBoxSlize( const QString&     
         cvf::Vec3d domainCoord = activeView->viewer()->viewerCommands()->lastPickPositionInDomainCoords();
 
         RimIntersectionBox* intersectionBox = new RimIntersectionBox();
-        intersectionBox->name               = name;
+        intersectionBox->setName( name );
 
         coll->appendIntersectionBoxNoUpdate( intersectionBox );
         intersectionBox->setToDefaultSizeSlice( plane, domainCoord );

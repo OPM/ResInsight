@@ -54,7 +54,7 @@ void RicAppendIntersectionBoxFeature::onActionTriggered( bool isChecked )
     if ( coll )
     {
         RimIntersectionBox* intersectionBox = new RimIntersectionBox();
-        intersectionBox->name               = QString( "Intersection Box" );
+        intersectionBox->setName( "Intersection Box" );
 
         coll->appendIntersectionBoxAndUpdate( intersectionBox );
 

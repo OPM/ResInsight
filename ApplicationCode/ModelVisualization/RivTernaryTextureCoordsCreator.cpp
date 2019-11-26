@@ -26,7 +26,7 @@
 #include "RigTernaryResultAccessor.h"
 
 #include "RimEclipseCase.h"
-#include "RimEclipseCellColors.h"
+#include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimTernaryLegendConfig.h"
@@ -39,16 +39,17 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator( RimEclipseCellColors*   cellResultColors,
-                                                                RimTernaryLegendConfig* ternaryLegendConfig,
-                                                                size_t                  timeStepIndex,
-                                                                size_t                  gridIndex,
+RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator( const RimEclipseResultDefinition* cellResultColors,
+                                                                RimTernaryLegendConfig*           ternaryLegendConfig,
+                                                                RimSimWellInViewCollection* simWellInViewCollection,
+                                                                size_t                      timeStepIndex,
+                                                                size_t                      gridIndex,
                                                                 const cvf::StructGridQuadToCellFaceMapper* quadMapper )
 {
     CVF_ASSERT( quadMapper );
     m_quadMapper = quadMapper;
 
-    RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->eclipseCaseData();
+    RigEclipseCaseData* eclipseCase = cellResultColors->eclipseCase()->eclipseCaseData();
 
     size_t resTimeStepIdx = timeStepIndex;
 
@@ -79,8 +80,7 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator( RimEclipseCellCo
     m_resultAccessor->setTernaryResultAccessors( soil.p(), sgas.p(), swat.p() );
 
     cvf::ref<RigPipeInCellEvaluator> pipeInCellEval =
-        new RigPipeInCellEvaluator( cellResultColors->reservoirView()->wellCollection()->resultWellGeometryVisibilities(
-                                        timeStepIndex ),
+        new RigPipeInCellEvaluator( simWellInViewCollection->resultWellGeometryVisibilities( timeStepIndex ),
                                     eclipseCase->gridCellToResultWellIndex( gridIndex ) );
 
     const RivTernaryScalarMapper* mapper = ternaryLegendConfig->scalarMapper();
@@ -92,12 +92,12 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator( RimEclipseCellCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator( RimEclipseCellColors*         cellResultColors,
-                                                                const RivTernaryScalarMapper* ternaryColorMapper,
-                                                                size_t                        timeStepIndex )
+RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator( const RimEclipseResultDefinition* cellResultColors,
+                                                                const RivTernaryScalarMapper*     ternaryColorMapper,
+                                                                size_t                            timeStepIndex )
     : m_quadMapper( nullptr )
 {
-    RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->eclipseCaseData();
+    RigEclipseCaseData* eclipseCase = cellResultColors->eclipseCase()->eclipseCaseData();
 
     size_t resTimeStepIdx = timeStepIndex;
 
