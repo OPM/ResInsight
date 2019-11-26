@@ -25,6 +25,7 @@
 #include <opm/flowdiagnostics/DerivedQuantities.hpp>
 #include <algorithm>
 #include <numeric>
+#include <stdexcept>
 
 namespace Opm
 {
