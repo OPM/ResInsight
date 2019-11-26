@@ -71,7 +71,7 @@ public:
 
 private:
     void findCellAndGridIndex( Rim3dView*                       mainOrComparisonView,
-                               const RivExtrudedCurveIntersectionSourceInfo* crossSectionSourceInfo,
+                               const RivExtrudedCurveIntersectionSourceInfo* intersectionSourceInfo,
                                cvf::uint                        firstPartTriangleIndex,
                                size_t*                          cellIndex,
                                size_t*                          gridIndex );

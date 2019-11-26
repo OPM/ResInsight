@@ -62,7 +62,7 @@ void RicNewAzimuthDipIntersectionFeature::onActionTriggered( bool isChecked )
     if ( !activeView ) return;
 
     RicNewAzimuthDipIntersectionFeatureCmd* cmd = new RicNewAzimuthDipIntersectionFeatureCmd(
-        activeView->crossSectionCollection() );
+        activeView->intersectionCollection() );
     caf::CmdExecCommandManager::instance()->processExecuteCommand( cmd );
 }
 

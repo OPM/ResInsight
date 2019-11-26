@@ -727,7 +727,7 @@ void RimViewController::scheduleCreateDisplayModelAndRedrawForDependentView() co
 
     if ( this->isResultColorControlled() && this->managedView() )
     {
-        this->managedView()->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+        this->managedView()->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 }
 

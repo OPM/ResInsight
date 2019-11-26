@@ -529,12 +529,12 @@ void RimEclipseView::onCreateDisplayModel()
 
     // Cross sections
 
-    m_crossSectionVizModel->removeAllParts();
-    m_crossSectionCollection->rebuildGeometry();
-    m_crossSectionCollection->appendPartsToModel( *this,
-                                                  m_crossSectionVizModel.p(),
+    m_intersectionVizModel->removeAllParts();
+    m_intersectionCollection->rebuildGeometry();
+    m_intersectionCollection->appendPartsToModel( *this,
+                                                  m_intersectionVizModel.p(),
                                                   m_reservoirGridPartManager->scaleTransform() );
-    nativeOrOverrideViewer()->addStaticModelOnce( m_crossSectionVizModel.p(), isUsingOverrideViewer() );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
 
     // Well path model
 
@@ -794,11 +794,11 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
     if ( ( this->hasUserRequestedAnimation() && this->cellResult()->hasResult() ) ||
          this->cellResult()->isTernarySaturationSelected() )
     {
-        m_crossSectionCollection->updateCellResultColor( m_currentTimeStep );
+        m_intersectionCollection->updateCellResultColor( m_currentTimeStep );
     }
     else
     {
-        m_crossSectionCollection->applySingleColorEffect();
+        m_intersectionCollection->applySingleColorEffect();
     }
 }
 
@@ -1633,7 +1633,7 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
     {
         this->loadDataAndUpdate();
 
-        std::vector<RimExtrudedCurveIntersection*> intersections = m_crossSectionCollection->intersections();
+        std::vector<RimExtrudedCurveIntersection*> intersections = m_intersectionCollection->intersections();
         for ( auto intersection : intersections )
         {
             if ( intersection && intersection->correspondingIntersectionView() )
@@ -1741,7 +1741,7 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     uiTreeOrdering.add( faultCollection() );
     uiTreeOrdering.add( annotationCollection() );
-    uiTreeOrdering.add( crossSectionCollection() );
+    uiTreeOrdering.add( intersectionCollection() );
 
     uiTreeOrdering.add( m_rangeFilterCollection() );
     uiTreeOrdering.add( m_propertyFilterCollection() );

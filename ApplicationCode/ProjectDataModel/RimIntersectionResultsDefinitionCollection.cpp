@@ -92,7 +92,7 @@ void RimIntersectionResultsDefinitionCollection::fieldChangedByUi( const caf::Pd
     if ( gridView )
     {
         gridView->scheduleCreateDisplayModelAndRedraw();
-        gridView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+        gridView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 }
 

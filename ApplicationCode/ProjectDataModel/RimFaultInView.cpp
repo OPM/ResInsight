@@ -76,7 +76,7 @@ void RimFaultInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         if ( reservoirView )
         {
             reservoirView->scheduleCreateDisplayModelAndRedraw();
-            reservoirView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+            reservoirView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
         }
     }
 }

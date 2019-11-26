@@ -64,14 +64,14 @@ class RivPipeGeometryGenerator;
 class RivExtrudedCurveIntersectionPartMgr : public cvf::Object
 {
 public:
-    explicit RivExtrudedCurveIntersectionPartMgr( RimExtrudedCurveIntersection* rimCrossSection, bool isFlattened = false );
+    explicit RivExtrudedCurveIntersectionPartMgr( RimExtrudedCurveIntersection* rimIntersection, bool isFlattened = false );
 
     void applySingleColorEffect();
     void updateCellResultColor( size_t                        timeStepIndex,
                                 const cvf::ScalarMapper*      explicitScalarColorMapper,
                                 const RivTernaryScalarMapper* explicitTernaryColorMapper );
 
-    void appendNativeCrossSectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
+    void appendNativeIntersectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void appendPolylinePartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
 
@@ -87,13 +87,13 @@ private:
     void createExtrusionDirParts( bool useBufferObjects );
 
 private:
-    caf::PdmPointer<RimExtrudedCurveIntersection> m_rimCrossSection;
+    caf::PdmPointer<RimExtrudedCurveIntersection> m_rimIntersection;
 
-    cvf::ref<RivExtrudedCurveIntersectionGeometryGenerator> m_crossSectionGenerator;
+    cvf::ref<RivExtrudedCurveIntersectionGeometryGenerator> m_intersectionGenerator;
 
-    cvf::ref<cvf::Part> m_crossSectionFaces;
-    cvf::ref<cvf::Part> m_crossSectionGridLines;
-    cvf::ref<cvf::Part> m_crossSectionFaultGridLines;
+    cvf::ref<cvf::Part> m_intersectionFaces;
+    cvf::ref<cvf::Part> m_intersectionGridLines;
+    cvf::ref<cvf::Part> m_intersectionFaultGridLines;
     cvf::ref<cvf::Part> m_faultMeshLabels;
     cvf::ref<cvf::Part> m_faultMeshLabelLines;
     cvf::ref<cvf::Part> m_highlightLineAlongPolyline;
@@ -101,7 +101,7 @@ private:
     cvf::ref<cvf::Part> m_highlightLineAlongExtrusionDir;
     cvf::ref<cvf::Part> m_highlightPointsForExtrusionDir;
 
-    cvf::ref<cvf::Vec2fArray> m_crossSectionFacesTextureCoords;
+    cvf::ref<cvf::Vec2fArray> m_intersectionFacesTextureCoords;
 
     struct RivPipeBranchData
     {

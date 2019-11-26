@@ -49,7 +49,7 @@ class DrawableGeo;
 class RivExtrudedCurveIntersectionGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorIF
 {
 public:
-    RivExtrudedCurveIntersectionGeometryGenerator( RimExtrudedCurveIntersection*                       crossSection,
+    RivExtrudedCurveIntersectionGeometryGenerator( RimExtrudedCurveIntersection*                       intersection,
                                       std::vector<std::vector<cvf::Vec3d>>&  polylines,
                                       const cvf::Vec3d&                      extrusionDirection,
                                       const RivIntersectionHexGridInterface* grid,
@@ -77,7 +77,7 @@ public:
         return m_faultMeshLabelAndAnchorPositions;
     }
 
-    RimExtrudedCurveIntersection* crossSection() const;
+    RimExtrudedCurveIntersection* intersection() const;
 
     cvf::Mat4d unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat );
 
@@ -93,7 +93,7 @@ private:
     void calculateSegementTransformPrLinePoint();
     void calculateFlattenedOrOffsetedPolyline();
 
-    RimExtrudedCurveIntersection*                           m_crossSection;
+    RimExtrudedCurveIntersection*                           m_intersection;
     cvf::cref<RivIntersectionHexGridInterface> m_hexGrid;
     const std::vector<std::vector<cvf::Vec3d>> m_polyLines;
     cvf::Vec3d                                 m_extrusionDirection;

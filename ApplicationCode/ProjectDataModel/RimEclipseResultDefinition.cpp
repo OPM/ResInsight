@@ -554,7 +554,7 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
                 viewLinker->updateCellResult();
             }
             RimGridView* eclView = dynamic_cast<RimGridView*>( view );
-            if ( eclView ) eclView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+            if ( eclView ) eclView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
         }
     }
 
@@ -564,7 +564,7 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
     {
         if ( view ) view->scheduleCreateDisplayModelAndRedraw();
         RimGridView* gridView = dynamic_cast<RimGridView*>( view );
-        if ( gridView ) gridView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+        if ( gridView ) gridView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
     RimCellEdgeColors* cellEdgeColors = nullptr;

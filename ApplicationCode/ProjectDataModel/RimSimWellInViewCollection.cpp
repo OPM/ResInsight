@@ -495,7 +495,7 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
     {
         if ( m_reservoirView )
         {
-            m_reservoirView->crossSectionCollection()->recomputeSimWellBranchData();
+            m_reservoirView->intersectionCollection()->recomputeSimWellBranchData();
         }
 
         for ( RimSimWellInView* w : wells )

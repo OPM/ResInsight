@@ -61,7 +61,7 @@ void RicNewPolylineIntersectionFeature::onActionTriggered( bool isChecked )
     if ( !activeView ) return;
 
     RicNewPolylineIntersectionFeatureCmd* cmd = new RicNewPolylineIntersectionFeatureCmd(
-        activeView->crossSectionCollection() );
+        activeView->intersectionCollection() );
     caf::CmdExecCommandManager::instance()->processExecuteCommand( cmd );
 }
 

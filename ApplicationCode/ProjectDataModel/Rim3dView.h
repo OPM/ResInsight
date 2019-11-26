@@ -248,7 +248,7 @@ protected:
 
     // 3D display model data
     cvf::ref<cvf::ModelBasicList> m_wellPathPipeVizModel;
-    cvf::ref<cvf::ModelBasicList> m_crossSectionVizModel;
+    cvf::ref<cvf::ModelBasicList> m_intersectionVizModel;
     cvf::ref<RivWellPathsPartMgr> m_wellPathsPartManager;
 
 private:

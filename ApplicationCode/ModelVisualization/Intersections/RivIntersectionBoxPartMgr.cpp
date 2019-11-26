@@ -186,7 +186,7 @@ void RivIntersectionBoxPartMgr::updatePartEffect()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxPartMgr::appendNativeCrossSectionFacesToModel( cvf::ModelBasicList* model,
+void RivIntersectionBoxPartMgr::appendNativeIntersectionFacesToModel( cvf::ModelBasicList* model,
                                                                       cvf::Transform*      scaleTransform )
 {
     if ( m_intersectionBoxFaces.isNull() && m_intersectionBoxGridLines.isNull() )

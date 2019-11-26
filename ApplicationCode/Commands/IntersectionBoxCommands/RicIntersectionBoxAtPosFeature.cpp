@@ -55,7 +55,7 @@ void RicIntersectionBoxAtPosFeature::onActionTriggered( bool isChecked )
     RimGridView* activeMainOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( activeMainOrComparisonView )
     {
-        RimIntersectionCollection* coll = activeMainOrComparisonView->crossSectionCollection();
+        RimIntersectionCollection* coll = activeMainOrComparisonView->intersectionCollection();
         CVF_ASSERT( coll );
 
         RimIntersectionBox* intersectionBox = new RimIntersectionBox();

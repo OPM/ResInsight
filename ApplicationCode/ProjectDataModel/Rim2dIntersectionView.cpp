@@ -544,7 +544,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
 
     m_intersectionVizModel->removeAllParts();
 
-    m_flatIntersectionPartMgr->appendNativeCrossSectionFacesToModel( m_intersectionVizModel.p(), scaleTransform() );
+    m_flatIntersectionPartMgr->appendNativeIntersectionFacesToModel( m_intersectionVizModel.p(), scaleTransform() );
     m_flatIntersectionPartMgr->appendMeshLinePartsToModel( m_intersectionVizModel.p(), scaleTransform() );
     m_flatIntersectionPartMgr->appendPolylinePartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
 

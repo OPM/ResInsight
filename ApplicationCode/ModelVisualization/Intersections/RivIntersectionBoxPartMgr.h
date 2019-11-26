@@ -57,7 +57,7 @@ public:
     void applySingleColorEffect();
     void updateCellResultColor( size_t timeStepIndex );
 
-    void appendNativeCrossSectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
+    void appendNativeIntersectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
 
 private:

@@ -131,7 +131,7 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView&           view,
     {
         if ( cs->isActive() )
         {
-            cs->intersectionPartMgr()->appendNativeCrossSectionFacesToModel( model, scaleTransform );
+            cs->intersectionPartMgr()->appendNativeIntersectionFacesToModel( model, scaleTransform );
             cs->intersectionPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
             cs->intersectionPartMgr()->appendPolylinePartsToModel( view, model, scaleTransform );
         }
@@ -141,7 +141,7 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView&           view,
     {
         if ( cs->isActive() )
         {
-            cs->intersectionBoxPartMgr()->appendNativeCrossSectionFacesToModel( model, scaleTransform );
+            cs->intersectionBoxPartMgr()->appendNativeIntersectionFacesToModel( model, scaleTransform );
             cs->intersectionBoxPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
 
             if ( cs->show3dManipulator() )

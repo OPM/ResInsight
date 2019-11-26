@@ -301,7 +301,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                                       &m_currentGridIdx );
                 m_currentFaceIndex = cvf::StructGridInterface::NO_FACE;
 
-                RiuSelectionItem* selItem = new RiuGeneralSelectionItem( crossSectionSourceInfo->crossSection() );
+                RiuSelectionItem* selItem = new RiuGeneralSelectionItem( crossSectionSourceInfo->intersection() );
                 Riu3dSelectionManager::instance()->setSelectedItem( selItem, Riu3dSelectionManager::RUI_TEMPORARY );
 
                 if ( gridView )
@@ -831,7 +831,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                 bool allowActiveViewChange = dynamic_cast<Rim2dIntersectionView*>( m_viewer->ownerViewWindow() ) ==
                                              nullptr;
 
-                RiuMainWindow::instance()->selectAsCurrentItem( crossSectionSourceInfo->crossSection(),
+                RiuMainWindow::instance()->selectAsCurrentItem( crossSectionSourceInfo->intersection(),
                                                                 allowActiveViewChange );
             }
             else if ( intersectionBoxSourceInfo )
@@ -1146,7 +1146,7 @@ void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                       m
     RimEclipseCase* eclipseCase = nullptr;
 
     if ( RimIntersectionResultDefinition* sepInterResDef =
-             crossSectionSourceInfo->crossSection()->activeSeparateResultDefinition() )
+             crossSectionSourceInfo->intersection()->activeSeparateResultDefinition() )
     {
         if ( sepInterResDef->isEclipseResultDefinition() )
         {

@@ -33,8 +33,8 @@ public:
 
     const std::vector<size_t>& triangleToCellIndex() const;
     std::array<cvf::Vec3f, 3>  triangle( int triangleIdx ) const;
-    RimExtrudedCurveIntersection*           crossSection() const;
+    RimExtrudedCurveIntersection*           intersection() const;
 
 private:
-    cvf::cref<RivExtrudedCurveIntersectionGeometryGenerator> m_crossSectionGeometryGenerator;
+    cvf::cref<RivExtrudedCurveIntersectionGeometryGenerator> m_intersectionGeometryGenerator;
 };

@@ -64,7 +64,7 @@ RivExtrudedCurveIntersectionGeometryGenerator::RivExtrudedCurveIntersectionGeome
                                                                     const RivIntersectionHexGridInterface* grid,
                                                                     bool                                   isFlattened,
                                                                     const cvf::Vec3d& flattenedPolylineStartPoint )
-    : m_crossSection( crossSection )
+    : m_intersection( crossSection )
     , m_polyLines( polylines )
     , m_extrusionDirection( extrusionDirection )
     , m_hexGrid( grid )
@@ -112,7 +112,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateSegementTransformPr
         cvf::Vec3d displayOffset( 0, 0, 0 );
         {
             RimGridView* gridView = nullptr;
-            m_crossSection->firstAncestorOrThisOfType( gridView );
+            m_intersection->firstAncestorOrThisOfType( gridView );
             if ( gridView && gridView->ownerCase() )
             {
                 displayOffset = gridView->ownerCase()->displayModelOffset();
@@ -254,10 +254,10 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
             double maxSectionHeightUp   = 0;
             double maxSectionHeightDown = 0;
 
-            if ( m_crossSection->type == RimExtrudedCurveIntersection::CS_AZIMUTHLINE )
+            if ( m_intersection->type == RimExtrudedCurveIntersection::CS_AZIMUTHLINE )
             {
-                maxSectionHeightUp   = m_crossSection->lengthUp();
-                maxSectionHeightDown = m_crossSection->lengthDown();
+                maxSectionHeightUp   = m_intersection->lengthUp();
+                maxSectionHeightDown = m_intersection->lengthDown();
 
                 if ( maxSectionHeightUp + maxSectionHeightDown == 0 )
                 {
@@ -320,7 +320,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
                                                                        &hexPlaneCutTriangleVxes,
                                                                        &cellFaceForEachTriangleEdge );
 
-                if ( m_crossSection->type == RimExtrudedCurveIntersection::CS_AZIMUTHLINE )
+                if ( m_intersection->type == RimExtrudedCurveIntersection::CS_AZIMUTHLINE )
                 {
                     bool hasAnyPointsOnSurface = false;
                     for ( caf::HexGridIntersectionTools::ClipVx vertex : hexPlaneCutTriangleVxes )
@@ -511,7 +511,7 @@ cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::create
 cvf::ref<cvf::DrawableGeo>
     RivExtrudedCurveIntersectionGeometryGenerator::createLineAlongExtrusionLineDrawable( const std::vector<cvf::Vec3d>& extrusionLine )
 {
-    cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform( crossSection() );
+    cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform( intersection() );
     std::vector<cvf::Vec3d>              displayCoords;
 
     for ( const auto& pt : extrusionLine )
@@ -537,7 +537,7 @@ cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::create
 cvf::ref<cvf::DrawableGeo>
     RivExtrudedCurveIntersectionGeometryGenerator::createPointsFromExtrusionLineDrawable( const std::vector<cvf::Vec3d>& extrusionLine )
 {
-    cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform( crossSection() );
+    cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform( intersection() );
     std::vector<cvf::Vec3d>              displayCoords;
 
     for ( const auto& pt : extrusionLine )
@@ -580,9 +580,9 @@ const cvf::Vec3fArray* RivExtrudedCurveIntersectionGeometryGenerator::triangleVx
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimExtrudedCurveIntersection* RivExtrudedCurveIntersectionGeometryGenerator::crossSection() const
+RimExtrudedCurveIntersection* RivExtrudedCurveIntersectionGeometryGenerator::intersection() const
 {
-    return m_crossSection;
+    return m_intersection;
 }
 
 //--------------------------------------------------------------------------------------------------

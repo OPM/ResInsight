@@ -38,7 +38,7 @@ void RicIntersectionFeatureImpl::createIntersectionBoxSlize( const QString&     
 
     if ( activeMainOrComparisonView )
     {
-        RimIntersectionCollection* coll = activeMainOrComparisonView->crossSectionCollection();
+        RimIntersectionCollection* coll = activeMainOrComparisonView->intersectionCollection();
         CVF_ASSERT( coll );
 
         cvf::Vec3d domainCoord = activeView->viewer()->viewerCommands()->lastPickPositionInDomainCoords();
