@@ -17,14 +17,14 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RivIntersectionSourceInfo.h"
+#include "RivExtrudedCurveIntersectionSourceInfo.h"
 
 #include "RivExtrudedCurveIntersectionGeometryGenerator.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivIntersectionSourceInfo::RivIntersectionSourceInfo( RivExtrudedCurveIntersectionGeometryGenerator* geometryGenerator )
+RivExtrudedCurveIntersectionSourceInfo::RivExtrudedCurveIntersectionSourceInfo( RivExtrudedCurveIntersectionGeometryGenerator* geometryGenerator )
     : m_crossSectionGeometryGenerator( geometryGenerator )
 {
     CVF_ASSERT( m_crossSectionGeometryGenerator.notNull() );
@@ -33,7 +33,7 @@ RivIntersectionSourceInfo::RivIntersectionSourceInfo( RivExtrudedCurveIntersecti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RivIntersectionSourceInfo::triangleToCellIndex() const
+const std::vector<size_t>& RivExtrudedCurveIntersectionSourceInfo::triangleToCellIndex() const
 {
     CVF_ASSERT( m_crossSectionGeometryGenerator.notNull() );
 
@@ -43,7 +43,7 @@ const std::vector<size_t>& RivIntersectionSourceInfo::triangleToCellIndex() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::array<cvf::Vec3f, 3> RivIntersectionSourceInfo::triangle( int triangleIdx ) const
+std::array<cvf::Vec3f, 3> RivExtrudedCurveIntersectionSourceInfo::triangle( int triangleIdx ) const
 {
     std::array<cvf::Vec3f, 3> tri;
     tri[0] = ( *m_crossSectionGeometryGenerator->triangleVxes() )[triangleIdx * 3];
@@ -56,7 +56,7 @@ std::array<cvf::Vec3f, 3> RivIntersectionSourceInfo::triangle( int triangleIdx )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimExtrudedCurveIntersection* RivIntersectionSourceInfo::crossSection() const
+RimExtrudedCurveIntersection* RivExtrudedCurveIntersectionSourceInfo::crossSection() const
 {
     return m_crossSectionGeometryGenerator->crossSection();
 }

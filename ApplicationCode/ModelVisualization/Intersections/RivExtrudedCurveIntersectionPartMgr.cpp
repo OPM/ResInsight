@@ -52,7 +52,7 @@
 #include "RivHexGridIntersectionTools.h"
 #include "RivExtrudedCurveIntersectionGeometryGenerator.h"
 #include "RivIntersectionResultsColoringTools.h"
-#include "RivIntersectionSourceInfo.h"
+#include "RivExtrudedCurveIntersectionSourceInfo.h"
 #include "RivMeshLinesSourceInfo.h"
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
@@ -243,7 +243,7 @@ void RivExtrudedCurveIntersectionPartMgr::generatePartGeometry()
             part->setDrawable( geo.p() );
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivIntersectionSourceInfo> si = new RivIntersectionSourceInfo( m_crossSectionGenerator.p() );
+            cvf::ref<RivExtrudedCurveIntersectionSourceInfo> si = new RivExtrudedCurveIntersectionSourceInfo( m_crossSectionGenerator.p() );
             part->setSourceInfo( si.p() );
 
             part->updateBoundingBox();

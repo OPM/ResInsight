@@ -78,7 +78,7 @@
 #include "RivFemPartGeometryGenerator.h"
 #include "RivFemPickSourceInfo.h"
 #include "RivIntersectionBoxSourceInfo.h"
-#include "RivIntersectionSourceInfo.h"
+#include "RivExtrudedCurveIntersectionSourceInfo.h"
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivSimWellConnectionSourceInfo.h"
@@ -270,7 +270,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
         const RivSourceInfo*        rivSourceInfo = dynamic_cast<const RivSourceInfo*>( firstHitPart->sourceInfo() );
         const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(
             firstHitPart->sourceInfo() );
-        const RivIntersectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivIntersectionSourceInfo*>(
+        const RivExtrudedCurveIntersectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>(
             firstHitPart->sourceInfo() );
         const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo = dynamic_cast<const RivIntersectionBoxSourceInfo*>(
             firstHitPart->sourceInfo() );
@@ -723,7 +723,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
             const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>( firstHitPart->sourceInfo() );
             const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(
                 firstHitPart->sourceInfo() );
-            const RivIntersectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivIntersectionSourceInfo*>(
+            const RivExtrudedCurveIntersectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>(
                 firstHitPart->sourceInfo() );
             const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo =
                 dynamic_cast<const RivIntersectionBoxSourceInfo*>( firstHitPart->sourceInfo() );
@@ -1137,7 +1137,7 @@ void RiuViewerCommands::removeDefaultPickEventHandler( RicDefaultPickEventHandle
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                       mainOrComparisonView,
-                                              const RivIntersectionSourceInfo* crossSectionSourceInfo,
+                                              const RivExtrudedCurveIntersectionSourceInfo* crossSectionSourceInfo,
                                               cvf::uint                        firstPartTriangleIndex,
                                               size_t*                          cellIndex,
                                               size_t*                          gridIndex )

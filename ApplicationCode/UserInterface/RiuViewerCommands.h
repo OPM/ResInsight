@@ -33,7 +33,7 @@ class RimExtrudedCurveIntersection;
 class Rim3dView;
 class RiuViewer;
 class RivIntersectionBoxSourceInfo;
-class RivIntersectionSourceInfo;
+class RivExtrudedCurveIntersectionSourceInfo;
 class RiuPickItemInfo;
 
 class QMouseEvent;
@@ -71,7 +71,7 @@ public:
 
 private:
     void findCellAndGridIndex( Rim3dView*                       mainOrComparisonView,
-                               const RivIntersectionSourceInfo* crossSectionSourceInfo,
+                               const RivExtrudedCurveIntersectionSourceInfo* crossSectionSourceInfo,
                                cvf::uint                        firstPartTriangleIndex,
                                size_t*                          cellIndex,
                                size_t*                          gridIndex );

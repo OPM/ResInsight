@@ -34,7 +34,7 @@
 #include "RivFemPickSourceInfo.h"
 #include "RivGeoMechVizLogic.h"
 #include "RivIntersectionBoxSourceInfo.h"
-#include "RivIntersectionSourceInfo.h"
+#include "RivExtrudedCurveIntersectionSourceInfo.h"
 #include "RivMeshLinesSourceInfo.h"
 #include "RivSimWellPipeSourceInfo.h"
 #include "RivSourceInfo.h"
@@ -351,7 +351,7 @@ bool RicHoloLensExportImpl::isGrid( const cvf::Part* part )
         }
 
         {
-            auto sourceInfoOfType = dynamic_cast<const RivIntersectionSourceInfo*>( sourceInfo );
+            auto sourceInfoOfType = dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>( sourceInfo );
             if ( sourceInfoOfType )
             {
                 return true;
