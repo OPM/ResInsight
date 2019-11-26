@@ -27,13 +27,13 @@
 class RimIntersectionResultDefinition;
 class RivIntersectionHexGridInterface;
 
-class RimIntersectionHandle : public caf::PdmObject
+class RimIntersection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimIntersectionHandle();
-    ~RimIntersectionHandle() override;
+    RimIntersection();
+    ~RimIntersection() override;
 
     QString name() const;
     void    setName( const QString& newName );

@@ -26,7 +26,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
-#include "RimIntersectionHandle.h"
+#include "RimIntersection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
@@ -51,7 +51,7 @@
 void RivIntersectionResultsColoringTools::calculateIntersectionResultColors(
     size_t                                    timeStepIndex,
     bool                                      useSeparateIntersectionResDefTimeStep,
-    RimIntersectionHandle*                    rimIntersectionHandle,
+    RimIntersection*                    rimIntersectionHandle,
     const RivIntersectionGeometryGeneratorIF* intersectionGeomGenIF,
     const cvf::ScalarMapper*                  explicitScalarColorMapper,
     const RivTernaryScalarMapper*             explicitTernaryColorMapper,

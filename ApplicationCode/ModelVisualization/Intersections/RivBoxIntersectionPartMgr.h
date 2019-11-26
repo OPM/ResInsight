@@ -38,7 +38,7 @@ class RivTernaryScalarMapper;
 class RimCellEdgeColors;
 class RimEclipseCellColors;
 class RimBoxIntersection;
-class RimIntersectionHandle;
+class RimIntersection;
 class RimEclipseView;
 class RimGeoMechView;
 class RimEclipseResultDefinition;

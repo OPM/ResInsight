@@ -486,7 +486,7 @@ void RimBoxIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 void RimBoxIntersection::initAfterRead()
 {
-    RimIntersectionHandle::initAfterRead();
+    RimIntersection::initAfterRead();
     updateVisibility();
 }
 

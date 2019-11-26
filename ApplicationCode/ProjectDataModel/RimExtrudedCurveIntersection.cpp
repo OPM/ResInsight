@@ -352,7 +352,7 @@ QList<caf::PdmOptionItemInfo> RimExtrudedCurveIntersection::calculateValueOption
     }
     else
     {
-        options = RimIntersectionHandle::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+        options = RimIntersection::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
     }
 
     return options;

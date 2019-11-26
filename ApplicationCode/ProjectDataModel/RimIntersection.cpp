@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimIntersectionHandle.h"
+#include "RimIntersection.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigFemPartCollection.h"
@@ -31,12 +31,12 @@
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RivHexGridIntersectionTools.h"
 
-CAF_PDM_SOURCE_INIT( RimIntersectionHandle, "RimIntersectionHandle" );
+CAF_PDM_SOURCE_INIT( RimIntersection, "RimIntersectionHandle" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersectionHandle::RimIntersectionHandle()
+RimIntersection::RimIntersection()
 {
     CAF_PDM_InitField( &m_name, "UserDescription", QString( "Intersection Name" ), "Name", "", "", "" );
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active", "", "", "" );
@@ -49,12 +49,12 @@ RimIntersectionHandle::RimIntersectionHandle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersectionHandle::~RimIntersectionHandle() {}
+RimIntersection::~RimIntersection() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimIntersectionHandle::name() const
+QString RimIntersection::name() const
 {
     return m_name();
 }
@@ -62,7 +62,7 @@ QString RimIntersectionHandle::name() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionHandle::setName( const QString& newName )
+void RimIntersection::setName( const QString& newName )
 {
     m_name = newName;
 }
@@ -70,7 +70,7 @@ void RimIntersectionHandle::setName( const QString& newName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimIntersectionHandle::isActive() const
+bool RimIntersection::isActive() const
 {
     return m_isActive();
 }
@@ -78,7 +78,7 @@ bool RimIntersectionHandle::isActive() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionHandle::setActive( bool isActive )
+void RimIntersection::setActive( bool isActive )
 {
     m_isActive = isActive;
 }
@@ -86,7 +86,7 @@ void RimIntersectionHandle::setActive( bool isActive )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimIntersectionHandle::isInactiveCellsVisible() const
+bool RimIntersection::isInactiveCellsVisible() const
 {
     return m_showInactiveCells;
 }
@@ -94,7 +94,7 @@ bool RimIntersectionHandle::isInactiveCellsVisible() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersectionResultDefinition* RimIntersectionHandle::activeSeparateResultDefinition()
+RimIntersectionResultDefinition* RimIntersection::activeSeparateResultDefinition()
 {
     updateDefaultSeparateDataSource();
 
@@ -116,7 +116,7 @@ RimIntersectionResultDefinition* RimIntersectionHandle::activeSeparateResultDefi
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimIntersectionHandle::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RimIntersection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -140,7 +140,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimIntersectionHandle::userDescriptionField()
+caf::PdmFieldHandle* RimIntersection::userDescriptionField()
 {
     return &m_name;
 }
@@ -148,14 +148,14 @@ caf::PdmFieldHandle* RimIntersectionHandle::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimIntersectionHandle::objectToggleField()
+caf::PdmFieldHandle* RimIntersection::objectToggleField()
 {
     return &m_isActive;
 }
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionHandle::initAfterRead()
+void RimIntersection::initAfterRead()
 {
     updateDefaultSeparateDataSource();
 }
@@ -163,7 +163,7 @@ void RimIntersectionHandle::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionHandle::defineSeparateDataSourceUi( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimIntersection::defineSeparateDataSourceUi( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     QString inactiveText;
     if ( !this->activeSeparateResultDefinition() )
@@ -183,7 +183,7 @@ void RimIntersectionHandle::defineSeparateDataSourceUi( QString uiConfigName, ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionHandle::updateDefaultSeparateDataSource()
+void RimIntersection::updateDefaultSeparateDataSource()
 {
     if ( m_separateDataSource() == nullptr )
     {
@@ -206,7 +206,7 @@ void RimIntersectionHandle::updateDefaultSeparateDataSource()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RivIntersectionHexGridInterface> RimIntersectionHandle::createHexGridInterface()
+cvf::ref<RivIntersectionHexGridInterface> RimIntersection::createHexGridInterface()
 {
     RimIntersectionResultDefinition* resDef = activeSeparateResultDefinition();
     if ( resDef && resDef->activeCase() )

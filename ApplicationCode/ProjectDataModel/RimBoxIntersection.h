@@ -21,7 +21,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "RimIntersectionHandle.h"
+#include "RimIntersection.h"
 
 #include "cvfBoundingBox.h"
 #include "cvfVector3.h"
@@ -43,7 +43,7 @@ class ModelBasicList;
 //
 //
 //==================================================================================================
-class RimBoxIntersection : public QObject, public RimIntersectionHandle
+class RimBoxIntersection : public QObject, public RimIntersection
 {
     Q_OBJECT;
 

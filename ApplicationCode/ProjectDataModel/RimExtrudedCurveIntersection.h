@@ -27,7 +27,7 @@
 
 #include "cvfObject.h"
 #include "cvfVector3.h"
-#include "RimIntersectionHandle.h"
+#include "RimIntersection.h"
 
 class RimWellPath;
 class RivExtrudedCurveIntersectionPartMgr;
@@ -47,7 +47,7 @@ class PdmUiPushButtonEditorAttribute;
 //
 //
 //==================================================================================================
-class RimExtrudedCurveIntersection : public RimIntersectionHandle
+class RimExtrudedCurveIntersection : public RimIntersection
 {
     CAF_PDM_HEADER_INIT;
 
