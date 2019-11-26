@@ -33,6 +33,7 @@
 #include "RimAnnotationInViewCollection.h"
 #include "RimCalcScript.h"
 #include "RimCaseCollection.h"
+#include "RimCellEdgeColors.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
@@ -40,6 +41,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
+#include "RimEclipseFaultColors.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
@@ -61,6 +63,7 @@
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
+#include "RimGeoMechCellColors.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechContourMapViewCollection.h"
 #include "RimGeoMechPropertyFilter.h"
@@ -102,6 +105,7 @@
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
+#include "RimVirtualPerforationResults.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogFile.h"
@@ -931,9 +935,37 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
     }
 
     {
+        bool toggleCommandCandidate = true;
+        {
+            if ( dynamic_cast<RimEclipseCellColors*>( uiItems[0] ) )
+            {
+                toggleCommandCandidate = false;
+            }
+            else if ( dynamic_cast<RimCellEdgeColors*>( uiItems[0] ) )
+            {
+                toggleCommandCandidate = false;
+            }
+            else if ( dynamic_cast<RimEclipseFaultColors*>( uiItems[0] ) )
+            {
+                toggleCommandCandidate = false;
+            }
+            else if ( dynamic_cast<RimEclipseFaultColors*>( uiItems[0] ) )
+            {
+                toggleCommandCandidate = false;
+            }
+            else if ( dynamic_cast<RimVirtualPerforationResults*>( uiItems[0] ) )
+            {
+                toggleCommandCandidate = false;
+            }
+            else if ( dynamic_cast<RimGeoMechCellColors*>( uiItems[0] ) )
+            {
+                toggleCommandCandidate = false;
+            }
+        }
+
         bool addSeparator = true;
 
-        if ( RicToggleItemsFeatureImpl::isToggleCommandsAvailable() )
+        if ( toggleCommandCandidate && RicToggleItemsFeatureImpl::isToggleCommandsAvailable() )
         {
             menuBuilder << "Separator";
             menuBuilder << "RicToggleItemsOnFeature";
@@ -946,7 +978,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder.addSeparator();
         }
-        menuBuilder << "RicToggleItemsOnOthersOffFeature";
+
+        if ( dynamic_cast<RimRegularLegendConfig*>( uiItems[0] ) == nullptr )
+        {
+            menuBuilder << "RicToggleItemsOnOthersOffFeature";
+        }
 
         if ( RicToggleItemsFeatureImpl::isToggleCommandsAvailable() )
         {
