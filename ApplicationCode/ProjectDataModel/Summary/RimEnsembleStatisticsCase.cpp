@@ -133,18 +133,18 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*> su
                                            const RifEclipseSummaryAddress&    inputAddress )
 {
     std::vector<time_t>              allTimeSteps;
-    std::vector<std::vector<double>> allValues;
+    std::vector<std::vector<double>> caseAndTimeStepValues;
 
     if ( !inputAddress.isValid() ) return;
 
-    allValues.reserve( sumCases.size() );
+    caseAndTimeStepValues.reserve( sumCases.size() );
     for ( const auto& sumCase : sumCases )
     {
         const auto& reader = sumCase->summaryReader();
         if ( reader )
         {
-            std::vector<time_t> timeSteps = reader->timeSteps( inputAddress );
-            std::vector<double> values;
+            const std::vector<time_t>& timeSteps = reader->timeSteps( inputAddress );
+            std::vector<double>        values;
             reader->values( inputAddress, &values );
 
             if ( timeSteps.size() != values.size() ) continue;
@@ -157,7 +157,7 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*> su
                 resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::DAY );
 
             if ( allTimeSteps.empty() ) allTimeSteps = resampler.resampledTimeSteps();
-            allValues.push_back(
+            caseAndTimeStepValues.push_back(
                 std::vector<double>( resampler.resampledValues().begin(), resampler.resampledValues().end() ) );
         }
     }
@@ -165,14 +165,17 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*> su
     clearData();
     m_timeSteps = allTimeSteps;
 
-    for ( int t = 0; t < (int)allTimeSteps.size(); t++ )
+    for ( size_t timeStepIndex = 0; timeStepIndex < allTimeSteps.size(); timeStepIndex++ )
     {
         std::vector<double> valuesAtTimeStep;
         valuesAtTimeStep.reserve( sumCases.size() );
 
-        for ( int c = 0; c < (int)sumCases.size(); c++ )
+        for ( const std::vector<double>& caseValues : caseAndTimeStepValues )
         {
-            valuesAtTimeStep.push_back( allValues[c][t] );
+            if ( timeStepIndex < caseValues.size() )
+            {
+                valuesAtTimeStep.push_back( caseValues[timeStepIndex] );
+            }
         }
 
         double p10, p50, p90, mean;
