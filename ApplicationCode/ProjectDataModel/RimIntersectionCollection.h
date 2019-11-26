@@ -25,7 +25,7 @@
 
 class Rim3dView;
 class RimExtrudedCurveIntersection;
-class RimIntersectionBox;
+class RimBoxIntersection;
 class RimEclipseCellColors;
 class RimSimWellInView;
 class RivTernaryScalarMapper;
@@ -55,8 +55,8 @@ public:
     void appendIntersectionAndUpdate( RimExtrudedCurveIntersection* intersection, bool allowActiveViewChange = true );
     void appendIntersectionNoUpdate( RimExtrudedCurveIntersection* intersection );
 
-    void appendIntersectionBoxAndUpdate( RimIntersectionBox* intersectionBox );
-    void appendIntersectionBoxNoUpdate( RimIntersectionBox* intersectionBox );
+    void appendIntersectionBoxAndUpdate( RimBoxIntersection* intersectionBox );
+    void appendIntersectionBoxNoUpdate( RimBoxIntersection* intersectionBox );
 
     bool hasActiveIntersectionForSimulationWell( const RimSimWellInView* simWell ) const;
 
@@ -74,7 +74,7 @@ public:
     void rebuildGeometry();
 
     std::vector<RimExtrudedCurveIntersection*>    intersections() const;
-    std::vector<RimIntersectionBox*> intersectionBoxes() const;
+    std::vector<RimBoxIntersection*> intersectionBoxes() const;
 
 protected:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
@@ -84,5 +84,5 @@ protected:
 
 private:
     caf::PdmChildArrayField<RimExtrudedCurveIntersection*>    m_intersections;
-    caf::PdmChildArrayField<RimIntersectionBox*> m_intersectionBoxes;
+    caf::PdmChildArrayField<RimBoxIntersection*> m_intersectionBoxes;
 };

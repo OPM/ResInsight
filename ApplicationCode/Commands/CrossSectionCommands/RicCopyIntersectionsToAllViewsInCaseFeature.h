@@ -25,7 +25,7 @@
 
 class RimCase;
 class RimExtrudedCurveIntersection;
-class RimIntersectionBox;
+class RimBoxIntersection;
 class RimIntersectionCollection;
 
 //==================================================================================================
@@ -42,5 +42,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
     void copyIntersectionsToOtherViews( RimCase& gridCase, std::vector<RimExtrudedCurveIntersection*> intersections );
-    void copyIntersectionBoxesToOtherViews( RimCase& gridCase, std::vector<RimIntersectionBox*> intersectionBoxes );
+    void copyIntersectionBoxesToOtherViews( RimCase& gridCase, std::vector<RimBoxIntersection*> intersectionBoxes );
 };

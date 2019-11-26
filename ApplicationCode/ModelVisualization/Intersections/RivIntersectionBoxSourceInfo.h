@@ -23,7 +23,7 @@
 #include <array>
 
 class RivIntersectionBoxGeometryGenerator;
-class RimIntersectionBox;
+class RimBoxIntersection;
 
 class RivIntersectionBoxSourceInfo : public cvf::Object
 {
@@ -33,7 +33,7 @@ public:
     const std::vector<size_t>& triangleToCellIndex() const;
 
     std::array<cvf::Vec3f, 3> triangle( int triangleIdx ) const;
-    RimIntersectionBox*       intersectionBox() const;
+    RimBoxIntersection*       intersectionBox() const;
 
 private:
     cvf::cref<RivIntersectionBoxGeometryGenerator> m_intersectionBoxGeometryGenerator;

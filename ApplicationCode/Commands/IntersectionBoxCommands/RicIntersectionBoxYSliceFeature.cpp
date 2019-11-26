@@ -24,7 +24,7 @@
 
 #include "RimCase.h"
 #include "RimGridView.h"
-#include "RimIntersectionBox.h"
+#include "RimBoxIntersection.h"
 #include "RimIntersectionCollection.h"
 
 #include "RiuMainWindow.h"
@@ -54,7 +54,7 @@ bool RicIntersectionBoxYSliceFeature::isCommandEnabled()
 void RicIntersectionBoxYSliceFeature::onActionTriggered( bool isChecked )
 {
     RicIntersectionFeatureImpl::createIntersectionBoxSlize( "Y-slice (Intersection box)",
-                                                            RimIntersectionBox::PLANE_STATE_Y );
+                                                            RimBoxIntersection::PLANE_STATE_Y );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -31,7 +31,7 @@
 
 class RicBoxManipulatorEventHandler;
 class RiuViewer;
-class RivIntersectionBoxPartMgr;
+class RivBoxIntersectionPartMgr;
 
 namespace cvf
 {
@@ -43,7 +43,7 @@ class ModelBasicList;
 //
 //
 //==================================================================================================
-class RimIntersectionBox : public QObject, public RimIntersectionHandle
+class RimBoxIntersection : public QObject, public RimIntersectionHandle
 {
     Q_OBJECT;
 
@@ -59,8 +59,8 @@ public:
     };
 
 public:
-    RimIntersectionBox();
-    ~RimIntersectionBox() override;
+    RimBoxIntersection();
+    ~RimBoxIntersection() override;
 
     cvf::Mat4d       boxOrigin() const;
     cvf::Vec3d       boxSize() const;
@@ -68,7 +68,7 @@ public:
 
     bool show3dManipulator() const;
 
-    RivIntersectionBoxPartMgr* intersectionBoxPartMgr();
+    RivBoxIntersectionPartMgr* intersectionBoxPartMgr();
     void                       appendManipulatorPartsToModel( cvf::ModelBasicList* model );
     void                       rebuildGeometry();
 
@@ -120,6 +120,6 @@ private:
 
     caf::PdmField<bool> m_show3DManipulator;
 
-    cvf::ref<RivIntersectionBoxPartMgr>     m_intersectionBoxPartMgr;
+    cvf::ref<RivBoxIntersectionPartMgr>     m_intersectionBoxPartMgr;
     QPointer<RicBoxManipulatorEventHandler> m_boxManipulator;
 };

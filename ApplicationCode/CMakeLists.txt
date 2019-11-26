@@ -270,7 +270,7 @@ set ( QT_MOC_HEADERS
     ${QT_MOC_HEADERS}
     
     ProjectDataModel/RimMimeData.h
-    ProjectDataModel/RimIntersectionBox.h
+    ProjectDataModel/RimBoxIntersection.h
     
     SocketInterface/RiaSocketServer.h
 )

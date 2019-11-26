@@ -29,7 +29,7 @@
 
 #include <vector>
 
-class RimIntersectionBox;
+class RimBoxIntersection;
 
 namespace cvf
 {
@@ -40,7 +40,7 @@ class DrawableGeo;
 class RivIntersectionBoxGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorIF
 {
 public:
-    RivIntersectionBoxGeometryGenerator( RimIntersectionBox*                    intersectionBox,
+    RivIntersectionBoxGeometryGenerator( RimBoxIntersection*                    intersectionBox,
                                          const RivIntersectionHexGridInterface* grid );
 
     ~RivIntersectionBoxGeometryGenerator() override;
@@ -49,7 +49,7 @@ public:
     cvf::ref<cvf::DrawableGeo> generateSurface();
     cvf::ref<cvf::DrawableGeo> createMeshDrawable();
 
-    RimIntersectionBox* intersectionBox() const;
+    RimBoxIntersection* intersectionBox() const;
 
     // GeomGen Interface
 
@@ -70,5 +70,5 @@ private:
     std::vector<size_t>                       m_triangleToCellIdxMap;
     std::vector<RivIntersectionVertexWeights> m_triVxToCellCornerWeights;
 
-    RimIntersectionBox* m_intersectionBoxDefinition;
+    RimBoxIntersection* m_intersectionBoxDefinition;
 };

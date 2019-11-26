@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 
 #include "Rim3dView.h"
-#include "RimIntersectionBox.h"
+#include "RimBoxIntersection.h"
 
 #include "Riu3dSelectionManager.h"
 
@@ -43,7 +43,7 @@ bool RicHideIntersectionBoxFeature::isCommandEnabled()
     RiuGeneralSelectionItem* generalSelectionItem = static_cast<RiuGeneralSelectionItem*>( selItem );
     if ( !generalSelectionItem ) return false;
 
-    RimIntersectionBox* intersectionBox = dynamic_cast<RimIntersectionBox*>( generalSelectionItem->m_object );
+    RimBoxIntersection* intersectionBox = dynamic_cast<RimBoxIntersection*>( generalSelectionItem->m_object );
     if ( intersectionBox )
     {
         return true;
@@ -65,7 +65,7 @@ void RicHideIntersectionBoxFeature::onActionTriggered( bool isChecked )
     RiuGeneralSelectionItem* generalSelectionItem = static_cast<RiuGeneralSelectionItem*>( selItem );
     if ( !generalSelectionItem ) return;
 
-    RimIntersectionBox* intersectionBox = dynamic_cast<RimIntersectionBox*>( generalSelectionItem->m_object );
+    RimBoxIntersection* intersectionBox = dynamic_cast<RimBoxIntersection*>( generalSelectionItem->m_object );
     if ( intersectionBox )
     {
         intersectionBox->setActive(false);

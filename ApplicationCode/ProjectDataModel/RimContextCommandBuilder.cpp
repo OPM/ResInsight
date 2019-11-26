@@ -75,7 +75,7 @@
 #include "RimGridCrossPlotDataSet.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimExtrudedCurveIntersection.h"
-#include "RimIntersectionBox.h"
+#include "RimBoxIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
@@ -677,7 +677,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
         }
-        else if ( dynamic_cast<RimIntersectionBox*>( uiItem ) )
+        else if ( dynamic_cast<RimBoxIntersection*>( uiItem ) )
         {
             menuBuilder << "RicPasteIntersectionsFeature";
             menuBuilder.addSeparator();

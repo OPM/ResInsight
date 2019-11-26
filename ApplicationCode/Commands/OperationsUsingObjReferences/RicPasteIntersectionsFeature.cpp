@@ -21,7 +21,7 @@
 #include "RicPasteFeatureImpl.h"
 
 #include "RimExtrudedCurveIntersection.h"
-#include "RimIntersectionBox.h"
+#include "RimBoxIntersection.h"
 #include "RimIntersectionCollection.h"
 
 #include "RiuMainWindow.h"
@@ -44,7 +44,7 @@ bool RicPasteIntersectionsFeature::isCommandEnabled()
     std::vector<caf::PdmPointer<RimExtrudedCurveIntersection>> intersectionObjects;
     objectGroup.objectsByType( &intersectionObjects );
 
-    std::vector<caf::PdmPointer<RimIntersectionBox>> intersectionBoxObjects;
+    std::vector<caf::PdmPointer<RimBoxIntersection>> intersectionBoxObjects;
     objectGroup.objectsByType( &intersectionBoxObjects );
 
     if ( intersectionObjects.empty() && intersectionBoxObjects.empty() )
@@ -102,12 +102,12 @@ void RicPasteIntersectionsFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    std::vector<caf::PdmPointer<RimIntersectionBox>> intersectionBoxObjects;
+    std::vector<caf::PdmPointer<RimBoxIntersection>> intersectionBoxObjects;
     objectGroup.objectsByType( &intersectionBoxObjects );
 
     for ( size_t i = 0; i < intersectionBoxObjects.size(); i++ )
     {
-        RimIntersectionBox* intersectionBox = dynamic_cast<RimIntersectionBox*>(
+        RimBoxIntersection* intersectionBox = dynamic_cast<RimBoxIntersection*>(
             intersectionBoxObjects[i]->xmlCapability()->copyByXmlSerialization(
                 caf::PdmDefaultObjectFactory::instance() ) );
 
@@ -153,7 +153,7 @@ RimIntersectionCollection* RicPasteIntersectionsFeature::findIntersectionCollect
         return intersectionCollection;
     }
 
-    RimIntersectionBox* intersectionBox = dynamic_cast<RimIntersectionBox*>( objectHandle );
+    RimBoxIntersection* intersectionBox = dynamic_cast<RimBoxIntersection*>( objectHandle );
     if ( intersectionBox )
     {
         intersectionBox->firstAncestorOrThisOfType( intersectionCollection );

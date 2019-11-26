@@ -42,7 +42,7 @@
 #include "RimGridTimeHistoryCurve.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimExtrudedCurveIntersection.h"
-#include "RimIntersectionBox.h"
+#include "RimBoxIntersection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimMultiPlotWindow.h"
 #include "RimPerforationInterval.h"
@@ -118,7 +118,7 @@ bool isDeletable( caf::PdmUiItem* uiItem )
     if ( dynamic_cast<RimSummaryCurve*>( uiItem ) ) return true;
     if ( dynamic_cast<RimGridTimeHistoryCurve*>( uiItem ) ) return true;
     if ( dynamic_cast<RimExtrudedCurveIntersection*>( uiItem ) ) return true;
-    if ( dynamic_cast<RimIntersectionBox*>( uiItem ) ) return true;
+    if ( dynamic_cast<RimBoxIntersection*>( uiItem ) ) return true;
     if ( dynamic_cast<RimFormationNames*>( uiItem ) ) return true;
     if ( dynamic_cast<RimFormationNamesCollection*>( uiItem ) ) return true;
     if ( dynamic_cast<RimFishboneWellPath*>( uiItem ) ) return true;

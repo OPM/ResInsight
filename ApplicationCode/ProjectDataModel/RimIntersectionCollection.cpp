@@ -24,12 +24,12 @@
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimExtrudedCurveIntersection.h"
-#include "RimIntersectionBox.h"
+#include "RimBoxIntersection.h"
 #include "RimSimWellInView.h"
 
 #include "Riu3DMainWindowTools.h"
 
-#include "RivIntersectionBoxPartMgr.h"
+#include "RivBoxIntersectionPartMgr.h"
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 
 #include "cvfModelBasicList.h"
@@ -85,7 +85,7 @@ void RimIntersectionCollection::applySingleColorEffect()
         }
     }
 
-    for ( RimIntersectionBox* cs : m_intersectionBoxes )
+    for ( RimBoxIntersection* cs : m_intersectionBoxes )
     {
         if ( cs->isActive() )
         {
@@ -109,7 +109,7 @@ void RimIntersectionCollection::updateCellResultColor( size_t timeStepIndex )
         }
     }
 
-    for ( RimIntersectionBox* cs : m_intersectionBoxes )
+    for ( RimBoxIntersection* cs : m_intersectionBoxes )
     {
         if ( cs->isActive() )
         {
@@ -137,7 +137,7 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView&           view,
         }
     }
 
-    for ( RimIntersectionBox* cs : m_intersectionBoxes )
+    for ( RimBoxIntersection* cs : m_intersectionBoxes )
     {
         if ( cs->isActive() )
         {
@@ -164,7 +164,7 @@ void RimIntersectionCollection::rebuildGeometry()
         intersection->rebuildGeometry();
     }
 
-    for ( RimIntersectionBox* intersectionBox : m_intersectionBoxes )
+    for ( RimBoxIntersection* intersectionBox : m_intersectionBoxes )
     {
         intersectionBox->rebuildGeometry();
     }
@@ -181,7 +181,7 @@ std::vector<RimExtrudedCurveIntersection*> RimIntersectionCollection::intersecti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimIntersectionBox*> RimIntersectionCollection::intersectionBoxes() const
+std::vector<RimBoxIntersection*> RimIntersectionCollection::intersectionBoxes() const
 {
     return m_intersectionBoxes.childObjects();
 }
@@ -252,7 +252,7 @@ void RimIntersectionCollection::scheduleCreateDisplayModelAndRedraw2dIntersectio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendIntersectionBoxAndUpdate( RimIntersectionBox* intersectionBox )
+void RimIntersectionCollection::appendIntersectionBoxAndUpdate( RimBoxIntersection* intersectionBox )
 {
     m_intersectionBoxes.push_back( intersectionBox );
 
@@ -270,7 +270,7 @@ void RimIntersectionCollection::appendIntersectionBoxAndUpdate( RimIntersectionB
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendIntersectionBoxNoUpdate( RimIntersectionBox* intersectionBox )
+void RimIntersectionCollection::appendIntersectionBoxNoUpdate( RimBoxIntersection* intersectionBox )
 {
     m_intersectionBoxes.push_back( intersectionBox );
 }
@@ -318,7 +318,7 @@ bool RimIntersectionCollection::hasActiveIntersectionForSimulationWell( const Ri
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::updateIntersectionBoxGeometry()
 {
-    for ( RimIntersectionBox* intersectionBox : m_intersectionBoxes )
+    for ( RimBoxIntersection* intersectionBox : m_intersectionBoxes )
     {
         intersectionBox->updateBoxManipulatorGeometry();
     }

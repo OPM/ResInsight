@@ -24,7 +24,7 @@
 
 #include "RimCase.h"
 #include "RimGridView.h"
-#include "RimIntersectionBox.h"
+#include "RimBoxIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RiuViewerCommands.h"
 
@@ -54,7 +54,7 @@ bool RicIntersectionBoxZSliceFeature::isCommandEnabled()
 void RicIntersectionBoxZSliceFeature::onActionTriggered( bool isChecked )
 {
     RicIntersectionFeatureImpl::createIntersectionBoxSlize( "Z-slice (Intersection box)",
-                                                            RimIntersectionBox::PLANE_STATE_Z );
+                                                            RimBoxIntersection::PLANE_STATE_Z );
 }
 
 //--------------------------------------------------------------------------------------------------

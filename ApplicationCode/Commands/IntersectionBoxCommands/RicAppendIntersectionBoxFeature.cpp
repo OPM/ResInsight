@@ -20,7 +20,7 @@
 
 #include "RimCase.h"
 #include "RimGridView.h"
-#include "RimIntersectionBox.h"
+#include "RimBoxIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "Riu3DMainWindowTools.h"
 
@@ -53,7 +53,7 @@ void RicAppendIntersectionBoxFeature::onActionTriggered( bool isChecked )
 
     if ( coll )
     {
-        RimIntersectionBox* intersectionBox = new RimIntersectionBox();
+        RimBoxIntersection* intersectionBox = new RimBoxIntersection();
         intersectionBox->setName( "Intersection Box" );
 
         coll->appendIntersectionBoxAndUpdate( intersectionBox );

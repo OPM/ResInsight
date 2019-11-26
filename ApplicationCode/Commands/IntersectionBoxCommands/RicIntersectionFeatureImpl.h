@@ -18,12 +18,12 @@
 
 #pragma once
 
-#include "RimIntersectionBox.h"
+#include "RimBoxIntersection.h"
 
 class QString;
 
 class RicIntersectionFeatureImpl
 {
 public:
-    static void createIntersectionBoxSlize( const QString& name, RimIntersectionBox::SinglePlaneState plane );
+    static void createIntersectionBoxSlize( const QString& name, RimBoxIntersection::SinglePlaneState plane );
 };

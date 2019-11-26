@@ -55,7 +55,7 @@ std::array<cvf::Vec3f, 3> RivIntersectionBoxSourceInfo::triangle( int triangleId
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersectionBox* RivIntersectionBoxSourceInfo::intersectionBox() const
+RimBoxIntersection* RivIntersectionBoxSourceInfo::intersectionBox() const
 {
     return m_intersectionBoxGeometryGenerator->intersectionBox();
 }

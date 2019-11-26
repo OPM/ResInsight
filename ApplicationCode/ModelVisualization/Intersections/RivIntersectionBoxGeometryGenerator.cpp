@@ -20,7 +20,7 @@
 
 #include "RimCase.h"
 #include "RimGridView.h"
-#include "RimIntersectionBox.h"
+#include "RimBoxIntersection.h"
 
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 
@@ -34,7 +34,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivIntersectionBoxGeometryGenerator::RivIntersectionBoxGeometryGenerator( RimIntersectionBox* intersectionBox,
+RivIntersectionBoxGeometryGenerator::RivIntersectionBoxGeometryGenerator( RimBoxIntersection* intersectionBox,
                                                                           const RivIntersectionHexGridInterface* grid )
     : m_intersectionBoxDefinition( intersectionBox )
     , m_hexGrid( grid )
@@ -236,7 +236,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersectionBox* RivIntersectionBoxGeometryGenerator::intersectionBox() const
+RimBoxIntersection* RivIntersectionBoxGeometryGenerator::intersectionBox() const
 {
     return m_intersectionBoxDefinition;
 }
@@ -264,13 +264,13 @@ void RivIntersectionBoxGeometryGenerator::calculateArrays()
     Box                       box( m_intersectionBoxDefinition->boxOrigin(), m_intersectionBoxDefinition->boxSize() );
     std::array<cvf::Plane, 6> boxPlanes = box.planes();
 
-    RimIntersectionBox::SinglePlaneState singlePlane = m_intersectionBoxDefinition->singlePlaneState();
+    RimBoxIntersection::SinglePlaneState singlePlane = m_intersectionBoxDefinition->singlePlaneState();
 
     int startFace = 0;
     int endFace   = 5;
-    if ( singlePlane == RimIntersectionBox::PLANE_STATE_X ) startFace = endFace = Box::FaceType::POS_I;
-    if ( singlePlane == RimIntersectionBox::PLANE_STATE_Y ) startFace = endFace = Box::FaceType::POS_J;
-    if ( singlePlane == RimIntersectionBox::PLANE_STATE_Z ) startFace = endFace = Box::FaceType::POS_K;
+    if ( singlePlane == RimBoxIntersection::PLANE_STATE_X ) startFace = endFace = Box::FaceType::POS_I;
+    if ( singlePlane == RimBoxIntersection::PLANE_STATE_Y ) startFace = endFace = Box::FaceType::POS_J;
+    if ( singlePlane == RimBoxIntersection::PLANE_STATE_Z ) startFace = endFace = Box::FaceType::POS_K;
 
     for ( int faceIdx = startFace; faceIdx <= endFace; ++faceIdx )
     {

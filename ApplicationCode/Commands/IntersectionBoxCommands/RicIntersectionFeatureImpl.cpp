@@ -20,7 +20,7 @@
 #include "RiaApplication.h"
 
 #include "RimGridView.h"
-#include "RimIntersectionBox.h"
+#include "RimBoxIntersection.h"
 #include "RimIntersectionCollection.h"
 
 #include "RiuMainWindow.h"
@@ -31,7 +31,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 void RicIntersectionFeatureImpl::createIntersectionBoxSlize( const QString&                       name,
-                                                             RimIntersectionBox::SinglePlaneState plane )
+                                                             RimBoxIntersection::SinglePlaneState plane )
 {
     RimGridView* activeView                 = RiaApplication::instance()->activeGridView();
     RimGridView* activeMainOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
@@ -43,7 +43,7 @@ void RicIntersectionFeatureImpl::createIntersectionBoxSlize( const QString&     
 
         cvf::Vec3d domainCoord = activeView->viewer()->viewerCommands()->lastPickPositionInDomainCoords();
 
-        RimIntersectionBox* intersectionBox = new RimIntersectionBox();
+        RimBoxIntersection* intersectionBox = new RimBoxIntersection();
         intersectionBox->setName( name );
 
         coll->appendIntersectionBoxNoUpdate( intersectionBox );

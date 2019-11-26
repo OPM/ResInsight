@@ -23,7 +23,7 @@
 #include "RimEclipseCase.h"
 #include "RimGridView.h"
 #include "RimExtrudedCurveIntersection.h"
-#include "RimIntersectionBox.h"
+#include "RimBoxIntersection.h"
 #include "RimIntersectionCollection.h"
 
 #include "cafCmdExecCommandManager.h"
@@ -50,7 +50,7 @@ enum SelectionComposition
 
 static RimIntersectionCollection*       selectedIntersectionCollection();
 static std::vector<RimExtrudedCurveIntersection*>    selectedIntersections();
-static std::vector<RimIntersectionBox*> selectedIntersectionBoxes();
+static std::vector<RimBoxIntersection*> selectedIntersectionBoxes();
 static SelectionComposition             selectionComposition();
 static RimCase*                         commonGridCase( std::vector<caf::PdmUiItem*> selectedItems );
 
@@ -84,7 +84,7 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::onActionTriggered( bool isChec
         }
 
         std::vector<RimExtrudedCurveIntersection*>    selIntersections     = selectedIntersections();
-        std::vector<RimIntersectionBox*> selIntersectionBoxes = selectedIntersectionBoxes();
+        std::vector<RimBoxIntersection*> selIntersectionBoxes = selectedIntersectionBoxes();
 
         if ( compostion == SEL_INTERSECTIONS || compostion == SEL_BOTH_INTERSECTION_TYPES )
         {
@@ -143,9 +143,9 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionsToOtherViews(
 //--------------------------------------------------------------------------------------------------
 void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionBoxesToOtherViews(
     RimCase&                         gridCase,
-    std::vector<RimIntersectionBox*> intersectionBoxes )
+    std::vector<RimBoxIntersection*> intersectionBoxes )
 {
-    for ( RimIntersectionBox* intersectionBox : intersectionBoxes )
+    for ( RimBoxIntersection* intersectionBox : intersectionBoxes )
     {
         for ( Rim3dView* const view : gridCase.views() )
         {
@@ -157,7 +157,7 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionBoxesToOtherVi
             {
                 RimIntersectionCollection* destCollection = currGridView->intersectionCollection();
 
-                RimIntersectionBox* copy = dynamic_cast<RimIntersectionBox*>(
+                RimBoxIntersection* copy = dynamic_cast<RimBoxIntersection*>(
                     intersectionBox->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
                 CVF_ASSERT( copy );
 
@@ -187,9 +187,9 @@ std::vector<RimExtrudedCurveIntersection*> selectedIntersections()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimIntersectionBox*> selectedIntersectionBoxes()
+std::vector<RimBoxIntersection*> selectedIntersectionBoxes()
 {
-    return caf::selectedObjectsByType<RimIntersectionBox*>();
+    return caf::selectedObjectsByType<RimBoxIntersection*>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,7 +205,7 @@ SelectionComposition selectionComposition()
     {
         RimIntersectionCollection*       selColl              = selectedIntersectionCollection();
         std::vector<RimExtrudedCurveIntersection*>    selIntersections     = selectedIntersections();
-        std::vector<RimIntersectionBox*> selIntersectionBoxes = selectedIntersectionBoxes();
+        std::vector<RimBoxIntersection*> selIntersectionBoxes = selectedIntersectionBoxes();
 
         if ( selColl )
         {

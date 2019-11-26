@@ -58,7 +58,7 @@
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechView.h"
 #include "RimExtrudedCurveIntersection.h"
-#include "RimIntersectionBox.h"
+#include "RimBoxIntersection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimLegendConfig.h"
 #include "RimPerforationInterval.h"

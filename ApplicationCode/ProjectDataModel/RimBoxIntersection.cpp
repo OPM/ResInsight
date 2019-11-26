@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimIntersectionBox.h"
+#include "RimBoxIntersection.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"
@@ -26,7 +26,7 @@
 
 #include "RiuViewer.h"
 
-#include "RivIntersectionBoxPartMgr.h"
+#include "RivBoxIntersectionPartMgr.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafPdmUiDoubleSliderEditor.h"
@@ -36,22 +36,22 @@
 namespace caf
 {
 template <>
-void AppEnum<RimIntersectionBox::SinglePlaneState>::setUp()
+void AppEnum<RimBoxIntersection::SinglePlaneState>::setUp()
 {
-    addItem( RimIntersectionBox::PLANE_STATE_NONE, "PLANE_STATE_NONE", "Box" );
-    addItem( RimIntersectionBox::PLANE_STATE_X, "PLANE_STATE_X", "X Plane" );
-    addItem( RimIntersectionBox::PLANE_STATE_Y, "PLANE_STATE_Y", "Y Plane" );
-    addItem( RimIntersectionBox::PLANE_STATE_Z, "PLANE_STATE_Z", "Z Plane" );
-    setDefault( RimIntersectionBox::PLANE_STATE_NONE );
+    addItem( RimBoxIntersection::PLANE_STATE_NONE, "PLANE_STATE_NONE", "Box" );
+    addItem( RimBoxIntersection::PLANE_STATE_X, "PLANE_STATE_X", "X Plane" );
+    addItem( RimBoxIntersection::PLANE_STATE_Y, "PLANE_STATE_Y", "Y Plane" );
+    addItem( RimBoxIntersection::PLANE_STATE_Z, "PLANE_STATE_Z", "Z Plane" );
+    setDefault( RimBoxIntersection::PLANE_STATE_NONE );
 }
 } // namespace caf
 
-CAF_PDM_SOURCE_INIT( RimIntersectionBox, "IntersectionBox" );
+CAF_PDM_SOURCE_INIT( RimBoxIntersection, "IntersectionBox" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersectionBox::RimIntersectionBox()
+RimBoxIntersection::RimBoxIntersection()
 {
     CAF_PDM_InitObject( "Intersection Box", ":/IntersectionBox16x16.png", "", "" );
 
@@ -92,7 +92,7 @@ RimIntersectionBox::RimIntersectionBox()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersectionBox::~RimIntersectionBox()
+RimBoxIntersection::~RimBoxIntersection()
 {
     if ( m_boxManipulator )
     {
@@ -103,7 +103,7 @@ RimIntersectionBox::~RimIntersectionBox()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Mat4d RimIntersectionBox::boxOrigin() const
+cvf::Mat4d RimBoxIntersection::boxOrigin() const
 {
     cvf::Mat4d mx( cvf::Mat4d::IDENTITY );
     mx.setTranslation( cvf::Vec3d( m_minXCoord, m_minYCoord, -m_maxDepth ) );
@@ -113,7 +113,7 @@ cvf::Mat4d RimIntersectionBox::boxOrigin() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimIntersectionBox::boxSize() const
+cvf::Vec3d RimBoxIntersection::boxSize() const
 {
     return cvf::Vec3d( m_maxXCoord, m_maxYCoord, m_maxDepth ) - cvf::Vec3d( m_minXCoord, m_minYCoord, m_minDepth );
 }
@@ -121,7 +121,7 @@ cvf::Vec3d RimIntersectionBox::boxSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionBox::setFromOriginAndSize( const cvf::Vec3d& origin, const cvf::Vec3d& size )
+void RimBoxIntersection::setFromOriginAndSize( const cvf::Vec3d& origin, const cvf::Vec3d& size )
 {
     m_minXCoord = origin.x();
     m_minYCoord = origin.y();
@@ -143,7 +143,7 @@ void RimIntersectionBox::setFromOriginAndSize( const cvf::Vec3d& origin, const c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimIntersectionBox::show3dManipulator() const
+bool RimBoxIntersection::show3dManipulator() const
 {
     return m_show3DManipulator;
 }
@@ -151,7 +151,7 @@ bool RimIntersectionBox::show3dManipulator() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersectionBox::SinglePlaneState RimIntersectionBox::singlePlaneState() const
+RimBoxIntersection::SinglePlaneState RimBoxIntersection::singlePlaneState() const
 {
     return m_singlePlaneState();
 }
@@ -159,7 +159,7 @@ RimIntersectionBox::SinglePlaneState RimIntersectionBox::singlePlaneState() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionBox::setToDefaultSizeBox()
+void RimBoxIntersection::setToDefaultSizeBox()
 {
     cvf::BoundingBox boundingBox = currentCellBoundingBox();
     cvf::Vec3d       center      = boundingBox.center();
@@ -177,7 +177,7 @@ void RimIntersectionBox::setToDefaultSizeBox()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionBox::setToDefaultSizeSlice( SinglePlaneState plane, const cvf::Vec3d& position )
+void RimBoxIntersection::setToDefaultSizeSlice( SinglePlaneState plane, const cvf::Vec3d& position )
 {
     m_singlePlaneState = plane;
 
@@ -214,9 +214,9 @@ void RimIntersectionBox::setToDefaultSizeSlice( SinglePlaneState plane, const cv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivIntersectionBoxPartMgr* RimIntersectionBox::intersectionBoxPartMgr()
+RivBoxIntersectionPartMgr* RimBoxIntersection::intersectionBoxPartMgr()
 {
-    if ( m_intersectionBoxPartMgr.isNull() ) m_intersectionBoxPartMgr = new RivIntersectionBoxPartMgr( this );
+    if ( m_intersectionBoxPartMgr.isNull() ) m_intersectionBoxPartMgr = new RivBoxIntersectionPartMgr( this );
 
     return m_intersectionBoxPartMgr.p();
 }
@@ -224,7 +224,7 @@ RivIntersectionBoxPartMgr* RimIntersectionBox::intersectionBoxPartMgr()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionBox::appendManipulatorPartsToModel( cvf::ModelBasicList* model )
+void RimBoxIntersection::appendManipulatorPartsToModel( cvf::ModelBasicList* model )
 {
     if ( show3dManipulator() && m_boxManipulator )
     {
@@ -235,7 +235,7 @@ void RimIntersectionBox::appendManipulatorPartsToModel( cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionBox::rebuildGeometry()
+void RimBoxIntersection::rebuildGeometry()
 {
     m_intersectionBoxPartMgr = nullptr;
 }
@@ -243,7 +243,7 @@ void RimIntersectionBox::rebuildGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionBox::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+void RimBoxIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                            const QVariant&            oldValue,
                                            const QVariant&            newValue )
 {
@@ -359,7 +359,7 @@ void RimIntersectionBox::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionBox::updateBoxManipulatorGeometry()
+void RimBoxIntersection::updateBoxManipulatorGeometry()
 {
     if ( m_boxManipulator.isNull() ) return;
 
@@ -376,7 +376,7 @@ void RimIntersectionBox::updateBoxManipulatorGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionBox::defineEditorAttribute( const caf::PdmFieldHandle* field,
+void RimBoxIntersection::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                 QString                    uiConfigName,
                                                 caf::PdmUiEditorAttribute* attribute )
 {
@@ -437,7 +437,7 @@ void RimIntersectionBox::defineEditorAttribute( const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionBox::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimBoxIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_name );
 
@@ -484,7 +484,7 @@ void RimIntersectionBox::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionBox::initAfterRead()
+void RimBoxIntersection::initAfterRead()
 {
     RimIntersectionHandle::initAfterRead();
     updateVisibility();
@@ -493,7 +493,7 @@ void RimIntersectionBox::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionBox::slotScheduleRedraw()
+void RimBoxIntersection::slotScheduleRedraw()
 {
     Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfType( rimView );
@@ -506,7 +506,7 @@ void RimIntersectionBox::slotScheduleRedraw()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionBox::slotUpdateGeometry( const cvf::Vec3d& origin, const cvf::Vec3d& size )
+void RimBoxIntersection::slotUpdateGeometry( const cvf::Vec3d& origin, const cvf::Vec3d& size )
 {
     Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfType( rimView );
@@ -526,7 +526,7 @@ void RimIntersectionBox::slotUpdateGeometry( const cvf::Vec3d& origin, const cvf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionBox::rebuildGeometryAndScheduleCreateDisplayModel()
+void RimBoxIntersection::rebuildGeometryAndScheduleCreateDisplayModel()
 {
     m_intersectionBoxPartMgr = nullptr;
 
@@ -536,7 +536,7 @@ void RimIntersectionBox::rebuildGeometryAndScheduleCreateDisplayModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionBox::updateVisibility()
+void RimBoxIntersection::updateVisibility()
 {
     m_maxXCoord.uiCapability()->setUiReadOnly( false );
     m_maxYCoord.uiCapability()->setUiReadOnly( false );
@@ -566,7 +566,7 @@ void RimIntersectionBox::updateVisibility()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionBox::clampSinglePlaneValues()
+void RimBoxIntersection::clampSinglePlaneValues()
 {
     if ( m_singlePlaneState == PLANE_STATE_X )
     {
@@ -585,7 +585,7 @@ void RimIntersectionBox::clampSinglePlaneValues()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionBox::switchSingelPlaneState()
+void RimBoxIntersection::switchSingelPlaneState()
 {
     cvf::Vec3d orgSize  = boxSize();
     double     orgWidth = orgSize.length();
@@ -635,7 +635,7 @@ void RimIntersectionBox::switchSingelPlaneState()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RimIntersectionBox::currentCellBoundingBox()
+cvf::BoundingBox RimBoxIntersection::currentCellBoundingBox()
 {
     RimCase* rimCase = nullptr;
     this->firstAncestorOrThisOfType( rimCase );
@@ -660,7 +660,7 @@ cvf::BoundingBox RimIntersectionBox::currentCellBoundingBox()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuViewer* RimIntersectionBox::viewer()
+RiuViewer* RimBoxIntersection::viewer()
 {
     Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfType( rimView );

@@ -6,7 +6,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RivExtrudedCurveIntersectionSourceInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RivIntersectionResultsColoringTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RivHexGridIntersectionTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RivIntersectionBoxGeometryGenerator.h
-${CMAKE_CURRENT_LIST_DIR}/RivIntersectionBoxPartMgr.h
+${CMAKE_CURRENT_LIST_DIR}/RivBoxIntersectionPartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivIntersectionBoxSourceInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RivSectionFlattner.h
 )
@@ -18,7 +18,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RivExtrudedCurveIntersectionSourceInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivIntersectionResultsColoringTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivHexGridIntersectionTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivIntersectionBoxGeometryGenerator.cpp
-${CMAKE_CURRENT_LIST_DIR}/RivIntersectionBoxPartMgr.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivBoxIntersectionPartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivIntersectionBoxSourceInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivSectionFlattner.cpp
 )

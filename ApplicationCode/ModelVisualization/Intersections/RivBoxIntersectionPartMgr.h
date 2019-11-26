@@ -37,7 +37,7 @@ class RivTernaryScalarMapper;
 
 class RimCellEdgeColors;
 class RimEclipseCellColors;
-class RimIntersectionBox;
+class RimBoxIntersection;
 class RimIntersectionHandle;
 class RimEclipseView;
 class RimGeoMechView;
@@ -49,10 +49,10 @@ class RimGeoMechResultDefinition;
 ///
 //==================================================================================================
 
-class RivIntersectionBoxPartMgr : public cvf::Object
+class RivBoxIntersectionPartMgr : public cvf::Object
 {
 public:
-    explicit RivIntersectionBoxPartMgr( RimIntersectionBox* intersectionBox );
+    explicit RivBoxIntersectionPartMgr( RimBoxIntersection* intersectionBox );
 
     void applySingleColorEffect();
     void updateCellResultColor( size_t timeStepIndex );
@@ -65,7 +65,7 @@ private:
     void generatePartGeometry();
 
 private:
-    RimIntersectionBox* m_rimIntersectionBox;
+    RimBoxIntersection* m_rimIntersectionBox;
 
     cvf::Color3f m_defaultColor;
 
