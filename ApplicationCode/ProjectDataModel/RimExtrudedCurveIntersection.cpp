@@ -36,7 +36,7 @@
 #include "RimWellPath.h"
 
 #include "RiuViewer.h"
-#include "RivIntersectionPartMgr.h"
+#include "RivExtrudedCurveIntersectionPartMgr.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
@@ -492,9 +492,9 @@ std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivIntersectionPartMgr* RimExtrudedCurveIntersection::intersectionPartMgr()
+RivExtrudedCurveIntersectionPartMgr* RimExtrudedCurveIntersection::intersectionPartMgr()
 {
-    if ( m_crossSectionPartMgr.isNull() ) m_crossSectionPartMgr = new RivIntersectionPartMgr( this );
+    if ( m_crossSectionPartMgr.isNull() ) m_crossSectionPartMgr = new RivExtrudedCurveIntersectionPartMgr( this );
 
     return m_crossSectionPartMgr.p();
 }

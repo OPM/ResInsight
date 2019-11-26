@@ -34,7 +34,7 @@
 
 #include "RiuGeoMechXfTensorResultAccessor.h"
 
-#include "RivIntersectionPartMgr.h"
+#include "RivExtrudedCurveIntersectionPartMgr.h"
 
 #include "cafDisplayCoordTransform.h"
 

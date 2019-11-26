@@ -51,7 +51,7 @@ class RimCellEdgeColors;
 class RimEclipseCellColors;
 class RimExtrudedCurveIntersection;
 class RivTernaryScalarMapper;
-class RivIntersectionGeometryGenerator;
+class RivExtrudedCurveIntersectionGeometryGenerator;
 class RivIntersectionHexGridInterface;
 class RivIntersectionVertexWeights;
 class RivPipeGeometryGenerator;
@@ -61,10 +61,10 @@ class RivPipeGeometryGenerator;
 ///
 //==================================================================================================
 
-class RivIntersectionPartMgr : public cvf::Object
+class RivExtrudedCurveIntersectionPartMgr : public cvf::Object
 {
 public:
-    explicit RivIntersectionPartMgr( RimExtrudedCurveIntersection* rimCrossSection, bool isFlattened = false );
+    explicit RivExtrudedCurveIntersectionPartMgr( RimExtrudedCurveIntersection* rimCrossSection, bool isFlattened = false );
 
     void applySingleColorEffect();
     void updateCellResultColor( size_t                        timeStepIndex,
@@ -89,7 +89,7 @@ private:
 private:
     caf::PdmPointer<RimExtrudedCurveIntersection> m_rimCrossSection;
 
-    cvf::ref<RivIntersectionGeometryGenerator> m_crossSectionGenerator;
+    cvf::ref<RivExtrudedCurveIntersectionGeometryGenerator> m_crossSectionGenerator;
 
     cvf::ref<cvf::Part> m_crossSectionFaces;
     cvf::ref<cvf::Part> m_crossSectionGridLines;

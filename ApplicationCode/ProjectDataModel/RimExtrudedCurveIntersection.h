@@ -30,7 +30,7 @@
 #include "RimIntersectionHandle.h"
 
 class RimWellPath;
-class RivIntersectionPartMgr;
+class RivExtrudedCurveIntersectionPartMgr;
 class RimIntersectionResultDefinition;
 class RimSimWellInView;
 class RimSimWellInViewCollection;
@@ -85,7 +85,7 @@ public:
     void                                 appendPointToPolyLine( const cvf::Vec3d& point );
 
     Rim2dIntersectionView*  correspondingIntersectionView();
-    RivIntersectionPartMgr* intersectionPartMgr();
+    RivExtrudedCurveIntersectionPartMgr* intersectionPartMgr();
     void                    rebuildGeometry();
 
     std::vector<cvf::Vec3d> polyLinesForExtrusionDirection() const;
@@ -140,7 +140,7 @@ private:
     static double               azimuthInRadians( cvf::Vec3d vec );
 
 private:
-    cvf::ref<RivIntersectionPartMgr> m_crossSectionPartMgr;
+    cvf::ref<RivExtrudedCurveIntersectionPartMgr> m_crossSectionPartMgr;
 
     mutable std::vector<std::vector<cvf::Vec3d>> m_simulationWellBranchCenterlines;
 };

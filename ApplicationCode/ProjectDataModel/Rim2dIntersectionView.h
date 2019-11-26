@@ -28,7 +28,7 @@ class RimTernaryLegendConfig;
 class RivSimWellPipesPartMgr;
 class RivWellHeadPartMgr;
 class RivWellPathPartMgr;
-class RivIntersectionPartMgr;
+class RivExtrudedCurveIntersectionPartMgr;
 
 namespace cvf
 {
@@ -71,7 +71,7 @@ public:
     void update3dInfo();
     void updateName();
 
-    cvf::ref<RivIntersectionPartMgr> flatIntersectionPartMgr() const;
+    cvf::ref<RivExtrudedCurveIntersectionPartMgr> flatIntersectionPartMgr() const;
     cvf::Vec3d                       transformToUtm( const cvf::Vec3d& unscaledPointInFlatDomain ) const;
 
     cvf::ref<caf::DisplayCoordTransform> displayCoordTransform() const override;
@@ -119,7 +119,7 @@ private:
 
     caf::PdmPtrField<RimExtrudedCurveIntersection*> m_intersection;
 
-    cvf::ref<RivIntersectionPartMgr> m_flatIntersectionPartMgr;
+    cvf::ref<RivExtrudedCurveIntersectionPartMgr> m_flatIntersectionPartMgr;
     cvf::ref<RivSimWellPipesPartMgr> m_flatSimWellPipePartMgr;
     cvf::ref<RivWellHeadPartMgr>     m_flatWellHeadPartMgr;
     cvf::ref<RivWellPathPartMgr>     m_flatWellpathPartMgr;

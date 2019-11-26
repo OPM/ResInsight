@@ -46,17 +46,17 @@ class ScalarMapper;
 class DrawableGeo;
 } // namespace cvf
 
-class RivIntersectionGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorIF
+class RivExtrudedCurveIntersectionGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorIF
 {
 public:
-    RivIntersectionGeometryGenerator( RimExtrudedCurveIntersection*                       crossSection,
+    RivExtrudedCurveIntersectionGeometryGenerator( RimExtrudedCurveIntersection*                       crossSection,
                                       std::vector<std::vector<cvf::Vec3d>>&  polylines,
                                       const cvf::Vec3d&                      extrusionDirection,
                                       const RivIntersectionHexGridInterface* grid,
                                       bool                                   isFlattened,
                                       const cvf::Vec3d&                      flattenedPolylineStartPoint );
 
-    ~RivIntersectionGeometryGenerator() override;
+    ~RivExtrudedCurveIntersectionGeometryGenerator() override;
 
     // Generate geometry
     cvf::ref<cvf::DrawableGeo> generateSurface();

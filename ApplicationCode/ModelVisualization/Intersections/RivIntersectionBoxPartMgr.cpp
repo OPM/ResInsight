@@ -37,7 +37,7 @@
 #include "RimTernaryLegendConfig.h"
 
 #include "RivIntersectionBoxSourceInfo.h"
-#include "RivIntersectionPartMgr.h"
+#include "RivExtrudedCurveIntersectionPartMgr.h"
 #include "RivIntersectionResultsColoringTools.h"
 #include "RivMeshLinesSourceInfo.h"
 #include "RivPartPriority.h"

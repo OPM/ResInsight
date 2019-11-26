@@ -30,7 +30,7 @@
 #include "Riu3DMainWindowTools.h"
 
 #include "RivIntersectionBoxPartMgr.h"
-#include "RivIntersectionPartMgr.h"
+#include "RivExtrudedCurveIntersectionPartMgr.h"
 
 #include "cvfModelBasicList.h"
 

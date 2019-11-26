@@ -37,7 +37,7 @@
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
 
-#include "RivIntersectionPartMgr.h"
+#include "RivExtrudedCurveIntersectionPartMgr.h"
 #include "RivSimWellPipesPartMgr.h"
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellHeadPartMgr.h"
@@ -354,7 +354,7 @@ void Rim2dIntersectionView::updateName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RivIntersectionPartMgr> Rim2dIntersectionView::flatIntersectionPartMgr() const
+cvf::ref<RivExtrudedCurveIntersectionPartMgr> Rim2dIntersectionView::flatIntersectionPartMgr() const
 {
     return m_flatIntersectionPartMgr;
 }
@@ -540,7 +540,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
         nativeOrOverrideViewer()->addFrame( new cvf::Scene(), isUsingOverrideViewer() );
     }
 
-    m_flatIntersectionPartMgr = new RivIntersectionPartMgr( m_intersection(), true );
+    m_flatIntersectionPartMgr = new RivExtrudedCurveIntersectionPartMgr( m_intersection(), true );
 
     m_intersectionVizModel->removeAllParts();
 

@@ -23,18 +23,18 @@
 #include "cvfObject.h"
 #include <array>
 
-class RivIntersectionGeometryGenerator;
+class RivExtrudedCurveIntersectionGeometryGenerator;
 class RimExtrudedCurveIntersection;
 
 class RivIntersectionSourceInfo : public cvf::Object
 {
 public:
-    explicit RivIntersectionSourceInfo( RivIntersectionGeometryGenerator* geometryGenerator );
+    explicit RivIntersectionSourceInfo( RivExtrudedCurveIntersectionGeometryGenerator* geometryGenerator );
 
     const std::vector<size_t>& triangleToCellIndex() const;
     std::array<cvf::Vec3f, 3>  triangle( int triangleIdx ) const;
     RimExtrudedCurveIntersection*           crossSection() const;
 
 private:
-    cvf::cref<RivIntersectionGeometryGenerator> m_crossSectionGeometryGenerator;
+    cvf::cref<RivExtrudedCurveIntersectionGeometryGenerator> m_crossSectionGeometryGenerator;
 };

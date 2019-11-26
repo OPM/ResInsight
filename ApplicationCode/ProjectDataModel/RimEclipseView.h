@@ -57,7 +57,7 @@ class RimStimPlanColors;
 class RimVirtualPerforationResults;
 class RiuViewer;
 class RivReservoirSimWellsPartMgr;
-class RivIntersectionPartMgr;
+class RivExtrudedCurveIntersectionPartMgr;
 class RivReservoirViewPartMgr;
 class RimRegularLegendConfig;
 class RimTernaryLegendConfig;

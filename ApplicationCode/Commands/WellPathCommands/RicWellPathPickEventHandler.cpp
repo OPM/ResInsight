@@ -34,7 +34,7 @@
 #include "RivObjectSourceInfo.h"
 #include "RivWellPathSourceInfo.h"
 
-#include "RivIntersectionPartMgr.h"
+#include "RivExtrudedCurveIntersectionPartMgr.h"
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
 #include "cvfPart.h"
