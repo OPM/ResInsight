@@ -66,7 +66,7 @@ TEST( RifActiveCellsReaderTest, BasicTest10k )
                                                  ECL_FILE_CLOSE_STREAM );
 
         activeCellsFromPorv = RifActiveCellsReader::activeCellsFromPorvKeyword( initFile, false );
-        EXPECT_EQ( 2, activeCellsFromPorv.size() );
+        EXPECT_EQ( 2, (int)activeCellsFromPorv.size() );
 
         ecl_file_close( initFile );
     }
