@@ -796,7 +796,6 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel( cvf::ModelBasicList* 
     appendFishboneSubsPartsToModel( model, displayCoordTransform, characteristicCellSize );
     appendImportedFishbonesToModel( model, displayCoordTransform, characteristicCellSize );
     appendWellPathAttributesToModel( model, displayCoordTransform, characteristicCellSize );
-    appendWellMeasurementsToModel( model, displayCoordTransform, characteristicCellSize );
 
     RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
     if ( !gridView ) return;
@@ -861,6 +860,7 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList*
 
     appendPerforationsToModel( model, timeStepIndex, displayCoordTransform, characteristicCellSize, false );
     appendVirtualTransmissibilitiesToModel( model, timeStepIndex, displayCoordTransform, characteristicCellSize );
+    appendWellMeasurementsToModel( model, displayCoordTransform, characteristicCellSize );
 
     RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
     if ( !gridView ) return;

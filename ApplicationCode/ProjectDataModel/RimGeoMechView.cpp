@@ -593,6 +593,8 @@ std::vector<RimLegendConfig*> RimGeoMechView::legendConfigs() const
         absLegendConfigs.push_back( sepInterResDef->regularLegendConfig() );
     }
 
+    absLegendConfigs.push_back( m_wellMeasurementCollection->legendConfig() );
+
     return absLegendConfigs;
 }
 
@@ -721,6 +723,11 @@ bool RimGeoMechView::isTimeStepDependentDataVisible() const
     {
         return true;
     }
+    if ( m_wellMeasurementCollection->isChecked() )
+    {
+        return true;
+    }
+
     return false;
 }
 
