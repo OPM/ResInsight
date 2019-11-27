@@ -84,6 +84,7 @@ public:
 
     void calculateAvailableDepthRange();
     void availableDepthRange( double* minimumDepth, double* maximumDepth ) const;
+    void visibleDepthRange( double* minimumDepth, double* maximumDepth ) const;
 
     void setAutoScaleYEnabled( bool enabled );
     void enableAllAutoNameTags( bool enable );
