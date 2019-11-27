@@ -82,7 +82,7 @@ RiuMultiPlotWindow::RiuMultiPlotWindow( RimMultiPlotWindow* plotDefinition, QWid
     m_gridLayout->setSpacing( 1 );
 
     QPalette newPalette( palette() );
-    newPalette.setColor( QPalette::Background, Qt::white );
+    newPalette.setColor( QPalette::Window, Qt::white );
     setPalette( newPalette );
 
     setAutoFillBackground( true );
@@ -159,8 +159,8 @@ void RiuMultiPlotWindow::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index 
     }
     legend->setMaxColumns( legendColumns );
     legend->horizontalScrollBar()->setVisible( false );
-    legend->verticalScrollBar()->setVisible( false );
-
+    legend->verticalScrollBar()->setVisible( true );
+    legend->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
     legend->connect( plotWidget,
                      SIGNAL( legendDataChanged( const QVariant&, const QList<QwtLegendData>& ) ),
                      SLOT( updateLegend( const QVariant&, const QList<QwtLegendData>& ) ) );
