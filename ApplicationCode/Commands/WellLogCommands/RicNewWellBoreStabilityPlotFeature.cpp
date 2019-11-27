@@ -286,7 +286,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
     stabilityCurvesTrack->setVisibleXRange( 0.0, 2.5 );
     stabilityCurvesTrack->setColSpan( RimPlot::FIVE );
     stabilityCurvesTrack->setAutoScaleXEnabled( true );
-    stabilityCurvesTrack->setTickIntervals( 0.5, 0.05 );
+    stabilityCurvesTrack->setTickIntervals( 0.5, 0.1 );
     stabilityCurvesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     stabilityCurvesTrack->setFormationWellPath( wellPath );
     stabilityCurvesTrack->setFormationCase( geoMechCase );
@@ -383,12 +383,12 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
         {
             minValue -= angleIncrement;
         }
-        maxValue = cvf::Math::clamp( maxValue, angleIncrement, 360.0 );
+        maxValue = cvf::Math::clamp( maxValue, angleIncrement, 720.0 );
         minValue = cvf::Math::clamp( minValue, 0.0, maxValue - 90.0 );
     }
     wellPathAnglesTrack->setColSpan( RimPlot::THREE );
     wellPathAnglesTrack->setVisibleXRange( minValue, maxValue );
-    wellPathAnglesTrack->setTickIntervals( 90.0, 30.0 );
+    wellPathAnglesTrack->setTickIntervals( 180.0, 45.0 );
     wellPathAnglesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     wellPathAnglesTrack->setFormationWellPath( wellPath );
     wellPathAnglesTrack->setFormationCase( geoMechCase );

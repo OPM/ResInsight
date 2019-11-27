@@ -353,6 +353,7 @@ void RigGeoMechWellLogExtractor::wellPathAngles( const RigFemResultAddress& resA
     const double     epsilon = 1.0e-6 * 360;
     const cvf::Vec3d trueNorth( 0.0, 1.0, 0.0 );
     const cvf::Vec3d up( 0.0, 0.0, 1.0 );
+    double           previousAzimuth = 0.0;
     for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
     {
         cvf::Vec3d wellPathTangent = calculateWellPathTangent( intersectionIdx, TangentFollowWellPathSegments );
@@ -384,8 +385,18 @@ void RigGeoMechWellLogExtractor::wellPathAngles( const RigFemResultAddress& resA
                     azimuth = azimuth + 360.0;
                 }
             }
+            // Make azimuth continuous in most cases
+            if ( azimuth - previousAzimuth > 300.0 )
+            {
+                azimuth -= 360.0;
+            }
+            else if ( previousAzimuth - azimuth > 300.0 )
+            {
+                azimuth += 360.0;
+            }
 
             ( *values )[intersectionIdx] = azimuth;
+            previousAzimuth              = azimuth;
         }
         else
         {
