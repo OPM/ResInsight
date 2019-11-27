@@ -44,6 +44,7 @@ bool RicPasteWellLogTrackFeature::isCommandEnabled()
 
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
         caf::SelectionManager::instance()->selectedItem() );
+    if ( !destinationObject ) return false;
 
     RimWellLogPlot* wellLogPlot = nullptr;
     RimWellRftPlot* rftPlot     = nullptr;
