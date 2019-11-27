@@ -1007,7 +1007,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
 
                 addCurve( curve );
 
-                curve->updateCurveVisibility( false );
+                curve->updateCurveVisibility();
                 curve->loadDataAndUpdate( false );
                 curve->updateQwtPlotAxis();
 
@@ -1104,7 +1104,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
         curve->setSummaryAddressYAndApplyInterpolation( address );
         curve->setLeftOrRightAxisY( m_plotAxis() );
 
-        curve->updateCurveVisibility( false );
+        curve->updateCurveVisibility();
         curve->loadDataAndUpdate( false );
         curve->updateQwtPlotAxis();
     }

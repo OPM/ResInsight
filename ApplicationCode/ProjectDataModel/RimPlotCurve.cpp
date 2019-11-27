@@ -197,8 +197,8 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 {
     if ( changedField == &m_showCurve )
     {
-        this->updateCurveVisibility( true );
-        if ( m_showCurve() ) loadDataAndUpdate( true );
+        this->updateCurveVisibility();
+        if ( m_showCurve() ) loadDataAndUpdate( false );
     }
     else if ( changedField == &m_curveName )
     {
@@ -284,7 +284,7 @@ void RimPlotCurve::setLegendEntryText( const QString& legendEntryText )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateCurveVisibility( bool updateParentPlot )
+void RimPlotCurve::updateCurveVisibility()
 {
     if ( canCurveBeAttached() )
     {
@@ -294,11 +294,6 @@ void RimPlotCurve::updateCurveVisibility( bool updateParentPlot )
     {
         m_qwtPlotCurve->detach();
         m_qwtCurveErrorBars->detach();
-    }
-
-    if ( updateParentPlot )
-    {
-        updateZoomInParentPlot();
     }
 }
 
@@ -318,7 +313,7 @@ void RimPlotCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurvePresentation( bool updatePlotLegendAndTitle )
 {
-    this->updateCurveVisibility( updatePlotLegendAndTitle );
+    this->updateCurveVisibility();
 
     if ( updatePlotLegendAndTitle )
     {

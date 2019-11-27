@@ -321,6 +321,8 @@ void RiuSummaryQwtPlot::endZoomOperations()
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::onZoomedSlot()
 {
+    plotDefinition()->setAutoScaleXEnabled( false );
+    plotDefinition()->setAutoScaleYEnabled( false );
     plotDefinition()->updateZoomFromQwt();
 }
 
