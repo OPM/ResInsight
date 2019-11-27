@@ -43,6 +43,8 @@ RimEnsembleStatistics::RimEnsembleStatistics()
     CAF_PDM_InitField( &m_showP90Curve, "ShowP90Curve", true, "P10", "", "", "" ); // Yes, P10
     CAF_PDM_InitField( &m_showMeanCurve, "ShowMeanCurve", true, "Mean", "", "", "" );
     CAF_PDM_InitField( &m_showCurveLabels, "ShowCurveLabels", true, "Show Curve Labels", "", "", "" );
+    CAF_PDM_InitField( &m_includeIncompleteCurves, "IncludeIncompleteCurves", false, "Include Incomplete Curves", "", "", "" );
+
     CAF_PDM_InitField( &m_warningLabel, "WarningLabel", QString( "Warning: Ensemble time range mismatch" ), "", "", "", "" );
     CAF_PDM_InitField( &m_color, "Color", cvf::Color3f( cvf::Color3::BLACK ), "Color", "", "", "" );
 
@@ -100,7 +102,7 @@ void RimEnsembleStatistics::fieldChangedByUi( const caf::PdmFieldHandle* changed
 {
     if ( changedField == &m_active || changedField == &m_basedOnFilteredCases || changedField == &m_showP10Curve ||
          changedField == &m_showP50Curve || changedField == &m_showP90Curve || changedField == &m_showMeanCurve ||
-         changedField == &m_showCurveLabels || changedField == &m_color )
+         changedField == &m_showCurveLabels || changedField == &m_color || changedField == &m_includeIncompleteCurves )
     {
         auto curveSet = parentCurveSet();
         if ( !curveSet ) return;
@@ -129,6 +131,7 @@ void RimEnsembleStatistics::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     uiOrdering.add( &m_active );
     uiOrdering.add( &m_hideEnsembleCurves );
     uiOrdering.add( &m_basedOnFilteredCases );
+    uiOrdering.add( &m_includeIncompleteCurves );
     uiOrdering.add( &m_showCurveLabels );
     uiOrdering.add( &m_color );
 
