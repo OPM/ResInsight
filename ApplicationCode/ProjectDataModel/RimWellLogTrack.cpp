@@ -694,7 +694,7 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
     if ( emptyRange )
     {
         m_plotWidget->enableGridLines( QwtPlot::xTop, false, false );
-        m_plotWidget->setAxisRange( QwtPlot::xTop, 0.0, 0.0 );
+        m_plotWidget->setAxisRange( QwtPlot::xTop, 0.0, 1.0 );
         m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::xTop, false );
     }
     else
