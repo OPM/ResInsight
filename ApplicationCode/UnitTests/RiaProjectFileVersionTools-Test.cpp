@@ -157,9 +157,9 @@ TEST( RiaProjectFileVersionTools, OrderKnownVersionStrings )
 
     QStringList sortedVersionList = versionStrings;
     {
-        qSort( sortedVersionList.begin(),
-               sortedVersionList.end(),
-               RiaProjectFileVersionTools::isCandidateVersionNewerThanOther );
+        std::sort( sortedVersionList.begin(),
+                   sortedVersionList.end(),
+                   RiaProjectFileVersionTools::isCandidateVersionNewerThanOther );
     }
 
     /*
