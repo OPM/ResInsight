@@ -2051,12 +2051,13 @@ void RimEclipseView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::P
         if ( items[i]->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT )
         {
             RiuEclipseSelectionItem* eclipseSelItem = static_cast<RiuEclipseSelectionItem*>( items[i] );
+
             if ( eclipseSelItem && eclipseSelItem->m_view == this )
             {
-                CVF_ASSERT( eclipseSelItem->m_view->eclipseCase() );
-                CVF_ASSERT( eclipseSelItem->m_view->eclipseCase()->eclipseCaseData() );
+                CVF_ASSERT( eclipseSelItem->m_resultDefinition->eclipseCase() );
+                CVF_ASSERT( eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData() );
 
-                RivSingleCellPartGenerator partGen( eclipseSelItem->m_view->eclipseCase()->eclipseCaseData(),
+                RivSingleCellPartGenerator partGen( eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData(),
                                                     eclipseSelItem->m_gridIndex,
                                                     eclipseSelItem->m_gridLocalCellIndex );
 

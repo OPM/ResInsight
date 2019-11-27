@@ -132,7 +132,7 @@ public:
 class RiuEclipseSelectionItem : public RiuSelectionItem
 {
 public:
-    explicit RiuEclipseSelectionItem( RimEclipseView*                    view,
+    explicit RiuEclipseSelectionItem( RimGridView*                       view,
                                       RimEclipseResultDefinition*        resultDefinition,
                                       size_t                             timestepIdx,
                                       size_t                             gridIndex,
@@ -150,7 +150,7 @@ public:
     }
 
 public:
-    caf::PdmPointer<RimEclipseView>             m_view;
+    caf::PdmPointer<RimGridView>                m_view;
     caf::PdmPointer<RimEclipseResultDefinition> m_resultDefinition;
     size_t                                      m_timestepIdx;
     size_t                                      m_gridIndex;
@@ -169,7 +169,7 @@ public:
 class RiuGeoMechSelectionItem : public RiuSelectionItem
 {
 public:
-    explicit RiuGeoMechSelectionItem( RimGeoMechView*             view,
+    explicit RiuGeoMechSelectionItem( RimGridView*                view,
                                       RimGeoMechResultDefinition* resultDefinition,
                                       size_t                      timestepIdx,
                                       size_t                      gridIndex,
@@ -178,7 +178,7 @@ public:
                                       int                         elementFace,
                                       const cvf::Vec3d&           localIntersectionPointInDisplay );
 
-    explicit RiuGeoMechSelectionItem( RimGeoMechView*                  view,
+    explicit RiuGeoMechSelectionItem( RimGridView*                     view,
                                       RimGeoMechResultDefinition*      resultDefinition,
                                       size_t                           timestepIdx,
                                       size_t                           gridIndex,
@@ -195,7 +195,7 @@ public:
     }
 
 public:
-    caf::PdmPointer<RimGeoMechView>             m_view;
+    caf::PdmPointer<RimGridView>                m_view;
     caf::PdmPointer<RimGeoMechResultDefinition> m_resultDefinition;
     size_t                                      m_timestepIdx;
     size_t                                      m_gridIndex;

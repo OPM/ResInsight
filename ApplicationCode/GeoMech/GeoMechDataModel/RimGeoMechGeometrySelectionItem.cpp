@@ -19,6 +19,7 @@
 #include "RimGeoMechGeometrySelectionItem.h"
 
 #include "RimGeoMechCase.h"
+#include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 
 #include "Riu3dSelectionManager.h"
@@ -59,7 +60,7 @@ RimGeoMechGeometrySelectionItem::~RimGeoMechGeometrySelectionItem() {}
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechGeometrySelectionItem::setFromSelectionItem( const RiuGeoMechSelectionItem* selectionItem )
 {
-    m_geoMechCase = selectionItem->m_view->geoMechCase();
+    m_geoMechCase = selectionItem->m_resultDefinition->geoMechCase();
 
     m_gridIndex               = selectionItem->m_gridIndex;
     m_cellIndex               = selectionItem->m_cellIndex;

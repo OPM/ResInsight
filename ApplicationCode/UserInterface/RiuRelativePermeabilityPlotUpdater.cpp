@@ -29,6 +29,7 @@
 
 #include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
@@ -50,9 +51,11 @@
 //--------------------------------------------------------------------------------------------------
 RiuRelativePermeabilityPlotUpdater::RiuRelativePermeabilityPlotUpdater( RiuRelativePermeabilityPlotPanel* targetPlotPanel )
     : m_targetPlotPanel( targetPlotPanel )
-    , m_sourceEclipseViewOfLastPlot( nullptr )
+    , m_viewToFollowAnimationFrom( nullptr )
 {
 }
+
+
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -64,32 +67,25 @@ void RiuRelativePermeabilityPlotUpdater::updateOnSelectionChanged( const RiuSele
         return;
     }
 
-    m_sourceEclipseViewOfLastPlot = nullptr;
-    bool mustClearPlot            = true;
+    Rim3dView*               newFollowAnimView    = nullptr;
+    RiuEclipseSelectionItem* eclipseSelectionItem = nullptr;
 
-    RiuEclipseSelectionItem* eclipseSelectionItem = dynamic_cast<RiuEclipseSelectionItem*>(
-        const_cast<RiuSelectionItem*>( selectionItem ) );
-    RimEclipseView* eclipseView = eclipseSelectionItem ? eclipseSelectionItem->m_view.p() : nullptr;
+    eclipseSelectionItem = extractEclipseSelectionItem( selectionItem, newFollowAnimView );
 
-    if ( !eclipseSelectionItem && !eclipseView )
+    bool mustClearPlot          = true;
+    m_viewToFollowAnimationFrom = nullptr;
+
+    if ( m_targetPlotPanel->isVisible() && eclipseSelectionItem )
     {
-        const Riu2dIntersectionSelectionItem* intersectionSelItem = dynamic_cast<const Riu2dIntersectionSelectionItem*>(
-            selectionItem );
-        if ( intersectionSelItem && intersectionSelItem->eclipseSelectionItem() )
+        if ( queryDataAndUpdatePlot( eclipseSelectionItem->m_resultDefinition,
+                                     eclipseSelectionItem->m_timestepIdx,
+                                     eclipseSelectionItem->m_gridIndex,
+                                     eclipseSelectionItem->m_gridLocalCellIndex,
+                                     m_targetPlotPanel ) )
         {
-            eclipseSelectionItem = intersectionSelItem->eclipseSelectionItem();
-            eclipseView          = eclipseSelectionItem->m_view;
-        }
-    }
+            mustClearPlot = false;
 
-    if ( m_targetPlotPanel->isVisible() && eclipseSelectionItem && eclipseView )
-    {
-        const size_t gridIndex          = eclipseSelectionItem->m_gridIndex;
-        const size_t gridLocalCellIndex = eclipseSelectionItem->m_gridLocalCellIndex;
-        if ( queryDataAndUpdatePlot( *eclipseView, gridIndex, gridLocalCellIndex, m_targetPlotPanel ) )
-        {
-            mustClearPlot                 = false;
-            m_sourceEclipseViewOfLastPlot = eclipseView;
+            m_viewToFollowAnimationFrom = newFollowAnimView;
         }
     }
 
@@ -109,21 +105,29 @@ void RiuRelativePermeabilityPlotUpdater::updateOnTimeStepChanged( Rim3dView* cha
         return;
     }
 
-    // Don't update the plot if the view that changed time step is different from the view that was the source of the current plot
-    const RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( changedView );
-    if ( !eclipseView || eclipseView != m_sourceEclipseViewOfLastPlot )
+    // Don't update the plot if the view that changed time step is different
+    // from the view that was the source of the current plot
+
+    if ( changedView != m_viewToFollowAnimationFrom )
     {
         return;
     }
 
     // Fetch the current global selection and only continue if the selection's view matches the view with time step change
-    const RiuEclipseSelectionItem* eclipseSelectionItem = dynamic_cast<const RiuEclipseSelectionItem*>(
-        Riu3dSelectionManager::instance()->selectedItem() );
-    if ( eclipseSelectionItem && eclipseSelectionItem->m_view == eclipseView )
+
+    const RiuSelectionItem*  selectionItem        = Riu3dSelectionManager::instance()->selectedItem();
+    Rim3dView*               newFollowAnimView    = nullptr;
+    RiuEclipseSelectionItem* eclipseSelectionItem = nullptr;
+
+    eclipseSelectionItem = extractEclipseSelectionItem( selectionItem, newFollowAnimView );
+
+    if ( eclipseSelectionItem && newFollowAnimView == changedView )
     {
-        const size_t gridIndex          = eclipseSelectionItem->m_gridIndex;
-        const size_t gridLocalCellIndex = eclipseSelectionItem->m_gridLocalCellIndex;
-        if ( !queryDataAndUpdatePlot( *eclipseView, gridIndex, gridLocalCellIndex, m_targetPlotPanel ) )
+        if ( !queryDataAndUpdatePlot( eclipseSelectionItem->m_resultDefinition,
+                                      newFollowAnimView->currentTimeStep(),
+                                      eclipseSelectionItem->m_gridIndex,
+                                      eclipseSelectionItem->m_gridLocalCellIndex,
+                                      m_targetPlotPanel ) )
         {
             m_targetPlotPanel->clearPlot();
         }
@@ -133,18 +137,21 @@ void RiuRelativePermeabilityPlotUpdater::updateOnTimeStepChanged( Rim3dView* cha
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclipseView&             eclipseView,
+bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclipseResultDefinition* eclipseResDef,
+                                                                 size_t                            timeStepIndex,
                                                                  size_t                            gridIndex,
                                                                  size_t                            gridLocalCellIndex,
                                                                  RiuRelativePermeabilityPlotPanel* plotPanel )
 {
     CVF_ASSERT( plotPanel );
 
-    RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>( eclipseView.eclipseCase() );
+    RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>( eclipseResDef->eclipseCase() );
     RigEclipseCaseData*   eclipseCaseData   = eclipseResultCase ? eclipseResultCase->eclipseCaseData() : nullptr;
+
     if ( eclipseResultCase && eclipseCaseData && eclipseResultCase->flowDiagSolverInterface() )
     {
         size_t activeCellIndex = CellLookupHelper::mapToActiveCellIndex( eclipseCaseData, gridIndex, gridLocalCellIndex );
+
         if ( activeCellIndex != cvf::UNDEFINED_SIZE_T )
         {
             // cvf::Trace::show("Updating RelPerm plot for active cell index: %d", static_cast<int>(activeCellIndex));
@@ -159,7 +166,6 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
             cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "SATNUM" ) );
 
             // Fetch SWAT and SGAS cell values for the selected cell
-            const size_t                timeStepIndex = static_cast<size_t>( eclipseView.currentTimeStep() );
             cvf::ref<RigResultAccessor> swatAccessor =
                 RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                    gridIndex,
@@ -187,8 +193,9 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
                                                                : HUGE_VAL;
             // cvf::Trace::show("cellSWAT = %f  cellSGAS = %f  cellSATNUM = %f", cellSWAT, cellSGAS, cellSATNUM);
 
-            QString cellRefText = constructCellReferenceText( eclipseCaseData, gridIndex, gridLocalCellIndex, cellSATNUM );
-            QString caseName    = eclipseResultCase->caseUserDescription;
+            QString cellRefText =
+                constructCellReferenceText( eclipseCaseData, gridIndex, gridLocalCellIndex, "SATNUM", cellSATNUM );
+            QString caseName = eclipseResultCase->caseUserDescription;
 
             plotPanel->setPlotData( eclipseCaseData->unitsType(), relPermCurveArr, cellSWAT, cellSGAS, caseName, cellRefText );
 
@@ -205,7 +212,8 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
 QString RiuRelativePermeabilityPlotUpdater::constructCellReferenceText( const RigEclipseCaseData* eclipseCaseData,
                                                                         size_t                    gridIndex,
                                                                         size_t                    gridLocalCellIndex,
-                                                                        double                    satnum )
+                                                                        const QString&            valueName,
+                                                                        double                    cellValue )
 {
     const size_t       gridCount = eclipseCaseData ? eclipseCaseData->gridCount() : 0;
     const RigGridBase* grid      = gridIndex < gridCount ? eclipseCaseData->grid( gridIndex ) : nullptr;
@@ -230,9 +238,9 @@ QString RiuRelativePermeabilityPlotUpdater::constructCellReferenceText( const Ri
             {
                 retText = QString( "LGR %1, Cell: [%2, %3, %4]" ).arg( gridIndex ).arg( i ).arg( j ).arg( k );
             }
-            if ( satnum != HUGE_VAL )
+            if ( cellValue != HUGE_VAL )
             {
-                retText += QString( " (SATNUM=%1)" ).arg( satnum );
+                retText += QString( " (%1=%2)" ).arg( valueName ).arg( cellValue );
             }
 
             return retText;
@@ -241,6 +249,45 @@ QString RiuRelativePermeabilityPlotUpdater::constructCellReferenceText( const Ri
 
     return QString();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuEclipseSelectionItem*
+RiuRelativePermeabilityPlotUpdater::extractEclipseSelectionItem( const RiuSelectionItem* selectionItem,
+                                                                Rim3dView*&             newFollowAnimView )
+{
+    newFollowAnimView                             = nullptr;
+    RiuEclipseSelectionItem* eclipseSelectionItem = nullptr;
+
+    eclipseSelectionItem = dynamic_cast<RiuEclipseSelectionItem*>( const_cast<RiuSelectionItem*>( selectionItem ) );
+
+    if ( eclipseSelectionItem )
+    {
+        // If we clicked in an eclipse view, and hit something using the standard result definition there,
+        // set this up to follow the animation there.
+
+        RimEclipseView* clickedInEclView = dynamic_cast<RimEclipseView*>( eclipseSelectionItem->m_view.p() );
+
+        if ( clickedInEclView && clickedInEclView->cellResult() == eclipseSelectionItem->m_resultDefinition.p() )
+        {
+            newFollowAnimView = eclipseSelectionItem->m_view;
+        }
+    }
+    else
+    {
+        auto intersectionSelItem = dynamic_cast<const Riu2dIntersectionSelectionItem*>( selectionItem );
+
+        if ( intersectionSelItem && intersectionSelItem->eclipseSelectionItem() )
+        {
+            eclipseSelectionItem = intersectionSelItem->eclipseSelectionItem();
+            newFollowAnimView    = intersectionSelItem->view();
+        }
+    }
+
+    return eclipseSelectionItem;
+}
+
 
 //==================================================================================================
 //
@@ -255,17 +302,21 @@ size_t CellLookupHelper::mapToActiveCellIndex( const RigEclipseCaseData* eclipse
                                                size_t                    gridIndex,
                                                size_t                    gridLocalCellIndex )
 {
-    const size_t       gridCount = eclipseCaseData ? eclipseCaseData->gridCount() : 0;
-    const RigGridBase* grid      = gridIndex < gridCount ? eclipseCaseData->grid( gridIndex ) : nullptr;
+    const size_t gridCount = eclipseCaseData ? eclipseCaseData->gridCount() : 0;
+
+    const RigGridBase* grid = gridIndex < gridCount ? eclipseCaseData->grid( gridIndex ) : nullptr;
+
     if ( grid && gridLocalCellIndex < grid->cellCount() )
     {
         // Note!!
         // Which type of porosity model to choose? Currently hard-code to MATRIX_MODEL
         const RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::MATRIX_MODEL );
+
         CVF_ASSERT( activeCellInfo );
 
         const size_t reservoirCellIndex = grid->reservoirCellIndex( gridLocalCellIndex );
         const size_t activeCellIndex    = activeCellInfo->cellResultIndex( reservoirCellIndex );
+
         return activeCellIndex;
     }
 

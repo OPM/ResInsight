@@ -127,7 +127,7 @@ void RimGridTimeHistoryCurve::setFromSelectionItem( const RiuSelectionItem* sele
         if ( eclSelectionItem->m_view )
         {
             m_eclipseResultDefinition = new RimEclipseResultDefinition;
-            m_eclipseResultDefinition->simpleCopy( eclSelectionItem->m_view->cellResult() );
+            m_eclipseResultDefinition->simpleCopy( eclSelectionItem->m_resultDefinition );
         }
     }
 
@@ -142,9 +142,8 @@ void RimGridTimeHistoryCurve::setFromSelectionItem( const RiuSelectionItem* sele
         if ( geoMechSelectionItem->m_view )
         {
             m_geoMechResultDefinition = new RimGeoMechResultDefinition;
-            m_geoMechResultDefinition->setGeoMechCase( geoMechSelectionItem->m_view->geoMechCase() );
-            m_geoMechResultDefinition->setResultAddress(
-                geoMechSelectionItem->m_view->cellResultResultDefinition()->resultAddress() );
+            m_geoMechResultDefinition->setGeoMechCase( geoMechSelectionItem->m_resultDefinition->geoMechCase() );
+            m_geoMechResultDefinition->setResultAddress( geoMechSelectionItem->m_resultDefinition->resultAddress() );
         }
     }
 

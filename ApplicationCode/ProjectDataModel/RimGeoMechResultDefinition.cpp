@@ -261,6 +261,14 @@ void RimGeoMechResultDefinition::setGeoMechCase( RimGeoMechCase* geomCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimGeoMechCase* RimGeoMechResultDefinition::geoMechCase() const 
+{
+    return m_geomCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                    const QVariant&            oldValue,
                                                    const QVariant&            newValue )

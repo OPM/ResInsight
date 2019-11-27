@@ -20,13 +20,13 @@
 #include "Riu3dSelectionManager.h"
 
 #include "Rim2dIntersectionView.h"
+#include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
+#include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
 #include "RimSimWellInView.h"
 #include "RimWellPath.h"
-#include "RimEclipseResultDefinition.h"
-#include "RimGeoMechResultDefinition.h"
 
 #include "RivSimWellPipeSourceInfo.h"
 #include "RivWellPathSourceInfo.h"
@@ -157,7 +157,7 @@ void Riu3dSelectionManager::deleteAllItemsFromSelection( int role )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuEclipseSelectionItem::RiuEclipseSelectionItem( RimEclipseView*                    view,
+RiuEclipseSelectionItem::RiuEclipseSelectionItem( RimGridView*                       view,
                                                   RimEclipseResultDefinition*        resultDefinition,
                                                   size_t                             timestepIdx,
                                                   size_t                             gridIndex,
@@ -181,7 +181,7 @@ RiuEclipseSelectionItem::RiuEclipseSelectionItem( RimEclipseView*               
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuGeoMechSelectionItem::RiuGeoMechSelectionItem( RimGeoMechView*             view,
+RiuGeoMechSelectionItem::RiuGeoMechSelectionItem( RimGridView*                view,
                                                   RimGeoMechResultDefinition* resultDefinition,
                                                   size_t                      timestepIdx,
                                                   size_t                      gridIndex,
@@ -204,7 +204,7 @@ RiuGeoMechSelectionItem::RiuGeoMechSelectionItem( RimGeoMechView*             vi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuGeoMechSelectionItem::RiuGeoMechSelectionItem( RimGeoMechView*                  view,
+RiuGeoMechSelectionItem::RiuGeoMechSelectionItem( RimGridView*                     view,
                                                   RimGeoMechResultDefinition*      resultDefinition,
                                                   size_t                           timestepIdx,
                                                   size_t                           gridIndex,

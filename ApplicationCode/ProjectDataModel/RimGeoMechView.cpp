@@ -837,20 +837,24 @@ void RimGeoMechView::calculateCurrentTotalCellVisibility( cvf::UByteArray* total
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )
 {
-    Riu3dSelectionManager*         riuSelManager = Riu3dSelectionManager::instance();
+    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
+
     std::vector<RiuSelectionItem*> items;
     riuSelManager->selectedItems( items );
+
     for ( size_t i = 0; i < items.size(); i++ )
     {
         if ( items[i]->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT )
         {
             RiuGeoMechSelectionItem* geomSelItem = static_cast<RiuGeoMechSelectionItem*>( items[i] );
-            if ( geomSelItem && geomSelItem->m_view == this && geomSelItem->m_view->geoMechCase() )
+
+            if ( geomSelItem && geomSelItem->m_view == this && geomSelItem->m_resultDefinition->geoMechCase() )
             {
-                RivSingleCellPartGenerator partGen( geomSelItem->m_view->geoMechCase(),
+                RivSingleCellPartGenerator partGen( geomSelItem->m_resultDefinition->geoMechCase(),
                                                     geomSelItem->m_gridIndex,
                                                     geomSelItem->m_cellIndex );
-                cvf::ref<cvf::Part>        part = partGen.createPart( geomSelItem->m_color );
+
+                cvf::ref<cvf::Part> part = partGen.createPart( geomSelItem->m_color );
                 part->setTransform( this->scaleTransform() );
 
                 parts->push_back( part.p() );

@@ -21,9 +21,13 @@
 #include "RiaColorTables.h"
 
 #include "Rim2dIntersectionView.h"
+#include "RimBoxIntersection.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
+#include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
+#include "RimIntersectionResultDefinition.h"
 
 #include "Riu3dSelectionManager.h"
 #include "RiuViewerCommands.h"
@@ -115,48 +119,82 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
     int                                gmFace          = -1;
     bool                               intersectionHit = false;
     std::array<cvf::Vec3f, 3>          intersectionTriangleHit;
+    RimGeoMechResultDefinition*        geomResDef    = nullptr;
+    RimEclipseResultDefinition*        eclResDef     = nullptr;
+    size_t                             timestepIndex = -1;
 
     // clang-format off
-        if ( const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>( firstHitPart->sourceInfo() ) )
+    if ( const RivSourceInfo* rivSourceInfo = 
+            dynamic_cast<const RivSourceInfo*>( firstHitPart->sourceInfo() ) )
+    {
+        gridIndex = rivSourceInfo->gridIndex();
+        if ( rivSourceInfo->hasCellFaceMapping() )
         {
-            gridIndex = rivSourceInfo->gridIndex();
-            if ( rivSourceInfo->hasCellFaceMapping() )
-            {
-                CVF_ASSERT( rivSourceInfo->m_cellFaceFromTriangleMapper.notNull() );
+            CVF_ASSERT( rivSourceInfo->m_cellFaceFromTriangleMapper.notNull() );
 
-                cellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex( firstPartTriangleIndex );
-                face      = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace( firstPartTriangleIndex );
+            cellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex( firstPartTriangleIndex );
+            face      = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace( firstPartTriangleIndex );
+        }
+    }
+    else if ( const RivFemPickSourceInfo* femSourceInfo = 
+                dynamic_cast<const RivFemPickSourceInfo*>( firstHitPart->sourceInfo() ) )
+    {
+        gridIndex = femSourceInfo->femPartIndex();
+        cellIndex = femSourceInfo->triangleToElmMapper()->elementIndex( firstPartTriangleIndex );
+        gmFace    = femSourceInfo->triangleToElmMapper()->elementFace( firstPartTriangleIndex );
+    }
+    else if ( const RivExtrudedCurveIntersectionSourceInfo* intersectionSourceInfo = 
+                dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
+    {
+        RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView, 
+                             intersectionSourceInfo, 
+                             firstPartTriangleIndex, 
+                             &cellIndex, 
+                             &gridIndex );
+
+        intersectionHit         = true;
+        intersectionTriangleHit = intersectionSourceInfo->triangle( firstPartTriangleIndex );
+
+        if ( RimIntersectionResultDefinition* sepInterResDef = intersectionSourceInfo->intersection()->activeSeparateResultDefinition() )
+        {
+            if ( sepInterResDef->isEclipseResultDefinition() )
+            {
+                eclResDef = sepInterResDef->eclipseResultDefinition();
             }
+            else
+            {
+                geomResDef = sepInterResDef->geoMechResultDefinition();
+            }
+
+            timestepIndex = sepInterResDef->timeStep();
         }
-        else if ( const RivFemPickSourceInfo* femSourceInfo = 
-                 dynamic_cast<const RivFemPickSourceInfo*>( firstHitPart->sourceInfo() ) )
+    }
+    else if ( const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo = 
+                dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
+    {
+        RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
+                             intersectionBoxSourceInfo,
+                             firstPartTriangleIndex,
+                             &cellIndex,
+                             &gridIndex );
+
+        intersectionHit         = true;
+        intersectionTriangleHit = intersectionBoxSourceInfo->triangle( firstPartTriangleIndex );
+
+        if ( RimIntersectionResultDefinition* sepInterResDef = intersectionBoxSourceInfo->intersectionBox()->activeSeparateResultDefinition() )
         {
-            gridIndex = femSourceInfo->femPartIndex();
-            cellIndex = femSourceInfo->triangleToElmMapper()->elementIndex( firstPartTriangleIndex );
-            gmFace    = femSourceInfo->triangleToElmMapper()->elementFace( firstPartTriangleIndex );
+            if ( sepInterResDef->isEclipseResultDefinition() )
+            {
+                eclResDef = sepInterResDef->eclipseResultDefinition();
+            }
+            else
+            {
+                geomResDef = sepInterResDef->geoMechResultDefinition();
+            }
+
+            timestepIndex = sepInterResDef->timeStep();
         }
-        else if ( const RivExtrudedCurveIntersectionSourceInfo* crossSectionSourceInfo =
-                 dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
-        {
-            RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView, 
-                                 crossSectionSourceInfo, 
-                                 firstPartTriangleIndex, 
-                                 &cellIndex, 
-                                 &gridIndex );
-            intersectionHit         = true;
-            intersectionTriangleHit = crossSectionSourceInfo->triangle( firstPartTriangleIndex );
-        }
-        else if ( const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo =
-                 dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
-        {
-            RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
-                                 intersectionBoxSourceInfo,
-                                 firstPartTriangleIndex,
-                                 &cellIndex,
-                                 &gridIndex );
-            intersectionHit         = true;
-            intersectionTriangleHit = intersectionBoxSourceInfo->triangle( firstPartTriangleIndex );
-        }
+    }
     // clang-format on
 
     if ( cellIndex == cvf::UNDEFINED_SIZE_T )
@@ -189,17 +227,35 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
         RimEclipseView*        eclipseView      = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
         RimGeoMechView*        geomView         = dynamic_cast<RimGeoMechView*>( mainOrComparisonView );
 
+        RimGridView* associatedGridView = dynamic_cast<RimGridView*>( mainOrComparisonView );
+
         if ( intersectionView )
         {
-            intersectionView->intersection()->firstAncestorOrThisOfType( eclipseView );
-            intersectionView->intersection()->firstAncestorOrThisOfType( geomView );
+            intersectionView->intersection()->firstAncestorOrThisOfType( associatedGridView );
         }
 
-        if ( eclipseView )
+        // Use the clicked views default settings if we have not found any special stuff
+
+        if ( !eclResDef && !geomResDef )
         {
-            selItem = new RiuEclipseSelectionItem( eclipseView,
-                                                   nullptr,
-                                                   -1,
+            if ( eclipseView )
+            {
+                if ( !eclResDef ) eclResDef = eclipseView->cellResult();
+                if ( timestepIndex == -1 ) timestepIndex = eclipseView->currentTimeStep();
+            }
+
+            if ( geomView )
+            {
+                if ( !geomResDef ) geomResDef = geomView->cellResult();
+                if ( timestepIndex == -1 ) timestepIndex = geomView->currentTimeStep();
+            }
+        }
+
+        if ( eclResDef )
+        {
+            selItem = new RiuEclipseSelectionItem( associatedGridView,
+                                                   eclResDef,
+                                                   timestepIndex,
                                                    gridIndex,
                                                    cellIndex,
                                                    nncIndex,
@@ -208,12 +264,12 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                                                    localIntersectionPoint );
         }
 
-        if ( geomView )
+        if ( geomResDef )
         {
             if ( intersectionHit )
-                selItem = new RiuGeoMechSelectionItem( geomView,
-                                                       nullptr,
-                                                       -1,
+                selItem = new RiuGeoMechSelectionItem( associatedGridView,
+                                                       geomResDef,
+                                                       timestepIndex,
                                                        gridIndex,
                                                        cellIndex,
                                                        curveColor,
@@ -221,9 +277,9 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                                                        localIntersectionPoint,
                                                        intersectionTriangleHit );
             else
-                selItem = new RiuGeoMechSelectionItem( geomView,
-                                                       nullptr,
-                                                       -1,
+                selItem = new RiuGeoMechSelectionItem( associatedGridView,
+                                                       geomResDef,
+                                                       timestepIndex,
                                                        gridIndex,
                                                        cellIndex,
                                                        curveColor,

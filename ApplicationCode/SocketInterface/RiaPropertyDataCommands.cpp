@@ -43,6 +43,7 @@
 #include "RimIntersectionCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 
+#include "RimGeoMechResultDefinition.h"
 #include "Riu3dSelectionManager.h"
 #include "RiuMainWindow.h"
 #include "RiuProcessMonitor.h"
@@ -1397,7 +1398,7 @@ public:
             {
                 const RiuEclipseSelectionItem* eclipseItem = static_cast<const RiuEclipseSelectionItem*>( item );
 
-                if ( eclipseItem->m_view->eclipseCase()->caseId == reservoirCase->caseId )
+                if ( eclipseItem->m_resultDefinition->eclipseCase()->caseId == reservoirCase->caseId )
                 {
                     selectedCells.push_back(
                         std::make_pair( eclipseItem->m_gridIndex, eclipseItem->m_gridLocalCellIndex ) );
@@ -1407,7 +1408,7 @@ public:
             {
                 const RiuGeoMechSelectionItem* geomechItem = static_cast<const RiuGeoMechSelectionItem*>( item );
 
-                if ( geomechItem->m_view->geoMechCase()->caseId == reservoirCase->caseId )
+                if ( geomechItem->m_resultDefinition->geoMechCase()->caseId == reservoirCase->caseId )
                 {
                     selectedCells.push_back( std::make_pair( geomechItem->m_gridIndex, geomechItem->m_cellIndex ) );
                 }

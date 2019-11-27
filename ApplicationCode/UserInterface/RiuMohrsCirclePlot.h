@@ -35,6 +35,9 @@ class QWidget;
 class Rim3dView;
 class RimGeoMechView;
 class RiuSelectionItem;
+class RimGeoMechCase;
+class RimGeoMechResultDefinition;
+class RiuGeoMechSelectionItem;
 
 //==================================================================================================
 //
@@ -57,34 +60,34 @@ public:
 private:
     struct MohrsCirclesInfo
     {
-        MohrsCirclesInfo( cvf::Vec3f      principals,
-                          size_t          gridIndex,
-                          size_t          elmIndex,
-                          size_t          i,
-                          size_t          j,
-                          size_t          k,
-                          RimGeoMechView* view,
-                          double          factorOfSafety,
-                          cvf::Color3ub   color )
+        MohrsCirclesInfo( cvf::Vec3f                        principals,
+                          size_t                            gridIndex,
+                          size_t                            elmIndex,
+                          size_t                            i,
+                          size_t                            j,
+                          size_t                            k,
+                          const RimGeoMechResultDefinition* geomResDef,
+                          double                            factorOfSafety,
+                          cvf::Color3ub                     color )
             : principals( principals )
             , gridIndex( gridIndex )
             , elmIndex( elmIndex )
             , i( i )
             , j( j )
             , k( k )
-            , view( view )
+            , geomResDef( geomResDef )
             , factorOfSafety( factorOfSafety )
             , color( color )
         {
         }
 
-        cvf::Vec3f      principals;
-        size_t          gridIndex;
-        size_t          elmIndex;
-        size_t          i, j, k;
-        RimGeoMechView* view;
-        double          factorOfSafety;
-        cvf::Color3ub   color;
+        cvf::Vec3f                        principals;
+        size_t                            gridIndex;
+        size_t                            elmIndex;
+        size_t                            i, j, k;
+        const RimGeoMechResultDefinition* geomResDef;
+        double                            factorOfSafety;
+        cvf::Color3ub                     color;
     };
 
 private:
@@ -94,16 +97,18 @@ private:
 
     void idealAxesEndPoints( double* xMin, double* xMax, double* yMax ) const;
 
-    void addMohrCircles( const MohrsCirclesInfo& mohrsCirclesInfo );
+    void addOrUpdateMohrCircleCurves( const MohrsCirclesInfo& mohrsCirclesInfo );
     void deleteCircles();
 
-    void addEnvelopeCurve( const cvf::Vec3f& principals, RimGeoMechView* view );
+    void addorUpdateEnvelopeCurve( const cvf::Vec3f& principals, const RimGeoMechCase* geomCase );
     void deleteEnvelopes();
 
-    void queryData( RimGeoMechView* geoMechView, size_t gridIndex, size_t elmIndex, const cvf::Color3ub& color );
+    bool addOrUpdateCurves( const RimGeoMechResultDefinition* geomResDef,
+                            size_t                            timeStepIndex,
+                            size_t                            gridIndex,
+                            size_t                            elmIndex,
+                            const cvf::Color3ub&              color );
     void updatePlot();
-
-    void addMohrsCirclesInfo( const MohrsCirclesInfo& mohrsCircleInfo );
 
     void updateTransparentCurvesOnPrincipals();
 
@@ -111,15 +116,16 @@ private:
     double smallestPrincipal() const;
     double largestPrincipal() const;
 
-    static bool isValidPrincipals( const cvf::Vec3f& principals );
-
-    static float calculateFOS( const cvf::Vec3f& principals, double frictionAngle, double cohesion );
-
-    QColor envelopeColor( RimGeoMechView* view );
+    QColor envelopeColor( const RimGeoMechCase* geomCase );
 
     void deletePlotItems();
 
     void scheduleUpdateAxisScale();
+
+    static bool                     isValidPrincipals( const cvf::Vec3f& principals );
+    static float                    calculateFOS( const cvf::Vec3f& principals, double frictionAngle, double cohesion );
+    static RiuGeoMechSelectionItem* extractGeoMechSelectionItem( const RiuSelectionItem* selectionItem,
+                                                                 Rim3dView*&             newFollowAnimView );
 
 private slots:
     void setAxesScaleAndReplot();
@@ -128,12 +134,12 @@ private:
     std::vector<QwtPlotItem*>  m_circlePlotItems;
     std::vector<QwtPlotCurve*> m_transparentCurves;
 
-    std::map<RimGeoMechView*, QwtPlotCurve*> m_envolopePlotItems;
-    std::map<RimGeoMechView*, QColor>        m_envolopeColors;
+    std::map<const RimGeoMechCase*, QwtPlotCurve*> m_envolopePlotItems;
+    std::map<const RimGeoMechCase*, QColor>        m_envolopeColors;
 
     std::vector<MohrsCirclesInfo> m_mohrsCiclesInfos;
 
-    RimGeoMechView* m_sourceGeoMechViewOfLastPlot;
+    Rim3dView* m_viewToFollowAnimationFrom;
 
     QTimer* m_scheduleUpdateAxisScaleTimer;
 };

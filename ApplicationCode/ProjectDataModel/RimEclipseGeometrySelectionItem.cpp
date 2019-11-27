@@ -23,6 +23,7 @@
 #include "RigTimeHistoryResultAccessor.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 
 #include "Riu3dSelectionManager.h"
@@ -61,7 +62,7 @@ void RimEclipseGeometrySelectionItem::setFromSelectionItem( const RiuEclipseSele
     m_cellIndex                       = selectionItem->m_gridLocalCellIndex;
     m_localIntersectionPointInDisplay = selectionItem->m_localIntersectionPointInDisplay;
 
-    m_eclipseCase = selectionItem->m_view->eclipseCase();
+    m_eclipseCase = selectionItem->m_resultDefinition->eclipseCase();
 }
 
 //--------------------------------------------------------------------------------------------------

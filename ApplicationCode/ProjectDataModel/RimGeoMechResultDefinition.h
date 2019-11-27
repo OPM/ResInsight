@@ -46,7 +46,8 @@ public:
     RimGeoMechResultDefinition( void );
     ~RimGeoMechResultDefinition( void ) override;
 
-    void setGeoMechCase( RimGeoMechCase* geomCase );
+    void            setGeoMechCase( RimGeoMechCase* geomCase );
+    RimGeoMechCase* geoMechCase() const;
 
     RigGeoMechCaseData* ownerCaseData() const;
     bool                hasResult();
