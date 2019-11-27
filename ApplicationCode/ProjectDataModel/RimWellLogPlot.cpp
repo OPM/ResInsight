@@ -271,6 +271,15 @@ void RimWellLogPlot::availableDepthRange( double* minimumDepth, double* maximumD
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::visibleDepthRange( double* minimumDepth, double* maximumDepth ) const
+{
+    *minimumDepth = m_minVisibleDepth;
+    *maximumDepth = m_maxVisibleDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::setAutoScaleYEnabled( bool on )
 {
     m_isAutoScaleDepthEnabled = on;

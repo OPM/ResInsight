@@ -127,7 +127,7 @@ void RiuWellLogPlot::slotSetMinDepth( int value )
 {
     double minimumDepth;
     double maximumDepth;
-    wellLogPlotDefinition()->availableDepthRange( &minimumDepth, &maximumDepth );
+    wellLogPlotDefinition()->visibleDepthRange( &minimumDepth, &maximumDepth );
 
     double delta = value - minimumDepth;
     wellLogPlotDefinition()->setDepthAxisRange( minimumDepth + delta, maximumDepth + delta );
