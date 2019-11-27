@@ -18,6 +18,7 @@
 #include "RimWellMeasurementInViewCollection.h"
 
 #include "Rim3dView.h"
+#include "RimGridView.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTools.h"
@@ -85,13 +86,10 @@ void RimWellMeasurementInViewCollection::fieldChangedByUi( const caf::PdmFieldHa
                                                            const QVariant&            oldValue,
                                                            const QVariant&            newValue )
 {
-    if ( changedField == &m_isChecked || changedField == &m_measurementKinds || changedField == &m_legendConfig )
-    {
-        updateLegendData();
-        RimProject* proj;
-        this->firstAncestorOrThisOfTypeAsserted( proj );
-        proj->scheduleCreateDisplayModelAndRedrawAllViews();
-    }
+    updateLegendData();
+    RimGridView* rimGridView = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted( rimGridView );
+    rimGridView->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
