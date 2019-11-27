@@ -101,7 +101,7 @@ private:
     void wellBoreWallCurveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
 
     void wellBoreFGShale( int frameIndex, std::vector<double>* values );
-    void wellBoreSHMk( int frameIndex, std::vector<double>* values );
+    void wellBoreSH_MatthewsKelly( int frameIndex, std::vector<double>* values );
 
     template <typename T>
     T      interpolateGridResultValue( RigFemResultPosEnum   resultPosType,

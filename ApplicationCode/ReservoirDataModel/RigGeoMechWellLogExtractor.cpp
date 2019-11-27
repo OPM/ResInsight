@@ -128,6 +128,7 @@ void RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAddr, 
         if ( resAddr.fieldName == RiaDefines::wbsFGResult().toStdString() )
         {
             wellBoreWallCurveData( resAddr, frameIndex, values );
+            // Try to replace invalid values with Shale-values
             wellBoreFGShale( frameIndex, values );
         }
         else if ( resAddr.fieldName == RiaDefines::wbsSFGResult().toStdString() )
@@ -147,7 +148,7 @@ void RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAddr, 
         }
         else if ( resAddr.fieldName == RiaDefines::wbsSHMkResult().toStdString() )
         {
-            wellBoreSHMk( frameIndex, values );
+            wellBoreSH_MatthewsKelly( frameIndex, values );
         }
         else
         {
@@ -626,7 +627,7 @@ void RigGeoMechWellLogExtractor::wellBoreFGShale( int frameIndex, std::vector<do
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGeoMechWellLogExtractor::wellBoreSHMk( int frameIndex, std::vector<double>* values )
+void RigGeoMechWellLogExtractor::wellBoreSH_MatthewsKelly( int frameIndex, std::vector<double>* values )
 {
     std::vector<double> PP, PP0; // results
     std::vector<double> K0_SH, OBG0, DF; // parameters
