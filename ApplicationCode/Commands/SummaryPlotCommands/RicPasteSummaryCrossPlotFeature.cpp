@@ -69,6 +69,7 @@ bool RicPasteSummaryCrossPlotFeature::isCommandEnabled()
 {
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
         caf::SelectionManager::instance()->selectedItem() );
+    if ( !destinationObject ) return false;
 
     RimSummaryCrossPlotCollection* plotColl = nullptr;
     destinationObject->firstAncestorOrThisOfType( plotColl );

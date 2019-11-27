@@ -46,6 +46,7 @@ bool RicPasteWellLogCurveFeature::isCommandEnabled()
 
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
         caf::SelectionManager::instance()->selectedItem() );
+    if ( !destinationObject ) return false;
 
     RimWellLogTrack* wellLogTrack = nullptr;
     destinationObject->firstAncestorOrThisOfType( wellLogTrack );
@@ -66,6 +67,7 @@ void RicPasteWellLogCurveFeature::onActionTriggered( bool isChecked )
 
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
         caf::SelectionManager::instance()->selectedItem() );
+    if ( !destinationObject ) return;
 
     RimWellLogTrack* wellLogTrack = nullptr;
     destinationObject->firstAncestorOrThisOfType( wellLogTrack );

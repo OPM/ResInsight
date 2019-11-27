@@ -70,6 +70,8 @@ bool RicPasteSummaryPlotFeature::isCommandEnabled()
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
         caf::SelectionManager::instance()->selectedItem() );
 
+    if ( !destinationObject ) return false;
+
     RimSummaryPlotCollection* plotColl = nullptr;
     destinationObject->firstAncestorOrThisOfType( plotColl );
     if ( !plotColl )
