@@ -80,6 +80,7 @@ void RicPasteSummaryCaseFeature::onActionTriggered( bool isChecked )
 {
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
         caf::SelectionManager::instance()->selectedItem() );
+    if ( !destinationObject ) return;
 
     std::vector<caf::PdmPointer<RimSummaryCase>> sourceObjects = RicPasteSummaryCaseFeature::summaryCases();
 

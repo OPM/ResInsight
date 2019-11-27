@@ -54,8 +54,7 @@ bool RicPasteAsciiDataToSummaryPlotFeature::isCommandEnabled()
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
         caf::SelectionManager::instance()->selectedItem() );
 
-    RimSummaryPlot* summaryPlot = nullptr;
-    destinationObject->firstAncestorOrThisOfType( summaryPlot );
+    if ( !destinationObject ) return false;
 
     RimSummaryPlotCollection* summaryPlotCollection = nullptr;
     destinationObject->firstAncestorOrThisOfType( summaryPlotCollection );

@@ -67,6 +67,7 @@ RimEnsembleCurveSet*
 bool RicPasteEnsembleCurveSetFeature::isCommandEnabled()
 {
     caf::PdmObject* destinationObject = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
+    if ( !destinationObject ) return false;
 
     RimSummaryPlot*                plot = nullptr;
     RimEnsembleCurveSetCollection* coll = nullptr;
