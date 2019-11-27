@@ -30,6 +30,7 @@ class RimIntersectionResultsDefinitionCollection;
 class RimPropertyFilterCollection;
 class RimGridCollection;
 class RimCellRangeFilterCollection;
+class RimWellMeasurementInViewCollection;
 
 class RimGridView : public Rim3dView
 {
@@ -48,6 +49,7 @@ public:
     RimIntersectionCollection*                  intersectionCollection() const;
     RimIntersectionResultsDefinitionCollection* separateIntersectionResultsCollection() const;
     RimAnnotationInViewCollection*              annotationCollection() const;
+    RimWellMeasurementInViewCollection*         measurementCollection() const;
 
     virtual const RimPropertyFilterCollection* propertyFilterCollection() const = 0;
     void                                       rangeFiltersUpdated();
@@ -87,11 +89,12 @@ protected: // Fields
 
     caf::PdmChildField<RimIntersectionResultsDefinitionCollection*> m_intersectionResultDefCollection;
 
-    caf::PdmChildField<Rim3dOverlayInfoConfig*>        m_overlayInfoConfig;
-    caf::PdmChildField<RimCellRangeFilterCollection*>  m_rangeFilterCollection;
-    caf::PdmChildField<RimCellRangeFilterCollection*>  m_overrideRangeFilterCollection;
-    caf::PdmChildField<RimGridCollection*>             m_gridCollection;
-    caf::PdmChildField<RimAnnotationInViewCollection*> m_annotationCollection;
+    caf::PdmChildField<Rim3dOverlayInfoConfig*>             m_overlayInfoConfig;
+    caf::PdmChildField<RimCellRangeFilterCollection*>       m_rangeFilterCollection;
+    caf::PdmChildField<RimCellRangeFilterCollection*>       m_overrideRangeFilterCollection;
+    caf::PdmChildField<RimGridCollection*>                  m_gridCollection;
+    caf::PdmChildField<RimAnnotationInViewCollection*>      m_annotationCollection;
+    caf::PdmChildField<RimWellMeasurementInViewCollection*> m_wellMeasurementCollection;
 
 private:
     cvf::ref<cvf::UByteArray> m_currentReservoirCellVisibility;

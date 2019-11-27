@@ -46,6 +46,7 @@
 #include "RimTernaryLegendConfig.h"
 #include "RimViewLinker.h"
 #include "RimViewNameConfig.h"
+#include "RimWellMeasurementInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "Riu3dSelectionManager.h"
@@ -433,6 +434,8 @@ void RimGeoMechView::onResetLegendsInViewer()
         sepInterResDef->ternaryLegendConfig()->recreateLegend();
     }
 
+    m_wellMeasurementCollection->legendConfig()->recreateLegend();
+
     nativeOrOverrideViewer()->removeAllColorLegends();
 }
 
@@ -482,6 +485,12 @@ void RimGeoMechView::onUpdateLegends()
                     ->addColorLegendToBottomLeftCorner( m_tensorResults->arrowColorLegendConfig->titledOverlayFrame(),
                                                         isUsingOverrideViewer() );
             }
+        }
+
+        if ( m_wellMeasurementCollection->isChecked() && m_wellMeasurementCollection->legendConfig()->showLegend() )
+        {
+            m_wellMeasurementCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(),
+                                                                              isUsingOverrideViewer() );
         }
     }
 }
@@ -907,6 +916,7 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( m_tensorResults() );
     uiTreeOrdering.add( &m_intersectionResultDefCollection );
+    uiTreeOrdering.add( &m_wellMeasurementCollection );
 
     uiTreeOrdering.add( m_intersectionCollection() );
 

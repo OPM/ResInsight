@@ -32,6 +32,8 @@ public:
                                                                 const RimWellPathCollection& wellPathCollection,
                                                                 const RimWellPath&           rimWellPath,
                                                                 const std::vector<QString>&  measurementKinds );
+    static std::vector<RimWellMeasurement*> filterMeasurements( const std::vector<RimWellMeasurement*>& measurements,
+                                                                const std::vector<QString>& measurementKinds );
 
 private:
     RimWellMeasurementFilter();

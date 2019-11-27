@@ -76,6 +76,7 @@
 #include "RimViewLinker.h"
 #include "RimViewNameConfig.h"
 #include "RimVirtualPerforationResults.h"
+#include "RimWellMeasurementInViewCollection.h"
 #include "RimWellPathCollection.h"
 
 #include "Riu3dSelectionManager.h"
@@ -1311,6 +1312,12 @@ void RimEclipseView::onUpdateLegends()
         nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( virtLegend->titledOverlayFrame(),
                                                                     isUsingOverrideViewer() );
     }
+
+    if ( m_wellMeasurementCollection->isChecked() && m_wellMeasurementCollection->legendConfig()->showLegend() )
+    {
+        m_wellMeasurementCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(),
+                                                                          isUsingOverrideViewer() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1719,6 +1726,7 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( faultResultSettings() );
     uiTreeOrdering.add( &m_intersectionResultDefCollection );
     uiTreeOrdering.add( wellCollection() );
+    uiTreeOrdering.add( &m_wellMeasurementCollection );
 
     {
         bool showFractureColors = false;
@@ -1855,6 +1863,8 @@ void RimEclipseView::onResetLegendsInViewer()
         sepInterResDef->regularLegendConfig()->recreateLegend();
         sepInterResDef->ternaryLegendConfig()->recreateLegend();
     }
+
+    m_wellMeasurementCollection->legendConfig()->recreateLegend();
 
     nativeOrOverrideViewer()->removeAllColorLegends();
 }
@@ -2013,6 +2023,8 @@ std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
         absLegends.push_back( sepInterResDef->regularLegendConfig() );
         absLegends.push_back( sepInterResDef->ternaryLegendConfig() );
     }
+
+    absLegends.push_back( m_wellMeasurementCollection->legendConfig() );
 
     return absLegends;
 }

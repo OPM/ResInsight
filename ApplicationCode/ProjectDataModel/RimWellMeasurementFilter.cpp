@@ -47,3 +47,20 @@ std::vector<RimWellMeasurement*>
 
     return filteredMeasurements;
 }
+
+std::vector<RimWellMeasurement*>
+    RimWellMeasurementFilter::filterMeasurements( const std::vector<RimWellMeasurement*>& measurements,
+                                                  const std::vector<QString>&             measurementKinds )
+{
+    std::vector<RimWellMeasurement*> filteredMeasurements;
+
+    for ( auto& measurement : measurements )
+    {
+        if ( std::find( measurementKinds.begin(), measurementKinds.end(), measurement->kind() ) != measurementKinds.end() )
+        {
+            filteredMeasurements.push_back( measurement );
+        }
+    }
+
+    return filteredMeasurements;
+}

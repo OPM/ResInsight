@@ -87,7 +87,8 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
 
-            std::vector<QString> measurementKinds = measurementCollection->measurementKinds();
+            std::vector<QString> measurementKinds;
+            measurementKinds.push_back( measurementKind() );
 
             std::vector<RimWellMeasurement*> measurements =
                 RimWellMeasurementFilter::filterMeasurements( measurementCollection->measurements(),

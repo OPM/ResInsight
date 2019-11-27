@@ -38,13 +38,7 @@ RimWellMeasurementCollection::RimWellMeasurementCollection()
     CAF_PDM_InitFieldNoDefault( &m_measurements, "Measurements", "Well Measurements", "", "", "" );
     m_measurements.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_measurements.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-    m_measurements.uiCapability()->setCustomContextMenuEnabled( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_measurementKinds, "MeasurementKinds", "Measurent Kinds", "", "", "" );
-    m_measurementKinds.uiCapability()->setAutoAddingOptionFromValue( false );
-    m_measurementKinds.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_measurementKinds.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_measurementKinds.xmlCapability()->disableIO();
+    m_measurements.uiCapability()->setUiTreeHidden( true );
 
     this->setName( "Well Measurements" );
 }
@@ -129,22 +123,6 @@ void RimWellMeasurementCollection::deleteAllMeasurements()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellMeasurementCollection::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu,
-                                                            QMenu*                     menu,
-                                                            QWidget*                   fieldEditorWidget )
-{
-    caf::CmdFeatureMenuBuilder menuBuilder;
-
-    // menuBuilder << "RicNewWellMeasurementFeature";
-    // menuBuilder << "Separator";
-    // menuBuilder << "RicDeleteWellMeasurementFeature";
-
-    menuBuilder.appendToMenu( menu );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellMeasurementCollection::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                           QString                    uiConfigName,
                                                           caf::PdmUiEditorAttribute* attribute )
@@ -185,41 +163,11 @@ void RimWellMeasurementCollection::fieldChangedByUi( const caf::PdmFieldHandle* 
                                                      const QVariant&            oldValue,
                                                      const QVariant&            newValue )
 {
-    if ( changedField == &m_isChecked || changedField == &m_measurementKinds )
+    if ( changedField == &m_isChecked )
     {
         RimProject* proj;
         this->firstAncestorOrThisOfTypeAsserted( proj );
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
         this->updateAllReferringTracks();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimWellMeasurementCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly )
-{
-    QList<caf::PdmOptionItemInfo> options;
-    if ( fieldNeedingOptions == &m_measurementKinds )
-    {
-        std::set<QString> measurementKindsInData;
-        for ( auto measurement : measurements() )
-        {
-            measurementKindsInData.insert( measurement->kind() );
-        }
-
-        for ( auto measurementKind : measurementKindsInData )
-        {
-            options.push_back( caf::PdmOptionItemInfo( measurementKind, measurementKind ) );
-        }
-    }
-
-    return options;
-}
-
-std::vector<QString> RimWellMeasurementCollection::measurementKinds() const
-{
-    return m_measurementKinds;
 }

@@ -33,6 +33,7 @@
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimViewNameConfig.h"
+#include "RimWellMeasurementInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuMainWindow.h"
@@ -85,6 +86,10 @@ RimGridView::RimGridView()
     m_overlayInfoConfig = new Rim3dOverlayInfoConfig();
     m_overlayInfoConfig->setReservoirView( this );
     m_overlayInfoConfig.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_wellMeasurementCollection, "WellMeasurements", "Well Measurements", "", "", "" );
+    m_wellMeasurementCollection = new RimWellMeasurementInViewCollection;
+    m_wellMeasurementCollection.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,6 +122,7 @@ RimGridView::~RimGridView( void )
 
     delete this->m_overlayInfoConfig();
 
+    delete m_wellMeasurementCollection;
     delete m_rangeFilterCollection;
     delete m_overrideRangeFilterCollection;
     delete m_intersectionCollection;
@@ -159,6 +165,14 @@ cvf::ref<cvf::UByteArray> RimGridView::currentTotalCellVisibility()
 RimIntersectionCollection* RimGridView::intersectionCollection() const
 {
     return m_intersectionCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellMeasurementInViewCollection* RimGridView::measurementCollection() const
+{
+    return m_wellMeasurementCollection;
 }
 
 //--------------------------------------------------------------------------------------------------

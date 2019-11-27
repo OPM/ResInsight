@@ -37,10 +37,12 @@
 #include "RimFishbonesMultipleSubs.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
+#include "RimRegularLegendConfig.h"
 #include "RimTools.h"
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"
 #include "RimWellMeasurementFilter.h"
+#include "RimWellMeasurementInViewCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathAttribute.h"
 #include "RimWellPathAttributeCollection.h"
@@ -288,15 +290,18 @@ void RivWellPathPartMgr::appendWellMeasurementsToModel( cvf::ModelBasicList*    
 {
     if ( !m_rimWellPath ) return;
 
+    RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
+    if ( !gridView ) return;
+
     RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
     if ( !wellPathCollection ) return;
 
     RimWellMeasurementCollection* wellMeasurementCollection = wellPathCollection->measurementCollection();
     if ( !wellMeasurementCollection ) return;
 
-    if ( !wellMeasurementCollection->isChecked() ) return;
+    if ( !gridView->measurementCollection()->isChecked() ) return;
 
-    std::vector<QString> measurementKinds = wellMeasurementCollection->measurementKinds();
+    std::vector<QString> measurementKinds = gridView->measurementCollection()->measurementKinds();
 
     RivPipeGeometryGenerator         geoGenerator;
     std::vector<RimWellMeasurement*> wellMeasurements =
@@ -331,6 +336,14 @@ void RivWellPathPartMgr::appendWellMeasurementsToModel( cvf::ModelBasicList*    
 
         cvf::Collection<cvf::Part> parts;
         cvf::Color3f color = mapWellMeasurementToColor( wellMeasurement->kind(), wellMeasurement->value() );
+
+        // Use the view legend config to find color, if only one type of measurement is selected.
+        if ( measurementKinds.size() == 1 )
+        {
+            color = cvf::Color3f( gridView->measurementCollection()->legendConfig()->scalarMapper()->mapToColor(
+                wellMeasurement->value() ) );
+        }
+
         geoGenerator.tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, color );
         for ( auto part : parts )
         {

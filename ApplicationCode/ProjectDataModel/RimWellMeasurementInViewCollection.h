@@ -20,38 +20,41 @@
 #include "RimCheckableNamedObject.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 
-class RimWellMeasurement;
+#include <vector>
 
-class RimWellMeasurementCollection : public RimCheckableNamedObject
+class RimWellMeasurement;
+class RimRegularLegendConfig;
+class RiuViewer;
+
+class RimWellMeasurementInViewCollection : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellMeasurementCollection();
-    ~RimWellMeasurementCollection() override;
+    RimWellMeasurementInViewCollection();
+    ~RimWellMeasurementInViewCollection() override;
 
-    std::vector<RimWellMeasurement*> measurements() const;
+    RimRegularLegendConfig* legendConfig();
+    std::vector<QString>    measurementKinds() const;
 
-    void updateAllReferringTracks();
-    void insertMeasurement( RimWellMeasurement* insertBefore, RimWellMeasurement* measurement );
-    void appendMeasurement( RimWellMeasurement* measurement );
-    void deleteMeasurement( RimWellMeasurement* measurementToDelete );
-    void deleteAllMeasurements();
+    void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
 protected:
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
                            const QVariant&            newValue ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly );
+
+    bool updateLegendData();
 
 private:
-    caf::PdmChildArrayField<RimWellMeasurement*> m_measurements;
+    caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
+    caf::PdmField<std::vector<QString>>         m_measurementKinds;
 };
