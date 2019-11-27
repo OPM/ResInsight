@@ -280,15 +280,6 @@ void RimWellLogPlot::visibleDepthRange( double* minimumDepth, double* maximumDep
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::setAutoScaleYEnabled( bool on )
-{
-    m_isAutoScaleDepthEnabled = on;
-    m_isAutoScaleDepthEnabled.uiCapability()->updateConnectedEditors();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::enableAllAutoNameTags( bool enable )
 {
     m_nameConfig->enableAllAutoNameTags( enable );
@@ -549,6 +540,15 @@ void RimWellLogPlot::updateSubPlotNames()
 void RimWellLogPlot::updatePlotWindowTitle()
 {
     performAutoNameUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::doSetAutoScaleYEnabled( bool on )
+{
+    m_isAutoScaleDepthEnabled = on;
+    m_isAutoScaleDepthEnabled.uiCapability()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

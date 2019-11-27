@@ -282,6 +282,17 @@ void RimMultiPlotWindow::updatePlotWindowTitle() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimMultiPlotWindow::doSetAutoScaleYEnabled( bool enabled )
+{
+    for ( RimPlot* plot : plots() )
+    {
+        plot->setAutoScaleYEnabled( enabled );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimMultiPlotWindow::updatePlotOrderFromGridWidget()
 {
     std::sort( m_plots.begin(), m_plots.end(), [this]( RimPlot* lhs, RimPlot* rhs ) {
@@ -309,10 +320,7 @@ void RimMultiPlotWindow::setAutoScaleXEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlotWindow::setAutoScaleYEnabled( bool enabled )
 {
-    for ( RimPlot* plot : plots() )
-    {
-        plot->setAutoScaleYEnabled( enabled );
-    }
+    doSetAutoScaleYEnabled( enabled );
 }
 
 //--------------------------------------------------------------------------------------------------

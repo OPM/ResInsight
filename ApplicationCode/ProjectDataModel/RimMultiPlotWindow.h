@@ -128,6 +128,7 @@ private:
     void         doUpdateLayout() override;
     virtual void updateSubPlotNames();
     virtual void updatePlotWindowTitle();
+    virtual void doSetAutoScaleYEnabled( bool enabled );
 
 protected:
     caf::PdmField<bool>            m_showPlotWindowTitle;
