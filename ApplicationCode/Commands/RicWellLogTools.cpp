@@ -33,6 +33,7 @@
 #include "RimWellLogRftCurve.h"
 #include "RimWellLogTrack.h"
 #include "RimWellLogWbsCurve.h"
+#include "RimWellMeasurementCurve.h"
 #include "RimWellPath.h"
 
 #include "RifReaderEclipseRft.h"
@@ -409,4 +410,34 @@ RimWellLogWbsCurve* RicWellLogTools::addWellLogWbsCurve( RimWellLogTrack* plotTr
                                                    branchIndex,
                                                    useBranchDetection,
                                                    showPlotWindow );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellMeasurementCurve* RicWellLogTools::addWellMeasurementCurve( RimWellLogTrack* plotTrack,
+                                                                   RimWellPath*     wellPath,
+                                                                   const QString&   measurementKind,
+                                                                   bool             showPlotWindow )
+{
+    CVF_ASSERT( plotTrack );
+
+    RimWellMeasurementCurve* curve = new RimWellMeasurementCurve;
+    curve->setWellPath( wellPath );
+    curve->setMeasurementKind( measurementKind );
+
+    plotTrack->addCurve( curve );
+    plotTrack->updateConnectedEditors();
+
+    RiaApplication::instance()->project()->updateConnectedEditors();
+    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem( curve );
+
+    if ( showPlotWindow )
+    {
+        // Make sure the summary plot window is visible
+        RiuPlotMainWindowTools::showPlotMainWindow();
+    }
+
+    return curve;
 }

@@ -24,6 +24,8 @@
 #include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
 #include "RimPerforationInterval.h"
+#include "RimWellMeasurement.h"
+#include "RimWellMeasurementCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathAttribute.h"
 #include "RimWellPathAttributeCollection.h"
@@ -128,6 +130,35 @@ bool RicWellPathPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& event
                                            .arg( attribute->componentLabel() );
 
                     RiuMainWindow::instance()->setResultInfo( attrText );
+                    RiuMainWindow::instance()->selectAsCurrentItem( collection );
+                }
+                else if ( dynamic_cast<RimWellMeasurement*>( sourceInfo->object() ) )
+                {
+                    RimWellMeasurement* measurement = dynamic_cast<RimWellMeasurement*>( sourceInfo->object() );
+                    RimWellMeasurementCollection* collection = nullptr;
+                    measurement->firstAncestorOrThisOfTypeAsserted( collection );
+
+                    QString measurementText = QString( "Well path name: %1\n" ).arg( measurement->wellName() );
+                    measurementText += QString( "Measured Depth: %1\n" ).arg( measurement->MD() );
+                    measurementText += QString( "Value: %1\n" ).arg( measurement->value() );
+                    measurementText += QString( "Date: %1\n" ).arg( measurement->date().toString() );
+
+                    if ( !measurement->kind().isEmpty() )
+                    {
+                        measurementText += QString( "Kind: %1\n" ).arg( measurement->kind() );
+                    }
+
+                    if ( measurement->quality() > 0 )
+                    {
+                        measurementText += QString( "Quality: %1\n" ).arg( measurement->quality() );
+                    }
+
+                    if ( !measurement->remark().isEmpty() )
+                    {
+                        measurementText += QString( "Remark: %1\n" ).arg( measurement->remark() );
+                    }
+
+                    RiuMainWindow::instance()->setResultInfo( measurementText );
                     RiuMainWindow::instance()->selectAsCurrentItem( collection );
                 }
             }

@@ -26,6 +26,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPath.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFileWellPath.h
 ${CMAKE_CURRENT_LIST_DIR}/RimModeledWellPath.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurement.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGeometryDef.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttribute.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttributeCollection.h
@@ -141,6 +143,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.h
 ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementFilter.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInViewCollection.h
 )
 
 
@@ -171,6 +176,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPath.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFileWellPath.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimModeledWellPath.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurement.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGeometryDef.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttribute.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttributeCollection.cpp
@@ -286,6 +293,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementFilter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInViewCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
