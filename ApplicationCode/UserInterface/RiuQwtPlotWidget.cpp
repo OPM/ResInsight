@@ -245,8 +245,6 @@ void RiuQwtPlotWidget::setAxisLabelsAndTicksEnabled( QwtPlot::Axis axis, bool en
 {
     this->axisScaleDraw( axis )->enableComponent( QwtAbstractScaleDraw::Ticks, enable );
     this->axisScaleDraw( axis )->enableComponent( QwtAbstractScaleDraw::Labels, enable );
-    axisScaleDraw( axis )->setMinimumExtent( axisExtent( axis ) );
-    setMinimumWidth( defaultMinimumWidth() + axisExtent( axis ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -341,12 +339,8 @@ int RiuQwtPlotWidget::axisExtent( QwtPlot::Axis axis ) const
 {
     int lineExtent = 5;
 
-    if ( this->axisScaleDraw( axis )->hasComponent( QwtAbstractScaleDraw::Ticks ) )
-    {
-        lineExtent += this->axisScaleDraw( axis )->maxTickLength();
-    }
+    lineExtent += this->axisScaleDraw( axis )->maxTickLength();
 
-    if ( this->axisScaleDraw( axis )->hasComponent( QwtAbstractScaleDraw::Labels ) )
     {
         QFont tickLabelFont = axisFont( axis );
         // Make space for a fairly long value label
