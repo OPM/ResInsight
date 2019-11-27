@@ -691,49 +691,62 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
 {
     if ( !m_plotWidget ) return;
 
-    if ( m_explicitTickIntervals )
+    bool emptyRange = std::abs( m_visibleXRangeMax() - m_visibleXRangeMin ) <
+                      1.0e-6 * std::max( 1.0, std::max( m_visibleXRangeMax(), m_visibleXRangeMin() ) );
+
+    if ( emptyRange )
     {
-        m_plotWidget->setMajorAndMinorTickIntervals( QwtPlot::xTop,
-                                                     m_majorTickInterval(),
-                                                     m_minorTickInterval(),
-                                                     m_visibleXRangeMin(),
-                                                     m_visibleXRangeMax() );
+        m_plotWidget->enableGridLines( QwtPlot::xTop, false, false );
+        m_plotWidget->setAxisRange( QwtPlot::xTop, 0.0, 1.0 );
+        m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::xTop, false );
     }
     else
     {
-        int majorTickIntervals = 3;
-        int minorTickIntervals = 0;
-        switch ( m_widthScaleFactor() )
+        m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::xTop, true );
+
+        if ( m_explicitTickIntervals )
         {
-            case EXTRA_NARROW:
-                majorTickIntervals = 3;
-                minorTickIntervals = 2;
-                break;
-            case NARROW:
-                majorTickIntervals = 3;
-                minorTickIntervals = 5;
-                break;
-            case NORMAL:
-                majorTickIntervals = 5;
-                minorTickIntervals = 5;
-                break;
-            case WIDE:
-                majorTickIntervals = 5;
-                minorTickIntervals = 10;
-                break;
-            case EXTRA_WIDE:
-                majorTickIntervals = 10;
-                minorTickIntervals = 10;
-                break;
+            m_plotWidget->setMajorAndMinorTickIntervals( QwtPlot::xTop,
+                                                         m_majorTickInterval(),
+                                                         m_minorTickInterval(),
+                                                         m_visibleXRangeMin(),
+                                                         m_visibleXRangeMax() );
         }
-        m_plotWidget->setAutoTickIntervalCounts( QwtPlot::xTop, majorTickIntervals, minorTickIntervals );
-        m_plotWidget->setAxisRange( QwtPlot::xTop, m_visibleXRangeMin, m_visibleXRangeMax );
+        else
+        {
+            int majorTickIntervals = 3;
+            int minorTickIntervals = 0;
+            switch ( m_widthScaleFactor() )
+            {
+                case EXTRA_NARROW:
+                    majorTickIntervals = 3;
+                    minorTickIntervals = 2;
+                    break;
+                case NARROW:
+                    majorTickIntervals = 3;
+                    minorTickIntervals = 5;
+                    break;
+                case NORMAL:
+                    majorTickIntervals = 5;
+                    minorTickIntervals = 5;
+                    break;
+                case WIDE:
+                    majorTickIntervals = 5;
+                    minorTickIntervals = 10;
+                    break;
+                case EXTRA_WIDE:
+                    majorTickIntervals = 10;
+                    minorTickIntervals = 10;
+                    break;
+            }
+            m_plotWidget->setAutoTickIntervalCounts( QwtPlot::xTop, majorTickIntervals, minorTickIntervals );
+            m_plotWidget->setAxisRange( QwtPlot::xTop, m_visibleXRangeMin, m_visibleXRangeMax );
+        }
+
+        m_plotWidget->enableGridLines( QwtPlot::xTop,
+                                       m_xAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MAJOR,
+                                       m_xAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MINOR );
     }
-
-    m_plotWidget->enableGridLines( QwtPlot::xTop,
-                                   m_xAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MAJOR,
-                                   m_xAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MINOR );
-
     RimWellLogPlot* wellLogPlot = nullptr;
     this->firstAncestorOrThisOfType( wellLogPlot );
     if ( wellLogPlot )
