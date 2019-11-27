@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
 #include "cafPdmObject.h"
@@ -26,6 +27,9 @@
 
 class RimWellPath;
 
+//==================================================================================================
+///
+//==================================================================================================
 class RimWellMeasurement : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;

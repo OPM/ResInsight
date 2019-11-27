@@ -26,6 +26,9 @@
 
 class RimWellMeasurement;
 
+//==================================================================================================
+///
+//==================================================================================================
 class RimWellMeasurementCollection : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
