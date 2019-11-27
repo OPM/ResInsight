@@ -40,22 +40,26 @@
 
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 
+#include "RimIntersectionResultDefinition.h"
 #include "cafDisplayCoordTransform.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuResultTextBuilder::RiuResultTextBuilder( RimEclipseView* reservoirView,
-                                            size_t          gridIndex,
-                                            size_t          cellIndex,
-                                            size_t          timeStepIndex )
+RiuResultTextBuilder::RiuResultTextBuilder( RimGridView*                settingsView,
+                                            RimEclipseResultDefinition* eclResDef,
+                                            size_t                      gridIndex,
+                                            size_t                      cellIndex,
+                                            size_t                      timeStepIndex )
 {
-    CVF_ASSERT( reservoirView );
+    CVF_ASSERT( eclResDef );
 
-    m_reservoirView = reservoirView;
-    m_gridIndex     = gridIndex;
-    m_cellIndex     = cellIndex;
-    m_timeStepIndex = timeStepIndex;
+    m_displayCoordView       = settingsView;
+    m_viewWithFaultsSettings = dynamic_cast<RimEclipseView*>( settingsView );
+    m_eclResDef              = eclResDef;
+    m_gridIndex              = gridIndex;
+    m_cellIndex              = cellIndex;
+    m_timeStepIndex          = timeStepIndex;
 
     m_nncIndex                   = cvf::UNDEFINED_SIZE_T;
     m_intersectionPointInDisplay = cvf::Vec3d::UNDEFINED;
@@ -65,17 +69,21 @@ RiuResultTextBuilder::RiuResultTextBuilder( RimEclipseView* reservoirView,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuResultTextBuilder::RiuResultTextBuilder( RimEclipseView* reservoirView, size_t reservoirCellIndex, size_t timeStepIndex )
+RiuResultTextBuilder::RiuResultTextBuilder( RimGridView*                settingsView,
+                                            RimEclipseResultDefinition* eclResDef,
+                                            size_t                      reservoirCellIndex,
+                                            size_t                      timeStepIndex )
 {
-    CVF_ASSERT( reservoirView );
+    CVF_ASSERT( eclResDef );
 
-    m_reservoirView = reservoirView;
+    m_displayCoordView       = settingsView;
+    m_viewWithFaultsSettings = dynamic_cast<RimEclipseView*>( settingsView );
+    m_eclResDef              = eclResDef;
+    m_gridIndex              = 0;
+    m_cellIndex              = 0;
+    m_timeStepIndex          = timeStepIndex;
 
-    m_gridIndex = 0;
-    m_cellIndex = 0;
-
-    RimEclipseCase* eclipseCase = nullptr;
-    reservoirView->firstAncestorOrThisOfType( eclipseCase );
+    RimEclipseCase* eclipseCase = eclResDef->eclipseCase();
     if ( eclipseCase && eclipseCase->eclipseCaseData() )
     {
         RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
@@ -92,8 +100,6 @@ RiuResultTextBuilder::RiuResultTextBuilder( RimEclipseView* reservoirView, size_
             }
         }
     }
-
-    m_timeStepIndex = timeStepIndex;
 
     m_nncIndex                   = cvf::UNDEFINED_SIZE_T;
     m_intersectionPointInDisplay = cvf::Vec3d::UNDEFINED;
@@ -189,9 +195,9 @@ QString RiuResultTextBuilder::geometrySelectionText( QString itemSeparator )
 {
     QString text;
 
-    if ( m_reservoirView && m_reservoirView->eclipseCase() )
+    if ( m_eclResDef && m_eclResDef->eclipseCase() )
     {
-        const RigEclipseCaseData* eclipseCase = m_reservoirView->eclipseCase()->eclipseCaseData();
+        const RigEclipseCaseData* eclipseCase = m_eclResDef->eclipseCase()->eclipseCaseData();
         if ( eclipseCase )
         {
             if ( m_cellIndex != cvf::UNDEFINED_SIZE_T )
@@ -229,9 +235,6 @@ QString RiuResultTextBuilder::geometrySelectionText( QString itemSeparator )
 
             if ( m_intersectionPointInDisplay != cvf::Vec3d::UNDEFINED )
             {
-                cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView->displayCoordTransform();
-                cvf::Vec3d domainCoord = transForm->translateToDomainCoord( m_intersectionPointInDisplay );
-
                 QString formattedText;
                 if ( m_2dIntersectionView )
                 {
@@ -252,6 +255,9 @@ QString RiuResultTextBuilder::geometrySelectionText( QString itemSeparator )
                 }
                 else
                 {
+                    cvf::ref<caf::DisplayCoordTransform> transForm = m_displayCoordView->displayCoordTransform();
+                    cvf::Vec3d domainCoord = transForm->translateToDomainCoord( m_intersectionPointInDisplay );
+
                     formattedText.sprintf( "Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]",
                                            domainCoord.x(),
                                            domainCoord.y(),
@@ -272,16 +278,11 @@ QString RiuResultTextBuilder::gridResultDetails()
 {
     QString text;
 
-    if ( m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->eclipseCaseData() )
+    if ( m_eclResDef->eclipseCase() && m_eclResDef->eclipseCase()->eclipseCaseData() )
     {
-        RigEclipseCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->eclipseCaseData();
+        RigEclipseCaseData* eclipseCaseData = m_eclResDef->eclipseCase()->eclipseCaseData();
 
-        this->appendTextFromResultColors( eclipseCaseData,
-                                          m_gridIndex,
-                                          m_cellIndex,
-                                          m_timeStepIndex,
-                                          m_reservoirView->cellResult(),
-                                          &text );
+        this->appendTextFromResultColors( eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_eclResDef, &text );
 
         if ( !text.isEmpty() )
         {
@@ -299,9 +300,9 @@ QString RiuResultTextBuilder::faultResultDetails()
 {
     QString text;
 
-    if ( m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->eclipseCaseData() )
+    if ( m_eclResDef->eclipseCase() && m_eclResDef->eclipseCase()->eclipseCaseData() )
     {
-        RigEclipseCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->eclipseCaseData();
+        RigEclipseCaseData* eclipseCaseData = m_eclResDef->eclipseCase()->eclipseCaseData();
         RigGridBase*        grid            = eclipseCaseData->grid( m_gridIndex );
         RigMainGrid*        mainGrid        = grid->mainGrid();
 
@@ -315,14 +316,14 @@ QString RiuResultTextBuilder::faultResultDetails()
             cvf::StructGridInterface::FaceEnum faceHelper( m_face );
             text += "Fault Face : " + faceHelper.text() + "\n";
 
-            if ( m_reservoirView->faultResultSettings()->hasValidCustomResult() )
+            if ( m_viewWithFaultsSettings && m_viewWithFaultsSettings->faultResultSettings()->hasValidCustomResult() )
             {
                 text += "Fault result data:\n";
                 this->appendTextFromResultColors( eclipseCaseData,
                                                   m_gridIndex,
                                                   m_cellIndex,
                                                   m_timeStepIndex,
-                                                  m_reservoirView->currentFaultResultColors(),
+                                                  m_viewWithFaultsSettings->currentFaultResultColors(),
                                                   &text );
             }
         }
@@ -337,7 +338,7 @@ QString RiuResultTextBuilder::faultResultDetails()
 QString RiuResultTextBuilder::formationDetails()
 {
     QString  text;
-    RimCase* rimCase = m_reservoirView->eclipseCase();
+    RimCase* rimCase = m_eclResDef->eclipseCase();
     if ( rimCase )
     {
         if ( rimCase->activeFormationNames() && rimCase->activeFormationNames()->formationNamesData() )
@@ -346,7 +347,7 @@ QString RiuResultTextBuilder::formationDetails()
 
             size_t k = cvf::UNDEFINED_SIZE_T;
             {
-                const RigEclipseCaseData* eclipseData = m_reservoirView->eclipseCase()->eclipseCaseData();
+                const RigEclipseCaseData* eclipseData = m_eclResDef->eclipseCase()->eclipseCaseData();
                 if ( eclipseData )
                 {
                     if ( m_cellIndex != cvf::UNDEFINED_SIZE_T )
@@ -380,7 +381,7 @@ QString RiuResultTextBuilder::formationDetails()
 //--------------------------------------------------------------------------------------------------
 QString RiuResultTextBuilder::gridResultText()
 {
-    QString text = cellResultText( m_reservoirView->cellResult() );
+    QString text = cellResultText( m_eclResDef );
 
     return text;
 }
@@ -392,9 +393,9 @@ QString RiuResultTextBuilder::faultResultText()
 {
     QString text;
 
-    if ( m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->eclipseCaseData() )
+    if ( m_eclResDef->eclipseCase() && m_eclResDef->eclipseCase()->eclipseCaseData() )
     {
-        RigEclipseCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->eclipseCaseData();
+        RigEclipseCaseData* eclipseCaseData = m_eclResDef->eclipseCase()->eclipseCaseData();
         RigGridBase*        grid            = eclipseCaseData->grid( m_gridIndex );
         RigMainGrid*        mainGrid        = grid->mainGrid();
 
@@ -402,9 +403,9 @@ QString RiuResultTextBuilder::faultResultText()
         if ( fault )
         {
             cvf::StructGridInterface::FaceEnum faceHelper( m_face );
-            if ( m_reservoirView->faultResultSettings()->hasValidCustomResult() )
+            if ( m_viewWithFaultsSettings && m_viewWithFaultsSettings->faultResultSettings()->hasValidCustomResult() )
             {
-                text = cellResultText( m_reservoirView->currentFaultResultColors() );
+                text = cellResultText( m_viewWithFaultsSettings->currentFaultResultColors() );
             }
         }
     }
@@ -421,9 +422,9 @@ QString RiuResultTextBuilder::nncResultText()
 
     if ( m_nncIndex != cvf::UNDEFINED_SIZE_T )
     {
-        if ( m_reservoirView.notNull() && m_reservoirView->eclipseCase() )
+        if ( m_eclResDef.notNull() && m_eclResDef->eclipseCase() )
         {
-            RigEclipseCaseData* eclipseCase = m_reservoirView->eclipseCase()->eclipseCaseData();
+            RigEclipseCaseData* eclipseCase = m_eclResDef->eclipseCase()->eclipseCaseData();
 
             RigMainGrid* grid = eclipseCase->mainGrid();
             CVF_ASSERT( grid );
@@ -436,28 +437,30 @@ QString RiuResultTextBuilder::nncResultText()
                 const RigConnection&               conn = nncData->connections()[m_nncIndex];
                 cvf::StructGridInterface::FaceEnum face( conn.m_c1Face );
 
-                if ( m_reservoirView->currentFaultResultColors() )
+                if ( m_viewWithFaultsSettings && m_viewWithFaultsSettings->currentFaultResultColors() )
                 {
                     RigEclipseResultAddress eclipseResultAddress =
-                        m_reservoirView->currentFaultResultColors()->eclipseResultAddress();
-                    RiaDefines::ResultCatType  resultType = m_reservoirView->currentFaultResultColors()->resultType();
-                    const std::vector<double>* nncValues  = nullptr;
+                        m_viewWithFaultsSettings->currentFaultResultColors()->eclipseResultAddress();
+                    RiaDefines::ResultCatType resultType =
+                        m_viewWithFaultsSettings->currentFaultResultColors()->resultType();
+                    const std::vector<double>* nncValues = nullptr;
+
                     if ( resultType == RiaDefines::STATIC_NATIVE )
                     {
                         nncValues = nncData->staticConnectionScalarResult( eclipseResultAddress );
                     }
                     else if ( resultType == RiaDefines::DYNAMIC_NATIVE )
                     {
-                        if ( m_reservoirView.notNull() && m_reservoirView->eclipseCase() )
+                        if ( m_eclResDef.notNull() && m_eclResDef->eclipseCase() )
                         {
-                            size_t nativeTimeStep = m_reservoirView->eclipseCase()->uiToNativeTimeStepIndex(
-                                m_timeStepIndex );
+                            size_t nativeTimeStep = m_eclResDef->eclipseCase()->uiToNativeTimeStepIndex( m_timeStepIndex );
                             nncValues = nncData->dynamicConnectionScalarResult( eclipseResultAddress, nativeTimeStep );
                         }
                     }
+
                     if ( nncValues && ( m_nncIndex < nncValues->size() ) )
                     {
-                        QString resultVar   = m_reservoirView->currentFaultResultColors()->resultVariableUiName();
+                        QString resultVar = m_viewWithFaultsSettings->currentFaultResultColors()->resultVariableUiName();
                         double  scalarValue = ( *nncValues )[m_nncIndex];
 
                         text = QString( "%1 : %2" ).arg( resultVar ).arg( scalarValue );
@@ -473,12 +476,12 @@ QString RiuResultTextBuilder::nncResultText()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*   eclipseCase,
-                                                       size_t                gridIndex,
-                                                       size_t                cellIndex,
-                                                       size_t                timeStepIndex,
-                                                       RimEclipseCellColors* resultColors,
-                                                       QString*              resultInfoText )
+void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*         eclipseCase,
+                                                       size_t                      gridIndex,
+                                                       size_t                      cellIndex,
+                                                       size_t                      timeStepIndex,
+                                                       RimEclipseResultDefinition* resultColors,
+                                                       QString*                    resultInfoText )
 {
     if ( !resultColors )
     {
@@ -678,19 +681,19 @@ QString RiuResultTextBuilder::cellEdgeResultDetails()
 {
     QString text;
 
-    if ( m_reservoirView->cellEdgeResult()->hasResult() )
+    if ( m_viewWithFaultsSettings && m_viewWithFaultsSettings->cellEdgeResult()->hasResult() )
     {
         text += "-- Cell edge result data --\n";
 
-        if ( m_reservoirView->cellEdgeResult()->isUsingSingleVariable() )
+        if ( m_viewWithFaultsSettings->cellEdgeResult()->isUsingSingleVariable() )
         {
-            text += cellResultText( m_reservoirView->cellEdgeResult()->singleVarEdgeResultColors() );
+            text += cellResultText( m_viewWithFaultsSettings->cellEdgeResult()->singleVarEdgeResultColors() );
             text += "\n";
         }
         else
         {
             std::vector<RimCellEdgeMetaData> metaData;
-            m_reservoirView->cellEdgeResult()->cellEdgeMetaData( &metaData );
+            m_viewWithFaultsSettings->cellEdgeResult()->cellEdgeMetaData( &metaData );
 
             std::set<RigEclipseResultAddress> uniqueResultIndices;
 
@@ -707,9 +710,9 @@ QString RiuResultTextBuilder::cellEdgeResultDetails()
                     adjustedTimeStep = 0;
                 }
 
-                RiaDefines::PorosityModelType porosityModel = m_reservoirView->cellResult()->porosityModel();
+                RiaDefines::PorosityModelType porosityModel = m_eclResDef->porosityModel();
                 cvf::ref<RigResultAccessor>   resultAccessor =
-                    RigResultAccessorFactory::createFromResultAddress( m_reservoirView->eclipseCase()->eclipseCaseData(),
+                    RigResultAccessorFactory::createFromResultAddress( m_eclResDef->eclipseCase()->eclipseCaseData(),
                                                                        m_gridIndex,
                                                                        porosityModel,
                                                                        adjustedTimeStep,
@@ -737,9 +740,9 @@ QString RiuResultTextBuilder::nncDetails()
 
     if ( m_nncIndex != cvf::UNDEFINED_SIZE_T )
     {
-        if ( m_reservoirView.notNull() && m_reservoirView->eclipseCase() )
+        if ( m_eclResDef.notNull() && m_eclResDef->eclipseCase() )
         {
-            RigEclipseCaseData* eclipseCase = m_reservoirView->eclipseCase()->eclipseCaseData();
+            RigEclipseCaseData* eclipseCase = m_eclResDef->eclipseCase()->eclipseCaseData();
 
             RigMainGrid* grid = eclipseCase->mainGrid();
             CVF_ASSERT( grid );
@@ -832,24 +835,24 @@ void RiuResultTextBuilder::appendDetails( QString& text, const QString& details 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuResultTextBuilder::cellResultText( RimEclipseCellColors* resultColors )
+QString RiuResultTextBuilder::cellResultText( RimEclipseResultDefinition* eclResDef )
 {
     QString text;
 
-    if ( m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->eclipseCaseData() )
+    if ( m_eclResDef->eclipseCase() && m_eclResDef->eclipseCase()->eclipseCaseData() )
     {
-        RigEclipseCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->eclipseCaseData();
+        RigEclipseCaseData* eclipseCaseData = m_eclResDef->eclipseCase()->eclipseCaseData();
 
-        if ( resultColors->isTernarySaturationSelected() )
+        if ( eclResDef->isTernarySaturationSelected() )
         {
-            RigCaseCellResultsData* gridCellResults = m_reservoirView->cellResult()->currentGridCellResults();
+            RigCaseCellResultsData* gridCellResults = m_eclResDef->currentGridCellResults();
             if ( gridCellResults )
             {
                 gridCellResults->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "SOIL" ) );
                 gridCellResults->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "SGAS" ) );
                 gridCellResults->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "SWAT" ) );
 
-                RiaDefines::PorosityModelType porosityModel = resultColors->porosityModel();
+                RiaDefines::PorosityModelType porosityModel = eclResDef->porosityModel();
 
                 cvf::ref<RigResultAccessor> dataAccessObjectX =
                     RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
@@ -897,7 +900,7 @@ QString RiuResultTextBuilder::cellResultText( RimEclipseCellColors* resultColors
         else
         {
             size_t adjustedTimeStep = m_timeStepIndex;
-            if ( resultColors->hasStaticResult() )
+            if ( eclResDef->hasStaticResult() )
             {
                 adjustedTimeStep = 0;
             }
@@ -906,16 +909,32 @@ QString RiuResultTextBuilder::cellResultText( RimEclipseCellColors* resultColors
                 RigResultAccessorFactory::createFromResultDefinition( eclipseCaseData,
                                                                       m_gridIndex,
                                                                       adjustedTimeStep,
-                                                                      resultColors );
+                                                                      eclResDef );
             if ( resultAccessor.notNull() )
             {
                 double  scalarValue = resultAccessor->cellFaceScalar( m_cellIndex, m_face );
-                QString resultVar   = resultColors->resultVariableUiName();
+                QString resultVar   = eclResDef->resultVariableUiName();
 
                 QString resultValueText;
-                if ( resultColors->hasCategoryResult() )
+                if ( eclResDef->hasCategoryResult() )
                 {
-                    RimRegularLegendConfig* legendConfig = resultColors->legendConfig();
+                    auto resColorDef = dynamic_cast<RimEclipseCellColors*>( eclResDef );
+
+                    RimRegularLegendConfig* legendConfig = nullptr;
+
+                    if ( resColorDef )
+                    {
+                        legendConfig = resColorDef->legendConfig();
+                    }
+                    else
+                    {
+                        RimIntersectionResultDefinition* interResDef = nullptr;
+                        eclResDef->firstAncestorOrThisOfType( interResDef );
+                        if ( interResDef )
+                        {
+                            legendConfig = interResDef->regularLegendConfig();
+                        }
+                    }
 
                     resultValueText += legendConfig->categoryNameFromCategoryValue( scalarValue );
                 }
@@ -939,9 +958,9 @@ QString RiuResultTextBuilder::wellResultText()
 {
     QString text;
 
-    if ( m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->eclipseCaseData() )
+    if ( m_eclResDef->eclipseCase() && m_eclResDef->eclipseCase()->eclipseCaseData() )
     {
-        cvf::Collection<RigSimWellData> simWellData = m_reservoirView->eclipseCase()->eclipseCaseData()->wellResults();
+        cvf::Collection<RigSimWellData> simWellData = m_eclResDef->eclipseCase()->eclipseCaseData()->wellResults();
         for ( size_t i = 0; i < simWellData.size(); i++ )
         {
             RigSimWellData* singleWellResultData = simWellData.at( i );

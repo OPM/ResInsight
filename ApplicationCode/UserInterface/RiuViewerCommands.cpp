@@ -827,6 +827,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
 
                             {
                                 RiuResultTextBuilder textBuilder( eclipseView,
+                                                                  eclipseView->cellResult(),
                                                                   globalCellIndex,
                                                                   eclipseView->currentTimeStep() );
 
@@ -894,6 +895,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
 
                                     {
                                         RiuResultTextBuilder textBuilder( eclipseView,
+                                                                          eclipseView->cellResult(),
                                                                           globalCellIndex,
                                                                           eclipseView->currentTimeStep() );
 

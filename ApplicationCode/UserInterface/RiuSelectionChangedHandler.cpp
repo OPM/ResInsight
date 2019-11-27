@@ -360,23 +360,20 @@ void RiuSelectionChangedHandler::updateResultInfo( const RiuSelectionItem* itemA
         {
             const RiuEclipseSelectionItem* eclipseSelectionItem = static_cast<const RiuEclipseSelectionItem*>( selItem );
 
-            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( eclipseSelectionItem->m_view.p() );
+            RiuResultTextBuilder textBuilder( eclipseSelectionItem->m_view,
+                                              eclipseSelectionItem->m_resultDefinition,
+                                              eclipseSelectionItem->m_gridIndex,
+                                              eclipseSelectionItem->m_gridLocalCellIndex,
+                                              eclipseSelectionItem->m_timestepIdx );
 
-            if ( eclipseView )
-            {
-                RiuResultTextBuilder textBuilder( eclipseView,
-                                                  eclipseSelectionItem->m_gridIndex,
-                                                  eclipseSelectionItem->m_gridLocalCellIndex,
-                                                  eclipseSelectionItem->m_timestepIdx );
-                textBuilder.setFace( eclipseSelectionItem->m_face );
-                textBuilder.setNncIndex( eclipseSelectionItem->m_nncIndex );
-                textBuilder.setIntersectionPointInDisplay( eclipseSelectionItem->m_localIntersectionPointInDisplay );
-                textBuilder.set2dIntersectionView( intersectionView );
+            textBuilder.setFace( eclipseSelectionItem->m_face );
+            textBuilder.setNncIndex( eclipseSelectionItem->m_nncIndex );
+            textBuilder.setIntersectionPointInDisplay( eclipseSelectionItem->m_localIntersectionPointInDisplay );
+            textBuilder.set2dIntersectionView( intersectionView );
 
-                resultInfo = textBuilder.mainResultText();
+            resultInfo = textBuilder.mainResultText();
 
-                pickInfo = textBuilder.geometrySelectionText( ", " );
-            }
+            pickInfo = textBuilder.geometrySelectionText( ", " );
         }
         else if ( selItem->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT )
         {
