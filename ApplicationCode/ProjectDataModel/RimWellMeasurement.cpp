@@ -177,3 +177,38 @@ void RimWellMeasurement::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurement::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) {}
+
+void RimWellMeasurement::excludeMeasurementKindsWithoutValue( std::vector<QString>& measurementKinds )
+{
+    std::vector<QString> result;
+    for ( auto& kind : measurementKinds )
+    {
+        if ( kindHasValue( kind ) )
+        {
+            result.push_back( kind );
+        }
+    }
+    measurementKinds = result;
+}
+
+cvf::Color3f RimWellMeasurement::mapToColor( const QString& measurementKind )
+{
+    if ( measurementKind == "DP" ) return cvf::Color3f::RED;
+    if ( measurementKind == "TH" ) return cvf::Color3f::RED;
+    if ( measurementKind == "LE" ) return cvf::Color3f::BLUE;
+    if ( measurementKind == "BA" ) return cvf::Color3f::GREEN;
+    if ( measurementKind == "CORE" ) return cvf::Color3f::BLACK;
+
+    return cvf::Color3f::CRIMSON;
+}
+
+bool RimWellMeasurement::kindHasValue( const QString& measurementKind )
+{
+    QStringList valueLessKind;
+    valueLessKind << "DP"
+                  << "LE"
+                  << "TH"
+                  << "BA"
+                  << "CORE";
+    return !valueLessKind.contains( measurementKind );
+}

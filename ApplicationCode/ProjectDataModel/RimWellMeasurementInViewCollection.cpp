@@ -36,6 +36,8 @@
 
 #include <cmath>
 
+#include <QStringList>
+
 CAF_PDM_SOURCE_INIT( RimWellMeasurementInViewCollection, "WellMeasurementsInView" );
 
 //--------------------------------------------------------------------------------------------------
@@ -103,6 +105,14 @@ RimRegularLegendConfig* RimWellMeasurementInViewCollection::legendConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RimRegularLegendConfig* RimWellMeasurementInViewCollection::legendConfig() const
+{
+    return m_legendConfig;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimWellMeasurementInViewCollection::updateLegendData()
 {
     RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
@@ -112,9 +122,10 @@ bool RimWellMeasurementInViewCollection::updateLegendData()
     if ( !wellMeasurementCollection ) return false;
 
     std::vector<QString> selectedMeasurementKinds = measurementKinds();
+    RimWellMeasurement::excludeMeasurementKindsWithoutValue( selectedMeasurementKinds );
 
-    // Only show legend when only one measurement is selected
-    if ( selectedMeasurementKinds.size() == 1 )
+    // Only show legend when there is at least one range-based measurement
+    if ( !selectedMeasurementKinds.empty() )
     {
         std::vector<RimWellMeasurement*> wellMeasurements =
             RimWellMeasurementFilter::filterMeasurements( wellMeasurementCollection->measurements(),
@@ -133,7 +144,8 @@ bool RimWellMeasurementInViewCollection::updateLegendData()
 
         if ( minValue != HUGE_VAL )
         {
-            m_legendConfig->setTitle( QString( "Well Measurement: \n" ) + selectedMeasurementKinds[0] );
+            QString title = createTitle( selectedMeasurementKinds );
+            m_legendConfig->setTitle( QString( "Well Measurement: \n" ) + title );
             m_legendConfig->setAutomaticRanges( minValue, maxValue, minValue, maxValue );
             m_legendConfig->setClosestToZeroValues( posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero );
             return true;
@@ -194,4 +206,15 @@ QList<caf::PdmOptionItemInfo>
 std::vector<QString> RimWellMeasurementInViewCollection::measurementKinds() const
 {
     return m_measurementKinds;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellMeasurementInViewCollection::createTitle( const std::vector<QString>& kinds )
+{
+    QStringList kindsList;
+    kindsList.reserve( kinds.size() );
+    std::copy( kinds.begin(), kinds.end(), std::back_inserter( kindsList ) );
+    return kindsList.join( ", " );
 }

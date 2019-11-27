@@ -255,30 +255,18 @@ void RivWellPathPartMgr::appendWellPathAttributesToModel( cvf::ModelBasicList*  
     }
 }
 
-cvf::Color3f RivWellPathPartMgr::mapWellMeasurementToColor( const QString& measurementKind, double value )
+cvf::Color3f RivWellPathPartMgr::mapWellMeasurementToColor( const RimWellMeasurement&           measurement,
+                                                            RimWellMeasurementInViewCollection* measurementCollection )
 {
-    if ( measurementKind == "TH" ) return cvf::Color3f::RED;
-    if ( measurementKind == "LE" ) return cvf::Color3f::BLUE;
-    if ( measurementKind == "BA" ) return cvf::Color3f::GREEN;
-    if ( measurementKind == "CORE" ) return cvf::Color3f::BLACK;
-
-    QStringList rangeBasedMeasurements;
-    rangeBasedMeasurements << "XLOT"
-                           << "LOT"
-                           << "FIT"
-                           << "MCF"
-                           << "MNF"
-                           << "PPG";
-    if ( rangeBasedMeasurements.contains( measurementKind ) )
+    if ( !RimWellMeasurement::kindHasValue( measurement.kind() ) )
     {
-        cvf::ScalarMapperContinuousLinear mapper;
-        mapper.setColors( RiaColorTables::normalPaletteColors().color3ubArray() );
-        mapper.setRange( 1.0, 3.0 );
-        cvf::Color3ub color = mapper.mapToColor( value );
-        return cvf::Color3f( color );
+        return RimWellMeasurement::mapToColor( measurement.kind() );
     }
-
-    return cvf::Color3f::RED;
+    else
+    {
+        // Use the view legend config to find color for range-based measurements
+        return cvf::Color3f( measurementCollection->legendConfig()->scalarMapper()->mapToColor( measurement.value() ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -334,16 +322,9 @@ void RivWellPathPartMgr::appendWellMeasurementsToModel( cvf::ModelBasicList*    
 
         cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( wellMeasurement );
 
+        cvf::Color3f color = mapWellMeasurementToColor( *wellMeasurement, gridView->measurementCollection() );
+
         cvf::Collection<cvf::Part> parts;
-        cvf::Color3f color = mapWellMeasurementToColor( wellMeasurement->kind(), wellMeasurement->value() );
-
-        // Use the view legend config to find color, if only one type of measurement is selected.
-        if ( measurementKinds.size() == 1 )
-        {
-            color = cvf::Color3f( gridView->measurementCollection()->legendConfig()->scalarMapper()->mapToColor(
-                wellMeasurement->value() ) );
-        }
-
         geoGenerator.tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, color );
         for ( auto part : parts )
         {

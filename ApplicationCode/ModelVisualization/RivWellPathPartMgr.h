@@ -48,6 +48,8 @@ class RimWellPathCollection;
 class Rim3dView;
 class Riv3dWellLogPlanePartMgr;
 class RivWellConnectionFactorPartMgr;
+class RimWellMeasurement;
+class RimWellMeasurementInViewCollection;
 
 class QDateTime;
 
@@ -129,7 +131,8 @@ private:
 
     bool isWellPathWithinBoundingBox( const cvf::BoundingBox& wellPathClipBoundingBox ) const;
 
-    static cvf::Color3f mapWellMeasurementToColor( const QString& measurementKind, double value );
+    static cvf::Color3f mapWellMeasurementToColor( const RimWellMeasurement&           measurement,
+                                                   RimWellMeasurementInViewCollection* measurementCollection );
 
 private:
     caf::PdmPointer<RimWellPath> m_rimWellPath;

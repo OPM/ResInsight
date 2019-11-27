@@ -39,8 +39,9 @@ public:
     RimWellMeasurementInViewCollection();
     ~RimWellMeasurementInViewCollection() override;
 
-    RimRegularLegendConfig* legendConfig();
-    std::vector<QString>    measurementKinds() const;
+    RimRegularLegendConfig*       legendConfig();
+    const RimRegularLegendConfig* legendConfig() const;
+    std::vector<QString>          measurementKinds() const;
 
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
@@ -53,6 +54,8 @@ protected:
                                                          bool*                      useOptionsOnly );
 
     bool updateLegendData();
+
+    static QString createTitle( const std::vector<QString>& kinds );
 
 private:
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
