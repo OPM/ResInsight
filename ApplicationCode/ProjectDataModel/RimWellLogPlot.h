@@ -86,7 +86,6 @@ public:
     void availableDepthRange( double* minimumDepth, double* maximumDepth ) const;
     void visibleDepthRange( double* minimumDepth, double* maximumDepth ) const;
 
-    void setAutoScaleYEnabled( bool enabled );
     void enableAllAutoNameTags( bool enable );
 
     void uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
@@ -128,6 +127,7 @@ protected:
 private:
     void updateSubPlotNames() override;
     void updatePlotWindowTitle() override;
+    void doSetAutoScaleYEnabled( bool enabled ) override;
 
 protected:
     caf::PdmChildField<RimWellLogCurveCommonDataSource*> m_commonDataSource;
