@@ -111,7 +111,6 @@ protected:
                            const QVariant&            newValue ) override;
     void initAfterRead() override;
 
-    void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
     void onCreateDisplayModel() override;
 
     RimPropertyFilterCollection* nativePropertyFilterCollection();

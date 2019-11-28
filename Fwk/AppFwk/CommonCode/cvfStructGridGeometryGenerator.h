@@ -188,7 +188,12 @@ public:
     ref<DrawableGeo>    createMeshDrawable();
     ref<DrawableGeo>    createOutlineMeshDrawable(double creaseAngle);
 
-    static ref<DrawableGeo> createMeshDrawableFromSingleCell(const StructGridInterface* grid, size_t cellIndex);
+    static ref<DrawableGeo> createMeshDrawableFromSingleCell(const StructGridInterface* grid, 
+                                                             size_t cellIndex);
+
+    static ref<DrawableGeo> createMeshDrawableFromSingleCell(const StructGridInterface* grid, 
+                                                             size_t cellIndex, 
+                                                             const cvf::Vec3d& displayModelOffset);
 
 private:
     static ref<UIntArray> 
