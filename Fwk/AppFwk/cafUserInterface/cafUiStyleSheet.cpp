@@ -191,6 +191,7 @@ void caf::UiStyleSheet::clearWidgetStates(QWidget* widget)
     {
         widget->setProperty(existingProperty, QVariant());
     }
+    refreshWidget(widget);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,7 +210,7 @@ void caf::UiStyleSheet::setWidgetState(QWidget* widget, QString stateTag, bool o
     }
 
     // Trigger style update
-    this->refreshWidget(widget);
+    refreshWidget(widget);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -229,7 +230,7 @@ QString caf::UiStyleSheet::fullText(const QString& className, const QString& obj
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::UiStyleSheet::refreshWidget(QWidget* widget) const
+void caf::UiStyleSheet::refreshWidget(QWidget* widget)
 {
     widget->style()->unpolish(widget);
     widget->style()->polish(widget);

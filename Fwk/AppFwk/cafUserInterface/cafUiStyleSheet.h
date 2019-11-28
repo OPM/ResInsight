@@ -89,7 +89,7 @@ public:
 
 private:
     QString fullText(const QString& className, const QString& objectName, bool applyToSubClasses) const;
-    void    refreshWidget(QWidget* widget) const;
+    static void    refreshWidget(QWidget* widget);
 
 private:
     std::map<QString, State> m_states;
