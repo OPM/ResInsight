@@ -255,14 +255,17 @@ QString RiuResultTextBuilder::geometrySelectionText( QString itemSeparator )
                 }
                 else
                 {
-                    cvf::ref<caf::DisplayCoordTransform> transForm = m_displayCoordView->displayCoordTransform();
-                    cvf::Vec3d domainCoord = transForm->translateToDomainCoord( m_intersectionPointInDisplay );
+                    if ( m_displayCoordView )
+                    {
+                        cvf::ref<caf::DisplayCoordTransform> transForm = m_displayCoordView->displayCoordTransform();
+                        cvf::Vec3d domainCoord = transForm->translateToDomainCoord( m_intersectionPointInDisplay );
 
-                    formattedText.sprintf( "Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]",
-                                           domainCoord.x(),
-                                           domainCoord.y(),
-                                           -domainCoord.z() );
-                    text += formattedText;
+                        formattedText.sprintf( "Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]",
+                                               domainCoord.x(),
+                                               domainCoord.y(),
+                                               -domainCoord.z() );
+                        text += formattedText;
+                    }
                 }
             }
         }
@@ -396,10 +399,12 @@ QString RiuResultTextBuilder::faultResultText()
     if ( m_eclResDef->eclipseCase() && m_eclResDef->eclipseCase()->eclipseCaseData() )
     {
         RigEclipseCaseData* eclipseCaseData = m_eclResDef->eclipseCase()->eclipseCaseData();
-        RigGridBase*        grid            = eclipseCaseData->grid( m_gridIndex );
-        RigMainGrid*        mainGrid        = grid->mainGrid();
+
+        RigGridBase* grid     = eclipseCaseData->grid( m_gridIndex );
+        RigMainGrid* mainGrid = grid->mainGrid();
 
         const RigFault* fault = mainGrid->findFaultFromCellIndexAndCellFace( m_cellIndex, m_face );
+
         if ( fault )
         {
             cvf::StructGridInterface::FaceEnum faceHelper( m_face );
@@ -434,7 +439,8 @@ QString RiuResultTextBuilder::nncResultText()
 
             if ( nncData && m_nncIndex < nncData->connections().size() )
             {
-                const RigConnection&               conn = nncData->connections()[m_nncIndex];
+                const RigConnection& conn = nncData->connections()[m_nncIndex];
+
                 cvf::StructGridInterface::FaceEnum face( conn.m_c1Face );
 
                 if ( m_viewWithFaultsSettings && m_viewWithFaultsSettings->currentFaultResultColors() )
@@ -443,6 +449,7 @@ QString RiuResultTextBuilder::nncResultText()
                         m_viewWithFaultsSettings->currentFaultResultColors()->eclipseResultAddress();
                     RiaDefines::ResultCatType resultType =
                         m_viewWithFaultsSettings->currentFaultResultColors()->resultType();
+
                     const std::vector<double>* nncValues = nullptr;
 
                     if ( resultType == RiaDefines::STATIC_NATIVE )

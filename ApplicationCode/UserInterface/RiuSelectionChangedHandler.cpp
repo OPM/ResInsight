@@ -379,26 +379,24 @@ void RiuSelectionChangedHandler::updateResultInfo( const RiuSelectionItem* itemA
         {
             const RiuGeoMechSelectionItem* geomSelectionItem = static_cast<const RiuGeoMechSelectionItem*>( selItem );
 
-            RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>( geomSelectionItem->m_view.p() );
+            RiuFemResultTextBuilder textBuilder( geomSelectionItem->m_view,
+                                                 geomSelectionItem->m_resultDefinition,
+                                                 (int)geomSelectionItem->m_gridIndex,
+                                                 (int)geomSelectionItem->m_cellIndex,
+                                                 (int)geomSelectionItem->m_timestepIdx );
 
-            if ( geomView )
+            textBuilder.setIntersectionPointInDisplay( geomSelectionItem->m_localIntersectionPointInDisplay );
+            textBuilder.setFace( geomSelectionItem->m_elementFace );
+            textBuilder.set2dIntersectionView( intersectionView );
+
+            if ( geomSelectionItem->m_hasIntersectionTriangle )
             {
-                RiuFemResultTextBuilder textBuilder( geomView,
-                                                     (int)geomSelectionItem->m_gridIndex,
-                                                     (int)geomSelectionItem->m_cellIndex,
-                                                     (int)geomSelectionItem->m_timestepIdx );
-
-                textBuilder.setIntersectionPointInDisplay( geomSelectionItem->m_localIntersectionPointInDisplay );
-                textBuilder.setFace( geomSelectionItem->m_elementFace );
-                textBuilder.set2dIntersectionView( intersectionView );
-
-                if ( geomSelectionItem->m_hasIntersectionTriangle )
-                    textBuilder.setIntersectionTriangle( geomSelectionItem->m_intersectionTriangle );
-
-                resultInfo = textBuilder.mainResultText();
-
-                pickInfo = textBuilder.geometrySelectionText( ", " );
+                textBuilder.setIntersectionTriangle( geomSelectionItem->m_intersectionTriangle );
             }
+
+            resultInfo = textBuilder.mainResultText();
+
+            pickInfo = textBuilder.geometrySelectionText( ", " );
         }
     }
 
