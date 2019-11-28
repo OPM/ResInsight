@@ -84,7 +84,8 @@ protected:
                            const QVariant&            newValue ) override;
     void initAfterRead() override;
 
-protected: // Fields
+protected:
+    // Fields
     caf::PdmChildField<RimIntersectionCollection*> m_intersectionCollection;
 
     caf::PdmChildField<RimIntersectionResultsDefinitionCollection*> m_intersectionResultDefCollection;
@@ -97,6 +98,8 @@ protected: // Fields
     caf::PdmChildField<RimWellMeasurementInViewCollection*> m_wellMeasurementCollection;
 
 private:
+    void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
+
     cvf::ref<cvf::UByteArray> m_currentReservoirCellVisibility;
     RimViewLinker*            viewLinkerIfMasterView() const;
     bool                      m_previousGridModeMeshLinesWasFaults;

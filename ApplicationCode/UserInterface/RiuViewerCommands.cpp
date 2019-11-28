@@ -28,6 +28,7 @@
 #include "RicEclipsePropertyFilterNewExec.h"
 #include "RicGeoMechPropertyFilterNewExec.h"
 #include "RicPickEventHandler.h"
+#include "RiuCellAndNncPickEventHandler.h"
 #include "WellLogCommands/Ric3dWellLogCurvePickEventHandler.h"
 #include "WellPathCommands/RicIntersectionPickEventHandler.h"
 #include "WellPathCommands/RicWellPathPickEventHandler.h"
@@ -137,6 +138,7 @@ RiuViewerCommands::RiuViewerCommands( RiuViewer* ownerViewer )
         addDefaultPickEventHandler( Ric3dWellLogCurvePickEventHandler::instance() );
         addDefaultPickEventHandler( RicWellPathPickEventHandler::instance() );
         addDefaultPickEventHandler( RicContourMapPickEventHandler::instance() );
+        addDefaultPickEventHandler( RiuCellAndNncPickEventHandler::instance() );
     }
 }
 
@@ -643,7 +645,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
 
     if ( pickItemInfos.size() )
     {
-        Ric3dPickEvent viewerEventObject( pickItemInfos, mainOrComparisonView );
+        Ric3dPickEvent viewerEventObject( pickItemInfos, mainOrComparisonView, keyboardModifiers );
 
         if ( sm_overridingPickHandler && sm_overridingPickHandler->handle3dPickEvent( viewerEventObject ) )
         {
@@ -660,77 +662,33 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
     }
 
     // Old pick handling. Todo: Encapsulate in pickEventHandlers
-
-    size_t                             gridIndex       = cvf::UNDEFINED_SIZE_T;
-    size_t                             cellIndex       = cvf::UNDEFINED_SIZE_T;
-    size_t                             nncIndex        = cvf::UNDEFINED_SIZE_T;
-    cvf::StructGridInterface::FaceType face            = cvf::StructGridInterface::NO_FACE;
-    int                                gmFace          = -1;
-    bool                               intersectionHit = false;
-    std::array<cvf::Vec3f, 3>          intersectionTriangleHit;
-
-    cvf::Vec3d localIntersectionPoint( cvf::Vec3d::ZERO );
-    cvf::Vec3d globalIntersectionPoint( cvf::Vec3d::ZERO );
-
-    // Extract all the above information from the pick
     {
         const cvf::Part* firstHitPart           = nullptr;
         uint             firstPartTriangleIndex = cvf::UNDEFINED_UINT;
-
-        const cvf::Part* firstNncHitPart      = nullptr;
-        uint             nncPartTriangleIndex = cvf::UNDEFINED_UINT;
+        cvf::Vec3d       globalIntersectionPoint( cvf::Vec3d::ZERO );
 
         if ( pickItemInfos.size() )
         {
-            size_t indexToFirstNoneNncItem = cvf::UNDEFINED_SIZE_T;
-            ;
+            size_t indexToFirstNoneNncItem     = cvf::UNDEFINED_SIZE_T;
             size_t indexToNncItemNearFirstItem = cvf::UNDEFINED_SIZE_T;
-            ;
 
             findFirstItems( mainOrComparisonView, pickItemInfos, &indexToFirstNoneNncItem, &indexToNncItemNearFirstItem );
 
             if ( indexToFirstNoneNncItem != cvf::UNDEFINED_SIZE_T )
             {
-                localIntersectionPoint  = pickItemInfos[indexToFirstNoneNncItem].localPickedPoint();
-                globalIntersectionPoint = pickItemInfos[indexToFirstNoneNncItem].globalPickedPoint();
                 firstHitPart            = pickItemInfos[indexToFirstNoneNncItem].pickedPart();
                 firstPartTriangleIndex  = pickItemInfos[indexToFirstNoneNncItem].faceIdx();
-            }
-
-            if ( indexToNncItemNearFirstItem != cvf::UNDEFINED_SIZE_T )
-            {
-                firstNncHitPart      = pickItemInfos[indexToNncItemNearFirstItem].pickedPart();
-                nncPartTriangleIndex = pickItemInfos[indexToNncItemNearFirstItem].faceIdx();
-            }
-        }
-
-        if ( firstNncHitPart && firstNncHitPart->sourceInfo() )
-        {
-            const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>( firstNncHitPart->sourceInfo() );
-            if ( rivSourceInfo )
-            {
-                if ( nncPartTriangleIndex < rivSourceInfo->m_NNCIndices->size() )
-                {
-                    nncIndex = rivSourceInfo->m_NNCIndices->get( nncPartTriangleIndex );
-                }
+                globalIntersectionPoint = pickItemInfos[indexToFirstNoneNncItem].globalPickedPoint();
             }
         }
 
         if ( firstHitPart && firstHitPart->sourceInfo() )
         {
-            const RivObjectSourceInfo* rivObjectSourceInfo = dynamic_cast<const RivObjectSourceInfo*>(
-                firstHitPart->sourceInfo() );
-            const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>( firstHitPart->sourceInfo() );
-            const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(
-                firstHitPart->sourceInfo() );
-            const RivExtrudedCurveIntersectionSourceInfo* crossSectionSourceInfo =
-                dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>( firstHitPart->sourceInfo() );
-            const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo =
-                dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() );
-            const RivSimWellPipeSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>(
-                firstHitPart->sourceInfo() );
-            const RivWellConnectionSourceInfo* wellConnectionSourceInfo = dynamic_cast<const RivWellConnectionSourceInfo*>(
-                firstHitPart->sourceInfo() );
+            // clang-format off
+            const RivObjectSourceInfo* rivObjectSourceInfo = dynamic_cast<const RivObjectSourceInfo*>( firstHitPart->sourceInfo() );
+            const RivSimWellPipeSourceInfo* eclipseWellSourceInfo         = dynamic_cast<const RivSimWellPipeSourceInfo*>( firstHitPart->sourceInfo() );
+            const RivWellConnectionSourceInfo* wellConnectionSourceInfo   = dynamic_cast<const RivWellConnectionSourceInfo*>( firstHitPart->sourceInfo() );
+            // clang-format on
 
             if ( rivObjectSourceInfo )
             {
@@ -800,50 +758,18 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                     RiuMainWindow::instance()->selectAsCurrentItem( textAnnot, true );
                 }
             }
-
-            if ( rivSourceInfo )
+            else if ( const RivExtrudedCurveIntersectionSourceInfo* crossSectionSourceInfo =
+                          dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
             {
-                gridIndex = rivSourceInfo->gridIndex();
-                if ( rivSourceInfo->hasCellFaceMapping() )
-                {
-                    CVF_ASSERT( rivSourceInfo->m_cellFaceFromTriangleMapper.notNull() );
-
-                    cellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex( firstPartTriangleIndex );
-                    face      = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace( firstPartTriangleIndex );
-                }
-            }
-            else if ( femSourceInfo )
-            {
-                gridIndex = femSourceInfo->femPartIndex();
-                cellIndex = femSourceInfo->triangleToElmMapper()->elementIndex( firstPartTriangleIndex );
-                gmFace    = femSourceInfo->triangleToElmMapper()->elementFace( firstPartTriangleIndex );
-            }
-            else if ( crossSectionSourceInfo )
-            {
-                findCellAndGridIndex( mainOrComparisonView,
-                                      crossSectionSourceInfo,
-                                      firstPartTriangleIndex,
-                                      &cellIndex,
-                                      &gridIndex );
-                intersectionHit         = true;
-                intersectionTriangleHit = crossSectionSourceInfo->triangle( firstPartTriangleIndex );
-
                 bool allowActiveViewChange = dynamic_cast<Rim2dIntersectionView*>( m_viewer->ownerViewWindow() ) ==
                                              nullptr;
 
                 RiuMainWindow::instance()->selectAsCurrentItem( crossSectionSourceInfo->intersection(),
                                                                 allowActiveViewChange );
             }
-            else if ( intersectionBoxSourceInfo )
+            else if ( const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo =
+                          dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
             {
-                findCellAndGridIndex( mainOrComparisonView,
-                                      intersectionBoxSourceInfo,
-                                      firstPartTriangleIndex,
-                                      &cellIndex,
-                                      &gridIndex );
-                intersectionHit         = true;
-                intersectionTriangleHit = intersectionBoxSourceInfo->triangle( firstPartTriangleIndex );
-
                 RiuMainWindow::instance()->selectAsCurrentItem( intersectionBoxSourceInfo->intersectionBox() );
             }
             else if ( eclipseWellSourceInfo )
@@ -901,6 +827,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
 
                             {
                                 RiuResultTextBuilder textBuilder( eclipseView,
+                                                                  eclipseView->cellResult(),
                                                                   globalCellIndex,
                                                                   eclipseView->currentTimeStep() );
 
@@ -968,6 +895,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
 
                                     {
                                         RiuResultTextBuilder textBuilder( eclipseView,
+                                                                          eclipseView->cellResult(),
                                                                           globalCellIndex,
                                                                           eclipseView->currentTimeStep() );
 
@@ -985,85 +913,6 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                 RiuMainWindow::instance()->selectAsCurrentItem( simWellConnectionSourceInfo->simWellInView(),
                                                                 allowActiveViewChange );
             }
-        }
-    }
-
-    if ( cellIndex == cvf::UNDEFINED_SIZE_T )
-    {
-        Riu3dSelectionManager::instance()->deleteAllItems();
-    }
-    else
-    {
-        bool appendToSelection = false;
-        if ( keyboardModifiers & Qt::ControlModifier )
-        {
-            appendToSelection = true;
-        }
-
-        std::vector<RiuSelectionItem*> items;
-        Riu3dSelectionManager::instance()->selectedItems( items );
-
-        const caf::ColorTable& colorTable = RiaColorTables::selectionPaletteColors();
-
-        cvf::Color3f curveColor = colorTable.cycledColor3f( items.size() );
-
-        if ( !appendToSelection )
-        {
-            curveColor = colorTable.cycledColor3f( 0 );
-        }
-
-        RiuSelectionItem* selItem = nullptr;
-        {
-            Rim2dIntersectionView* intersectionView = dynamic_cast<Rim2dIntersectionView*>( mainOrComparisonView );
-            RimEclipseView*        eclipseView      = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
-            RimGeoMechView*        geomView         = dynamic_cast<RimGeoMechView*>( mainOrComparisonView );
-
-            if ( intersectionView )
-            {
-                intersectionView->intersection()->firstAncestorOrThisOfType( eclipseView );
-                intersectionView->intersection()->firstAncestorOrThisOfType( geomView );
-            }
-
-            if ( eclipseView )
-            {
-                selItem = new RiuEclipseSelectionItem( eclipseView,
-                                                       gridIndex,
-                                                       cellIndex,
-                                                       nncIndex,
-                                                       curveColor,
-                                                       face,
-                                                       localIntersectionPoint );
-            }
-
-            if ( geomView )
-            {
-                if ( intersectionHit )
-                    selItem = new RiuGeoMechSelectionItem( geomView,
-                                                           gridIndex,
-                                                           cellIndex,
-                                                           curveColor,
-                                                           gmFace,
-                                                           localIntersectionPoint,
-                                                           intersectionTriangleHit );
-                else
-                    selItem = new RiuGeoMechSelectionItem( geomView,
-                                                           gridIndex,
-                                                           cellIndex,
-                                                           curveColor,
-                                                           gmFace,
-                                                           localIntersectionPoint );
-            }
-
-            if ( intersectionView ) selItem = new Riu2dIntersectionSelectionItem( intersectionView, selItem );
-        }
-
-        if ( appendToSelection )
-        {
-            Riu3dSelectionManager::instance()->appendItemToSelection( selItem );
-        }
-        else if ( selItem )
-        {
-            Riu3dSelectionManager::instance()->setSelectedItem( selItem );
         }
     }
 }

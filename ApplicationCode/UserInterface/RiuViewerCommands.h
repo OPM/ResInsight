@@ -69,17 +69,22 @@ public:
     cvf::Vec3d lastPickPositionInDomainCoords() const;
     bool       isCurrentPickInComparisonView() const;
 
+    static void findFirstItems( Rim3dView*                          mainOrComparisonView,
+                                const std::vector<RiuPickItemInfo>& pickItemInfos,
+                                size_t*                             indexToFirstNoneNncItem,
+                                size_t*                             indexToNncItemNearFirsItem );
+    static void findCellAndGridIndex( Rim3dView*                                    mainOrComparisonView,
+                                      const RivExtrudedCurveIntersectionSourceInfo* intersectionSourceInfo,
+                                      cvf::uint                                     firstPartTriangleIndex,
+                                      size_t*                                       cellIndex,
+                                      size_t*                                       gridIndex );
+    static void findCellAndGridIndex( Rim3dView*                          mainOrComparisonView,
+                                      const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo,
+                                      cvf::uint                           firstPartTriangleIndex,
+                                      size_t*                             cellIndex,
+                                      size_t*                             gridIndex );
+
 private:
-    void findCellAndGridIndex( Rim3dView*                                    mainOrComparisonView,
-                               const RivExtrudedCurveIntersectionSourceInfo* intersectionSourceInfo,
-                               cvf::uint                                     firstPartTriangleIndex,
-                               size_t*                                       cellIndex,
-                               size_t*                                       gridIndex );
-    void findCellAndGridIndex( Rim3dView*                          mainOrComparisonView,
-                               const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo,
-                               cvf::uint                           firstPartTriangleIndex,
-                               size_t*                             cellIndex,
-                               size_t*                             gridIndex );
     void ijkFromCellIndex( Rim3dView* mainOrComparisonView,
                            size_t     gridIdx,
                            size_t     cellIndex,
@@ -87,12 +92,8 @@ private:
                            size_t*    j,
                            size_t*    k );
 
-    void findFirstItems( Rim3dView*                          mainOrComparisonView,
-                         const std::vector<RiuPickItemInfo>& pickItemInfos,
-                         size_t*                             indexToFirstNoneNncItem,
-                         size_t*                             indexToNncItemNearFirsItem );
-
     bool handleOverlayItemPicking( int winPosX, int winPosY );
+    void handleTextPicking( int winPosX, int winPosY, cvf::HitItemCollection* hitItems );
 
     void addCompareToViewMenu( caf::CmdFeatureMenuBuilder* menuBuilder );
 
@@ -110,5 +111,4 @@ private:
 
     static Ric3dViewPickEventHandler*               sm_overridingPickHandler;
     static std::vector<RicDefaultPickEventHandler*> sm_defaultPickEventHandlers;
-    void handleTextPicking( int winPosX, int winPosY, cvf::HitItemCollection* hitItems );
 };

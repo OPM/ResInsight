@@ -50,6 +50,7 @@
 
 #include <QTcpSocket>
 
+#include "RimGeoMechResultDefinition.h"
 #include <array>
 
 //--------------------------------------------------------------------------------------------------
@@ -639,27 +640,33 @@ public:
             size_t gridIndex;
             int    caseId;
             bool   validIndex = true;
+
             if ( item->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT )
             {
                 const RiuEclipseSelectionItem* eclipseItem = static_cast<const RiuEclipseSelectionItem*>( item );
 
-                eclipseItem->m_view->eclipseCase()
+                eclipseItem->m_resultDefinition->eclipseCase()
                     ->eclipseCaseData()
                     ->grid( eclipseItem->m_gridIndex )
                     ->ijkFromCellIndex( eclipseItem->m_gridLocalCellIndex, &i, &j, &k );
+
                 gridIndex = eclipseItem->m_gridIndex;
-                caseId    = eclipseItem->m_view->eclipseCase()->caseId;
+                caseId    = eclipseItem->m_resultDefinition->eclipseCase()->caseId;
             }
             else if ( item->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT )
             {
                 const RiuGeoMechSelectionItem* geomechItem = static_cast<const RiuGeoMechSelectionItem*>( item );
-                validIndex                                 = geomechItem->m_view->femParts()
+
+                validIndex = geomechItem->m_resultDefinition->ownerCaseData()
+                                 ->femParts()
                                  ->part( geomechItem->m_gridIndex )
                                  ->getOrCreateStructGrid()
                                  ->ijkFromCellIndex( geomechItem->m_cellIndex, &i, &j, &k );
+
                 CVF_ASSERT( validIndex );
+
                 gridIndex = geomechItem->m_gridIndex;
-                caseId    = geomechItem->m_view->geoMechCase()->caseId;
+                caseId    = geomechItem->m_resultDefinition->geoMechCase()->caseId;
             }
             else
             {

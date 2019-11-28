@@ -26,6 +26,7 @@ class RiuPvtPlotPanel;
 class Rim3dView;
 class RimEclipseView;
 class RigEclipseCaseData;
+class RimEclipseResultDefinition;
 
 //==================================================================================================
 //
@@ -41,16 +42,13 @@ public:
     void updateOnTimeStepChanged( Rim3dView* changedView );
 
 private:
-    static bool    queryDataAndUpdatePlot( const RimEclipseView& eclipseView,
-                                           size_t                gridIndex,
-                                           size_t                gridLocalCellIndex,
-                                           RiuPvtPlotPanel*      plotPanel );
-    static QString constructCellReferenceText( const RigEclipseCaseData* eclipseCaseData,
-                                               size_t                    gridIndex,
-                                               size_t                    gridLocalCellIndex,
-                                               double                    pvtnum );
+    static bool queryDataAndUpdatePlot( const RimEclipseResultDefinition* eclipseResultDef,
+                                        size_t                            timeStepIndex,
+                                        size_t                            gridIndex,
+                                        size_t                            gridLocalCellIndex,
+                                        RiuPvtPlotPanel*                  plotPanel );
 
 private:
     QPointer<RiuPvtPlotPanel> m_targetPlotPanel;
-    const Rim3dView*          m_sourceEclipseViewOfLastPlot;
+    const Rim3dView*          m_viewToFollowAnimationFrom;
 };

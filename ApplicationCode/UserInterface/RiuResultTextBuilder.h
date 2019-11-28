@@ -25,8 +25,11 @@
 class RimEclipseView;
 class RimEclipseCellColors;
 class Rim2dIntersectionView;
-class QString;
 class RigEclipseCaseData;
+class RimEclipseResultDefinition;
+class RimGridView;
+
+class QString;
 
 namespace cvf
 {
@@ -40,8 +43,15 @@ class Part;
 class RiuResultTextBuilder
 {
 public:
-    RiuResultTextBuilder( RimEclipseView* reservoirView, size_t gridIndex, size_t cellIndex, size_t timeStepIndex );
-    RiuResultTextBuilder( RimEclipseView* reservoirView, size_t reservoirCellIndex, size_t timeStepIndex );
+    RiuResultTextBuilder( RimGridView*                settingsView,
+                          RimEclipseResultDefinition* eclResDef,
+                          size_t                      gridIndex,
+                          size_t                      cellIndex,
+                          size_t                      timeStepIndex );
+    RiuResultTextBuilder( RimGridView*                settingsView,
+                          RimEclipseResultDefinition* eclResDef,
+                          size_t                      reservoirCellIndex,
+                          size_t                      timeStepIndex );
 
     void setFace( cvf::StructGridInterface::FaceType face );
     void setNncIndex( size_t nncIndex );
@@ -66,18 +76,21 @@ private:
     QString nncResultText();
     QString wellResultText();
 
-    QString cellResultText( RimEclipseCellColors* resultColors );
+    QString cellResultText( RimEclipseResultDefinition* resultColors );
 
-    void appendTextFromResultColors( RigEclipseCaseData*   eclipseCase,
-                                     size_t                gridIndex,
-                                     size_t                cellIndex,
-                                     size_t                timeStepIndex,
-                                     RimEclipseCellColors* resultColors,
-                                     QString*              resultInfoText );
+    void appendTextFromResultColors( RigEclipseCaseData*         eclipseCase,
+                                     size_t                      gridIndex,
+                                     size_t                      cellIndex,
+                                     size_t                      timeStepIndex,
+                                     RimEclipseResultDefinition* resultColors,
+                                     QString*                    resultInfoText );
 
 private:
-    caf::PdmPointer<RimEclipseView>        m_reservoirView;
-    caf::PdmPointer<Rim2dIntersectionView> m_2dIntersectionView;
+    caf::PdmPointer<RimGridView>    m_displayCoordView;
+    caf::PdmPointer<RimEclipseView> m_viewWithFaultsSettings;
+
+    caf::PdmPointer<RimEclipseResultDefinition> m_eclResDef;
+    caf::PdmPointer<Rim2dIntersectionView>      m_2dIntersectionView;
 
     size_t m_gridIndex;
     size_t m_cellIndex;

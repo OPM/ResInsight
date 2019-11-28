@@ -23,6 +23,9 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseResultDefinition.h"
+#include "RimGeoMechResultDefinition.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
@@ -36,9 +39,13 @@
 #include "RimWellMeasurementInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "Riu3dSelectionManager.h"
 #include "RiuMainWindow.h"
 
+#include "RivSingleCellPartGenerator.h"
+
 #include "cvfModel.h"
+#include "cvfPart.h"
 #include "cvfScene.h"
 
 #include <set>
@@ -415,6 +422,59 @@ void RimGridView::initAfterRead()
             // and to avoid a strange setup when dropping out into grid mode again
             if ( surfaceMode() != RimGridView::NO_SURFACE ) surfaceMode = RimGridView::SURFACE;
             if ( meshMode() != RiaDefines::NO_MESH ) meshMode = RiaDefines::FULL_MESH;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )
+{
+    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
+
+    std::vector<RiuSelectionItem*> items;
+    riuSelManager->selectedItems( items );
+
+    for ( size_t i = 0; i < items.size(); i++ )
+    {
+        if ( items[i]->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT )
+        {
+            RiuGeoMechSelectionItem* geomSelItem = static_cast<RiuGeoMechSelectionItem*>( items[i] );
+
+            if ( geomSelItem && geomSelItem->m_view == this && geomSelItem->m_resultDefinition->geoMechCase() )
+            {
+                RivSingleCellPartGenerator partGen( geomSelItem->m_resultDefinition->geoMechCase(),
+                                                    geomSelItem->m_gridIndex,
+                                                    geomSelItem->m_cellIndex,
+                                                    this->ownerCase()->displayModelOffset() );
+
+                cvf::ref<cvf::Part> part = partGen.createPart( geomSelItem->m_color );
+                part->setTransform( this->scaleTransform() );
+
+                parts->push_back( part.p() );
+            }
+        }
+
+        if ( items[i]->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT )
+        {
+            RiuEclipseSelectionItem* eclipseSelItem = static_cast<RiuEclipseSelectionItem*>( items[i] );
+
+            if ( eclipseSelItem && eclipseSelItem->m_view == this )
+            {
+                CVF_ASSERT( eclipseSelItem->m_resultDefinition->eclipseCase() );
+                CVF_ASSERT( eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData() );
+
+                RivSingleCellPartGenerator partGen( eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData(),
+                                                    eclipseSelItem->m_gridIndex,
+                                                    eclipseSelItem->m_gridLocalCellIndex,
+                                                    this->ownerCase()->displayModelOffset() );
+
+                cvf::ref<cvf::Part> part = partGen.createPart( eclipseSelItem->m_color );
+                part->setTransform( this->scaleTransform() );
+
+                parts->push_back( part.p() );
+            }
         }
     }
 }
