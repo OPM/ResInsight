@@ -195,7 +195,16 @@ void RimMultiPlotWindow::movePlotsToThis( const std::vector<RimPlot*>& plotsToMo
 {
     for ( size_t tIdx = 0; tIdx < plotsToMove.size(); tIdx++ )
     {
-        plotsToMove[tIdx]->removeFromMdiAreaAndCollection();
+        RimMultiPlotWindow* previousMultiPlotWindow = nullptr;
+        plotsToMove[tIdx]->firstAncestorOrThisOfType( previousMultiPlotWindow );
+        if ( previousMultiPlotWindow )
+        {
+            previousMultiPlotWindow->removePlot( plotsToMove[tIdx] );
+        }
+        else
+        {
+            plotsToMove[tIdx]->removeFromMdiAreaAndCollection();
+        }
     }
 
     size_t insertionStartIndex = 0;
