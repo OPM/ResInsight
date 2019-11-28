@@ -350,7 +350,7 @@ void RiuMultiPlotWindow::resizeEvent( QResizeEvent* event )
 void RiuMultiPlotWindow::showEvent( QShowEvent* event )
 {
     QWidget::showEvent( event );
-    performUpdate();
+    scheduleUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
