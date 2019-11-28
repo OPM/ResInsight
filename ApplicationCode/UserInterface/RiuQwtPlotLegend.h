@@ -25,9 +25,7 @@ class RiuQwtPlotLegend : public QwtLegend
 public:
     RiuQwtPlotLegend( QWidget* parent = nullptr );
     void  resizeEvent( QResizeEvent* event );
-    int   columnCount() const;
     QSize sizeHint() const override;
-
 public slots:
     void updateLegend( const QVariant&, const QList<QwtLegendData>& ) override;
 
@@ -35,5 +33,5 @@ signals:
     void legendUpdated();
 
 private:
-    mutable int m_columnCount;
+    int m_columnCount;
 };

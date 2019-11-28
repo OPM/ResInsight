@@ -155,12 +155,11 @@ void RiuMultiPlotWindow::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index 
     int               legendColumns = 1;
     if ( m_plotDefinition->legendsHorizontal() )
     {
-        legendColumns = 0; // unlimited
+        legendColumns = 4; // unlimited
     }
     legend->setMaxColumns( legendColumns );
     legend->horizontalScrollBar()->setVisible( false );
     legend->verticalScrollBar()->setVisible( false );
-    legend->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
     legend->connect( plotWidget,
                      SIGNAL( legendDataChanged( const QVariant&, const QList<QwtLegendData>& ) ),
                      SLOT( updateLegend( const QVariant&, const QList<QwtLegendData>& ) ) );
@@ -169,7 +168,6 @@ void RiuMultiPlotWindow::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index 
     legend->contentsWidget()->layout()->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
     plotWidget->updateLegend();
     m_legends.insert( static_cast<int>( index ), legend );
-    m_legendColumns.insert( static_cast<int>( index ), -1 );
 
     scheduleUpdate();
 }
@@ -190,7 +188,6 @@ void RiuMultiPlotWindow::removePlot( RiuQwtPlotWidget* plotWidget )
     RiuQwtPlotLegend* legend = m_legends[plotWidgetIdx];
     legend->setParent( nullptr );
     m_legends.removeAt( plotWidgetIdx );
-    m_legendColumns.removeAt( plotWidgetIdx );
     delete legend;
 
     QLabel* subTitle = m_subTitles[plotWidgetIdx];
@@ -314,35 +311,6 @@ QLabel* RiuMultiPlotWindow::createTitleLabel() const
     plotTitle->setWordWrap( true );
     plotTitle->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
     return plotTitle;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::resizeEvent( QResizeEvent* event )
-{
-    QWidget::resizeEvent( event );
-    bool needsUpdate = false;
-    for ( int i = 0; i < m_legends.size(); ++i )
-    {
-        if ( m_legends[i]->isVisible() )
-        {
-            int columnCount = m_legends[i]->columnCount();
-            if ( columnCount != m_legendColumns[i] )
-            {
-                int oldColumnCount = m_legendColumns[i];
-                m_legendColumns[i] = columnCount;
-                if ( oldColumnCount != -1 )
-                {
-                    needsUpdate = true;
-                }
-            }
-        }
-    }
-    if ( needsUpdate )
-    {
-        scheduleUpdate();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -613,11 +581,9 @@ void RiuMultiPlotWindow::reinsertPlotWidgets()
                 int legendColumns = 1;
                 if ( m_plotDefinition->legendsHorizontal() )
                 {
-                    legendColumns = 0; // unlimited
+                    legendColumns = 4; // unlimited
                 }
                 legends[visibleIndex]->setMaxColumns( legendColumns );
-                int minimumHeight = legends[visibleIndex]->heightForWidth( plotWidgets[visibleIndex]->width() );
-                legends[visibleIndex]->setMinimumHeight( minimumHeight );
                 QFont legendFont = legends[visibleIndex]->font();
                 legendFont.setPointSize( m_plotDefinition->legendFontSize() );
                 legends[visibleIndex]->setFont( legendFont );
@@ -651,6 +617,7 @@ int RiuMultiPlotWindow::alignCanvasTops()
     CVF_ASSERT( m_legends.size() == m_plotWidgets.size() );
 
     QList<QPointer<RiuQwtPlotWidget>> plotWidgets = visiblePlotWidgets();
+    QList<QPointer<RiuQwtPlotLegend>> legends     = visibleLegends();
     if ( plotWidgets.empty() ) return 0;
 
     auto rowAndColumnCount = this->rowAndColumnCount( plotWidgets.size() );
@@ -670,6 +637,7 @@ int RiuMultiPlotWindow::alignCanvasTops()
     {
         int row = visibleIndex / rowAndColumnCount.second;
         plotWidgets[visibleIndex]->axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( maxExtents[row] );
+        legends[visibleIndex]->adjustSize();
     }
     return maxExtents[0];
 }
