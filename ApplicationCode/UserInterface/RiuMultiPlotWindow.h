@@ -42,6 +42,7 @@ class RiuQwtPlotWidget;
 class QFocusEvent;
 class QLabel;
 class QScrollBar;
+class QwtLegendData;
 
 //==================================================================================================
 //
@@ -111,6 +112,7 @@ protected:
 
 private slots:
     virtual void performUpdate();
+    void         onLegendUpdated();
 
 protected:
     QPointer<QVBoxLayout>               m_layout;

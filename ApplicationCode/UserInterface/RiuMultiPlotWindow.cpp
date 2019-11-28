@@ -159,11 +159,12 @@ void RiuMultiPlotWindow::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index 
     }
     legend->setMaxColumns( legendColumns );
     legend->horizontalScrollBar()->setVisible( false );
-    legend->verticalScrollBar()->setVisible( true );
+    legend->verticalScrollBar()->setVisible( false );
     legend->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
     legend->connect( plotWidget,
                      SIGNAL( legendDataChanged( const QVariant&, const QList<QwtLegendData>& ) ),
                      SLOT( updateLegend( const QVariant&, const QList<QwtLegendData>& ) ) );
+    QObject::connect( legend, SIGNAL( legendUpdated() ), this, SLOT( onLegendUpdated() ) );
 
     legend->contentsWidget()->layout()->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
     plotWidget->updateLegend();
@@ -340,7 +341,7 @@ void RiuMultiPlotWindow::resizeEvent( QResizeEvent* event )
     }
     if ( needsUpdate )
     {
-        performUpdate();
+        scheduleUpdate();
     }
 }
 
@@ -551,6 +552,14 @@ void RiuMultiPlotWindow::performUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMultiPlotWindow::onLegendUpdated()
+{
+    scheduleUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMultiPlotWindow::reinsertPlotWidgets()
 {
     clearGridLayout();
@@ -594,6 +603,11 @@ void RiuMultiPlotWindow::reinsertPlotWidgets()
 
             subTitles[visibleIndex]->setVisible( m_plotDefinition->showPlotTitles() );
 
+            plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft, showYAxis( row, column ) );
+            plotWidgets[visibleIndex]->setAxisTitleEnabled( QwtPlot::yLeft, showYAxis( row, column ) );
+
+            plotWidgets[visibleIndex]->show();
+
             if ( m_plotDefinition->legendsVisible() )
             {
                 int legendColumns = 1;
@@ -613,11 +627,6 @@ void RiuMultiPlotWindow::reinsertPlotWidgets()
             {
                 legends[visibleIndex]->hide();
             }
-
-            plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft, showYAxis( row, column ) );
-            plotWidgets[visibleIndex]->setAxisTitleEnabled( QwtPlot::yLeft, showYAxis( row, column ) );
-
-            plotWidgets[visibleIndex]->show();
 
             // Set basic row and column stretches
             for ( int r = row; r < row + rowSpan; ++r )

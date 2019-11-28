@@ -19,6 +19,7 @@
 
 #include "qwt_dyngrid_layout.h"
 
+#include <QDebug>
 #include <QResizeEvent>
 
 #include <utility>
@@ -52,4 +53,39 @@ void RiuQwtPlotLegend::resizeEvent( QResizeEvent* event )
 int RiuQwtPlotLegend::columnCount() const
 {
     return m_columnCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize RiuQwtPlotLegend::sizeHint() const
+{
+    QSize fullSizeHint = QwtLegend::sizeHint();
+    // Update width
+    const QwtDynGridLayout* legendLayout = qobject_cast<QwtDynGridLayout*>( contentsWidget()->layout() );
+    if ( legendLayout )
+    {
+        int rowCount = std::max( 1, (int)std::ceil( legendLayout->itemCount() / (double)std::max( m_columnCount, 1 ) ) );
+        int maxHeight = 0;
+        for ( unsigned int i = 0; i < legendLayout->itemCount(); ++i )
+        {
+            auto itemSize = legendLayout->itemAt( i )->sizeHint();
+            int  width    = itemSize.width();
+            fullSizeHint.setWidth( std::max( fullSizeHint.width(), width ) );
+            maxHeight = std::max( maxHeight, itemSize.height() );
+        }
+        int totalSpacing = ( rowCount + 1 ) * legendLayout->spacing();
+        fullSizeHint.setHeight(
+            std::max( fullSizeHint.height(), static_cast<int>( maxHeight * rowCount + totalSpacing + 4 ) ) );
+    }
+    return fullSizeHint;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotLegend::updateLegend( const QVariant& variant, const QList<QwtLegendData>& legendItems )
+{
+    QwtLegend::updateLegend( variant, legendItems );
+    emit legendUpdated();
 }
