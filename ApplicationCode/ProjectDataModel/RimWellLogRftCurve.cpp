@@ -121,8 +121,6 @@ RimWellLogRftCurve::RimWellLogRftCurve()
                        "" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "WellLogChannelName", "Well Property", "", "", "" );
-
-    m_derivedMDSource = NO_SOURCE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -368,13 +366,16 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
-    m_derivedMDSource = PSEUDO_LENGTH;
+    RiaDefines::DepthTypeEnum depthType       = RiaDefines::TRUE_VERTICAL_DEPTH;
+    DerivedMDSource           derivedMDSource = NO_SOURCE;
 
     if ( isCurveVisible() )
     {
         RimWellLogPlot* wellLogPlot;
         firstAncestorOrThisOfType( wellLogPlot );
         CVF_ASSERT( wellLogPlot );
+
+        depthType = wellLogPlot->depthType();
 
         RimWellRftPlot* rftPlot                     = dynamic_cast<RimWellRftPlot*>( wellLogPlot );
         bool            showErrorBarsInObservedData = rftPlot ? rftPlot->showErrorBarsForObservedData() : false;
@@ -420,17 +421,17 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             if ( deriveMeasuredDepthValuesFromWellPath( tvDepthVector, measuredDepthVector ) )
             {
-                m_derivedMDSource = WELL_PATH;
+                derivedMDSource = WELL_PATH;
             }
             else if ( deriveMeasuredDepthFromObservedData( tvDepthVector, measuredDepthVector ) )
             {
-                m_derivedMDSource = OBSERVED_DATA;
+                derivedMDSource = OBSERVED_DATA;
             }
         }
 
         if ( tvDepthVector.size() != measuredDepthVector.size() )
         {
-            m_derivedMDSource   = NO_SOURCE;
+            derivedMDSource     = NO_SOURCE;
             measuredDepthVector = tvDepthVector;
         }
 
@@ -474,21 +475,20 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             RiuQwtPlotWidget* viewer = wellLogTrack->viewer();
             if ( viewer )
             {
-                if ( m_derivedMDSource == NO_SOURCE )
+                if ( derivedMDSource != NO_SOURCE )
                 {
-                    viewer->setAxisTitleText( QwtPlot::yLeft, "TVDMSL" );
+                    if ( derivedMDSource == WELL_PATH )
+                    {
+                        viewer->setAxisTitleText( QwtPlot::yLeft, "WELL/" + wellLogPlot->depthAxisTitle() );
+                    }
+                    else
+                    {
+                        viewer->setAxisTitleText( QwtPlot::yLeft, "OBS/" + wellLogPlot->depthAxisTitle() );
+                    }
                 }
-                else if ( m_derivedMDSource == PSEUDO_LENGTH )
+                else // Standard depth title set from plot
                 {
-                    viewer->setAxisTitleText( QwtPlot::yLeft, "PL/" + wellLogPlot->depthAxisTitle() );
-                }
-                else if ( m_derivedMDSource == WELL_PATH )
-                {
-                    viewer->setAxisTitleText( QwtPlot::yLeft, "WELL/" + wellLogPlot->depthAxisTitle() );
-                }
-                else
-                {
-                    viewer->setAxisTitleText( QwtPlot::yLeft, "OBS/" + wellLogPlot->depthAxisTitle() );
+                    viewer->setAxisTitleText( QwtPlot::yLeft, wellLogPlot->depthAxisTitle() );
                 }
             }
         }
@@ -753,11 +753,10 @@ RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
 
         auto wellPathBranch = wellPaths[m_branchIndex];
 
-        eclExtractor      = wellLogCollection->findOrCreateSimWellExtractor( simWellName,
+        eclExtractor = wellLogCollection->findOrCreateSimWellExtractor( simWellName,
                                                                         QString( "Find or create sim well extractor" ),
                                                                         wellPathBranch,
                                                                         m_eclipseResultCase->eclipseCaseData() );
-        m_derivedMDSource = NO_SOURCE;
     }
 
     return eclExtractor;
