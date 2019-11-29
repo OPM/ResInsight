@@ -19,6 +19,7 @@
 #include "RicWellLogTools.h"
 
 #include "RiaGuiApplication.h"
+#include "RigWellLogCurveData.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"
@@ -274,7 +275,16 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
 
     plotTrack->addCurve( curve );
 
+    if ( plot && curve->curveData() )
+    {
+        plot->setDepthUnit( curve->curveData()->depthUnit() );
+    }
+
+    curve->loadDataAndUpdate( true );
+
+    curve->updateConnectedEditors();
     plotTrack->updateConnectedEditors();
+    plot->updateConnectedEditors();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
