@@ -383,19 +383,13 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
         else
             m_vizLogic->updateStaticCellColors( m_currentTimeStep() );
 
-        if ( this->cellResult()->hasResult() )
-        {
-            m_intersectionCollection->updateCellResultColor( m_currentTimeStep );
-        }
-        else
-        {
-            m_intersectionCollection->applySingleColorEffect();
-        }
+        m_intersectionCollection->updateCellResultColor( this->cellResult()->hasResult(), m_currentTimeStep );
     }
     else
     {
         m_vizLogic->updateStaticCellColors( -1 );
-        m_intersectionCollection->applySingleColorEffect();
+
+        m_intersectionCollection->updateCellResultColor( false, m_currentTimeStep );
 
         nativeOrOverrideViewer()->animationControl()->slotPause(); // To avoid animation timer spinning in the background
     }

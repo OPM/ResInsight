@@ -98,6 +98,13 @@ QString RimIntersectionResultDefinition::autoName() const
     QString timestepName;
     QString caseName = "Default undefined source";
 
+    if ( !m_case )
+    {
+        RimCase* ownerCase = nullptr;
+        this->firstAncestorOrThisOfType( ownerCase );
+        const_cast<RimIntersectionResultDefinition*>( this )->setActiveCase( ownerCase );
+    }
+
     if ( m_case )
     {
         QStringList timestepNames = m_case->timeStepStrings();
@@ -136,9 +143,37 @@ RimCase* RimIntersectionResultDefinition::activeCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimIntersectionResultDefinition::setActiveCase( RimCase* activeCase )
+{
+    m_case = activeCase;
+
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( m_case.value() );
+    m_geomResultDefinition->setGeoMechCase( geomCase );
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
+    m_eclipseResultDefinition->setEclipseCase( eclipseCase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimIntersectionResultDefinition::timeStep() const
 {
     return m_timeStep();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimIntersectionResultDefinition::hasResult()
+{
+    if ( isEclipseResultDefinition() )
+    {
+        return m_eclipseResultDefinition->hasResult() || m_eclipseResultDefinition->isTernarySaturationSelected();
+    }
+    else
+    {
+        return m_geomResultDefinition->hasResult();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

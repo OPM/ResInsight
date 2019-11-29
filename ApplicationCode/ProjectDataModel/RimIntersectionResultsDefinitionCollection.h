@@ -32,9 +32,9 @@ public:
     RimIntersectionResultsDefinitionCollection();
     ~RimIntersectionResultsDefinitionCollection() override;
 
-    bool isActive();
+    bool isActive() const;
 
-    std::vector<RimIntersectionResultDefinition*> intersectionResultsDefinitions();
+    std::vector<RimIntersectionResultDefinition*> intersectionResultsDefinitions() const;
 
     void appendIntersectionResultDefinition( RimIntersectionResultDefinition* interResDef );
 

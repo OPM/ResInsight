@@ -18,6 +18,7 @@
 
 #include "RimIntersectionResultsDefinitionCollection.h"
 
+#include "RimCase.h"
 #include "RimGridView.h"
 #include "RimIntersectionCollection.h"
 #include "RimIntersectionResultDefinition.h"
@@ -48,7 +49,7 @@ RimIntersectionResultsDefinitionCollection::~RimIntersectionResultsDefinitionCol
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimIntersectionResultsDefinitionCollection::isActive()
+bool RimIntersectionResultsDefinitionCollection::isActive() const
 {
     return m_isActive();
 }
@@ -56,7 +57,8 @@ bool RimIntersectionResultsDefinitionCollection::isActive()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimIntersectionResultDefinition*> RimIntersectionResultsDefinitionCollection::intersectionResultsDefinitions()
+std::vector<RimIntersectionResultDefinition*>
+    RimIntersectionResultsDefinitionCollection::intersectionResultsDefinitions() const
 {
     return m_intersectionResultsDefs.childObjects();
 }
@@ -68,6 +70,13 @@ void RimIntersectionResultsDefinitionCollection::appendIntersectionResultDefinit
     RimIntersectionResultDefinition* interResDef )
 {
     m_intersectionResultsDefs.push_back( interResDef );
+
+    if ( interResDef->activeCase() == nullptr )
+    {
+        RimCase* ownerCase = nullptr;
+        this->firstAncestorOrThisOfType( ownerCase );
+        interResDef->setActiveCase( ownerCase );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
