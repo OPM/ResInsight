@@ -134,6 +134,7 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot( RiuSummaryQwtPlot
                                            true,
                                            titleAlignment );
         qwtPlot->setAxisTitleText( m_axisProperties->qwtPlotAxisType(), axisTitle );
+        qwtPlot->setAxisTitleEnabled( m_axisProperties->qwtPlotAxisType(), true );
     }
 
     {
