@@ -354,7 +354,7 @@ void RiuQwtPlotCurve::computeValidIntervalsAndSetCurveData( const std::vector<do
 
     setSamples( validXValues.data(), validYValues.data(), static_cast<int>( validXValues.size() ) );
 
-    setLineSegmentStartStopIndices( intervalsOfValidValues );
+    setLineSegmentStartStopIndices( RiaCurveDataTools::computePolyLineStartStopIndices( intervalsOfValidValues ) );
 }
 
 //--------------------------------------------------------------------------------------------------
