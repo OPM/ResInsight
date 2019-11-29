@@ -243,8 +243,6 @@ void RimWellFlowRateCurve::updateStackedPlotData()
     RimWellLogTrack* wellLogTrack;
     firstAncestorOrThisOfTypeAsserted( wellLogTrack );
 
-    bool isFirstTrack = ( wellLogTrack == wellLogPlot->plotByIndex( 0 ) );
-
     RimWellLogPlot::DepthTypeEnum depthType   = wellLogPlot->depthType();
     RiaDefines::DepthUnitType     displayUnit = wellLogPlot->depthUnit();
     if ( depthType == RiaDefines::CONNECTION_NUMBER )
@@ -255,7 +253,10 @@ void RimWellFlowRateCurve::updateStackedPlotData()
     std::vector<double>                    depthValues;
     std::vector<double>                    stackedValues;
     std::vector<std::pair<size_t, size_t>> polyLineStartStopIndices;
-    double zPos = -10000.0 + 100 * groupId(); // Z-position of curve, to draw them in correct order
+
+    // Z-position of curve, to draw them in correct order
+    double zPos = -10000.0 + 100.0 * static_cast<double>( groupId() );
+
     // Starting way behind the grid (z == 0) at -10000 giving room for 100 groups with 100 curves each before getting above the grid
     {
         std::map<int, std::vector<RimWellFlowRateCurve*>> stackedCurveGroups = wellLogTrack->visibleStackedCurves();
@@ -268,6 +269,8 @@ void RimWellFlowRateCurve::updateStackedPlotData()
         }
 
         std::vector<double> allDepthValues = curveData()->depths( depthType );
+        if ( allDepthValues.empty() ) return;
+
         std::vector<double> allStackedValues( allDepthValues.size() );
 
         for ( RimWellFlowRateCurve* stCurve : stackedCurves )
@@ -292,48 +295,6 @@ void RimWellFlowRateCurve::updateStackedPlotData()
         depthValues              = tempCurveData.depthPlotValues( depthType, displayUnit );
         stackedValues            = tempCurveData.xPlotValues();
         polyLineStartStopIndices = tempCurveData.polylineStartStopIndices();
-    }
-
-    // Insert the first depth position again, to add a <maxdepth, 0.0> value pair
-
-    if ( depthValues.size() ) // Should we really do this for all curve variants ?
-    {
-        depthValues.insert( depthValues.begin(), depthValues[0] );
-        stackedValues.insert( stackedValues.begin(), 0.0 );
-        polyLineStartStopIndices.front().second += 1;
-
-        if ( wellLogPlot->plotCount() > 1 && isFirstTrack )
-        {
-            // Add a dummy negative depth value to make the contribution
-            // from other branches connected to well head visible
-
-            double availableMinDepth;
-            double availableMaxDepth;
-            wellLogPlot->availableDepthRange( &availableMinDepth, &availableMaxDepth );
-
-            double depthSpan = 0.1 * cvf::Math::abs( availableMinDepth - availableMaxDepth );
-
-            // Round off value to floored decade
-            double logDecValue = log10( depthSpan );
-            logDecValue        = cvf::Math::floor( logDecValue );
-            depthSpan          = pow( 10.0, logDecValue );
-
-            double dummyNegativeDepthValue = depthValues.back() - depthSpan;
-
-            depthValues.push_back( dummyNegativeDepthValue );
-            stackedValues.push_back( stackedValues.back() );
-            polyLineStartStopIndices.front().second += 1;
-        }
-    }
-
-    // Add a dummy point for the zeroth connection to make the "end" distribution show better.
-
-    if ( isFirstTrack && isUsingConnectionNumberDepthType() )
-    {
-        stackedValues.push_back( stackedValues.back() );
-        depthValues.push_back( 0.0 );
-
-        polyLineStartStopIndices.front().second += 1;
     }
 
     auto minmax_it = std::minmax_element( stackedValues.begin(), stackedValues.end() );
