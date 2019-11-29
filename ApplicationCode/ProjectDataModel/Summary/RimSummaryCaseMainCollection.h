@@ -73,8 +73,9 @@ public:
     void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
 
 private:
-    static void                      loadSummaryCaseData( std::vector<RimSummaryCase*> summaryCases );
-    static void                      loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases );
+    static void loadSummaryCaseData( std::vector<RimSummaryCase*> summaryCases );
+    static void loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases );
+    static void reassignSummaryCurves( const RimGridSummaryCase* fromGridCase, RimFileSummaryCase* toFileCase );
     static RimSummaryCaseCollection* defaultAllocator();
 
 private:
