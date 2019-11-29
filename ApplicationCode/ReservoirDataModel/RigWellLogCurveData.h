@@ -54,7 +54,10 @@ public:
 
     std::set<RiaDefines::DepthTypeEnum> availableDepthTypes() const;
 
-    bool calculateDepthRange( RiaDefines::DepthTypeEnum depthType, double* minMD, double* maxMD ) const;
+    bool calculateDepthRange( RiaDefines::DepthTypeEnum depthType,
+                              RiaDefines::DepthUnitType depthUnit,
+                              double*                   minMD,
+                              double*                   maxMD ) const;
 
     RiaDefines::DepthUnitType depthUnit() const;
 
