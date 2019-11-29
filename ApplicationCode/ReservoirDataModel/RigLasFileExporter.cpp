@@ -251,7 +251,7 @@ public:
 
         double minDepth = 0.0;
         double maxDepth = 0.0;
-        firstCurveData->calculateDepthRange( RiaDefines::MEASURED_DEPTH, &minDepth, &maxDepth );
+        firstCurveData->calculateDepthRange( RiaDefines::MEASURED_DEPTH, firstCurveData->depthUnit(), &minDepth, &maxDepth );
 
         lasFile->setStartDepth( minDepth );
         lasFile->setStopDepth( maxDepth );

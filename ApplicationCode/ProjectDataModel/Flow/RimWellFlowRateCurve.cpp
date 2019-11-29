@@ -246,13 +246,16 @@ void RimWellFlowRateCurve::updateStackedPlotData()
     bool isFirstTrack = ( wellLogTrack == wellLogPlot->plotByIndex( 0 ) );
 
     RimWellLogPlot::DepthTypeEnum depthType   = wellLogPlot->depthType();
-    RiaDefines::DepthUnitType     displayUnit = RiaDefines::UNIT_NONE;
+    RiaDefines::DepthUnitType     displayUnit = wellLogPlot->depthUnit();
+    if ( depthType == RiaDefines::CONNECTION_NUMBER )
+    {
+        displayUnit = RiaDefines::UNIT_NONE;
+    }
 
     std::vector<double>                    depthValues;
     std::vector<double>                    stackedValues;
     std::vector<std::pair<size_t, size_t>> polyLineStartStopIndices;
-    double                                 zPos = -10000.0 +
-                  100 * groupId(); // Z-position of curve, to draw them in correct order hiding the things behind
+    double zPos = -10000.0 + 100 * groupId(); // Z-position of curve, to draw them in correct order
     // Starting way behind the grid (z == 0) at -10000 giving room for 100 groups with 100 curves each before getting above the grid
     {
         std::map<int, std::vector<RimWellFlowRateCurve*>> stackedCurveGroups = wellLogTrack->visibleStackedCurves();
@@ -284,7 +287,7 @@ void RimWellFlowRateCurve::updateStackedPlotData()
         }
 
         RigWellLogCurveData tempCurveData;
-        tempCurveData.setValuesAndDepths( allStackedValues, allDepthValues, depthType, RiaDefines::UNIT_NONE, false );
+        tempCurveData.setValuesAndDepths( allStackedValues, allDepthValues, depthType, displayUnit, false );
 
         depthValues              = tempCurveData.depthPlotValues( depthType, displayUnit );
         stackedValues            = tempCurveData.xPlotValues();
