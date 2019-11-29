@@ -344,6 +344,10 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         RiaDefines::DepthTypeEnum depthType   = wellLogPlot->depthType();
         RiaDefines::DepthUnitType displayUnit = wellLogPlot->depthUnit();
+        if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+        {
+            isUsingPseudoLength = false;
+        }
 
         m_qwtPlotCurve->setSamples( curveData()->xPlotValues().data(),
                                     curveData()->depthPlotValues( depthType, displayUnit ).data(),
