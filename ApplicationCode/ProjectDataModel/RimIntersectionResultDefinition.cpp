@@ -384,7 +384,9 @@ void RimIntersectionResultDefinition::defineUiOrdering( QString uiConfigName, ca
         m_geomResultDefinition->uiOrdering( uiConfigName, uiOrdering );
     }
 
-    if ( ( eclipseCase && m_eclipseResultDefinition->hasDynamicResult() ) || geomCase )
+    if ( ( eclipseCase && m_eclipseResultDefinition->hasDynamicResult() ||
+           m_eclipseResultDefinition->isTernarySaturationSelected() ) ||
+         geomCase )
     {
         uiOrdering.add( &m_timeStep );
     }
