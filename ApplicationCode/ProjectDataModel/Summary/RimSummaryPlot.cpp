@@ -40,7 +40,7 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurveFilter.h"
-#include "RimSummaryCurvesCalculator.h"
+#include "RimSummaryPlotAxisFormatter.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryPlotFilterTextCurveSetEditor.h"
 #include "RimSummaryPlotNameHelper.h"
@@ -821,11 +821,11 @@ void RimSummaryPlot::updateYAxis( RiaDefines::PlotAxis plotAxis )
             timeHistoryQuantities.insert( c->quantityName() );
         }
 
-        RimSummaryPlotYAxisFormatter calc( yAxisProperties,
-                                           visibleSummaryCurvesForAxis( plotAxis ),
-                                           visibleAsciiDataCurvesForAxis( plotAxis ),
-                                           timeHistoryQuantities );
-        calc.applyYAxisPropertiesToPlot( m_plotWidget );
+        RimSummaryPlotAxisFormatter calc( yAxisProperties,
+                                          visibleSummaryCurvesForAxis( plotAxis ),
+                                          visibleAsciiDataCurvesForAxis( plotAxis ),
+                                          timeHistoryQuantities );
+        calc.applyAxisPropertiesToPlot( m_plotWidget );
     }
     else
     {
@@ -1122,11 +1122,11 @@ void RimSummaryPlot::updateBottomXAxis()
 
         std::set<QString> timeHistoryQuantities;
 
-        RimSummaryPlotYAxisFormatter calc( bottomAxisProperties,
-                                           visibleSummaryCurvesForAxis( RiaDefines::PLOT_AXIS_BOTTOM ),
-                                           visibleAsciiDataCurvesForAxis( RiaDefines::PLOT_AXIS_BOTTOM ),
-                                           timeHistoryQuantities );
-        calc.applyYAxisPropertiesToPlot( m_plotWidget );
+        RimSummaryPlotAxisFormatter calc( bottomAxisProperties,
+                                          visibleSummaryCurvesForAxis( RiaDefines::PLOT_AXIS_BOTTOM ),
+                                          visibleAsciiDataCurvesForAxis( RiaDefines::PLOT_AXIS_BOTTOM ),
+                                          timeHistoryQuantities );
+        calc.applyAxisPropertiesToPlot( m_plotWidget );
     }
     else
     {

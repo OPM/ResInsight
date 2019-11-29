@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimSummaryCurvesCalculator.h"
+#include "RimSummaryPlotAxisFormatter.h"
 
 #include "RiaDefines.h"
 
@@ -92,10 +92,10 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotYAxisFormatter::RimSummaryPlotYAxisFormatter( RimPlotAxisProperties*                 axisProperties,
-                                                            const std::vector<RimSummaryCurve*>&   summaryCurves,
-                                                            const std::vector<RimAsciiDataCurve*>& asciiCurves,
-                                                            const std::set<QString>& timeHistoryCurveQuantities )
+RimSummaryPlotAxisFormatter::RimSummaryPlotAxisFormatter( RimPlotAxisProperties*                 axisProperties,
+                                                          const std::vector<RimSummaryCurve*>&   summaryCurves,
+                                                          const std::vector<RimAsciiDataCurve*>& asciiCurves,
+                                                          const std::set<QString>& timeHistoryCurveQuantities )
     : m_axisProperties( axisProperties )
     , m_summaryCurves( summaryCurves )
     , m_asciiDataCurves( asciiCurves )
@@ -106,7 +106,7 @@ RimSummaryPlotYAxisFormatter::RimSummaryPlotYAxisFormatter( RimPlotAxisPropertie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot( RiuSummaryQwtPlot* qwtPlot )
+void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuSummaryQwtPlot* qwtPlot )
 {
     if ( !qwtPlot ) return;
 
@@ -180,7 +180,7 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot( RiuSummaryQwtPlot
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
+QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
 {
     std::map<std::string, std::set<std::string>> unitToQuantityNameMap;
 
@@ -289,7 +289,7 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RimSummaryPlotYAxisFormatter::shortCalculationName( const std::string& calculationName )
+std::string RimSummaryPlotAxisFormatter::shortCalculationName( const std::string& calculationName )
 {
     QString calculationShortName = QString::fromStdString( calculationName );
 
