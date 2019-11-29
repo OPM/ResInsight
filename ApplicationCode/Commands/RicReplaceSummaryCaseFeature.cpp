@@ -78,6 +78,5 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
 void RicReplaceSummaryCaseFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Replace" );
-    // TODO: get an icon?
-    // actionToSetup->setIcon( QIcon( ":/Refresh-32.png" ) );
+    actionToSetup->setIcon( QIcon( ":/ReplaceCase16x16.png" ) );
 }
