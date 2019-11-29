@@ -38,8 +38,10 @@ std::vector<const RigWellPath*> RiaSimWellBranchTools::simulationWellBranches( c
     RimProject*     proj = app->project();
 
     // Find first case containing the specified simulation well
-    auto simCases = proj->eclipseCases();
-    auto caseItr  = std::find_if( simCases.begin(), simCases.end(), [&simWellName]( const RimEclipseCase* eclCase ) {
+    std::vector<RimEclipseCase*> simCases;
+    proj->descendantsIncludingThisOfType( simCases );
+
+    auto caseItr = std::find_if( simCases.begin(), simCases.end(), [&simWellName]( const RimEclipseCase* eclCase ) {
         const auto& eclData = eclCase->eclipseCaseData();
         return eclData != nullptr && eclData->hasSimulationWell( simWellName );
     } );
