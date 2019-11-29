@@ -308,23 +308,60 @@ void RimWellAllocationPlot::updateFromWell()
             std::vector<QString> tracerNames = wfCalculator->tracerNames();
             for ( const QString& tracerName : tracerNames )
             {
-                const std::vector<double>* accFlow = nullptr;
+                std::vector<double> curveDepthValues = depthValues;
+                std::vector<double> accFlow;
                 if ( depthType == RiaDefines::CONNECTION_NUMBER )
                 {
-                    accFlow = &( m_flowType == ACCUMULATED
-                                     ? wfCalculator->accumulatedTracerFlowPrConnection( tracerName, brIdx )
-                                     : wfCalculator->tracerFlowPrConnection( tracerName, brIdx ) );
+                    accFlow = ( m_flowType == ACCUMULATED
+                                    ? wfCalculator->accumulatedTracerFlowPrConnection( tracerName, brIdx )
+                                    : wfCalculator->tracerFlowPrConnection( tracerName, brIdx ) );
+
+                    // Insert the first depth position again, to add a <maxdepth, 0.0> value pair
+                    curveDepthValues.insert( curveDepthValues.begin(), curveDepthValues[0] );
+                    accFlow.insert( accFlow.begin(), 0.0 );
+
+                    if ( brIdx == 0 && !accFlow.empty() ) // Add fictitious point to 0 for first branch
+                    {
+                        accFlow.push_back( accFlow.back() );
+                        curveDepthValues.push_back( 0.0 );
+                    }
                 }
                 else if ( depthType == RiaDefines::PSEUDO_LENGTH || depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
                 {
-                    accFlow = &( m_flowType == ACCUMULATED
-                                     ? wfCalculator->accumulatedTracerFlowPrPseudoLength( tracerName, brIdx )
-                                     : wfCalculator->tracerFlowPrPseudoLength( tracerName, brIdx ) );
+                    accFlow = ( m_flowType == ACCUMULATED
+                                    ? wfCalculator->accumulatedTracerFlowPrPseudoLength( tracerName, brIdx )
+                                    : wfCalculator->tracerFlowPrPseudoLength( tracerName, brIdx ) );
+
+                    // Insert the first depth position again, to add a <maxdepth, 0.0> value pair
+                    curveDepthValues.insert( curveDepthValues.begin(), curveDepthValues[0] );
+                    accFlow.insert( accFlow.begin(), 0.0 );
+
+                    if ( brIdx == 0 && branchCount > 1 )
+                    {
+                        // Add a dummy negative depth value to make the contribution
+                        // from other branches connected to well head visible
+
+                        auto   minmax_it = std::minmax_element( curveDepthValues.begin(), curveDepthValues.end() );
+                        double availableMinDepth = *( minmax_it.first );
+                        double availableMaxDepth = *( minmax_it.second );
+
+                        double depthSpan = 0.1 * cvf::Math::abs( availableMinDepth - availableMaxDepth );
+
+                        // Round off value to floored decade
+                        double logDecValue = log10( depthSpan );
+                        logDecValue        = cvf::Math::floor( logDecValue );
+                        depthSpan          = pow( 10.0, logDecValue );
+
+                        double dummyNegativeDepthValue = curveDepthValues.back() - depthSpan;
+
+                        curveDepthValues.push_back( dummyNegativeDepthValue );
+                        accFlow.push_back( accFlow.back() );
+                    }
                 }
 
-                if ( accFlow )
+                if ( !accFlow.empty() )
                 {
-                    addStackedCurve( tracerName, depthType, depthValues, *accFlow, plotTrack );
+                    addStackedCurve( tracerName, depthType, curveDepthValues, accFlow, plotTrack );
                     // TODO: THIs is the data to be plotted...
                 }
             }
