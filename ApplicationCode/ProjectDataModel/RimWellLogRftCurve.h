@@ -50,7 +50,6 @@ public:
     enum DerivedMDSource
     {
         NO_SOURCE,
-        PSEUDO_LENGTH,
         WELL_PATH,
         OBSERVED_DATA
     };
@@ -127,6 +126,5 @@ private:
     caf::PdmField<bool>                         m_branchDetection;
 
     std::map<size_t, size_t>                                                 m_idxInWellPathToIdxInRftFile;
-    DerivedMDSource                                                          m_derivedMDSource;
     caf::PdmField<caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>> m_wellLogChannelName;
 };
