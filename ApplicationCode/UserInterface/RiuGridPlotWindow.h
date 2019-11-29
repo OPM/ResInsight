@@ -81,7 +81,6 @@ protected:
     void    keyPressEvent( QKeyEvent* keyEvent ) override;
     QLabel* createTitleLabel() const;
 
-    void         resizeEvent( QResizeEvent* event ) override;
     void         showEvent( QShowEvent* event ) override;
     void         dragEnterEvent( QDragEnterEvent* event ) override;
     void         dragMoveEvent( QDragMoveEvent* event ) override;
@@ -111,6 +110,7 @@ protected:
 
 private slots:
     virtual void performUpdate();
+    virtual void onLegendUpdated();
 
 protected:
     QPointer<QVBoxLayout>              m_layout;
@@ -118,7 +118,6 @@ protected:
     QPointer<QFrame>                   m_plotWidgetFrame;
     QPointer<QGridLayout>              m_gridLayout;
     QPointer<QLabel>                   m_plotTitle;
-    QList<int>                         m_legendColumns;
     QList<QPointer<QLabel>>            m_subTitles;
     QList<QPointer<RiuQwtPlotLegend>>  m_legends;
     QList<QPointer<RiuQwtPlotWidget>>  m_plotWidgets;
