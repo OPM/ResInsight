@@ -146,6 +146,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInViewCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInView.h
 )
 
 
@@ -296,6 +297,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInViewCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInView.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

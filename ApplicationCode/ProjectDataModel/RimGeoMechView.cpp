@@ -46,6 +46,7 @@
 #include "RimTernaryLegendConfig.h"
 #include "RimViewLinker.h"
 #include "RimViewNameConfig.h"
+#include "RimWellMeasurementInView.h"
 #include "RimWellMeasurementInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -428,7 +429,10 @@ void RimGeoMechView::onResetLegendsInViewer()
         sepInterResDef->ternaryLegendConfig()->recreateLegend();
     }
 
-    m_wellMeasurementCollection->legendConfig()->recreateLegend();
+    for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
+    {
+        wellMeasurement->legendConfig()->recreateLegend();
+    }
 
     nativeOrOverrideViewer()->removeAllColorLegends();
 }
@@ -481,10 +485,16 @@ void RimGeoMechView::onUpdateLegends()
             }
         }
 
-        if ( m_wellMeasurementCollection->isChecked() && m_wellMeasurementCollection->legendConfig()->showLegend() )
+        if ( m_wellMeasurementCollection->isChecked() )
         {
-            m_wellMeasurementCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(),
-                                                                              isUsingOverrideViewer() );
+            for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
+            {
+                if ( wellMeasurement->legendConfig()->showLegend() )
+                {
+                    wellMeasurement->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(),
+                                                                          isUsingOverrideViewer() );
+                }
+            }
         }
     }
 }
@@ -587,7 +597,10 @@ std::vector<RimLegendConfig*> RimGeoMechView::legendConfigs() const
         absLegendConfigs.push_back( sepInterResDef->regularLegendConfig() );
     }
 
-    absLegendConfigs.push_back( m_wellMeasurementCollection->legendConfig() );
+    for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
+    {
+        absLegendConfigs.push_back( wellMeasurement->legendConfig() );
+    }
 
     return absLegendConfigs;
 }
