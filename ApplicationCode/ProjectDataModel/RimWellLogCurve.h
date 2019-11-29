@@ -70,12 +70,9 @@ protected:
     void updateZoomInParentPlot() override;
     void updateLegendsInPlot() override;
     void setOverrideCurveDataXRange( double minimumValue, double maximumValue );
+    void calculateCurveDataXRange();
 
 private:
-    void calculateCurveDataRanges();
-
-private:
-    cvf::ref<RigWellLogCurveData>                                  m_curveData;
-    std::pair<double, double>                                      m_curveDataXRange;
-    std::map<RiaDefines::DepthTypeEnum, std::pair<double, double>> m_curveDataDepthRange;
+    cvf::ref<RigWellLogCurveData> m_curveData;
+    std::pair<double, double>     m_curveDataXRange;
 };

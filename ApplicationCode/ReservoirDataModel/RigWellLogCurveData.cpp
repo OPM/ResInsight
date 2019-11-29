@@ -326,6 +326,7 @@ void RigWellLogCurveData::splitIntervalAtEmptySpace( const std::vector<double>& 
 ///
 //--------------------------------------------------------------------------------------------------
 bool RigWellLogCurveData::calculateDepthRange( RiaDefines::DepthTypeEnum depthType,
+                                               RiaDefines::DepthUnitType depthUnit,
                                                double*                   minimumDepth,
                                                double*                   maximumDepth ) const
 {
@@ -334,9 +335,10 @@ bool RigWellLogCurveData::calculateDepthRange( RiaDefines::DepthTypeEnum depthTy
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;
 
-    for ( size_t vIdx = 0; vIdx < depths( depthType ).size(); vIdx++ )
+    std::vector<double> depthValues = depthPlotValues( depthType, depthUnit );
+    for ( size_t vIdx = 0; vIdx < depthValues.size(); vIdx++ )
     {
-        double value = depths( depthType )[vIdx];
+        double value = depthValues[vIdx];
 
         if ( value < minValue )
         {
@@ -406,12 +408,13 @@ std::vector<double> RigWellLogCurveData::convertDepthValues( RiaDefines::DepthUn
 {
     CVF_ASSERT( destinationDepthUnit != m_depthUnit );
 
-    if ( destinationDepthUnit == RiaDefines::UNIT_METER )
+    if ( destinationDepthUnit == RiaDefines::UNIT_METER && m_depthUnit == RiaDefines::UNIT_FEET )
     {
         return convertFromFeetToMeter( values );
     }
-    else
+    else if ( destinationDepthUnit == RiaDefines::UNIT_FEET && m_depthUnit == RiaDefines::UNIT_METER )
     {
         return convertFromMeterToFeet( values );
     }
+    return values;
 }

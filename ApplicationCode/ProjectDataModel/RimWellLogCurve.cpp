@@ -99,22 +99,10 @@ bool RimWellLogCurve::yValueRangeInData( double* minimumValue, double* maximumVa
 
     RimWellLogPlot* wellLogPlot = nullptr;
     firstAncestorOrThisOfTypeAsserted( wellLogPlot );
+    auto depthType   = wellLogPlot->depthType();
+    auto displayUnit = wellLogPlot->depthUnit();
 
-    auto depthRangeIt = m_curveDataDepthRange.find( wellLogPlot->depthType() );
-    if ( depthRangeIt == m_curveDataDepthRange.end() )
-    {
-        return false;
-    }
-
-    if ( depthRangeIt->second.first == -std::numeric_limits<double>::infinity() ||
-         depthRangeIt->second.second == std::numeric_limits<double>::infinity() )
-    {
-        return false;
-    }
-    *minimumValue = depthRangeIt->second.first;
-    *maximumValue = depthRangeIt->second.second;
-
-    return true;
+    return m_curveData->calculateDepthRange( depthType, displayUnit, minimumValue, maximumValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,7 +115,7 @@ void RimWellLogCurve::setValuesAndDepths( const std::vector<double>& xValues,
                                           bool                       isExtractionCurve )
 {
     m_curveData->setValuesAndDepths( xValues, measuredDepths, depthType, depthUnit, isExtractionCurve );
-    calculateCurveDataRanges();
+    calculateCurveDataXRange();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,7 +127,7 @@ void RimWellLogCurve::setValuesAndDepths( const std::vector<double>&            
                                           bool isExtractionCurve )
 {
     m_curveData->setValuesAndDepths( xValues, depths, depthUnit, isExtractionCurve );
-    calculateCurveDataRanges();
+    calculateCurveDataXRange();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,22 +190,11 @@ void RimWellLogCurve::setOverrideCurveDataXRange( double minimumValue, double ma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurve::calculateCurveDataRanges()
+void RimWellLogCurve::calculateCurveDataXRange()
 {
     // Invalidate range first
     m_curveDataXRange = std::make_pair( std::numeric_limits<double>::infinity(),
                                         -std::numeric_limits<double>::infinity() );
-
-    for ( auto depthType : m_curveData->availableDepthTypes() )
-    {
-        m_curveDataDepthRange[depthType] = std::make_pair( std::numeric_limits<double>::infinity(),
-                                                           -std::numeric_limits<double>::infinity() );
-
-        m_curveData->calculateDepthRange( depthType,
-                                          &m_curveDataDepthRange[depthType].first,
-                                          &m_curveDataDepthRange[depthType].second );
-    }
-
     for ( double xValue : m_curveData->xValues() )
     {
         if ( RiaCurveDataTools::isValidValue( xValue, false ) )
