@@ -10,7 +10,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAppearanceCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAutoName.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveFilter.h
-${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurvesCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotAxisFormatter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.h
@@ -50,7 +50,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAppearanceCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAutoName.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveFilter.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurvesCalculator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotAxisFormatter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.cpp
