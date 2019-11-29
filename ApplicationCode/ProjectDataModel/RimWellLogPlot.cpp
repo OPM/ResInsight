@@ -107,6 +107,7 @@ RimWellLogPlot::RimWellLogPlot()
     m_commonDataSourceEnabled = true;
     m_columnCountEnum         = RimMultiPlotWindow::COLUMNS_UNLIMITED;
 
+    m_plotWindowTitle.xmlCapability()->setIOWritable( false );
     m_plotLegendsHorizontal = false;
     setMultiPlotTitleVisible( false );
 }
