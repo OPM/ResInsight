@@ -32,15 +32,15 @@ class RiuSummaryQwtPlot;
 
 class QwtPlotCurve;
 
-class RimSummaryPlotYAxisFormatter
+class RimSummaryPlotAxisFormatter
 {
 public:
-    RimSummaryPlotYAxisFormatter( RimPlotAxisProperties*                 axisProperties,
-                                  const std::vector<RimSummaryCurve*>&   summaryCurves,
-                                  const std::vector<RimAsciiDataCurve*>& asciiCurves,
-                                  const std::set<QString>&               timeHistoryCurveQuantities );
+    RimSummaryPlotAxisFormatter( RimPlotAxisProperties*                 axisProperties,
+                                 const std::vector<RimSummaryCurve*>&   summaryCurves,
+                                 const std::vector<RimAsciiDataCurve*>& asciiCurves,
+                                 const std::set<QString>&               timeHistoryCurveQuantities );
 
-    void applyYAxisPropertiesToPlot( RiuSummaryQwtPlot* qwtPlot );
+    void applyAxisPropertiesToPlot( RiuSummaryQwtPlot* qwtPlot );
 
 private:
     QString autoAxisTitle() const;
