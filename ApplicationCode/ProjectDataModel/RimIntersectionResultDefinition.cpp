@@ -98,6 +98,13 @@ QString RimIntersectionResultDefinition::autoName() const
     QString timestepName;
     QString caseName = "Default undefined source";
 
+    if ( !m_case )
+    {
+        RimCase* ownerCase = nullptr;
+        this->firstAncestorOrThisOfType( ownerCase );
+        const_cast<RimIntersectionResultDefinition*>( this )->setActiveCase( ownerCase );
+    }
+
     if ( m_case )
     {
         QStringList timestepNames = m_case->timeStepStrings();
@@ -136,9 +143,37 @@ RimCase* RimIntersectionResultDefinition::activeCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimIntersectionResultDefinition::setActiveCase( RimCase* activeCase )
+{
+    m_case = activeCase;
+
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( m_case.value() );
+    m_geomResultDefinition->setGeoMechCase( geomCase );
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
+    m_eclipseResultDefinition->setEclipseCase( eclipseCase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimIntersectionResultDefinition::timeStep() const
 {
     return m_timeStep();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimIntersectionResultDefinition::hasResult()
+{
+    if ( isEclipseResultDefinition() )
+    {
+        return m_eclipseResultDefinition->hasResult() || m_eclipseResultDefinition->isTernarySaturationSelected();
+    }
+    else
+    {
+        return m_geomResultDefinition->hasResult();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,6 +230,25 @@ void RimIntersectionResultDefinition::updateLegendRangesTextAndVisibility( RiuVi
                                                                            bool       isUsingOverrideViewer )
 {
     if ( !this->isInAction() ) return;
+
+    if ( ( this->isEclipseResultDefinition() && m_eclipseResultDefinition()->hasCategoryResult() ) ||
+         ( !this->isEclipseResultDefinition() && m_geomResultDefinition()->hasCategoryResult() ) )
+    {
+        regularLegendConfig()->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
+        regularLegendConfig()->setColorRange( RimRegularLegendConfig::CATEGORY );
+    }
+    else
+    {
+        if ( regularLegendConfig()->mappingMode() == RimRegularLegendConfig::CATEGORY_INTEGER )
+        {
+            regularLegendConfig()->setMappingMode( RimRegularLegendConfig::LINEAR_CONTINUOUS );
+        }
+
+        if ( regularLegendConfig()->colorRange() == RimRegularLegendConfig::CATEGORY )
+        {
+            regularLegendConfig()->setColorRange( RimRegularLegendConfig::NORMAL );
+        }
+    }
 
     if ( this->isEclipseResultDefinition() )
     {
@@ -349,7 +403,9 @@ void RimIntersectionResultDefinition::defineUiOrdering( QString uiConfigName, ca
         m_geomResultDefinition->uiOrdering( uiConfigName, uiOrdering );
     }
 
-    if ( ( eclipseCase && m_eclipseResultDefinition->hasDynamicResult() ) || geomCase )
+    if ( ( eclipseCase && m_eclipseResultDefinition->hasDynamicResult() ||
+           m_eclipseResultDefinition->isTernarySaturationSelected() ) ||
+         geomCase )
     {
         uiOrdering.add( &m_timeStep );
     }

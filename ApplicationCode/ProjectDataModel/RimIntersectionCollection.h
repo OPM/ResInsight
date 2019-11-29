@@ -69,7 +69,7 @@ public:
     // Visualization interface
 
     void applySingleColorEffect();
-    void updateCellResultColor( size_t timeStepIndex );
+    void updateCellResultColor( bool hasGeneralCellResult, size_t timeStepIndex );
     void appendPartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void rebuildGeometry();
 

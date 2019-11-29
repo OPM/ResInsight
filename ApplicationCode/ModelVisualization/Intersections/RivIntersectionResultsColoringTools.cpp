@@ -172,16 +172,18 @@ void RivIntersectionResultsColoringTools::updateEclipseCellResultColors(
 
     cvf::ref<RigResultAccessor> resultAccessor;
 
-    if ( RiaDefines::isPerCellFaceResult( eclipseResDef->resultVariable() ) )
-    {
-        resultAccessor = new RigHugeValResultAccessor;
-    }
-    else
+    if ( !RiaDefines::isPerCellFaceResult( eclipseResDef->resultVariable() ) )
+
     {
         resultAccessor = RigResultAccessorFactory::createFromResultDefinition( eclipseCaseData,
                                                                                0,
                                                                                timeStepIndex,
                                                                                eclipseResDef );
+    }
+
+    if ( resultAccessor.isNull() )
+    {
+        resultAccessor = new RigHugeValResultAccessor;
     }
 
     RivIntersectionResultsColoringTools::calculateEclipseTextureCoordinates( intersectionFacesTextureCoords,

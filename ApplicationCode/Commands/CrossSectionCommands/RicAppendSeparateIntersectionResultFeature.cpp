@@ -102,15 +102,6 @@ void RicAppendSeparateIntersectionResultFeatureCmd::redo()
     m_intersectionCollection->appendIntersectionResultDefinition( intersectionResDef );
 
     m_intersectionCollection->updateConnectedEditors();
-
-    // if ( m_intersectionCollection->intersectionResultsDefinitions().size() < 2 ) // New default created. Possible
-    //{
-    //    RimGridView* gridView;
-    //    m_intersectionCollection->firstAncestorOrThisOfTypeAsserted( gridView );
-    //
-    //    gridView->scheduleCreateDisplayModelAndRedraw();
-    //    gridView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
-    //}
 }
 
 //--------------------------------------------------------------------------------------------------

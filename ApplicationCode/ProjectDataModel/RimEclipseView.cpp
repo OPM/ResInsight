@@ -792,15 +792,10 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
 
     this->updateFaultColors();
 
-    if ( ( this->hasUserRequestedAnimation() && this->cellResult()->hasResult() ) ||
-         this->cellResult()->isTernarySaturationSelected() )
-    {
-        m_intersectionCollection->updateCellResultColor( m_currentTimeStep );
-    }
-    else
-    {
-        m_intersectionCollection->applySingleColorEffect();
-    }
+    m_intersectionCollection->updateCellResultColor( ( this->hasUserRequestedAnimation() &&
+                                                       this->cellResult()->hasResult() ) ||
+                                                         this->cellResult()->isTernarySaturationSelected(),
+                                                     m_currentTimeStep );
 }
 
 //--------------------------------------------------------------------------------------------------

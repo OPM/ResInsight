@@ -43,8 +43,10 @@ public:
     bool     isInAction() const;
     QString  autoName() const;
     RimCase* activeCase() const;
+    void     setActiveCase( RimCase* activeCase );
     bool     isEclipseResultDefinition();
     int      timeStep() const;
+    bool     hasResult();
 
     RimRegularLegendConfig* regularLegendConfig() const;
     RimTernaryLegendConfig* ternaryLegendConfig() const;

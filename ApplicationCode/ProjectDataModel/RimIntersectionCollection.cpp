@@ -32,6 +32,7 @@
 #include "RivBoxIntersectionPartMgr.h"
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 
+#include "RimIntersectionResultDefinition.h"
 #include "cvfModelBasicList.h"
 
 CAF_PDM_SOURCE_INIT( RimIntersectionCollection, "CrossSectionCollection" );
@@ -97,7 +98,7 @@ void RimIntersectionCollection::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::updateCellResultColor( size_t timeStepIndex )
+void RimIntersectionCollection::updateCellResultColor( bool hasGeneralCellResult, size_t timeStepIndex )
 {
     if ( !this->isActive() ) return;
 
@@ -105,7 +106,16 @@ void RimIntersectionCollection::updateCellResultColor( size_t timeStepIndex )
     {
         if ( cs->isActive() )
         {
-            cs->intersectionPartMgr()->updateCellResultColor( timeStepIndex, nullptr, nullptr );
+            bool hasSeparateInterResult = cs->activeSeparateResultDefinition() &&
+                                          cs->activeSeparateResultDefinition()->hasResult();
+            if ( hasSeparateInterResult || hasGeneralCellResult )
+            {
+                cs->intersectionPartMgr()->updateCellResultColor( timeStepIndex, nullptr, nullptr );
+            }
+            else
+            {
+                cs->intersectionPartMgr()->applySingleColorEffect();
+            }
         }
     }
 
@@ -113,7 +123,16 @@ void RimIntersectionCollection::updateCellResultColor( size_t timeStepIndex )
     {
         if ( cs->isActive() )
         {
-            cs->intersectionBoxPartMgr()->updateCellResultColor( timeStepIndex );
+            bool hasSeparateInterResult = cs->activeSeparateResultDefinition() &&
+                                          cs->activeSeparateResultDefinition()->hasResult();
+            if ( hasSeparateInterResult || hasGeneralCellResult )
+            {
+                cs->intersectionBoxPartMgr()->updateCellResultColor( timeStepIndex );
+            }
+            else
+            {
+                cs->intersectionBoxPartMgr()->applySingleColorEffect();
+            }
         }
     }
 }
