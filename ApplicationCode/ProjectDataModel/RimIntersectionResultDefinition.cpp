@@ -231,6 +231,25 @@ void RimIntersectionResultDefinition::updateLegendRangesTextAndVisibility( RiuVi
 {
     if ( !this->isInAction() ) return;
 
+    if ( ( this->isEclipseResultDefinition() && m_eclipseResultDefinition()->hasCategoryResult() ) ||
+         ( !this->isEclipseResultDefinition() && m_geomResultDefinition()->hasCategoryResult() ) )
+    {
+        regularLegendConfig()->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
+        regularLegendConfig()->setColorRange( RimRegularLegendConfig::CATEGORY );
+    }
+    else
+    {
+        if ( regularLegendConfig()->mappingMode() == RimRegularLegendConfig::CATEGORY_INTEGER )
+        {
+            regularLegendConfig()->setMappingMode( RimRegularLegendConfig::LINEAR_CONTINUOUS );
+        }
+
+        if ( regularLegendConfig()->colorRange() == RimRegularLegendConfig::CATEGORY )
+        {
+            regularLegendConfig()->setColorRange( RimRegularLegendConfig::NORMAL );
+        }
+    }
+
     if ( this->isEclipseResultDefinition() )
     {
         RimEclipseResultDefinition* eclResultDef = this->eclipseResultDefinition();
