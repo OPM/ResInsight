@@ -19,6 +19,8 @@
 #include "RicExportToSharingServerScheduler.h"
 
 #include "RicHoloLensAutoExportToSharingServerFeature.h"
+#include "RicHoloLensSession.h"
+#include "RicHoloLensSessionManager.h"
 
 #include "cafCmdFeatureManager.h"
 #include "cafProgressState.h"
@@ -41,7 +43,11 @@ RicExportToSharingServerScheduler* RicExportToSharingServerScheduler::instance()
 //--------------------------------------------------------------------------------------------------
 void RicExportToSharingServerScheduler::scheduleUpdateSession()
 {
-    startTimer( 0 );
+    RicHoloLensSession* session = RicHoloLensSessionManager::instance()->session();
+    if ( session && session->isSessionValid() )
+    {
+        startTimer( 0 );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

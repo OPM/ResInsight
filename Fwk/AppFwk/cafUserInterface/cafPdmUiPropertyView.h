@@ -85,7 +85,6 @@ public:
 
 public slots:
     void                showProperties(caf::PdmObjectHandle* object); // Signal/Slot system needs caf:: prefix in some cases
-    void                slotScheduleScrollToSelectedItemsInFieldEditors();
 
 private:
     PdmUiDefaultObjectEditor*     m_defaultObjectEditor;
