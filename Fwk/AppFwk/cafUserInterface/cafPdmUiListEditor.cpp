@@ -55,6 +55,7 @@
 #include <QListView>
 #include <QListView>
 #include <QStringListModel>
+#include <QTimer>
 
 
 
@@ -148,21 +149,6 @@ PdmUiListEditor::PdmUiListEditor() :
 //--------------------------------------------------------------------------------------------------
 PdmUiListEditor::~PdmUiListEditor()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiListEditor::scrollToSelectedItem() const
-{
-    if (m_isScrollToItemAllowed)
-    {
-        QModelIndex mi = m_listView->currentIndex();
-        if (mi.isValid())
-        {
-            m_listView->scrollTo(mi);
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,7 +280,7 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_listView->selectionModel()->blockSignals(false);
     }
 
-    //ensureCurrentItemIsVisible();
+    QTimer::singleShot(150, this, SLOT(slotScrollToSelectedItem()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -404,6 +390,21 @@ void PdmUiListEditor::slotListItemEdited(const QModelIndex&, const QModelIndex&)
     QStringList uiList = m_model->stringList();
 
     trimAndSetValuesToField(uiList);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiListEditor::slotScrollToSelectedItem() const
+{
+    if (m_isScrollToItemAllowed)
+    {
+        QModelIndex mi = m_listView->currentIndex();
+        if (mi.isValid())
+        {
+            m_listView->scrollTo(mi);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

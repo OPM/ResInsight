@@ -83,7 +83,6 @@ public:
     PdmUiListEditor(); 
     ~PdmUiListEditor() override; 
 
-    void        scrollToSelectedItem() const;
 
 protected:
     QWidget*    createEditorWidget(QWidget * parent) override;
@@ -95,6 +94,7 @@ protected:
 protected slots:
     void        slotSelectionChanged( const QItemSelection & selected, const QItemSelection & deselected );
     void        slotListItemEdited(const QModelIndex&, const QModelIndex&);
+    void        slotScrollToSelectedItem() const;
 
 private:
     QString     contentAsString() const;
