@@ -33,7 +33,7 @@
 //   for more details.
 //
 //##################################################################################################
-#include "cafUiStylesheet.h"
+#include "cafUiStyleSheet.h"
 
 #include <QStringList>
 #include <QStyle>
