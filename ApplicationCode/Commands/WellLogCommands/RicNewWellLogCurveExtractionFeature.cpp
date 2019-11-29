@@ -123,16 +123,6 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered( bool isChecked )
                                                                                                simWell,
                                                                                                branchIndex,
                                                                                                useBranchDetection );
-
-            plotCurve->loadDataAndUpdate( true );
-
-            newWellLogPlotTrack->firstAncestorOrThisOfType( wellLogPlot );
-            if ( wellLogPlot && plotCurve->curveData() )
-            {
-                wellLogPlot->setDepthUnit( plotCurve->curveData()->depthUnit() );
-            }
-
-            plotCurve->updateConnectedEditors();
         }
     }
     RiuPlotMainWindowTools::refreshToolbars();
