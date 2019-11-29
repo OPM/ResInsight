@@ -29,6 +29,7 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimSummaryCurve.h"
 
 #include "cafProgressInfo.h"
 #include <QDir>
@@ -166,9 +167,6 @@ void RimSummaryCaseMainCollection::convertGridSummaryCasesToFileSummaryCases( Ri
     RimSummaryCaseCollection* collection;
     gridSummaryCase->firstAncestorOrThisOfType( collection );
 
-    removeCase( gridSummaryCase );
-    delete gridSummaryCase;
-
     if ( collection )
     {
         collection->addCase( fileSummaryCase );
@@ -179,7 +177,12 @@ void RimSummaryCaseMainCollection::convertGridSummaryCasesToFileSummaryCases( Ri
         this->addCase( fileSummaryCase );
         this->updateConnectedEditors();
     }
+
     loadSummaryCaseData( {fileSummaryCase} );
+    reassignSummaryCurves( gridSummaryCase, fileSummaryCase );
+
+    removeCase( gridSummaryCase );
+    delete gridSummaryCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -422,6 +425,39 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
         {
             fileSummaryCase->createRftReaderInterface();
             addCaseRealizationParametersIfFound( *fileSummaryCase, fileSummaryCase->summaryHeaderFilename() );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::reassignSummaryCurves( const RimGridSummaryCase* gridSummaryCase,
+                                                          RimFileSummaryCase*       fileSummaryCase )
+{
+    std::vector<caf::PdmFieldHandle*> referringFields;
+    gridSummaryCase->referringPtrFields( referringFields );
+    for ( caf::PdmFieldHandle* field : referringFields )
+    {
+        RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>( field->ownerObject() );
+        if ( summaryCurve )
+        {
+            bool updated = false;
+            if ( summaryCurve->summaryCaseX() == gridSummaryCase )
+            {
+                summaryCurve->setSummaryCaseX( fileSummaryCase );
+                updated = true;
+            }
+            if ( summaryCurve->summaryCaseY() == gridSummaryCase )
+            {
+                summaryCurve->setSummaryCaseY( fileSummaryCase );
+                updated = true;
+            }
+            if ( updated )
+            {
+                summaryCurve->loadDataAndUpdate( false );
+                summaryCurve->updateConnectedEditors();
+            }
         }
     }
 }
