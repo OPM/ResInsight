@@ -54,7 +54,7 @@ class RigEclipseCaseData;
 class RimCommandObject;
 class RimEclipseCase;
 class RimEclipseView;
-class RimFileWellPath;
+class RimWellPath;
 class RimGridView;
 class RimProject;
 class RimSummaryPlot;
@@ -144,8 +144,8 @@ public:
 
     bool openOdbCaseFromFile( const QString& fileName, bool applyTimeStepFilter = false );
 
-    std::vector<RimFileWellPath*> addWellPathsToModel( QList<QString> wellPathFilePaths, QStringList* errorMessages );
-    void                          addWellPathFormationsToModel( QList<QString> wellPathFilePaths );
+    std::vector<RimWellPath*>    addWellPathsToModel( QList<QString> wellPathFilePaths, QStringList* errorMessages );
+    void                         addWellPathFormationsToModel( QList<QString> wellPathFilePaths );
     std::vector<RimWellLogFile*> addWellLogsToModel( const QList<QString>& wellLogFilePaths, QStringList* errorMessages );
 
     QString scriptDirectories() const;

@@ -316,7 +316,7 @@ bool RiaApplication::openFile( const QString& fileName )
     }
     else if ( fileType & RiaDefines::ANY_ECLIPSE_FILE )
     {
-        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{fileName}, true );
+        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ fileName }, true );
         lastUsedDialogTag = RiaDefines::defaultDirectoryLabel( fileType );
     }
 
@@ -849,8 +849,8 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
 //--------------------------------------------------------------------------------------------------
 /// Add a list of well path file paths (JSON files) to the well path collection
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFileWellPath*> RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths,
-                                                                   QStringList*   errorMessages )
+std::vector<RimWellPath*> RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths,
+                                                               QStringList*   errorMessages )
 {
     CAF_ASSERT( errorMessages );
 
@@ -867,7 +867,7 @@ std::vector<RimFileWellPath*> RiaApplication::addWellPathsToModel( QList<QString
         m_project->updateConnectedEditors();
     }
 
-    std::vector<RimFileWellPath*> wellPaths;
+    std::vector<RimWellPath*> wellPaths;
     if ( oilField->wellPathCollection )
     {
         wellPaths = oilField->wellPathCollection->addWellPaths( wellPathFilePaths, errorMessages );

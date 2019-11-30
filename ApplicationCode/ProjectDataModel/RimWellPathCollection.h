@@ -89,8 +89,8 @@ public:
 
     caf::PdmChildArrayField<RimWellPath*> wellPaths;
 
-    void                          loadDataAndUpdate();
-    std::vector<RimFileWellPath*> addWellPaths( QStringList filePaths, QStringList* errorMessages );
+    void                      loadDataAndUpdate();
+    std::vector<RimWellPath*> addWellPaths( QStringList filePaths, QStringList* errorMessages );
 
     void removeWellPath( RimWellPath* wellPath );
     void deleteAllWellPaths();
