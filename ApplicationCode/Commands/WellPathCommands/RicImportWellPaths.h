@@ -29,7 +29,7 @@
 
 #include <vector>
 
-class RimFileWellPath;
+class RimWellPath;
 
 //==================================================================================================
 ///
@@ -43,9 +43,8 @@ public:
     RicfCommandResponse execute() override;
 
 protected:
-    static std::vector<RimFileWellPath*> importWellPaths( const QStringList& wellPathFilePaths,
-                                                          QStringList*       errorMessages );
-    static QStringList                   wellPathNameFilters();
+    static std::vector<RimWellPath*> importWellPaths( const QStringList& wellPathFilePaths, QStringList* errorMessages );
+    static QStringList               wellPathNameFilters();
 
     // Overrides
     bool isCommandEnabled() override;

@@ -103,11 +103,11 @@ RicfCommandResponse RicImportWellPaths::execute()
     RicfCommandResponse response;
     if ( !wellPathFiles.empty() )
     {
-        std::vector<RimFileWellPath*> importedWellPaths = importWellPaths( wellPathFiles, &warningMessages );
+        std::vector<RimWellPath*> importedWellPaths = importWellPaths( wellPathFiles, &warningMessages );
         if ( !importedWellPaths.empty() )
         {
             RicImportWellPathsResult* wellPathsResult = new RicImportWellPathsResult;
-            for ( RimFileWellPath* wellPath : importedWellPaths )
+            for ( RimWellPath* wellPath : importedWellPaths )
             {
                 wellPathsResult->wellPathNames.v().push_back( wellPath->name() );
             }
@@ -136,15 +136,15 @@ RicfCommandResponse RicImportWellPaths::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFileWellPath*> RicImportWellPaths::importWellPaths( const QStringList& wellPathFilePaths,
-                                                                   QStringList*       errorMessages )
+std::vector<RimWellPath*> RicImportWellPaths::importWellPaths( const QStringList& wellPathFilePaths,
+                                                               QStringList*       errorMessages )
 {
     RiaApplication* app = RiaApplication::instance();
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "WELLPATH_DIR", QFileInfo( wellPathFilePaths.last() ).absolutePath() );
 
-    std::vector<RimFileWellPath*> wellPaths = app->addWellPathsToModel( wellPathFilePaths, errorMessages );
+    std::vector<RimWellPath*> wellPaths = app->addWellPathsToModel( wellPathFilePaths, errorMessages );
 
     RimProject* project = app->project();
 
