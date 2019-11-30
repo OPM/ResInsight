@@ -17,10 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuQwtPlotWheelZoomer.h"
+
+#include "cvfMath.h"
+
 #include "qwt_plot.h"
+#include "qwt_scale_div.h"
 #include <QEvent>
 #include <QWheelEvent>
 
+#define RIU_LOGARITHMIC_MINIMUM 1.0e-15
 #define RIU_SCROLLWHEEL_ZOOMFACTOR 1.1
 #define RIU_SCROLLWHEEL_PANFACTOR 0.1
 
@@ -37,13 +42,39 @@ RiuQwtPlotWheelZoomer::RiuQwtPlotWheelZoomer( QwtPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void zoomOnAxis( QwtPlot* plot, QwtPlot::Axis axis, double zoomFactor, int eventPos )
+void RiuQwtPlotWheelZoomer::zoomOnAxis( QwtPlot* plot, QwtPlot::Axis axis, double zoomFactor, int eventPos )
 {
     QwtScaleMap scaleMap   = plot->canvasMap( axis );
     double      zoomCenter = scaleMap.invTransform( eventPos );
     double      newMin     = zoomCenter - zoomFactor * ( zoomCenter - scaleMap.s1() );
     double      newMax     = zoomCenter + zoomFactor * ( -zoomCenter + scaleMap.s2() );
+
+    // the QwtScaleDiv::interval yields the current axis range
+    // The following thus doesn't limit the zoom to the min/max data but
+    // Stops the zoom from changing too much in one step
+    QwtInterval axisRange = plot->axisScaleDiv( axis ).interval();
+    if ( axisIsLogarithmic( axis ) )
+    {
+        // Handle inverted axes as well by not assuming maxValue > minValue
+        double minValue = std::max( RIU_LOGARITHMIC_MINIMUM,
+                                    0.1 * std::min( axisRange.minValue(), axisRange.maxValue() ) );
+        double maxValue = std::max( RIU_LOGARITHMIC_MINIMUM,
+                                    10.0 * std::max( axisRange.minValue(), axisRange.maxValue() ) );
+
+        newMin = cvf::Math::clamp( newMin, minValue, maxValue );
+        newMax = cvf::Math::clamp( newMax, minValue, maxValue );
+    }
+
     plot->setAxisScale( axis, newMin, newMax );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuQwtPlotWheelZoomer::axisIsLogarithmic( QwtPlot::Axis axis ) const
+{
+    auto it = m_axesAreLogarithmic.find( axis );
+    return it != m_axesAreLogarithmic.end() ? it->second : false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,4 +101,12 @@ bool RiuQwtPlotWheelZoomer::eventFilter( QObject* watched, QEvent* event )
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWheelZoomer::setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic )
+{
+    m_axesAreLogarithmic[axis] = logarithmic;
 }

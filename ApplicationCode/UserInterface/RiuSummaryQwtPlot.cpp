@@ -112,9 +112,9 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimPlotInterface* plotDefinition, QWidget*
     QwtPlotPanner* panner = new QwtPlotPanner( canvas() );
     panner->setMouseButton( Qt::MidButton );
 
-    auto wheelZoomer = new RiuQwtPlotWheelZoomer( this );
+    m_wheelZoomer = new RiuQwtPlotWheelZoomer( this );
 
-    connect( wheelZoomer, SIGNAL( zoomUpdated() ), SLOT( onZoomedSlot() ) );
+    connect( m_wheelZoomer, SIGNAL( zoomUpdated() ), SLOT( onZoomedSlot() ) );
     connect( m_zoomerLeft, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
     connect( m_zoomerRight, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
     connect( panner, SIGNAL( panned( int, int ) ), SLOT( onZoomedSlot() ) );
@@ -238,6 +238,14 @@ void RiuSummaryQwtPlot::setLegendVisible( bool visible )
     {
         this->insertLegend( nullptr );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic )
+{
+    if ( m_wheelZoomer ) m_wheelZoomer->setAxisIsLogarithmic( axis, logarithmic );
 }
 
 //--------------------------------------------------------------------------------------------------
