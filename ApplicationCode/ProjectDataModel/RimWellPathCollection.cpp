@@ -198,7 +198,7 @@ void RimWellPathCollection::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFileWellPath*> RimWellPathCollection::addWellPaths( QStringList filePaths, QStringList* errorMessages )
+std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList filePaths, QStringList* errorMessages )
 {
     CAF_ASSERT( errorMessages );
 
@@ -254,11 +254,12 @@ std::vector<RimFileWellPath*> RimWellPathCollection::addWellPaths( QStringList f
     }
 
     readAndAddWellPaths( wellPathArray );
+    CAF_ASSERT( wellPathArray.empty() );
 
     scheduleRedrawAffectedViews();
     updateAllRequiredEditors();
 
-    return wellPathArray;
+    return wellPaths.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -299,7 +300,7 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
 
         progress.incrementProgress();
     }
-
+    wellPathArray.clear(); // This should not be used again. We may have deleted items
     this->sortWellsByName();
 }
 
