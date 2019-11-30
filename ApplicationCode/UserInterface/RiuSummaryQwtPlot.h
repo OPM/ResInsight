@@ -29,6 +29,7 @@
 class RimEnsembleCurveSet;
 class RiuCvfOverlayItemWidget;
 class RiuQwtPlotZoomer;
+class RiuQwtPlotWheelZoomer;
 
 //==================================================================================================
 //
@@ -59,6 +60,8 @@ public:
     void setLegendFontSize( int fontSize );
     void setLegendVisible( bool visible );
 
+    void setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic );
+
 protected:
     void keyPressEvent( QKeyEvent* ) override;
     void contextMenuEvent( QContextMenuEvent* ) override;
@@ -75,6 +78,7 @@ private:
 
     std::map<caf::PdmPointer<RimEnsembleCurveSet>, QPointer<RiuCvfOverlayItemWidget>> m_ensembleLegendWidgets;
 
-    QPointer<RiuQwtPlotZoomer> m_zoomerLeft;
-    QPointer<RiuQwtPlotZoomer> m_zoomerRight;
+    QPointer<RiuQwtPlotZoomer>      m_zoomerLeft;
+    QPointer<RiuQwtPlotZoomer>      m_zoomerRight;
+    QPointer<RiuQwtPlotWheelZoomer> m_wheelZoomer;
 };
