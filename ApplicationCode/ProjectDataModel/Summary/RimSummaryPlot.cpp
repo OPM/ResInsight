@@ -873,6 +873,8 @@ void RimSummaryPlot::updateZoomForAxis( RiaDefines::PlotAxis plotAxis )
 
         if ( yAxisProps->isAutoZoom() )
         {
+            m_plotWidget->setAxisIsLogarithmic( yAxisProps->qwtPlotAxisType(), yAxisProps->isLogarithmicScaleEnabled );
+
             if ( yAxisProps->isLogarithmicScaleEnabled )
             {
                 std::vector<const QwtPlotCurve*> plotCurves;
