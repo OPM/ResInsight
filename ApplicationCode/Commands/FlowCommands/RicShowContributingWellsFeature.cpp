@@ -54,7 +54,7 @@ bool RicShowContributingWellsFeature::isCommandEnabled()
             if ( !flowDiagSolution )
             {
                 RimEclipseResultCase* eclipseResultCase = nullptr;
-                well->firstAncestorOrThisOfTypeAsserted( eclipseResultCase );
+                well->firstAncestorOrThisOfType( eclipseResultCase );
 
                 if ( eclipseResultCase )
                 {
