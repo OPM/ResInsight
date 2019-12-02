@@ -19,10 +19,12 @@
 #pragma once
 
 #include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressQMetaType.h"
 #include "RifSummaryReaderInterface.h"
 
 #include "RiaDefines.h"
 
+#include "RimEnsembleCurveSetColorManager.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -36,8 +38,6 @@
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
-#include "RifEclipseSummaryAddressQMetaType.h"
-#include "RimEnsembleParameterColorHandlerInterface.h"
 #include "cafPdmProxyValueField.h"
 
 #include <QPointer>
@@ -57,13 +57,20 @@ class RiuCvfOverlayItemWidget;
 class QwtPlot;
 class QwtPlotCurve;
 class QKeyEvent;
+class QFrame;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RimEnsembleCurveSet : public caf::PdmObject, public RimEnsembleParameterColorHandlerInterface
+class RimEnsembleCurveSet : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
+public:
+    using ColorMode     = RimEnsembleCurveSetColorManager::ColorMode;
+    using ColorModeEnum = RimEnsembleCurveSetColorManager::ColorModeEnum;
+
+    using NameParameterPair = EnsembleParameter::NameParameterPair;
 
 public:
     RimEnsembleCurveSet();
@@ -94,14 +101,15 @@ public:
 
     RimEnsembleCurveFilterCollection* filterCollection() const;
 
-    ColorMode               colorMode() const override;
-    void                    setColorMode( ColorMode mode ) override;
-    void                    setEnsembleParameter( const QString& parameterName ) override;
-    void                    updateEnsembleLegendItem() override;
-    RimRegularLegendConfig* legendConfig() override;
-    QFrame*                 legendFrame() const override;
-
+    ColorMode               colorMode() const;
+    void                    setColorMode( ColorMode mode );
+    void                    setEnsembleParameter( const QString& parameterName );
     EnsembleParameter::Type currentEnsembleParameterType() const;
+
+    RimRegularLegendConfig* legendConfig();
+
+    void    updateEnsembleLegendItem();
+    QFrame* legendFrame() const;
 
     void updateAllCurves();
     void updateStatisticsCurves();

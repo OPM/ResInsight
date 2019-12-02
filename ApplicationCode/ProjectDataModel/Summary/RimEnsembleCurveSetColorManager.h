@@ -20,11 +20,12 @@
 
 #include "RiaDefines.h"
 
-#include "RimEnsembleCurveSet.h"
 #include "RimRegularLegendConfig.h"
+#include "RimSummaryCaseCollection.h"
 
 #include <map>
 
+class RimEnsembleCurveSet;
 class RimEnsembleCurveSetCollection;
 
 //--------------------------------------------------------------------------------------------------
@@ -32,6 +33,15 @@ class RimEnsembleCurveSetCollection;
 //--------------------------------------------------------------------------------------------------
 class RimEnsembleCurveSetColorManager
 {
+public:
+    enum class ColorMode
+    {
+        SINGLE_COLOR,
+        BY_ENSEMBLE_PARAM
+    };
+    using ColorModeEnum     = caf::AppEnum<ColorMode>;
+    using NameParameterPair = EnsembleParameter::NameParameterPair;
+
 public:
     static const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray>& EnsembleColorRanges();
 
@@ -42,6 +52,11 @@ public:
     {
         return m_ensembleColorRanges.find( colorRange ) != m_ensembleColorRanges.end();
     }
+
+    static void initializeLegendConfig( RimRegularLegendConfig* legendConfig, const EnsembleParameter& parameter );
+    static cvf::Color3f caseColor( const RimRegularLegendConfig* legendConfig,
+                                   const RimSummaryCase*         summaryCase,
+                                   const EnsembleParameter&      parameter );
 
 private:
     static const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray> m_ensembleColorRanges;
