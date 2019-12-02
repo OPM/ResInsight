@@ -22,7 +22,6 @@
 
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
-#include "RimEnsembleParameterColorHandlerInterface.h"
 #include "RimMainPlotCollection.h"
 #include "RimPlot.h"
 #include "RimRegularLegendConfig.h"

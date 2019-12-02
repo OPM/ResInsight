@@ -139,6 +139,11 @@ public:
     {
         return m_currentScalarMapper.p();
     }
+    const cvf::ScalarMapper* scalarMapper() const
+    {
+        return m_currentScalarMapper.p();
+    }
+
     bool showLegend() const;
 
     const caf::TitledOverlayFrame* titledOverlayFrame() const override;
