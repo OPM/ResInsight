@@ -431,7 +431,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
                         if ( ensembleColoringStyle == PARAMETER || ensembleColoringStyle == LOG_PARAMETER )
                         {
-                            curveSet->setColorMode( RimEnsembleCurveSet::BY_ENSEMBLE_PARAM );
+                            curveSet->setColorMode( RimEnsembleCurveSet::ColorMode::BY_ENSEMBLE_PARAM );
                             curveSet->setEnsembleParameter( ensembleColoringParameter );
 
                             if ( ensembleColoringStyle == LOG_PARAMETER )
@@ -487,7 +487,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                         curveSet->setSummaryAddress( addr );
                         if ( ensembleColoringStyle == PARAMETER || ensembleColoringStyle == LOG_PARAMETER )
                         {
-                            curveSet->setColorMode( RimEnsembleCurveSet::BY_ENSEMBLE_PARAM );
+                            curveSet->setColorMode( RimEnsembleCurveSet::ColorMode::BY_ENSEMBLE_PARAM );
                             curveSet->setEnsembleParameter( ensembleColoringParameter );
                             if ( ensembleColoringStyle == LOG_PARAMETER )
                             {

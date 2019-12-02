@@ -37,6 +37,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatisticsCase.h
 ${CMAKE_CURRENT_LIST_DIR}/RimDerivedEnsembleCase.h
 ${CMAKE_CURRENT_LIST_DIR}/RimDerivedEnsembleCaseCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotFilterTextCurveSetEditor.h
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleParameterColorHandlerInterface.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -77,6 +78,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatisticsCase.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimDerivedEnsembleCase.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimDerivedEnsembleCaseCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotFilterTextCurveSetEditor.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleParameterColorHandlerInterface.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -127,6 +127,30 @@ void EnsembleParameter::sortByBinnedVariation( std::vector<NameParameterPair>& p
                           return lhs.second.variationBin > rhs.second.variationBin;
                       } );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString EnsembleParameter::uiName( const NameParameterPair& paramPair )
+{
+    QString stem = paramPair.first;
+    QString variationString;
+    if ( paramPair.second.isNumeric() )
+    {
+        switch ( paramPair.second.variationBin )
+        {
+            case LOW_VARIATION:
+                variationString = QString( " (Low variation)" );
+            case MEDIUM_VARIATION:
+                break;
+            case HIGH_VARIATION:
+                variationString = QString( " (High variation)" );
+                break;
+        }
+    }
+    return QString( "%1%2" ).arg( stem ).arg( variationString );
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

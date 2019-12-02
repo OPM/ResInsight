@@ -495,7 +495,8 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
                 size_t colorIndex   = std::count_if( allCurveSets.begin(),
                                                    allCurveSets.end(),
                                                    []( RimEnsembleCurveSet* curveSet ) {
-                                                       return curveSet->colorMode() == RimEnsembleCurveSet::SINGLE_COLOR;
+                                                       return curveSet->colorMode() ==
+                                                              RimEnsembleCurveSet::ColorMode::SINGLE_COLOR;
                                                    } );
                 curveSet->setColor( RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex ) );
 
@@ -792,7 +793,7 @@ void RicSummaryCurveCreator::applyAppearanceToAllPreviewCurves()
     int colorIndex = 0;
     for ( auto& curveSet : m_previewPlot->ensembleCurveSetCollection()->curveSets() )
     {
-        if ( curveSet->colorMode() != RimEnsembleCurveSet::SINGLE_COLOR ) continue;
+        if ( curveSet->colorMode() != RimEnsembleCurveSet::ColorMode::SINGLE_COLOR ) continue;
         curveSet->setColor( RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex++ ) );
     }
 }
