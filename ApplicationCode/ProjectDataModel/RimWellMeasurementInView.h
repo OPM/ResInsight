@@ -29,6 +29,8 @@
 
 class RimWellMeasurement;
 class RimRegularLegendConfig;
+class RimWellPath;
+class RimWellPathCollection;
 class RiuViewer;
 
 class RimWellMeasurementInView : public RimCheckableNamedObject
@@ -45,6 +47,8 @@ public:
 
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
+    bool hasCategoryResult() const;
+
 protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
@@ -53,7 +57,11 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly );
 
-    bool updateLegendData();
+    bool        updateLegendData();
+    static bool hasMeasurementKindForWell( const RimWellPath*                      wellPath,
+                                           const RimWellPathCollection*            wellPathCollection,
+                                           const std::vector<RimWellMeasurement*>& measurements,
+                                           const QString&                          measurementKind );
 
 private:
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;

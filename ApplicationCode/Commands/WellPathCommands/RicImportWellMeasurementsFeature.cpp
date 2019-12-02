@@ -92,6 +92,13 @@ void RicImportWellMeasurementsFeature::onActionTriggered( bool isChecked )
         wellMeasurement->setQuality( measurement.quality );
         wellMeasurement->setKind( measurement.kind );
         wellMeasurement->setRemark( measurement.remark );
+
+        // Ignore values for kinds which is known to not have values
+        if ( !RimWellMeasurement::kindHasValue( measurement.kind ) )
+        {
+            wellMeasurement->setValue( 0.0 );
+        }
+
         wellPathCollection->measurementCollection()->appendMeasurement( wellMeasurement );
         lastWellMeasurement = wellMeasurement;
     }

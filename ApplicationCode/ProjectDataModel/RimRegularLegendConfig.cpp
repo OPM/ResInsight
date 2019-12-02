@@ -35,6 +35,7 @@
 #include "RimIntersectionCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimViewLinker.h"
+#include "RimWellMeasurementInView.h"
 
 #include "cafCategoryLegend.h"
 #include "cafCategoryMapper.h"
@@ -923,12 +924,15 @@ QList<caf::PdmOptionItemInfo>
         this->firstAncestorOrThisOfType( gmCellColors );
         RimCellEdgeColors* eclCellEdgColors = nullptr;
         this->firstAncestorOrThisOfType( eclCellEdgColors );
+        RimWellMeasurementInView* wellMeasurementInView = nullptr;
+        this->firstAncestorOrThisOfType( wellMeasurementInView );
 
         if ( ( eclCellColors && eclCellColors->hasCategoryResult() ) ||
              ( gmCellColors && gmCellColors->hasCategoryResult() ) ||
              ( eclCellEdgColors && eclCellEdgColors->hasCategoryResult() ) ||
              ( ensembleCurveSet && ensembleCurveSet->currentEnsembleParameterType() == EnsembleParameter::TYPE_TEXT ) ||
-             ( crossPlotCurveSet && crossPlotCurveSet->groupingByCategoryResult() ) )
+             ( crossPlotCurveSet && crossPlotCurveSet->groupingByCategoryResult() ) ||
+             ( wellMeasurementInView && wellMeasurementInView->hasCategoryResult() ) )
         {
             isCategoryResult = true;
         }

@@ -56,7 +56,6 @@ RimWellMeasurementInView::RimWellMeasurementInView()
     CAF_PDM_InitFieldNoDefault( &m_wells, "Wells", "Wells", "", "", "" );
     m_wells.uiCapability()->setAutoAddingOptionFromValue( false );
     m_wells.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_wells.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_wells.xmlCapability()->disableIO();
 
     this->setName( "Well Measurement" );
@@ -112,29 +111,42 @@ bool RimWellMeasurementInView::updateLegendData()
     RimWellMeasurementCollection* wellMeasurementCollection = wellPathCollection->measurementCollection();
     if ( !wellMeasurementCollection ) return false;
 
-    std::vector<QString> selectedMeasurementKinds;
-    selectedMeasurementKinds.push_back( m_measurementKind );
-    std::vector<RimWellMeasurement*> wellMeasurements =
-        RimWellMeasurementFilter::filterMeasurements( wellMeasurementCollection->measurements(),
-                                                      selectedMeasurementKinds );
-
-    double minValue         = HUGE_VAL;
-    double maxValue         = -HUGE_VAL;
-    double posClosestToZero = HUGE_VAL;
-    double negClosestToZero = -HUGE_VAL;
-
-    for ( auto& measurement : wellMeasurements )
+    if ( hasCategoryResult() )
     {
-        minValue = std::min( measurement->value(), minValue );
-        maxValue = std::max( measurement->value(), maxValue );
-    }
-
-    if ( minValue != HUGE_VAL )
-    {
-        m_legendConfig->setTitle( QString( "Well Measurement: \n" ) + selectedMeasurementKinds[0] );
-        m_legendConfig->setAutomaticRanges( minValue, maxValue, minValue, maxValue );
-        m_legendConfig->setClosestToZeroValues( posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero );
+        cvf::Color3ub color = cvf::Color3ub( RimWellMeasurement::mapToColor( measurementKind() ) );
+        std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
+        categories.push_back( std::make_tuple( measurementKind(), 0, color ) );
+        m_legendConfig->setCategoryItems( categories );
+        m_legendConfig->setTitle( QString( "Well Measurement: \n" ) + measurementKind() );
+        m_legendConfig->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
         return true;
+    }
+    else
+    {
+        std::vector<QString> selectedMeasurementKinds;
+        selectedMeasurementKinds.push_back( m_measurementKind );
+        std::vector<RimWellMeasurement*> wellMeasurements =
+            RimWellMeasurementFilter::filterMeasurements( wellMeasurementCollection->measurements(),
+                                                          selectedMeasurementKinds );
+
+        double minValue         = HUGE_VAL;
+        double maxValue         = -HUGE_VAL;
+        double posClosestToZero = HUGE_VAL;
+        double negClosestToZero = -HUGE_VAL;
+
+        for ( auto& measurement : wellMeasurements )
+        {
+            minValue = std::min( measurement->value(), minValue );
+            maxValue = std::max( measurement->value(), maxValue );
+        }
+
+        if ( minValue != HUGE_VAL )
+        {
+            m_legendConfig->setTitle( QString( "Well Measurement: \n" ) + selectedMeasurementKinds[0] );
+            m_legendConfig->setAutomaticRanges( minValue, maxValue, minValue, maxValue );
+            m_legendConfig->setClosestToZeroValues( posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero );
+            return true;
+        }
     }
 
     return false;
@@ -157,6 +169,29 @@ void RimWellMeasurementInView::updateLegendRangesTextAndVisibility( RiuViewer* n
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimWellMeasurementInView::hasMeasurementKindForWell( const RimWellPath*                      wellPath,
+                                                          const RimWellPathCollection*            wellPathCollection,
+                                                          const std::vector<RimWellMeasurement*>& measurements,
+                                                          const QString&                          measurementKind )
+{
+    for ( auto measurement : measurements )
+    {
+        if ( measurement->kind() == measurementKind )
+        {
+            RimWellPath* measurementWellPath = wellPathCollection->tryFindMatchingWellPath( measurement->wellName() );
+            if ( wellPath && wellPath == measurementWellPath )
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
     RimWellMeasurementInView::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
@@ -166,12 +201,14 @@ QList<caf::PdmOptionItemInfo>
         RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
         if ( wellPathCollection )
         {
-            // std::vector<RimWellMeasurement*> measurements = wellPathCollection->measurementCollection()->measurements();
+            std::vector<RimWellMeasurement*> measurements = wellPathCollection->measurementCollection()->measurements();
 
+            // Find wells with a given measurement.
             std::set<QString> wellsWithMeasurementKind;
             for ( auto well : wellPathCollection->wellPaths )
             {
-                wellsWithMeasurementKind.insert( well->name() );
+                if ( hasMeasurementKindForWell( well, wellPathCollection, measurements, m_measurementKind ) )
+                    wellsWithMeasurementKind.insert( well->name() );
             }
 
             for ( auto wellName : wellsWithMeasurementKind )
@@ -198,4 +235,12 @@ QString RimWellMeasurementInView::measurementKind() const
 void RimWellMeasurementInView::setMeasurementKind( const QString& measurementKind )
 {
     m_measurementKind = measurementKind;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellMeasurementInView::hasCategoryResult() const
+{
+    return !RimWellMeasurement::kindHasValue( measurementKind() );
 }
