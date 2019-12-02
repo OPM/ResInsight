@@ -12,6 +12,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellRftPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPltPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimDataSourceForRftPlt.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPlotTools.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellRftEnsembleCurveSet.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -27,6 +28,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellRftPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPltPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimDataSourceForRftPlt.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPlotTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellRftEnsembleCurveSet.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

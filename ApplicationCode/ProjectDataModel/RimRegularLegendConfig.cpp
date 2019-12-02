@@ -36,6 +36,8 @@
 #include "RimStimPlanColors.h"
 #include "RimViewLinker.h"
 #include "RimWellMeasurementInView.h"
+#include "RimWellRftEnsembleCurveSet.h"
+#include "RimWellRftPlot.h"
 
 #include "cafCategoryLegend.h"
 #include "cafCategoryMapper.h"
@@ -295,6 +297,13 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
     {
         crossPlotCurveSet->destroyCurves();
         crossPlotCurveSet->loadDataAndUpdate( true );
+    }
+
+    RimWellRftPlot* rftPlot;
+    firstAncestorOrThisOfType( rftPlot );
+    if ( rftPlot )
+    {
+        rftPlot->loadDataAndUpdate();
     }
 }
 
@@ -904,6 +913,7 @@ QList<caf::PdmOptionItemInfo>
 {
     bool hasStimPlanParent         = false;
     bool hasEnsembleCurveSetParent = false;
+    bool hasRftPlotParent          = false;
 
     RimStimPlanColors* stimPlanColors = nullptr;
     this->firstAncestorOrThisOfType( stimPlanColors );
@@ -915,6 +925,10 @@ QList<caf::PdmOptionItemInfo>
 
     RimGridCrossPlotDataSet* crossPlotCurveSet = nullptr;
     this->firstAncestorOrThisOfType( crossPlotCurveSet );
+
+    RimWellRftEnsembleCurveSet* rftCurveSet = nullptr;
+    this->firstAncestorOrThisOfType( rftCurveSet );
+    if ( rftCurveSet ) hasRftPlotParent = true;
 
     bool isCategoryResult = false;
     {
@@ -931,6 +945,7 @@ QList<caf::PdmOptionItemInfo>
              ( gmCellColors && gmCellColors->hasCategoryResult() ) ||
              ( eclCellEdgColors && eclCellEdgColors->hasCategoryResult() ) ||
              ( ensembleCurveSet && ensembleCurveSet->currentEnsembleParameterType() == EnsembleParameter::TYPE_TEXT ) ||
+             ( rftCurveSet && rftCurveSet->currentEnsembleParameterType() == EnsembleParameter::TYPE_TEXT ) ||
              ( crossPlotCurveSet && crossPlotCurveSet->groupingByCategoryResult() ) ||
              ( wellMeasurementInView && wellMeasurementInView->hasCategoryResult() ) )
         {
@@ -967,7 +982,7 @@ QList<caf::PdmOptionItemInfo>
     {
         // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of this type
         std::vector<ColorRangesType> rangeTypes;
-        if ( !hasEnsembleCurveSetParent )
+        if ( !hasEnsembleCurveSetParent && !hasRftPlotParent )
         {
             rangeTypes.push_back( NORMAL );
             rangeTypes.push_back( OPPOSITE_NORMAL );
@@ -1011,7 +1026,7 @@ QList<caf::PdmOptionItemInfo>
 
             options.push_back( caf::PdmOptionItemInfo( uiText, RimRegularLegendConfig::AUTOMATIC_ALLTIMESTEPS ) );
         }
-        if ( !hasStimPlanParent && !hasEnsembleCurveSetParent )
+        if ( !hasStimPlanParent && !hasEnsembleCurveSetParent && !hasRftPlotParent )
         {
             options.push_back(
                 caf::PdmOptionItemInfo( RangeModeEnum::uiText( RimRegularLegendConfig::AUTOMATIC_CURRENT_TIMESTEP ),
