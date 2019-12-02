@@ -173,9 +173,6 @@ public:
     void onAxisSelected( int axis, bool toggle ) override;
     void loadDataAndUpdate() override;
 
-    void addOrUpdateEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet );
-    void removeEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet );
-
     void removeFromMdiAreaAndCollection() override;
     void updateAfterInsertingIntoGridPlotWindow() override;
 

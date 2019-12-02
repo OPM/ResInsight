@@ -423,6 +423,38 @@ void RiuQwtPlotWidget::setWidgetState( RiuWidgetStyleSheet::StateTag widgetState
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Adds an overlay frame. The overlay frame becomes the responsibility of the plot widget
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::addOverlayFrame( QFrame* overlayFrame )
+{
+    if ( std::find( m_overlayFrames.begin(), m_overlayFrames.end(), overlayFrame ) == m_overlayFrames.end() )
+    {
+        overlayFrame->setParent( this );
+        m_overlayFrames.push_back( overlayFrame );
+        updateLayout();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Remove the overlay widget. The frame becomes the responsibility of the caller
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::removeOverlayFrame( QFrame* overlayFrame )
+{
+    overlayFrame->hide();
+    overlayFrame->setParent( nullptr );
+    m_overlayFrames.removeOne( overlayFrame );
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::updateLayout()
+{
+    QwtPlot::updateLayout();
+    updateOverlayFrameLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QSize RiuQwtPlotWidget::sizeHint() const
@@ -634,6 +666,36 @@ RiuWidgetStyleSheet RiuQwtPlotWidget::createCanvasStyleSheet() const
     styleSheet.set( "background-color", "#FAFAFA" );
     styleSheet.set( "border", "1px solid LightGray" );
     return styleSheet;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::updateOverlayFrameLayout()
+{
+    const int spacing      = 5;
+    int       startMarginX = this->canvas()->pos().x() + spacing;
+    int       startMarginY = this->canvas()->pos().y() + spacing;
+
+    int xpos           = startMarginX;
+    int ypos           = startMarginY;
+    int maxColumnWidth = 0;
+    for ( QPointer<QFrame> frame : m_overlayFrames )
+    {
+        if ( !frame.isNull() )
+        {
+            if ( ypos + frame->height() + spacing > this->canvas()->height() )
+            {
+                xpos += spacing + maxColumnWidth;
+                ypos           = startMarginY;
+                maxColumnWidth = 0;
+            }
+            frame->move( xpos, ypos );
+            ypos += frame->height() + spacing;
+            maxColumnWidth = std::max( maxColumnWidth, frame->width() );
+            frame->show();
+        }
+    }
 }
 
 void RiuQwtPlotWidget::selectPlotOwner( bool toggleItemInSelection )

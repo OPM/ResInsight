@@ -46,6 +46,7 @@
 #include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
 
+#include "RiuCvfOverlayItemWidget.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuSummaryCurveDefSelectionDialog.h"
@@ -56,6 +57,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafTitledOverlayFrame.h"
 
 #include "cvfScalarMapper.h"
 
@@ -74,20 +76,6 @@
 //--------------------------------------------------------------------------------------------------
 RiuQwtSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseSummaryAddress& address );
 int                           statisticsCurveSymbolSize( RiuQwtSymbol::PointSymbolEnum symbol );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-namespace caf
-{
-template <>
-void AppEnum<RimEnsembleCurveSet::ColorMode>::setUp()
-{
-    addItem( RimEnsembleCurveSet::SINGLE_COLOR, "SINGLE_COLOR", "Single Color" );
-    addItem( RimEnsembleCurveSet::BY_ENSEMBLE_PARAM, "BY_ENSEMBLE_PARAM", "By Ensemble Parameter" );
-    setDefault( RimEnsembleCurveSet::SINGLE_COLOR );
-}
-} // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimEnsembleCurveSet, "RimEnsembleCurveSet" );
 
@@ -124,7 +112,13 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_yPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_yPushButtonSelectSummaryAddress = false;
 
-    CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( SINGLE_COLOR ), "Coloring Mode", "", "", "" );
+    CAF_PDM_InitField( &m_colorMode,
+                       "ColorMode",
+                       caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ),
+                       "Coloring Mode",
+                       "",
+                       "",
+                       "" );
 
     CAF_PDM_InitField( &m_color, "Color", cvf::Color3f( cvf::Color3::BLACK ), "Color", "", "", "" );
 
@@ -189,7 +183,12 @@ RimEnsembleCurveSet::~RimEnsembleCurveSet()
     if ( parentPlot && parentPlot->viewer() )
     {
         m_qwtPlotCurveForLegendText->detach();
-        parentPlot->removeEnsembleCurveSetLegend( this );
+        parentPlot->viewer()->removeOverlayFrame( m_legendOverlayFrame );
+    }
+    if ( m_legendOverlayFrame )
+    {
+        m_legendOverlayFrame->setParent( nullptr );
+        delete m_legendOverlayFrame;
     }
 
     delete m_qwtPlotCurveForLegendText;
@@ -384,6 +383,14 @@ RimRegularLegendConfig* RimEnsembleCurveSet::legendConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QFrame* RimEnsembleCurveSet::legendFrame() const
+{
+    return m_legendOverlayFrame;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::onLegendDefinitionChanged()
 {
     updateCurveColors();
@@ -442,7 +449,7 @@ void RimEnsembleCurveSet::setEnsembleParameter( const QString& parameterName )
 //--------------------------------------------------------------------------------------------------
 EnsembleParameter::Type RimEnsembleCurveSet::currentEnsembleParameterType() const
 {
-    if ( m_colorMode() == BY_ENSEMBLE_PARAM )
+    if ( m_colorMode() == ColorMode::BY_ENSEMBLE_PARAM )
     {
         RimSummaryCaseCollection* group         = m_yValuesSummaryCaseCollection();
         QString                   parameterName = m_ensembleParameter();
@@ -454,29 +461,6 @@ EnsembleParameter::Type RimEnsembleCurveSet::currentEnsembleParameterType() cons
         }
     }
     return EnsembleParameter::TYPE_NONE;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimEnsembleCurveSet::ensembleParameterUiName( const RimEnsembleCurveSet::NameParameterPair& paramPair )
-{
-    QString stem = paramPair.first;
-    QString variationString;
-    if ( paramPair.second.isNumeric() )
-    {
-        switch ( paramPair.second.variationBin )
-        {
-            case EnsembleParameter::LOW_VARIATION:
-                variationString = QString( " (Low variation)" );
-            case EnsembleParameter::MEDIUM_VARIATION:
-                break;
-            case EnsembleParameter::HIGH_VARIATION:
-                variationString = QString( " (High variation)" );
-                break;
-        }
-    }
-    return QString( "%1%2" ).arg( stem ).arg( variationString );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -669,11 +653,11 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
     m_colorMode.uiCapability()->setUiReadOnly( !m_yValuesSummaryCaseCollection() );
     colorsGroup->add( &m_colorMode );
 
-    if ( m_colorMode == SINGLE_COLOR )
+    if ( m_colorMode == ColorMode::SINGLE_COLOR )
     {
         colorsGroup->add( &m_color );
     }
-    else if ( m_colorMode == BY_ENSEMBLE_PARAM )
+    else if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
     {
         m_ensembleParameter.uiCapability()->setUiReadOnly( !m_yValuesSummaryCaseCollection() );
         colorsGroup->add( &m_ensembleParameter );
@@ -685,7 +669,7 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    if ( m_colorMode == BY_ENSEMBLE_PARAM )
+    if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
     {
         uiTreeOrdering.add( m_legendConfig() );
     }
@@ -779,21 +763,21 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
     }
     else if ( fieldNeedingOptions == &m_colorMode )
     {
-        auto singleColorOption = caf::AppEnum<RimEnsembleCurveSet::ColorMode>( RimEnsembleCurveSet::SINGLE_COLOR );
-        auto byEnsParamOption  = caf::AppEnum<RimEnsembleCurveSet::ColorMode>( RimEnsembleCurveSet::BY_ENSEMBLE_PARAM );
+        auto singleColorOption = ColorModeEnum( ColorMode::SINGLE_COLOR );
+        auto byEnsParamOption  = ColorModeEnum( ColorMode::BY_ENSEMBLE_PARAM );
 
-        options.push_back( caf::PdmOptionItemInfo( singleColorOption.uiText(), RimEnsembleCurveSet::SINGLE_COLOR ) );
+        options.push_back( caf::PdmOptionItemInfo::fromEnumClass( singleColorOption.uiText(), ColorMode::SINGLE_COLOR ) );
         if ( !ensembleParameters().empty() )
         {
             options.push_back(
-                caf::PdmOptionItemInfo( byEnsParamOption.uiText(), RimEnsembleCurveSet::BY_ENSEMBLE_PARAM ) );
+                caf::PdmOptionItemInfo::fromEnumClass( byEnsParamOption.uiText(), ColorMode::BY_ENSEMBLE_PARAM ) );
         }
     }
     else if ( fieldNeedingOptions == &m_ensembleParameter )
     {
         for ( const auto& paramPair : ensembleParameters() )
         {
-            options.push_back( caf::PdmOptionItemInfo( ensembleParameterUiName( paramPair ), paramPair.first ) );
+            options.push_back( caf::PdmOptionItemInfo( EnsembleParameter::uiName( paramPair ), paramPair.first ) );
         }
     }
     else if ( fieldNeedingOptions == &m_yValuesSummaryAddressUiField )
@@ -841,7 +825,7 @@ void RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses( QList<caf::PdmOp
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateCurveColors()
 {
-    if ( m_colorMode == BY_ENSEMBLE_PARAM )
+    if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
     {
         RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection();
 
@@ -938,7 +922,7 @@ void RimEnsembleCurveSet::updateCurveColors()
             }
         }
     }
-    else if ( m_colorMode == SINGLE_COLOR )
+    else if ( m_colorMode == ColorMode::SINGLE_COLOR )
     {
         for ( auto& curve : m_curves )
         {
@@ -954,14 +938,22 @@ void RimEnsembleCurveSet::updateCurveColors()
     firstAncestorOrThisOfType( plot );
     if ( plot && plot->viewer() )
     {
-        if ( m_yValuesSummaryCaseCollection() && isCurvesVisible() && m_colorMode == BY_ENSEMBLE_PARAM &&
+        if ( m_yValuesSummaryCaseCollection() && isCurvesVisible() && m_colorMode == ColorMode::BY_ENSEMBLE_PARAM &&
              m_legendConfig->showLegend() )
         {
-            plot->addOrUpdateEnsembleCurveSetLegend( this );
+            if ( !m_legendOverlayFrame )
+            {
+                m_legendOverlayFrame = new RiuCvfOverlayItemWidget( plot->viewer(), plot->viewer()->canvas() );
+            }
+            m_legendOverlayFrame->updateFromOverlayItem( m_legendConfig()->titledOverlayFrame() );
+            plot->viewer()->addOverlayFrame( m_legendOverlayFrame );
         }
         else
         {
-            plot->removeEnsembleCurveSetLegend( this );
+            if ( !m_legendOverlayFrame.isNull() )
+            {
+                plot->viewer()->removeOverlayFrame( m_legendOverlayFrame );
+            }
         }
         plot->viewer()->scheduleReplot();
     }
@@ -1278,7 +1270,7 @@ void RimEnsembleCurveSet::updateEnsembleLegendItem()
     {
         QwtSymbol* symbol = nullptr;
 
-        if ( m_colorMode == SINGLE_COLOR )
+        if ( m_colorMode == ColorMode::SINGLE_COLOR )
         {
             symbol = new QwtSymbol( QwtSymbol::HLine );
 
@@ -1289,7 +1281,7 @@ void RimEnsembleCurveSet::updateEnsembleLegendItem()
             symbol->setPen( curvePen );
             symbol->setSize( 6, 6 );
         }
-        else if ( m_colorMode == BY_ENSEMBLE_PARAM )
+        else if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
         {
             QPixmap p = QPixmap( ":/Legend.png" );
 

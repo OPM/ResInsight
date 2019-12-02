@@ -22,6 +22,7 @@
 
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimEnsembleParameterColorHandlerInterface.h"
 #include "RimMainPlotCollection.h"
 #include "RimPlotInterface.h"
 #include "RimRegularLegendConfig.h"
@@ -154,57 +155,6 @@ void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::addOrUpdateEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSetToShowLegendFor )
-{
-    RiuCvfOverlayItemWidget* overlayWidget = nullptr;
-
-    auto it = m_ensembleLegendWidgets.find( curveSetToShowLegendFor );
-    if ( it == m_ensembleLegendWidgets.end() || it->second == nullptr )
-    {
-        overlayWidget                                    = new RiuCvfOverlayItemWidget( this, canvas() );
-        m_ensembleLegendWidgets[curveSetToShowLegendFor] = overlayWidget;
-    }
-    else
-    {
-        overlayWidget = it->second;
-    }
-
-    if ( overlayWidget )
-    {
-        caf::TitledOverlayFrame* overlayItem = curveSetToShowLegendFor->legendConfig()->titledOverlayFrame();
-        overlayItem->setRenderSize( overlayItem->preferredSize() );
-
-        overlayWidget->updateFromOverlayItem( curveSetToShowLegendFor->legendConfig()->titledOverlayFrame() );
-        overlayWidget->show();
-    }
-
-    this->updateLegendLayout();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::removeEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSetToShowLegendFor )
-{
-    auto it = m_ensembleLegendWidgets.find( curveSetToShowLegendFor );
-    if ( it != m_ensembleLegendWidgets.end() )
-    {
-        if ( it->second != nullptr )
-        {
-            it->second->hide();
-            it->second->setParent( nullptr );
-            delete it->second;
-        }
-
-        m_ensembleLegendWidgets.erase( it );
-    }
-
-    this->updateLegendLayout();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimViewWindow* RiuSummaryQwtPlot::ownerViewWindow() const
 {
     return dynamic_cast<RimViewWindow*>( plotDefinition() );
@@ -301,15 +251,6 @@ void RiuSummaryQwtPlot::setDefaults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::updateLayout()
-{
-    QwtPlot::updateLayout();
-    updateLegendLayout();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RiuSummaryQwtPlot::isZoomerActive() const
 {
     return m_zoomerLeft->isActiveAndValid() || m_zoomerRight->isActiveAndValid();
@@ -332,42 +273,4 @@ void RiuSummaryQwtPlot::onZoomedSlot()
     plotDefinition()->setAutoScaleXEnabled( false );
     plotDefinition()->setAutoScaleYEnabled( false );
     plotDefinition()->updateZoomFromQwt();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::updateLegendLayout()
-{
-    const int spacing      = 5;
-    int       startMarginX = this->canvas()->pos().x() + spacing;
-    int       startMarginY = this->canvas()->pos().y() + spacing;
-
-    int xpos           = startMarginX;
-    int ypos           = startMarginY;
-    int maxColumnWidth = 0;
-
-    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( plotDefinition() );
-
-    if ( !summaryPlot || !summaryPlot->ensembleCurveSetCollection() ) return;
-
-    for ( RimEnsembleCurveSet* curveSet : summaryPlot->ensembleCurveSetCollection()->curveSets() )
-    {
-        auto pairIt = m_ensembleLegendWidgets.find( curveSet );
-        if ( pairIt != m_ensembleLegendWidgets.end() )
-        {
-            if ( ypos + pairIt->second->height() + spacing > this->canvas()->height() )
-            {
-                xpos += spacing + maxColumnWidth;
-                ypos           = startMarginY;
-                maxColumnWidth = 0;
-            }
-
-            RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
-            overlayWidget->move( xpos, ypos );
-
-            ypos += pairIt->second->height() + spacing;
-            maxColumnWidth = std::max( maxColumnWidth, pairIt->second->width() );
-        }
-    }
 }
