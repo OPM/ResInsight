@@ -100,6 +100,10 @@ public:
     void scheduleReplot();
     void setWidgetState( const QString& widgetState );
 
+    void addOverlayFrame( QFrame* overlayWidget );
+    void removeOverlayFrame( QFrame* overlayWidget );
+    void updateLayout() override;
+
 protected:
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
@@ -128,6 +132,8 @@ private:
     caf::UiStyleSheet createPlotStyleSheet() const;
     caf::UiStyleSheet createCanvasStyleSheet() const;
 
+    void updateOverlayFrameLayout();
+
 private:
     caf::PdmPointer<RimPlot>         m_plotDefinition;
     QPoint                           m_clickPosition;
@@ -135,6 +141,8 @@ private:
     std::map<QwtPlot::Axis, bool>    m_axisTitlesEnabled;
     QPointer<QwtPlotPicker>          m_plotPicker;
     bool                             m_draggable;
+
+    QList<QPointer<QFrame>> m_overlayFrames;
 
     struct CurveColors
     {

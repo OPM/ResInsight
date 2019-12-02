@@ -140,8 +140,8 @@ QList<caf::PdmOptionItemInfo>
             auto nameParameterPairs = curveSet->ensembleParameters();
             for ( auto& nameParamPair : nameParameterPairs )
             {
-                options.push_back( caf::PdmOptionItemInfo( RimEnsembleCurveSet::ensembleParameterUiName( nameParamPair ),
-                                                           nameParamPair.first ) );
+                options.push_back(
+                    caf::PdmOptionItemInfo( EnsembleParameter::uiName( nameParamPair ), nameParamPair.first ) );
             }
         }
     }

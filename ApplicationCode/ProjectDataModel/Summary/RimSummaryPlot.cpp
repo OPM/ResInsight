@@ -683,7 +683,7 @@ size_t RimSummaryPlot::singleColorCurveCount() const
 {
     auto   allCurveSets = ensembleCurveSetCollection()->curveSets();
     size_t colorIndex   = std::count_if( allCurveSets.begin(), allCurveSets.end(), []( RimEnsembleCurveSet* curveSet ) {
-        return curveSet->colorMode() == RimEnsembleCurveSet::SINGLE_COLOR;
+        return curveSet->colorMode() == RimEnsembleCurveSet::ColorMode::SINGLE_COLOR;
     } );
 
     colorIndex += curveCount();
@@ -711,7 +711,7 @@ void RimSummaryPlot::applyDefaultCurveAppearances()
     int colorIndex = 0;
     for ( auto& curveSet : this->ensembleCurveSetCollection()->curveSets() )
     {
-        if ( curveSet->colorMode() != RimEnsembleCurveSet::SINGLE_COLOR ) continue;
+        if ( curveSet->colorMode() != RimEnsembleCurveSet::ColorMode::SINGLE_COLOR ) continue;
         curveSet->setColor( RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex++ ) );
     }
 }
@@ -1227,9 +1227,10 @@ void RimSummaryPlot::deleteCurves( const std::vector<RimSummaryCurve*>& curves )
                         curveSet->deleteCurve( curve );
                         if ( curveSet->curves().empty() )
                         {
-                            if ( curveSet->colorMode() == RimEnsembleCurveSet::BY_ENSEMBLE_PARAM && m_plotWidget )
+                            if ( curveSet->colorMode() == RimEnsembleCurveSet::ColorMode::BY_ENSEMBLE_PARAM &&
+                                 m_plotWidget )
                             {
-                                m_plotWidget->removeEnsembleCurveSetLegend( curveSet );
+                                m_plotWidget->removeOverlayFrame( curveSet->legendFrame() );
                             }
                             m_ensembleCurveSetCollection->deleteCurveSet( curveSet );
                         }
@@ -1523,28 +1524,6 @@ void RimSummaryPlot::cleanupBeforeClose()
         m_plotWidget->setParent( nullptr );
         delete m_plotWidget;
         m_plotWidget = nullptr;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::addOrUpdateEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet )
-{
-    if ( m_plotWidget )
-    {
-        m_plotWidget->addOrUpdateEnsembleCurveSetLegend( curveSet );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::removeEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet )
-{
-    if ( m_plotWidget )
-    {
-        m_plotWidget->removeEnsembleCurveSetLegend( curveSet );
     }
 }
 

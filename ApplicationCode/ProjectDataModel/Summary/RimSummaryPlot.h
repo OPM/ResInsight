@@ -170,9 +170,6 @@ public:
 
     void onAxisSelected( int axis, bool toggle ) override;
 
-    void addOrUpdateEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet );
-    void removeEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSet );
-
 public:
     // RimViewWindow overrides
     QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;

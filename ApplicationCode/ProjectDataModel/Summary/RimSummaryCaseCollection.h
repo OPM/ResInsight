@@ -89,6 +89,8 @@ public:
 
     static void sortByBinnedVariation( std::vector<NameParameterPair>& parameterVector );
 
+    static QString uiName( const NameParameterPair& paramPair );
+
 private:
     double stdDeviation() const;
 };
