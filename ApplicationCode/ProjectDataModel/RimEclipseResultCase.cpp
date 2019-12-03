@@ -291,11 +291,6 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
         eclipseCase->setMainGrid( mainEclipseCase->mainGrid() );
 
         std::vector<QDateTime> timeStepDates = mainEclipseCase->results( RiaDefines::MATRIX_MODEL )->timeStepDates();
-        if ( timeStepDates.size() == 0 )
-        {
-            return false;
-        }
-
         cvf::ref<RifReaderEclipseOutput> readerEclipseOutput = new RifReaderEclipseOutput;
         if ( !readerEclipseOutput->openAndReadActiveCellData( caseFileName(), timeStepDates, eclipseCase.p() ) )
         {
