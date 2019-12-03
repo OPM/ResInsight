@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
 #include "RiaPreferences.h"
+#include "RiaRegressionTestRunner.h"
 #include "RiaSummaryTools.h"
 
 #include "RimEnsembleCurveSetCollection.h"
@@ -127,7 +128,8 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
         tileSubWindows();
     }
 
-    if ( m_activePlotViewWindow && m_activePlotViewWindow->viewWidget() )
+    if ( m_activePlotViewWindow && m_activePlotViewWindow->viewWidget() &&
+         !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
     {
         if ( m_activePlotViewWindow->mdiWindowGeometry().isMaximized )
         {
