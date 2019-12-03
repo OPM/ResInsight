@@ -1510,10 +1510,18 @@ void RiuSummaryCurveDefSelection::appendOptionItemsForSubCategoriesAndVectors(
 
             if ( isVectorField )
             {
-                std::string longVectorName =
-                    RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( itemName, true );
-                displayName = QString::fromStdString( longVectorName );
-                displayName += QString( " (%1)" ).arg( QString::fromStdString( itemName ) );
+                std::string longVectorName = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName(
+                    itemName );
+
+                if ( longVectorName.empty() )
+                {
+                    displayName = QString::fromStdString( itemName );
+                }
+                else
+                {
+                    displayName = QString::fromStdString( longVectorName );
+                    displayName += QString( " (%1)" ).arg( QString::fromStdString( itemName ) );
+                }
             }
             else
             {
