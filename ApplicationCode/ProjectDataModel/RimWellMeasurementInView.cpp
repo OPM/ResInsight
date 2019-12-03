@@ -244,3 +244,11 @@ bool RimWellMeasurementInView::hasCategoryResult() const
 {
     return !RimWellMeasurement::kindHasValue( measurementKind() );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellMeasurementInView::isWellChecked( const QString& wellName ) const
+{
+    return std::find( m_wells.v().begin(), m_wells.v().end(), wellName ) != m_wells.v().end();
+}

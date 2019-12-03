@@ -44,6 +44,7 @@ public:
     RimRegularLegendConfig* legendConfig();
     QString                 measurementKind() const;
     void                    setMeasurementKind( const QString& measurementKind );
+    bool                    isWellChecked( const QString& wellName ) const;
 
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 

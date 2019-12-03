@@ -278,7 +278,7 @@ void RivWellPathPartMgr::appendWellMeasurementsToModel( cvf::ModelBasicList*    
 
     for ( RimWellMeasurementInView* wellMeasurementInView : gridView->measurementCollection()->measurements() )
     {
-        if ( wellMeasurementInView->isChecked() )
+        if ( wellMeasurementInView->isChecked() && wellMeasurementInView->isWellChecked( m_rimWellPath->name() ) )
         {
             std::vector<QString> measurementKinds;
             measurementKinds.push_back( wellMeasurementInView->measurementKind() );
