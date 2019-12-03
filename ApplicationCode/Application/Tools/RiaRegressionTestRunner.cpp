@@ -203,11 +203,11 @@ void RiaRegressionTestRunner::runRegressionTest()
 
                 setDefaultFixedWindowSizeFor3dViews();
 
-                resizePlotWindows();
-
                 QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath( generatedFolderName );
                 RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( fullPathGeneratedFolder );
 
+                QApplication::processEvents();
+                resizePlotWindows();
                 RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( fullPathGeneratedFolder );
 
                 app->closeProject();
