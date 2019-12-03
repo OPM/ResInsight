@@ -305,7 +305,7 @@ void RiuQwtPlotWidget::setAutoTickIntervalCounts( QwtPlot::Axis axis,
     this->setAxisMaxMinor( axis, maxMinorTickIntervalCount );
     // Reapply axis limits to force Qwt to use the tick settings.
     QwtInterval currentRange = this->axisInterval( axis );
-    setAxisScale( currentRange.minValue(), currentRange.maxValue(), axis );
+    setAxisScale( axis, currentRange.minValue(), currentRange.maxValue() );
 }
 
 //--------------------------------------------------------------------------------------------------
