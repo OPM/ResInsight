@@ -205,3 +205,9 @@ bool RimWellMeasurement::kindHasValue( const QString& measurementKind )
                   << "CORE";
     return !valueLessKind.contains( measurementKind );
 }
+
+std::vector<QString> RimWellMeasurement::measurementKindsForWellBoreStability()
+{
+    std::vector<QString> wbsMeasurementKinds = {"XLOT", "LOT", "FIT"};
+    return wbsMeasurementKinds;
+}
