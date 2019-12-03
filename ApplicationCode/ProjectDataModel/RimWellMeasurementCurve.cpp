@@ -251,21 +251,7 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_wellPath )
     {
-        auto wellPathColl = RimTools::wellPathCollection();
-        if ( wellPathColl )
-        {
-            caf::PdmChildArrayField<RimWellPath*>& wellPaths = wellPathColl->wellPaths;
-
-            for ( size_t i = 0; i < wellPaths.size(); i++ )
-            {
-                options.push_back( caf::PdmOptionItemInfo( wellPaths[i]->name(), wellPaths[i] ) );
-            }
-
-            if ( options.size() > 0 )
-            {
-                options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
-            }
-        }
+        RimTools::wellPathOptionItems( &options );
     }
 
     return options;
