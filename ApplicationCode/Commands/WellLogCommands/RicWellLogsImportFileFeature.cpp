@@ -58,7 +58,8 @@ std::vector<RimWellLogFile*> RicWellLogsImportFileFeature::importWellLogFiles( c
 QStringList RicWellLogsImportFileFeature::wellLogFileNameFilters()
 {
     QStringList nameFilters;
-    nameFilters << "*.las";
+    nameFilters << "*.las"
+                << "*.LAS";
     return nameFilters;
 }
 
