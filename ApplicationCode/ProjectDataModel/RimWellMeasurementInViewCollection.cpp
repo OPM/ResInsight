@@ -97,25 +97,44 @@ void RimWellMeasurementInViewCollection::fieldChangedByUi( const caf::PdmFieldHa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellMeasurementInViewCollection::initAfterRead()
+void RimWellMeasurementInViewCollection::syncWithChangesInWellMeasurementCollection()
 {
-    // TODO: Need a better solution for this!!!
     RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
     if ( wellPathCollection )
     {
         const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
-        std::set<QString>                   measurementKinds;
-        for ( RimWellMeasurement* wellMeasurement : measurementCollection->measurements() )
+
+        // Make a set of the measurement kinds already present
+        std::set<QString> currentMeasurementKinds;
+        for ( RimWellMeasurementInView* wellMeasurement : measurements() )
         {
-            measurementKinds.insert( wellMeasurement->kind() );
+            currentMeasurementKinds.insert( wellMeasurement->measurementKind() );
         }
 
-        for ( QString kind : measurementKinds )
+        // Make a set of the measurements we should have after the update
+        std::set<QString> targetMeasurementKinds;
+        for ( RimWellMeasurement* wellMeasurement : measurementCollection->measurements() )
+        {
+            targetMeasurementKinds.insert( wellMeasurement->kind() );
+        }
+
+        // The difference between the sets is the measurement kinds to be added
+        std::set<QString> newMeasurementKinds;
+        std::set_difference( targetMeasurementKinds.begin(),
+                             targetMeasurementKinds.end(),
+                             currentMeasurementKinds.begin(),
+                             currentMeasurementKinds.end(),
+                             std::inserter( newMeasurementKinds, newMeasurementKinds.end() ) );
+
+        // Add the new measurement kinds
+        for ( QString kind : newMeasurementKinds )
         {
             RimWellMeasurementInView* measurementInView = new RimWellMeasurementInView;
             measurementInView->setName( kind );
             measurementInView->setMeasurementKind( kind );
             m_measurementsInView.push_back( measurementInView );
         }
+
+        updateConnectedEditors();
     }
 }

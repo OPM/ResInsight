@@ -35,12 +35,13 @@ public:
 
     std::vector<RimWellMeasurementInView*> measurements() const;
 
+    void syncWithChangesInWellMeasurementCollection();
+
 protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
                            const QVariant&            newValue ) override;
-    void initAfterRead();
 
 private:
     caf::PdmChildArrayField<RimWellMeasurementInView*> m_measurementsInView;

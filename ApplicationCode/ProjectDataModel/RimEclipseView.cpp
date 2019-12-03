@@ -932,6 +932,8 @@ void RimEclipseView::onLoadDataAndUpdate()
         m_virtualPerforationResult->loadData();
     }
 
+    m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();
+
     this->scheduleCreateDisplayModelAndRedraw();
 }
 

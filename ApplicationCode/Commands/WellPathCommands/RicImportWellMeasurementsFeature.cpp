@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "Rim3dView.h"
+#include "RimGridView.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
@@ -106,6 +108,17 @@ void RicImportWellMeasurementsFeature::onActionTriggered( bool isChecked )
 
     if ( app->project() )
     {
+        std::vector<Rim3dView*> views;
+        app->project()->allViews( views );
+        for ( auto& view : views )
+        {
+            RimGridView* gridView = dynamic_cast<RimGridView*>( view );
+            if ( gridView )
+            {
+                gridView->updateWellMeasurements();
+            }
+        }
+
         app->project()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 

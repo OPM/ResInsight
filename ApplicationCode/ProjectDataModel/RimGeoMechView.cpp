@@ -175,6 +175,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
 
     this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
+    m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();
 
     this->scheduleCreateDisplayModelAndRedraw();
 

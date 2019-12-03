@@ -71,6 +71,8 @@ public:
                         int                         fontSize,
                         bool                        forceChange = false ) override;
 
+    void updateWellMeasurements();
+
 protected:
     virtual void       updateViewFollowingRangeFilterUpdates();
     void               onClearReservoirCellVisibilitiesIfNeccessary() override;
