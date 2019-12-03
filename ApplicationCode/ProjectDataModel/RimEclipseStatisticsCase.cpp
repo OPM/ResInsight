@@ -252,6 +252,12 @@ void RimEclipseStatisticsCase::computeStatistics()
         timeStepIndices.push_back( i );
     }
 
+    // If no dynamic data is present, we might end up with no time steps. Make sure we have at least one.
+    if ( timeStepIndices.empty() )
+    {
+        timeStepIndices.push_back( 0 );
+    }
+
     RigEclipseCaseData* resultCase = eclipseCaseData();
 
     QList<RimEclipseStatisticsCaseEvaluator::ResSpec> resultSpecification;

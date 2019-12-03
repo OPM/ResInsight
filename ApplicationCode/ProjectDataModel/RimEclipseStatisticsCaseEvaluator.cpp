@@ -36,6 +36,8 @@
 
 #include <QDebug>
 
+#include <algorithm>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -57,10 +59,13 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult( RigCaseCellResultsData* 
 
     destinationCellResults->setTimeStepInfos( resAddr, sourceTimeStepInfos );
     std::vector<std::vector<double>>* dataValues = destinationCellResults->modifiableCellScalarResultTimesteps( resAddr );
-    dataValues->resize( sourceTimeStepInfos.size() );
+
+    size_t timeStepCount = std::max( size_t( 1 ), sourceTimeStepInfos.size() );
+
+    dataValues->resize( timeStepCount );
 
     // Initializes the size of the destination dataset to active union cell count
-    for ( size_t i = 0; i < sourceTimeStepInfos.size(); i++ )
+    for ( size_t i = 0; i < timeStepCount; i++ )
     {
         dataValues->at( i ).resize( activeUnionCellCount, HUGE_VAL );
     }
