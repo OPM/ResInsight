@@ -35,7 +35,7 @@ RimPlotWindow::RimPlotWindow()
 
     CAF_PDM_InitField( &m_showTitleInPlot, "ShowTitleInPlot", true, "Show Title", "", "", "" );
     CAF_PDM_InitField( &m_showPlotLegends, "ShowTrackLegends", true, "Show Legends", "", "", "" );
-    CAF_PDM_InitField( &m_plotLegendsHorizontal, "TrackLegendsHorizontal", true, "Legend Orientation", "", "", "" );
+    CAF_PDM_InitField( &m_plotLegendsHorizontal, "TrackLegendsHorizontal", false, "Legend Orientation", "", "", "" );
     m_plotLegendsHorizontal.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     int fontSize = RiaFontCache::pointSizeFromFontSizeEnum(
         RiaApplication::instance()->preferences()->defaultPlotFontSize() );
