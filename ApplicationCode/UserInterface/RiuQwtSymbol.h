@@ -72,6 +72,8 @@ public:
     static PointSymbolEnum cycledSymbolStyle( int indexLevel1, int indexLevel2 );
     static PointSymbolEnum cycledSymbolStyle( int indexLevel );
 
+    static bool isFilledSymbol( PointSymbolEnum symbol );
+
 private:
     QRect labelBoundingRect( const QPainter* painter, const QRect& symbolRect, const QString& label ) const;
 
