@@ -48,6 +48,8 @@ RimWellMeasurementInViewCollection::RimWellMeasurementInViewCollection()
     CAF_PDM_InitFieldNoDefault( &m_measurementsInView, "MeasurementKinds", "Measurement Kinds", "", "", "" );
     m_measurementsInView.uiCapability()->setUiHidden( true );
 
+    m_isChecked = false;
+
     this->setName( "Well Measurements" );
 }
 
@@ -132,6 +134,8 @@ void RimWellMeasurementInViewCollection::syncWithChangesInWellMeasurementCollect
             RimWellMeasurementInView* measurementInView = new RimWellMeasurementInView;
             measurementInView->setName( kind );
             measurementInView->setMeasurementKind( kind );
+            measurementInView->setAllWellsSelected();
+
             m_measurementsInView.push_back( measurementInView );
         }
 

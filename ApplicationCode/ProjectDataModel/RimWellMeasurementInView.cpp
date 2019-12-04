@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimWellMeasurementInView.h"
 
 #include "Rim3dView.h"
@@ -205,13 +206,13 @@ QList<caf::PdmOptionItemInfo>
 
             // Find wells with a given measurement.
             std::set<QString> wellsWithMeasurementKind;
-            for ( auto well : wellPathCollection->wellPaths )
+            for ( const auto& well : wellPathCollection->wellPaths )
             {
                 if ( hasMeasurementKindForWell( well, wellPathCollection, measurements, m_measurementKind ) )
                     wellsWithMeasurementKind.insert( well->name() );
             }
 
-            for ( auto wellName : wellsWithMeasurementKind )
+            for ( const auto& wellName : wellsWithMeasurementKind )
             {
                 options.push_back( caf::PdmOptionItemInfo( wellName, wellName ) );
             }
@@ -251,4 +252,29 @@ bool RimWellMeasurementInView::hasCategoryResult() const
 bool RimWellMeasurementInView::isWellChecked( const QString& wellName ) const
 {
     return std::find( m_wells.v().begin(), m_wells.v().end(), wellName ) != m_wells.v().end();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellMeasurementInView::setAllWellsSelected()
+{
+    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    if ( wellPathCollection )
+    {
+        std::vector<RimWellMeasurement*> measurements = wellPathCollection->measurementCollection()->measurements();
+
+        // Find wells with a given measurement.
+        std::set<QString> wellsWithMeasurementKind;
+        for ( const auto& well : wellPathCollection->wellPaths )
+        {
+            if ( hasMeasurementKindForWell( well, wellPathCollection, measurements, m_measurementKind ) )
+                wellsWithMeasurementKind.insert( well->name() );
+        }
+
+        for ( const auto& wellName : wellsWithMeasurementKind )
+        {
+            m_wells.v().push_back( wellName );
+        }
+    }
 }

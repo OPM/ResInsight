@@ -45,6 +45,7 @@ public:
     QString                 measurementKind() const;
     void                    setMeasurementKind( const QString& measurementKind );
     bool                    isWellChecked( const QString& wellName ) const;
+    void                    setAllWellsSelected();
 
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
@@ -55,8 +56,9 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
                            const QVariant&            newValue ) override;
+
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly );
+                                                         bool*                      useOptionsOnly ) override;
 
     bool        updateLegendData();
     static bool hasMeasurementKindForWell( const RimWellPath*                      wellPath,
