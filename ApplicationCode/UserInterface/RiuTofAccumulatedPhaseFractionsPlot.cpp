@@ -54,7 +54,7 @@ RiuTofAccumulatedPhaseFractionsPlot::RiuTofAccumulatedPhaseFractionsPlot( RimTof
     m_plotDefinition = plotDefinition;
 
     QPalette newPalette( palette() );
-    newPalette.setColor( QPalette::Background, Qt::white );
+    newPalette.setColor( QPalette::Window, Qt::white );
     setPalette( newPalette );
 
     setAutoFillBackground( true );
@@ -225,7 +225,7 @@ void RiuTofAccumulatedPhaseFractionsPlot::setCommonPlotBehaviour( QwtPlot* plot 
     // Plot background and frame look
 
     QPalette newPalette( plot->palette() );
-    newPalette.setColor( QPalette::Background, Qt::white );
+    newPalette.setColor( QPalette::Window, Qt::white );
     plot->setPalette( newPalette );
 
     plot->setAutoFillBackground( true );

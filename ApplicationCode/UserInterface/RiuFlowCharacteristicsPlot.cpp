@@ -65,7 +65,7 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot( RimFlowCharacteristicsPl
 
     // White background
     QPalette pal = this->palette();
-    pal.setColor( QPalette::Background, Qt::white );
+    pal.setColor( QPalette::Window, Qt::white );
     this->setAutoFillBackground( true );
     this->setPalette( pal );
 
