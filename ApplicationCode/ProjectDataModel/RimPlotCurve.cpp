@@ -497,14 +497,6 @@ void RimPlotCurve::updateLegendsInPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
-{
-    throw std::logic_error( "The method or operation is not implemented." );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setSamplesFromXYErrorValues(
     const std::vector<double>&   xValues,
     const std::vector<double>&   yValues,
@@ -578,7 +570,10 @@ void RimPlotCurve::appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_curveColor );
     uiOrdering.add( &m_pointSymbol );
-    uiOrdering.add( &m_symbolEdgeColor );
+    if ( !RiuQwtSymbol::isFilledSymbol( m_pointSymbol() ) )
+    {
+        uiOrdering.add( &m_symbolEdgeColor );
+    }
     uiOrdering.add( &m_symbolSize );
     uiOrdering.add( &m_symbolSkipPixelDistance );
     uiOrdering.add( &m_lineStyle );
@@ -672,13 +667,21 @@ void RimPlotCurve::updateCurveAppearance()
         symbol->setSize( m_symbolSize, m_symbolSize );
         symbol->setColor( curveColor );
 
-        QColor symbolEdgeColor( m_symbolEdgeColor.value().rByte(),
-                                m_symbolEdgeColor.value().gByte(),
-                                m_symbolEdgeColor.value().bByte() );
+        // If the symbol is a "filled" symbol, we can have a different edge color
+        // Otherwise we'll have to use the curve color.
+        if ( RiuQwtSymbol::isFilledSymbol( m_pointSymbol() ) )
+        {
+            QColor symbolEdgeColor( m_symbolEdgeColor.value().rByte(),
+                                    m_symbolEdgeColor.value().gByte(),
+                                    m_symbolEdgeColor.value().bByte() );
 
-        symbol->setPen( symbolEdgeColor );
+            symbol->setPen( symbolEdgeColor );
+        }
+        else
+        {
+            symbol->setPen( curveColor );
+        }
     }
-
     m_qwtPlotCurve->setAppearance( m_lineStyle(), m_curveInterpolation(), m_curveThickness(), curveColor );
     m_qwtPlotCurve->setSymbol( symbol );
     m_qwtPlotCurve->setSymbolSkipPixelDistance( m_symbolSkipPixelDistance() );
