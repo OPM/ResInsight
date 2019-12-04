@@ -82,7 +82,7 @@ RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
                                 "FG in shale = K0_FG * (OBG0-PP0)\nK0_FG = (FG-PP)/(OBG-PP)",
                                 "" );
 
-    CAF_PDM_InitField( &m_userDefinedPPShale, "UserPPShale", 200.0, "User Defined Pore Pressure, Shale [bar]", "", "", "" );
+    CAF_PDM_InitField( &m_userDefinedPPShale, "UserPPShale", 1.05, "User Defined Pore Pressure, Shale [bar]", "", "", "" );
 
     CAF_PDM_InitField( &m_userDefinedPoissionRatio,
                        "UserPoissionRatio",
