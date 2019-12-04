@@ -193,6 +193,7 @@ void RimMainPlotCollection::deleteAllContainedObjects()
     m_summaryCrossPlotCollection()->deleteAllChildObjects();
     m_gridCrossPlotCollection->deleteAllChildObjects();
     m_flowPlotCollection()->closeDefaultPlotWindowAndDeletePlots();
+    m_saturationPressurePlotCollection()->deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
