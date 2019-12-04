@@ -82,7 +82,7 @@ RiuGridPlotWindow::RiuGridPlotWindow( RimGridPlotWindow* plotDefinition, QWidget
     m_gridLayout->setSpacing( 1 );
 
     QPalette newPalette( palette() );
-    newPalette.setColor( QPalette::Background, Qt::white );
+    newPalette.setColor( QPalette::Window, Qt::white );
     setPalette( newPalette );
 
     setAutoFillBackground( true );

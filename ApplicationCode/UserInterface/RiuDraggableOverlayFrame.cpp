@@ -31,7 +31,7 @@ RiuDraggableOverlayFrame::RiuDraggableOverlayFrame( QWidget* parent, QWidget* wi
     RiuWidgetDragger* dragger = new RiuWidgetDragger( this, widgetToSnapTo );
 
     QPalette pal = this->palette();
-    pal.setColor( QPalette::Background, backgroundColor );
+    pal.setColor( QPalette::Window, backgroundColor );
     setAutoFillBackground( true );
     setPalette( pal );
     setFrameShape( QFrame::Box );
