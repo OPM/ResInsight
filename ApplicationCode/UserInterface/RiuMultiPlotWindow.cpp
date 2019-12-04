@@ -547,7 +547,7 @@ void RiuMultiPlotWindow::reinsertPlotWidgets()
     {
         m_gridLayout->addWidget( m_dropTargetPlaceHolder, 0, 0 );
         m_gridLayout->setRowStretch( 0, 1 );
-        m_dropTargetPlaceHolder->setVisible( true );
+        m_dropTargetPlaceHolder->setVisible( false );
     }
     else
     {
