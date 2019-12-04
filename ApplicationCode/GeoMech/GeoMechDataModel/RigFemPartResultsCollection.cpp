@@ -38,6 +38,7 @@
 #include "RigFormationNames.h"
 #include "RigHexIntersectionTools.h"
 #include "RigStatisticsDataCache.h"
+#include "RigWbsParameter.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
@@ -509,6 +510,11 @@ std::map<std::string, std::vector<std::string>>
             for ( QString result : derivedResults )
             {
                 fieldCompNames[result.toStdString()];
+            }
+            std::set<RigWbsParameter> wbsParameters = RigWbsParameter::allParameters();
+            for ( const RigWbsParameter& parameter : wbsParameters )
+            {
+                fieldCompNames[parameter.name().toStdString()];
             }
         }
     }
