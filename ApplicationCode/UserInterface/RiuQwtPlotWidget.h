@@ -70,8 +70,6 @@ public:
                                    bool              titleBold = false,
                                    Qt::AlignmentFlag alignment = Qt::AlignRight );
 
-    void setEnabledAxes( const std::set<QwtPlot::Axis> enabledAxes );
-
     void setAxisTitleText( QwtPlot::Axis axis, const QString& title );
     void setAxisTitleEnabled( QwtPlot::Axis axis, bool enable );
 
@@ -119,7 +117,6 @@ protected:
     virtual void endZoomOperations();
 
 private:
-    void       setDefaults();
     void       selectPlotOwner( bool toggleItemInSelection = false );
     void       selectClosestCurve( const QPoint& pos, bool toggleItemInSelection = false );
     static int defaultMinimumWidth();
