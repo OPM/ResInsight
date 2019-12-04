@@ -231,7 +231,7 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
     paramCurvesTrack->setColSpan( RimPlot::THREE );
     paramCurvesTrack->setVisibleXRange( 0.0, 1.0 );
     paramCurvesTrack->setAutoScaleXEnabled( true );
-    paramCurvesTrack->setTickIntervals( 0.5, 0.05 );
+    paramCurvesTrack->setTickIntervals( 0.5, 0.1 );
     paramCurvesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     paramCurvesTrack->setFormationWellPath( wellPath );
     paramCurvesTrack->setFormationCase( geoMechCase );

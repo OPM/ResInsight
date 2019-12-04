@@ -603,7 +603,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
 void RigGeoMechWellLogExtractor::wellBoreFGShale( int frameIndex, std::vector<double>* values )
 {
     WbsParameterSource source = m_parameterSources.at( RigWbsParameter::FG_Shale() );
-    if ( source == RigWbsParameter::MATTHEWS_KELLY )
+    if ( source == RigWbsParameter::DERIVED_FROM_K0FG )
     {
         std::vector<double> PP0; // results
         std::vector<double> K0_FG, OBG0; // parameters

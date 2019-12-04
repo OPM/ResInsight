@@ -37,7 +37,7 @@ public:
         ELEMENT_PROPERTY_TABLE,
         USER_DEFINED,
         HYDROSTATIC,
-        MATTHEWS_KELLY, // FG in shale
+        DERIVED_FROM_K0FG, // FG in shale
         PROPORTIONAL_TO_SH, // FG in shale
         INVALID = 1000,
     };
