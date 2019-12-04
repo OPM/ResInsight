@@ -139,7 +139,6 @@ void RiuGridPlotWindow::addPlot( RiuQwtPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 void RiuGridPlotWindow::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
 {
-    plotWidget->setDraggable( true ); // Becomes draggable when added to a grid plot window
     m_plotWidgets.insert( static_cast<int>( index ), plotWidget );
 
     QLabel* subTitle = new QLabel( plotWidget->plotDefinition()->description() );
