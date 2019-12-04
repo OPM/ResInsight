@@ -67,7 +67,7 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlotInterface* plotTrackDefinition, QWidg
     m_plotOwner = dynamic_cast<caf::PdmObject*>( plotTrackDefinition );
     CAF_ASSERT( m_plotOwner );
 
-    setDefaults();
+    RiuQwtPlotTools::setCommonPlotBehaviour( this );
 
     this->installEventFilter( this );
     this->canvas()->installEventFilter( this );
@@ -169,34 +169,6 @@ RimPlotInterface* RiuQwtPlotWidget::plotDefinition() const
 caf::PdmObject* RiuQwtPlotWidget::plotOwner() const
 {
     return m_plotOwner.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setEnabledAxes( const std::set<QwtPlot::Axis> enabledAxes )
-{
-    for ( int axisId = 0; axisId < QwtPlot::axisCnt; ++axisId )
-    {
-        QwtPlot::Axis axis = static_cast<QwtPlot::Axis>( axisId );
-        if ( enabledAxes.count( axis ) )
-        {
-            enableAxis( axis, true );
-            // Align the canvas with the actual min and max values of the curves
-            axisScaleEngine( axis )->setAttribute( QwtScaleEngine::Floating, true );
-            setAxisScale( axis, 0.0, 100.0 );
-            axisScaleDraw( axis )->setMinimumExtent( axisExtent( axis ) );
-            setMinimumWidth( defaultMinimumWidth() );
-
-            axisWidget( axis )->setMargin( 0 );
-            m_axisTitlesEnabled[axis] = true;
-        }
-        else
-        {
-            enableAxis( axis, false );
-            m_axisTitlesEnabled[axis] = false;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -662,15 +634,6 @@ RiuWidgetStyleSheet RiuQwtPlotWidget::createCanvasStyleSheet() const
     styleSheet.set( "background-color", "#FAFAFA" );
     styleSheet.set( "border", "1px solid LightGray" );
     return styleSheet;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setDefaults()
-{
-    setEnabledAxes( {QwtPlot::xTop, QwtPlot::yLeft} );
-    RiuQwtPlotTools::setCommonPlotBehaviour( this );
 }
 
 void RiuQwtPlotWidget::selectPlotOwner( bool toggleItemInSelection )

@@ -21,6 +21,10 @@
 
 #include "RimWellLogTrack.h"
 
+#include "qwt_scale_draw.h"
+#include "qwt_scale_engine.h"
+#include "qwt_scale_widget.h"
+
 #include <QWheelEvent>
 
 #define RIU_SCROLLWHEEL_ZOOMFACTOR 1.1
@@ -32,6 +36,10 @@
 RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* plotTrackDefinition, QWidget* parent /*= nullptr */ )
     : RiuQwtPlotWidget( plotTrackDefinition, parent )
 {
+    setAxisEnabled( QwtPlot::yLeft, true );
+    setAxisEnabled( QwtPlot::yRight, false );
+    setAxisEnabled( QwtPlot::xTop, true );
+    setAxisEnabled( QwtPlot::xBottom, false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,4 +88,27 @@ bool RiuWellLogTrack::eventFilter( QObject* watched, QEvent* event )
         }
     }
     return RiuQwtPlotWidget::eventFilter( watched, event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::setAxisEnabled( QwtPlot::Axis axis, bool enabled )
+{
+    if ( enabled )
+    {
+        enableAxis( axis, true );
+
+        // Align the canvas with the actual min and max values of the curves
+        axisScaleEngine( axis )->setAttribute( QwtScaleEngine::Floating, true );
+        setAxisScale( axis, 0.0, 100.0 );
+        axisScaleDraw( axis )->setMinimumExtent( axisExtent( axis ) );
+
+        axisWidget( axis )->setMargin( 0 );
+        setAxisTitleEnabled( axis, true );
+    }
+    else
+    {
+        enableAxis( axis, false );
+    }
 }
