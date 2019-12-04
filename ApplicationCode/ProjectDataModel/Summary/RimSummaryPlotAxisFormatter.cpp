@@ -232,10 +232,11 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
                         quantityNameForDisplay += quantityName;
                         quantityNameForDisplay += ")";
                     }
-                    else
-                    {
-                        quantityNameForDisplay += quantityName;
-                    }
+                }
+
+                if ( quantityNameForDisplay.empty() )
+                {
+                    quantityNameForDisplay = quantityName;
                 }
             }
 
