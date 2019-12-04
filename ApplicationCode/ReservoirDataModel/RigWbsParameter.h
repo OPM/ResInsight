@@ -87,11 +87,9 @@ private:
         RigFemResultPosEnum resType;
         QString             primary; // i.e. grid field name, las entry, etc.
         QString             secondary; // i.e. grid component name
-        int                 timeStep;
-        SourceAddress( QString primary = "", QString secondary = "", int timeStep = -1 )
+        SourceAddress( QString primary = "", QString secondary = "" )
             : primary( primary )
             , secondary( secondary )
-            , timeStep( timeStep )
         {
         }
     };
