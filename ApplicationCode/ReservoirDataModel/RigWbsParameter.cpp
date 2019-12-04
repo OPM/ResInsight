@@ -29,7 +29,7 @@ void RigWbsParameter::SourceEnum::setUp()
     addItem( RigWbsParameter::ELEMENT_PROPERTY_TABLE, "ELEMENT_PROPERTY_TABLE", "Property Table" );
     addItem( RigWbsParameter::USER_DEFINED, "USER_DEFINED", "User Defined" );
     addItem( RigWbsParameter::HYDROSTATIC, "HYDROSTATIC", "Hydrostatic" );
-    addItem( RigWbsParameter::MATTHEWS_KELLY, "MATTHEWS_KELLY", "Matthews & Kelly" );
+    addItem( RigWbsParameter::DERIVED_FROM_K0FG, "K0FG", "FG derived from K0_FG" );
     addItem( RigWbsParameter::PROPORTIONAL_TO_SH, "PROPORTIONAL_TO_SH", "Proportional to SH" );
     addItem( RigWbsParameter::INVALID, "UNDEFINED", "Undefined" );
     setDefault( RigWbsParameter::INVALID );
@@ -273,7 +273,9 @@ RigWbsParameter RigWbsParameter::K0_SH()
 //--------------------------------------------------------------------------------------------------
 RigWbsParameter RigWbsParameter::FG_Shale()
 {
-    RigWbsParameter param( "FG Shale", true, {{MATTHEWS_KELLY, SourceAddress()}, {PROPORTIONAL_TO_SH, SourceAddress()}} );
+    RigWbsParameter param( "FG Shale",
+                           true,
+                           {{DERIVED_FROM_K0FG, SourceAddress()}, {PROPORTIONAL_TO_SH, SourceAddress()}} );
     param.setOptionsExclusive( true );
     return param;
 }
