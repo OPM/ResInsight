@@ -156,6 +156,10 @@ void RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAddr, 
             RigWbsParameter param;
             if ( RigWbsParameter::findParameter( QString::fromStdString( resAddr.fieldName ), &param ) )
             {
+                if ( param == RigWbsParameter::OBG0() )
+                {
+                    frameIndex = 0;
+                }
                 calculateWbsParameterForAllSegments( param, frameIndex, values );
                 if ( param == RigWbsParameter::UCS() ) // UCS is reported as UCS/100
                 {
@@ -652,9 +656,9 @@ void RigGeoMechWellLogExtractor::wellBoreSH_MatthewsKelly( int frameIndex, std::
     curveData( ppAddr, frameIndex, &PP );
     curveData( ppAddr, 0, &PP0 );
 
-    calculateWbsParameterForAllSegments( RigWbsParameter::K0_SH(), 0, &K0_SH );
+    calculateWbsParameterForAllSegments( RigWbsParameter::K0_SH(), frameIndex, &K0_SH );
     calculateWbsParameterForAllSegments( RigWbsParameter::OBG0(), 0, &OBG0 );
-    calculateWbsParameterForAllSegments( RigWbsParameter::DF(), 0, &DF );
+    calculateWbsParameterForAllSegments( RigWbsParameter::DF(), frameIndex, &DF );
 
     values->resize( m_intersections.size(), std::numeric_limits<double>::infinity() );
 
