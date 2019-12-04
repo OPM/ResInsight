@@ -218,6 +218,14 @@ RiuQwtSymbol::PointSymbolEnum RiuQwtSymbol::cycledSymbolStyle( int indexLevel )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Is this a symbol with an interior and a border? If false, it is just lines.
+//--------------------------------------------------------------------------------------------------
+bool RiuQwtSymbol::isFilledSymbol( PointSymbolEnum symbol )
+{
+    return symbol != SYMBOL_NONE && symbol != SYMBOL_CROSS && symbol != SYMBOL_XCROSS && symbol != SYMBOL_STAR1;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QRect RiuQwtSymbol::labelBoundingRect( const QPainter* painter, const QRect& symbolRect, const QString& label ) const
