@@ -1315,7 +1315,7 @@ void RimEclipseView::onUpdateLegends()
     {
         for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
         {
-            if ( wellMeasurement->legendConfig()->showLegend() )
+            if ( wellMeasurement->isChecked() && wellMeasurement->legendConfig()->showLegend() )
             {
                 wellMeasurement->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
             }
