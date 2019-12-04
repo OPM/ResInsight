@@ -106,7 +106,7 @@ void RigGeoMechWellLogExtractor::performCurveDataSmoothing( int                 
 
     if ( !mds->empty() && !values->empty() )
     {
-        std::vector<std::vector<double>*> dependentValues = { tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl };
+        std::vector<std::vector<double>*> dependentValues = {tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl};
 
         std::vector<unsigned char> smoothOrFilterSegments = determineFilteringOrSmoothing( interfacePorePressuresDbl );
         filterShortSegments( mds, values, &smoothOrFilterSegments, dependentValues );
@@ -309,6 +309,16 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
             }
         }
     }
+
+    if ( parameter.normalizeByHydrostaticPP() )
+    {
+#pragma omp parallel for
+        for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
+        {
+            ( *outputValues )[intersectionIdx] /= hydroStaticPorePressureForSegment( intersectionIdx );
+        }
+    }
+
     return finalSourcesPerSegment;
 }
 
@@ -463,12 +473,6 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
         sources = calculateWbsParameterForAllSegments( RigWbsParameter::SH(), frameIndex, values );
     }
 
-    // Scaling
-#pragma omp parallel for schedule( dynamic )
-    for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
-    {
-        ( *values )[intersectionIdx] /= hydroStaticPorePressureForSegment( intersectionIdx );
-    }
     return sources;
 }
 
@@ -609,8 +613,7 @@ void RigGeoMechWellLogExtractor::wellBoreFGShale( int frameIndex, std::vector<do
                 {
                     ( *values )[intersectionIdx] = ( K0_FG[intersectionIdx] *
                                                          ( OBG0[intersectionIdx] - PP0[intersectionIdx] ) +
-                                                     PP0[intersectionIdx] ) /
-                                                   hydroStaticPorePressureForSegment( intersectionIdx );
+                                                     PP0[intersectionIdx] );
                 }
             }
         }
@@ -663,8 +666,7 @@ void RigGeoMechWellLogExtractor::wellBoreSH_MatthewsKelly( int frameIndex, std::
         {
             ( *values )[intersectionIdx] = ( K0_SH[intersectionIdx] * ( OBG0[intersectionIdx] - PP0[intersectionIdx] ) +
                                              PP0[intersectionIdx] +
-                                             DF[intersectionIdx] * ( PP[intersectionIdx] - PP0[intersectionIdx] ) ) /
-                                           hydroStaticPorePressureForSegment( intersectionIdx );
+                                             DF[intersectionIdx] * ( PP[intersectionIdx] - PP0[intersectionIdx] ) );
         }
     }
 }

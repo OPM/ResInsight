@@ -45,12 +45,15 @@ public:
     using SourceVector = std::vector<std::pair<Source, SourceAddress>>;
 
 public:
-    RigWbsParameter( const QString& name = "", const SourceVector& validSources = {} );
+    RigWbsParameter( const QString&      name                     = "",
+                     bool                normalizeByHydroStaticPP = false,
+                     const SourceVector& validSources             = {} );
 
     const QString&      name() const;
     std::vector<Source> sources() const;
     QString             addressString( Source source ) const;
     RigFemResultAddress femAddress( Source source ) const;
+    bool                normalizeByHydrostaticPP() const;
     bool                exclusiveOptions() const;
     void                setOptionsExclusive( bool exclusive );
 
@@ -98,5 +101,6 @@ private:
 private:
     QString                                       m_name;
     std::vector<std::pair<Source, SourceAddress>> m_sources;
+    bool                                          m_normalizeByHydroStaticPP;
     bool m_exclusiveOptions; // Options are exclusive rather than order of preference
 };

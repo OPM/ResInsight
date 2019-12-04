@@ -39,9 +39,10 @@ void RigWbsParameter::SourceEnum::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWbsParameter::RigWbsParameter( const QString& name, const SourceVector& sources )
+RigWbsParameter::RigWbsParameter( const QString& name, bool normalizeByHydroStaticPP, const SourceVector& sources )
     : m_name( name )
     , m_sources( sources )
+    , m_normalizeByHydroStaticPP( normalizeByHydroStaticPP )
     , m_exclusiveOptions( false )
 {
 }
@@ -93,13 +94,21 @@ RigFemResultAddress RigWbsParameter::femAddress( Source source ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RigWbsParameter::normalizeByHydrostaticPP() const
+{
+    return m_normalizeByHydroStaticPP;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RigWbsParameter::exclusiveOptions() const
 {
     return m_exclusiveOptions;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Set options to be exclusive rathern than an order of preference
+/// Set options to be exclusive rather than an order of preference
 //--------------------------------------------------------------------------------------------------
 void RigWbsParameter::setOptionsExclusive( bool exclusive )
 {
@@ -165,7 +174,7 @@ RigWbsParameter RigWbsParameter::PP_Sand()
     SourceVector sources = {{GRID, SourceAddress( "POR-Bar" )},
                             {LAS_FILE, SourceAddress( "POR" )},
                             {ELEMENT_PROPERTY_TABLE, SourceAddress( "POR" )}};
-    return RigWbsParameter( "PP", sources );
+    return RigWbsParameter( "PP", true, sources );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,6 +183,7 @@ RigWbsParameter RigWbsParameter::PP_Sand()
 RigWbsParameter RigWbsParameter::PP_Shale()
 {
     return RigWbsParameter( "PP Shale",
+                            true,
                             {{LAS_FILE, SourceAddress( "POR_Shale" )},
                              {HYDROSTATIC, SourceAddress( "Hydrostatic" )},
                              {USER_DEFINED, SourceAddress()}} );
@@ -185,6 +195,7 @@ RigWbsParameter RigWbsParameter::PP_Shale()
 RigWbsParameter RigWbsParameter::poissonRatio()
 {
     return RigWbsParameter( "Poisson Ratio",
+                            false,
                             {{LAS_FILE, SourceAddress( "POISSON_RATIO" )},
                              {ELEMENT_PROPERTY_TABLE, SourceAddress( "RATIO" )},
                              {USER_DEFINED, SourceAddress()}} );
@@ -196,6 +207,7 @@ RigWbsParameter RigWbsParameter::poissonRatio()
 RigWbsParameter RigWbsParameter::UCS()
 {
     return RigWbsParameter( "UCS",
+                            false,
                             {{LAS_FILE, SourceAddress( "UCS" )},
                              {ELEMENT_PROPERTY_TABLE, SourceAddress( "RATIO" )},
                              {USER_DEFINED, SourceAddress()}} );
@@ -207,7 +219,7 @@ RigWbsParameter RigWbsParameter::UCS()
 RigWbsParameter RigWbsParameter::OBG()
 {
     std::vector<std::pair<Source, SourceAddress>> sources = {{GRID, SourceAddress( "ST", "S33" )}};
-    return RigWbsParameter( "OBG", sources );
+    return RigWbsParameter( "OBG", true, sources );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -216,7 +228,7 @@ RigWbsParameter RigWbsParameter::OBG()
 RigWbsParameter RigWbsParameter::OBG0()
 {
     std::vector<std::pair<Source, SourceAddress>> sources = {{GRID, SourceAddress( "ST", "S33", 0 )}};
-    return RigWbsParameter( "OBG0", sources );
+    return RigWbsParameter( "OBG0", true, sources );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,7 +237,7 @@ RigWbsParameter RigWbsParameter::OBG0()
 RigWbsParameter RigWbsParameter::SH()
 {
     std::vector<std::pair<Source, SourceAddress>> sources = {{GRID, SourceAddress( "ST", "S3" )}};
-    return RigWbsParameter( "SH", sources );
+    return RigWbsParameter( "SH", true, sources );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -234,6 +246,7 @@ RigWbsParameter RigWbsParameter::SH()
 RigWbsParameter RigWbsParameter::DF()
 {
     return RigWbsParameter( "DF",
+                            false,
                             {{LAS_FILE, SourceAddress( "DF" )},
                              {ELEMENT_PROPERTY_TABLE, SourceAddress( "DF" )},
                              {USER_DEFINED, SourceAddress()}} );
@@ -244,7 +257,7 @@ RigWbsParameter RigWbsParameter::DF()
 //--------------------------------------------------------------------------------------------------
 RigWbsParameter RigWbsParameter::K0_FG()
 {
-    return RigWbsParameter( "K0_FG", {{LAS_FILE, SourceAddress( "K0_FG" )}, {USER_DEFINED, SourceAddress()}} );
+    return RigWbsParameter( "K0_FG", false, {{LAS_FILE, SourceAddress( "K0_FG" )}, {USER_DEFINED, SourceAddress()}} );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -252,7 +265,7 @@ RigWbsParameter RigWbsParameter::K0_FG()
 //--------------------------------------------------------------------------------------------------
 RigWbsParameter RigWbsParameter::K0_SH()
 {
-    return RigWbsParameter( "K0_SH", {{LAS_FILE, SourceAddress( "K0_SH" )}, {USER_DEFINED, SourceAddress()}} );
+    return RigWbsParameter( "K0_SH", false, {{LAS_FILE, SourceAddress( "K0_SH" )}, {USER_DEFINED, SourceAddress()}} );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -260,7 +273,7 @@ RigWbsParameter RigWbsParameter::K0_SH()
 //--------------------------------------------------------------------------------------------------
 RigWbsParameter RigWbsParameter::FG_Shale()
 {
-    RigWbsParameter param( "FG Shale", {{MATTHEWS_KELLY, SourceAddress()}, {PROPORTIONAL_TO_SH, SourceAddress()}} );
+    RigWbsParameter param( "FG Shale", true, {{MATTHEWS_KELLY, SourceAddress()}, {PROPORTIONAL_TO_SH, SourceAddress()}} );
     param.setOptionsExclusive( true );
     return param;
 }

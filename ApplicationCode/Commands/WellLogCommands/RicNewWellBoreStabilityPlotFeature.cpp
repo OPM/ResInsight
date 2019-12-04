@@ -248,9 +248,7 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
     size_t i = 0;
     for ( const RigWbsParameter& param : parameters )
     {
-        const QString& resultName = param.addressString( RigWbsParameter::LAS_FILE );
-
-        RigFemResultAddress        resAddr( RIG_WELLPATH_DERIVED, resultName.toStdString(), "" );
+        RigFemResultAddress        resAddr( RIG_WELLPATH_DERIVED, param.name().toStdString(), "" );
         RimWellLogExtractionCurve* curve = RicWellLogTools::addWellLogExtractionCurve( paramCurvesTrack,
                                                                                        geoMechCase,
                                                                                        nullptr,
