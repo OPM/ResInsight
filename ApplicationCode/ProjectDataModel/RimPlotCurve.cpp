@@ -181,11 +181,6 @@ RimPlotCurve::~RimPlotCurve()
         delete m_qwtCurveErrorBars;
         m_qwtCurveErrorBars = nullptr;
     }
-
-    if ( m_parentQwtPlot )
-    {
-        m_parentQwtPlot->replot();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
