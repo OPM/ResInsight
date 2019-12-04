@@ -20,8 +20,6 @@
 
 #include <QDialog>
 
-#include <memory>
-
 namespace caf
 {
 class PdmObject;
@@ -49,5 +47,5 @@ private slots:
     void slotDialogFinished();
 
 private:
-    std::unique_ptr<RicSummaryCurveCreatorSplitterUi> m_curveCreatorSplitterUi;
+    RicSummaryCurveCreatorSplitterUi* m_curveCreatorSplitterUi;
 };
