@@ -58,17 +58,20 @@ public:
     {
         CVF_ASSERT( lasFile );
 
-        std::vector<double> wellLogValues = m_curveData->xValues();
-        for ( size_t vIdx = 0; vIdx < wellLogValues.size(); vIdx++ )
+        if ( !m_curveData->xValues().empty() )
         {
-            double value = wellLogValues[vIdx];
-            if ( value == HUGE_VAL || value == -HUGE_VAL || value != value )
+            std::vector<double> wellLogValues = m_curveData->xValues();
+            for ( size_t vIdx = 0; vIdx < wellLogValues.size(); vIdx++ )
             {
-                wellLogValues[vIdx] = absentValue;
+                double value = wellLogValues[vIdx];
+                if ( value == HUGE_VAL || value == -HUGE_VAL || value != value )
+                {
+                    wellLogValues[vIdx] = absentValue;
+                }
             }
-        }
 
-        lasFile->AddLog( m_channelName, m_unit, m_comment, wellLogValues );
+            lasFile->AddLog( m_channelName, m_unit, m_comment, wellLogValues );
+        }
     }
 
     std::string channelName() const
