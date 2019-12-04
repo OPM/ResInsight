@@ -160,7 +160,8 @@ void RiuGridCrossQwtPlot::removeDataSetLegend( RimGridCrossPlotDataSet* dataSetT
         if ( it->second != nullptr )
         {
             it->second->hide();
-            it->second->deleteLater();
+            it->second->setParent( nullptr );
+            delete it->second;
         }
 
         m_legendWidgets.erase( it );
@@ -181,7 +182,8 @@ void RiuGridCrossQwtPlot::removeDanglingDataSetLegends()
             if ( it->second != nullptr )
             {
                 it->second->hide();
-                it->second->deleteLater();
+                it->second->setParent( nullptr );
+                delete it->second;
             }
             m_legendWidgets.erase( it++ );
         }

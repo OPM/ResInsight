@@ -146,7 +146,9 @@ RimWellAllocationPlot::~RimWellAllocationPlot()
 
     if ( m_wellAllocationPlotWidget )
     {
-        m_wellAllocationPlotWidget->deleteLater();
+        m_wellAllocationPlotWidget->hide();
+        m_wellAllocationPlotWidget->setParent( nullptr );
+        delete m_wellAllocationPlotWidget;
         m_wellAllocationPlotWidget = nullptr;
     }
 }
@@ -192,7 +194,9 @@ void RimWellAllocationPlot::deleteViewWidget()
 {
     if ( m_wellAllocationPlotWidget )
     {
-        m_wellAllocationPlotWidget->deleteLater();
+        m_wellAllocationPlotWidget->hide();
+        m_wellAllocationPlotWidget->setParent( nullptr );
+        delete m_wellAllocationPlotWidget;
         m_wellAllocationPlotWidget = nullptr;
     }
 }

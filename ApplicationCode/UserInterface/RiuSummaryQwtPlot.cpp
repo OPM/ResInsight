@@ -194,7 +194,12 @@ void RiuSummaryQwtPlot::removeEnsembleCurveSetLegend( RimEnsembleCurveSet* curve
     auto it = m_ensembleLegendWidgets.find( curveSetToShowLegendFor );
     if ( it != m_ensembleLegendWidgets.end() )
     {
-        if ( it->second != nullptr ) it->second->deleteLater();
+        if ( it->second != nullptr )
+        {
+            it->second->hide();
+            it->second->setParent( nullptr );
+            delete it->second;
+        }
 
         m_ensembleLegendWidgets.erase( it );
     }

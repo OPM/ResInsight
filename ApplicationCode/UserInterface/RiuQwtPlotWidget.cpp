@@ -76,9 +76,10 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plot, QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget::~RiuQwtPlotWidget()
 {
-    // The destructor may be called later when deleting with QWidget::deleteLater()
-    // If you are recreating the widget, then calling something that detaches QwtCurves
-    // here may cause them to detach from the new widget rather than the old.
+    if ( m_plotDefinition )
+    {
+        m_plotDefinition->detachAllCurves();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -522,10 +523,6 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 void RiuQwtPlotWidget::hideEvent( QHideEvent* event )
 {
     resetCurveHighlighting();
-    if ( m_plotDefinition )
-    {
-        m_plotDefinition->detachAllCurves();
-    }
     QwtPlot::hideEvent( event );
 }
 
@@ -540,10 +537,6 @@ void RiuQwtPlotWidget::showEvent( QShowEvent* event )
     m_canvasStyleSheet = createCanvasStyleSheet();
     m_canvasStyleSheet.applyToWidget( canvas() );
 
-    if ( m_plotDefinition )
-    {
-        m_plotDefinition->reattachAllCurves();
-    }
     QwtPlot::showEvent( event );
 }
 
@@ -654,7 +647,7 @@ caf::UiStyleSheet RiuQwtPlotWidget::createCanvasStyleSheet() const
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setDefaults()
 {
-    setEnabledAxes( { QwtPlot::xTop, QwtPlot::yLeft } );
+    setEnabledAxes( {QwtPlot::xTop, QwtPlot::yLeft} );
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
 }
 
@@ -796,7 +789,7 @@ void RiuQwtPlotWidget::highlightCurve( const QwtPlotCurve* closestCurve )
                     symbol->setPen( blendedSymbolLineColor, symbol->pen().width(), symbol->pen().style() );
                 }
             }
-            CurveColors curveColors = { curveColor, symbolColor, symbolLineColor };
+            CurveColors curveColors = {curveColor, symbolColor, symbolLineColor};
             m_originalCurveColors.insert( std::make_pair( plotCurve, curveColors ) );
             m_originalCurveColors.insert( std::make_pair( plotCurve, curveColors ) );
             m_originalZValues.insert( std::make_pair( plotCurve, zValue ) );
