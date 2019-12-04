@@ -59,7 +59,9 @@ RimTotalWellAllocationPlot::~RimTotalWellAllocationPlot()
 
     if ( m_wellTotalAllocationPlotWidget )
     {
-        m_wellTotalAllocationPlotWidget->deleteLater();
+        m_wellTotalAllocationPlotWidget->hide();
+        m_wellTotalAllocationPlotWidget->setParent( nullptr );
+        delete m_wellTotalAllocationPlotWidget;
         m_wellTotalAllocationPlotWidget = nullptr;
     }
 }
@@ -71,7 +73,9 @@ void RimTotalWellAllocationPlot::deleteViewWidget()
 {
     if ( m_wellTotalAllocationPlotWidget )
     {
-        m_wellTotalAllocationPlotWidget->deleteLater();
+        m_wellTotalAllocationPlotWidget->hide();
+        m_wellTotalAllocationPlotWidget->setParent( nullptr );
+        delete m_wellTotalAllocationPlotWidget;
         m_wellTotalAllocationPlotWidget = nullptr;
     }
 }

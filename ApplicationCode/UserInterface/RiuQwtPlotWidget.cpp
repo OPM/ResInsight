@@ -78,9 +78,10 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlotInterface* plotTrackDefinition, QWidg
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget::~RiuQwtPlotWidget()
 {
-    // The destructor may be called later when deleting with QWidget::deleteLater()
-    // If you are recreating the widget, then calling something that detaches QwtCurves
-    // here may cause them to detach from the new widget rather than the old.
+    if ( plotDefinition() )
+    {
+        plotDefinition()->detachAllCurves();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -543,10 +544,6 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 void RiuQwtPlotWidget::hideEvent( QHideEvent* event )
 {
     resetCurveHighlighting();
-    if ( plotDefinition() )
-    {
-        plotDefinition()->detachAllCurves();
-    }
     QwtPlot::hideEvent( event );
 }
 
@@ -561,10 +558,6 @@ void RiuQwtPlotWidget::showEvent( QShowEvent* event )
     m_canvasStyleSheet = createCanvasStyleSheet();
     m_canvasStyleSheet.applyToWidget( canvas() );
 
-    if ( plotDefinition() )
-    {
-        plotDefinition()->reattachAllCurves();
-    }
     QwtPlot::showEvent( event );
 }
 
