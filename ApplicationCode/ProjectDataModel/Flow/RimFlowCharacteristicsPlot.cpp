@@ -118,7 +118,9 @@ RimFlowCharacteristicsPlot::~RimFlowCharacteristicsPlot()
 
     if ( m_flowCharPlotWidget )
     {
-        m_flowCharPlotWidget->deleteLater();
+        m_flowCharPlotWidget->hide();
+        m_flowCharPlotWidget->setParent( nullptr );
+        delete m_flowCharPlotWidget;
         m_flowCharPlotWidget = nullptr;
     }
 }
@@ -159,7 +161,9 @@ void RimFlowCharacteristicsPlot::deleteViewWidget()
 {
     if ( m_flowCharPlotWidget )
     {
-        m_flowCharPlotWidget->deleteLater();
+        m_flowCharPlotWidget->hide();
+        m_flowCharPlotWidget->setParent( nullptr );
+        delete m_flowCharPlotWidget;
         m_flowCharPlotWidget = nullptr;
     }
 }

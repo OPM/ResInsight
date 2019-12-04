@@ -1122,7 +1122,8 @@ void RimGridCrossPlot::cleanupBeforeClose()
 
     if ( m_plotWidget )
     {
-        m_plotWidget->deleteLater();
+        m_plotWidget->setParent( nullptr );
+        delete m_plotWidget;
         m_plotWidget = nullptr;
     }
 }

@@ -617,7 +617,8 @@ void RimGridPlotWindow::cleanupBeforeClose()
 
     if ( m_viewer )
     {
-        m_viewer->deleteLater();
+        m_viewer->setParent( nullptr );
+        delete m_viewer;
         m_viewer = nullptr;
     }
 }
