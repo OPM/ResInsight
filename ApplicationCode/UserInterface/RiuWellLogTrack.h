@@ -37,4 +37,7 @@ public:
 
 protected:
     bool eventFilter( QObject* watched, QEvent* event ) override;
+
+private:
+    void setAxisEnabled( QwtPlot::Axis axis, bool enabled );
 };
