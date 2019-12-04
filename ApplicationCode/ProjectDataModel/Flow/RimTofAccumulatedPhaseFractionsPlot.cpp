@@ -71,7 +71,9 @@ RimTofAccumulatedPhaseFractionsPlot::~RimTofAccumulatedPhaseFractionsPlot()
 
     if ( m_tofAccumulatedPhaseFractionsPlotWidget )
     {
-        m_tofAccumulatedPhaseFractionsPlotWidget->deleteLater();
+        m_tofAccumulatedPhaseFractionsPlotWidget->hide();
+        m_tofAccumulatedPhaseFractionsPlotWidget->setParent( nullptr );
+        delete m_tofAccumulatedPhaseFractionsPlotWidget;
         m_tofAccumulatedPhaseFractionsPlotWidget = nullptr;
     }
 }
@@ -91,7 +93,9 @@ void RimTofAccumulatedPhaseFractionsPlot::deleteViewWidget()
 {
     if ( m_tofAccumulatedPhaseFractionsPlotWidget )
     {
-        m_tofAccumulatedPhaseFractionsPlotWidget->deleteLater();
+        m_tofAccumulatedPhaseFractionsPlotWidget->hide();
+        m_tofAccumulatedPhaseFractionsPlotWidget->setParent( nullptr );
+        delete m_tofAccumulatedPhaseFractionsPlotWidget;
         m_tofAccumulatedPhaseFractionsPlotWidget = nullptr;
     }
 }
