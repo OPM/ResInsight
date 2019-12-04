@@ -122,11 +122,11 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                             if ( values.size() == trueVerticalDepthValues.size() &&
                                  values.size() == measuredDepthValues.size() )
                             {
-                                this->setValuesAndDepths( values,
-                                                          measuredDepthValues,
-                                                          RiaDefines::MEASURED_DEPTH,
-                                                          wellLogFile->depthUnit(),
-                                                          false );
+                                this->setValuesWithTVD( values,
+                                                        measuredDepthValues,
+                                                        trueVerticalDepthValues,
+                                                        wellLogFile->depthUnit(),
+                                                        false );
                                 canUseTvd = true;
                             }
                         }
