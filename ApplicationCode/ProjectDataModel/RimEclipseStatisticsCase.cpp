@@ -178,6 +178,8 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
 
     this->setReservoirData( eclipseCase.p() );
 
+    loadSimulationWellDataFromSourceCase();
+
     if ( m_populateSelectionAfterLoadingGrid )
     {
         this->populateResultSelection();
@@ -544,24 +546,21 @@ void RimEclipseStatisticsCase::fieldChangedByUi( const caf::PdmFieldHandle* chan
 
     if ( &m_wellDataSourceCase == changedField )
     {
-        // Find or load well data for given case
-        RimEclipseCase* sourceResultCase = caseGroup()->caseCollection()->findByDescription( m_wellDataSourceCase );
-        if ( sourceResultCase )
-        {
-            sourceResultCase->openEclipseGridFile();
+        loadSimulationWellDataFromSourceCase();
 
-            // Propagate well info to statistics case
-            if ( sourceResultCase->eclipseCaseData() )
-            {
-                const cvf::Collection<RigSimWellData>& sourceCaseSimWellData =
-                    sourceResultCase->eclipseCaseData()->wellResults();
-                setWellResultsAndUpdateViews( sourceCaseSimWellData );
-            }
-        }
-        else
+        caf::ProgressInfo progInfo( reservoirViews().size() + 1, "Updating Well Data for Views" );
+
+        // Update views
+        for ( size_t i = 0; i < reservoirViews().size(); i++ )
         {
-            cvf::Collection<RigSimWellData> sourceCaseWellResults;
-            setWellResultsAndUpdateViews( sourceCaseWellResults );
+            RimEclipseView* reservoirView = reservoirViews()[i];
+            CVF_ASSERT( reservoirView );
+
+            reservoirView->wellCollection()->wells.deleteAllChildObjects();
+            reservoirView->updateDisplayModelForWellResults();
+            reservoirView->wellCollection()->updateConnectedEditors();
+
+            progInfo.incrementProgress();
         }
     }
 }
@@ -569,23 +568,27 @@ void RimEclipseStatisticsCase::fieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseStatisticsCase::setWellResultsAndUpdateViews( const cvf::Collection<RigSimWellData>& sourceCaseSimWellData )
+void RimEclipseStatisticsCase::loadSimulationWellDataFromSourceCase()
 {
-    this->eclipseCaseData()->setSimWellData( sourceCaseSimWellData );
-
-    caf::ProgressInfo progInfo( reservoirViews().size() + 1, "Updating Well Data for Views" );
-
-    // Update views
-    for ( size_t i = 0; i < reservoirViews().size(); i++ )
+    // Find or load well data for given case
+    RimEclipseCase* sourceResultCase = caseGroup()->caseCollection()->findByDescription( m_wellDataSourceCase );
+    if ( sourceResultCase )
     {
-        RimEclipseView* reservoirView = reservoirViews()[i];
-        CVF_ASSERT( reservoirView );
+        sourceResultCase->openEclipseGridFile();
 
-        reservoirView->wellCollection()->wells.deleteAllChildObjects();
-        reservoirView->updateDisplayModelForWellResults();
-        reservoirView->wellCollection()->updateConnectedEditors();
+        // Propagate well info to statistics case
+        if ( sourceResultCase->eclipseCaseData() )
+        {
+            const cvf::Collection<RigSimWellData>& sourceCaseSimWellData =
+                sourceResultCase->eclipseCaseData()->wellResults();
 
-        progInfo.incrementProgress();
+            this->eclipseCaseData()->setSimWellData( sourceCaseSimWellData );
+        }
+    }
+    else
+    {
+        cvf::Collection<RigSimWellData> sourceCaseWellResults;
+        this->eclipseCaseData()->setSimWellData( sourceCaseWellResults );
     }
 }
 
