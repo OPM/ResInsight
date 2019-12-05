@@ -201,13 +201,14 @@ void RiaRegressionTestRunner::runRegressionTest()
                 // Wait until all command objects have completed
                 app->waitUntilCommandObjectsHasBeenProcessed();
 
-                setDefaultFixedWindowSizeFor3dViews();
+                setDefaultSnapshotSizeFor3dViews();
 
                 QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath( generatedFolderName );
                 RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( fullPathGeneratedFolder );
 
                 QApplication::processEvents();
-                resizePlotWindows();
+                setDefaultSnapshotSizeForPlotWindows();
+
                 RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( fullPathGeneratedFolder );
 
                 app->closeProject();
@@ -467,7 +468,7 @@ void RiaRegressionTestRunner::removeDirectoryWithContent( QDir& dirToDelete )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaRegressionTestRunner::setDefaultFixedWindowSizeFor3dViews()
+void RiaRegressionTestRunner::setDefaultSnapshotSizeFor3dViews()
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     if ( !mainWnd ) return;
@@ -480,7 +481,7 @@ void RiaRegressionTestRunner::setDefaultFixedWindowSizeFor3dViews()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaRegressionTestRunner::resizePlotWindows()
+void RiaRegressionTestRunner::setDefaultSnapshotSizeForPlotWindows()
 {
     RiuPlotMainWindow* plotMainWindow = RiaGuiApplication::instance()->mainPlotWindow();
     if ( !plotMainWindow ) return;
