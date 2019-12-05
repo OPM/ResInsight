@@ -27,6 +27,8 @@
 
 #include "RimSummaryPlot.h"
 
+#include "RiuPlotMainWindow.h"
+
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
 #include "cvfAssert.h"
@@ -62,14 +64,14 @@ void RicEditSummaryPlotFeature::closeDialogAndResetTargetPlot()
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreatorDialog* RicEditSummaryPlotFeature::curveCreatorDialog()
 {
-    static std::unique_ptr<RicSummaryCurveCreatorDialog> singletonDialog;
+    RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
 
-    if ( !singletonDialog )
+    if ( mainPlotWindow )
     {
-        singletonDialog.reset( new RicSummaryCurveCreatorDialog( nullptr ) );
+        return mainPlotWindow->summaryCurveCreatorDialog();
     }
 
-    return singletonDialog.get();
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
