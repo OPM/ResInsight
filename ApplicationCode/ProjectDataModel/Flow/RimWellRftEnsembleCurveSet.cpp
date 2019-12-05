@@ -44,6 +44,11 @@ RimWellRftEnsembleCurveSet::RimWellRftEnsembleCurveSet()
     m_ensemble.uiCapability()->setUiTreeChildrenHidden( true );
     m_ensemble.uiCapability()->setAutoAddingOptionFromValue( false );
 
+    CAF_PDM_InitFieldNoDefault( &m_ensembleName, "NameAndUnit", "NameAndUnit", "", "", "" );
+    m_ensembleName.registerGetMethod( this, &RimWellRftEnsembleCurveSet::ensembleName );
+    m_ensembleName.uiCapability()->setUiHidden( true );
+    m_ensembleName.xmlCapability()->disableIO();
+
     CAF_PDM_InitField( &m_ensembleColorMode,
                        "ColorMode",
                        ColorModeEnum( ColorMode::SINGLE_COLOR ),
@@ -76,7 +81,6 @@ RimSummaryCaseCollection* RimWellRftEnsembleCurveSet::ensemble() const
 void RimWellRftEnsembleCurveSet::setEnsemble( RimSummaryCaseCollection* ensemble )
 {
     m_ensemble = ensemble;
-    this->uiCapability()->setUiName( m_ensemble->name() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -239,4 +243,22 @@ void RimWellRftEnsembleCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& u
         uiTreeOrdering.add( m_ensembleLegendConfig() );
     }
     uiTreeOrdering.skipRemainingChildren( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWellRftEnsembleCurveSet::userDescriptionField()
+{
+    return &m_ensembleName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellRftEnsembleCurveSet::ensembleName() const
+{
+    if ( m_ensemble ) return m_ensemble->name();
+
+    return "";
 }
