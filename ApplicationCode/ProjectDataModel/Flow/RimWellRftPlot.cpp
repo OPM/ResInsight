@@ -1323,7 +1323,7 @@ void RimWellRftPlot::createEnsembleCurveSets()
         delete curveSet;
     }
 
-    // Then add curves for any ensembles we haven't already added
+    // Then add curve set for any ensembles we haven't already added
     for ( RimSummaryCaseCollection* ensemble : rftEnsembles )
     {
         auto it = std::find_if( m_ensembleCurveSets.begin(),
