@@ -90,6 +90,7 @@ public:
     void deleteCurvesAssosicatedWithObservedData( const RimObservedFmuRftData* observedFmuRftData );
 
     bool showErrorBarsForObservedData() const;
+    void onLegendDefinitionChanged();
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
