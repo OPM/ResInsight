@@ -22,7 +22,6 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
-#include "RiaRegressionTestRunner.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -55,11 +54,6 @@ RicfCommandResponse RicfOpenProject::execute()
         QString errMsg = QString( "openProject: Unable to open project at %1" ).arg( m_path() );
         RiaLogging::error( errMsg );
         return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, errMsg );
-    }
-
-    if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
-    {
-        RiaRegressionTestRunner::setDefaultFixedWindowSizeFor3dViews();
     }
 
     RicfCommandFileExecutor::instance()->setLastProjectPath( projectPath );
