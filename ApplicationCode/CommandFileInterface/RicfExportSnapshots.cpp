@@ -25,6 +25,7 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaRegressionTestRunner.h"
 
 #include "RiuMainWindow.h"
 
@@ -87,6 +88,13 @@ RicfCommandResponse RicfExportSnapshots::execute()
     }
     if ( m_type == RicfExportSnapshots::VIEWS || m_type == RicfExportSnapshots::ALL )
     {
+        if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
+        {
+            RiaRegressionTestRunner::setDefaultSnapshotSizeFor3dViews();
+
+            QApplication::processEvents();
+        }
+
         RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( absolutePathToSnapshotDir,
                                                                            m_prefix,
                                                                            m_caseId(),
@@ -94,6 +102,13 @@ RicfCommandResponse RicfExportSnapshots::execute()
     }
     if ( m_type == RicfExportSnapshots::PLOTS || m_type == RicfExportSnapshots::ALL )
     {
+        if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
+        {
+            RiaRegressionTestRunner::setDefaultSnapshotSizeForPlotWindows();
+
+            QApplication::processEvents();
+        }
+
         RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( absolutePathToSnapshotDir,
                                                                            m_prefix,
                                                                            m_viewId() );

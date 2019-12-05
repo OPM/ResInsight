@@ -42,7 +42,9 @@ public:
     bool useOpenMPForGeometryCreation() const;
 
     static void updateRegressionTest( const QString& testRootPath );
-    static void setDefaultFixedWindowSizeFor3dViews();
+
+    static void setDefaultSnapshotSizeFor3dViews();
+    static void setDefaultSnapshotSizeForPlotWindows();
 
 private:
     RiaRegressionTestRunner();
@@ -60,7 +62,6 @@ private:
                                 const QDir&          testDir );
 
     static void    removeDirectoryWithContent( QDir& dirToDelete );
-    static void    resizePlotWindows();
     static QSize   regressionDefaultImageSize();
     static QString diff2htmlHeaderText( const QString& testRootPath );
     QFileInfoList  subDirectoriesForTestExecution( const QDir& directory );

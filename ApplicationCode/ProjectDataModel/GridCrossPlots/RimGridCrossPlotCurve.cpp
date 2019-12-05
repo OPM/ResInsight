@@ -72,6 +72,8 @@ void RimGridCrossPlotCurve::setSamples( const std::vector<double>& xValues, cons
 {
     CVF_ASSERT( xValues.size() == yValues.size() );
 
+    if ( xValues.empty() || yValues.empty() ) return;
+
     m_qwtPlotCurve->setSamples( &xValues[0], &yValues[0], static_cast<int>( xValues.size() ) );
 }
 

@@ -108,7 +108,15 @@ void RiuMainWindowTools::setWindowSizeOnWidgetsInMdiWindows( RiuMainWindowBase* 
         if ( !w ) continue;
 
         w->showNormal();
+    }
 
+    // Process events before resize to make sure the widget is ready for resize
+    // If not, a maximized window with not get the prescribed window size
+    QApplication::processEvents();
+
+    for ( auto w : widgets )
+    {
+        if ( !w ) continue;
         auto viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( w->widget() );
 
         if ( viewWindow && viewWindow->viewWidget() )
