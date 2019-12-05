@@ -1114,7 +1114,8 @@ void RiaGuiApplication::deleteMainPlotWindow()
 {
     if ( m_mainPlotWindow )
     {
-        m_mainPlotWindow->deleteLater();
+        m_mainPlotWindow->setParent( nullptr );
+        delete m_mainPlotWindow;
         m_mainPlotWindow = nullptr;
     }
 }
