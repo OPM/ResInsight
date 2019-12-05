@@ -114,7 +114,7 @@ class PdmOptionItemInfo
 public:
     // Template pass-through for enum types, ensuring the T type gets cast to an int before storing in the QVariant
     // Note the extra dummy parameter. This ensures compilation fails for non-enum types and these variants get removed
-    // due to SFINA (https://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error)
+    // due to SFINAE (https://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error)
     template<typename T>
     PdmOptionItemInfo(const QString& anOptionUiText, T aValue, bool isReadOnly = false, const QIconProvider& anIcon = QIconProvider(), typename std::enable_if<std::is_enum<T>::value>::type* = 0)
         : PdmOptionItemInfo(anOptionUiText, QVariant(static_cast<int>(aValue)), isReadOnly, anIcon)
