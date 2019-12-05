@@ -24,6 +24,8 @@
 #include "cafPdmPointer.h"
 #include "cafPdmUiDragDropInterface.h"
 
+#include <QPointer>
+
 #include <memory>
 
 class QMdiSubWindow;
@@ -32,6 +34,7 @@ class RiuViewer;
 
 struct RimMdiWindowGeometry;
 class RimViewWindow;
+class RicSummaryCurveCreatorDialog;
 
 namespace caf
 {
@@ -84,6 +87,8 @@ public:
     void updateSummaryPlotToolBar( bool forceUpdateUi = false );
     void setFocusToLineEditInSummaryToolBar();
 
+    RicSummaryCurveCreatorDialog* summaryCurveCreatorDialog();
+
 protected:
     void closeEvent( QCloseEvent* event ) override;
     void keyPressEvent( QKeyEvent* ) override;
@@ -126,6 +131,8 @@ private:
     std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
 
     caf::PdmUiPropertyView* m_pdmUiPropertyView;
+
+    QPointer<RicSummaryCurveCreatorDialog> m_summaryCurveCreatorDialog;
 
     std::vector<QWidget*> m_temporaryWidgets;
 };
