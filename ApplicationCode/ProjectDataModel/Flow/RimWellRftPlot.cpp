@@ -868,7 +868,7 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             plotTrack->deleteAllCurves();
         }
-
+        createEnsembleCurveSets();
         updateEditorsFromPreviousSelection();
         updateFormationsOnPlot();
         syncCurvesFromUiSelection();
@@ -878,6 +878,7 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         const QString simWellName = associatedSimWellName();
         m_branchIndex = RiaSimWellBranchTools::clampBranchIndex( simWellName, m_branchIndex, m_branchDetection );
 
+        createEnsembleCurveSets();
         updateFormationsOnPlot();
         syncCurvesFromUiSelection();
     }
@@ -1101,6 +1102,14 @@ void RimWellRftPlot::initAfterRead()
 bool RimWellRftPlot::showErrorBarsForObservedData() const
 {
     return m_showErrorInObservedData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::onLegendDefinitionChanged()
+{
+    syncCurvesFromUiSelection();
 }
 
 //--------------------------------------------------------------------------------------------------

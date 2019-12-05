@@ -302,7 +302,7 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
     firstAncestorOrThisOfType( rftPlot );
     if ( rftPlot )
     {
-        rftPlot->loadDataAndUpdate();
+        rftPlot->onLegendDefinitionChanged();
     }
 }
 
