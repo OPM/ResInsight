@@ -46,6 +46,7 @@
 #include "RimTernaryLegendConfig.h"
 #include "RimViewLinker.h"
 #include "RimViewNameConfig.h"
+#include "RimWellMeasurementInView.h"
 #include "RimWellMeasurementInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -174,6 +175,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
 
     this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
+    m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();
 
     this->scheduleCreateDisplayModelAndRedraw();
 
@@ -428,7 +430,10 @@ void RimGeoMechView::onResetLegendsInViewer()
         sepInterResDef->ternaryLegendConfig()->recreateLegend();
     }
 
-    m_wellMeasurementCollection->legendConfig()->recreateLegend();
+    for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
+    {
+        wellMeasurement->legendConfig()->recreateLegend();
+    }
 
     nativeOrOverrideViewer()->removeAllColorLegends();
 }
@@ -481,10 +486,16 @@ void RimGeoMechView::onUpdateLegends()
             }
         }
 
-        if ( m_wellMeasurementCollection->isChecked() && m_wellMeasurementCollection->legendConfig()->showLegend() )
+        if ( m_wellMeasurementCollection->isChecked() )
         {
-            m_wellMeasurementCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(),
-                                                                              isUsingOverrideViewer() );
+            for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
+            {
+                if ( wellMeasurement->isChecked() && wellMeasurement->legendConfig()->showLegend() )
+                {
+                    wellMeasurement->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(),
+                                                                          isUsingOverrideViewer() );
+                }
+            }
         }
     }
 }
@@ -585,6 +596,11 @@ std::vector<RimLegendConfig*> RimGeoMechView::legendConfigs() const
           this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
     {
         absLegendConfigs.push_back( sepInterResDef->regularLegendConfig() );
+    }
+
+    for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
+    {
+        absLegendConfigs.push_back( wellMeasurement->legendConfig() );
     }
 
     return absLegendConfigs;
@@ -715,6 +731,11 @@ bool RimGeoMechView::isTimeStepDependentDataVisible() const
     {
         return true;
     }
+    if ( m_wellMeasurementCollection->isChecked() )
+    {
+        return true;
+    }
+
     return false;
 }
 

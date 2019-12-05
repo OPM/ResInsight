@@ -177,3 +177,37 @@ void RimWellMeasurement::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurement::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimWellMeasurement::mapToColor( const QString& measurementKind )
+{
+    if ( measurementKind == "DP" ) return cvf::Color3f::RED;
+    if ( measurementKind == "TH" ) return cvf::Color3f::RED;
+    if ( measurementKind == "LE" ) return cvf::Color3f::BLUE;
+    if ( measurementKind == "BA" ) return cvf::Color3f::GREEN;
+    if ( measurementKind == "CORE" ) return cvf::Color3f::BLACK;
+
+    return cvf::Color3f::CRIMSON;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellMeasurement::kindHasValue( const QString& measurementKind )
+{
+    QStringList valueLessKind;
+    valueLessKind << "DP"
+                  << "LE"
+                  << "TH"
+                  << "BA"
+                  << "CORE";
+    return !valueLessKind.contains( measurementKind );
+}
+
+std::vector<QString> RimWellMeasurement::measurementKindsForWellBoreStability()
+{
+    std::vector<QString> wbsMeasurementKinds = {"XLOT", "LOT", "FIT"};
+    return wbsMeasurementKinds;
+}

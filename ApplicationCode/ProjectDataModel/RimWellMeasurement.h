@@ -22,6 +22,8 @@
 
 #include "cafPdmField.h"
 
+#include "cvfColor3.h"
+
 #include <QDate>
 #include <QString>
 
@@ -52,6 +54,10 @@ public:
     void    setQuality( int quality );
     QString remark() const;
     void    setRemark( const QString& remark );
+
+    static bool                 kindHasValue( const QString& measurementKind );
+    static cvf::Color3f         mapToColor( const QString& measurementKind );
+    static std::vector<QString> measurementKindsForWellBoreStability();
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,

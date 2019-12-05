@@ -18,6 +18,7 @@
 #include "RimWellMeasurementInViewCollection.h"
 
 #include "Rim3dView.h"
+#include "RimGridView.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTools.h"
@@ -25,9 +26,8 @@
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"
 #include "RimWellMeasurementFilter.h"
+#include "RimWellMeasurementInView.h"
 #include "RimWellPathCollection.h"
-
-#include "RiuViewer.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiTableViewEditor.h"
@@ -43,17 +43,12 @@ CAF_PDM_SOURCE_INIT( RimWellMeasurementInViewCollection, "WellMeasurementsInView
 //--------------------------------------------------------------------------------------------------
 RimWellMeasurementInViewCollection::RimWellMeasurementInViewCollection()
 {
-    CAF_PDM_InitObject( "Well Measurement", "", "", "" );
+    CAF_PDM_InitObject( "Well Measurements", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
-    m_legendConfig = new RimRegularLegendConfig();
-    m_legendConfig.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_measurementsInView, "MeasurementKinds", "Measurement Kinds", "", "", "" );
+    m_measurementsInView.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_measurementKinds, "MeasurementKinds", "Measurent Kinds", "", "", "" );
-    m_measurementKinds.uiCapability()->setAutoAddingOptionFromValue( false );
-    m_measurementKinds.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_measurementKinds.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_measurementKinds.xmlCapability()->disableIO();
+    m_isChecked = false;
 
     this->setName( "Well Measurements" );
 }
@@ -61,10 +56,23 @@ RimWellMeasurementInViewCollection::RimWellMeasurementInViewCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellMeasurementInViewCollection::~RimWellMeasurementInViewCollection()
+RimWellMeasurementInViewCollection::~RimWellMeasurementInViewCollection() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellMeasurementInView*> RimWellMeasurementInViewCollection::measurements() const
 {
-    delete m_legendConfig;
+    std::vector<RimWellMeasurementInView*> attrs;
+
+    for ( auto attr : m_measurementsInView )
+    {
+        attrs.push_back( attr.p() );
+    }
+    return attrs;
 }
+
+//--------------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -72,7 +80,7 @@ RimWellMeasurementInViewCollection::~RimWellMeasurementInViewCollection()
 void RimWellMeasurementInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
                                                                QString                 uiConfigName /*= ""*/ )
 {
-    uiTreeOrdering.add( &m_legendConfig );
+    uiTreeOrdering.add( &m_measurementsInView );
     uiTreeOrdering.skipRemainingChildren( true );
 }
 
@@ -83,115 +91,54 @@ void RimWellMeasurementInViewCollection::fieldChangedByUi( const caf::PdmFieldHa
                                                            const QVariant&            oldValue,
                                                            const QVariant&            newValue )
 {
-    if ( changedField == &m_isChecked || changedField == &m_measurementKinds || changedField == &m_legendConfig )
-    {
-        updateLegendData();
-        RimProject* proj;
-        this->firstAncestorOrThisOfTypeAsserted( proj );
-        proj->scheduleCreateDisplayModelAndRedrawAllViews();
-    }
+    RimGridView* rimGridView = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted( rimGridView );
+    rimGridView->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimRegularLegendConfig* RimWellMeasurementInViewCollection::legendConfig()
-{
-    return m_legendConfig;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimWellMeasurementInViewCollection::updateLegendData()
+void RimWellMeasurementInViewCollection::syncWithChangesInWellMeasurementCollection()
 {
     RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-    if ( !wellPathCollection ) return false;
-
-    RimWellMeasurementCollection* wellMeasurementCollection = wellPathCollection->measurementCollection();
-    if ( !wellMeasurementCollection ) return false;
-
-    std::vector<QString> selectedMeasurementKinds = measurementKinds();
-
-    // Only show legend when only one measurement is selected
-    if ( selectedMeasurementKinds.size() == 1 )
+    if ( wellPathCollection )
     {
-        std::vector<RimWellMeasurement*> wellMeasurements =
-            RimWellMeasurementFilter::filterMeasurements( wellMeasurementCollection->measurements(),
-                                                          selectedMeasurementKinds );
+        const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
 
-        double minValue         = HUGE_VAL;
-        double maxValue         = -HUGE_VAL;
-        double posClosestToZero = HUGE_VAL;
-        double negClosestToZero = -HUGE_VAL;
-
-        for ( auto& measurement : wellMeasurements )
+        // Make a set of the measurement kinds already present
+        std::set<QString> currentMeasurementKinds;
+        for ( RimWellMeasurementInView* wellMeasurement : measurements() )
         {
-            minValue = std::min( measurement->value(), minValue );
-            maxValue = std::max( measurement->value(), maxValue );
+            currentMeasurementKinds.insert( wellMeasurement->measurementKind() );
         }
 
-        if ( minValue != HUGE_VAL )
+        // Make a set of the measurements we should have after the update
+        std::set<QString> targetMeasurementKinds;
+        for ( RimWellMeasurement* wellMeasurement : measurementCollection->measurements() )
         {
-            m_legendConfig->setTitle( QString( "Well Measurement: \n" ) + selectedMeasurementKinds[0] );
-            m_legendConfig->setAutomaticRanges( minValue, maxValue, minValue, maxValue );
-            m_legendConfig->setClosestToZeroValues( posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero );
-            return true;
+            targetMeasurementKinds.insert( wellMeasurement->kind() );
         }
-    }
 
-    return false;
-}
+        // The difference between the sets is the measurement kinds to be added
+        std::set<QString> newMeasurementKinds;
+        std::set_difference( targetMeasurementKinds.begin(),
+                             targetMeasurementKinds.end(),
+                             currentMeasurementKinds.begin(),
+                             currentMeasurementKinds.end(),
+                             std::inserter( newMeasurementKinds, newMeasurementKinds.end() ) );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellMeasurementInViewCollection::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer,
-                                                                              bool       isUsingOverrideViewer )
-{
-    bool addToViewer = updateLegendData();
-    if ( addToViewer )
-    {
-        nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( m_legendConfig->titledOverlayFrame(),
-                                                                  isUsingOverrideViewer );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimWellMeasurementInViewCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                               bool*                      useOptionsOnly )
-{
-    QList<caf::PdmOptionItemInfo> options;
-    if ( fieldNeedingOptions == &m_measurementKinds )
-    {
-        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-        if ( wellPathCollection )
+        // Add the new measurement kinds
+        for ( QString kind : newMeasurementKinds )
         {
-            std::vector<RimWellMeasurement*> measurements = wellPathCollection->measurementCollection()->measurements();
+            RimWellMeasurementInView* measurementInView = new RimWellMeasurementInView;
+            measurementInView->setName( kind );
+            measurementInView->setMeasurementKind( kind );
+            measurementInView->setAllWellsSelected();
 
-            std::set<QString> measurementKindsInData;
-            for ( auto measurement : measurements )
-            {
-                measurementKindsInData.insert( measurement->kind() );
-            }
-
-            for ( auto measurementKind : measurementKindsInData )
-            {
-                options.push_back( caf::PdmOptionItemInfo( measurementKind, measurementKind ) );
-            }
+            m_measurementsInView.push_back( measurementInView );
         }
+
+        updateConnectedEditors();
     }
-
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RimWellMeasurementInViewCollection::measurementKinds() const
-{
-    return m_measurementKinds;
 }

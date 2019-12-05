@@ -63,7 +63,6 @@ protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
-    void                          initAfterRead() override;
 
     RiuQwtSymbol::PointSymbolEnum getSymbolForMeasurementKind( const QString& measurementKind );
     cvf::Color3f                  getColorForMeasurementKind( const QString& measurementKind );

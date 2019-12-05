@@ -40,6 +40,8 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
 #include "RimWellLogWbsCurve.h"
+#include "RimWellMeasurement.h"
+#include "RimWellMeasurementCurve.h"
 #include "RimWellPath.h"
 
 #include "RicWellLogTools.h"
@@ -320,11 +322,12 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
         curve->setSmoothingThreshold( 0.002 );
     }
 
-    std::vector<QString> measurementNames;
-    measurementNames.push_back( "XLOT" );
-    for ( size_t i = 0; i < measurementNames.size(); i++ )
+    for ( QString measurementKind : RimWellMeasurement::measurementKindsForWellBoreStability() )
     {
-        RicWellLogTools::addWellMeasurementCurve( stabilityCurvesTrack, wellPath, measurementNames[i] );
+        RimWellMeasurementCurve* curve = RicWellLogTools::addWellMeasurementCurve( stabilityCurvesTrack,
+                                                                                   wellPath,
+                                                                                   measurementKind );
+        curve->loadDataAndUpdate( false );
     }
 
     stabilityCurvesTrack->setAutoScaleXEnabled( true );

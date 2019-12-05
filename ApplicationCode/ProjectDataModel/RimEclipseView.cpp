@@ -76,6 +76,7 @@
 #include "RimViewLinker.h"
 #include "RimViewNameConfig.h"
 #include "RimVirtualPerforationResults.h"
+#include "RimWellMeasurementInView.h"
 #include "RimWellMeasurementInViewCollection.h"
 #include "RimWellPathCollection.h"
 
@@ -931,6 +932,8 @@ void RimEclipseView::onLoadDataAndUpdate()
         m_virtualPerforationResult->loadData();
     }
 
+    m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();
+
     this->scheduleCreateDisplayModelAndRedraw();
 }
 
@@ -1308,10 +1311,15 @@ void RimEclipseView::onUpdateLegends()
                                                                     isUsingOverrideViewer() );
     }
 
-    if ( m_wellMeasurementCollection->isChecked() && m_wellMeasurementCollection->legendConfig()->showLegend() )
+    if ( m_wellMeasurementCollection->isChecked() )
     {
-        m_wellMeasurementCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(),
-                                                                          isUsingOverrideViewer() );
+        for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
+        {
+            if ( wellMeasurement->isChecked() && wellMeasurement->legendConfig()->showLegend() )
+            {
+                wellMeasurement->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
+            }
+        }
     }
 }
 
@@ -1859,7 +1867,10 @@ void RimEclipseView::onResetLegendsInViewer()
         sepInterResDef->ternaryLegendConfig()->recreateLegend();
     }
 
-    m_wellMeasurementCollection->legendConfig()->recreateLegend();
+    for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
+    {
+        wellMeasurement->legendConfig()->recreateLegend();
+    }
 
     nativeOrOverrideViewer()->removeAllColorLegends();
 }
@@ -2019,7 +2030,10 @@ std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
         absLegends.push_back( sepInterResDef->ternaryLegendConfig() );
     }
 
-    absLegends.push_back( m_wellMeasurementCollection->legendConfig() );
+    for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
+    {
+        absLegends.push_back( wellMeasurement->legendConfig() );
+    }
 
     return absLegends;
 }

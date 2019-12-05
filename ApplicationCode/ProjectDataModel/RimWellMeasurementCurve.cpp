@@ -59,6 +59,7 @@ RimWellMeasurementCurve::RimWellMeasurementCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_measurementKind, "CurveMeasurementKind", "Measurement Kind", "", "", "" );
     m_measurementKind.uiCapability()->setUiTreeChildrenHidden( true );
+    m_measurementKind.uiCapability()->setUiHidden( true );
 
     m_wellPath = nullptr;
 }
@@ -219,7 +220,6 @@ void RimWellMeasurementCurve::defineUiOrdering( QString uiConfigName, caf::PdmUi
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Curve Data" );
     curveDataGroup->add( &m_wellPath );
-    curveDataGroup->add( &m_measurementKind );
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
@@ -251,47 +251,10 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_wellPath )
     {
-        auto wellPathColl = RimTools::wellPathCollection();
-        if ( wellPathColl )
-        {
-            caf::PdmChildArrayField<RimWellPath*>& wellPaths = wellPathColl->wellPaths;
-
-            for ( size_t i = 0; i < wellPaths.size(); i++ )
-            {
-                options.push_back( caf::PdmOptionItemInfo( wellPaths[i]->name(), wellPaths[i] ) );
-            }
-
-            if ( options.size() > 0 )
-            {
-                options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
-            }
-        }
-    }
-
-    if ( fieldNeedingOptions == &m_measurementKind )
-    {
-        if ( m_wellPath() )
-        {
-            // TODO: take all options from somewhere and filter based on
-            // what the current well path has set.
-            options.push_back( caf::PdmOptionItemInfo( "XLOT", "XLOT" ) );
-            options.push_back( caf::PdmOptionItemInfo( "LOT", "LOT" ) );
-            options.push_back( caf::PdmOptionItemInfo( "FIT", "FIT" ) );
-            options.push_back( caf::PdmOptionItemInfo( "DP", "DP" ) );
-        }
+        RimTools::wellPathOptionItems( &options );
     }
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellMeasurementCurve::initAfterRead()
-{
-    if ( !m_wellPath ) return;
-
-    // TODO: do something here?
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -301,11 +264,7 @@ QString RimWellMeasurementCurve::createCurveAutoName()
 {
     if ( m_wellPath )
     {
-        QStringList name;
-        name.push_back( wellName() );
-        name.push_back( measurementKind() );
-
-        return name.join( ", " );
+        return measurementKind();
     }
 
     return "Empty curve";

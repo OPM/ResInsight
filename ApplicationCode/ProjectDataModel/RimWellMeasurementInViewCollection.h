@@ -20,16 +20,10 @@
 #include "RimCheckableNamedObject.h"
 
 #include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmProxyValueField.h"
 
 #include <vector>
 
-class RimWellMeasurement;
-class RimRegularLegendConfig;
-class RiuViewer;
+class RimWellMeasurementInView;
 
 class RimWellMeasurementInViewCollection : public RimCheckableNamedObject
 {
@@ -39,22 +33,16 @@ public:
     RimWellMeasurementInViewCollection();
     ~RimWellMeasurementInViewCollection() override;
 
-    RimRegularLegendConfig* legendConfig();
-    std::vector<QString>    measurementKinds() const;
+    std::vector<RimWellMeasurementInView*> measurements() const;
 
-    void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
+    void syncWithChangesInWellMeasurementCollection();
 
 protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
                            const QVariant&            newValue ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly );
-
-    bool updateLegendData();
 
 private:
-    caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
-    caf::PdmField<std::vector<QString>>         m_measurementKinds;
+    caf::PdmChildArrayField<RimWellMeasurementInView*> m_measurementsInView;
 };

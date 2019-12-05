@@ -557,3 +557,11 @@ RimViewLinker* RimGridView::viewLinkerIfMasterView() const
 
     return nullptr;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridView::updateWellMeasurements()
+{
+    m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();
+}

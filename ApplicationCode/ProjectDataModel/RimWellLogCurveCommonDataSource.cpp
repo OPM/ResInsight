@@ -33,6 +33,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
 #include "RimWellLogWbsCurve.h"
+#include "RimWellMeasurementCurve.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -436,8 +437,9 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks( const std::vector<R
         {
             continue;
         }
-        RimWellLogFileCurve*       fileCurve       = dynamic_cast<RimWellLogFileCurve*>( curve );
-        RimWellLogExtractionCurve* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( curve );
+        RimWellLogFileCurve*       fileCurve        = dynamic_cast<RimWellLogFileCurve*>( curve );
+        RimWellLogExtractionCurve* extractionCurve  = dynamic_cast<RimWellLogExtractionCurve*>( curve );
+        RimWellMeasurementCurve*   measurementCurve = dynamic_cast<RimWellMeasurementCurve*>( curve );
         if ( fileCurve )
         {
             if ( wellPathToApply() != nullptr )
@@ -523,6 +525,13 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks( const std::vector<R
                 extractionCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
                 plots.insert( parentPlot );
                 curve->updateConnectedEditors();
+            }
+        }
+        else if ( measurementCurve )
+        {
+            if ( wellPathToApply() != nullptr )
+            {
+                measurementCurve->setWellPath( wellPathToApply() );
             }
         }
     }
