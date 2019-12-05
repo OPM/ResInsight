@@ -4,6 +4,7 @@
 #include "cafFilePath.h"
 #include "cafPdmPointer.h"
 
+#include <type_traits>
 #include <vector>
 #include <assert.h>
 
@@ -60,12 +61,13 @@ public:
     static QVariant convert(const caf::AppEnum<T>& value)
     {
         T enumValue = value;
-        return QVariant(enumValue);
+        // Explicit cast to an int before storage in a QVariant. This allows the use of enum class instead of enum
+        return QVariant(static_cast<int>(enumValue));
     }
 
     static void setFromVariant(const QVariant& variantValue, caf::AppEnum<T>& value)
     {
-        value = (T)variantValue.toInt();
+        value = static_cast<T>(variantValue.toInt());
     }
  
     static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)

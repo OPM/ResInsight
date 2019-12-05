@@ -765,30 +765,29 @@ std::set<RiaRftPltCurveDefinition> RimWellPlotTools::curveDefsFromTimesteps(
                 }
             }
         }
-        else if ( addr.sourceType() == RifDataSourceForRftPlt::ENSEMBLE_RFT )
+        else if ( addr.ensemble() )
         {
-            if ( addr.ensemble() )
+            // Add individual summary curves
+            for ( RimSummaryCase* summaryCase : addr.ensemble()->allSummaryCases() )
             {
-                for ( RimSummaryCase* summaryCase : addr.ensemble()->allSummaryCases() )
+                if ( summaryCase && summaryCase->rftReader() )
                 {
-                    if ( summaryCase && summaryCase->rftReader() )
-                    {
-                        RifDataSourceForRftPlt summaryAddr( RifDataSourceForRftPlt::SUMMARY_RFT,
-                                                            summaryCase,
-                                                            addr.ensemble() );
+                    RifDataSourceForRftPlt summaryAddr( RifDataSourceForRftPlt::SUMMARY_RFT, summaryCase, addr.ensemble() );
 
-                        std::set<QDateTime> timeSteps = summaryCase->rftReader()->availableTimeSteps(
-                            wellPathNameOrSimWellName );
-                        for ( const QDateTime& time : timeSteps )
+                    std::set<QDateTime> timeSteps = summaryCase->rftReader()->availableTimeSteps(
+                        wellPathNameOrSimWellName );
+                    for ( const QDateTime& time : timeSteps )
+                    {
+                        if ( selectedTimeStepSet.count( time ) )
                         {
-                            if ( selectedTimeStepSet.count( time ) )
-                            {
-                                curveDefs.insert(
-                                    RiaRftPltCurveDefinition( summaryAddr, wellPathNameOrSimWellName, time ) );
-                            }
+                            curveDefs.insert( RiaRftPltCurveDefinition( summaryAddr, wellPathNameOrSimWellName, time ) );
                         }
                     }
                 }
+            }
+            // Add statistics curves
+            if ( addr.sourceType() == RifDataSourceForRftPlt::ENSEMBLE_RFT )
+            {
                 std::set<QDateTime> statTimeSteps = addr.ensemble()->rftTimeStepsForWell( wellPathNameOrSimWellName );
                 for ( const QDateTime& time : statTimeSteps )
                 {

@@ -17,7 +17,27 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimEnsembleCurveSetColorManager.h"
+
+#include "RiaColorTables.h"
+#include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+
+#include "RimRegularLegendConfig.h"
+#include "cvfScalarMapper.h"
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+namespace caf
+{
+template <>
+void AppEnum<RimEnsembleCurveSetColorManager::ColorMode>::setUp()
+{
+    addItem( RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR, "SINGLE_COLOR", "Single Color" );
+    addItem( RimEnsembleCurveSetColorManager::ColorMode::BY_ENSEMBLE_PARAM, "BY_ENSEMBLE_PARAM", "By Ensemble Parameter" );
+    setDefault( RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR );
+}
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -62,6 +82,76 @@ RimRegularLegendConfig::ColorRangesType RimEnsembleCurveSetColorManager::cycledE
         ++crIt;
 
     return crIt->first;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendConfig*  legendConfig,
+                                                              const EnsembleParameter& ensembleParam )
+{
+    if ( ensembleParam.isText() )
+    {
+        std::set<QString> categories;
+
+        for ( auto value : ensembleParam.values )
+        {
+            categories.insert( value.toString() );
+        }
+
+        std::vector<QString> categoryNames = std::vector<QString>( categories.begin(), categories.end() );
+        legendConfig->setNamedCategories( categoryNames );
+        legendConfig->setAutomaticRanges( 0, categoryNames.size() - 1, 0, categoryNames.size() - 1 );
+    }
+    else
+    {
+        double minValue = std::numeric_limits<double>::infinity();
+        double maxValue = -std::numeric_limits<double>::infinity();
+
+        for ( auto value : ensembleParam.values )
+        {
+            double nValue = value.toDouble();
+            if ( nValue != std::numeric_limits<double>::infinity() )
+            {
+                if ( nValue < minValue ) minValue = nValue;
+                if ( nValue > maxValue ) maxValue = nValue;
+            }
+        }
+
+        legendConfig->setAutomaticRanges( minValue, maxValue, minValue, maxValue );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendConfig* legendConfig,
+                                                         const RimSummaryCase*         summaryCase,
+                                                         const EnsembleParameter&      ensembleParam )
+{
+    if ( ensembleParam.isText() )
+    {
+        QString tValue = summaryCase->hasCaseRealizationParameters()
+                             ? summaryCase->caseRealizationParameters()->parameterValue( ensembleParam.name ).textValue()
+                             : "";
+        double nValue = legendConfig->categoryValueFromCategoryName( tValue );
+        if ( nValue != std::numeric_limits<double>::infinity() )
+        {
+            int iValue = static_cast<int>( nValue );
+            return cvf::Color3f( legendConfig->scalarMapper()->mapToColor( iValue ) );
+        }
+    }
+    else
+    {
+        double value = summaryCase->hasCaseRealizationParameters()
+                           ? summaryCase->caseRealizationParameters()->parameterValue( ensembleParam.name ).numericValue()
+                           : std::numeric_limits<double>::infinity();
+        if ( value != std::numeric_limits<double>::infinity() )
+        {
+            return cvf::Color3f( legendConfig->scalarMapper()->mapToColor( value ) );
+        }
+    }
+    return RiaColorTables::undefinedCellColor();
 }
 
 std::map<RimEnsembleCurveSetCollection*, int> RimEnsembleCurveSetColorManager::m_nextColorIndexes;

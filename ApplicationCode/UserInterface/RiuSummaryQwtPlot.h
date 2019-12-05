@@ -26,7 +26,7 @@
 
 #include <QPointer>
 
-class RimEnsembleCurveSet;
+class RimEnsembleParameterColorHandlerInterface;
 class RiuCvfOverlayItemWidget;
 class RiuQwtPlotZoomer;
 class RiuQwtPlotWheelZoomer;
@@ -51,9 +51,6 @@ public:
 
     void useTimeBasedTimeAxis();
 
-    void addOrUpdateEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSetToShowLegendFor );
-    void removeEnsembleCurveSetLegend( RimEnsembleCurveSet* curveSetToShowLegendFor );
-
     RimViewWindow* ownerViewWindow() const override;
 
     void setLegendFontSize( int fontSize );
@@ -65,7 +62,6 @@ protected:
     void keyPressEvent( QKeyEvent* ) override;
     void contextMenuEvent( QContextMenuEvent* ) override;
     void setDefaults();
-    void updateLayout() override;
     bool isZoomerActive() const override;
     void endZoomOperations() override;
 
@@ -73,10 +69,6 @@ private slots:
     void onZoomedSlot();
 
 private:
-    void updateLegendLayout();
-
-    std::map<caf::PdmPointer<RimEnsembleCurveSet>, QPointer<RiuCvfOverlayItemWidget>> m_ensembleLegendWidgets;
-
     QPointer<RiuQwtPlotZoomer>      m_zoomerLeft;
     QPointer<RiuQwtPlotZoomer>      m_zoomerRight;
     QPointer<RiuQwtPlotWheelZoomer> m_wheelZoomer;

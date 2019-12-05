@@ -59,6 +59,8 @@ RiuCvfOverlayItemWidget::~RiuCvfOverlayItemWidget() {}
 //--------------------------------------------------------------------------------------------------
 void RiuCvfOverlayItemWidget::updateFromOverlayItem( caf::TitledOverlayFrame* item )
 {
+    item->setRenderSize( item->preferredSize() );
+
     unsigned int width  = item->renderSize().x();
     unsigned int height = item->renderSize().y();
 
