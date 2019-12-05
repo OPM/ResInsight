@@ -370,6 +370,11 @@ void RimWellRftPlot::updateEditorsFromCurves()
     {
         if ( curveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED )
             selectedSources.insert( RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED ) );
+        else if ( curveDef.address().sourceType() == RifDataSourceForRftPlt::SUMMARY_RFT )
+        {
+            selectedSources.insert(
+                RifDataSourceForRftPlt( RifDataSourceForRftPlt::ENSEMBLE_RFT, curveDef.address().ensemble() ) );
+        }
         else
             selectedSources.insert( curveDef.address() );
 
@@ -1235,6 +1240,33 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
         }
     }
 
+    auto ensembles = selectedEnsembles();
+    for ( RimWellRftEnsembleCurveSet* curveSet : m_ensembleCurveSets() )
+    {
+        CAF_ASSERT( curveSet );
+        auto ensemble_it = std::find_if( ensembles.begin(),
+                                         ensembles.end(),
+                                         [&curveSet]( const RimSummaryCaseCollection* ensemble ) {
+                                             return curveSet->ensemble() == ensemble;
+                                         } );
+        if ( ensemble_it != ensembles.end() )
+        {
+            curveSet->initializeLegend();
+
+            if ( curveSet->legendConfig()->showLegend() && curveSet->colorMode() == ColorMode::BY_ENSEMBLE_PARAM &&
+                 !curveSet->currentEnsembleParameter().isEmpty() )
+            {
+                if ( !m_ensembleLegendFrames[curveSet] )
+                {
+                    m_ensembleLegendFrames[curveSet] = new RiuCvfOverlayItemWidget( track->viewer(),
+                                                                                    track->viewer()->canvas() );
+                }
+                m_ensembleLegendFrames[curveSet]->updateFromOverlayItem( curveSet->legendConfig()->titledOverlayFrame() );
+                track->viewer()->addOverlayFrame( m_ensembleLegendFrames[curveSet] );
+            }
+        }
+    }
+
     std::vector<cvf::Color3f> colorTable;
     RiaColorTables::summaryCurveDefaultPaletteColors().color3fArray().toStdVector( &colorTable );
 
@@ -1251,34 +1283,17 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
         auto colorTableIndex  = m_dataSourceColors.size();
         auto symbolTableIndex = m_timeStepSymbols.size();
 
-        RifDataSourceForRftPlt address = curveDefToAdd.address();
-
-        if ( address.sourceType() != RifDataSourceForRftPlt::SUMMARY_RFT )
+        RifDataSourceForRftPlt address      = curveDefToAdd.address();
+        RifDataSourceForRftPlt colorAddress = address;
+        if ( address.sourceType() == RifDataSourceForRftPlt::SUMMARY_RFT )
         {
-            if ( !m_dataSourceColors.count( curveDefToAdd.address() ) )
-            {
-                colorTableIndex                             = colorTableIndex % colorTable.size();
-                m_dataSourceColors[curveDefToAdd.address()] = colorTable[colorTableIndex];
-            }
+            colorAddress = RifDataSourceForRftPlt( RifDataSourceForRftPlt::ENSEMBLE_RFT, address.ensemble() );
         }
 
-        if ( address.sourceType() == RifDataSourceForRftPlt::ENSEMBLE_RFT && address.ensemble() )
+        if ( !m_dataSourceColors.count( colorAddress ) )
         {
-            RimWellRftEnsembleCurveSet* curveSet = findEnsembleCurveSet( address.ensemble() );
-            CAF_ASSERT( curveSet );
-            curveSet->initializeLegend();
-
-            if ( curveSet->legendConfig()->showLegend() && curveSet->colorMode() == ColorMode::BY_ENSEMBLE_PARAM &&
-                 !curveSet->currentEnsembleParameter().isEmpty() )
-            {
-                if ( !m_ensembleLegendFrames[curveSet] )
-                {
-                    m_ensembleLegendFrames[curveSet] = new RiuCvfOverlayItemWidget( track->viewer(),
-                                                                                    track->viewer()->canvas() );
-                }
-                m_ensembleLegendFrames[curveSet]->updateFromOverlayItem( curveSet->legendConfig()->titledOverlayFrame() );
-                track->viewer()->addOverlayFrame( m_ensembleLegendFrames[curveSet] );
-            }
+            colorTableIndex                  = colorTableIndex % colorTable.size();
+            m_dataSourceColors[colorAddress] = colorTable[colorTableIndex];
         }
 
         if ( address.sourceType() != RifDataSourceForRftPlt::ENSEMBLE_RFT )
@@ -1300,7 +1315,7 @@ std::vector<RimSummaryCaseCollection*> RimWellRftPlot::selectedEnsembles() const
     std::vector<RimSummaryCaseCollection*> ensembleSets;
     for ( const RifDataSourceForRftPlt& dataSource : m_selectedSources() )
     {
-        if ( dataSource.sourceType() == RifDataSourceForRftPlt::ENSEMBLE_RFT )
+        if ( dataSource.ensemble() != nullptr )
         {
             ensembleSets.push_back( dataSource.ensemble() );
         }
