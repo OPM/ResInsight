@@ -23,6 +23,7 @@
 
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 #include "cvfColor3.h"
 
@@ -66,9 +67,14 @@ protected:
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    caf::PdmFieldHandle* userDescriptionField() override;
+
+private:
+    QString ensembleName() const;
 
 private:
     caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
+    caf::PdmProxyValueField<QString>            m_ensembleName;
     caf::PdmField<ColorModeEnum>                m_ensembleColorMode;
     caf::PdmField<QString>                      m_ensembleParameter;
     caf::PdmChildField<RimRegularLegendConfig*> m_ensembleLegendConfig;
