@@ -333,5 +333,5 @@ void RicGridStatisticsDialog::slotScreenShotToFile()
     {
         defaultFileBaseName = "Snapshot_Statistics";
     }
-    RicSnapshotViewToFileFeature::saveToFile( snapshotImage, defaultFileBaseName );
+    RicSnapshotViewToFileFeature::saveImageToFile( snapshotImage, defaultFileBaseName );
 }

@@ -51,7 +51,7 @@ class RigEclipseCaseData;
 class RiaRftPltCurveDefinition;
 class RifDataSourceForRftPlt;
 class RifEclipseRftAddress;
-class RiuCvfOverlayItemWidget;
+class RiuDraggableOverlayFrame;
 
 namespace cvf
 {
@@ -156,8 +156,8 @@ private:
 
     caf::PdmPtrField<RimWellPathCollection*> m_wellPathCollection;
 
-    caf::PdmChildArrayField<RimWellRftEnsembleCurveSet*>                     m_ensembleCurveSets;
-    std::map<RimWellRftEnsembleCurveSet*, QPointer<RiuCvfOverlayItemWidget>> m_ensembleLegendFrames;
+    caf::PdmChildArrayField<RimWellRftEnsembleCurveSet*>                      m_ensembleCurveSets;
+    std::map<RimWellRftEnsembleCurveSet*, QPointer<RiuDraggableOverlayFrame>> m_ensembleLegendFrames;
 
     std::map<RifDataSourceForRftPlt, cvf::Color3f>     m_dataSourceColors;
     std::map<QDateTime, RiuQwtSymbol::PointSymbolEnum> m_timeStepSymbols;

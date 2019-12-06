@@ -55,10 +55,6 @@ public:
 
     RiuGridCrossQwtPlot( const RiuGridCrossQwtPlot& ) = delete;
 
-    void addOrUpdateDataSetLegend( RimGridCrossPlotDataSet* dataSetToShowLegendFor );
-    void removeDataSetLegend( RimGridCrossPlotDataSet* dataSetToShowLegendFor );
-    void removeDanglingDataSetLegends();
-    void updateLegendSizesToMatchPlot();
     void updateAnnotationObjects( RimPlotAxisProperties* axisProperties );
 
     RimViewWindow* ownerViewWindow() const override;
@@ -67,17 +63,11 @@ public:
     void setInternalQwtLegendVisible( bool visible );
 
 protected:
-    void updateLayout() override;
-    void updateInfoBoxLayout();
-    void updateLegendLayout();
-    void resizeEvent( QResizeEvent* e ) override;
-    bool resizeOverlayItemToFitPlot( caf::TitledOverlayFrame* overlayItem );
     void contextMenuEvent( QContextMenuEvent* ) override;
 
     void selectPoint( QwtPlotCurve* curve, int pointNumber ) override;
     void clearPointSelection() override;
     bool curveText( const QwtPlotCurve* curve, QString* curveTitle, QString* xParamName, QString* yParamName ) const;
-    void applyFontSizeToOverlayItem( caf::TitledOverlayFrame* overlayItem );
     bool isZoomerActive() const override;
     void endZoomOperations() override;
 
@@ -85,12 +75,6 @@ private slots:
     void onZoomedSlot();
 
 private:
-    typedef caf::PdmPointer<RimGridCrossPlotDataSet> DataSetPtr;
-    typedef QPointer<RiuCvfOverlayItemWidget>        LegendPtr;
-    typedef QPointer<RiuDraggableOverlayFrame>       InfoBoxPtr;
-
-    InfoBoxPtr                             m_infoBox;
-    std::map<DataSetPtr, LegendPtr>        m_legendWidgets;
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
     QwtPlotMarker*                         m_selectedPointMarker;
 

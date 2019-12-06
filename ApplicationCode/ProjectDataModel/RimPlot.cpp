@@ -123,3 +123,15 @@ void RimPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const Q
         updateParentLayout();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlot::doRenderWindowContent( QPainter* painter )
+{
+    if ( viewer() )
+    {
+        viewer()->renderTo( painter, viewer()->frameGeometry() );
+        viewer()->renderOverlayFramesTo( painter, viewer()->frameGeometry() );
+    }
+}

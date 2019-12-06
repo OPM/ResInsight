@@ -122,8 +122,6 @@ protected:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
-    QImage snapshotWindowContent() override;
-
 private:
     void updateSubPlotNames() override;
     void updatePlotWindowTitle() override;

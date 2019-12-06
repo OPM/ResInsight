@@ -47,6 +47,7 @@
 #include "RimSummaryPlot.h"
 
 #include "RiuCvfOverlayItemWidget.h"
+#include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuSummaryCurveDefSelectionDialog.h"
@@ -383,7 +384,7 @@ RimRegularLegendConfig* RimEnsembleCurveSet::legendConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QFrame* RimEnsembleCurveSet::legendFrame() const
+RiuDraggableOverlayFrame* RimEnsembleCurveSet::legendFrame() const
 {
     return m_legendOverlayFrame;
 }
@@ -888,9 +889,9 @@ void RimEnsembleCurveSet::updateCurveColors()
         {
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame = new RiuCvfOverlayItemWidget( plot->viewer(), plot->viewer()->canvas() );
+                m_legendOverlayFrame = new RiuCvfOverlayItemWidget( m_legendConfig->titledOverlayFrame(),
+                                                                    plot->viewer()->canvas() );
             }
-            m_legendOverlayFrame->updateFromOverlayItem( m_legendConfig()->titledOverlayFrame() );
             plot->viewer()->addOverlayFrame( m_legendOverlayFrame );
         }
         else

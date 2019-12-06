@@ -48,6 +48,7 @@ class OverlayScalarMapperLegend;
 
 class Rim3dView;
 class RimEnsembleCurveSet;
+class RiuAbstractLegendFrame;
 
 //==================================================================================================
 ///
@@ -148,6 +149,7 @@ public:
 
     const caf::TitledOverlayFrame* titledOverlayFrame() const override;
     caf::TitledOverlayFrame*       titledOverlayFrame() override;
+    RiuAbstractLegendFrame*        makeLegendFrame();
 
     RangeModeType             rangeMode() const;
     static cvf::Color3ubArray colorArrayFromColorType( ColorRangesType colorType );
@@ -169,9 +171,6 @@ private:
     double roundToNumSignificantDigits( double value, double precision );
 
     friend class RimViewLinker;
-
-    caf::OverlayScalarMapperLegend* getOrCreateScalarMapperLegend();
-    caf::CategoryLegend*            getOrCreateCategoryLegend();
 
 private:
     cvf::ref<cvf::ScalarMapperDiscreteLinear>   m_linDiscreteScalarMapper;

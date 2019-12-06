@@ -30,6 +30,7 @@
 #include "cafInternalLegendRenderTools.h"
 
 #include <cmath>
+#include <QDebug>
 
 using namespace cvf;
 

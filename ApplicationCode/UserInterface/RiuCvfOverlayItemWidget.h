@@ -20,9 +20,12 @@
 
 #include "RiuDraggableOverlayFrame.h"
 
+#include "cvfObject.h"
+
+#include <QLabel>
+#include <QSize>
 #include <QWidget>
 
-class QLabel;
 namespace caf
 {
 class TitledOverlayFrame;
@@ -37,11 +40,18 @@ class RiuCvfOverlayItemWidget : public RiuDraggableOverlayFrame
 {
     Q_OBJECT
 public:
-    explicit RiuCvfOverlayItemWidget( QWidget* parent = nullptr, QWidget* widgetToSnapTo = nullptr );
+    explicit RiuCvfOverlayItemWidget( caf::TitledOverlayFrame* overlayItem,
+                                      QWidget*                 parent,
+                                      const int                snapMargins,
+                                      const QColor&            backgroundColor = QColor( 255, 255, 255, 100 ) );
     ~RiuCvfOverlayItemWidget() override;
 
-    void updateFromOverlayItem( caf::TitledOverlayFrame* item );
+    QSize sizeHint() const override;
+    void  renderTo( QPainter* painter, const QRect& paintRect, double scaleX, double scaleY );
 
-    // virtual QSize   sizeHint() const override;
-    // virtual QSize   minimumSizeHint() const override;
+protected:
+    void paintEvent( QPaintEvent* e ) override;
+
+private:
+    cvf::ref<caf::TitledOverlayFrame> m_overlayItem;
 };

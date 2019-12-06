@@ -20,6 +20,7 @@
 
 #include "cafCmdFeature.h"
 
+class RimPlotWindow;
 class RimViewWindow;
 class QImage;
 
@@ -31,9 +32,13 @@ class RicSnapshotViewToFileFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void    saveSnapshotAs( const QString& fileName, RimViewWindow* viewWindow );
-    static void    saveSnapshotAs( const QString& fileName, const QImage& image );
-    static void    saveToFile( const QImage& image, const QString& defaultFileBaseName = "image" );
+    static void saveSnapshotAs( const QString& fileName, RimViewWindow* viewWindow );
+    static void saveSnapshotAs( const QString& fileName, const QImage& image );
+    static void savePlotPDFReportAs( const QString& fileName, RimPlotWindow* plotWindow );
+
+    static void    saveViewWindowToFile( RimViewWindow* viewWindow, const QString& defaultFileBaseName = "image" );
+    static void    saveImageToFile( const QImage& image, const QString& defaultFileBaseName = "image" );
+    static QString generateSaveFileName( const QString& defaultFileBaseName = "image", bool supportPDF = false );
     static QIcon   icon();
     static QString text();
 

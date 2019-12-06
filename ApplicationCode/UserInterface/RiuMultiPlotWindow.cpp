@@ -42,10 +42,12 @@
 
 #include "qwt_legend.h"
 #include "qwt_plot_layout.h"
+#include "qwt_plot_renderer.h"
 #include "qwt_scale_draw.h"
 
 #include <QDebug>
 #include <QFocusEvent>
+#include <QFontMetrics>
 #include <QHBoxLayout>
 #include <QMdiSubWindow>
 #include <QMenu>
@@ -282,6 +284,14 @@ void RiuMultiPlotWindow::scheduleReplotOfAllPlots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMultiPlotWindow::renderTo( QPainter* painter )
+{
+    doRenderTo( painter );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMultiPlotWindow::contextMenuEvent( QContextMenuEvent* event )
 {
     QMenu                      menu;
@@ -437,7 +447,7 @@ void RiuMultiPlotWindow::dropEvent( QDropEvent* event )
 
             if ( insertAfter != plotToMove )
             {
-                m_plotDefinition->movePlotsToThis( { plotToMove }, insertAfter );
+                m_plotDefinition->movePlotsToThis( {plotToMove}, insertAfter );
             }
         }
     }
@@ -534,13 +544,22 @@ void RiuMultiPlotWindow::reinsertPlotWidgets()
 
     for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
     {
-        m_plotWidgets[tIdx]->hide();
-        m_legends[tIdx]->hide();
-        m_subTitles[tIdx]->hide();
+        if ( m_plotWidgets[tIdx] )
+        {
+            m_plotWidgets[tIdx]->hide();
+        }
+        if ( m_legends[tIdx] )
+        {
+            m_legends[tIdx]->hide();
+        }
+        if ( m_subTitles[tIdx] )
+        {
+            m_subTitles[tIdx]->hide();
+        }
     }
 
-    QList<QPointer<QLabel>>           subTitles   = this->visibleTitles();
-    QList<QPointer<RiuQwtPlotLegend>> legends     = this->visibleLegends();
+    QList<QPointer<QLabel>>           subTitles   = this->subTitlesForVisiblePlots();
+    QList<QPointer<RiuQwtPlotLegend>> legends     = this->legendsForVisiblePlots();
     QList<QPointer<RiuQwtPlotWidget>> plotWidgets = this->visiblePlotWidgets();
 
     if ( plotWidgets.empty() && acceptDrops() )
@@ -566,7 +585,8 @@ void RiuMultiPlotWindow::reinsertPlotWidgets()
             std::tie( row, column ) = findAvailableRowAndColumn( row, column, colSpan, rowAndColumnCount.second );
 
             m_gridLayout->addWidget( subTitles[visibleIndex], 3 * row, column, 1, colSpan );
-            m_gridLayout->addWidget( legends[visibleIndex], 3 * row + 1, column, 1, colSpan );
+            m_gridLayout
+                ->addWidget( legends[visibleIndex], 3 * row + 1, column, 1, colSpan, Qt::AlignHCenter | Qt::AlignBottom );
             m_gridLayout->addWidget( plotWidgets[visibleIndex], 3 * row + 2, column, 1 + ( rowSpan - 1 ) * 3, colSpan );
 
             subTitles[visibleIndex]->setVisible( m_plotDefinition->showPlotTitles() );
@@ -617,7 +637,7 @@ int RiuMultiPlotWindow::alignCanvasTops()
     CVF_ASSERT( m_legends.size() == m_plotWidgets.size() );
 
     QList<QPointer<RiuQwtPlotWidget>> plotWidgets = visiblePlotWidgets();
-    QList<QPointer<RiuQwtPlotLegend>> legends     = visibleLegends();
+    QList<QPointer<RiuQwtPlotLegend>> legends     = legendsForVisiblePlots();
     if ( plotWidgets.empty() ) return 0;
 
     auto rowAndColumnCount = this->rowAndColumnCount( plotWidgets.size() );
@@ -701,7 +721,7 @@ QList<QPointer<RiuQwtPlotWidget>> RiuMultiPlotWindow::visiblePlotWidgets() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<QPointer<RiuQwtPlotLegend>> RiuMultiPlotWindow::visibleLegends() const
+QList<QPointer<RiuQwtPlotLegend>> RiuMultiPlotWindow::legendsForVisiblePlots() const
 {
     QList<QPointer<RiuQwtPlotLegend>> legends;
     for ( int i = 0; i < m_plotWidgets.size(); ++i )
@@ -717,7 +737,7 @@ QList<QPointer<RiuQwtPlotLegend>> RiuMultiPlotWindow::visibleLegends() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<QPointer<QLabel>> RiuMultiPlotWindow::visibleTitles() const
+QList<QPointer<QLabel>> RiuMultiPlotWindow::subTitlesForVisiblePlots() const
 {
     QList<QPointer<QLabel>> subTitles;
     for ( int i = 0; i < m_plotWidgets.size(); ++i )
@@ -764,4 +784,42 @@ std::pair<int, int>
         availableRow++;
     }
     return std::make_pair( availableRow, availableColumn );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotWindow::doRenderTo( QPainter* painter )
+{
+    setSelectionsVisible( false );
+    painter->save();
+    m_plotTitle->render( painter );
+
+    for ( auto subTitle : subTitlesForVisiblePlots() )
+    {
+        if ( subTitle->isVisible() )
+        {
+            subTitle->render( painter, m_plotWidgetFrame->mapToParent( subTitle->frameGeometry().topLeft() ) );
+        }
+    }
+
+    for ( auto legend : legendsForVisiblePlots() )
+    {
+        legend->render( painter, m_plotWidgetFrame->mapToParent( legend->frameGeometry().topLeft() ) );
+    }
+
+    painter->restore();
+
+    for ( auto plotWidget : visiblePlotWidgets() )
+    {
+        QRect  plotWidgetGeometry     = plotWidget->frameGeometry();
+        QPoint plotWidgetTopLeft      = plotWidgetGeometry.topLeft();
+        QPoint plotWidgetFrameTopLeft = m_plotWidgetFrame->frameGeometry().topLeft();
+        plotWidgetGeometry.moveTo( plotWidgetTopLeft + plotWidgetFrameTopLeft );
+
+        plotWidget->renderTo( painter, plotWidgetGeometry );
+        plotWidget->renderOverlayFramesTo( painter, plotWidgetGeometry );
+    }
+
+    setSelectionsVisible( true );
 }

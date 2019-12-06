@@ -38,6 +38,8 @@
 #include "RimWellMeasurementInView.h"
 #include "RimWellRftEnsembleCurveSet.h"
 #include "RimWellRftPlot.h"
+#include "RiuCategoryLegendFrame.h"
+#include "RiuScalarMapperLegendFrame.h"
 
 #include "cafCategoryLegend.h"
 #include "cafCategoryMapper.h"
@@ -802,6 +804,21 @@ const caf::TitledOverlayFrame* RimRegularLegendConfig::titledOverlayFrame() cons
     else
     {
         return m_scalarMapperLegend.p();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuAbstractLegendFrame* RimRegularLegendConfig::makeLegendFrame()
+{
+    if ( m_currentScalarMapper == m_categoryMapper )
+    {
+        return new RiuCategoryLegendFrame( nullptr, "Category", m_categoryMapper.p() );
+    }
+    else
+    {
+        return new RiuScalarMapperLegendFrame( nullptr, "Scalar", m_currentScalarMapper.p() );
     }
 }
 

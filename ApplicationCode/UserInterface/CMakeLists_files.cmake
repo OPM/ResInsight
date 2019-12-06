@@ -87,6 +87,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuDraggableOverlayFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMdiMaximizeWindowGuard.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuComparisonViewMover.h
+${CMAKE_CURRENT_LIST_DIR}/RiuAbstractOverlayContentFrame.h
+${CMAKE_CURRENT_LIST_DIR}/RiuAbstractLegendFrame.h
+${CMAKE_CURRENT_LIST_DIR}/RiuCategoryLegendFrame.h
+${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -173,6 +177,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuDraggableOverlayFrame.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMdiMaximizeWindowGuard.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuComparisonViewMover.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuAbstractOverlayContentFrame.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuAbstractLegendFrame.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuCategoryLegendFrame.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -223,6 +231,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuExpressionContextMenuManager.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuCalculationsContextMenuManager.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMohrsCirclePlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuDraggableOverlayFrame.h
+${CMAKE_CURRENT_LIST_DIR}/RiuAbstractOverlayContentFrame.h
+${CMAKE_CURRENT_LIST_DIR}/RiuAbstractLegendFrame.h
+${CMAKE_CURRENT_LIST_DIR}/RiuCategoryLegendFrame.h
+${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.h
 )
 
 list(APPEND QT_UI_FILES

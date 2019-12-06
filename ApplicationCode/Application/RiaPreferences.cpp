@@ -851,3 +851,16 @@ void RiaPreferences::writePreferencesToApplicationStore()
 {
     caf::PdmSettings::writeFieldsToApplicationStore( this );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QPageLayout RiaPreferences::defaultPageLayout() const
+{
+    QPageLayout layout( QPageSize( QPageSize::A4 ),
+                        QPageLayout::Landscape,
+                        QMarginsF( 10.0, 10.0, 10.0, 10.0 ),
+                        QPageLayout::Millimeter );
+    layout.setMode( QPageLayout::StandardMode );
+    return layout;
+}
