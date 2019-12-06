@@ -1077,10 +1077,33 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generatePerforationsMswExp
             }
         }
 
-        // Skip all intersections before initialMD
-
         std::vector<WellPathCellIntersectionInfo> filteredIntersections;
+
         {
+            if ( !intersections.empty() && intersections[0].startMD > initialMD &&
+                 wellPath->perforationIntervalCollection()->mswParameters()->referenceMDType() ==
+                     RimMswCompletionParameters::MANUAL_REFERENCE_MD )
+            {
+                WellPathCellIntersectionInfo firstIntersection = intersections[0];
+
+                // Add a segment from user defined MD to start of grid
+                cvf::Vec3d intersectionPoint = wellPathGeometry->interpolatedPointAlongWellPath( initialMD );
+
+                WellPathCellIntersectionInfo extraIntersection;
+
+                extraIntersection.globCellIndex          = std::numeric_limits<size_t>::max();
+                extraIntersection.startPoint             = intersectionPoint;
+                extraIntersection.endPoint               = firstIntersection.startPoint;
+                extraIntersection.startMD                = initialMD;
+                extraIntersection.endMD                  = firstIntersection.startMD;
+                extraIntersection.intersectedCellFaceIn  = cvf::StructGridInterface::NO_FACE;
+                extraIntersection.intersectedCellFaceOut = cvf::StructGridInterface::oppositeFace(
+                    firstIntersection.intersectedCellFaceIn );
+                extraIntersection.intersectionLengthsInCellCS = cvf::Vec3d::ZERO;
+
+                filteredIntersections.push_back( extraIntersection );
+            }
+
             const double epsilon = 0.001;
 
             for ( const WellPathCellIntersectionInfo& intersection : intersections )
@@ -1100,24 +1123,24 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generatePerforationsMswExp
 
                     cvf::Vec3d intersectionPoint = wellPathGeometry->interpolatedPointAlongWellPath( initialMD );
 
-                    WellPathCellIntersectionInfo smallerIntersection;
+                    WellPathCellIntersectionInfo extraIntersection;
 
-                    smallerIntersection.globCellIndex          = intersection.globCellIndex;
-                    smallerIntersection.startPoint             = intersectionPoint;
-                    smallerIntersection.endPoint               = intersection.endPoint;
-                    smallerIntersection.startMD                = initialMD;
-                    smallerIntersection.endMD                  = intersection.endMD;
-                    smallerIntersection.intersectedCellFaceIn  = cvf::StructGridInterface::NO_FACE;
-                    smallerIntersection.intersectedCellFaceOut = intersection.intersectedCellFaceOut;
+                    extraIntersection.globCellIndex          = intersection.globCellIndex;
+                    extraIntersection.startPoint             = intersectionPoint;
+                    extraIntersection.endPoint               = intersection.endPoint;
+                    extraIntersection.startMD                = initialMD;
+                    extraIntersection.endMD                  = intersection.endMD;
+                    extraIntersection.intersectedCellFaceIn  = cvf::StructGridInterface::NO_FACE;
+                    extraIntersection.intersectedCellFaceOut = intersection.intersectedCellFaceOut;
 
                     const RigMainGrid* grid = eclipseCase->mainGrid();
 
-                    smallerIntersection.intersectionLengthsInCellCS =
+                    extraIntersection.intersectionLengthsInCellCS =
                         RigWellPathIntersectionTools::calculateLengthInCell( grid,
                                                                              intersection.globCellIndex,
                                                                              intersectionPoint,
                                                                              intersection.endPoint );
-                    filteredIntersections.push_back( smallerIntersection );
+                    filteredIntersections.push_back( extraIntersection );
                 }
             }
         }
