@@ -111,9 +111,11 @@ Rim3dOverlayInfoConfig::Rim3dOverlayInfoConfig()
     CAF_PDM_InitField( &m_showVolumeWeightedMean, "ShowVolumeWeightedMean", true, "Mobile Volume Weighted Mean", "", "", "" );
     CAF_PDM_InitField( &m_showVersionInfo, "ShowVersionInfo", true, "Version Info", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_statisticsTimeRange, "StatisticsTimeRange", "Statistics Time Range", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_statisticsCellRange, "StatisticsCellRange", "Statistics Cell Range", "", "", "" );
-    // m_statisticsCellRange.uiCapability()->setUiHidden(true);
+    caf::AppEnum<StatisticsTimeRangeType> defaultTimeRange = StatisticsTimeRangeType::CURRENT_TIMESTEP;
+    CAF_PDM_InitField( &m_statisticsTimeRange, "StatisticsTimeRange", defaultTimeRange, "Statistics Time Range", "", "", "" );
+
+    caf::AppEnum<StatisticsCellRangeType> defaultCellRange = StatisticsCellRangeType::VISIBLE_CELLS;
+    CAF_PDM_InitField( &m_statisticsCellRange, "StatisticsCellRange", defaultCellRange, "Statistics Cell Range", "", "", "" );
 
     m_isVisCellStatUpToDate = false;
 }
