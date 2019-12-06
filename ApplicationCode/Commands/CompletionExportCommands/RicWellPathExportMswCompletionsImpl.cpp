@@ -1165,7 +1165,7 @@ std::vector<WellPathCellIntersectionInfo> RicWellPathExportMswCompletionsImpl::f
         filteredIntersections.push_back( extraIntersection );
     }
 
-    const double epsilon = 0.001;
+    const double epsilon = 1.0e-3;
 
     for ( const WellPathCellIntersectionInfo& intersection : intersections )
     {
