@@ -34,7 +34,7 @@ class RicNewSummaryEnsembleCurveSetFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void createPlotForCurveSetAndUpdate( RimSummaryCaseCollection* ensemble );
+    static void createPlotForCurveSetsAndUpdate( std::vector<RimSummaryCaseCollection*> ensembles );
 
 protected:
     // Overrides
