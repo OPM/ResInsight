@@ -29,6 +29,9 @@ class RimWellPath;
 class RimWellPathValve;
 class RimWellPathFracture;
 class SubSegmentIntersectionInfo;
+class RigWellPath;
+
+struct WellPathCellIntersectionInfo;
 
 class QFile;
 
@@ -75,6 +78,15 @@ private:
                                            const RimWellPath*                                wellPath,
                                            int                                               timeStep,
                                            const std::vector<const RimPerforationInterval*>& perforationIntervals );
+
+    static std::vector<SubSegmentIntersectionInfo>
+        generateSubSegments( const RimEclipseCase* eclipseCase, const RimWellPath* wellPath, double& initialMD );
+
+    static std::vector<WellPathCellIntersectionInfo>
+        filterIntersections( const std::vector<WellPathCellIntersectionInfo>& intersections,
+                             double                                           initialMD,
+                             const RigWellPath*                               wellPathGeometry,
+                             const RimEclipseCase*                            eclipseCase );
 
     static void generateWelsegsTable( RifTextDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
 
