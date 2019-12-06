@@ -75,7 +75,7 @@ RimEnsembleCurveSet* RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSet( R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetAndUpdate( RimSummaryCaseCollection* ensemble )
+void RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( std::vector<RimSummaryCaseCollection*> ensembles )
 {
     RiaGuiApplication* app  = RiaGuiApplication::instance();
     RimProject*        proj = app->project();
@@ -83,14 +83,20 @@ void RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetAndUpdate( RimSu
     RimSummaryPlotCollection* summaryPlotCollection = proj->mainPlotCollection->summaryPlotCollection();
     RimSummaryPlot*           plot                  = summaryPlotCollection->createSummaryPlotWithAutoTitle();
 
-    RimEnsembleCurveSet* curveSet = RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSet( plot, ensemble );
+    RimEnsembleCurveSet* firstCurveSetCreated = nullptr;
+    for ( RimSummaryCaseCollection* ensemble : ensembles )
+    {
+        RimEnsembleCurveSet* curveSet = RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSet( plot, ensemble );
+        if ( !firstCurveSetCreated ) firstCurveSetCreated = curveSet;
+    }
+
     plot->loadDataAndUpdate();
     summaryPlotCollection->updateConnectedEditors();
 
     RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
     if ( mainPlotWindow )
     {
-        mainPlotWindow->selectAsCurrentItem( curveSet );
+        mainPlotWindow->selectAsCurrentItem( firstCurveSetCreated );
         mainPlotWindow->updateSummaryPlotToolBar();
     }
 }
