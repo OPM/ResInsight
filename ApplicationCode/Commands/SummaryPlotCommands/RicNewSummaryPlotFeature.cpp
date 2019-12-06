@@ -23,6 +23,7 @@
 #include "RiaSummaryTools.h"
 
 #include "RicEditSummaryPlotFeature.h"
+#include "RicNewSummaryEnsembleCurveSetFeature.h"
 #include "RicSummaryCurveCreator.h"
 #include "RicSummaryCurveCreatorDialog.h"
 
@@ -155,26 +156,56 @@ void RicNewSummaryPlotFeature::setupActionLook( QAction* actionToSetup )
 
 CAF_CMD_SOURCE_INIT( RicNewDefaultSummaryPlotFeature, "RicNewDefaultSummaryPlotFeature" );
 
-std::pair<RimSummaryPlotCollection*, std::vector<RimSummaryCase*>> extractSumPlotCollectionOrSelectedSumCasesFromSelection()
+void extractPlotObjectsFromSelection( std::vector<RimSummaryCase*>*           selectedIndividualSummaryCases,
+                                      std::vector<RimSummaryCaseCollection*>* selectedEnsembles )
 {
-    std::vector<RimSummaryCase*> selectedSumCases;
-    RimSummaryPlotCollection*    sumPlotColl = nullptr;
+    CAF_ASSERT( selectedIndividualSummaryCases && selectedEnsembles );
 
-    std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems( selectedItems );
-
-    if ( selectedItems.size() )
+    // First try selected ensembles
+    caf::SelectionManager::instance()->objectsByTypeStrict( selectedEnsembles );
+    if ( !selectedEnsembles->empty() )
     {
-        caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( selectedItems[0] );
-        sumPlotColl            = RiaSummaryTools::parentSummaryPlotCollection( selObj );
+        return;
+    }
+    // Second try selected summary cases
+    caf::SelectionManager::instance()->objectsByTypeStrict( selectedIndividualSummaryCases );
+    if ( !selectedIndividualSummaryCases->empty() )
+    {
+        return;
     }
 
-    if ( !sumPlotColl )
-    {
-        caf::SelectionManager::instance()->objectsByTypeStrict( &selectedSumCases );
-    }
+    RimSummaryPlotCollection* sumPlotColl =
+        caf::SelectionManager::instance()->selectedItemAncestorOfType<RimSummaryPlotCollection>();
 
-    return std::make_pair( sumPlotColl, selectedSumCases );
+    if ( sumPlotColl )
+    {
+        RimSummaryCase*           firstIndividualSummaryCase = nullptr;
+        RimSummaryCaseCollection* firstEnsemble              = nullptr;
+
+        auto sumCaseVector = RiaApplication::instance()->project()->allSummaryCases();
+        for ( RimSummaryCase* summaryCase : sumCaseVector )
+        {
+            RimSummaryCaseCollection* parentEnsemble = nullptr;
+            summaryCase->firstAncestorOrThisOfType( parentEnsemble );
+            if ( !parentEnsemble && !firstIndividualSummaryCase )
+            {
+                firstIndividualSummaryCase = summaryCase;
+                break;
+            }
+            else if ( parentEnsemble && !firstEnsemble )
+            {
+                firstEnsemble = parentEnsemble;
+            }
+        }
+        if ( firstIndividualSummaryCase )
+        {
+            selectedIndividualSummaryCases->push_back( firstIndividualSummaryCase );
+        }
+        else if ( firstEnsemble )
+        {
+            selectedEnsembles->push_back( firstEnsemble );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,9 +213,12 @@ std::pair<RimSummaryPlotCollection*, std::vector<RimSummaryCase*>> extractSumPlo
 //--------------------------------------------------------------------------------------------------
 bool RicNewDefaultSummaryPlotFeature::isCommandEnabled()
 {
-    auto sumPlotSumCasesPair = extractSumPlotCollectionOrSelectedSumCasesFromSelection();
+    std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
+    std::vector<RimSummaryCaseCollection*> selectedEnsembles;
 
-    return sumPlotSumCasesPair.first || sumPlotSumCasesPair.second.size();
+    extractPlotObjectsFromSelection( &selectedIndividualSummaryCases, &selectedEnsembles );
+
+    return !( selectedIndividualSummaryCases.empty() && selectedEnsembles.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -192,31 +226,17 @@ bool RicNewDefaultSummaryPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewDefaultSummaryPlotFeature::onActionTriggered( bool isChecked )
 {
-    auto sumPlotSumCasesPair = extractSumPlotCollectionOrSelectedSumCasesFromSelection();
+    std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
+    std::vector<RimSummaryCaseCollection*> selectedEnsembles;
+    extractPlotObjectsFromSelection( &selectedIndividualSummaryCases, &selectedEnsembles );
 
-    std::vector<RimSummaryCase*> summaryCasesToUse;
-
-    if ( sumPlotSumCasesPair.first )
-    {
-        auto sumCaseVector = RiaApplication::instance()->project()->allSummaryCases();
-
-        if ( sumCaseVector.size() )
-        {
-            summaryCasesToUse.push_back( sumCaseVector[0] );
-        }
-    }
-    else if ( sumPlotSumCasesPair.second.size() )
-    {
-        summaryCasesToUse = sumPlotSumCasesPair.second;
-    }
-
-    if ( summaryCasesToUse.size() )
+    if ( !selectedIndividualSummaryCases.empty() )
     {
         RimSummaryPlotCollection* sumPlotColl =
             RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
         RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
 
-        for ( RimSummaryCase* sumCase : summaryCasesToUse )
+        for ( RimSummaryCase* sumCase : selectedIndividualSummaryCases )
         {
             RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot( newPlot, sumCase );
         }
@@ -229,6 +249,11 @@ void RicNewDefaultSummaryPlotFeature::onActionTriggered( bool isChecked )
         RiuPlotMainWindowTools::setExpanded( newPlot );
         RiuPlotMainWindowTools::selectAsCurrentItem( newPlot );
     }
+    else
+    {
+        CAF_ASSERT( !selectedEnsembles.empty() );
+        RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( selectedEnsembles );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -236,6 +261,18 @@ void RicNewDefaultSummaryPlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewDefaultSummaryPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New Summary Plot" );
+    std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
+    std::vector<RimSummaryCaseCollection*> selectedEnsembles;
+
+    extractPlotObjectsFromSelection( &selectedIndividualSummaryCases, &selectedEnsembles );
+
+    if ( !selectedIndividualSummaryCases.empty() )
+    {
+        actionToSetup->setText( "New Summary Plot" );
+    }
+    else
+    {
+        actionToSetup->setText( "New Ensemble Summary Plot" );
+    }
     actionToSetup->setIcon( QIcon( ":/SummaryPlotLight16x16.png" ) );
 }
