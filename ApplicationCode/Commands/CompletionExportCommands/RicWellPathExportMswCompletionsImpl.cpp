@@ -1043,114 +1043,12 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generatePerforationsMswExp
     int                                               timeStep,
     const std::vector<const RimPerforationInterval*>& perforationIntervals )
 {
-    const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
     RiaEclipseUnitTools::UnitSystem unitSystem = eclipseCase->eclipseCaseData()->unitsType();
-
-    const RigWellPath*             wellPathGeometry = wellPath->wellPathGeometry();
-    const std::vector<cvf::Vec3d>& coords           = wellPathGeometry->wellPathPoints();
-    const std::vector<double>&     mds              = wellPathGeometry->measureDepths();
-    CVF_ASSERT( !coords.empty() && !mds.empty() );
 
     double initialMD = 0.0; // Start measured depth location to export MSW data for. Either based on first intersection
                             // with active grid, or user defined value.
 
-    std::vector<SubSegmentIntersectionInfo> subSegIntersections;
-
-    {
-        std::vector<WellPathCellIntersectionInfo> intersections =
-            RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( eclipseCase->eclipseCaseData(), coords, mds );
-
-        if ( wellPath->perforationIntervalCollection()->mswParameters()->referenceMDType() ==
-             RimMswCompletionParameters::MANUAL_REFERENCE_MD )
-        {
-            initialMD = wellPath->perforationIntervalCollection()->mswParameters()->manualReferenceMD();
-        }
-        else
-        {
-            for ( const WellPathCellIntersectionInfo& intersection : intersections )
-            {
-                if ( activeCellInfo->isActive( intersection.globCellIndex ) )
-                {
-                    initialMD = intersection.startMD;
-                    break;
-                }
-            }
-        }
-
-        std::vector<WellPathCellIntersectionInfo> filteredIntersections;
-
-        {
-            if ( !intersections.empty() && intersections[0].startMD > initialMD &&
-                 wellPath->perforationIntervalCollection()->mswParameters()->referenceMDType() ==
-                     RimMswCompletionParameters::MANUAL_REFERENCE_MD )
-            {
-                WellPathCellIntersectionInfo firstIntersection = intersections[0];
-
-                // Add a segment from user defined MD to start of grid
-                cvf::Vec3d intersectionPoint = wellPathGeometry->interpolatedPointAlongWellPath( initialMD );
-
-                WellPathCellIntersectionInfo extraIntersection;
-
-                extraIntersection.globCellIndex          = std::numeric_limits<size_t>::max();
-                extraIntersection.startPoint             = intersectionPoint;
-                extraIntersection.endPoint               = firstIntersection.startPoint;
-                extraIntersection.startMD                = initialMD;
-                extraIntersection.endMD                  = firstIntersection.startMD;
-                extraIntersection.intersectedCellFaceIn  = cvf::StructGridInterface::NO_FACE;
-                extraIntersection.intersectedCellFaceOut = cvf::StructGridInterface::oppositeFace(
-                    firstIntersection.intersectedCellFaceIn );
-                extraIntersection.intersectionLengthsInCellCS = cvf::Vec3d::ZERO;
-
-                filteredIntersections.push_back( extraIntersection );
-            }
-
-            const double epsilon = 0.001;
-
-            for ( const WellPathCellIntersectionInfo& intersection : intersections )
-            {
-                if ( ( intersection.endMD - initialMD ) < epsilon )
-                {
-                    // Skip all intersections before initial measured depth
-                    continue;
-                }
-                else if ( ( intersection.startMD - initialMD ) > epsilon )
-                {
-                    filteredIntersections.push_back( intersection );
-                }
-                else
-                {
-                    // InitialMD is inside intersection, split based on intersection point
-
-                    cvf::Vec3d intersectionPoint = wellPathGeometry->interpolatedPointAlongWellPath( initialMD );
-
-                    WellPathCellIntersectionInfo extraIntersection;
-
-                    extraIntersection.globCellIndex          = intersection.globCellIndex;
-                    extraIntersection.startPoint             = intersectionPoint;
-                    extraIntersection.endPoint               = intersection.endPoint;
-                    extraIntersection.startMD                = initialMD;
-                    extraIntersection.endMD                  = intersection.endMD;
-                    extraIntersection.intersectedCellFaceIn  = cvf::StructGridInterface::NO_FACE;
-                    extraIntersection.intersectedCellFaceOut = intersection.intersectedCellFaceOut;
-
-                    const RigMainGrid* grid = eclipseCase->mainGrid();
-
-                    extraIntersection.intersectionLengthsInCellCS =
-                        RigWellPathIntersectionTools::calculateLengthInCell( grid,
-                                                                             intersection.globCellIndex,
-                                                                             intersectionPoint,
-                                                                             intersection.endPoint );
-                    filteredIntersections.push_back( extraIntersection );
-                }
-            }
-        }
-
-        const double maxSegmentLength = wellPath->perforationIntervalCollection()->mswParameters()->maxSegmentLength();
-
-        subSegIntersections = SubSegmentIntersectionInfo::spiltIntersectionSegmentsToMaxLength( wellPathGeometry,
-                                                                                                filteredIntersections,
-                                                                                                maxSegmentLength );
-    }
+    std::vector<SubSegmentIntersectionInfo> subSegIntersections = generateSubSegments( eclipseCase, wellPath, initialMD );
 
     RicMswExportInfo exportInfo( wellPath,
                                  unitSystem,
@@ -1186,6 +1084,128 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generatePerforationsMswExp
     assignBranchAndSegmentNumbers( eclipseCase, &exportInfo );
 
     return exportInfo;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<SubSegmentIntersectionInfo>
+    RicWellPathExportMswCompletionsImpl::generateSubSegments( const RimEclipseCase* eclipseCase,
+                                                              const RimWellPath*    wellPath,
+                                                              double&               initialMD )
+{
+    const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
+    const RigWellPath*       wellPathGeometry = wellPath->wellPathGeometry();
+    const std::vector<cvf::Vec3d>& coords     = wellPathGeometry->wellPathPoints();
+    const std::vector<double>&     mds        = wellPathGeometry->measureDepths();
+    CVF_ASSERT( !coords.empty() && !mds.empty() );
+
+    std::vector<WellPathCellIntersectionInfo> intersections =
+        RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( eclipseCase->eclipseCaseData(), coords, mds );
+
+    if ( wellPath->perforationIntervalCollection()->mswParameters()->referenceMDType() ==
+         RimMswCompletionParameters::MANUAL_REFERENCE_MD )
+    {
+        initialMD = wellPath->perforationIntervalCollection()->mswParameters()->manualReferenceMD();
+    }
+    else
+    {
+        for ( const WellPathCellIntersectionInfo& intersection : intersections )
+        {
+            if ( activeCellInfo->isActive( intersection.globCellIndex ) )
+            {
+                initialMD = intersection.startMD;
+                break;
+            }
+        }
+    }
+
+    std::vector<WellPathCellIntersectionInfo> filteredIntersections = filterIntersections( intersections,
+                                                                                           initialMD,
+                                                                                           wellPathGeometry,
+                                                                                           eclipseCase );
+
+    const double maxSegmentLength = wellPath->perforationIntervalCollection()->mswParameters()->maxSegmentLength();
+
+    return SubSegmentIntersectionInfo::spiltIntersectionSegmentsToMaxLength( wellPathGeometry,
+                                                                             filteredIntersections,
+                                                                             maxSegmentLength );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<WellPathCellIntersectionInfo> RicWellPathExportMswCompletionsImpl::filterIntersections(
+    const std::vector<WellPathCellIntersectionInfo>& intersections,
+    double                                           initialMD,
+    const RigWellPath*                               wellPathGeometry,
+    const RimEclipseCase*                            eclipseCase )
+{
+    std::vector<WellPathCellIntersectionInfo> filteredIntersections;
+
+    if ( !intersections.empty() && intersections[0].startMD > initialMD )
+    {
+        WellPathCellIntersectionInfo firstIntersection = intersections[0];
+
+        // Add a segment from user defined MD to start of grid
+        cvf::Vec3d intersectionPoint = wellPathGeometry->interpolatedPointAlongWellPath( initialMD );
+
+        WellPathCellIntersectionInfo extraIntersection;
+
+        extraIntersection.globCellIndex          = std::numeric_limits<size_t>::max();
+        extraIntersection.startPoint             = intersectionPoint;
+        extraIntersection.endPoint               = firstIntersection.startPoint;
+        extraIntersection.startMD                = initialMD;
+        extraIntersection.endMD                  = firstIntersection.startMD;
+        extraIntersection.intersectedCellFaceIn  = cvf::StructGridInterface::NO_FACE;
+        extraIntersection.intersectedCellFaceOut = cvf::StructGridInterface::oppositeFace(
+            firstIntersection.intersectedCellFaceIn );
+        extraIntersection.intersectionLengthsInCellCS = cvf::Vec3d::ZERO;
+
+        filteredIntersections.push_back( extraIntersection );
+    }
+
+    const double epsilon = 0.001;
+
+    for ( const WellPathCellIntersectionInfo& intersection : intersections )
+    {
+        if ( ( intersection.endMD - initialMD ) < epsilon )
+        {
+            // Skip all intersections before initial measured depth
+            continue;
+        }
+        else if ( ( intersection.startMD - initialMD ) > epsilon )
+        {
+            filteredIntersections.push_back( intersection );
+        }
+        else
+        {
+            // InitialMD is inside intersection, split based on intersection point
+
+            cvf::Vec3d intersectionPoint = wellPathGeometry->interpolatedPointAlongWellPath( initialMD );
+
+            WellPathCellIntersectionInfo extraIntersection;
+
+            extraIntersection.globCellIndex          = intersection.globCellIndex;
+            extraIntersection.startPoint             = intersectionPoint;
+            extraIntersection.endPoint               = intersection.endPoint;
+            extraIntersection.startMD                = initialMD;
+            extraIntersection.endMD                  = intersection.endMD;
+            extraIntersection.intersectedCellFaceIn  = cvf::StructGridInterface::NO_FACE;
+            extraIntersection.intersectedCellFaceOut = intersection.intersectedCellFaceOut;
+
+            const RigMainGrid* grid = eclipseCase->mainGrid();
+
+            extraIntersection.intersectionLengthsInCellCS =
+                RigWellPathIntersectionTools::calculateLengthInCell( grid,
+                                                                     intersection.globCellIndex,
+                                                                     intersectionPoint,
+                                                                     intersection.endPoint );
+            filteredIntersections.push_back( extraIntersection );
+        }
+    }
+
+    return filteredIntersections;
 }
 
 //--------------------------------------------------------------------------------------------------
