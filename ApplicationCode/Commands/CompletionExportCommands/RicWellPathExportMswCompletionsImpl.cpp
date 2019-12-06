@@ -1179,9 +1179,16 @@ RicWellPathExportMswCompletionsImpl::MainBoreSegments
 {
     MainBoreSegments mainBoreSegments;
 
+    // Intersections along the well path with grid geometry is handled by well log extraction tools. The threshold in
+    // RigWellLogExtractionTools::isEqualDepth is currently set to 0.1m, and this is a pretty large threshold based on
+    // the indicated threshold of 0.001m for MSW segments
+    const double segmentLengthThreshold = 1.0e-3;
+
     for ( const auto& cellIntInfo : subSegIntersections )
     {
-        if ( std::fabs( cellIntInfo.endMD - cellIntInfo.startMD ) > 1.0e-8 )
+        const double segmentLength = std::fabs( cellIntInfo.endMD - cellIntInfo.startMD );
+
+        if ( segmentLength > segmentLengthThreshold )
         {
             QString                        label = QString( "Main stem segment %1" ).arg( mainBoreSegments.size() + 2 );
             std::shared_ptr<RicMswSegment> segment( new RicMswSegment( label,
@@ -1212,6 +1219,13 @@ RicWellPathExportMswCompletionsImpl::MainBoreSegments
                 }
             }
             mainBoreSegments.push_back( segment );
+        }
+        else
+        {
+            QString text = QString( "Skipping segment , threshold = %1, length = %2" )
+                               .arg( segmentLengthThreshold )
+                               .arg( segmentLength );
+            RiaLogging::info( text );
         }
     }
     return mainBoreSegments;
