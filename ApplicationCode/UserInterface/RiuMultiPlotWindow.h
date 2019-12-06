@@ -41,8 +41,11 @@ class RiuQwtPlotWidget;
 
 class QFocusEvent;
 class QLabel;
+class QPainter;
 class QScrollBar;
+class QwtLegend;
 class QwtLegendData;
+class QwtPlot;
 
 //==================================================================================================
 //
@@ -78,6 +81,8 @@ public:
     void         scheduleReplotOfAllPlots();
     virtual void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) {}
 
+    void renderTo( QPainter* painter );
+
 protected:
     void    contextMenuEvent( QContextMenuEvent* ) override;
     QLabel* createTitleLabel() const;
@@ -104,10 +109,12 @@ protected:
     caf::UiStyleSheet createDropTargetStyleSheet();
 
     QList<QPointer<RiuQwtPlotWidget>> visiblePlotWidgets() const;
-    QList<QPointer<RiuQwtPlotLegend>> visibleLegends() const;
-    QList<QPointer<QLabel>>           visibleTitles() const;
+    QList<QPointer<RiuQwtPlotLegend>> legendsForVisiblePlots() const;
+    QList<QPointer<QLabel>>           subTitlesForVisiblePlots() const;
 
     std::pair<int, int> findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const;
+
+    virtual void doRenderTo( QPainter* painter );
 
 private slots:
     virtual void performUpdate();

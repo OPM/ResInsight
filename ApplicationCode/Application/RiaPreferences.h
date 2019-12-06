@@ -35,6 +35,7 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"
 
+#include <QPageLayout>
 #include <QStringList>
 
 #include <map>
@@ -97,7 +98,8 @@ public:
 
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
-    void writePreferencesToApplicationStore();
+    void        writePreferencesToApplicationStore();
+    QPageLayout defaultPageLayout() const;
 
 public: // Pdm Fields
     caf::PdmField<caf::AppEnum<RiaGuiApplication::RINavigationPolicy>> navigationPolicy;

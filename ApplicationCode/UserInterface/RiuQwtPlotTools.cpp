@@ -119,8 +119,6 @@ void RiuQwtPlotTools::setDefaultAxes( QwtPlot* plot )
     plot->enableAxis( QwtPlot::xTop, false );
     plot->enableAxis( QwtPlot::yRight, false );
 
-    plot->axisScaleDraw( QwtPlot::xBottom )->enableComponent( QwtAbstractScaleDraw::Backbone, false );
-    plot->axisScaleDraw( QwtPlot::yLeft )->enableComponent( QwtAbstractScaleDraw::Backbone, false );
     plot->axisWidget( QwtPlot::xBottom )->setMargin( 0 );
     plot->axisWidget( QwtPlot::yLeft )->setMargin( 0 );
 

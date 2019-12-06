@@ -22,6 +22,7 @@
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
+#include <QPainter>
 #include <QRegularExpression>
 
 #include <cvfAssert.h>
@@ -302,6 +303,17 @@ void RimMultiPlotWindow::doSetAutoScaleYEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimMultiPlotWindow::doRenderWindowContent( QPainter* painter )
+{
+    if ( m_viewer )
+    {
+        m_viewer->renderTo( painter );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimMultiPlotWindow::updatePlotOrderFromGridWidget()
 {
     std::sort( m_plots.begin(), m_plots.end(), [this]( RimPlot* lhs, RimPlot* rhs ) {
@@ -426,10 +438,10 @@ QImage RimMultiPlotWindow::snapshotWindowContent()
 
     if ( m_viewer )
     {
-        m_viewer->setSelectionsVisible( false );
-        QPixmap pix = m_viewer->grab();
-        image       = pix.toImage();
-        m_viewer->setSelectionsVisible( true );
+        QPixmap  pix( m_viewer->size() );
+        QPainter painter( &pix );
+        m_viewer->renderTo( &painter );
+        image = pix.toImage();
     }
 
     return image;

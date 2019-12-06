@@ -93,6 +93,7 @@ protected:
 
 private:
     virtual void doRemoveFromCollection() = 0;
+    virtual void doRenderWindowContent( QPainter* painter );
 
 protected:
     caf::PdmField<RowOrColSpanEnum> m_rowSpan;

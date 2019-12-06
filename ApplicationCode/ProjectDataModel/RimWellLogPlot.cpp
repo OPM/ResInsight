@@ -696,26 +696,6 @@ void RimWellLogPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimWellLogPlot::snapshotWindowContent()
-{
-    QImage image;
-
-    if ( m_viewer )
-    {
-        RiuWellLogPlot* wellLogViewer = dynamic_cast<RiuWellLogPlot*>( m_viewer.data() );
-        CAF_ASSERT( wellLogViewer );
-        bool isScrollbarVisible = wellLogViewer->isScrollbarVisible();
-        wellLogViewer->setScrollbarVisible( false );
-        image = RimMultiPlotWindow::snapshotWindowContent();
-        wellLogViewer->setScrollbarVisible( isScrollbarVisible );
-    }
-
-    return image;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimWellLogPlot::DepthTypeEnum RimWellLogPlot::depthType() const
 {
     return m_depthType.value();

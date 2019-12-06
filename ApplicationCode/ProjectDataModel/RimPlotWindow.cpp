@@ -18,6 +18,7 @@
 #include "RimPlotWindow.h"
 
 #include "RiaApplication.h"
+#include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 
 #include "RicfCommandObject.h"
@@ -25,6 +26,8 @@
 #include "RimProject.h"
 
 #include "cafPdmUiComboBoxEditor.h"
+
+#include <QPainter>
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotWindow, "RimPlotWindow" ); // Do not use. Abstract class
 
@@ -156,6 +159,28 @@ void RimPlotWindow::updateParentLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotWindow::renderWindowContent( QPainter* painter )
+{
+    doRenderWindowContent( painter );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QPageLayout RimPlotWindow::pageLayout() const
+{
+    QPageLayout defaultPageLayout = RiaApplication::instance()->preferences()->defaultPageLayout();
+    QPageLayout customPageLayout;
+    if ( hasCustomPageLayout( &customPageLayout ) )
+    {
+        return customPageLayout;
+    }
+    return defaultPageLayout;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                       const QVariant&            oldValue,
                                       const QVariant&            newValue )
@@ -216,6 +241,14 @@ void RimPlotWindow::uiOrderingForLegendSettings( QString uiConfigName, caf::PdmU
     uiOrdering.add( &m_showPlotLegends );
     uiOrdering.add( &m_plotLegendsHorizontal );
     uiOrdering.add( &m_legendFontSize );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Re-implement this in sub classes to provide a custom page layout for printing/PDF
+//--------------------------------------------------------------------------------------------------
+bool RimPlotWindow::hasCustomPageLayout( QPageLayout* customPageLayout ) const
+{
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -730,7 +730,7 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
     QPainter painter( this );
     painter.setClipRegion( event->region() );
 
-    if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) &&
+    if (testPaintAttribute( QwtPlotCanvas::BackingStore ) &&
         d_data->backingStore != NULL )
     {
         QPixmap &bs = *d_data->backingStore;

@@ -20,15 +20,18 @@
 
 #include <QGraphicsDropShadowEffect>
 #include <QLabel>
+#include <QPainter>
+#include <QResizeEvent>
 #include <QVBoxLayout>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuDraggableOverlayFrame::RiuDraggableOverlayFrame( QWidget* parent, QWidget* widgetToSnapTo, const QColor& backgroundColor )
+RiuDraggableOverlayFrame::RiuDraggableOverlayFrame( QWidget* parent, const QColor& backgroundColor )
     : QFrame( parent )
+    , m_anchorCorner( AnchorCorner::TopLeft )
 {
-    RiuWidgetDragger* dragger = new RiuWidgetDragger( this, widgetToSnapTo );
+    m_widgetDragger = new RiuWidgetDragger( this );
 
     QPalette pal = this->palette();
     pal.setColor( QPalette::Window, backgroundColor );
@@ -40,22 +43,74 @@ RiuDraggableOverlayFrame::RiuDraggableOverlayFrame( QWidget* parent, QWidget* wi
     dropShadowEffect->setBlurRadius( 3.0 );
     dropShadowEffect->setColor( QColor( 100, 100, 100, 100 ) );
     setGraphicsEffect( dropShadowEffect );
-
-    auto hblayout = new QVBoxLayout( this );
-    this->setLayout( hblayout );
-
-    m_overlayItemLabel = new QLabel( this );
-    hblayout->addWidget( m_overlayItemLabel );
-    m_overlayItemLabel->setObjectName( "OverlayFrameLabel" );
-    m_overlayItemLabel->setGraphicsEffect( nullptr );
-    m_overlayItemLabel->setAlignment( Qt::AlignTop | Qt::AlignLeft );
-    dragger->addWidget( m_overlayItemLabel );
+    this->setContentsMargins( 1, 1, 1, 1 );
+    m_layout = new QVBoxLayout( this );
+    m_layout->setContentsMargins( 0, 0, 0, 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QLabel* RiuDraggableOverlayFrame::label()
+RiuAbstractOverlayContentFrame* RiuDraggableOverlayFrame::contentFrame()
 {
-    return m_overlayItemLabel;
+    return m_contentFrame;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuDraggableOverlayFrame::setContentFrame( RiuAbstractOverlayContentFrame* contentFrame )
+{
+    if ( m_contentFrame )
+    {
+        m_layout->removeWidget( m_contentFrame );
+        m_contentFrame->setParent( nullptr ); // TODO: check if both removeWidget and setParent is necessary
+        delete m_contentFrame;
+        m_contentFrame = nullptr;
+    }
+
+    m_contentFrame = contentFrame;
+    m_layout->addWidget( m_contentFrame );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuDraggableOverlayFrame::renderTo( QPainter* painter, const QRect& targetRect )
+{
+    if ( m_contentFrame )
+    {
+        painter->save();
+        painter->fillRect( targetRect, this->palette().color( QWidget::backgroundRole() ) );
+        QRect contentRect = targetRect;
+        contentRect.adjust( -1, -1, -1, -1 );
+        m_contentFrame->renderTo( painter, contentRect );
+        painter->drawRect( targetRect );
+        painter->restore();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuDraggableOverlayFrame::setAnchorCorner( AnchorCorner corner )
+{
+    m_anchorCorner = corner;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuDraggableOverlayFrame::AnchorCorner RiuDraggableOverlayFrame::anchorCorner() const
+{
+    return m_anchorCorner;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize RiuDraggableOverlayFrame::minimumSizeHint() const
+{
+    QSize contentSize = m_contentFrame->minimumSizeHint();
+    return QSize( contentSize.width() + 2, contentSize.height() + 2 );
 }

@@ -17,21 +17,41 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiuAbstractOverlayContentFrame.h"
+
 #include <QFrame>
+#include <QLabel>
 #include <QPointer>
 
 class QColor;
-class QLabel;
+class QVBoxLayout;
+class RiuWidgetDragger;
 
 class RiuDraggableOverlayFrame : public QFrame
 {
     Q_OBJECT
 public:
-    RiuDraggableOverlayFrame( QWidget*      parent,
-                              QWidget*      widgetToSnapTo  = nullptr,
-                              const QColor& backgroundColor = QColor( 255, 255, 255, 100 ) );
-    QLabel* label();
+    enum class AnchorCorner
+    {
+        TopLeft,
+        TopRight,
+    };
 
-protected:
-    QPointer<QLabel> m_overlayItemLabel;
+public:
+    RiuDraggableOverlayFrame( QWidget* parent, const QColor& backgroundColor = QColor( 255, 255, 255, 100 ) );
+
+    RiuAbstractOverlayContentFrame* contentFrame();
+    void                            setContentFrame( RiuAbstractOverlayContentFrame* contentFrame );
+    void                            renderTo( QPainter* painter, const QRect& targetRect );
+
+    void         setAnchorCorner( AnchorCorner corner );
+    AnchorCorner anchorCorner() const;
+
+    QSize minimumSizeHint() const override;
+
+private:
+    QPointer<RiuWidgetDragger>               m_widgetDragger;
+    QPointer<QVBoxLayout>                    m_layout;
+    QPointer<RiuAbstractOverlayContentFrame> m_contentFrame;
+    AnchorCorner                             m_anchorCorner;
 };
