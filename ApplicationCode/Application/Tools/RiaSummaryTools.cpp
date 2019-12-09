@@ -47,6 +47,16 @@ RimSummaryPlotCollection* RiaSummaryTools::summaryPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryCrossPlotCollection* RiaSummaryTools::summaryCrossPlotCollection()
+{
+    RimProject* project = RiaApplication::instance()->project();
+
+    return project->mainPlotCollection()->summaryCrossPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSummaryCaseMainCollection* RiaSummaryTools::summaryCaseMainCollection()
 {
     RimProject*                   project                   = RiaApplication::instance()->project();

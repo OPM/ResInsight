@@ -34,6 +34,8 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryCrossPlot.h"
+#include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
@@ -96,6 +98,45 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
         std::vector<RimSummaryCurve*> summaryCurves = summaryPlot->summaryCurves();
         for ( RimSummaryCurve* summaryCurve : summaryCurves )
         {
+            RifEclipseSummaryAddress summaryAddressY = summaryCurve->summaryAddressY();
+            if ( summaryAddressY.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED &&
+                 ids.find( summaryAddressY.id() ) != ids.end() )
+            {
+                RifCalculatedSummaryCurveReader reader( calcColl );
+                RimSummaryCalculation*          calculation = reader.findCalculationByName( summaryAddressY );
+                QString                         description = calculation->description();
+
+                RifEclipseSummaryAddress updatedAdr =
+                    RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
+                summaryCurve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
+                summaryCurve->loadDataAndUpdate( true );
+            }
+        }
+
+        summaryPlot->loadDataAndUpdate();
+    }
+
+    RimSummaryCrossPlotCollection* summaryCrossPlotColl = RiaSummaryTools::summaryCrossPlotCollection();
+    for ( RimSummaryPlot* summaryPlot : summaryCrossPlotColl->summaryPlots() )
+    {
+        // Update summary curves on calculated data
+        std::vector<RimSummaryCurve*> summaryCurves = summaryPlot->summaryCurves();
+        for ( RimSummaryCurve* summaryCurve : summaryCurves )
+        {
+            RifEclipseSummaryAddress summaryAddressX = summaryCurve->summaryAddressX();
+            if ( summaryAddressX.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED &&
+                 ids.find( summaryAddressX.id() ) != ids.end() )
+            {
+                RifCalculatedSummaryCurveReader reader( calcColl );
+                RimSummaryCalculation*          calculation = reader.findCalculationByName( summaryAddressX );
+                QString                         description = calculation->description();
+
+                RifEclipseSummaryAddress updatedAdr =
+                    RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
+                summaryCurve->setSummaryAddressX( updatedAdr );
+                summaryCurve->loadDataAndUpdate( true );
+            }
+
             RifEclipseSummaryAddress summaryAddressY = summaryCurve->summaryAddressY();
             if ( summaryAddressY.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED &&
                  ids.find( summaryAddressY.id() ) != ids.end() )

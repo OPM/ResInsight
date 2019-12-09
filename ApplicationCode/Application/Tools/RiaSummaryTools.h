@@ -37,8 +37,9 @@ class PdmObject;
 class RiaSummaryTools
 {
 public:
-    static RimSummaryPlotCollection*     summaryPlotCollection();
-    static RimSummaryCaseMainCollection* summaryCaseMainCollection();
+    static RimSummaryPlotCollection*      summaryPlotCollection();
+    static RimSummaryCrossPlotCollection* summaryCrossPlotCollection();
+    static RimSummaryCaseMainCollection*  summaryCaseMainCollection();
 
     static void notifyCalculatedCurveNameHasChanged( int calculationId, const QString& currentCurveName );
 
