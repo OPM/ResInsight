@@ -183,6 +183,7 @@ RifEclipseSummaryAddress
     int         cellK             = -1;
     int         aquiferNumber     = -1;
     bool        isErrorResult     = false;
+    int         id                = -1;
 
     switch ( category )
     {
@@ -292,7 +293,8 @@ RifEclipseSummaryAddress
                                      cellJ,
                                      cellK,
                                      aquiferNumber,
-                                     isErrorResult );
+                                     isErrorResult,
+                                     id );
 }
 
 //--------------------------------------------------------------------------------------------------

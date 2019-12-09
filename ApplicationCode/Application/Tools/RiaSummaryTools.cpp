@@ -58,8 +58,7 @@ RimSummaryCaseMainCollection* RiaSummaryTools::summaryCaseMainCollection()
 //--------------------------------------------------------------------------------------------------
 /// Update the summary curves referencing this curve, as the curve is identified by the name
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryTools::notifyCalculatedCurveNameHasChanged( const QString& previousCurveName,
-                                                           const QString& currentCurveName )
+void RiaSummaryTools::notifyCalculatedCurveNameHasChanged( int calculationId, const QString& currentCurveName )
 {
     RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
@@ -68,14 +67,11 @@ void RiaSummaryTools::notifyCalculatedCurveNameHasChanged( const QString& previo
         for ( RimSummaryCurve* curve : plot->summaryCurves() )
         {
             RifEclipseSummaryAddress adr = curve->summaryAddressY();
-            if ( adr.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+            if ( adr.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED && adr.id() == calculationId )
             {
-                if ( adr.quantityName() == previousCurveName.toStdString() )
-                {
-                    RifEclipseSummaryAddress updatedAdr = RifEclipseSummaryAddress::calculatedAddress(
-                        currentCurveName.toStdString() );
-                    curve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
-                }
+                RifEclipseSummaryAddress updatedAdr =
+                    RifEclipseSummaryAddress::calculatedAddress( currentCurveName.toStdString(), calculationId );
+                curve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
             }
         }
     }

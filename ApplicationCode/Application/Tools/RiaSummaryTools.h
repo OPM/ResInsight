@@ -39,7 +39,8 @@ class RiaSummaryTools
 public:
     static RimSummaryPlotCollection*     summaryPlotCollection();
     static RimSummaryCaseMainCollection* summaryCaseMainCollection();
-    static void notifyCalculatedCurveNameHasChanged( const QString& previousCurveName, const QString& currentCurveName );
+
+    static void notifyCalculatedCurveNameHasChanged( int calculationId, const QString& currentCurveName );
 
     static RimSummaryPlot*           parentSummaryPlot( caf::PdmObject* object );
     static RimSummaryPlotCollection* parentSummaryPlotCollection( caf::PdmObject* object );
