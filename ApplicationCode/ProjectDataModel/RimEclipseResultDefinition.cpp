@@ -1379,6 +1379,12 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
 
     if ( !this->hasStaticResult() ) return false;
 
+    if ( this->resultVariable() == RiaDefines::allCombinationsAllenResultName() ||
+         this->resultVariable() == RiaDefines::binaryAllenResultName() )
+    {
+        return true;
+    }
+
     return RiaDefines::isNativeCategoryResult( this->resultVariable() );
 }
 

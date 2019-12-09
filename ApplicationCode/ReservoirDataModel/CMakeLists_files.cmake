@@ -71,6 +71,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigGridCrossPlotCurveGrouping.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCrossPlotDataExtractor.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEquil.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWbsParameter.h
+${CMAKE_CURRENT_LIST_DIR}/RigEclipseAllenFaultsStatCalc.h
 )
 
 
@@ -139,6 +140,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigCaseCellResultCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCrossPlotDataExtractor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigEquil.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWbsParameter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigEclipseAllenFaultsStatCalc.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
