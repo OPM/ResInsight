@@ -36,6 +36,10 @@
 #include "RimMultiPlotWindow.h"
 #include "RimPlotAxisProperties.h"
 #include "RimProject.h"
+#include "RimSummaryAddress.h"
+#include "RimSummaryCalculation.h"
+#include "RimSummaryCalculationCollection.h"
+#include "RimSummaryCalculationVariable.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
@@ -1779,16 +1783,38 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
     {
         for ( RimSummaryCurve* curve : m_summaryCurveCollection->curves() )
         {
-            addresses.push_back( curve->summaryAddressY() );
-            sumCases.push_back( curve->summaryCaseY() );
-
-            if ( curve->summaryCaseX() )
+            if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
             {
-                sumCases.push_back( curve->summaryCaseX() );
+                RimProject*                      proj            = RiaApplication::instance()->project();
+                RimSummaryCalculationCollection* calculationColl = proj->calculationCollection();
 
-                if ( curve->summaryAddressX().category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
+                if ( calculationColl )
                 {
-                    addresses.push_back( curve->summaryAddressX() );
+                    RimSummaryCalculation* calculation = calculationColl->findCalculationById(
+                        curve->summaryAddressY().id() );
+                    if ( calculation )
+                    {
+                        for ( RimSummaryCalculationVariable* v : calculation->allVariables() )
+                        {
+                            sumCases.push_back( v->summaryCase() );
+                            addresses.push_back( v->summaryAddress()->address() );
+                        }
+                    }
+                }
+            }
+            else
+            {
+                addresses.push_back( curve->summaryAddressY() );
+                sumCases.push_back( curve->summaryCaseY() );
+
+                if ( curve->summaryCaseX() )
+                {
+                    sumCases.push_back( curve->summaryCaseX() );
+
+                    if ( curve->summaryAddressX().category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
+                    {
+                        addresses.push_back( curve->summaryAddressX() );
+                    }
                 }
             }
         }

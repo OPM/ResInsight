@@ -41,6 +41,7 @@ public:
     RimSummaryCalculation*              addCalculationCopy( const RimSummaryCalculation* sourceCalculation );
     void                                deleteCalculation( RimSummaryCalculation* calculation );
     std::vector<RimSummaryCalculation*> calculations() const;
+    RimSummaryCalculation*              findCalculationById( int id ) const;
 
     RimSummaryCase* calculationSummaryCase();
 

@@ -122,6 +122,22 @@ std::vector<RimSummaryCalculation*> RimSummaryCalculationCollection::calculation
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryCalculation* RimSummaryCalculationCollection::findCalculationById( int id ) const
+{
+    for ( RimSummaryCalculation* calc : m_calcuations )
+    {
+        if ( calc->id() == id )
+        {
+            return calc;
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSummaryCase* RimSummaryCalculationCollection::calculationSummaryCase()
 {
     return m_calcuationSummaryCase();
