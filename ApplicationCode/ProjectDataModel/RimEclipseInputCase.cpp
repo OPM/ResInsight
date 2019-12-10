@@ -302,7 +302,7 @@ cvf::ref<RifReaderInterface> RimEclipseInputCase::createMockModel( QString model
         RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
         inputProperty->resultName              = "PORO";
         inputProperty->eclipseKeyword          = "PORO";
-        inputProperty->fileName                = "PORO.prop";
+        inputProperty->fileName                = QString( "PORO.prop" );
         m_inputPropertyCollection->inputProperties.push_back( inputProperty );
     }
 
@@ -343,19 +343,19 @@ QString RimEclipseInputCase::locationOnDisc() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseInputCase::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
 {
-    bool                 foundFile = false;
-    std::vector<QString> searchedPaths;
+    // bool                 foundFile = false;
+    // std::vector<QString> searchedPaths;
 
     // m_gridFileName = RimTools::relocateFile( m_gridFileName().path(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
 
-    for ( RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties() )
-    {
-        inputProperty->fileName = RimTools::relocateFile( inputProperty->fileName,
-                                                          newProjectPath,
-                                                          oldProjectPath,
-                                                          &foundFile,
-                                                          &searchedPaths );
-    }
+    // for ( RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties() )
+    //{
+    //    inputProperty->fileName = RimTools::relocateFile( inputProperty->fileName,
+    //                                                      newProjectPath,
+    //                                                      oldProjectPath,
+    //                                                      &foundFile,
+    //                                                      &searchedPaths );
+    //}
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -367,7 +367,8 @@ void RimEclipseInputCase::updateAdditionalFileFolder( const QString& newFolder )
     for ( RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties() )
     {
         if ( inputProperty->fileName == m_gridFileName().path() ) continue;
-        QFileInfo oldFilePath( inputProperty->fileName );
+
+        QFileInfo oldFilePath( inputProperty->fileName().path() );
         QFileInfo newFilePath( newDir, oldFilePath.fileName() );
         inputProperty->fileName = newFilePath.absoluteFilePath();
     }
@@ -382,7 +383,9 @@ std::vector<QString> RimEclipseInputCase::additionalFiles() const
     for ( const RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties() )
     {
         if ( inputProperty->fileName == m_gridFileName().path() ) continue;
-        additionalFiles.push_back( inputProperty->fileName );
+
+        additionalFiles.push_back( inputProperty->fileName().path() );
     }
+
     return additionalFiles;
 }

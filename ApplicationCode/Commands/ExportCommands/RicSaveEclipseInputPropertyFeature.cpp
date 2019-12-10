@@ -125,7 +125,7 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
                                                                              &errorMsg );
         if ( isOk )
         {
-            inputProperty->fileName       = exportSettings.fileName;
+            inputProperty->fileName       = exportSettings.fileName();
             inputProperty->eclipseKeyword = exportSettings.eclipseKeyword;
             inputProperty->resolvedState  = RimEclipseInputProperty::RESOLVED;
 

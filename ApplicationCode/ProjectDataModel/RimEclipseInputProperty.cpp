@@ -58,7 +58,7 @@ RimEclipseInputProperty::RimEclipseInputProperty()
 
     CAF_PDM_InitField( &resultName, "ResultName", QString(), "Result Name", "", "", "" );
     CAF_PDM_InitField( &eclipseKeyword, "EclipseKeyword", QString(), "Eclipse Keyword", "", "", "" );
-    CAF_PDM_InitField( &fileName, "FileName", QString(), "Filename", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &fileName, "FileName", "Filename", "", "", "" );
     CAF_PDM_InitField( &resolvedState, "ResolvedState", (ResolveStateEnum)UNKNOWN, "Data State", "", "", "" );
 
     resolvedState.uiCapability()->setUiReadOnly( true );
