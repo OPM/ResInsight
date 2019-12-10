@@ -72,7 +72,7 @@ RimEclipseResultCase::RimEclipseResultCase()
 {
     CAF_PDM_InitObject( "Eclipse Case", ":/Case48x48.png", "", "" );
 
-    RICF_InitField( &caseFileName, "CaseFileName", QString(), "Case File Name", "", "", "" );
+    RICF_InitFieldNoDefault( &caseFileName, "CaseFileName", "Case File Name", "", "", "" );
     caseFileName.uiCapability()->setUiReadOnly( true );
     caseFileName.capability<RicfFieldHandle>()->setIOWriteable( false );
 
@@ -127,13 +127,13 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 
     cvf::ref<RifReaderInterface> readerInterface;
 
-    if ( caseFileName().contains( "Result Mock Debug Model" ) )
+    if ( caseFileName().path().contains( "Result Mock Debug Model" ) )
     {
-        readerInterface = this->createMockModel( this->caseFileName() );
+        readerInterface = this->createMockModel( this->caseFileName().path() );
     }
     else
     {
-        if ( !caf::Utils::fileExists( caseFileName() ) )
+        if ( !caf::Utils::fileExists( caseFileName().path() ) )
         {
             return false;
         }
@@ -142,7 +142,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         readerEclipseOutput->setFilenamesWithFaults( this->filesContainingFaults() );
 
         cvf::ref<RifEclipseRestartDataAccess> restartDataAccess = RifEclipseOutputFileTools::createDynamicResultAccess(
-            caseFileName() );
+            caseFileName().path() );
 
         {
             std::vector<QDateTime> timeSteps;
@@ -177,11 +177,12 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
             }
             m_timeStepFilter->updateFilteredTimeStepsFromUi();
         }
+
         readerEclipseOutput->setFileDataAccess( restartDataAccess.p() );
         readerEclipseOutput->setTimeStepFilter( m_timeStepFilter->filteredTimeSteps() );
 
         cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData( this );
-        if ( !readerEclipseOutput->open( caseFileName(), eclipseCase.p() ) )
+        if ( !readerEclipseOutput->open( caseFileName().path(), eclipseCase.p() ) )
         {
             return false;
         }
@@ -209,7 +210,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
     m_gridAndWellDataIsReadFromFile = true;
     m_activeCellInfoIsReadFromFile  = true;
 
-    QFileInfo eclipseCaseFileInfo( caseFileName() );
+    QFileInfo eclipseCaseFileInfo( caseFileName().path() );
     QString   rftFileName = eclipseCaseFileInfo.path() + "/" + eclipseCaseFileInfo.completeBaseName() + ".RFT";
     QFileInfo rftFileInfo( rftFileName );
 
@@ -274,13 +275,13 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
     if ( m_activeCellInfoIsReadFromFile ) return true;
 
     cvf::ref<RifReaderInterface> readerInterface;
-    if ( caseFileName().contains( "Result Mock Debug Model" ) )
+    if ( caseFileName().path().contains( "Result Mock Debug Model" ) )
     {
-        readerInterface = this->createMockModel( this->caseFileName() );
+        readerInterface = this->createMockModel( this->caseFileName().path() );
     }
     else
     {
-        if ( !caf::Utils::fileExists( caseFileName() ) )
+        if ( !caf::Utils::fileExists( caseFileName().path() ) )
         {
             return false;
         }
@@ -292,7 +293,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
 
         std::vector<QDateTime> timeStepDates = mainEclipseCase->results( RiaDefines::MATRIX_MODEL )->timeStepDates();
         cvf::ref<RifReaderEclipseOutput> readerEclipseOutput = new RifReaderEclipseOutput;
-        if ( !readerEclipseOutput->openAndReadActiveCellData( caseFileName(), timeStepDates, eclipseCase.p() ) )
+        if ( !readerEclipseOutput->openAndReadActiveCellData( caseFileName().path(), timeStepDates, eclipseCase.p() ) )
         {
             return false;
         }
@@ -468,7 +469,7 @@ RimEclipseResultCase::~RimEclipseResultCase()
 //--------------------------------------------------------------------------------------------------
 QString RimEclipseResultCase::locationOnDisc() const
 {
-    QFileInfo fi( caseFileName() );
+    QFileInfo fi( caseFileName().path() );
     return fi.absolutePath();
 }
 
@@ -477,7 +478,7 @@ QString RimEclipseResultCase::locationOnDisc() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultCase::readGridDimensions( std::vector<std::vector<int>>& gridDimensions )
 {
-    RifEclipseOutputFileTools::readGridDimensions( caseFileName(), gridDimensions );
+    RifEclipseOutputFileTools::readGridDimensions( caseFileName().path(), gridDimensions );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -489,7 +490,7 @@ void RimEclipseResultCase::updateFilePathsFromProjectPath( const QString& newPro
     std::vector<QString> searchedPaths;
 
     // Update filename and folder paths when opening project from a different file location
-    caseFileName = RimTools::relocateFile( caseFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
+    // caseFileName = RimTools::relocateFile( caseFileName().path(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
 
     std::vector<QString>        relocatedFaultFiles;
     const std::vector<QString>& orgFilesContainingFaults = filesContainingFaults();
@@ -597,7 +598,7 @@ void RimEclipseResultCase::initAfterRead()
     RimEclipseCase::initAfterRead();
 
     // Convert from old (9.0.2) way of storing the case file
-    if ( caseFileName().isEmpty() )
+    if ( caseFileName().path().isEmpty() )
     {
         if ( !this->m_caseName_OBSOLETE().isEmpty() && !caseDirectory().isEmpty() )
         {
@@ -658,7 +659,7 @@ void RimEclipseResultCase::defineEditorAttribute( const caf::PdmFieldHandle* fie
         if ( myAttr )
         {
             myAttr->m_fileSelectionFilter = "SourSim (*.sourres)";
-            myAttr->m_defaultPath         = QFileInfo( caseFileName() ).absolutePath();
+            myAttr->m_defaultPath         = QFileInfo( caseFileName().path() ).absolutePath();
         }
     }
 }
