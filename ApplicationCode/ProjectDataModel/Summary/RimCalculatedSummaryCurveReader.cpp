@@ -98,14 +98,7 @@ RimSummaryCalculation*
 {
     if ( m_calculationCollection && resultAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
     {
-        int id = resultAddress.id();
-        for ( RimSummaryCalculation* calc : m_calculationCollection->calculations() )
-        {
-            if ( calc->id() == id )
-            {
-                return calc;
-            }
-        }
+        return m_calculationCollection->findCalculationById( resultAddress.id() );
     }
 
     return nullptr;

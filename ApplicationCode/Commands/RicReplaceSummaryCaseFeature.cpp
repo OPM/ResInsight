@@ -102,14 +102,16 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
             if ( summaryAddressY.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED &&
                  ids.find( summaryAddressY.id() ) != ids.end() )
             {
-                RifCalculatedSummaryCurveReader reader( calcColl );
-                RimSummaryCalculation*          calculation = reader.findCalculationByName( summaryAddressY );
-                QString                         description = calculation->description();
+                if ( calcColl )
+                {
+                    RimSummaryCalculation* calculation = calcColl->findCalculationById( summaryAddressY.id() );
+                    QString                description = calculation->description();
 
-                RifEclipseSummaryAddress updatedAdr =
-                    RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
-                summaryCurve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
-                summaryCurve->loadDataAndUpdate( true );
+                    RifEclipseSummaryAddress updatedAdr =
+                        RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
+                    summaryCurve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
+                    summaryCurve->loadDataAndUpdate( true );
+                }
             }
         }
 
@@ -127,28 +129,32 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
             if ( summaryAddressX.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED &&
                  ids.find( summaryAddressX.id() ) != ids.end() )
             {
-                RifCalculatedSummaryCurveReader reader( calcColl );
-                RimSummaryCalculation*          calculation = reader.findCalculationByName( summaryAddressX );
-                QString                         description = calculation->description();
+                if ( calcColl )
+                {
+                    RimSummaryCalculation* calculation = calcColl->findCalculationById( summaryAddressX.id() );
+                    QString                description = calculation->description();
 
-                RifEclipseSummaryAddress updatedAdr =
-                    RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
-                summaryCurve->setSummaryAddressX( updatedAdr );
-                summaryCurve->loadDataAndUpdate( true );
+                    RifEclipseSummaryAddress updatedAdr =
+                        RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
+                    summaryCurve->setSummaryAddressX( updatedAdr );
+                    summaryCurve->loadDataAndUpdate( true );
+                }
             }
 
             RifEclipseSummaryAddress summaryAddressY = summaryCurve->summaryAddressY();
             if ( summaryAddressY.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED &&
                  ids.find( summaryAddressY.id() ) != ids.end() )
             {
-                RifCalculatedSummaryCurveReader reader( calcColl );
-                RimSummaryCalculation*          calculation = reader.findCalculationByName( summaryAddressY );
-                QString                         description = calculation->description();
+                if ( calcColl )
+                {
+                    RimSummaryCalculation* calculation = calcColl->findCalculationById( summaryAddressX.id() );
+                    QString                description = calculation->description();
 
-                RifEclipseSummaryAddress updatedAdr =
-                    RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
-                summaryCurve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
-                summaryCurve->loadDataAndUpdate( true );
+                    RifEclipseSummaryAddress updatedAdr =
+                        RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
+                    summaryCurve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
+                    summaryCurve->loadDataAndUpdate( true );
+                }
             }
         }
 

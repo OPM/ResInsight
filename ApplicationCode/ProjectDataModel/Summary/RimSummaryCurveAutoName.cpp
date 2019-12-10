@@ -18,11 +18,15 @@
 
 #include "RimSummaryCurveAutoName.h"
 
+#include "RiaApplication.h"
 #include "RiaStatisticsTools.h"
 
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimEnsembleCurveSet.h"
+#include "RimProject.h"
+#include "RimSummaryCalculation.h"
+#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
@@ -196,6 +200,18 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
             text = RiaStatisticsTools::replacePercentileByPValueText(
                        QString::fromStdString( summaryAddress.quantityName() ) )
                        .toStdString();
+        }
+        else if ( summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+        {
+            // Need to add case name for calculated summary
+            RimProject*                      proj     = RiaApplication::instance()->project();
+            RimSummaryCalculationCollection* calcColl = proj->calculationCollection();
+
+            RimSummaryCalculation* calculation = calcColl->findCalculationById( summaryAddress.id() );
+            if ( calculation )
+            {
+                text = calculation->description().toStdString();
+            }
         }
 
         if ( m_unit && !unitText.empty() )
