@@ -486,22 +486,22 @@ void RimEclipseResultCase::readGridDimensions( std::vector<std::vector<int>>& gr
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultCase::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
 {
-    bool                 foundFile = false;
-    std::vector<QString> searchedPaths;
+    // bool                 foundFile = false;
+    // std::vector<QString> searchedPaths;
 
     // Update filename and folder paths when opening project from a different file location
     // caseFileName = RimTools::relocateFile( caseFileName().path(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
 
-    std::vector<QString>        relocatedFaultFiles;
-    const std::vector<QString>& orgFilesContainingFaults = filesContainingFaults();
-    for ( auto faultFileName : orgFilesContainingFaults )
-    {
-        QString relocatedFaultFile =
-            RimTools::relocateFile( faultFileName, newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
-        relocatedFaultFiles.push_back( relocatedFaultFile );
-    }
-
-    setFilesContainingFaults( relocatedFaultFiles );
+    // std::vector<QString>        relocatedFaultFiles;
+    // const std::vector<QString>& orgFilesContainingFaults = filesContainingFaults();
+    // for ( auto faultFileName : orgFilesContainingFaults )
+    // {
+    //     QString relocatedFaultFile =
+    //         RimTools::relocateFile( faultFileName, newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
+    //     relocatedFaultFiles.push_back( relocatedFaultFile );
+    // }
+    //
+    // setFilesContainingFaults( relocatedFaultFiles );
 
 #if 0 // Output the search path for debugging
     for (size_t i = 0; i < searchedPaths.size(); ++i)
