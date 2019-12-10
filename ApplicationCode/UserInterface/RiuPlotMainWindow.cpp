@@ -37,6 +37,7 @@
 #include "RimWellLogPlot.h"
 #include "RimWellRftPlot.h"
 
+#include "SummaryPlotCommands/RicSummaryCurveCalculatorDialog.h"
 #include "SummaryPlotCommands/RicSummaryCurveCreatorDialog.h"
 
 #include "RiuDockWidgetTools.h"
@@ -652,6 +653,19 @@ RicSummaryCurveCreatorDialog* RiuPlotMainWindow::summaryCurveCreatorDialog()
     }
 
     return m_summaryCurveCreatorDialog;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicSummaryCurveCalculatorDialog* RiuPlotMainWindow::summaryCurveCalculatorDialog()
+{
+    if ( m_summaryCurveCalculatorDialog.isNull() )
+    {
+        m_summaryCurveCalculatorDialog = new RicSummaryCurveCalculatorDialog( this );
+    }
+
+    return m_summaryCurveCalculatorDialog;
 }
 
 //--------------------------------------------------------------------------------------------------

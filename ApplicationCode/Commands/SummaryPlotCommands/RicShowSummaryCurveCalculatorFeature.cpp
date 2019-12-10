@@ -21,8 +21,12 @@
 #include "RicSummaryCurveCalculatorDialog.h"
 
 #include "RiaApplication.h"
+#include "RiaGuiApplication.h"
+
 #include "RimProject.h"
 #include "RimSummaryCalculationCollection.h"
+
+#include "RiuPlotMainWindow.h"
 
 #include <QAction>
 
@@ -33,9 +37,14 @@ CAF_CMD_SOURCE_INIT( RicShowSummaryCurveCalculatorFeature, "RicShowSummaryCurveC
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCalculatorDialog* RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog()
 {
-    static RicSummaryCurveCalculatorDialog* singleton = new RicSummaryCurveCalculatorDialog( nullptr );
+    RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
 
-    return singleton;
+    if ( mainPlotWindow )
+    {
+        return mainPlotWindow->summaryCurveCalculatorDialog();
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
