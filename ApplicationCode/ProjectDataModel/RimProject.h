@@ -106,6 +106,8 @@ public:
     caf::PdmField<QString> plotWindowTreeViewState;
     caf::PdmField<QString> plotWindowCurrentModelIndexPath;
 
+    bool writeProjectFile();
+
     void setScriptDirectories( const QString& scriptDirectories );
     void setPlotTemplateFolders( const QStringList& plotTemplateFolders );
 
@@ -191,7 +193,11 @@ private:
     template <typename T>
     void fieldContentsByType( caf::PdmObjectHandle* object, std::vector<T*>& typedFields );
 
+    void transferPathsToGlobalPathList();
+    void distributePathsFromGlobalPathList();
+
 private:
+    caf::PdmField<QString> m_globalPathList;
     caf::PdmField<QString> m_projectFileVersionString;
 
     caf::PdmChildField<RimDialogData*>             m_dialogData;

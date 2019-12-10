@@ -96,6 +96,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QMenu>
+#include <algorithm>
 
 CAF_PDM_SOURCE_INIT( RimProject, "ResInsightProject" );
 //--------------------------------------------------------------------------------------------------
@@ -111,6 +112,9 @@ RimProject::RimProject( void )
 
     CAF_PDM_InitFieldNoDefault( &m_projectFileVersionString, "ProjectFileVersionString", "", "", "", "" );
     m_projectFileVersionString.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_globalPathList, "ReferencedExternalFiles", "", "", "", "" );
+    m_globalPathList.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &oilFields, "OilFields", "Oil Fields", "", "", "" );
     oilFields.uiCapability()->setUiHidden( true );
@@ -254,6 +258,8 @@ void RimProject::close()
 //--------------------------------------------------------------------------------------------------
 void RimProject::initAfterRead()
 {
+    this->distributePathsFromGlobalPathList();
+
     // Create an empty oil field in case the project did not contain one
     if ( oilFields.size() < 1 )
     {
@@ -327,6 +333,18 @@ void RimProject::setupBeforeSave()
     }
 
     m_projectFileVersionString = STRPRODUCTVER;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProject::writeProjectFile()
+{
+    this->transferPathsToGlobalPathList();
+    bool couldOpenFile = this->writeFile();
+    this->distributePathsFromGlobalPathList();
+
+    return couldOpenFile;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1348,4 +1366,203 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     }
 
     uiTreeOrdering.skipRemainingChildren( true );
+}
+
+#define PATHIDCHAR "$"
+
+class GlobalPathListMapper
+{
+    const QString pathIdBaseString = "PathId_";
+
+public:
+    GlobalPathListMapper( const QString& globalPathListTable )
+    {
+        m_nextValidIdNumber   = 1;
+        QStringList pathPairs = globalPathListTable.split( ";", QString::SkipEmptyParts );
+
+        for ( const QString& pathIdPathPair : pathPairs )
+        {
+            QStringList pathIdPathComponents = pathIdPathPair.trimmed().split( PATHIDCHAR );
+
+            if ( pathIdPathComponents.size() == 3 && pathIdPathComponents[0].size() == 0 )
+            {
+                QString pathIdCore = pathIdPathComponents[1];
+                QString pathId     = PATHIDCHAR + pathIdCore + PATHIDCHAR;
+                QString path       = pathIdPathComponents[2].trimmed();
+
+                // Check if we have a standard id, and store the max number
+
+                if ( pathIdCore.startsWith( pathIdBaseString ) )
+                {
+                    bool    isOk       = false;
+                    QString numberText = pathIdCore.right( pathIdCore.size() - pathIdBaseString.size() );
+                    size_t  idNumber   = numberText.toUInt( &isOk );
+
+                    if ( isOk )
+                    {
+                        m_nextValidIdNumber = std::max( m_nextValidIdNumber, idNumber );
+                    }
+                }
+
+                // Check for unique pathId
+                {
+                    auto pathIdPathPairIt = m_oldPathIdToPathMap.find( pathId );
+
+                    if ( pathIdPathPairIt != m_oldPathIdToPathMap.end() )
+                    {
+                        // Error: pathID is already used
+                    }
+                }
+
+                // Check for multiple identical paths
+                {
+                    auto pathPathIdPairIt = m_oldPathToPathIdMap.find( path );
+
+                    if ( pathPathIdPairIt != m_oldPathToPathIdMap.end() )
+                    {
+                        // Warning: path has already been assigned a pathId
+                    }
+                }
+
+                m_oldPathIdToPathMap[pathId] = path;
+                m_oldPathToPathIdMap[path]   = pathId;
+            }
+            else
+            {
+                // Error: The text is ill formatted
+            }
+        }
+    }
+
+    QString addPathAndGetId( const QString& path )
+    {
+        // Want to re-use ids from last save to avoid unnecessary changes and make the behavior predictable
+        QString pathId;
+        QString trimmedPath = path.trimmed();
+
+        auto pathToIdIt = m_oldPathToPathIdMap.find( trimmedPath );
+        if ( pathToIdIt != m_oldPathToPathIdMap.end() )
+        {
+            pathId = pathToIdIt->second;
+        }
+        else
+        {
+            auto pathPathIdPairIt = m_newPathToPathIdMap.find( trimmedPath );
+            if ( pathPathIdPairIt != m_newPathToPathIdMap.end() )
+            {
+                pathId = pathPathIdPairIt->second;
+            }
+            else
+            {
+                pathId = createUnusedId();
+            }
+        }
+
+        m_newPathIdToPathMap[pathId]      = trimmedPath;
+        m_newPathToPathIdMap[trimmedPath] = pathId;
+
+        return pathId;
+    };
+
+    QString newGlobalPathListTable() const
+    {
+        QString pathList;
+        pathList += "\n";
+        for ( const auto& pathIdPathPairIt : m_newPathIdToPathMap )
+        {
+            pathList += "        " + pathIdPathPairIt.first + " " + pathIdPathPairIt.second + ";\n";
+        }
+
+        pathList += "    ";
+
+        return pathList;
+    }
+
+    QString pathFromPathId( const QString& pathId, bool* isFound ) const
+    {
+        auto it = m_oldPathIdToPathMap.find( pathId );
+        if ( it != m_oldPathIdToPathMap.end() )
+        {
+            ( *isFound ) = true;
+            return it->second;
+        }
+
+        ( *isFound ) = false;
+        return "";
+    }
+
+private:
+    QString createUnusedId()
+    {
+        QString pathIdentifier = PATHIDCHAR + pathIdBaseString + QString::number( m_nextValidIdNumber ) + PATHIDCHAR;
+        m_nextValidIdNumber++;
+        return pathIdentifier;
+    }
+
+    size_t m_nextValidIdNumber; // Set when parsing the globalPathListTable. Increment while creating new id's
+
+    std::map<QString, QString> m_newPathIdToPathMap;
+    std::map<QString, QString> m_newPathToPathIdMap;
+
+    std::map<QString, QString> m_oldPathIdToPathMap;
+    std::map<QString, QString> m_oldPathToPathIdMap;
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::transferPathsToGlobalPathList()
+{
+    GlobalPathListMapper pathListMapper( m_globalPathList() );
+
+    std::vector<caf::FilePath*> filePaths;
+    fieldContentsByType( this, filePaths );
+
+    for ( caf::FilePath* filePath : filePaths )
+    {
+        QString path = filePath->path();
+        if ( !path.isEmpty() )
+        {
+            QString pathId = pathListMapper.addPathAndGetId( path );
+            filePath->setPath( pathId );
+        }
+    }
+
+    m_globalPathList = pathListMapper.newGlobalPathListTable();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::distributePathsFromGlobalPathList()
+{
+    GlobalPathListMapper pathListMapper( m_globalPathList() );
+
+    std::vector<caf::FilePath*> filePaths;
+    fieldContentsByType( this, filePaths );
+
+    for ( caf::FilePath* filePath : filePaths )
+    {
+        QString     pathIdCandidate  = filePath->path().trimmed();
+        QStringList pathIdComponents = pathIdCandidate.split( PATHIDCHAR );
+
+        if ( pathIdComponents.size() == 3 && pathIdComponents[0].size() == 0 && pathIdComponents[1].size() > 0 &&
+             pathIdComponents[2].size() == 0 )
+        {
+            bool    isFound = false;
+            QString path    = pathListMapper.pathFromPathId( pathIdCandidate, &isFound );
+            if ( isFound )
+            {
+                filePath->setPath( path );
+            }
+            else
+            {
+                // The pathId can not be found in the path list
+            }
+        }
+        else
+        {
+            // The pathIdCandidate is probably a real path. Leave alone.
+        }
+    }
 }

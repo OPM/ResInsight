@@ -316,7 +316,7 @@ bool RiaApplication::openFile( const QString& fileName )
     }
     else if ( fileType & RiaDefines::ANY_ECLIPSE_FILE )
     {
-        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ fileName }, true );
+        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{fileName}, true );
         lastUsedDialogTag = RiaDefines::defaultDirectoryLabel( fileType );
     }
 
@@ -701,7 +701,7 @@ bool RiaApplication::saveProjectAs( const QString& fileName, QString* errorMessa
 
     onProjectBeingSaved();
 
-    if ( !m_project->writeFile() )
+    if ( !m_project->writeProjectFile() )
     {
         CAF_ASSERT( errorMessage );
         *errorMessage = QString( "Not possible to save project file. Make sure you have sufficient access "
