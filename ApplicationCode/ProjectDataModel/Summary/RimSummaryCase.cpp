@@ -62,7 +62,7 @@ RimSummaryCase::~RimSummaryCase() {}
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCase::summaryHeaderFilename() const
 {
-    return m_summaryHeaderFilename();
+    return m_summaryHeaderFilename().path();
 }
 
 //--------------------------------------------------------------------------------------------------
