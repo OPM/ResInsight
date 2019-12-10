@@ -55,7 +55,7 @@ RimEclipseInputCase::RimEclipseInputCase()
     : RimEclipseCase()
 {
     CAF_PDM_InitObject( "RimInputCase", ":/EclipseInput48x48.png", "", "" );
-    CAF_PDM_InitField( &m_gridFileName, "GridFileName", QString(), "Case File Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_gridFileName, "GridFileName", "Case File Name", "", "", "" );
     m_gridFileName.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_additionalFiles, "AdditionalFileNamesProxy", "Additional Files", "", "", "" );
@@ -190,16 +190,16 @@ bool RimEclipseInputCase::openEclipseGridFile()
     {
         cvf::ref<RifReaderInterface> readerInterface;
 
-        if ( m_gridFileName().contains( RiaDefines::mockModelBasicInputCase() ) )
+        if ( m_gridFileName().path().contains( RiaDefines::mockModelBasicInputCase() ) )
         {
-            readerInterface = this->createMockModel( this->m_gridFileName() );
+            readerInterface = this->createMockModel( this->m_gridFileName().path() );
         }
         else
         {
             readerInterface = new RifReaderEclipseInput;
 
             cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData( this );
-            if ( !readerInterface->open( m_gridFileName, eclipseCase.p() ) )
+            if ( !readerInterface->open( m_gridFileName().path(), eclipseCase.p() ) )
             {
                 return false;
             }
@@ -258,7 +258,7 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
     {
         filenames.push_back( fileName );
     }
-    filenames.push_back( m_gridFileName );
+    filenames.push_back( m_gridFileName().path() );
 
     RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( inputPropertyCollection(),
                                                                      eclipseCaseData(),
@@ -332,9 +332,9 @@ void RimEclipseInputCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 //--------------------------------------------------------------------------------------------------
 QString RimEclipseInputCase::locationOnDisc() const
 {
-    if ( m_gridFileName().isEmpty() ) return QString();
+    if ( m_gridFileName().path().isEmpty() ) return QString();
 
-    QFileInfo fi( m_gridFileName );
+    QFileInfo fi( m_gridFileName().path() );
     return fi.absolutePath();
 }
 
@@ -346,7 +346,7 @@ void RimEclipseInputCase::updateFilePathsFromProjectPath( const QString& newProj
     bool                 foundFile = false;
     std::vector<QString> searchedPaths;
 
-    m_gridFileName = RimTools::relocateFile( m_gridFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
+    // m_gridFileName = RimTools::relocateFile( m_gridFileName().path(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
 
     for ( RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties() )
     {
@@ -366,7 +366,7 @@ void RimEclipseInputCase::updateAdditionalFileFolder( const QString& newFolder )
     QDir newDir( newFolder );
     for ( RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties() )
     {
-        if ( inputProperty->fileName == m_gridFileName ) continue;
+        if ( inputProperty->fileName == m_gridFileName().path() ) continue;
         QFileInfo oldFilePath( inputProperty->fileName );
         QFileInfo newFilePath( newDir, oldFilePath.fileName() );
         inputProperty->fileName = newFilePath.absoluteFilePath();
@@ -381,7 +381,7 @@ std::vector<QString> RimEclipseInputCase::additionalFiles() const
     std::vector<QString> additionalFiles;
     for ( const RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties() )
     {
-        if ( inputProperty->fileName == m_gridFileName ) continue;
+        if ( inputProperty->fileName == m_gridFileName().path() ) continue;
         additionalFiles.push_back( inputProperty->fileName );
     }
     return additionalFiles;
