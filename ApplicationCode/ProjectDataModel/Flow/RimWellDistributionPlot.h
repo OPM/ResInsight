@@ -19,7 +19,20 @@
 #pragma once
 
 #include "RimPlotWindow.h"
-#include "RimPlotInterface.h"
+#include "RiaDefines.h"
+
+#include "cafPdmPtrField.h"
+
+#include <QPointer>
+
+#include <array>
+
+class RimEclipseResultCase;
+class RimFlowDiagSolution;
+class RigTofWellDistributionCalculator;
+
+class QTextBrowser;
+class QwtPlot;
 
 
 //==================================================================================================
@@ -27,7 +40,7 @@
 //
 //
 //==================================================================================================
-class RimWellDistributionPlot : public RimPlotWindow, public RimPlotInterface
+class RimWellDistributionPlot : public RimPlotWindow
 {
     CAF_PDM_HEADER_INIT;
 
@@ -35,34 +48,37 @@ public:
     RimWellDistributionPlot();
     ~RimWellDistributionPlot() override;
 
-    // RimViewWindow/RimPlotWindow implementations/overrides
-    virtual QWidget*            viewWidget() override;
-    virtual QImage              snapshotWindowContent() override;
-    virtual void                zoomAll() override;
-    virtual void                detachAllCurves() override;
-    virtual void                updateLayout() override;
+    // RimPlotWindow implementations
+    virtual QString     description() const override;
 
-    // RimPlotInterface implementation
-    virtual RiuQwtPlotWidget*   viewer() override;
-    virtual bool                isChecked() const override;
-    virtual void                setChecked(bool checked) override;
-    virtual QString             description() const override;
-    virtual bool                hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType, int defaultFontSize) const override;
-    virtual bool                applyFontSize(RiaDefines::FontSettingType fontSettingType, int oldFontSize, int fontSize, bool forceChange = false) override;
-    virtual void                setAutoScaleXEnabled(bool enabled) override;
-    virtual void                setAutoScaleYEnabled(bool enabled) override;
-    virtual void                updateAxes() override;
-    virtual void                updateZoomInQwt() override;
-    virtual void                updateZoomFromQwt() override;
-    virtual void                createPlotWidget() override;
-    //virtual void                detachAllCurves() override;
-    virtual caf::PdmObject*     findPdmObjectFromQwtCurve(const QwtPlotCurve* curve) const override;
-    virtual void                loadDataAndUpdate() override;
+    // RimViewWindow implementations
+    virtual QWidget*    viewWidget() override;
+    virtual QImage      snapshotWindowContent() override;
+    virtual void        zoomAll() override;
 
 private:
-    // RimViewWindow/RimPlotWindow implementations/overrides
+    // RimPlotWindow overrides
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
+    // RimViewWindow implementations
     virtual QWidget*    createViewWidget(QWidget* mainWindowParent) override;
     virtual void        deleteViewWidget() override;
     virtual void        onLoadDataAndUpdate() override;
-    virtual void        updatePlotTitle() override;
+
+private:
+    virtual void        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                fixupDependentFieldsAfterCaseChange();
+    static QwtPlot*     constructNewPlotWidget();
+    static void         populatePlotWidgetWithCurveData(const RigTofWellDistributionCalculator& calculator, RiaDefines::PhaseType phase, const RimFlowDiagSolution& flowDiagSolution, QwtPlot* plotWidget);
+    
+
+private:
+    caf::PdmPtrField<RimEclipseResultCase*> m_case;
+    caf::PdmField<int>                      m_timeStepIndex;
+    caf::PdmField<QString>                  m_wellName;
+
+    QPointer<QWidget>                       m_myViewWidget;
+    QPointer<QTextBrowser>                  m_textBrowser;
+    std::array<QPointer<QwtPlot>, 3>        m_plotWidgets;
 };

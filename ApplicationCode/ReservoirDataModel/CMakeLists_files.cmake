@@ -54,6 +54,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigWellPathIntersectionTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseResultInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseResultAddress.h
 ${CMAKE_CURRENT_LIST_DIR}/RigTofAccumulatedPhaseFractionsCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RigTofWellDistributionCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RigTransmissibilityEquations.h
 ${CMAKE_CURRENT_LIST_DIR}/RigNumberOfFloodedPoreVolumesCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWeightedMeanCalc.h
@@ -123,6 +124,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigCellGeometryTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWellPathIntersectionTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseResultInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigTofAccumulatedPhaseFractionsCalculator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigTofWellDistributionCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigTransmissibilityEquations.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigNumberOfFloodedPoreVolumesCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWeightedMeanCalc.cpp
