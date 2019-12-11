@@ -67,6 +67,7 @@ RimSimWellInView::RimSimWellInView()
     CAF_PDM_InitField( &showWellHead, "ShowWellHead", true, "Well Head", "", "", "" );
     CAF_PDM_InitField( &showWellPipe, "ShowWellPipe", true, "Pipe", "", "", "" );
     CAF_PDM_InitField( &showWellSpheres, "ShowWellSpheres", false, "Spheres", "", "", "" );
+    CAF_PDM_InitField( &showWellDisks, "ShowWellDisks", false, "Disks", "", "", "" );
 
     CAF_PDM_InitField( &wellHeadScaleFactor, "WellHeadScaleFactor", 1.0, "Well Head Scale", "", "", "" );
     CAF_PDM_InitField( &pipeScaleFactor, "WellPipeRadiusScale", 1.0, "Pipe Radius Scale", "", "", "" );
@@ -113,7 +114,7 @@ void RimSimWellInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     if ( reservoirView )
     {
         if ( &showWellLabel == changedField || &showWellHead == changedField || &showWellPipe == changedField ||
-             &showWellSpheres == changedField || &wellPipeColor == changedField )
+             &showWellSpheres == changedField || &showWellDisks == changedField || &wellPipeColor == changedField )
         {
             reservoirView->scheduleCreateDisplayModelAndRedraw();
             schedule2dIntersectionViewUpdate();
@@ -401,6 +402,7 @@ void RimSimWellInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     appearanceGroup->add( &showWellHead );
     appearanceGroup->add( &showWellPipe );
     appearanceGroup->add( &showWellSpheres );
+    appearanceGroup->add( &showWellDisks );
 
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "Well Cells and Fence" );
     filterGroup->add( &showWellCells );

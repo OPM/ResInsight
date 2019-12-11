@@ -146,6 +146,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     CAF_PDM_InitFieldNoDefault( &m_showWellLabel, "ShowWellLabelTristate", "Label", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_showWellPipe, "ShowWellPipe", "Pipe", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_showWellSpheres, "ShowWellSpheres", "Spheres", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_showWellDisks, "ShowWellDisks", "Disks", "", "", "" );
 
     m_showWellHead.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
     m_showWellHead.xmlCapability()->disableIO();
@@ -158,6 +159,9 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
 
     m_showWellSpheres.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
     m_showWellSpheres.xmlCapability()->disableIO();
+
+    m_showWellDisks.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
+    m_showWellDisks.xmlCapability()->disableIO();
 
     // Scaling
     CAF_PDM_InitField( &wellHeadScaleFactor, "WellHeadScale", 1.0, "Well Head Scale", "", "", "" );
@@ -405,6 +409,15 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
         }
     }
 
+    if ( &m_showWellDisks == changedField )
+    {
+        for ( RimSimWellInView* w : wells )
+        {
+            w->showWellDisks = !( m_showWellDisks().isFalse() );
+            w->updateConnectedEditors();
+        }
+    }
+
     if ( &m_showWellCells == changedField )
     {
         for ( RimSimWellInView* w : wells )
@@ -436,7 +449,7 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
         else if ( &spheresScaleFactor == changedField || &m_showWellSpheres == changedField ||
-                  &showConnectionStatusColors == changedField )
+                  &m_showWellDisks == changedField || &showConnectionStatusColors == changedField )
         {
             m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
@@ -445,7 +458,7 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
                   &wellHeadScaleFactor == changedField || &m_showWellHead == changedField ||
                   &isAutoDetectingBranches == changedField || &wellHeadPosition == changedField ||
                   &wellLabelColor == changedField || &wellPipeCoordType == changedField ||
-                  &m_showWellPipe == changedField )
+                  &m_showWellPipe == changedField || &m_showWellDisks == changedField )
         {
             m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
@@ -567,6 +580,7 @@ void RimSimWellInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
     appearanceGroup->add( &m_showWellHead );
     appearanceGroup->add( &m_showWellPipe );
     appearanceGroup->add( &m_showWellSpheres );
+    appearanceGroup->add( &m_showWellDisks );
     appearanceGroup->add( &m_showWellCommunicationLines );
 
     if ( !isContourMap )
@@ -626,6 +640,7 @@ void RimSimWellInViewCollection::updateStateForVisibilityCheckboxes()
     size_t showWellHeadCount      = 0;
     size_t showPipeCount          = 0;
     size_t showSphereCount        = 0;
+    size_t showDiskCount          = 0;
     size_t showWellCellsCount     = 0;
     size_t showWellCellFenceCount = 0;
 
@@ -635,6 +650,7 @@ void RimSimWellInViewCollection::updateStateForVisibilityCheckboxes()
         if ( w->showWellHead() ) showWellHeadCount++;
         if ( w->showWellPipe() ) showPipeCount++;
         if ( w->showWellSpheres() ) showSphereCount++;
+        if ( w->showWellDisks() ) showDiskCount++;
         if ( w->showWellCells() ) showWellCellsCount++;
         if ( w->showWellCellFence() ) showWellCellFenceCount++;
     }
@@ -643,6 +659,7 @@ void RimSimWellInViewCollection::updateStateForVisibilityCheckboxes()
     updateStateFromEnabledChildCount( showWellHeadCount, &m_showWellHead );
     updateStateFromEnabledChildCount( showPipeCount, &m_showWellPipe );
     updateStateFromEnabledChildCount( showSphereCount, &m_showWellSpheres );
+    updateStateFromEnabledChildCount( showDiskCount, &m_showWellDisks );
     updateStateFromEnabledChildCount( showWellCellsCount, &m_showWellCells );
     updateStateFromEnabledChildCount( showWellCellFenceCount, &m_showWellCellFence );
 }

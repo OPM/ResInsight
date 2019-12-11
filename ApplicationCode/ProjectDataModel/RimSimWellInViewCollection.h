@@ -162,6 +162,7 @@ private:
     caf::PdmField<caf::Tristate> m_showWellHead;
     caf::PdmField<caf::Tristate> m_showWellPipe;
     caf::PdmField<caf::Tristate> m_showWellSpheres;
+    caf::PdmField<caf::Tristate> m_showWellDisks;
     caf::PdmField<caf::Tristate> m_showWellCells;
     caf::PdmField<caf::Tristate> m_showWellCellFence;
 

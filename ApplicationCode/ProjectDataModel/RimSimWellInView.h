@@ -83,6 +83,7 @@ public:
     caf::PdmField<bool> showWellHead;
     caf::PdmField<bool> showWellPipe;
     caf::PdmField<bool> showWellSpheres;
+    caf::PdmField<bool> showWellDisks;
 
     caf::PdmField<double> wellHeadScaleFactor;
     caf::PdmField<double> pipeScaleFactor;
