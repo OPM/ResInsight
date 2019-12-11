@@ -87,7 +87,7 @@ std::vector<RigCompletionData>
 {
     std::vector<RigCompletionData> completionData;
 
-    if ( !wellPath || !wellPath->completions() )
+    if ( !wellPath || !wellPath->completions() || !wellPath->wellPathGeometry() )
     {
         return completionData;
     }
@@ -197,7 +197,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
     const RimWellPath*                                       wellPath,
     const RicExportCompletionDataSettingsUi&                 settings )
 {
-    if ( !wellPath ) return;
+    if ( !wellPath || !wellPath->wellPathGeometry() ) return;
 
     // Generate data
     const RigEclipseCaseData* caseData = settings.caseToApply()->eclipseCaseData();
