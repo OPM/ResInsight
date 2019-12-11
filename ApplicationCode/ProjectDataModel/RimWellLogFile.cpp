@@ -151,9 +151,9 @@ bool RimWellLogFile::readFile( QString* errorMessage )
         m_wellLogDataFile = new RigWellLogFile;
     }
 
-    m_name = QFileInfo( m_fileName ).fileName();
+    m_name = QFileInfo( m_fileName().path() ).fileName();
 
-    if ( !m_wellLogDataFile->open( m_fileName, errorMessage ) )
+    if ( !m_wellLogDataFile->open( m_fileName().path(), errorMessage ) )
     {
         m_wellLogDataFile = nullptr;
         return false;
@@ -242,15 +242,15 @@ bool RimWellLogFile::hasFlowData() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFile::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
 {
-    bool                 foundFile = false;
-    std::vector<QString> searchedPaths;
-
-    QString fileNameCandidate =
-        RimTools::relocateFile( m_fileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
-    if ( foundFile )
-    {
-        m_fileName = fileNameCandidate;
-    }
+    // bool                 foundFile = false;
+    // std::vector<QString> searchedPaths;
+    // 
+    // QString fileNameCandidate =
+    //     RimTools::relocateFile( m_fileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
+    // if ( foundFile )
+    // {
+    //     m_fileName = fileNameCandidate;
+    // }
 }
 
 //--------------------------------------------------------------------------------------------------
