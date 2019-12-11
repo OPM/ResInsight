@@ -121,9 +121,7 @@ void RicSummaryCurveCalculator::fieldChangedByUi( const caf::PdmFieldHandle* cha
     {
         m_newCalculation = false;
 
-        RimSummaryCalculation* rimCalc = calculationCollection()->addCalculation();
-        RiaApplication::instance()->project()->assignCalculationIdToCalculation( rimCalc );
-        m_currentCalculation = rimCalc;
+        m_currentCalculation = calculationCollection()->addCalculation();
 
         this->updateConnectedEditors();
     }
