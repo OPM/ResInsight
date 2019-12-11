@@ -45,8 +45,8 @@ private:
 
     void setupBeforeSave() override;
 
-    caf::PdmField<QString> m_filepath;
-    caf::PdmField<int>     m_wellPathIndexInFile; // -1 means none.
+    caf::PdmField<caf::FilePath> m_filepath;
+    caf::PdmField<int>           m_wellPathIndexInFile; // -1 means none.
 
     caf::PdmField<QString> id;
     caf::PdmField<QString> sourceSystem;

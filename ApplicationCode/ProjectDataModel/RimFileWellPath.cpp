@@ -33,7 +33,7 @@ RimFileWellPath::RimFileWellPath()
     m_surveyType.uiCapability()->setUiReadOnly( true );
     m_surveyType.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_filepath, "WellPathFilepath", QString( "" ), "File Path", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filepath, "WellPathFilepath", "File Path", "", "", "" );
     m_filepath.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitField( &m_wellPathIndexInFile, "WellPathNumberInFile", -1, "Well Number in File", "", "", "" );
     m_wellPathIndexInFile.uiCapability()->setUiReadOnly( true );
@@ -49,7 +49,7 @@ RimFileWellPath::~RimFileWellPath() {}
 //--------------------------------------------------------------------------------------------------
 QString RimFileWellPath::filepath() const
 {
-    return m_filepath();
+    return m_filepath().path();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,10 +112,12 @@ void RimFileWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 bool RimFileWellPath::readWellPathFile( QString* errorMessage, RifWellPathImporter* wellPathImporter )
 {
-    if ( caf::Utils::fileExists( m_filepath() ) )
+    if ( caf::Utils::fileExists( m_filepath().path() ) )
     {
-        RifWellPathImporter::WellData wellData = wellPathImporter->readWellData( m_filepath(), m_wellPathIndexInFile() );
-        RifWellPathImporter::WellMetaData wellMetaData = wellPathImporter->readWellMetaData( m_filepath(),
+        RifWellPathImporter::WellData wellData = wellPathImporter->readWellData( m_filepath().path(),
+                                                                                 m_wellPathIndexInFile() );
+
+        RifWellPathImporter::WellMetaData wellMetaData = wellPathImporter->readWellMetaData( m_filepath().path(),
                                                                                              m_wellPathIndexInFile() );
         // General well info
 
@@ -132,7 +134,7 @@ bool RimFileWellPath::readWellPathFile( QString* errorMessage, RifWellPathImport
     }
     else
     {
-        if ( errorMessage ) ( *errorMessage ) = "Could not find the well path file: " + m_filepath();
+        if ( errorMessage ) ( *errorMessage ) = "Could not find the well path file: " + m_filepath().path();
         return false;
     }
 }
@@ -152,7 +154,7 @@ QString RimFileWellPath::getCacheDirectoryPath()
 //--------------------------------------------------------------------------------------------------
 QString RimFileWellPath::getCacheFileName()
 {
-    if ( m_filepath().isEmpty() )
+    if ( m_filepath().path().isEmpty() )
     {
         return "";
     }
@@ -161,7 +163,7 @@ QString RimFileWellPath::getCacheFileName()
 
     // Make the path correct related to the possibly new project filename
     QString   newCacheDirPath = getCacheDirectoryPath();
-    QFileInfo oldCacheFile( m_filepath );
+    QFileInfo oldCacheFile( m_filepath().path() );
 
     cacheFileName = newCacheDirPath + "/" + oldCacheFile.fileName();
 
@@ -179,7 +181,7 @@ void RimFileWellPath::setupBeforeSave()
         return;
     }
 
-    if ( m_filepath().isEmpty() )
+    if ( m_filepath().path().isEmpty() )
     {
         return;
     }
@@ -189,12 +191,12 @@ void RimFileWellPath::setupBeforeSave()
     QString newCacheFileName = getCacheFileName();
 
     // Use QFileInfo to get same string representation to avoid issues with mix of forward and backward slashes
-    QFileInfo prevFileInfo( m_filepath );
+    QFileInfo prevFileInfo( m_filepath().path() );
     QFileInfo currentFileInfo( newCacheFileName );
 
     if ( prevFileInfo.absoluteFilePath().compare( currentFileInfo.absoluteFilePath() ) != 0 )
     {
-        QFile::copy( m_filepath, newCacheFileName );
+        QFile::copy( m_filepath().path(), newCacheFileName );
 
         m_filepath = newCacheFileName;
     }
@@ -214,7 +216,7 @@ bool RimFileWellPath::isStoredInCache()
 //--------------------------------------------------------------------------------------------------
 void RimFileWellPath::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
 {
-    RimWellPath::updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
+    // RimWellPath::updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
 
     if ( isStoredInCache() )
     {
@@ -225,8 +227,8 @@ void RimFileWellPath::updateFilePathsFromProjectPath( const QString& newProjectP
             m_filepath = newCacheFileName;
         }
     }
-    else
-    {
-        m_filepath = RimTools::relocateFile( m_filepath(), newProjectPath, oldProjectPath, nullptr, nullptr );
-    }
+    // else
+    // {
+    //     m_filepath = RimTools::relocateFile( m_filepath(), newProjectPath, oldProjectPath, nullptr, nullptr );
+    // }
 }
