@@ -18,6 +18,7 @@
 
 #include "RimWellPathImport.h"
 
+#include "RimFileWellPath.h"
 #include "RimOilFieldEntry.h"
 #include "RimOilRegionEntry.h"
 #include "RimTools.h"
@@ -224,8 +225,7 @@ RimWellPathImport::~RimWellPathImport()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathImport::updateFilePaths()
 {
-    QString wellPathsFolderPath = RimTools::getCacheRootDirectoryPathFromProject();
-    wellPathsFolderPath += "_wellpaths";
+    QString wellPathsFolderPath = RimFileWellPath::getCacheDirectoryPath();
 
     for ( size_t regionIdx = 0; regionIdx < this->regions.size(); regionIdx++ )
     {

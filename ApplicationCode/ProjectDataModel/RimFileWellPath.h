@@ -32,6 +32,7 @@ public:
     int     wellPathIndexInFile() const; // -1 means none.
     void    setWellPathIndexInFile( int index );
     void    updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
+    static QString getCacheDirectoryPath();
 
 private:
     QString surveyType()
@@ -41,7 +42,6 @@ private:
     void    setSurveyType( QString surveyType );
     bool    isStoredInCache();
     QString getCacheFileName();
-    QString getCacheDirectoryPath();
 
     void setupBeforeSave() override;
 

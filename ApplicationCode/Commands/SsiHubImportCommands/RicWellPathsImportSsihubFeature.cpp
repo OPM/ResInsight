@@ -21,9 +21,12 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+
+#include "RimFileWellPath.h"
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellPathImport.h"
+
 #include "RiuMainWindow.h"
 #include "RiuWellImportWizard.h"
 
@@ -82,8 +85,7 @@ void RicWellPathsImportSsihubFeature::onActionTriggered( bool isChecked )
     // Update the UTM bounding box from the reservoir
     app->project()->computeUtmAreaOfInterest();
 
-    QString wellPathsFolderPath = RimTools::getCacheRootDirectoryPathFromProject();
-    wellPathsFolderPath += "_wellpaths";
+    QString wellPathsFolderPath = RimFileWellPath::getCacheDirectoryPath();
     QDir::root().mkpath( wellPathsFolderPath );
 
     if ( !app->project()->wellPathImport() ) return;
