@@ -36,9 +36,9 @@ public:
     RimFormationNames();
     ~RimFormationNames() override;
 
-    void           setFileName( const QString& fileName );
-    const QString& fileName();
-    QString        fileNameWoPath();
+    void    setFileName( const QString& fileName );
+    QString fileName();
+    QString fileNameWoPath();
 
     RigFormationNames* formationNamesData()
     {
@@ -63,7 +63,7 @@ private:
     void readFmuFormationNameFile( QTextStream& stream, QString* errorMessage );
 
 private:
-    caf::PdmField<QString> m_formationNamesFileName;
+    caf::PdmField<caf::FilePath> m_formationNamesFileName;
 
     cvf::ref<RigFormationNames> m_formationNamesData;
 };
