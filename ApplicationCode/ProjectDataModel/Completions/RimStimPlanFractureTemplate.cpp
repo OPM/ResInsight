@@ -69,7 +69,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
     
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_stimPlanFileName,          "StimPlanFileName", QString(""), "File Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_stimPlanFileName, "StimPlanFileName", "File Name", "", "", "");
     m_stimPlanFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&m_wellPathDepthAtFracture,   "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth", "", "", "");
@@ -171,9 +171,9 @@ void RimStimPlanFractureTemplate::setFileName( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString& RimStimPlanFractureTemplate::fileName()
+QString RimStimPlanFractureTemplate::fileName()
 {
-    return m_stimPlanFileName();
+    return m_stimPlanFileName().path();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,7 +182,7 @@ const QString& RimStimPlanFractureTemplate::fileName()
 void RimStimPlanFractureTemplate::updateFilePathsFromProjectPath( const QString& newProjectPath,
                                                                   const QString& oldProjectPath )
 {
-    m_stimPlanFileName = RimTools::relocateFile( m_stimPlanFileName(), newProjectPath, oldProjectPath, nullptr, nullptr );
+    // m_stimPlanFileName = RimTools::relocateFile( m_stimPlanFileName(), newProjectPath, oldProjectPath, nullptr, nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -253,7 +253,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 
     if ( m_readError ) return;
 
-    m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName(),
+    m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName().path(),
                                                                                   m_conductivityScaleFactor(),
                                                                                   m_halfLengthScaleFactor(),
                                                                                   m_heightScaleFactor(),

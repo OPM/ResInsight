@@ -56,8 +56,8 @@ public:
     void loadDataAndUpdate() override;
     void setDefaultsBasedOnXMLfile();
 
-    void           setFileName( const QString& fileName );
-    const QString& fileName();
+    void    setFileName( const QString& fileName );
+    QString fileName();
 
     void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
 
@@ -130,7 +130,7 @@ private:
     caf::PdmField<double>  m_wellPathDepthAtFracture;
     caf::PdmField<QString> m_borderPolygonResultName;
 
-    caf::PdmField<QString>                  m_stimPlanFileName;
+    caf::PdmField<caf::FilePath>            m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition> m_stimPlanFractureDefinitionData;
     cvf::ref<RigFractureGrid>               m_fractureGrid;
     bool                                    m_readError;
