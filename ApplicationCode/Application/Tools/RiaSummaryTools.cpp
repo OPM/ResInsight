@@ -25,13 +25,17 @@
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimSummaryAddress.h"
+#include "RimSummaryCalculation.h"
+#include "RimSummaryCalculationCollection.h"
+#include "RimSummaryCalculationVariable.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlot.h"
+#include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "RimSummaryCrossPlotCollection.h"
 #include "cafPdmObject.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -158,4 +162,48 @@ RimSummaryCrossPlotCollection* RiaSummaryTools::parentCrossPlotCollection( caf::
 bool RiaSummaryTools::isSummaryCrossPlot( const RimSummaryPlot* plot )
 {
     return dynamic_cast<const RimSummaryCrossPlot*>( plot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaSummaryTools::hasAccumulatedData( const RifEclipseSummaryAddress& address )
+{
+    if ( address.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+    {
+        std::vector<RimSummaryCase*>          cases;
+        std::vector<RifEclipseSummaryAddress> addresses;
+
+        getSummaryCasesAndAddressesForCalculation( address.id(), cases, addresses );
+        for ( const RifEclipseSummaryAddress& variableAddress : addresses )
+        {
+            if ( !variableAddress.hasAccumulatedData() )
+            {
+                return false;
+            }
+        }
+        // All the variables are accumulated
+        return true;
+    }
+
+    return address.hasAccumulatedData();
+}
+
+void RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( int                                    id,
+                                                                 std::vector<RimSummaryCase*>&          cases,
+                                                                 std::vector<RifEclipseSummaryAddress>& addresses )
+{
+    RimProject* proj = RiaApplication::instance()->project();
+
+    RimSummaryCalculationCollection* calculationColl = proj->calculationCollection();
+    if ( !calculationColl ) return;
+
+    RimSummaryCalculation* calculation = calculationColl->findCalculationById( id );
+    if ( !calculation ) return;
+
+    for ( RimSummaryCalculationVariable* v : calculation->allVariables() )
+    {
+        cases.push_back( v->summaryCase() );
+        addresses.push_back( v->summaryAddress()->address() );
+    }
 }

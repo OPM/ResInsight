@@ -18,11 +18,16 @@
 
 #pragma once
 
+#include <vector>
+
 class RimSummaryPlotCollection;
 class RimSummaryPlot;
 class RimSummaryCrossPlot;
 class RimSummaryCrossPlotCollection;
 class RimSummaryCaseMainCollection;
+class RimSummaryCase;
+
+class RifEclipseSummaryAddress;
 
 class QString;
 
@@ -49,4 +54,9 @@ public:
     static RimSummaryCrossPlot*           parentCrossPlot( caf::PdmObject* object );
     static RimSummaryCrossPlotCollection* parentCrossPlotCollection( caf::PdmObject* object );
     static bool                           isSummaryCrossPlot( const RimSummaryPlot* plot );
+
+    static bool hasAccumulatedData( const RifEclipseSummaryAddress& address );
+    static void getSummaryCasesAndAddressesForCalculation( int                                    id,
+                                                           std::vector<RimSummaryCase*>&          cases,
+                                                           std::vector<RifEclipseSummaryAddress>& addresses );
 };

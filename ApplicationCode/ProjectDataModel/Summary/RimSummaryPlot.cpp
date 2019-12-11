@@ -23,6 +23,7 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaSummaryCurveAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
+#include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
 #include "SummaryPlotCommands/RicSummaryCurveCreator.h"
@@ -1785,22 +1786,9 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
         {
             if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
             {
-                RimProject*                      proj            = RiaApplication::instance()->project();
-                RimSummaryCalculationCollection* calculationColl = proj->calculationCollection();
-
-                if ( calculationColl )
-                {
-                    RimSummaryCalculation* calculation = calculationColl->findCalculationById(
-                        curve->summaryAddressY().id() );
-                    if ( calculation )
-                    {
-                        for ( RimSummaryCalculationVariable* v : calculation->allVariables() )
-                        {
-                            sumCases.push_back( v->summaryCase() );
-                            addresses.push_back( v->summaryAddress()->address() );
-                        }
-                    }
-                }
+                RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( curve->summaryAddressY().id(),
+                                                                            sumCases,
+                                                                            addresses );
             }
             else
             {
@@ -2233,7 +2221,8 @@ void prepareCaseCurvesForExport( DateTimePeriod    period,
             {
                 resampler.setCurveData( curveDataItem.values, caseTimeSteps );
 
-                if ( curveDataItem.address.hasAccumulatedData() || algorithm == ResampleAlgorithm::PERIOD_END )
+                if ( RiaSummaryTools::hasAccumulatedData( curveDataItem.address ) ||
+                     algorithm == ResampleAlgorithm::PERIOD_END )
                 {
                     resampler.resampleAndComputePeriodEndValues( period );
                 }
