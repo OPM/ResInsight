@@ -191,7 +191,7 @@ bool RimWellLogFile::readFile( QString* errorMessage )
     this->firstAncestorOrThisOfType( wellPath );
     if ( wellPath )
     {
-        if ( wellPath->filepath().isEmpty() ) // Has dummy wellpath
+        if ( wellPath->filePath().isEmpty() ) // Has dummy wellpath
         {
             wellPath->setName( m_wellName );
         }
@@ -244,7 +244,7 @@ void RimWellLogFile::updateFilePathsFromProjectPath( const QString& newProjectPa
 {
     // bool                 foundFile = false;
     // std::vector<QString> searchedPaths;
-    // 
+    //
     // QString fileNameCandidate =
     //     RimTools::relocateFile( m_fileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
     // if ( foundFile )
