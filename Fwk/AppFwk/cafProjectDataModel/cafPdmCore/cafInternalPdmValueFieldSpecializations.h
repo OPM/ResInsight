@@ -162,7 +162,7 @@ public:
  
     static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
-        return variantValue.value<FilePath>() == variantValue2.value<FilePath>();
+        return variantValue.toString() == variantValue2.toString();
     }
 };
 
