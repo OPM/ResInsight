@@ -68,13 +68,14 @@ void RimFormationNames::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         {
             QMessageBox::warning( nullptr, "Formation Names", errorMessage );
         }
+        updateConnectedViews();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFormationNames::initAfterRead()
+void RimFormationNames::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     updateUiTreeName();
 }
