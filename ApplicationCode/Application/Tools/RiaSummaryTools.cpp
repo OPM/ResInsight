@@ -182,6 +182,7 @@ bool RiaSummaryTools::hasAccumulatedData( const RifEclipseSummaryAddress& addres
                 return false;
             }
         }
+
         // All the variables are accumulated
         return true;
     }
@@ -189,6 +190,9 @@ bool RiaSummaryTools::hasAccumulatedData( const RifEclipseSummaryAddress& addres
     return address.hasAccumulatedData();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( int                                    id,
                                                                  std::vector<RimSummaryCase*>&          cases,
                                                                  std::vector<RifEclipseSummaryAddress>& addresses )
