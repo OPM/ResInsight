@@ -23,6 +23,7 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaSummaryCurveAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
+#include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
 #include "SummaryPlotCommands/RicSummaryCurveCreator.h"
@@ -1779,16 +1780,25 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
     {
         for ( RimSummaryCurve* curve : m_summaryCurveCollection->curves() )
         {
-            addresses.push_back( curve->summaryAddressY() );
-            sumCases.push_back( curve->summaryCaseY() );
-
-            if ( curve->summaryCaseX() )
+            if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
             {
-                sumCases.push_back( curve->summaryCaseX() );
+                RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( curve->summaryAddressY().id(),
+                                                                            sumCases,
+                                                                            addresses );
+            }
+            else
+            {
+                addresses.push_back( curve->summaryAddressY() );
+                sumCases.push_back( curve->summaryCaseY() );
 
-                if ( curve->summaryAddressX().category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
+                if ( curve->summaryCaseX() )
                 {
-                    addresses.push_back( curve->summaryAddressX() );
+                    sumCases.push_back( curve->summaryCaseX() );
+
+                    if ( curve->summaryAddressX().category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
+                    {
+                        addresses.push_back( curve->summaryAddressX() );
+                    }
                 }
             }
         }
@@ -2207,7 +2217,8 @@ void prepareCaseCurvesForExport( DateTimePeriod    period,
             {
                 resampler.setCurveData( curveDataItem.values, caseTimeSteps );
 
-                if ( curveDataItem.address.hasAccumulatedData() || algorithm == ResampleAlgorithm::PERIOD_END )
+                if ( RiaSummaryTools::hasAccumulatedData( curveDataItem.address ) ||
+                     algorithm == ResampleAlgorithm::PERIOD_END )
                 {
                     resampler.resampleAndComputePeriodEndValues( period );
                 }

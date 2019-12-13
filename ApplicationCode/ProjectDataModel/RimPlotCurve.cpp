@@ -926,13 +926,25 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
         return;
     }
 
+    bool showLegendInQwt = m_showLegend();
+
     RimSummaryPlot* summaryPlot = nullptr;
     this->firstAncestorOrThisOfType( summaryPlot );
-
-    bool showLegendInQwt = m_showLegend();
     if ( summaryPlot )
     {
-        if ( summaryPlot->ensembleCurveSetCollection()->curveSets().empty() && summaryPlot->curveCount() == 1 )
+        bool anyCalculated = false;
+        for ( const auto c : summaryPlot->summaryCurves() )
+        {
+            if ( c->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+            {
+                // Never hide the legend for calculated curves, as the curve legend is used to
+                // show some essential auto generated data
+                anyCalculated = true;
+            }
+        }
+
+        if ( !anyCalculated && summaryPlot->ensembleCurveSetCollection()->curveSets().empty() &&
+             summaryPlot->curveCount() == 1 )
         {
             // Disable display of legend if the summary plot has only one single curve
             showLegendInQwt = false;

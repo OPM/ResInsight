@@ -20,7 +20,9 @@
 
 #include "RifEnsembleStatisticsReader.h"
 
+#include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
+
 #include "RigStatisticsMath.h"
 
 #include "RimEnsembleCurveSet.h"
@@ -158,7 +160,7 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*> su
 
             RiaTimeHistoryCurveResampler resampler;
             resampler.setCurveData( values, timeSteps );
-            if ( inputAddress.hasAccumulatedData() )
+            if ( RiaSummaryTools::hasAccumulatedData( inputAddress ) )
                 resampler.resampleAndComputePeriodEndValues( DateTimePeriod::DAY );
             else
                 resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::DAY );

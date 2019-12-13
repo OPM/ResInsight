@@ -26,7 +26,6 @@
 
 #include "RifEclipseSummaryAddress.h"
 
-#include "RimCalculatedSummaryCurveReader.h"
 #include "RimProject.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
@@ -64,10 +63,13 @@ void RicEditSummaryCurveCalculationFeature::onActionTriggered( bool isChecked )
     {
         RifEclipseSummaryAddress selectedAddress = selectedCurves.front()->summaryAddressY();
 
-        RimProject*                      proj   = RiaApplication::instance()->project();
-        RifCalculatedSummaryCurveReader* reader = dynamic_cast<RifCalculatedSummaryCurveReader*>(
-            proj->calculationCollection->calculationSummaryCase()->summaryReader() );
-        calculation = reader != nullptr ? reader->findCalculationByName( selectedAddress ) : nullptr;
+        RimProject*                      proj            = RiaApplication::instance()->project();
+        RimSummaryCalculationCollection* calculationColl = proj->calculationCollection();
+
+        if ( calculationColl )
+        {
+            calculation = calculationColl->findCalculationById( selectedAddress.id() );
+        }
     }
 
     RicSummaryCurveCalculatorDialog* dialog = RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog();

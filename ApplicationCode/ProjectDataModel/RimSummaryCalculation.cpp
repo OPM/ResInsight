@@ -64,6 +64,8 @@ RimSummaryCalculation::RimSummaryCalculation()
     CAF_PDM_InitFieldNoDefault( &m_calculatedValues, "CalculatedValues", "Calculated Values", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_timesteps, "TimeSteps", "Time Steps", "", "", "" );
+    CAF_PDM_InitField( &m_id, "Id", -1, "Id", "", "", "" );
+    m_id.uiCapability()->setUiHidden( true );
 
     m_exprContextMenuMgr = std::unique_ptr<RiuExpressionContextMenuManager>( new RiuExpressionContextMenuManager() );
 
@@ -84,6 +86,22 @@ void RimSummaryCalculation::setDescription( const QString& description )
 QString RimSummaryCalculation::description() const
 {
     return m_description;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculation::setId( int id )
+{
+    m_id = id;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimSummaryCalculation::id() const
+{
+    return m_id;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -477,4 +495,16 @@ void RimSummaryCalculation::updateDependentCurvesAndPlots()
             sumPlot->loadDataAndUpdate();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCalculationVariable*> RimSummaryCalculation::allVariables() const
+{
+    std::vector<RimSummaryCalculationVariable*> outVariables;
+    for ( RimSummaryCalculationVariable* v : m_variables )
+        outVariables.push_back( v );
+
+    return outVariables;
 }

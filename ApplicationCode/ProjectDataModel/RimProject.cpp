@@ -65,6 +65,7 @@
 #include "RimRftPlotCollection.h"
 #include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
+#include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
@@ -106,6 +107,7 @@ RimProject::RimProject( void )
     , m_nextValidCaseGroupId( 0 )
     , m_nextValidViewId( 1 )
     , m_nextValidPlotId( 1 )
+    , m_nextValidCalculationId( 1 )
 {
     CAF_PDM_InitObject( "Project", "", "", "" );
 
@@ -243,10 +245,11 @@ void RimProject::close()
     plotWindowCurrentModelIndexPath = "";
     plotWindowTreeViewState         = "";
 
-    m_nextValidCaseId      = 0;
-    m_nextValidCaseGroupId = 0;
-    m_nextValidViewId      = 1;
-    m_nextValidPlotId      = 1;
+    m_nextValidCaseId        = 0;
+    m_nextValidCaseGroupId   = 0;
+    m_nextValidViewId        = 1;
+    m_nextValidPlotId        = 1;
+    m_nextValidCalculationId = 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -536,6 +539,22 @@ void RimProject::assignPlotIdToPlotWindow( RimPlotWindow* plotWindow )
         }
 
         plotWindow->setId( m_nextValidPlotId++ );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::assignCalculationIdToCalculation( RimSummaryCalculation* calculation )
+{
+    if ( calculation )
+    {
+        for ( RimSummaryCalculation* existingCalculation : calculationCollection->calculations() )
+        {
+            m_nextValidCalculationId = std::max( m_nextValidCalculationId, existingCalculation->id() + 1 );
+        }
+
+        calculation->setId( m_nextValidCalculationId++ );
     }
 }
 

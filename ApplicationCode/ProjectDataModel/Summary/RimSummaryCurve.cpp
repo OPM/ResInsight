@@ -23,6 +23,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 #include "RiaStatisticsTools.h"
+#include "RiaSummaryTools.h"
 
 #include "RifReaderEclipseSummary.h"
 
@@ -1125,7 +1126,7 @@ void RimSummaryCurve::calculateCurveInterpolationFromAddress()
     if ( m_yValuesSummaryAddress() )
     {
         auto address = m_yValuesSummaryAddress()->address();
-        if ( address.hasAccumulatedData() )
+        if ( RiaSummaryTools::hasAccumulatedData( address ) )
         {
             m_curveInterpolation = RiuQwtPlotCurve::INTERPOLATION_POINT_TO_POINT;
         }
