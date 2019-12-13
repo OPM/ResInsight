@@ -94,7 +94,7 @@ RimEclipseResultCase::RimEclipseResultCase()
     m_flipYAxis.xmlCapability()->setIOWritable( true );
     // flipYAxis.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField( &m_sourSimFileName, "SourSimFileName", QString(), "SourSim File Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_sourSimFileName, "SourSimFileName", "SourSim File Name", "", "", "" );
     m_sourSimFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 #ifndef USE_HDF5
     m_sourSimFileName.uiCapability()->setUiHidden( true );
@@ -225,10 +225,10 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         m_flowDiagSolutions.push_back( new RimFlowDiagSolution() );
     }
 
-    if ( !m_sourSimFileName().isEmpty() )
+    if ( !m_sourSimFileName().path().isEmpty() )
     {
         RifReaderEclipseOutput* outReader = dynamic_cast<RifReaderEclipseOutput*>( readerInterface.p() );
-        outReader->setHdf5FileName( m_sourSimFileName() );
+        outReader->setHdf5FileName( m_sourSimFileName().path() );
     }
 
     RiaApplication* app = RiaApplication::instance();
@@ -323,7 +323,7 @@ void RimEclipseResultCase::loadAndUpdateSourSimData()
 {
     if ( !results( RiaDefines::MATRIX_MODEL ) ) return;
 
-    results( RiaDefines::MATRIX_MODEL )->setHdf5Filename( m_sourSimFileName );
+    results( RiaDefines::MATRIX_MODEL )->setHdf5Filename( m_sourSimFileName().path() );
 
     if ( !hasSourSimFile() )
     {
@@ -587,7 +587,7 @@ void RimEclipseResultCase::setSourSimFileName( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultCase::hasSourSimFile()
 {
-    return !m_sourSimFileName().isEmpty();
+    return !m_sourSimFileName().path().isEmpty();
 }
 
 //--------------------------------------------------------------------------------------------------

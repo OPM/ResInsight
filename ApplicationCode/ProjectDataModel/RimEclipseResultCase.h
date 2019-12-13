@@ -102,7 +102,7 @@ private:
     caf::PdmField<caf::FilePath>                                 caseFileName;
     caf::PdmProxyValueField<RiaEclipseUnitTools::UnitSystemType> m_unitSystem;
     caf::PdmChildArrayField<RimFlowDiagSolution*>                m_flowDiagSolutions;
-    caf::PdmField<QString>                                       m_sourSimFileName;
+    caf::PdmField<caf::FilePath>                                 m_sourSimFileName;
 
     // Obsolete field
     caf::PdmField<QString> caseDirectory;
