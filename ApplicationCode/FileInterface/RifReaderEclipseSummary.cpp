@@ -280,6 +280,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
     int                                          cellK( -1 );
     int                                          aquiferNumber( -1 );
     bool                                         isErrorResult( false );
+    int                                          id( -1 );
 
     quantityName = stringFromPointer( ertSumVarNode.get_keyword() );
 
@@ -406,7 +407,8 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
                                      cellJ,
                                      cellK,
                                      aquiferNumber,
-                                     isErrorResult );
+                                     isErrorResult,
+                                     id );
 }
 
 //--------------------------------------------------------------------------------------------------

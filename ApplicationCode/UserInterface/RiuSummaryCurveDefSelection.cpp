@@ -138,7 +138,8 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection()
             {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_CELL_IJK )},
             {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
           {RifEclipseSummaryAddress::SUMMARY_CALCULATED,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
+           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_ID )},
+            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
           {RifEclipseSummaryAddress::SUMMARY_IMPORTED,
            {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
       } )
@@ -350,6 +351,13 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection()
                                 "" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][0]->pdmField(),
+                                "CalculatedVectorsId",
+                                "Calculated Vectors Id",
+                                "",
+                                "",
+                                "" );
+
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][1]->pdmField(),
                                 "CalculatedVectors",
                                 "Calculated Vectors",
                                 "",
@@ -940,7 +948,7 @@ void RiuSummaryCurveDefSelection::defineUiOrdering( QString uiConfigName, caf::P
     }
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
     {
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][0]->pdmField();
+        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][1]->pdmField();
     }
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_IMPORTED )
     {

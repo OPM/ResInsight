@@ -25,13 +25,17 @@
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimSummaryAddress.h"
+#include "RimSummaryCalculation.h"
+#include "RimSummaryCalculationCollection.h"
+#include "RimSummaryCalculationVariable.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlot.h"
+#include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "RimSummaryCrossPlotCollection.h"
 #include "cafPdmObject.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -42,6 +46,16 @@ RimSummaryPlotCollection* RiaSummaryTools::summaryPlotCollection()
     RimProject* project = RiaApplication::instance()->project();
 
     return project->mainPlotCollection()->summaryPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCrossPlotCollection* RiaSummaryTools::summaryCrossPlotCollection()
+{
+    RimProject* project = RiaApplication::instance()->project();
+
+    return project->mainPlotCollection()->summaryCrossPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,8 +72,7 @@ RimSummaryCaseMainCollection* RiaSummaryTools::summaryCaseMainCollection()
 //--------------------------------------------------------------------------------------------------
 /// Update the summary curves referencing this curve, as the curve is identified by the name
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryTools::notifyCalculatedCurveNameHasChanged( const QString& previousCurveName,
-                                                           const QString& currentCurveName )
+void RiaSummaryTools::notifyCalculatedCurveNameHasChanged( int calculationId, const QString& currentCurveName )
 {
     RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
@@ -68,14 +81,11 @@ void RiaSummaryTools::notifyCalculatedCurveNameHasChanged( const QString& previo
         for ( RimSummaryCurve* curve : plot->summaryCurves() )
         {
             RifEclipseSummaryAddress adr = curve->summaryAddressY();
-            if ( adr.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+            if ( adr.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED && adr.id() == calculationId )
             {
-                if ( adr.quantityName() == previousCurveName.toStdString() )
-                {
-                    RifEclipseSummaryAddress updatedAdr = RifEclipseSummaryAddress::calculatedAddress(
-                        currentCurveName.toStdString() );
-                    curve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
-                }
+                RifEclipseSummaryAddress updatedAdr =
+                    RifEclipseSummaryAddress::calculatedAddress( currentCurveName.toStdString(), calculationId );
+                curve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
             }
         }
     }
@@ -152,4 +162,52 @@ RimSummaryCrossPlotCollection* RiaSummaryTools::parentCrossPlotCollection( caf::
 bool RiaSummaryTools::isSummaryCrossPlot( const RimSummaryPlot* plot )
 {
     return dynamic_cast<const RimSummaryCrossPlot*>( plot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaSummaryTools::hasAccumulatedData( const RifEclipseSummaryAddress& address )
+{
+    if ( address.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+    {
+        std::vector<RimSummaryCase*>          cases;
+        std::vector<RifEclipseSummaryAddress> addresses;
+
+        getSummaryCasesAndAddressesForCalculation( address.id(), cases, addresses );
+        for ( const RifEclipseSummaryAddress& variableAddress : addresses )
+        {
+            if ( !variableAddress.hasAccumulatedData() )
+            {
+                return false;
+            }
+        }
+
+        // All the variables are accumulated
+        return true;
+    }
+
+    return address.hasAccumulatedData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( int                                    id,
+                                                                 std::vector<RimSummaryCase*>&          cases,
+                                                                 std::vector<RifEclipseSummaryAddress>& addresses )
+{
+    RimProject* proj = RiaApplication::instance()->project();
+
+    RimSummaryCalculationCollection* calculationColl = proj->calculationCollection();
+    if ( !calculationColl ) return;
+
+    RimSummaryCalculation* calculation = calculationColl->findCalculationById( id );
+    if ( !calculation ) return;
+
+    for ( RimSummaryCalculationVariable* v : calculation->allVariables() )
+    {
+        cases.push_back( v->summaryCase() );
+        addresses.push_back( v->summaryAddress()->address() );
+    }
 }

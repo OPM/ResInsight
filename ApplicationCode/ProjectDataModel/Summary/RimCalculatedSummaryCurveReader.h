@@ -41,9 +41,10 @@ public:
 
     void buildMetaData();
 
-    RimSummaryCalculation* findCalculationByName( const RifEclipseSummaryAddress& resultAddress ) const;
-
     RiaEclipseUnitTools::UnitSystem unitSystem() const override;
+
+private:
+    RimSummaryCalculation* findCalculationByName( const RifEclipseSummaryAddress& resultAddress ) const;
 
 private:
     caf::PdmPointer<RimSummaryCalculationCollection> m_calculationCollection;

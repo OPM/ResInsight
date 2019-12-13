@@ -101,7 +101,7 @@ bool RicSummaryCurveCalculator::parseExpression() const
         QString currentCurveName = m_currentCalculation->description();
         if ( previousCurveName != currentCurveName )
         {
-            RiaSummaryTools::notifyCalculatedCurveNameHasChanged( previousCurveName, currentCurveName );
+            RiaSummaryTools::notifyCalculatedCurveNameHasChanged( m_currentCalculation()->id(), currentCurveName );
         }
 
         m_currentCalculation()->updateDependentCurvesAndPlots();
@@ -121,8 +121,7 @@ void RicSummaryCurveCalculator::fieldChangedByUi( const caf::PdmFieldHandle* cha
     {
         m_newCalculation = false;
 
-        RimSummaryCalculation* rimCalc = calculationCollection()->addCalculation();
-        m_currentCalculation           = rimCalc;
+        m_currentCalculation = calculationCollection()->addCalculation();
 
         this->updateConnectedEditors();
     }
@@ -246,7 +245,7 @@ bool RicSummaryCurveCalculator::calculate() const
         QString currentCurveName = m_currentCalculation->description();
         if ( previousCurveName != currentCurveName )
         {
-            RiaSummaryTools::notifyCalculatedCurveNameHasChanged( previousCurveName, currentCurveName );
+            RiaSummaryTools::notifyCalculatedCurveNameHasChanged( m_currentCalculation()->id(), currentCurveName );
         }
 
         if ( !m_currentCalculation()->calculate() )

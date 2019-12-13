@@ -62,4 +62,5 @@ private:
     caf::PdmField<int>                                                        m_cellK;
     caf::PdmField<int>                                                        m_aquiferNumber;
     caf::PdmField<bool>                                                       m_isErrorResult;
+    caf::PdmField<int>                                                        m_calculationId;
 };

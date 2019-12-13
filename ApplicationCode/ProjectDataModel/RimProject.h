@@ -39,6 +39,7 @@ class RimTextAnnotation;
 class RimReachCircleAnnotation;
 class RimPolylinesAnnotation;
 class RimSummaryCalculationCollection;
+class RimSummaryCalculation;
 class RimCase;
 class RimCommandObject;
 class RimCommandObject;
@@ -117,6 +118,7 @@ public:
     void assignCaseIdToCase( RimCase* reservoirCase );
     void assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup );
     void assignViewIdToView( RimViewWindow* view );
+    void assignCalculationIdToCalculation( RimSummaryCalculation* calculation );
 
     void allCases( std::vector<RimCase*>& cases ) const;
 
@@ -204,6 +206,7 @@ private:
     int m_nextValidCaseId;
     int m_nextValidCaseGroupId;
     int m_nextValidViewId;
+    int m_nextValidCalculationId;
 
     caf::PdmChildArrayField<RimEclipseCase*>            casesObsolete; // obsolete
     caf::PdmChildArrayField<RimIdenticalGridCaseGroup*> caseGroupsObsolete; // obsolete

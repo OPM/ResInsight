@@ -71,6 +71,7 @@ public:
         INPUT_SEGMENT_NUMBER,
         INPUT_AQUIFER_NUMBER,
         INPUT_VECTOR_NAME,
+        INPUT_ID
     };
 
 public:
@@ -84,6 +85,7 @@ public:
         , m_cellK( -1 )
         , m_aquiferNumber( -1 )
         , m_isErrorResult( false )
+        , m_id( -1 )
     {
     }
 
@@ -99,7 +101,8 @@ public:
                               int32_t            cellJ,
                               int32_t            cellK,
                               int16_t            aquiferNumber,
-                              bool               isErrorResult )
+                              bool               isErrorResult,
+                              int32_t            id )
         : m_variableCategory( category )
         , m_quantityName( quantityName )
         , m_regionNumber( regionNumber )
@@ -113,6 +116,7 @@ public:
         , m_cellK( cellK )
         , m_aquiferNumber( aquiferNumber )
         , m_isErrorResult( isErrorResult )
+        , m_id( id )
     {
     }
 
@@ -147,7 +151,7 @@ public:
     static RifEclipseSummaryAddress blockAddress( const std::string& quantityName, int i, int j, int k );
     static RifEclipseSummaryAddress
                                     blockLgrAddress( const std::string& quantityName, const std::string& lgrName, int i, int j, int k );
-    static RifEclipseSummaryAddress calculatedAddress( const std::string& quantityName );
+    static RifEclipseSummaryAddress calculatedAddress( const std::string& quantityName, int id );
     static RifEclipseSummaryAddress importedAddress( const std::string& quantityName );
     static RifEclipseSummaryAddress ensembleStatisticsAddress( const std::string& quantityName,
                                                                const std::string& dataQuantityName );
@@ -207,6 +211,10 @@ public:
     {
         return m_aquiferNumber;
     }
+    int id() const
+    {
+        return m_id;
+    }
     std::string blockAsString() const;
 
     const std::string ensembleStatisticsQuantityName() const;
@@ -252,6 +260,12 @@ public:
     {
         return m_isErrorResult;
     }
+
+    void setId( int id )
+    {
+        m_id = id;
+    }
+
     bool hasAccumulatedData() const;
 
 private:
@@ -274,6 +288,7 @@ private:
     int16_t            m_aquiferNumber;
     SummaryVarCategory m_variableCategory;
     bool               m_isErrorResult;
+    int32_t            m_id;
 };
 
 bool operator==( const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second );

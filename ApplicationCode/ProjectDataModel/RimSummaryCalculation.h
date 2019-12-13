@@ -42,9 +42,14 @@ public:
     void    setDescription( const QString& description );
     QString description() const;
 
+    void setId( int id );
+    int  id() const;
+
     bool isDirty() const;
 
     caf::PdmChildArrayFieldHandle* variables();
+
+    std::vector<RimSummaryCalculationVariable*> allVariables() const;
 
     const std::vector<double>& values() const;
     const std::vector<time_t>& timeSteps() const;
@@ -85,6 +90,7 @@ private:
 
     caf::PdmField<std::vector<double>> m_calculatedValues;
     caf::PdmField<std::vector<time_t>> m_timesteps;
+    caf::PdmField<int>                 m_id;
 
     std::unique_ptr<RiuExpressionContextMenuManager> m_exprContextMenuMgr;
 
