@@ -158,6 +158,14 @@ void RimSummaryCalculationCollection::deleteAllContainedObjects()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculationCollection::rebuildCaseMetaData()
 {
+    for ( RimSummaryCalculation* calculation : m_calcuations )
+    {
+        if ( calculation->id() == -1 )
+        {
+            RiaApplication::instance()->project()->assignCalculationIdToCalculation( calculation );
+        }
+    }
+
     m_calcuationSummaryCase->buildMetaData();
 }
 

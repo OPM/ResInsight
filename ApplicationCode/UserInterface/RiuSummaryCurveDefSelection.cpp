@@ -771,7 +771,7 @@ void RiuSummaryCurveDefSelection::fieldChangedByUi( const caf::PdmFieldHandle* c
     if ( m_toggleChangedHandler != nullptr )
     {
         // Do nothing if the curve count and curve set count is identical
-        if ( ( curveCount != m_prevCurveCount || curveSetCount != m_prevCurveSetCount ) )
+        if ( !m_multiSelectionMode || ( curveCount != m_prevCurveCount || curveSetCount != m_prevCurveSetCount ) )
         {
             m_toggleChangedHandler();
 
