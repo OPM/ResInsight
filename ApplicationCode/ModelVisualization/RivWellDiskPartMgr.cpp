@@ -40,10 +40,18 @@
 
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
+#include "cvfEffect.h"
 #include "cvfGeometryBuilderFaceList.h"
+#include "cvfGeometryBuilderTriangles.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
+#include "cvfRenderState_FF.h"
+#include "cvfShaderProgram.h"
+#include "cvfShaderProgramGenerator.h"
+#include "cvfShaderSourceProvider.h"
+#include "cvfShaderSourceRepository.h"
 #include "cvfTransform.h"
+#include "cvfUniform.h"
 #include "cvfqtUtils.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -102,8 +110,8 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
 
     const RigWellResultFrame& wellResultFrame = well->simWellData()->wellResultFrame( frameIndex );
 
-    double pipeRadius              = m_rimWell->pipeRadius();
-    int    pipeCrossSectionVxCount = m_rimWell->pipeCrossSectionVertexCount();
+    double pipeRadius = m_rimWell->pipeRadius();
+    size_t numSectors = 100;
 
     // Upper part of simulation well pipe is defined to use branch index 0
     cvf::ref<RivSimWellPipeSourceInfo> sourceInfo = new RivSimWellPipeSourceInfo( m_rimWell, 0 );
@@ -131,14 +139,13 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
     RivDiskGeometryGenerator     gen;
     gen.setRelativeRadius( 2.5f );
     gen.setRelativeLength( 0.1f );
-    gen.setNumSlices( pipeCrossSectionVxCount );
+    gen.setNumSlices( numSectors );
     gen.generate( &builder );
 
     cvf::ref<cvf::Vec3fArray> vertices = builder.vertices();
     cvf::ref<cvf::UIntArray>  faceList = builder.faceList();
 
-    size_t i;
-    for ( i = 0; i < vertices->size(); i++ )
+    for ( size_t i = 0; i < vertices->size(); i++ )
     {
         cvf::Vec3f v = vertices->get( i );
         v.transformPoint( matr );
@@ -150,21 +157,94 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
     geo1->setFromFaceList( *faceList );
     geo1->computeNormals();
 
+    // Create the fixed function effect
+    {
+        m_fixedFuncEffect = new cvf::Effect;
+
+        cvf::ref<cvf::RenderStateMaterial_FF> mat = new cvf::RenderStateMaterial_FF( cvf::Color3::BLUE );
+        mat->enableColorMaterial( true );
+        m_fixedFuncEffect->setRenderState( mat.p() );
+
+        cvf::ref<cvf::RenderStateLighting_FF> lighting = new cvf::RenderStateLighting_FF;
+        m_fixedFuncEffect->setRenderState( lighting.p() );
+    }
+
+    // Create effect with shader program
+    {
+        m_shaderEffect = new cvf::Effect;
+
+        cvf::ShaderProgramGenerator gen( "PerVertexColor", cvf::ShaderSourceProvider::instance() );
+        gen.addVertexCode( cvf::ShaderSourceRepository::vs_Standard );
+
+        // TODO: settable?
+        bool enableLighting = true;
+        if ( enableLighting )
+        {
+            gen.addFragmentCode( cvf::ShaderSourceRepository::src_VaryingColorGlobalAlpha );
+            gen.addFragmentCode( cvf::ShaderSourceRepository::light_SimpleHeadlight );
+            gen.addFragmentCode( cvf::ShaderSourceRepository::fs_Standard );
+        }
+        else
+        {
+            gen.addFragmentCode( cvf::ShaderSourceRepository::fs_Unlit );
+        }
+
+        m_shaderProg = gen.generate();
+        m_shaderProg->setDefaultUniform( new cvf::UniformFloat( "u_alpha", 1.0f ) );
+
+        m_shaderEffect->setShaderProgram( m_shaderProg.p() );
+    }
+
+    cvf::ref<cvf::Effect> effectToUse = RiaGuiApplication::instance()->useShaders() ? m_shaderEffect : m_fixedFuncEffect;
+
+    const cvf::Color3ub colorTable[] = {cvf::Color3ub( cvf::Color3::RED ),
+                                        cvf::Color3ub( cvf::Color3::GREEN ),
+                                        cvf::Color3ub( cvf::Color3::BLUE )};
+
+    size_t                       vertexCount = geo1->vertexCount();
+    cvf::ref<cvf::Color3ubArray> colorArray  = new cvf::Color3ubArray;
+    colorArray->resize( vertexCount );
+    colorArray->setAll( cvf::Color3::WHITE );
+    CVF_ASSERT( vertexCount == numSectors * 3 );
+
+    double oilFraction   = 0.1;
+    double gasFraction   = 0.4;
+    double waterFraction = 1.0 - oilFraction - gasFraction;
+
+    for ( size_t i = 0; i < numSectors; i++ )
+    {
+        int colorIdx = 0;
+
+        // Find the color for this sector
+        double lim = ( i + 1 ) / static_cast<double>( numSectors );
+        if ( lim <= oilFraction )
+        {
+            colorIdx = 0;
+        }
+        else if ( lim <= oilFraction + gasFraction )
+        {
+            colorIdx = 1;
+        }
+        else
+        {
+            colorIdx = 2;
+        }
+
+        // Set color for the triangle vertices
+        for ( int t = 0; t < 3; t++ )
+        {
+            cvf::Color3ub c = colorTable[colorIdx];
+            colorArray->set( i * 3 + t, c );
+        }
+    }
+    geo1->setColorArray( colorArray.p() );
+
     {
         cvf::ref<cvf::Part> part = new cvf::Part;
         part->setName( "RivWellDiskPartMgr: disk " + cvfqt::Utils::toString( well->name() ) );
         part->setDrawable( geo1.p() );
 
-        cvf::Color4f color = cvf::Color4f( m_rimWell->wellPipeColor() );
-
-        caf::SurfaceEffectGenerator surfaceGen( color, caf::PO_1 );
-        if ( viewWithSettings() && viewWithSettings()->isLightingDisabled() )
-        {
-            surfaceGen.enableLighting( false );
-        }
-        cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
-
-        part->setEffect( eff.p() );
+        part->setEffect( effectToUse.p() );
         part->setSourceInfo( sourceInfo.p() );
 
         m_wellDiskPart = part;

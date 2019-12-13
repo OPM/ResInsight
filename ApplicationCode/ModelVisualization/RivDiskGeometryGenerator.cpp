@@ -18,7 +18,10 @@
 
 #include "RivDiskGeometryGenerator.h"
 
+#include "cvfArray.h"
 #include "cvfBase.h"
+#include "cvfMath.h"
+
 #include "cvfGeometryBuilder.h"
 #include "cvfGeometryUtils.h"
 
@@ -57,26 +60,86 @@ void RivDiskGeometryGenerator::setNumSlices( unsigned int numSlices )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Create a disc centered at origin with its normal along positive z-axis
+///
+/// \param radius     Outer radius of the disc
+/// \param numSlices  The number of subdivisions around the z-axis. Must be >= 4
+/// \param builder    Geometry builder to use when creating geometry
+///
+/// Creates a disc on the z = 0 plane, centered at origin and with its surface normal pointing
+/// along the positive z-axis.
+///
+/// The disk is subdivided around the z axis into numSlices (as in pizza slices).
+///
+/// Each slice is a triangle which does not share any vertices with other slices. This
+/// is the main different between cvf::GeometryUtils::createDisc. This method generates 3x
+/// more vertices, but the result is easier to use if you need to color each slice separately.
+///
+/// The sourceNodes that will be produced by this method:
+///
+/// The following triangle connectivities will be produced:
+///  (0,1,2)  (3,4,5)  (6,7,8) ...
+//--------------------------------------------------------------------------------------------------
+void createDisc( double radius, size_t numSlices, cvf::GeometryBuilder* builder )
+{
+    CVF_ASSERT( numSlices >= 4 );
+    CVF_ASSERT( builder );
+
+    double da = 2 * cvf::PI_D / numSlices;
+
+    // Find the start point on the circle for each slice
+    cvf::Vec3fArray points;
+    points.reserve( numSlices );
+    for ( size_t i = 0; i < numSlices; i++ )
+    {
+        // Precompute this one (A = i*da;)
+        double sinA = cvf::Math::sin( i * da );
+        double cosA = cvf::Math::cos( i * da );
+
+        cvf::Vec3f point = cvf::Vec3f::ZERO;
+        point.x()        = static_cast<float>( -sinA * radius );
+        point.y()        = static_cast<float>( cosA * radius );
+        points.add( point );
+    }
+
+    // Create independent vertices per slice
+    cvf::Vec3fArray verts;
+    verts.reserve( numSlices * 3 );
+    for ( size_t i = 0; i < numSlices; i++ )
+    {
+        verts.add( cvf::Vec3f::ZERO );
+        verts.add( points[i] );
+        if ( i == numSlices - 1 )
+        {
+            // Last slice complete the circle.
+            verts.add( points[0] );
+        }
+        else
+            verts.add( points[i + 1] );
+    }
+
+    unsigned int baseNodeIdx = builder->addVertices( verts );
+
+    // Build the triangles for each slice
+    for ( size_t i = 0; i < numSlices; i++ )
+    {
+        unsigned int v1 = baseNodeIdx + ( i * 3 ) + 0;
+        unsigned int v2 = baseNodeIdx + ( i * 3 ) + 1;
+        unsigned int v3 = baseNodeIdx + ( i * 3 ) + 2;
+
+        builder->addTriangle( v1, v2, v3 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RivDiskGeometryGenerator::generate( cvf::GeometryBuilder* builder )
 {
     const unsigned int numPolysZDir = 1;
 
-    cvf::GeometryUtils::createObliqueCylinder( m_relativeRadius,
-                                               m_relativeRadius,
-                                               1.0f - m_relativeLength,
-                                               0,
-                                               0,
-                                               m_numSlices,
-                                               true,
-                                               true,
-                                               false,
-                                               numPolysZDir,
-                                               builder );
-
     unsigned int startIdx = builder->vertexCount();
-    cvf::GeometryUtils::createCone( m_relativeRadius, m_relativeLength, m_numSlices, true, true, true, builder );
+    createDisc( m_relativeRadius, m_numSlices, builder );
     unsigned int endIdx = builder->vertexCount() - 1;
 
     cvf::Mat4f mat = cvf::Mat4f::fromTranslation( cvf::Vec3f( 0, 0, 1.0f - m_relativeLength ) );

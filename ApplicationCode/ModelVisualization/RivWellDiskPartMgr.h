@@ -27,7 +27,10 @@ class Part;
 class ModelBasicList;
 class Transform;
 class Font;
+class Effect;
+class ShaderProgram;
 } // namespace cvf
+
 namespace caf
 {
 class DisplayCoordTransform;
@@ -65,4 +68,9 @@ private:
 
     cvf::ref<cvf::Part> m_wellDiskPart;
     cvf::ref<cvf::Part> m_wellDiskLabelPart;
+
+    bool                         m_useShaders;
+    cvf::ref<cvf::ShaderProgram> m_shaderProg;
+    cvf::ref<cvf::Effect>        m_fixedFuncEffect;
+    cvf::ref<cvf::Effect>        m_shaderEffect;
 };
