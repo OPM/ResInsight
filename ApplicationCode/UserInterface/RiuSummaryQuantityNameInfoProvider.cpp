@@ -976,7 +976,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert(
         {"GGPRNBFP",
          {A::SUMMARY_WELL_GROUP,
-          "Gas flow rate along Group’s or node’s outlet branch in network, from end of First Pass"}} );
+          "Gas flow rate along Group's or node's outlet branch in network, from end of First Pass"}} );
     m_summaryToDescMap.insert( {"GGLIR", {A::SUMMARY_WELL_GROUP, "Gas Lift Injection Rate"}} );
     m_summaryToDescMap.insert( {"GGCV", {A::SUMMARY_WELL_GROUP, "Gas Calorific Value"}} );
     m_summaryToDescMap.insert( {"GGQ", {A::SUMMARY_WELL_GROUP, "Gas molar Quality"}} );
@@ -992,35 +992,35 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
         {"GPRW", {A::SUMMARY_WELL_GROUP, "Group or node Pressure in the water injection network"}} );
     m_summaryToDescMap.insert(
         {"GPRB",
-         {A::SUMMARY_WELL_GROUP, "Pressure drop along the group’s or node’s outlet branch in the production network"}} );
+         {A::SUMMARY_WELL_GROUP, "Pressure drop along the group's or node's outlet branch in the production network"}} );
     m_summaryToDescMap.insert(
         {"GPRBG",
-         {A::SUMMARY_WELL_GROUP, "Pressure drop along the group’s or node’s inlet branch in the gas injection network"}} );
+         {A::SUMMARY_WELL_GROUP, "Pressure drop along the group's or node's inlet branch in the gas injection network"}} );
     m_summaryToDescMap.insert(
         {"GPRBW",
          {A::SUMMARY_WELL_GROUP,
-          "Pressure drop along the group’s or node’s inlet branch in the water injection network"}} );
+          "Pressure drop along the group's or node's inlet branch in the water injection network"}} );
     m_summaryToDescMap.insert(
-        {"GALQ", {A::SUMMARY_WELL_GROUP, "ALQ in the group’s or node’s outlet branch in the production network"}} );
+        {"GALQ", {A::SUMMARY_WELL_GROUP, "ALQ in the group's or node's outlet branch in the production network"}} );
     m_summaryToDescMap.insert(
         {"GOPRNB",
-         {A::SUMMARY_WELL_GROUP, "Oil flow rate along the group’s or node’s outlet branch in the production network"}} );
+         {A::SUMMARY_WELL_GROUP, "Oil flow rate along the group's or node's outlet branch in the production network"}} );
     m_summaryToDescMap.insert(
         {"GWPRNB",
-         {A::SUMMARY_WELL_GROUP, "Water flow rate along the group’s or node’s outlet branch in the production network"}} );
+         {A::SUMMARY_WELL_GROUP, "Water flow rate along the group's or node's outlet branch in the production network"}} );
     m_summaryToDescMap.insert(
         {"GGPRNB",
-         {A::SUMMARY_WELL_GROUP, "Gas flow rate along the group’s or node’s outlet branch in the production network"}} );
+         {A::SUMMARY_WELL_GROUP, "Gas flow rate along the group's or node's outlet branch in the production network"}} );
     m_summaryToDescMap.insert(
         {"GLPRNB",
-         {A::SUMMARY_WELL_GROUP, "Liquid flow rate along the group’s or node’s outlet branch in the production network"}} );
+         {A::SUMMARY_WELL_GROUP, "Liquid flow rate along the group's or node's outlet branch in the production network"}} );
     m_summaryToDescMap.insert(
         {"GWIRNB",
          {A::SUMMARY_WELL_GROUP,
-          "Water flow rate along the group’s or node’s inlet branch in the water injection network"}} );
+          "Water flow rate along the group's or node's inlet branch in the water injection network"}} );
     m_summaryToDescMap.insert(
         {"GGIRNB",
-         {A::SUMMARY_WELL_GROUP, "Gas flow rate along the group’s or node’s inlet branch in the gas injection network"}} );
+         {A::SUMMARY_WELL_GROUP, "Gas flow rate along the group's or node's inlet branch in the gas injection network"}} );
     m_summaryToDescMap.insert(
         {"GOMNR",
          {A::SUMMARY_WELL_GROUP, "Group or node minimum oil rate as specified with GNETDP in the production network"}} );
@@ -1234,7 +1234,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert( {"WBHPT", {A::SUMMARY_WELL, "Bottom Hole Pressure Target/Limit"}} );
     m_summaryToDescMap.insert( {"WTHP", {A::SUMMARY_WELL, "Tubing Head Pressure"}} );
     m_summaryToDescMap.insert( {"WTHPH", {A::SUMMARY_WELL, "Tubing Head Pressure History,"}} );
-    m_summaryToDescMap.insert( {"WPI", {A::SUMMARY_WELL, "Productivity Index of well’s preferred phase"}} );
+    m_summaryToDescMap.insert( {"WPI", {A::SUMMARY_WELL, "Productivity Index of well's preferred phase"}} );
     m_summaryToDescMap.insert( {"WPIO", {A::SUMMARY_WELL, "Oil phase PI"}} );
     m_summaryToDescMap.insert( {"WPIG", {A::SUMMARY_WELL, "Gas phase PI"}} );
     m_summaryToDescMap.insert( {"WPIW", {A::SUMMARY_WELL, "Water phase PI"}} );
@@ -1250,11 +1250,11 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert(
         {"WHD",
          {A::SUMMARY_WELL,
-          "Hydraulic head in well based on the reference depth given in HYDRHEAD and the well’s reference depth"}} );
+          "Hydraulic head in well based on the reference depth given in HYDRHEAD and the well's reference depth"}} );
     m_summaryToDescMap.insert(
         {"WHDF",
          {A::SUMMARY_WELL,
-          "Hydraulic head in well based on the reference depth given in HYDRHEAD and the well’s reference depth "
+          "Hydraulic head in well based on the reference depth given in HYDRHEAD and the well's reference depth "
           "calculated at freshwater conditions"}} );
     m_summaryToDescMap.insert( {"WSTAT", {A::SUMMARY_WELL, "Well State Indicator"}} );
     m_summaryToDescMap.insert( {"WMCTL", {A::SUMMARY_WELL, "Mode of Control"}} );
@@ -1473,7 +1473,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert( {"CWGR", {A::SUMMARY_WELL_COMPLETION, "Water-Gas Ratio"}} );
     m_summaryToDescMap.insert( {"CGLR", {A::SUMMARY_WELL_COMPLETION, "Gas-Liquid Ratio"}} );
     m_summaryToDescMap.insert( {"CPR", {A::SUMMARY_WELL_COMPLETION, "Connection Pressure"}} );
-    m_summaryToDescMap.insert( {"CPI", {A::SUMMARY_WELL_COMPLETION, "Productivity Index of well’s preferred phase"}} );
+    m_summaryToDescMap.insert( {"CPI", {A::SUMMARY_WELL_COMPLETION, "Productivity Index of well's preferred phase"}} );
     m_summaryToDescMap.insert( {"CTFAC", {A::SUMMARY_WELL_COMPLETION, "Connection Transmissibility Factor"}} );
     m_summaryToDescMap.insert(
         {"CDBF", {A::SUMMARY_WELL_COMPLETION, "Blocking factor for generalized pseudo-pressure method"}} );
