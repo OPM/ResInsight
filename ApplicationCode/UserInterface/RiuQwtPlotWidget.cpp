@@ -739,7 +739,7 @@ void RiuQwtPlotWidget::updateOverlayFrameLayout()
                 QRect  frameRect      = frame->frameGeometry();
                 QRect  canvasRect     = canvas()->rect();
                 QPoint canvasTopRight = canvasRect.topRight();
-                frameRect.setTopRight( QPoint( canvasTopRight.x() - spacing, canvasTopRight.y() + spacing ) );
+                frameRect.moveTopRight( QPoint( canvasTopRight.x() - spacing, canvasTopRight.y() + spacing ) );
                 frame->move( frameRect.topLeft() );
             }
             frame->show();
