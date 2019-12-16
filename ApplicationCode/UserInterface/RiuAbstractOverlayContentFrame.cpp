@@ -19,6 +19,7 @@
 
 #include <QLabel>
 #include <QPainter>
+#include <QTextDocument>
 #include <QVBoxLayout>
 
 //--------------------------------------------------------------------------------------------------
@@ -60,9 +61,12 @@ void RiuTextOverlayContentFrame::setText( const QString& text )
 void RiuTextOverlayContentFrame::renderTo( QPainter* painter, const QRect& targetRect )
 {
     painter->save();
-
+    painter->translate( targetRect.topLeft() + QPoint( this->contentsMargins().left(), this->contentsMargins().top() ) );
     painter->setFont( m_textLabel->font() );
-    painter->drawText( targetRect, m_textLabel->text() );
+
+    QTextDocument td;
+    td.setHtml( m_textLabel->text() );
+    td.drawContents( painter );
 
     painter->restore();
 }
