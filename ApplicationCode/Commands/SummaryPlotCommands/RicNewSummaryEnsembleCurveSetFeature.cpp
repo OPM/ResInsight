@@ -22,6 +22,7 @@
 #include "RiaGuiApplication.h"
 
 #include "RiaSummaryTools.h"
+#include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleCurveSetColorManager.h"
@@ -66,6 +67,8 @@ RimEnsembleCurveSet* RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSet( R
 
     curveSet->setSummaryCaseCollection( ensemble );
     curveSet->setSummaryAddress( RifEclipseSummaryAddress::fieldAddress( "FOPT" ) );
+
+    curveSet->filterCollection()->addFilter();
 
     plot->ensembleCurveSetCollection()->addCurveSet( curveSet );
 
