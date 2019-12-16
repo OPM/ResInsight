@@ -158,6 +158,15 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
                         {
                             if ( summaryCurve )
                             {
+                                if ( summaryCurve->summaryCaseX() == existingSummaryCase )
+                                {
+                                    summaryCurve->setSummaryCaseX( newSumCase );
+                                }
+                                if ( summaryCurve->summaryCaseY() == existingSummaryCase )
+                                {
+                                    summaryCurve->setSummaryCaseY( newSumCase );
+                                }
+
                                 RimSummaryCurveCollection* parentCollection = nullptr;
                                 summaryCurve->firstAncestorOrThisOfType( parentCollection );
                                 if ( parentCollection )
