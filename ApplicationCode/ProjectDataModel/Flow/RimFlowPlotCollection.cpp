@@ -24,6 +24,7 @@
 #include "RimProject.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellDistributionPlot.h"
+#include "RimWellDistributionPlotCollection.h"
 
 #include "cafProgressInfo.h"
 #include "cvfAssert.h"
@@ -43,8 +44,11 @@ RimFlowPlotCollection::RimFlowPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_defaultWellAllocPlot, "DefaultWellAllocationPlot", "", "", "", "" );
     m_defaultWellAllocPlot.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellDistributionPlot, "WellDistributionPlot", "", "", "", "" );
-    m_wellDistributionPlot.uiCapability()->setUiHidden( true );
+    //CAF_PDM_InitFieldNoDefault( &m_dbgWellDistributionPlot, "DbgWellDistributionPlot", "", "", "", "" );
+    //m_dbgWellDistributionPlot.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_wellDistributionPlotCollection, "WellDistributionPlotCollection", "", "", "", "" );
+    m_wellDistributionPlotCollection.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_storedWellAllocPlots,
                                 "StoredWellAllocationPlots",
@@ -82,6 +86,8 @@ void RimFlowPlotCollection::closeDefaultPlotWindowAndDeletePlots()
     }
 
     delete m_flowCharacteristicsPlot;
+    //delete m_dbgWellDistributionPlot;
+    delete m_wellDistributionPlotCollection;
 
     m_storedWellAllocPlots.deleteAllChildObjects();
     m_storedFlowCharacteristicsPlots.deleteAllChildObjects();
@@ -92,7 +98,7 @@ void RimFlowPlotCollection::closeDefaultPlotWindowAndDeletePlots()
 //--------------------------------------------------------------------------------------------------
 void RimFlowPlotCollection::loadDataAndUpdate()
 {
-    caf::ProgressInfo plotProgress( m_storedWellAllocPlots.size() + m_storedFlowCharacteristicsPlots.size() + 2, "" );
+    caf::ProgressInfo plotProgress( m_storedWellAllocPlots.size() + m_storedFlowCharacteristicsPlots.size() + 3, "" );
 
     if ( m_defaultWellAllocPlot ) m_defaultWellAllocPlot->loadDataAndUpdate();
     plotProgress.incrementProgress();
@@ -114,9 +120,14 @@ void RimFlowPlotCollection::loadDataAndUpdate()
         m_flowCharacteristicsPlot->loadDataAndUpdate();
     }
 
-    if ( m_wellDistributionPlot )
+    //if ( m_dbgWellDistributionPlot )
+    //{
+    //    m_dbgWellDistributionPlot->loadDataAndUpdate();
+    //}
+
+    if ( m_wellDistributionPlotCollection )
     {
-        m_wellDistributionPlot->loadDataAndUpdate();
+        m_wellDistributionPlotCollection->loadDataAndUpdate();
     }
 }
 
@@ -195,8 +206,14 @@ void RimFlowPlotCollection::ensureDefaultFlowPlotsAreCreated()
         m_flowCharacteristicsPlot = new RimFlowCharacteristicsPlot;
     }
 
-    if ( !m_wellDistributionPlot() )
+    //if ( !m_dbgWellDistributionPlot() )
+    //{
+    //    m_dbgWellDistributionPlot = new RimWellDistributionPlot;
+    //    m_dbgWellDistributionPlot->setAsPlotMdiWindow();
+    //}
+
+    if ( !m_wellDistributionPlotCollection() )
     {
-        m_wellDistributionPlot = new RimWellDistributionPlot;
+        m_wellDistributionPlotCollection = new RimWellDistributionPlotCollection;
     }
 }

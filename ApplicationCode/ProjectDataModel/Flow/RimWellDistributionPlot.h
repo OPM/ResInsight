@@ -18,21 +18,18 @@
 
 #pragma once
 
-#include "RimPlotWindow.h"
+#include "RimPlot.h"
 #include "RiaDefines.h"
 
 #include "cafPdmPtrField.h"
 
 #include <QPointer>
 
-#include <array>
-
 class RimEclipseResultCase;
 class RimFlowDiagSolution;
 class RigTofWellDistributionCalculator;
+class RiuQwtPlotWidget;
 
-class QTextBrowser;
-class QwtPlot;
 
 
 //==================================================================================================
@@ -40,26 +37,41 @@ class QwtPlot;
 //
 //
 //==================================================================================================
-class RimWellDistributionPlot : public RimPlotWindow
+class RimWellDistributionPlot : public RimPlot
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellDistributionPlot();
+    explicit RimWellDistributionPlot(RiaDefines::PhaseType phase = RiaDefines::OIL_PHASE);
     ~RimWellDistributionPlot() override;
 
+    void                        setDataSourceParameters(RimEclipseResultCase* eclipseResultCase, int timeStepIndex, QString targetWellName);
+
+    // RimPlot implementations
+    virtual RiuQwtPlotWidget*   viewer() override;
+    virtual void                setAutoScaleXEnabled(bool enabled) override;
+    virtual void                setAutoScaleYEnabled(bool enabled) override;
+    virtual void                updateAxes() override;
+    virtual void                updateLegend() override;
+    virtual void                updateZoomInQwt() override;
+    virtual void                updateZoomFromQwt() override;
+    virtual QString             asciiDataForPlotExport() const override;
+    virtual void                reattachAllCurves() override;
+    virtual void                detachAllCurves() override;
+    virtual caf::PdmObject*     findPdmObjectFromQwtCurve(const QwtPlotCurve* curve) const override;
+    virtual void                onAxisSelected(int axis, bool toggle) override;
+
     // RimPlotWindow implementations
-    virtual QString     description() const override;
+    virtual QString             description() const override;
 
     // RimViewWindow implementations
-    virtual QWidget*    viewWidget() override;
-    virtual QImage      snapshotWindowContent() override;
-    virtual void        zoomAll() override;
+    virtual QWidget*            viewWidget() override;
+    virtual QImage              snapshotWindowContent() override;
+    virtual void                zoomAll() override;
 
 private:
-    // RimPlotWindow overrides
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    // RimPlot implementations
+    virtual void        doRemoveFromCollection() override;
 
     // RimViewWindow implementations
     virtual QWidget*    createViewWidget(QWidget* mainWindowParent) override;
@@ -67,18 +79,18 @@ private:
     virtual void        onLoadDataAndUpdate() override;
 
 private:
-    virtual void        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                fixupDependentFieldsAfterCaseChange();
-    static QwtPlot*     constructNewPlotWidget();
-    static void         populatePlotWidgetWithCurveData(const RigTofWellDistributionCalculator& calculator, RiaDefines::PhaseType phase, const RimFlowDiagSolution& flowDiagSolution, QwtPlot* plotWidget);
-    
+    static void         populatePlotWidgetWithCurveData(const RigTofWellDistributionCalculator& calculator, const RimFlowDiagSolution& flowDiagSolution, RiuQwtPlotWidget* plotWidget);
+
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
 private:
-    caf::PdmPtrField<RimEclipseResultCase*> m_case;
-    caf::PdmField<int>                      m_timeStepIndex;
-    caf::PdmField<QString>                  m_wellName;
+    caf::PdmPtrField<RimEclipseResultCase*>             m_case;
+    caf::PdmField<int>                                  m_timeStepIndex;
+    caf::PdmField<QString>                              m_wellName;
+    caf::PdmField< caf::AppEnum<RiaDefines::PhaseType>> m_phase;
 
-    QPointer<QWidget>                       m_myViewWidget;
-    QPointer<QTextBrowser>                  m_textBrowser;
-    std::array<QPointer<QwtPlot>, 3>        m_plotWidgets;
+    QPointer<RiuQwtPlotWidget>                          m_plotWidget;
 };

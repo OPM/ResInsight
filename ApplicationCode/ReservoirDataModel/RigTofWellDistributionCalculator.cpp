@@ -33,8 +33,6 @@
 #include "RimFlowDiagSolution.h"
 #include "RimReservoirCellResultsStorage.h"
 
-#include "cvfTrace.h"
-
 #include <map>
 
 
@@ -48,7 +46,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigTofWellDistributionCalculator::RigTofWellDistributionCalculator(RimEclipseResultCase* caseToApply, QString targetWellname, size_t timeStepIndex)
+RigTofWellDistributionCalculator::RigTofWellDistributionCalculator(RimEclipseResultCase* caseToApply, QString targetWellname, size_t timeStepIndex, RiaDefines::PhaseType phase)
 {
     CVF_ASSERT(caseToApply);
 
@@ -62,10 +60,17 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator(RimEclipseRes
     CVF_ASSERT(flowDiagResults);
 
     const std::vector<double>* porvResults = eclipseCaseData->resultValues(RiaDefines::MATRIX_MODEL, RiaDefines::STATIC_NATIVE, "PORV", 0);
-    const std::vector<double>* swatResults = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,   RiaDefines::DYNAMIC_NATIVE, "SWAT", timeStepIndex);
-    const std::vector<double>* soilResults = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,   RiaDefines::DYNAMIC_NATIVE, "SOIL", timeStepIndex);
-    const std::vector<double>* sgasResults = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,   RiaDefines::DYNAMIC_NATIVE, "SGAS", timeStepIndex);
     if (!porvResults)
+    {
+        return;
+    }
+
+    QString phaseResultName;
+    if      (phase == RiaDefines::WATER_PHASE) phaseResultName = "SWAT";
+    else if (phase == RiaDefines::OIL_PHASE)   phaseResultName = "SOIL";
+    else if (phase == RiaDefines::GAS_PHASE)   phaseResultName = "SGAS";
+    const std::vector<double>* phaseResults = eclipseCaseData->resultValues(RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, phaseResultName, timeStepIndex);
+    if (!phaseResults)
     {
         return;
     }
@@ -96,9 +101,7 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator(RimEclipseRes
             continue;
         }
 
-        double accumulatedVol_wat = 0;
-        double accumulatedVol_oil = 0;
-        double accumulatedVol_gas = 0;
+        double accumulatedVolForSpecifiedPhase = 0;
 
         ContribWellEntry contribWellEntry;
         contribWellEntry.name = contribWellName;
@@ -119,15 +122,10 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator(RimEclipseRes
                 }
 
                 const double volAllPhasesThisCell = porv * targetWellFractionVal*contribWellFractionVal;
-
-                if (swatResults) accumulatedVol_wat += swatResults->at(cellIndex)*volAllPhasesThisCell;
-                if (soilResults) accumulatedVol_oil += soilResults->at(cellIndex)*volAllPhasesThisCell;
-                if (sgasResults) accumulatedVol_gas += sgasResults->at(cellIndex)*volAllPhasesThisCell;
+                accumulatedVolForSpecifiedPhase += phaseResults->at(cellIndex)*volAllPhasesThisCell;
             }
 
-            contribWellEntry.accumulatedVolAlongTof_wat.push_back(accumulatedVol_wat);
-            contribWellEntry.accumulatedVolAlongTof_oil.push_back(accumulatedVol_oil);
-            contribWellEntry.accumulatedVolAlongTof_gas.push_back(accumulatedVol_gas);
+            contribWellEntry.accumulatedVolAlongTof.push_back(accumulatedVolForSpecifiedPhase);
         }
 
         m_contributingWells.push_back(contribWellEntry);
@@ -137,6 +135,52 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator(RimEclipseRes
     {
         const double tofValue = mapElement.first;
         m_tofInIncreasingOrder.push_back(tofValue);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigTofWellDistributionCalculator::groupSmallContributions(double smallContribThreshold)
+{
+    if (m_tofInIncreasingOrder.size() == 0)
+    {
+        return;
+    }
+
+    double totalVolAtLastTof = 0;
+    for (const ContribWellEntry& entry : m_contributingWells)
+    {
+        totalVolAtLastTof += entry.accumulatedVolAlongTof.back();
+    }
+
+    std::vector<ContribWellEntry> sourceEntryArr = std::move(m_contributingWells);
+
+    ContribWellEntry groupEntry;
+    groupEntry.name = "Other";
+    groupEntry.accumulatedVolAlongTof.resize(m_tofInIncreasingOrder.size(), 0);
+    bool anySmallContribsDetected = false;
+
+    for (const ContribWellEntry& sourceEntry : sourceEntryArr)
+    {
+        const double volAtLastTof = sourceEntry.accumulatedVolAlongTof.back();
+        if (volAtLastTof >= totalVolAtLastTof*smallContribThreshold)
+        {
+            m_contributingWells.push_back(sourceEntry);
+        }
+        else
+        {
+            for (size_t i = 0; i < groupEntry.accumulatedVolAlongTof.size(); i++)
+            {
+                groupEntry.accumulatedVolAlongTof[i] += sourceEntry.accumulatedVolAlongTof[i];
+            }
+            anySmallContribsDetected = true;
+        }
+    }
+
+    if (anySmallContribsDetected)
+    {
+        m_contributingWells.push_back(groupEntry);
     }
 }
 
@@ -231,22 +275,10 @@ const QString& RigTofWellDistributionCalculator::contributingWellName(size_t con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigTofWellDistributionCalculator::accumulatedPhaseVolumeForContributingWell(RiaDefines::PhaseType phase, size_t contributingWellIndex) const
+const std::vector<double>& RigTofWellDistributionCalculator::accumulatedVolumeForContributingWell(size_t contributingWellIndex) const
 {
     CVF_ASSERT(contributingWellIndex < m_contributingWells.size());
     const ContribWellEntry& entry = m_contributingWells[contributingWellIndex];
-    
-    if (phase == RiaDefines::WATER_PHASE)
-    {
-        return entry.accumulatedVolAlongTof_wat;
-    }
-    else if (phase == RiaDefines::OIL_PHASE)
-    {
-        return entry.accumulatedVolAlongTof_oil;
-    }
-    else 
-    {
-        return entry.accumulatedVolAlongTof_gas;
-    }
+    return entry.accumulatedVolAlongTof;
 }
 

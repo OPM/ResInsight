@@ -26,19 +26,22 @@
 
 #include "RiaColorTools.h"
 
-#include "RiuQwtPlotTools.h"
+#include "RiuQwtPlotWidget.h"
 
 #include "qwt_plot.h"
 #include "qwt_legend.h"
+#include "qwt_legend_label.h"
 #include "qwt_plot_curve.h"
 
 #include <QWidget>
 #include <QGridLayout>
 #include <QTextBrowser>
 
-#include "cvfBase.h"
-#include "cvfTrace.h"
-#include "cvfDebugTimer.h"
+//#include "cvfBase.h"
+//#include "cvfTrace.h"
+//#include "cvfDebugTimer.h"
+
+#include <array>
 
 
 //==================================================================================================
@@ -52,19 +55,19 @@ CAF_PDM_SOURCE_INIT(RimWellDistributionPlot, "WellDistributionPlot");
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellDistributionPlot::RimWellDistributionPlot()
+RimWellDistributionPlot::RimWellDistributionPlot(RiaDefines::PhaseType phase)
 {
-    cvf::Trace::show("RimWellDistributionPlot::RimWellDistributionPlot()");
+    //cvf::Trace::show("RimWellDistributionPlot::RimWellDistributionPlot()");
 
     CAF_PDM_InitObject("Well Distribution Plot", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_case, "Case", "Case", "", "", "");
     CAF_PDM_InitField(&m_timeStepIndex, "TimeStepIndex", -1, "Time Step", "", "", "");
     CAF_PDM_InitField(&m_wellName, "WellName", QString("None"), "Well", "", "", "");
+    CAF_PDM_InitField(&m_phase, "Phase", caf::AppEnum<RiaDefines::PhaseType>(phase), "Phase", "", "", "");
 
     m_showWindow = false;
-
-    setAsPlotMdiWindow();
+    m_showPlotLegends = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,27 +80,131 @@ RimWellDistributionPlot::~RimWellDistributionPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RimWellDistributionPlot::viewWidget()
+void RimWellDistributionPlot::setDataSourceParameters(RimEclipseResultCase* eclipseResultCase, int timeStepIndex, QString targetWellName)
 {
-    cvf::Trace::show("RimWellDistributionPlot::viewWidget()");
-    return m_myViewWidget;
+    m_case = eclipseResultCase;
+    m_timeStepIndex = timeStepIndex;
+    m_wellName = targetWellName;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimWellDistributionPlot::snapshotWindowContent()
+RiuQwtPlotWidget* RimWellDistributionPlot::viewer()
 {
-    cvf::Trace::show("RimWellDistributionPlot::snapshotWindowContent()");
-    return QImage();
+    return m_plotWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::zoomAll()
+void RimWellDistributionPlot::setAutoScaleXEnabled(bool /*enabled*/)
 {
-    cvf::Trace::show("RimWellDistributionPlot::zoomAll()");
+    //cvf::Trace::show("RimWellDistributionPlot::setAutoScaleXEnabled()");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlot::setAutoScaleYEnabled(bool /*enabled*/)
+{
+    //cvf::Trace::show("RimWellDistributionPlot::setAutoScaleYEnabled()");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlot::updateAxes()
+{
+    //cvf::Trace::show("RimWellDistributionPlot::updateAxes()");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlot::updateLegend()
+{
+    //cvf::Trace::show("RimWellDistributionPlot::updateLegend()");
+
+    if (!m_plotWidget)
+    {
+        return;
+    }
+
+    // For now we always show the legend when in multiplot mode
+    bool doShowLegend = true;
+    if (isMdiWindow())
+    {
+        doShowLegend = m_showPlotLegends;
+    }
+
+    if (doShowLegend)
+    {
+        QwtLegend* legend = new QwtLegend(m_plotWidget);
+        m_plotWidget->insertLegend(legend, QwtPlot::BottomLegend);
+    }
+    else
+    {
+        m_plotWidget->insertLegend(nullptr);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlot::updateZoomInQwt()
+{
+    //cvf::Trace::show("RimWellDistributionPlot::updateZoomInQwt()");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlot::updateZoomFromQwt()
+{
+    //cvf::Trace::show("RimWellDistributionPlot::updateZoomFromQwt()");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellDistributionPlot::asciiDataForPlotExport() const
+{
+    //cvf::Trace::show("RimWellDistributionPlot::asciiDataForPlotExport()");
+    return QString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlot::reattachAllCurves()
+{
+    //cvf::Trace::show("RimWellDistributionPlot::reattachAllCurves()");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlot::detachAllCurves()
+{
+    //cvf::Trace::show("RimWellDistributionPlot::detachAllCurves()");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObject* RimWellDistributionPlot::findPdmObjectFromQwtCurve(const QwtPlotCurve* /*curve*/) const
+{
+    //cvf::Trace::show("RimWellDistributionPlot::findPdmObjectFromQwtCurve()");
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlot::onAxisSelected(int /*axis*/, bool /*toggle*/)
+{
+    //cvf::Trace::show("RimWellDistributionPlot::onAxisSelected()");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,51 +218,68 @@ QString RimWellDistributionPlot::description() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RimWellDistributionPlot::createViewWidget(QWidget* mainWindowParent)
+QWidget* RimWellDistributionPlot::viewWidget()
 {
-    cvf::Trace::show("RimWellDistributionPlot::createViewWidget()");
-
-    m_myViewWidget = new QWidget(mainWindowParent);
-
-    QGridLayout* gridLayout = new QGridLayout(m_myViewWidget);
-
-    m_textBrowser = new QTextBrowser;
-    m_textBrowser->setText("<center><h1>NotYet</h1></center>");
-    gridLayout->addWidget(m_textBrowser, 0, 0);
-
-    m_plotWidgets[0] = constructNewPlotWidget();
-    m_plotWidgets[1] = constructNewPlotWidget();
-    m_plotWidgets[2] = constructNewPlotWidget();
-
-    gridLayout->addWidget(m_plotWidgets[0], 1, 0);
-    gridLayout->addWidget(m_plotWidgets[1], 0, 1);
-    gridLayout->addWidget(m_plotWidgets[2], 1, 1);
-
-    onLoadDataAndUpdate();
-
-    return m_myViewWidget;
+    //cvf::Trace::show("RimWellDistributionPlot::viewWidget()");
+    return m_plotWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtPlot* RimWellDistributionPlot::constructNewPlotWidget()
+QImage RimWellDistributionPlot::snapshotWindowContent()
 {
-    class MyQwtPlot : public QwtPlot
+    //cvf::Trace::show("RimWellDistributionPlot::snapshotWindowContent()");
+ 
+    QImage image;
+
+    if (m_plotWidget)
     {
-    public:
-        MyQwtPlot(QWidget* parent) : QwtPlot(parent) {}
-        QSize sizeHint() const override              { return QSize(100, 100); }
-        QSize minimumSizeHint() const override       { return QSize(0, 0); }
-    };
+        QPixmap pix = m_plotWidget->grab();
+        image = pix.toImage();
+    }
 
-    QwtPlot* plotWidget = new MyQwtPlot(nullptr);
-    RiuQwtPlotTools::setCommonPlotBehaviour(plotWidget);
+    return image;
+}
 
-    QwtLegend* legend = new QwtLegend(plotWidget);
-    plotWidget->insertLegend(legend, QwtPlot::BottomLegend);
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlot::zoomAll()
+{
+    //cvf::Trace::show("RimWellDistributionPlot::zoomAll()");
+}
 
-    return plotWidget;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlot::doRemoveFromCollection()
+{
+    //cvf::Trace::show("RimWellDistributionPlot::doRemoveFromCollection()");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* RimWellDistributionPlot::createViewWidget(QWidget* mainWindowParent)
+{
+    //cvf::Trace::show("RimWellDistributionPlot::createViewWidget()");
+
+    // It seems we risk being called multiple times
+    if (m_plotWidget)
+    {
+        return m_plotWidget;
+    }
+
+    m_plotWidget = new RiuQwtPlotWidget(this, mainWindowParent);
+
+    m_plotWidget->setAutoReplot(false);
+    m_plotWidget->setDraggable(false);
+
+    updateLegend();
+    onLoadDataAndUpdate();
+
+    return m_plotWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,21 +287,80 @@ QwtPlot* RimWellDistributionPlot::constructNewPlotWidget()
 //--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlot::deleteViewWidget()
 {
-    cvf::Trace::show("RimWellDistributionPlot::deleteViewWidget()");
+    //cvf::Trace::show("RimWellDistributionPlot::deleteViewWidget()");
 
-    if (m_myViewWidget)
+    if (m_plotWidget)
     {
-        m_myViewWidget->deleteLater();
-        m_myViewWidget = nullptr;
+        m_plotWidget->setParent(nullptr);
+        delete m_plotWidget;
+        m_plotWidget = nullptr;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::populatePlotWidgetWithCurveData(const RigTofWellDistributionCalculator& calculator, RiaDefines::PhaseType phase, const RimFlowDiagSolution& flowDiagSolution, QwtPlot* plotWidget)
+void RimWellDistributionPlot::onLoadDataAndUpdate()
 {
-    cvf::Trace::show("RimWellDistributionPlot::populatePlotWidgetWithCurves(phase=%d '%s')", phase, phase == RiaDefines::OIL_PHASE ? "oil" : (phase == RiaDefines::GAS_PHASE ? "gas" : "water"));
+    //cvf::Trace::show("RimWellDistributionPlot::onLoadDataAndUpdate()");
+    //cvf::DebugTimer tim("RimWellDistributionPlot::onLoadDataAndUpdate()");
+
+    if (isMdiWindow())
+    {
+        updateMdiWindowVisibility();
+    }
+    else
+    {
+        updateParentLayout();
+    }
+
+    if (!m_plotWidget)
+    {
+        return;
+    }
+
+    m_plotWidget->detachItems(QwtPlotItem::Rtti_PlotCurve);
+
+    updateLegend();
+
+    if (m_case)
+    {
+        //tim.reportLapTimeMS("about to start calc");
+        RigTofWellDistributionCalculator calc(m_case, m_wellName, m_timeStepIndex, m_phase());
+        //tim.reportLapTimeMS("calc");
+
+        //calc.groupSmallContributions(0.005);
+        //tim.reportLapTimeMS("group");
+
+        const RimFlowDiagSolution* flowDiagSolution = m_case->defaultFlowDiagSolution();
+
+        populatePlotWidgetWithCurveData(calc, *flowDiagSolution, m_plotWidget);
+    }
+
+    QString phaseString = "N/A";
+    if      (m_phase == RiaDefines::OIL_PHASE)   phaseString = "Oil";
+    else if (m_phase == RiaDefines::GAS_PHASE)   phaseString = "Gas";
+    else if (m_phase == RiaDefines::WATER_PHASE) phaseString = "Water";
+
+    const QString timeStepName = m_case ? m_case->timeStepName(m_timeStepIndex) : "N/A";
+
+    const QString plotTitleStr = QString("%1 Distribution: %2, %3").arg(phaseString).arg(m_wellName).arg(timeStepName);
+    m_plotWidget->setTitle(plotTitleStr);
+
+    m_plotWidget->setAxisTitleText(QwtPlot::xBottom, "TOF [years]");
+    m_plotWidget->setAxisTitleText(QwtPlot::yLeft, "Reservoir Volume [m3]");
+    m_plotWidget->setAxisTitleEnabled(QwtPlot::xBottom, true);
+    m_plotWidget->setAxisTitleEnabled(QwtPlot::yLeft, true);
+
+    m_plotWidget->scheduleReplot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlot::populatePlotWidgetWithCurveData(const RigTofWellDistributionCalculator& calculator, const RimFlowDiagSolution& flowDiagSolution, RiuQwtPlotWidget* plotWidget)
+{
+    //cvf::Trace::show("RimWellDistributionPlot::populatePlotWidgetWithCurves()");
 
     // Currently select this value so that the grid appears on top of the curves
     const double baseCurveZValue = 9.5;
@@ -191,33 +374,33 @@ void RimWellDistributionPlot::populatePlotWidgetWithCurveData(const RigTofWellDi
     const std::vector<double>& tofValuesDays = calculator.sortedUniqueTOFValues();
     if (tofValuesDays.size() == 0)
     {
-        cvf::Trace::show("No TOF values!");
+        //cvf::Trace::show("No TOF values!");
         return;
     }
 
     std::vector<double> tofValuesYears;
     for (double tofDays : tofValuesDays)
     {
-        const double tofYears = tofDays/365.2425;
+        const double tofYears = tofDays / 365.2425;
         tofValuesYears.push_back(tofYears);
     }
 
-    cvf::Trace::show("numTofValues: %d  (min, max: %f, %f)", static_cast<int>(tofValuesYears.size()), tofValuesYears.front(), tofValuesYears.back());
+    //cvf::Trace::show("numTofValues: %d  (min, max: %f, %f)", static_cast<int>(tofValuesYears.size()), tofValuesYears.front(), tofValuesYears.back());
 
     const size_t numWells = calculator.contributingWellCount();
-    cvf::Trace::show("numContribWells: %d", static_cast<int>(numWells));
+    //cvf::Trace::show("numContribWells: %d", static_cast<int>(numWells));
 
     std::vector<double> yVals(tofValuesYears.size(), 0);
 
     for (size_t i = 0; i < numWells; i++)
     {
         QString wellName = calculator.contributingWellName(i);
-        const std::vector<double>&  volArr = calculator.accumulatedPhaseVolumeForContributingWell(phase, i);
+        const std::vector<double>&  volArr = calculator.accumulatedVolumeForContributingWell(i);
 
         cvf::Color3f cvfClr = flowDiagSolution.tracerColor(wellName);
         QColor qtClr = RiaColorTools::toQColor(cvfClr);
 
-        cvf::Trace::show("wellName  min, max: %s   %f, %f", wellName.toStdString().c_str(), volArr.front(), volArr.back());
+        //cvf::Trace::show("wellName  min, max: %s   %f, %f", wellName.toStdString().c_str(), volArr.front(), volArr.back());
 
         for (size_t j = 0; j < yVals.size(); j++)
         {
@@ -233,76 +416,6 @@ void RimWellDistributionPlot::populatePlotWidgetWithCurveData(const RigTofWellDi
     }
 }
 
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::onLoadDataAndUpdate()
-{
-    cvf::Trace::show("RimWellDistributionPlot::onLoadDataAndUpdate()");
-    cvf::DebugTimer tim("RimWellDistributionPlot::onLoadDataAndUpdate()");
-
-    updateMdiWindowVisibility();
-
-    if (!m_myViewWidget)
-    {
-        return;
-    }
-
-    CVF_ASSERT(m_textBrowser);
-
-    QString str = "<center><h1>MyViewWidget</h1></center>";
-    str += "<br><br>";
-
-    const QString caseName = m_case ? m_case->caseUserDescription() : "N/A";
-
-    str += QString("case: %1<br>").arg(caseName);
-    str += QString("timeStepIndex: %1<br>").arg(m_timeStepIndex);
-    str += QString("wellName: %1<br>").arg(m_wellName);
-
-    m_textBrowser->setText(str);
-
-
-    for (QwtPlot* plotWidget : m_plotWidgets)
-    {
-        plotWidget->detachItems(QwtPlotItem::Rtti_PlotCurve);
-    }
-
-    if (m_case)
-    {
-        tim.reportLapTimeMS("about to start calc");
-        RigTofWellDistributionCalculator calc(m_case, m_wellName, m_timeStepIndex);
-        tim.reportLapTimeMS("calc");
-
-        const QString timeStepName = m_case->timeStepName(m_timeStepIndex);
-
-        const RimFlowDiagSolution* flowDiagSolution = m_case->defaultFlowDiagSolution();
-        for (int i = 0; i < m_plotWidgets.size(); i++)
-        {
-            const RiaDefines::PhaseType phase = static_cast<RiaDefines::PhaseType>(i);
-
-            QwtPlot* plotWidget = m_plotWidgets[i];
-            populatePlotWidgetWithCurveData(calc, phase, *flowDiagSolution, plotWidget);
-        
-            QString phaseString = "N/A";
-            if      (phase == RiaDefines::OIL_PHASE)   phaseString = "Oil";
-            else if (phase == RiaDefines::GAS_PHASE)   phaseString = "Gas";
-            else if (phase == RiaDefines::WATER_PHASE) phaseString = "Water";
-
-            plotWidget->setAxisTitle(QwtPlot::xBottom, "TOF [years]");
-            plotWidget->setAxisTitle(QwtPlot::yLeft, "Reservoir Volume [m3]");
-
-            const QString plotTitle = QString("%1 Distribution: %2, %3").arg(phaseString).arg(m_wellName).arg(timeStepName);
-            plotWidget->setTitle(plotTitle);
-        }
-    }
-
-    for (QwtPlot* plotWidget : m_plotWidgets)
-    {
-        plotWidget->replot();
-    }
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -312,16 +425,18 @@ void RimWellDistributionPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiO
     group->add(&m_case);
     group->add(&m_timeStepIndex);
     group->add(&m_wellName);
+    group->add(&m_phase);
 
-    uiOrdering.skipRemainingFields();
+    RimPlot::defineUiOrdering(uiConfigName, uiOrdering);
+    //uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellDistributionPlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* /*useOptionsOnly*/)
+QList<caf::PdmOptionItemInfo> RimWellDistributionPlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> options;
+    QList<caf::PdmOptionItemInfo> options = RimPlot::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
 
     if (fieldNeedingOptions == &m_case)
     {
@@ -381,12 +496,14 @@ QList<caf::PdmOptionItemInfo> RimWellDistributionPlot::calculateValueOptions(con
 //--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    RimPlot::fieldChangedByUi(changedField, oldValue, newValue);
+
     if (changedField == &m_case)
     {
         fixupDependentFieldsAfterCaseChange();
     }
 
-    onLoadDataAndUpdate();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -39,13 +39,15 @@ class QString;
 class RigTofWellDistributionCalculator
 {
 public:
-    RigTofWellDistributionCalculator(RimEclipseResultCase* caseToApply, QString targetWellname, size_t timeStepIndex);
+    RigTofWellDistributionCalculator(RimEclipseResultCase* caseToApply, QString targetWellname, size_t timeStepIndex, RiaDefines::PhaseType phase);
+
+    void                        groupSmallContributions(double smallContribThreshold);
 
     const std::vector<double>&  sortedUniqueTOFValues() const;
 
     size_t                      contributingWellCount() const;
     const QString&              contributingWellName(size_t contribWellIndex) const;
-    const std::vector<double>&  accumulatedPhaseVolumeForContributingWell(RiaDefines::PhaseType phase, size_t contributingWellIndex) const;
+    const std::vector<double>&  accumulatedVolumeForContributingWell(size_t contributingWellIndex) const;
 
 private:
     static std::map<double, std::vector<size_t>>    buildSortedTofToCellIndicesMap(const std::vector<double>& tofData);
@@ -54,9 +56,7 @@ private:
     struct ContribWellEntry
     {
         QString             name;
-        std::vector<double> accumulatedVolAlongTof_wat; // All these three have same size as m_tofInIncreasingOrder
-        std::vector<double> accumulatedVolAlongTof_oil; // 
-        std::vector<double> accumulatedVolAlongTof_gas; // 
+        std::vector<double> accumulatedVolAlongTof;     // This array has same size as m_tofInIncreasingOrder
     };
 
 private:
