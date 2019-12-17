@@ -367,7 +367,7 @@ void OverlayScalarMapperLegend::renderLegendUsingShaders(OpenGLContext* oglConte
         int iPx;
         for (iPx = 0; iPx < legendHeightPixelCount; iPx++)
         {
-            const Color3ub clr = m_scalarMapper->mapToColor(m_scalarMapper->domainValue((iPx+0.5)/legendHeightPixelCount));
+            const Color3ub& clr = m_scalarMapper->mapToColor(m_scalarMapper->domainValue((iPx+0.5)/legendHeightPixelCount));
             float y0 = static_cast<float>(layout->colorBarRect.min().y() + iPx);
             float y1 = static_cast<float>(layout->colorBarRect.min().y() + iPx + 1);
 
