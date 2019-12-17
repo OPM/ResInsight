@@ -65,6 +65,8 @@ RimWellDistributionPlot::RimWellDistributionPlot(RiaDefines::PhaseType phase)
     CAF_PDM_InitField(&m_timeStepIndex, "TimeStepIndex", -1, "Time Step", "", "", "");
     CAF_PDM_InitField(&m_wellName, "WellName", QString("None"), "Well", "", "", "");
     CAF_PDM_InitField(&m_phase, "Phase", caf::AppEnum<RiaDefines::PhaseType>(phase), "Phase", "", "", "");
+    CAF_PDM_InitField(&m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions", "", "", "");
+    CAF_PDM_InitField(&m_smallContributionsRelativeThreshold, "SmallContributionsRelativeThreshold", 0.005, "Relative Threshold [0, 1]", "", "", "");
 
     m_showWindow = false;
     m_showPlotLegends = true;
@@ -85,6 +87,15 @@ void RimWellDistributionPlot::setDataSourceParameters(RimEclipseResultCase* ecli
     m_case = eclipseResultCase;
     m_timeStepIndex = timeStepIndex;
     m_wellName = targetWellName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlot::setPlotOptions(bool groupSmallContributions, double smallContributionsRelativeThreshold)
+{
+    m_groupSmallContributions = groupSmallContributions;
+    m_smallContributionsRelativeThreshold = smallContributionsRelativeThreshold;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -329,8 +340,11 @@ void RimWellDistributionPlot::onLoadDataAndUpdate()
         RigTofWellDistributionCalculator calc(m_case, m_wellName, m_timeStepIndex, m_phase());
         //tim.reportLapTimeMS("calc");
 
-        //calc.groupSmallContributions(0.005);
-        //tim.reportLapTimeMS("group");
+        if (m_groupSmallContributions)
+        {
+            calc.groupSmallContributions(m_smallContributionsRelativeThreshold);
+            //tim.reportLapTimeMS("group");
+        }
 
         const RimFlowDiagSolution* flowDiagSolution = m_case->defaultFlowDiagSolution();
 
@@ -422,11 +436,14 @@ void RimWellDistributionPlot::populatePlotWidgetWithCurveData(const RigTofWellDi
 //--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* group = uiOrdering.addNewGroup("Plot Data");
-    group->add(&m_case);
-    group->add(&m_timeStepIndex);
-    group->add(&m_wellName);
-    group->add(&m_phase);
+    uiOrdering.add(&m_case);
+    uiOrdering.add(&m_timeStepIndex);
+    uiOrdering.add(&m_wellName);
+    uiOrdering.add(&m_phase);
+    uiOrdering.add(&m_groupSmallContributions);
+    uiOrdering.add(&m_smallContributionsRelativeThreshold);
+
+    m_smallContributionsRelativeThreshold.uiCapability()->setUiReadOnly(m_groupSmallContributions == false);
 
     RimPlot::defineUiOrdering(uiConfigName, uiOrdering);
     //uiOrdering.skipRemainingFields();

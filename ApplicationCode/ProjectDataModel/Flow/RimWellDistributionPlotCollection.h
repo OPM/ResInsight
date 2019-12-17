@@ -58,10 +58,12 @@ private:
 private:
     virtual void        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                fixupDependentFieldsAfterCaseChange();
-    void                applyPlotDataParametersToContainedPlots();
+    void                applyPlotParametersToContainedPlots();
 
 private:
     caf::PdmPtrField<RimEclipseResultCase*> m_case;
     caf::PdmField<int>                      m_timeStepIndex;
     caf::PdmField<QString>                  m_wellName;
+    caf::PdmField<bool>                     m_groupSmallContributions;
+    caf::PdmField<double>                   m_smallContributionsRelativeThreshold;
 };

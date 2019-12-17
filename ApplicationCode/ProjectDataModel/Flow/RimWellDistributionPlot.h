@@ -46,6 +46,7 @@ public:
     ~RimWellDistributionPlot() override;
 
     void                        setDataSourceParameters(RimEclipseResultCase* eclipseResultCase, int timeStepIndex, QString targetWellName);
+    void                        setPlotOptions(bool groupSmallContributions, double smallContributionsRelativeThreshold);
 
     // RimPlot implementations
     virtual RiuQwtPlotWidget*   viewer() override;
@@ -91,6 +92,8 @@ private:
     caf::PdmField<int>                                  m_timeStepIndex;
     caf::PdmField<QString>                              m_wellName;
     caf::PdmField< caf::AppEnum<RiaDefines::PhaseType>> m_phase;
+    caf::PdmField<bool>                                 m_groupSmallContributions;
+    caf::PdmField<double>                               m_smallContributionsRelativeThreshold;
 
     QPointer<RiuQwtPlotWidget>                          m_plotWidget;
 };

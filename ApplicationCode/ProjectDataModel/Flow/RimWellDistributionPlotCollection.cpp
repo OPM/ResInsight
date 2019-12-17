@@ -63,6 +63,8 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
     CAF_PDM_InitFieldNoDefault(&m_case, "Case", "Case", "", "", "");
     CAF_PDM_InitField(&m_timeStepIndex, "TimeStepIndex", -1, "Time Step", "", "", "");
     CAF_PDM_InitField(&m_wellName, "WellName", QString("None"), "Well", "", "", "");
+    CAF_PDM_InitField(&m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions", "", "", "");
+    CAF_PDM_InitField(&m_smallContributionsRelativeThreshold, "SmallContributionsRelativeThreshold", 0.005, "Relative Threshold [0, 1]", "", "", "");
 
     m_plotWindowTitle = "Well Distribution Plots";
     m_columnCountEnum = RimMultiPlotWindow::COLUMNS_UNLIMITED;
@@ -100,10 +102,13 @@ void RimWellDistributionPlotCollection::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlotCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* group = uiOrdering.addNewGroup("Plot Data");
-    group->add(&m_case);
-    group->add(&m_timeStepIndex);
-    group->add(&m_wellName);
+    uiOrdering.add(&m_case);
+    uiOrdering.add(&m_timeStepIndex);
+    uiOrdering.add(&m_wellName);
+    uiOrdering.add(&m_groupSmallContributions);
+    uiOrdering.add(&m_smallContributionsRelativeThreshold);
+
+    m_smallContributionsRelativeThreshold.uiCapability()->setUiReadOnly(m_groupSmallContributions == false);
 
     //RimMultiPlotWindow::defineUiOrdering(uiConfigName, uiOrdering);
     uiOrdering.skipRemainingFields();
@@ -182,9 +187,11 @@ void RimWellDistributionPlotCollection::fieldChangedByUi(const caf::PdmFieldHand
     bool shouldRecalculatePlotData = false;
     if (changedField == &m_case ||
         changedField == &m_timeStepIndex ||
-        changedField == &m_wellName)
+        changedField == &m_wellName ||
+        changedField == &m_groupSmallContributions ||
+        changedField == &m_smallContributionsRelativeThreshold)
     {
-        applyPlotDataParametersToContainedPlots();
+        applyPlotParametersToContainedPlots();
         shouldRecalculatePlotData = true;
     }
 
@@ -200,7 +207,7 @@ void RimWellDistributionPlotCollection::fieldChangedByUi(const caf::PdmFieldHand
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlotCollection::applyPlotDataParametersToContainedPlots()
+void RimWellDistributionPlotCollection::applyPlotParametersToContainedPlots()
 {
     const size_t numPlots = plotCount();
     for (size_t i = 0; i < numPlots; i++)
@@ -210,6 +217,7 @@ void RimWellDistributionPlotCollection::applyPlotDataParametersToContainedPlots(
         if (aPlot)
         {
             aPlot->setDataSourceParameters(m_case, m_timeStepIndex, m_wellName);
+            aPlot->setPlotOptions(m_groupSmallContributions, m_smallContributionsRelativeThreshold);
         }
     }
 

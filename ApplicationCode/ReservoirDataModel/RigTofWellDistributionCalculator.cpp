@@ -159,9 +159,9 @@ void RigTofWellDistributionCalculator::groupSmallContributions(double smallContr
 
     std::vector<ContribWellEntry> sourceEntryArr = std::move(m_contributingWells);
 
-    ContribWellEntry groupEntry;
-    groupEntry.name = "Other";
-    groupEntry.accumulatedVolAlongTof.resize(m_tofInIncreasingOrder.size(), 0);
+    ContribWellEntry groupingEntry;
+    groupingEntry.name = "Other";
+    groupingEntry.accumulatedVolAlongTof.resize(m_tofInIncreasingOrder.size(), 0);
     bool anySmallContribsDetected = false;
 
     for (const ContribWellEntry& sourceEntry : sourceEntryArr)
@@ -173,9 +173,9 @@ void RigTofWellDistributionCalculator::groupSmallContributions(double smallContr
         }
         else
         {
-            for (size_t i = 0; i < groupEntry.accumulatedVolAlongTof.size(); i++)
+            for (size_t i = 0; i < groupingEntry.accumulatedVolAlongTof.size(); i++)
             {
-                groupEntry.accumulatedVolAlongTof[i] += sourceEntry.accumulatedVolAlongTof[i];
+                groupingEntry.accumulatedVolAlongTof[i] += sourceEntry.accumulatedVolAlongTof[i];
             }
             anySmallContribsDetected = true;
         }
@@ -183,7 +183,7 @@ void RigTofWellDistributionCalculator::groupSmallContributions(double smallContr
 
     if (anySmallContribsDetected)
     {
-        m_contributingWells.push_back(groupEntry);
+        m_contributingWells.push_back(groupingEntry);
     }
 }
 
