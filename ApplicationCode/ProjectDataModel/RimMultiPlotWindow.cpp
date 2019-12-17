@@ -46,7 +46,7 @@ CAF_PDM_SOURCE_INIT( RimMultiPlotWindow, "MultiPlot" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMultiPlotWindow::RimMultiPlotWindow()
+RimMultiPlotWindow::RimMultiPlotWindow( bool hidePlotsInTreeView )
     : m_acceptDrops( true )
 {
     CAF_PDM_InitObject( "Multi Plot", ":/WellLogPlot16x16.png", "", "" );
@@ -56,6 +56,7 @@ RimMultiPlotWindow::RimMultiPlotWindow()
 
     CAF_PDM_InitFieldNoDefault( &m_plots, "Tracks", "", "", "", "" );
     m_plots.uiCapability()->setUiHidden( true );
+    m_plots.uiCapability()->setUiTreeChildrenHidden( hidePlotsInTreeView );
 
     CAF_PDM_InitFieldNoDefault( &m_columnCountEnum, "NumberOfColumns", "Number of Columns", "", "", "" );
 

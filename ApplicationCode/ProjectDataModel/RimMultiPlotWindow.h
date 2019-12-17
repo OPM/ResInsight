@@ -50,7 +50,7 @@ public:
     using ColumnCountEnum = caf::AppEnum<ColumnCount>;
 
 public:
-    RimMultiPlotWindow();
+    RimMultiPlotWindow( bool hidePlotsInTreeView = false );
     ~RimMultiPlotWindow() override;
 
     RimMultiPlotWindow& operator=( RimMultiPlotWindow&& rhs );
