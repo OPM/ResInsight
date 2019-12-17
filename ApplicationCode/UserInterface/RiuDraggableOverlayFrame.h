@@ -49,6 +49,7 @@ public:
     void         setAnchorCorner( AnchorCorner corner );
     AnchorCorner anchorCorner() const;
 
+    QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
 private:

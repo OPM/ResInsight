@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiuScalarMapperLegendFrame.h"
 
+#include "cvfString.h"
+#include "cvfqtUtils.h"
+
 #include <QFontMetrics>
 #include <QPaintEvent>
 #include <QPainter>
@@ -30,7 +33,7 @@ RiuScalarMapperLegendFrame::RiuScalarMapperLegendFrame( QWidget*           paren
     : RiuAbstractLegendFrame( parent, title )
     , m_scalarMapper( scalarMapper )
     , m_tickNumberPrecision( 4 )
-    , m_numberFormat( AUTO )
+    , m_numberFormat( RimRegularLegendConfig::AUTO )
 {
     if ( m_scalarMapper.notNull() )
     {
@@ -92,20 +95,23 @@ void RiuScalarMapperLegendFrame::layoutInfo( LayoutInfo* layout ) const
     int i;
     for ( i = 0; i < numTicks; i++ )
     {
-        double t;
-        if ( m_scalarMapper.isNull() )
-            t = 0;
-        else
-            t = m_scalarMapper->normalizedValue( m_tickValues[i] );
-        t = cvf::Math::clamp( t, 0.0, 1.1 );
-        if ( i != numTicks - 1 )
+        double t = 0.0;
+        if ( m_scalarMapper.notNull() )
         {
-            layout->tickYPixelPos.push_back( ( 1 - t ) * layout->colorBarRect.height() );
+            t = cvf::Math::clamp( m_scalarMapper->normalizedValue( m_tickValues[i] ), 0.0, 1.1 );
+        }
+
+        if ( i == 0 )
+        {
+            layout->tickYPixelPos.push_back( 0.0 );
+        }
+        else if ( i == numTicks - 1 )
+        {
+            layout->tickYPixelPos.push_back( layout->colorBarRect.height() );
         }
         else
         {
-            layout->tickYPixelPos.push_back( 0.0 ); // Make sure we get a value at the top
-                                                    // even if the scalar mapper range is zero
+            layout->tickYPixelPos.push_back( t * layout->colorBarRect.height() );
         }
     }
 }
@@ -119,14 +125,14 @@ QString RiuScalarMapperLegendFrame::label( int index ) const
     QString valueString;
     switch ( m_numberFormat )
     {
-        case FIXED:
+        case RimRegularLegendConfig::FIXED:
             valueString = QString::number( tickValue, 'f', m_tickNumberPrecision );
             break;
-        case SCIENTIFIC:
+        case RimRegularLegendConfig::SCIENTIFIC:
             valueString = QString::number( tickValue, 'e', m_tickNumberPrecision );
             break;
         default:
-            valueString = QString::number( tickValue, 'g', m_tickNumberPrecision );
+            valueString = QString::number( tickValue );
             break;
     }
     return valueString;
@@ -153,25 +159,38 @@ int RiuScalarMapperLegendFrame::rectCount() const
 //--------------------------------------------------------------------------------------------------
 void RiuScalarMapperLegendFrame::renderRect( QPainter* painter, const LayoutInfo& layout, int rectIndex ) const
 {
-    int           intervalIndex = rectIndex;
-    cvf::Color3ub startColor = m_scalarMapper->mapToColor( m_scalarMapper->domainValue( m_tickValues[intervalIndex] ) );
-    cvf::Color3ub endColor = m_scalarMapper->mapToColor( m_scalarMapper->domainValue( m_tickValues[intervalIndex + 1] ) );
-    QColor        startQColor( startColor.r(), startColor.g(), startColor.b() );
-    QColor        endQColor( endColor.r(), endColor.g(), endColor.b() );
+    int           rectIndexFromBottom = rectCount() - rectIndex - 1;
+    cvf::Color3ub startColor          = m_scalarMapper->mapToColor(
+        m_scalarMapper->domainValue( m_tickValues[rectIndexFromBottom] ) );
+    cvf::Color3ub endColor = m_scalarMapper->mapToColor(
+        m_scalarMapper->domainValue( m_tickValues[rectIndexFromBottom + 1] ) );
+    QColor startQColor( startColor.r(), startColor.g(), startColor.b() );
+    QColor endQColor( endColor.r(), endColor.g(), endColor.b() );
 
-    QRectF gradientRect( QPointF( layout.tickStartX, layout.colorBarRect.top() + layout.tickYPixelPos[rectIndex] ),
-                         QPointF( layout.tickStartX, layout.colorBarRect.top() + layout.tickYPixelPos[rectIndex + 1] ) );
+    QRectF gradientRect( QPointF( layout.tickStartX,
+                                  layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom] + 1 ),
+                         QPointF( layout.tickStartX,
+                                  layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom + 1] + 1 ) );
 
     QLinearGradient gradient( gradientRect.topLeft(), gradientRect.bottomRight() );
     gradient.setCoordinateMode( QGradient::LogicalMode );
     gradient.setColorAt( 0.0, startQColor );
     gradient.setColorAt( 1.0, endQColor );
 
-    QRectF rect( QPointF( layout.tickStartX, layout.colorBarRect.top() + layout.tickYPixelPos[rectIndex] ),
-                 QPointF( layout.tickMidX, layout.colorBarRect.top() + layout.tickYPixelPos[rectIndex + 1] ) );
+    QRectF rect( QPointF( layout.tickStartX,
+                          layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom] + 1 ),
+                 QPointF( layout.tickMidX,
+                          layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom + 1] + 1 ) );
 
     painter->fillRect( rect, QBrush( gradient ) );
-    painter->drawRect( rect );
+    painter->drawLine( QPointF( layout.tickStartX,
+                                layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom] + 1 ),
+                       QPointF( layout.tickEndX,
+                                layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom] + 1 ) );
+    painter->drawLine( QPointF( layout.tickStartX,
+                                layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom + 1] + 1 ),
+                       QPointF( layout.tickEndX,
+                                layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom + 1] + 1 ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,5 +198,6 @@ void RiuScalarMapperLegendFrame::renderRect( QPainter* painter, const LayoutInfo
 //--------------------------------------------------------------------------------------------------
 int RiuScalarMapperLegendFrame::labelPixelPosY( const LayoutInfo& layout, int index ) const
 {
-    return layout.colorBarRect.bottom() - layout.tickYPixelPos[index] + layout.charHeight / 2;
+    int indexFromBottom = labelCount() - index - 1;
+    return layout.colorBarRect.bottom() - layout.tickYPixelPos[indexFromBottom] + layout.charAscent / 2;
 }
