@@ -606,7 +606,10 @@ void RimSummaryPlot::updateAll()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateLegend()
 {
-    m_plotWidget->setLegendVisible( m_showPlotLegends && isMdiWindow() );
+    if ( m_plotWidget )
+    {
+        m_plotWidget->setLegendVisible( m_showPlotLegends && isMdiWindow() );
+    }
 
     reattachAllCurves();
     if ( m_plotWidget )
