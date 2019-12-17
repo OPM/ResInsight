@@ -1305,7 +1305,10 @@ QList<caf::PdmOptionItemInfo> Rim3dView::calculateValueOptions( const caf::PdmFi
             proj->allViews( views );
             for ( auto view : views )
             {
-                if ( view != this ) RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( view, &options );
+                if ( view != this && dynamic_cast<RimGridView*>( view ) )
+                {
+                    RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( view, &options );
+                }
             }
 
             if ( !options.empty() )
