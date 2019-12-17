@@ -286,16 +286,15 @@ void RicWellPathExportMswCompletionsImpl::generateWelsegsTable( RifTextDataTable
     }
 
     {
-        std::vector<RifTextDataTableColumn> header = {
-            RifTextDataTableColumn( "First Seg" ),
-            RifTextDataTableColumn( "Last Seg" ),
-            RifTextDataTableColumn( "Branch Num" ),
-            RifTextDataTableColumn( "Outlet Seg" ),
-            RifTextDataTableColumn( "Length" ),
-            RifTextDataTableColumn( "Depth Change" ),
-            RifTextDataTableColumn( "Diam" ),
-            RifTextDataTableColumn( "Rough" ),
-        };
+        std::vector<RifTextDataTableColumn> header =
+            {RifTextDataTableColumn( "First Seg" ),
+             RifTextDataTableColumn( "Last Seg" ),
+             RifTextDataTableColumn( "Branch Num" ),
+             RifTextDataTableColumn( "Outlet Seg" ),
+             RifTextDataTableColumn( "Length" ),
+             RifTextDataTableColumn( "Depth Change" ),
+             RifTextDataTableColumn( "Diam" ),
+             RifTextDataTableColumn( "Rough", RifTextDataTableDoubleFormatting( RIF_FLOAT, 7 ) )};
         formatter.header( header );
     }
 
