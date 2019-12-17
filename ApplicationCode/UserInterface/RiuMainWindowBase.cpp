@@ -46,7 +46,6 @@ RiuMainWindowBase::RiuMainWindowBase()
     , m_blockSubWindowProjectTreeSelection( false )
 {
     setDockNestingEnabled( true );
-    m_styleSheet = createStyleSheet();
 }
 
 //--------------------------------------------------------------------------------------------------
