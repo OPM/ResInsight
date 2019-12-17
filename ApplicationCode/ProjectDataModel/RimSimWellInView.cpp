@@ -32,15 +32,23 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
+#include "RimGridSummaryCase.h"
 #include "RimIntersectionCollection.h"
 #include "RimPropertyFilterCollection.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInViewCollection.h"
+#include "RimSimWellInViewTools.h"
+#include "RimWellDiskConfig.h"
+
+#include "RiaTimeHistoryCurveResampler.h"
 
 #include "RiuMainWindow.h"
 
 #include "RivReservoirViewPartMgr.h"
+
+#include "RifEclipseSummaryAddress.h"
+#include "RifSummaryReaderInterface.h"
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cvfMath.h"
@@ -613,6 +621,133 @@ const RigSimWellData* RimSimWellInView::simWellData() const
 size_t RimSimWellInView::resultWellIndex() const
 {
     return m_resultWellIndex;
+}
+
+void RimSimWellInView::calculateInjectionProductionFractions( const RimWellDiskConfig& wellDiskConfig )
+{
+    const RimEclipseView* reservoirView = nullptr;
+    this->firstAncestorOrThisOfType( reservoirView );
+    if ( !reservoirView ) return;
+
+    size_t                 timeStep      = static_cast<size_t>( reservoirView->currentTimeStep() );
+    std::vector<QDateTime> caseTimeSteps = reservoirView->eclipseCase()->timeStepDates();
+    QDateTime              currentDate;
+    if ( timeStep < caseTimeSteps.size() )
+    {
+        currentDate = caseTimeSteps[timeStep];
+    }
+    else
+    {
+        currentDate = caseTimeSteps.back();
+    }
+
+    RimGridSummaryCase* gridSummaryCase = RimSimWellInViewTools::gridSummaryCaseForWell( this );
+
+    m_isSingleProperty = wellDiskConfig.isSingleProperty();
+    if ( wellDiskConfig.isSingleProperty() )
+    {
+        m_singleProperty = extractValueForTimeStep( gridSummaryCase, wellDiskConfig.getSingleProperty(), currentDate );
+    }
+    else
+    {
+        m_isInjector = RimSimWellInViewTools::gridSummaryCaseForWell( this );
+
+        m_oil   = extractValueForTimeStep( gridSummaryCase, wellDiskConfig.getOilProperty(), currentDate );
+        m_gas   = extractValueForTimeStep( gridSummaryCase, wellDiskConfig.getGasProperty(), currentDate ) / 1000.0;
+        m_water = extractValueForTimeStep( gridSummaryCase, wellDiskConfig.getWaterProperty(), currentDate );
+    }
+}
+
+double RimSimWellInView::extractValueForTimeStep( RimGridSummaryCase* gridSummaryCase,
+                                                  const std::string&  vectorName,
+                                                  const QDateTime&    currentDate )
+{
+    RifEclipseSummaryAddress addr( RifEclipseSummaryAddress::SUMMARY_WELL,
+                                   vectorName,
+                                   -1,
+                                   -1,
+                                   "",
+                                   name().toStdString(),
+                                   -1,
+                                   "",
+                                   -1,
+                                   -1,
+                                   -1,
+                                   -1,
+                                   false,
+                                   -1 );
+
+    RifSummaryReaderInterface* reader = gridSummaryCase->summaryReader();
+    if ( !gridSummaryCase->summaryReader()->hasAddress( addr ) )
+    {
+        // TODO: better error handling
+        std::cerr << "ERROR: no address found for well " << name().toStdString() << " " << vectorName << std::endl;
+        return -1;
+    }
+
+    std::vector<double> values;
+    reader->values( addr, &values );
+    std::vector<time_t> timeSteps = reader->timeSteps( addr );
+
+    RiaTimeHistoryCurveResampler resampler;
+    resampler.setCurveData( values, timeSteps );
+
+    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::DAY );
+
+    // Find the data point which best matches the selected time step
+    std::vector<time_t> resampledTimeSteps = resampler.resampledTimeSteps();
+    std::vector<double> resampledValues    = resampler.resampledValues();
+    for ( unsigned int i = 0; i < resampledTimeSteps.size(); i++ )
+    {
+        QDateTime t = QDateTime::fromTime_t( resampledTimeSteps[i] );
+        if ( t > currentDate )
+        {
+            return resampledValues[i];
+        }
+    }
+
+    std::cerr << "ERROR: no resampled value found for well " << name().toStdString() << " " << vectorName << std::endl;
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSimWellInView::oil() const
+{
+    return m_oil;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSimWellInView::gas() const
+{
+    return m_gas;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSimWellInView::water() const
+{
+    return m_water;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSimWellInView::isSingleProperty() const
+{
+    return m_isSingleProperty;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSimWellInView::singleProperty() const
+{
+    return m_singleProperty;
 }
 
 //--------------------------------------------------------------------------------------------------

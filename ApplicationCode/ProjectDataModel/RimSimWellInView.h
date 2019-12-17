@@ -32,12 +32,16 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
+class QDateTime;
+
 class RigSimWellData;
 class RigWellResultFrame;
 struct RigWellResultPoint;
 
+class RimGridSummaryCase;
 class RimSimWellFractureCollection;
 class RigWellPath;
+class RimWellDiskConfig;
 
 //==================================================================================================
 ///
@@ -60,6 +64,12 @@ public:
     bool isWellPipeVisible( size_t frameIndex ) const;
     bool isWellSpheresVisible( size_t frameIndex ) const;
     bool isUsingCellCenterForPipe() const;
+
+    double oil() const;
+    double gas() const;
+    double water() const;
+    bool   isSingleProperty() const;
+    double singleProperty() const;
 
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
@@ -95,6 +105,8 @@ public:
 
     caf::PdmChildField<RimSimWellFractureCollection*> simwellFractureCollection;
 
+    void calculateInjectionProductionFractions( const RimWellDiskConfig& wellDiskConfig );
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
@@ -108,7 +120,17 @@ private:
 
     bool intersectsWellCellsFilteredCells( const RigWellResultFrame& wrsf, size_t frameIndex ) const;
 
+    double extractValueForTimeStep( RimGridSummaryCase* gridSummaryCase,
+                                    const std::string&  vectorName,
+                                    const QDateTime&    currentDate );
+
 private:
     cvf::ref<RigSimWellData> m_simWellData;
     size_t                   m_resultWellIndex;
+    double                   m_oil;
+    double                   m_gas;
+    double                   m_water;
+    double                   m_singleProperty;
+    bool                     m_isInjector;
+    bool                     m_isSingleProperty;
 };

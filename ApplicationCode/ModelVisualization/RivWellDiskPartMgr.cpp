@@ -124,7 +124,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
                          m_rimWell->wellHeadScaleFactor();
 
     cvf::Vec3d textPosition = diskPosition;
-    textPosition.z() += 1.2 * arrowLength;
+    textPosition.z() += 2.0 * arrowLength;
 
     cvf::Mat4f matr;
 
@@ -197,9 +197,9 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
 
     cvf::ref<cvf::Effect> effectToUse = RiaGuiApplication::instance()->useShaders() ? m_shaderEffect : m_fixedFuncEffect;
 
-    const cvf::Color3ub colorTable[] = {cvf::Color3ub( cvf::Color3::RED ),
-                                        cvf::Color3ub( cvf::Color3::GREEN ),
-                                        cvf::Color3ub( cvf::Color3::BLUE )};
+    const cvf::Color3ub colorTable[] = {cvf::Color3ub( cvf::Color3::DARK_RED ),
+                                        cvf::Color3ub( cvf::Color3::DARK_GREEN ),
+                                        cvf::Color3ub( cvf::Color3::DARK_BLUE )};
 
     size_t                       vertexCount = geo1->vertexCount();
     cvf::ref<cvf::Color3ubArray> colorArray  = new cvf::Color3ubArray;
@@ -207,35 +207,57 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
     colorArray->setAll( cvf::Color3::WHITE );
     CVF_ASSERT( vertexCount == numSectors * 3 );
 
-    double oilFraction   = 0.1;
-    double gasFraction   = 0.4;
-    double waterFraction = 1.0 - oilFraction - gasFraction;
-
-    for ( size_t i = 0; i < numSectors; i++ )
+    QString labelText;
+    if ( m_rimWell->isSingleProperty() )
     {
-        int colorIdx = 0;
-
-        // Find the color for this sector
-        double lim = ( i + 1 ) / static_cast<double>( numSectors );
-        if ( lim <= oilFraction )
-        {
-            colorIdx = 0;
-        }
-        else if ( lim <= oilFraction + gasFraction )
-        {
-            colorIdx = 1;
-        }
-        else
-        {
-            colorIdx = 2;
-        }
-
+        const double singleProperty = m_rimWell->singleProperty();
         // Set color for the triangle vertices
-        for ( int t = 0; t < 3; t++ )
+        for ( size_t i = 0; i < numSectors * 3; i++ )
         {
-            cvf::Color3ub c = colorTable[colorIdx];
-            colorArray->set( i * 3 + t, c );
+            cvf::Color3ub c = cvf::Color3::CEETRON; // colorTable[colorIdx];
+            colorArray->set( i, c );
         }
+        labelText = QString( "%1: %2" ).arg( m_rimWell->name() ).arg( singleProperty );
+    }
+    else
+    {
+        const double oil   = m_rimWell->oil();
+        const double gas   = m_rimWell->gas();
+        const double water = m_rimWell->water();
+
+        const double total         = oil + gas + water;
+        const double oilFraction   = oil / total;
+        const double gasFraction   = gas / total;
+        const double waterFraction = water / total;
+
+        for ( size_t i = 0; i < numSectors; i++ )
+        {
+            int colorIdx = 0;
+
+            // Find the color for this sector
+            double lim = ( i + 1 ) / static_cast<double>( numSectors );
+            if ( lim <= oilFraction )
+            {
+                colorIdx = 0;
+            }
+            else if ( lim <= oilFraction + gasFraction )
+            {
+                colorIdx = 1;
+            }
+            else
+            {
+                colorIdx = 2;
+            }
+
+            // Set color for the triangle vertices
+            for ( int t = 0; t < 3; t++ )
+            {
+                cvf::Color3ub c = colorTable[colorIdx];
+                colorArray->set( i * 3 + t, c );
+            }
+        }
+
+        labelText = QString( "%1: oil=%2 gas=%3 water=%4" ).arg( m_rimWell->name() ).arg( oil ).arg( gas ).arg( water );
     }
     geo1->setColorArray( colorArray.p() );
 
@@ -262,7 +284,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
         drawableText->setVerticalAlignment( cvf::TextDrawer::CENTER );
         drawableText->setTextColor( simWellInViewCollection()->wellLabelColor() );
 
-        cvf::String cvfString = cvfqt::Utils::toString( m_rimWell->name() );
+        cvf::String cvfString = cvfqt::Utils::toString( labelText );
 
         cvf::Vec3f textCoord( textPosition );
         drawableText->addText( cvfString, textCoord );

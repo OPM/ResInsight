@@ -91,6 +91,12 @@ public:
         WELLPIPE_COLOR_UNIFORM
     };
 
+    enum WellDiskPropertyType
+    {
+        PROPERTY_TYPE_PREDEFINED,
+        PROPERTY_TYPE_SINGLE
+    };
+
     typedef caf::AppEnum<RimSimWellInViewCollection::WellPipeColors> WellPipeColorsEnum;
 
     caf::PdmField<bool> isActive;
@@ -121,6 +127,9 @@ public:
 
     caf::PdmField<bool> isAutoDetectingBranches;
 
+    caf::PdmField<QString> wellDiskQuantity;
+    WellDiskPropertyType   wellDiskPropertyType() const;
+
     caf::PdmChildArrayField<RimSimWellInView*> wells;
 
     RimSimWellInView* findWell( QString name );
@@ -142,6 +151,9 @@ protected:
                            const QVariant&            newValue ) override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly );
 
     caf::PdmFieldHandle* objectToggleField() override;
     void                 initAfterRead() override;
@@ -167,6 +179,8 @@ private:
     caf::PdmField<caf::Tristate> m_showWellCellFence;
 
     caf::PdmField<bool> m_showWellCommunicationLines;
+
+    caf::PdmField<caf::AppEnum<WellDiskPropertyType>> m_wellDiskPropertyType;
 
     // Obsolete fields
     caf::PdmField<WellVisibilityEnum>       obsoleteField_wellPipeVisibility;
