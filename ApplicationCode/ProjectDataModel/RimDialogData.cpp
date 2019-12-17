@@ -27,7 +27,6 @@
 #include "ExportCommands/RicExportWellPathsUi.h"
 #include "FractureCommands/RicCreateMultipleFracturesUi.h"
 #include "HoloLensCommands/RicHoloLensExportToFolderUi.h"
-#include "PlotTemplateCommands/RicSelectPlotTemplateUi.h"
 
 CAF_PDM_SOURCE_INIT( RimDialogData, "RimDialogData" );
 
@@ -66,9 +65,6 @@ RimDialogData::RimDialogData()
 
     CAF_PDM_InitFieldNoDefault( &m_mockModelSettings, "MockModelSettings", "Mock Model Settings", "", "", "" );
     m_mockModelSettings = new RimMockModelSettings();
-
-    CAF_PDM_InitFieldNoDefault( &m_selectPlotTemplateUi, "SelectPlotTemplateUi", "Select Plot Template", "", "", "" );
-    m_selectPlotTemplateUi = new RicSelectPlotTemplateUi();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,12 +154,4 @@ RicExportEclipseSectorModelUi* RimDialogData::exportSectorModelUi() const
 RimMockModelSettings* RimDialogData::mockModelSettings() const
 {
     return m_mockModelSettings;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RicSelectPlotTemplateUi* RimDialogData::selectPlotTemplateUi() const
-{
-    return m_selectPlotTemplateUi;
 }

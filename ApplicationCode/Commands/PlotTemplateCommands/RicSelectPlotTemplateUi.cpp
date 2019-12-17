@@ -55,7 +55,10 @@ std::vector<RimPlotTemplateFileItem*> RicSelectPlotTemplateUi::selectedPlotTempl
 
     for ( const auto& a : m_selectedPlotTemplates() )
     {
-        objs.push_back( a );
+        if ( a )
+        {
+            objs.push_back( a );
+        }
     }
 
     return objs;
