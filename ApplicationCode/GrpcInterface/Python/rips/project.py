@@ -36,6 +36,14 @@ class Project(PdmObject):
         """
         self._execute_command(openProject=Cmd.FilePathRequest(path=path))
         return self
+        
+    def save(self, path=""):
+        """Save the project to the existing project file, or to a new file
+        Arguments:
+            path(str): File path to the file to save the project to. If empty, saves to the active project file
+        """
+        self._execute_command(saveProject=Cmd.SaveProjectRequest(filePath=path))
+        return self
 
     def close(self):
         """Close the current project (and open new blank project)"""
@@ -223,7 +231,7 @@ class Project(PdmObject):
         """
         return self._execute_command(
             exportSnapshots=Cmd.ExportSnapshotsRequest(
-                type=snapshot_type, prefix=prefix, caseId=-1))
+                type=snapshot_type, prefix=prefix, caseId=-1, viewId=-1 ))
 
     def export_well_paths(self, well_paths=None, md_step_size=5.0):
         """ Export a set of well paths
