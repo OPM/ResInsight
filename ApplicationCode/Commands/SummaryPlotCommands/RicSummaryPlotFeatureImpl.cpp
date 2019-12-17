@@ -334,6 +334,9 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
         }
     }
 
+    summaryFileNames.removeDuplicates();
+    gridFileNames.removeDuplicates();
+
     if ( allCurveAddressFilters.empty() )
     {
         RiaLogging::error( "Needs at least one vector to create a plot." );
