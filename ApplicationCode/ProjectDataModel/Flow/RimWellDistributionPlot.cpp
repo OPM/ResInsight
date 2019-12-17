@@ -334,6 +334,7 @@ void RimWellDistributionPlot::onLoadDataAndUpdate()
 
         const RimFlowDiagSolution* flowDiagSolution = m_case->defaultFlowDiagSolution();
 
+        //cvf::Trace::show("Populating plot for phase '%s'", m_phase == RiaDefines::OIL_PHASE ? "oil" : (m_phase == RiaDefines::GAS_PHASE ? "gas" : "water"));
         populatePlotWidgetWithCurveData(calc, *flowDiagSolution, m_plotWidget);
     }
 
@@ -400,12 +401,12 @@ void RimWellDistributionPlot::populatePlotWidgetWithCurveData(const RigTofWellDi
         cvf::Color3f cvfClr = flowDiagSolution.tracerColor(wellName);
         QColor qtClr = RiaColorTools::toQColor(cvfClr);
 
-        //cvf::Trace::show("wellName  min, max: %s   %f, %f", wellName.toStdString().c_str(), volArr.front(), volArr.back());
-
         for (size_t j = 0; j < yVals.size(); j++)
         {
             yVals[j] += volArr[j];
         }
+
+        //cvf::Trace::show("wellName  min, max: %15s   %12.3f, %12.3f     maxAggrY: %12.3f", wellName.toStdString().c_str(), volArr.front(), volArr.back(), yVals.back());
 
         QwtPlotCurve* curve = new QwtPlotCurve;
         curve->setTitle(wellName);

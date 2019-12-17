@@ -128,7 +128,10 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator(RimEclipseRes
             contribWellEntry.accumulatedVolAlongTof.push_back(accumulatedVolForSpecifiedPhase);
         }
 
-        m_contributingWells.push_back(contribWellEntry);
+        if (accumulatedVolForSpecifiedPhase > 0)
+        {
+            m_contributingWells.push_back(contribWellEntry);
+        }
     }
 
     for (auto mapElement : tofToCellIndicesMap)
@@ -195,6 +198,12 @@ std::map<double, std::vector<size_t>> RigTofWellDistributionCalculator::buildSor
     {
         const double tofValue = tofData[i];
         if (tofValue == HUGE_VAL)
+        {
+            continue;
+        }
+
+        // Also filter out special TOF values greater than 73000 days (~200 years)
+        if (tofValue > 73000.0)
         {
             continue;
         }
