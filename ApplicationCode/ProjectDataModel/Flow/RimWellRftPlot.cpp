@@ -1271,7 +1271,8 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
                 {
                     m_ensembleLegendFrames[curveSet] =
                         new RiuCvfOverlayItemWidget( curveSet->legendConfig()->titledOverlayFrame(),
-                                                     track->viewer()->canvas() );
+                                                     track->viewer()->canvas(),
+                                                     track->viewer()->overlayMargins() );
                 }
 
                 track->viewer()->addOverlayFrame( m_ensembleLegendFrames[curveSet] );

@@ -21,6 +21,7 @@
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 #include "RiaStatisticsTools.h"
+#include "RiuAbstractLegendFrame.h"
 
 #include "SummaryPlotCommands/RicSummaryCurveCreator.h"
 
@@ -889,10 +890,10 @@ void RimEnsembleCurveSet::updateCurveColors()
         {
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame = new RiuCvfOverlayItemWidget( m_legendConfig->titledOverlayFrame(),
-                                                                    plot->viewer()->canvas() );
+                m_legendOverlayFrame = new RiuDraggableOverlayFrame( plot->viewer()->canvas(),
+                                                                     plot->viewer()->overlayMargins() );
             }
-            plot->viewer()->addOverlayFrame( m_legendOverlayFrame );
+            m_legendOverlayFrame->setContentFrame( m_legendConfig->makeLegendFrame() );
         }
         else
         {

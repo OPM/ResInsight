@@ -27,11 +27,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuDraggableOverlayFrame::RiuDraggableOverlayFrame( QWidget* parent, const QColor& backgroundColor )
+RiuDraggableOverlayFrame::RiuDraggableOverlayFrame( QWidget* parent, const int snapMargins, const QColor& backgroundColor )
     : QFrame( parent )
     , m_anchorCorner( AnchorCorner::TopLeft )
 {
-    m_widgetDragger = new RiuWidgetDragger( this );
+    m_widgetDragger = new RiuWidgetDragger( this, snapMargins );
 
     QPalette pal = this->palette();
     pal.setColor( QPalette::Window, backgroundColor );
