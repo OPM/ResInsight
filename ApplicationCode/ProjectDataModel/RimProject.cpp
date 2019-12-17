@@ -1494,7 +1494,8 @@ public:
 private:
     QString createUnusedId()
     {
-        QString pathIdentifier = PATHIDCHAR + pathIdBaseString + QString::number( m_nextValidIdNumber ) + PATHIDCHAR;
+        QString numberString   = QString( "%1" ).arg( (uint)m_nextValidIdNumber, 3, 10, QChar( '0' ) );
+        QString pathIdentifier = PATHIDCHAR + pathIdBaseString + numberString + PATHIDCHAR;
         m_nextValidIdNumber++;
         return pathIdentifier;
     }
