@@ -792,7 +792,6 @@ std::pair<int, int>
 void RiuMultiPlotWindow::doRenderTo( QPainter* painter )
 {
     setSelectionsVisible( false );
-    painter->save();
     m_plotTitle->render( painter );
 
     for ( auto subTitle : subTitlesForVisiblePlots() )
@@ -808,8 +807,6 @@ void RiuMultiPlotWindow::doRenderTo( QPainter* painter )
         legend->render( painter, m_plotWidgetFrame->mapToParent( legend->frameGeometry().topLeft() ) );
     }
 
-    painter->restore();
-
     for ( auto plotWidget : visiblePlotWidgets() )
     {
         QRect  plotWidgetGeometry     = plotWidget->frameGeometry();
@@ -818,7 +815,6 @@ void RiuMultiPlotWindow::doRenderTo( QPainter* painter )
         plotWidgetGeometry.moveTo( plotWidgetTopLeft + plotWidgetFrameTopLeft );
 
         plotWidget->renderTo( painter, plotWidgetGeometry );
-        plotWidget->renderOverlayFramesTo( painter, plotWidgetGeometry );
     }
 
     setSelectionsVisible( true );

@@ -132,6 +132,5 @@ void RimPlot::doRenderWindowContent( QPainter* painter )
     if ( viewer() )
     {
         viewer()->renderTo( painter, viewer()->frameGeometry() );
-        viewer()->renderOverlayFramesTo( painter, viewer()->frameGeometry() );
     }
 }
