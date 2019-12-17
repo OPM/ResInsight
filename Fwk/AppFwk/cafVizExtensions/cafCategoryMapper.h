@@ -44,7 +44,6 @@ public:
     int                 categoryIndexForCategory(double domainValue) const;
 
 private:
-    friend class CategoryLegend;
 
     void                recomputeMaxTexCoord();
 
