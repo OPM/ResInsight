@@ -35,7 +35,7 @@ RimEnsembleStatistics::RimEnsembleStatistics()
 {
     CAF_PDM_InitObject( "Ensemble Curve Filter", ":/EnsembleCurveSet16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_active, "Active", true, "Show statistics curves", "", "", "" );
+    CAF_PDM_InitField( &m_active, "Active", true, "Show Statistics Curves", "", "", "" );
     CAF_PDM_InitField( &m_hideEnsembleCurves, "HideEnsembleCurves", false, "Hide Ensemble Curves", "", "", "" );
     CAF_PDM_InitField( &m_basedOnFilteredCases, "BasedOnFilteredCases", false, "Based on Filtered Cases", "", "", "" );
     CAF_PDM_InitField( &m_showP10Curve, "ShowP10Curve", true, "P90", "", "", "" ); // Yes, P90
