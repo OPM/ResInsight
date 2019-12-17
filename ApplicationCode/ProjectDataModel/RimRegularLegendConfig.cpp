@@ -150,6 +150,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
                        "",
                        "The number of significant digits displayed in the legend numbers",
                        "" );
+    m_significantDigitsInData = m_precision;
     CAF_PDM_InitField( &m_tickNumberFormat,
                        "TickNumberFormat",
                        caf::AppEnum<RimRegularLegendConfig::NumberFormatType>( FIXED ),
@@ -314,6 +315,8 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::updateLegend()
 {
+    m_significantDigitsInData = m_precision;
+
     double adjustedMin = cvf::UNDEFINED_DOUBLE;
     double adjustedMax = cvf::UNDEFINED_DOUBLE;
 
@@ -463,7 +466,9 @@ void RimRegularLegendConfig::updateLegend()
     {
         numDecimalDigits -= static_cast<int>( decadesInRange );
     }
-    m_scalarMapperLegend->setTickPrecision( cvf::Math::clamp( numDecimalDigits, 0, 20 ) );
+    numDecimalDigits          = cvf::Math::clamp( numDecimalDigits, 0, 20 );
+    m_significantDigitsInData = numDecimalDigits;
+    m_scalarMapperLegend->setTickPrecision( numDecimalDigits );
 
     RiaApplication* app         = RiaApplication::instance();
     RiaPreferences* preferences = app->preferences();
@@ -820,7 +825,10 @@ RiuAbstractLegendFrame* RimRegularLegendConfig::makeLegendFrame()
     }
     else
     {
-        return new RiuScalarMapperLegendFrame( nullptr, m_title, m_currentScalarMapper.p() );
+        auto legend = new RiuScalarMapperLegendFrame( nullptr, m_title, m_currentScalarMapper.p() );
+        legend->setTickFormat( m_tickNumberFormat() );
+        legend->setTickPrecision( m_significantDigitsInData );
+        return legend;
     }
 }
 

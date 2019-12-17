@@ -212,4 +212,5 @@ private:
     caf::PdmField<caf::AppEnum<MappingType>>      m_mappingMode;
 
     QString m_title;
+    int     m_significantDigitsInData;
 };

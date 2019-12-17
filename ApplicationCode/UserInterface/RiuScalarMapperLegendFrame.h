@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimRegularLegendConfig.h"
 #include "RiuAbstractLegendFrame.h"
 
 #include "cvfObject.h"
@@ -36,12 +37,7 @@ class RiuScalarMapperLegendFrame : public RiuAbstractLegendFrame
     Q_OBJECT
 
 public:
-    enum NumberFormat
-    {
-        AUTO,
-        SCIENTIFIC,
-        FIXED
-    };
+    using NumberFormat = RimRegularLegendConfig::NumberFormatType;
 
 public:
     RiuScalarMapperLegendFrame( QWidget* parent, const QString& title, cvf::ScalarMapper* scalarMapper );

@@ -71,6 +71,7 @@ void RiuDraggableOverlayFrame::setContentFrame( RiuAbstractOverlayContentFrame* 
 
     m_contentFrame = contentFrame;
     m_layout->addWidget( m_contentFrame );
+    this->adjustSize();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,6 +105,15 @@ void RiuDraggableOverlayFrame::setAnchorCorner( AnchorCorner corner )
 RiuDraggableOverlayFrame::AnchorCorner RiuDraggableOverlayFrame::anchorCorner() const
 {
     return m_anchorCorner;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize RiuDraggableOverlayFrame::sizeHint() const
+{
+    QSize contentSize = m_contentFrame->sizeHint();
+    return QSize( contentSize.width() + 2, contentSize.height() + 2 );
 }
 
 //--------------------------------------------------------------------------------------------------
