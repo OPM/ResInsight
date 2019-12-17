@@ -549,8 +549,17 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             std::set<RifEclipseRftAddress> rftAddresses =
                 ensemble->rftStatisticsReader()->eclipseRftAddresses( m_wellPathNameOrSimWellName,
                                                                       curveDefToAdd.timeStep() );
-            for ( auto rftAddress : rftAddresses )
+            for ( const auto& rftAddress : rftAddresses )
             {
+                if ( rftAddress.wellLogChannel() == RifEclipseRftAddress::PRESSURE_P50 )
+                {
+                    // Default statistics curves are P10, P50, P90 and mean
+                    // It is not common to use P50 for ensemble RFT, so skip display of P50 to avoid confusion with mean
+                    // https://github.com/OPM/ResInsight/issues/5238
+
+                    continue;
+                }
+
                 if ( rftAddress.wellLogChannel() != RifEclipseRftAddress::TVD )
                 {
                     auto curve = new RimWellLogRftCurve();
