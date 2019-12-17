@@ -328,15 +328,15 @@ QString RicSummaryPlotTemplateTools::htmlTextFromCount( const QString& itemText,
 //--------------------------------------------------------------------------------------------------
 QString RicSummaryPlotTemplateTools::selectPlotTemplatePath()
 {
-    RiuPlotMainWindow*       plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
-    RicSelectPlotTemplateUi* ui = RiaGuiApplication::instance()->project()->dialogData()->selectPlotTemplateUi();
+    RiuPlotMainWindow*      plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
+    RicSelectPlotTemplateUi ui;
 
-    caf::PdmUiPropertyViewDialog propertyDialog( plotwindow, ui, "Select Plot Template", "" );
+    caf::PdmUiPropertyViewDialog propertyDialog( plotwindow, &ui, "Select Plot Template", "" );
     propertyDialog.resize( QSize( 400, 600 ) );
 
-    if ( propertyDialog.exec() == QDialog::Accepted && !ui->selectedPlotTemplates().empty() )
+    if ( propertyDialog.exec() == QDialog::Accepted && !ui.selectedPlotTemplates().empty() )
     {
-        QString fileName = ui->selectedPlotTemplates().front()->absoluteFilePath();
+        QString fileName = ui.selectedPlotTemplates().front()->absoluteFilePath();
 
         RiaApplication::instance()->preferences()->setDefaultPlotTemplatePath( fileName );
         RiaApplication::instance()->preferences()->writePreferencesToApplicationStore();
