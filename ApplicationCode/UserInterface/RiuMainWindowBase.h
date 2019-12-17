@@ -94,7 +94,6 @@ protected slots:
 
 protected:
     caf::PdmUiTreeView* m_projectTreeView;
-    caf::UiStyleSheet   m_styleSheet;
     bool                m_allowActiveViewChangeFromSelection; // To be used in selectedObjectsChanged() to control
                                                // whether to select the corresponding active view or not
 private:
