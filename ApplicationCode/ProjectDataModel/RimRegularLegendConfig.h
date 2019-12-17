@@ -210,4 +210,6 @@ private:
     caf::PdmField<double>                         m_userDefinedMinValue;
     caf::PdmField<caf::AppEnum<ColorRangesType>>  m_colorRangeMode;
     caf::PdmField<caf::AppEnum<MappingType>>      m_mappingMode;
+
+    QString m_title;
 };

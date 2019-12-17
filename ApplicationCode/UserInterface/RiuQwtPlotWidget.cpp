@@ -69,6 +69,7 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plot, QWidget* parent )
     : QwtPlot( parent )
     , m_plotDefinition( plot )
     , m_draggable( true )
+    , m_overlayMargins( 5 )
 {
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
 
@@ -555,17 +556,7 @@ void RiuQwtPlotWidget::showEvent( QShowEvent* event )
 void RiuQwtPlotWidget::resizeEvent( QResizeEvent* event )
 {
     QwtPlot::resizeEvent( event );
-    QSize newSize = canvas()->size();
-    for ( QFrame* frame : m_overlayFrames )
-    {
-        QSize preferredSize = frame->sizeHint();
-        QSize newFrameSize( std::min( preferredSize.width(), newSize.width() - 10 ),
-                            std::min( preferredSize.height(), newSize.height() - 10 ) );
-        if ( newFrameSize != frame->size() )
-        {
-            frame->resize( newFrameSize );
-        }
-    }
+    updateOverlayFrameLayout();
     event->accept();
 }
 
@@ -647,6 +638,14 @@ void RiuQwtPlotWidget::renderOverlayFramesTo( QPainter* painter, const QRect& pl
         }
     }
     painter->restore();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const int RiuQwtPlotWidget::overlayMargins() const
+{
+    return m_overlayMargins;
 }
 
 //--------------------------------------------------------------------------------------------------

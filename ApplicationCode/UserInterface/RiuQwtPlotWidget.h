@@ -103,8 +103,9 @@ public:
     void removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
     void updateLayout() override;
 
-    void renderTo( QPainter* painter, const QRect& targetRect );
-    void renderOverlayFramesTo( QPainter* painter, const QRect& plotRect );
+    void      renderTo( QPainter* painter, const QRect& targetRect );
+    void      renderOverlayFramesTo( QPainter* painter, const QRect& plotRect );
+    const int overlayMargins() const;
 
 protected:
     QSize sizeHint() const override;
@@ -143,6 +144,7 @@ private:
     std::map<QwtPlot::Axis, bool>    m_axisTitlesEnabled;
     QPointer<QwtPlotPicker>          m_plotPicker;
     bool                             m_draggable;
+    const int                        m_overlayMargins;
 
     QList<QPointer<RiuDraggableOverlayFrame>> m_overlayFrames;
 

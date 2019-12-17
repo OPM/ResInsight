@@ -764,7 +764,9 @@ double RimRegularLegendConfig::categoryValueFromCategoryName( const QString& cat
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::setTitle( const QString& title )
 {
-    auto cvfTitle = cvfqt::Utils::toString( title );
+    m_title = title;
+
+    auto cvfTitle = cvfqt::Utils::toString( m_title );
     m_scalarMapperLegend->setTitle( cvfTitle );
     m_categoryLegend->setTitle( cvfTitle );
 }
@@ -814,11 +816,11 @@ RiuAbstractLegendFrame* RimRegularLegendConfig::makeLegendFrame()
 {
     if ( m_currentScalarMapper == m_categoryMapper )
     {
-        return new RiuCategoryLegendFrame( nullptr, "Category", m_categoryMapper.p() );
+        return new RiuCategoryLegendFrame( nullptr, m_title, m_categoryMapper.p() );
     }
     else
     {
-        return new RiuScalarMapperLegendFrame( nullptr, "Scalar", m_currentScalarMapper.p() );
+        return new RiuScalarMapperLegendFrame( nullptr, m_title, m_currentScalarMapper.p() );
     }
 }
 

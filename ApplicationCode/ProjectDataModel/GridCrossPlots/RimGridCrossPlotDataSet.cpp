@@ -1037,7 +1037,8 @@ void RimGridCrossPlotDataSet::updateLegendRange()
             }
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame = new RiuDraggableOverlayFrame( parent->viewer()->canvas() );
+                m_legendOverlayFrame = new RiuDraggableOverlayFrame( parent->viewer()->canvas(),
+                                                                     parent->viewer()->overlayMargins() );
             }
             m_legendOverlayFrame->setContentFrame( legendConfig()->makeLegendFrame() );
             parent->viewer()->addOverlayFrame( m_legendOverlayFrame );

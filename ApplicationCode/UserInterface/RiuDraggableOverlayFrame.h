@@ -38,7 +38,9 @@ public:
     };
 
 public:
-    RiuDraggableOverlayFrame( QWidget* parent, const QColor& backgroundColor = QColor( 255, 255, 255, 100 ) );
+    RiuDraggableOverlayFrame( QWidget*      parent,
+                              const int     snapMargins,
+                              const QColor& backgroundColor = QColor( 255, 255, 255, 100 ) );
 
     RiuAbstractOverlayContentFrame* contentFrame();
     void                            setContentFrame( RiuAbstractOverlayContentFrame* contentFrame );
