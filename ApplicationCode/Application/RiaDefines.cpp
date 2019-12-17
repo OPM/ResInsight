@@ -68,6 +68,15 @@ void caf::AppEnum<RiaDefines::PlotAxis>::setUp()
 }
 
 template <>
+void caf::AppEnum<RiaDefines::PhaseType>::setUp()
+{
+    addItem( RiaDefines::OIL_PHASE,   "OIL_PHASE",   "Oil" );
+    addItem( RiaDefines::GAS_PHASE,   "GAS_PHASE",   "Gas" );
+    addItem( RiaDefines::WATER_PHASE, "WATER_PHASE", "Water" );
+    setDefault( RiaDefines::OIL_PHASE );
+}
+
+template <>
 void caf::AppEnum<RiaDefines::WellPathComponentType>::setUp()
 {
     addItem( RiaDefines::WELL_PATH, "WELL_PATH", "Well Path" );
