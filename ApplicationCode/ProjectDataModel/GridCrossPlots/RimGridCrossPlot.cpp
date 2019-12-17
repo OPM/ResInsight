@@ -293,8 +293,8 @@ void RimGridCrossPlot::updateInfoBox()
                 RiuTextOverlayContentFrame* textFrame = new RiuTextOverlayContentFrame( m_infoBox );
                 textFrame->setText( generateInfoBoxText() );
                 m_infoBox->setContentFrame( textFrame );
-                m_plotWidget->addOverlayFrame( m_infoBox );
             }
+            m_plotWidget->addOverlayFrame( m_infoBox );
         }
         else
         {

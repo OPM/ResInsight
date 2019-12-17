@@ -104,7 +104,6 @@ public:
     void updateLayout() override;
 
     void      renderTo( QPainter* painter, const QRect& targetRect );
-    void      renderOverlayFramesTo( QPainter* painter, const QRect& plotRect );
     const int overlayMargins() const;
 
 protected:

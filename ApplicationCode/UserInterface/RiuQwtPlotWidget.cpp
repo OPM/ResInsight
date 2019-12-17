@@ -611,33 +611,29 @@ void RiuQwtPlotWidget::renderTo( QPainter* painter, const QRect& targetRect )
     static_cast<QwtPlotCanvas*>( this->canvas() )->setPaintAttribute( QwtPlotCanvas::BackingStore, false );
     QwtPlotRenderer renderer( this );
     renderer.render( this, painter, targetRect );
-    QPoint canvasTopLeft = targetRect.topLeft() + this->canvas()->frameGeometry().topLeft();
     static_cast<QwtPlotCanvas*>( this->canvas() )->setPaintAttribute( QwtPlotCanvas::BackingStore, true );
-}
 
-void RiuQwtPlotWidget::renderOverlayFramesTo( QPainter* painter, const QRect& plotRect )
-{
-    painter->save();
     for ( RiuDraggableOverlayFrame* overlayFrame : m_overlayFrames )
     {
         if ( overlayFrame->isVisible() )
         {
             QPoint overlayTopLeftInCanvasCoords = overlayFrame->frameGeometry().topLeft();
             QPoint canvasTopLeftInPlotCoords    = this->canvas()->frameGeometry().topLeft();
-            QPoint plotTopLeftInWindowCoords    = plotRect.topLeft();
+            QPoint plotTopLeftInWindowCoords    = targetRect.topLeft();
 
             QPoint overlayTopLeftInWindowCoords = plotTopLeftInWindowCoords + canvasTopLeftInPlotCoords +
                                                   overlayTopLeftInCanvasCoords;
-            QRect targetRect  = overlayFrame->frameGeometry();
-            QSize desiredSize = targetRect.size();
-            QSize minimumSize = overlayFrame->minimumSizeHint();
-            QSize actualSize  = desiredSize.expandedTo( minimumSize );
-            targetRect.moveTo( overlayTopLeftInWindowCoords );
-            targetRect.setSize( actualSize );
-            overlayFrame->renderTo( painter, targetRect );
+            {
+                QRect overlayRect = overlayFrame->frameGeometry();
+                QSize desiredSize = overlayRect.size();
+                QSize minimumSize = overlayFrame->minimumSizeHint();
+                QSize actualSize  = desiredSize.expandedTo( minimumSize );
+                overlayRect.moveTo( overlayTopLeftInWindowCoords );
+                overlayRect.setSize( actualSize );
+                overlayFrame->renderTo( painter, overlayRect );
+            }
         }
     }
-    painter->restore();
 }
 
 //--------------------------------------------------------------------------------------------------
