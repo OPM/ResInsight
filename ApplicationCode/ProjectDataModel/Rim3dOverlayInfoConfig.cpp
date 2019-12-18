@@ -26,6 +26,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseMultiPropertyStatCalc.h"
 #include "RigEclipseNativeVisibleCellsStatCalc.h"
 #include "RigFemNativeVisibleCellsStatCalc.h"
 #include "RigFemPartCollection.h"
@@ -1203,6 +1204,71 @@ QString Rim3dOverlayInfoConfig::timeStepText( RimGeoMechView* geoMechView )
            QString( "<center>------------------------------------------------</center>" );
 }
 
+std::vector<RigEclipseResultAddress> sourcesForMultiPropertyResults( const QString& resultName )
+{
+    static const std::map<QString, std::vector<RigEclipseResultAddress>> resultsWithMultiPropertySource =
+        {{RiaDefines::combinedTransmissibilityResultName(),
+          {RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "TRANX" ),
+           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "TRANY" ),
+           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "TRANZ" )}},
+         {RiaDefines::combinedMultResultName(),
+          {RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "MULTX" ),
+           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "MULTX-" ),
+           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "MULTY" ),
+           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "MULTY-" ),
+           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "MULTZ" ),
+           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "MULTZ-" )}},
+         {RiaDefines::combinedRiTranResultName(),
+          {RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riTranXResultName() ),
+           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riTranYResultName() ),
+           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riTranZResultName() )}},
+         {RiaDefines::combinedRiMultResultName(),
+          {RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riMultXResultName() ),
+           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riMultYResultName() ),
+           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riMultZResultName() )}},
+         {RiaDefines::combinedRiAreaNormTranResultName(),
+          {RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranXResultName() ),
+           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranYResultName() ),
+           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranZResultName() )}},
+         {RiaDefines::combinedWaterFluxResultName(),
+          {RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRWATI+" ),
+           RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+" ),
+           RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRWATK+" )}},
+         {RiaDefines::combinedOilFluxResultName(),
+          {RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLROILI+" ),
+           RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLROILJ+" ),
+           RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLROILK+" )}},
+         {RiaDefines::combinedGasFluxResultName(),
+          {RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRGASI+" ),
+           RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRGASJ+" ),
+           RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRGASK+" )}}};
+
+    auto resNameResultAddrsPairIt = resultsWithMultiPropertySource.find( resultName );
+
+    if ( resNameResultAddrsPairIt != resultsWithMultiPropertySource.end() )
+    {
+        return resNameResultAddrsPairIt->second;
+    }
+    else if ( resultName.endsWith( "IJK" ) )
+    {
+        std::vector<RigEclipseResultAddress> resultAddrs;
+
+        QString     baseName = resultName.left( resultName.size() - 3 );
+        QStringList endings  = {"I", "J", "K"};
+
+        for ( QString ending : endings )
+        {
+            resultAddrs.emplace_back( RigEclipseResultAddress( RiaDefines::GENERATED, baseName + ending ) );
+        }
+
+        return resultAddrs;
+    }
+    else
+    {
+        return std::vector<RigEclipseResultAddress>();
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -1233,10 +1299,32 @@ void Rim3dOverlayInfoConfig::updateVisCellStatsIfNeeded()
             }
             else
             {
-                RigEclipseResultAddress scalarIndex = eclipseView->cellResult()->eclipseResultAddress();
-                calc = new RigEclipseNativeVisibleCellsStatCalc( eclipseView->currentGridCellResults(),
-                                                                 scalarIndex,
-                                                                 eclipseView->currentTotalCellVisibility().p() );
+                RigEclipseResultAddress resAddr = eclipseView->cellResult()->eclipseResultAddress();
+
+                QString resultName = resAddr.m_resultName;
+
+                std::vector<RigEclipseResultAddress> addresses = sourcesForMultiPropertyResults( resultName );
+                if ( addresses.size() )
+                {
+                    cvf::ref<RigEclipseMultiPropertyStatCalc> multicalc = new RigEclipseMultiPropertyStatCalc();
+
+                    for ( RigEclipseResultAddress& compResAddr : addresses )
+                    {
+                        cvf::ref<RigEclipseNativeVisibleCellsStatCalc> singleCalc =
+                            new RigEclipseNativeVisibleCellsStatCalc( eclipseView->currentGridCellResults(),
+                                                                      compResAddr,
+                                                                      eclipseView->currentTotalCellVisibility().p() );
+                        multicalc->addStatisticsCalculator( singleCalc.p() );
+                    }
+
+                    calc = multicalc;
+                }
+                else
+                {
+                    calc = new RigEclipseNativeVisibleCellsStatCalc( eclipseView->currentGridCellResults(),
+                                                                     resAddr,
+                                                                     eclipseView->currentTotalCellVisibility().p() );
+                }
             }
         }
 
