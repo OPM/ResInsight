@@ -1168,7 +1168,12 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
     RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
 
     std::vector<RigCompletionData> completionData;
-    const RigActiveCellInfo*       activeCellInfo = settings.caseToApply->eclipseCaseData()->activeCellInfo(
+    if ( !wellPath || !wellPath->wellPathGeometry() )
+    {
+        return completionData;
+    }
+
+    const RigActiveCellInfo* activeCellInfo = settings.caseToApply->eclipseCaseData()->activeCellInfo(
         RiaDefines::MATRIX_MODEL );
 
     if ( wellPath->perforationIntervalCollection()->isChecked() )

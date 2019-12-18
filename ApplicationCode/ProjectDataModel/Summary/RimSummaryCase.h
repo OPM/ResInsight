@@ -20,6 +20,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RigCaseRealizationParameters.h"
 
+#include "cafFilePath.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -81,10 +82,10 @@ protected:
                            const QVariant&            newValue ) override;
     void updateTreeItemName();
 
-    caf::PdmField<QString> m_shortName;
-    caf::PdmField<bool>    m_useAutoShortName;
-    caf::PdmField<QString> m_summaryHeaderFilename;
-    bool                   m_isObservedData;
+    caf::PdmField<QString>       m_shortName;
+    caf::PdmField<bool>          m_useAutoShortName;
+    caf::PdmField<caf::FilePath> m_summaryHeaderFilename;
+    bool                         m_isObservedData;
 
     std::shared_ptr<RigCaseRealizationParameters> m_crlParameters;
 

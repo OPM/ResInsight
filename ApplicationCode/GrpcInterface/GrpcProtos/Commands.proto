@@ -323,6 +323,11 @@ message ExportContourMapToTextRequest
         int32 viewId                = 5;
 }
 
+message SaveProjectRequest
+{
+        string filePath       = 1;
+}
+
 /* CommandParams handles both command name and parameters in one.
  * The message type and content is used as parameters and
  * the name of the variable is used to find the command name. */
@@ -372,6 +377,7 @@ message CommandParams
 		ExportWellLogPlotDataRequest  exportWellLogPlotData            = 36;
 		SetWindowSizeParams           setPlotWindowSize                = 37;
 		ExportContourMapToTextRequest exportContourMapToText           = 38;
+		SaveProjectRequest 			  saveProject           		   = 39;
 	}
 }
 

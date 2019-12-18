@@ -36,6 +36,14 @@ class Project(PdmObject):
         """
         self._execute_command(openProject=Cmd.FilePathRequest(path=path))
         return self
+        
+    def save(self, path=""):
+        """Save the project to the existing project file, or to a new file
+        Arguments:
+            path(str): File path to the file to save the project to. If empty, saves to the active project file
+        """
+        self._execute_command(saveProject=Cmd.SaveProjectRequest(filePath=path))
+        return self
 
     def close(self):
         """Close the current project (and open new blank project)"""

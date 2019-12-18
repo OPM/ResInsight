@@ -89,8 +89,8 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitField( &m_flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "" );
     CAF_PDM_InitField( &m_flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filesContainingFaultsSemColSeparated, "CachedFileNamesContainingFaults", "", "", "", "" );
-    m_filesContainingFaultsSemColSeparated.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_filesContainingFaults, "CachedFileNamesContainingFaults", "", "", "", "" );
+    m_filesContainingFaults.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps", "", "", "" );
     m_contourMapCollection = new RimEclipseContourMapViewCollection;
@@ -746,12 +746,12 @@ const RimReservoirCellResultsStorage* RimEclipseCase::resultsStorage( RiaDefines
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RimEclipseCase::filesContainingFaults() const
 {
-    QString              separatedPaths = m_filesContainingFaultsSemColSeparated;
-    QStringList          pathList       = separatedPaths.split( ";", QString::SkipEmptyParts );
     std::vector<QString> stdPathList;
 
-    for ( auto& path : pathList )
-        stdPathList.push_back( path );
+    for ( auto& filePath : m_filesContainingFaults() )
+    {
+        stdPathList.push_back( filePath.path() );
+    }
 
     return stdPathList;
 }
@@ -759,20 +759,15 @@ std::vector<QString> RimEclipseCase::filesContainingFaults() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::setFilesContainingFaults( const std::vector<QString>& val )
+void RimEclipseCase::setFilesContainingFaults( const std::vector<QString>& pathStrings )
 {
-    QString separatedPaths;
-
-    for ( size_t i = 0; i < val.size(); ++i )
+    std::vector<caf::FilePath> filePaths;
+    for ( const auto& pathString : pathStrings )
     {
-        const auto& path = val[i];
-        separatedPaths += path;
-        if ( !( i + 1 >= val.size() ) )
-        {
-            separatedPaths += ";";
-        }
+        filePaths.push_back( pathString );
     }
-    m_filesContainingFaultsSemColSeparated = separatedPaths;
+
+    m_filesContainingFaults = filePaths;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -49,9 +49,10 @@ public:
     typedef caf::AppEnum<ResolveState> ResolveStateEnum;
 
     // Fields:
-    caf::PdmField<QString> resultName;
-    caf::PdmField<QString> eclipseKeyword;
-    caf::PdmField<QString> fileName; // ReadOnly Serves as key to syncronize read eclipse prop data and this inputProp object.
+    caf::PdmField<QString>       resultName;
+    caf::PdmField<QString>       eclipseKeyword;
+    caf::PdmField<caf::FilePath> fileName; // ReadOnly Serves as key to syncronize
+                                           // read eclipse prop data and this inputProp object.
     caf::PdmField<ResolveStateEnum> resolvedState; // ReadOnly and not writable
 
     // PdmObject Overrides

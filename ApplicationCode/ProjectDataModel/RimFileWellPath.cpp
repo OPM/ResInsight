@@ -33,8 +33,11 @@ RimFileWellPath::RimFileWellPath()
     m_surveyType.uiCapability()->setUiReadOnly( true );
     m_surveyType.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_filepath, "WellPathFilepath", QString( "" ), "File Path", "", "", "" );
-    m_filepath.uiCapability()->setUiReadOnly( true );
+    CAF_PDM_InitFieldNoDefault( &m_filePath, "WellPathFilepath", "File Path", "", "", "" );
+    m_filePath.uiCapability()->setUiReadOnly( true );
+    CAF_PDM_InitFieldNoDefault( &m_filePathInCache, "WellPathFilePathInCache", "File Name", "", "", "" );
+    m_filePathInCache.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitField( &m_wellPathIndexInFile, "WellPathNumberInFile", -1, "Well Number in File", "", "", "" );
     m_wellPathIndexInFile.uiCapability()->setUiReadOnly( true );
 }
@@ -47,9 +50,16 @@ RimFileWellPath::~RimFileWellPath() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFileWellPath::filepath() const
+QString RimFileWellPath::filePath() const
 {
-    return m_filepath();
+    if ( isStoredInCache() || m_filePath().path().isEmpty() )
+    {
+        return m_filePathInCache();
+    }
+    else
+    {
+        return m_filePath().path();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,7 +67,7 @@ QString RimFileWellPath::filepath() const
 //--------------------------------------------------------------------------------------------------
 void RimFileWellPath::setFilepath( const QString& path )
 {
-    m_filepath = path;
+    m_filePath = path;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,7 +106,16 @@ void RimFileWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     RimWellPath::defineUiOrdering( uiConfigName, uiOrdering );
 
     caf::PdmUiGroup* fileInfoGroup = uiOrdering.createGroupBeforeGroup( "Simulation Well", "File" );
-    fileInfoGroup->add( &m_filepath );
+
+    if ( isStoredInCache() )
+    {
+        fileInfoGroup->add( &m_filePathInCache );
+    }
+    else
+    {
+        fileInfoGroup->add( &m_filePath );
+    }
+
     fileInfoGroup->add( &m_wellPathIndexInFile );
 
     if ( !id().isEmpty() ) uiOrdering.insertBeforeItem( m_datumElevation.uiCapability(), &id );
@@ -112,10 +131,12 @@ void RimFileWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 bool RimFileWellPath::readWellPathFile( QString* errorMessage, RifWellPathImporter* wellPathImporter )
 {
-    if ( caf::Utils::fileExists( m_filepath() ) )
+    if ( caf::Utils::fileExists( this->filePath() ) )
     {
-        RifWellPathImporter::WellData wellData = wellPathImporter->readWellData( m_filepath(), m_wellPathIndexInFile() );
-        RifWellPathImporter::WellMetaData wellMetaData = wellPathImporter->readWellMetaData( m_filepath(),
+        RifWellPathImporter::WellData wellData = wellPathImporter->readWellData( this->filePath(),
+                                                                                 m_wellPathIndexInFile() );
+
+        RifWellPathImporter::WellMetaData wellMetaData = wellPathImporter->readWellMetaData( this->filePath(),
                                                                                              m_wellPathIndexInFile() );
         // General well info
 
@@ -128,11 +149,22 @@ bool RimFileWellPath::readWellPathFile( QString* errorMessage, RifWellPathImport
         updateDate = wellMetaData.m_updateDate.toString( "d MMMM yyyy" );
 
         setWellPathGeometry( wellData.m_wellPathGeometry.p() );
+
+        // Now that the data is read, we know if this is an SSIHUB wellpath that needs to be stored in the
+        // cache folder along with the project file. If it is, move the pathfile reference to the m_filePathInCache
+        // in order to avoid it being handled as an externalFilePath by the RimProject class
+
+        if ( isStoredInCache() && !m_filePath().path().isEmpty() )
+        {
+            m_filePathInCache = m_filePath().path();
+            m_filePath        = QString( "" );
+        }
+
         return true;
     }
     else
     {
-        if ( errorMessage ) ( *errorMessage ) = "Could not find the well path file: " + m_filepath();
+        if ( errorMessage ) ( *errorMessage ) = "Could not find the well path file: " + this->filePath();
         return false;
     }
 }
@@ -152,7 +184,7 @@ QString RimFileWellPath::getCacheDirectoryPath()
 //--------------------------------------------------------------------------------------------------
 QString RimFileWellPath::getCacheFileName()
 {
-    if ( m_filepath().isEmpty() )
+    if ( m_filePathInCache().isEmpty() )
     {
         return "";
     }
@@ -160,8 +192,9 @@ QString RimFileWellPath::getCacheFileName()
     QString cacheFileName;
 
     // Make the path correct related to the possibly new project filename
+
     QString   newCacheDirPath = getCacheDirectoryPath();
-    QFileInfo oldCacheFile( m_filepath );
+    QFileInfo oldCacheFile( m_filePathInCache() );
 
     cacheFileName = newCacheDirPath + "/" + oldCacheFile.fileName();
 
@@ -173,13 +206,14 @@ QString RimFileWellPath::getCacheFileName()
 //--------------------------------------------------------------------------------------------------
 void RimFileWellPath::setupBeforeSave()
 {
+    // Copy the possibly "cached" SSIHUB wellpath, stored in the folder along the project file
     // SSIHUB is the only source for populating Id, use text in this field to decide if the cache file must be copied to new project cache location
     if ( !isStoredInCache() )
     {
         return;
     }
 
-    if ( m_filepath().isEmpty() )
+    if ( m_filePathInCache().isEmpty() )
     {
         return;
     }
@@ -189,21 +223,21 @@ void RimFileWellPath::setupBeforeSave()
     QString newCacheFileName = getCacheFileName();
 
     // Use QFileInfo to get same string representation to avoid issues with mix of forward and backward slashes
-    QFileInfo prevFileInfo( m_filepath );
+    QFileInfo prevFileInfo( m_filePathInCache() );
     QFileInfo currentFileInfo( newCacheFileName );
 
     if ( prevFileInfo.absoluteFilePath().compare( currentFileInfo.absoluteFilePath() ) != 0 )
     {
-        QFile::copy( m_filepath, newCacheFileName );
+        QFile::copy( m_filePathInCache(), newCacheFileName );
 
-        m_filepath = newCacheFileName;
+        m_filePathInCache = newCacheFileName;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFileWellPath::isStoredInCache()
+bool RimFileWellPath::isStoredInCache() const
 {
     // SSIHUB is the only source for populating Id, use text in this field to decide if the cache file must be copied to new project cache location
     return !id().isEmpty();
@@ -214,7 +248,7 @@ bool RimFileWellPath::isStoredInCache()
 //--------------------------------------------------------------------------------------------------
 void RimFileWellPath::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
 {
-    RimWellPath::updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
+    // RimWellPath::updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
 
     if ( isStoredInCache() )
     {
@@ -222,11 +256,11 @@ void RimFileWellPath::updateFilePathsFromProjectPath( const QString& newProjectP
 
         if ( caf::Utils::fileExists( newCacheFileName ) )
         {
-            m_filepath = newCacheFileName;
+            m_filePathInCache = newCacheFileName;
         }
     }
-    else
-    {
-        m_filepath = RimTools::relocateFile( m_filepath(), newProjectPath, oldProjectPath, nullptr, nullptr );
-    }
+    // else
+    // {
+    //     m_filepath = RimTools::relocateFile( m_filepath(), newProjectPath, oldProjectPath, nullptr, nullptr );
+    // }
 }

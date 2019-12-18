@@ -115,7 +115,7 @@ RimEclipseCase* RimGridSummaryCase::associatedEclipseCase()
             if ( eclCase )
             {
                 QString sumHeaderFileName = summaryHeaderFilenameFromEclipseCase( eclCase );
-                if ( sumHeaderFileName == m_summaryHeaderFilename )
+                if ( sumHeaderFileName == m_summaryHeaderFilename().path() )
                 {
                     m_eclipseCase = eclCase;
                     this->updateAutoShortName();
@@ -135,7 +135,7 @@ RimEclipseCase* RimGridSummaryCase::associatedEclipseCase()
 //--------------------------------------------------------------------------------------------------
 QString RimGridSummaryCase::summaryHeaderFilename() const
 {
-    if ( !m_eclipseCase() ) return m_summaryHeaderFilename();
+    if ( !m_eclipseCase() ) return m_summaryHeaderFilename().path();
 
     return summaryHeaderFilenameFromEclipseCase( m_eclipseCase() );
 }

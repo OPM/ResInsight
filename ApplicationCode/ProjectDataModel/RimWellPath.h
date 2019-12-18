@@ -25,6 +25,7 @@
 #include "RimWellPathComponentInterface.h"
 
 #include "cafAppEnum.h"
+#include "cafFilePath.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -158,8 +159,8 @@ private:
 
     caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_unitSystem;
 
-    caf::PdmField<QString> m_wellPathFormationFilePath;
-    caf::PdmField<QString> m_formationKeyInFile;
+    caf::PdmField<caf::FilePath> m_wellPathFormationFilePath;
+    caf::PdmField<QString>       m_formationKeyInFile;
 
     caf::PdmField<bool> m_showWellPath;
     caf::PdmField<bool> m_showWellPathLabel;

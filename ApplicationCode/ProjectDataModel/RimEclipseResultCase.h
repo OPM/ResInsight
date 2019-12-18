@@ -24,6 +24,7 @@
 
 #include "RimEclipseCase.h"
 
+#include "cafFilePath.h"
 #include <cafPdmProxyValueField.h>
 
 class RifReaderEclipseRft;
@@ -65,7 +66,7 @@ public:
     QString locationOnDisc() const override;
     QString gridFileName() const override
     {
-        return caseFileName();
+        return caseFileName().path();
     }
     void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
 
@@ -98,10 +99,10 @@ private:
     cvf::ref<RifReaderEclipseRft> m_readerEclipseRft;
 
     // Fields:
-    caf::PdmField<QString>                                       caseFileName;
+    caf::PdmField<caf::FilePath>                                 caseFileName;
     caf::PdmProxyValueField<RiaEclipseUnitTools::UnitSystemType> m_unitSystem;
     caf::PdmChildArrayField<RimFlowDiagSolution*>                m_flowDiagSolutions;
-    caf::PdmField<QString>                                       m_sourSimFileName;
+    caf::PdmField<caf::FilePath>                                 m_sourSimFileName;
 
     // Obsolete field
     caf::PdmField<QString> caseDirectory;

@@ -57,7 +57,7 @@ public:
     QString locationOnDisc() const override;
     QString gridFileName() const override
     {
-        return m_gridFileName();
+        return m_gridFileName().path();
     }
 
     void updateFilePathsFromProjectPath( const QString& projectPath, const QString& oldProjectPath ) override;
@@ -75,7 +75,7 @@ private:
 
 private:
     // Fields
-    caf::PdmField<QString>                        m_gridFileName;
+    caf::PdmField<caf::FilePath>                  m_gridFileName;
     caf::PdmProxyValueField<std::vector<QString>> m_additionalFiles;
 
     // Obsolete fields

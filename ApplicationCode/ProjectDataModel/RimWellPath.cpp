@@ -118,7 +118,7 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitField( &m_formationKeyInFile, "WellPathFormationKeyInFile", QString( "" ), "Key in File", "", "", "" );
     m_formationKeyInFile.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_wellPathFormationFilePath, "WellPathFormationFilePath", QString( "" ), "File Path", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPathFormationFilePath, "WellPathFormationFilePath", "File Path", "", "", "" );
     m_wellPathFormationFilePath.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogFile_OBSOLETE, "WellLogFile", "Well Log File", "", "", "" );
@@ -627,20 +627,20 @@ size_t RimWellPath::simulationWellBranchCount( const QString& simWellName )
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
 {
-    {
-        bool                 foundFile = false;
-        std::vector<QString> searchedPaths;
-
-        QString fileNameCandidate = RimTools::relocateFile( m_wellPathFormationFilePath,
-                                                            newProjectPath,
-                                                            oldProjectPath,
-                                                            &foundFile,
-                                                            &searchedPaths );
-        if ( foundFile )
-        {
-            m_wellPathFormationFilePath = fileNameCandidate;
-        }
-    }
+    //{
+    //    bool                 foundFile = false;
+    //    std::vector<QString> searchedPaths;
+    //
+    //    QString fileNameCandidate = RimTools::relocateFile( m_wellPathFormationFilePath,
+    //                                                        newProjectPath,
+    //                                                        oldProjectPath,
+    //                                                        &foundFile,
+    //                                                        &searchedPaths );
+    //    if ( foundFile )
+    //    {
+    //        m_wellPathFormationFilePath = fileNameCandidate;
+    //    }
+    //}
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -738,14 +738,14 @@ void RimWellPath::setFormationsGeometry( cvf::ref<RigWellPathFormations> wellPat
 bool RimWellPath::readWellPathFormationsFile( QString*                       errorMessage,
                                               RifWellPathFormationsImporter* wellPathFormationsImporter )
 {
-    if ( m_wellPathFormationFilePath().isEmpty() )
+    if ( m_wellPathFormationFilePath().path().isEmpty() )
     {
         return true;
     }
 
-    if ( caf::Utils::fileExists( m_wellPathFormationFilePath() ) )
+    if ( caf::Utils::fileExists( m_wellPathFormationFilePath().path() ) )
     {
-        m_wellPathFormations = wellPathFormationsImporter->readWellPathFormations( m_wellPathFormationFilePath(),
+        m_wellPathFormations = wellPathFormationsImporter->readWellPathFormations( m_wellPathFormationFilePath().path(),
                                                                                    m_formationKeyInFile() );
         if ( m_name().isEmpty() )
         {
@@ -755,7 +755,8 @@ bool RimWellPath::readWellPathFormationsFile( QString*                       err
     }
     else
     {
-        if ( errorMessage ) ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath();
+        if ( errorMessage )
+            ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath().path();
         return false;
     }
 }
@@ -766,20 +767,21 @@ bool RimWellPath::readWellPathFormationsFile( QString*                       err
 bool RimWellPath::reloadWellPathFormationsFile( QString*                       errorMessage,
                                                 RifWellPathFormationsImporter* wellPathFormationsImporter )
 {
-    if ( m_wellPathFormationFilePath().isEmpty() )
+    if ( m_wellPathFormationFilePath().path().isEmpty() )
     {
         return true;
     }
 
-    if ( caf::Utils::fileExists( m_wellPathFormationFilePath() ) )
+    if ( caf::Utils::fileExists( m_wellPathFormationFilePath().path() ) )
     {
-        m_wellPathFormations = wellPathFormationsImporter->reloadWellPathFormations( m_wellPathFormationFilePath(),
+        m_wellPathFormations = wellPathFormationsImporter->reloadWellPathFormations( m_wellPathFormationFilePath().path(),
                                                                                      m_formationKeyInFile() );
         return true;
     }
     else
     {
-        if ( errorMessage ) ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath();
+        if ( errorMessage )
+            ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath().path();
         return false;
     }
 }

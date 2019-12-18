@@ -148,7 +148,7 @@ void RimWellPathCollection::loadDataAndUpdate()
         RimModeledWellPath* mWPath = dynamic_cast<RimModeledWellPath*>( wellPaths[wpIdx] );
         if ( fWPath )
         {
-            if ( !fWPath->filepath().isEmpty() )
+            if ( !fWPath->filePath().isEmpty() )
             {
                 QString errorMessage;
                 if ( !fWPath->readWellPathFile( &errorMessage, m_wellPathImporter ) )
@@ -221,7 +221,7 @@ std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList fileP
             f1.setFileName( filePath );
             QString s1 = f1.fileName();
             QFile   f2;
-            f2.setFileName( fWPath->filepath() );
+            f2.setFileName( fWPath->filePath() );
             QString s2 = f2.fileName();
             if ( s1 == s2 )
             {
@@ -285,7 +285,7 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
         RimFileWellPath* existingWellPath = dynamic_cast<RimFileWellPath*>( tryFindMatchingWellPath( wellPath->name() ) );
         if ( existingWellPath )
         {
-            existingWellPath->setFilepath( wellPath->filepath() );
+            existingWellPath->setFilepath( wellPath->filePath() );
             existingWellPath->setWellPathIndexInFile( wellPath->wellPathIndexInFile() );
             existingWellPath->readWellPathFile( nullptr, m_wellPathImporter );
 
@@ -596,7 +596,7 @@ void RimWellPathCollection::removeWellPath( RimWellPath* wellPath )
         for ( size_t i = 0; i < wellPaths.size(); i++ )
         {
             RimFileWellPath* fWPath = dynamic_cast<RimFileWellPath*>( wellPaths[i] );
-            if ( fWPath && fWPath->filepath() == fileWellPath->filepath() )
+            if ( fWPath && fWPath->filePath() == fileWellPath->filePath() )
             {
                 isFilePathUsed = true;
                 break;
@@ -607,7 +607,7 @@ void RimWellPathCollection::removeWellPath( RimWellPath* wellPath )
         {
             // One file can have multiple well paths
             // If no other well paths are referencing the filepath, remove cached data from the file reader
-            m_wellPathImporter->removeFilePath( fileWellPath->filepath() );
+            m_wellPathImporter->removeFilePath( fileWellPath->filePath() );
         }
     }
     updateAllRequiredEditors();

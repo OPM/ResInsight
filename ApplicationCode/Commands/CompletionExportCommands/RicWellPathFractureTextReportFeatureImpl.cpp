@@ -254,7 +254,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createWellFileLocationText( co
             if ( fileWellPath )
             {
                 formatter.add( wellPath->name() );
-                formatter.add( fileWellPath->filepath() );
+                formatter.add( fileWellPath->filePath() );
                 formatter.rowCompleted();
             }
         }

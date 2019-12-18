@@ -51,7 +51,7 @@ public:
     void    setFileName( const QString& fileName );
     QString fileName() const
     {
-        return m_fileName;
+        return m_fileName().path();
     }
     QString name() const
     {
@@ -109,7 +109,7 @@ private:
 private:
     cvf::ref<RigWellLogFile>                       m_wellLogDataFile;
     caf::PdmField<QString>                         m_wellName;
-    caf::PdmField<QString>                         m_fileName;
+    caf::PdmField<caf::FilePath>                   m_fileName;
     caf::PdmField<QString>                         m_name;
     caf::PdmField<QDateTime>                       m_date;
     bool                                           m_lasFileHasValidDate;

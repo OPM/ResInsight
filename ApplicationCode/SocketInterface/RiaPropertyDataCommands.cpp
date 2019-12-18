@@ -689,7 +689,7 @@ public:
                         inputProperty                 = new RimEclipseInputProperty;
                         inputProperty->resultName     = m_currentPropertyName;
                         inputProperty->eclipseKeyword = "";
-                        inputProperty->fileName       = "";
+                        inputProperty->fileName       = QString( "" );
                         inputRes->inputPropertyCollection()->inputProperties.push_back( inputProperty );
                         inputRes->inputPropertyCollection()->updateConnectedEditors();
                     }
@@ -1080,7 +1080,7 @@ public:
                         inputProperty                 = new RimEclipseInputProperty;
                         inputProperty->resultName     = m_currentPropertyName;
                         inputProperty->eclipseKeyword = "";
-                        inputProperty->fileName       = "";
+                        inputProperty->fileName       = QString( "" );
                         inputRes->inputPropertyCollection()->inputProperties.push_back( inputProperty );
                         inputRes->inputPropertyCollection()->updateConnectedEditors();
                     }

@@ -26,12 +26,13 @@ public:
     RimFileWellPath();
     ~RimFileWellPath() override;
 
-    QString filepath() const;
+    QString filePath() const;
     void    setFilepath( const QString& path );
     bool    readWellPathFile( QString* errorMessage, RifWellPathImporter* wellPathImporter );
     int     wellPathIndexInFile() const; // -1 means none.
     void    setWellPathIndexInFile( int index );
     void    updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
+    static QString getCacheDirectoryPath();
 
 private:
     QString surveyType()
@@ -39,14 +40,14 @@ private:
         return m_surveyType;
     }
     void    setSurveyType( QString surveyType );
-    bool    isStoredInCache();
+    bool    isStoredInCache() const;
     QString getCacheFileName();
-    QString getCacheDirectoryPath();
 
     void setupBeforeSave() override;
 
-    caf::PdmField<QString> m_filepath;
-    caf::PdmField<int>     m_wellPathIndexInFile; // -1 means none.
+    caf::PdmField<caf::FilePath> m_filePath;
+    caf::PdmField<QString>       m_filePathInCache; // Used for SSIHUB imported well paths
+    caf::PdmField<int>           m_wellPathIndexInFile; // -1 means none.
 
     caf::PdmField<QString> id;
     caf::PdmField<QString> sourceSystem;

@@ -218,7 +218,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 {
     std::vector<RigCompletionData> fractureCompletions;
 
-    if ( !caseToApply || !caseToApply->eclipseCaseData() )
+    if ( !caseToApply || !caseToApply->eclipseCaseData() || !wellPathGeometry )
     {
         return fractureCompletions;
     }

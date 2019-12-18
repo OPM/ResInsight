@@ -145,8 +145,8 @@ protected:
     caf::PdmChildField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
 
 private:
-    caf::PdmField<QString> m_filesContainingFaultsSemColSeparated;
-    caf::PdmField<bool>    m_releaseResultMemory;
+    caf::PdmField<std::vector<caf::FilePath>> m_filesContainingFaults;
+    caf::PdmField<bool>                       m_releaseResultMemory;
 
     caf::PdmChildField<RimEclipseContourMapViewCollection*> m_contourMapCollection;
 
