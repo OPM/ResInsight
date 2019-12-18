@@ -53,5 +53,5 @@ public:
     size_t timeStepCount() override;
 
 private:
-    std::vector<RigStatisticsCalculator*> m_nativeStatisticsCalculators;
+    cvf::Collection<RigStatisticsCalculator> m_nativeStatisticsCalculators;
 };
