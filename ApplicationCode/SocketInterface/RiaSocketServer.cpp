@@ -65,13 +65,7 @@ RiaSocketServer::RiaSocketServer( QObject* parent )
 
     if ( !m_tcpServer->listen( QHostAddress::LocalHost, 40001 ) )
     {
-        QString txt;
-        txt = "This instance of ResInsight could not start the Socket Server enabling octave to get and set data.\n "
-              "This is probably because you already have a running ResInsight process.\n"
-              "Octave can only communicate with one ResInsight process at a time, so the Octave\n"
-              "communication in this ResInsight instance will be disabled.\n"
-              "\n" +
-              tr( "The error from the socket system is: %1." ).arg( m_tcpServer->errorString() );
+        QString txt = "Disabled communication with Octave due to another ResInsight process running.";
 
         RiaLogging::error( txt );
 
