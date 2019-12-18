@@ -103,8 +103,8 @@ public:
     void removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
     void updateLayout() override;
 
-    void      renderTo( QPainter* painter, const QRect& targetRect );
-    const int overlayMargins() const;
+    void renderTo( QPainter* painter, const QRect& targetRect );
+    int  overlayMargins() const;
 
 protected:
     QSize sizeHint() const override;

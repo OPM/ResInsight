@@ -639,7 +639,7 @@ void RiuQwtPlotWidget::renderTo( QPainter* painter, const QRect& targetRect )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const int RiuQwtPlotWidget::overlayMargins() const
+int RiuQwtPlotWidget::overlayMargins() const
 {
     return m_overlayMargins;
 }
