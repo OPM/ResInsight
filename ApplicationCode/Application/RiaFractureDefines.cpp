@@ -29,9 +29,9 @@ QString RiaDefines::conductivityResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::unitStringConductivity(RiaEclipseUnitTools::UnitSystem unitSystem)
+QString RiaDefines::unitStringConductivity( RiaEclipseUnitTools::UnitSystem unitSystem )
 {
-    switch (unitSystem)
+    switch ( unitSystem )
     {
         case RiaEclipseUnitTools::UNITS_METRIC:
             return "md-m";
@@ -45,9 +45,9 @@ QString RiaDefines::unitStringConductivity(RiaEclipseUnitTools::UnitSystem unitS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RiaDefines::nonDarcyFlowAlpha(RiaEclipseUnitTools::UnitSystem unitSystem)
+double RiaDefines::nonDarcyFlowAlpha( RiaEclipseUnitTools::UnitSystem unitSystem )
 {
-    switch (unitSystem)
+    switch ( unitSystem )
     {
         case RiaEclipseUnitTools::UNITS_METRIC:
             return 2.24460e-10;

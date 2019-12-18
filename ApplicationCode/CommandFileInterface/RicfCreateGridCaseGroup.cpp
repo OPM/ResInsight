@@ -23,30 +23,31 @@
 
 #include "RimIdenticalGridCaseGroup.h"
 
-#include <QFileInfo>
 #include <QDir>
+#include <QFileInfo>
 #include <QStringList>
 
-CAF_PDM_SOURCE_INIT(RicfCreateGridCaseGroupResult, "createGridCaseGroupResult");
+CAF_PDM_SOURCE_INIT( RicfCreateGridCaseGroupResult, "createGridCaseGroupResult" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCreateGridCaseGroupResult::RicfCreateGridCaseGroupResult(int caseGroupId /*= -1*/, const QString& caseGroupName /*= ""*/)
+RicfCreateGridCaseGroupResult::RicfCreateGridCaseGroupResult( int            caseGroupId /*= -1*/,
+                                                              const QString& caseGroupName /*= ""*/ )
 {
-    CAF_PDM_InitObject("case_group_result", "", "", "");
-    CAF_PDM_InitField(&this->caseGroupId, "groupId", caseGroupId, "", "", "", "");
-    CAF_PDM_InitField(&this->caseGroupName, "groupName", caseGroupName, "", "", "", "");
+    CAF_PDM_InitObject( "case_group_result", "", "", "" );
+    CAF_PDM_InitField( &this->caseGroupId, "groupId", caseGroupId, "", "", "", "" );
+    CAF_PDM_InitField( &this->caseGroupName, "groupName", caseGroupName, "", "", "", "" );
 }
 
-CAF_PDM_SOURCE_INIT(RicfCreateGridCaseGroup, "createGridCaseGroup");
+CAF_PDM_SOURCE_INIT( RicfCreateGridCaseGroup, "createGridCaseGroup" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicfCreateGridCaseGroup::RicfCreateGridCaseGroup()
 {
-    RICF_InitFieldNoDefault(&m_casePaths, "casePaths", "List of Paths to Case Files", "", "", "");
+    RICF_InitFieldNoDefault( &m_casePaths, "casePaths", "List of Paths to Case Files", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,25 +56,25 @@ RicfCreateGridCaseGroup::RicfCreateGridCaseGroup()
 RicfCommandResponse RicfCreateGridCaseGroup::execute()
 {
     QStringList casePaths;
-    for (QString casePath : m_casePaths())
+    for ( QString casePath : m_casePaths() )
     {
-        QFileInfo casePathInfo(casePath);
-        if (!casePathInfo.exists())
+        QFileInfo casePathInfo( casePath );
+        if ( !casePathInfo.exists() )
         {
-            QDir startDir(RiaApplication::instance()->startDir());
-            casePath = startDir.absoluteFilePath(casePath);
+            QDir startDir( RiaApplication::instance()->startDir() );
+            casePath = startDir.absoluteFilePath( casePath );
         }
-        casePaths.push_back(casePath);
+        casePaths.push_back( casePath );
     }
-    
+
     RimIdenticalGridCaseGroup* caseGroup = nullptr;
 
-    if (RiaImportEclipseCaseTools::addEclipseCases(casePaths, &caseGroup) && caseGroup)
+    if ( RiaImportEclipseCaseTools::addEclipseCases( casePaths, &caseGroup ) && caseGroup )
     {
         RicfCommandResponse response;
-        response.setResult(new RicfCreateGridCaseGroupResult(caseGroup->groupId(), caseGroup->name()));
+        response.setResult( new RicfCreateGridCaseGroupResult( caseGroup->groupId(), caseGroup->name() ) );
         return response;
     }
 
-    return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, "Could not load grid case group");
+    return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, "Could not load grid case group" );
 }

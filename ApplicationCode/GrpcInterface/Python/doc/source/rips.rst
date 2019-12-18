@@ -7,7 +7,7 @@ Instance Module
 Example
 -------
 
-.. literalinclude:: ../../rips/PythonExamples/InstanceExample.py
+.. literalinclude:: ../../rips/PythonExamples/instance_example.py
 	:language: python
 	:lines: 5-
 	:emphasize-lines: 3
@@ -20,11 +20,17 @@ Case Module
 Example
 -------
 	
-.. literalinclude:: ../../rips/PythonExamples/AllCases.py
+.. literalinclude:: ../../rips/PythonExamples/all_cases.py
 	:language: python
 	:lines: 5-
 	:emphasize-lines: 5
 	
+Contour Map Module
+==================
+
+.. autoclass:: rips.contour_map.ContourMap
+    :members:
+
 Grid Module
 ===========
 
@@ -70,7 +76,7 @@ Read two properties, multiply them together and push the results back to ResInsi
 
 This is slow and inefficient, but works.
 
-.. literalinclude:: ../../rips/PythonExamples/InputPropTestSync.py
+.. literalinclude:: ../../rips/PythonExamples/input_prop_test_async.py
 	:language: python
 	:lines: 5-
 	
@@ -80,7 +86,7 @@ Read two properties at the same time chunk by chunk, multiply each chunk togethe
 
 This is far more efficient.
 	
-.. literalinclude:: ../../rips/PythonExamples/InputPropTestAsync.py
+.. literalinclude:: ../../rips/PythonExamples/input_prop_test_sync.py
 	:language: python
 	:lines: 5-
 	

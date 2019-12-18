@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,59 +20,65 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
-#include <vector>
 #include <functional>
+#include <vector>
 
 class RimGridSummaryCase;
 class RimSummaryCase;
+class RimFileSummaryCase;
 class RimEclipseResultCase;
 class RimSummaryCaseCollection;
 class RifSummaryCaseFileResultInfo;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class RimSummaryCaseMainCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
 public:
     RimSummaryCaseMainCollection();
     ~RimSummaryCaseMainCollection() override;
 
-    RimSummaryCase*     summaryCase(size_t idx);
-    size_t              summaryCaseCount() const;
+    RimSummaryCase* summaryCase( size_t idx );
+    size_t          summaryCaseCount() const;
 
-    std::vector<RimSummaryCase*>            allSummaryCases() const;
-    std::vector<RimSummaryCase*>            topLevelSummaryCases() const;
-    std::vector<RimSummaryCaseCollection*>  summaryCaseCollections() const;
+    std::vector<RimSummaryCase*>           allSummaryCases() const;
+    std::vector<RimSummaryCase*>           topLevelSummaryCases() const;
+    std::vector<RimSummaryCaseCollection*> summaryCaseCollections() const;
 
-    std::vector<RimSummaryCase*> createSummaryCasesFromFileInfos(const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos, bool showProgress = false);
+    std::vector<RimSummaryCase*>
+        createSummaryCasesFromFileInfos( const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos,
+                                         bool                                             showProgress = false );
 
-    RimSummaryCase*     findSummaryCaseFromEclipseResultCase(const RimEclipseResultCase* eclResCase) const;
-    RimSummaryCase*     findSummaryCaseFromFileName(const QString& fileName) const;
-    void                convertGridSummaryCasesToFileSummaryCases(RimGridSummaryCase* gridSummaryCase);
- 
-    void                addCases(const std::vector<RimSummaryCase*> cases);
-    void                addCase(RimSummaryCase* summaryCase);
-    void                removeCase(RimSummaryCase* summaryCase);
+    RimSummaryCase* findSummaryCaseFromEclipseResultCase( const RimEclipseResultCase* eclResCase ) const;
+    RimSummaryCase* findSummaryCaseFromFileName( const QString& fileName ) const;
+    void            convertGridSummaryCasesToFileSummaryCases( RimGridSummaryCase* gridSummaryCase );
 
-    RimSummaryCaseCollection* addCaseCollection(std::vector<RimSummaryCase*> summaryCases,
-                                          const QString& coolectionName,
-                                          bool isEnsemble,
-                                          std::function<RimSummaryCaseCollection* ()> allocator = defaultAllocator);
-    void                removeCaseCollection(RimSummaryCaseCollection* caseCollection);
+    void addCases( const std::vector<RimSummaryCase*> cases );
+    void addCase( RimSummaryCase* summaryCase );
+    void removeCase( RimSummaryCase* summaryCase );
 
-    void                loadAllSummaryCaseData();
+    RimSummaryCaseCollection* addCaseCollection( std::vector<RimSummaryCase*>               summaryCases,
+                                                 const QString&                             coolectionName,
+                                                 bool                                       isEnsemble,
+                                                 std::function<RimSummaryCaseCollection*()> allocator = defaultAllocator );
+    void                      removeCaseCollection( RimSummaryCaseCollection* caseCollection );
 
-    QString             uniqueShortNameForCase(RimSummaryCase* summaryCase);
+    void loadAllSummaryCaseData();
 
-    void                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
+    QString uniqueShortNameForCase( RimSummaryCase* summaryCase );
+
+    void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
 
 private:
-    static void         loadSummaryCaseData(std::vector<RimSummaryCase*> summaryCases);
+    static void loadSummaryCaseData( std::vector<RimSummaryCase*> summaryCases );
+    static void loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases );
+    static void reassignSummaryCurves( const RimGridSummaryCase* fromGridCase, RimFileSummaryCase* toFileCase );
     static RimSummaryCaseCollection* defaultAllocator();
 
 private:
-    caf::PdmChildArrayField<RimSummaryCase*> m_cases;
+    caf::PdmChildArrayField<RimSummaryCase*>           m_cases;
     caf::PdmChildArrayField<RimSummaryCaseCollection*> m_caseCollections;
 };

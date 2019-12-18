@@ -37,8 +37,8 @@ class RiaSummaryCurveAnalyzer
 public:
     RiaSummaryCurveAnalyzer();
 
-    void appendAdresses(const std::set<RifEclipseSummaryAddress>& allAddresses);
-    void appendAdresses(const std::vector<RifEclipseSummaryAddress>& allAddresses);
+    void appendAddresses( const std::set<RifEclipseSummaryAddress>& allAddresses );
+    void appendAddresses( const std::vector<RifEclipseSummaryAddress>& allAddresses );
 
     void clear();
 
@@ -52,25 +52,26 @@ public:
     std::set<std::string> wellGroupNames() const;
     std::set<int>         regionNumbers() const;
 
-    std::set<std::string> wellCompletions(const std::string& wellName) const;
-    std::set<int>         wellSegmentNumbers(const std::string& wellName) const;
+    std::set<std::string> wellCompletions( const std::string& wellName ) const;
+    std::set<int>         wellSegmentNumbers( const std::string& wellName ) const;
     std::set<std::string> blocks() const;
 
     std::set<RifEclipseSummaryAddress::SummaryVarCategory> categories() const;
 
-    std::vector<QString> identifierTexts(RifEclipseSummaryAddress::SummaryVarCategory category,
-                                         const std::string&                           secondaryIdentifier) const;
+    std::vector<QString> identifierTexts( RifEclipseSummaryAddress::SummaryVarCategory category,
+                                          const std::string&                           secondaryIdentifier ) const;
 
-    static std::vector<RifEclipseSummaryAddress> addressesForCategory(const std::set<RifEclipseSummaryAddress>&    addresses,
-                                                                      RifEclipseSummaryAddress::SummaryVarCategory category);
+    static std::vector<RifEclipseSummaryAddress>
+        addressesForCategory( const std::set<RifEclipseSummaryAddress>&    addresses,
+                              RifEclipseSummaryAddress::SummaryVarCategory category );
 
-    static std::string correspondingHistorySummaryCurveName(const std::string& curveName);
+    static std::string correspondingHistorySummaryCurveName( const std::string& curveName );
 
 private:
     void assignCategoryToQuantities() const;
     void computeQuantityNamesWithHistory() const;
 
-    void analyzeSingleAddress(const RifEclipseSummaryAddress& address);
+    void analyzeSingleAddress( const RifEclipseSummaryAddress& address );
 
 private:
     std::set<std::string>         m_quantities;

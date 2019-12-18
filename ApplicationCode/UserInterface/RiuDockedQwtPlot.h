@@ -23,8 +23,7 @@ class RiuDockedQwtPlot : public QwtPlot
 {
     Q_OBJECT
 public:
-    explicit RiuDockedQwtPlot(QWidget* parent = nullptr);
+    explicit RiuDockedQwtPlot( QWidget* parent = nullptr );
 
-    void applyFontSizes(bool replot);
+    void applyFontSizes( bool replot );
 };
-

@@ -47,6 +47,8 @@
 #include <QWidget>
 
 class QGridLayout;
+class QCompleter;
+class QStringListModel;
 
 namespace caf 
 {
@@ -60,11 +62,23 @@ public:
     PdmUiLineEditorAttribute()
     {
         avoidSendingEnterEventToParentWidget = false;
+        completerCaseSensitivity             = Qt::CaseInsensitive;
+        completerFilterMode                  = Qt::MatchContains;
+        maximumWidth                         = -1;
+        selectAllOnFocusEvent                = false;
+        placeholderText                      = "";
     }
 
 public:
-    bool avoidSendingEnterEventToParentWidget;
+    bool                 avoidSendingEnterEventToParentWidget;
     QPointer<QValidator> validator;    
+
+    // Completer setup
+    Qt::CaseSensitivity  completerCaseSensitivity;
+    Qt::MatchFlags       completerFilterMode;
+    int                  maximumWidth;
+    bool                 selectAllOnFocusEvent;
+    QString              placeholderText;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -80,6 +94,9 @@ public:
     QString m_displayString;
 };
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class PdmUiLineEdit : public QLineEdit
 {
     Q_OBJECT
@@ -101,7 +118,7 @@ class PdmUiLineEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiLineEditor()          {} 
+    PdmUiLineEditor() : m_ignoreCompleterActivated(false)         {} 
     ~PdmUiLineEditor() override {} 
 
 protected:
@@ -110,16 +127,25 @@ protected:
     void        configureAndUpdateUi(const QString& uiConfigName) override;
     QMargins    calculateLabelContentMargins() const override;
 
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
+
 protected slots:
     void        slotEditingFinished();
+    void        slotCompleterActivated(const QModelIndex& index);
 
 private:
     bool        isMultipleFieldsWithSameKeywordSelected(PdmFieldHandle* editorField) const;
 
 protected:
-    QPointer<PdmUiLineEdit>   m_lineEdit;
-    QPointer<QShortenedLabel> m_label;
+    QPointer<PdmUiLineEdit>    m_lineEdit;
+    QPointer<QShortenedLabel>  m_label;
+    
+    QPointer<QCompleter>       m_completer; 
+    QPointer<QStringListModel> m_completerTextList;
+    QList<PdmOptionItemInfo>   m_optionCache;
+    bool                       m_ignoreCompleterActivated;
 
+    int findIndexToOption(const QString& uiText);
 };
 
 

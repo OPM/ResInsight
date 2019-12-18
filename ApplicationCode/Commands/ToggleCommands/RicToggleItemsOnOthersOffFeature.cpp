@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,88 +23,86 @@
 
 #include "cafSelectionManager.h"
 
-#include <QAction>
-#include "cafPdmObjectHandle.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectHandle.h"
 #include "cafPdmUiItem.h"
+#include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicToggleItemsOnOthersOffFeature, "RicToggleItemsOnOthersOffFeature");
+CAF_CMD_SOURCE_INIT( RicToggleItemsOnOthersOffFeature, "RicToggleItemsOnOthersOffFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RicToggleItemsOnOthersOffFeature::isCommandEnabled() 
+bool RicToggleItemsOnOthersOffFeature::isCommandEnabled()
 {
     std::vector<caf::PdmObject*> selectedObjects;
-    caf::SelectionManager::instance()->objectsByType(&selectedObjects);
+    caf::SelectionManager::instance()->objectsByType( &selectedObjects );
 
-    caf::PdmFieldHandle* commonParent = commonParentForAllSelections(selectedObjects);
-    std::vector<caf::PdmObjectHandle*> children = childObjects(commonParent);
+    caf::PdmFieldHandle*               commonParent = commonParentForAllSelections( selectedObjects );
+    std::vector<caf::PdmObjectHandle*> children     = childObjects( commonParent );
 
-    return commonParent != nullptr 
-        && children.size() > 0
-        && objectToggleField(children.front())
-        && children.size() > selectedObjects.size();
+    return commonParent != nullptr && children.size() > 0 && objectToggleField( children.front() ) &&
+           children.size() > selectedObjects.size();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicToggleItemsOnOthersOffFeature::onActionTriggered(bool isChecked)
+void RicToggleItemsOnOthersOffFeature::onActionTriggered( bool isChecked )
 {
     std::vector<caf::PdmObject*> selectedObjects;
-    caf::SelectionManager::instance()->objectsByType(&selectedObjects);
+    caf::SelectionManager::instance()->objectsByType( &selectedObjects );
 
     // First toggle off all siblings
-    caf::PdmFieldHandle* commonParent = commonParentForAllSelections(selectedObjects);
+    caf::PdmFieldHandle* commonParent = commonParentForAllSelections( selectedObjects );
 
-    for (caf::PdmObjectHandle* child : childObjects(commonParent))
+    for ( caf::PdmObjectHandle* child : childObjects( commonParent ) )
     {
-        caf::PdmField<bool>* field = objectToggleField(child);
+        caf::PdmField<bool>* field = objectToggleField( child );
 
-        if (field)
+        if ( field )
         {
-            field->setValueWithFieldChanged(false);
+            field->setValueWithFieldChanged( false );
         }
     }
 
     // Then toggle on the selected item(s)
-    for (caf::PdmObject* selectedObject : selectedObjects)
+    for ( caf::PdmObject* selectedObject : selectedObjects )
     {
-        caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>(selectedObject->objectToggleField());
+        caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( selectedObject->objectToggleField() );
 
-        field->setValueWithFieldChanged(true);
+        field->setValueWithFieldChanged( true );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicToggleItemsOnOthersOffFeature::setupActionLook(QAction* actionToSetup)
+void RicToggleItemsOnOthersOffFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("On - Others Off");
+    actionToSetup->setText( "On - Others Off" );
 
-    actionToSetup->setIcon(QIcon(":/ToggleOnOthersOff16x16.png"));
-
+    actionToSetup->setIcon( QIcon( ":/ToggleOnOthersOff16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RicToggleItemsOnOthersOffFeature::commonParentForAllSelections(const std::vector<caf::PdmObject*>& selectedObjects)
+caf::PdmFieldHandle*
+    RicToggleItemsOnOthersOffFeature::commonParentForAllSelections( const std::vector<caf::PdmObject*>& selectedObjects )
 {
     caf::PdmFieldHandle* commonParent = nullptr;
-    
-    for (caf::PdmObject* obj : selectedObjects)
+
+    for ( caf::PdmObject* obj : selectedObjects )
     {
         caf::PdmFieldHandle* parent = obj->parentField();
-        if (parent)
+        if ( parent )
         {
-            if (!commonParent)
+            if ( !commonParent )
             {
                 commonParent = parent;
             }
-            else if(parent != commonParent)
+            else if ( parent != commonParent )
             {
                 // Different parents detected
                 return nullptr;
@@ -115,27 +113,27 @@ caf::PdmFieldHandle* RicToggleItemsOnOthersOffFeature::commonParentForAllSelecti
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmObjectHandle*> RicToggleItemsOnOthersOffFeature::childObjects(caf::PdmFieldHandle* parent)
+std::vector<caf::PdmObjectHandle*> RicToggleItemsOnOthersOffFeature::childObjects( caf::PdmFieldHandle* parent )
 {
     std::vector<caf::PdmObjectHandle*> children;
-    if (parent)
+    if ( parent )
     {
-        parent->childObjects(&children);
+        parent->childObjects( &children );
     }
     return children;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-caf::PdmField<bool>* RicToggleItemsOnOthersOffFeature::objectToggleField(caf::PdmObjectHandle* objectHandle)
+caf::PdmField<bool>* RicToggleItemsOnOthersOffFeature::objectToggleField( caf::PdmObjectHandle* objectHandle )
 {
-    caf::PdmUiObjectHandle* childUiObject = uiObj(objectHandle);
-    if (childUiObject && childUiObject->objectToggleField())
+    caf::PdmUiObjectHandle* childUiObject = uiObj( objectHandle );
+    if ( childUiObject && childUiObject->objectToggleField() )
     {
-        return dynamic_cast<caf::PdmField<bool>*>(childUiObject->objectToggleField());
+        return dynamic_cast<caf::PdmField<bool>*>( childUiObject->objectToggleField() );
     }
     return nullptr;
 }

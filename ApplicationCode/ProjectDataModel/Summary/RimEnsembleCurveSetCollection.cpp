@@ -37,27 +37,27 @@
 
 #include "qwt_plot.h"
 
-CAF_PDM_SOURCE_INIT(RimEnsembleCurveSetCollection, "RimEnsembleCurveSetCollection");
+CAF_PDM_SOURCE_INIT( RimEnsembleCurveSetCollection, "RimEnsembleCurveSetCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSetCollection::RimEnsembleCurveSetCollection()
 {
-    CAF_PDM_InitObject("Ensemble Curve Sets", ":/EnsembleCurveSets16x16.png", "", "");
+    CAF_PDM_InitObject( "Ensemble Curve Sets", ":/EnsembleCurveSets16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_curveSets, "EnsembleCurveSets", "Ensemble Curve Sets", "", "", "");
-    m_curveSets.uiCapability()->setUiHidden(true);
-    m_curveSets.uiCapability()->setUiTreeChildrenHidden(false);
+    CAF_PDM_InitFieldNoDefault( &m_curveSets, "EnsembleCurveSets", "Ensemble Curve Sets", "", "", "" );
+    m_curveSets.uiCapability()->setUiHidden( true );
+    m_curveSets.uiCapability()->setUiTreeChildrenHidden( false );
 
-    CAF_PDM_InitField(&m_showCurves, "IsActive", true, "Show Curves", "", "", "");
-    m_showCurves.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves", "", "", "" );
+    m_showCurves.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_ySourceStepping, "YSourceStepping", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_ySourceStepping, "YSourceStepping", "", "", "", "" );
     m_ySourceStepping = new RimSummaryPlotSourceStepping;
-    m_ySourceStepping->setSourceSteppingType(RimSummaryPlotSourceStepping::Y_AXIS);
-    m_ySourceStepping.uiCapability()->setUiHidden(true);
-    m_ySourceStepping.uiCapability()->setUiTreeChildrenHidden(true);
+    m_ySourceStepping->setSourceSteppingType( RimSummaryPlotSourceStepping::Y_AXIS );
+    m_ySourceStepping.uiCapability()->setUiHidden( true );
+    m_ySourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_ySourceStepping.xmlCapability()->disableIO();
 }
 
@@ -80,17 +80,17 @@ bool RimEnsembleCurveSetCollection::isCurveSetsVisible()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::loadDataAndUpdate(bool updateParentPlot)
+void RimEnsembleCurveSetCollection::loadDataAndUpdate( bool updateParentPlot )
 {
-    for (RimEnsembleCurveSet* curveSet : m_curveSets)
+    for ( RimEnsembleCurveSet* curveSet : m_curveSets )
     {
-        curveSet->loadDataAndUpdate(false);
+        curveSet->loadDataAndUpdate( false );
     }
 
-    if (updateParentPlot)
+    if ( updateParentPlot )
     {
         RimSummaryPlot* parentPlot;
-        firstAncestorOrThisOfTypeAsserted(parentPlot);
+        firstAncestorOrThisOfTypeAsserted( parentPlot );
         parentPlot->updateAll();
     }
 }
@@ -98,14 +98,14 @@ void RimEnsembleCurveSetCollection::loadDataAndUpdate(bool updateParentPlot)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::setParentQwtPlotAndReplot(QwtPlot* plot)
+void RimEnsembleCurveSetCollection::setParentQwtPlotAndReplot( QwtPlot* plot )
 {
-    for (RimEnsembleCurveSet* curveSet : m_curveSets)
+    for ( RimEnsembleCurveSet* curveSet : m_curveSets )
     {
-        curveSet->setParentQwtPlotNoReplot(plot);
+        curveSet->setParentQwtPlotNoReplot( plot );
     }
 
-    if (plot) plot->replot();
+    if ( plot ) plot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ void RimEnsembleCurveSetCollection::setParentQwtPlotAndReplot(QwtPlot* plot)
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::detachQwtCurves()
 {
-    for (const auto& curveSet : m_curveSets)
+    for ( const auto& curveSet : m_curveSets )
     {
         curveSet->detachQwtCurves();
     }
@@ -124,7 +124,7 @@ void RimEnsembleCurveSetCollection::detachQwtCurves()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::reattachQwtCurves()
 {
-    for (const auto& curveSet : m_curveSets)
+    for ( const auto& curveSet : m_curveSets )
     {
         curveSet->reattachQwtCurves();
     }
@@ -133,13 +133,13 @@ void RimEnsembleCurveSetCollection::reattachQwtCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleCurveSet* RimEnsembleCurveSetCollection::findRimCurveSetFromQwtCurve(const QwtPlotCurve* qwtCurve) const
+RimEnsembleCurveSet* RimEnsembleCurveSetCollection::findRimCurveSetFromQwtCurve( const QwtPlotCurve* qwtCurve ) const
 {
-    for (RimEnsembleCurveSet* curveSet : m_curveSets)
+    for ( RimEnsembleCurveSet* curveSet : m_curveSets )
     {
-        for (RimSummaryCurve* rimCurve : curveSet->curves())
+        for ( RimSummaryCurve* rimCurve : curveSet->curves() )
         {
-            if (rimCurve->qwtPlotCurve() == qwtCurve)
+            if ( rimCurve->qwtPlotCurve() == qwtCurve )
             {
                 return curveSet;
             }
@@ -152,38 +152,33 @@ RimEnsembleCurveSet* RimEnsembleCurveSetCollection::findRimCurveSetFromQwtCurve(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::addCurveSet(RimEnsembleCurveSet* curveSet)
+void RimEnsembleCurveSetCollection::addCurveSet( RimEnsembleCurveSet* curveSet )
 {
-
-    if (curveSet)
+    if ( curveSet )
     {
-
-        m_curveSets.push_back(curveSet);
-
-       
+        m_curveSets.push_back( curveSet );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::deleteCurveSet(RimEnsembleCurveSet* curveSet)
+void RimEnsembleCurveSetCollection::deleteCurveSet( RimEnsembleCurveSet* curveSet )
 {
-    deleteCurveSets({ curveSet });
+    deleteCurveSets( {curveSet} );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::deleteCurveSets(const std::vector<RimEnsembleCurveSet*> curveSets)
+void RimEnsembleCurveSetCollection::deleteCurveSets( const std::vector<RimEnsembleCurveSet*> curveSets )
 {
-    for(const auto curveSet : curveSets)
+    for ( const auto curveSet : curveSets )
     {
-        m_curveSets.removeChildObject(curveSet);
+        m_curveSets.removeChildObject( curveSet );
         curveSet->markCachedDataForPurge();
         delete curveSet;
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,7 +190,7 @@ std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::curveSets() con
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RimEnsembleCurveSetCollection::curveSetCount() const
 {
@@ -203,28 +198,28 @@ size_t RimEnsembleCurveSetCollection::curveSetCount() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimEnsembleCurveSetCollection::fieldsToShowInToolbar()
 {
-    if (m_ySourceStepping)
+    if ( m_ySourceStepping )
     {
         return m_ySourceStepping->fieldsToShowInToolbar();
     }
-    
+
     return std::vector<caf::PdmFieldHandle*>();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::setCurveSetForSourceStepping(RimEnsembleCurveSet* curveSet)
+void RimEnsembleCurveSetCollection::setCurveSetForSourceStepping( RimEnsembleCurveSet* curveSet )
 {
     m_curveSetForSourceStepping = curveSet;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet* RimEnsembleCurveSetCollection::curveSetForSourceStepping() const
 {
@@ -232,37 +227,36 @@ RimEnsembleCurveSet* RimEnsembleCurveSetCollection::curveSetForSourceStepping() 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::curveSetsForSourceStepping() const
 {
     std::vector<RimEnsembleCurveSet*> steppingCurveSets;
 
-    if (m_curveSetForSourceStepping)
+    if ( m_curveSetForSourceStepping )
     {
-        steppingCurveSets.push_back(m_curveSetForSourceStepping);
+        steppingCurveSets.push_back( m_curveSetForSourceStepping );
 
         {
             // Add corresponding history/summary curve with or without H
 
-
             std::string quantity = m_curveSetForSourceStepping->summaryAddress().quantityName();
 
             std::string candidateName;
-            if (m_curveSetForSourceStepping->summaryAddress().isHistoryQuantity())
+            if ( m_curveSetForSourceStepping->summaryAddress().isHistoryQuantity() )
             {
-                candidateName = quantity.substr(0, quantity.size() - 1);
+                candidateName = quantity.substr( 0, quantity.size() - 1 );
             }
             else
             {
                 candidateName = quantity + "H";
             }
 
-            for (const auto& c : curveSets())
+            for ( const auto& c : curveSets() )
             {
-                if (c->summaryAddress().quantityName() == candidateName)
+                if ( c->summaryAddress().quantityName() == candidateName )
                 {
-                    steppingCurveSets.push_back(c);
+                    steppingCurveSets.push_back( c );
                 }
             }
         }
@@ -278,6 +272,14 @@ std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::curveSetsForSou
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryPlotSourceStepping* RimEnsembleCurveSetCollection::sourceSteppingObject() const
+{
+    return m_ySourceStepping();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::deleteAllCurveSets()
 {
     m_curveSets.deleteAllChildObjects();
@@ -286,7 +288,7 @@ void RimEnsembleCurveSetCollection::deleteAllCurveSets()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::setCurrentSummaryCurveSet(RimEnsembleCurveSet* curveSet)
+void RimEnsembleCurveSetCollection::setCurrentSummaryCurveSet( RimEnsembleCurveSet* curveSet )
 {
     m_currentEnsembleCurveSet = curveSet;
 
@@ -296,28 +298,28 @@ void RimEnsembleCurveSetCollection::setCurrentSummaryCurveSet(RimEnsembleCurveSe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                                     const QVariant&            oldValue,
-                                                     const QVariant&            newValue)
+void RimEnsembleCurveSetCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                      const QVariant&            oldValue,
+                                                      const QVariant&            newValue )
 {
-    if (changedField == &m_showCurves)
+    if ( changedField == &m_showCurves )
     {
-        loadDataAndUpdate(true);
+        loadDataAndUpdate( true );
 
         RimSummaryPlot* summaryPlot = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted(summaryPlot);
+        this->firstAncestorOrThisOfTypeAsserted( summaryPlot );
         summaryPlot->updateConnectedEditors();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimEnsembleCurveSetCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    auto group = uiOrdering.addNewGroup("Data Source");
+    auto group = uiOrdering.addNewGroup( "Data Source" );
 
-    m_ySourceStepping()->uiOrdering(uiConfigName, *group);
+    m_ySourceStepping()->uiOrdering( uiConfigName, *group );
 }
 
 //--------------------------------------------------------------------------------------------------

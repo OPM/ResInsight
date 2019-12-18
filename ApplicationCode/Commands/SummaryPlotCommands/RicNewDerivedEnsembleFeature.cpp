@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -33,35 +33,34 @@
 
 #include <memory>
 
-
-CAF_CMD_SOURCE_INIT(RicNewDerivedEnsembleFeature, "RicNewDerivedEnsembleFeature");
+CAF_CMD_SOURCE_INIT( RicNewDerivedEnsembleFeature, "RicNewDerivedEnsembleFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewDerivedEnsembleFeature::showWarningDialog()
 {
-    QMessageBox::warning(nullptr, "Ensemble Matching", "None of the cases in the ensembles match");
+    QMessageBox::warning( nullptr, "Ensemble Matching", "None of the cases in the ensembles match" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewDerivedEnsembleFeature::showWarningDialogWithQuestion()
 {
     QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Question);
-    msgBox.setWindowTitle("Ensemble Matching");
-    msgBox.setText("None of the cases in the ensembles match");
-    msgBox.setInformativeText("Do you want to keep the derived ensemble?");
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setIcon( QMessageBox::Question );
+    msgBox.setWindowTitle( "Ensemble Matching" );
+    msgBox.setText( "None of the cases in the ensembles match" );
+    msgBox.setInformativeText( "Do you want to keep the derived ensemble?" );
+    msgBox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
 
     int ret = msgBox.exec();
     return ret == QMessageBox::Yes;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewDerivedEnsembleFeature::isCommandEnabled()
 {
@@ -72,48 +71,49 @@ bool RicNewDerivedEnsembleFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewDerivedEnsembleFeature::onActionTriggered(bool isChecked)
+void RicNewDerivedEnsembleFeature::onActionTriggered( bool isChecked )
 {
-    if (isCommandEnabled())
+    if ( isCommandEnabled() )
     {
-        auto project = RiaApplication::instance()->project();
+        auto project  = RiaApplication::instance()->project();
         auto mainColl = project->firstSummaryCaseMainCollection();
 
-        auto newColl = mainColl->addCaseCollection({}, "", true, []() {return new RimDerivedEnsembleCaseCollection(); });
-        auto newEnsemble = dynamic_cast<RimDerivedEnsembleCaseCollection*>(newColl);
+        auto newColl     = mainColl->addCaseCollection( {}, "", true, []() {
+            return new RimDerivedEnsembleCaseCollection();
+        } );
+        auto newEnsemble = dynamic_cast<RimDerivedEnsembleCaseCollection*>( newColl );
 
         {
             std::vector<RimSummaryCaseCollection*> ensembles = caf::selectedObjectsByType<RimSummaryCaseCollection*>();
 
-            if (ensembles.size() >= 1) newEnsemble->setEnsemble1(ensembles[0]);
-            if (ensembles.size() == 2)
+            if ( ensembles.size() >= 1 ) newEnsemble->setEnsemble1( ensembles[0] );
+            if ( ensembles.size() == 2 )
             {
-                newEnsemble->setEnsemble2(ensembles[1]);
+                newEnsemble->setEnsemble2( ensembles[1] );
                 newEnsemble->updateDerivedEnsembleCases();
 
-                if (newEnsemble->allSummaryCases().empty())
+                if ( newEnsemble->allSummaryCases().empty() )
                 {
-                    if(!showWarningDialogWithQuestion())
+                    if ( !showWarningDialogWithQuestion() )
                     {
-                        mainColl->removeCaseCollection(newEnsemble);
+                        mainColl->removeCaseCollection( newEnsemble );
                     }
                 }
             }
         }
-        
+
         mainColl->updateConnectedEditors();
-        RiuPlotMainWindowTools::selectAsCurrentItem(newEnsemble);
+        RiuPlotMainWindowTools::selectAsCurrentItem( newEnsemble );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewDerivedEnsembleFeature::setupActionLook(QAction* actionToSetup)
+void RicNewDerivedEnsembleFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("New Derived Ensemble");
-    actionToSetup->setIcon(QIcon(":/SummaryEnsemble16x16.png"));
+    actionToSetup->setText( "New Derived Ensemble" );
+    actionToSetup->setIcon( QIcon( ":/SummaryEnsemble16x16.png" ) );
 }
-

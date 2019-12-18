@@ -36,14 +36,14 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicExportCompletionsForTemporaryLgrsFeature, "RicExportCompletionsForTemporaryLgrsFeature");
+CAF_CMD_SOURCE_INIT( RicExportCompletionsForTemporaryLgrsFeature, "RicExportCompletionsForTemporaryLgrsFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RicExportCompletionsForTemporaryLgrsFeature::isCommandEnabled()
 {
-    if (wellPathsAssociatedWithLgrs().empty())
+    if ( wellPathsAssociatedWithLgrs().empty() )
     {
         return false;
     }
@@ -55,10 +55,10 @@ bool RicExportCompletionsForTemporaryLgrsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportCompletionsForTemporaryLgrsFeature::onActionTriggered(bool isChecked)
+void RicExportCompletionsForTemporaryLgrsFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimWellPath*> wellPaths = wellPathsAssociatedWithLgrs();
-    if (wellPaths.empty())
+    if ( wellPaths.empty() )
     {
         return;
     }
@@ -66,16 +66,16 @@ void RicExportCompletionsForTemporaryLgrsFeature::onActionTriggered(bool isCheck
     std::vector<RimSimWellInView*> simWells;
     QString                        dialogTitle = "Export Completion Data for Temporary LGRs";
 
-    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions(dialogTitle, wellPaths, simWells);
+    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions( dialogTitle, wellPaths, simWells );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportCompletionsForTemporaryLgrsFeature::setupActionLook(QAction* actionToSetup)
+void RicExportCompletionsForTemporaryLgrsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Export Completion Data");
-    actionToSetup->setIcon(QIcon(":/ExportCompletionsSymbol16x16.png"));
+    actionToSetup->setText( "Export Completion Data" );
+    actionToSetup->setIcon( QIcon( ":/ExportCompletionsSymbol16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,29 +86,29 @@ std::vector<RimWellPath*> RicExportCompletionsForTemporaryLgrsFeature::wellPaths
     std::vector<RimWellPath*> wellPaths;
 
     auto selectedEclipseCase = caf::firstAncestorOfTypeFromSelectedObject<RimEclipseCase*>();
-    if (selectedEclipseCase)
+    if ( selectedEclipseCase )
     {
         auto mainGrid = selectedEclipseCase->mainGrid();
 
         std::set<QString> wellPathNames;
 
-        for (size_t i = 0; i < mainGrid->gridCount(); i++)
+        for ( size_t i = 0; i < mainGrid->gridCount(); i++ )
         {
-            const RigGridBase* grid = mainGrid->gridByIndex(i);
+            const RigGridBase* grid = mainGrid->gridByIndex( i );
 
-            if (!grid->associatedWellPathName().empty())
+            if ( !grid->associatedWellPathName().empty() )
             {
-                wellPathNames.insert(QString::fromStdString(grid->associatedWellPathName()));
+                wellPathNames.insert( QString::fromStdString( grid->associatedWellPathName() ) );
             }
         }
 
         auto project = RiaApplication::instance()->project();
-        for (const auto& wellPathName : wellPathNames)
+        for ( const auto& wellPathName : wellPathNames )
         {
-            auto wellPath = project->wellPathByName(wellPathName);
-            if (wellPath)
+            auto wellPath = project->wellPathByName( wellPathName );
+            if ( wellPath )
             {
-                wellPaths.push_back(wellPath);
+                wellPaths.push_back( wellPath );
             }
         }
     }

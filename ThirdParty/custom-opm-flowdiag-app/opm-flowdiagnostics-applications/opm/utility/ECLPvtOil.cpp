@@ -809,6 +809,11 @@ fromECLOutput(const ECLInitFileData& init)
     raw.numCols   = 5; // [ Po, 1/B, 1/(B*mu), d(1/B)/dPo, d(1/(B*mu))/dPo ]
     raw.numTables = tabdims[ TABDIMS_NTPVTO_ITEM ]; // # PVTO tables
 
+    if (raw.numTables == 0)
+    {
+        return OPtr{};
+    }
+
     if (lh[ LOGIHEAD_RS_INDEX ]) {
         // Dissolved gas flag set => Live Oil.
         //

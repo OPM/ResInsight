@@ -21,22 +21,22 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-VdeExportPart::VdeExportPart(cvf::Part* part)
-    : m_part(part)
-    , m_sourceObjectName("Unnamed Object")
-    , m_sourceObjectType(OBJ_TYPE_UNKNOWN)
-    , m_color(cvf::Color3f::MAGENTA)
-    , m_opacity(1.0)
-    , m_winding(COUNTERCLOCKWISE)
-    , m_cullFace(CF_NONE)
-    , m_role(GEOMETRY)
+VdeExportPart::VdeExportPart( cvf::Part* part )
+    : m_part( part )
+    , m_sourceObjectName( "Unnamed Object" )
+    , m_sourceObjectType( OBJ_TYPE_UNKNOWN )
+    , m_color( cvf::Color3f::MAGENTA )
+    , m_opacity( 1.0 )
+    , m_winding( COUNTERCLOCKWISE )
+    , m_cullFace( CF_NONE )
+    , m_role( GEOMETRY )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void VdeExportPart::setTextureImage(const cvf::TextureImage* textureImage)
+void VdeExportPart::setTextureImage( const cvf::TextureImage* textureImage )
 {
     m_textureImage = textureImage;
 }
@@ -44,7 +44,7 @@ void VdeExportPart::setTextureImage(const cvf::TextureImage* textureImage)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void VdeExportPart::setSourceObjectType(SourceObjectType sourceObjectType)
+void VdeExportPart::setSourceObjectType( SourceObjectType sourceObjectType )
 {
     m_sourceObjectType = sourceObjectType;
 }
@@ -52,7 +52,7 @@ void VdeExportPart::setSourceObjectType(SourceObjectType sourceObjectType)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void VdeExportPart::setSourceObjectName(const QString& sourceObjectName)
+void VdeExportPart::setSourceObjectName( const QString& sourceObjectName )
 {
     m_sourceObjectName = sourceObjectName;
 }
@@ -60,7 +60,7 @@ void VdeExportPart::setSourceObjectName(const QString& sourceObjectName)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void VdeExportPart::setSourceObjectCellSetType(const QString& sourceObjectCellSetType)
+void VdeExportPart::setSourceObjectCellSetType( const QString& sourceObjectCellSetType )
 {
     m_sourceObjectCellSetType = sourceObjectCellSetType;
 }
@@ -68,7 +68,7 @@ void VdeExportPart::setSourceObjectCellSetType(const QString& sourceObjectCellSe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void VdeExportPart::setColor(const cvf::Color3f& color)
+void VdeExportPart::setColor( const cvf::Color3f& color )
 {
     m_color = color;
 }
@@ -76,7 +76,7 @@ void VdeExportPart::setColor(const cvf::Color3f& color)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void VdeExportPart::setOpacity(float opacity)
+void VdeExportPart::setOpacity( float opacity )
 {
     m_opacity = opacity;
 }
@@ -84,23 +84,23 @@ void VdeExportPart::setOpacity(float opacity)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void VdeExportPart::setWinding(Winding winding)
+void VdeExportPart::setWinding( Winding winding )
 {
     m_winding = winding;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void VdeExportPart::setCullFace(CullFace cullFace)
+void VdeExportPart::setCullFace( CullFace cullFace )
 {
     m_cullFace = cullFace;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void VdeExportPart::setRole(Role role)
+void VdeExportPart::setRole( Role role )
 {
     m_role = role;
 }
@@ -138,7 +138,7 @@ const cvf::Part* VdeExportPart::part() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const cvf::TextureImage* VdeExportPart::textureImage() const
 {
@@ -162,7 +162,7 @@ float VdeExportPart::opacity() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 VdeExportPart::Winding VdeExportPart::winding() const
 {
@@ -170,7 +170,7 @@ VdeExportPart::Winding VdeExportPart::winding() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 VdeExportPart::CullFace VdeExportPart::cullFace() const
 {
@@ -178,7 +178,7 @@ VdeExportPart::CullFace VdeExportPart::cullFace() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 VdeExportPart::Role VdeExportPart::role() const
 {

@@ -44,7 +44,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCompletionDataFeature");
+CAF_CMD_SOURCE_INIT( RicWellPathExportCompletionDataFeature, "RicWellPathExportCompletionDataFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -52,15 +52,16 @@ CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCo
 void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions(
     const QString&                        dialogTitle,
     const std::vector<RimWellPath*>&      wellPaths,
-    const std::vector<RimSimWellInView*>& simWells)
+    const std::vector<RimSimWellInView*>& simWells )
 {
     RiaApplication* app        = RiaApplication::instance();
     RimProject*     project    = app->project();
-    QString         defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder("COMPLETIONS");
+    QString         defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder(
+        "COMPLETIONS" );
 
     RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData();
 
-    if (wellPaths.empty())
+    if ( wellPaths.empty() )
     {
         exportSettings->showForSimWells();
     }
@@ -69,14 +70,14 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
         exportSettings->showForWellPath();
     }
 
-    if (!exportSettings->caseToApply())
+    if ( !exportSettings->caseToApply() )
     {
         std::vector<RimCase*> cases;
-        app->project()->allCases(cases);
-        for (auto c : cases)
+        app->project()->allCases( cases );
+        for ( auto c : cases )
         {
-            RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(c);
-            if (eclipseCase != nullptr)
+            RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( c );
+            if ( eclipseCase != nullptr )
             {
                 exportSettings->caseToApply = eclipseCase;
                 break;
@@ -84,71 +85,71 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
         }
     }
 
-    if (exportSettings->folder().isEmpty()) exportSettings->folder = defaultDir;
+    if ( exportSettings->folder().isEmpty() ) exportSettings->folder = defaultDir;
 
     std::vector<RimSimWellFracture*>       simWellFractures;
     std::vector<RimWellPathFracture*>      wellPathFractures;
     std::vector<RimFishbonesMultipleSubs*> wellPathFishbones;
     std::vector<RimPerforationInterval*>   wellPathPerforations;
 
-    for (auto s : simWells)
+    for ( auto s : simWells )
     {
-        s->descendantsIncludingThisOfType(simWellFractures);
+        s->descendantsIncludingThisOfType( simWellFractures );
     }
 
-    for (auto w : wellPaths)
+    for ( auto w : wellPaths )
     {
-        w->descendantsIncludingThisOfType(wellPathFractures);
-        w->descendantsIncludingThisOfType(wellPathFishbones);
-        w->descendantsIncludingThisOfType(wellPathPerforations);
+        w->descendantsIncludingThisOfType( wellPathFractures );
+        w->descendantsIncludingThisOfType( wellPathFishbones );
+        w->descendantsIncludingThisOfType( wellPathPerforations );
     }
 
-    if ((!simWellFractures.empty()) || (!wellPathFractures.empty()))
+    if ( ( !simWellFractures.empty() ) || ( !wellPathFractures.empty() ) )
     {
-        exportSettings->showFractureInUi(true);
+        exportSettings->showFractureInUi( true );
     }
     else
     {
-        exportSettings->showFractureInUi(false);
+        exportSettings->showFractureInUi( false );
     }
 
-    if (!wellPathFishbones.empty())
+    if ( !wellPathFishbones.empty() )
     {
-        exportSettings->showFishbonesInUi(true);
+        exportSettings->showFishbonesInUi( true );
     }
     else
     {
-        exportSettings->showFishbonesInUi(false);
+        exportSettings->showFishbonesInUi( false );
     }
 
-    if (!wellPathPerforations.empty())
+    if ( !wellPathPerforations.empty() )
     {
-        exportSettings->showPerforationsInUi(true);
+        exportSettings->showPerforationsInUi( true );
 
         std::vector<const RimWellPathValve*> perforationValves;
-        for (const auto& perf : wellPathPerforations)
+        for ( const auto& perf : wellPathPerforations )
         {
-            perf->descendantsIncludingThisOfType(perforationValves);
+            perf->descendantsIncludingThisOfType( perforationValves );
         }
 
-        if (!perforationValves.empty())
+        if ( !perforationValves.empty() )
         {
             exportSettings->enableIncludeMsw();
         }
     }
     else
     {
-        exportSettings->showPerforationsInUi(false);
+        exportSettings->showPerforationsInUi( false );
     }
 
-    caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), exportSettings, dialogTitle, "");
-    RicExportFeatureImpl::configureForExport(propertyDialog.dialogButtonBox());
+    caf::PdmUiPropertyViewDialog propertyDialog( Riu3DMainWindowTools::mainWindowWidget(), exportSettings, dialogTitle, "" );
+    RicExportFeatureImpl::configureForExport( propertyDialog.dialogButtonBox() );
 
-    if (propertyDialog.exec() == QDialog::Accepted)
+    if ( propertyDialog.exec() == QDialog::Accepted )
     {
-        RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", exportSettings->folder);
+        RiaApplication::instance()->setLastUsedDialogDirectory( "COMPLETIONS", exportSettings->folder );
 
-        RicWellPathExportCompletionDataFeatureImpl::exportCompletions(wellPaths, simWells, *exportSettings);
+        RicWellPathExportCompletionDataFeatureImpl::exportCompletions( wellPaths, simWells, *exportSettings );
     }
 }
 
@@ -159,7 +160,7 @@ bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
 {
     std::vector<RimWellPath*> wellPaths = selectedWellPaths();
 
-    if (wellPaths.empty())
+    if ( wellPaths.empty() )
     {
         return false;
     }
@@ -170,32 +171,32 @@ bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
+void RicWellPathExportCompletionDataFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimWellPath*> wellPaths = selectedWellPaths();
-    CVF_ASSERT(!wellPaths.empty());
+    CVF_ASSERT( !wellPaths.empty() );
 
     std::vector<RimSimWellInView*> simWells;
     QString                        dialogTitle = "Export Completion Data for Selected Well Paths";
 
-    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions(dialogTitle, wellPaths, simWells);
+    RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions( dialogTitle, wellPaths, simWells );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::setupActionLook(QAction* actionToSetup)
+void RicWellPathExportCompletionDataFeature::setupActionLook( QAction* actionToSetup )
 {
     std::vector<RimWellPath*> selected = selectedWellPaths();
-    if (selected.size() == 1u)
+    if ( selected.size() == 1u )
     {
-        actionToSetup->setText("Export Completion Data for Current Well Path");
+        actionToSetup->setText( "Export Completion Data for Current Well Path" );
     }
     else
     {
-        actionToSetup->setText("Export Completion Data for Selected Well Paths");
+        actionToSetup->setText( "Export Completion Data for Selected Well Paths" );
     }
-    actionToSetup->setIcon(QIcon(":/ExportCompletionsSymbol16x16.png"));
+    actionToSetup->setIcon( QIcon( ":/ExportCompletionsSymbol16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -204,20 +205,20 @@ void RicWellPathExportCompletionDataFeature::setupActionLook(QAction* actionToSe
 std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPaths()
 {
     std::vector<RimWellPath*> wellPaths;
-    caf::SelectionManager::instance()->objectsByType(&wellPaths);
+    caf::SelectionManager::instance()->objectsByType( &wellPaths );
 
-    std::set<RimWellPath*> uniqueWellPaths(wellPaths.begin(), wellPaths.end());
-    wellPaths.assign(uniqueWellPaths.begin(), uniqueWellPaths.end());
+    std::set<RimWellPath*> uniqueWellPaths( wellPaths.begin(), wellPaths.end() );
+    wellPaths.assign( uniqueWellPaths.begin(), uniqueWellPaths.end() );
 
-    if (wellPaths.empty())
+    if ( wellPaths.empty() )
     {
         RimWellPathCompletions* completions =
             caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathCompletions>();
-        if (completions)
+        if ( completions )
         {
             RimWellPath* wellPath = nullptr;
-            completions->firstAncestorOrThisOfTypeAsserted(wellPath);
-            wellPaths.push_back(wellPath);
+            completions->firstAncestorOrThisOfTypeAsserted( wellPath );
+            wellPaths.push_back( wellPath );
         }
     }
 

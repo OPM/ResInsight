@@ -64,12 +64,19 @@ public:
     bool isEditorDataValid(const std::vector<caf::PdmFieldHandle*>& fields) const;
     void setFields(std::vector<caf::PdmFieldHandle*>& fields);
     void clear();
+
+    void    setFocusWidgetFromKeyword(const QString& fieldKeyword);
+    QString keywordForFocusWidget();
     
     void show();
     void hide();
 
+    static QString uiEditorConfigName();
+
 private:
     void configureAndUpdateUi(const QString& uiConfigName) override;
+    
+    static QWidget* focusWidget(PdmUiFieldEditorHandle* uiFieldEditorHandle);
 
 private:
     QPointer<QToolBar> m_toolbar;

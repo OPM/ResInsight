@@ -18,19 +18,18 @@
 
 #pragma once
 
-#include "RicHoloLensSessionObserver.h"
 #include "RicHoloLensRestClient.h"
+#include "RicHoloLensSessionObserver.h"
 
-#include "VdePacketDirectory.h"
 #include "VdeCachingHashedIdFactory.h"
+#include "VdePacketDirectory.h"
 
-#include <QString>
 #include <QPointer>
+#include <QString>
 
 #include <vector>
 
 class RimGridView;
-
 
 //==================================================================================================
 //
@@ -42,36 +41,39 @@ class RicHoloLensSession : public QObject, private RicHoloLensRestResponseHandle
 public:
     ~RicHoloLensSession() override;
 
-    static RicHoloLensSession*  createSession(const QString& serverUrl, const QString& sessionName, const QByteArray& sessionPinCode, RicHoloLensSessionObserver* sessionObserver);
-    static RicHoloLensSession*  createDummyFileBackedSession();
-    void                        destroySession();
+    static RicHoloLensSession* createSession( const QString&              serverUrl,
+                                              const QString&              sessionName,
+                                              const QByteArray&           sessionPinCode,
+                                              RicHoloLensSessionObserver* sessionObserver );
+    static RicHoloLensSession* createDummyFileBackedSession();
+    void                       destroySession();
 
-    bool                        isSessionValid() const;
+    bool isSessionValid() const;
 
-    void                        updateSessionDataFromView(const RimGridView& activeView);
+    void updateSessionDataFromView( const RimGridView& activeView );
 
 private:
     RicHoloLensSession();
 
-    void    handleSuccessfulCreateSession() override;
-    void    handleFailedCreateSession() override;
-    void    handleSuccessfulSendMetaData(int metaDataSequenceNumber, const QByteArray& jsonServerResponseString) override;
-    void    handleError(const QString& errMsg, const QString& url, const QString& serverData) override;
+    void handleSuccessfulCreateSession() override;
+    void handleFailedCreateSession() override;
+    void handleSuccessfulSendMetaData( int metaDataSequenceNumber, const QByteArray& jsonServerResponseString ) override;
+    void handleError( const QString& errMsg, const QString& url, const QString& serverData ) override;
 
-    static bool     parseJsonIntegerArray(const QByteArray& jsonString, std::vector<int>* integerArr);
+    static bool parseJsonIntegerArray( const QByteArray& jsonString, std::vector<int>* integerArr );
 
-    void            notifyObserver(RicHoloLensSessionObserver::Notification notification);
+    void notifyObserver( RicHoloLensSessionObserver::Notification notification );
 
 private:
     bool                            m_isSessionValid;
     QPointer<RicHoloLensRestClient> m_restClient;
 
-    int                             m_lastExtractionMetaDataSequenceNumber;
-    std::vector<int>                m_lastExtractionAllReferencedPacketIdsArr;
-    VdeCachingHashedIdFactory       m_cachingIdFactory;
-    VdePacketDirectory              m_packetDirectory;
+    int                       m_lastExtractionMetaDataSequenceNumber;
+    std::vector<int>          m_lastExtractionAllReferencedPacketIdsArr;
+    VdeCachingHashedIdFactory m_cachingIdFactory;
+    VdePacketDirectory        m_packetDirectory;
 
-    RicHoloLensSessionObserver*     m_sessionObserver;
+    RicHoloLensSessionObserver* m_sessionObserver;
 
-    QString                         m_dbgFileExportDestinationFolder;
+    QString m_dbgFileExportDestinationFolder;
 };

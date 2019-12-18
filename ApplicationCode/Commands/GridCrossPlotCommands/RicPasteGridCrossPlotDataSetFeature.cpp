@@ -30,7 +30,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicPasteGridCrossPlotDataSetFeature, "RicPasteGridCrossPlotDataSetFeature");
+CAF_CMD_SOURCE_INIT( RicPasteGridCrossPlotDataSetFeature, "RicPasteGridCrossPlotDataSetFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT(RicPasteGridCrossPlotDataSetFeature, "RicPasteGridCrossPlotD
 bool RicPasteGridCrossPlotDataSetFeature::isCommandEnabled()
 {
     auto curvesOnClipboard = gridCrossPlotDataSetsOnClipboard();
-    if (curvesOnClipboard.empty()) return false;
+    if ( curvesOnClipboard.empty() ) return false;
 
     return caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGridCrossPlot>() != nullptr;
 }
@@ -46,35 +46,34 @@ bool RicPasteGridCrossPlotDataSetFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPasteGridCrossPlotDataSetFeature::onActionTriggered(bool isChecked)
+void RicPasteGridCrossPlotDataSetFeature::onActionTriggered( bool isChecked )
 {
     RimGridCrossPlot* crossPlot = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGridCrossPlot>();
 
-    if (crossPlot)
+    if ( crossPlot )
     {
         auto curvesOnClipboard = gridCrossPlotDataSetsOnClipboard();
-        if (!curvesOnClipboard.empty())
+        if ( !curvesOnClipboard.empty() )
         {
             RimGridCrossPlotDataSet* objectToSelect = nullptr;
 
-            for (RimGridCrossPlotDataSet* dataSet : gridCrossPlotDataSetsOnClipboard())
+            for ( RimGridCrossPlotDataSet* dataSet : gridCrossPlotDataSetsOnClipboard() )
             {
                 RimGridCrossPlotDataSet* newDataSet = dynamic_cast<RimGridCrossPlotDataSet*>(
-                    dataSet->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+                    dataSet->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
-                crossPlot->addDataSet(newDataSet);
+                crossPlot->addDataSet( newDataSet );
                 newDataSet->resolveReferencesRecursively();
                 newDataSet->initAfterReadRecursively();
 
                 objectToSelect = newDataSet;
             }
 
-
             RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
             crossPlot->updateAllRequiredEditors();
             crossPlot->loadDataAndUpdate();
 
-            RiuPlotMainWindowTools::selectAsCurrentItem(objectToSelect);
+            RiuPlotMainWindowTools::selectAsCurrentItem( objectToSelect );
         }
     }
 }
@@ -82,22 +81,23 @@ void RicPasteGridCrossPlotDataSetFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPasteGridCrossPlotDataSetFeature::setupActionLook(QAction* actionToSetup)
+void RicPasteGridCrossPlotDataSetFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Paste Data Set");
-    RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
+    actionToSetup->setText( "Paste Data Set" );
+    RicPasteFeatureImpl::setIconAndShortcuts( actionToSetup );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmPointer<RimGridCrossPlotDataSet>> RicPasteGridCrossPlotDataSetFeature::gridCrossPlotDataSetsOnClipboard()
+std::vector<caf::PdmPointer<RimGridCrossPlotDataSet>>
+    RicPasteGridCrossPlotDataSetFeature::gridCrossPlotDataSetsOnClipboard()
 {
     caf::PdmObjectGroup objectGroup;
-    RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
+    RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
     std::vector<caf::PdmPointer<RimGridCrossPlotDataSet>> typedObjects;
-    objectGroup.objectsByType(&typedObjects);
+    objectGroup.objectsByType( &typedObjects );
 
     return typedObjects;
 }

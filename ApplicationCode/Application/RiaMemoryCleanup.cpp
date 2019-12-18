@@ -30,17 +30,17 @@
 #include "RimGeoMechResultDefinition.h"
 #include "RimProject.h"
 
+#include "RigEclipseResultInfo.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
-#include "RigEclipseResultInfo.h"
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT(RiaMemoryCleanup, "RiaMemoryCleanup");
+CAF_PDM_SOURCE_INIT( RiaMemoryCleanup, "RiaMemoryCleanup" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -63,9 +63,9 @@ RiaMemoryCleanup::RiaMemoryCleanup()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaMemoryCleanup::setPropertiesFromView(Rim3dView* view)
+void RiaMemoryCleanup::setPropertiesFromView( Rim3dView* view )
 {
-    if (!view) return;
+    if ( !view ) return;
 
     m_case = view->ownerCase();
 }
@@ -75,32 +75,32 @@ void RiaMemoryCleanup::setPropertiesFromView(Rim3dView* view)
 //--------------------------------------------------------------------------------------------------
 void RiaMemoryCleanup::clearSelectedResultsFromMemory()
 {
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case());
-    RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>(m_case());
-    if (eclipseCase)
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
+    RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>( m_case() );
+    if ( eclipseCase )
     {
-        RigCaseCellResultsData* caseData = eclipseCase->results(RiaDefines::MATRIX_MODEL);
-        if (caseData)
+        RigCaseCellResultsData* caseData = eclipseCase->results( RiaDefines::MATRIX_MODEL );
+        if ( caseData )
         {
             std::vector<RigEclipseResultAddress> resultsToDelete = selectedEclipseResults();
-            for (const RigEclipseResultAddress& resultAddr : resultsToDelete)
+            for ( const RigEclipseResultAddress& resultAddr : resultsToDelete )
             {
-                caseData->clearScalarResult(resultAddr);
+                caseData->clearScalarResult( resultAddr );
             }
         }
     }
-    else if (geoMechCase)
+    else if ( geoMechCase )
     {
         RigGeoMechCaseData* data = geoMechCase->geoMechData();
-        if (data)
+        if ( data )
         {
             RigFemPartResultsCollection* resultsCollection = data->femPartResults();
-            if (resultsCollection)
+            if ( resultsCollection )
             {
                 std::vector<RigFemResultAddress> resultsToDelete = selectedGeoMechResults();
-                for (RigFemResultAddress result : resultsToDelete)
+                for ( RigFemResultAddress result : resultsToDelete )
                 {
-                    resultsCollection->deleteResult(result);                    
+                    resultsCollection->deleteResult( result );
                 }
             }
         }
@@ -116,12 +116,12 @@ void RiaMemoryCleanup::clearSelectedResultsFromMemory()
 std::vector<RigFemResultAddress> RiaMemoryCleanup::selectedGeoMechResults() const
 {
     std::vector<RigFemResultAddress> results;
-    if (dynamic_cast<const RimGeoMechCase*>(m_case()))
+    if ( dynamic_cast<const RimGeoMechCase*>( m_case() ) )
     {
-        for (size_t index : m_resultsToDelete())
+        for ( size_t index : m_resultsToDelete() )
         {
-            CVF_ASSERT(index < m_geomResultAddresses.size());
-            results.push_back(m_geomResultAddresses[index]);
+            CVF_ASSERT( index < m_geomResultAddresses.size() );
+            results.push_back( m_geomResultAddresses[index] );
         }
     }
     return results;
@@ -133,12 +133,12 @@ std::vector<RigFemResultAddress> RiaMemoryCleanup::selectedGeoMechResults() cons
 std::vector<RigEclipseResultAddress> RiaMemoryCleanup::selectedEclipseResults() const
 {
     std::vector<RigEclipseResultAddress> results;
-    if (dynamic_cast<const RimEclipseCase*>(m_case()))
+    if ( dynamic_cast<const RimEclipseCase*>( m_case() ) )
     {
-        for (size_t index : m_resultsToDelete())
+        for ( size_t index : m_resultsToDelete() )
         {
-            CVF_ASSERT(index < m_eclipseResultAddresses.size());
-            results.push_back(m_eclipseResultAddresses[index]);
+            CVF_ASSERT( index < m_eclipseResultAddresses.size() );
+            results.push_back( m_eclipseResultAddresses[index] );
         }
     }
     return results;
@@ -150,18 +150,18 @@ std::vector<RigEclipseResultAddress> RiaMemoryCleanup::selectedEclipseResults() 
 std::set<RigFemResultAddress> RiaMemoryCleanup::findGeoMechCaseResultsInUse() const
 {
     std::set<RigFemResultAddress> resultsInUse;
-    RimGeoMechCase*               geoMechCase = dynamic_cast<RimGeoMechCase*>(m_case());
-    if (geoMechCase)
+    RimGeoMechCase*               geoMechCase = dynamic_cast<RimGeoMechCase*>( m_case() );
+    if ( geoMechCase )
     {
         std::vector<RimFemResultObserver*> geoMechResults;
-        geoMechCase->descendantsIncludingThisOfType(geoMechResults);
-        for (RimFemResultObserver* resultDef : geoMechResults)
+        geoMechCase->descendantsIncludingThisOfType( geoMechResults );
+        for ( RimFemResultObserver* resultDef : geoMechResults )
         {
-            caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>(resultDef->objectToggleField());
-            if (!field || (*field)())
+            caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( resultDef->objectToggleField() );
+            if ( !field || ( *field )() )
             {
                 std::vector<RigFemResultAddress> required = resultDef->observedResults();
-                resultsInUse.insert(required.begin(), required.end());
+                resultsInUse.insert( required.begin(), required.end() );
             }
         }
     }
@@ -174,15 +174,15 @@ std::set<RigFemResultAddress> RiaMemoryCleanup::findGeoMechCaseResultsInUse() co
 std::set<RigEclipseResultAddress> RiaMemoryCleanup::findEclipseResultsInUse() const
 {
     std::set<RigEclipseResultAddress> resultsInUse;
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case());
-    if (eclipseCase)
+    RimEclipseCase*                   eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
+    if ( eclipseCase )
     {
         std::vector<RimEclipseResultDefinition*> eclipseResultDefs;
-        eclipseCase->descendantsIncludingThisOfType(eclipseResultDefs);
-        for (RimEclipseResultDefinition* resultDef : eclipseResultDefs)
+        eclipseCase->descendantsIncludingThisOfType( eclipseResultDefs );
+        for ( RimEclipseResultDefinition* resultDef : eclipseResultDefs )
         {
-            RigEclipseResultAddress resultAddr(resultDef->resultType(), resultDef->resultVariable());
-            resultsInUse.insert(resultAddr);
+            RigEclipseResultAddress resultAddr( resultDef->resultType(), resultDef->resultVariable() );
+            resultsInUse.insert( resultAddr );
         }
     }
 
@@ -192,15 +192,15 @@ std::set<RigEclipseResultAddress> RiaMemoryCleanup::findEclipseResultsInUse() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaMemoryCleanup::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                        const QVariant&            oldValue,
-                                        const QVariant&            newValue)
+void RiaMemoryCleanup::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                         const QVariant&            oldValue,
+                                         const QVariant&            newValue )
 {
-    if (changedField == &m_case)
+    if ( changedField == &m_case )
     {
         m_resultsToDelete.uiCapability()->updateConnectedEditors();
     }
-    else if (changedField == &m_performDelete)
+    else if ( changedField == &m_performDelete )
     {
         clearSelectedResultsFromMemory();
         m_resultsToDelete.uiCapability()->updateConnectedEditors();
@@ -211,85 +211,86 @@ void RiaMemoryCleanup::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                      bool*                      useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                       bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
-    if (fieldNeedingOptions == &m_case)
+    if ( fieldNeedingOptions == &m_case )
     {
         RimProject* proj = RiaApplication::instance()->project();
-        if (proj)
+        if ( proj )
         {
             std::vector<RimEclipseCase*> eclipseCases = proj->eclipseCases();
-            for (RimEclipseCase* c : eclipseCases)
+            for ( RimEclipseCase* c : eclipseCases )
             {
-                options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIconProvider()));
+                options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
             }
 
             std::vector<RimGeoMechCase*> geoMechCases = proj->geoMechCases();
-            for (RimGeoMechCase* c : geoMechCases)
+            for ( RimGeoMechCase* c : geoMechCases )
             {
-                options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIconProvider()));
+                options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
             }
         }
     }
-    else if (fieldNeedingOptions == &m_resultsToDelete)
+    else if ( fieldNeedingOptions == &m_resultsToDelete )
     {
-        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case());
-        RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>(m_case());
-        if (eclipseCase)
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
+        RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>( m_case() );
+        if ( eclipseCase )
         {
             std::set<RigEclipseResultAddress> resultsInUse = findEclipseResultsInUse();
-            RigCaseCellResultsData* caseData = eclipseCase->results(RiaDefines::MATRIX_MODEL);
-            if (caseData)
+            RigCaseCellResultsData*           caseData     = eclipseCase->results( RiaDefines::MATRIX_MODEL );
+            if ( caseData )
             {
                 m_eclipseResultAddresses = caseData->existingResults();
 
-                for (size_t i = 0; i < m_eclipseResultAddresses.size(); ++i)
+                for ( size_t i = 0; i < m_eclipseResultAddresses.size(); ++i )
                 {
                     const RigEclipseResultAddress& resultAddr = m_eclipseResultAddresses[i];
-                    if (caseData->isResultLoaded(resultAddr))
+                    if ( caseData->isResultLoaded( resultAddr ) )
                     {
-                        bool inUse = resultsInUse.count(resultAddr);
+                        bool inUse = resultsInUse.count( resultAddr );
 
-                        const RigEclipseResultInfo* resInfo = caseData->resultInfo(resultAddr);
+                        const RigEclipseResultInfo* resInfo = caseData->resultInfo( resultAddr );
 
-                        QString posText = caf::AppEnum<RiaDefines::ResultCatType>::uiTextFromIndex(resInfo->resultType());
-                        QString resultsText = QString("%1, %2").arg(posText).arg(resInfo->resultName());
-                        if (inUse)
+                        QString posText = caf::AppEnum<RiaDefines::ResultCatType>::uiTextFromIndex(
+                            resInfo->resultType() );
+                        QString resultsText = QString( "%1, %2" ).arg( posText ).arg( resInfo->resultName() );
+                        if ( inUse )
                         {
-                            resultsText += QString(" [used in view]");
+                            resultsText += QString( " [used in view]" );
                         }
-                        options.push_back(caf::PdmOptionItemInfo(resultsText, (qulonglong)i, inUse));
+                        options.push_back( caf::PdmOptionItemInfo( resultsText, (qulonglong)i, inUse ) );
                     }
                 }
             }
-            
         }
-        else if (geoMechCase)
+        else if ( geoMechCase )
         {
             std::set<RigFemResultAddress> resultsInUse = findGeoMechCaseResultsInUse();
             RigGeoMechCaseData*           caseData     = geoMechCase->geoMechData();
-            if (caseData)
+            if ( caseData )
             {
                 RigFemPartResultsCollection* results = caseData->femPartResults();
                 m_geomResultAddresses                = results->loadedResults();
 
-                for (size_t i = 0; i < m_geomResultAddresses.size(); ++i)
+                for ( size_t i = 0; i < m_geomResultAddresses.size(); ++i )
                 {
-                    const RigFemResultAddress& result  = m_geomResultAddresses[i];
-                    bool                       inUse   = resultsInUse.count(result);
-                    QString                    posText = caf::AppEnum<RigFemResultPosEnum>::uiTextFromIndex(result.resultPosType);
-                    QString resultsText = QString("%1, %2").arg(posText).arg(QString::fromStdString(result.fieldName));
-                    if (!result.componentName.empty())
+                    const RigFemResultAddress& result = m_geomResultAddresses[i];
+                    bool                       inUse  = resultsInUse.count( result );
+                    QString posText = caf::AppEnum<RigFemResultPosEnum>::uiTextFromIndex( result.resultPosType );
+                    QString resultsText =
+                        QString( "%1, %2" ).arg( posText ).arg( QString::fromStdString( result.fieldName ) );
+                    if ( !result.componentName.empty() )
                     {
-                        resultsText += QString(", %1").arg(QString::fromStdString(result.componentName));
+                        resultsText += QString( ", %1" ).arg( QString::fromStdString( result.componentName ) );
                     }
-                    if (inUse)
+                    if ( inUse )
                     {
-                        resultsText += QString(" [used in view]");
+                        resultsText += QString( " [used in view]" );
                     }
-                    options.push_back(caf::PdmOptionItemInfo(resultsText, (qulonglong) i, inUse));
+                    options.push_back( caf::PdmOptionItemInfo( resultsText, (qulonglong)i, inUse ) );
                 }
             }
         }
@@ -300,22 +301,24 @@ QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions(const caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaMemoryCleanup::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RiaMemoryCleanup::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add(&m_case);
-    uiOrdering.add(&m_resultsToDelete);
-    uiOrdering.add(&m_performDelete);
+    uiOrdering.add( &m_case );
+    uiOrdering.add( &m_resultsToDelete );
+    uiOrdering.add( &m_performDelete );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaMemoryCleanup::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RiaMemoryCleanup::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                              QString                    uiConfigName,
+                                              caf::PdmUiEditorAttribute* attribute )
 {
-    if (field == &m_performDelete)
+    if ( field == &m_performDelete )
     {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
-        if (attrib)
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( attrib )
         {
             attrib->m_buttonText = "Clear Checked Data From Memory";
         }

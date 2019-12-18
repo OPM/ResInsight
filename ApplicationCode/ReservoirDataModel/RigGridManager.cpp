@@ -24,22 +24,22 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGridManager::addCase(RigEclipseCaseData* eclipseCase)
+void RigGridManager::addCase( RigEclipseCaseData* eclipseCase )
 {
-    cvf::ref<CaseToGridMap> caseAndGrid = new CaseToGridMap(eclipseCase, eclipseCase->mainGrid());
-    m_caseToGrid.push_back(caseAndGrid.p());
+    cvf::ref<CaseToGridMap> caseAndGrid = new CaseToGridMap( eclipseCase, eclipseCase->mainGrid() );
+    m_caseToGrid.push_back( caseAndGrid.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGridManager::removeCase(RigEclipseCaseData* eclipseCase)
+void RigGridManager::removeCase( RigEclipseCaseData* eclipseCase )
 {
-    for (size_t i = 0; i < m_caseToGrid.size(); i++)
+    for ( size_t i = 0; i < m_caseToGrid.size(); i++ )
     {
-        if (m_caseToGrid[i]->m_eclipseCase == eclipseCase)
+        if ( m_caseToGrid[i]->m_eclipseCase == eclipseCase )
         {
-            m_caseToGrid.eraseAt(i);
+            m_caseToGrid.eraseAt( i );
             return;
         }
     }
@@ -48,12 +48,12 @@ void RigGridManager::removeCase(RigEclipseCaseData* eclipseCase)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigMainGrid* RigGridManager::findEqualGrid(RigMainGrid* candidateGrid)
+RigMainGrid* RigGridManager::findEqualGrid( RigMainGrid* candidateGrid )
 {
-    for (size_t i = 0; i < m_caseToGrid.size(); i++)
+    for ( size_t i = 0; i < m_caseToGrid.size(); i++ )
     {
-        RigMainGrid* mainGrid = m_caseToGrid.at(i)->m_mainGrid;
-        if (RigGridManager::isEqual(mainGrid, candidateGrid))
+        RigMainGrid* mainGrid = m_caseToGrid.at( i )->m_mainGrid;
+        if ( RigGridManager::isEqual( mainGrid, candidateGrid ) )
         {
             return mainGrid;
         }
@@ -64,19 +64,19 @@ RigMainGrid* RigGridManager::findEqualGrid(RigMainGrid* candidateGrid)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigGridManager::isEqual(RigMainGrid* gridA, RigMainGrid* gridB)
+bool RigGridManager::isEqual( RigMainGrid* gridA, RigMainGrid* gridB )
 {
-    if (gridA == nullptr || gridB == nullptr) return false;
+    if ( gridA == nullptr || gridB == nullptr ) return false;
 
-    if (gridA == gridB) return true;
+    if ( gridA == gridB ) return true;
 
-    if (gridA->gridCount() != gridB->gridCount()) return false;
+    if ( gridA->gridCount() != gridB->gridCount() ) return false;
 
-    if (gridA->nodes().size() != gridB->nodes().size()) return false;
+    if ( gridA->nodes().size() != gridB->nodes().size() ) return false;
 
-    for (size_t i = 0; i < gridA->nodes().size(); i++)
+    for ( size_t i = 0; i < gridA->nodes().size(); i++ )
     {
-        if (!gridA->nodes()[i].equals(gridB->nodes()[i]))
+        if ( !gridA->nodes()[i].equals( gridB->nodes()[i] ) )
         {
             return false;
         }
@@ -96,22 +96,22 @@ void RigGridManager::clear()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigGridManager::isGridDimensionsEqual(const std::vector<std::vector<int>>& mainCaseGridDimensions,
-                                           const std::vector<std::vector<int>>& caseGridDimensions)
+bool RigGridManager::isGridDimensionsEqual( const std::vector<std::vector<int>>& mainCaseGridDimensions,
+                                            const std::vector<std::vector<int>>& caseGridDimensions )
 {
-    if (mainCaseGridDimensions.size() != caseGridDimensions.size())
+    if ( mainCaseGridDimensions.size() != caseGridDimensions.size() )
     {
         return false;
     }
 
-    for (size_t j = 0; j < mainCaseGridDimensions.size(); j++)
+    for ( size_t j = 0; j < mainCaseGridDimensions.size(); j++ )
     {
-        if (mainCaseGridDimensions[j].size() != 4) return false;
-        if (caseGridDimensions[j].size() != 4) return false;
+        if ( mainCaseGridDimensions[j].size() != 4 ) return false;
+        if ( caseGridDimensions[j].size() != 4 ) return false;
 
-        if (mainCaseGridDimensions[j][0] != caseGridDimensions[j][0]) return false; // nx
-        if (mainCaseGridDimensions[j][1] != caseGridDimensions[j][1]) return false; // ny
-        if (mainCaseGridDimensions[j][2] != caseGridDimensions[j][2]) return false; // nz
+        if ( mainCaseGridDimensions[j][0] != caseGridDimensions[j][0] ) return false; // nx
+        if ( mainCaseGridDimensions[j][1] != caseGridDimensions[j][1] ) return false; // ny
+        if ( mainCaseGridDimensions[j][2] != caseGridDimensions[j][2] ) return false; // nz
     }
 
     return true;
@@ -120,15 +120,15 @@ bool RigGridManager::isGridDimensionsEqual(const std::vector<std::vector<int>>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigGridManager::isMainGridDimensionsEqual(RigMainGrid* gridA, RigMainGrid* gridB)
+bool RigGridManager::isMainGridDimensionsEqual( RigMainGrid* gridA, RigMainGrid* gridB )
 {
-    if (gridA == nullptr || gridB == nullptr) return false;
+    if ( gridA == nullptr || gridB == nullptr ) return false;
 
-    if (gridA == gridB) return true;
+    if ( gridA == gridB ) return true;
 
-    if (gridA->cellCountI() != gridB->cellCountI()) return false;
-    if (gridA->cellCountJ() != gridB->cellCountJ()) return false;
-    if (gridA->cellCountK() != gridB->cellCountK()) return false;
+    if ( gridA->cellCountI() != gridB->cellCountI() ) return false;
+    if ( gridA->cellCountJ() != gridB->cellCountJ() ) return false;
+    if ( gridA->cellCountK() != gridB->cellCountK() ) return false;
 
     return true;
 }
@@ -136,8 +136,8 @@ bool RigGridManager::isMainGridDimensionsEqual(RigMainGrid* gridA, RigMainGrid* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGridManager::CaseToGridMap::CaseToGridMap(RigEclipseCaseData* eclipseCase, RigMainGrid* mainGrid)
-    : m_eclipseCase(eclipseCase)
-    , m_mainGrid(mainGrid)
+RigGridManager::CaseToGridMap::CaseToGridMap( RigEclipseCaseData* eclipseCase, RigMainGrid* mainGrid )
+    : m_eclipseCase( eclipseCase )
+    , m_mainGrid( mainGrid )
 {
 }

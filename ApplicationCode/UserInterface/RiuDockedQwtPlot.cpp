@@ -29,49 +29,49 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuDockedQwtPlot::RiuDockedQwtPlot(QWidget* parent /*= nullptr*/)
-    : QwtPlot(parent)
+RiuDockedQwtPlot::RiuDockedQwtPlot( QWidget* parent /*= nullptr*/ )
+    : QwtPlot( parent )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuDockedQwtPlot::applyFontSizes(bool replot /*= false*/)
+void RiuDockedQwtPlot::applyFontSizes( bool replot /*= false*/ )
 {
     std::set<QwtPlot::Axis> allAxes = {QwtPlot::xBottom, QwtPlot::yLeft, QwtPlot::xTop, QwtPlot::yRight};
 
     RiaFontCache::FontSize fontSizeEnum  = RiaApplication::instance()->preferences()->defaultPlotFontSize();
-    int                    fontPointSize = RiaFontCache::pointSizeFromFontSizeEnum(fontSizeEnum) - 1;
+    int                    fontPointSize = RiaFontCache::pointSizeFromFontSizeEnum( fontSizeEnum ) - 1;
 
-    for (QwtPlot::Axis axis : allAxes)
+    for ( QwtPlot::Axis axis : allAxes )
     {
-        QwtText text = this->axisTitle(axis);
+        QwtText text = this->axisTitle( axis );
         QFont   font = text.font();
-        font.setPointSize(fontPointSize);
-        text.setFont(font);
-        this->setAxisTitle(axis, text);
+        font.setPointSize( fontPointSize );
+        text.setFont( font );
+        this->setAxisTitle( axis, text );
 
-        QFont valuesFont = this->axisFont(axis);
-        valuesFont.setPointSize(fontPointSize);
-        this->setAxisFont(axis, valuesFont);
+        QFont valuesFont = this->axisFont( axis );
+        valuesFont.setPointSize( fontPointSize );
+        this->setAxisFont( axis, valuesFont );
     }
 
-    if (legend())
+    if ( legend() )
     {
         auto font = legend()->font();
-        font.setPointSize(fontPointSize);
-        legend()->setFont(font);
+        font.setPointSize( fontPointSize );
+        legend()->setFont( font );
     }
 
     QwtText titleText = this->title();
     QFont   font      = titleText.font();
 
-    font.setPointSize(fontPointSize + 3);
-    titleText.setFont(font);
-    this->setTitle(titleText);
+    font.setPointSize( fontPointSize + 3 );
+    titleText.setFont( font );
+    this->setTitle( titleText );
 
-    if (replot)
+    if ( replot )
     {
         this->replot();
     }

@@ -11,7 +11,7 @@ void PdmObject::firstAncestorOrThisFromClassKeyword(
     ancestor = nullptr;
 
     // Check if this matches the type
-    if (this->classKeyword() == classKeyword)
+    if (this->inheritsClassWithKeyword(classKeyword))
     {
         ancestor = const_cast<PdmObject*>(this);
         return;
@@ -25,7 +25,7 @@ void PdmObject::firstAncestorOrThisFromClassKeyword(
 
     while (parent != nullptr)
     {
-        if (parent->classKeyword() == classKeyword)
+        if (parent->inheritsClassWithKeyword(classKeyword))
         {
             ancestor = parent;
             return;
@@ -51,7 +51,7 @@ void PdmObject::descendantsIncludingThisFromClassKeyword(
     const QString& classKeyword,
     std::vector<PdmObject*>& descendants) const
 {
-    if (this->classKeyword() == classKeyword)
+    if (this->inheritsClassWithKeyword(classKeyword))
     {
         descendants.push_back(const_cast<PdmObject*>(this));
     }

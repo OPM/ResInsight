@@ -23,15 +23,15 @@
 #include "RicCreateMultipleFracturesOptionItemUi.h"
 #include "RicCreateMultipleFracturesUi.h"
 
-#include "RimProject.h"
 #include "RimDialogData.h"
+#include "RimProject.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicNewOptionItemFeature, "RicNewOptionItemFeature");
+CAF_CMD_SOURCE_INIT( RicNewOptionItemFeature, "RicNewOptionItemFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -44,47 +44,48 @@ bool RicNewOptionItemFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewOptionItemFeature::setupActionLook(QAction* actionToSetup)
+void RicNewOptionItemFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("New Option Item");
+    actionToSetup->setText( "New Option Item" );
     // actionToSetup->setIcon(QIcon(":/Well.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewOptionItemFeature::onActionTriggered(bool isChecked)
+void RicNewOptionItemFeature::onActionTriggered( bool isChecked )
 {
-    RiuCreateMultipleFractionsUi* multipleFractionUi = RiaApplication::instance()->project()->dialogData()->multipleFractionsData();
+    RiuCreateMultipleFractionsUi* multipleFractionUi =
+        RiaApplication::instance()->project()->dialogData()->multipleFractionsData();
     RicCreateMultipleFracturesOptionItemUi* selectedOptionItem = nullptr;
 
     {
         std::vector<RicCreateMultipleFracturesOptionItemUi*> optionItems;
-        caf::SelectionManager::instance()->objectsByType(&optionItems, caf::SelectionManager::FIRST_LEVEL);
-        if (!optionItems.empty())
+        caf::SelectionManager::instance()->objectsByType( &optionItems, caf::SelectionManager::FIRST_LEVEL );
+        if ( !optionItems.empty() )
         {
             selectedOptionItem = optionItems.front();
-            selectedOptionItem->firstAncestorOrThisOfTypeAsserted(multipleFractionUi);
+            selectedOptionItem->firstAncestorOrThisOfTypeAsserted( multipleFractionUi );
         }
 
-        if (!selectedOptionItem && multipleFractionUi && !multipleFractionUi->options().empty())
+        if ( !selectedOptionItem && multipleFractionUi && !multipleFractionUi->options().empty() )
         {
             selectedOptionItem = multipleFractionUi->options().back();
         }
     }
 
-    if (multipleFractionUi)
+    if ( multipleFractionUi )
     {
         auto newItem = new RicCreateMultipleFracturesOptionItemUi();
 
-        if (selectedOptionItem)
+        if ( selectedOptionItem )
         {
-            newItem->setValues(selectedOptionItem->baseKLayer() + 1,
-                               selectedOptionItem->baseKLayer() + 1,
-                               selectedOptionItem->fractureTemplate(),
-                               selectedOptionItem->minimumSpacing());
+            newItem->setValues( selectedOptionItem->baseKLayer() + 1,
+                                selectedOptionItem->baseKLayer() + 1,
+                                selectedOptionItem->fractureTemplate(),
+                                selectedOptionItem->minimumSpacing() );
         }
-        multipleFractionUi->insertOptionItem(selectedOptionItem, newItem);
+        multipleFractionUi->insertOptionItem( selectedOptionItem, newItem );
         multipleFractionUi->updateButtonsEnableState();
         multipleFractionUi->updateConnectedEditors();
     }

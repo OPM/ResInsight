@@ -31,7 +31,7 @@
 #include <QAction>
 #include <QString>
 
-CAF_CMD_SOURCE_INIT(RicPasteEllipseFractureFeature, "RicPasteEllipseFractureFeature");
+CAF_CMD_SOURCE_INIT( RicPasteEllipseFractureFeature, "RicPasteEllipseFractureFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -39,17 +39,17 @@ CAF_CMD_SOURCE_INIT(RicPasteEllipseFractureFeature, "RicPasteEllipseFractureFeat
 bool RicPasteEllipseFractureFeature::isCommandEnabled()
 {
     caf::PdmObjectGroup objectGroup;
-    RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
+    RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
     std::vector<caf::PdmPointer<RimEllipseFractureTemplate>> typedObjects;
-    objectGroup.objectsByType(&typedObjects);
+    objectGroup.objectsByType( &typedObjects );
 
-    if (typedObjects.size() == 0)
+    if ( typedObjects.size() == 0 )
     {
         return false;
     }
 
-    if (fractureTemplateCollection())
+    if ( fractureTemplateCollection() )
     {
         return true;
     }
@@ -60,25 +60,25 @@ bool RicPasteEllipseFractureFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPasteEllipseFractureFeature::onActionTriggered(bool isChecked)
+void RicPasteEllipseFractureFeature::onActionTriggered( bool isChecked )
 {
     auto fractureTemplateColl = fractureTemplateCollection();
-    if (!fractureTemplateColl) return;
+    if ( !fractureTemplateColl ) return;
 
     caf::PdmObjectGroup objectGroup;
-    RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
+    RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
     std::vector<caf::PdmPointer<RimEllipseFractureTemplate>> typedObjects;
-    objectGroup.objectsByType(&typedObjects);
+    objectGroup.objectsByType( &typedObjects );
 
-    for (const auto& source : typedObjects)
+    for ( const auto& source : typedObjects )
     {
         auto templ = dynamic_cast<RimEllipseFractureTemplate*>(
-            source->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+            source->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
-        fractureTemplateColl->addFractureTemplate(templ);
+        fractureTemplateColl->addFractureTemplate( templ );
 
-        RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(templ);
+        RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate( templ );
     }
 
     return;
@@ -87,11 +87,11 @@ void RicPasteEllipseFractureFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPasteEllipseFractureFeature::setupActionLook(QAction* actionToSetup)
+void RicPasteEllipseFractureFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Paste (Ellipse Fracture)");
+    actionToSetup->setText( "Paste (Ellipse Fracture)" );
 
-    RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
+    RicPasteFeatureImpl::setIconAndShortcuts( actionToSetup );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,10 +101,10 @@ RimFractureTemplateCollection* RicPasteEllipseFractureFeature::fractureTemplateC
 {
     RimFractureTemplateCollection* fractureTemplateColl = nullptr;
 
-    auto destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
-    if (destinationObject)
+    auto destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    if ( destinationObject )
     {
-        destinationObject->firstAncestorOrThisOfType(fractureTemplateColl);
+        destinationObject->firstAncestorOrThisOfType( fractureTemplateColl );
     }
 
     return fractureTemplateColl;

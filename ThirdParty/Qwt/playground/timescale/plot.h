@@ -7,7 +7,7 @@ class Settings;
 
 class Plot: public QwtPlot
 {
-    Q_OBJECT 
+    Q_OBJECT
 
 public:
     Plot( QWidget *parent = NULL );

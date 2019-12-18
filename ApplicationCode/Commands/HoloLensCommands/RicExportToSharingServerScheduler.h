@@ -38,16 +38,16 @@ private slots:
 
 private:
     RicExportToSharingServerScheduler()
-        : m_timer(nullptr)
+        : m_timer( nullptr )
     {
     }
 
     ~RicExportToSharingServerScheduler() override;
 
-    RicExportToSharingServerScheduler(const RicExportToSharingServerScheduler& o) = delete;
-    void operator=(const RicExportToSharingServerScheduler& o) = delete;
+    RicExportToSharingServerScheduler( const RicExportToSharingServerScheduler& o ) = delete;
+    void operator=( const RicExportToSharingServerScheduler& o ) = delete;
 
-    void startTimer(int msecs);
+    void startTimer( int msecs );
     void triggerUpdateSession();
 
 private:

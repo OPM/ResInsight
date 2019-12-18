@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -19,51 +19,42 @@
 #include "RimWellsEntry.h"
 #include "cafAppEnum.h"
 
-
-
-
-namespace caf {
-
-    template<>
-    void caf::AppEnum< RimWellPathEntry::WellTypeEnum >::setUp()
-    {
-        addItem(RimWellPathEntry::WELL_ALL,     "WELL_ALL",     "All");
-        addItem(RimWellPathEntry::WELL_SURVEY,  "WELL_SURVEY",  "Survey");
-        addItem(RimWellPathEntry::WELL_PLAN,    "WELL_PLAN",    "Plan");
-        setDefault(RimWellPathEntry::WELL_ALL);
-    }
+namespace caf
+{
+template <>
+void caf::AppEnum<RimWellPathEntry::WellTypeEnum>::setUp()
+{
+    addItem( RimWellPathEntry::WELL_ALL, "WELL_ALL", "All" );
+    addItem( RimWellPathEntry::WELL_SURVEY, "WELL_SURVEY", "Survey" );
+    addItem( RimWellPathEntry::WELL_PLAN, "WELL_PLAN", "Plan" );
+    setDefault( RimWellPathEntry::WELL_ALL );
+}
 
 } // End namespace caf
 
-
-CAF_PDM_SOURCE_INIT(RimWellPathEntry, "RimWellPathEntry");
-
-
-
-
+CAF_PDM_SOURCE_INIT( RimWellPathEntry, "RimWellPathEntry" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellPathEntry::RimWellPathEntry()
 {
-    CAF_PDM_InitObject("WellPathEntry", "", "", "");
+    CAF_PDM_InitObject( "WellPathEntry", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&name,       "Name",      "Name", "", "", "");
-    CAF_PDM_InitField(&selected,            "Selected",         false,   "Selected", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &name, "Name", "Name", "", "", "" );
+    CAF_PDM_InitField( &selected, "Selected", false, "Selected", "", "", "" );
 
-    caf::AppEnum< RimWellPathEntry::WellTypeEnum > wellType = WELL_ALL;
-    CAF_PDM_InitField(&wellPathType, "WellPathType", wellType, "Well path type",   "", "", "");
+    caf::AppEnum<RimWellPathEntry::WellTypeEnum> wellType = WELL_ALL;
+    CAF_PDM_InitField( &wellPathType, "WellPathType", wellType, "Well path type", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&surveyType,       "surveyType",      "surveyType", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&requestUrl,       "requestUrl",      "requestUrl", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &surveyType, "surveyType", "surveyType", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &requestUrl, "requestUrl", "requestUrl", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&wellPathFilePath,       "wellPathFilePath",      "wellPathFilePath", "", "", "");
-
+    CAF_PDM_InitFieldNoDefault( &wellPathFilePath, "wellPathFilePath", "wellPathFilePath", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimWellPathEntry::userDescriptionField()
 {
@@ -71,7 +62,7 @@ caf::PdmFieldHandle* RimWellPathEntry::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimWellPathEntry::objectToggleField()
 {
@@ -79,23 +70,27 @@ caf::PdmFieldHandle* RimWellPathEntry::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimWellPathEntry* RimWellPathEntry::createWellPathEntry(const QString& name, const QString& surveyType, const QString& requestUrl, const QString& absolutePath, WellTypeEnum wellType)
+RimWellPathEntry* RimWellPathEntry::createWellPathEntry( const QString& name,
+                                                         const QString& surveyType,
+                                                         const QString& requestUrl,
+                                                         const QString& absolutePath,
+                                                         WellTypeEnum   wellType )
 {
     RimWellPathEntry* entry = new RimWellPathEntry();
-    entry->name = name;
-    entry->surveyType = surveyType;
-    entry->requestUrl = requestUrl;
-    entry->wellPathType = wellType;
+    entry->name             = name;
+    entry->surveyType       = surveyType;
+    entry->requestUrl       = requestUrl;
+    entry->wellPathType     = wellType;
 
     QString responseFilePath = undefinedWellPathLocation();
-    
-    int strIndex = requestUrl.indexOf("edm/");
-    if (strIndex >= 0)
+
+    int strIndex = requestUrl.indexOf( "edm/" );
+    if ( strIndex >= 0 )
     {
-        QString lastPart = requestUrl.right(requestUrl.size() - strIndex);
-        lastPart = lastPart.replace('/', '_');
+        QString lastPart = requestUrl.right( requestUrl.size() - strIndex );
+        lastPart         = lastPart.replace( '/', '_' );
 
         responseFilePath = absolutePath + "/" + lastPart + ".json";
     }
@@ -106,7 +101,7 @@ RimWellPathEntry* RimWellPathEntry::createWellPathEntry(const QString& name, con
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathEntry::undefinedWellPathLocation()
 {
@@ -114,10 +109,9 @@ QString RimWellPathEntry::undefinedWellPathLocation()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathEntry::isWellPathValid()
 {
-    return (wellPathFilePath().compare(undefinedWellPathLocation()) != 0);
+    return ( wellPathFilePath().compare( undefinedWellPathLocation() ) != 0 );
 }
-

@@ -192,21 +192,8 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
 
     m_defaultObjectEditor->setPdmObject(object);
 
-    QObject::connect(m_defaultObjectEditor, SIGNAL(uiUpdated()), this, SLOT(slotScheduleScrollToSelectedItemsInFieldEditors()));
-
     m_defaultObjectEditor->updateUi(m_uiConfigName);
     m_scrollArea->updateGeometry();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiPropertyView::slotScheduleScrollToSelectedItemsInFieldEditors()
-{
-    if (m_defaultObjectEditor)
-    {
-        QTimer::singleShot(150, m_defaultObjectEditor, SLOT(slotScrollToSelectedItemsInFieldEditors()));
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

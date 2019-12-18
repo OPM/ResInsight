@@ -157,22 +157,39 @@ void caf::TrackBallBasedNavigation::setPointOfInterest(cvf::Vec3d poi)
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// 
 //--------------------------------------------------------------------------------------------------
-void caf::TrackBallBasedNavigation::updatePointOfInterestDuringZoomIfNecessary(int zoomX, int zoomY)
+void caf::TrackBallBasedNavigation::pickAndSetPointOfInterest(int winPosX, int winPosY)
 {
-    bool                   hitSomething = false;
     cvf::HitItemCollection hic;
-    if (shouldRaytraceForNewPoiDuringWheelZoom(zoomX, zoomY))
-    {
-        hitSomething = m_viewer->rayPick(zoomX, zoomY, &hic);
-        updateWheelZoomPosition(zoomX, zoomY);
-    }
+    bool hitSomething = m_viewer->rayPick( winPosX, winPosY, &hic);
 
     if (hitSomething)
-    {
+    { 
         cvf::Vec3d pointOfInterest = hic.firstItem()->intersectionPoint();
+
+        if (m_viewer->isMousePosWithinComparisonView( winPosX, winPosY ))
+        {
+            pointOfInterest -= m_viewer->comparisonViewEyePointOffset();
+        }
+
         this->setPointOfInterest(pointOfInterest);
+    }
+    else
+    {
+        initializeRotationCenter();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void caf::TrackBallBasedNavigation::updatePointOfInterestDuringZoomIfNecessary(int winPosX, int winPosY)
+{
+    if (shouldRaytraceForNewPoiDuringWheelZoom(winPosX, winPosY))
+    {
+        this->pickAndSetPointOfInterest(winPosX, winPosY);
+        updateWheelZoomPosition(winPosX, winPosY);
     }
     else
     {
@@ -271,24 +288,24 @@ cvf::ref<cvf::Ray> caf::TrackBallBasedNavigation::createZoomRay(int cvfXPos, int
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::TrackBallBasedNavigation::updateWheelZoomPosition(int zoomX, int zoomY)
+void caf::TrackBallBasedNavigation::updateWheelZoomPosition(int winPosX, int winPosY)
 {
-    m_lastWheelZoomPosX = zoomX;
-    m_lastWheelZoomPosY = zoomY;
+    m_lastWheelZoomPosX = winPosX;
+    m_lastWheelZoomPosY = winPosY;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::TrackBallBasedNavigation::shouldRaytraceForNewPoiDuringWheelZoom(int zoomX, int zoomY) const
+bool caf::TrackBallBasedNavigation::shouldRaytraceForNewPoiDuringWheelZoom(int winPosX, int winPosY) const
 {
     // Raytrace if the last zoom position isn't set
     if (m_lastWheelZoomPosX == -1 || m_lastWheelZoomPosY == -1)
     {
         return true;
     }
-    int diffX = zoomX - m_lastWheelZoomPosX;
-    int diffY = zoomY - m_lastWheelZoomPosY;
+    int diffX = winPosX - m_lastWheelZoomPosX;
+    int diffY = winPosY - m_lastWheelZoomPosY;
 
     const int pixelThreshold = 5;
     if (diffX * diffX + diffY * diffY > pixelThreshold * pixelThreshold)
@@ -335,32 +352,39 @@ double caf::RotationSensitivityCalculator::calculateSensitivity(QMouseEvent* eve
 
     if ( m_isEnabled )
     {
-#if QT_VERSION >= 0x050000
-        auto presentTime = eventWhenRotating->timestamp();
-        unsigned long timeSinceLast = presentTime - m_lastTime;
-        if ( timeSinceLast == 0 ) timeSinceLast = 1; // one millisecond 
+        if ( m_fixedSensitivity == std::numeric_limits<double>::infinity() )
+        {
+            #if QT_VERSION >= 0x050000
+            auto presentTime = eventWhenRotating->timestamp();
+            unsigned long timeSinceLast = presentTime - m_lastTime;
+            if ( timeSinceLast == 0 ) timeSinceLast = 1; // one millisecond 
 
-        int deltaX = eventWhenRotating->x() - m_lastPosX;
-        int deltaY = eventWhenRotating->y() - m_lastPosY;
+            int deltaX = eventWhenRotating->x() - m_lastPosX;
+            int deltaY = eventWhenRotating->y() - m_lastPosY;
 
-        cvf::Vec2d mouseVelocity(deltaX, deltaY);
-        mouseVelocity /= 1.0e-3*timeSinceLast;
+            cvf::Vec2d mouseVelocity(deltaX, deltaY);
+            mouseVelocity /= 1.0e-3*timeSinceLast;
 
-        double mouseVelocityLength = mouseVelocity.length();
-        double mouseVelocityLengthCorr = 0.3*mouseVelocityLength + 0.7*m_lastMouseVelocityLenght;
+            double mouseVelocityLength = mouseVelocity.length();
+            double mouseVelocityLengthCorr = 0.1*mouseVelocityLength + 0.9*m_lastMouseVelocityLenght;
 
-        double slowLimit = 170.0;
+            double slowLimit = 170.0;
 
-        if ( mouseVelocityLengthCorr < slowLimit ) sensitivity = mouseVelocityLengthCorr*mouseVelocityLengthCorr/(slowLimit*slowLimit);
+            if ( mouseVelocityLengthCorr < slowLimit ) sensitivity = mouseVelocityLengthCorr*mouseVelocityLengthCorr/(slowLimit*slowLimit);
 
-        m_lastPosX                = eventWhenRotating->x();
-        m_lastPosY                = eventWhenRotating->y();
-        m_lastTime                = eventWhenRotating->timestamp();
-        m_lastMouseVelocityLenght = 0.8*mouseVelocityLength + 0.2*m_lastMouseVelocityLenght;
+            m_lastPosX                = eventWhenRotating->x();
+            m_lastPosY                = eventWhenRotating->y();
+            m_lastTime                = eventWhenRotating->timestamp();
+            m_lastMouseVelocityLenght = 0.8*mouseVelocityLength + 0.2*m_lastMouseVelocityLenght;
 
-        //openDebugWindow();
-        //std::cout  << sensitivity << " Speed: " <<  mouseVelocity.length() << " " << mouseVelocityLengthCorr << " \tDelta " << deltaX << ", " << deltaY << " "<< timeSinceLast  << std::endl;
-#endif
+            //openDebugWindow();
+            //std::cout  << sensitivity << " Speed: Raw: " << mouseVelocityLength << " Smooth: " << mouseVelocityLengthCorr << " \tDelta " << deltaX << ", " << deltaY << " "<< timeSinceLast  << std::endl;
+            #endif
+        }
+        else
+        {
+            sensitivity =  m_fixedSensitivity;
+        }
     }
 
     return sensitivity;

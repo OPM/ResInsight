@@ -36,24 +36,24 @@ class RiaConsoleApplication : public QCoreApplication, public RiaApplication
 public:
     static RiaConsoleApplication* instance();
 
-    RiaConsoleApplication(int& argc, char** argv);
+    RiaConsoleApplication( int& argc, char** argv );
     ~RiaConsoleApplication() override;
 
     // Public RiaApplication overrides
-    void initialize() override;
-    ApplicationStatus handleArguments(cvf::ProgramOptions* progOpt) override;
-    void showFormattedTextInMessageBoxOrConsole(const QString& errMsg) override;
-    void launchGrpcServer() override;
+    void              initialize() override;
+    ApplicationStatus handleArguments( cvf::ProgramOptions* progOpt ) override;
+    void              showFormattedTextInMessageBoxOrConsole( const QString& errMsg ) override;
+    void              launchGrpcServer() override;
 #ifdef ENABLE_GRPC
     RiaGrpcServer* grpcServer() const override;
 #endif
 
 protected:
     // Protected implementation specific overrides
-    void invokeProcessEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) override;
-    void onProjectOpeningError(const QString& errMsg) override;
-    void onProjectOpened();
-    void onProjectClosed();
+    void invokeProcessEvents( QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents ) override;
+    void onProjectOpeningError( const QString& errMsg ) override;
+    void onProjectOpened() override;
+    void onProjectClosed() override;
 
 private slots:
     void runIdleProcessing();
@@ -63,4 +63,3 @@ private:
     QPointer<QTimer> m_idleTimer;
 #endif
 };
-

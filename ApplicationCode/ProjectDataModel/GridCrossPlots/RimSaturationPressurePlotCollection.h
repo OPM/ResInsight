@@ -35,7 +35,7 @@ public:
     RimSaturationPressurePlotCollection();
     ~RimSaturationPressurePlotCollection() override;
 
-    std::vector<RimSaturationPressurePlot*> createSaturationPressurePlots(RimEclipseResultCase* eclipseResultCase);
+    std::vector<RimSaturationPressurePlot*> createSaturationPressurePlots( RimEclipseResultCase* eclipseResultCase );
 
     std::vector<RimSaturationPressurePlot*> plots();
     void                                    deleteAllChildObjects();

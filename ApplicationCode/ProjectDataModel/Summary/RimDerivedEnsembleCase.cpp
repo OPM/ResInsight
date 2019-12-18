@@ -18,9 +18,9 @@
 
 #include "RimDerivedEnsembleCase.h"
 
+#include "RiaCurveMerger.h"
 #include "RiaLogging.h"
 #include "RiaSummaryTools.h"
-#include "RiaTimeHistoryCurveMerger.h"
 
 #include "RifDerivedEnsembleReader.h"
 
@@ -36,7 +36,7 @@
 
 #include <QFileInfo>
 
-CAF_PDM_ABSTRACT_SOURCE_INIT(RimDerivedEnsembleCase, "RimDerivedEnsembleCase");
+CAF_PDM_ABSTRACT_SOURCE_INIT( RimDerivedEnsembleCase, "RimDerivedEnsembleCase" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -48,12 +48,12 @@ const std::vector<double> RimDerivedEnsembleCase::EMPTY_VALUES_VECTOR;
 ///
 //--------------------------------------------------------------------------------------------------
 RimDerivedEnsembleCase::RimDerivedEnsembleCase()
-    : m_summaryCase1(nullptr)
-    , m_summaryCase2(nullptr)
+    : m_summaryCase1( nullptr )
+    , m_summaryCase2( nullptr )
 {
-    CAF_PDM_InitObject("Summary Case", ":/SummaryCase16x16.png", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_summaryCase1, "SummaryCase1", "SummaryCase1", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_summaryCase2, "SummaryCase2", "SummaryCase2", "", "", "");
+    CAF_PDM_InitObject( "Summary Case", ":/SummaryCase16x16.png", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCase1, "SummaryCase1", "SummaryCase1", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCase2, "SummaryCase2", "SummaryCase2", "", "", "" );
 
     m_inUse = false;
 }
@@ -66,11 +66,11 @@ RimDerivedEnsembleCase::~RimDerivedEnsembleCase() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedEnsembleCase::setInUse(bool inUse)
+void RimDerivedEnsembleCase::setInUse( bool inUse )
 {
     m_inUse = inUse;
 
-    if (!m_inUse)
+    if ( !m_inUse )
     {
         m_summaryCase1 = nullptr;
         m_summaryCase2 = nullptr;
@@ -89,9 +89,9 @@ bool RimDerivedEnsembleCase::isInUse() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedEnsembleCase::setSummaryCases(RimSummaryCase* sumCase1, RimSummaryCase* sumCase2)
+void RimDerivedEnsembleCase::setSummaryCases( RimSummaryCase* sumCase1, RimSummaryCase* sumCase2 )
 {
-    if (!sumCase1 || !sumCase2) return;
+    if ( !sumCase1 || !sumCase2 ) return;
     m_summaryCase1 = sumCase1;
     m_summaryCase2 = sumCase2;
 }
@@ -99,46 +99,47 @@ void RimDerivedEnsembleCase::setSummaryCases(RimSummaryCase* sumCase1, RimSummar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimDerivedEnsembleCase::needsCalculation(const RifEclipseSummaryAddress& address) const
+bool RimDerivedEnsembleCase::needsCalculation( const RifEclipseSummaryAddress& address ) const
 {
-    return m_data.count(address) == 0;
+    return m_data.count( address ) == 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RimDerivedEnsembleCase::timeSteps(const RifEclipseSummaryAddress& address) const
+const std::vector<time_t>& RimDerivedEnsembleCase::timeSteps( const RifEclipseSummaryAddress& address ) const
 {
-    if (m_data.count(address) == 0) return EMPTY_TIME_STEPS_VECTOR;
-    return m_data.at(address).first;
+    if ( m_data.count( address ) == 0 ) return EMPTY_TIME_STEPS_VECTOR;
+    return m_data.at( address ).first;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimDerivedEnsembleCase::values(const RifEclipseSummaryAddress& address) const
+const std::vector<double>& RimDerivedEnsembleCase::values( const RifEclipseSummaryAddress& address ) const
 {
-    if (m_data.count(address) == 0) return EMPTY_VALUES_VECTOR;
-    return m_data.at(address).second;
+    if ( m_data.count( address ) == 0 ) return EMPTY_VALUES_VECTOR;
+    return m_data.at( address ).second;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedEnsembleCase::calculate(const RifEclipseSummaryAddress& address)
+void RimDerivedEnsembleCase::calculate( const RifEclipseSummaryAddress& address )
 {
-    clearData(address);
+    clearData( address );
 
     RifSummaryReaderInterface* reader1 = m_summaryCase1 ? m_summaryCase1->summaryReader() : nullptr;
     RifSummaryReaderInterface* reader2 = m_summaryCase2 ? m_summaryCase2->summaryReader() : nullptr;
-    if (!reader1 || !reader2 || !parentEnsemble()) return;
+    if ( !reader1 || !reader2 || !parentEnsemble() ) return;
 
-    if (!reader1->hasAddress(address) || !reader2->hasAddress(address))
+    if ( !reader1->hasAddress( address ) || !reader2->hasAddress( address ) )
     {
         std::string text = address.uiText();
 
-        RiaLogging::warning("Derived Ensemble : At least one of the ensembles does not contain the summary address : " +
-                            QString::fromStdString(text));
+        RiaLogging::warning(
+            "Derived Ensemble : At least one of the ensembles does not contain the summary address : " +
+            QString::fromStdString( text ) );
 
         return;
     }
@@ -148,33 +149,33 @@ void RimDerivedEnsembleCase::calculate(const RifEclipseSummaryAddress& address)
     std::vector<double>       values2;
     DerivedEnsembleOperator   op = parentEnsemble()->op();
 
-    reader1->values(address, &values1);
-    reader2->values(address, &values2);
+    reader1->values( address, &values1 );
+    reader2->values( address, &values2 );
 
-    merger.addCurveData(values1, reader1->timeSteps(address));
-    merger.addCurveData(values2, reader2->timeSteps(address));
+    merger.addCurveData( reader1->timeSteps( address ), values1 );
+    merger.addCurveData( reader2->timeSteps( address ), values2 );
     merger.computeInterpolatedValues();
 
-    std::vector<double>& allValues1 = merger.interpolatedCurveValuesForAllTimeSteps(0);
-    std::vector<double>& allValues2 = merger.interpolatedCurveValuesForAllTimeSteps(1);
+    const std::vector<double>& allValues1 = merger.interpolatedYValuesForAllXValues( 0 );
+    const std::vector<double>& allValues2 = merger.interpolatedYValuesForAllXValues( 1 );
 
-    size_t              sampleCount = merger.allTimeSteps().size();
+    size_t              sampleCount = merger.allXValues().size();
     std::vector<double> calculatedValues;
-    calculatedValues.reserve(sampleCount);
-    for (size_t i = 0; i < sampleCount; i++)
+    calculatedValues.reserve( sampleCount );
+    for ( size_t i = 0; i < sampleCount; i++ )
     {
-        if (op == DERIVED_ENSEMBLE_SUB)
+        if ( op == DERIVED_ENSEMBLE_SUB )
         {
-            calculatedValues.push_back(allValues1[i] - allValues2[i]);
+            calculatedValues.push_back( allValues1[i] - allValues2[i] );
         }
-        else if (op == DERIVED_ENSEMBLE_ADD)
+        else if ( op == DERIVED_ENSEMBLE_ADD )
         {
-            calculatedValues.push_back(allValues1[i] + allValues2[i]);
+            calculatedValues.push_back( allValues1[i] + allValues2[i] );
         }
     }
 
     auto& dataItem  = m_data[address];
-    dataItem.first  = merger.allTimeSteps();
+    dataItem.first  = merger.allXValues();
     dataItem.second = calculatedValues;
 }
 
@@ -186,10 +187,10 @@ QString RimDerivedEnsembleCase::caseName() const
     auto case1Name = m_summaryCase1->caseName();
     auto case2Name = m_summaryCase2->caseName();
 
-    if (case1Name == case2Name)
+    if ( case1Name == case2Name )
         return case1Name;
     else
-        return QString("%1/%2").arg(case1Name).arg(case2Name);
+        return QString( "%1/%2" ).arg( case1Name ).arg( case2Name );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,9 +199,9 @@ QString RimDerivedEnsembleCase::caseName() const
 void RimDerivedEnsembleCase::createSummaryReaderInterface()
 {
     RifSummaryReaderInterface* summaryCase1Reader = nullptr;
-    if (m_summaryCase1)
+    if ( m_summaryCase1 )
     {
-        if (!m_summaryCase1->summaryReader())
+        if ( !m_summaryCase1->summaryReader() )
         {
             m_summaryCase1->createSummaryReaderInterface();
         }
@@ -208,7 +209,7 @@ void RimDerivedEnsembleCase::createSummaryReaderInterface()
         summaryCase1Reader = m_summaryCase1->summaryReader();
     }
 
-    m_reader.reset(new RifDerivedEnsembleReader(this, summaryCase1Reader));
+    m_reader.reset( new RifDerivedEnsembleReader( this, summaryCase1Reader ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -222,7 +223,7 @@ RifSummaryReaderInterface* RimDerivedEnsembleCase::summaryReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedEnsembleCase::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
+void RimDerivedEnsembleCase::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
 {
     // NOP
 }
@@ -233,14 +234,14 @@ void RimDerivedEnsembleCase::updateFilePathsFromProjectPath(const QString& newPr
 RimDerivedEnsembleCaseCollection* RimDerivedEnsembleCase::parentEnsemble() const
 {
     RimDerivedEnsembleCaseCollection* ensemble;
-    firstAncestorOrThisOfType(ensemble);
+    firstAncestorOrThisOfType( ensemble );
     return ensemble;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedEnsembleCase::clearData(const RifEclipseSummaryAddress& address)
+void RimDerivedEnsembleCase::clearData( const RifEclipseSummaryAddress& address )
 {
-    m_data.erase(address);
+    m_data.erase( address );
 }

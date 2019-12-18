@@ -2,17 +2,17 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,45 +23,44 @@
 #include "RigCaseCellResultsData.h"
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
-#include "RigMainGrid.h"
 #include "RigEclipseResultInfo.h"
+#include "RigMainGrid.h"
 
-#include "RimEclipseCase.h"
-#include "RimTools.h"
-#include "RimProject.h"
 #include "RimCompletionCellIntersectionCalc.h"
+#include "RimEclipseCase.h"
+#include "RimProject.h"
+#include "RimTools.h"
 
 #include "cafProgressInfo.h"
 #include "cafUtils.h"
 
 #include "cvfGeometryTools.h"
 
+#include "RifReaderEclipseOutput.h"
 #include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QUuid>
-#include "RifReaderEclipseOutput.h"
 
-CAF_PDM_SOURCE_INIT(RimReservoirCellResultsStorage, "ReservoirCellResultStorage");
+CAF_PDM_SOURCE_INIT( RimReservoirCellResultsStorage, "ReservoirCellResultStorage" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorage::RimReservoirCellResultsStorage()
-    : m_cellResults(nullptr)
+    : m_cellResults( nullptr )
 {
-    CAF_PDM_InitObject("Cacher", "", "", "");
+    CAF_PDM_InitObject( "Cacher", "", "", "" );
 
-    CAF_PDM_InitField(&m_resultCacheFileName, "ResultCacheFileName",  QString(), "UiDummyname", "", "" ,"");
-    m_resultCacheFileName.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitFieldNoDefault(&m_resultCacheMetaData, "ResultCacheEntries", "UiDummyname", "", "", "");
-    m_resultCacheMetaData.uiCapability()->setUiHidden(true);
-
+    CAF_PDM_InitField( &m_resultCacheFileName, "ResultCacheFileName", QString(), "UiDummyname", "", "", "" );
+    m_resultCacheFileName.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_resultCacheMetaData, "ResultCacheEntries", "UiDummyname", "", "", "" );
+    m_resultCacheMetaData.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorage::~RimReservoirCellResultsStorage()
 {
@@ -72,8 +71,9 @@ RimReservoirCellResultsStorage::~RimReservoirCellResultsStorage()
 /// This override populates the metainfo regarding the cell results data in the RigCaseCellResultsData
 /// object. This metainfo will then be written to the project file when saving, and thus read on project file open.
 /// This method then writes the actual double arrays to the data file in a simple format:
-/// MagicNumber<uint32>, Version<uint32>, ResultVariables< Array < TimeStep< CellDataArraySize<uint64>, CellData< Array<double > > > >
-/// 
+/// MagicNumber<uint32>, Version<uint32>, ResultVariables< Array < TimeStep< CellDataArraySize<uint64>, CellData<
+/// Array<double > > > >
+///
 //--------------------------------------------------------------------------------------------------
 void RimReservoirCellResultsStorage::setupBeforeSave()
 {
@@ -82,88 +82,88 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
 
     // Delete the storage file
 
-    QFileInfo storageFileInfo(newValidCacheFileName);
-    if (storageFileInfo.exists())
+    QFileInfo storageFileInfo( newValidCacheFileName );
+    if ( storageFileInfo.exists() )
     {
         QDir storageDir = storageFileInfo.dir();
-        storageDir.remove(storageFileInfo.fileName()); 
+        storageDir.remove( storageFileInfo.fileName() );
     }
 
-    if (!m_cellResults) return;
+    if ( !m_cellResults ) return;
 
-    const std::vector<RigEclipseResultAddress>&  resAddrs = m_cellResults->existingResults();
+    const std::vector<RigEclipseResultAddress>& resAddrs = m_cellResults->existingResults();
 
     bool hasResultsToStore = false;
-    for (size_t rIdx = 0; rIdx < resAddrs.size(); ++rIdx) 
+    for ( size_t rIdx = 0; rIdx < resAddrs.size(); ++rIdx )
     {
-        if ( m_cellResults->resultInfo(resAddrs[rIdx])->needsToBeStored() ) 
+        if ( m_cellResults->resultInfo( resAddrs[rIdx] )->needsToBeStored() )
         {
-            hasResultsToStore = true; 
+            hasResultsToStore = true;
             break;
         }
     }
 
-    if(resAddrs.size() && hasResultsToStore)
+    if ( resAddrs.size() && hasResultsToStore )
     {
-        QDir::root().mkpath(getCacheDirectoryPath());
+        QDir::root().mkpath( getCacheDirectoryPath() );
 
-        QFile cacheFile(newValidCacheFileName);
+        QFile cacheFile( newValidCacheFileName );
 
-        if (!cacheFile.open(QIODevice::WriteOnly)) 
+        if ( !cacheFile.open( QIODevice::WriteOnly ) )
         {
-            qWarning() << "Saving project: Can't open the cache file : " + newValidCacheFileName; 
+            qWarning() << "Saving project: Can't open the cache file : " + newValidCacheFileName;
             return;
         }
 
         m_resultCacheFileName = newValidCacheFileName;
 
-        QDataStream stream(&cacheFile);
-        stream.setVersion(QDataStream::Qt_4_6);
+        QDataStream stream( &cacheFile );
+        stream.setVersion( QDataStream::Qt_4_6 );
         stream << (quint32)0xCEECAC4E; // magic number
-        stream << (quint32)1; // Version number. Increment if needing to extend the format in ways that can not be handled generically by the reader
+        stream << (quint32)1; // Version number. Increment if needing to extend the format in ways that can not be
+                              // handled generically by the reader
 
-        caf::ProgressInfo progInfo(resAddrs.size(), "Saving generated and imported properties");
+        caf::ProgressInfo progInfo( resAddrs.size(), "Saving generated and imported properties" );
 
-        for (size_t rIdx = 0; rIdx < resAddrs.size(); ++rIdx)
+        for ( size_t rIdx = 0; rIdx < resAddrs.size(); ++rIdx )
         {
             // If there is no data, we do not store anything for the current result variable
             // (Even not the metadata, of cause)
-            size_t timestepCount = m_cellResults->cellScalarResults(resAddrs[rIdx]).size();
-            const RigEclipseResultInfo* resInfo =  m_cellResults->resultInfo(resAddrs[rIdx]);
+            size_t                      timestepCount = m_cellResults->cellScalarResults( resAddrs[rIdx] ).size();
+            const RigEclipseResultInfo* resInfo       = m_cellResults->resultInfo( resAddrs[rIdx] );
 
-            if (timestepCount && resInfo->needsToBeStored())
+            if ( timestepCount && resInfo->needsToBeStored() )
             {
-                progInfo.setProgressDescription(resInfo->resultName());
+                progInfo.setProgressDescription( resInfo->resultName() );
 
                 // Create and setup the cache information for this result
-                RimReservoirCellResultsStorageEntryInfo*  cacheEntry = new RimReservoirCellResultsStorageEntryInfo;
-                m_resultCacheMetaData.push_back(cacheEntry);
+                RimReservoirCellResultsStorageEntryInfo* cacheEntry = new RimReservoirCellResultsStorageEntryInfo;
+                m_resultCacheMetaData.push_back( cacheEntry );
 
-                cacheEntry->m_resultType = resInfo->resultType();
-                cacheEntry->m_resultName = resInfo->resultName();
-                cacheEntry->m_timeStepDates = resInfo->dates();
+                cacheEntry->m_resultType               = resInfo->resultType();
+                cacheEntry->m_resultName               = resInfo->resultName();
+                cacheEntry->m_timeStepDates            = resInfo->dates();
                 cacheEntry->m_daysSinceSimulationStart = resInfo->daysSinceSimulationStarts();
 
                 // Take note of the file position for fast lookup later
                 cacheEntry->m_filePosition = cacheFile.pos();
 
-                // Write all the scalar values for each time step to the stream, 
-                // starting with the number of values 
-                for (size_t tsIdx = 0; tsIdx < resInfo->dates().size() ; ++tsIdx)
+                // Write all the scalar values for each time step to the stream,
+                // starting with the number of values
+                for ( size_t tsIdx = 0; tsIdx < resInfo->dates().size(); ++tsIdx )
                 {
                     const std::vector<double>* data = nullptr;
-                    if (tsIdx < timestepCount)
+                    if ( tsIdx < timestepCount )
                     {
-                        data = &(m_cellResults->cellScalarResults(resAddrs[rIdx], tsIdx));
+                        data = &( m_cellResults->cellScalarResults( resAddrs[rIdx], tsIdx ) );
                     }
 
-                    if (data && data->size())
+                    if ( data && data->size() )
                     {
-
-                        stream << (quint64)(data->size());
-                        for (size_t cIdx = 0; cIdx < data->size(); ++cIdx)
+                        stream << ( quint64 )( data->size() );
+                        for ( size_t cIdx = 0; cIdx < data->size(); ++cIdx )
                         {
-                            stream << (*data)[cIdx];
+                            stream << ( *data )[cIdx];
                         }
                     }
                     else
@@ -178,24 +178,23 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimReservoirCellResultsStorage::getValidCacheFileName()
 {
     QString cacheFileName;
-    if (m_resultCacheFileName().isEmpty())
+    if ( m_resultCacheFileName().isEmpty() )
     {
-        QString newCacheDirPath =  getCacheDirectoryPath();
-        QUuid guid = QUuid::createUuid();
-        cacheFileName = newCacheDirPath + "/" + guid.toString();
+        QString newCacheDirPath = getCacheDirectoryPath();
+        QUuid   guid            = QUuid::createUuid();
+        cacheFileName           = newCacheDirPath + "/" + guid.toString();
     }
     else
     {
         // Make the path correct related to the possibly new project filename
-        QString newCacheDirPath =  getCacheDirectoryPath();
-        QFileInfo oldCacheFile(m_resultCacheFileName());
+        QString   newCacheDirPath = getCacheDirectoryPath();
+        QFileInfo oldCacheFile( m_resultCacheFileName() );
 
         cacheFileName = newCacheDirPath + "/" + oldCacheFile.fileName();
     }
@@ -203,7 +202,7 @@ QString RimReservoirCellResultsStorage::getValidCacheFileName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimReservoirCellResultsStorage::getCacheDirectoryPath()
 {
@@ -212,93 +211,89 @@ QString RimReservoirCellResultsStorage::getCacheDirectoryPath()
     return cacheDirPath;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cellResults)
+void RimReservoirCellResultsStorage::setCellResults( RigCaseCellResultsData* cellResults )
 {
     m_cellResults = cellResults;
 
-    if (m_cellResults == nullptr) 
-        return;
+    if ( m_cellResults == nullptr ) return;
 
-    // Now that we have got the results container, we can finally 
+    // Now that we have got the results container, we can finally
     // Read data from the internal storage and populate it
 
-    if (m_resultCacheFileName().isEmpty()) 
-        return;
+    if ( m_resultCacheFileName().isEmpty() ) return;
 
     // Get the name of the cache name relative to the current project file position
     QString newValidCacheFileName = getValidCacheFileName();
 
     // Warn if we thought we were to find some data on the storage file
 
-    if (!caf::Utils::fileExists(newValidCacheFileName) && m_resultCacheMetaData.size())
+    if ( !caf::Utils::fileExists( newValidCacheFileName ) && m_resultCacheMetaData.size() )
     {
-        qWarning() << "Reading stored results: Missing the storage file : " + newValidCacheFileName; 
+        qWarning() << "Reading stored results: Missing the storage file : " + newValidCacheFileName;
         return;
     }
 
-    QFile storageFile(newValidCacheFileName);
-    if (!storageFile.open(QIODevice::ReadOnly)) 
+    QFile storageFile( newValidCacheFileName );
+    if ( !storageFile.open( QIODevice::ReadOnly ) )
     {
-        qWarning() << "Reading stored results: Can't open the file : " + newValidCacheFileName; 
+        qWarning() << "Reading stored results: Can't open the file : " + newValidCacheFileName;
         return;
     }
 
-    QDataStream stream(&storageFile);
-    stream.setVersion(QDataStream::Qt_4_6);
-    quint32 magicNumber = 0;
+    QDataStream stream( &storageFile );
+    stream.setVersion( QDataStream::Qt_4_6 );
+    quint32 magicNumber   = 0;
     quint32 versionNumber = 0;
     stream >> magicNumber;
 
-    if (magicNumber != 0xCEECAC4E)
+    if ( magicNumber != 0xCEECAC4E )
     {
-        qWarning() << "Reading stored results: The storage file has wrong type "; 
+        qWarning() << "Reading stored results: The storage file has wrong type ";
         return;
     }
 
     stream >> versionNumber;
-    if (versionNumber > 1 )
+    if ( versionNumber > 1 )
     {
-        qWarning() << "Reading stored results: The storage file has been written by a newer version of ResInsight"; 
+        qWarning() << "Reading stored results: The storage file has been written by a newer version of ResInsight";
         return;
     }
 
-    caf::ProgressInfo progress(m_resultCacheMetaData.size(), "Reading internally stored results");
+    caf::ProgressInfo progress( m_resultCacheMetaData.size(), "Reading internally stored results" );
     // Fill the object with data from the storage
 
-    for (size_t rIdx = 0; rIdx < m_resultCacheMetaData.size(); ++rIdx)
+    for ( size_t rIdx = 0; rIdx < m_resultCacheMetaData.size(); ++rIdx )
     {
         RimReservoirCellResultsStorageEntryInfo* resInfo = m_resultCacheMetaData[rIdx];
 
-        RigEclipseResultAddress resAddr(resInfo->m_resultType(), resInfo->m_resultName);
-        m_cellResults->createResultEntry(resAddr, true);
+        RigEclipseResultAddress resAddr( resInfo->m_resultType(), resInfo->m_resultName );
+        m_cellResults->createResultEntry( resAddr, true );
 
         std::vector<int> reportNumbers; // Hack: Using no report step numbers. Not really used except for Flow Diagnostics...
-        reportNumbers.resize(resInfo->m_timeStepDates().size());
-        std::vector<RigEclipseTimeStepInfo> timeStepInfos = RigEclipseTimeStepInfo::createTimeStepInfos(resInfo->m_timeStepDates(), 
-                                                                                                        reportNumbers, 
-                                                                                                        resInfo->m_daysSinceSimulationStart());
+        reportNumbers.resize( resInfo->m_timeStepDates().size() );
+        std::vector<RigEclipseTimeStepInfo> timeStepInfos =
+            RigEclipseTimeStepInfo::createTimeStepInfos( resInfo->m_timeStepDates(),
+                                                         reportNumbers,
+                                                         resInfo->m_daysSinceSimulationStart() );
 
-        m_cellResults->setTimeStepInfos(resAddr, timeStepInfos);
+        m_cellResults->setTimeStepInfos( resAddr, timeStepInfos );
 
-        progress.setProgressDescription(resInfo->m_resultName);
+        progress.setProgressDescription( resInfo->m_resultName );
 
-        for (size_t tsIdx = 0; tsIdx < resInfo->m_timeStepDates().size(); ++tsIdx)
+        for ( size_t tsIdx = 0; tsIdx < resInfo->m_timeStepDates().size(); ++tsIdx )
         {
-            std::vector<double>* data = nullptr;
-
-            data = &(m_cellResults->modifiableCellScalarResult(resAddr, tsIdx));
+            std::vector<double>* data = m_cellResults->modifiableCellScalarResult( resAddr, tsIdx );
 
             quint64 cellCount = 0;
             stream >> cellCount;
-            data->resize(cellCount, HUGE_VAL);
+            data->resize( cellCount, HUGE_VAL );
 
-            for (size_t cIdx = 0; cIdx < cellCount; ++cIdx)
+            for ( size_t cIdx = 0; cIdx < cellCount; ++cIdx )
             {
-                stream >> (*data)[cIdx];
+                stream >> ( *data )[cIdx];
             }
         }
 
@@ -307,34 +302,41 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RimReservoirCellResultsStorage::storedResultsCount()
 {
     return m_resultCacheMetaData.size();
 }
 
-CAF_PDM_SOURCE_INIT(RimReservoirCellResultsStorageEntryInfo, "ResultStorageEntryInfo");
+CAF_PDM_SOURCE_INIT( RimReservoirCellResultsStorageEntryInfo, "ResultStorageEntryInfo" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorageEntryInfo::RimReservoirCellResultsStorageEntryInfo()
 {
-    CAF_PDM_InitObject("Cache Entry", "", "", "");
+    CAF_PDM_InitObject( "Cache Entry", "", "", "" );
 
-    CAF_PDM_InitField(&m_resultType, "ResultType",  caf::AppEnum<RiaDefines::ResultCatType>(RiaDefines::REMOVED), "ResultType", "", "" ,"");
-    CAF_PDM_InitField(&m_resultName, "ResultName",  QString(), "ResultName", "", "" ,"");
-    CAF_PDM_InitFieldNoDefault(&m_timeStepDates, "TimeSteps", "TimeSteps", "", "" ,"");
-    CAF_PDM_InitFieldNoDefault(&m_daysSinceSimulationStart, "DaysSinceSimulationStart", "DaysSinceSimulationStart", "", "", "");
-    CAF_PDM_InitField(&m_filePosition, "FilePositionDataStart",  qint64(-1), "FilePositionDataStart", "", "" ,"");
-
+    CAF_PDM_InitField( &m_resultType,
+                       "ResultType",
+                       caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::REMOVED ),
+                       "ResultType",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_resultName, "ResultName", QString(), "ResultName", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStepDates, "TimeSteps", "TimeSteps", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_daysSinceSimulationStart,
+                                "DaysSinceSimulationStart",
+                                "DaysSinceSimulationStart",
+                                "",
+                                "",
+                                "" );
+    CAF_PDM_InitField( &m_filePosition, "FilePositionDataStart", qint64( -1 ), "FilePositionDataStart", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsStorageEntryInfo::~RimReservoirCellResultsStorageEntryInfo()
-{
-
-}
+RimReservoirCellResultsStorageEntryInfo::~RimReservoirCellResultsStorageEntryInfo() {}

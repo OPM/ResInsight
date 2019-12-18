@@ -36,5 +36,5 @@ public:
     QString serverUrl() const;
 
 private:
-    caf::PdmField<QString>         m_serverAddress;
+    caf::PdmField<QString> m_serverAddress;
 };

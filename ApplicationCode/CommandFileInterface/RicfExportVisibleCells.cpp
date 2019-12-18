@@ -44,17 +44,17 @@
 
 #include <QDir>
 
-CAF_PDM_SOURCE_INIT(RicfExportVisibleCells, "exportVisibleCells");
+CAF_PDM_SOURCE_INIT( RicfExportVisibleCells, "exportVisibleCells" );
 
 namespace caf
 {
-template<>
+template <>
 void AppEnum<RicfExportVisibleCells::ExportKeyword>::setUp()
 {
-    addItem(RicfExportVisibleCells::FLUXNUM, "FLUXNUM", "FLUXNUM");
-    addItem(RicfExportVisibleCells::MULTNUM, "MULTNUM", "MULTNUM");
+    addItem( RicfExportVisibleCells::FLUXNUM, "FLUXNUM", "FLUXNUM" );
+    addItem( RicfExportVisibleCells::MULTNUM, "MULTNUM", "MULTNUM" );
 
-    setDefault(RicfExportVisibleCells::FLUXNUM);
+    setDefault( RicfExportVisibleCells::FLUXNUM );
 }
 } // namespace caf
 
@@ -108,17 +108,17 @@ RicfCommandResponse RicfExportVisibleCells::execute()
         return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
     }
 
-    QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::CELLS);
-    if (exportFolder.isNull())
+    QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::CELLS );
+    if ( exportFolder.isNull() )
     {
-        exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("visibleCells");
+        exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "visibleCells" );
     }
 
     RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
 
     RicSaveEclipseInputVisibleCellsUi exportSettings;
-    buildExportSettings(exportFolder, &exportSettings);
-    RicSaveEclipseInputVisibleCellsFeature::executeCommand(eclipseView, exportSettings, "exportVisibleCells");
+    buildExportSettings( exportFolder, &exportSettings );
+    RicSaveEclipseInputVisibleCellsFeature::executeCommand( eclipseView, exportSettings, "exportVisibleCells" );
 
     return RicfCommandResponse();
 }
@@ -126,14 +126,15 @@ RicfCommandResponse RicfExportVisibleCells::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfExportVisibleCells::buildExportSettings(const QString& exportFolder, RicSaveEclipseInputVisibleCellsUi* exportSettings)
+void RicfExportVisibleCells::buildExportSettings( const QString&                     exportFolder,
+                                                  RicSaveEclipseInputVisibleCellsUi* exportSettings )
 {
-    QDir baseDir(exportFolder);
-    exportSettings->exportFilename = baseDir.absoluteFilePath(QString("%1.grdecl").arg(m_exportKeyword().text()));
+    QDir baseDir( exportFolder );
+    exportSettings->exportFilename = baseDir.absoluteFilePath( QString( "%1.grdecl" ).arg( m_exportKeyword().text() ) );
 
-    if (m_exportKeyword == ExportKeyword::FLUXNUM)
+    if ( m_exportKeyword == ExportKeyword::FLUXNUM )
         exportSettings->exportKeyword = RicSaveEclipseInputVisibleCellsUi::FLUXNUM;
-    else if (m_exportKeyword == ExportKeyword::MULTNUM)
+    else if ( m_exportKeyword == ExportKeyword::MULTNUM )
         exportSettings->exportKeyword = RicSaveEclipseInputVisibleCellsUi::MULTNUM;
 
     exportSettings->visibleActiveCellsValue = m_visibleActiveCellsValue;

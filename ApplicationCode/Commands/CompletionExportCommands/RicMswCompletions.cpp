@@ -24,12 +24,12 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswCompletion::RicMswCompletion(const QString&                    label,
-                                   size_t                            index /* = cvf::UNDEFINED_SIZE_T */,
-                                   int                               branchNumber /*= 0*/)
-    : m_label(label)
-    , m_index(index)
-    , m_branchNumber(branchNumber)
+RicMswCompletion::RicMswCompletion( const QString& label,
+                                    size_t         index /* = cvf::UNDEFINED_SIZE_T */,
+                                    int            branchNumber /*= 0*/ )
+    : m_label( label )
+    , m_index( index )
+    , m_branchNumber( branchNumber )
 {
 }
 
@@ -60,7 +60,7 @@ int RicMswCompletion::branchNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswCompletion::setBranchNumber(int branchNumber)
+void RicMswCompletion::setBranchNumber( int branchNumber )
 {
     m_branchNumber = branchNumber;
 }
@@ -68,9 +68,9 @@ void RicMswCompletion::setBranchNumber(int branchNumber)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswCompletion::addSubSegment(std::shared_ptr<RicMswSubSegment> subSegment)
+void RicMswCompletion::addSubSegment( std::shared_ptr<RicMswSubSegment> subSegment )
 {
-    m_subSegments.push_back(subSegment);
+    m_subSegments.push_back( subSegment );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ const std::vector<std::shared_ptr<RicMswSubSegment>>& RicMswCompletion::subSegme
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswCompletion::setLabel(const QString& label)
+void RicMswCompletion::setLabel( const QString& label )
 {
     m_label = label;
 }
@@ -100,10 +100,10 @@ void RicMswCompletion::setLabel(const QString& label)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswFracture::RicMswFracture(const QString& label,
-                               size_t         index /*= cvf::UNDEFINED_SIZE_T*/,
-                               int            branchNumber /*= cvf::UNDEFINED_INT*/)
-    : RicMswCompletion(label, index, branchNumber)
+RicMswFracture::RicMswFracture( const QString& label,
+                                size_t         index /*= cvf::UNDEFINED_SIZE_T*/,
+                                int            branchNumber /*= cvf::UNDEFINED_INT*/ )
+    : RicMswCompletion( label, index, branchNumber )
 {
 }
 
@@ -118,10 +118,10 @@ RigCompletionData::CompletionType RicMswFracture::completionType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswPerforation::RicMswPerforation(const QString& label,
-                                     size_t         index /*= cvf::UNDEFINED_SIZE_T*/,
-                                     int            branchNumber /*= cvf::UNDEFINED_INT*/)
-    : RicMswCompletion(label, index, branchNumber)
+RicMswPerforation::RicMswPerforation( const QString& label,
+                                      size_t         index /*= cvf::UNDEFINED_SIZE_T*/,
+                                      int            branchNumber /*= cvf::UNDEFINED_INT*/ )
+    : RicMswCompletion( label, index, branchNumber )
 {
 }
 
@@ -136,10 +136,9 @@ RigCompletionData::CompletionType RicMswPerforation::completionType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswValve::RicMswValve(const QString& label,
-                         const RimWellPathValve* wellPathValve)
-    : RicMswCompletion(label)
-    , m_wellPathValve(wellPathValve)
+RicMswValve::RicMswValve( const QString& label, const RimWellPathValve* wellPathValve )
+    : RicMswCompletion( label )
+    , m_wellPathValve( wellPathValve )
 {
 }
 
@@ -154,10 +153,10 @@ const RimWellPathValve* RicMswValve::wellPathValve() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswWsegValve::RicMswWsegValve(const QString& label, const RimWellPathValve* wellPathValve)
-    : RicMswValve(label, wellPathValve)
-    , m_flowCoefficient(0.0)
-    , m_area(0.0)
+RicMswWsegValve::RicMswWsegValve( const QString& label, const RimWellPathValve* wellPathValve )
+    : RicMswValve( label, wellPathValve )
+    , m_flowCoefficient( 0.0 )
+    , m_area( 0.0 )
 {
 }
 
@@ -180,7 +179,7 @@ double RicMswWsegValve::area() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswWsegValve::setFlowCoefficient(double icdFlowCoefficient)
+void RicMswWsegValve::setFlowCoefficient( double icdFlowCoefficient )
 {
     m_flowCoefficient = icdFlowCoefficient;
 }
@@ -188,7 +187,7 @@ void RicMswWsegValve::setFlowCoefficient(double icdFlowCoefficient)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswWsegValve::setArea(double icdArea)
+void RicMswWsegValve::setArea( double icdArea )
 {
     m_area = icdArea;
 }
@@ -196,8 +195,8 @@ void RicMswWsegValve::setArea(double icdArea)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswFishbonesICD::RicMswFishbonesICD(const QString& label, const RimWellPathValve* wellPathValve)
-    : RicMswWsegValve(label, wellPathValve)
+RicMswFishbonesICD::RicMswFishbonesICD( const QString& label, const RimWellPathValve* wellPathValve )
+    : RicMswWsegValve( label, wellPathValve )
 {
 }
 
@@ -212,9 +211,8 @@ RigCompletionData::CompletionType RicMswFishbonesICD::completionType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswPerforationICD::RicMswPerforationICD(const QString&          label,
-                                           const RimWellPathValve* wellPathValve)
-    : RicMswWsegValve(label, wellPathValve)
+RicMswPerforationICD::RicMswPerforationICD( const QString& label, const RimWellPathValve* wellPathValve )
+    : RicMswWsegValve( label, wellPathValve )
 {
 }
 
@@ -229,9 +227,8 @@ RigCompletionData::CompletionType RicMswPerforationICD::completionType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswPerforationICV::RicMswPerforationICV(const QString&          label,
-                                           const RimWellPathValve* wellPathValve)
-    : RicMswWsegValve(label, wellPathValve)
+RicMswPerforationICV::RicMswPerforationICV( const QString& label, const RimWellPathValve* wellPathValve )
+    : RicMswWsegValve( label, wellPathValve )
 {
 }
 
@@ -246,11 +243,11 @@ RigCompletionData::CompletionType RicMswPerforationICV::completionType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswPerforationAICD::RicMswPerforationAICD(const QString& label, const RimWellPathValve* wellPathValve)
-    : RicMswValve(label, wellPathValve)
-    , m_valid(false)
-    , m_deviceOpen(false)
-    , m_length(0.0)
+RicMswPerforationAICD::RicMswPerforationAICD( const QString& label, const RimWellPathValve* wellPathValve )
+    : RicMswValve( label, wellPathValve )
+    , m_valid( false )
+    , m_deviceOpen( false )
+    , m_length( 0.0 )
 {
 }
 
@@ -273,7 +270,7 @@ bool RicMswPerforationAICD::isValid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswPerforationAICD::setIsValid(bool valid)
+void RicMswPerforationAICD::setIsValid( bool valid )
 {
     m_valid = valid;
 }
@@ -289,7 +286,7 @@ bool RicMswPerforationAICD::isOpen() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswPerforationAICD::setIsOpen(bool deviceOpen)
+void RicMswPerforationAICD::setIsOpen( bool deviceOpen )
 {
     m_deviceOpen = deviceOpen;
 }
@@ -305,7 +302,7 @@ double RicMswPerforationAICD::length() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswPerforationAICD::setLength(double length)
+void RicMswPerforationAICD::setLength( double length )
 {
     m_length = length;
 }

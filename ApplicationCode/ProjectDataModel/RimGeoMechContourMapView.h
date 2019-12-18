@@ -37,35 +37,36 @@ public:
     QString createAutoName() const override;
     void    setDefaultCustomName();
     void    updatePickPointAndRedraw();
-    void    updateCurrentTimeStepAndRedraw() override;
     bool    isGridVisualizationMode() const override;
 
-    bool    isTimeStepDependentDataVisible() const override;
+    bool isTimeStepDependentDataVisible() const override;
 
 protected:
     void initAfterRead() override;
-    void createDisplayModel() override;
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    void updateCurrentTimeStep() override;
+    void onCreateDisplayModel() override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void onUpdateDisplayModelForCurrentTimeStep() override;
     void updateGeometry();
     void createContourMapGeometry();
     void appendContourMapProjectionToModel();
     void appendContourLinesToModel();
     void appendPickPointVisToModel();
-    void updateLegends() override;
+    void onUpdateLegends() override;
     void updateViewWidgetAfterCreation() override;
     void updateViewFollowingRangeFilterUpdates() override;
     void onLoadDataAndUpdate() override;
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
 
     caf::PdmFieldHandle* userDescriptionField() override;
 
-    QWidget* createViewWidget(QWidget* mainWindowParent) override;
+    QWidget* createViewWidget( QWidget* mainWindowParent ) override;
 
     void onViewNavigationChanged() override;
 
-    bool zoomChangeAboveTreshold(const cvf::Vec3d& currentCameraPosition) const;
+    bool zoomChangeAboveTreshold( const cvf::Vec3d& currentCameraPosition ) const;
 
 private:
     cvf::ref<RivContourMapProjectionPartMgr>            m_contourMapProjectionPartMgr;
@@ -74,6 +75,5 @@ private:
     caf::PdmField<bool>                                 m_showScaleLegend;
     cvf::Vec3d                                          m_cameraPositionLastUpdate;
 
-    const static cvf::Mat4d                             sm_defaultViewMatrix;
+    const static cvf::Mat4d sm_defaultViewMatrix;
 };
-

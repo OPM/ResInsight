@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,8 +22,8 @@
 
 #include "RiaApplication.h"
 #include "RimCalcScript.h"
-#include "RimProject.h"
 #include "RimEclipseStatisticsCase.h"
+#include "RimProject.h"
 
 #include "cafPdmObjectGroup.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -32,96 +32,84 @@
 
 #include <QFile>
 
-
-CAF_PDM_SOURCE_INIT(RimCommandObject, "RimCommandObject");
-CAF_PDM_SOURCE_INIT(RimCommandExecuteScript, "RimCommandExecuteScript");
-CAF_PDM_SOURCE_INIT(RimCommandIssueFieldChanged, "RimCommandIssueFieldChanged");
+CAF_PDM_SOURCE_INIT( RimCommandObject, "RimCommandObject" );
+CAF_PDM_SOURCE_INIT( RimCommandExecuteScript, "RimCommandExecuteScript" );
+CAF_PDM_SOURCE_INIT( RimCommandIssueFieldChanged, "RimCommandIssueFieldChanged" );
 
 //------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimCommandObject::RimCommandObject()
-{
-}
+RimCommandObject::RimCommandObject() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimCommandObject::~RimCommandObject()
-{
-}
-
-
+RimCommandObject::~RimCommandObject() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimCommandExecuteScript::RimCommandExecuteScript()
 {
-    CAF_PDM_InitFieldNoDefault(&name,       "Name",      "Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &name, "Name", "Name", "", "", "" );
 
-    CAF_PDM_InitField(&scriptText, "ScriptText",  QString(), "Script Text", "", "" ,"");
-    scriptText.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+    CAF_PDM_InitField( &scriptText, "ScriptText", QString(), "Script Text", "", "", "" );
+    scriptText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField(&isEnabled,         "IsEnabled",      true, "Enabled ", "", "", "");
-    
-    
-    CAF_PDM_InitField(&execute,         "Execute",      true, "Execute", "", "", "");
+    CAF_PDM_InitField( &isEnabled, "IsEnabled", true, "Enabled ", "", "", "" );
+
+    CAF_PDM_InitField( &execute, "Execute", true, "Execute", "", "", "" );
     execute.xmlCapability()->disableIO();
-    execute.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    execute.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    execute.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    execute.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimCommandExecuteScript::~RimCommandExecuteScript()
-{
-
-}
+RimCommandExecuteScript::~RimCommandExecuteScript() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimCommandExecuteScript::redo()
 {
-    if (!isEnabled) return;
+    if ( !isEnabled ) return;
 
-    RiaApplication* app = RiaApplication::instance();
-    QString octavePath = app->octavePath();
-    if (!octavePath.isEmpty())
+    RiaApplication* app        = RiaApplication::instance();
+    QString         octavePath = app->octavePath();
+    if ( !octavePath.isEmpty() )
     {
         QStringList arguments = app->octaveArguments();
-        
-        arguments.append("--eval");
+
+        arguments.append( "--eval" );
         arguments << this->scriptText();
 
-        RiaApplication::instance()->launchProcess(octavePath, arguments, app->octaveProcessEnvironment());
+        RiaApplication::instance()->launchProcess( octavePath, arguments, app->octaveProcessEnvironment() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimCommandExecuteScript::undo()
-{
-
-}
+void RimCommandExecuteScript::undo() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimCommandExecuteScript::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimCommandExecuteScript::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                     QString                    uiConfigName,
+                                                     caf::PdmUiEditorAttribute* attribute )
 {
-    caf::PdmUiTextEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>(attribute);
-    if (myAttr)
+    caf::PdmUiTextEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
+    if ( myAttr )
     {
         myAttr->showSaveButton = true;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimCommandExecuteScript::userDescriptionField()
 {
@@ -129,128 +117,123 @@ caf::PdmFieldHandle* RimCommandExecuteScript::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimCommandExecuteScript::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimCommandExecuteScript::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                const QVariant&            oldValue,
+                                                const QVariant&            newValue )
 {
-    if (&execute == changedField)
+    if ( &execute == changedField )
     {
         RiaApplication* app = RiaApplication::instance();
-        app->addCommandObject(this);
+        app->addCommandObject( this );
         app->executeCommandObjects();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimCommandExecuteScript::isAsyncronous()
 {
     return true;
 }
 
-
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimCommandFactory::createCommandObjects(const caf::PdmObjectGroup& selectedObjects, std::vector<RimCommandObject*>* commandObjects)
+void RimCommandFactory::createCommandObjects( const caf::PdmObjectGroup&      selectedObjects,
+                                              std::vector<RimCommandObject*>* commandObjects )
 {
-    for (size_t i = 0; i < selectedObjects.objects.size(); i++)
+    for ( size_t i = 0; i < selectedObjects.objects.size(); i++ )
     {
         caf::PdmObjectHandle* pdmObject = selectedObjects.objects[i];
 
-        if (dynamic_cast<RimCalcScript*>(pdmObject))
+        if ( dynamic_cast<RimCalcScript*>( pdmObject ) )
         {
-            RimCalcScript* calcScript = dynamic_cast<RimCalcScript*>(pdmObject);
+            RimCalcScript* calcScript = dynamic_cast<RimCalcScript*>( pdmObject );
 
-            QFile file(calcScript->absoluteFileName);
-            if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+            QFile file( calcScript->absoluteFileName );
+            if ( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
             {
-                QTextStream in(&file);
-                QByteArray byteArray = file.readAll();
-                QString scriptText(byteArray);
+                QTextStream in( &file );
+                QByteArray  byteArray = file.readAll();
+                QString     scriptText( byteArray );
 
                 RimCommandExecuteScript* command = new RimCommandExecuteScript;
-                command->scriptText = scriptText;
+                command->scriptText              = scriptText;
 
-                commandObjects->push_back(command);
+                commandObjects->push_back( command );
             }
         }
-        else if (dynamic_cast<RimEclipseStatisticsCase*>(pdmObject))
+        else if ( dynamic_cast<RimEclipseStatisticsCase*>( pdmObject ) )
         {
-            RimEclipseStatisticsCase* statisticsCase = dynamic_cast<RimEclipseStatisticsCase*>(pdmObject);
+            RimEclipseStatisticsCase* statisticsCase = dynamic_cast<RimEclipseStatisticsCase*>( pdmObject );
 
             RimCommandIssueFieldChanged* command = new RimCommandIssueFieldChanged;
-            command->objectName = statisticsCase->uiName();
-            command->fieldName = statisticsCase->m_calculateEditCommand.keyword();
-            command->fieldValueToApply = "true";
+            command->objectName                  = statisticsCase->uiName();
+            command->fieldName                   = statisticsCase->m_calculateEditCommand.keyword();
+            command->fieldValueToApply           = "true";
 
-            commandObjects->push_back(command);
+            commandObjects->push_back( command );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimCommandIssueFieldChanged::RimCommandIssueFieldChanged()
 {
-    CAF_PDM_InitFieldNoDefault(&commandName,       "CommandName",      "CommandName", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &commandName, "CommandName", "CommandName", "", "", "" );
 
-    CAF_PDM_InitField(&objectName, "ObjectName",  QString(), "ObjectName", "", "" ,"");
-    CAF_PDM_InitField(&fieldName, "FieldName",  QString(), "FieldName", "", "" ,"");
-    CAF_PDM_InitField(&fieldValueToApply, "FieldValueToApply",  QString(), "FieldValueToApply", "", "" ,"");
+    CAF_PDM_InitField( &objectName, "ObjectName", QString(), "ObjectName", "", "", "" );
+    CAF_PDM_InitField( &fieldName, "FieldName", QString(), "FieldName", "", "", "" );
+    CAF_PDM_InitField( &fieldValueToApply, "FieldValueToApply", QString(), "FieldValueToApply", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimCommandIssueFieldChanged::~RimCommandIssueFieldChanged()
-{
-}
+RimCommandIssueFieldChanged::~RimCommandIssueFieldChanged() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimCommandIssueFieldChanged::redo()
 {
-    RiaApplication* app = RiaApplication::instance();
-    PdmObject* project = app->project();
+    RiaApplication* app     = RiaApplication::instance();
+    PdmObject*      project = app->project();
 
-    caf::PdmObjectHandle* pdmObject = findObjectByName(project, this->objectName);
+    caf::PdmObjectHandle* pdmObject = findObjectByName( project, this->objectName );
 
-    if (pdmObject)
+    if ( pdmObject )
     {
-        caf::PdmFieldHandle* fieldHandle = findFieldByKeyword(pdmObject, this->fieldName);
+        caf::PdmFieldHandle* fieldHandle = findFieldByKeyword( pdmObject, this->fieldName );
 
-        if (fieldHandle && fieldHandle->uiCapability())
+        if ( fieldHandle && fieldHandle->uiCapability() )
         {
-            caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>(fieldHandle);
-            CVF_ASSERT(valueField);
+            caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>( fieldHandle );
+            CVF_ASSERT( valueField );
 
             QVariant oldValue = valueField->toQVariant();
-            QVariant newValue(this->fieldValueToApply);
+            QVariant newValue( this->fieldValueToApply );
 
-            valueField->setFromQVariant(newValue);
+            valueField->setFromQVariant( newValue );
 
             caf::PdmUiFieldHandle* uiFieldHandle = fieldHandle->uiCapability();
-            uiFieldHandle->notifyFieldChanged(oldValue, newValue);
+            uiFieldHandle->notifyFieldChanged( oldValue, newValue );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimCommandIssueFieldChanged::undo()
-{
-
-}
+void RimCommandIssueFieldChanged::undo() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimCommandIssueFieldChanged::userDescriptionField()
 {
@@ -258,48 +241,48 @@ caf::PdmFieldHandle* RimCommandIssueFieldChanged::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimCommandIssueFieldChanged::childObjects(caf::PdmObject* pdmObject, std::vector<caf::PdmObjectHandle*>& children)
+void RimCommandIssueFieldChanged::childObjects( caf::PdmObject* pdmObject, std::vector<caf::PdmObjectHandle*>& children )
 {
-    if (!pdmObject) return;
+    if ( !pdmObject ) return;
 
     std::vector<caf::PdmFieldHandle*> fields;
-    pdmObject->fields(fields);
+    pdmObject->fields( fields );
 
     size_t fIdx;
-    for (fIdx = 0; fIdx < fields.size(); ++fIdx)
+    for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
     {
-        if (fields[fIdx]) fields[fIdx]->childObjects(&children);
+        if ( fields[fIdx] ) fields[fIdx]->childObjects( &children );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimCommandIssueFieldChanged::findObjectByName(caf::PdmObjectHandle* pdmObject, const QString& name)
+caf::PdmObjectHandle* RimCommandIssueFieldChanged::findObjectByName( caf::PdmObjectHandle* pdmObject, const QString& name )
 {
     std::vector<caf::PdmFieldHandle*> fields;
-    pdmObject->fields(fields);
+    pdmObject->fields( fields );
 
-    caf::PdmUiObjectHandle* uiObjectHandle = uiObj(pdmObject);
+    caf::PdmUiObjectHandle* uiObjectHandle = uiObj( pdmObject );
 
-    if (uiObjectHandle && uiObjectHandle->uiName() == name)
+    if ( uiObjectHandle && uiObjectHandle->uiName() == name )
     {
         return pdmObject;
     }
-    
-    for (size_t fIdx = 0; fIdx < fields.size(); fIdx++)
+
+    for ( size_t fIdx = 0; fIdx < fields.size(); fIdx++ )
     {
-        if (fields[fIdx])
+        if ( fields[fIdx] )
         {
             std::vector<caf::PdmObjectHandle*> children;
-            fields[fIdx]->childObjects(&children);
+            fields[fIdx]->childObjects( &children );
 
-            for (size_t cIdx = 0; cIdx < children.size(); cIdx++)
+            for ( size_t cIdx = 0; cIdx < children.size(); cIdx++ )
             {
-                PdmObjectHandle* candidateObj = findObjectByName(children[cIdx], name);
-                if (candidateObj)
+                PdmObjectHandle* candidateObj = findObjectByName( children[cIdx], name );
+                if ( candidateObj )
                 {
                     return candidateObj;
                 }
@@ -310,18 +293,18 @@ caf::PdmObjectHandle* RimCommandIssueFieldChanged::findObjectByName(caf::PdmObje
     return nullptr;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimCommandIssueFieldChanged::findFieldByKeyword(caf::PdmObjectHandle* pdmObject, const QString& keywordName)
+caf::PdmFieldHandle* RimCommandIssueFieldChanged::findFieldByKeyword( caf::PdmObjectHandle* pdmObject,
+                                                                      const QString&        keywordName )
 {
     std::vector<caf::PdmFieldHandle*> fields;
-    pdmObject->fields(fields);
+    pdmObject->fields( fields );
 
-    for (size_t fIdx = 0; fIdx < fields.size(); fIdx++)
+    for ( size_t fIdx = 0; fIdx < fields.size(); fIdx++ )
     {
-        if (fields[fIdx] && fields[fIdx]->keyword() == keywordName)
+        if ( fields[fIdx] && fields[fIdx]->keyword() == keywordName )
         {
             return fields[fIdx];
         }
@@ -329,5 +312,3 @@ caf::PdmFieldHandle* RimCommandIssueFieldChanged::findFieldByKeyword(caf::PdmObj
 
     return nullptr;
 }
-
-

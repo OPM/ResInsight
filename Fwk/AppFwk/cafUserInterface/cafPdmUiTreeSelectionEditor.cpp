@@ -52,6 +52,7 @@
 #include <QPalette>
 #include <QSortFilterProxyModel>
 #include <QStyleOption>
+#include <QTimer>
 #include <QTreeView>
 
 #include <algorithm>
@@ -350,10 +351,35 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
             }
         }
     }
+
     // If the tree doesn't have grand children we treat this as a straight list
     m_treeView->setRootIsDecorated(m_model->hasGrandChildren());
 
     m_model->resetUiValueCache();
+
+    if (m_attributes.currentIndexFieldHandle)
+    {
+        PdmUiFieldHandle* uiFieldHandle = m_attributes.currentIndexFieldHandle->uiCapability();
+        if (uiFieldHandle)
+        {
+            QModelIndexList indices = allVisibleSourceModelIndices();
+            QVariant currentItemValue = uiFieldHandle->uiValue();
+
+            for (const auto& mi : indices)
+            {
+                QVariant itemValue = m_model->data(mi, PdmUiTreeSelectionQModel::optionItemValueRole());
+                if (currentItemValue == itemValue)
+                {
+                    QModelIndex treeViewIndex = m_proxyModel->mapFromSource(mi);
+                    m_treeView->setCurrentIndex(treeViewIndex);
+                }
+            }
+        }
+    }
+
+    // It is required to use a timer here, as the layout of the widgets are handled by events
+    // Calling scrollTo() here has no effect, or scrolls to wrong location
+    QTimer::singleShot(150, this, SLOT(slotScrollToFirstCheckedItem()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -628,6 +654,49 @@ void PdmUiTreeSelectionEditor::slotClicked(const QModelIndex& index)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::slotScrollToFirstCheckedItem()
+{
+    auto firstVisibleIndex = m_treeView->indexAt(m_treeView->viewport()->rect().topLeft());
+    auto lastVisibleIndex = m_treeView->indexAt(m_treeView->viewport()->rect().bottomRight());
+
+    if (!firstVisibleIndex.isValid())
+    {
+        return;
+    }
+
+    if (!lastVisibleIndex.isValid())
+    {
+        return;
+    }
+
+    for (int i = firstVisibleIndex.row(); i < lastVisibleIndex.row(); i++)
+    {
+        auto treeViewIndex = m_proxyModel->index(i, 0);
+
+        if (m_proxyModel->data(treeViewIndex, Qt::CheckStateRole).toBool())
+        {
+            // Do nothing if there is a checked and visible item in the view
+            return;
+        }
+    }
+
+    for (int i = 0; i < m_proxyModel->rowCount(); i++)
+    {
+        auto treeViewIndex = m_proxyModel->index(i, 0);
+
+        if (m_proxyModel->data(treeViewIndex, Qt::CheckStateRole).toBool())
+        {
+            // Scroll to the first checked item if no checked items are visible
+            m_treeView->scrollTo(treeViewIndex);
+
+            return;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::currentChanged(const QModelIndex& current)
@@ -637,9 +706,9 @@ void PdmUiTreeSelectionEditor::currentChanged(const QModelIndex& current)
         m_proxyModel->setData(current, true, Qt::CheckStateRole);
     }
 
-    if (m_attributes.fieldToReceiveCurrentItemValue)
+    if (m_attributes.currentIndexFieldHandle)
     {
-        PdmUiFieldHandle* uiFieldHandle = m_attributes.fieldToReceiveCurrentItemValue->uiCapability();
+        PdmUiFieldHandle* uiFieldHandle = m_attributes.currentIndexFieldHandle->uiCapability();
         if (uiFieldHandle)
         {
             QVariant v = m_proxyModel->data(current, PdmUiTreeSelectionQModel::optionItemValueRole());

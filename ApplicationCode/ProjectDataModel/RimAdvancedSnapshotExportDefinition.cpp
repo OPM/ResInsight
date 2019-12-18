@@ -87,66 +87,69 @@ RimAdvancedSnapshotExportDefinition::~RimAdvancedSnapshotExportDefinition() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimAdvancedSnapshotExportDefinition::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                                bool*                      useOptionsOnly)
+QList<caf::PdmOptionItemInfo>
+    RimAdvancedSnapshotExportDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if (fieldNeedingOptions == &view)
+    if ( fieldNeedingOptions == &view )
     {
-        options.push_back(caf::PdmOptionItemInfo("None", nullptr));
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
         std::vector<Rim3dView*> views;
 
         RimProject*           proj = RiaApplication::instance()->project();
         std::vector<RimCase*> cases;
-        proj->allCases(cases);
+        proj->allCases( cases );
 
-        for (RimCase* rimCase : cases)
+        for ( RimCase* rimCase : cases )
         {
-            for (Rim3dView* rimView : rimCase->views())
+            for ( Rim3dView* rimView : rimCase->views() )
             {
-                views.push_back(rimView);
+                views.push_back( rimView );
             }
         }
 
-        for (Rim3dView* rim3dView : views)
+        for ( Rim3dView* rim3dView : views )
         {
-            RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName(rim3dView, &options);
+            RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( rim3dView, &options );
         }
     }
-    else if (fieldNeedingOptions == &eclipseResultType)
+    else if ( fieldNeedingOptions == &eclipseResultType )
     {
-        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RiaDefines::ResultCatType>(RiaDefines::DYNAMIC_NATIVE).uiText(),
-                                                 RiaDefines::DYNAMIC_NATIVE));
-        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RiaDefines::ResultCatType>(RiaDefines::STATIC_NATIVE).uiText(),
-                                                 RiaDefines::STATIC_NATIVE));
+        options.push_back(
+            caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::DYNAMIC_NATIVE ).uiText(),
+                                    RiaDefines::DYNAMIC_NATIVE ) );
+        options.push_back(
+            caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::STATIC_NATIVE ).uiText(),
+                                    RiaDefines::STATIC_NATIVE ) );
     }
-    else if (fieldNeedingOptions == &selectedEclipseResults)
+    else if ( fieldNeedingOptions == &selectedEclipseResults )
     {
-        RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(view());
-        if (rimEclipseView)
+        RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>( view() );
+        if ( rimEclipseView )
         {
             QStringList varList;
-            varList = rimEclipseView->currentGridCellResults()->resultNames(eclipseResultType());
+            varList = rimEclipseView->currentGridCellResults()->resultNames( eclipseResultType() );
 
-            options = toOptionList(varList);
+            options = toOptionList( varList );
         }
     }
-    else if (fieldNeedingOptions == &timeStepEnd)
+    else if ( fieldNeedingOptions == &timeStepEnd )
     {
-        getTimeStepStrings(options);
+        getTimeStepStrings( options );
     }
-    else if (fieldNeedingOptions == &timeStepStart)
+    else if ( fieldNeedingOptions == &timeStepStart )
     {
-        getTimeStepStrings(options);
+        getTimeStepStrings( options );
     }
-    else if (fieldNeedingOptions == &additionalCases)
+    else if ( fieldNeedingOptions == &additionalCases )
     {
-        RimTools::caseOptionItems(&options);
+        RimTools::caseOptionItems( &options );
     }
 
-    if (useOptionsOnly) *useOptionsOnly = true;
+    if ( useOptionsOnly ) *useOptionsOnly = true;
 
     return options;
 }
@@ -154,50 +157,50 @@ QList<caf::PdmOptionItemInfo> RimAdvancedSnapshotExportDefinition::calculateValu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAdvancedSnapshotExportDefinition::getTimeStepStrings(QList<caf::PdmOptionItemInfo>& options)
+void RimAdvancedSnapshotExportDefinition::getTimeStepStrings( QList<caf::PdmOptionItemInfo>& options )
 {
-    if (!view()) return;
+    if ( !view() ) return;
 
     QStringList timeSteps;
 
     timeSteps = view->ownerCase()->timeStepStrings();
 
-    for (int i = 0; i < timeSteps.size(); i++)
+    for ( int i = 0; i < timeSteps.size(); i++ )
     {
-        options.push_back(caf::PdmOptionItemInfo(timeSteps[i], i));
+        options.push_back( caf::PdmOptionItemInfo( timeSteps[i], i ) );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAdvancedSnapshotExportDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                                  const QVariant&            oldValue,
-                                                  const QVariant&            newValue)
+void RimAdvancedSnapshotExportDefinition::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                            const QVariant&            oldValue,
+                                                            const QVariant&            newValue )
 {
-    if (changedField == &eclipseResultType)
+    if ( changedField == &eclipseResultType )
     {
         selectedEclipseResults.v().clear();
     }
-    else if (changedField == &sliceDirection)
+    else if ( changedField == &sliceDirection )
     {
         const cvf::StructGridInterface* mainGrid    = nullptr;
         const RigActiveCellInfo*        actCellInfo = nullptr;
 
-        if (view())
+        if ( view() )
         {
-            actCellInfo = RigReservoirGridTools::activeCellInfo(view());
+            actCellInfo = RigReservoirGridTools::activeCellInfo( view() );
 
             RimCase* rimCase = nullptr;
-            view()->firstAncestorOrThisOfTypeAsserted(rimCase);
+            view()->firstAncestorOrThisOfTypeAsserted( rimCase );
 
-            mainGrid = RigReservoirGridTools::mainGrid(rimCase);
+            mainGrid = RigReservoirGridTools::mainGrid( rimCase );
         }
 
-        if (mainGrid && actCellInfo)
+        if ( mainGrid && actCellInfo )
         {
             cvf::Vec3st min, max;
-            actCellInfo->IJKBoundingBox(min, max);
+            actCellInfo->IJKBoundingBox( min, max );
 
             // Adjust to Eclipse indexing
             min.x() = min.x() + 1;
@@ -211,20 +214,20 @@ void RimAdvancedSnapshotExportDefinition::fieldChangedByUi(const caf::PdmFieldHa
             int maxInt = 0;
             int minInt = 0;
 
-            if (newValue == RimAdvancedSnapshotExportDefinition::RANGEFILTER_I)
+            if ( newValue == RimAdvancedSnapshotExportDefinition::RANGEFILTER_I )
             {
-                maxInt = static_cast<int>(max.x());
-                minInt = static_cast<int>(min.x());
+                maxInt = static_cast<int>( max.x() );
+                minInt = static_cast<int>( min.x() );
             }
-            else if (newValue == RimAdvancedSnapshotExportDefinition::RANGEFILTER_J)
+            else if ( newValue == RimAdvancedSnapshotExportDefinition::RANGEFILTER_J )
             {
-                maxInt = static_cast<int>(max.y());
-                minInt = static_cast<int>(min.y());
+                maxInt = static_cast<int>( max.y() );
+                minInt = static_cast<int>( min.y() );
             }
-            else if (newValue == RimAdvancedSnapshotExportDefinition::RANGEFILTER_K)
+            else if ( newValue == RimAdvancedSnapshotExportDefinition::RANGEFILTER_K )
             {
-                maxInt = static_cast<int>(max.z());
-                minInt = static_cast<int>(min.z());
+                maxInt = static_cast<int>( max.z() );
+                minInt = static_cast<int>( min.z() );
             }
 
             startSliceIndex = minInt;
@@ -238,13 +241,13 @@ void RimAdvancedSnapshotExportDefinition::fieldChangedByUi(const caf::PdmFieldHa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimAdvancedSnapshotExportDefinition::toOptionList(const QStringList& varList)
+QList<caf::PdmOptionItemInfo> RimAdvancedSnapshotExportDefinition::toOptionList( const QStringList& varList )
 {
     QList<caf::PdmOptionItemInfo> optionList;
     int                           i;
-    for (i = 0; i < varList.size(); ++i)
+    for ( i = 0; i < varList.size(); ++i )
     {
-        optionList.push_back(caf::PdmOptionItemInfo(varList[i], varList[i]));
+        optionList.push_back( caf::PdmOptionItemInfo( varList[i], varList[i] ) );
     }
     return optionList;
 }
@@ -252,53 +255,53 @@ QList<caf::PdmOptionItemInfo> RimAdvancedSnapshotExportDefinition::toOptionList(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAdvancedSnapshotExportDefinition::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimAdvancedSnapshotExportDefinition::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if (!isActive())
+    if ( !isActive() )
     {
-        view.uiCapability()->setUiReadOnly(true);
-        eclipseResultType.uiCapability()->setUiReadOnly(true);
-        selectedEclipseResults.uiCapability()->setUiReadOnly(true);
-        timeStepStart.uiCapability()->setUiReadOnly(true);
-        timeStepEnd.uiCapability()->setUiReadOnly(true);
-        sliceDirection.uiCapability()->setUiReadOnly(true);
-        startSliceIndex.uiCapability()->setUiReadOnly(true);
-        endSliceIndex.uiCapability()->setUiReadOnly(true);
-        additionalCases.uiCapability()->setUiReadOnly(true);
+        view.uiCapability()->setUiReadOnly( true );
+        eclipseResultType.uiCapability()->setUiReadOnly( true );
+        selectedEclipseResults.uiCapability()->setUiReadOnly( true );
+        timeStepStart.uiCapability()->setUiReadOnly( true );
+        timeStepEnd.uiCapability()->setUiReadOnly( true );
+        sliceDirection.uiCapability()->setUiReadOnly( true );
+        startSliceIndex.uiCapability()->setUiReadOnly( true );
+        endSliceIndex.uiCapability()->setUiReadOnly( true );
+        additionalCases.uiCapability()->setUiReadOnly( true );
     }
     else
     {
-        view.uiCapability()->setUiReadOnly(false);
+        view.uiCapability()->setUiReadOnly( false );
 
-        if (!view())
+        if ( !view() )
         {
-            eclipseResultType.uiCapability()->setUiReadOnly(true);
-            selectedEclipseResults.uiCapability()->setUiReadOnly(true);
-            timeStepStart.uiCapability()->setUiReadOnly(true);
-            timeStepEnd.uiCapability()->setUiReadOnly(true);
-            sliceDirection.uiCapability()->setUiReadOnly(true);
-            startSliceIndex.uiCapability()->setUiReadOnly(true);
-            endSliceIndex.uiCapability()->setUiReadOnly(true);
-            additionalCases.uiCapability()->setUiReadOnly(true);
+            eclipseResultType.uiCapability()->setUiReadOnly( true );
+            selectedEclipseResults.uiCapability()->setUiReadOnly( true );
+            timeStepStart.uiCapability()->setUiReadOnly( true );
+            timeStepEnd.uiCapability()->setUiReadOnly( true );
+            sliceDirection.uiCapability()->setUiReadOnly( true );
+            startSliceIndex.uiCapability()->setUiReadOnly( true );
+            endSliceIndex.uiCapability()->setUiReadOnly( true );
+            additionalCases.uiCapability()->setUiReadOnly( true );
         }
         else
         {
-            eclipseResultType.uiCapability()->setUiReadOnly(false);
-            selectedEclipseResults.uiCapability()->setUiReadOnly(false);
-            timeStepStart.uiCapability()->setUiReadOnly(false);
-            timeStepEnd.uiCapability()->setUiReadOnly(false);
-            sliceDirection.uiCapability()->setUiReadOnly(false);
+            eclipseResultType.uiCapability()->setUiReadOnly( false );
+            selectedEclipseResults.uiCapability()->setUiReadOnly( false );
+            timeStepStart.uiCapability()->setUiReadOnly( false );
+            timeStepEnd.uiCapability()->setUiReadOnly( false );
+            sliceDirection.uiCapability()->setUiReadOnly( false );
 
-            additionalCases.uiCapability()->setUiReadOnly(false);
+            additionalCases.uiCapability()->setUiReadOnly( false );
 
             bool rangeReadOnly = false;
-            if (sliceDirection() == NO_RANGEFILTER)
+            if ( sliceDirection() == NO_RANGEFILTER )
             {
                 rangeReadOnly = true;
             }
 
-            startSliceIndex.uiCapability()->setUiReadOnly(rangeReadOnly);
-            endSliceIndex.uiCapability()->setUiReadOnly(rangeReadOnly);
+            startSliceIndex.uiCapability()->setUiReadOnly( rangeReadOnly );
+            endSliceIndex.uiCapability()->setUiReadOnly( rangeReadOnly );
         }
     }
 }

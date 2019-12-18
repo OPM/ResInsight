@@ -23,8 +23,16 @@ namespace caf
 class PdmUiItem;
 } // namespace caf
 
+class RiuMainWindowBase;
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 class RiuMainWindowTools
 {
 public:
-    static void collapseSiblings(const caf::PdmUiItem* uiItem);
+    static void collapseSiblings( const caf::PdmUiItem* uiItem );
+
+    static void setWindowSizeOnWidgetsInMdiWindows( RiuMainWindowBase* mainWindow, int width, int height );
+    static void setFixedWindowSizeFor3dViews( RiuMainWindowBase* mainWindow, int width, int height );
 };

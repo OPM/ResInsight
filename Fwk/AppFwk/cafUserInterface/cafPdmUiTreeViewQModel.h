@@ -75,6 +75,8 @@ public:
 
     void                    setDragDropInterface(PdmUiDragDropInterface* dragDropInterface);
     PdmUiDragDropInterface* dragDropInterface();
+
+    std::list<QModelIndex>  allIndicesRecursive(const QModelIndex& current = QModelIndex()) const;
     
 private:
     void                    updateSubTreeRecursive(const QModelIndex& uiSubTreeRootModelIdx, PdmUiTreeOrdering* uiModelSubTreeRoot, PdmUiTreeOrdering* updatedPdmSubTreeRoot);

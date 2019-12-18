@@ -18,37 +18,38 @@
 
 #pragma once
 
+#include "cafPdmPointer.h"
 #include <QObject>
 #include <vector>
-#include "cafPdmPointer.h"
 
 class QTimer;
 class Rim3dView;
 
-
 class RiaViewRedrawScheduler : public QObject
 {
     Q_OBJECT;
+
 public:
     static RiaViewRedrawScheduler* instance();
-    void                scheduleDisplayModelUpdateAndRedraw(Rim3dView* resViewToUpdate);
-    void                clearViewsScheduledForUpdate();
-    void                updateAndRedrawScheduledViews();
+    void                           scheduleDisplayModelUpdateAndRedraw( Rim3dView* resViewToUpdate );
+    void                           clearViewsScheduledForUpdate();
+    void                           updateAndRedrawScheduledViews();
 
 private slots:
-    void                slotUpdateAndRedrawScheduledViewsWhenReady();
+    void slotUpdateAndRedrawScheduledViewsWhenReady();
 
 private:
-    void                startTimer(int msecs);
+    void startTimer( int msecs );
 
-    RiaViewRedrawScheduler() : m_resViewUpdateTimer(nullptr)  {}
+    RiaViewRedrawScheduler()
+        : m_resViewUpdateTimer( nullptr )
+    {
+    }
     ~RiaViewRedrawScheduler() override;
 
-    RiaViewRedrawScheduler(const RiaViewRedrawScheduler& o) = delete;
-    void operator=(const RiaViewRedrawScheduler& o) = delete;
+    RiaViewRedrawScheduler( const RiaViewRedrawScheduler& o ) = delete;
+    void operator=( const RiaViewRedrawScheduler& o ) = delete;
 
-    std::vector<caf::PdmPointer<Rim3dView> > m_resViewsToUpdate;
-    QTimer*                                  m_resViewUpdateTimer;
+    std::vector<caf::PdmPointer<Rim3dView>> m_resViewsToUpdate;
+    QTimer*                                 m_resViewUpdateTimer;
 };
-
-

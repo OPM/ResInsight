@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -33,10 +33,10 @@
 #include <QAction>
 #include <QFileDialog>
 
-CAF_CMD_SOURCE_INIT(RicAddScriptPathFeature, "RicAddScriptPathFeature");
+CAF_CMD_SOURCE_INIT( RicAddScriptPathFeature, "RicAddScriptPathFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicAddScriptPathFeature::isCommandEnabled()
 {
@@ -45,17 +45,18 @@ bool RicAddScriptPathFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicAddScriptPathFeature::onActionTriggered(bool isChecked)
+void RicAddScriptPathFeature::onActionTriggered( bool isChecked )
 {
-    QString selectedFolder = QFileDialog::getExistingDirectory(Riu3DMainWindowTools::mainWindowWidget(), "Select script folder");
-    if (!selectedFolder.isEmpty())
+    QString selectedFolder = QFileDialog::getExistingDirectory( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                "Select script folder" );
+    if ( !selectedFolder.isEmpty() )
     {
         QString filePathString = RiaApplication::instance()->preferences()->scriptDirectories();
 
-        QChar separator(';');
-        if (!filePathString.isEmpty() && !filePathString.endsWith(separator, Qt::CaseInsensitive))
+        QChar separator( ';' );
+        if ( !filePathString.isEmpty() && !filePathString.endsWith( separator, Qt::CaseInsensitive ) )
         {
             filePathString += separator;
         }
@@ -70,9 +71,9 @@ void RicAddScriptPathFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicAddScriptPathFeature::setupActionLook(QAction* actionToSetup)
+void RicAddScriptPathFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Add Script Path");
+    actionToSetup->setText( "Add Script Path" );
 }

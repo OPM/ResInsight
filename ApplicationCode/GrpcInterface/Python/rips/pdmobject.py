@@ -14,14 +14,28 @@ class PdmObject:
     """
 
     def _execute_command(self, **command_params):
-        return self._commands.Execute(Cmd.CommandParams(**command_params))
+        self.__warnings = []
+        response, call = self._commands.Execute.with_call(Cmd.CommandParams(**command_params))
+        for key, value in call.trailing_metadata():
+            value = value.replace(';;', '\n')
+            if key == 'warning':
+                self.__warnings.append(value)
 
-    def __init__(self, pb2_object, channel):
+        return response
+
+    def __init__(self, pb2_object, channel, project):
         self._pb2_object = pb2_object
         self._channel = channel
-        self._pdm_object_stub = PdmObject_pb2_grpc.PdmObjectServiceStub(
-            self._channel)
+        self._pdm_object_stub = PdmObject_pb2_grpc.PdmObjectServiceStub(self._channel)
         self._commands = CmdRpc.CommandsStub(channel)
+        self._project = project
+        self.__warnings = []
+
+    def warnings(self):
+        return self.__warnings
+
+    def has_warnings(self):
+        return len(self.__warnings) > 0
 
     def pb2_object(self):
         """ Private method"""
@@ -30,6 +44,10 @@ class PdmObject:
     def channel(self):
         """ Private method"""
         return self._channel
+
+    def project(self):
+        """ Private method"""
+        return self._project
 
     def address(self):
         """Get the unique address of the PdmObject
@@ -136,7 +154,7 @@ class PdmObject:
             request).objects
         child_list = []
         for pdm_object in object_list:
-            child_list.append(PdmObject(pdm_object, self._channel))
+            child_list.append(PdmObject(pdm_object, self._channel, self._project))
         return child_list
 
     def children(self, child_field):
@@ -151,7 +169,7 @@ class PdmObject:
         object_list = self._pdm_object_stub.GetChildPdmObjects(request).objects
         child_list = []
         for pdm_object in object_list:
-            child_list.append(PdmObject(pdm_object, self._channel))
+            child_list.append(PdmObject(pdm_object, self._channel, self._project))
         return child_list
 
     def ancestor(self, class_keyword):
@@ -162,7 +180,7 @@ class PdmObject:
         request = PdmObject_pb2.PdmParentObjectRequest(
             object=self._pb2_object, parent_keyword=class_keyword)
         return PdmObject(self._pdm_object_stub.GetAncestorPdmObject(request),
-                         self._channel)
+                         self._channel, self._project)
 
     def update(self):
         """Sync all fields from the Python Object to ResInsight"""

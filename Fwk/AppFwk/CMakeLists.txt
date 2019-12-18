@@ -10,7 +10,7 @@ endif()
 
 # Qt
 if (NOT DEFINED(CEE_USE_QT5))
-	option(CEE_USE_QT5 "Use Qt5" OFF)
+	option(CEE_USE_QT5 "Use Qt5" ON)
 endif(NOT DEFINED(CEE_USE_QT5))
 
 if (CEE_USE_QT5)
@@ -45,6 +45,7 @@ add_subdirectory (cafProjectDataModel/cafPdmXml)
 
 add_subdirectory(cafProjectDataModel)
 add_subdirectory(cafCommand)
+add_subdirectory(cafCommandFeatures)
 add_subdirectory(cafUserInterface)
 
 #executables

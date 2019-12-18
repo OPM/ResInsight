@@ -42,6 +42,8 @@ public:
 
     virtual bool    resolveReferences() = 0;
 
+    virtual QString referenceString() const             { return QString(); }
+
 protected:
     bool            assertValid() const;
     QString         m_childClassKeyword; ///< Must be set in constructor of derived XmlFieldHandle

@@ -25,31 +25,31 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuDraggableOverlayFrame::RiuDraggableOverlayFrame(QWidget* parent, QWidget* widgetToSnapTo, const QColor& backgroundColor)
-    : QFrame(parent)
+RiuDraggableOverlayFrame::RiuDraggableOverlayFrame( QWidget* parent, QWidget* widgetToSnapTo, const QColor& backgroundColor )
+    : QFrame( parent )
 {
-    RiuWidgetDragger* dragger = new RiuWidgetDragger(this, widgetToSnapTo);
+    RiuWidgetDragger* dragger = new RiuWidgetDragger( this, widgetToSnapTo );
 
     QPalette pal = this->palette();
-    pal.setColor(QPalette::Background, backgroundColor);
-    setAutoFillBackground(true);
-    setPalette(pal);
-    setFrameShape(QFrame::Box);
-    QGraphicsDropShadowEffect* dropShadowEffect = new QGraphicsDropShadowEffect(this);
-    dropShadowEffect->setOffset(1.0, 1.0);
-    dropShadowEffect->setBlurRadius(3.0);
-    dropShadowEffect->setColor(QColor(100, 100, 100, 100));
-    setGraphicsEffect(dropShadowEffect);
+    pal.setColor( QPalette::Window, backgroundColor );
+    setAutoFillBackground( true );
+    setPalette( pal );
+    setFrameShape( QFrame::Box );
+    QGraphicsDropShadowEffect* dropShadowEffect = new QGraphicsDropShadowEffect( this );
+    dropShadowEffect->setOffset( 1.0, 1.0 );
+    dropShadowEffect->setBlurRadius( 3.0 );
+    dropShadowEffect->setColor( QColor( 100, 100, 100, 100 ) );
+    setGraphicsEffect( dropShadowEffect );
 
-    auto hblayout = new QVBoxLayout(this);
-    this->setLayout(hblayout);
+    auto hblayout = new QVBoxLayout( this );
+    this->setLayout( hblayout );
 
-    m_overlayItemLabel = new QLabel(this);
-    hblayout->addWidget(m_overlayItemLabel);
-    m_overlayItemLabel->setObjectName("OverlayFrameLabel");
-    m_overlayItemLabel->setGraphicsEffect(nullptr);
-    m_overlayItemLabel->setAlignment(Qt::AlignTop | Qt::AlignLeft);
-    dragger->addWidget(m_overlayItemLabel);
+    m_overlayItemLabel = new QLabel( this );
+    hblayout->addWidget( m_overlayItemLabel );
+    m_overlayItemLabel->setObjectName( "OverlayFrameLabel" );
+    m_overlayItemLabel->setGraphicsEffect( nullptr );
+    m_overlayItemLabel->setAlignment( Qt::AlignTop | Qt::AlignLeft );
+    dragger->addWidget( m_overlayItemLabel );
 }
 
 //--------------------------------------------------------------------------------------------------

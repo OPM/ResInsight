@@ -25,35 +25,35 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicWellPathFractureReportItem::RicWellPathFractureReportItem(const QString& wellPathNameForExport,
-                                                             const QString& fractureName,
-                                                             const QString& fractureTemplateName,
-                                                             double         measuredDepth)
-    : m_wellPathNameForExport(wellPathNameForExport)
-    , m_wellPathFracture(fractureName)
-    , m_wellPathFractureTemplate(fractureTemplateName)
-    , m_mesuredDepth(measuredDepth)
-    , m_transmissibility(0.0)
-    , m_connectionCount(0)
-    , m_area(0.0)
-    , m_kfwf(0.0)
-    , m_kf(0.0)
-    , m_wf(0.0)
-    , m_xf(0.0)
-    , m_h(0.0)
-    , m_km(0.0)
-    , m_performPressureDepletionScaling(false)
-    , m_pressureDepletionUserWBHP(0.0)
-    , m_pressureDepletionActualWBHP(0.0)
-    , m_pressureDepletionMinPressureDrop(-1.0)
-    , m_pressureDepletionMaxPressureDrop(-1.0)
+RicWellPathFractureReportItem::RicWellPathFractureReportItem( const QString& wellPathNameForExport,
+                                                              const QString& fractureName,
+                                                              const QString& fractureTemplateName,
+                                                              double         measuredDepth )
+    : m_wellPathNameForExport( wellPathNameForExport )
+    , m_wellPathFracture( fractureName )
+    , m_wellPathFractureTemplate( fractureTemplateName )
+    , m_mesuredDepth( measuredDepth )
+    , m_transmissibility( 0.0 )
+    , m_connectionCount( 0 )
+    , m_area( 0.0 )
+    , m_kfwf( 0.0 )
+    , m_kf( 0.0 )
+    , m_wf( 0.0 )
+    , m_xf( 0.0 )
+    , m_h( 0.0 )
+    , m_km( 0.0 )
+    , m_performPressureDepletionScaling( false )
+    , m_pressureDepletionUserWBHP( 0.0 )
+    , m_pressureDepletionActualWBHP( 0.0 )
+    , m_pressureDepletionMinPressureDrop( -1.0 )
+    , m_pressureDepletionMaxPressureDrop( -1.0 )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathFractureReportItem::setData(double trans, size_t connCount, double area)
+void RicWellPathFractureReportItem::setData( double trans, size_t connCount, double area )
 {
     m_transmissibility = trans;
     m_connectionCount  = connCount;
@@ -63,12 +63,12 @@ void RicWellPathFractureReportItem::setData(double trans, size_t connCount, doub
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathFractureReportItem::setWidthAndConductivity(double width, double conductivity)
+void RicWellPathFractureReportItem::setWidthAndConductivity( double width, double conductivity )
 {
     m_wf = width;
- 
-    double permeability = RigTransmissibilityEquations::permeability(conductivity, width);
-    m_kf = permeability;
+
+    double permeability = RigTransmissibilityEquations::permeability( conductivity, width );
+    m_kf                = permeability;
 
     m_kfwf = conductivity;
 }
@@ -76,7 +76,7 @@ void RicWellPathFractureReportItem::setWidthAndConductivity(double width, double
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathFractureReportItem::setHeightAndHalfLength(double height, double halfLength)
+void RicWellPathFractureReportItem::setHeightAndHalfLength( double height, double halfLength )
 {
     m_h  = height;
     m_xf = halfLength;
@@ -85,7 +85,7 @@ void RicWellPathFractureReportItem::setHeightAndHalfLength(double height, double
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathFractureReportItem::setAreaWeightedPermeability(double permeability)
+void RicWellPathFractureReportItem::setAreaWeightedPermeability( double permeability )
 {
     m_km = permeability;
 }
@@ -117,7 +117,7 @@ QString RicWellPathFractureReportItem::fractureTemplateName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathFractureReportItem::setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem)
+void RicWellPathFractureReportItem::setUnitSystem( RiaEclipseUnitTools::UnitSystem unitSystem )
 {
     m_unitSystem = unitSystem;
 }
@@ -125,7 +125,13 @@ void RicWellPathFractureReportItem::setUnitSystem(RiaEclipseUnitTools::UnitSyste
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathFractureReportItem::setPressureDepletionParameters(bool performPDDScaling, QString timeStepString, QString wbhpString, double userWBHP, double actualWBHP, double minPressureDrop, double maxPressureDrop)
+void RicWellPathFractureReportItem::setPressureDepletionParameters( bool           performPDDScaling,
+                                                                    const QString& timeStepString,
+                                                                    const QString& wbhpString,
+                                                                    double         userWBHP,
+                                                                    double         actualWBHP,
+                                                                    double         minPressureDrop,
+                                                                    double         maxPressureDrop )
 {
     m_performPressureDepletionScaling  = performPDDScaling;
     m_pressureDepletionTimeStepString  = timeStepString;
@@ -168,7 +174,7 @@ double RicWellPathFractureReportItem::fcd() const
     double myFcd = 0.0;
 
     double threshold = 1.0e-7;
-    if (fabs(kmxf()) > threshold)
+    if ( fabs( kmxf() ) > threshold )
     {
         myFcd = kfwf() / kmxf();
     }
@@ -233,7 +239,7 @@ double RicWellPathFractureReportItem::km() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RicWellPathFractureReportItem::kmxf() const
 {
@@ -299,9 +305,9 @@ double RicWellPathFractureReportItem::pressureDepletionMaxPressureDrop() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathFractureReportItem::operator<(const RicWellPathFractureReportItem& other) const
+bool RicWellPathFractureReportItem::operator<( const RicWellPathFractureReportItem& other ) const
 {
-    if (this->wellPathNameForExport() != other.wellPathNameForExport())
+    if ( this->wellPathNameForExport() != other.wellPathNameForExport() )
     {
         return this->wellPathNameForExport() < other.wellPathNameForExport();
     }

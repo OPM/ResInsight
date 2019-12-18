@@ -1,21 +1,20 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017- Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 
 #pragma once
 
@@ -31,7 +30,7 @@ class QwtPlot;
 class QwtPlotCurve;
 
 //==================================================================================================
-///  
+///
 //==================================================================================================
 class RimEnsembleCurveSetCollection : public caf::PdmObject
 {
@@ -41,48 +40,48 @@ public:
     RimEnsembleCurveSetCollection();
     ~RimEnsembleCurveSetCollection() override;
 
-    bool                                    isCurveSetsVisible();
+    bool isCurveSetsVisible();
 
-    void                                    loadDataAndUpdate(bool updateParentPlot);
-    void                                    setParentQwtPlotAndReplot(QwtPlot* plot);
-    void                                    detachQwtCurves();
-    void                                    reattachQwtCurves();
+    void loadDataAndUpdate( bool updateParentPlot );
+    void setParentQwtPlotAndReplot( QwtPlot* plot );
+    void detachQwtCurves();
+    void reattachQwtCurves();
 
-    RimEnsembleCurveSet*                    findRimCurveSetFromQwtCurve(const QwtPlotCurve* qwtCurve) const;
+    RimEnsembleCurveSet* findRimCurveSetFromQwtCurve( const QwtPlotCurve* qwtCurve ) const;
 
-    void                                    addCurveSet(RimEnsembleCurveSet* curveSet);
-    void                                    deleteCurveSet(RimEnsembleCurveSet* curveSet);
-    void                                    deleteCurveSets(const std::vector<RimEnsembleCurveSet*> curveSets);
+    void addCurveSet( RimEnsembleCurveSet* curveSet );
+    void deleteCurveSet( RimEnsembleCurveSet* curveSet );
+    void deleteCurveSets( const std::vector<RimEnsembleCurveSet*> curveSets );
 
-    std::vector<RimEnsembleCurveSet*>       curveSets() const;
-    size_t                                  curveSetCount() const;
+    std::vector<RimEnsembleCurveSet*> curveSets() const;
+    size_t                            curveSetCount() const;
 
+    void deleteAllCurveSets();
 
-    void                                    deleteAllCurveSets();
+    void setCurrentSummaryCurveSet( RimEnsembleCurveSet* curveSet );
 
-    void                                    setCurrentSummaryCurveSet(RimEnsembleCurveSet* curveSet);
-    
     // Functions related to source stepping
-    std::vector<caf::PdmFieldHandle*>       fieldsToShowInToolbar();
-    void                                    setCurveSetForSourceStepping(RimEnsembleCurveSet* curve);
-    RimEnsembleCurveSet*                    curveSetForSourceStepping() const;
-    std::vector<RimEnsembleCurveSet*>       curveSetsForSourceStepping() const;
+    std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
+    void                              setCurveSetForSourceStepping( RimEnsembleCurveSet* curve );
+    RimEnsembleCurveSet*              curveSetForSourceStepping() const;
+    std::vector<RimEnsembleCurveSet*> curveSetsForSourceStepping() const;
+    RimSummaryPlotSourceStepping*     sourceSteppingObject() const;
 
 private:
-    caf::PdmFieldHandle*                    objectToggleField() override;
-    
-    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                                             const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle* objectToggleField() override;
 
-    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
+
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    caf::PdmField<bool>                             m_showCurves;
-    caf::PdmChildArrayField<RimEnsembleCurveSet*>   m_curveSets;
+    caf::PdmField<bool>                           m_showCurves;
+    caf::PdmChildArrayField<RimEnsembleCurveSet*> m_curveSets;
 
-    caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_ySourceStepping;
+    caf::PdmChildField<RimSummaryPlotSourceStepping*> m_ySourceStepping;
 
-    caf::PdmPointer<RimEnsembleCurveSet>            m_currentEnsembleCurveSet;
-    caf::PdmPointer<RimEnsembleCurveSet>            m_curveSetForSourceStepping;
+    caf::PdmPointer<RimEnsembleCurveSet> m_currentEnsembleCurveSet;
+    caf::PdmPointer<RimEnsembleCurveSet> m_curveSetForSourceStepping;
 };
-

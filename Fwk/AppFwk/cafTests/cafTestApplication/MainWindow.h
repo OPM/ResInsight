@@ -1,8 +1,8 @@
 #pragma once
 
-#include <QMainWindow>
 #include <QAbstractItemModel>
 #include <QItemSelection>
+#include <QMainWindow>
 
 class DemoPdmObject;
 class DemoPdmObjectGroup;
@@ -12,14 +12,14 @@ class QLabel;
 
 namespace caf
 {
-    class PdmObjectCollection;
-    class PdmObjectHandle;
-    class UiTreeModelPdm;
-    class PdmUiPropertyView;
-    class PdmUiTreeView;
-    class PdmUiTableView;
-    class CustomObjectEditor;
-}
+class PdmObjectCollection;
+class PdmObjectHandle;
+class UiTreeModelPdm;
+class PdmUiPropertyView;
+class PdmUiTreeView;
+class PdmUiTableView;
+class CustomObjectEditor;
+} // namespace caf
 
 class MainWindow : public QMainWindow
 {
@@ -30,7 +30,7 @@ public:
     ~MainWindow() override;
 
     static MainWindow* instance();
-    void setPdmRoot(caf::PdmObjectHandle* pdmRoot);
+    void               setPdmRoot(caf::PdmObjectHandle* pdmRoot);
 
 private:
     void createActions();
@@ -50,21 +50,22 @@ private slots:
     void slotLoadProject();
     void slotSaveProject();
 
+    void slotCustomMenuRequestedForProjectTree(const QPoint&);
+
 private:
     static MainWindow* sm_mainWindowInstance;
 
 private:
-    QUndoView*                  undoView;
+    QUndoView* undoView;
 
-    caf::PdmUiTreeView*         m_pdmUiTreeView;
-    caf::PdmUiTreeView*         m_pdmUiTreeView2;
-    caf::PdmUiPropertyView*     m_pdmUiPropertyView;
-    caf::PdmUiTableView*        m_pdmUiTableView;
-    DemoPdmObjectGroup*         m_testRoot;
+    caf::PdmUiTreeView*     m_pdmUiTreeView;
+    caf::PdmUiTreeView*     m_pdmUiTreeView2;
+    caf::PdmUiPropertyView* m_pdmUiPropertyView;
+    caf::PdmUiTableView*    m_pdmUiTableView;
+    DemoPdmObjectGroup*     m_testRoot;
 
-    caf::CustomObjectEditor*    m_customObjectEditor;
+    caf::CustomObjectEditor* m_customObjectEditor;
 
-    QLabel*                     m_plotLabel;
-    QLabel*                     m_smallPlotLabel;
+    QLabel* m_plotLabel;
+    QLabel* m_smallPlotLabel;
 };
-

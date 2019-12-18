@@ -55,6 +55,7 @@
 #include <QListView>
 #include <QListView>
 #include <QStringListModel>
+#include <QTimer>
 
 
 
@@ -153,21 +154,6 @@ PdmUiListEditor::~PdmUiListEditor()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiListEditor::scrollToSelectedItem() const
-{
-    if (m_isScrollToItemAllowed)
-    {
-        QModelIndex mi = m_listView->currentIndex();
-        if (mi.isValid())
-        {
-            m_listView->scrollTo(mi);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
     // TODO: Fix CAF_ASSERT( here when undoing in testapp
@@ -201,10 +187,17 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
     {
         uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &attributes);
         
-        QPalette myPalette(m_listView->palette());
-        myPalette.setColor(QPalette::Base, attributes.m_baseColor);
+        QPalette myPalette;
 
-        m_listView->setPalette(myPalette);
+        if (attributes.m_baseColor == myPalette.color(QPalette::Active, QPalette::Base))
+        {
+            m_listView->setStyleSheet("");
+        }
+        else
+        {
+            m_listView->setStyleSheet("background-color: " + attributes.m_baseColor.name() + ";");
+        }
+
         m_listView->setHeightHint(attributes.m_heightHint);
         if (!attributes.m_allowHorizontalScrollBar)
         {
@@ -287,7 +280,7 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_listView->selectionModel()->blockSignals(false);
     }
 
-    //ensureCurrentItemIsVisible();
+    QTimer::singleShot(150, this, SLOT(slotScrollToSelectedItem()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -397,6 +390,21 @@ void PdmUiListEditor::slotListItemEdited(const QModelIndex&, const QModelIndex&)
     QStringList uiList = m_model->stringList();
 
     trimAndSetValuesToField(uiList);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiListEditor::slotScrollToSelectedItem() const
+{
+    if (m_isScrollToItemAllowed)
+    {
+        QModelIndex mi = m_listView->currentIndex();
+        if (mi.isValid())
+        {
+            m_listView->scrollTo(mi);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

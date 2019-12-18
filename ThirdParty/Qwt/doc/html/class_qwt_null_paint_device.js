@@ -21,11 +21,11 @@ var class_qwt_null_paint_device =
     [ "drawRects", "class_qwt_null_paint_device.html#a1ea5ece663be08bacd9b1b46230b5cbc", null ],
     [ "drawRects", "class_qwt_null_paint_device.html#a78163254e4793afc26b1752178964336", null ],
     [ "drawTextItem", "class_qwt_null_paint_device.html#a9c0566fc34422c4bd61534cebfb95d63", null ],
-    [ "drawTiledPixmap", "class_qwt_null_paint_device.html#a256a8a39d0f32fb210c4561fe1b3f867", null ],
-    [ "metric", "class_qwt_null_paint_device.html#a014f8bf4ba5f58df3d17747e09d8f539", null ],
-    [ "mode", "class_qwt_null_paint_device.html#ab8dd2303c06d6cbfa5f4c0fa442eb493", null ],
-    [ "paintEngine", "class_qwt_null_paint_device.html#a2058b09c918ed674ef1977d11d869b03", null ],
+    [ "drawTiledPixmap", "class_qwt_null_paint_device.html#affb43b9932b513670eb4fe7b1259f39e", null ],
+    [ "metric", "class_qwt_null_paint_device.html#a97d521b0b284dcdc262a03840ae80a8c", null ],
+    [ "mode", "class_qwt_null_paint_device.html#aee6442e130abc43b818d4da90b9f45b9", null ],
+    [ "paintEngine", "class_qwt_null_paint_device.html#a69b6e22f20dd4a9103d387acc6a79a7e", null ],
     [ "setMode", "class_qwt_null_paint_device.html#a8b159556695136a58eec6e78fd88957b", null ],
-    [ "sizeMetrics", "class_qwt_null_paint_device.html#afb8da1b931a42cc370b77323ff6a28cc", null ],
-    [ "updateState", "class_qwt_null_paint_device.html#a235bd4e1453a13f7c4c076a9595a8840", null ]
+    [ "sizeMetrics", "class_qwt_null_paint_device.html#ab95def8c9d76d4fa6142458fd5ea4970", null ],
+    [ "updateState", "class_qwt_null_paint_device.html#a73244bfbecba932af1b105cfe3cf4f2d", null ]
 ];

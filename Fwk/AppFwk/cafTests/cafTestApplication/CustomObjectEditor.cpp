@@ -43,57 +43,56 @@
 #include <QFrame>
 #include <QGridLayout>
 
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class WidgetCellIds
 {
 public:
     WidgetCellIds(QWidget* w, const std::vector<int>& occupiedCellIds)
-        : m_customWidget(w),
-        m_customWidgetCellIds(occupiedCellIds)
+        : m_customWidget(w)
+        , m_customWidgetCellIds(occupiedCellIds)
     {
     }
 
-    QWidget*           m_customWidget;
-    std::vector<int>   m_customWidgetCellIds;
+    QWidget*         m_customWidget;
+    std::vector<int> m_customWidgetCellIds;
 };
-
 
 namespace caf
 {
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CustomObjectEditor::CustomObjectEditor()
 {
     m_columnCount = 3;
-    m_rowCount = 2;
+    m_rowCount    = 2;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-CustomObjectEditor::~CustomObjectEditor()
-{
-}
+CustomObjectEditor::~CustomObjectEditor() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CustomObjectEditor::defineGridLayout(int rowCount, int columnCount)
 {
-    m_rowCount = rowCount;
+    m_rowCount    = rowCount;
     m_columnCount = columnCount;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CustomObjectEditor::addWidget(QWidget* widget, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment /*= 0*/)
+void CustomObjectEditor::addWidget(QWidget*      widget,
+                                   int           row,
+                                   int           column,
+                                   int           rowSpan,
+                                   int           columnSpan,
+                                   Qt::Alignment alignment /*= 0*/)
 {
     CAF_ASSERT(isAreaAvailable(row, column, rowSpan, columnSpan));
 
@@ -104,7 +103,7 @@ void CustomObjectEditor::addWidget(QWidget* widget, int row, int column, int row
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CustomObjectEditor::removeWidget(QWidget* widget)
 {
@@ -127,7 +126,7 @@ void CustomObjectEditor::removeWidget(QWidget* widget)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CustomObjectEditor::addBlankCell(int row, int column)
 {
@@ -135,7 +134,7 @@ void CustomObjectEditor::addBlankCell(int row, int column)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QWidget* CustomObjectEditor::createWidget(QWidget* parent)
 {
@@ -149,9 +148,10 @@ QWidget* CustomObjectEditor::createWidget(QWidget* parent)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CustomObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering, const QString& uiConfigName)
+void CustomObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering,
+                                                                         const QString&       uiConfigName)
 {
     resetCellId();
 
@@ -165,14 +165,14 @@ void CustomObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const P
 
         if (topLevelUiItems[i].first->isUiGroup())
         {
-            PdmUiGroup* group = static_cast<PdmUiGroup*>(topLevelUiItems[i].first);
+            PdmUiGroup*     group    = static_cast<PdmUiGroup*>(topLevelUiItems[i].first);
             QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
 
             /// Insert the group box at the correct position of the parent layout
-            int nextCellId = getNextAvailableCellId();
-            std::pair<int, int> rowCol = rowAndColumn(nextCellId);
+            int                 nextCellId = getNextAvailableCellId();
+            std::pair<int, int> rowCol     = rowAndColumn(nextCellId);
             m_layout->addWidget(groupBox, rowCol.first, rowCol.second, 1, 1);
-            
+
             recursivelyConfigureAndUpdateUiOrderingInNewGridLayout(*group, groupBox->contentFrame(), uiConfigName);
         }
 
@@ -181,7 +181,7 @@ void CustomObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const P
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool CustomObjectEditor::isAreaAvailable(int row, int column, int rowSpan, int columnSpan) const
 {
@@ -201,7 +201,7 @@ bool CustomObjectEditor::isAreaAvailable(int row, int column, int rowSpan, int c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool CustomObjectEditor::isCellIdAvailable(int cellId) const
 {
@@ -220,7 +220,7 @@ bool CustomObjectEditor::isCellIdAvailable(int cellId) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CustomObjectEditor::resetCellId()
 {
@@ -228,18 +228,18 @@ void CustomObjectEditor::resetCellId()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::pair<int, int> CustomObjectEditor::rowAndColumn(int cellId) const
 {
-    int column  = cellId % m_columnCount;
-    int row     = cellId / m_columnCount;
+    int column = cellId % m_columnCount;
+    int row    = cellId / m_columnCount;
 
     return std::make_pair(row, column);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int CustomObjectEditor::cellId(int row, int column) const
 {
@@ -247,7 +247,7 @@ int CustomObjectEditor::cellId(int row, int column) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int CustomObjectEditor::getNextAvailableCellId()
 {
@@ -267,7 +267,7 @@ int CustomObjectEditor::getNextAvailableCellId()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<int> CustomObjectEditor::cellIds(int row, int column, int rowSpan, int columnSpan) const
 {
@@ -283,6 +283,5 @@ std::vector<int> CustomObjectEditor::cellIds(int row, int column, int rowSpan, i
 
     return cells;
 }
-
 
 } // end namespace caf

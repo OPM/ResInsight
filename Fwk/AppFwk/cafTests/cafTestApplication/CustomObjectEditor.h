@@ -48,12 +48,10 @@ class QWidget;
 
 class WidgetCellIds;
 
-namespace caf 
+namespace caf
 {
-
 class PdmUiItem;
 class PdmUiGroup;
-
 
 //==================================================================================================
 /// Automatically layout top level groups into a grid layout
@@ -77,9 +75,9 @@ public:
     void addBlankCell(int row, int column);
 
 private:
-    QWidget*    createWidget(QWidget* parent) override;
-    void        recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering,
-                                                                        const QString& uiConfigName) override;
+    QWidget* createWidget(QWidget* parent) override;
+    void     recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering,
+                                                             const QString&       uiConfigName) override;
 
     bool                isAreaAvailable(int row, int column, int rowSpan, int columnSpan) const;
     bool                isCellIdAvailable(int cellId) const;
@@ -90,15 +88,13 @@ private:
     std::vector<int>    cellIds(int row, int column, int rowSpan, int columnSpan) const;
 
 private:
-    QPointer<QGridLayout>       m_layout;
+    QPointer<QGridLayout> m_layout;
 
-    int                         m_rowCount;
-    int                         m_columnCount;
-    int                         m_currentCellId;
+    int m_rowCount;
+    int m_columnCount;
+    int m_currentCellId;
 
-    std::vector<WidgetCellIds>  m_customWidgetAreas;
+    std::vector<WidgetCellIds> m_customWidgetAreas;
 };
-
-
 
 } // end namespace caf

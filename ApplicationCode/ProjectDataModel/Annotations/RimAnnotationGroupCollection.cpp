@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,49 +20,47 @@
 
 #include "RiaApplication.h"
 
-#include "RimTextAnnotation.h"
-#include "RimReachCircleAnnotation.h"
 #include "RimPolylinesAnnotation.h"
+#include "RimReachCircleAnnotation.h"
+#include "RimTextAnnotation.h"
 
-#include "RimProject.h"
-#include "RimGridView.h"
 #include "RimAnnotationInViewCollection.h"
+#include "RimGridView.h"
+#include "RimProject.h"
 
 #include "QMessageBox"
-#include <QString>
 #include "RiaColorTables.h"
+#include <QString>
 
-
-CAF_PDM_SOURCE_INIT(RimAnnotationGroupCollection, "RimAnnotationGroupCollection");
+CAF_PDM_SOURCE_INIT( RimAnnotationGroupCollection, "RimAnnotationGroupCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString RimAnnotationGroupCollection::TEXT_ANNOTATION_UI_NAME = "Text Annotations";
+const QString RimAnnotationGroupCollection::TEXT_ANNOTATION_UI_NAME         = "Text Annotations";
 const QString RimAnnotationGroupCollection::REACH_CIRCLE_ANNOTATION_UI_NAME = "Reach Circle Annotations";
-const QString RimAnnotationGroupCollection::USED_DEFINED_POLYLINE_ANNOTATION_UI_NAME = "User Defined Polyline Annotations";
+const QString RimAnnotationGroupCollection::USED_DEFINED_POLYLINE_ANNOTATION_UI_NAME =
+    "User Defined Polyline Annotations";
 const QString RimAnnotationGroupCollection::POLYLINE_FROM_FILE_ANNOTATION_UI_NAME = "Polylines From File";
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimAnnotationGroupCollection::RimAnnotationGroupCollection()
 {
-    CAF_PDM_InitObject("Annotations", ":/WellCollection.png", "", "");
+    CAF_PDM_InitObject( "Annotations", ":/WellCollection.png", "", "" );
 
-    CAF_PDM_InitField(&m_isActive, "IsActive", true, "Is Active", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_annotations, "Annotations", "Annotations", "", "", "");
+    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "Annotations", "", "", "" );
 
-    m_isActive.uiCapability()->setUiHidden(true);
-    m_annotations.uiCapability()->setUiHidden(true);
+    m_isActive.uiCapability()->setUiHidden( true );
+    m_annotations.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimAnnotationGroupCollection::~RimAnnotationGroupCollection()
-{
-}
+RimAnnotationGroupCollection::~RimAnnotationGroupCollection() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -78,20 +76,20 @@ bool RimAnnotationGroupCollection::isActive() const
 bool RimAnnotationGroupCollection::isVisible() const
 {
     RimAnnotationCollectionBase* coll;
-    firstAncestorOrThisOfType(coll);
+    firstAncestorOrThisOfType( coll );
 
     bool visible = true;
-    if (coll) visible = coll->isActive();
-    if (visible) visible = m_isActive;
+    if ( coll ) visible = coll->isActive();
+    if ( visible ) visible = m_isActive;
     return visible;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationGroupCollection::addAnnotation(caf::PdmObject* annotation)
+void RimAnnotationGroupCollection::addAnnotation( caf::PdmObject* annotation )
 {
-    m_annotations.push_back(annotation);
+    m_annotations.push_back( annotation );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,17 +103,17 @@ std::vector<caf::PdmObject*> RimAnnotationGroupCollection::annotations() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationGroupCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue)
+void RimAnnotationGroupCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                     const QVariant&            oldValue,
+                                                     const QVariant&            newValue )
 {
-    if (changedField == &m_isActive)
+    if ( changedField == &m_isActive )
     {
         updateUiIconFromToggleField();
 
         RimAnnotationCollectionBase* coll;
-        firstAncestorOrThisOfType(coll);
-        if(coll) coll->scheduleRedrawOfRelevantViews();
+        firstAncestorOrThisOfType( coll );
+        if ( coll ) coll->scheduleRedrawOfRelevantViews();
     }
 }
 

@@ -40,6 +40,21 @@ class Instance:
             return my_socket.connect_ex(('localhost', port)) == 0
 
     @staticmethod
+    def __is_valid_port(port):
+        location = "localhost:" + str(port)
+        channel = grpc.insecure_channel(location,
+                                        options=[
+                                            ('grpc.enable_http_proxy',
+                                             False)
+                                            ])
+        app = App_pb2_grpc.AppStub(channel)
+        try:
+            app.GetVersion(Empty(), timeout=1)
+        except grpc.RpcError:
+            return False
+        return True
+
+    @staticmethod
     def launch(resinsight_executable='',
                console=False,
                launch_port=-1,
@@ -75,8 +90,10 @@ class Instance:
                     ' RESINSIGHT_EXECUTABLE is not set')
                 return None
 
-        while Instance.__is_port_in_use(port):
+        print("Trying port " + str(port))
+        while Instance.__is_port_in_use(port):        
             port += 1
+            print("Trying port " + str(port))
 
         print('Port ' + str(port))
         print('Trying to launch', resinsight_executable)
@@ -116,11 +133,13 @@ class Instance:
         """
         port_env = os.environ.get('RESINSIGHT_GRPC_PORT')
         if port_env:
+            print("Got port " + port_env + " from environment")
             start_port = int(port_env)
             end_port = start_port + 20
 
         for try_port in range(start_port, end_port):
-            if Instance.__is_port_in_use(try_port):
+            print("Trying port " + str(try_port))
+            if Instance.__is_port_in_use(try_port) and Instance.__is_valid_port(try_port):
                 return Instance(port=try_port)
 
         print(
@@ -159,7 +178,7 @@ class Instance:
         self.commands = CmdRpc.CommandsStub(self.channel)
 
         # Main version check package
-        self.app = self.app = App_pb2_grpc.AppStub(self.channel)
+        self.app = App_pb2_grpc.AppStub(self.channel)
 
         connection_ok = False
         version_ok = False
@@ -234,7 +253,19 @@ class Instance:
         width     | Width in pixels  | Integer
         height    | Height in pixels | Integer
         """
-        return self.__execute_command(setMainWindowSize=Cmd.SetMainWindowSizeParams(
+        return self.__execute_command(setMainWindowSize=Cmd.SetWindowSizeParams(
+            width=width, height=height))
+
+    def set_plot_window_size(self, width, height):
+        """
+        Set the plot window size in pixels
+
+        Parameter | Description      | Type
+        --------- | ---------------- | -----
+        width     | Width in pixels  | Integer
+        height    | Height in pixels | Integer
+        """
+        return self.__execute_command(setPlotWindowSize=Cmd.SetWindowSizeParams(
             width=width, height=height))
 
     def major_version(self):

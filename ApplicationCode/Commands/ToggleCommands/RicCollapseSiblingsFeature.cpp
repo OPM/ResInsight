@@ -27,7 +27,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicCollapseSiblingsFeature, "RicCollapseSiblingsFeature");
+CAF_CMD_SOURCE_INIT( RicCollapseSiblingsFeature, "RicCollapseSiblingsFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -35,13 +35,13 @@ CAF_CMD_SOURCE_INIT(RicCollapseSiblingsFeature, "RicCollapseSiblingsFeature");
 bool RicCollapseSiblingsFeature::isCommandEnabled()
 {
     {
-        auto selectedItem = dynamic_cast<Rim3dView*>(caf::SelectionManager::instance()->selectedItem());
-        if (selectedItem) return true;
+        auto selectedItem = dynamic_cast<Rim3dView*>( caf::SelectionManager::instance()->selectedItem() );
+        if ( selectedItem ) return true;
     }
 
     {
-        auto selectedItem = dynamic_cast<RimSummaryPlot*>(caf::SelectionManager::instance()->selectedItem());
-        if (selectedItem) return true;
+        auto selectedItem = dynamic_cast<RimSummaryPlot*>( caf::SelectionManager::instance()->selectedItem() );
+        if ( selectedItem ) return true;
     }
 
     return false;
@@ -50,36 +50,36 @@ bool RicCollapseSiblingsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCollapseSiblingsFeature::onActionTriggered(bool isChecked)
+void RicCollapseSiblingsFeature::onActionTriggered( bool isChecked )
 {
     auto selectedItem = caf::SelectionManager::instance()->selectedItem();
 
-    RiuMainWindowTools::collapseSiblings(selectedItem);
+    RiuMainWindowTools::collapseSiblings( selectedItem );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCollapseSiblingsFeature::setupActionLook(QAction* actionToSetup)
+void RicCollapseSiblingsFeature::setupActionLook( QAction* actionToSetup )
 {
     QString objectName = "Items";
 
     {
-        auto selectedItem = dynamic_cast<Rim3dView*>(caf::SelectionManager::instance()->selectedItem());
-        if (selectedItem)
+        auto selectedItem = dynamic_cast<Rim3dView*>( caf::SelectionManager::instance()->selectedItem() );
+        if ( selectedItem )
         {
             objectName = "Views";
         }
     }
 
     {
-        auto selectedItem = dynamic_cast<RimSummaryPlot*>(caf::SelectionManager::instance()->selectedItem());
-        if (selectedItem)
+        auto selectedItem = dynamic_cast<RimSummaryPlot*>( caf::SelectionManager::instance()->selectedItem() );
+        if ( selectedItem )
         {
             objectName = "Plots";
         }
     }
 
-    actionToSetup->setText("Collapse Other " + objectName);
+    actionToSetup->setText( "Collapse Other " + objectName );
     //    actionToSetup->setIcon(QIcon(":/ToggleOn16x16.png"));
 }

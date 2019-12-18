@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -26,16 +26,16 @@
 #include "cafSelectionManager.h"
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicDeleteWellPathAttributeFeature, "RicDeleteWellPathAttributeFeature");
+CAF_CMD_SOURCE_INIT( RicDeleteWellPathAttributeFeature, "RicDeleteWellPathAttributeFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteWellPathAttributeFeature::isCommandEnabled()
 {
     {
         std::vector<RimWellPathAttribute*> objects;
-        caf::SelectionManager::instance()->objectsByType(&objects, caf::SelectionManager::FIRST_LEVEL);
+        caf::SelectionManager::instance()->objectsByType( &objects, caf::SelectionManager::FIRST_LEVEL );
 
         if ( objects.size() > 0 )
         {
@@ -43,55 +43,55 @@ bool RicDeleteWellPathAttributeFeature::isCommandEnabled()
         }
     }
     {
-        if (caf::SelectionManager::instance()->selectedItemOfType<RimWellPathAttributeCollection>())
+        if ( caf::SelectionManager::instance()->selectedItemOfType<RimWellPathAttributeCollection>() )
         {
             return true;
         }
-
     }
 
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteWellPathAttributeFeature::onActionTriggered(bool isChecked)
+void RicDeleteWellPathAttributeFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimWellPathAttribute*> attributes;
-    caf::SelectionManager::instance()->objectsByType(&attributes, caf::SelectionManager::FIRST_LEVEL);
+    caf::SelectionManager::instance()->objectsByType( &attributes, caf::SelectionManager::FIRST_LEVEL );
     RimWellPathAttributeCollection* wellPathAttributeCollection = nullptr;
-    if (attributes.size() > 0)
-    {               
-        attributes[0]->firstAncestorOrThisOfTypeAsserted(wellPathAttributeCollection);
-        for (RimWellPathAttribute* attributeToDelete : attributes)
+    if ( attributes.size() > 0 )
+    {
+        attributes[0]->firstAncestorOrThisOfTypeAsserted( wellPathAttributeCollection );
+        for ( RimWellPathAttribute* attributeToDelete : attributes )
         {
-            wellPathAttributeCollection->deleteAttribute(attributeToDelete);
+            wellPathAttributeCollection->deleteAttribute( attributeToDelete );
         }
         wellPathAttributeCollection->updateAllRequiredEditors();
     }
     else
     {
-        wellPathAttributeCollection = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathAttributeCollection>();
-        if (wellPathAttributeCollection)
+        wellPathAttributeCollection =
+            caf::SelectionManager::instance()->selectedItemOfType<RimWellPathAttributeCollection>();
+        if ( wellPathAttributeCollection )
         {
             wellPathAttributeCollection->deleteAllAttributes();
         }
     }
 
-    if (wellPathAttributeCollection)
+    if ( wellPathAttributeCollection )
     {
-        if (wellPathAttributeCollection->attributes().empty())
+        if ( wellPathAttributeCollection->attributes().empty() )
         {
             RimWellPath* wellPath = nullptr;
-            wellPathAttributeCollection->firstAncestorOrThisOfTypeAsserted(wellPath);
+            wellPathAttributeCollection->firstAncestorOrThisOfTypeAsserted( wellPath );
             wellPath->updateConnectedEditors();
-            Riu3DMainWindowTools::selectAsCurrentItem(wellPath);
+            Riu3DMainWindowTools::selectAsCurrentItem( wellPath );
         }
 
         RimProject* proj = nullptr;
-        wellPathAttributeCollection->firstAncestorOrThisOfType(proj);
-        if (proj)
+        wellPathAttributeCollection->firstAncestorOrThisOfType( proj );
+        if ( proj )
         {
             proj->scheduleCreateDisplayModelAndRedrawAllViews();
         }
@@ -99,22 +99,22 @@ void RicDeleteWellPathAttributeFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteWellPathAttributeFeature::setupActionLook(QAction* actionToSetup)
+void RicDeleteWellPathAttributeFeature::setupActionLook( QAction* actionToSetup )
 {
     std::vector<RimWellPathAttribute*> attributes;
-    caf::SelectionManager::instance()->objectsByType(&attributes, caf::SelectionManager::FIRST_LEVEL);
-    if (attributes.size() > 0)
+    caf::SelectionManager::instance()->objectsByType( &attributes, caf::SelectionManager::FIRST_LEVEL );
+    if ( attributes.size() > 0 )
     {
-        actionToSetup->setText("Delete Attribute");
-        actionToSetup->setIcon(QIcon(":/Erase.png"));
-        applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
+        actionToSetup->setText( "Delete Attribute" );
+        actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+        applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
     }
-    else if (caf::SelectionManager::instance()->selectedItemOfType<RimWellPathAttributeCollection>())
+    else if ( caf::SelectionManager::instance()->selectedItemOfType<RimWellPathAttributeCollection>() )
     {
-        actionToSetup->setText("Delete Casing Design");
-        actionToSetup->setIcon(QIcon(":/Erase.png"));
-        applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
+        actionToSetup->setText( "Delete Casing Design" );
+        actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+        applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
     }
 }

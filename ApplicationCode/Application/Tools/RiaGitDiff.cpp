@@ -26,8 +26,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaGitDiff::RiaGitDiff(const QString& pathToDiffTool)
-    : m_pathToGitTool(pathToDiffTool)
+RiaGitDiff::RiaGitDiff( const QString& pathToDiffTool )
+    : m_pathToGitTool( pathToDiffTool )
 {
     reset();
 }
@@ -51,32 +51,32 @@ void RiaGitDiff::reset()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaGitDiff::executeDiff(const QString& baseFolder)
+bool RiaGitDiff::executeDiff( const QString& baseFolder )
 {
     reset();
 
     QString fullFilePath = "git";
-    if (!m_pathToGitTool.isEmpty())
+    if ( !m_pathToGitTool.isEmpty() )
     {
         fullFilePath = m_pathToGitTool + "/" + fullFilePath;
     }
 
     QString incomingCurrentPath = QDir::currentPath();
-    QDir::setCurrent(baseFolder);
+    QDir::setCurrent( baseFolder );
 
     QString args = "diff";
 
-    QString completeCommand = QString("\"%1\" %2").arg(fullFilePath).arg(args);
+    QString completeCommand = QString( "\"%1\" %2" ).arg( fullFilePath ).arg( args );
 
     // Launch process and wait
     QProcess proc;
-    proc.start(completeCommand);
-    proc.waitForFinished(30000);
+    proc.start( completeCommand );
+    proc.waitForFinished( 30000 );
 
-    QDir::setCurrent(incomingCurrentPath);
+    QDir::setCurrent( incomingCurrentPath );
 
     QProcess::ProcessError procError = proc.error();
-    if (procError != QProcess::UnknownError)
+    if ( procError != QProcess::UnknownError )
     {
         m_lastError    = SEVERE_ERROR;
         m_errorMsg     = "Error running 'git' tool process";
@@ -84,7 +84,6 @@ bool RiaGitDiff::executeDiff(const QString& baseFolder)
         return false;
     }
 
-    QByteArray stdErr = proc.readAllStandardError();
     QByteArray stdOut = proc.readAllStandardOutput();
     m_diffOutput      = stdOut;
 

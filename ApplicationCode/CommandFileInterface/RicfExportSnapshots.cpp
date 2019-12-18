@@ -25,22 +25,23 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaRegressionTestRunner.h"
 
 #include "RiuMainWindow.h"
 
 #include <QFileInfo>
 
-CAF_PDM_SOURCE_INIT(RicfExportSnapshots, "exportSnapshots");
+CAF_PDM_SOURCE_INIT( RicfExportSnapshots, "exportSnapshots" );
 
 namespace caf
 {
-template<>
+template <>
 void RicfExportSnapshots::SnapshotsTypeEnum::setUp()
 {
-    addItem(RicfExportSnapshots::ALL, "ALL", "All");
-    addItem(RicfExportSnapshots::VIEWS, "VIEWS", "Views");
-    addItem(RicfExportSnapshots::PLOTS, "PLOTS", "Plots");
-    setDefault(RicfExportSnapshots::ALL);
+    addItem( RicfExportSnapshots::ALL, "ALL", "All" );
+    addItem( RicfExportSnapshots::VIEWS, "VIEWS", "Views" );
+    addItem( RicfExportSnapshots::PLOTS, "PLOTS", "Plots" );
+    setDefault( RicfExportSnapshots::ALL );
 }
 } // namespace caf
 
@@ -53,6 +54,7 @@ RicfExportSnapshots::RicfExportSnapshots()
     RICF_InitField( &m_prefix, "prefix", QString(), "Prefix", "", "", "" );
     RICF_InitField( &m_caseId, "caseId", -1, "Case Id", "", "", "" );
     RICF_InitField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
+    RICF_InitField( &m_exportFolder, "exportFolder", QString(), "Export Folder", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,33 +62,56 @@ RicfExportSnapshots::RicfExportSnapshots()
 //--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicfExportSnapshots::execute()
 {
-    if (!RiaGuiApplication::isRunning())
+    if ( !RiaGuiApplication::isRunning() )
     {
-        QString error("RicfExportSnapshot: Command cannot run without a GUI");
-        RiaLogging::error(error);
-        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+        QString error( "RicfExportSnapshot: Command cannot run without a GUI" );
+        RiaLogging::error( error );
+        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
     }
 
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    CVF_ASSERT(mainWnd);
+    CVF_ASSERT( mainWnd );
     mainWnd->hideAllDockWidgets();
     RiaGuiApplication::instance()->processEvents();
 
-    QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::SNAPSHOTS);
-    if (absolutePathToSnapshotDir.isNull())
+    QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath(
+        RicfCommandFileExecutor::SNAPSHOTS );
+
+    if ( !m_exportFolder().isEmpty() )
     {
-        absolutePathToSnapshotDir = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("snapshots");
+        absolutePathToSnapshotDir = m_exportFolder;
     }
-    if (m_type == RicfExportSnapshots::VIEWS || m_type == RicfExportSnapshots::ALL)
+    if ( absolutePathToSnapshotDir.isNull() )
     {
+        absolutePathToSnapshotDir = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath(
+            "snapshots" );
+    }
+    if ( m_type == RicfExportSnapshots::VIEWS || m_type == RicfExportSnapshots::ALL )
+    {
+        if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
+        {
+            RiaRegressionTestRunner::setDefaultSnapshotSizeFor3dViews();
+
+            QApplication::processEvents();
+        }
+
         RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( absolutePathToSnapshotDir,
                                                                            m_prefix,
                                                                            m_caseId(),
                                                                            m_viewId() );
     }
-    if (m_type == RicfExportSnapshots::PLOTS || m_type == RicfExportSnapshots::ALL)
+    if ( m_type == RicfExportSnapshots::PLOTS || m_type == RicfExportSnapshots::ALL )
     {
-        RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(absolutePathToSnapshotDir, m_prefix);
+        if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
+        {
+            RiaRegressionTestRunner::setDefaultSnapshotSizeForPlotWindows();
+
+            QApplication::processEvents();
+        }
+
+        RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( absolutePathToSnapshotDir,
+                                                                           m_prefix,
+                                                                           m_viewId() );
     }
 
     mainWnd->loadWinGeoAndDockToolBarLayout();

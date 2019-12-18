@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "cvfBase.h"
 #include "cvfVector3.h"
 
 #include <map>
@@ -40,25 +39,26 @@ class RicFishbonesTransmissibilityCalculationFeatureImp
 {
 public:
     static std::vector<RigCompletionData>
-        generateFishboneCompdatValuesUsingAdjustedCellVolume(const RimWellPath*                       wellPath,
-                                                             const RicExportCompletionDataSettingsUi& settings);
+        generateFishboneCompdatValuesUsingAdjustedCellVolume( const RimWellPath*                       wellPath,
+                                                              const RicExportCompletionDataSettingsUi& settings );
 
 private:
-    static void findFishboneLateralsWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
-                                                  const RimWellPath*                                       wellPath,
-                                                  const RicExportCompletionDataSettingsUi&                 settings);
-
     static void
-        findFishboneImportedLateralsWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
-                                                  const RimWellPath*                                       wellPath,
-                                                  const RicExportCompletionDataSettingsUi&                 settings);
+        findFishboneLateralsWellBoreParts( std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
+                                           const RimWellPath*                                       wellPath,
+                                           const RicExportCompletionDataSettingsUi&                 settings );
 
-    static void appendMainWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
-                                        const RimWellPath*                                       wellPath,
-                                        const RicExportCompletionDataSettingsUi&                 settings,
-                                        double                                                   skinFactor,
-                                        double                                                   holeRadius,
-                                        double                                                   startMeasuredDepth,
-                                        double                                                   endMeasuredDepth,
-                                        const RimFishbonesMultipleSubs*                          fishbonesDefintions);
+    static void findFishboneImportedLateralsWellBoreParts(
+        std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
+        const RimWellPath*                                       wellPath,
+        const RicExportCompletionDataSettingsUi&                 settings );
+
+    static void appendMainWellBoreParts( std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
+                                         const RimWellPath*                                       wellPath,
+                                         const RicExportCompletionDataSettingsUi&                 settings,
+                                         double                                                   skinFactor,
+                                         double                                                   holeRadius,
+                                         double                                                   startMeasuredDepth,
+                                         double                                                   endMeasuredDepth,
+                                         const RimFishbonesMultipleSubs*                          fishbonesDefintions );
 };

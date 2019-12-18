@@ -45,6 +45,7 @@ set (MOC_HEADER_FILES
     cafPdmUniqueIdValidator.h
     cafPdmDoubleStringValidator.h
     cafPdmUiPickableLineEditor.h
+    cafPdmUiLabelEditor.h
 )
 
 if (CEE_USE_QT5)
@@ -99,6 +100,8 @@ set( PROJECT_FILES
     cafPdmUiTreeSelectionQModel.cpp
     cafPdmUiFieldEditorHelper.h
     cafPdmUiFieldEditorHelper.cpp
+    cafPdmUiLabelEditor.cpp
+
 
     # object editors
     cafPdmUiDefaultObjectEditor.cpp

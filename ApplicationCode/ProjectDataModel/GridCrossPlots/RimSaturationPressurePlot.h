@@ -35,18 +35,18 @@ class RimSaturationPressurePlot : public RimGridCrossPlot
 public:
     RimSaturationPressurePlot();
 
-    void assignCaseAndEquilibriumRegion(RiaDefines::PorosityModelType porosityModel,
-                                        RimEclipseResultCase*         eclipseResultCase,
-                                        int                           zeroBasedEquilRegionIndex);
+    void assignCaseAndEquilibriumRegion( RiaDefines::PorosityModelType porosityModel,
+                                         RimEclipseResultCase*         eclipseResultCase,
+                                         int                           zeroBasedEquilRegionIndex );
 
 protected:
     void    initAfterRead() override;
     QString xAxisParameterString() const override;
 
 private:
-    RimPlotCellPropertyFilter* createEquilibriumRegionPropertyFilter(RimEclipseResultCase* eclipseResultCase,
-                                                                     int                   zeroBasedEquilRegionIndex);
+    RimPlotCellPropertyFilter* createEquilibriumRegionPropertyFilter( RimEclipseResultCase* eclipseResultCase,
+                                                                      int                   zeroBasedEquilRegionIndex );
 
     RimPlotCellPropertyFilter*
-        createDepthPropertyFilter(RimEclipseResultCase* eclipseResultCase, double minDepth, double maxDepth);
+        createDepthPropertyFilter( RimEclipseResultCase* eclipseResultCase, double minDepth, double maxDepth );
 };

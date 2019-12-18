@@ -4,11 +4,11 @@ var class_qwt_legend_label =
     [ "~QwtLegendLabel", "class_qwt_legend_label.html#ad9f7483fa0625a28aba97cca8c3167b7", null ],
     [ "checked", "class_qwt_legend_label.html#a248d0836578ccf15fe56f2fee603e981", null ],
     [ "clicked", "class_qwt_legend_label.html#ae37056322967eddf53dbbd94748faa63", null ],
-    [ "data", "class_qwt_legend_label.html#a98ce3be22571bece709a828b3d18c770", null ],
-    [ "icon", "class_qwt_legend_label.html#a6fc6cdbd1b4b9db2de354cbe533e1c2a", null ],
-    [ "isChecked", "class_qwt_legend_label.html#a60e810de6309544227293b70a2f225ce", null ],
-    [ "isDown", "class_qwt_legend_label.html#a1693d4581c50054acdcf8c810548e6b0", null ],
-    [ "itemMode", "class_qwt_legend_label.html#a2c9266255b3d1cf1fb95394e62bc6cc2", null ],
+    [ "data", "class_qwt_legend_label.html#aa7d232fa7a0f3e8bde4d71b360016167", null ],
+    [ "icon", "class_qwt_legend_label.html#ab1d36a69550e88cb346d51d0889a5444", null ],
+    [ "isChecked", "class_qwt_legend_label.html#afdfcb6dbb06d6bd0037e66b45e43cb6f", null ],
+    [ "isDown", "class_qwt_legend_label.html#a637bf4081c1004de5850987be03c3a35", null ],
+    [ "itemMode", "class_qwt_legend_label.html#a9a43bcf6281b9240eec1581ce400bc56", null ],
     [ "keyPressEvent", "class_qwt_legend_label.html#a801059fdc196563ca28fd22fb3675024", null ],
     [ "keyReleaseEvent", "class_qwt_legend_label.html#aed12dffa845db6538f15cb45077cfb76", null ],
     [ "mousePressEvent", "class_qwt_legend_label.html#a2890c885c9665c7cfe630f7471337cb2", null ],
@@ -23,6 +23,6 @@ var class_qwt_legend_label =
     [ "setItemMode", "class_qwt_legend_label.html#a2f469bcbc733332110d61d70f863df2e", null ],
     [ "setSpacing", "class_qwt_legend_label.html#ad19d9ee759551f1fe785dc0ad806fd59", null ],
     [ "setText", "class_qwt_legend_label.html#a2498e1b2e1a17abf63fa4d94a08ebb95", null ],
-    [ "sizeHint", "class_qwt_legend_label.html#a58cf61eb9e87fe7a36266e687fe721eb", null ],
-    [ "spacing", "class_qwt_legend_label.html#aa976458d79004b7b29ebea3cf0a069de", null ]
+    [ "sizeHint", "class_qwt_legend_label.html#a7df4421d16f0ae5c46bfc4711750a793", null ],
+    [ "spacing", "class_qwt_legend_label.html#a46c2aec2d42136cb5b9497f5e592980b", null ]
 ];

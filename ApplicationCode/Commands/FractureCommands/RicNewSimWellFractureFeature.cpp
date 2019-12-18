@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -32,110 +32,104 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSimWellFracture.h"
-#include "RimStimPlanColors.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInView.h"
+#include "RimStimPlanColors.h"
 
 #include "Riu3DMainWindowTools.h"
- 
+
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicNewSimWellFractureFeature, "RicNewSimWellFractureFeature");
+CAF_CMD_SOURCE_INIT( RicNewSimWellFractureFeature, "RicNewSimWellFractureFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
+void RicNewSimWellFractureFeature::onActionTriggered( bool isChecked )
 {
     RimProject* proj = RiaApplication::instance()->project();
-    if (proj->allFractureTemplates().empty()) return;
+    if ( proj->allFractureTemplates().empty() ) return;
 
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-    if (!pdmUiItem) return;
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
-    if (!objHandle) return;
+    auto objHandle = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>();
+    if ( !objHandle ) return;
 
     RimSimWellInView* eclipseWell = nullptr;
-    objHandle->firstAncestorOrThisOfType(eclipseWell);
+    objHandle->firstAncestorOrThisOfType( eclipseWell );
 
     RimSimWellFracture* fracture = new RimSimWellFracture();
-    if (eclipseWell->simwellFractureCollection()->simwellFractures.empty())
+    if ( eclipseWell->simwellFractureCollection()->simwellFractures.empty() )
     {
-        RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
-        if (activeView)
+        RimEclipseView* activeView = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeReservoirView() );
+        if ( activeView )
         {
             activeView->fractureColors()->setDefaultResultName();
         }
     }
 
-    eclipseWell->simwellFractureCollection()->simwellFractures.push_back(fracture);
+    eclipseWell->simwellFractureCollection()->simwellFractures.push_back( fracture );
 
     RimOilField* oilfield = nullptr;
-    objHandle->firstAncestorOrThisOfType(oilfield);
-    if (!oilfield) return;
+    objHandle->firstAncestorOrThisOfType( oilfield );
+    if ( !oilfield ) return;
 
-    fracture->setName(RicFractureNameGenerator::nameForNewFracture());
+    fracture->setName( RicFractureNameGenerator::nameForNewFracture() );
 
     auto unitSet = RiaEclipseUnitTools::UNITS_UNKNOWN;
     {
         RimEclipseResultCase* eclipseCase = nullptr;
-        objHandle->firstAncestorOrThisOfType(eclipseCase);
-        if (eclipseCase)
+        objHandle->firstAncestorOrThisOfType( eclipseCase );
+        if ( eclipseCase )
         {
             unitSet = eclipseCase->eclipseCaseData()->unitsType();
         }
-        fracture->setFractureUnit(unitSet);
+        fracture->setFractureUnit( unitSet );
     }
 
-    RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection()->firstFractureOfUnit(unitSet);
-    fracture->setFractureTemplate(fracDef);
+    RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection()->firstFractureOfUnit( unitSet );
+    fracture->setFractureTemplate( fracDef );
 
     fracture->updateFracturePositionFromLocation();
 
     eclipseWell->updateConnectedEditors();
 
     RimEclipseCase* eclipseCase = nullptr;
-    objHandle->firstAncestorOrThisOfType(eclipseCase);
-    if (eclipseCase)
+    objHandle->firstAncestorOrThisOfType( eclipseCase );
+    if ( eclipseCase )
     {
-        proj->reloadCompletionTypeResultsForEclipseCase(eclipseCase);
+        proj->reloadCompletionTypeResultsForEclipseCase( eclipseCase );
         proj->updateConnectedEditors();
     }
-    Riu3DMainWindowTools::selectAsCurrentItem(fracture);
+    Riu3DMainWindowTools::selectAsCurrentItem( fracture );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellFractureFeature::setupActionLook(QAction* actionToSetup)
+void RicNewSimWellFractureFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/FractureSymbol16x16.png"));
-    actionToSetup->setText("New Fracture");
+    actionToSetup->setIcon( QIcon( ":/FractureSymbol16x16.png" ) );
+    actionToSetup->setText( "New Fracture" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewSimWellFractureFeature::isCommandEnabled()
 {
     RimProject* proj = RiaApplication::instance()->project();
-    if (proj->allFractureTemplates().empty()) return false;
+    if ( proj->allFractureTemplates().empty() ) return false;
 
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-    if (!pdmUiItem) return false;
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
-    if (!objHandle) return false;
+    auto objHandle = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>();
+    if ( !objHandle ) return false;
 
     RimSimWellInView* simWell = nullptr;
-    objHandle->firstAncestorOrThisOfType(simWell);
+    objHandle->firstAncestorOrThisOfType( simWell );
 
-    if (simWell)
+    if ( simWell )
     {
         return true;
     }

@@ -16,8 +16,8 @@ var class_qwt_picker_machine =
     [ "QwtPickerMachine", "class_qwt_picker_machine.html#ab27bc3f70d48aa145db9ebbfdba34e15", null ],
     [ "~QwtPickerMachine", "class_qwt_picker_machine.html#aa1164dfb8ae6ac62fb3b6cb19efcb3e5", null ],
     [ "reset", "class_qwt_picker_machine.html#ace6daa55324a8daab3839cf8ba677a93", null ],
-    [ "selectionType", "class_qwt_picker_machine.html#a9ccd6ccb3fa0e2a73730e69a8658c316", null ],
+    [ "selectionType", "class_qwt_picker_machine.html#a9020aadf1a13436b4ea072b9ab57d112", null ],
     [ "setState", "class_qwt_picker_machine.html#a569c426543e4a6aa15c221eb7c4910f0", null ],
-    [ "state", "class_qwt_picker_machine.html#a9060b1036ef5125968fc7030681d73c0", null ],
+    [ "state", "class_qwt_picker_machine.html#a36293ce5cc8fc0ca68740ba928e8f049", null ],
     [ "transition", "class_qwt_picker_machine.html#acf7b57003bec437ce1ecf83e6d544968", null ]
 ];

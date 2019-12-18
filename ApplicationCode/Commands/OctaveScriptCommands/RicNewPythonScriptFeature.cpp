@@ -38,30 +38,30 @@
 #include <QLineEdit>
 #include <QMessageBox>
 
-CAF_CMD_SOURCE_INIT(RicNewPythonScriptFeature, "RicNewPythonScriptFeature");
+CAF_CMD_SOURCE_INIT( RicNewPythonScriptFeature, "RicNewPythonScriptFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RicNewPythonScriptFeature::isCommandEnabled()
 {
-    std::vector<RimCalcScript*>       calcScripts = RicScriptFeatureImpl::selectedScripts();
+    std::vector<RimCalcScript*>       calcScripts           = RicScriptFeatureImpl::selectedScripts();
     std::vector<RimScriptCollection*> calcScriptCollections = RicScriptFeatureImpl::selectedScriptCollections();
-    if (calcScripts.size() == 1u && calcScripts.front()->scriptType() == RimCalcScript::PYTHON)
+    if ( calcScripts.size() == 1u && calcScripts.front()->scriptType() == RimCalcScript::PYTHON )
     {
         return true;
-    }    
-    else if (calcScriptCollections.size() == 1u && !calcScriptCollections.front()->directory().isEmpty())
+    }
+    else if ( calcScriptCollections.size() == 1u && !calcScriptCollections.front()->directory().isEmpty() )
     {
         return true;
-    }    
+    }
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewPythonScriptFeature::onActionTriggered(bool isChecked)
+void RicNewPythonScriptFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimCalcScript*>       calcScripts           = RicScriptFeatureImpl::selectedScripts();
     std::vector<RimScriptCollection*> calcScriptCollections = RicScriptFeatureImpl::selectedScriptCollections();
@@ -71,13 +71,13 @@ void RicNewPythonScriptFeature::onActionTriggered(bool isChecked)
 
     QString fullPathNewScript;
 
-    if (calcScript)
+    if ( calcScript )
     {
-        QFileInfo existingScriptFileInfo(calcScript->absoluteFileName());
+        QFileInfo existingScriptFileInfo( calcScript->absoluteFileName() );
         fullPathNewScript = existingScriptFileInfo.absolutePath();
-        calcScript->firstAncestorOrThisOfTypeAsserted(scriptColl);
+        calcScript->firstAncestorOrThisOfTypeAsserted( scriptColl );
     }
-    else if (scriptColl)
+    else if ( scriptColl )
     {
         fullPathNewScript = scriptColl->directory();
     }
@@ -90,60 +90,63 @@ void RicNewPythonScriptFeature::onActionTriggered(bool isChecked)
 
     fullPathFilenameNewScript = fullPathNewScript + "/untitled.py";
     int num                   = 1;
-    while (caf::Utils::fileExists(fullPathFilenameNewScript))
+    while ( caf::Utils::fileExists( fullPathFilenameNewScript ) )
     {
-        fullPathFilenameNewScript = fullPathNewScript + "/untitled" + QString::number(num) + ".py";
+        fullPathFilenameNewScript = fullPathNewScript + "/untitled" + QString::number( num ) + ".py";
         num++;
     }
 
     bool ok;
-    fullPathFilenameNewScript = QInputDialog::getText(nullptr,
-                                                      "Specify new script file",
-                                                      "File name",
-                                                      QLineEdit::Normal,
-                                                      fullPathFilenameNewScript,
-                                                      &ok,
-                                                      RiuTools::defaultDialogFlags());
+    fullPathFilenameNewScript = QInputDialog::getText( nullptr,
+                                                       "Specify new script file",
+                                                       "File name",
+                                                       QLineEdit::Normal,
+                                                       fullPathFilenameNewScript,
+                                                       &ok,
+                                                       RiuTools::defaultDialogFlags() );
 
-    if (ok && !fullPathFilenameNewScript.isEmpty())
+    if ( ok && !fullPathFilenameNewScript.isEmpty() )
     {
-        QFile file(fullPathFilenameNewScript);
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        QFile file( fullPathFilenameNewScript );
+        if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) )
         {
-            QMessageBox::warning(
-                Riu3DMainWindowTools::mainWindowWidget(), "Script editor", "Failed to create file\n" + fullPathFilenameNewScript);
+            QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(),
+                                  "Script editor",
+                                  "Failed to create file\n" + fullPathFilenameNewScript );
 
             return;
         }
         else
         {
-            QTextStream stream(&file);
-            stream << "# Load ResInsight Processing Server Client Library\nimport rips\n# Connect to ResInsight instance\nresInsight = rips.Instance.find()\n# Example code\nprint(\"ResInsight version: \" + resInsight.app.versionString())\n";
+            QTextStream stream( &file );
+            stream << "# Load ResInsight Processing Server Client Library\nimport rips\n# Connect to ResInsight "
+                      "instance\nresinsight = rips.Instance.find()\n# Example code\nprint(\"ResInsight version: \" + "
+                      "resinsight.version_string())\n";
         }
 
         scriptColl->readContentFromDisc();
         scriptColl->updateConnectedEditors();
 
-        if (calcScript)
+        if ( calcScript )
         {
-            Riu3DMainWindowTools::selectAsCurrentItem(calcScript);
+            Riu3DMainWindowTools::selectAsCurrentItem( calcScript );
         }
 
         RiaApplication* app          = RiaApplication::instance();
         QString         scriptEditor = app->scriptEditorPath();
-        if (!scriptEditor.isEmpty())
+        if ( !scriptEditor.isEmpty() )
         {
             QStringList arguments;
             arguments << fullPathFilenameNewScript;
 
-            QProcess* myProcess = new QProcess(this);
-            myProcess->start(scriptEditor, arguments);
+            QProcess* myProcess = new QProcess( this );
+            myProcess->start( scriptEditor, arguments );
 
-            if (!myProcess->waitForStarted(1000))
+            if ( !myProcess->waitForStarted( 1000 ) )
             {
-                QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
-                                     "Script editor",
-                                     "Failed to start script editor executable\n" + scriptEditor);
+                QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(),
+                                      "Script editor",
+                                      "Failed to start script editor executable\n" + scriptEditor );
             }
         }
     }
@@ -152,11 +155,7 @@ void RicNewPythonScriptFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewPythonScriptFeature::setupActionLook(QAction* actionToSetup)
+void RicNewPythonScriptFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("New Python Script");
+    actionToSetup->setText( "New Python Script" );
 }
-
-
-
-

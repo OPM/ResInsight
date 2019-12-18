@@ -10,15 +10,14 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAppearanceCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAutoName.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveFilter.h
-${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurvesCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotAxisFormatter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCrossPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTimeAxisProperties.h
-${CMAKE_CURRENT_LIST_DIR}/RimObservedData.h
-${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimObservedSummaryData.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryObservedDataFile.h
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedEclipseUserData.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCalculatedSummaryCase.h
@@ -37,6 +36,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatistics.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatisticsCase.h
 ${CMAKE_CURRENT_LIST_DIR}/RimDerivedEnsembleCase.h
 ${CMAKE_CURRENT_LIST_DIR}/RimDerivedEnsembleCaseCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotFilterTextCurveSetEditor.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -50,15 +50,14 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAppearanceCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAutoName.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveFilter.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurvesCalculator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotAxisFormatter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCrossPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTimeAxisProperties.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimObservedData.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimObservedSummaryData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryObservedDataFile.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedEclipseUserData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimCalculatedSummaryCase.cpp
@@ -77,6 +76,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatistics.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatisticsCase.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimDerivedEnsembleCase.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimDerivedEnsembleCaseCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotFilterTextCurveSetEditor.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

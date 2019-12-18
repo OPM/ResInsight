@@ -210,7 +210,7 @@ void CpuPlot::showCurve( QwtPlotItem *item, bool on )
 
     QwtLegend *lgd = qobject_cast<QwtLegend *>( legend() );
 
-    QList<QWidget *> legendWidgets = 
+    QList<QWidget *> legendWidgets =
         lgd->legendWidgets( itemToInfo( item ) );
 
     if ( legendWidgets.size() == 1 )

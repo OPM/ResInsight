@@ -18,14 +18,14 @@ import rips.generated.Properties_pb2_grpc as Properties_pb2_grpc
 from rips.grid import Grid
 from rips.pdmobject import PdmObject
 from rips.view import View
-
+from rips.contour_map import ContourMap, ContourMapType
 
 class Case(PdmObject):
     """ResInsight case class
 
     Operate on a ResInsight case specified by a Case Id integer.
     Not meant to be constructed separately but created by one of the following
-    methods in Project: loadCase, case, allCases, selectedCasesq
+    methods in Project: loadCase, case, allCases, selectedCases
 
     Attributes:
         id (int): Case Id corresponding to case Id in ResInsight project.
@@ -37,7 +37,7 @@ class Case(PdmObject):
                         However we need overhead space, so the default is 8160.
                         This leaves 256B for overhead.
     """
-    def __init__(self, channel, case_id):
+    def __init__(self, channel, case_id, project):
         # Private properties
         self.__channel = channel
         self.__case_stub = Case_pb2_grpc.CaseStub(channel)
@@ -47,11 +47,13 @@ class Case(PdmObject):
         self.__properties_stub = Properties_pb2_grpc.PropertiesStub(
             self.__channel)
         PdmObject.__init__(self, self.__case_stub.GetPdmObject(self.__request),
-                           self.__channel)
+                           self.__channel, project)
 
         # Public properties
         self.case_id = case_id
+        self.group_id = info.group_id
         self.name = info.name
+        self.type = info.type
         self.chunk_size = 8160
 
     def __grid_count(self):
@@ -125,7 +127,7 @@ class Case(PdmObject):
         """
         self._execute_command(replaceCase=Cmd.ReplaceCaseRequest(
             newGridFile=new_grid_file, caseId=self.case_id))
-        self.__init__(self.__channel, self.case_id)
+        self.__init__(self.__channel, self.case_id, self._project)
 
     def cell_count(self, porosity_model="MATRIX_MODEL"):
         """Get a cell count object containing number of active cells and
@@ -225,7 +227,7 @@ class Case(PdmObject):
         pdm_objects = self.children("ReservoirViews")
         view_list = []
         for pdm_object in pdm_objects:
-            view_list.append(View(pdm_object))
+            view_list.append(View(pdm_object, self._project))
         return view_list
 
     def view(self, view_id):
@@ -248,16 +250,31 @@ class Case(PdmObject):
             self._execute_command(createView=Cmd.CreateViewRequest(
                 caseId=self.case_id)).createViewResult.viewId)
 
-    def export_snapshots_of_all_views(self, prefix=""):
+    def contour_maps(self, map_type=ContourMapType.ECLIPSE):
+        """ Get a list of all contour maps belonging to a project
+
+        Arguments:
+            map_type (enum): ContourMapType.ECLIPSE or ContourMapType.GEO_MECH
+
+        """
+
+        pdm_objects = self.descendants(ContourMapType.get_identifier(map_type))
+        contour_maps = []
+        for pdm_object in pdm_objects:
+            contour_maps.append(ContourMap(pdm_object, self._project, map_type))
+        return contour_maps
+
+    def export_snapshots_of_all_views(self, prefix="", export_folder=""):
         """ Export snapshots for all views in the case
 
         Arguments:
             prefix (str): Exported file name prefix
+            export_folder(str): The path to export to. By default will use the global export folder
 
         """
         return self._execute_command(
             exportSnapshots=Cmd.ExportSnapshotsRequest(
-                type="VIEWS", prefix=prefix, caseId=self.case_id, viewId=-1))
+                type="VIEWS", prefix=prefix, caseId=self.case_id, viewId=-1, exportFolder=export_folder))
 
     def export_well_path_completions(
             self,
@@ -732,3 +749,33 @@ class Case(PdmObject):
             undefinedValue=undefined_value,
             exportFile=export_file,
         ))
+
+    def create_well_bore_stability_plot(self, well_path, time_step):
+        """ Create a new well bore stability plot
+
+        Arguments:
+            well_path(str): well path name
+            time_step(int): time step
+
+        Returns:
+            A new plot object
+        """
+        plot_result = self._execute_command(createWellBoreStabilityPlot=Cmd.CreateWbsPlotRequest(caseId=self.case_id,
+                                                                                                 wellPath=well_path,
+                                                                                                 timeStep=time_step))
+        return self._project.plot(view_id=plot_result.createWbsPlotResult.viewId)
+
+    def import_formation_names(self, formation_files=None):
+        """ Import formation names into project and apply it to the current case
+
+        Arguments:
+            formation_files(list): list of files to import
+
+        """
+        if formation_files is None:
+            formation_files = []
+        elif isinstance(formation_files, str):
+            formation_files = [formation_files]
+
+        res = self._execute_command(importFormationNames=Cmd.ImportFormationNamesRequest(formationFiles=formation_files,
+                                                                                         applyToCaseId=self.case_id))

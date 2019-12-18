@@ -28,25 +28,25 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiOrdering.h"
 
-CAF_PDM_SOURCE_INIT(RicExportWellPathsUi, "RicExportWellPathsUi");
+CAF_PDM_SOURCE_INIT( RicExportWellPathsUi, "RicExportWellPathsUi" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicExportWellPathsUi::RicExportWellPathsUi()
 {
-    CAF_PDM_InitObject("Resample LAS curves for export", "", "", "");
+    CAF_PDM_InitObject( "Resample LAS curves for export", "", "", "" );
 
-    CAF_PDM_InitField(&m_exportFolder, "ExportFolder", QString(), "Export Folder", "", "", "");
-    m_exportFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    CAF_PDM_InitField( &m_exportFolder, "ExportFolder", QString(), "Export Folder", "", "", "" );
+    m_exportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField(&m_mdStepSize, "MdStepSize", 5.0, "MD Step Size", "", "", "");
+    CAF_PDM_InitField( &m_mdStepSize, "MdStepSize", 5.0, "MD Step Size", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicExportWellPathsUi::setExportFolder(const QString& exportFolder)
+void RicExportWellPathsUi::setExportFolder( const QString& exportFolder )
 {
     m_exportFolder = exportFolder;
 }
@@ -70,14 +70,14 @@ double RicExportWellPathsUi::mdStepSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportWellPathsUi::defineEditorAttribute(const caf::PdmFieldHandle* field,
-                                                        QString                    uiConfigName,
-                                                        caf::PdmUiEditorAttribute* attribute)
+void RicExportWellPathsUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                  QString                    uiConfigName,
+                                                  caf::PdmUiEditorAttribute* attribute )
 {
-    if (field == &m_exportFolder)
+    if ( field == &m_exportFolder )
     {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
-        if (myAttr)
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
+        if ( myAttr )
         {
             myAttr->m_selectDirectory = true;
         }

@@ -2,11 +2,8 @@
 
 #include <QWidget>
 
-
 class QGridLayout;
 class QGroupBox;
-
-
 
 class WidgetLayoutTest : public QWidget
 {
@@ -19,10 +16,10 @@ public:
 private:
     QGridLayout* m_mainLayout;
 
-    QGroupBox* m_groupBoxA;
+    QGroupBox*   m_groupBoxA;
     QGridLayout* m_groupBoxALayout;
 
-    QGroupBox* m_groupBoxB;
+    QGroupBox*   m_groupBoxB;
     QGridLayout* m_groupBoxBLayout;
 
     QWidget* m_widget1;
@@ -36,6 +33,4 @@ private slots:
 
     void setUpInitialConfigurationA();
     void setUpInitialConfigurationB();
-
 };
-

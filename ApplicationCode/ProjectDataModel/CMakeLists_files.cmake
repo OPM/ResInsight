@@ -72,9 +72,13 @@ ${CMAKE_CURRENT_LIST_DIR}/RimMainPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimPlotInterface.h
+${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.h
+${CMAKE_CURRENT_LIST_DIR}/RimGridPlotWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellBoreStabilityPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimViewLinker.h
 ${CMAKE_CURRENT_LIST_DIR}/RimViewLinkerCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurve.h
@@ -82,6 +86,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFile.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileChannel.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.h
@@ -127,10 +132,12 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimScaleLegendConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.h
-${CMAKE_CURRENT_LIST_DIR}/RimRiuQwtPlotOwnerInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.h
+${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.h
+${CMAKE_CURRENT_LIST_DIR}/RimGridPlotWindowCollection.h
 )
 
 
@@ -207,7 +214,11 @@ ${CMAKE_CURRENT_LIST_DIR}/RimMainPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimPlotInterface.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimGridPlotWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellBoreStabilityPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimViewLinker.cpp
@@ -217,6 +228,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFile.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileChannel.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.cpp
@@ -265,6 +277,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimGridPlotWindowCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

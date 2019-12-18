@@ -161,13 +161,13 @@ QMap<QString, QVariant> RiuDockWidgetTools::widgetVisibilitiesForGeoMech()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDockWidget* RiuDockWidgetTools::findDockWidget(const QObject* parent, const QString& dockWidgetName)
+QDockWidget* RiuDockWidgetTools::findDockWidget( const QObject* parent, const QString& dockWidgetName )
 {
     QList<QDockWidget*> dockWidgets = parent->findChildren<QDockWidget*>();
 
-    for (QDockWidget* dock : dockWidgets)
+    for ( QDockWidget* dock : dockWidgets )
     {
-        if (dock->objectName() == dockWidgetName)
+        if ( dock->objectName() == dockWidgetName )
         {
             return dock;
         }
@@ -179,10 +179,10 @@ QDockWidget* RiuDockWidgetTools::findDockWidget(const QObject* parent, const QSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QAction* RiuDockWidgetTools::toggleActionForWidget(const QObject* parent, const QString& dockWidgetName)
+QAction* RiuDockWidgetTools::toggleActionForWidget( const QObject* parent, const QString& dockWidgetName )
 {
-    auto w = RiuDockWidgetTools::findDockWidget(parent, dockWidgetName);
-    if (w)
+    auto w = RiuDockWidgetTools::findDockWidget( parent, dockWidgetName );
+    if ( w )
     {
         return w->toggleViewAction();
     }
@@ -198,7 +198,7 @@ void RiuDockWidgetTools::setVisibleDockingWindowsForEclipse()
     RiuMainWindow* mainWindow         = RiuMainWindow::instance();
     auto           widgetVisibilities = widgetVisibilitiesForEclipse();
 
-    applyDockWidgetVisibilities(mainWindow, widgetVisibilities);
+    applyDockWidgetVisibilities( mainWindow, widgetVisibilities );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,33 +209,33 @@ void RiuDockWidgetTools::setVisibleDockingWindowsForGeoMech()
     RiuMainWindow* mainWindow         = RiuMainWindow::instance();
     auto           widgetVisibilities = widgetVisibilitiesForGeoMech();
 
-    applyDockWidgetVisibilities(mainWindow, widgetVisibilities);
+    applyDockWidgetVisibilities( mainWindow, widgetVisibilities );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuDockWidgetTools::setDockWidgetVisibility(const QObject* parent, const QString& dockWidgetName, bool isVisible)
+void RiuDockWidgetTools::setDockWidgetVisibility( const QObject* parent, const QString& dockWidgetName, bool isVisible )
 {
-    QDockWidget* dockWidget = findDockWidget(parent, dockWidgetName);
-    if (dockWidget)
+    QDockWidget* dockWidget = findDockWidget( parent, dockWidgetName );
+    if ( dockWidget )
     {
-        dockWidget->setVisible(isVisible);
+        dockWidget->setVisible( isVisible );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QVariant RiuDockWidgetTools::dockWidgetsVisibility(const QObject* parent)
+QVariant RiuDockWidgetTools::dockWidgetsVisibility( const QObject* parent )
 {
     QMap<QString, QVariant> widgetVisibility;
 
     QList<QDockWidget*> dockWidgets = parent->findChildren<QDockWidget*>();
 
-    for (QDockWidget* dock : dockWidgets)
+    for ( QDockWidget* dock : dockWidgets )
     {
-        if (dock)
+        if ( dock )
         {
             bool isVisible                       = dock->isVisible();
             widgetVisibility[dock->objectName()] = isVisible;
@@ -244,7 +244,7 @@ QVariant RiuDockWidgetTools::dockWidgetsVisibility(const QObject* parent)
         }
     }
 
-    return QVariant(widgetVisibility);
+    return QVariant( widgetVisibility );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -252,29 +252,30 @@ QVariant RiuDockWidgetTools::dockWidgetsVisibility(const QObject* parent)
 //--------------------------------------------------------------------------------------------------
 QVariant RiuDockWidgetTools::defaultDockWidgetVisibilities()
 {
-    return QVariant(widgetVisibilitiesForEclipse());
+    return QVariant( widgetVisibilitiesForEclipse() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuDockWidgetTools::applyDockWidgetVisibilities(const QObject* parent, const QMap<QString, QVariant>& widgetVisibilities)
+void RiuDockWidgetTools::applyDockWidgetVisibilities( const QObject*                 parent,
+                                                      const QMap<QString, QVariant>& widgetVisibilities )
 {
     QList<QDockWidget*> dockWidgets = parent->findChildren<QDockWidget*>();
 
-    for (QDockWidget* dock : dockWidgets)
+    for ( QDockWidget* dock : dockWidgets )
     {
-        if (dock)
+        if ( dock )
         {
             bool isVisible = true;
 
-            auto widgetVisibility = widgetVisibilities.find(dock->objectName());
-            if (widgetVisibility != widgetVisibilities.end())
+            auto widgetVisibility = widgetVisibilities.find( dock->objectName() );
+            if ( widgetVisibility != widgetVisibilities.end() )
             {
                 isVisible = widgetVisibility.value().toBool();
             }
 
-            dock->setVisible(isVisible);
+            dock->setVisible( isVisible );
 
             // qDebug() << "Restore " << dock->objectName() << " : " << (isVisible ? "visible" : "not visible");
         }

@@ -20,12 +20,10 @@
 
 #include "RiaRegressionTestRunner.h"
 
-#include "cafPdmSettings.h"
-
 #include <QAction>
 #include <QDir>
 
-CAF_CMD_SOURCE_INIT(RicLaunchRegressionTestsFeature, "RicLaunchRegressionTestsFeature");
+CAF_CMD_SOURCE_INIT( RicLaunchRegressionTestsFeature, "RicLaunchRegressionTestsFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -38,7 +36,7 @@ bool RicLaunchRegressionTestsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicLaunchRegressionTestsFeature::onActionTriggered(bool isChecked)
+void RicLaunchRegressionTestsFeature::onActionTriggered( bool isChecked )
 {
     RiaRegressionTestRunner::instance()->executeRegressionTests();
 }
@@ -46,7 +44,7 @@ void RicLaunchRegressionTestsFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicLaunchRegressionTestsFeature::setupActionLook(QAction* actionToSetup)
+void RicLaunchRegressionTestsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Launch Regression Tests");
+    actionToSetup->setText( "Launch Regression Tests" );
 }

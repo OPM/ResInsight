@@ -1,65 +1,65 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicfMessages.h"
 #include <QTextStream>
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicfMessages::addWarning(const QString& message)
+void RicfMessages::addWarning( const QString& message )
 {
-    m_messages.push_back(std::make_pair(MESSAGE_WARNING, "Line " + QString::number(m_currentLineNumber) +": " + message));
+    m_messages.push_back(
+        std::make_pair( MESSAGE_WARNING, "Line " + QString::number( m_currentLineNumber ) + ": " + message ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicfMessages::addError(const QString& message)
+void RicfMessages::addError( const QString& message )
 {
-    m_messages.push_back(std::make_pair(MESSAGE_ERROR, "Line " + QString::number(m_currentLineNumber) +": " + message));
+    m_messages.push_back(
+        std::make_pair( MESSAGE_ERROR, "Line " + QString::number( m_currentLineNumber ) + ": " + message ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicfMessages::skipWhiteSpaceWithLineNumberCount(QTextStream& inputStream)
+void RicfMessages::skipWhiteSpaceWithLineNumberCount( QTextStream& inputStream )
 {
     while ( !inputStream.atEnd() )
     {
-        QChar ch = readCharWithLineNumberCount(inputStream);
+        QChar ch = readCharWithLineNumberCount( inputStream );
         if ( !ch.isSpace() )
         {
-            inputStream.seek(inputStream.pos()-1);
+            inputStream.seek( inputStream.pos() - 1 );
             break;
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QChar RicfMessages::readCharWithLineNumberCount(QTextStream& inputStream)
+QChar RicfMessages::readCharWithLineNumberCount( QTextStream& inputStream )
 {
     QChar ch;
     inputStream >> ch;
-    if ( ch == QChar('\n') )
+    if ( ch == QChar( '\n' ) )
     {
         m_currentLineNumber++;
     }
@@ -67,23 +67,23 @@ QChar RicfMessages::readCharWithLineNumberCount(QTextStream& inputStream)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QChar RicfMessages::peekNextChar(QTextStream& inputStream)
+QChar RicfMessages::peekNextChar( QTextStream& inputStream )
 {
     QChar ch;
-    if (!inputStream.atEnd())
+    if ( !inputStream.atEnd() )
     {
         inputStream >> ch;
-        inputStream.seek(inputStream.pos() - 1);
+        inputStream.seek( inputStream.pos() - 1 );
     }
     return ch;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicfMessages::skipLineWithLineNumberCount(QTextStream& inputStream)
+void RicfMessages::skipLineWithLineNumberCount( QTextStream& inputStream )
 {
     inputStream.readLine();
     m_currentLineNumber++;

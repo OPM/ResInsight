@@ -27,7 +27,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicHoloLensTerminateSessionFeature, "RicHoloLensTerminateSessionFeature");
+CAF_CMD_SOURCE_INIT( RicHoloLensTerminateSessionFeature, "RicHoloLensTerminateSessionFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -40,13 +40,13 @@ bool RicHoloLensTerminateSessionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensTerminateSessionFeature::onActionTriggered(bool isChecked)
+void RicHoloLensTerminateSessionFeature::onActionTriggered( bool isChecked )
 {
     auto* cmdFeature = dynamic_cast<RicHoloLensAutoExportToSharingServerFeature*>(
-        caf::CmdFeatureManager::instance()->getCommandFeature("RicHoloLensAutoExportToSharingServerFeature"));
-    if (cmdFeature)
+        caf::CmdFeatureManager::instance()->getCommandFeature( "RicHoloLensAutoExportToSharingServerFeature" ) );
+    if ( cmdFeature )
     {
-        cmdFeature->setActive(false);
+        cmdFeature->setActive( false );
     }
 
     RicHoloLensSessionManager::instance()->terminateSession();
@@ -57,9 +57,9 @@ void RicHoloLensTerminateSessionFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensTerminateSessionFeature::setupActionLook(QAction* actionToSetup)
+void RicHoloLensTerminateSessionFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/HoloLensDisconnect24x24.png"));
+    actionToSetup->setIcon( QIcon( ":/HoloLensDisconnect24x24.png" ) );
 
-    actionToSetup->setText("Disconnect from HoloLens server");
+    actionToSetup->setText( "Disconnect from HoloLens server" );
 }

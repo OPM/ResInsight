@@ -229,7 +229,7 @@ QWidget *CompassInterface::createWidget( QWidget *parent )
 {
     QwtCompass *compass = new QwtCompass( parent );
     compass->setNeedle( new QwtCompassMagnetNeedle(
-        QwtCompassMagnetNeedle::TriangleStyle, 
+        QwtCompassMagnetNeedle::TriangleStyle,
         compass->palette().color( QPalette::Mid ),
         compass->palette().color( QPalette::Dark ) ) );
 
@@ -286,7 +286,7 @@ QWidget *DialInterface::createWidget( QWidget *parent )
 {
     QwtDial *dial = new QwtDial( parent );
     dial->setNeedle( new QwtDialSimpleNeedle(
-        QwtDialSimpleNeedle::Arrow, true, 
+        QwtDialSimpleNeedle::Arrow, true,
         dial->palette().color( QPalette::Dark ),
         dial->palette().color( QPalette::Mid ) ) );
 

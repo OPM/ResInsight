@@ -32,7 +32,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicReloadCaseFeature, "RicReloadCaseFeature");
+CAF_CMD_SOURCE_INIT( RicReloadCaseFeature, "RicReloadCaseFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -40,10 +40,10 @@ CAF_CMD_SOURCE_INIT(RicReloadCaseFeature, "RicReloadCaseFeature");
 bool RicReloadCaseFeature::isCommandEnabled()
 {
     std::vector<caf::PdmObject*> selectedFormationNamesCollObjs;
-    caf::SelectionManager::instance()->objectsByType(&selectedFormationNamesCollObjs);
-    for (caf::PdmObject* pdmObject : selectedFormationNamesCollObjs)
+    caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesCollObjs );
+    for ( caf::PdmObject* pdmObject : selectedFormationNamesCollObjs )
     {
-        if (dynamic_cast<RimEclipseCase*>(pdmObject))
+        if ( dynamic_cast<RimEclipseCase*>( pdmObject ) )
         {
             return true;
         }
@@ -55,23 +55,23 @@ bool RicReloadCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicReloadCaseFeature::onActionTriggered(bool isChecked)
+void RicReloadCaseFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimEclipseCase*> selectedEclipseCases;
-    caf::SelectionManager::instance()->objectsByType(&selectedEclipseCases);
+    caf::SelectionManager::instance()->objectsByType( &selectedEclipseCases );
 
     RiaGuiApplication::clearAllSelections();
 
-    for (RimEclipseCase* selectedCase : selectedEclipseCases)
+    for ( RimEclipseCase* selectedCase : selectedEclipseCases )
     {
         std::vector<RimTimeStepFilter*> timeStepFilter;
-        selectedCase->descendantsIncludingThisOfType(timeStepFilter);
-        if (timeStepFilter.size() == 1)
+        selectedCase->descendantsIncludingThisOfType( timeStepFilter );
+        if ( timeStepFilter.size() == 1 )
         {
             timeStepFilter[0]->clearFilteredTimeSteps();
         }
 
-        RimReloadCaseTools::reloadAllEclipseData(selectedCase);
+        RimReloadCaseTools::reloadAllEclipseData( selectedCase );
         selectedCase->updateConnectedEditors();
     }
 }
@@ -79,8 +79,8 @@ void RicReloadCaseFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicReloadCaseFeature::setupActionLook(QAction* actionToSetup)
+void RicReloadCaseFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Reload");
-    actionToSetup->setIcon(QIcon(":/Refresh-32.png"));
+    actionToSetup->setText( "Reload" );
+    actionToSetup->setIcon( QIcon( ":/Refresh-32.png" ) );
 }

@@ -29,6 +29,8 @@ class RimWellLogRftCurveNameConfig : public RimNameConfig
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellLogRftCurveNameConfig(const RimNameConfigHolderInterface* configHolder = nullptr);
-};
+    RimWellLogRftCurveNameConfig();
 
+private:
+    void doEnableAllAutoNameTags( bool enable ) override;
+};

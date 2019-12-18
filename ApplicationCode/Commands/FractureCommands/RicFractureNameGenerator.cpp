@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,29 +20,30 @@
 
 #include "RiaApplication.h"
 
-#include "RimProject.h"
-#include "RimOilField.h"
 #include "RimFracture.h"
+#include "RimOilField.h"
+#include "RimProject.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicFractureNameGenerator::nameForNewFracture()
 {
     std::vector<RimFracture*> oldFractures;
-    RiaApplication::instance()->project()->activeOilField()->descendantsIncludingThisOfType(oldFractures);
+    RiaApplication::instance()->project()->activeOilField()->descendantsIncludingThisOfType( oldFractures );
 
     size_t fractureNum = oldFractures.size();
 
-    bool found;
+    bool    found;
     QString name;
 
-    do {
+    do
+    {
         found = false;
-        name = QString("Fracture_%1").arg(fractureNum, 2, 10, QChar('0'));
-        for (RimFracture* fracture : oldFractures)
+        name  = QString( "Fracture_%1" ).arg( fractureNum, 2, 10, QChar( '0' ) );
+        for ( RimFracture* fracture : oldFractures )
         {
-            if (fracture->name() == name)
+            if ( fracture->name() == name )
             {
                 found = true;
                 break;
@@ -50,7 +51,7 @@ QString RicFractureNameGenerator::nameForNewFracture()
         }
 
         fractureNum++;
-    } while (found);
+    } while ( found );
 
     return name;
 }

@@ -17,6 +17,7 @@ set (MOC_HEADER_FILES
 
 # Resource file
 set( QRC_FILES  
+    ${QRC_FILES} 
     textedit.qrc
 )
 
@@ -58,6 +59,9 @@ set( PROJECT_FILES
     CustomObjectEditor.h
     MenuItemProducer.cpp
     MenuItemProducer.h
+
+    TamComboBox.h
+    TamComboBox.cpp
 )
 
 
@@ -66,6 +70,7 @@ add_executable ( ${PROJECT_NAME}
 	${PROJECT_FILES}
     ${MOC_SOURCE_FILES}
     ${QRC_FILES_CPP}
+    $<TARGET_OBJECTS:cafCommandFeatures> # Needed for cmake version < 3.12. Remove when we can use target_link_libraries with OBJECT libraries
 )
 
 set (TAP_LINK_LIBRARIES
@@ -76,6 +81,7 @@ if (USE_COMMAND_FRAMEWORK)
     set (TAP_LINK_LIBRARIES
         ${TAP_LINK_LIBRARIES}
         cafCommand
+        #cafCommandFeatures # Not possible using cmake version < 3.12. Use when we can use target_link_libraries with OBJECT libraries
     )
 endif(USE_COMMAND_FRAMEWORK)
 
@@ -108,5 +114,9 @@ endif(CEE_USE_QT5)
 
 # cotire
 if (COMMAND caf_apply_cotire)
+  set_source_files_properties (qrc_textedit.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
+  set_source_files_properties (qrc_cafCommandFeatures.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
+  set_source_files_properties (qrc_cafAnimControl.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
+
   caf_apply_cotire("${PROJECT_NAME}")
 endif()

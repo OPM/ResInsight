@@ -43,17 +43,13 @@
 #include <QTextCursor>
 #include <QTextEdit>
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+MenuItemProducer::MenuItemProducer() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-MenuItemProducer::MenuItemProducer()
-{
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void MenuItemProducer::attachTextEdit(QTextEdit* textEdit)
 {
@@ -62,16 +58,16 @@ void MenuItemProducer::attachTextEdit(QTextEdit* textEdit)
         textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
         QObject::connect(textEdit, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slotMenuItems(QPoint)));
     }
-    
+
     m_textEdit = textEdit;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void MenuItemProducer::slotMenuItems(QPoint point)
 {
-    QMenu menu;
+    QMenu   menu;
     QAction act("Testing", this);
     connect(&act, SIGNAL(triggered()), SLOT(slotShowText()));
 
@@ -89,13 +85,13 @@ void MenuItemProducer::slotMenuItems(QPoint point)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void MenuItemProducer::slotShowText()
 {
     if (m_textEdit)
     {
-        QAction* action = qobject_cast<QAction *>(sender());
+        QAction* action = qobject_cast<QAction*>(sender());
         if (action)
         {
             QTextCursor cursor = m_textEdit->textCursor();

@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,157 +23,127 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
+#include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
 
 #include "RiaDefines.h"
-#include "RimViewWindow.h"
+#include "RimGridPlotWindow.h"
 #include "RimWellLogPlotNameConfig.h"
 
 #include <QPointer>
 
+#include <set>
+
 class RimWellLogCurveCommonDataSource;
-class RiuWellLogPlot;
-class RimWellLogTrack;
-class RimWellRftPlot;
-class RimWellPltPlot;
+class RiuGridPlotWindow;
+class RimPlotInterface;
 class QKeyEvent;
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
-class RimWellLogPlot : public RimViewWindow, public RimNameConfigHolderInterface
+class RimWellLogPlot : public RimGridPlotWindow, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum DepthTypeEnum
+    enum AxisGridVisibility
     {
-        MEASURED_DEPTH,
-        TRUE_VERTICAL_DEPTH,
-        PSEUDO_LENGTH,
-        CONNECTION_NUMBER
+        AXIS_GRID_NONE            = 0x00,
+        AXIS_GRID_MAJOR           = 0x01,
+        AXIS_GRID_MINOR           = 0x02,
+        AXIS_GRID_MAJOR_AND_MINOR = 0x03
     };
 
-    enum AxisGridVisibility { AXIS_GRID_NONE, AXIS_GRID_MAJOR, AXIS_GRID_MAJOR_AND_MINOR };
-
     typedef caf::AppEnum<AxisGridVisibility> AxisGridEnum;
+    using DepthTypeEnum = RiaDefines::DepthTypeEnum;
 
 public:
     RimWellLogPlot();
     ~RimWellLogPlot() override;
 
-    QWidget*                                        createPlotWidget();
-    QWidget*                                viewWidget() override;
+    QWidget* createPlotWidget( QWidget* mainWindowParent = nullptr );
+    QString  fullPlotTitle() const override;
 
-    void                                            setDescription(const QString& description);
-    QString                                         description() const;
+    RimWellLogPlot& operator=( RimWellLogPlot&& rhs );
 
-    DepthTypeEnum                                   depthType() const;
-    void                                            setDepthType(DepthTypeEnum depthType);
+    DepthTypeEnum depthType() const;
+    void          setDepthType( DepthTypeEnum depthType );
 
-    RiaDefines::DepthUnitType                       depthUnit() const;
-    void                                            setDepthUnit(RiaDefines::DepthUnitType depthUnit);
+    RiaDefines::DepthUnitType depthUnit() const;
+    void                      setDepthUnit( RiaDefines::DepthUnitType depthUnit );
 
-    QString                                         depthPlotTitle() const;
-    void                                            enableDepthGridLines(AxisGridVisibility gridVisibility);
-    AxisGridVisibility                              depthGridLinesVisibility() const;
+    QString            depthAxisTitle() const;
+    void               enableDepthAxisGridLines( AxisGridVisibility gridVisibility );
+    AxisGridVisibility depthAxisGridLinesEnabled() const;
 
-    bool                                            isPlotTitleVisible() const;
-    void                                            setPlotTitleVisible(bool visible);    
-    bool                                            areTrackLegendsVisible() const;
-    void                                            setTrackLegendsVisible(bool doShow);
-    bool                                            areTrackLegendsHorizontal() const;
-    void                                            setTrackLegendsHorizontal(bool horizontal);
+    void updateZoom() override;
+    void setDepthAxisRangeByFactorAndCenter( double zoomFactor, double zoomCenter );
+    void setDepthAxisRangeByPanDepth( double panFactor );
+    void setDepthAxisRange( double minimumDepth, double maximumDepth );
 
-    void                                            addTrack(RimWellLogTrack* track);
-    void                                            insertTrack(RimWellLogTrack* track, size_t index);
-    size_t                                          trackCount() { return m_tracks.size();}
+    void calculateAvailableDepthRange();
+    void availableDepthRange( double* minimumDepth, double* maximumDepth ) const;
+    void visibleDepthRange( double* minimumDepth, double* maximumDepth ) const;
 
-    void                                            removeTrack(RimWellLogTrack* track);
-    size_t                                          trackIndex(const RimWellLogTrack* track) const;
-    RimWellLogTrack*                                trackByIndex(size_t index);
-    size_t                                          firstVisibleTrackIndex() const;
+    void setAutoScaleYEnabled( bool enabled ) override;
+    void enableAllAutoNameTags( bool enable );
 
-    void                                            updateTracks(bool autoScaleXAxis = false);
-    void                                            updateTrackNames();
+    void uiOrderingForDepthAxis( caf::PdmUiOrdering& uiOrdering );
+    void uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering ) override;
 
-    void                                            updateDepthZoom();
-    void                                            setDepthZoomByFactorAndCenter(double zoomFactor, double zoomCenter);
-    void                                            panDepth(double panFactor);
-    void                                            setDepthZoomMinMax(double minimumDepth, double maximumDepth);
-    void                                            depthZoomMinMax(double* minimumDepth, double* maximumDepth) const;
+    QString                   createAutoName() const override;
+    RimWellLogPlotNameConfig* nameConfig() const;
 
-    void                                            calculateAvailableDepthRange();
-    void                                            availableDepthRange(double* minimumDepth, double* maximumDepth) const;
-    bool                                            hasAvailableDepthRange() const;
+    RimWellLogCurveCommonDataSource* commonDataSource() const;
+    void                             updateCommonDataSource();
+    void                             setCommonDataSourceEnabled( bool enable );
 
-    void                                    zoomAll() override;
-    void                                            setDepthAutoZoom(bool on);
-    void                                            enableAllAutoNameTags(bool enable);
+    void setAvailableDepthUnits( const std::set<RiaDefines::DepthUnitType>& depthUnits );
+    void setAvailableDepthTypes( const std::set<DepthTypeEnum>& depthTypes );
 
-    QString                                         asciiDataForPlotExport() const;
+    void onPlotAdditionOrRemoval() override;
 
-    RimWellRftPlot*                                 rftPlot() const;
-    bool                                            isRftPlotChild() const;
-    RimWellPltPlot*                                 pltPlot() const;
-    bool                                            isPltPlotChild() const;
+    void updatePlotNames() override;
 
-    void                                            uiOrderingForDepthAxis(caf::PdmUiOrdering& uiOrdering);
-    void                                            uiOrderingForPlotSettings(caf::PdmUiOrdering& uiOrdering);
-
-    QString                                 createAutoName() const override;
-
-    void                                    handleKeyPressEvent(QKeyEvent* keyEvent);
-    RimWellLogCurveCommonDataSource*        commonDataSource() const;
 protected:
-    void                                    performAutoNameUpdate() override;
+    QWidget*             createViewWidget( QWidget* mainWindowParent ) override;
+    void                 performAutoNameUpdate() override;
+    void                 handleKeyPressEvent( QKeyEvent* keyEvent ) override;
+    caf::PdmFieldHandle* userDescriptionField() override;
 
     // Overridden PDM methods
-    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    caf::PdmFieldHandle*                    userDescriptionField() override;
-    QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    void                                    onLoadDataAndUpdate() override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
-    QImage                                  snapshotWindowContent() override;
+    void initAfterRead() override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
 
-    QWidget*                                createViewWidget(QWidget* mainWindowParent) override;
-    void                                    deleteViewWidget() override;
+    QImage snapshotWindowContent() override;
 
-    void                                    initAfterRead() override;
+protected:
+    caf::PdmChildField<RimWellLogCurveCommonDataSource*> m_commonDataSource;
+    bool                                                 m_commonDataSourceEnabled;
 
-private:
-    void                                            applyZoomAllDepths();
-    void                                            applyDepthZoomFromVisibleDepth();
-    void                                            recreateTrackPlots();
-    void                                            detachAllCurves();
+    caf::PdmField<caf::AppEnum<DepthTypeEnum>>             m_depthType;
+    caf::PdmField<caf::AppEnum<RiaDefines::DepthUnitType>> m_depthUnit;
+    caf::PdmField<double>                                  m_minVisibleDepth;
+    caf::PdmField<double>                                  m_maxVisibleDepth;
+    caf::PdmField<AxisGridEnum>                            m_depthAxisGridVisibility;
+    caf::PdmField<bool>                                    m_isAutoScaleDepthEnabled;
 
-    void                                            updateDisabledDepthTypes();
-    void                                            updatePlotTitle();
+    caf::PdmChildField<RimWellLogPlotNameConfig*> m_nameConfig;
 
-private:
-    caf::PdmField<QString>                                   m_userName_OBSOLETE;
-    caf::PdmChildField<RimWellLogCurveCommonDataSource*>     m_commonDataSource;
-    caf::PdmChildArrayField<RimWellLogTrack*>                m_tracks;
-
-    caf::PdmField< caf::AppEnum<DepthTypeEnum>>              m_depthType;
-    caf::PdmField< caf::AppEnum<RiaDefines::DepthUnitType>>  m_depthUnit;
-    std::set<RimWellLogPlot::DepthTypeEnum>                  m_disabledDepthTypes;
-    caf::PdmField<double>                                    m_minVisibleDepth;
-    caf::PdmField<double>                                    m_maxVisibleDepth;
-    caf::PdmField<AxisGridEnum>                              m_depthAxisGridVisibility;
-    caf::PdmField<bool>                                      m_isAutoScaleDepthEnabled;
-    
-    caf::PdmField<bool>                                      m_showTitleInPlot;
-    caf::PdmField<bool>                                      m_showTrackLegends;
-    caf::PdmField<bool>                                      m_trackLegendsHorizontal;
-
-    caf::PdmChildField<RimWellLogPlotNameConfig*>            m_nameConfig;
+    std::set<RiaDefines::DepthUnitType> m_availableDepthUnits;
+    std::set<DepthTypeEnum>             m_availableDepthTypes;
 
     double m_minAvailableDepth;
     double m_maxAvailableDepth;
-
-    friend class RiuWellLogPlot;
-    QPointer<RiuWellLogPlot> m_viewer;
 };

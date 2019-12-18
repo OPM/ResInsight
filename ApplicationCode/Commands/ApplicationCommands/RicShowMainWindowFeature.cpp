@@ -24,7 +24,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicShowMainWindowFeature, "RicShowMainWindowFeature");
+CAF_CMD_SOURCE_INIT( RicShowMainWindowFeature, "RicShowMainWindowFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -33,7 +33,7 @@ void RicShowMainWindowFeature::showMainWindow()
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
 
-    if (mainWnd->isMinimized())
+    if ( mainWnd->isMinimized() )
     {
         mainWnd->showNormal();
         mainWnd->update();
@@ -59,7 +59,7 @@ bool RicShowMainWindowFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicShowMainWindowFeature::onActionTriggered(bool isChecked)
+void RicShowMainWindowFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
@@ -69,10 +69,10 @@ void RicShowMainWindowFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicShowMainWindowFeature::setupActionLook(QAction* actionToSetup)
+void RicShowMainWindowFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Open 3D Window");
-    actionToSetup->setToolTip("Open 3D Window (Ctrl+Shift+3)");
-    actionToSetup->setIcon(QIcon(":/3DWindow24x24.png"));
-    applyShortcutWithHintToAction(actionToSetup, QKeySequence(tr("Ctrl+Shift+3")));
+    actionToSetup->setText( "Open 3D Window" );
+    actionToSetup->setToolTip( "Open 3D Window (Ctrl+Shift+3)" );
+    actionToSetup->setIcon( QIcon( ":/3DWindow24x24.png" ) );
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence( tr( "Ctrl+Shift+3" ) ) );
 }

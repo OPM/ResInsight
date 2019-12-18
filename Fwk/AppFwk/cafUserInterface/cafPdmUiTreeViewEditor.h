@@ -42,9 +42,11 @@
 #include "cafPdmUiTreeViewQModel.h"
 
 #include <QAbstractItemModel>
+#include <QColor>
 #include <QPointer>
 #include <QWidget>
 #include <QItemSelectionModel>
+#include <QStyledItemDelegate>
 #include <QTreeView>
 
 
@@ -61,8 +63,44 @@ namespace caf
 class PdmChildArrayFieldHandle;
 class PdmUiDragDropInterface;
 class PdmUiItem;
+class PdmUiTreeViewEditor;
 class PdmUiTreeViewQModel;
 class PdmUiTreeViewWidget;
+
+class PdmUiTreeViewItemAttribute : public PdmUiEditorAttribute
+{
+public:
+    enum Position
+    {
+        IN_FRONT,
+        AT_END
+    };
+    PdmUiTreeViewItemAttribute()
+        : tag()
+        , position(AT_END)
+        , bgColor(Qt::red)
+        , fgColor(Qt::white)
+    {
+
+    }
+    QString  tag;
+    Position position;
+    QColor   bgColor;
+    QColor   fgColor;
+};
+
+class PdmUiTreeViewItemDelegate : public QStyledItemDelegate
+{
+public:
+    PdmUiTreeViewItemDelegate(QObject* parent, PdmUiTreeViewQModel* model);
+    void clearAttributes();
+    void addAttribute(QModelIndex index, const PdmUiTreeViewItemAttribute& attribute);
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+
+private:
+    PdmUiTreeViewQModel* m_model;
+    std::map<QModelIndex, PdmUiTreeViewItemAttribute> m_attributes;
+};
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -102,6 +140,7 @@ public:
     bool        isTreeItemEditWidgetActive() const;
 
     void        selectAsCurrentItem(const PdmUiItem* uiItem);
+    void        selectItems(std::vector<const PdmUiItem*> uiItems);
     void        selectedUiItems(std::vector<PdmUiItem*>& objects);
     void        setExpanded(const PdmUiItem* uiItem, bool doExpand) const;
 
@@ -130,6 +169,7 @@ private:
     PdmChildArrayFieldHandle* currentChildArrayFieldHandle();
 
     void        updateSelectionManager();
+    void        updateItemDelegateForSubTree(const QModelIndex& modelIndex = QModelIndex());
 
     bool        eventFilter(QObject *obj, QEvent *event) override;
 
@@ -138,7 +178,8 @@ private:
     QVBoxLayout*                    m_layout;
 
     PdmUiTreeViewWidget*            m_treeView;
-    PdmUiTreeViewQModel*             m_treeViewModel;
+    PdmUiTreeViewQModel*            m_treeViewModel;
+    PdmUiTreeViewItemDelegate*          m_delegate;
 
     bool                            m_useDefaultContextMenu;
     bool                            m_updateSelectionManager;

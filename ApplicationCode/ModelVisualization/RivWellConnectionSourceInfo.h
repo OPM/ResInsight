@@ -20,7 +20,6 @@
 
 #include "cafPdmPointer.h"
 
-#include "cvfBase.h"
 #include "cvfObject.h"
 
 #include <vector>
@@ -34,12 +33,13 @@ class RivWellConnectionFactorGeometryGenerator;
 class RivWellConnectionSourceInfo : public cvf::Object
 {
 public:
-    explicit RivWellConnectionSourceInfo(RimWellPath* wellPath, RivWellConnectionFactorGeometryGenerator* geometryGenerator);
+    explicit RivWellConnectionSourceInfo( RimWellPath*                              wellPath,
+                                          RivWellConnectionFactorGeometryGenerator* geometryGenerator );
 
     RimWellPath* wellPath() const;
 
-    size_t globalCellIndexFromTriangleIndex(cvf::uint triangleIndex) const;
-    double connectionFactorFromTriangleIndex(cvf::uint triangleIndex) const;
+    size_t globalCellIndexFromTriangleIndex( cvf::uint triangleIndex ) const;
+    double connectionFactorFromTriangleIndex( cvf::uint triangleIndex ) const;
 
 private:
     caf::PdmPointer<RimWellPath>                       m_wellPath;

@@ -27,8 +27,8 @@ class RiaRegressionTest : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RiaRegressionTest(void);
-    ~RiaRegressionTest(void) override;
+    RiaRegressionTest( void );
+    ~RiaRegressionTest( void ) override;
 
     void writeSettingsToApplicationStore() const;
     void readSettingsFromApplicationStore();
@@ -45,7 +45,7 @@ public:
     caf::PdmField<bool>    appendTestsAfterTestFilter;
 
 protected:
-    void defineEditorAttribute(const caf::PdmFieldHandle* field,
-                               QString                    uiConfigName,
-                               caf::PdmUiEditorAttribute* attribute) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
 };

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -33,21 +33,23 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicAddStoredWellAllocationPlotFeature, "RicAddStoredWellAllocationPlotFeature");
+CAF_CMD_SOURCE_INIT( RicAddStoredWellAllocationPlotFeature, "RicAddStoredWellAllocationPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicAddStoredWellAllocationPlotFeature::isCommandEnabled()
 {
-    if (RiaApplication::instance()->project())
+    if ( RiaApplication::instance()->project() )
     {
-        RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
-        if (flowPlotColl)
+        RimFlowPlotCollection* flowPlotColl =
+            RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
+        if ( flowPlotColl )
         {
-            RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(caf::SelectionManager::instance()->selectedItem());
+            RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(
+                caf::SelectionManager::instance()->selectedItem() );
 
-            if (flowPlotColl->defaultWellAllocPlot() == wellAllocationPlot)
+            if ( flowPlotColl->defaultWellAllocPlot() == wellAllocationPlot )
             {
                 return true;
             }
@@ -58,38 +60,42 @@ bool RicAddStoredWellAllocationPlotFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicAddStoredWellAllocationPlotFeature::onActionTriggered(bool isChecked)
+void RicAddStoredWellAllocationPlotFeature::onActionTriggered( bool isChecked )
 {
-    if (RiaApplication::instance()->project())
+    if ( RiaApplication::instance()->project() )
     {
-        RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
-        if (flowPlotColl)
+        RimFlowPlotCollection* flowPlotColl =
+            RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
+        if ( flowPlotColl )
         {
-            RimWellAllocationPlot* sourceObject = dynamic_cast<RimWellAllocationPlot*>(caf::SelectionManager::instance()->selectedItem());
+            RimWellAllocationPlot* sourceObject = dynamic_cast<RimWellAllocationPlot*>(
+                caf::SelectionManager::instance()->selectedItem() );
 
-            RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(sourceObject->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
-            CVF_ASSERT(wellAllocationPlot);
+            RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(
+                sourceObject->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
-            flowPlotColl->addWellAllocPlotToStoredPlots(wellAllocationPlot);
+            CVF_ASSERT( wellAllocationPlot );
+
+            flowPlotColl->addWellAllocPlotToStoredPlots( wellAllocationPlot );
             wellAllocationPlot->resolveReferencesRecursively();
-            
+
             wellAllocationPlot->loadDataAndUpdate();
 
             flowPlotColl->updateConnectedEditors();
 
-            RiuPlotMainWindowTools::selectAsCurrentItem(wellAllocationPlot);
-            RiuPlotMainWindowTools::setExpanded(wellAllocationPlot);
+            RiuPlotMainWindowTools::selectAsCurrentItem( wellAllocationPlot );
+            RiuPlotMainWindowTools::setExpanded( wellAllocationPlot );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicAddStoredWellAllocationPlotFeature::setupActionLook(QAction* actionToSetup)
+void RicAddStoredWellAllocationPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    //actionToSetup->setIcon(QIcon(":/new_icon16x16.png"));
-    actionToSetup->setText("Add Stored Well Allocation Plot");
+    // actionToSetup->setIcon(QIcon(":/new_icon16x16.png"));
+    actionToSetup->setText( "Add Stored Well Allocation Plot" );
 }

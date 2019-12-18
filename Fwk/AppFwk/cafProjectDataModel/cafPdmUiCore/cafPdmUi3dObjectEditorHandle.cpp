@@ -64,9 +64,11 @@ PdmUi3dObjectEditorHandle::~PdmUi3dObjectEditorHandle()
 /// to be cast able to whatever is needed in subclasses.
 /// Not allowed to change. Should be constructor argument, but makes factory stuff difficult.
 //--------------------------------------------------------------------------------------------------
-void PdmUi3dObjectEditorHandle::setViewer(QWidget* ownerViewer)
+void PdmUi3dObjectEditorHandle::setViewer(QWidget* ownerViewer, bool inComparisonView)
 {
     CAF_ASSERT(m_ownerViewer.isNull()); 
     m_ownerViewer = ownerViewer;
+    m_isInComparisonView = inComparisonView;
 }
+
 }

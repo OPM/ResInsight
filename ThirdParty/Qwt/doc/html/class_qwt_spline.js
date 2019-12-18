@@ -9,15 +9,15 @@ var class_qwt_spline =
     [ "~QwtSpline", "class_qwt_spline.html#a90805882826469c94fdc871f18261bb6", null ],
     [ "buildNaturalSpline", "class_qwt_spline.html#a1cdf09e841dd6a721eb788914273c484", null ],
     [ "buildPeriodicSpline", "class_qwt_spline.html#a8184717f8c018e69fabd1e33ac68ef19", null ],
-    [ "coefficientsA", "class_qwt_spline.html#abbc5c1cf6016fc57050f379250da031e", null ],
-    [ "coefficientsB", "class_qwt_spline.html#a1de897d6cc2d0d8dac840d15d0bb603e", null ],
-    [ "coefficientsC", "class_qwt_spline.html#a27d51429a7447b18a8f05a44b3418f89", null ],
-    [ "isValid", "class_qwt_spline.html#a8eb42cf7f0f81bb7b7b885466f8ebbbf", null ],
+    [ "coefficientsA", "class_qwt_spline.html#a1b77df69a233a6f918eb35014372b828", null ],
+    [ "coefficientsB", "class_qwt_spline.html#aa91b0b8b1b6ed6144c15f62a8aaf51a7", null ],
+    [ "coefficientsC", "class_qwt_spline.html#a77caab9b2b1c42653fa8706171f0dee9", null ],
+    [ "isValid", "class_qwt_spline.html#a50298a899c2199373b0d73fb50bc406d", null ],
     [ "operator=", "class_qwt_spline.html#a8a597c34477dd4b5298db2d445b4e596", null ],
-    [ "points", "class_qwt_spline.html#a14694e61052933921eda629062554d22", null ],
+    [ "points", "class_qwt_spline.html#a5137512588444236e2a2ab1cab207f41", null ],
     [ "reset", "class_qwt_spline.html#afc52fd49e7f00d57a0336059fae299c0", null ],
     [ "setPoints", "class_qwt_spline.html#a6ed13410b1d5f6b33ba0e3c2b07932cf", null ],
     [ "setSplineType", "class_qwt_spline.html#a222953661f01658a16042d587196aff8", null ],
-    [ "splineType", "class_qwt_spline.html#a36442cbb781422e5b97ae242265dd4b4", null ],
-    [ "value", "class_qwt_spline.html#a1f67187eefe2959f0c902532edf64d41", null ]
+    [ "splineType", "class_qwt_spline.html#a1ba958ef9d8ea93db822fde1a1176f51", null ],
+    [ "value", "class_qwt_spline.html#a7c7af79ee4d77dd8e0ff08a6fd234e4f", null ]
 ];

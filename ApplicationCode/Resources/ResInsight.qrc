@@ -33,6 +33,7 @@
     <file>SummaryGroup16x16.png</file>
     <file>CreateGridCaseGroup16x16.png</file>
     <file>GridCaseGroup16x16.png</file>
+    <file>ReplaceCase16x16.png</file>
     <file>Histogram16x16.png</file>
     <file>Histograms16x16.png</file>
     <file>ZoomAll16x16.png</file>
@@ -58,6 +59,13 @@
 	<file>GeoMechCasePropTable24x24.png</file>
     <file>GeoMechCases48x48.png</file>
     <file>chain.png</file>
+    <file>UnLinkView16x16.png</file>
+    <file>LinkView16x16.png</file>
+    <file>LinkView24x24.png</file>
+    <file>ComparisonView16x16.png</file>
+    <file>RemoveComparisonView16x16.png</file>
+    <file>MasterView16x16.png</file>
+    <file>ControlledView16x16.png</file>
     <file>TileWindows24x24.png</file>
 	<file>Window16x16.png</file>
     <file>LasFile16x16.png</file>
@@ -80,6 +88,7 @@
     <file>SummaryXPlotsLight16x16.png</file>
     <file>ObservedDataFile16x16.png</file>
     <file>ObservedRSMDataFile16x16.png</file>
+    <file>ObservedRFTDataFile16x16.png</file>
     <file>ObservedCSVDataFile16x16.png</file>
     <file>FormationCollection16x16.png</file>
     <file>Formations16x16.png</file>
@@ -92,6 +101,7 @@
     <file>PlotWindow24x24.png</file>
     <file>3DWindow24x24.png</file>
     <file>3DView16x16.png</file>
+    <file>3DViewGeoMech16x16.png</file>
     <file>SummaryCase48x48.png</file>
     <file>SummaryCase16x16.png</file>
     <file>openFolder24x24.png</file>
@@ -156,6 +166,12 @@
     <file>Ruler24x24.png</file>
 	<file>RulerPoly24x24.png</file>
 	<file>Swap.png</file>
+    <file>SummaryTemplate16x16.png</file>
+	<file>Columns1.png</file>
+	<file>Columns2.png</file>
+	<file>Columns3.png</file>
+	<file>Columns4.png</file>
+  	<file>ColumnsUnlimited.png</file>
   </qresource>
   <qresource prefix="/Shader/">
     <file>fs_CellFace.glsl</file>

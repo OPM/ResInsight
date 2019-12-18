@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016  Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ class RifDerivedEnsembleReader;
 class RimDerivedEnsembleCaseCollection;
 
 //==================================================================================================
-///  
+///
 //==================================================================================================
 enum DerivedEnsembleOperator
 {
@@ -54,29 +54,29 @@ public:
     RimDerivedEnsembleCase();
     ~RimDerivedEnsembleCase() override;
 
-    void                            setInUse(bool inUse);
-    bool                            isInUse() const;
-    void                            setSummaryCases(RimSummaryCase* sumCase1, RimSummaryCase* sumCase2);
-    bool                            needsCalculation(const RifEclipseSummaryAddress& address) const;
-    const std::vector<time_t>&      timeSteps(const RifEclipseSummaryAddress& address) const;
-    const std::vector<double>&      values(const RifEclipseSummaryAddress& address) const;
+    void                       setInUse( bool inUse );
+    bool                       isInUse() const;
+    void                       setSummaryCases( RimSummaryCase* sumCase1, RimSummaryCase* sumCase2 );
+    bool                       needsCalculation( const RifEclipseSummaryAddress& address ) const;
+    const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& address ) const;
+    const std::vector<double>& values( const RifEclipseSummaryAddress& address ) const;
 
-    void                            calculate(const RifEclipseSummaryAddress& address);
+    void calculate( const RifEclipseSummaryAddress& address );
 
-    QString caseName() const override;
-    void createSummaryReaderInterface() override;
+    QString                    caseName() const override;
+    void                       createSummaryReaderInterface() override;
     RifSummaryReaderInterface* summaryReader() override;
-    void updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
+    void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
 
-    RimDerivedEnsembleCaseCollection*           parentEnsemble() const;
+    RimDerivedEnsembleCaseCollection* parentEnsemble() const;
 
 private:
-    void                                        clearData(const RifEclipseSummaryAddress& address);
+    void clearData( const RifEclipseSummaryAddress& address );
 
-    std::unique_ptr<RifDerivedEnsembleReader>   m_reader;
+    std::unique_ptr<RifDerivedEnsembleReader> m_reader;
 
-    bool                                        m_inUse;
-    caf::PdmPtrField<RimSummaryCase*>           m_summaryCase1;
-    caf::PdmPtrField<RimSummaryCase*>           m_summaryCase2;
+    bool                                                                                    m_inUse;
+    caf::PdmPtrField<RimSummaryCase*>                                                       m_summaryCase1;
+    caf::PdmPtrField<RimSummaryCase*>                                                       m_summaryCase2;
     std::map<RifEclipseSummaryAddress, std::pair<std::vector<time_t>, std::vector<double>>> m_data;
 };

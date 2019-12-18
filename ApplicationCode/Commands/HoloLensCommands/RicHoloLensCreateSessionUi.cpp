@@ -27,22 +27,22 @@
 #include "cafPdmSettings.h"
 #include "cafPdmUiOrdering.h"
 
-CAF_PDM_SOURCE_INIT(RicHoloLensCreateSessionUi, "RicHoloLensCreateSessionUi");
+CAF_PDM_SOURCE_INIT( RicHoloLensCreateSessionUi, "RicHoloLensCreateSessionUi" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicHoloLensCreateSessionUi::RicHoloLensCreateSessionUi()
 {
-    CAF_PDM_InitObject("HoloLens Create Session", "", "", "");
+    CAF_PDM_InitObject( "HoloLens Create Session", "", "", "" );
 
-    CAF_PDM_InitField(&m_sessionName, "SessionName", QString("DummySessionName"), "Session Name", "", "", "");
-    CAF_PDM_InitField(&m_sessionPinCode, "SessionPinCode", QString("1234"), "Session Pin Code", "", "", "");
+    CAF_PDM_InitField( &m_sessionName, "SessionName", QString( "DummySessionName" ), "Session Name", "", "", "" );
+    CAF_PDM_InitField( &m_sessionPinCode, "SessionPinCode", QString( "1234" ), "Session Pin Code", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_serverSettings, "ServerSettings", "Server Settings", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_serverSettings, "ServerSettings", "Server Settings", "", "", "" );
     m_serverSettings = new RicHoloLensServerSettings;
 
-    caf::PdmSettings::readFieldsFromApplicationStore(m_serverSettings);
+    caf::PdmSettings::readFieldsFromApplicationStore( m_serverSettings );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,30 +50,29 @@ RicHoloLensCreateSessionUi::RicHoloLensCreateSessionUi()
 //--------------------------------------------------------------------------------------------------
 RicHoloLensCreateSessionUi::~RicHoloLensCreateSessionUi()
 {
-    caf::PdmSettings::writeFieldsToApplicationStore(m_serverSettings);
+    caf::PdmSettings::writeFieldsToApplicationStore( m_serverSettings );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicHoloLensCreateSessionUi::serverUrl() const
 {
-    CVF_ASSERT(m_serverSettings());
+    CVF_ASSERT( m_serverSettings() );
 
     return m_serverSettings->serverUrl();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicHoloLensCreateSessionUi::sessionName() const
 {
     return m_sessionName;
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicHoloLensCreateSessionUi::sessionPinCode() const
 {
@@ -83,18 +82,18 @@ QString RicHoloLensCreateSessionUi::sessionPinCode() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensCreateSessionUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RicHoloLensCreateSessionUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Server Configuration");
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Server Configuration" );
 
-        m_serverSettings->uiOrdering(uiConfigName, *group);
+        m_serverSettings->uiOrdering( uiConfigName, *group );
     }
 
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Create Session");
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Create Session" );
 
-        group->add(&m_sessionName);
-        group->add(&m_sessionPinCode);
+        group->add( &m_sessionName );
+        group->add( &m_sessionPinCode );
     }
 }

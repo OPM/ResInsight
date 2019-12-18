@@ -2,28 +2,26 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#include "qwt_symbol.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_intervalcurve.h"
-
-class RiuErrorBarsQwtPlotCurve;
+#include "qwt_symbol.h"
 
 //==================================================================================================
 //
@@ -74,71 +72,64 @@ public:
     };
 
 public:
-    explicit RiuQwtPlotCurve(const QString &title = QString::null);
+    explicit RiuQwtPlotCurve( const QString& title = QString() );
     ~RiuQwtPlotCurve() override;
 
-    void         setSamplesFromXValuesAndYValues(const std::vector<double>& xValues,
-                                                 const std::vector<double>& yValues,
-                                                 bool keepOnlyPositiveValues);
+    void setSamplesFromXValuesAndYValues( const std::vector<double>& xValues,
+                                          const std::vector<double>& yValues,
+                                          bool                       keepOnlyPositiveValues );
 
-    void         setSamplesFromXValuesAndYValues(const std::vector<double>& xValues,
-                                                 const std::vector<double>& yValues,
-                                                 const std::vector<double>& yErrorValues,
-                                                 bool keepOnlyPositiveValues);
-    
-    void         setSamplesFromDatesAndYValues(const std::vector<QDateTime>& dateTimes,
-                                               const std::vector<double>& yValues,
-                                               bool keepOnlyPositiveValues);
+    void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
+                                        const std::vector<double>&    yValues,
+                                        bool                          keepOnlyPositiveValues );
 
-    void         setSamplesFromTimeTAndYValues(const std::vector<time_t>& dateTimes,
-                                               const std::vector<double>& yValues,
-                                               bool keepOnlyPositiveValues);
+    void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
+                                        const std::vector<double>& yValues,
+                                        bool                       keepOnlyPositiveValues );
 
-    void         setSamplesFromTimeTAndYValues(const std::vector<time_t>& dateTimes,
-                                               const std::vector<double>& yValues,
-                                               const std::vector<double>& yErrorValues,
-                                               bool keepOnlyPositiveValues);
+    void setLineSegmentStartStopIndices( const std::vector<std::pair<size_t, size_t>>& lineSegmentStartStopIndices );
 
-    void         setLineSegmentStartStopIndices(const std::vector< std::pair<size_t, size_t> >& lineSegmentStartStopIndices);
+    void setSymbolSkipPixelDistance( float distance );
+    void setPerPointLabels( const std::vector<QString>& labels );
 
-    void         setSymbolSkipPixelDistance(float distance);
+    void setAppearance( LineStyleEnum          lineStyle,
+                        CurveInterpolationEnum interpolationType,
+                        int                    curveThickness,
+                        const QColor&          curveColor );
 
-    void         attach(QwtPlot *plot);
-    void         detach();
-    void         clearErrorBars();
-    void         showErrorBars(bool show);
-    void         setErrorBarsColor(QColor color);
+    void       setBlackAndWhiteLegendIcon( bool blackAndWhite );
+    QwtGraphic legendIcon( int index, const QSizeF& size ) const override;
 
-    void         setAppearance(LineStyleEnum lineStyle,
-                               CurveInterpolationEnum interpolationType,
-                               int curveThickness,
-                               const QColor& curveColor);
-    void         setBlackAndWhiteLegendIcon(bool blackAndWhite);
-    QwtGraphic   legendIcon(int index, const QSizeF& size) const override;
+    static std::vector<double> fromQDateTime( const std::vector<QDateTime>& dateTimes );
+    static std::vector<double> fromTime_t( const std::vector<time_t>& timeSteps );
 
 protected:
-    void drawCurve(QPainter* p, int style,
-                            const QwtScaleMap& xMap, const QwtScaleMap& yMap,
-                            const QRectF& canvasRect, 
-                            int from, int to) const override;
- 
+    void drawCurve( QPainter*          p,
+                    int                style,
+                    const QwtScaleMap& xMap,
+                    const QwtScaleMap& yMap,
+                    const QRectF&      canvasRect,
+                    int                from,
+                    int                to ) const override;
 
-    void drawSymbols(QPainter *p, const QwtSymbol &symbol, 
-                             const QwtScaleMap &xMap, 
-                             const QwtScaleMap &yMap, 
-                             const QRectF &canvasRect, 
-                             int from, int to) const override;
+    void drawSymbols( QPainter*          p,
+                      const QwtSymbol&   symbol,
+                      const QwtScaleMap& xMap,
+                      const QwtScaleMap& yMap,
+                      const QRectF&      canvasRect,
+                      int                from,
+                      int                to ) const override;
 
 private:
-    static std::vector<double>  fromQDateTime(const std::vector<QDateTime>& dateTimes);
-    static std::vector<double>  fromTime_t(const std::vector<time_t>& timeSteps);
+    void computeValidIntervalsAndSetCurveData( const std::vector<double>& xValues,
+                                               const std::vector<double>& yValues,
+                                               bool                       keepOnlyPositiveValues );
 
 private:
-    std::vector< std::pair<size_t, size_t> > m_polyLineStartStopIndices;
-    float                                    m_symbolSkipPixelDistance;
+    float m_symbolSkipPixelDistance;
+    bool  m_blackAndWhiteLegendIcon;
 
-    bool                    m_showErrorBars;
-    QwtPlotIntervalCurve*   m_errorBars;
-    QwtPlot*                m_attachedToPlot;
-    bool                    m_blackAndWhiteLegendIcon;
+    std::vector<QString> m_perPointLabels;
+
+    std::vector<std::pair<size_t, size_t>> m_polyLineStartStopIndices;
 };

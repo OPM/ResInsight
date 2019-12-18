@@ -2,52 +2,50 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaCurveDataTools.h"
 
-
-#include <cmath> // Needed for HUGE_VAL on Linux 
-
+#include <cmath> // Needed for HUGE_VAL on Linux
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiaCurveDataTools::CurveIntervals RiaCurveDataTools::calculateIntervalsOfValidValues(const std::vector<double>& values,
-                                                                                     bool includePositiveValuesOnly)
+RiaCurveDataTools::CurveIntervals RiaCurveDataTools::calculateIntervalsOfValidValues( const std::vector<double>& values,
+                                                                                      bool includePositiveValuesOnly )
 {
     CurveIntervals intervals;
 
-    int startIdx = -1;
-    size_t vIdx = 0;
+    int    startIdx = -1;
+    size_t vIdx     = 0;
 
     size_t valueCount = values.size();
-    while (vIdx < valueCount)
+    while ( vIdx < valueCount )
     {
-        bool isValid = RiaCurveDataTools::isValidValue(values[vIdx], includePositiveValuesOnly);
+        bool isValid = RiaCurveDataTools::isValidValue( values[vIdx], includePositiveValuesOnly );
 
-        if (!isValid)
+        if ( !isValid )
         {
-            if (startIdx >= 0)
+            if ( startIdx >= 0 )
             {
-                intervals.push_back(std::make_pair(startIdx, vIdx - 1));
+                intervals.push_back( std::make_pair( startIdx, vIdx - 1 ) );
                 startIdx = -1;
             }
         }
-        else if (startIdx < 0)
+        else if ( startIdx < 0 )
         {
             startIdx = (int)vIdx;
         }
@@ -55,30 +53,29 @@ RiaCurveDataTools::CurveIntervals RiaCurveDataTools::calculateIntervalsOfValidVa
         vIdx++;
     }
 
-    if (startIdx >= 0 && startIdx < ((int)valueCount))
+    if ( startIdx >= 0 && startIdx < ( (int)valueCount ) )
     {
-        intervals.push_back(std::make_pair(startIdx, valueCount - 1));
+        intervals.push_back( std::make_pair( startIdx, valueCount - 1 ) );
     }
 
     return intervals;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<size_t, size_t>> RiaCurveDataTools::computePolyLineStartStopIndices(const CurveIntervals& intervals)
+std::vector<std::pair<size_t, size_t>> RiaCurveDataTools::computePolyLineStartStopIndices( const CurveIntervals& intervals )
 {
     std::vector<std::pair<size_t, size_t>> lineStartAndStopIndices;
 
     const size_t intervalCount = intervals.size();
-    if (intervalCount < 1) return lineStartAndStopIndices;
+    if ( intervalCount < 1 ) return lineStartAndStopIndices;
 
     size_t index = 0;
-    for (size_t intIdx = 0; intIdx < intervalCount; intIdx++)
+    for ( size_t intIdx = 0; intIdx < intervalCount; intIdx++ )
     {
         size_t intervalSize = intervals[intIdx].second - intervals[intIdx].first + 1;
-        lineStartAndStopIndices.push_back(std::make_pair(index, index + intervalSize - 1));
+        lineStartAndStopIndices.push_back( std::make_pair( index, index + intervalSize - 1 ) );
 
         index += intervalSize;
     }
@@ -86,22 +83,20 @@ std::vector<std::pair<size_t, size_t>> RiaCurveDataTools::computePolyLineStartSt
     return lineStartAndStopIndices;
 }
 
-
-//-------------------------------------------------------------------------------------------------- 
-///  
-//-------------------------------------------------------------------------------------------------- 
-bool RiaCurveDataTools::isValidValue(double value, bool allowPositiveValuesOnly)
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaCurveDataTools::isValidValue( double value, bool allowPositiveValuesOnly )
 {
-    if (value == HUGE_VAL || value == -HUGE_VAL || value != value)
+    if ( value == HUGE_VAL || value == -HUGE_VAL || value != value )
     {
         return false;
     }
 
-    if (allowPositiveValuesOnly && value <= 0)
+    if ( allowPositiveValuesOnly && value <= 0 )
     {
         return false;
     }
 
     return true;
 }
-

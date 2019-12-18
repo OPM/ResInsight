@@ -18,6 +18,8 @@
 
 #include "RicHelpFeatures.h"
 
+#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
+
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
 #include "RiaVersionInfo.h"
@@ -33,9 +35,10 @@
 #include <QSslSocket>
 #include <QUrl>
 
-CAF_CMD_SOURCE_INIT(RicHelpAboutFeature, "RicHelpAboutFeature");
-CAF_CMD_SOURCE_INIT(RicHelpCommandLineFeature, "RicHelpCommandLineFeature");
-CAF_CMD_SOURCE_INIT(RicHelpOpenUsersGuideFeature, "RicHelpOpenUsersGuideFeature");
+CAF_CMD_SOURCE_INIT( RicHelpAboutFeature, "RicHelpAboutFeature" );
+CAF_CMD_SOURCE_INIT( RicHelpCommandLineFeature, "RicHelpCommandLineFeature" );
+CAF_CMD_SOURCE_INIT( RicHelpSummaryCommandLineFeature, "RicHelpSummaryCommandLineFeature" );
+CAF_CMD_SOURCE_INIT( RicHelpOpenUsersGuideFeature, "RicHelpOpenUsersGuideFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -48,23 +51,23 @@ bool RicHelpAboutFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHelpAboutFeature::onActionTriggered(bool isChecked)
+void RicHelpAboutFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
-    caf::AboutDialog dlg(nullptr);
+    caf::AboutDialog dlg( nullptr );
 
-    dlg.setApplicationName(RI_APPLICATION_NAME);
-    dlg.setApplicationVersion(RiaApplication::getVersionStringApp(true));
-    dlg.setCopyright("Copyright Equinor ASA, Ceetron Solutions AS, Ceetron AS");
-    dlg.showQtVersion(false);
+    dlg.setApplicationName( RI_APPLICATION_NAME );
+    dlg.setApplicationVersion( RiaApplication::getVersionStringApp( true ) );
+    dlg.setCopyright( "Copyright Equinor ASA, Ceetron Solutions AS, Ceetron AS" );
+    dlg.showQtVersion( false );
 #ifdef _DEBUG
-    dlg.setIsDebugBuild(true);
+    dlg.setIsDebugBuild( true );
 #endif
 
-    dlg.addVersionEntry(" ", "ResInsight is made available under the GNU General Public License v. 3");
-    dlg.addVersionEntry(" ", "See http://www.gnu.org/licenses/gpl.html");
-    dlg.addVersionEntry(" ", " ");
+    dlg.addVersionEntry( " ", "ResInsight is made available under the GNU General Public License v. 3" );
+    dlg.addVersionEntry( " ", "See http://www.gnu.org/licenses/gpl.html" );
+    dlg.addVersionEntry( " ", " " );
 
     QStringList activeFeatures;
 #ifdef USE_ODB_API
@@ -74,22 +77,22 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
     activeFeatures += "  Souring";
 #endif
 
-    if (!activeFeatures.isEmpty())
+    if ( !activeFeatures.isEmpty() )
     {
-        dlg.addVersionEntry(" ", "Features");
+        dlg.addVersionEntry( " ", "Features" );
 
-        for (const auto& feature : activeFeatures)
+        for ( const auto& feature : activeFeatures )
         {
-            dlg.addVersionEntry(" ", feature);
+            dlg.addVersionEntry( " ", feature );
         }
     }
 
-    dlg.addVersionEntry(" ", " ");
-    dlg.addVersionEntry(" ", "Technical Information");
-    dlg.addVersionEntry(" ", QString("   Qt ") + qVersion());
-    dlg.addVersionEntry(" ", QString("   ") + caf::AboutDialog::versionStringForcurrentOpenGLContext());
-    dlg.addVersionEntry(" ", caf::Viewer::isShadersSupported() ? "   Hardware OpenGL" : "   Software OpenGL");
-    dlg.addVersionEntry(" ", QString("   Octave ") + QString(RESINSIGHT_OCTAVE_VERSION));
+    dlg.addVersionEntry( " ", " " );
+    dlg.addVersionEntry( " ", "Technical Information" );
+    dlg.addVersionEntry( " ", QString( "   Qt " ) + qVersion() );
+    dlg.addVersionEntry( " ", QString( "   " ) + caf::AboutDialog::versionStringForcurrentOpenGLContext() );
+    dlg.addVersionEntry( " ", caf::Viewer::isShadersSupported() ? "   Hardware OpenGL" : "   Software OpenGL" );
+    dlg.addVersionEntry( " ", QString( "   Octave " ) + QString( RESINSIGHT_OCTAVE_VERSION ) );
 
     bool isAbleToUseSsl = false;
     bool isSslSupported = false;
@@ -101,10 +104,10 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
     {
         QString txt;
 
-        if (isAbleToUseSsl)
+        if ( isAbleToUseSsl )
         {
             txt = "   Use of SSL is available";
-            if (isSslSupported)
+            if ( isSslSupported )
             {
                 txt += " and supported";
             }
@@ -118,51 +121,53 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
             txt = "   SSL is not available";
         }
 
-        dlg.addVersionEntry(" ", txt);
+        dlg.addVersionEntry( " ", txt );
     }
 
 #ifdef ENABLE_GRPC
     RiaGrpcServer* grpcServer = RiaApplication::instance()->grpcServer();
-    if (grpcServer && grpcServer->isRunning())
+    if ( grpcServer && grpcServer->isRunning() )
     {
-        dlg.addVersionEntry(" ", QString("   Python Script Server available and running at port %1").arg(grpcServer->portNumber()));
+        dlg.addVersionEntry( " ",
+                             QString( "   Python Script Server available and running at port %1" )
+                                 .arg( grpcServer->portNumber() ) );
     }
     else
     {
-        dlg.addVersionEntry(" ", QString("   Python Script Server available but currently disabled in preferences"));
+        dlg.addVersionEntry( " ", QString( "   Python Script Server available but currently disabled in preferences" ) );
     }
 #else
-    dlg.addVersionEntry(" ", "   gRPC disabled");
+    dlg.addVersionEntry( " ", "   gRPC disabled" );
 #endif
 
-    if (RiaApplication::enableDevelopmentFeatures())
+    if ( RiaApplication::enableDevelopmentFeatures() )
     {
-        QString vendor("Unknown");
-        QString render("Unknown");
+        QString vendor( "Unknown" );
+        QString render( "Unknown" );
 
         {
-            char* str = (char*)glGetString(GL_VENDOR);
+            char* str = (char*)glGetString( GL_VENDOR );
 
-            if (str)
+            if ( str )
             {
                 vendor = str;
             }
         }
 
         {
-            char* str = (char*)glGetString(GL_RENDERER);
+            char* str = (char*)glGetString( GL_RENDERER );
 
-            if (str)
+            if ( str )
             {
                 render = str;
             }
         }
 
-        dlg.addVersionEntry(" ", QString("   ") + vendor + " : " + render);
+        dlg.addVersionEntry( " ", QString( "   " ) + vendor + " : " + render );
     }
 
     dlg.create();
-    dlg.resize(300, 200);
+    dlg.resize( 300, 200 );
 
     dlg.exec();
 }
@@ -170,9 +175,9 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHelpAboutFeature::setupActionLook(QAction* actionToSetup)
+void RicHelpAboutFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("&About");
+    actionToSetup->setText( "&About" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,21 +191,49 @@ bool RicHelpCommandLineFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHelpCommandLineFeature::onActionTriggered(bool isChecked)
+void RicHelpCommandLineFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
     RiaApplication* app  = RiaApplication::instance();
     QString         text = app->commandLineParameterHelp();
-    app->showFormattedTextInMessageBoxOrConsole(text);
+    app->showFormattedTextInMessageBoxOrConsole( text );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHelpCommandLineFeature::setupActionLook(QAction* actionToSetup)
+void RicHelpCommandLineFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("&Command Line Help");
+    actionToSetup->setText( "&Command Line Help" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicHelpSummaryCommandLineFeature::isCommandEnabled()
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicHelpSummaryCommandLineFeature::onActionTriggered( bool isChecked )
+{
+    this->disableModelChangeContribution();
+
+    RiaApplication* app  = RiaApplication::instance();
+    QString         text = RicSummaryPlotFeatureImpl::summaryPlotCommandLineHelpText();
+    app->showFormattedTextInMessageBoxOrConsole( text );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicHelpSummaryCommandLineFeature::setupActionLook( QAction* actionToSetup )
+{
+    actionToSetup->setText( "&Summary Command Line Help" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,24 +247,25 @@ bool RicHelpOpenUsersGuideFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHelpOpenUsersGuideFeature::onActionTriggered(bool isChecked)
+void RicHelpOpenUsersGuideFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
     QString usersGuideUrl = "https://resinsight.org/getting-started/";
 
-    if (!QDesktopServices::openUrl(usersGuideUrl))
+    if ( !QDesktopServices::openUrl( usersGuideUrl ) )
     {
         QErrorMessage* errorHandler = QErrorMessage::qtHandler();
-        errorHandler->showMessage("Failed open browser with the following url\n\n" + usersGuideUrl);
+        errorHandler->showMessage( "Failed open browser with the following url\n\n" + usersGuideUrl );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHelpOpenUsersGuideFeature::setupActionLook(QAction* actionToSetup)
+void RicHelpOpenUsersGuideFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("&Users Guide");
-    actionToSetup->setShortcut(QKeySequence::HelpContents);
+    actionToSetup->setText( "&Users Guide" );
+
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence::HelpContents );
 }

@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -25,18 +25,17 @@
 
 #include "RimWellLogCurve.h"
 
-#include "well.hpp"
 #include "laswell.hpp"
+#include "well.hpp"
 
-#include <QString>
 #include <QFileInfo>
+#include <QString>
 
-#include <exception>
 #include <cmath> // Needed for HUGE_VAL on Linux
-
+#include <exception>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigWellLogFile::RigWellLogFile()
     : cvf::Object()
@@ -45,18 +44,17 @@ RigWellLogFile::RigWellLogFile()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigWellLogFile::~RigWellLogFile()
 {
     close();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
+bool RigWellLogFile::open( const QString& fileName, QString* errorMessage )
 {
     close();
 
@@ -66,22 +64,22 @@ bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
     {
         int wellFormat = NRLib::Well::LAS;
 
-        well = NRLib::Well::ReadWell(RiaStringEncodingTools::toNativeEncoded(fileName).data(), wellFormat);
-        if (!well)
+        well = NRLib::Well::ReadWell( RiaStringEncodingTools::toNativeEncoded( fileName ).data(), wellFormat );
+        if ( !well )
         {
             return false;
         }
     }
-    catch (std::exception& e)
+    catch ( std::exception& e )
     {
-        if (well)
+        if ( well )
         {
             delete well;
         }
 
-        if (e.what())
+        if ( e.what() )
         {
-            CVF_ASSERT(errorMessage);
+            CVF_ASSERT( errorMessage );
             *errorMessage = e.what();
         }
 
@@ -90,36 +88,36 @@ bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
 
     QStringList wellLogNames;
 
-    const std::map<std::string, std::vector<double> >& contLogs = well->GetContLog();
-    std::map<std::string, std::vector<double> >::const_iterator itCL;
-    for (itCL = contLogs.begin(); itCL != contLogs.end(); ++itCL)
+    const std::map<std::string, std::vector<double>>&          contLogs = well->GetContLog();
+    std::map<std::string, std::vector<double>>::const_iterator itCL;
+    for ( itCL = contLogs.begin(); itCL != contLogs.end(); ++itCL )
     {
-        QString logName = QString::fromStdString(itCL->first);
-        wellLogNames.append(logName);
+        QString logName = QString::fromStdString( itCL->first );
+        wellLogNames.append( logName );
 
         // 2018-11-09 Added MD https://github.com/OPM/ResInsight/issues/3641
-        if (logName.toUpper() == "DEPT" || logName.toUpper() == "DEPTH" || logName.toUpper() == "MD")
+        if ( logName.toUpper() == "DEPT" || logName.toUpper() == "DEPTH" || logName.toUpper() == "MD" )
         {
             m_depthLogName = logName;
         }
-        else if (logName.toUpper() == "TVDMSL")
+        else if ( logName.toUpper() == "TVDMSL" )
         {
             m_tvdMslLogName = logName;
         }
     }
 
     m_wellLogChannelNames = wellLogNames;
-    m_wellLogFile = well;
+    m_wellLogFile         = well;
 
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigWellLogFile::close()
 {
-    if (m_wellLogFile)
+    if ( m_wellLogFile )
     {
         delete m_wellLogFile;
         m_wellLogFile = nullptr;
@@ -130,25 +128,25 @@ void RigWellLogFile::close()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RigWellLogFile::wellName() const
 {
-    CVF_ASSERT(m_wellLogFile);
-    return RiaStringEncodingTools::fromNativeEncoded(m_wellLogFile->GetWellName().data());
+    CVF_ASSERT( m_wellLogFile );
+    return RiaStringEncodingTools::fromNativeEncoded( m_wellLogFile->GetWellName().data() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RigWellLogFile::date() const
 {
-    CVF_ASSERT(m_wellLogFile);
-    return QString::fromStdString(m_wellLogFile->GetDate());
+    CVF_ASSERT( m_wellLogFile );
+    return QString::fromStdString( m_wellLogFile->GetDate() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QStringList RigWellLogFile::wellLogChannelNames() const
 {
@@ -156,35 +154,35 @@ QStringList RigWellLogFile::wellLogChannelNames() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigWellLogFile::depthValues() const
 {
-    return values(m_depthLogName);
+    return values( m_depthLogName );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigWellLogFile::tvdMslValues() const
 {
-    return values(m_tvdMslLogName);
+    return values( m_tvdMslLogName );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogFile::values(const QString& name) const
+std::vector<double> RigWellLogFile::values( const QString& name ) const
 {
-    CVF_ASSERT(m_wellLogFile);
+    CVF_ASSERT( m_wellLogFile );
 
-    if (m_wellLogFile->HasContLog(name.toStdString()))
+    if ( m_wellLogFile->HasContLog( name.toStdString() ) )
     {
-        std::vector<double> logValues = m_wellLogFile->GetContLog(name.toStdString());
-        
-        for (size_t vIdx = 0; vIdx < logValues.size(); vIdx++)
+        std::vector<double> logValues = m_wellLogFile->GetContLog( name.toStdString() );
+
+        for ( size_t vIdx = 0; vIdx < logValues.size(); vIdx++ )
         {
-            if (m_wellLogFile->IsMissing(logValues[vIdx]))
+            if ( m_wellLogFile->IsMissing( logValues[vIdx] ) )
             {
                 // Convert missing ("NULL") values to HUGE_VAL
                 logValues[vIdx] = HUGE_VAL;
@@ -198,49 +196,50 @@ std::vector<double> RigWellLogFile::values(const QString& name) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RigWellLogFile::depthUnitString() const
 {
     QString unit;
 
-    NRLib::LasWell* lasWell = dynamic_cast<NRLib::LasWell*>(m_wellLogFile);
-    if (lasWell)
+    NRLib::LasWell* lasWell = dynamic_cast<NRLib::LasWell*>( m_wellLogFile );
+    if ( lasWell )
     {
-        unit = QString::fromStdString(lasWell->depthUnit());
+        unit = QString::fromStdString( lasWell->depthUnit() );
     }
 
     return unit;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogFile::wellLogChannelUnitString(const QString& wellLogChannelName, RiaDefines::DepthUnitType displayDepthUnit) const
+QString RigWellLogFile::wellLogChannelUnitString( const QString&            wellLogChannelName,
+                                                  RiaDefines::DepthUnitType displayDepthUnit ) const
 {
     QString unit;
 
-    NRLib::LasWell* lasWell = dynamic_cast<NRLib::LasWell*>(m_wellLogFile);
-    if (lasWell)
+    NRLib::LasWell* lasWell = dynamic_cast<NRLib::LasWell*>( m_wellLogFile );
+    if ( lasWell )
     {
-        unit = QString::fromStdString(lasWell->unitName(wellLogChannelName.toStdString()));
+        unit = QString::fromStdString( lasWell->unitName( wellLogChannelName.toStdString() ) );
     }
 
-    if (unit == depthUnitString())
+    if ( unit == depthUnitString() )
     {
-        if (displayDepthUnit != depthUnit())
+        if ( displayDepthUnit != depthUnit() )
         {
-            if (displayDepthUnit == RiaDefines::UNIT_METER)
+            if ( displayDepthUnit == RiaDefines::UNIT_METER )
             {
                 return "M";
             }
-            else if (displayDepthUnit == RiaDefines::UNIT_FEET)
+            else if ( displayDepthUnit == RiaDefines::UNIT_FEET )
             {
                 return "FT";
             }
-            else if (displayDepthUnit == RiaDefines::UNIT_NONE)
+            else if ( displayDepthUnit == RiaDefines::UNIT_NONE )
             {
-                CVF_ASSERT(false);
+                CVF_ASSERT( false );
                 return "";
             }
         }
@@ -250,7 +249,7 @@ QString RigWellLogFile::wellLogChannelUnitString(const QString& wellLogChannelNa
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RigWellLogFile::hasTvdChannel() const
 {
@@ -258,13 +257,13 @@ bool RigWellLogFile::hasTvdChannel() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiaDefines::DepthUnitType RigWellLogFile::depthUnit() const
 {
     RiaDefines::DepthUnitType unitType = RiaDefines::UNIT_METER;
 
-    if (depthUnitString().toUpper() == "F" || depthUnitString().toUpper() == "FT")
+    if ( depthUnitString().toUpper() == "F" || depthUnitString().toUpper() == "FT" )
     {
         unitType = RiaDefines::UNIT_FEET;
     }

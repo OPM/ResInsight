@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 -     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,9 +23,9 @@
 
 #include "RimEclipseView.h"
 #include "RimFractureTemplateCollection.h"
-#include "RimRegularLegendConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimRegularLegendConfig.h"
 #include "RimStimPlanFractureTemplate.h"
 
 #include "cafPdmUiItem.h"
@@ -36,126 +36,120 @@
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 
+CAF_PDM_SOURCE_INIT( RimStimPlanColors, "RimStimPlanColors" );
 
+namespace caf
+{
+template <>
+void caf::AppEnum<RimStimPlanColors::StimPlanResultColorType>::setUp()
+{
+    addItem( RimStimPlanColors::COLOR_INTERPOLATION, "COLOR_INTERPOLATION", "On" );
+    addItem( RimStimPlanColors::SINGLE_ELEMENT_COLOR, "SINGLE_ELEMENT_COLOR", "Off" );
 
-CAF_PDM_SOURCE_INIT(RimStimPlanColors, "RimStimPlanColors");
-
-namespace caf {
-
-    template<>
-    void caf::AppEnum< RimStimPlanColors::StimPlanResultColorType >::setUp()
-    {
-        addItem(RimStimPlanColors::COLOR_INTERPOLATION, "COLOR_INTERPOLATION", "On");
-        addItem(RimStimPlanColors::SINGLE_ELEMENT_COLOR, "SINGLE_ELEMENT_COLOR", "Off");
-
-        setDefault(RimStimPlanColors::COLOR_INTERPOLATION);
-    }
+    setDefault( RimStimPlanColors::COLOR_INTERPOLATION );
+}
 
 } // End namespace caf
 
 //--------------------------------------------------------------------------------------------------
 /// Internal methods
 //--------------------------------------------------------------------------------------------------
-static void setDefaultFractureResult(caf::PdmField<QString> &field);
-static QString toString(const std::pair<QString, QString>& resultNameAndUnit);
+static void    setDefaultFractureResult( caf::PdmField<QString>& field );
+static QString toString( const std::pair<QString, QString>& resultNameAndUnit );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimStimPlanColors::RimStimPlanColors()
 {
-    CAF_PDM_InitObject("Fractures", ":/FractureSymbol16x16.png", "", "");
+    CAF_PDM_InitObject( "Fractures", ":/FractureSymbol16x16.png", "", "" );
 
-    CAF_PDM_InitField(&m_resultNameAndUnit, "ResultName", QString(""),  "Result Variable", "", "", "");
+    CAF_PDM_InitField( &m_resultNameAndUnit, "ResultName", QString( "" ), "Result Variable", "", "", "" );
 
-    CAF_PDM_InitField(&m_defaultColor,      "DefaultColor", cvf::Color3f(cvf::Color3::BROWN), "Default Color", "", "", "");
+    CAF_PDM_InitField( &m_defaultColor, "DefaultColor", cvf::Color3f( cvf::Color3::BROWN ), "Default Color", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_legendConfigurations, "LegendConfigurations", "", "", "", "");
-    m_legendConfigurations.uiCapability()->setUiTreeHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_legendConfigurations, "LegendConfigurations", "", "", "", "" );
+    m_legendConfigurations.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField(&m_showStimPlanMesh, "ShowStimPlanMesh", true, "Show Mesh", "", "", "");
+    CAF_PDM_InitField( &m_showStimPlanMesh, "ShowStimPlanMesh", true, "Show Mesh", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_stimPlanCellVizMode, "StimPlanCellVizMode", "Color Interpolation", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_stimPlanCellVizMode, "StimPlanCellVizMode", "Color Interpolation", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimStimPlanColors::~RimStimPlanColors()
-{
-
-}
+RimStimPlanColors::~RimStimPlanColors() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanColors::setShowStimPlanMesh(bool showStimPlanMesh)
+void RimStimPlanColors::setShowStimPlanMesh( bool showStimPlanMesh )
 {
     m_showStimPlanMesh = showStimPlanMesh;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::loadDataAndUpdate()
 {
     RimFractureTemplateCollection* fractureTemplates = fractureTemplateCollection();
 
-    std::vector<std::pair<QString, QString> > resultNameAndUnits = fractureTemplates->resultNamesAndUnits();
+    std::vector<std::pair<QString, QString>> resultNameAndUnits = fractureTemplates->resultNamesAndUnits();
 
     // Delete legends referencing results not present on file
     {
         std::vector<RimRegularLegendConfig*> toBeDeleted;
-        for (RimRegularLegendConfig* legend : m_legendConfigurations)
+        for ( RimRegularLegendConfig* legend : m_legendConfigurations )
         {
             QString legendVariableName = legend->resultVariableName();
 
             bool found = false;
-            for (auto resultNameAndUnit : resultNameAndUnits)
+            for ( auto resultNameAndUnit : resultNameAndUnits )
             {
-                if (toString(resultNameAndUnit) == legendVariableName)
+                if ( toString( resultNameAndUnit ) == legendVariableName )
                 {
                     found = true;
                 }
             }
 
-            if (!found)
+            if ( !found )
             {
-                toBeDeleted.push_back(legend);
+                toBeDeleted.push_back( legend );
             }
         }
 
-        for (auto legend : toBeDeleted)
+        for ( auto legend : toBeDeleted )
         {
-            m_legendConfigurations.removeChildObject(legend);
+            m_legendConfigurations.removeChildObject( legend );
 
             delete legend;
         }
     }
 
     // Create legend for result if not already present
-    for (auto resultNameAndUnit : resultNameAndUnits)
+    for ( auto resultNameAndUnit : resultNameAndUnits )
     {
-        QString resultNameUnitString = toString(resultNameAndUnit);
-        bool foundResult = false;
+        QString resultNameUnitString = toString( resultNameAndUnit );
+        bool    foundResult          = false;
 
-        for (RimRegularLegendConfig* legend : m_legendConfigurations)
+        for ( RimRegularLegendConfig* legend : m_legendConfigurations )
         {
-            if (legend->resultVariableName() == resultNameUnitString)
+            if ( legend->resultVariableName() == resultNameUnitString )
             {
                 foundResult = true;
             }
         }
 
-        if (!foundResult)
+        if ( !foundResult )
         {
             RimRegularLegendConfig* legendConfig = new RimRegularLegendConfig();
-            legendConfig->resultVariableName = resultNameUnitString;
-            legendConfig->setMappingMode(RimRegularLegendConfig::LINEAR_DISCRETE);
-            legendConfig->setColorRange(RimRegularLegendConfig::STIMPLAN);
+            legendConfig->resultVariableName     = resultNameUnitString;
+            legendConfig->setMappingMode( RimRegularLegendConfig::LINEAR_DISCRETE );
+            legendConfig->setColorRange( RimRegularLegendConfig::STIMPLAN );
 
-
-            m_legendConfigurations.push_back(legendConfig);
+            m_legendConfigurations.push_back( legendConfig );
         }
     }
 
@@ -163,22 +157,23 @@ void RimStimPlanColors::loadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimStimPlanColors::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimStimPlanColors::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                        bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if (fieldNeedingOptions == &m_resultNameAndUnit)
+    if ( fieldNeedingOptions == &m_resultNameAndUnit )
     {
         RimFractureTemplateCollection* fractureTemplates = fractureTemplateCollection();
 
-        options.push_back(caf::PdmOptionItemInfo("None", ""));
+        options.push_back( caf::PdmOptionItemInfo( "None", "" ) );
 
-        for (auto resultNameAndUnit : fractureTemplates->resultNamesAndUnits())
+        for ( auto resultNameAndUnit : fractureTemplates->resultNamesAndUnits() )
         {
-            QString resultNameAndUnitString = toString(resultNameAndUnit);
-            options.push_back(caf::PdmOptionItemInfo(resultNameAndUnitString, resultNameAndUnitString));
+            QString resultNameAndUnitString = toString( resultNameAndUnit );
+            options.push_back( caf::PdmOptionItemInfo( resultNameAndUnitString, resultNameAndUnitString ) );
         }
     }
 
@@ -186,42 +181,44 @@ QList<caf::PdmOptionItemInfo> RimStimPlanColors::calculateValueOptions(const caf
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimStimPlanColors::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                          const QVariant&            oldValue,
+                                          const QVariant&            newValue )
 {
     RimEclipseView* sourceView = nullptr;
-    this->firstAncestorOrThisOfType(sourceView);
-    if (sourceView)
+    this->firstAncestorOrThisOfType( sourceView );
+    if ( sourceView )
     {
         sourceView->scheduleCreateDisplayModelAndRedraw();
     }
 
-    if (changedField == objectToggleField())
+    if ( changedField == objectToggleField() )
     {
         updateUiIconFromToggleField();
     }
 
-    if (changedField == &m_resultNameAndUnit)
+    if ( changedField == &m_resultNameAndUnit )
     {
         updateStimPlanTemplates();
     }
 
-    if (changedField == &m_showStimPlanMesh)
+    if ( changedField == &m_showStimPlanMesh )
     {
         RimProject* proj;
-        this->firstAncestorOrThisOfType(proj);
-        if (proj)
+        this->firstAncestorOrThisOfType( proj );
+        if ( proj )
         {
             proj->scheduleCreateDisplayModelAndRedrawAllViews();
         }
     }
 
-    if(changedField == &m_stimPlanCellVizMode)
+    if ( changedField == &m_stimPlanCellVizMode )
     {
         Rim3dView* rimView = nullptr;
-        this->firstAncestorOrThisOfType(rimView);
-        if (rimView)
+        this->firstAncestorOrThisOfType( rimView );
+        if ( rimView )
         {
             rimView->createDisplayModelAndRedraw();
         }
@@ -229,13 +226,13 @@ void RimStimPlanColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimRegularLegendConfig* RimStimPlanColors::activeLegend() const
 {
-    for (RimRegularLegendConfig* legendConfig : m_legendConfigurations)
+    for ( RimRegularLegendConfig* legendConfig : m_legendConfigurations )
     {
-        if (m_resultNameAndUnit == legendConfig->resultVariableName())
+        if ( m_resultNameAndUnit == legendConfig->resultVariableName() )
         {
             return legendConfig;
         }
@@ -245,31 +242,31 @@ RimRegularLegendConfig* RimStimPlanColors::activeLegend() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimStimPlanColors::uiResultName() const
 {
-    return RimStimPlanColors::toResultName(m_resultNameAndUnit());
+    return RimStimPlanColors::toResultName( m_resultNameAndUnit() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::setDefaultResultName()
 {
-    setDefaultFractureResult(m_resultNameAndUnit);
+    setDefaultFractureResult( m_resultNameAndUnit );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimStimPlanColors::unit() const
 {
-    return RimStimPlanColors::toUnit(m_resultNameAndUnit());
+    return RimStimPlanColors::toUnit( m_resultNameAndUnit() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RimStimPlanColors::defaultColor() const
 {
@@ -277,45 +274,45 @@ cvf::Color3f RimStimPlanColors::defaultColor() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::updateLegendData()
 {
     RimRegularLegendConfig* legendConfig = activeLegend();
-    if (legendConfig)
+    if ( legendConfig )
     {
-        double minValue = HUGE_VAL;
-        double maxValue = -HUGE_VAL;
+        double minValue         = HUGE_VAL;
+        double maxValue         = -HUGE_VAL;
         double posClosestToZero = HUGE_VAL;
         double negClosestToZero = -HUGE_VAL;
 
         RimFractureTemplateCollection* fracTemplateColl = fractureTemplateCollection();
 
-        fracTemplateColl->computeMinMax(uiResultName(), unit(), &minValue, &maxValue, &posClosestToZero, &negClosestToZero);
+        fracTemplateColl->computeMinMax( uiResultName(), unit(), &minValue, &maxValue, &posClosestToZero, &negClosestToZero );
 
-        if (minValue != HUGE_VAL)
+        if ( minValue != HUGE_VAL )
         {
-            legendConfig->setAutomaticRanges(minValue, maxValue, minValue, maxValue);
-            legendConfig->setClosestToZeroValues(posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero);
+            legendConfig->setAutomaticRanges( minValue, maxValue, minValue, maxValue );
+            legendConfig->setClosestToZeroValues( posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero );
         }
 
-        legendConfig->setTitle(m_resultNameAndUnit());
+        legendConfig->setTitle( m_resultNameAndUnit() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::updateStimPlanTemplates() const
 {
-    //Get all frac templates and re-generate stimplan cells
+    // Get all frac templates and re-generate stimplan cells
     RimProject* proj;
-    this->firstAncestorOrThisOfType(proj);
-    if (proj)
+    this->firstAncestorOrThisOfType( proj );
+    if ( proj )
     {
         std::vector<RimStimPlanFractureTemplate*> stimPlanFracTemplates;
-        proj->descendantsIncludingThisOfType(stimPlanFracTemplates);
-        for (RimStimPlanFractureTemplate* stimPlanFracTemplate : stimPlanFracTemplates)
+        proj->descendantsIncludingThisOfType( stimPlanFracTemplates );
+        for ( RimStimPlanFractureTemplate* stimPlanFracTemplate : stimPlanFracTemplates )
         {
             stimPlanFracTemplate->updateFractureGrid();
         }
@@ -324,46 +321,46 @@ void RimStimPlanColors::updateStimPlanTemplates() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::updateConductivityResultName()
 {
     // Conductivity result name as reported from the XML file was moved  to the fracture template
     // Replace all conductivity names with the one and only conductivity uiName reported from by fracture template
 
-    if (m_resultNameAndUnit().contains("conductivity", Qt::CaseInsensitive))
+    if ( m_resultNameAndUnit().contains( "conductivity", Qt::CaseInsensitive ) )
     {
         RimFractureTemplateCollection* fractureTemplates = fractureTemplateCollection();
-        for (auto resultNameAndUnit : fractureTemplates->resultNamesAndUnits())
+        for ( auto resultNameAndUnit : fractureTemplates->resultNamesAndUnits() )
         {
-            if (resultNameAndUnit.first.contains("conductivity", Qt::CaseInsensitive))
+            if ( resultNameAndUnit.first.contains( "conductivity", Qt::CaseInsensitive ) )
             {
-                QString resultNameAndUnitString = toString(resultNameAndUnit);
-                m_resultNameAndUnit = resultNameAndUnitString;
+                QString resultNameAndUnitString = toString( resultNameAndUnit );
+                m_resultNameAndUnit             = resultNameAndUnitString;
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplateCollection* RimStimPlanColors::fractureTemplateCollection() const
 {
     RimProject* proj = nullptr;
-    this->firstAncestorOrThisOfType(proj);
+    this->firstAncestorOrThisOfType( proj );
 
     return proj->activeOilField()->fractureDefinitionCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QString RimStimPlanColors::toResultName(const QString& resultNameAndUnit)
+QString RimStimPlanColors::toResultName( const QString& resultNameAndUnit )
 {
-    QStringList items = resultNameAndUnit.split("[");
+    QStringList items = resultNameAndUnit.split( "[" );
 
-    if (items.size() > 0)
+    if ( items.size() > 0 )
     {
         return items[0].trimmed();
     }
@@ -372,84 +369,83 @@ QString RimStimPlanColors::toResultName(const QString& resultNameAndUnit)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QString RimStimPlanColors::toUnit(const QString& resultNameAndUnit)
+QString RimStimPlanColors::toUnit( const QString& resultNameAndUnit )
 {
-    int start = resultNameAndUnit.indexOf("[");
-    int end = resultNameAndUnit.indexOf("]");
+    int start = resultNameAndUnit.indexOf( "[" );
+    int end   = resultNameAndUnit.indexOf( "]" );
 
-    if (start != -1 && end != -1)
+    if ( start != -1 && end != -1 )
     {
-        return resultNameAndUnit.mid(start + 1, end - start - 1);
+        return resultNameAndUnit.mid( start + 1, end - start - 1 );
     }
 
     return "";
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+void RimStimPlanColors::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    if (activeLegend())
+    if ( activeLegend() )
     {
-        uiTreeOrdering.add(activeLegend());
+        uiTreeOrdering.add( activeLegend() );
     }
 
-    uiTreeOrdering.skipRemainingChildren(true);
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimStimPlanColors::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* colorGroup = uiOrdering.addNewGroup("Colors");
-    colorGroup->add(&m_resultNameAndUnit);
-    colorGroup->add(&m_defaultColor);
+    caf::PdmUiGroup* colorGroup = uiOrdering.addNewGroup( "Colors" );
+    colorGroup->add( &m_resultNameAndUnit );
+    colorGroup->add( &m_defaultColor );
 
-    bool stimPlanExists = false;
+    bool        stimPlanExists = false;
     RimProject* proj;
-    this->firstAncestorOrThisOfType(proj);
+    this->firstAncestorOrThisOfType( proj );
     std::vector<RimFractureTemplate*> fracTemplates = proj->allFractureTemplates();
 
-    for (auto fractemplate : fracTemplates)
+    for ( auto fractemplate : fracTemplates )
     {
-        if (dynamic_cast<RimStimPlanFractureTemplate*>(fractemplate))
+        if ( dynamic_cast<RimStimPlanFractureTemplate*>( fractemplate ) )
         {
             stimPlanExists = true;
             break;
         }
     }
 
-    if (stimPlanExists)
+    if ( stimPlanExists )
     {
-        caf::PdmUiGroup* stimPlanGroup = uiOrdering.addNewGroup("StimPlan");
-        stimPlanGroup->add(&m_showStimPlanMesh);
-        stimPlanGroup->add(&m_stimPlanCellVizMode);
+        caf::PdmUiGroup* stimPlanGroup = uiOrdering.addNewGroup( "StimPlan" );
+        stimPlanGroup->add( &m_showStimPlanMesh );
+        stimPlanGroup->add( &m_stimPlanCellVizMode );
     }
 
-    uiOrdering.skipRemainingFields(true);
+    uiOrdering.skipRemainingFields( true );
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Internal methods
 //--------------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QString toString(const std::pair<QString, QString>& resultNameAndUnit)
+QString toString( const std::pair<QString, QString>& resultNameAndUnit )
 {
-    return QString("%1 [%2]").arg(resultNameAndUnit.first).arg(resultNameAndUnit.second);
+    return QString( "%1 [%2]" ).arg( resultNameAndUnit.first ).arg( resultNameAndUnit.second );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void setDefaultFractureResult(caf::PdmField<QString> &field)
+void setDefaultFractureResult( caf::PdmField<QString>& field )
 {
     RimProject* proj = RiaApplication::instance()->project();
 
@@ -457,18 +453,17 @@ void setDefaultFractureResult(caf::PdmField<QString> &field)
 
     QString currentResultName = field();
 
-    if (!stimPlanFracTemplates.empty() && (currentResultName.isEmpty() || currentResultName == "None"))
+    if ( !stimPlanFracTemplates.empty() && ( currentResultName.isEmpty() || currentResultName == "None" ) )
     {
         RimFractureTemplateCollection* templColl = proj->allFractureTemplateCollections().front();
 
-        for (auto resultNameAndUnit : templColl->resultNamesAndUnits())
+        for ( auto resultNameAndUnit : templColl->resultNamesAndUnits() )
         {
-            if (resultNameAndUnit.first.contains(RiaDefines::conductivityResultName(), Qt::CaseInsensitive))
+            if ( resultNameAndUnit.first.contains( RiaDefines::conductivityResultName(), Qt::CaseInsensitive ) )
             {
-                field = toString(resultNameAndUnit);
+                field = toString( resultNameAndUnit );
                 break;
             }
         }
     }
-
 }

@@ -47,25 +47,29 @@ public:
 
     RimPlotAxisAnnotation();
 
-    void setName(const QString& name);
-    void setValue(double value);
+    void setName( const QString& name );
+    void setValue( double value );
 
-    void setEquilibriumData(RimEclipseCase* eclipseCase, int zeroBasedEquilRegionIndex, PlotAxisAnnotationType annotationType);
+    void setEquilibriumData( RimEclipseCase*        eclipseCase,
+                             int                    zeroBasedEquilRegionIndex,
+                             PlotAxisAnnotationType annotationType );
 
     QString name() const;
     double  value() const;
-    QColor color() const;
+    QColor  color() const;
 
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
 
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
 protected:
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
     RigEquil              selectedItem() const;

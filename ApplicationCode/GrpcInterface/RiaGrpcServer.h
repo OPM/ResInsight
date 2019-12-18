@@ -17,8 +17,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiaLogging.h"
-
 #include <iostream>
 #include <list>
 #include <memory>
@@ -33,23 +31,26 @@ class RiaGrpcServerImpl;
 //==================================================================================================
 class RiaGrpcServer
 {
-public:    
-    RiaGrpcServer(int portNumber);
+public:
+    RiaGrpcServer( int portNumber );
     ~RiaGrpcServer();
 
-    int portNumber() const;
-    bool isRunning() const;
-    void run();
-    void runInThread();
-    size_t processAllQueuedRequests();
-    void quit();
-    static int findAvailablePortNumber(int defaultPortNumber);
+    RiaGrpcServer( const RiaGrpcServer& ) = delete;
+
+    int         portNumber() const;
+    bool        isRunning() const;
+    void        run();
+    void        runInThread();
+    size_t      processAllQueuedRequests();
+    void        quit();
+    static int  findAvailablePortNumber( int defaultPortNumber );
     static void setReceivedExitRequest();
-    static bool receivedExitRequest();    
+    static bool receivedExitRequest();
+
 private:
     void initialize();
 
 private:
     RiaGrpcServerImpl* m_serverImpl;
-    static bool s_receivedExitRequest;
+    static bool        s_receivedExitRequest;
 };

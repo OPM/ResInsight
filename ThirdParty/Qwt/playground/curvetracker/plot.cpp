@@ -29,7 +29,7 @@ Plot::Plot( QWidget *parent ):
 
     setAxisScale( QwtPlot::yLeft, 0.0, 10.0 );
 
-    // a title 
+    // a title
     QwtText title( "Picker Demo" );
     title.setColor( Qt::white );
     title.setRenderFlags( Qt::AlignHCenter | Qt::AlignTop );
@@ -87,7 +87,7 @@ Plot::Plot( QWidget *parent ):
     tracker->setRubberBandPen( QPen( "MediumOrchid" ) );
 }
 
-void Plot::insertCurve( const QString &title, 
+void Plot::insertCurve( const QString &title,
     const QColor &color, const QPolygonF &points )
 {
     QwtPlotCurve *curve = new QwtPlotCurve();

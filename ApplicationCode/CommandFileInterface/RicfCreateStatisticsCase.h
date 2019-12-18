@@ -27,10 +27,10 @@ class RicfCreateStatisticsCaseResult : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RicfCreateStatisticsCaseResult(int caseId = -1);
+    RicfCreateStatisticsCaseResult( int caseId = -1 );
 
 public:
-    caf::PdmField<int>     caseId;
+    caf::PdmField<int> caseId;
 };
 
 //==================================================================================================

@@ -17,15 +17,22 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicfCommandResponse.h"
 
-
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicfCommandResponse::RicfCommandResponse( Status status, const QString& message )
+    : m_status( COMMAND_OK )
+{
+    updateStatus( status, message );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse::RicfCommandResponse(Status status, const QString& message)
-    : m_status(COMMAND_OK)
+RicfCommandResponse::RicfCommandResponse( caf::PdmObject* ok_result )
+    : m_status( COMMAND_OK )
+    , m_result( ok_result )
 {
-    updateStatus(status, message);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -37,11 +44,21 @@ RicfCommandResponse::Status RicfCommandResponse::status() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The resulting message is sent in HTTP metadata and must not have any newlines.
+//--------------------------------------------------------------------------------------------------
+QString RicfCommandResponse::sanitizedResponseMessage() const
+{
+    QString completeMessage = m_messages.join( ";;" );
+    completeMessage.replace( '\n', ";;" );
+    return completeMessage;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicfCommandResponse::message() const
+QStringList RicfCommandResponse::messages() const
 {
-    return m_messages.join("\n");
+    return m_messages;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,39 +66,41 @@ QString RicfCommandResponse::message() const
 //--------------------------------------------------------------------------------------------------
 caf::PdmObject* RicfCommandResponse::result() const
 {
-    return m_result.p();
+    return m_result.get();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Takes ownership of the result object
 //--------------------------------------------------------------------------------------------------
-void RicfCommandResponse::setResult(caf::PdmObject* result)
+void RicfCommandResponse::setResult( caf::PdmObject* result )
 {
-    m_result = result;
+    m_result.reset( result );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfCommandResponse::updateStatus(Status status, const QString& message)
+void RicfCommandResponse::updateStatus( Status status, const QString& message )
 {
-    m_status = std::max(m_status, status);
-    if (!message.isEmpty())
-    m_messages.push_back(QString("%1:%2").arg(statusLabel(status)).arg(message));
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RicfCommandResponse::statusLabel(Status status)
-{
-    switch (status)
+    m_status = std::max( m_status, status );
+    if ( !message.isEmpty() )
     {
-    case COMMAND_WARNING:
-        return "WARNING";
-    case COMMAND_ERROR:
-        return "ERROR";
-    default:
-        return "";
+        m_messages.push_back( QString( "%1: %2" ).arg( statusLabel( status ) ).arg( message ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicfCommandResponse::statusLabel( Status status )
+{
+    switch ( status )
+    {
+        case COMMAND_WARNING:
+            return "Warning";
+        case COMMAND_ERROR:
+            return "Error";
+        default:
+            return "";
     }
 }

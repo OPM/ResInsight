@@ -20,7 +20,7 @@ DialBox::DialBox( QWidget *parent, int type ):
     layout->addWidget( d_dial, 10 );
     layout->addWidget( d_label );
 
-    connect( d_dial, SIGNAL( valueChanged( double ) ), 
+    connect( d_dial, SIGNAL( valueChanged( double ) ),
         this, SLOT( setNum( double ) ) );
 
     setNum( d_dial->value() );
@@ -59,7 +59,7 @@ QwtDial *DialBox::createDial( int type ) const
 
             QwtRoundScaleDraw *scaleDraw = new QwtRoundScaleDraw();
             scaleDraw->setSpacing( 8 );
-            scaleDraw->enableComponent( 
+            scaleDraw->enableComponent(
                 QwtAbstractScaleDraw::Backbone, false );
             scaleDraw->setTickLength( QwtScaleDiv::MinorTick, 2 );
             scaleDraw->setTickLength( QwtScaleDiv::MediumTick, 4 );
@@ -78,17 +78,17 @@ QwtDial *DialBox::createDial( int type ) const
             dial->setScaleEngine( scaleEngine );
 
             QList< double > ticks[ QwtScaleDiv::NTickTypes ];
-            ticks[ QwtScaleDiv::MajorTick ] << 0 << 4 
+            ticks[ QwtScaleDiv::MajorTick ] << 0 << 4
                 << 16 << 32 << 64 << 96 << 128;
             ticks[ QwtScaleDiv::MediumTick ] << 24 << 48 << 80 << 112;
-            ticks[ QwtScaleDiv::MinorTick ] 
-                << 0.5 << 1 << 2 
+            ticks[ QwtScaleDiv::MinorTick ]
+                << 0.5 << 1 << 2
                 << 7 << 10 << 13
-                << 20 << 28 
-                << 40 << 56 
-                << 72 << 88 
-                << 104 << 120; 
- 
+                << 20 << 28
+                << 40 << 56
+                << 72 << 88
+                << 104 << 120;
+
             dial->setScale( QwtScaleDiv( 0, 128, ticks ) );
             break;
         }

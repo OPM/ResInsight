@@ -28,19 +28,20 @@ CompletionDataFrame::CompletionDataFrame() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CompletionDataFrame::setCompletionData(const std::vector<RigCompletionData>& completions)
+void CompletionDataFrame::setCompletionData( const std::vector<RigCompletionData>& completions )
 {
-    for (auto& completion : completions)
+    for ( auto& completion : completions )
     {
-        auto it = m_multipleCompletionsPerEclipseCell.find(completion.completionDataGridCell().globalCellIndex());
-        if (it != m_multipleCompletionsPerEclipseCell.end())
+        auto it = m_multipleCompletionsPerEclipseCell.find( completion.completionDataGridCell().globalCellIndex() );
+        if ( it != m_multipleCompletionsPerEclipseCell.end() )
         {
-            it->second.push_back(completion);
+            it->second.push_back( completion );
         }
         else
         {
-            m_multipleCompletionsPerEclipseCell.insert(std::pair<size_t, std::vector<RigCompletionData>>(
-                completion.completionDataGridCell().globalCellIndex(), std::vector<RigCompletionData>{completion}));
+            m_multipleCompletionsPerEclipseCell.insert(
+                std::pair<size_t, std::vector<RigCompletionData>>( completion.completionDataGridCell().globalCellIndex(),
+                                                                   std::vector<RigCompletionData>{completion} ) );
         }
     }
 }
@@ -68,25 +69,25 @@ RigVirtualPerforationTransmissibilities::~RigVirtualPerforationTransmissibilitie
 //--------------------------------------------------------------------------------------------------
 void RigVirtualPerforationTransmissibilities::setCompletionDataForWellPath(
     const RimWellPath*                                 wellPath,
-    const std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep)
+    const std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep )
 {
-    auto item = m_mapFromWellToCompletionData.find(wellPath);
+    auto item = m_mapFromWellToCompletionData.find( wellPath );
 
-    CVF_ASSERT(item == m_mapFromWellToCompletionData.end());
+    CVF_ASSERT( item == m_mapFromWellToCompletionData.end() );
 
     {
         std::vector<CompletionDataFrame> values;
 
-        for (const auto& c : completionsPerTimeStep)
+        for ( const auto& c : completionsPerTimeStep )
         {
             CompletionDataFrame oneTimeStep;
-            oneTimeStep.setCompletionData(c);
-            values.push_back(oneTimeStep);
+            oneTimeStep.setCompletionData( c );
+            values.push_back( oneTimeStep );
         }
 
-        auto pair = std::pair<const RimWellPath*, std::vector<CompletionDataFrame>>(wellPath, values);
+        auto pair = std::pair<const RimWellPath*, std::vector<CompletionDataFrame>>( wellPath, values );
 
-        m_mapFromWellToCompletionData.insert(pair);
+        m_mapFromWellToCompletionData.insert( pair );
     }
 }
 
@@ -94,16 +95,16 @@ void RigVirtualPerforationTransmissibilities::setCompletionDataForWellPath(
 ///
 //--------------------------------------------------------------------------------------------------
 const std::map<size_t, std::vector<RigCompletionData>>&
-    RigVirtualPerforationTransmissibilities::multipleCompletionsPerEclipseCell(const RimWellPath* wellPath,
-                                                                               size_t             timeStepIndex) const
+    RigVirtualPerforationTransmissibilities::multipleCompletionsPerEclipseCell( const RimWellPath* wellPath,
+                                                                                size_t             timeStepIndex ) const
 {
     static std::map<size_t, std::vector<RigCompletionData>> dummy;
 
-    auto item = m_mapFromWellToCompletionData.find(wellPath);
-    if (item != m_mapFromWellToCompletionData.end())
+    auto item = m_mapFromWellToCompletionData.find( wellPath );
+    if ( item != m_mapFromWellToCompletionData.end() )
     {
         size_t indexToUse = timeStepIndex;
-        if (item->second.size() == 1)
+        if ( item->second.size() == 1 )
         {
             indexToUse = 0;
         }
@@ -119,7 +120,7 @@ const std::map<size_t, std::vector<RigCompletionData>>&
 //--------------------------------------------------------------------------------------------------
 void RigVirtualPerforationTransmissibilities::setCompletionDataForSimWell(
     const RigSimWellData*                              simWellData,
-    const std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep)
+    const std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep )
 {
     m_mapFromSimWellToCompletionData[simWellData] = completionsPerTimeStep;
 }
@@ -128,12 +129,13 @@ void RigVirtualPerforationTransmissibilities::setCompletionDataForSimWell(
 ///
 //--------------------------------------------------------------------------------------------------
 const std::vector<RigCompletionData>&
-    RigVirtualPerforationTransmissibilities::completionsForSimWell(const RigSimWellData* simWellData, size_t timeStepIndex) const
+    RigVirtualPerforationTransmissibilities::completionsForSimWell( const RigSimWellData* simWellData,
+                                                                    size_t                timeStepIndex ) const
 {
     static std::vector<RigCompletionData> dummayVector;
 
-    auto item = m_mapFromSimWellToCompletionData.find(simWellData);
-    if (item != m_mapFromSimWellToCompletionData.end())
+    auto item = m_mapFromSimWellToCompletionData.find( simWellData );
+    if ( item != m_mapFromSimWellToCompletionData.end() )
     {
         return item->second[timeStepIndex];
     }
@@ -144,51 +146,51 @@ const std::vector<RigCompletionData>&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigVirtualPerforationTransmissibilities::computeMinMax(double* minValue,
-                                                            double* maxValue,
-                                                            double* posClosestToZero,
-                                                            double* negClosestToZero) const
+void RigVirtualPerforationTransmissibilities::computeMinMax( double* minValue,
+                                                             double* maxValue,
+                                                             double* posClosestToZero,
+                                                             double* negClosestToZero ) const
 {
     MinMaxAccumulator minMaxAccumulator;
     PosNegAccumulator posNegAccumulator;
 
-    for (const auto& item : m_mapFromWellToCompletionData)
+    for ( const auto& item : m_mapFromWellToCompletionData )
     {
         auto dataForWellPath = item.second;
 
-        for (const auto& timeStepFrame : dataForWellPath)
+        for ( const auto& timeStepFrame : dataForWellPath )
         {
-            for (const auto& allCompletionsForWell : timeStepFrame.multipleCompletionsPerEclipseCell())
+            for ( const auto& allCompletionsForWell : timeStepFrame.multipleCompletionsPerEclipseCell() )
             {
-                for (const auto& completionData : allCompletionsForWell.second)
+                for ( const auto& completionData : allCompletionsForWell.second )
                 {
                     double transmissibility = completionData.transmissibility();
 
-                    minMaxAccumulator.addValue(transmissibility);
-                    posNegAccumulator.addValue(transmissibility);
+                    minMaxAccumulator.addValue( transmissibility );
+                    posNegAccumulator.addValue( transmissibility );
                 }
             }
         }
     }
 
-    for (const auto& item : m_mapFromSimWellToCompletionData)
+    for ( const auto& item : m_mapFromSimWellToCompletionData )
     {
         auto dataForSimWell = item.second;
 
-        for (const auto& timeStepFrame : dataForSimWell)
+        for ( const auto& timeStepFrame : dataForSimWell )
         {
-            for (const auto& completionData : timeStepFrame)
+            for ( const auto& completionData : timeStepFrame )
             {
                 double transmissibility = completionData.transmissibility();
 
-                minMaxAccumulator.addValue(transmissibility);
-                posNegAccumulator.addValue(transmissibility);
+                minMaxAccumulator.addValue( transmissibility );
+                posNegAccumulator.addValue( transmissibility );
             }
         }
     }
 
-    if (*minValue) *minValue = minMaxAccumulator.min;
-    if (*maxValue) *maxValue = minMaxAccumulator.max;
-    if (*posClosestToZero) *posClosestToZero = posNegAccumulator.pos;
-    if (*negClosestToZero) *negClosestToZero = posNegAccumulator.neg;
+    if ( *minValue ) *minValue = minMaxAccumulator.min;
+    if ( *maxValue ) *maxValue = minMaxAccumulator.max;
+    if ( *posClosestToZero ) *posClosestToZero = posNegAccumulator.pos;
+    if ( *negClosestToZero ) *negClosestToZero = posNegAccumulator.neg;
 }

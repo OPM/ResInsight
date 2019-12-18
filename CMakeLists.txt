@@ -134,6 +134,8 @@ else()
     if (MSVC)
          # libecl : Disable some warnings  
          set_target_properties(ecl PROPERTIES COMPILE_FLAGS "/wd4244 /wd4267 /wd4013 /wd4190 /wd4018 /wd4477 /wd4098 /wd4293 /wd4305 /wd4020 /wd4028 /wd4715")
+    else()
+        set_target_properties(ecl PROPERTIES COMPILE_FLAGS "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered")
     endif()
 
     list(APPEND THIRD_PARTY_LIBRARIES
@@ -164,10 +166,6 @@ mark_as_advanced(FORCE RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
     if(MSVC)
         if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
-	        add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
-        
-            include_directories(${RESINSIGHT_HDF5_DIR}/include)
-        
 	        list(APPEND EXTERNAL_LINK_LIBRARIES
                 ${RESINSIGHT_HDF5_DIR}/lib/hdf5.lib
                 ${RESINSIGHT_HDF5_DIR}/lib/hdf5_cpp.lib
@@ -181,10 +179,6 @@ if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
     else()
         find_package(HDF5 COMPONENTS CXX)
         if (HDF5_FOUND)
-	        add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
-		    add_definitions(${HDF5_DEFINITIONS})
-		    include_directories(${HDF5_INCLUDE_DIRS})
-
 		    list(APPEND EXTERNAL_LINK_LIBRARIES
 		        ${HDF5_LIBRARIES}
 		    )
@@ -197,7 +191,6 @@ if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
 	        if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
 		        message( STATUS "Bundling of HDF5 libraries is enabled" )
 	        endif() # RESINSIGHT_HDF5_BUNDLE_LIBRARIES
-
 
         else()
             message( WARNING "Use of HDF5 is enabled, but no HDF5 is found." )
@@ -295,11 +288,6 @@ list(APPEND THIRD_PARTY_LIBRARIES
 )
 
 ################################################################################
-# Eigen
-################################################################################
-include_directories(SYSTEM ThirdParty/Eigen-Subset)
-
-################################################################################
 # clipper
 ################################################################################
 
@@ -386,6 +374,9 @@ add_subdirectory(Fwk/AppFwk/cafUserInterface)
 add_subdirectory(Fwk/AppFwk/cafPdmCvf)
 add_subdirectory(Fwk/AppFwk/CommonCode)
 add_subdirectory(Fwk/AppFwk/cafVizExtensions)
+
+add_subdirectory(Fwk/AppFwk/cafCommandFeatures)
+set_property(TARGET cafCommandFeatures PROPERTY FOLDER "AppFwk")
 
 #add_subdirectory(Fwk/AppFwk/cafTests/cafTestCvfApplication)
 
