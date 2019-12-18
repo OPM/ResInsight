@@ -30,14 +30,6 @@ RiuWellLogPlot::RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuWellLogPlot::isScrollbarVisible() const
-{
-    return m_trackScrollBar->isVisible();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimWellLogPlot* RiuWellLogPlot::wellLogPlotDefinition()
 {
     RimWellLogPlot* wellLogPlot = dynamic_cast<RimWellLogPlot*>( m_plotDefinition.p() );
@@ -48,9 +40,11 @@ RimWellLogPlot* RiuWellLogPlot::wellLogPlotDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::setScrollbarVisible( bool visible )
+void RiuWellLogPlot::doRenderTo( QPainter* painter )
 {
-    m_trackScrollBar->setVisible( visible );
+    m_trackScrollBar->setVisible( false );
+    RiuMultiPlotWindow::doRenderTo( painter );
+    m_trackScrollBar->setVisible( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,7 +96,7 @@ bool RiuWellLogPlot::showYAxis( int row, int column ) const
 void RiuWellLogPlot::reinsertScrollbar()
 {
     QList<QPointer<RiuQwtPlotWidget>> plotWidgets = this->visiblePlotWidgets();
-    QList<QPointer<RiuQwtPlotLegend>> legends     = this->visibleLegends();
+    QList<QPointer<RiuQwtPlotLegend>> legends     = this->legendsForVisiblePlots();
     int                               rowCount    = this->m_gridLayout->rowCount();
     int                               colCount    = this->m_gridLayout->columnCount();
 

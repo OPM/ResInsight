@@ -32,6 +32,7 @@
 
 class RiaPlotWindowRedrawScheduler;
 class RimPlot;
+class RiuDraggableOverlayFrame;
 
 class QwtLegend;
 class QwtPicker;
@@ -98,9 +99,12 @@ public:
     void scheduleReplot();
     void setWidgetState( const QString& widgetState );
 
-    void addOverlayFrame( QFrame* overlayWidget );
-    void removeOverlayFrame( QFrame* overlayWidget );
+    void addOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
+    void removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
     void updateLayout() override;
+
+    void renderTo( QPainter* painter, const QRect& targetRect );
+    int  overlayMargins() const;
 
 protected:
     QSize sizeHint() const override;
@@ -108,6 +112,7 @@ protected:
     bool  eventFilter( QObject* watched, QEvent* event ) override;
     void  hideEvent( QHideEvent* event ) override;
     void  showEvent( QShowEvent* event ) override;
+    void  resizeEvent( QResizeEvent* event ) override;
 
     void applyAxisTitleToQwt( QwtPlot::Axis axis );
 
@@ -138,8 +143,9 @@ private:
     std::map<QwtPlot::Axis, bool>    m_axisTitlesEnabled;
     QPointer<QwtPlotPicker>          m_plotPicker;
     bool                             m_draggable;
+    const int                        m_overlayMargins;
 
-    QList<QPointer<QFrame>> m_overlayFrames;
+    QList<QPointer<RiuDraggableOverlayFrame>> m_overlayFrames;
 
     struct CurveColors
     {

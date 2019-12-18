@@ -22,6 +22,7 @@
 #include "RiaPreferences.h"
 
 #include "RifTextDataTableFormatter.h"
+#include "RiuDraggableOverlayFrame.h"
 #include "RiuGridCrossQwtPlot.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotTools.h"
@@ -279,6 +280,37 @@ bool RimGridCrossPlot::showInfoBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::updateInfoBox()
+{
+    if ( m_plotWidget )
+    {
+        if ( m_showInfoBox )
+        {
+            if ( !m_infoBox )
+            {
+                m_infoBox = new RiuDraggableOverlayFrame( m_plotWidget->canvas(), m_plotWidget->overlayMargins() );
+                m_infoBox->setAnchorCorner( RiuDraggableOverlayFrame::AnchorCorner::TopRight );
+                RiuTextOverlayContentFrame* textFrame = new RiuTextOverlayContentFrame( m_infoBox );
+                textFrame->setText( generateInfoBoxText() );
+                m_infoBox->setContentFrame( textFrame );
+            }
+            m_plotWidget->addOverlayFrame( m_infoBox );
+        }
+        else
+        {
+            if ( m_plotWidget && m_infoBox )
+            {
+                m_plotWidget->removeOverlayFrame( m_infoBox );
+                delete m_infoBox;
+                m_infoBox = nullptr;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimGridCrossPlot::userDescriptionField()
 {
     return m_nameConfig->nameField();
@@ -358,28 +390,6 @@ void RimGridCrossPlot::onAxisSelected( int axis, bool toggle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::addOrUpdateDataSetLegend( RimGridCrossPlotDataSet* dataSet )
-{
-    if ( m_plotWidget )
-    {
-        m_plotWidget->addOrUpdateDataSetLegend( dataSet );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::removeDataSetLegend( RimGridCrossPlotDataSet* dataSet )
-{
-    if ( m_plotWidget )
-    {
-        m_plotWidget->removeDataSetLegend( dataSet );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::doRemoveFromCollection()
 {
     RimGridCrossPlotCollection* crossPlotCollection = nullptr;
@@ -389,6 +399,38 @@ void RimGridCrossPlot::doRemoveFromCollection()
         crossPlotCollection->removeGridCrossPlot( this );
         crossPlotCollection->updateAllRequiredEditors();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGridCrossPlot::generateInfoBoxText() const
+{
+    QStringList curveInfoTexts;
+    for ( auto dataSet : dataSets() )
+    {
+        QString curveInfoText = dataSet->infoText();
+        if ( dataSet->isChecked() && !curveInfoText.isEmpty() )
+        {
+            curveInfoTexts += curveInfoText;
+        }
+    }
+    QStringList infoText;
+    infoText << QString( "<b>View ID:</b> %1<br/>" ).arg( id() );
+    if ( curveInfoTexts.size() > 1 )
+    {
+        infoText += QString( "<ol style=\"margin-top: 0px; margin-left: 15px; -qt-list-indent:0;\">" );
+        for ( QString curveInfoText : curveInfoTexts )
+        {
+            infoText += QString( "<li>%1</li>" ).arg( curveInfoText );
+        }
+        infoText += QString( "</ol>" );
+    }
+    else if ( curveInfoTexts.size() > 0 )
+    {
+        infoText += curveInfoTexts.front();
+    }
+    return infoText.join( "\n" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -404,9 +446,9 @@ QWidget* RimGridCrossPlot::createViewWidget( QWidget* mainWindowParent )
         {
             dataSet->setParentQwtPlotNoReplot( m_plotWidget );
         }
-        m_plotWidget->scheduleReplot();
     }
 
+    m_plotWidget->scheduleReplot();
     return m_plotWidget;
 }
 
@@ -433,6 +475,7 @@ void RimGridCrossPlot::onLoadDataAndUpdate()
 
     updateCurveNamesAndPlotTitle();
     updatePlot();
+    updateInfoBox();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -724,6 +767,7 @@ bool RimGridCrossPlot::applyFontSize( RiaDefines::FontSettingType fontSettingTyp
         if ( forceChange || legendFontSize() == oldFontSize )
         {
             setLegendFontSize( fontSize );
+
             anyChange = true;
         }
 

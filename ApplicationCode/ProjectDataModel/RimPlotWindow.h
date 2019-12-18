@@ -24,6 +24,8 @@
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
 
+#include <QPageLayout>
+
 class RimProject;
 
 class QwtPlotCurve;
@@ -57,6 +59,9 @@ public:
     void updateLayout();
     void updateParentLayout();
 
+    void        renderWindowContent( QPainter* painter );
+    QPageLayout pageLayout() const;
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
@@ -69,6 +74,8 @@ protected:
 
 private:
     virtual void doUpdateLayout() {}
+    virtual bool hasCustomPageLayout( QPageLayout* customPageLayout ) const;
+    virtual void doRenderWindowContent( QPainter* painter ) = 0;
 
 private:
     friend class RimProject;

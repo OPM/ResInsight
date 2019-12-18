@@ -21,11 +21,13 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTools.h"
+#include "RiaFontCache.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 
 #include "RimPlot.h"
 #include "RimPlotCurve.h"
 
+#include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtLinearScaleEngine.h"
@@ -35,16 +37,19 @@
 #include "cafAssert.h"
 
 #include "qwt_legend.h"
+#include "qwt_plot_canvas.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
 #include "qwt_plot_marker.h"
 #include "qwt_plot_picker.h"
+#include "qwt_plot_renderer.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_widget.h"
 #include "qwt_symbol.h"
 #include "qwt_text.h"
 
+#include <QDebug>
 #include <QDrag>
 #include <QFont>
 #include <QFontMetrics>
@@ -55,6 +60,7 @@
 #include <QScrollArea>
 #include <QWheelEvent>
 
+#include <algorithm>
 #include <cfloat>
 
 //--------------------------------------------------------------------------------------------------
@@ -64,6 +70,7 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plot, QWidget* parent )
     : QwtPlot( parent )
     , m_plotDefinition( plot )
     , m_draggable( true )
+    , m_overlayMargins( 5 )
 {
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
 
@@ -404,11 +411,11 @@ void RiuQwtPlotWidget::setWidgetState( const QString& widgetState )
 //--------------------------------------------------------------------------------------------------
 /// Adds an overlay frame. The overlay frame becomes the responsibility of the plot widget
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::addOverlayFrame( QFrame* overlayFrame )
+void RiuQwtPlotWidget::addOverlayFrame( RiuDraggableOverlayFrame* overlayFrame )
 {
     if ( std::find( m_overlayFrames.begin(), m_overlayFrames.end(), overlayFrame ) == m_overlayFrames.end() )
     {
-        overlayFrame->setParent( this );
+        overlayFrame->setParent( this->canvas() );
         m_overlayFrames.push_back( overlayFrame );
         updateLayout();
     }
@@ -417,7 +424,7 @@ void RiuQwtPlotWidget::addOverlayFrame( QFrame* overlayFrame )
 //--------------------------------------------------------------------------------------------------
 /// Remove the overlay widget. The frame becomes the responsibility of the caller
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::removeOverlayFrame( QFrame* overlayFrame )
+void RiuQwtPlotWidget::removeOverlayFrame( RiuDraggableOverlayFrame* overlayFrame )
 {
     overlayFrame->hide();
     overlayFrame->setParent( nullptr );
@@ -547,6 +554,16 @@ void RiuQwtPlotWidget::showEvent( QShowEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::resizeEvent( QResizeEvent* event )
+{
+    QwtPlot::resizeEvent( event );
+    updateOverlayFrameLayout();
+    event->accept();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::applyAxisTitleToQwt( QwtPlot::Axis axis )
 {
     QString titleToApply = m_axisTitlesEnabled[axis] ? m_axisTitles[axis] : QString( "" );
@@ -586,6 +603,47 @@ bool RiuQwtPlotWidget::isZoomerActive() const
 /// Empty default implementation
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::endZoomOperations() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::renderTo( QPainter* painter, const QRect& targetRect )
+{
+    static_cast<QwtPlotCanvas*>( this->canvas() )->setPaintAttribute( QwtPlotCanvas::BackingStore, false );
+    QwtPlotRenderer renderer( this );
+    renderer.render( this, painter, targetRect );
+    static_cast<QwtPlotCanvas*>( this->canvas() )->setPaintAttribute( QwtPlotCanvas::BackingStore, true );
+
+    for ( RiuDraggableOverlayFrame* overlayFrame : m_overlayFrames )
+    {
+        if ( overlayFrame->isVisible() )
+        {
+            QPoint overlayTopLeftInCanvasCoords = overlayFrame->frameGeometry().topLeft();
+            QPoint canvasTopLeftInPlotCoords    = this->canvas()->frameGeometry().topLeft();
+            QPoint plotTopLeftInWindowCoords    = targetRect.topLeft();
+
+            QPoint overlayTopLeftInWindowCoords = plotTopLeftInWindowCoords + canvasTopLeftInPlotCoords +
+                                                  overlayTopLeftInCanvasCoords;
+            {
+                QRect overlayRect = overlayFrame->frameGeometry();
+                QSize desiredSize = overlayRect.size();
+                QSize minimumSize = overlayFrame->minimumSizeHint();
+                QSize actualSize  = desiredSize.expandedTo( minimumSize );
+                overlayRect.moveTo( overlayTopLeftInWindowCoords );
+                overlayRect.setSize( actualSize );
+                overlayFrame->renderTo( painter, overlayRect );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiuQwtPlotWidget::overlayMargins() const
+{
+    return m_overlayMargins;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -651,26 +709,47 @@ caf::UiStyleSheet RiuQwtPlotWidget::createCanvasStyleSheet() const
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::updateOverlayFrameLayout()
 {
-    const int spacing      = 5;
-    int       startMarginX = this->canvas()->pos().x() + spacing;
-    int       startMarginY = this->canvas()->pos().y() + spacing;
+    const int spacing = 5;
 
-    int xpos           = startMarginX;
-    int ypos           = startMarginY;
-    int maxColumnWidth = 0;
-    for ( QPointer<QFrame> frame : m_overlayFrames )
+    int xpos                 = spacing;
+    int ypos                 = spacing;
+    int widthOfCurrentColumn = 0;
+
+    QSize canvasSize = this->canvas()->size();
+    QSize maxFrameSize( canvasSize.width() - 2 * m_overlayMargins, canvasSize.height() - 2 * m_overlayMargins );
+
+    for ( RiuDraggableOverlayFrame* frame : m_overlayFrames )
     {
-        if ( !frame.isNull() )
+        if ( frame )
         {
-            if ( ypos + frame->height() + spacing > this->canvas()->height() )
+            QSize minFrameSize     = frame->minimumSizeHint();
+            QSize desiredFrameSize = frame->sizeHint();
+
+            int width  = std::min( std::max( minFrameSize.width(), desiredFrameSize.width() ), maxFrameSize.width() );
+            int height = std::min( std::max( minFrameSize.height(), desiredFrameSize.height() ), maxFrameSize.height() );
+
+            frame->resize( width, height );
+
+            if ( frame->anchorCorner() == RiuDraggableOverlayFrame::AnchorCorner::TopLeft )
             {
-                xpos += spacing + maxColumnWidth;
-                ypos           = startMarginY;
-                maxColumnWidth = 0;
+                if ( ypos + frame->height() + spacing > this->canvas()->height() && widthOfCurrentColumn > 0 )
+                {
+                    xpos += spacing + widthOfCurrentColumn;
+                    ypos                 = spacing;
+                    widthOfCurrentColumn = 0;
+                }
+                frame->move( xpos, ypos );
+                ypos += frame->height() + spacing;
+                widthOfCurrentColumn = std::max( widthOfCurrentColumn, frame->width() );
             }
-            frame->move( xpos, ypos );
-            ypos += frame->height() + spacing;
-            maxColumnWidth = std::max( maxColumnWidth, frame->width() );
+            else if ( frame->anchorCorner() == RiuDraggableOverlayFrame::AnchorCorner::TopRight )
+            {
+                QRect  frameRect      = frame->frameGeometry();
+                QRect  canvasRect     = canvas()->rect();
+                QPoint canvasTopRight = canvasRect.topRight();
+                frameRect.moveTopRight( QPoint( canvasTopRight.x() - spacing, canvasTopRight.y() + spacing ) );
+                frame->move( frameRect.topLeft() );
+            }
             frame->show();
         }
     }

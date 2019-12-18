@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,24 +17,31 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include <QObject>
-#include <QPoint>
+#include <QFrame>
 #include <QPointer>
+#include <QString>
 
-class QWidget;
-class QEvent;
+class QLabel;
 
-class RiuWidgetDragger : public QObject
+class RiuAbstractOverlayContentFrame : public QFrame
 {
     Q_OBJECT
 public:
-    RiuWidgetDragger( QWidget* widgetToMove, int snapMargins = 5 );
+    RiuAbstractOverlayContentFrame( QWidget* parent = nullptr );
+    ~RiuAbstractOverlayContentFrame();
 
-    void addWidget( QWidget* widget );
-    bool eventFilter( QObject* watched, QEvent* event ) override;
+    virtual void renderTo( QPainter* painter, const QRect& targetRect ) = 0;
+};
+
+class RiuTextOverlayContentFrame : public RiuAbstractOverlayContentFrame
+{
+    Q_OBJECT
+public:
+    RiuTextOverlayContentFrame( QWidget* parent = nullptr );
+
+    void setText( const QString& text );
+    void renderTo( QPainter* painter, const QRect& targetRect ) override;
 
 private:
-    QPointer<QWidget> m_widgetToMove;
-    int               m_snapMargins;
-    QPoint            m_startPos;
+    QPointer<QLabel> m_textLabel;
 };

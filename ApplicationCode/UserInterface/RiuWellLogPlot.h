@@ -28,8 +28,6 @@ class RiuWellLogPlot : public RiuMultiPlotWindow
 public:
     RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent );
 
-    bool isScrollbarVisible() const;
-    void setScrollbarVisible( bool visible );
     void updateVerticalScrollBar( double minVisible, double maxVisible, double minAvailable, double maxAvailable ) override;
 
 protected:
@@ -39,6 +37,7 @@ protected:
 
     void reinsertScrollbar();
     void alignScrollbar( int offset );
+    void doRenderTo( QPainter* painter ) override;
 
 private:
     RimWellLogPlot* wellLogPlotDefinition();

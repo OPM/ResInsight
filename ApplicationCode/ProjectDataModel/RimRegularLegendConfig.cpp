@@ -38,6 +38,8 @@
 #include "RimWellMeasurementInView.h"
 #include "RimWellRftEnsembleCurveSet.h"
 #include "RimWellRftPlot.h"
+#include "RiuCategoryLegendFrame.h"
+#include "RiuScalarMapperLegendFrame.h"
 
 #include "cafCategoryLegend.h"
 #include "cafCategoryMapper.h"
@@ -148,6 +150,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
                        "",
                        "The number of significant digits displayed in the legend numbers",
                        "" );
+    m_significantDigitsInData = m_precision;
     CAF_PDM_InitField( &m_tickNumberFormat,
                        "TickNumberFormat",
                        caf::AppEnum<RimRegularLegendConfig::NumberFormatType>( FIXED ),
@@ -312,6 +315,8 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::updateLegend()
 {
+    m_significantDigitsInData = m_precision;
+
     double adjustedMin = cvf::UNDEFINED_DOUBLE;
     double adjustedMax = cvf::UNDEFINED_DOUBLE;
 
@@ -461,7 +466,9 @@ void RimRegularLegendConfig::updateLegend()
     {
         numDecimalDigits -= static_cast<int>( decadesInRange );
     }
-    m_scalarMapperLegend->setTickPrecision( cvf::Math::clamp( numDecimalDigits, 0, 20 ) );
+    numDecimalDigits          = cvf::Math::clamp( numDecimalDigits, 0, 20 );
+    m_significantDigitsInData = numDecimalDigits;
+    m_scalarMapperLegend->setTickPrecision( numDecimalDigits );
 
     RiaApplication* app         = RiaApplication::instance();
     RiaPreferences* preferences = app->preferences();
@@ -762,7 +769,9 @@ double RimRegularLegendConfig::categoryValueFromCategoryName( const QString& cat
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::setTitle( const QString& title )
 {
-    auto cvfTitle = cvfqt::Utils::toString( title );
+    m_title = title;
+
+    auto cvfTitle = cvfqt::Utils::toString( m_title );
     m_scalarMapperLegend->setTitle( cvfTitle );
     m_categoryLegend->setTitle( cvfTitle );
 }
@@ -802,6 +811,24 @@ const caf::TitledOverlayFrame* RimRegularLegendConfig::titledOverlayFrame() cons
     else
     {
         return m_scalarMapperLegend.p();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuAbstractLegendFrame* RimRegularLegendConfig::makeLegendFrame()
+{
+    if ( m_currentScalarMapper == m_categoryMapper )
+    {
+        return new RiuCategoryLegendFrame( nullptr, m_title, m_categoryMapper.p() );
+    }
+    else
+    {
+        auto legend = new RiuScalarMapperLegendFrame( nullptr, m_title, m_currentScalarMapper.p() );
+        legend->setTickFormat( m_tickNumberFormat() );
+        legend->setTickPrecision( m_significantDigitsInData );
+        return legend;
     }
 }
 

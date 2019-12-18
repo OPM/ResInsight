@@ -21,6 +21,7 @@
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 #include "RiaStatisticsTools.h"
+#include "RiuAbstractLegendFrame.h"
 
 #include "SummaryPlotCommands/RicSummaryCurveCreator.h"
 
@@ -47,6 +48,7 @@
 #include "RimSummaryPlot.h"
 
 #include "RiuCvfOverlayItemWidget.h"
+#include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuSummaryCurveDefSelectionDialog.h"
@@ -383,7 +385,7 @@ RimRegularLegendConfig* RimEnsembleCurveSet::legendConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QFrame* RimEnsembleCurveSet::legendFrame() const
+RiuDraggableOverlayFrame* RimEnsembleCurveSet::legendFrame() const
 {
     return m_legendOverlayFrame;
 }
@@ -888,10 +890,10 @@ void RimEnsembleCurveSet::updateCurveColors()
         {
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame = new RiuCvfOverlayItemWidget( plot->viewer(), plot->viewer()->canvas() );
+                m_legendOverlayFrame = new RiuDraggableOverlayFrame( plot->viewer()->canvas(),
+                                                                     plot->viewer()->overlayMargins() );
             }
-            m_legendOverlayFrame->updateFromOverlayItem( m_legendConfig()->titledOverlayFrame() );
-            plot->viewer()->addOverlayFrame( m_legendOverlayFrame );
+            m_legendOverlayFrame->setContentFrame( m_legendConfig->makeLegendFrame() );
         }
         else
         {

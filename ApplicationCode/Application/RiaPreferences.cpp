@@ -59,9 +59,32 @@ void RiaPreferences::SummaryHistoryCurveStyleModeType::setUp()
     addItem( RiaPreferences::SYMBOLS_AND_LINES, "SYMBOLS_AND_LINES", "Symbols and Lines" );
     setDefault( RiaPreferences::SYMBOLS );
 }
+
+template <>
+void RiaPreferences::PageSizeEnum::setUp()
+{
+    addItem( QPageSize::A3, "A3", "A3" );
+    addItem( QPageSize::A4, "A4", "A4" );
+    addItem( QPageSize::A5, "A5", "A5" );
+    addItem( QPageSize::A6, "A6", "A6" );
+    addItem( QPageSize::Letter, "LETTER", "US Letter" );
+    addItem( QPageSize::Legal, "LEGAL", "US Legal" );
+    addItem( QPageSize::Ledger, "LEDGER", "US Ledger" );
+    addItem( QPageSize::Tabloid, "TABLOID", "US Tabloid" );
+    setDefault( QPageSize::A4 );
+}
+
+template <>
+void RiaPreferences::PageOrientationEnum::setUp()
+{
+    addItem( QPageLayout::Portrait, "PORTRAIT", "Portrait" );
+    addItem( QPageLayout::Landscape, "LANDSCAPE", "Landscape" );
+    setDefault( QPageLayout::Portrait );
+}
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RiaPreferences, "RiaPreferences" );
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -337,6 +360,19 @@ RiaPreferences::RiaPreferences( void )
                        "",
                        "" );
     m_useMultipleThreadsWhenLoadingSummaryData.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitFieldNoDefault( &m_pageSize, "pageSize", "Page Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_pageOrientation, "pageOrientation", "Page Orientation", "", "", "" );
+    CAF_PDM_InitField( &m_pageLeftMargin, "pageLeftMargin", defaultMarginSize( m_pageSize() ), "Left Margin", "", "", "" );
+    CAF_PDM_InitField( &m_pageTopMargin, "pageTopMargin", defaultMarginSize( m_pageSize() ), "Top Margin", "", "", "" );
+    CAF_PDM_InitField( &m_pageRightMargin, "pageRightMargin", defaultMarginSize( m_pageSize() ), "Right Margin", "", "", "" );
+    CAF_PDM_InitField( &m_pageBottomMargin,
+                       "pageBottomMargin",
+                       defaultMarginSize( m_pageSize() ),
+                       "Bottom Margin",
+                       "",
+                       "",
+                       "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -467,7 +503,26 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Plot Templates" );
         group->add( &m_plotTemplateFolders );
         group->add( &m_searchPlotTemplateFoldersRecursively );
+
+        caf::PdmUiGroup* pageSetup = uiOrdering.addNewGroup( "Page Setup" );
+        pageSetup->add( &m_pageSize );
+        pageSetup->add( &m_pageOrientation, false );
+        pageSetup->add( &m_pageLeftMargin );
+        pageSetup->add( &m_pageRightMargin, false );
+        pageSetup->add( &m_pageTopMargin );
+        pageSetup->add( &m_pageBottomMargin, false );
+
+        QString unitLabel = " [mm]";
+        if ( QPageSize( m_pageSize() ).definitionUnits() == QPageSize::Inch )
+        {
+            unitLabel = " [in]";
+        }
+        m_pageLeftMargin.uiCapability()->setUiName( "Left Margin" + unitLabel );
+        m_pageRightMargin.uiCapability()->setUiName( "Right Margin" + unitLabel );
+        m_pageTopMargin.uiCapability()->setUiName( "Top Margin" + unitLabel );
+        m_pageBottomMargin.uiCapability()->setUiName( "Bottom Margin" + unitLabel );
     }
+
     else if ( uiConfigName == RiaPreferences::tabNameScripting() )
     {
         caf::PdmUiGroup* octaveGroup = uiOrdering.addNewGroup( "Octave" );
@@ -584,6 +639,21 @@ void RiaPreferences::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaPreferences::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                       const QVariant&            oldValue,
+                                       const QVariant&            newValue )
+{
+    if ( changedField == &m_pageSize )
+    {
+        m_pageLeftMargin   = defaultMarginSize( m_pageSize() );
+        m_pageRightMargin  = defaultMarginSize( m_pageSize() );
+        m_pageTopMargin    = defaultMarginSize( m_pageSize() );
+        m_pageBottomMargin = defaultMarginSize( m_pageSize() );
+    }
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaPreferences::tabNameGeneral()
 {
     return "General";
@@ -629,6 +699,22 @@ QString RiaPreferences::tabNameSystem()
     return "System";
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiaPreferences::defaultMarginSize( QPageSize::PageSizeId pageSizeId )
+{
+    QPageSize::Unit unit = QPageSize( pageSizeId ).definitionUnits();
+
+    if ( unit == QPageSize::Inch )
+    {
+        return 1.0;
+    }
+    else
+    {
+        return 20.0;
+    }
+}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -850,4 +936,18 @@ std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> RiaPreferences::de
 void RiaPreferences::writePreferencesToApplicationStore()
 {
     caf::PdmSettings::writeFieldsToApplicationStore( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QPageLayout RiaPreferences::defaultPageLayout() const
+{
+    QPageSize   pageSize( m_pageSize() );
+    QPageLayout layout( pageSize,
+                        m_pageOrientation(),
+                        QMarginsF( m_pageLeftMargin, m_pageTopMargin, m_pageRightMargin, m_pageBottomMargin ),
+                        (QPageLayout::Unit)pageSize.definitionUnits() );
+    layout.setMode( QPageLayout::StandardMode );
+    return layout;
 }

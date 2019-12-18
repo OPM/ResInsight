@@ -32,6 +32,7 @@
 class RimPlotAxisPropertiesInterface;
 class RimPlotAxisProperties;
 class RimGridCrossPlotDataSet;
+class RiuDraggableOverlayFrame;
 class RiuGridCrossQwtPlot;
 
 class RimGridCrossPlotNameConfig : public RimNameConfig
@@ -76,6 +77,7 @@ public:
     QString createAutoName() const override;
 
     bool                 showInfoBox() const;
+    void                 updateInfoBox();
     caf::PdmFieldHandle* userDescriptionField() override;
 
     void detachAllCurves() override;
@@ -108,9 +110,6 @@ public:
     void            setAutoScaleYEnabled( bool enabled ) override;
     caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
     void            onAxisSelected( int axis, bool toggle ) override;
-
-    void addOrUpdateDataSetLegend( RimGridCrossPlotDataSet* dataSet );
-    void removeDataSetLegend( RimGridCrossPlotDataSet* dataSet );
 
 protected:
     QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;
@@ -146,7 +145,8 @@ private:
     void doUpdateLayout() override;
     void cleanupBeforeClose();
 
-    void doRemoveFromCollection() override;
+    void    doRemoveFromCollection() override;
+    QString generateInfoBoxText() const;
 
 private:
     caf::PdmField<bool>                             m_showInfoBox;
@@ -158,5 +158,6 @@ private:
 
     caf::PdmChildArrayField<RimGridCrossPlotDataSet*> m_crossPlotDataSets;
 
-    QPointer<RiuGridCrossQwtPlot> m_plotWidget;
+    QPointer<RiuGridCrossQwtPlot>      m_plotWidget;
+    QPointer<RiuDraggableOverlayFrame> m_infoBox;
 };

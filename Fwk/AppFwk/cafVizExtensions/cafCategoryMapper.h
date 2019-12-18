@@ -38,13 +38,13 @@ public:
     void        majorTickValues(std::vector<double>* domainValues) const override;
     double      normalizedValue(double domainValue) const override;
     double      domainValue(double normalizedValue) const override;
+    size_t              categoryCount() const;
+
+    const cvf::String   textForCategoryIndex(size_t index) const;
+    int                 categoryIndexForCategory(double domainValue) const;
 
 private:
-    friend class CategoryLegend;
-    size_t              categoryCount() const;
-    const cvf::String   textForCategoryIndex(size_t index) const;
 
-    int                 categoryIndexForCategory(double domainValue) const;
     void                recomputeMaxTexCoord();
 
 private:

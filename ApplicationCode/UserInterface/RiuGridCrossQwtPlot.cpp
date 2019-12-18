@@ -85,9 +85,7 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimPlot* plotDefinition, QWidget* pare
     connect( m_zoomerRight, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
     connect( panner, SIGNAL( panned( int, int ) ), SLOT( onZoomedSlot() ) );
 
-    m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
-    m_infoBox        = new RiuDraggableOverlayFrame( this, canvas() );
-
+    m_annotationTool      = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
     m_selectedPointMarker = new QwtPlotMarker;
 
     // QwtPlotMarker takes ownership of the symbol, it is deleted in destructor of QwtPlotMarker
@@ -119,112 +117,6 @@ RiuGridCrossQwtPlot::~RiuGridCrossQwtPlot()
         m_selectedPointMarker->detach();
     }
     delete m_selectedPointMarker;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::addOrUpdateDataSetLegend( RimGridCrossPlotDataSet* dataSet )
-{
-    RiuCvfOverlayItemWidget* overlayWidget = nullptr;
-
-    auto it = m_legendWidgets.find( dataSet );
-    if ( it == m_legendWidgets.end() || it->second == nullptr )
-    {
-        overlayWidget            = new RiuCvfOverlayItemWidget( this, canvas() );
-        m_legendWidgets[dataSet] = overlayWidget;
-    }
-    else
-    {
-        overlayWidget = it->second;
-    }
-
-    if ( overlayWidget )
-    {
-        caf::TitledOverlayFrame* overlayItem = dataSet->legendConfig()->titledOverlayFrame();
-        applyFontSizeToOverlayItem( overlayItem );
-        resizeOverlayItemToFitPlot( overlayItem );
-        overlayWidget->updateFromOverlayItem( overlayItem );
-    }
-    this->updateLegendLayout();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::removeDataSetLegend( RimGridCrossPlotDataSet* dataSetToShowLegendFor )
-{
-    auto it = m_legendWidgets.find( dataSetToShowLegendFor );
-    if ( it != m_legendWidgets.end() )
-    {
-        if ( it->second != nullptr )
-        {
-            it->second->hide();
-            it->second->setParent( nullptr );
-            delete it->second;
-        }
-
-        m_legendWidgets.erase( it );
-    }
-
-    this->updateLegendLayout();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::removeDanglingDataSetLegends()
-{
-    for ( auto it = m_legendWidgets.begin(); it != m_legendWidgets.end(); )
-    {
-        if ( it->first.isNull() )
-        {
-            if ( it->second != nullptr )
-            {
-                it->second->hide();
-                it->second->setParent( nullptr );
-                delete it->second;
-            }
-            m_legendWidgets.erase( it++ );
-        }
-        else
-        {
-            ++it;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::updateLegendSizesToMatchPlot()
-{
-    RimGridCrossPlot* crossPlot = dynamic_cast<RimGridCrossPlot*>( plotDefinition() );
-    if ( !crossPlot ) return;
-
-    bool anyLegendResized = false;
-
-    for ( RimGridCrossPlotDataSet* dataSet : crossPlot->dataSets() )
-    {
-        if ( !dataSet->isChecked() || !dataSet->legendConfig()->showLegend() ) continue;
-
-        auto pairIt = m_legendWidgets.find( dataSet );
-        if ( pairIt != m_legendWidgets.end() )
-        {
-            RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
-            caf::TitledOverlayFrame* overlayItem   = dataSet->legendConfig()->titledOverlayFrame();
-            applyFontSizeToOverlayItem( overlayItem );
-            if ( resizeOverlayItemToFitPlot( overlayItem ) )
-            {
-                anyLegendResized = true;
-                overlayWidget->updateFromOverlayItem( overlayItem );
-            }
-        }
-    }
-    if ( anyLegendResized )
-    {
-        updateLegendLayout();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -265,11 +157,10 @@ void RiuGridCrossQwtPlot::setLegendFontSize( int fontSize )
             label->setFont( font );
         }
     }
-    updateInfoBoxLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// The internal qwt legend is not used in grid plot windows
+/// The internal qwt legend is not used in multi plot windows
 //--------------------------------------------------------------------------------------------------
 void RiuGridCrossQwtPlot::setInternalQwtLegendVisible( bool visible )
 {
@@ -283,169 +174,6 @@ void RiuGridCrossQwtPlot::setInternalQwtLegendVisible( bool visible )
         this->insertLegend( nullptr );
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::updateLayout()
-{
-    QwtPlot::updateLayout();
-    updateInfoBoxLayout();
-    updateLegendLayout();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::updateInfoBoxLayout()
-{
-    RimGridCrossPlot* crossPlot = dynamic_cast<RimGridCrossPlot*>( plotDefinition() );
-    if ( !crossPlot ) return;
-
-    bool showInfo = false;
-    if ( crossPlot->showInfoBox() )
-    {
-        QStringList curveInfoTexts;
-        for ( auto dataSet : crossPlot->dataSets() )
-        {
-            QString curveInfoText = dataSet->infoText();
-            if ( dataSet->isChecked() && !curveInfoText.isEmpty() )
-            {
-                curveInfoTexts += curveInfoText;
-            }
-        }
-        QStringList infoText;
-        infoText << QString( "<b>View ID:</b> %1<br/>" ).arg( crossPlot->id() );
-        if ( curveInfoTexts.size() > 1 )
-        {
-            infoText += QString( "<ol style=\"margin-top: 0px; margin-left: 15px; -qt-list-indent:0;\">" );
-            for ( QString curveInfoText : curveInfoTexts )
-            {
-                infoText += QString( "<li>%1</li>" ).arg( curveInfoText );
-            }
-            infoText += QString( "</ol>" );
-        }
-        else if ( curveInfoTexts.size() > 0 )
-        {
-            infoText += curveInfoTexts.front();
-        }
-        if ( !infoText.empty() )
-        {
-            m_infoBox->label()->setText( infoText.join( "\n" ) );
-            QFont font = m_infoBox->label()->font();
-            font.setPointSize( crossPlot->legendFontSize() );
-            m_infoBox->label()->setFont( font );
-            m_infoBox->adjustSize();
-            QRect infoRect   = m_infoBox->frameGeometry();
-            QRect canvasRect = canvas()->frameGeometry();
-            infoRect.moveTop( canvasRect.top() + 4 );
-            infoRect.moveRight( canvasRect.right() - 4 );
-            m_infoBox->move( infoRect.topLeft() );
-            showInfo = true;
-        }
-    }
-    if ( showInfo )
-    {
-        m_infoBox->show();
-    }
-    else
-    {
-        m_infoBox->hide();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::updateLegendLayout()
-{
-    const int spacing      = 5;
-    int       startMarginX = this->canvas()->pos().x() + spacing;
-    int       startMarginY = this->canvas()->pos().y() + spacing;
-
-    int xpos           = startMarginX;
-    int ypos           = startMarginY;
-    int maxColumnWidth = 0;
-
-    removeDanglingDataSetLegends();
-
-    RimGridCrossPlot* crossPlot = dynamic_cast<RimGridCrossPlot*>( plotDefinition() );
-
-    if ( !crossPlot ) return;
-
-    std::set<QString> legendTypes;
-
-    for ( RimGridCrossPlotDataSet* dataSet : crossPlot->dataSets() )
-    {
-        if ( dataSet->isChecked() && dataSet->groupingEnabled() && dataSet->legendConfig()->showLegend() )
-        {
-            auto pairIt = m_legendWidgets.find( dataSet );
-            if ( pairIt != m_legendWidgets.end() )
-            {
-                RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
-
-                // Show only one copy of each legend type
-                if ( !legendTypes.count( dataSet->groupParameter() ) )
-                {
-                    if ( ypos + overlayWidget->height() + spacing > this->canvas()->height() )
-                    {
-                        xpos += spacing + maxColumnWidth;
-                        ypos           = startMarginY;
-                        maxColumnWidth = 0;
-                    }
-
-                    overlayWidget->show();
-                    overlayWidget->move( xpos, ypos );
-
-                    ypos += pairIt->second->height() + spacing;
-                    maxColumnWidth = std::max( maxColumnWidth, pairIt->second->width() );
-                    legendTypes.insert( dataSet->groupParameter() );
-                }
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::resizeEvent( QResizeEvent* e )
-{
-    QwtPlot::resizeEvent( e );
-    updateLegendSizesToMatchPlot();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiuGridCrossQwtPlot::resizeOverlayItemToFitPlot( caf::TitledOverlayFrame* overlayItem )
-{
-    QSize       plotSize           = this->canvas()->contentsRect().size();
-    cvf::Vec2ui existingRenderSize = overlayItem->renderSize();
-    cvf::Vec2ui legendSize         = overlayItem->preferredSize();
-
-    bool sizeAltered = false;
-
-    if ( plotSize.width() > 0 && (double)legendSize.x() > 0.9 * plotSize.width() )
-    {
-        legendSize.x() = ( plotSize.width() * 9 ) / 10;
-        sizeAltered    = true;
-    }
-    if ( plotSize.height() > 0 && (double)legendSize.y() > 0.9 * plotSize.height() )
-    {
-        legendSize.y() = ( plotSize.height() * 9 ) / 10;
-        sizeAltered    = true;
-    }
-    overlayItem->setRenderSize( legendSize );
-
-    if ( legendSize.x() != existingRenderSize.x() || legendSize.y() != existingRenderSize.y() )
-    {
-        sizeAltered = true;
-    }
-
-    return sizeAltered;
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -529,17 +257,6 @@ bool RiuGridCrossQwtPlot::curveText( const QwtPlotCurve* curve,
         }
     }
     return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::applyFontSizeToOverlayItem( caf::TitledOverlayFrame* overlayItem )
-{
-    RimGridCrossPlot*   crossPlot = static_cast<RimGridCrossPlot*>( ownerViewWindow() );
-    int                 fontSize  = crossPlot->legendFontSize();
-    cvf::ref<cvf::Font> cafFont   = RiaFontCache::getFont( RiaFontCache::fontSizeEnumFromPointSize( fontSize ) );
-    overlayItem->setFont( cafFont.p() );
 }
 
 //--------------------------------------------------------------------------------------------------

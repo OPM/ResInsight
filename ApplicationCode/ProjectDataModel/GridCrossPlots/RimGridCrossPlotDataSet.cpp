@@ -33,7 +33,9 @@
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
 
+#include "RiuCvfOverlayItemWidget.h"
 #include "RiuGridCrossQwtPlot.h"
+#include "RiuScalarMapperLegendFrame.h"
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"
@@ -57,6 +59,7 @@
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
+#include "cafTitledOverlayFrame.h"
 #include "cvfScalarMapper.h"
 #include "cvfqtUtils.h"
 
@@ -131,6 +134,18 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
     m_plotCellFilterCollection = new RimPlotCellFilterCollection;
 
     setDefaults();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGridCrossPlotDataSet::~RimGridCrossPlotDataSet()
+{
+    if ( m_legendOverlayFrame )
+    {
+        m_legendOverlayFrame->setParent( nullptr );
+        delete m_legendOverlayFrame;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1020,11 +1035,20 @@ void RimGridCrossPlotDataSet::updateLegendRange()
                     m_groupingProperty->updateRangesForEmbeddedLegends( m_timeStep() );
                 }
             }
-            parent->addOrUpdateDataSetLegend( this );
+            if ( !m_legendOverlayFrame )
+            {
+                m_legendOverlayFrame = new RiuDraggableOverlayFrame( parent->viewer()->canvas(),
+                                                                     parent->viewer()->overlayMargins() );
+            }
+            m_legendOverlayFrame->setContentFrame( legendConfig()->makeLegendFrame() );
+            parent->viewer()->addOverlayFrame( m_legendOverlayFrame );
         }
         else
         {
-            parent->removeDataSetLegend( this );
+            if ( m_legendOverlayFrame )
+            {
+                parent->viewer()->removeOverlayFrame( m_legendOverlayFrame );
+            }
         }
     }
 }

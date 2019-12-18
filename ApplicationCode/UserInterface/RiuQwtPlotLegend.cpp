@@ -31,6 +31,11 @@ RiuQwtPlotLegend::RiuQwtPlotLegend( QWidget* parent /*= nullptr */ )
     : QwtLegend( parent )
     , m_columnCount( 1 )
 {
+    QwtDynGridLayout* legendLayout = qobject_cast<QwtDynGridLayout*>( contentsWidget()->layout() );
+    if ( legendLayout )
+    {
+        legendLayout->setExpandingDirections( Qt::Horizontal | Qt::Vertical );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,7 +80,7 @@ QSize RiuQwtPlotLegend::sizeHint() const
             maxHeight     = std::max( maxHeight, itemSize.height() );
         }
         QMargins margins      = legendLayout->contentsMargins();
-        int      totalSpacing = ( numRows + 1 ) * legendLayout->spacing() + margins.top() + margins.bottom();
+        int      totalSpacing = ( numRows + 2 ) * legendLayout->spacing() + margins.top() + margins.bottom();
 
         int height = maxHeight * numRows + totalSpacing;
 

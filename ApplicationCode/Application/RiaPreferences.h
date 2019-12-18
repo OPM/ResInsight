@@ -35,6 +35,8 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"
 
+#include <QPageLayout>
+#include <QPageSize>
 #include <QStringList>
 
 #include <map>
@@ -66,6 +68,10 @@ public:
     };
     typedef caf::AppEnum<SummaryHistoryCurveStyleMode> SummaryHistoryCurveStyleModeType;
 
+    typedef caf::AppEnum<QPageSize::PageSizeId>    PageSizeEnum;
+    typedef caf::AppEnum<QPageLayout::Orientation> PageOrientationEnum;
+
+public:
     RiaPreferences( void );
     ~RiaPreferences( void ) override;
 
@@ -97,7 +103,8 @@ public:
 
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
-    void writePreferencesToApplicationStore();
+    void        writePreferencesToApplicationStore();
+    QPageLayout defaultPageLayout() const;
 
 public: // Pdm Fields
     caf::PdmField<caf::AppEnum<RiaGuiApplication::RINavigationPolicy>> navigationPolicy;
@@ -156,6 +163,9 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
     void                          initAfterRead() override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue ) override;
 
 private:
     static QString tabNameGeneral();
@@ -164,6 +174,8 @@ private:
     static QString tabNameScripting();
     static QString tabNameExport();
     static QString tabNameSystem();
+
+    static double defaultMarginSize( QPageSize::PageSizeId pageSizeId );
 
 private:
     caf::PdmChildField<RifReaderSettings*> m_readerSettings;
@@ -183,6 +195,13 @@ private:
     caf::PdmField<QString> m_timeFormat;
     caf::PdmField<bool>    m_showSummaryTimeAsLongString;
     caf::PdmField<bool>    m_useMultipleThreadsWhenLoadingSummaryData;
+
+    caf::PdmField<PageSizeEnum>        m_pageSize;
+    caf::PdmField<PageOrientationEnum> m_pageOrientation;
+    caf::PdmField<double>              m_pageLeftMargin;
+    caf::PdmField<double>              m_pageRightMargin;
+    caf::PdmField<double>              m_pageTopMargin;
+    caf::PdmField<double>              m_pageBottomMargin;
 
     caf::PdmField<QString>       m_plotTemplateFolders;
     caf::PdmField<bool>          m_searchPlotTemplateFoldersRecursively;

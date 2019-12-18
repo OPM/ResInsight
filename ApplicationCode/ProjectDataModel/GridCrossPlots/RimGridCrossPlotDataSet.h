@@ -36,6 +36,7 @@
 #include <cvfArray.h>
 
 #include <QList>
+#include <QPointer>
 #include <map>
 
 class RifTextDataTableFormatter;
@@ -47,11 +48,12 @@ class RimEclipseResultCase;
 class RimEclipseCellColors;
 class RimEclipseResultDefinition;
 class RimRegularLegendConfig;
+class RimPlotCellFilterCollection;
+class RimPlotCellFilter;
+class RiuDraggableOverlayFrame;
 class QwtPlot;
 class QwtPlotCurve;
 class QString;
-class RimPlotCellFilterCollection;
-class RimPlotCellFilter;
 
 class RimGridCrossPlotDataSetNameConfig : public RimNameConfig
 {
@@ -93,7 +95,7 @@ public:
 
 public:
     RimGridCrossPlotDataSet();
-    ~RimGridCrossPlotDataSet() = default;
+    ~RimGridCrossPlotDataSet();
 
     void    setCellFilterView( RimGridView* cellFilterView );
     void    loadDataAndUpdate( bool updateParentPlot );
@@ -188,5 +190,6 @@ private:
     caf::PdmField<bool>                              m_useCustomColor;
     caf::PdmField<cvf::Color3f>                      m_customColor;
     caf::PdmChildField<RimPlotCellFilterCollection*> m_plotCellFilterCollection;
-    ;
+
+    QPointer<RiuDraggableOverlayFrame> m_legendOverlayFrame;
 };
