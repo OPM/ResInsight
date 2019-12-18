@@ -60,6 +60,7 @@
 #include <QScrollArea>
 #include <QWheelEvent>
 
+#include <algorithm>
 #include <cfloat>
 
 //--------------------------------------------------------------------------------------------------
@@ -713,10 +714,22 @@ void RiuQwtPlotWidget::updateOverlayFrameLayout()
     int xpos                 = spacing;
     int ypos                 = spacing;
     int widthOfCurrentColumn = 0;
+
+    QSize canvasSize = this->canvas()->size();
+    QSize maxFrameSize( canvasSize.width() - 2 * m_overlayMargins, canvasSize.height() - 2 * m_overlayMargins );
+
     for ( RiuDraggableOverlayFrame* frame : m_overlayFrames )
     {
         if ( frame )
         {
+            QSize minFrameSize     = frame->minimumSizeHint();
+            QSize desiredFrameSize = frame->sizeHint();
+
+            int width  = std::min( std::max( minFrameSize.width(), desiredFrameSize.width() ), maxFrameSize.width() );
+            int height = std::min( std::max( minFrameSize.height(), desiredFrameSize.height() ), maxFrameSize.height() );
+
+            frame->resize( width, height );
+
             if ( frame->anchorCorner() == RiuDraggableOverlayFrame::AnchorCorner::TopLeft )
             {
                 if ( ypos + frame->height() + spacing > this->canvas()->height() && widthOfCurrentColumn > 0 )
