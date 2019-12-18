@@ -231,7 +231,7 @@ class Project(PdmObject):
         """
         return self._execute_command(
             exportSnapshots=Cmd.ExportSnapshotsRequest(
-                type=snapshot_type, prefix=prefix, caseId=-1, viewId=-1 ))
+                type=snapshot_type, prefix=prefix, caseId=-1, viewId=-1))
 
     def export_well_paths(self, well_paths=None, md_step_size=5.0):
         """ Export a set of well paths
