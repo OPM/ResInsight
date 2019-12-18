@@ -20,6 +20,8 @@
 #include <QPaintEvent>
 #include <QPainter>
 
+#include <cmath>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -137,8 +139,8 @@ std::vector<std::pair<QPoint, QString>> RiuAbstractLegendFrame::visibleLabels( c
 {
     const int textX = layout.tickEndX + layout.tickTextLeadSpace;
 
-    const float overlapTolerance = 1.1f * layout.charHeight;
-    float       lastVisibleTextY = 0.0;
+    const double overlapTolerance = 1.1 * layout.charHeight;
+    int          lastVisibleTextY = 0;
 
     std::vector<std::pair<QPoint, QString>> visibleTickLabels;
 
@@ -151,7 +153,7 @@ std::vector<std::pair<QPoint, QString>> RiuAbstractLegendFrame::visibleLabels( c
         // on top of the previous label.
         if ( i != 0 && i != ( numLabels - 1 ) )
         {
-            if ( std::abs( textY - lastVisibleTextY ) < overlapTolerance )
+            if ( std::fabs( static_cast<double>( textY - lastVisibleTextY ) ) < overlapTolerance )
             {
                 continue;
             }
@@ -159,7 +161,7 @@ std::vector<std::pair<QPoint, QString>> RiuAbstractLegendFrame::visibleLabels( c
 
             int lastTickY = layout.colorBarRect.bottom();
 
-            if ( std::abs( lastTickY - textY ) < overlapTolerance )
+            if ( std::fabs( static_cast<double>( lastTickY - textY ) ) < overlapTolerance )
             {
                 continue;
             }
