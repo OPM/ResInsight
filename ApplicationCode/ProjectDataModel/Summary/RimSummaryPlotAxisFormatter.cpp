@@ -27,6 +27,7 @@
 #include "RiuSummaryQuantityNameInfoProvider.h"
 #include "RiuSummaryQwtPlot.h"
 
+#include "qwt_date_scale_engine.h"
 #include "qwt_plot_curve.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_engine.h"
@@ -168,7 +169,8 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuSummaryQwtPlot* 
         {
             QwtLinearScaleEngine* currentScaleEngine = dynamic_cast<QwtLinearScaleEngine*>(
                 qwtPlot->axisScaleEngine( m_axisProperties->qwtPlotAxisType() ) );
-            if ( !currentScaleEngine )
+            QwtDateScaleEngine* dateScaleEngine = dynamic_cast<QwtDateScaleEngine*>( currentScaleEngine );
+            if ( !currentScaleEngine || dateScaleEngine )
             {
                 qwtPlot->setAxisScaleEngine( m_axisProperties->qwtPlotAxisType(), new QwtLinearScaleEngine );
                 qwtPlot->setAxisMaxMinor( m_axisProperties->qwtPlotAxisType(), 3 );
