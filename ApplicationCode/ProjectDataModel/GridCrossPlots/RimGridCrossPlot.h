@@ -85,11 +85,11 @@ public:
     void detachAllCurves() override;
     void reattachAllCurves() override;
 
-    void performAutoNameUpdate() override;
-    void updateCurveNamesAndPlotTitle();
-    void swapAxes();
-    QString              asciiTitleForPlotExport( int dataSetIndex ) const;
-    QString              asciiDataForGridCrossPlotExport( int dataSetIndex ) const;
+    void    performAutoNameUpdate() override;
+    void    updateCurveNamesAndPlotTitle();
+    void    swapAxes();
+    QString asciiTitleForPlotExport( int dataSetIndex ) const;
+    QString asciiDataForGridCrossPlotExport( int dataSetIndex ) const;
 
     bool isXAxisLogarithmic() const;
     bool isYAxisLogarithmic() const;
