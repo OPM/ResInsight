@@ -644,32 +644,44 @@ QList<caf::PdmOptionItemInfo>
         RimGridTimeHistoryCurve* timeHistoryCurve;
         this->firstAncestorOrThisOfType( timeHistoryCurve );
 
-        // Do not include flow diagnostics results if it is a time history curve
-        // Do not include SourSimRL if no SourSim file is loaded
-        if ( timeHistoryCurve != nullptr || !hasSourSimRLFile || !enableSouring )
+        bool isSeparateFaultResult = false;
         {
-            using ResCatEnum = caf::AppEnum<RiaDefines::ResultCatType>;
-            for ( size_t i = 0; i < ResCatEnum::size(); ++i )
+            RimEclipseFaultColors* sepFaultResult;
+            this->firstAncestorOrThisOfType( sepFaultResult );
+            if ( sepFaultResult ) isSeparateFaultResult = true;
+        }
+
+        using ResCatEnum = caf::AppEnum<RiaDefines::ResultCatType>;
+        for ( size_t i = 0; i < ResCatEnum::size(); ++i )
+        {
+            RiaDefines::ResultCatType resType = ResCatEnum::fromIndex( i );
+
+            // Do not include flow diagnostics results if it is a time history curve
+
+            if ( resType == RiaDefines::FLOW_DIAGNOSTICS && ( timeHistoryCurve ) )
             {
-                RiaDefines::ResultCatType resType = ResCatEnum::fromIndex( i );
-                if ( resType == RiaDefines::FLOW_DIAGNOSTICS && ( timeHistoryCurve ) )
-                {
-                    continue;
-                }
-
-                if ( resType == RiaDefines::SOURSIMRL && ( !hasSourSimRLFile ) )
-                {
-                    continue;
-                }
-
-                if ( resType == RiaDefines::INJECTION_FLOODING && !enableSouring )
-                {
-                    continue;
-                }
-
-                QString uiString = ResCatEnum::uiTextFromIndex( i );
-                options.push_back( caf::PdmOptionItemInfo( uiString, resType ) );
+                continue;
             }
+
+            // Do not include SourSimRL if no SourSim file is loaded
+
+            if ( resType == RiaDefines::SOURSIMRL && ( !hasSourSimRLFile ) )
+            {
+                continue;
+            }
+
+            if ( resType == RiaDefines::INJECTION_FLOODING && !enableSouring )
+            {
+                continue;
+            }
+
+            if ( resType == RiaDefines::ALLEN_DIAGRAMS && !isSeparateFaultResult )
+            {
+                continue;
+            }
+
+            QString uiString = ResCatEnum::uiTextFromIndex( i );
+            options.push_back( caf::PdmOptionItemInfo( uiString, resType ) );
         }
     }
 
@@ -1377,13 +1389,13 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
     if ( this->m_resultType() == RiaDefines::FLOW_DIAGNOSTICS && m_resultVariable() == RIG_FLD_MAX_FRACTION_TRACER_RESNAME )
         return true;
 
-    if ( !this->hasStaticResult() ) return false;
-
     if ( this->resultVariable() == RiaDefines::allCombinationsAllenResultName() ||
          this->resultVariable() == RiaDefines::binaryAllenResultName() )
     {
         return true;
     }
+
+    if ( !this->hasStaticResult() ) return false;
 
     return RiaDefines::isNativeCategoryResult( this->resultVariable() );
 }
