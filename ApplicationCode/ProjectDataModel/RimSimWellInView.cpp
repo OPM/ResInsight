@@ -41,6 +41,7 @@
 #include "RimSimWellInViewTools.h"
 #include "RimWellDiskConfig.h"
 
+#include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
 #include "RiuMainWindow.h"
@@ -691,8 +692,14 @@ double RimSimWellInView::extractValueForTimeStep( RimGridSummaryCase* gridSummar
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( values, timeSteps );
-
-    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::DAY );
+    if ( RiaSummaryTools::hasAccumulatedData( addr ) )
+    {
+        resampler.resampleAndComputePeriodEndValues( DateTimePeriod::DAY );
+    }
+    else
+    {
+        resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::DAY );
+    }
 
     // Find the data point which best matches the selected time step
     std::vector<time_t> resampledTimeSteps = resampler.resampledTimeSteps();
