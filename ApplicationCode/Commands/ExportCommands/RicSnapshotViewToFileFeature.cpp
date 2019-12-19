@@ -89,10 +89,9 @@ void RicSnapshotViewToFileFeature::savePlotPDFReportAs( const QString& fileName,
         pdfPrinter.setPageLayout( plot->pageLayout() );
         pdfPrinter.setCreator( QCoreApplication::applicationName() );
         pdfPrinter.setResolution( resolution );
-        QRect widgetRect   = plot->viewWidget()->contentsRect();
-        QRect fullPageRect = pdfPrinter.pageLayout().fullRectPixels( resolution );
-        QRect paintRect    = pdfPrinter.pageLayout().paintRectPixels( resolution );
-        plot->viewWidget()->resize( paintRect.size() );
+        QRect widgetRect = plot->viewWidget()->contentsRect();
+        QRect pageRect   = pdfPrinter.pageLayout().fullRectPixels( resolution );
+        plot->viewWidget()->resize( pageRect.size() );
         plot->renderWindowContent( &pdfPrinter );
         plot->viewWidget()->resize( widgetRect.size() );
     }

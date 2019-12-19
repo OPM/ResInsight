@@ -15,7 +15,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiuWellLogPlot::RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent )
-    : RiuMultiPlotWindow( plotDefinition, parent )
+    : RiuMultiPlotPage( plotDefinition, parent )
 {
     m_trackScrollBar = new QScrollBar( nullptr );
     m_trackScrollBar->setOrientation( Qt::Vertical );
@@ -40,11 +40,9 @@ RimWellLogPlot* RiuWellLogPlot::wellLogPlotDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::doRenderTo( QPaintDevice* paintDevice )
+RimViewWindow* RiuWellLogPlot::ownerViewWindow() const
 {
-    m_trackScrollBar->setVisible( false );
-    RiuMultiPlotWindow::doRenderTo( paintDevice );
-    m_trackScrollBar->setVisible( true );
+    return m_plotDefinition;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,6 +62,16 @@ void RiuWellLogPlot::updateVerticalScrollBar( double minVisible, double maxVisib
         m_trackScrollBar->setVisible( true );
     }
     m_trackScrollBar->blockSignals( false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::renderTo( QPaintDevice* paintDevice )
+{
+    m_trackScrollBar->setVisible( false );
+    RiuMultiPlotPage::renderTo( paintDevice );
+    m_trackScrollBar->setVisible( true );
 }
 
 //--------------------------------------------------------------------------------------------------

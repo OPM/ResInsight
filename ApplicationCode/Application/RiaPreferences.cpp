@@ -944,10 +944,15 @@ void RiaPreferences::writePreferencesToApplicationStore()
 QPageLayout RiaPreferences::defaultPageLayout() const
 {
     QPageSize   pageSize( m_pageSize() );
-    QPageLayout layout( pageSize,
-                        m_pageOrientation(),
-                        QMarginsF( m_pageLeftMargin, m_pageTopMargin, m_pageRightMargin, m_pageBottomMargin ),
-                        (QPageLayout::Unit)pageSize.definitionUnits() );
+    QPageLayout layout( pageSize, m_pageOrientation(), margins(), (QPageLayout::Unit)pageSize.definitionUnits() );
     layout.setMode( QPageLayout::StandardMode );
     return layout;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QMarginsF RiaPreferences::margins() const
+{
+    return QMarginsF( m_pageLeftMargin, m_pageTopMargin, m_pageRightMargin, m_pageBottomMargin );
 }

@@ -43,7 +43,7 @@
 #include "RiuDockWidgetTools.h"
 #include "RiuDragDrop.h"
 #include "RiuMdiSubWindow.h"
-#include "RiuMultiPlotWindow.h"
+#include "RiuMultiPlotPage.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuWellAllocationPlot.h"

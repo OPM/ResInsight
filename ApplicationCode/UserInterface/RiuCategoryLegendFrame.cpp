@@ -100,6 +100,9 @@ int RiuCategoryLegendFrame::labelPixelPosY( const LayoutInfo& layout, int index 
 {
     float categoryHeight = static_cast<float>( layout.colorBarRect.height() ) / labelCount();
     int   textY          = static_cast<int>( layout.colorBarRect.top() + index * categoryHeight + categoryHeight / 2 );
-    textY += layout.charAscent / 2;
+
+    int offset = layout.charAscent - static_cast<int>( std::ceil( layout.charHeight / 2.0 ) );
+
+    textY += offset;
     return textY;
 }

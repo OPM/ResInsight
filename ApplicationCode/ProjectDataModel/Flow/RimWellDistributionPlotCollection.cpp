@@ -72,7 +72,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
                        "" );
 
     m_plotWindowTitle = "Well Distribution Plots";
-    m_columnCountEnum = RimMultiPlotWindow::COLUMNS_UNLIMITED;
+    m_columnCount     = RimMultiPlotWindow::COLUMNS_UNLIMITED;
 
     m_showPlotLegends = false;
     m_showWindow      = false;

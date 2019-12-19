@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,6 +19,8 @@
 #pragma once
 
 #include "RiuInterfaceToViewWindow.h"
+#include "RiuMultiPlotInterface.h"
+
 #include "cafUiStyleSheet.h"
 
 #include "cafPdmPointer.h"
@@ -36,15 +37,15 @@
 
 class RiaPlotWindowRedrawScheduler;
 class RimMultiPlotWindow;
-class RiuQwtPlotLegend;
+class RiuMultiPlotPage;
 class RiuQwtPlotWidget;
 
+class BookFrame;
 class QFocusEvent;
 class QLabel;
-class QPainter;
+class QPaintDevice;
+class QScrollArea;
 class QScrollBar;
-class QwtLegend;
-class QwtLegendData;
 class QwtPlot;
 
 //==================================================================================================
@@ -52,7 +53,7 @@ class QwtPlot;
 // RiuMultiPlotWidget
 //
 //==================================================================================================
-class RiuMultiPlotWindow : public QWidget, public RiuInterfaceToViewWindow, public caf::SelectionChangedReceiver
+class RiuMultiPlotWindow : public RiuMultiPlotInterface, public RiuInterfaceToViewWindow
 {
     Q_OBJECT
 
@@ -63,13 +64,13 @@ public:
     RimMultiPlotWindow* ownerPlotDefinition();
     RimViewWindow*      ownerViewWindow() const override;
 
-    void addPlot( RiuQwtPlotWidget* plotWidget );
-    void insertPlot( RiuQwtPlotWidget* plotWidget, size_t index );
-    void removePlot( RiuQwtPlotWidget* plotWidget );
+    void addPlot( RiuQwtPlotWidget* plotWidget ) override;
+    void insertPlot( RiuQwtPlotWidget* plotWidget, size_t index ) override;
+    void removePlot( RiuQwtPlotWidget* plotWidget ) override;
 
-    void setPlotTitle( const QString& plotTitle );
+    void setPlotTitle( const QString& plotTitle ) override;
 
-    void setTitleVisible( bool visible );
+    void setTitleVisible( bool visible ) override;
     void setSelectionsVisible( bool visible );
 
     void setFontSize( int fontSize );
@@ -77,63 +78,45 @@ public:
 
     int indexOfPlotWidget( RiuQwtPlotWidget* plotWidget );
 
-    void         scheduleUpdate();
-    void         scheduleReplotOfAllPlots();
-    virtual void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) {}
+    void scheduleUpdate();
+    void scheduleReplotOfAllPlots();
+    void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) override {}
 
-    void renderTo( QPaintDevice* paintDevice );
+    void renderTo( QPaintDevice* painter ) override;
 
 protected:
-    void    contextMenuEvent( QContextMenuEvent* ) override;
-    QLabel* createTitleLabel() const;
+    void contextMenuEvent( QContextMenuEvent* ) override;
 
-    void         showEvent( QShowEvent* event ) override;
-    void         dragEnterEvent( QDragEnterEvent* event ) override;
-    void         dragMoveEvent( QDragMoveEvent* event ) override;
-    void         dragLeaveEvent( QDragLeaveEvent* event ) override;
-    void         dropEvent( QDropEvent* event ) override;
-    virtual bool willAcceptDroppedPlot( const RiuQwtPlotWidget* plotWidget ) const;
+    void showEvent( QShowEvent* event ) override;
+    void resizeEvent( QResizeEvent* event ) override;
+
+    void setBookSize( int frameWidth );
 
     std::pair<int, int> rowAndColumnCount( int plotWidgetCount ) const;
 
-    virtual void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
-
-    void setWidgetState( const QString& widgetState );
-
     virtual bool showYAxis( int row, int column ) const;
 
-    void reinsertPlotWidgets();
-    int  alignCanvasTops();
-
-    void              clearGridLayout();
-    caf::UiStyleSheet createDropTargetStyleSheet();
-
     QList<QPointer<RiuQwtPlotWidget>> visiblePlotWidgets() const;
-    QList<QPointer<RiuQwtPlotLegend>> legendsForVisiblePlots() const;
-    QList<QPointer<QLabel>>           subTitlesForVisiblePlots() const;
 
-    std::pair<int, int> findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const;
-
-    virtual void doRenderTo( QPaintDevice* paintDevice );
+private:
+    void                                     deleteAllPages();
+    void                                     createPages();
+    const QList<QPointer<RiuMultiPlotPage>>& pages() const;
 
 private slots:
     virtual void performUpdate();
-    void         onLegendUpdated();
 
 protected:
-    QPointer<QVBoxLayout>               m_layout;
-    QPointer<QHBoxLayout>               m_plotLayout;
-    QPointer<QFrame>                    m_plotWidgetFrame;
-    QPointer<QGridLayout>               m_gridLayout;
-    QPointer<QLabel>                    m_plotTitle;
-    QList<QPointer<QLabel>>             m_subTitles;
-    QList<QPointer<RiuQwtPlotLegend>>   m_legends;
+    friend class RiaPlotWindowRedrawScheduler;
+
+    QPointer<QVBoxLayout> m_layout;
+    QPointer<QScrollArea> m_scrollArea;
+    QPointer<BookFrame>   m_book;
+    QPointer<QVBoxLayout> m_bookLayout;
+
+    QList<QPointer<RiuMultiPlotPage>>   m_pages;
     QList<QPointer<RiuQwtPlotWidget>>   m_plotWidgets;
     caf::PdmPointer<RimMultiPlotWindow> m_plotDefinition;
-    QPointer<QLabel>                    m_dropTargetPlaceHolder;
-
-    caf::UiStyleSheet m_dropTargetStyleSheet;
-
-private:
-    friend class RiaPlotWindowRedrawScheduler;
+    QString                             m_plotTitle;
+    bool                                m_titleVisible;
 };

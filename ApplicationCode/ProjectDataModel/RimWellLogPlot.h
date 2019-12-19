@@ -35,7 +35,7 @@
 #include <set>
 
 class RimWellLogCurveCommonDataSource;
-class RiuMultiPlotWindow;
+class RiuMultiPlotPage;
 class RimPlotWindow;
 class QKeyEvent;
 

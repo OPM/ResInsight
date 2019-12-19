@@ -21,7 +21,7 @@
 #include "RicWellLogPlotCurveFeatureImpl.h"
 
 #include "RiaGuiApplication.h"
-#include "RiuMultiPlotWindow.h"
+#include "RiuMultiPlotPage.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotWidget.h"
 
