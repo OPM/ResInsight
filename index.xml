@@ -103,9 +103,9 @@ Snapshots of Existing Views The commands to snapshot existing views and plots ar
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/plot-window/summaryplots/</guid>
-      <description>A Summary Plot is a window displaying a graph in the main area of the Plot Main Window. It can contain Summary Curves, Grid time history curves and pasted ascii curves ( See below ).
-A new plot can be created by using the right-click menu of a plot in the Plot Project Tree and activate Open Summary Plot Editor. The Summary Plot Editor dialog will then open.
-Activating New Summary Plot from the right-click menu of a plot will create a new plot populated with the curves defined by the text string in Preferences.</description>
+      <description>A Summary Plot is a window displaying a graph in the main area of the Plot Main Window. As described below, a Summary Plot can contain Summary Curves, Grid time history curves, and pasted ascii curves.
+A new Summary Plot can be created by using the right-click menu of Summary Plots in the Plot Project Tree and activate Open Summary Plot Editor or New Summary Plot.
+If you have many open plots, it can be useful to collapse all other plots by activating Collapse Other Plots from right-click menu of a plot in the Plot Project Tree.</description>
     </item>
     
     <item>
@@ -130,6 +130,27 @@ import rips # Connect to ResInsight instance resInsight = rips.Instance.find() #
     </item>
     
     <item>
+      <title>What&#39;s New in 2019.12</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2019_12/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_12/</guid>
+      <description>ResInsight 2019.12 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2019.12 is a major update bringing a range of significant new and enhanced features. Some of the most important extensions are listed below.
+Comparison View ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more.</description>
+    </item>
+    
+    <item>
+      <title>Log ASCII Standard File</title>
+      <link>https://resinsight.org/import/lasfile/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/import/lasfile/</guid>
+      <description>Log ASCII Standard (LAS) is a standard file format common in the oil-and-gas industry to store well log information.
+Importing a LAS file Log ASCII Standard (LAS) files can be imported using the command: File-&amp;gt;Import-&amp;gt; Well Data-&amp;gt;Import Well Logs from File.
+ResInsight will look for the the well name in the imported LAS-files among the existing Well Paths. If a match is found, the LAS-file is placed as a child of that well path.</description>
+    </item>
+    
+    <item>
       <title>Cell Results</title>
       <link>https://resinsight.org/3d-main-window/cellresults/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -149,7 +170,7 @@ Cell Results are used in several operations and settings:
       <description>ResInsight supports several command line parameters that can be used to automate some tasks using shell scripts.
 Command line parameters are prefixed using a double dash. This convention is used on all platforms to make it possible to reuse scripts across different platforms. See GNU Standards for Command Line Interfaces.
 Examples on how command line options are used are given below
-   Parameter Description     &amp;#45;&amp;#45;help, &amp;#45;&amp;#45;?</description>
+Command line options General    Parameter Description     &amp;#45;&amp;#45;help, &amp;#45;&amp;#45;?</description>
     </item>
     
     <item>
@@ -190,10 +211,9 @@ Memory Indicator The tools are available from the memory indicator in the bottom
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/plot-window/summarysourcestepping/</guid>
-      <description>Summary Plot Source Stepping Summary Source Stepping is a function which lets the user step through multiple vectors in one click. This function is available from both the toolbar and the Summary Curves property editor under a Summary Plot item in the Main Plot Window Project Tree.
-This functionality applies both to single summary curves and ensemble curve sets.
-The toolbar version may look like this
-and the property editor version may looks like this</description>
+      <description>Summary Plot Source Stepping Summary Source Stepping is a function which enables the user to swiftly step through multiple vectors. The functionality applies both to single summary curves and ensemble curve sets.
+The functionality is available from both the toolbar and the Summary Curves property editor under a Summary Plot item in the Main Plot Window Project Tree.
+The toolbar allows use of vector filters in addition to source stepping:</description>
     </item>
     
     <item>
@@ -355,6 +375,16 @@ In this context highlighted means the marked item with a different background co
     </item>
     
     <item>
+      <title>Comparison View</title>
+      <link>https://resinsight.org/3d-main-window/comparisonview/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/comparisonview/</guid>
+      <description>ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more. The Comparison View allows comparison of information of different grids and different solutions on the same grid in a single view. This improves efficiency and simplifies the workflow when working with related but different models.
+The figure above exemplifies a Comparison View for comparison of two different simulations models and results.</description>
+    </item>
+    
+    <item>
       <title>3D Well Log Plots</title>
       <link>https://resinsight.org/wells-and-completions/3dwelllogcurves/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -379,8 +409,7 @@ Creating new 3D Well Log Curves Add a new 3D well log curve by selecting a Well 
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/3d-main-window/contourmaps/</guid>
-      <description>ResInsight can create contour maps based on different forms of aggregation of 3D Eclipse data onto a 2D Plane. Any 3D result value can be aggregated, in addition to specialised results, such as Oil, Gas and Hydrocarbon columns. A Contour Map is a specialised 2D view with many of the same features as the 3D views, including property filters, range filters and display of faults and wells.
-Creating New Contour Maps Contour Maps can be created in many different ways:</description>
+      <description>ResInsight can create contour maps based on different forms of aggregation of 3D Eclipse data onto a 2D Plane. Any 3D result value can be aggregated, in addition to specialised results, such as Oil, Gas and Hydrocarbon columns. A Contour Map is a specialised 2D view with many of the same features as the 3D views, including property filters, range filters and display of faults and wells. ResInsight is able to export a contour map to a text file.</description>
     </item>
     
     <item>
@@ -462,6 +491,16 @@ On some systems the pip command may have to be replaced by python -m pip.</descr
     </item>
     
     <item>
+      <title>Summary Plot Template</title>
+      <link>https://resinsight.org/plot-window/summaryplottemplate/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/summaryplottemplate/</guid>
+      <description>Template creation A summary plot template is defined by a number of curves with preset appearance and vector names. The parameters that are selected or varied by the user are:
+ case(s) item(s), i.e. well(s), group(s), region(s)  Having tailored a plot setup, the user can save the setup as a template via the context command Save As Plot Template, c.f. figure above. It is also possible to select a summary plot in the Plot Project Tree and use the context menu to save a template.</description>
+    </item>
+    
+    <item>
       <title>Completions</title>
       <link>https://resinsight.org/wells-and-completions/completions/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -479,7 +518,7 @@ Completions can be modeled by adding new perforation intervals, fishbones subs o
       <guid>https://resinsight.org/plot-window/ensembleplotting/</guid>
       <description>An ensemble is a group of cases that are tightly coupled, only a set of ensemble input parameters differ between cases. This makes it relevant to perform calculations and statistics analysis on ensembles.
 Import There are several ways to import an ensemble:
- Use the Import Ensemble command in the window menu Use the Import Summary Case group and then convert the group to an ensemble Import a number of summary cases, move them into a group and then convert the group to an ensemble  During import of a summary case, ResInsight tries to find an associated parameters.</description>
+ Use menu option File-&amp;gt;Import-&amp;gt;Summary Cases-&amp;gt;Import Ensemble Use menu option File-&amp;gt;Import-&amp;gt;Summary Cases-&amp;gt;Import Summary Case group and then convert the group to an ensemble Import a number of summary cases, move them into a group and then convert the group to an ensemble  During import of a summary case, ResInsight tries to find an associated parameters.</description>
     </item>
     
     <item>
@@ -602,9 +641,8 @@ Senior Petroleum Engineering Advisor, RPS Energy
       <guid>https://resinsight.org/plot-window/welllogsandplots/</guid>
       <description>ResInsight can display well logs by extracting data from a simulation model along a well trajectory and from imported LAS-files. Extracted simulation data can be exported to LAS-files for further processing.
 Well Log Plots Well log plots can be created in several ways:
- Right-click a well path or a simulation well, either in the Project Tree or in the 3D-view.
-Select New Well Log Extraction Curve.
-A new plot with a single Track and a Curve is created.</description>
+ Right-click a well path or a simulation well in the 3D-view and select New Well Log Extraction Curve.
+A new plot with a single Track and Curve is created matching active case and selected Well trajectory.</description>
     </item>
     
     <item>
@@ -623,9 +661,9 @@ There are two main types of intersections. The first one which simply is called 
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/plot-window/wellborestabilityplots/</guid>
-      <description>ResInsight can create Well Bore Stability plots for Geomechanical cases. These plots are specialized Well Log Plots and contain a visualization of Formations, Well Path Attributes as well as a set of well path derived curves in two different tracks.
-The third track contains curves showing different stability gradients (all normalized by mud weight):
- FG: Fracture Gradient for sands based on Kirsch. OBG: Overburden stress gradient: Stress component S_33. PP: Pore pressure.</description>
+      <description>ResInsight can create Well Bore Stability plots for Geomechanical cases. These plots are specialized Well Log Plots to visualize Formations, Well Path Attributes as well as a set of well path derived curves in different tracks.
+In the figure above, the first track contains Formations while the second track contains well attributes of Casing Design. The third track shows the following stability gradients (all normalized by mud weight):
+ FG: Fracture Gradient for sands based on Kirsch.</description>
     </item>
     
     <item>
@@ -647,6 +685,26 @@ All the tagged cell faces are then compared to the faults possibly imported from
       <guid>https://resinsight.org/plot-window/rftplot/</guid>
       <description>An RFT (Repeated Formation Tester) plot is a special well plot for comparing observed formation pressure and simulated formation pressure. The curves are plotted as pressure against true vertical depth (TVD) or measured depth (MD). Simulated pressure data is retrieved directly from the grid model or from the corresponding (*.rft) files, while observed pressure data are loaded from well log files (*.las).
 Create New RFT Plot There are several ways to create new RFT Plots.</description>
+    </item>
+    
+    <item>
+      <title>Contour Map Export</title>
+      <link>https://resinsight.org/export/contourmapexport/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/export/contourmapexport/</guid>
+      <description>ResInsight can create contour maps based on different forms of aggregation of 3D Eclipse data onto a 2D Plane. Any 3D result value can be aggregated, in addition to specialised results, such as oil, gas and hydrocarbon columns. A Contour Map is a specialised 2D view with many of the same features as the 3D views, including property filters, range filters and display of faults and wells.
+Export of Contour Map Data To export a contour map, invoke one of the following options (c.</description>
+    </item>
+    
+    <item>
+      <title>Ensemble RFT Plot</title>
+      <link>https://resinsight.org/plot-window/ensemblerftplot/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/ensemblerftplot/</guid>
+      <description>ResInsight allows the user to create a ensemble RFT plot similar to summary ensemble plots. The functionality also computes statistics, e.g. P10, P90, and mean. When possible, ResInsight avoids loading the grid when reading ensemble RFT data.
+Create New Ensemble RFT Plot When a summary ensemble has been imported, observed FMU data can be imported via right-clicking Observed Data in the Plot Project Tree, and selecting Import Observed FMU Data.</description>
     </item>
     
     <item>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.56.3" />
+    <meta name="generator" content="Hugo 0.55.6" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Preferences :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1569932070" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1569932070" rel="stylesheet">
-    <link href="/css/hybrid.css?1569932070" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1569932070" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1569932070" rel="stylesheet">
-    <link href="/css/auto-complete.css?1569932070" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1569932070" rel="stylesheet">
-    <link href="/css/theme.css?1569932070" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1569932070" rel="stylesheet">
+    <link href="/css/nucleus.css?1576757743" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1576757743" rel="stylesheet">
+    <link href="/css/hybrid.css?1576757743" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1576757743" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1576757743" rel="stylesheet">
+    <link href="/css/auto-complete.css?1576757743" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1576757743" rel="stylesheet">
+    <link href="/css/theme.css?1576757743" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1576757743" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1569932070"></script>
+    <script src="/js/jquery-3.3.1.min.js?1576757743"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -208,6 +208,9 @@
              
             
           
+             
+            
+          
             
             
 
@@ -316,6 +319,25 @@
       <li data-nav-id="/3d-main-window/resultcolorlegend/" title="Result Color Legend" class="dd-item ">
         <a href="/3d-main-window/resultcolorlegend/">
         Result Color Legend
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/comparisonview/" title="Comparison View" class="dd-item ">
+        <a href="/3d-main-window/comparisonview/">
+        Comparison View
         
         </a>
     </li>
@@ -668,6 +690,25 @@
  
   
     
+      <li data-nav-id="/plot-window/summaryplottemplate/" title="Summary Plot Template" class="dd-item ">
+        <a href="/plot-window/summaryplottemplate/">
+        Summary Plot Template
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/plot-window/ensembleplotting/" title="Ensemble Plotting" class="dd-item ">
         <a href="/plot-window/ensembleplotting/">
         Ensemble Plotting
@@ -747,6 +788,25 @@
       <li data-nav-id="/plot-window/rftplot/" title="RFT Plot" class="dd-item ">
         <a href="/plot-window/rftplot/">
         RFT Plot
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/ensemblerftplot/" title="Ensemble RFT Plot" class="dd-item ">
+        <a href="/plot-window/ensemblerftplot/">
+        Ensemble RFT Plot
         
         </a>
     </li>
@@ -1036,6 +1096,25 @@
  
   
     
+      <li data-nav-id="/import/lasfile/" title="Log ASCII Standard File" class="dd-item ">
+        <a href="/import/lasfile/">
+        Log ASCII Standard File
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/geomechanicaldata/" title="Geomechanical Data" class="dd-item ">
         <a href="/import/geomechanicaldata/">
         Geomechanical Data
@@ -1261,6 +1340,25 @@
       <li data-nav-id="/export/sectormodel/" title="Sector Model" class="dd-item ">
         <a href="/export/sectormodel/">
         Sector Model
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/export/contourmapexport/" title="Contour Map Export" class="dd-item ">
+        <a href="/export/contourmapexport/">
+        Contour Map Export
         
         </a>
     </li>
@@ -1666,7 +1764,7 @@ if (!doNotTrack) {
 <li><a href="#behavior-when-loading-data">Behavior When Loading Data</a></li>
 <li><a href="#origin-files">Origin Files</a></li>
 </ul></li>
-<li><a href="#summary-tab">Summary - tab</a></li>
+<li><a href="#plotting-tab">Plotting - tab</a></li>
 <li><a href="#scripting-tab">Scripting - tab</a>
 <ul>
 <li><a href="#octave">Octave</a></li>
@@ -1777,13 +1875,22 @@ if (!doNotTrack) {
 
 <p>Please refer to <a href="/plot-window/summaryplots/#origin-files">Summary Origin</a> for details related to handling of <strong>Origin Files</strong>.</p>
 
-<h2 id="summary-tab">Summary - tab</h2>
+<h2 id="plotting-tab">Plotting - tab</h2>
 
-<p><img src="/images/3d-main-window/Preferences_Summary.png" alt="" /></p>
+<p><img src="/images/misc/PreferencesPlotting.png" alt="" /></p>
 
 <ul>
-<li><strong>Default Summary Curves</strong> &ndash; Defines the curves for import when creating a new summary plot, ie <code>FOPT WOPT*</code></li>
-<li><strong>Default Curve Style for History Vectors</strong></li>
+<li><strong>Default Summary Curves</strong>: Defines default curves for import when creating a new summary plot, e.g. <code>FOPT WOPT*</code></li>
+<li><strong>Default Curve Style for History Vectors</strong>: allows specifying <em>symbols</em> and/or <em>lines</em> as preference.</li>
+<li><strong>Date</strong> and <strong>Time</strong> format preferences.</li>
+<li><strong>Show resample time text</strong> preference</li>
+<li><strong>Use multiple threads</strong> preference which may improve performance when loading summary data</li>
+<li><strong>Plot Templates</strong> allows setting preferences for:
+
+<ul>
+<li><em>Plot Template Folder(s)</em>: Allows to enter and delete folder(s) that are searched for plot templates. Press <em>Append</em> to browse for folder to append.</li>
+<li>Checking <em>Search Plot Templates Recursively</em> instructs ResInsight to search subdirectories of specified folder(s) for templates.</li>
+</ul></li>
 </ul>
 
 <h2 id="scripting-tab">Scripting - tab</h2>
@@ -1972,6 +2079,11 @@ if (!doNotTrack) {
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -2013,22 +2125,6 @@ if (!doNotTrack) {
                     
                         
             
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
             
         
                     
@@ -2079,198 +2175,6 @@ if (!doNotTrack) {
                     
             
         
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
                     
                         
             
@@ -2592,6 +2496,150 @@ if (!doNotTrack) {
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -2719,6 +2767,150 @@ if (!doNotTrack) {
                     
                     
 
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
                     
                         
             
@@ -3054,20 +3246,20 @@ if (!doNotTrack) {
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1569932070"></script>
-    <script src="/js/perfect-scrollbar.min.js?1569932070"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1569932070"></script>
-    <script src="/js/jquery.sticky.js?1569932070"></script>
-    <script src="/js/featherlight.min.js?1569932070"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1569932070"></script>
-    <script src="/js/highlight.pack.js?1569932070"></script>
+    <script src="/js/clipboard.min.js?1576757743"></script>
+    <script src="/js/perfect-scrollbar.min.js?1576757743"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1576757743"></script>
+    <script src="/js/jquery.sticky.js?1576757743"></script>
+    <script src="/js/featherlight.min.js?1576757743"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1576757743"></script>
+    <script src="/js/highlight.pack.js?1576757743"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1569932070"></script>
-    <script src="/js/learn.js?1569932070"></script>
-    <script src="/js/hugo-learn.js?1569932070"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1576757743"></script>
+    <script src="/js/learn.js?1576757743"></script>
+    <script src="/js/hugo-learn.js?1576757743"></script>
 
-    <link href="/mermaid/mermaid.css?1569932070" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1569932070"></script>
+    <link href="/mermaid/mermaid.css?1576757743" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1576757743"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.56.3" />
+    <meta name="generator" content="Hugo 0.55.6" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Well Bore Stability Plots :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1569932070" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1569932070" rel="stylesheet">
-    <link href="/css/hybrid.css?1569932070" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1569932070" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1569932070" rel="stylesheet">
-    <link href="/css/auto-complete.css?1569932070" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1569932070" rel="stylesheet">
-    <link href="/css/theme.css?1569932070" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1569932070" rel="stylesheet">
+    <link href="/css/nucleus.css?1576757743" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1576757743" rel="stylesheet">
+    <link href="/css/hybrid.css?1576757743" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1576757743" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1576757743" rel="stylesheet">
+    <link href="/css/auto-complete.css?1576757743" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1576757743" rel="stylesheet">
+    <link href="/css/theme.css?1576757743" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1576757743" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1569932070"></script>
+    <script src="/js/jquery-3.3.1.min.js?1576757743"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -208,6 +208,9 @@
              
             
           
+             
+            
+          
             
             
 
@@ -316,6 +319,25 @@
       <li data-nav-id="/3d-main-window/resultcolorlegend/" title="Result Color Legend" class="dd-item ">
         <a href="/3d-main-window/resultcolorlegend/">
         Result Color Legend
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/comparisonview/" title="Comparison View" class="dd-item ">
+        <a href="/3d-main-window/comparisonview/">
+        Comparison View
         
         </a>
     </li>
@@ -668,6 +690,25 @@
  
   
     
+      <li data-nav-id="/plot-window/summaryplottemplate/" title="Summary Plot Template" class="dd-item ">
+        <a href="/plot-window/summaryplottemplate/">
+        Summary Plot Template
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/plot-window/ensembleplotting/" title="Ensemble Plotting" class="dd-item ">
         <a href="/plot-window/ensembleplotting/">
         Ensemble Plotting
@@ -747,6 +788,25 @@
       <li data-nav-id="/plot-window/rftplot/" title="RFT Plot" class="dd-item ">
         <a href="/plot-window/rftplot/">
         RFT Plot
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/ensemblerftplot/" title="Ensemble RFT Plot" class="dd-item ">
+        <a href="/plot-window/ensemblerftplot/">
+        Ensemble RFT Plot
         
         </a>
     </li>
@@ -1036,6 +1096,25 @@
  
   
     
+      <li data-nav-id="/import/lasfile/" title="Log ASCII Standard File" class="dd-item ">
+        <a href="/import/lasfile/">
+        Log ASCII Standard File
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/geomechanicaldata/" title="Geomechanical Data" class="dd-item ">
         <a href="/import/geomechanicaldata/">
         Geomechanical Data
@@ -1261,6 +1340,25 @@
       <li data-nav-id="/export/sectormodel/" title="Sector Model" class="dd-item ">
         <a href="/export/sectormodel/">
         Sector Model
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/export/contourmapexport/" title="Contour Map Export" class="dd-item ">
+        <a href="/export/contourmapexport/">
+        Contour Map Export
         
         </a>
     </li>
@@ -1650,7 +1748,21 @@ if (!doNotTrack) {
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#create-well-bore-stability-plots">Create Well Bore Stability plots</a></li>
+<li><a href="#input-requirements">Input requirements</a></li>
+<li><a href="#equations-and-calculations">Equations and calculations</a>
+<ul>
+<li><a href="#stresses-at-the-borehole-wall-kirsch-equations">Stresses at the borehole wall - Kirsch equations</a></li>
+<li><a href="#fracture-gradient-calculations-based-on-kirsch-in-sand">Fracture gradient calculations based on Kirsch in sand</a></li>
+<li><a href="#stassi-d-alia-failure-criterion-in-shale">Stassi-d&rsquo;Alia failure criterion in shale</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -1674,11 +1786,15 @@ if (!doNotTrack) {
 
 
 
+
+
 <p><img src="/images/plot-window/WellBoreStability.png" alt="" /></p>
 
-<p>ResInsight can create <strong>Well Bore Stability</strong> plots for Geomechanical cases. These plots are specialized <a href="/plot-window/welllogsandplots/">Well Log Plots</a> and contain a visualization of <a href="/3d-main-window/formations/">Formations</a>, <a href="/wells-and-completions/wellpaths/#well-path-attributes">Well Path Attributes</a> as well as a set of well path derived curves in two different tracks.</p>
+<p>ResInsight can create <strong>Well Bore Stability</strong> plots for Geomechanical cases. These plots are specialized <a href="/plot-window/welllogsandplots/">Well Log Plots</a> to visualize <a href="/3d-main-window/formations/">Formations</a>, <a href="/wells-and-completions/wellpaths/#well-path-attributes">Well Path Attributes</a> as well as a set of well path derived curves in different tracks.</p>
 
-<p>The third track contains curves showing different stability gradients (all normalized by mud weight):</p>
+<p>In the figure above, the first track contains <a href="/3d-main-window/formations/">Formations</a> while the second track contains well attributes of
+<a href="/wells-and-completions/wellpaths/#casing-design">Casing Design</a>.
+The third track shows the following stability gradients (all normalized by mud weight):</p>
 
 <ul>
 <li><strong>FG</strong>: Fracture Gradient for sands based on Kirsch.</li>
@@ -1690,9 +1806,16 @@ if (!doNotTrack) {
 
 <p>The fourth track contains curves showing the angular orientation of the well path as azimuth (deviation from vertical) and inclination (deviation from x-axis) in degrees.</p>
 
-<p>These plots can be created from the right-click menu for a well path in the 3D view or from the the right-click menu of the Well Log Plots entry in the 2D Plot Window. In the former case the well bore stability plot will be created for the selected <strong>Well Path</strong>. In the latter case it will be created for the first well path in the well path list and the well path for the entire plot can be changed with the <a href="/plot-window/welllogsandplots/#change-data-source-for-plots-and-curves">Change Data Source Feature</a>.</p>
+<h2 id="create-well-bore-stability-plots">Create Well Bore Stability plots</h2>
 
-<p>In order to calculate <strong>FG</strong>  and <strong>SFG</strong> these curves the following input parameters are required:</p>
+<p>Well Bore Stability plots can be created from the right-click menu for a well path in <strong>Project Tree</strong> or from the the right-click menu of the Well Log Plots entry in <strong>Plot Project Tree</strong>. In the former case, the well bore stability plot will be created for the selected <strong>Well Path</strong>. In the latter case, it will be created for the first well path in the well path list and the well path for the entire plot can be changed with the <a href="/plot-window/welllogsandplots/#change-data-source-for-plots-and-curves">Change Data Source Feature</a>.</p>
+
+<p><img src="/images/plot-window/WellBoreStabilityCreation.png" alt="" />
+<img src="/images/plot-window/WellBoreStabilityCreation2.png" alt="" /></p>
+
+<h2 id="input-requirements">Input requirements</h2>
+
+<p>In order to calculate <strong>FG</strong>  and <strong>SFG</strong>, the following input parameters are required:</p>
 
 <table>
 <thead>
@@ -1715,7 +1838,11 @@ if (!doNotTrack) {
 </tbody>
 </table>
 
-<p>These parameters may be read in in the following ways. The numbering for import is order of preference if multiple sources are found.</p>
+<p>These parameters may be read in in the following ways.</p>
+
+<p><a href="/plot-window/welllogsandplots/#change-data-source-for-plots-and-curves">Change Data Source Feature</a></p>
+
+<p>The numbering for import is order of preference if multiple sources are found.</p>
 
 <table>
 <thead>
@@ -1742,12 +1869,50 @@ if (!doNotTrack) {
 <tr>
 <td>UCS</td>
 <td>100 bar</td>
-<td>1. Las-file (Variable: &ldquo;UCS&rdquo;, Units: bar), 2. Element Property Table (Variable: &ldquo;UCS&rdquo;, Units: Pascal)</td>
+<td>1. Las-file (Variable: &ldquo;UCS&rdquo;, Units: bar), 2. Element Property Table (Variable: &ldquo;UCS&rdquo;, Units: MPa)</td>
 </tr>
 </tbody>
 </table>
 
-<p><img src="/images/plot-window/WellBoreStabilityCreation.png" alt="" /> <img src="/images/plot-window/WellBoreStabilityCreation2.png" alt="" /></p>
+<h2 id="equations-and-calculations">Equations and calculations</h2>
+
+<h3 id="stresses-at-the-borehole-wall-kirsch-equations">Stresses at the borehole wall - Kirsch equations</h3>
+
+<p>The basic input to wellbore stability models is the stresses at the borehole wall given by the Kirsch equations in cylindrical coordinates:</p>
+
+<p><img src="/images/plot-window/WellBoreStabilityKirschEquations.png" alt="" /></p>
+
+<p>The transformation of stresses from cartesian coordinate system to x&rsquo;, y&rsquo;, z&rsquo; is performed by pre- and transposed postmultiplication of the stress tensor with a 3x3 transformation matrix <strong>M</strong>, i.e.
+<img src="https://resinsight.org/images/plot-window/WellBoreStabilityStressTransformation.png" style="display:inline; vertical-align:middle; margin:0">
+.</p>
+
+<h3 id="fracture-gradient-calculations-based-on-kirsch-in-sand">Fracture gradient calculations based on Kirsch in sand</h3>
+
+<p>To estimate the fracture gradient <em>FG</em>, first step is to find the principle effective stresses at the borehole wall:</p>
+
+<p><img src="/images/plot-window/WellBoreStabilityKirschSandEquations.png" alt="" /></p>
+
+<p>Next step is to find the well pressure <em>Pw</em> that gives
+<img src="https://resinsight.org/images/plot-window/WellBoreStabilitySigmaTminZero.png" style="display:inline; vertical-align:middle; margin:0">
+ for
+<img src="https://resinsight.org/images/plot-window/WellBoreStabilitySigmaTmin.png" style="display:inline; vertical-align:middle; margin:0">
+.
+Then calculate <em>FG</em> in equivalent mud weight units as <em>FG</em> = <em>Pw</em> / (<em>TVDRKB</em> * <em>g</em> * 1000) where <em>TVDRKB = TVDMSL + RKB</em> and
+<em>g = 9.81</em>.</p>
+
+<h3 id="stassi-d-alia-failure-criterion-in-shale">Stassi-d&rsquo;Alia failure criterion in shale</h3>
+
+<p>Stassi-d&rsquo;Alia failure criterion in shale is calculated by finding the well pressure <em>Pw</em> that satisfies the following equation
+for <img src="https://resinsight.org/images/plot-window/WellBoreStabilitySigmaTmin.png" style="display:inline; vertical-align:middle; margin:0">
+.</p>
+
+<p><img src="/images/plot-window/WellBoreStabilityStassiEquations.png" alt="" /></p>
+
+<p>where <img src="https://resinsight.org/images/plot-window/WellBoreStabilityPrincipalStresses.png" style="display:inline; vertical-align:middle; margin:0">
+ are the effective principal stresses
+and <em>UCS</em> is the <em>uniaxial compressive strength</em>.</p>
+
+<p>Shear Failure Gradient is then given as <em>SFG</em> = <em>Pw</em> / (<em>TVDRKB</em> * <em>g</em> * 1000) where <em>TVDRKB = TVDMSL + RKB</em> and <em>g = 9.81</em>.</p>
 
 
 <footer class=" footline" >
@@ -1897,6 +2062,11 @@ if (!doNotTrack) {
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -1938,22 +2108,6 @@ if (!doNotTrack) {
                     
                         
             
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
             
         
                     
@@ -2181,42 +2335,6 @@ if (!doNotTrack) {
             
         
                     
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
                         
             
             
@@ -2249,67 +2367,6 @@ if (!doNotTrack) {
             
         
                     
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
             
         
                     
@@ -2326,9 +2383,6 @@ if (!doNotTrack) {
                     
                     
 
-                    
-            
-        
                     
                         
             
@@ -2413,6 +2467,19 @@ if (!doNotTrack) {
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
             
         
                     
@@ -2429,10 +2496,49 @@ if (!doNotTrack) {
                     
 
                     
+            
+        
+                    
                         
             
             
                 
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
                     
                 
                 
@@ -2652,6 +2758,150 @@ if (!doNotTrack) {
                     
                     
 
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
                     
                         
             
@@ -2982,20 +3232,20 @@ if (!doNotTrack) {
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1569932070"></script>
-    <script src="/js/perfect-scrollbar.min.js?1569932070"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1569932070"></script>
-    <script src="/js/jquery.sticky.js?1569932070"></script>
-    <script src="/js/featherlight.min.js?1569932070"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1569932070"></script>
-    <script src="/js/highlight.pack.js?1569932070"></script>
+    <script src="/js/clipboard.min.js?1576757743"></script>
+    <script src="/js/perfect-scrollbar.min.js?1576757743"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1576757743"></script>
+    <script src="/js/jquery.sticky.js?1576757743"></script>
+    <script src="/js/featherlight.min.js?1576757743"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1576757743"></script>
+    <script src="/js/highlight.pack.js?1576757743"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1569932070"></script>
-    <script src="/js/learn.js?1569932070"></script>
-    <script src="/js/hugo-learn.js?1569932070"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1576757743"></script>
+    <script src="/js/learn.js?1576757743"></script>
+    <script src="/js/hugo-learn.js?1576757743"></script>
 
-    <link href="/mermaid/mermaid.css?1569932070" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1569932070"></script>
+    <link href="/mermaid/mermaid.css?1576757743" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1576757743"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
