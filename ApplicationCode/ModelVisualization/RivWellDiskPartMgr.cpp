@@ -116,12 +116,12 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
     // Upper part of simulation well pipe is defined to use branch index 0
     cvf::ref<RivSimWellPipeSourceInfo> sourceInfo = new RivSimWellPipeSourceInfo( m_rimWell, 0 );
 
-    cvf::Vec3d diskPosition = whEndPos;
-    diskPosition.z() += pipeRadius;
-
     // Well disk geometry
     double arrowLength = characteristicCellSize * simWellInViewCollection()->wellHeadScaleFactor() *
                          m_rimWell->wellHeadScaleFactor();
+
+    cvf::Vec3d diskPosition = whEndPos;
+    diskPosition.z() += pipeRadius + arrowLength;
 
     cvf::Vec3d textPosition = diskPosition;
     textPosition.z() += 2.0 * arrowLength;
@@ -224,10 +224,10 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
         // Set color for the triangle vertices
         for ( size_t i = 0; i < numSectors * 3; i++ )
         {
-            cvf::Color3ub c = cvf::Color3::CEETRON; // colorTable[colorIdx];
+            cvf::Color3ub c = cvf::Color3::ORANGE_RED;
             colorArray->set( i, c );
         }
-        labelText = QString( "%1: %2" ).arg( m_rimWell->name() ).arg( singleProperty );
+        labelText = QString( "%1: %2" ).arg( m_rimWell->name() ).arg( singleProperty, 0, 'f', 1 );
     }
     else
     {
@@ -267,7 +267,11 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
             }
         }
 
-        labelText = QString( "%1: oil=%2 gas=%3 water=%4" ).arg( m_rimWell->name() ).arg( oil ).arg( gas ).arg( water );
+        labelText = QString( "%1:\nO=%2\nG=%3\nW=%4" )
+                        .arg( m_rimWell->name() )
+                        .arg( oil, 0, 'f', 1 )
+                        .arg( gas, 0, 'f', 1 )
+                        .arg( water, 0, 'f', 1 );
     }
     geo1->setColorArray( colorArray.p() );
 
