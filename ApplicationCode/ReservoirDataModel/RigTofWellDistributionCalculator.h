@@ -45,7 +45,7 @@ public:
 
     void groupSmallContributions( double smallContribThreshold );
 
-    const std::vector<double>& sortedUniqueTOFValues() const;
+    const std::vector<double>& sortedUniqueTofValues() const;
 
     size_t                     contributingWellCount() const;
     const QString&             contributingWellName( size_t contribWellIndex ) const;

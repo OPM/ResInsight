@@ -91,7 +91,8 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
     const RigFlowDiagResultAddress resultAddrFraction( "Fraction",
                                                        RigFlowDiagResultAddress::PhaseSelection::PHASE_ALL,
                                                        targetWellname.toStdString() );
-    const std::vector<double>*     tofData            = flowDiagResults->resultValues( resultAddrTof, timeStepIndex );
+
+    const std::vector<double>* tofData                = flowDiagResults->resultValues( resultAddrTof, timeStepIndex );
     const std::vector<double>* targetWellFractionData = flowDiagResults->resultValues( resultAddrFraction, timeStepIndex );
     if ( !tofData || !targetWellFractionData )
     {
@@ -103,8 +104,8 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
     const std::vector<QString> candidateContributingWellNames = findCandidateContributingWellNames( *flowDiagSolution,
                                                                                                     targetWellname,
                                                                                                     timeStepIndex );
-    const size_t               numContribWells                = candidateContributingWellNames.size();
 
+    const size_t numContribWells = candidateContributingWellNames.size();
     for ( size_t iContribWell = 0; iContribWell < numContribWells; iContribWell++ )
     {
         const QString contribWellName = candidateContributingWellNames[iContribWell];
@@ -124,7 +125,7 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
         ContribWellEntry contribWellEntry;
         contribWellEntry.name = contribWellName;
 
-        for ( auto mapElement : tofToCellIndicesMap )
+        for ( const auto& mapElement : tofToCellIndicesMap )
         {
             const double               tofValue       = mapElement.first;
             const std::vector<size_t>& cellIndicesArr = mapElement.second;
@@ -152,7 +153,7 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
         }
     }
 
-    for ( auto mapElement : tofToCellIndicesMap )
+    for ( const auto& mapElement : tofToCellIndicesMap )
     {
         const double tofValue = mapElement.first;
         m_tofInIncreasingOrder.push_back( tofValue );
@@ -262,7 +263,7 @@ std::vector<QString>
                                                                      : RimFlowDiagSolution::INJECTOR;
 
     const std::vector<QString> allWellNames = flowDiagSolution.tracerNames();
-    for ( QString name : allWellNames )
+    for ( const QString& name : allWellNames )
     {
         const RimFlowDiagSolution::TracerStatusType status = flowDiagSolution.tracerStatusInTimeStep( name,
                                                                                                       timeStepIndex );
@@ -285,7 +286,7 @@ std::vector<QString>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigTofWellDistributionCalculator::sortedUniqueTOFValues() const
+const std::vector<double>& RigTofWellDistributionCalculator::sortedUniqueTofValues() const
 {
     return m_tofInIncreasingOrder;
 }

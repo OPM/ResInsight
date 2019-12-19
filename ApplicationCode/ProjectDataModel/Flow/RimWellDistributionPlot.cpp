@@ -398,7 +398,7 @@ void RimWellDistributionPlot::populatePlotWidgetWithCurveData( const RigTofWellD
     plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
     plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
 
-    const std::vector<double>& tofValuesDays = calculator.sortedUniqueTOFValues();
+    const std::vector<double>& tofValuesDays = calculator.sortedUniqueTofValues();
     if ( tofValuesDays.size() == 0 )
     {
         // cvf::Trace::show("No TOF values!");
@@ -422,7 +422,7 @@ void RimWellDistributionPlot::populatePlotWidgetWithCurveData( const RigTofWellD
 
     for ( size_t i = 0; i < numWells; i++ )
     {
-        QString                    wellName = calculator.contributingWellName( i );
+        const QString&             wellName = calculator.contributingWellName( i );
         const std::vector<double>& volArr   = calculator.accumulatedVolumeForContributingWell( i );
 
         cvf::Color3f cvfClr = flowDiagSolution.tracerColor( wellName );

@@ -47,35 +47,35 @@ public:
     void setPlotOptions( bool groupSmallContributions, double smallContributionsRelativeThreshold );
 
     // RimPlot implementations
-    virtual RiuQwtPlotWidget* viewer() override;
-    virtual void              setAutoScaleXEnabled( bool enabled ) override;
-    virtual void              setAutoScaleYEnabled( bool enabled ) override;
-    virtual void              updateAxes() override;
-    virtual void              updateLegend() override;
-    virtual void              updateZoomInQwt() override;
-    virtual void              updateZoomFromQwt() override;
-    virtual QString           asciiDataForPlotExport() const override;
-    virtual void              reattachAllCurves() override;
-    virtual void              detachAllCurves() override;
-    virtual caf::PdmObject*   findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
-    virtual void              onAxisSelected( int axis, bool toggle ) override;
+    RiuQwtPlotWidget* viewer() override;
+    void              setAutoScaleXEnabled( bool enabled ) override;
+    void              setAutoScaleYEnabled( bool enabled ) override;
+    void              updateAxes() override;
+    void              updateLegend() override;
+    void              updateZoomInQwt() override;
+    void              updateZoomFromQwt() override;
+    QString           asciiDataForPlotExport() const override;
+    void              reattachAllCurves() override;
+    void              detachAllCurves() override;
+    caf::PdmObject*   findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
+    void              onAxisSelected( int axis, bool toggle ) override;
 
     // RimPlotWindow implementations
-    virtual QString description() const override;
+    QString description() const override;
 
     // RimViewWindow implementations
-    virtual QWidget* viewWidget() override;
-    virtual QImage   snapshotWindowContent() override;
-    virtual void     zoomAll() override;
+    QWidget* viewWidget() override;
+    QImage   snapshotWindowContent() override;
+    void     zoomAll() override;
 
 private:
     // RimPlot implementations
-    virtual void doRemoveFromCollection() override;
+    void doRemoveFromCollection() override;
 
     // RimViewWindow implementations
-    virtual QWidget* createViewWidget( QWidget* mainWindowParent ) override;
-    virtual void     deleteViewWidget() override;
-    virtual void     onLoadDataAndUpdate() override;
+    QWidget* createViewWidget( QWidget* mainWindowParent ) override;
+    void     deleteViewWidget() override;
+    void     onLoadDataAndUpdate() override;
 
 private:
     void        fixupDependentFieldsAfterCaseChange();
@@ -83,12 +83,13 @@ private:
                                                  const RimFlowDiagSolution&              flowDiagSolution,
                                                  RiuQwtPlotWidget*                       plotWidget );
 
-    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                   const QVariant&            oldValue,
-                                   const QVariant&            newValue ) override;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                 bool*                      useOptionsOnly ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
+
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
 private:
     caf::PdmPtrField<RimEclipseResultCase*>            m_case;

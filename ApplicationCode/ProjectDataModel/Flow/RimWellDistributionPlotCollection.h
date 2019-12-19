@@ -49,18 +49,18 @@ public:
 
 private:
     // RimPlotWindow overrides
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                 bool*                      useOptionsOnly ) override;
-    virtual void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                            const QVariant&            oldValue,
-                                                            const QVariant&            newValue ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue ) override;
 
-    virtual void onLoadDataAndUpdate() override;
+    void onLoadDataAndUpdate() override;
 
 private:
-    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void         fixupDependentFieldsAfterCaseChange();
-    void         applyPlotParametersToContainedPlots();
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fixupDependentFieldsAfterCaseChange();
+    void applyPlotParametersToContainedPlots();
 
 private:
     caf::PdmPtrField<RimEclipseResultCase*> m_case;
