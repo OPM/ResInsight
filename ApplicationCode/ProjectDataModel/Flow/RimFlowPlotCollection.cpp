@@ -44,8 +44,8 @@ RimFlowPlotCollection::RimFlowPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_defaultWellAllocPlot, "DefaultWellAllocationPlot", "", "", "", "" );
     m_defaultWellAllocPlot.uiCapability()->setUiHidden( true );
 
-    //CAF_PDM_InitFieldNoDefault( &m_dbgWellDistributionPlot, "DbgWellDistributionPlot", "", "", "", "" );
-    //m_dbgWellDistributionPlot.uiCapability()->setUiHidden( true );
+    // CAF_PDM_InitFieldNoDefault( &m_dbgWellDistributionPlot, "DbgWellDistributionPlot", "", "", "", "" );
+    // m_dbgWellDistributionPlot.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellDistributionPlotCollection, "WellDistributionPlotCollection", "", "", "", "" );
     m_wellDistributionPlotCollection.uiCapability()->setUiHidden( true );
@@ -86,7 +86,7 @@ void RimFlowPlotCollection::closeDefaultPlotWindowAndDeletePlots()
     }
 
     delete m_flowCharacteristicsPlot;
-    //delete m_dbgWellDistributionPlot;
+    // delete m_dbgWellDistributionPlot;
     delete m_wellDistributionPlotCollection;
 
     m_storedWellAllocPlots.deleteAllChildObjects();
@@ -120,7 +120,7 @@ void RimFlowPlotCollection::loadDataAndUpdate()
         m_flowCharacteristicsPlot->loadDataAndUpdate();
     }
 
-    //if ( m_dbgWellDistributionPlot )
+    // if ( m_dbgWellDistributionPlot )
     //{
     //    m_dbgWellDistributionPlot->loadDataAndUpdate();
     //}
@@ -206,7 +206,7 @@ void RimFlowPlotCollection::ensureDefaultFlowPlotsAreCreated()
         m_flowCharacteristicsPlot = new RimFlowCharacteristicsPlot;
     }
 
-    //if ( !m_dbgWellDistributionPlot() )
+    // if ( !m_dbgWellDistributionPlot() )
     //{
     //    m_dbgWellDistributionPlot = new RimWellDistributionPlot;
     //    m_dbgWellDistributionPlot->setAsPlotMdiWindow();

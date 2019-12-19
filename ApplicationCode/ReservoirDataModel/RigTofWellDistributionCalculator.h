@@ -21,15 +21,14 @@
 #include "RiaDefines.h"
 
 #include <cstddef>
-#include <vector>
 #include <map>
+#include <vector>
 
 #include <QString>
 
 class RimEclipseResultCase;
 class RimFlowDiagSolution;
 class QString;
-
 
 //==================================================================================================
 //
@@ -39,28 +38,32 @@ class QString;
 class RigTofWellDistributionCalculator
 {
 public:
-    RigTofWellDistributionCalculator(RimEclipseResultCase* caseToApply, QString targetWellname, size_t timeStepIndex, RiaDefines::PhaseType phase);
+    RigTofWellDistributionCalculator( RimEclipseResultCase* caseToApply,
+                                      QString               targetWellname,
+                                      size_t                timeStepIndex,
+                                      RiaDefines::PhaseType phase );
 
-    void                        groupSmallContributions(double smallContribThreshold);
+    void groupSmallContributions( double smallContribThreshold );
 
-    const std::vector<double>&  sortedUniqueTOFValues() const;
+    const std::vector<double>& sortedUniqueTOFValues() const;
 
-    size_t                      contributingWellCount() const;
-    const QString&              contributingWellName(size_t contribWellIndex) const;
-    const std::vector<double>&  accumulatedVolumeForContributingWell(size_t contributingWellIndex) const;
+    size_t                     contributingWellCount() const;
+    const QString&             contributingWellName( size_t contribWellIndex ) const;
+    const std::vector<double>& accumulatedVolumeForContributingWell( size_t contributingWellIndex ) const;
 
 private:
-    static std::map<double, std::vector<size_t>>    buildSortedTofToCellIndicesMap(const std::vector<double>& tofData);
-    static std::vector<QString>                     findCandidateContributingWellNames(const RimFlowDiagSolution& flowDiagSolution, QString targetWellname, size_t timeStepIndex);
+    static std::map<double, std::vector<size_t>> buildSortedTofToCellIndicesMap( const std::vector<double>& tofData );
+    static std::vector<QString> findCandidateContributingWellNames( const RimFlowDiagSolution& flowDiagSolution,
+                                                                    QString                    targetWellname,
+                                                                    size_t                     timeStepIndex );
 
     struct ContribWellEntry
     {
         QString             name;
-        std::vector<double> accumulatedVolAlongTof;     // This array has same size as m_tofInIncreasingOrder
+        std::vector<double> accumulatedVolAlongTof; // This array has same size as m_tofInIncreasingOrder
     };
 
 private:
-    std::vector<double>             m_tofInIncreasingOrder;
-    std::vector<ContribWellEntry>   m_contributingWells;
+    std::vector<double>           m_tofInIncreasingOrder;
+    std::vector<ContribWellEntry> m_contributingWells;
 };
-

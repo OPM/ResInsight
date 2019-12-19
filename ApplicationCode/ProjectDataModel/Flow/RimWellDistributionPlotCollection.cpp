@@ -18,8 +18,8 @@
 
 #include "RimWellDistributionPlotCollection.h"
 #include "RimEclipseResultCase.h"
-#include "RimProject.h"
 #include "RimFlowDiagSolution.h"
+#include "RimProject.h"
 #include "RimWellDistributionPlot.h"
 
 #include "RigEclipseCaseData.h"
@@ -29,70 +29,73 @@
 
 #include "RiuQwtPlotTools.h"
 
-#include "qwt_plot.h"
 #include "qwt_legend.h"
+#include "qwt_plot.h"
 #include "qwt_plot_curve.h"
 
-#include <QWidget>
 #include <QGridLayout>
 #include <QTextBrowser>
+#include <QWidget>
 
 //#include "cvfBase.h"
 //#include "cvfTrace.h"
 //#include "cvfDebugTimer.h"
 
-
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT(RimWellDistributionPlotCollection, "WellDistributionPlotCollection");
+CAF_PDM_SOURCE_INIT( RimWellDistributionPlotCollection, "WellDistributionPlotCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
-:   RimMultiPlotWindow(true)
+    : RimMultiPlotWindow( true )
 {
-    //cvf::Trace::show("RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()");
+    // cvf::Trace::show("RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()");
 
-    CAF_PDM_InitObject("Well Distribution Plots", "", "", "");
+    CAF_PDM_InitObject( "Well Distribution Plots", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_case, "Case", "Case", "", "", "");
-    CAF_PDM_InitField(&m_timeStepIndex, "TimeStepIndex", -1, "Time Step", "", "", "");
-    CAF_PDM_InitField(&m_wellName, "WellName", QString("None"), "Well", "", "", "");
-    CAF_PDM_InitField(&m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions", "", "", "");
-    CAF_PDM_InitField(&m_smallContributionsRelativeThreshold, "SmallContributionsRelativeThreshold", 0.005, "Relative Threshold [0, 1]", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
+    CAF_PDM_InitField( &m_timeStepIndex, "TimeStepIndex", -1, "Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_wellName, "WellName", QString( "None" ), "Well", "", "", "" );
+    CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions", "", "", "" );
+    CAF_PDM_InitField( &m_smallContributionsRelativeThreshold,
+                       "SmallContributionsRelativeThreshold",
+                       0.005,
+                       "Relative Threshold [0, 1]",
+                       "",
+                       "",
+                       "" );
 
     m_plotWindowTitle = "Well Distribution Plots";
     m_columnCountEnum = RimMultiPlotWindow::COLUMNS_UNLIMITED;
 
     m_showPlotLegends = false;
-    m_showWindow = false;
+    m_showWindow      = false;
 
-    setAcceptDrops(false);
+    setAcceptDrops( false );
     setAsPlotMdiWindow();
 
-    addPlot(new RimWellDistributionPlot(RiaDefines::OIL_PHASE));
-    addPlot(new RimWellDistributionPlot(RiaDefines::GAS_PHASE));
-    addPlot(new RimWellDistributionPlot(RiaDefines::WATER_PHASE));
+    addPlot( new RimWellDistributionPlot( RiaDefines::OIL_PHASE ) );
+    addPlot( new RimWellDistributionPlot( RiaDefines::GAS_PHASE ) );
+    addPlot( new RimWellDistributionPlot( RiaDefines::WATER_PHASE ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellDistributionPlotCollection::~RimWellDistributionPlotCollection() 
-{
-}
+RimWellDistributionPlotCollection::~RimWellDistributionPlotCollection() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlotCollection::onLoadDataAndUpdate()
 {
-    //cvf::Trace::show("RimWellDistributionPlotCollection::onLoadDataAndUpdate()");
+    // cvf::Trace::show("RimWellDistributionPlotCollection::onLoadDataAndUpdate()");
 
     RimMultiPlotWindow::onLoadDataAndUpdate();
 }
@@ -100,74 +103,77 @@ void RimWellDistributionPlotCollection::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlotCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimWellDistributionPlotCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add(&m_case);
-    uiOrdering.add(&m_timeStepIndex);
-    uiOrdering.add(&m_wellName);
-    uiOrdering.add(&m_groupSmallContributions);
-    uiOrdering.add(&m_smallContributionsRelativeThreshold);
+    uiOrdering.add( &m_case );
+    uiOrdering.add( &m_timeStepIndex );
+    uiOrdering.add( &m_wellName );
+    uiOrdering.add( &m_groupSmallContributions );
+    uiOrdering.add( &m_smallContributionsRelativeThreshold );
 
-    m_smallContributionsRelativeThreshold.uiCapability()->setUiReadOnly(m_groupSmallContributions == false);
+    m_smallContributionsRelativeThreshold.uiCapability()->setUiReadOnly( m_groupSmallContributions == false );
 
-    //RimMultiPlotWindow::defineUiOrdering(uiConfigName, uiOrdering);
+    // RimMultiPlotWindow::defineUiOrdering(uiConfigName, uiOrdering);
     uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellDistributionPlotCollection::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo>
+    RimWellDistributionPlotCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                              bool*                      useOptionsOnly )
 {
-    QList<caf::PdmOptionItemInfo> options = RimMultiPlotWindow::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+    QList<caf::PdmOptionItemInfo> options = RimMultiPlotWindow::calculateValueOptions( fieldNeedingOptions,
+                                                                                       useOptionsOnly );
 
-    if (fieldNeedingOptions == &m_case)
+    if ( fieldNeedingOptions == &m_case )
     {
         RimProject* ownerProj = nullptr;
-        firstAncestorOrThisOfType(ownerProj);
-        if (ownerProj)
+        firstAncestorOrThisOfType( ownerProj );
+        if ( ownerProj )
         {
             std::vector<RimEclipseResultCase*> caseArr;
-            ownerProj->descendantsIncludingThisOfType(caseArr);
-            for (RimEclipseResultCase* c : caseArr)
+            ownerProj->descendantsIncludingThisOfType( caseArr );
+            for ( RimEclipseResultCase* c : caseArr )
             {
-                options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, true, c->uiIconProvider()));
+                options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, true, c->uiIconProvider() ) );
             }
         }
     }
 
-    else if (fieldNeedingOptions == &m_timeStepIndex)
+    else if ( fieldNeedingOptions == &m_timeStepIndex )
     {
-        if (m_case && m_case->eclipseCaseData())
+        if ( m_case && m_case->eclipseCaseData() )
         {
             const QStringList timeStepNames = m_case->timeStepStrings();
-            for (int i = 0; i < timeStepNames.size(); i++)
+            for ( int i = 0; i < timeStepNames.size(); i++ )
             {
-                options.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
+                options.push_back( caf::PdmOptionItemInfo( timeStepNames[i], i ) );
             }
         }
 
-        if (options.size() == 0)
+        if ( options.size() == 0 )
         {
-            options.push_back(caf::PdmOptionItemInfo("None", -1));
+            options.push_back( caf::PdmOptionItemInfo( "None", -1 ) );
         }
     }
 
-    else if (fieldNeedingOptions == &m_wellName)
+    else if ( fieldNeedingOptions == &m_wellName )
     {
-        if (m_case && m_case->eclipseCaseData())
+        if ( m_case && m_case->eclipseCaseData() )
         {
-            caf::QIconProvider simWellIcon(":/Well.png");
+            caf::QIconProvider      simWellIcon( ":/Well.png" );
             const std::set<QString> sortedWellNameSet = m_case->eclipseCaseData()->findSortedWellNames();
-            for (const QString& name : sortedWellNameSet)
+            for ( const QString& name : sortedWellNameSet )
             {
-                options.push_back(caf::PdmOptionItemInfo(name, name, true, simWellIcon));
+                options.push_back( caf::PdmOptionItemInfo( name, name, true, simWellIcon ) );
             }
         }
 
-        if (options.size() == 0)
+        if ( options.size() == 0 )
         {
-            options.push_back(caf::PdmOptionItemInfo("None", QVariant()));
+            options.push_back( caf::PdmOptionItemInfo( "None", QVariant() ) );
         }
     }
 
@@ -177,32 +183,30 @@ QList<caf::PdmOptionItemInfo> RimWellDistributionPlotCollection::calculateValueO
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlotCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimWellDistributionPlotCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                          const QVariant&            oldValue,
+                                                          const QVariant&            newValue )
 {
-    if (changedField == &m_case)
+    if ( changedField == &m_case )
     {
         fixupDependentFieldsAfterCaseChange();
     }
 
     bool shouldRecalculatePlotData = false;
-    if (changedField == &m_case ||
-        changedField == &m_timeStepIndex ||
-        changedField == &m_wellName ||
-        changedField == &m_groupSmallContributions ||
-        changedField == &m_smallContributionsRelativeThreshold)
+    if ( changedField == &m_case || changedField == &m_timeStepIndex || changedField == &m_wellName ||
+         changedField == &m_groupSmallContributions || changedField == &m_smallContributionsRelativeThreshold )
     {
         applyPlotParametersToContainedPlots();
         shouldRecalculatePlotData = true;
     }
 
-    RimMultiPlotWindow::fieldChangedByUi(changedField, oldValue, newValue);
+    RimMultiPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if (shouldRecalculatePlotData)
+    if ( shouldRecalculatePlotData )
     {
         loadDataAndUpdate();
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -210,17 +214,16 @@ void RimWellDistributionPlotCollection::fieldChangedByUi(const caf::PdmFieldHand
 void RimWellDistributionPlotCollection::applyPlotParametersToContainedPlots()
 {
     const size_t numPlots = plotCount();
-    for (size_t i = 0; i < numPlots; i++)
+    for ( size_t i = 0; i < numPlots; i++ )
     {
         // Dirty usage of dyn_cast, but type is lost when adding the plots to our base class
-        RimWellDistributionPlot* aPlot = dynamic_cast<RimWellDistributionPlot*>(plotByIndex(i));
-        if (aPlot)
+        RimWellDistributionPlot* aPlot = dynamic_cast<RimWellDistributionPlot*>( plotByIndex( i ) );
+        if ( aPlot )
         {
-            aPlot->setDataSourceParameters(m_case, m_timeStepIndex, m_wellName);
-            aPlot->setPlotOptions(m_groupSmallContributions, m_smallContributionsRelativeThreshold);
+            aPlot->setDataSourceParameters( m_case, m_timeStepIndex, m_wellName );
+            aPlot->setPlotOptions( m_groupSmallContributions, m_smallContributionsRelativeThreshold );
         }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,26 +231,24 @@ void RimWellDistributionPlotCollection::applyPlotParametersToContainedPlots()
 //--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlotCollection::fixupDependentFieldsAfterCaseChange()
 {
-    int newTimeStepIndex = -1;
+    int     newTimeStepIndex = -1;
     QString newWellName;
 
-    if (m_case)
+    if ( m_case )
     {
         const int timeStepCount = m_case->timeStepStrings().size();
-        if (timeStepCount > 0)
+        if ( timeStepCount > 0 )
         {
             newTimeStepIndex = timeStepCount - 1;
         }
 
         const std::set<QString> sortedWellNameSet = m_case->eclipseCaseData()->findSortedWellNames();
-        if (sortedWellNameSet.size() > 0)
+        if ( sortedWellNameSet.size() > 0 )
         {
             newWellName = *sortedWellNameSet.begin();
         }
     }
 
     m_timeStepIndex = newTimeStepIndex;
-    m_wellName = newWellName;
+    m_wellName      = newWellName;
 }
-
-

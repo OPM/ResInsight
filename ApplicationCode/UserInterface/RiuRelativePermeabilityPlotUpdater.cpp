@@ -55,8 +55,6 @@ RiuRelativePermeabilityPlotUpdater::RiuRelativePermeabilityPlotUpdater( RiuRelat
 {
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -254,8 +252,8 @@ QString RiuRelativePermeabilityPlotUpdater::constructCellReferenceText( const Ri
 ///
 //--------------------------------------------------------------------------------------------------
 RiuEclipseSelectionItem*
-RiuRelativePermeabilityPlotUpdater::extractEclipseSelectionItem( const RiuSelectionItem* selectionItem,
-                                                                Rim3dView*&             newFollowAnimView )
+    RiuRelativePermeabilityPlotUpdater::extractEclipseSelectionItem( const RiuSelectionItem* selectionItem,
+                                                                     Rim3dView*&             newFollowAnimView )
 {
     newFollowAnimView                             = nullptr;
     RiuEclipseSelectionItem* eclipseSelectionItem = nullptr;
@@ -287,7 +285,6 @@ RiuRelativePermeabilityPlotUpdater::extractEclipseSelectionItem( const RiuSelect
 
     return eclipseSelectionItem;
 }
-
 
 //==================================================================================================
 //

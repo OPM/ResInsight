@@ -18,8 +18,8 @@
 
 #pragma once
 
-#include "RimPlot.h"
 #include "RiaDefines.h"
+#include "RimPlot.h"
 
 #include "cafPdmPtrField.h"
 
@@ -29,8 +29,6 @@ class RimEclipseResultCase;
 class RimFlowDiagSolution;
 class RigTofWellDistributionCalculator;
 class RiuQwtPlotWidget;
-
-
 
 //==================================================================================================
 //
@@ -42,58 +40,63 @@ class RimWellDistributionPlot : public RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
-    explicit RimWellDistributionPlot(RiaDefines::PhaseType phase = RiaDefines::OIL_PHASE);
+    explicit RimWellDistributionPlot( RiaDefines::PhaseType phase = RiaDefines::OIL_PHASE );
     ~RimWellDistributionPlot() override;
 
-    void                        setDataSourceParameters(RimEclipseResultCase* eclipseResultCase, int timeStepIndex, QString targetWellName);
-    void                        setPlotOptions(bool groupSmallContributions, double smallContributionsRelativeThreshold);
+    void setDataSourceParameters( RimEclipseResultCase* eclipseResultCase, int timeStepIndex, QString targetWellName );
+    void setPlotOptions( bool groupSmallContributions, double smallContributionsRelativeThreshold );
 
     // RimPlot implementations
-    virtual RiuQwtPlotWidget*   viewer() override;
-    virtual void                setAutoScaleXEnabled(bool enabled) override;
-    virtual void                setAutoScaleYEnabled(bool enabled) override;
-    virtual void                updateAxes() override;
-    virtual void                updateLegend() override;
-    virtual void                updateZoomInQwt() override;
-    virtual void                updateZoomFromQwt() override;
-    virtual QString             asciiDataForPlotExport() const override;
-    virtual void                reattachAllCurves() override;
-    virtual void                detachAllCurves() override;
-    virtual caf::PdmObject*     findPdmObjectFromQwtCurve(const QwtPlotCurve* curve) const override;
-    virtual void                onAxisSelected(int axis, bool toggle) override;
+    virtual RiuQwtPlotWidget* viewer() override;
+    virtual void              setAutoScaleXEnabled( bool enabled ) override;
+    virtual void              setAutoScaleYEnabled( bool enabled ) override;
+    virtual void              updateAxes() override;
+    virtual void              updateLegend() override;
+    virtual void              updateZoomInQwt() override;
+    virtual void              updateZoomFromQwt() override;
+    virtual QString           asciiDataForPlotExport() const override;
+    virtual void              reattachAllCurves() override;
+    virtual void              detachAllCurves() override;
+    virtual caf::PdmObject*   findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
+    virtual void              onAxisSelected( int axis, bool toggle ) override;
 
     // RimPlotWindow implementations
-    virtual QString             description() const override;
+    virtual QString description() const override;
 
     // RimViewWindow implementations
-    virtual QWidget*            viewWidget() override;
-    virtual QImage              snapshotWindowContent() override;
-    virtual void                zoomAll() override;
+    virtual QWidget* viewWidget() override;
+    virtual QImage   snapshotWindowContent() override;
+    virtual void     zoomAll() override;
 
 private:
     // RimPlot implementations
-    virtual void        doRemoveFromCollection() override;
+    virtual void doRemoveFromCollection() override;
 
     // RimViewWindow implementations
-    virtual QWidget*    createViewWidget(QWidget* mainWindowParent) override;
-    virtual void        deleteViewWidget() override;
-    virtual void        onLoadDataAndUpdate() override;
+    virtual QWidget* createViewWidget( QWidget* mainWindowParent ) override;
+    virtual void     deleteViewWidget() override;
+    virtual void     onLoadDataAndUpdate() override;
 
 private:
-    void                fixupDependentFieldsAfterCaseChange();
-    static void         populatePlotWidgetWithCurveData(const RigTofWellDistributionCalculator& calculator, const RimFlowDiagSolution& flowDiagSolution, RiuQwtPlotWidget* plotWidget);
+    void        fixupDependentFieldsAfterCaseChange();
+    static void populatePlotWidgetWithCurveData( const RigTofWellDistributionCalculator& calculator,
+                                                 const RimFlowDiagSolution&              flowDiagSolution,
+                                                 RiuQwtPlotWidget*                       plotWidget );
 
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                   const QVariant&            oldValue,
+                                   const QVariant&            newValue ) override;
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                 bool*                      useOptionsOnly ) override;
 
 private:
-    caf::PdmPtrField<RimEclipseResultCase*>             m_case;
-    caf::PdmField<int>                                  m_timeStepIndex;
-    caf::PdmField<QString>                              m_wellName;
-    caf::PdmField< caf::AppEnum<RiaDefines::PhaseType>> m_phase;
-    caf::PdmField<bool>                                 m_groupSmallContributions;
-    caf::PdmField<double>                               m_smallContributionsRelativeThreshold;
+    caf::PdmPtrField<RimEclipseResultCase*>            m_case;
+    caf::PdmField<int>                                 m_timeStepIndex;
+    caf::PdmField<QString>                             m_wellName;
+    caf::PdmField<caf::AppEnum<RiaDefines::PhaseType>> m_phase;
+    caf::PdmField<bool>                                m_groupSmallContributions;
+    caf::PdmField<double>                              m_smallContributionsRelativeThreshold;
 
-    QPointer<RiuQwtPlotWidget>                          m_plotWidget;
+    QPointer<RiuQwtPlotWidget> m_plotWidget;
 };
