@@ -40,7 +40,6 @@
 #include <QFileInfo>
 #include <QMdiSubWindow>
 #include <QPageLayout>
-#include <QPainter>
 #include <QPdfWriter>
 
 CAF_CMD_SOURCE_INIT( RicSnapshotViewToFileFeature, "RicSnapshotViewToFileFeature" );
@@ -90,12 +89,11 @@ void RicSnapshotViewToFileFeature::savePlotPDFReportAs( const QString& fileName,
         pdfPrinter.setPageLayout( plot->pageLayout() );
         pdfPrinter.setCreator( QCoreApplication::applicationName() );
         pdfPrinter.setResolution( resolution );
-        QPainter painter( &pdfPrinter );
-        QRect    widgetRect   = plot->viewWidget()->contentsRect();
-        QRect    fullPageRect = pdfPrinter.pageLayout().fullRectPixels( resolution );
-        QRect    paintRect    = pdfPrinter.pageLayout().paintRectPixels( resolution );
+        QRect widgetRect   = plot->viewWidget()->contentsRect();
+        QRect fullPageRect = pdfPrinter.pageLayout().fullRectPixels( resolution );
+        QRect paintRect    = pdfPrinter.pageLayout().paintRectPixels( resolution );
         plot->viewWidget()->resize( paintRect.size() );
-        plot->renderWindowContent( &painter );
+        plot->renderWindowContent( &pdfPrinter );
         plot->viewWidget()->resize( widgetRect.size() );
     }
     else

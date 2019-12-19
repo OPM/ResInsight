@@ -284,9 +284,9 @@ void RiuMultiPlotWindow::scheduleReplotOfAllPlots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::renderTo( QPainter* painter )
+void RiuMultiPlotWindow::renderTo( QPaintDevice* paintDevice )
 {
-    doRenderTo( painter );
+    doRenderTo( paintDevice );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -789,22 +789,23 @@ std::pair<int, int>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::doRenderTo( QPainter* painter )
+void RiuMultiPlotWindow::doRenderTo( QPaintDevice* paintDevice )
 {
+    QPainter painter( paintDevice );
     setSelectionsVisible( false );
-    m_plotTitle->render( painter );
+    m_plotTitle->render( &painter );
 
     for ( auto subTitle : subTitlesForVisiblePlots() )
     {
         if ( subTitle->isVisible() )
         {
-            subTitle->render( painter, m_plotWidgetFrame->mapToParent( subTitle->frameGeometry().topLeft() ) );
+            subTitle->render( &painter, m_plotWidgetFrame->mapToParent( subTitle->frameGeometry().topLeft() ) );
         }
     }
 
     for ( auto legend : legendsForVisiblePlots() )
     {
-        legend->render( painter, m_plotWidgetFrame->mapToParent( legend->frameGeometry().topLeft() ) );
+        legend->render( &painter, m_plotWidgetFrame->mapToParent( legend->frameGeometry().topLeft() ) );
     }
 
     for ( auto plotWidget : visiblePlotWidgets() )
@@ -814,7 +815,7 @@ void RiuMultiPlotWindow::doRenderTo( QPainter* painter )
         QPoint plotWidgetFrameTopLeft = m_plotWidgetFrame->frameGeometry().topLeft();
         plotWidgetGeometry.moveTo( plotWidgetTopLeft + plotWidgetFrameTopLeft );
 
-        plotWidget->renderTo( painter, plotWidgetGeometry );
+        plotWidget->renderTo( &painter, plotWidgetGeometry );
     }
 
     setSelectionsVisible( true );

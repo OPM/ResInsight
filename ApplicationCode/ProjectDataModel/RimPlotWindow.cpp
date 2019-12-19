@@ -159,9 +159,9 @@ void RimPlotWindow::updateParentLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotWindow::renderWindowContent( QPainter* painter )
+void RimPlotWindow::renderWindowContent( QPaintDevice* paintDevice )
 {
-    doRenderWindowContent( painter );
+    doRenderWindowContent( paintDevice );
 }
 
 //--------------------------------------------------------------------------------------------------

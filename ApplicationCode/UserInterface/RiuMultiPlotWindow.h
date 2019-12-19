@@ -81,7 +81,7 @@ public:
     void         scheduleReplotOfAllPlots();
     virtual void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) {}
 
-    void renderTo( QPainter* painter );
+    void renderTo( QPaintDevice* paintDevice );
 
 protected:
     void    contextMenuEvent( QContextMenuEvent* ) override;
@@ -114,7 +114,7 @@ protected:
 
     std::pair<int, int> findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const;
 
-    virtual void doRenderTo( QPainter* painter );
+    virtual void doRenderTo( QPaintDevice* paintDevice );
 
 private slots:
     virtual void performUpdate();

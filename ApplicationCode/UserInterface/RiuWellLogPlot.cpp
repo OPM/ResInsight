@@ -40,10 +40,10 @@ RimWellLogPlot* RiuWellLogPlot::wellLogPlotDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::doRenderTo( QPainter* painter )
+void RiuWellLogPlot::doRenderTo( QPaintDevice* paintDevice )
 {
     m_trackScrollBar->setVisible( false );
-    RiuMultiPlotWindow::doRenderTo( painter );
+    RiuMultiPlotWindow::doRenderTo( paintDevice );
     m_trackScrollBar->setVisible( true );
 }
 
