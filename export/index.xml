@@ -74,5 +74,15 @@ Exporting an Eclipse Sector Model To launch the export dialog, right-click on ei
 Exporting Grid and Faults Grid Export The Export dialog will allow the user to export grid data as ascii (An Eclipse Input Grid) to a specific file name by checking the Export Grid Data option.</description>
     </item>
     
+    <item>
+      <title>Contour Map Export</title>
+      <link>https://resinsight.org/export/contourmapexport/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/export/contourmapexport/</guid>
+      <description>ResInsight can create contour maps based on different forms of aggregation of 3D Eclipse data onto a 2D Plane. Any 3D result value can be aggregated, in addition to specialised results, such as oil, gas and hydrocarbon columns. A Contour Map is a specialised 2D view with many of the same features as the 3D views, including property filters, range filters and display of faults and wells.
+Export of Contour Map Data To export a contour map, invoke one of the following options (c.</description>
+    </item>
+    
   </channel>
 </rss>

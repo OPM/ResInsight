@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.56.3" />
+    <meta name="generator" content="Hugo 0.55.6" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title> Zonations/Formations :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1569932070" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1569932070" rel="stylesheet">
-    <link href="/css/hybrid.css?1569932070" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1569932070" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1569932070" rel="stylesheet">
-    <link href="/css/auto-complete.css?1569932070" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1569932070" rel="stylesheet">
-    <link href="/css/theme.css?1569932070" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1569932070" rel="stylesheet">
+    <link href="/css/nucleus.css?1576757743" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1576757743" rel="stylesheet">
+    <link href="/css/hybrid.css?1576757743" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1576757743" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1576757743" rel="stylesheet">
+    <link href="/css/auto-complete.css?1576757743" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1576757743" rel="stylesheet">
+    <link href="/css/theme.css?1576757743" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1576757743" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1569932070"></script>
+    <script src="/js/jquery-3.3.1.min.js?1576757743"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -208,6 +208,9 @@
              
             
           
+             
+            
+          
             
             
 
@@ -316,6 +319,25 @@
       <li data-nav-id="/3d-main-window/resultcolorlegend/" title="Result Color Legend" class="dd-item ">
         <a href="/3d-main-window/resultcolorlegend/">
         Result Color Legend
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/comparisonview/" title="Comparison View" class="dd-item ">
+        <a href="/3d-main-window/comparisonview/">
+        Comparison View
         
         </a>
     </li>
@@ -668,6 +690,25 @@
  
   
     
+      <li data-nav-id="/plot-window/summaryplottemplate/" title="Summary Plot Template" class="dd-item ">
+        <a href="/plot-window/summaryplottemplate/">
+        Summary Plot Template
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/plot-window/ensembleplotting/" title="Ensemble Plotting" class="dd-item ">
         <a href="/plot-window/ensembleplotting/">
         Ensemble Plotting
@@ -747,6 +788,25 @@
       <li data-nav-id="/plot-window/rftplot/" title="RFT Plot" class="dd-item ">
         <a href="/plot-window/rftplot/">
         RFT Plot
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/ensemblerftplot/" title="Ensemble RFT Plot" class="dd-item ">
+        <a href="/plot-window/ensemblerftplot/">
+        Ensemble RFT Plot
         
         </a>
     </li>
@@ -1036,6 +1096,25 @@
  
   
     
+      <li data-nav-id="/import/lasfile/" title="Log ASCII Standard File" class="dd-item ">
+        <a href="/import/lasfile/">
+        Log ASCII Standard File
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/geomechanicaldata/" title="Geomechanical Data" class="dd-item ">
         <a href="/import/geomechanicaldata/">
         Geomechanical Data
@@ -1261,6 +1340,25 @@
       <li data-nav-id="/export/sectormodel/" title="Sector Model" class="dd-item ">
         <a href="/export/sectormodel/">
         Sector Model
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/export/contourmapexport/" title="Contour Map Export" class="dd-item ">
+        <a href="/export/contourmapexport/">
+        Contour Map Export
         
         </a>
     </li>
@@ -1656,7 +1754,11 @@ if (!doNotTrack) {
 <ul>
 <li><a href="#formations-for-k-layers">Formations for k-layers</a>
 <ul>
-<li><a href="#import-of-formation-names-files">Import of Formation Names Files</a></li>
+<li><a href="#import-of-formation-names-files">Import of Formation Names Files</a>
+<ul>
+<li><a href="#formation-names-description-files-lyr">Formation Names description files (<em><code>*.lyr</code></em>)</a></li>
+<li><a href="#fmu-layer-zone-table-layer-zone-table-txt">FMU Layer Zone Table (<em><code>layer_zone_table.txt</code></em>)</a></li>
+</ul></li>
 <li><a href="#select-the-formation-file-in-a-case">Select the Formation File in a Case</a>
 <ul>
 <li><a href="#reload-of-formation-data">Reload of formation data</a></li>
@@ -1719,18 +1821,49 @@ if (!doNotTrack) {
 
 <h3 id="import-of-formation-names-files">Import of Formation Names Files</h3>
 
-<p>Formation Names files can be imported by using the command: <strong>File-&gt;Import-&gt;Import Formation Names</strong>.
-The user is asked to select <em><code>*.lyr</code></em> files for import.</p>
+<p>Formation Names files can be imported by using the command: <strong>File-&gt;Import-&gt;Import Formation Names</strong>.</p>
 
-<p>The imported Formation Names files are then listed in the <strong>Project Tree</strong> in a folder named <strong>Formations</strong>.</p>
+<p>Supported Formation Names files are:</p>
 
-<p>Formation Names files consists of a list of formation names and their k-range. Below is an example of a Formation Names file:</p>
+<ul>
+<li>Formation Names description files (<em><code>*.lyr</code></em>)</li>
+<li>FMU Layer Zone Table (<em><code>layer_zone_table.txt</code></em>)</li>
+</ul>
+
+<p>To select the appropriate file type, use the button to the right of file name in the <em>Import Formation Names</em> dialog.
+The imported Formation Names files are then listed in the <strong>Project Tree</strong> in a folder named <strong>Formations</strong>.</p>
+
+<h4 id="formation-names-description-files-lyr">Formation Names description files (<em><code>*.lyr</code></em>)</h4>
+
+<p>Formation Names description files (<em><code>*.lyr</code></em>) consist of a list of formation names and their k-range.
+Below is an example of a Formation Names description file:</p>
 
 <pre><code>-- Any text as comment
 'MyFormationName'                 4 - 12
 'MySecondFormationName'          15 - 17
 '3 k-layer thick 18,19 and 20'    3
 'Last Name'                      21 - 21 
+</code></pre>
+
+<h4 id="fmu-layer-zone-table-layer-zone-table-txt">FMU Layer Zone Table (<em><code>layer_zone_table.txt</code></em>)</h4>
+
+<p>The FMU Layer Zone Table (<em><code>layer_zone_table.txt</code></em>) contains two columns to correlate each grid k-layer with a formation name.
+Below is an example of a <em><code>layer_zone_table.txt</code></em> file:</p>
+
+<pre><code>1   UpperReek
+2   UpperReek
+3   UpperReek
+4   UpperReek
+5   UpperReek
+6   MidReek
+7   MidReek
+8   MidReek
+9   MidReek
+10  MidReek
+11  LowerReek
+12  LowerReek
+13  LowerReek
+14  LowerReek
 </code></pre>
 
 <h3 id="select-the-formation-file-in-a-case">Select the Formation File in a Case</h3>
@@ -1979,68 +2112,6 @@ B-2H; STRAT;     Ile Fm. 1 ;2156.197266;2158.38501
                         
             
             
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
         
                     
                         
@@ -2062,212 +2133,10 @@ B-2H; STRAT;     Ile Fm. 1 ;2156.197266;2158.38501
                         
             
             
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
         
                     
                         
             
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
             
         
                     
@@ -2279,6 +2148,7 @@ B-2H; STRAT;     Ile Fm. 1 ;2156.197266;2158.38501
             
                 
                     
+                    
                 
                 
 
@@ -2290,7 +2160,15 @@ B-2H; STRAT;     Ile Fm. 1 ;2156.197266;2158.38501
                         
             
             
+        
+                    
+                        
+            
+            
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2452,6 +2330,58 @@ B-2H; STRAT;     Ile Fm. 1 ;2156.197266;2158.38501
             
                 
                     
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
                 
                 
 
@@ -2510,6 +2440,150 @@ B-2H; STRAT;     Ile Fm. 1 ;2156.197266;2158.38501
                     
                     
 
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
                     
                         
             
@@ -2734,6 +2808,150 @@ B-2H; STRAT;     Ile Fm. 1 ;2156.197266;2158.38501
                     
                     
 
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
                     
                         
             
@@ -3064,20 +3282,20 @@ B-2H; STRAT;     Ile Fm. 1 ;2156.197266;2158.38501
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1569932070"></script>
-    <script src="/js/perfect-scrollbar.min.js?1569932070"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1569932070"></script>
-    <script src="/js/jquery.sticky.js?1569932070"></script>
-    <script src="/js/featherlight.min.js?1569932070"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1569932070"></script>
-    <script src="/js/highlight.pack.js?1569932070"></script>
+    <script src="/js/clipboard.min.js?1576757743"></script>
+    <script src="/js/perfect-scrollbar.min.js?1576757743"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1576757743"></script>
+    <script src="/js/jquery.sticky.js?1576757743"></script>
+    <script src="/js/featherlight.min.js?1576757743"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1576757743"></script>
+    <script src="/js/highlight.pack.js?1576757743"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1569932070"></script>
-    <script src="/js/learn.js?1569932070"></script>
-    <script src="/js/hugo-learn.js?1569932070"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1576757743"></script>
+    <script src="/js/learn.js?1576757743"></script>
+    <script src="/js/hugo-learn.js?1576757743"></script>
 
-    <link href="/mermaid/mermaid.css?1569932070" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1569932070"></script>
+    <link href="/mermaid/mermaid.css?1576757743" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1576757743"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

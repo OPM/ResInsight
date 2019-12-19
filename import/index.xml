@@ -22,6 +22,17 @@
     </item>
     
     <item>
+      <title>Log ASCII Standard File</title>
+      <link>https://resinsight.org/import/lasfile/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/import/lasfile/</guid>
+      <description>Log ASCII Standard (LAS) is a standard file format common in the oil-and-gas industry to store well log information.
+Importing a LAS file Log ASCII Standard (LAS) files can be imported using the command: File-&amp;gt;Import-&amp;gt; Well Data-&amp;gt;Import Well Logs from File.
+ResInsight will look for the the well name in the imported LAS-files among the existing Well Paths. If a match is found, the LAS-file is placed as a child of that well path.</description>
+    </item>
+    
+    <item>
       <title>Geomechanical Data</title>
       <link>https://resinsight.org/import/geomechanicaldata/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

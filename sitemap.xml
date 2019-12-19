@@ -55,6 +55,14 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2019_12/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/import/lasfile/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/3d-main-window/</loc>
   </url>
   
@@ -143,6 +151,10 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/3d-main-window/comparisonview/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/wells-and-completions/3dwelllogcurves/</loc>
   </url>
   
@@ -184,6 +196,10 @@
   
   <url>
     <loc>https://resinsight.org/scripting/pythonconfiguration/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/plot-window/summaryplottemplate/</loc>
   </url>
   
   <url>
@@ -268,6 +284,14 @@
   
   <url>
     <loc>https://resinsight.org/plot-window/rftplot/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/export/contourmapexport/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/plot-window/ensemblerftplot/</loc>
   </url>
   
   <url>

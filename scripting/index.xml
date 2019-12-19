@@ -19,7 +19,7 @@
       <description>ResInsight supports several command line parameters that can be used to automate some tasks using shell scripts.
 Command line parameters are prefixed using a double dash. This convention is used on all platforms to make it possible to reuse scripts across different platforms. See GNU Standards for Command Line Interfaces.
 Examples on how command line options are used are given below
-   Parameter Description     &amp;#45;&amp;#45;help, &amp;#45;&amp;#45;?</description>
+Command line options General    Parameter Description     &amp;#45;&amp;#45;help, &amp;#45;&amp;#45;?</description>
     </item>
     
     <item>

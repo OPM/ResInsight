@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.56.3" />
+    <meta name="generator" content="Hugo 0.55.6" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Summary Plot Source Stepping :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1569932070" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1569932070" rel="stylesheet">
-    <link href="/css/hybrid.css?1569932070" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1569932070" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1569932070" rel="stylesheet">
-    <link href="/css/auto-complete.css?1569932070" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1569932070" rel="stylesheet">
-    <link href="/css/theme.css?1569932070" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1569932070" rel="stylesheet">
+    <link href="/css/nucleus.css?1576757743" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1576757743" rel="stylesheet">
+    <link href="/css/hybrid.css?1576757743" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1576757743" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1576757743" rel="stylesheet">
+    <link href="/css/auto-complete.css?1576757743" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1576757743" rel="stylesheet">
+    <link href="/css/theme.css?1576757743" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1576757743" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1569932070"></script>
+    <script src="/js/jquery-3.3.1.min.js?1576757743"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -208,6 +208,9 @@
              
             
           
+             
+            
+          
             
             
 
@@ -316,6 +319,25 @@
       <li data-nav-id="/3d-main-window/resultcolorlegend/" title="Result Color Legend" class="dd-item ">
         <a href="/3d-main-window/resultcolorlegend/">
         Result Color Legend
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/comparisonview/" title="Comparison View" class="dd-item ">
+        <a href="/3d-main-window/comparisonview/">
+        Comparison View
         
         </a>
     </li>
@@ -668,6 +690,25 @@
  
   
     
+      <li data-nav-id="/plot-window/summaryplottemplate/" title="Summary Plot Template" class="dd-item ">
+        <a href="/plot-window/summaryplottemplate/">
+        Summary Plot Template
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/plot-window/ensembleplotting/" title="Ensemble Plotting" class="dd-item ">
         <a href="/plot-window/ensembleplotting/">
         Ensemble Plotting
@@ -747,6 +788,25 @@
       <li data-nav-id="/plot-window/rftplot/" title="RFT Plot" class="dd-item ">
         <a href="/plot-window/rftplot/">
         RFT Plot
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/ensemblerftplot/" title="Ensemble RFT Plot" class="dd-item ">
+        <a href="/plot-window/ensemblerftplot/">
+        Ensemble RFT Plot
         
         </a>
     </li>
@@ -1036,6 +1096,25 @@
  
   
     
+      <li data-nav-id="/import/lasfile/" title="Log ASCII Standard File" class="dd-item ">
+        <a href="/import/lasfile/">
+        Log ASCII Standard File
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/geomechanicaldata/" title="Geomechanical Data" class="dd-item ">
         <a href="/import/geomechanicaldata/">
         Geomechanical Data
@@ -1261,6 +1340,25 @@
       <li data-nav-id="/export/sectormodel/" title="Sector Model" class="dd-item ">
         <a href="/export/sectormodel/">
         Sector Model
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/export/contourmapexport/" title="Contour Map Export" class="dd-item ">
+        <a href="/export/contourmapexport/">
+        Contour Map Export
         
         </a>
     </li>
@@ -1654,12 +1752,10 @@ if (!doNotTrack) {
 <ul>
 <li>
 <ul>
-<li><a href="#summary-plot-source-stepping">Summary Plot Source Stepping</a>
-<ul>
-<li><a href="#tag-selected-curve-item-for-source-stepping">Tag selected curve item for source stepping</a></li>
+<li><a href="#summary-plot-source-stepping">Summary Plot Source Stepping</a></li>
+<li><a href="#assign-source-stepping-curve">Assign source stepping curve</a></li>
 <li><a href="#handling-of-summary-curves-and-history-summary-curves">Handling of summary curves and history summary curves</a></li>
 <li><a href="#applying-data-source-change">Applying data source change</a></li>
-</ul></li>
 </ul></li>
 </ul>
 </nav>
@@ -1692,19 +1788,20 @@ if (!doNotTrack) {
 
 <h2 id="summary-plot-source-stepping">Summary Plot Source Stepping</h2>
 
-<p>Summary Source Stepping is a function which lets the user step through multiple vectors in one click. This function is available from both the toolbar and the <strong>Summary Curves</strong> property editor under a <strong>Summary Plot</strong> item in the <strong>Main Plot Window Project Tree</strong>.</p>
+<p>Summary Source Stepping is a function which enables the user to swiftly step through multiple vectors.
+The functionality applies both to single summary curves and ensemble curve sets.</p>
 
-<p>This functionality applies both to single summary curves and ensemble curve sets.</p>
+<p>The functionality is available from both the toolbar and the <strong>Summary Curves</strong> property editor under a <strong>Summary Plot</strong> item in the <strong>Main Plot Window Project Tree</strong>.</p>
 
-<p>The toolbar version may look like this</p>
+<p>The toolbar allows use of <a href="/plot-window/summaryplots/#property-editor">vector filters</a> in addition to source stepping:</p>
 
 <p><img src="/images/plot-window/SummarySourceSteppingToolbar.png" alt="" /></p>
 
-<p>and the property editor version may looks like this</p>
+<p>The corresponding property editor is:</p>
 
 <p><img src="/images/plot-window/SummarySourceSteppingPropertyEditor.png" alt="" /></p>
 
-<p>In some cases some of the stepping components are hidden, depending on the set of summary curves currently visible. When ResInsight decides which stepping component to display, all visible curves in the current plot are taken into account. If, for instance, all curves display data from the same well, the well stepping component is displayed. This policy applies to the following source dimensions:</p>
+<p>When ResInsight decides stepping dimensions to display, all visible curves in the current plot are taken into account. For instance, well stepping is enabled if all curves display data from the same well, c.f. figure above. This policy applies to the following source stepping dimensions:</p>
 
 <ul>
 <li>Cases</li>
@@ -1717,19 +1814,20 @@ if (!doNotTrack) {
 <li>Summary Vectors</li>
 </ul>
 
-<h3 id="tag-selected-curve-item-for-source-stepping">Tag selected curve item for source stepping</h3>
+<h2 id="assign-source-stepping-curve">Assign source stepping curve</h2>
 
-<p>If the plot contains a mix of different curves, ResInsight might end up with too few stepping components available. Then, by selecting a summary curve or ensemble curve set, and activation of the right-click menu item <strong>Set as Source Stepping Curve</strong>, will use the selected curve as basis for data source stepping. All source stepping components for the selected curve is dispayed. When a curve or ensemble is marked for source stepping, an source stepping icon is displayed next to the curve.</p>
+<p>If the plot contains a mix of different curves, ResInsight might end up with no common stepping dimensions available.
+By right-clicking a summary curve or ensemble curve set, the menu item <strong>Set as Source Stepping Curve</strong> will use the selected curve as basis for source stepping. All source stepping dimensions for the selected curve will be displayed. When a curve or ensemble is marked for source stepping, a source stepping icon is displayed.</p>
 
-<p>Select <strong>Clear Source Stepping Curve</strong> to leave this mode.</p>
+<p><img src="/images/plot-window/SummaryCurveSetSourceStepping.png" alt="" /></p>
 
-<p>This functionality applies both to single summary curves and ensemble curve sets.</p>
+<p>Right-clicking the summary curve or ensemble curve set, and select <strong>Clear Source Stepping Curve</strong> to leave this mode.</p>
 
-<h3 id="handling-of-summary-curves-and-history-summary-curves">Handling of summary curves and history summary curves</h3>
+<h2 id="handling-of-summary-curves-and-history-summary-curves">Handling of summary curves and history summary curves</h2>
 
 <p>If a plot displays both a summary curve and the corresponding history summary curve, the source stepping can be applied to both curves at the same time. If you have a mix of several curves, it might be required to mark one of the curves using <strong>Set as Source Stepping Curve</strong>.</p>
 
-<h3 id="applying-data-source-change">Applying data source change</h3>
+<h2 id="applying-data-source-change">Applying data source change</h2>
 
 <p>When one of the <strong>next buttons</strong> are clicked, all curves are changed to display data for the next item for the clicked source dimension. Example: The user clicks the <strong>next well button</strong>. Then the well source for all curves in the current plot are changed to display data for the next well.</p>
 
@@ -1881,6 +1979,11 @@ if (!doNotTrack) {
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -1922,22 +2025,6 @@ if (!doNotTrack) {
                     
                         
             
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
             
         
                     
@@ -2165,6 +2252,38 @@ if (!doNotTrack) {
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -2225,54 +2344,6 @@ if (!doNotTrack) {
                     
                         
                         
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
                     
                 
                 
@@ -2380,38 +2451,6 @@ if (!doNotTrack) {
                     
             
         
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
                     
                         
             
@@ -2636,6 +2675,150 @@ if (!doNotTrack) {
                     
                     
 
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
                     
                         
             
@@ -2966,20 +3149,20 @@ if (!doNotTrack) {
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1569932070"></script>
-    <script src="/js/perfect-scrollbar.min.js?1569932070"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1569932070"></script>
-    <script src="/js/jquery.sticky.js?1569932070"></script>
-    <script src="/js/featherlight.min.js?1569932070"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1569932070"></script>
-    <script src="/js/highlight.pack.js?1569932070"></script>
+    <script src="/js/clipboard.min.js?1576757743"></script>
+    <script src="/js/perfect-scrollbar.min.js?1576757743"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1576757743"></script>
+    <script src="/js/jquery.sticky.js?1576757743"></script>
+    <script src="/js/featherlight.min.js?1576757743"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1576757743"></script>
+    <script src="/js/highlight.pack.js?1576757743"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1569932070"></script>
-    <script src="/js/learn.js?1569932070"></script>
-    <script src="/js/hugo-learn.js?1569932070"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1576757743"></script>
+    <script src="/js/learn.js?1576757743"></script>
+    <script src="/js/hugo-learn.js?1576757743"></script>
 
-    <link href="/mermaid/mermaid.css?1569932070" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1569932070"></script>
+    <link href="/mermaid/mermaid.css?1576757743" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1576757743"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

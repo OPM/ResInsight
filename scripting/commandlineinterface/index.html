@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.56.3" />
+    <meta name="generator" content="Hugo 0.55.6" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Command Line Interface :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1569932070" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1569932070" rel="stylesheet">
-    <link href="/css/hybrid.css?1569932070" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1569932070" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1569932070" rel="stylesheet">
-    <link href="/css/auto-complete.css?1569932070" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1569932070" rel="stylesheet">
-    <link href="/css/theme.css?1569932070" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1569932070" rel="stylesheet">
+    <link href="/css/nucleus.css?1576757743" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1576757743" rel="stylesheet">
+    <link href="/css/hybrid.css?1576757743" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1576757743" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1576757743" rel="stylesheet">
+    <link href="/css/auto-complete.css?1576757743" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1576757743" rel="stylesheet">
+    <link href="/css/theme.css?1576757743" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1576757743" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1569932070"></script>
+    <script src="/js/jquery-3.3.1.min.js?1576757743"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -208,6 +208,9 @@
              
             
           
+             
+            
+          
             
             
 
@@ -316,6 +319,25 @@
       <li data-nav-id="/3d-main-window/resultcolorlegend/" title="Result Color Legend" class="dd-item ">
         <a href="/3d-main-window/resultcolorlegend/">
         Result Color Legend
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/comparisonview/" title="Comparison View" class="dd-item ">
+        <a href="/3d-main-window/comparisonview/">
+        Comparison View
         
         </a>
     </li>
@@ -668,6 +690,25 @@
  
   
     
+      <li data-nav-id="/plot-window/summaryplottemplate/" title="Summary Plot Template" class="dd-item ">
+        <a href="/plot-window/summaryplottemplate/">
+        Summary Plot Template
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/plot-window/ensembleplotting/" title="Ensemble Plotting" class="dd-item ">
         <a href="/plot-window/ensembleplotting/">
         Ensemble Plotting
@@ -747,6 +788,25 @@
       <li data-nav-id="/plot-window/rftplot/" title="RFT Plot" class="dd-item ">
         <a href="/plot-window/rftplot/">
         RFT Plot
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/ensemblerftplot/" title="Ensemble RFT Plot" class="dd-item ">
+        <a href="/plot-window/ensemblerftplot/">
+        Ensemble RFT Plot
         
         </a>
     </li>
@@ -1036,6 +1096,25 @@
  
   
     
+      <li data-nav-id="/import/lasfile/" title="Log ASCII Standard File" class="dd-item ">
+        <a href="/import/lasfile/">
+        Log ASCII Standard File
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/geomechanicaldata/" title="Geomechanical Data" class="dd-item ">
         <a href="/import/geomechanicaldata/">
         Geomechanical Data
@@ -1261,6 +1340,25 @@
       <li data-nav-id="/export/sectormodel/" title="Sector Model" class="dd-item ">
         <a href="/export/sectormodel/">
         Sector Model
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/export/contourmapexport/" title="Contour Map Export" class="dd-item ">
+        <a href="/export/contourmapexport/">
+        Contour Map Export
         
         </a>
     </li>
@@ -1654,12 +1752,22 @@ if (!doNotTrack) {
 <ul>
 <li>
 <ul>
-<li><a href="#usage-examples">Usage Examples</a>
+<li><a href="#command-line-options">Command line options</a>
 <ul>
-<li><a href="#example-1-create-snapshots-of-all-views-for-multiple-cases">Example 1 : Create snapshots of all views for multiple cases</a></li>
-<li><a href="#example-2-replace-a-single-case-and-take-snapshots-of-all-views">Example 2 : Replace a single case and take snapshots of all views</a></li>
-<li><a href="#example-3-replace-source-cases-in-a-case-group-and-create-snapshot">Example 3 : Replace source cases in a case group and create snapshot</a></li>
-<li><a href="#example-4-replace-source-cases-in-multiple-case-groups-and-create-snapshots">Example 4 : Replace source cases in multiple case groups and create snapshots</a></li>
+<li><a href="#general">General</a></li>
+<li><a href="#command-files">Command files</a></li>
+<li><a href="#snapshots">Snapshots</a></li>
+<li><a href="#case-handling">Case handling</a></li>
+<li><a href="#summary-plotting">Summary plotting</a></li>
+<li><a href="#testing">Testing</a></li>
+</ul></li>
+<li><a href="#examples">Examples</a>
+<ul>
+<li><a href="#create-snapshots-of-all-views-for-multiple-cases">Create snapshots of all views for multiple cases</a></li>
+<li><a href="#replace-a-single-case-and-take-snapshots-of-all-views">Replace a single case and take snapshots of all views</a></li>
+<li><a href="#replace-source-cases-in-a-case-group-and-create-snapshot">Replace source cases in a case group and create snapshot</a></li>
+<li><a href="#replace-source-cases-in-multiple-case-groups-and-create-snapshots">Replace source cases in multiple case groups and create snapshots</a></li>
+<li><a href="#summary-plotting-1">Summary plotting</a></li>
 </ul></li>
 </ul></li>
 </ul>
@@ -1693,7 +1801,11 @@ if (!doNotTrack) {
 
 <p>Command line parameters are prefixed using a double dash. This convention is used on all platforms to make it possible to reuse scripts across different platforms. See GNU Standards for <a href="http://www.gnu.org/prep/standards/html_node/Command_002dLine-Interfaces.html#Command_002dLine-Interfaces">Command Line Interfaces</a>.</p>
 
-<p>Examples on how command line options are used are given <a href="/scripting/commandlineinterface/#usage-examples">below</a></p>
+<p>Examples on how command line options are used are given <a href="/scripting/commandlineinterface/#examples">below</a></p>
+
+<h2 id="command-line-options">Command line options</h2>
+
+<h3 id="general">General</h3>
 
 <table>
 <thead>
@@ -1720,11 +1832,6 @@ if (!doNotTrack) {
 </tr>
 
 <tr>
-<td>&#45;&#45;case &lt;casename&#124;filename&gt; [&lt;casename&#124;filename&gt;]</td>
-<td>Imports the Eclipse cases specified by case name with or without extension.If &lt;casename&gt;, import the corresponding grid file and summary file. If &lt;filename&gt; has extension .GRRID/.EGRID, import the grid file and corresponding summary file. If &lt;filename&gt; has extension .SMSPEC, import the summary file (does not open the grid file)</td>
-</tr>
-
-<tr>
 <td>&#45;&#45;size &lt;width&gt; &lt;height&gt;</td>
 <td>Set size of the main application window.</td>
 </tr>
@@ -1746,6 +1853,8 @@ if (!doNotTrack) {
 </tbody>
 </table>
 
+<h3 id="command-files">Command files</h3>
+
 <table>
 <thead>
 <tr>
@@ -1761,16 +1870,13 @@ if (!doNotTrack) {
 </tr>
 
 <tr>
-<td>&#45;&#45;commandFileReplaceCases [&lt;caseId&gt;] &lt;caseListFile&gt;</td>
-<td>Supply list of cases to replace in project, performing command file for each case. Project to replace cases in must be set with <code>commandFileProject</code>. If caseId is not supplied, first case is replaced. When supplying caseId, multiple cases may be replaced at once, by supplying several caseIds and a file containing a list of grid-files to replace with for each caseId.</td>
-</tr>
-
-<tr>
 <td>&#45;&#45;commandFileProject &lt;filename&gt;</td>
 <td>Project to use if performing case looping for command file. Used in conjunction with <code>commandFileReplaceCases</code>.</td>
 </tr>
 </tbody>
 </table>
+
+<h3 id="snapshots">Snapshots</h3>
 
 <table>
 <thead>
@@ -1793,6 +1899,8 @@ if (!doNotTrack) {
 </tbody>
 </table>
 
+<h3 id="case-handling">Case handling</h3>
+
 <table>
 <thead>
 <tr>
@@ -1803,6 +1911,11 @@ if (!doNotTrack) {
 
 <tbody>
 <tr>
+<td>&#45;&#45;case &lt;casename&#124;filename&gt; [&lt;casename&#124;filename&gt;]</td>
+<td>Imports the Eclipse cases specified by case name with or without extension.If &lt;casename&gt;, import the corresponding grid file and summary file. If &lt;filename&gt; has extension .GRRID/.EGRID, import the grid file and corresponding summary file. If &lt;filename&gt; has extension .SMSPEC, import the summary file (does not open the grid file)</td>
+</tr>
+
+<tr>
 <td>&#45;&#45;replaceCase [&lt;caseId&gt;] &lt;newGridFile&gt;</td>
 <td>Replace grid in &lt;caseId&gt; or first case with &lt;newGridFile&gt;. Repeat parameter for multiple replace operations.</td>
 </tr>
@@ -1811,8 +1924,112 @@ if (!doNotTrack) {
 <td>&#45;&#45;replaceSourceCases [&lt;caseGroupId&gt;] &lt;gridListFile&gt;</td>
 <td>Replace source cases in &lt;caseGroupId&gt; or first grid case group with the grid files listed in the &lt;gridListFile&gt; file. Repeat parameter for multiple replace operations.</td>
 </tr>
+
+<tr>
+<td>&#45;&#45;commandFileReplaceCases [&lt;caseId&gt;] &lt;caseListFile&gt;</td>
+<td>Supply list of cases to replace in project, performing command file for each case. Project to replace cases must be set with <code>commandFileProject</code>. If caseId is not supplied, first case is replaced. When supplying caseId, multiple cases may be replaced at once, by supplying several caseIds and a file containing a list of grid-files to replace with for each caseId.</td>
+</tr>
 </tbody>
 </table>
+
+
+<div class="notices note" ><p><b>Reduce project load time using <code>&ndash;replaceSourceCases</code></b>
+ <br>
+ResInsight stores data computed by statistics calculation in a cache file. When a project file is loaded, data from this cache is also imported. For large cases, the cached data can be large. When replacing source cases during batch, this data is never used and can be removed from the cache using the following workaround:
+<br>
+  - Open the project file used to produce statistics
+  <br>
+  - Select the statistics object in the project tree
+  <br>
+  - Click the button <b>Edit (Will DELETE current result)</b>
+  <br>
+  - Save the project file</p>
+</div>
+
+
+<h3 id="summary-plotting">Summary plotting</h3>
+
+<p>The summary plotting command option follows the following syntax:</p>
+
+<pre><code>resinsight --summaryplot [&lt;plotOptions&gt;] &lt;eclipsesummaryvectorfilters&gt; &lt;eclipsedatafiles&gt;
+
+where:
+&lt;plotOptions&gt;                 denote summary plot options, see table below
+&lt;eclipsesummaryvectorfilters&gt; has the syntax &lt;vectorname&gt;[:&lt;item&gt;[:&lt;subitem&gt;[:i,j,k]]]
+&lt;eclipsedatafiles&gt;            lists a set of Eclipse data files with or without extension
+</code></pre>
+
+<p>The summary plotting command option creates one summary plot for each of the the summary vectors matched by<br />
+<em>&lt;eclipsesummaryvectorfilters&gt;</em> using all listed Eclipse data files in each plot.</p>
+
+<p>Eclipse summary vector filters specify a list of vectors separated by spaces following the syntax noted above.
+Wildcards can be used in the specification. Brief examples are:</p>
+
+<ul>
+<li><code>WOPT:*</code>: One total oil production curve for each well.</li>
+<li><code>FOPT FWPT</code>: Two curves with oil and water total production.</li>
+<li><code>BPR:15,28,*</code>: Oil phase pressure for all blocks along k as separate curves. Please note no space in expression.</li>
+</ul>
+
+<p><a href="/scripting/commandlineinterface/#summary-plotting-1">Examples</a> are listed below.</p>
+
+<p>As long as only summary vectors are requested, only the corresponding SMSPEC file will be opened for each case.
+However, if a grid property is requested, the corresponding EGRID and restart data will be loaded as well.</p>
+
+<p>Specifying summary plot options is optional, c.f. table below.</p>
+
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>&#45;help</td>
+<td>Shows help text and ignores any other option.</td>
+</tr>
+
+<tr>
+<td>&#45;h</td>
+<td>Includes history vectors read from summary file if the vectors exist. Only history vectors from the first summary case in the project will be included.</td>
+</tr>
+
+<tr>
+<td>&#45;nl</td>
+<td>Omits legend in plot.</td>
+</tr>
+
+<tr>
+<td>&#45;s</td>
+<td>Creates only one plot including all the defined vectors and cases.</td>
+</tr>
+
+<tr>
+<td>&#45;n</td>
+<td>Scales all curves into the range 0.0-1.0. Useful when using -s.</td>
+</tr>
+
+<tr>
+<td>&#45;e</td>
+<td>Imports all the cases as an ensemble, and create ensemble curves sets instead of single curves.</td>
+</tr>
+
+<tr>
+<td>&#45;c  &lt;parametername&gt;</td>
+<td>Same as <em>-e</em>, but colors the curves by the ensemble parameter <parametername> .</td>
+</tr>
+
+<tr>
+<td>&#45;cl &lt;parametername&gt;</td>
+<td>Same as <em>-c</em>, but uses logarithmic legend.</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="testing">Testing</h3>
 
 <table>
 <thead>
@@ -1847,26 +2064,11 @@ if (!doNotTrack) {
 
 <p>See also the <a href="/misc/regressiontestsystem/">Regression Test System </a> for a more in-depth explanation.</p>
 
+<h2 id="examples">Examples</h2>
 
-<div class="notices note" ><p><b>Reduce project load time using <code>&ndash;replaceSourceCases</code></b>
- <br>
-ResInsight stores data computed by statistics calculation in a cache file. When a project file is loaded, data from this cache is also imported. For large cases, the cached data can be large. When replacing source cases during batch, this data is never used and can be removed from the cache using the following workaround:
-<br>
-  - Open the project file used to produce statistics
-  <br>
-  - Select the statistics object in the project tree
-  <br>
-  - Click the button <b>Edit (Will DELETE current result)</b>
-  <br>
-  - Save the project file</p>
-</div>
+<p>Most examples are also available from the <a href="https://github.com/OPM/ResInsight/tree/master/TestModels/Case_with_10_timesteps">test section</a>.</p>
 
-
-<h2 id="usage-examples">Usage Examples</h2>
-
-<p>These examples are also available from the <a href="https://github.com/OPM/ResInsight/tree/master/TestModels/Case_with_10_timesteps">test section</a>.</p>
-
-<h3 id="example-1-create-snapshots-of-all-views-for-multiple-cases">Example 1 : Create snapshots of all views for multiple cases</h3>
+<h3 id="create-snapshots-of-all-views-for-multiple-cases">Create snapshots of all views for multiple cases</h3>
 
 <p>A list of cases is defined in <strong>CaseList.txt</strong>, containing the following</p>
 
@@ -1883,7 +2085,7 @@ Real40/BRUGGE_0040.EGRID
 
 <p>This will instruct ResInsight to read the project file <strong>BatchTest.rsp</strong>. All cases will be replaced one by one in ResInsight, and snapshots of all views will be written to file.</p>
 
-<h3 id="example-2-replace-a-single-case-and-take-snapshots-of-all-views">Example 2 : Replace a single case and take snapshots of all views</h3>
+<h3 id="replace-a-single-case-and-take-snapshots-of-all-views">Replace a single case and take snapshots of all views</h3>
 
 <p>The command line used to run this example is shown here:</p>
 
@@ -1892,7 +2094,7 @@ Real40/BRUGGE_0040.EGRID
 
 <p>This will instruct ResInsight to read the project file <strong>BatchTest.rsp</strong>. The specified case <strong>Real10\BRUGGE_0010.EGRID</strong> will be imported into the project, and snapshots of all views will be written to file.</p>
 
-<h3 id="example-3-replace-source-cases-in-a-case-group-and-create-snapshot">Example 3 : Replace source cases in a case group and create snapshot</h3>
+<h3 id="replace-source-cases-in-a-case-group-and-create-snapshot">Replace source cases in a case group and create snapshot</h3>
 
 <p>A list of cases is defined in <strong>CaseList2.txt</strong>, containing the following</p>
 
@@ -1907,7 +2109,7 @@ Real10/BRUGGE_0010.EGRID
 
 <p>This will instruct ResInsight to read the project file <strong>BatchStatistics.rsp</strong>. All cases specified will be imported in the case group specified in the project file. Statistics will be computed, and snapshots for all views will be written to file.</p>
 
-<h3 id="example-4-replace-source-cases-in-multiple-case-groups-and-create-snapshots">Example 4 : Replace source cases in multiple case groups and create snapshots</h3>
+<h3 id="replace-source-cases-in-multiple-case-groups-and-create-snapshots">Replace source cases in multiple case groups and create snapshots</h3>
 
 <p>Multiple source case groups can be updated by repeating the replaceSourceCases parameter.</p>
 
@@ -1919,6 +2121,25 @@ Real10/BRUGGE_0010.EGRID
 <p>This will instruct ResInsight to read the project file <strong>BatchStatistics.rsp</strong>. Source cases for case group 0 is given in CaseList2.txt, and source cases for case group 1 is given in CaseList3.txt. Statistics will be computed, and snapshots for all views will be written to file.</p>
 
 <p>The possibility to replace multiple cases can also be applied for single case replace (parameter <em>replaceCase</em>).</p>
+
+<h3 id="summary-plotting-1">Summary plotting</h3>
+
+<p>The following command line performs a <a href="/plot-window/summaryplots/">summary plot</a> for <em>FOPT</em> based on Eclipse summary file <em>1_R001_REEK-0.SMSPEC</em>.</p>
+
+<pre><code>ResInsight --summaryplot 1_R001_REEK-0 FOPT
+</code></pre>
+
+<p>Based on file <em>1_R001_REEK-0.SMSPEC</em>, the following command line performs a <a href="/plot-window/summaryplots/">summary plot</a>
+for <em>FOPT</em> and any <em>WOPT</em>-vector for well <em>op_2</em>.
+The trailing option <em>-s</em> gathers the vectors into a single summary plot.</p>
+
+<pre><code>ResInsight --summaryplot 1_R001_REEK-0 FOPT WOPT*:op_2 -s
+</code></pre>
+
+<p>Adding to previous example, the following command line also plots the 3D grid property <code>SOIL</code> for cell (20, 21, 1).</p>
+
+<pre><code>ResInsight --summaryplot 1_R001_REEK-0 FOPT WOPT*:op_2 SOIL:20,21,1
+</code></pre>
 
 
 <footer class=" footline" >
@@ -2068,6 +2289,11 @@ Real10/BRUGGE_0010.EGRID
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -2109,22 +2335,6 @@ Real10/BRUGGE_0010.EGRID
                     
                         
             
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
             
         
                     
@@ -2175,198 +2385,6 @@ Real10/BRUGGE_0010.EGRID
                     
             
         
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
                     
                         
             
@@ -2688,6 +2706,150 @@ Real10/BRUGGE_0010.EGRID
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -2815,6 +2977,150 @@ Real10/BRUGGE_0010.EGRID
                     
                     
 
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
                     
                         
             
@@ -3150,20 +3456,20 @@ Real10/BRUGGE_0010.EGRID
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1569932070"></script>
-    <script src="/js/perfect-scrollbar.min.js?1569932070"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1569932070"></script>
-    <script src="/js/jquery.sticky.js?1569932070"></script>
-    <script src="/js/featherlight.min.js?1569932070"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1569932070"></script>
-    <script src="/js/highlight.pack.js?1569932070"></script>
+    <script src="/js/clipboard.min.js?1576757743"></script>
+    <script src="/js/perfect-scrollbar.min.js?1576757743"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1576757743"></script>
+    <script src="/js/jquery.sticky.js?1576757743"></script>
+    <script src="/js/featherlight.min.js?1576757743"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1576757743"></script>
+    <script src="/js/highlight.pack.js?1576757743"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1569932070"></script>
-    <script src="/js/learn.js?1569932070"></script>
-    <script src="/js/hugo-learn.js?1569932070"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1576757743"></script>
+    <script src="/js/learn.js?1576757743"></script>
+    <script src="/js/hugo-learn.js?1576757743"></script>
 
-    <link href="/mermaid/mermaid.css?1569932070" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1569932070"></script>
+    <link href="/mermaid/mermaid.css?1576757743" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1576757743"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
