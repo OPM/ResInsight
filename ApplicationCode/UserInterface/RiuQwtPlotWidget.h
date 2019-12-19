@@ -43,6 +43,8 @@ class QwtPlotPicker;
 
 class QEvent;
 class QLabel;
+class QPainter;
+class QPaintDevice;
 
 //==================================================================================================
 //
@@ -103,7 +105,8 @@ public:
     void removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
     void updateLayout() override;
 
-    void renderTo( QPainter* painter, const QRect& targetRect );
+	void renderTo( QPainter* painter, const QRect& targetRect );
+    void renderTo( QPaintDevice* painter, const QRect& targetRect );
     int  overlayMargins() const;
 
 protected:

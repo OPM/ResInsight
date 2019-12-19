@@ -304,11 +304,11 @@ void RimMultiPlotWindow::doSetAutoScaleYEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlotWindow::doRenderWindowContent( QPainter* painter )
+void RimMultiPlotWindow::doRenderWindowContent( QPaintDevice* paintDevice )
 {
     if ( m_viewer )
     {
-        m_viewer->renderTo( painter );
+        m_viewer->renderTo( paintDevice );
     }
 }
 
@@ -439,9 +439,8 @@ QImage RimMultiPlotWindow::snapshotWindowContent()
 
     if ( m_viewer )
     {
-        QPixmap  pix( m_viewer->size() );
-        QPainter painter( &pix );
-        m_viewer->renderTo( &painter );
+        QPixmap pix( m_viewer->size() );
+        m_viewer->renderTo( &pix );
         image = pix.toImage();
     }
 

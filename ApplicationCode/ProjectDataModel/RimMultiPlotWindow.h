@@ -129,7 +129,7 @@ private:
     virtual void updateSubPlotNames();
     virtual void updatePlotWindowTitle();
     virtual void doSetAutoScaleYEnabled( bool enabled );
-    void         doRenderWindowContent( QPainter* painter ) override;
+    void         doRenderWindowContent( QPaintDevice* paintDevice ) override;
 
 protected:
     caf::PdmField<bool>            m_showPlotWindowTitle;

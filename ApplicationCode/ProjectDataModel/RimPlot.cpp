@@ -127,10 +127,10 @@ void RimPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlot::doRenderWindowContent( QPainter* painter )
+void RimPlot::doRenderWindowContent( QPaintDevice* paintDevice )
 {
     if ( viewer() )
     {
-        viewer()->renderTo( painter, viewer()->frameGeometry() );
+        viewer()->renderTo( paintDevice, viewer()->frameGeometry() );
     }
 }

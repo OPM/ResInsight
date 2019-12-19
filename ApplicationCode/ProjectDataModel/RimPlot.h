@@ -32,6 +32,8 @@ class RiuQwtPlotWidget;
 class RimPlotCurve;
 class QwtPlotCurve;
 
+class QPaintDevice;
+
 //==================================================================================================
 ///
 ///
@@ -93,7 +95,7 @@ protected:
 
 private:
     virtual void doRemoveFromCollection() = 0;
-    virtual void doRenderWindowContent( QPainter* painter );
+    virtual void doRenderWindowContent( QPaintDevice* paintDevice );
 
 protected:
     caf::PdmField<RowOrColSpanEnum> m_rowSpan;

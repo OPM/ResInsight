@@ -37,7 +37,7 @@ protected:
 
     void reinsertScrollbar();
     void alignScrollbar( int offset );
-    void doRenderTo( QPainter* painter ) override;
+    void doRenderTo( QPaintDevice* paintDevice ) override;
 
 private:
     RimWellLogPlot* wellLogPlotDefinition();

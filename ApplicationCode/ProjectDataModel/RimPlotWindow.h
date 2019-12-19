@@ -30,6 +30,7 @@ class RimProject;
 
 class QwtPlotCurve;
 class QKeyEvent;
+class QPaintDevice;
 
 //==================================================================================================
 ///
@@ -59,7 +60,7 @@ public:
     void updateLayout();
     void updateParentLayout();
 
-    void        renderWindowContent( QPainter* painter );
+    void        renderWindowContent( QPaintDevice* painter );
     QPageLayout pageLayout() const;
 
 protected:
@@ -75,7 +76,7 @@ protected:
 private:
     virtual void doUpdateLayout() {}
     virtual bool hasCustomPageLayout( QPageLayout* customPageLayout ) const;
-    virtual void doRenderWindowContent( QPainter* painter ) = 0;
+    virtual void doRenderWindowContent( QPaintDevice* paintDevice ) = 0;
 
 private:
     friend class RimProject;
