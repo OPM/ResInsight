@@ -21,12 +21,12 @@
 
 #include "RiaApplication.h"
 #include "RiaDefines.h"
-#include "RiaPreferences.h"
 #include "RiaFontCache.h"
+#include "RiaPreferences.h"
 #include "RigStatisticsCalculator.h"
 
-#include "RimRiuQwtPlotOwnerInterface.h"
 #include "RimPlotAxisAnnotation.h"
+#include "RimPlotInterface.h"
 
 #include "cafPdmUiSliderEditor.h"
 
@@ -105,7 +105,7 @@ RimPlotAxisProperties::RimPlotAxisProperties()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setEnableTitleTextSettings(bool enable)
+void RimPlotAxisProperties::setEnableTitleTextSettings( bool enable )
 {
     m_enableTitleTextSettings = enable;
 }
@@ -121,39 +121,39 @@ caf::PdmFieldHandle* RimPlotAxisProperties::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimPlotAxisProperties::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                              bool*                      useOptionsOnly)
+QList<caf::PdmOptionItemInfo>
+    RimPlotAxisProperties::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
 
-    if (&m_titleFontSize == fieldNeedingOptions || &m_valuesFontSize == fieldNeedingOptions)
+    if ( &m_titleFontSize == fieldNeedingOptions || &m_valuesFontSize == fieldNeedingOptions )
     {
         std::vector<int> fontSizes;
-        fontSizes.push_back(8);
-        fontSizes.push_back(9);
-        fontSizes.push_back(10);
-        fontSizes.push_back(11);
-        fontSizes.push_back(12);
-        fontSizes.push_back(14);
-        fontSizes.push_back(16);
-        fontSizes.push_back(18);
-        fontSizes.push_back(24);
+        fontSizes.push_back( 8 );
+        fontSizes.push_back( 9 );
+        fontSizes.push_back( 10 );
+        fontSizes.push_back( 11 );
+        fontSizes.push_back( 12 );
+        fontSizes.push_back( 14 );
+        fontSizes.push_back( 16 );
+        fontSizes.push_back( 18 );
+        fontSizes.push_back( 24 );
 
-        for (int value : fontSizes)
+        for ( int value : fontSizes )
         {
-            QString text = QString("%1").arg(value);
-            options.push_back(caf::PdmOptionItemInfo(text, value));
+            QString text = QString( "%1" ).arg( value );
+            options.push_back( caf::PdmOptionItemInfo( text, value ) );
         }
     }
-    else if (fieldNeedingOptions == &scaleFactor)
+    else if ( fieldNeedingOptions == &scaleFactor )
     {
-        for (int exp = -12; exp <= 12; exp += 3)
+        for ( int exp = -12; exp <= 12; exp += 3 )
         {
-            QString uiText = exp == 0 ? "1" : QString("10 ^ %1").arg(exp);
-            double  value  = std::pow(10, exp);
+            QString uiText = exp == 0 ? "1" : QString( "10 ^ %1" ).arg( exp );
+            double  value  = std::pow( 10, exp );
 
-            options.push_back(caf::PdmOptionItemInfo(uiText, value));
+            options.push_back( caf::PdmOptionItemInfo( uiText, value ) );
         }
     }
 
@@ -163,62 +163,62 @@ QList<caf::PdmOptionItemInfo> RimPlotAxisProperties::calculateValueOptions(const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if (m_enableTitleTextSettings)
+    if ( m_enableTitleTextSettings )
     {
-        caf::PdmUiGroup* titleTextGroup = uiOrdering.addNewGroup("Title Text");
+        caf::PdmUiGroup* titleTextGroup = uiOrdering.addNewGroup( "Title Text" );
 
-        titleTextGroup->add(&isAutoTitle);
+        titleTextGroup->add( &isAutoTitle );
 
-        if (isAutoTitle())
+        if ( isAutoTitle() )
         {
-            titleTextGroup->add(&m_displayLongName);
-            titleTextGroup->add(&m_displayShortName);
-            titleTextGroup->add(&m_displayUnitText);
+            titleTextGroup->add( &m_displayLongName );
+            titleTextGroup->add( &m_displayShortName );
+            titleTextGroup->add( &m_displayUnitText );
 
-            customTitle.uiCapability()->setUiReadOnly(true);
+            customTitle.uiCapability()->setUiReadOnly( true );
         }
         else
         {
-            titleTextGroup->add(&customTitle);
-            customTitle.uiCapability()->setUiReadOnly(false);
+            titleTextGroup->add( &customTitle );
+            customTitle.uiCapability()->setUiReadOnly( false );
         }
     }
 
     {
-        caf::PdmUiGroup* titleGroup = uiOrdering.addNewGroup("Title Layout");
-        titleGroup->add(&m_titlePositionEnum);
-        titleGroup->add(&m_titleFontSize);
+        caf::PdmUiGroup* titleGroup = uiOrdering.addNewGroup( "Title Layout" );
+        titleGroup->add( &m_titlePositionEnum );
+        titleGroup->add( &m_titleFontSize );
     }
 
-    caf::PdmUiGroup& scaleGroup = *(uiOrdering.addNewGroup("Axis Values"));
-    scaleGroup.add(&isLogarithmicScaleEnabled);
-    scaleGroup.add(&m_isAxisInverted);
-    scaleGroup.add(&numberFormat);
+    caf::PdmUiGroup& scaleGroup = *( uiOrdering.addNewGroup( "Axis Values" ) );
+    scaleGroup.add( &isLogarithmicScaleEnabled );
+    scaleGroup.add( &m_isAxisInverted );
+    scaleGroup.add( &numberFormat );
 
-    if (numberFormat() != NUMBER_FORMAT_AUTO)
+    if ( numberFormat() != NUMBER_FORMAT_AUTO )
     {
-        scaleGroup.add(&numberOfDecimals);
+        scaleGroup.add( &numberOfDecimals );
     }
-    scaleGroup.add(&scaleFactor);
-    scaleGroup.add(&visibleRangeMin);
-    scaleGroup.add(&visibleRangeMax);
-    scaleGroup.add(&m_valuesFontSize);
+    scaleGroup.add( &scaleFactor );
+    scaleGroup.add( &visibleRangeMin );
+    scaleGroup.add( &visibleRangeMax );
+    scaleGroup.add( &m_valuesFontSize );
 
-    uiOrdering.skipRemainingFields(true);
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setNameAndAxis(const QString& name, QwtPlot::Axis axis)
+void RimPlotAxisProperties::setNameAndAxis( const QString& name, QwtPlot::Axis axis )
 {
     m_name = name;
     m_axis = axis;
 
-    if (axis == QwtPlot::yRight) this->setUiIconFromResourceString(":/RightAxis16x16.png");
-    if (axis == QwtPlot::xBottom) this->setUiIconFromResourceString(":/BottomAxis16x16.png");
+    if ( axis == QwtPlot::yRight ) this->setUiIconFromResourceString( ":/RightAxis16x16.png" );
+    if ( axis == QwtPlot::xBottom ) this->setUiIconFromResourceString( ":/BottomAxis16x16.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -240,7 +240,7 @@ int RimPlotAxisProperties::titleFontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setTitleFontSize(int fontSize)
+void RimPlotAxisProperties::setTitleFontSize( int fontSize )
 {
     m_titleFontSize = fontSize;
 }
@@ -256,7 +256,7 @@ int RimPlotAxisProperties::valuesFontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setValuesFontSize(int fontSize)
+void RimPlotAxisProperties::setValuesFontSize( int fontSize )
 {
     m_valuesFontSize = fontSize;
 }
@@ -282,8 +282,8 @@ QString RimPlotAxisProperties::name() const
 //--------------------------------------------------------------------------------------------------
 RiaDefines::PlotAxis RimPlotAxisProperties::plotAxisType() const
 {
-    if (m_axis == QwtPlot::yRight) return RiaDefines::PLOT_AXIS_RIGHT;
-    if (m_axis == QwtPlot::xBottom) return RiaDefines::PLOT_AXIS_BOTTOM;
+    if ( m_axis == QwtPlot::yRight ) return RiaDefines::PLOT_AXIS_RIGHT;
+    if ( m_axis == QwtPlot::xBottom ) return RiaDefines::PLOT_AXIS_BOTTOM;
 
     return RiaDefines::PLOT_AXIS_LEFT;
 }
@@ -331,7 +331,7 @@ bool RimPlotAxisProperties::isAutoZoom() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setAutoZoom(bool enableAutoZoom)
+void RimPlotAxisProperties::setAutoZoom( bool enableAutoZoom )
 {
     m_isAutoZoom = enableAutoZoom;
 }
@@ -345,7 +345,7 @@ bool RimPlotAxisProperties::isAxisInverted() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotAxisAnnotation*> RimPlotAxisProperties::annotations() const
 {
@@ -353,17 +353,17 @@ std::vector<RimPlotAxisAnnotation*> RimPlotAxisProperties::annotations() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::appendAnnotation(RimPlotAxisAnnotation* annotation)
+void RimPlotAxisProperties::appendAnnotation( RimPlotAxisAnnotation* annotation )
 {
-    m_annotations.push_back(annotation);
+    m_annotations.push_back( annotation );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setAxisInverted(bool inverted)
+void RimPlotAxisProperties::setAxisInverted( bool inverted )
 {
     m_isAxisInverted = inverted;
 }
@@ -377,55 +377,56 @@ bool RimPlotAxisProperties::isActive() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setInvertedAxis(bool enable)
+void RimPlotAxisProperties::setInvertedAxis( bool enable )
 {
     m_isAxisInverted = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::showAnnotationObjectsInProjectTree()
 {
-    m_annotations.uiCapability()->setUiTreeChildrenHidden(false);
+    m_annotations.uiCapability()->setUiTreeChildrenHidden( false );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
-                                                const QVariant& newValue)
+void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                              const QVariant&            oldValue,
+                                              const QVariant&            newValue )
 {
-    if (changedField == &isAutoTitle)
+    if ( changedField == &isAutoTitle )
     {
         updateOptionSensitivity();
     }
-    else if (changedField == &visibleRangeMax)
+    else if ( changedField == &visibleRangeMax )
     {
-        if (visibleRangeMin > visibleRangeMax) visibleRangeMax = oldValue.toDouble();
+        if ( visibleRangeMin > visibleRangeMax ) visibleRangeMax = oldValue.toDouble();
 
         m_isAutoZoom = false;
     }
-    else if (changedField == &visibleRangeMin)
+    else if ( changedField == &visibleRangeMin )
     {
-        if (visibleRangeMin > visibleRangeMax) visibleRangeMin = oldValue.toDouble();
+        if ( visibleRangeMin > visibleRangeMax ) visibleRangeMin = oldValue.toDouble();
 
         m_isAutoZoom = false;
     }
 
-    RimRiuQwtPlotOwnerInterface* parentPlot = nullptr;
-    this->firstAncestorOrThisOfType(parentPlot);
-    if (parentPlot)
+    RimPlotInterface* parentPlot = nullptr;
+    this->firstAncestorOrThisOfType( parentPlot );
+    if ( parentPlot )
     {
-        if (changedField == &isLogarithmicScaleEnabled)
+        if ( changedField == &isLogarithmicScaleEnabled )
         {
-            parentPlot->updateAxisScaling();
+            parentPlot->loadDataAndUpdate();
         }
         else
         {
-            parentPlot->updateAxisDisplay();
+            parentPlot->updateAxes();
         }
     }
 }
@@ -435,7 +436,7 @@ void RimPlotAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::updateOptionSensitivity()
 {
-    customTitle.uiCapability()->setUiReadOnly(isAutoTitle);
+    customTitle.uiCapability()->setUiReadOnly( isAutoTitle );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -457,47 +458,47 @@ caf::PdmFieldHandle* RimPlotAxisProperties::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlotAxisLogRangeCalculator::RimPlotAxisLogRangeCalculator(QwtPlot::Axis                     axis,
-                                                             const std::vector<const QwtPlotCurve*>& qwtCurves)
-    : m_axis(axis)
-    , m_curves(qwtCurves)
+RimPlotAxisLogRangeCalculator::RimPlotAxisLogRangeCalculator( QwtPlot::Axis                           axis,
+                                                              const std::vector<const QwtPlotCurve*>& qwtCurves )
+    : m_axis( axis )
+    , m_curves( qwtCurves )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisLogRangeCalculator::computeAxisRange(double* minPositive, double* max) const
+void RimPlotAxisLogRangeCalculator::computeAxisRange( double* minPositive, double* max ) const
 {
-    double minPosValue    = HUGE_VAL;
-    double maxValue       = -HUGE_VAL;
+    double minPosValue = HUGE_VAL;
+    double maxValue    = -HUGE_VAL;
 
-    for (const QwtPlotCurve* curve : m_curves)
+    for ( const QwtPlotCurve* curve : m_curves )
     {
-        double minPosCurveValue    = HUGE_VAL;
-        double maxCurveValue       = -HUGE_VAL;
+        double minPosCurveValue = HUGE_VAL;
+        double maxCurveValue    = -HUGE_VAL;
 
-        if (curveValueRange(curve, &minPosCurveValue, &maxCurveValue))
+        if ( curveValueRange( curve, &minPosCurveValue, &maxCurveValue ) )
         {
-            if (minPosCurveValue < minPosValue)
+            if ( minPosCurveValue < minPosValue )
             {
-                CVF_ASSERT(minPosCurveValue > 0.0);
+                CVF_ASSERT( minPosCurveValue > 0.0 );
                 minPosValue = minPosCurveValue;
             }
 
-            if (maxCurveValue > maxValue)
+            if ( maxCurveValue > maxValue )
             {
                 maxValue = maxCurveValue;
             }
         }
     }
 
-    if (minPosValue == HUGE_VAL)
+    if ( minPosValue == HUGE_VAL )
     {
         minPosValue = RiaDefines::minimumDefaultLogValuePlot();
         maxValue    = RiaDefines::maximumDefaultValuePlot();
     }
-  
+
     *minPositive = minPosValue;
     *max         = maxValue;
 }
@@ -505,11 +506,11 @@ void RimPlotAxisLogRangeCalculator::computeAxisRange(double* minPositive, double
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPlotAxisLogRangeCalculator::curveValueRange(const QwtPlotCurve* qwtCurve, double* minPositive, double* max) const
+bool RimPlotAxisLogRangeCalculator::curveValueRange( const QwtPlotCurve* qwtCurve, double* minPositive, double* max ) const
 {
-    if (!qwtCurve) return false;
+    if ( !qwtCurve ) return false;
 
-    if (qwtCurve->data()->size() < 1)
+    if ( qwtCurve->data()->size() < 1 )
     {
         return false;
     }
@@ -518,27 +519,27 @@ bool RimPlotAxisLogRangeCalculator::curveValueRange(const QwtPlotCurve* qwtCurve
     float maxF    = -std::numeric_limits<float>::infinity();
 
     int axisValueIndex = 0;
-    if (m_axis == QwtPlot::yLeft || m_axis == QwtPlot::yRight)
+    if ( m_axis == QwtPlot::yLeft || m_axis == QwtPlot::yRight )
     {
         axisValueIndex = 1;
     }
 
-    for (size_t i = 0; i < qwtCurve->dataSize(); ++i)
+    for ( size_t i = 0; i < qwtCurve->dataSize(); ++i )
     {
-        QPointF sample = qwtCurve->sample((int) i);
-        cvf::Vec2f vec(sample.x(), sample.y());
-        float value = vec[axisValueIndex];
-        if (value == HUGE_VALF) continue;
+        QPointF    sample = qwtCurve->sample( (int)i );
+        cvf::Vec2f vec( sample.x(), sample.y() );
+        float      value = vec[axisValueIndex];
+        if ( value == HUGE_VALF ) continue;
 
-        maxF = std::max(maxF, value);
-        if (value > 0.0f && value < minPosF)
+        maxF = std::max( maxF, value );
+        if ( value > 0.0f && value < minPosF )
         {
             minPosF = value;
         }
     }
 
     *minPositive = minPosF;
-    *max = maxF;
+    *max         = maxF;
 
     return true;
 }

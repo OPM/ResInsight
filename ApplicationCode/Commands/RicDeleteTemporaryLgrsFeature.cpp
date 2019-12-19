@@ -30,18 +30,18 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicDeleteTemporaryLgrsFeature, "RicDeleteTemporaryLgrsFeature");
+CAF_CMD_SOURCE_INIT( RicDeleteTemporaryLgrsFeature, "RicDeleteTemporaryLgrsFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs(RimEclipseCase* eclipseCase)
+void RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs( RimEclipseCase* eclipseCase )
 {
     RiaGuiApplication::clearAllSelections();
 
-    if (eclipseCase)
+    if ( eclipseCase )
     {
-        RimReloadCaseTools::reloadAllEclipseGridData(eclipseCase);
+        RimReloadCaseTools::reloadAllEclipseGridData( eclipseCase );
     }
 }
 
@@ -51,7 +51,7 @@ void RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs(RimEclipseCase* eclip
 bool RicDeleteTemporaryLgrsFeature::isCommandEnabled()
 {
     std::vector<RimGridInfoCollection*> selGridInfos = caf::selectedObjectsByTypeStrict<RimGridInfoCollection*>();
-    if (selGridInfos.size() == 1 && selGridInfos.front()->uiName() == RimGridCollection::temporaryGridUiName())
+    if ( selGridInfos.size() == 1 && selGridInfos.front()->uiName() == RimGridCollection::temporaryGridUiName() )
     {
         return !selGridInfos[0]->gridInfos().empty();
     }
@@ -62,24 +62,24 @@ bool RicDeleteTemporaryLgrsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteTemporaryLgrsFeature::onActionTriggered(bool isChecked)
+void RicDeleteTemporaryLgrsFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimGridInfoCollection*> selGridInfos = caf::selectedObjectsByTypeStrict<RimGridInfoCollection*>();
-    if (selGridInfos.size() == 1 && selGridInfos.front()->uiName() == RimGridCollection::temporaryGridUiName())
+    if ( selGridInfos.size() == 1 && selGridInfos.front()->uiName() == RimGridCollection::temporaryGridUiName() )
     {
         RimEclipseCase* eclipseCase;
-        selGridInfos.front()->firstAncestorOrThisOfType(eclipseCase);
+        selGridInfos.front()->firstAncestorOrThisOfType( eclipseCase );
 
-        deleteAllTemporaryLgrs(eclipseCase);
+        deleteAllTemporaryLgrs( eclipseCase );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteTemporaryLgrsFeature::setupActionLook(QAction* actionToSetup)
+void RicDeleteTemporaryLgrsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Delete Temporary LGRs");
-    actionToSetup->setIcon(QIcon(":/Erase.png"));
-    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
+    actionToSetup->setText( "Delete Temporary LGRs" );
+    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
 }

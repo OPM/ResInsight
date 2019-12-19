@@ -29,23 +29,25 @@
 //==================================================================================================
 ///
 //==================================================================================================
-RigCompletionData::RigCompletionData(const QString wellName, const RigCompletionDataGridCell& cellIndex, double orderingValue)
-    : m_wellName(wellName)
-    , m_cellIndex(cellIndex)
-    , m_saturation(std::numeric_limits<double>::infinity())
-    , m_transmissibility(std::numeric_limits<double>::infinity())
-    , m_diameter(std::numeric_limits<double>::infinity())
-    , m_kh(std::numeric_limits<double>::infinity())
-    , m_skinFactor(std::numeric_limits<double>::infinity())
-    , m_dFactor(std::numeric_limits<double>::infinity())
-    , m_direction(DIR_UNDEF)
-    , m_connectionState(OPEN)
-    , m_count(1)
-    , m_wpimult(std::numeric_limits<double>::infinity())
-    , m_isMainBore(false)
-    , m_completionType(CT_UNDEFINED)
-    , m_firstOrderingValue(orderingValue)
-    , m_secondOrderingValue(std::numeric_limits<double>::infinity())
+RigCompletionData::RigCompletionData( const QString&                   wellName,
+                                      const RigCompletionDataGridCell& cellIndex,
+                                      double                           orderingValue )
+    : m_wellName( wellName )
+    , m_cellIndex( cellIndex )
+    , m_saturation( std::numeric_limits<double>::infinity() )
+    , m_transmissibility( std::numeric_limits<double>::infinity() )
+    , m_diameter( std::numeric_limits<double>::infinity() )
+    , m_kh( std::numeric_limits<double>::infinity() )
+    , m_skinFactor( std::numeric_limits<double>::infinity() )
+    , m_dFactor( std::numeric_limits<double>::infinity() )
+    , m_direction( DIR_UNDEF )
+    , m_connectionState( OPEN )
+    , m_count( 1 )
+    , m_wpimult( std::numeric_limits<double>::infinity() )
+    , m_isMainBore( false )
+    , m_completionType( CT_UNDEFINED )
+    , m_firstOrderingValue( orderingValue )
+    , m_secondOrderingValue( std::numeric_limits<double>::infinity() )
 {
 }
 
@@ -57,34 +59,34 @@ RigCompletionData::~RigCompletionData() {}
 //==================================================================================================
 ///
 //==================================================================================================
-RigCompletionData::RigCompletionData(const RigCompletionData& other)
+RigCompletionData::RigCompletionData( const RigCompletionData& other )
 {
-    copy(*this, other);
+    copy( *this, other );
 }
 
 //==================================================================================================
 ///
 //==================================================================================================
-bool RigCompletionData::operator<(const RigCompletionData& other) const
+bool RigCompletionData::operator<( const RigCompletionData& other ) const
 {
-    if (m_wellName != other.m_wellName)
+    if ( m_wellName != other.m_wellName )
     {
-        return (m_wellName < other.m_wellName);
+        return ( m_wellName < other.m_wellName );
     }
 
-    if (m_completionType != other.m_completionType)
+    if ( m_completionType != other.m_completionType )
     {
-        return (m_completionType < other.m_completionType);
+        return ( m_completionType < other.m_completionType );
     }
 
-    if (m_firstOrderingValue != other.m_firstOrderingValue)
+    if ( m_firstOrderingValue != other.m_firstOrderingValue )
     {
-        return (m_firstOrderingValue < other.m_firstOrderingValue);
+        return ( m_firstOrderingValue < other.m_firstOrderingValue );
     }
 
-    if (m_secondOrderingValue != other.m_secondOrderingValue)
+    if ( m_secondOrderingValue != other.m_secondOrderingValue )
     {
-        return (m_secondOrderingValue < other.m_secondOrderingValue);
+        return ( m_secondOrderingValue < other.m_secondOrderingValue );
     }
 
     return m_cellIndex < other.m_cellIndex;
@@ -93,11 +95,11 @@ bool RigCompletionData::operator<(const RigCompletionData& other) const
 //==================================================================================================
 ///
 //==================================================================================================
-RigCompletionData& RigCompletionData::operator=(const RigCompletionData& other)
+RigCompletionData& RigCompletionData::operator=( const RigCompletionData& other )
 {
-    if (this != &other)
+    if ( this != &other )
     {
-        copy(*this, other);
+        copy( *this, other );
     }
     return *this;
 }
@@ -105,7 +107,7 @@ RigCompletionData& RigCompletionData::operator=(const RigCompletionData& other)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigCompletionData::isPerforationValve(CompletionType type)
+bool RigCompletionData::isPerforationValve( CompletionType type )
 {
     return type == PERFORATION_AICD || type == PERFORATION_ICD || type == PERFORATION_ICV;
 }
@@ -113,15 +115,15 @@ bool RigCompletionData::isPerforationValve(CompletionType type)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigCompletionData::isValve(CompletionType type)
+bool RigCompletionData::isValve( CompletionType type )
 {
-    return isPerforationValve(type) || type == FISHBONES_ICD;
+    return isPerforationValve( type ) || type == FISHBONES_ICD;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigCompletionData::isWsegValveTypes(CompletionType type)
+bool RigCompletionData::isWsegValveTypes( CompletionType type )
 {
     return type == FISHBONES_ICD || type == PERFORATION_ICD || type == PERFORATION_ICV;
 }
@@ -129,7 +131,7 @@ bool RigCompletionData::isWsegValveTypes(CompletionType type)
 //==================================================================================================
 ///
 //==================================================================================================
-void RigCompletionData::setFromFracture(double transmissibility, double skinFactor, double diameter)
+void RigCompletionData::setFromFracture( double transmissibility, double skinFactor, double diameter )
 {
     m_completionType   = FRACTURE;
     m_transmissibility = transmissibility;
@@ -140,7 +142,7 @@ void RigCompletionData::setFromFracture(double transmissibility, double skinFact
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCompletionData::setSecondOrderingValue(double orderingValue)
+void RigCompletionData::setSecondOrderingValue( double orderingValue )
 {
     m_secondOrderingValue = orderingValue;
 }
@@ -148,7 +150,7 @@ void RigCompletionData::setSecondOrderingValue(double orderingValue)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCompletionData::setDiameter(double diameter)
+void RigCompletionData::setDiameter( double diameter )
 {
     m_diameter = diameter;
 }
@@ -156,7 +158,7 @@ void RigCompletionData::setDiameter(double diameter)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCompletionData::setTransmissibility(double transmissibility)
+void RigCompletionData::setTransmissibility( double transmissibility )
 {
     m_transmissibility = transmissibility;
 }
@@ -164,11 +166,11 @@ void RigCompletionData::setTransmissibility(double transmissibility)
 //==================================================================================================
 ///
 //==================================================================================================
-void RigCompletionData::setTransAndWPImultBackgroundDataFromFishbone(double        transmissibility,
-                                                                     double        skinFactor,
-                                                                     double        diameter,
-                                                                     CellDirection direction,
-                                                                     bool          isMainBore)
+void RigCompletionData::setTransAndWPImultBackgroundDataFromFishbone( double        transmissibility,
+                                                                      double        skinFactor,
+                                                                      double        diameter,
+                                                                      CellDirection direction,
+                                                                      bool          isMainBore )
 {
     m_completionType   = FISHBONES;
     m_transmissibility = transmissibility;
@@ -181,12 +183,12 @@ void RigCompletionData::setTransAndWPImultBackgroundDataFromFishbone(double     
 //==================================================================================================
 ///
 //==================================================================================================
-void RigCompletionData::setTransAndWPImultBackgroundDataFromPerforation(double        transmissibility,
-                                                                        double        skinFactor,
-                                                                        double        diameter,
-                                                                        double        dFactor,
-                                                                        double        kh,
-                                                                        CellDirection direction)
+void RigCompletionData::setTransAndWPImultBackgroundDataFromPerforation( double        transmissibility,
+                                                                         double        skinFactor,
+                                                                         double        diameter,
+                                                                         double        dFactor,
+                                                                         double        kh,
+                                                                         CellDirection direction )
 {
     m_completionType   = PERFORATION;
     m_transmissibility = transmissibility;
@@ -201,11 +203,11 @@ void RigCompletionData::setTransAndWPImultBackgroundDataFromPerforation(double  
 //==================================================================================================
 ///
 //==================================================================================================
-void RigCompletionData::setCombinedValuesExplicitTrans(double         transmissibility,
-                                                       double         skinFactor,
-                                                       double         diameter,
-                                                       CellDirection  celldirection,
-                                                       CompletionType completionType)
+void RigCompletionData::setCombinedValuesExplicitTrans( double         transmissibility,
+                                                        double         skinFactor,
+                                                        double         diameter,
+                                                        CellDirection  celldirection,
+                                                        CompletionType completionType )
 {
     m_transmissibility = transmissibility;
     m_skinFactor       = skinFactor;
@@ -217,11 +219,11 @@ void RigCompletionData::setCombinedValuesExplicitTrans(double         transmissi
 //==================================================================================================
 ///
 //==================================================================================================
-void RigCompletionData::setCombinedValuesImplicitTransWPImult(double         wpimult,
-                                                              double         skinFactor,
-                                                              double         diameter,
-                                                              CellDirection  celldirection,
-                                                              CompletionType completionType)
+void RigCompletionData::setCombinedValuesImplicitTransWPImult( double         wpimult,
+                                                               double         skinFactor,
+                                                               double         diameter,
+                                                               CellDirection  celldirection,
+                                                               CompletionType completionType )
 {
     m_wpimult        = wpimult;
     m_direction      = celldirection;
@@ -235,8 +237,8 @@ void RigCompletionData::setCombinedValuesImplicitTransWPImult(double         wpi
 //--------------------------------------------------------------------------------------------------
 bool RigCompletionData::isNonDarcyFlow() const
 {
-    if (!isDefaultValue(m_kh)) return true;
-    if (!isDefaultValue(m_dFactor)) return true;
+    if ( !isDefaultValue( m_kh ) ) return true;
+    if ( !isDefaultValue( m_dFactor ) ) return true;
 
     return false;
 }
@@ -244,7 +246,7 @@ bool RigCompletionData::isNonDarcyFlow() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCompletionData::setDFactor(double dFactor)
+void RigCompletionData::setDFactor( double dFactor )
 {
     m_dFactor = dFactor;
 }
@@ -252,7 +254,7 @@ void RigCompletionData::setDFactor(double dFactor)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCompletionData::setKh(double kh)
+void RigCompletionData::setKh( double kh )
 {
     m_kh = kh;
 }
@@ -260,9 +262,9 @@ void RigCompletionData::setKh(double kh)
 //==================================================================================================
 ///
 //==================================================================================================
-void RigCompletionData::addMetadata(const QString& name, const QString& comment)
+void RigCompletionData::addMetadata( const QString& name, const QString& comment )
 {
-    m_metadata.push_back(RigCompletionMetaData(name, comment));
+    m_metadata.push_back( RigCompletionMetaData( name, comment ) );
 }
 
 //==================================================================================================
@@ -276,7 +278,7 @@ double RigCompletionData::defaultValue()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigCompletionData::isDefaultValue(double num)
+bool RigCompletionData::isDefaultValue( double num )
 {
     return num == defaultValue();
 }
@@ -420,9 +422,9 @@ double RigCompletionData::secondOrderingValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCompletionData::setSourcePdmObject(const caf::PdmObject* object)
+void RigCompletionData::setSourcePdmObject( const caf::PdmObject* object )
 {
-    m_sourcePdmObject = const_cast<caf::PdmObject*>(object);
+    m_sourcePdmObject = const_cast<caf::PdmObject*>( object );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -436,7 +438,7 @@ const caf::PdmObject* RigCompletionData::sourcePdmObject() const
 //==================================================================================================
 ///
 //==================================================================================================
-void RigCompletionData::copy(RigCompletionData& target, const RigCompletionData& from)
+void RigCompletionData::copy( RigCompletionData& target, const RigCompletionData& from )
 {
     target.m_metadata            = from.m_metadata;
     target.m_wellName            = from.m_wellName;

@@ -28,7 +28,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifElementPropertyReader::RifElementPropertyReader(const std::vector<int>& elementIdxToId) : m_elementIdxToId(elementIdxToId) {}
+RifElementPropertyReader::RifElementPropertyReader( const std::vector<int>& elementIdxToId )
+    : m_elementIdxToId( elementIdxToId )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -38,10 +41,11 @@ RifElementPropertyReader::~RifElementPropertyReader() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifElementPropertyReader::addFile(const std::string& fileName)
+void RifElementPropertyReader::addFile( const std::string& fileName )
 {
-    RifElementPropertyMetadata metaData = RifElementPropertyTableReader::readMetadata(QString::fromStdString(fileName));
-    for (QString field : metaData.dataColumns)
+    RifElementPropertyMetadata metaData = RifElementPropertyTableReader::readMetadata(
+        QString::fromStdString( fileName ) );
+    for ( QString field : metaData.dataColumns )
     {
         m_fieldsMetaData[field.toStdString()] = metaData;
     }
@@ -50,19 +54,19 @@ void RifElementPropertyReader::addFile(const std::string& fileName)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifElementPropertyReader::removeFile(const std::string& fileName)
+void RifElementPropertyReader::removeFile( const std::string& fileName )
 {
     std::map<std::string, RifElementPropertyMetadata> tempMetaData;
 
-    for (std::pair<std::string, RifElementPropertyMetadata> metaData : m_fieldsMetaData)
+    for ( std::pair<std::string, RifElementPropertyMetadata> metaData : m_fieldsMetaData )
     {
-        if (metaData.second.fileName.toStdString() != fileName)
+        if ( metaData.second.fileName.toStdString() != fileName )
         {
             tempMetaData[metaData.first] = metaData.second;
         }
     }
 
-    m_fieldsMetaData.swap(tempMetaData);
+    m_fieldsMetaData.swap( tempMetaData );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,9 +76,9 @@ std::vector<std::string> RifElementPropertyReader::scalarElementFields() const
 {
     std::vector<std::string> fields;
 
-    for (const std::pair<std::string, RifElementPropertyMetadata>& field : m_fieldsMetaData)
+    for ( const std::pair<std::string, RifElementPropertyMetadata>& field : m_fieldsMetaData )
     {
-        fields.push_back(field.first);
+        fields.push_back( field.first );
     }
 
     return fields;
@@ -84,44 +88,44 @@ std::vector<std::string> RifElementPropertyReader::scalarElementFields() const
 ///
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<float>>
-    RifElementPropertyReader::readAllElementPropertiesInFileContainingField(const std::string& fieldName)
+    RifElementPropertyReader::readAllElementPropertiesInFileContainingField( const std::string& fieldName )
 {
     std::map<std::string, std::vector<float>> fieldAndData;
 
-    if (m_fieldsMetaData.find(fieldName) == m_fieldsMetaData.end())
+    if ( m_fieldsMetaData.find( fieldName ) == m_fieldsMetaData.end() )
     {
         return fieldAndData;
     }
-    
+
     RifElementPropertyTable table;
-    RifElementPropertyTableReader::readData(&m_fieldsMetaData[fieldName], &table);
+    RifElementPropertyTableReader::readData( &m_fieldsMetaData[fieldName], &table );
 
-    CVF_ASSERT(m_fieldsMetaData[fieldName].dataColumns.size() == table.data.size());
+    CVF_ASSERT( m_fieldsMetaData[fieldName].dataColumns.size() == table.data.size() );
 
-    for (size_t i = 0; i < table.data.size(); i++)
+    for ( size_t i = 0; i < table.data.size(); i++ )
     {
-        CVF_ASSERT(table.data[i].size() == table.elementIds.size());
+        CVF_ASSERT( table.data[i].size() == table.elementIds.size() );
     }
 
     const std::vector<int>& elementIdsFromFile = table.elementIds;
 
-    if (elementIdsFromFile == m_elementIdxToId)
+    if ( elementIdsFromFile == m_elementIdxToId )
     {
-        for (size_t i = 0; i < table.data.size(); i++)
+        for ( size_t i = 0; i < table.data.size(); i++ )
         {
             const std::string& currentFieldFromFile = m_fieldsMetaData[fieldName].dataColumns[i].toStdString();
-            
-            if (currentFieldFromFile == "MODULUS")
+
+            if ( currentFieldFromFile == "MODULUS" )
             {
                 const std::vector<float>& currentColumn = table.data[i];
-                std::vector<float> tempResult(currentColumn.size(), 0);
+                std::vector<float>        tempResult( currentColumn.size(), 0 );
 
-                for (float resultItem : currentColumn)
+                for ( float resultItem : currentColumn )
                 {
                     tempResult[i] = resultItem * 0.000000001;
                 }
 
-                fieldAndData[currentFieldFromFile].swap(tempResult);
+                fieldAndData[currentFieldFromFile].swap( tempResult );
             }
             else
             {
@@ -129,57 +133,57 @@ std::map<std::string, std::vector<float>>
             }
         }
     }
-    else if (elementIdsFromFile.size() > m_elementIdxToId.size() && elementIdsFromFile.size() > m_elementIdToIdx.size())
+    else if ( elementIdsFromFile.size() > m_elementIdxToId.size() && elementIdsFromFile.size() > m_elementIdToIdx.size() )
     {
         RifElementPropertyReader::outputWarningAboutWrongFileData();
         return fieldAndData;
     }
     else
     {
-        if (m_elementIdToIdx.empty())
+        if ( m_elementIdToIdx.empty() )
         {
             makeElementIdToIdxMap();
         }
 
         std::vector<int> fileIdxToElementIdx;
-        fileIdxToElementIdx.reserve(elementIdsFromFile.size());
+        fileIdxToElementIdx.reserve( elementIdsFromFile.size() );
 
-        for (int elementId : elementIdsFromFile)
+        for ( int elementId : elementIdsFromFile )
         {
-            std::unordered_map<int /*elm ID*/, int /*elm idx*/>::const_iterator it = m_elementIdToIdx.find(elementId);
-            if (it == m_elementIdToIdx.end())
+            std::unordered_map<int /*elm ID*/, int /*elm idx*/>::const_iterator it = m_elementIdToIdx.find( elementId );
+            if ( it == m_elementIdToIdx.end() )
             {
                 RifElementPropertyReader::outputWarningAboutWrongFileData();
                 return fieldAndData;
             }
 
-            fileIdxToElementIdx.push_back(it->second);
+            fileIdxToElementIdx.push_back( it->second );
         }
 
-        for (size_t i = 0; i < table.data.size(); i++)
+        for ( size_t i = 0; i < table.data.size(); i++ )
         {
             std::string currentFieldFromFile = m_fieldsMetaData[fieldName].dataColumns[i].toStdString();
-            
+
             const std::vector<float>& currentColumn = table.data[i];
 
-            std::vector<float> tempResult(m_elementIdToIdx.size(), HUGE_VAL);
+            std::vector<float> tempResult( m_elementIdToIdx.size(), HUGE_VAL );
 
-            if (currentFieldFromFile == "MODULUS")
+            if ( currentFieldFromFile == "MODULUS" )
             {
-                for (size_t j = 0; j < currentColumn.size(); j++)
+                for ( size_t j = 0; j < currentColumn.size(); j++ )
                 {
                     tempResult[fileIdxToElementIdx[j]] = currentColumn[j] * 0.000000001;
                 }
             }
             else
             {
-                for (size_t j = 0; j < currentColumn.size(); j++)
+                for ( size_t j = 0; j < currentColumn.size(); j++ )
                 {
                     tempResult[fileIdxToElementIdx[j]] = currentColumn[j];
                 }
             }
 
-            fieldAndData[currentFieldFromFile].swap(tempResult);
+            fieldAndData[currentFieldFromFile].swap( tempResult );
         }
     }
 
@@ -187,19 +191,19 @@ std::map<std::string, std::vector<float>>
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifElementPropertyReader::fieldsInFile(const std::string& fileName) const
+std::vector<std::string> RifElementPropertyReader::fieldsInFile( const std::string& fileName ) const
 {
     std::vector<std::string> fields;
 
-    for (std::pair<std::string, RifElementPropertyMetadata> metaData : m_fieldsMetaData)
+    for ( std::pair<std::string, RifElementPropertyMetadata> metaData : m_fieldsMetaData )
     {
-        if (metaData.second.fileName.toStdString() == fileName)
+        if ( metaData.second.fileName.toStdString() == fileName )
         {
-            for (const QString& column : metaData.second.dataColumns)
+            for ( const QString& column : metaData.second.dataColumns )
             {
-                fields.push_back(column.toStdString());
+                fields.push_back( column.toStdString() );
             }
         }
     }
@@ -212,15 +216,15 @@ std::vector<std::string> RifElementPropertyReader::fieldsInFile(const std::strin
 //--------------------------------------------------------------------------------------------------
 void RifElementPropertyReader::makeElementIdToIdxMap()
 {
-    m_elementIdToIdx.reserve(m_elementIdxToId.size());
+    m_elementIdToIdx.reserve( m_elementIdxToId.size() );
 
-    for (size_t i = 0; i < m_elementIdxToId.size(); i++)
+    for ( size_t i = 0; i < m_elementIdxToId.size(); i++ )
     {
         m_elementIdToIdx[m_elementIdxToId[i]] = (int)i;
     }
 
     std::vector<int> tempVectorForDeletion;
-    m_elementIdxToId.swap(tempVectorForDeletion);
+    m_elementIdxToId.swap( tempVectorForDeletion );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -229,10 +233,10 @@ void RifElementPropertyReader::makeElementIdToIdxMap()
 void RifElementPropertyReader::outputWarningAboutWrongFileData()
 {
     QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setIcon( QMessageBox::Warning );
     QString warningText;
-    warningText = QString("The chosen result property does not fit the model");
-    msgBox.setText(warningText);
-    msgBox.setStandardButtons(QMessageBox::Ok);
+    warningText = QString( "The chosen result property does not fit the model" );
+    msgBox.setText( warningText );
+    msgBox.setStandardButtons( QMessageBox::Ok );
     msgBox.exec();
 }

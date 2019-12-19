@@ -26,7 +26,7 @@ class RimEclipseCase;
 class RimFractureTemplate;
 class RimEllipseFractureTemplate;
 class RimStimPlanFractureTemplate;
-class RifEclipseDataTableFormatter;
+class RifTextDataTableFormatter;
 class RicWellPathFractureReportItem;
 
 //==================================================================================================
@@ -35,26 +35,27 @@ class RicWellPathFractureReportItem;
 class RicWellPathFractureTextReportFeatureImpl
 {
 public:
-    QString wellPathFractureReport(RimEclipseCase*                                   sourceCase,
-                                   const std::vector<RimWellPath*>&                  wellPaths,
-                                   const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems) const;
+    QString wellPathFractureReport( RimEclipseCase*                                   sourceCase,
+                                    const std::vector<RimWellPath*>&                  wellPaths,
+                                    const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems ) const;
 
     static std::vector<RimWellPath*> wellPathsWithActiveFractures();
 
 private:
-    QString createWellFileLocationText(const std::vector<RimWellPath*>& wellPaths) const;
-    QString createStimPlanFileLocationText(const std::vector<RimStimPlanFractureTemplate*>& stimPlanTemplates) const;
-    QString createStimPlanFractureText(const std::vector<RimStimPlanFractureTemplate*>& stimPlanTemplates) const;
-    QString createEllipseFractureText(const std::vector<RimEllipseFractureTemplate*>& ellipseTemplates) const;
-    QString createFractureText(const std::vector<RimFractureTemplate*>& fractureTemplates) const;
-    QString createFractureInstancesText(const std::vector<RimWellPathFracture*>& fractureTemplates) const;
+    QString createWellFileLocationText( const std::vector<RimWellPath*>& wellPaths ) const;
+    QString createStimPlanFileLocationText( const std::vector<RimStimPlanFractureTemplate*>& stimPlanTemplates ) const;
+    QString createStimPlanFractureText( const std::vector<RimStimPlanFractureTemplate*>& stimPlanTemplates ) const;
+    QString createEllipseFractureText( const std::vector<RimEllipseFractureTemplate*>& ellipseTemplates ) const;
+    QString createFractureText( const std::vector<RimFractureTemplate*>& fractureTemplates ) const;
+    QString createFractureInstancesText( const std::vector<RimWellPathFracture*>& fractureTemplates ) const;
 
-    QString
-        createFractureCompletionSummaryText(const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems) const;
-    QString
-        createFracturePressureDepletionSummaryText(const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems) const;
+    QString createFractureCompletionSummaryText(
+        const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems ) const;
+    QString createFracturePressureDepletionSummaryText(
+        const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems ) const;
 
-    QString createConnectionsPerWellText(const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems) const;
+    QString createConnectionsPerWellText(
+        const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems ) const;
 
-    void configureFormatter(RifEclipseDataTableFormatter* formatter) const;
+    void configureFormatter( RifTextDataTableFormatter* formatter ) const;
 };

@@ -21,16 +21,16 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifCsvDataTableFormatter::RifCsvDataTableFormatter(QTextStream& out, const QString fieldSeparator)
-    : m_out(out)
-    , m_fieldSeparator(fieldSeparator)
+RifCsvDataTableFormatter::RifCsvDataTableFormatter( QTextStream& out, const QString fieldSeparator )
+    : m_out( out )
+    , m_fieldSeparator( fieldSeparator )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifCsvDataTableFormatter& RifCsvDataTableFormatter::header(const std::vector<RifEclipseOutputTableColumn>& tableHeader)
+RifCsvDataTableFormatter& RifCsvDataTableFormatter::header( const std::vector<RifTextDataTableColumn>& tableHeader )
 {
     outputBuffer();
     m_columnHeaders = tableHeader;
@@ -41,38 +41,38 @@ RifCsvDataTableFormatter& RifCsvDataTableFormatter::header(const std::vector<Rif
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifCsvDataTableFormatter& RifCsvDataTableFormatter::add(const QString& str)
+RifCsvDataTableFormatter& RifCsvDataTableFormatter::add( const QString& str )
 {
     QString quotedString = "\"" + str + "\"";
-    m_lineBuffer.push_back(quotedString);
+    m_lineBuffer.push_back( quotedString );
     return *this;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifCsvDataTableFormatter& RifCsvDataTableFormatter::add(double num)
+RifCsvDataTableFormatter& RifCsvDataTableFormatter::add( double num )
 {
     size_t column = m_lineBuffer.size();
-    m_lineBuffer.push_back(RifEclipseDataTableFormatter::format(num, m_columnHeaders[column].doubleFormat));
+    m_lineBuffer.push_back( RifTextDataTableFormatter::format( num, m_columnHeaders[column].doubleFormat ) );
     return *this;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifCsvDataTableFormatter& RifCsvDataTableFormatter::add(int num)
+RifCsvDataTableFormatter& RifCsvDataTableFormatter::add( int num )
 {
-    m_lineBuffer.push_back(RifEclipseDataTableFormatter::format(num));
+    m_lineBuffer.push_back( RifTextDataTableFormatter::format( num ) );
     return *this;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifCsvDataTableFormatter& RifCsvDataTableFormatter::add(size_t num)
+RifCsvDataTableFormatter& RifCsvDataTableFormatter::add( size_t num )
 {
-    m_lineBuffer.push_back(RifEclipseDataTableFormatter::format(num));
+    m_lineBuffer.push_back( RifTextDataTableFormatter::format( num ) );
     return *this;
 }
 
@@ -81,11 +81,11 @@ RifCsvDataTableFormatter& RifCsvDataTableFormatter::add(size_t num)
 //--------------------------------------------------------------------------------------------------
 void RifCsvDataTableFormatter::rowCompleted()
 {
-    RifEclipseOutputTableLine line;
+    RifTextDataTableLine line;
     line.data          = m_lineBuffer;
     line.lineType      = CONTENTS;
     line.appendTextSet = false;
-    m_buffer.push_back(line);
+    m_buffer.push_back( line );
     m_lineBuffer.clear();
 }
 
@@ -102,13 +102,13 @@ void RifCsvDataTableFormatter::tableCompleted()
 //--------------------------------------------------------------------------------------------------
 void RifCsvDataTableFormatter::outputBuffer()
 {
-    if (!m_columnHeaders.empty())
+    if ( !m_columnHeaders.empty() )
     {
-        for (size_t i = 0; i < m_columnHeaders.size(); i++)
+        for ( size_t i = 0; i < m_columnHeaders.size(); i++ )
         {
             m_out << m_columnHeaders[i].title;
 
-            if (i < m_columnHeaders.size() - 1)
+            if ( i < m_columnHeaders.size() - 1 )
             {
                 m_out << m_fieldSeparator;
             }
@@ -116,15 +116,15 @@ void RifCsvDataTableFormatter::outputBuffer()
         m_out << "\n";
     }
 
-    for (const auto& line : m_buffer)
+    for ( const auto& line : m_buffer )
     {
-        if (line.lineType == CONTENTS)
+        if ( line.lineType == CONTENTS )
         {
             QString lineText;
-            for (size_t i = 0; i < line.data.size(); i++)
+            for ( size_t i = 0; i < line.data.size(); i++ )
             {
                 lineText += line.data[i];
-                if (i < line.data.size() - 1)
+                if ( i < line.data.size() - 1 )
                 {
                     lineText += m_fieldSeparator;
                 }

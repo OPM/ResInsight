@@ -19,8 +19,8 @@
 #pragma once
 
 #include "ExportCommands/RicLgrSplitType.h"
-#include "RigCompletionDataGridCell.h"
 #include "RigCompletionData.h"
+#include "RigCompletionDataGridCell.h"
 
 #include "cafCmdFeature.h"
 #include "cafVecIjk.h"
@@ -46,23 +46,23 @@ class RicCreateTemporaryLgrFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    void createLgrsForWellPaths(std::vector<RimWellPath*>                          wellPaths,
-                                RimEclipseCase*                                    eclipseCase,
-                                size_t                                             timeStep,
-                                caf::VecIjk                                        lgrCellCounts,
-                                Lgr::SplitType                                     splitType,
-                                const std::set<RigCompletionData::CompletionType>& completionTypes,
-                                QStringList*                                       wellsIntersectingOtherLgrs);
+    void createLgrsForWellPaths( std::vector<RimWellPath*>                          wellPaths,
+                                 RimEclipseCase*                                    eclipseCase,
+                                 size_t                                             timeStep,
+                                 caf::VecIjk                                        lgrCellCounts,
+                                 Lgr::SplitType                                     splitType,
+                                 const std::set<RigCompletionData::CompletionType>& completionTypes,
+                                 QStringList*                                       wellsIntersectingOtherLgrs );
 
-    void updateViews(RimEclipseCase* eclipseCase);
+    void updateViews( RimEclipseCase* eclipseCase );
 
 protected:
     bool isCommandEnabled() override;
-    void onActionTriggered(bool isChecked) override;
-    void setupActionLook(QAction* actionToSetup) override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    void createLgr(const LgrInfo& lgrInfo, RigMainGrid* mainGrid);
-    void computeCachedData(RimEclipseCase* eclipseCase);
-    void deleteAllCachedData(RimEclipseCase* eclipseCase);
+    void createLgr( const LgrInfo& lgrInfo, RigMainGrid* mainGrid );
+    void computeCachedData( RimEclipseCase* eclipseCase );
+    void deleteAllCachedData( RimEclipseCase* eclipseCase );
 };

@@ -24,10 +24,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWellConnectionSourceInfo::RivWellConnectionSourceInfo(RimWellPath*                              wellPath,
-                                                         RivWellConnectionFactorGeometryGenerator* geometryGenerator)
-    : m_wellPath(wellPath)
-    , m_geometryGenerator(geometryGenerator)
+RivWellConnectionSourceInfo::RivWellConnectionSourceInfo( RimWellPath*                              wellPath,
+                                                          RivWellConnectionFactorGeometryGenerator* geometryGenerator )
+    : m_wellPath( wellPath )
+    , m_geometryGenerator( geometryGenerator )
 {
 }
 
@@ -42,19 +42,19 @@ RimWellPath* RivWellConnectionSourceInfo::wellPath() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RivWellConnectionSourceInfo::globalCellIndexFromTriangleIndex(cvf::uint triangleIndex) const
+size_t RivWellConnectionSourceInfo::globalCellIndexFromTriangleIndex( cvf::uint triangleIndex ) const
 {
-    if (m_geometryGenerator.isNull()) return 0;
+    if ( m_geometryGenerator.isNull() ) return 0;
 
-    return m_geometryGenerator->globalCellIndexFromTriangleIndex(triangleIndex);
+    return m_geometryGenerator->globalCellIndexFromTriangleIndex( triangleIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-double RivWellConnectionSourceInfo::connectionFactorFromTriangleIndex(cvf::uint triangleIndex) const
+double RivWellConnectionSourceInfo::connectionFactorFromTriangleIndex( cvf::uint triangleIndex ) const
 {
-    if (m_geometryGenerator.isNull()) return 0.0;
+    if ( m_geometryGenerator.isNull() ) return 0.0;
 
-    return m_geometryGenerator->connectionFactor(triangleIndex);
+    return m_geometryGenerator->connectionFactor( triangleIndex );
 }

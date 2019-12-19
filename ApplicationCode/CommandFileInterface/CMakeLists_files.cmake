@@ -16,6 +16,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfReplaceSourceCases.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfRunOctaveScript.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetExportFolder.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetMainWindowSize.h
+${CMAKE_CURRENT_LIST_DIR}/RicfSetPlotWindowSize.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetStartDir.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetTimeStep.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfScaleFractureTemplate.h
@@ -33,6 +34,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfCreateGridCaseGroup.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfCreateStatisticsCase.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfCreateView.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfCloneView.h
+${CMAKE_CURRENT_LIST_DIR}/RicfNewWellBoreStabilityPlotFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicfImportWellLogFiles.h
+${CMAKE_CURRENT_LIST_DIR}/RicfImportFormationNames.h
+${CMAKE_CURRENT_LIST_DIR}/RicfExportWellLogPlotData.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -52,6 +57,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfReplaceSourceCases.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfRunOctaveScript.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetExportFolder.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetMainWindowSize.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfSetPlotWindowSize.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetStartDir.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetTimeStep.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfScaleFractureTemplate.cpp
@@ -69,6 +75,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfCreateGridCaseGroup.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfCreateStatisticsCase.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfCreateView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfCloneView.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfCreateWellBoreStabilityPlotFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfImportWellLogFiles.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfImportFormationNames.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfExportWellLogPlotData.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -35,27 +35,27 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicPasteEnsembleCurveSetFeature, "RicPasteEnsembleCurveSetFeature");
+CAF_CMD_SOURCE_INIT( RicPasteEnsembleCurveSetFeature, "RicPasteEnsembleCurveSetFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet*
-    RicPasteEnsembleCurveSetFeature::copyCurveSetAndAddToCollection(RimEnsembleCurveSetCollection* curveSetCollection,
-                                                                    const RimEnsembleCurveSet*     sourceCurveSet)
+    RicPasteEnsembleCurveSetFeature::copyCurveSetAndAddToCollection( RimEnsembleCurveSetCollection* curveSetCollection,
+                                                                     const RimEnsembleCurveSet*     sourceCurveSet )
 {
-    CVF_ASSERT(curveSetCollection);
+    CVF_ASSERT( curveSetCollection );
 
     RimEnsembleCurveSet* newCurveSet = dynamic_cast<RimEnsembleCurveSet*>(
-        sourceCurveSet->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
-    CVF_ASSERT(newCurveSet);
+        sourceCurveSet->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    CVF_ASSERT( newCurveSet );
 
-    curveSetCollection->addCurveSet(newCurveSet);
+    curveSetCollection->addCurveSet( newCurveSet );
 
     // Resolve references after object has been inserted into the project data model
     newCurveSet->resolveReferencesRecursively();
     newCurveSet->initAfterReadRecursively();
-    newCurveSet->loadDataAndUpdate(false);
+    newCurveSet->loadDataAndUpdate( false );
     newCurveSet->updateConnectedEditors();
 
     return newCurveSet;
@@ -66,18 +66,19 @@ RimEnsembleCurveSet*
 //--------------------------------------------------------------------------------------------------
 bool RicPasteEnsembleCurveSetFeature::isCommandEnabled()
 {
-    caf::PdmObject* destinationObject = dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
+    caf::PdmObject* destinationObject = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
+    if ( !destinationObject ) return false;
 
     RimSummaryPlot*                plot = nullptr;
     RimEnsembleCurveSetCollection* coll = nullptr;
-    destinationObject->firstAncestorOrThisOfType(plot);
-    destinationObject->firstAncestorOrThisOfType(coll);
-    if (!coll && !plot)
+    destinationObject->firstAncestorOrThisOfType( plot );
+    destinationObject->firstAncestorOrThisOfType( coll );
+    if ( !coll && !plot )
     {
         return false;
     }
 
-    if (ensembleCurveSetsOnClipboard().empty())
+    if ( ensembleCurveSetsOnClipboard().empty() )
     {
         return false;
     }
@@ -88,27 +89,27 @@ bool RicPasteEnsembleCurveSetFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPasteEnsembleCurveSetFeature::onActionTriggered(bool isChecked)
+void RicPasteEnsembleCurveSetFeature::onActionTriggered( bool isChecked )
 {
     std::vector<caf::PdmPointer<RimEnsembleCurveSet>> sourceObjects =
         RicPasteEnsembleCurveSetFeature::ensembleCurveSetsOnClipboard();
-    if (sourceObjects.empty()) return;
+    if ( sourceObjects.empty() ) return;
 
     RimSummaryPlot*                plot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot*>();
     RimEnsembleCurveSetCollection* coll = caf::firstAncestorOfTypeFromSelectedObject<RimEnsembleCurveSetCollection*>();
-    if (!coll && plot)
+    if ( !coll && plot )
     {
         coll = plot->ensembleCurveSetCollection();
     }
 
-    if (!coll) return;
+    if ( !coll ) return;
 
-    for (const auto& sourceObject : sourceObjects)
+    for ( const auto& sourceObject : sourceObjects )
     {
-        copyCurveSetAndAddToCollection(coll, sourceObject);
+        copyCurveSetAndAddToCollection( coll, sourceObject );
     }
 
-    if (plot)
+    if ( plot )
     {
         plot->updateAll();
     }
@@ -119,11 +120,11 @@ void RicPasteEnsembleCurveSetFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPasteEnsembleCurveSetFeature::setupActionLook(QAction* actionToSetup)
+void RicPasteEnsembleCurveSetFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Paste Ensemble Curve Set");
+    actionToSetup->setText( "Paste Ensemble Curve Set" );
 
-    RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
+    RicPasteFeatureImpl::setIconAndShortcuts( actionToSetup );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,10 +133,10 @@ void RicPasteEnsembleCurveSetFeature::setupActionLook(QAction* actionToSetup)
 std::vector<caf::PdmPointer<RimEnsembleCurveSet>> RicPasteEnsembleCurveSetFeature::ensembleCurveSetsOnClipboard()
 {
     caf::PdmObjectGroup objectGroup;
-    RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
+    RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
     std::vector<caf::PdmPointer<RimEnsembleCurveSet>> typedObjects;
-    objectGroup.objectsByType(&typedObjects);
+    objectGroup.objectsByType( &typedObjects );
 
     return typedObjects;
 }

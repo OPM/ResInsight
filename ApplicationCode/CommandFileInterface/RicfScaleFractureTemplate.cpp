@@ -26,7 +26,7 @@
 #include "RimFractureTemplateCollection.h"
 #include "RimProject.h"
 
-CAF_PDM_SOURCE_INIT(RicfScaleFractureTemplate, "scaleFractureTemplate");
+CAF_PDM_SOURCE_INIT( RicfScaleFractureTemplate, "scaleFractureTemplate" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -51,34 +51,35 @@ RicfScaleFractureTemplate::RicfScaleFractureTemplate()
 //--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicfScaleFractureTemplate::execute()
 {
-    if (m_id < 0)
+    if ( m_id < 0 )
     {
-        QString error("scaleFractureTemplate: Fracture template id not specified");
-        RiaLogging::error(error);
-        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+        QString error( "scaleFractureTemplate: Fracture template id not specified" );
+        RiaLogging::error( error );
+        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
     }
 
     RimProject* project = RiaApplication::instance()->project();
 
-    if (!project)
+    if ( !project )
     {
-        QString error("scaleFractureTemplate: Project not found");
-        RiaLogging::error(error);
-        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+        QString error( "scaleFractureTemplate: Project not found" );
+        RiaLogging::error( error );
+        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
     }
 
-    RimFractureTemplateCollection* templColl =
-        !project->allFractureTemplateCollections().empty() ? project->allFractureTemplateCollections()[0] : nullptr;
-    RimFractureTemplate* templ = templColl ? templColl->fractureTemplate(m_id) : nullptr;
+    RimFractureTemplateCollection* templColl = !project->allFractureTemplateCollections().empty()
+                                                   ? project->allFractureTemplateCollections()[0]
+                                                   : nullptr;
+    RimFractureTemplate* templ = templColl ? templColl->fractureTemplate( m_id ) : nullptr;
 
-    if (!templ)
+    if ( !templ )
     {
-        QString error = QString("scaleFractureTemplate: Fracture template not found. Id=%1").arg(m_id);
-        RiaLogging::error(error);
-        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+        QString error = QString( "scaleFractureTemplate: Fracture template not found. Id=%1" ).arg( m_id );
+        RiaLogging::error( error );
+        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
     }
 
-    templ->setScaleFactors(m_halfLengthScaleFactor, m_heightScaleFactor, m_dFactorScaleFactor, m_conductivityScaleFactor);
+    templ->setScaleFactors( m_halfLengthScaleFactor, m_heightScaleFactor, m_dFactorScaleFactor, m_conductivityScaleFactor );
     templ->loadDataAndUpdateGeometryHasChanged();
     return RicfCommandResponse();
 }
@@ -88,7 +89,7 @@ RicfCommandResponse RicfScaleFractureTemplate::execute()
 //--------------------------------------------------------------------------------------------------
 void RicfScaleFractureTemplate::initAfterRead()
 {
-    if (m_OBSOLETE_widthScaleFactor != m_OBSOLETE_widthScaleFactor.defaultValue())
+    if ( m_OBSOLETE_widthScaleFactor != m_OBSOLETE_widthScaleFactor.defaultValue() )
     {
         m_halfLengthScaleFactor = m_OBSOLETE_widthScaleFactor;
     }

@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,7 @@
 #include "RimFlowPlotCollection.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
+#include "RimGridPlotWindowCollection.h"
 #include "RimPltPlotCollection.h"
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
@@ -38,69 +39,78 @@
 #include "RiuMainWindow.h"
 #include "RiuProjectPropertyView.h"
 
-CAF_PDM_SOURCE_INIT(RimMainPlotCollection, "MainPlotCollection");
+CAF_PDM_SOURCE_INIT( RimMainPlotCollection, "MainPlotCollection" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimMainPlotCollection::RimMainPlotCollection()
 {
-    CAF_PDM_InitObject("Plots", "", "", "");
+    CAF_PDM_InitObject( "Plots", "", "", "" );
 
-    CAF_PDM_InitField(&m_show, "Show", true, "Show 2D Plot Window", "", "", "");
-    m_show.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField( &m_show, "Show", true, "Show 2D Plot Window", "", "", "" );
+    m_show.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_wellLogPlotCollection, "WellLogPlotCollection", "",  "", "", "");
-    m_wellLogPlotCollection.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_wellLogPlotCollection, "WellLogPlotCollection", "", "", "", "" );
+    m_wellLogPlotCollection.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_rftPlotCollection, "RftPlotCollection", "", "", "", "");
-    m_rftPlotCollection.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_rftPlotCollection, "RftPlotCollection", "", "", "", "" );
+    m_rftPlotCollection.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_pltPlotCollection, "PltPlotCollection", "", "", "", "");
-    m_pltPlotCollection.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_pltPlotCollection, "PltPlotCollection", "", "", "", "" );
+    m_pltPlotCollection.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_summaryPlotCollection, "SummaryPlotCollection", "Summary Plots", "", "", "");
-    m_summaryPlotCollection.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_summaryPlotCollection, "SummaryPlotCollection", "Summary Plots", "", "", "" );
+    m_summaryPlotCollection.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_summaryCrossPlotCollection, "SummaryCrossPlotCollection", "Summary Cross Plots", "", "", "");
-    m_summaryCrossPlotCollection.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlotCollection,
+                                "SummaryCrossPlotCollection",
+                                "Summary Cross Plots",
+                                "",
+                                "",
+                                "" );
+    m_summaryCrossPlotCollection.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_flowPlotCollection, "FlowPlotCollection", "Flow Diagnostics Plots", "", "", "");
-    m_flowPlotCollection.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_flowPlotCollection, "FlowPlotCollection", "Flow Diagnostics Plots", "", "", "" );
+    m_flowPlotCollection.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_gridCrossPlotCollection, "Rim3dCrossPlotCollection", "3d Cross Plots", "", "", "");
-    m_gridCrossPlotCollection.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_gridCrossPlotCollection, "Rim3dCrossPlotCollection", "3d Cross Plots", "", "", "" );
+    m_gridCrossPlotCollection.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_saturationPressurePlotCollection, "RimSaturationPressurePlotCollection", "Saturation Pressure Plots", "", "", "");
-    m_saturationPressurePlotCollection.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_saturationPressurePlotCollection,
+                                "RimSaturationPressurePlotCollection",
+                                "Saturation Pressure Plots",
+                                "",
+                                "",
+                                "" );
+    m_saturationPressurePlotCollection.uiCapability()->setUiHidden( true );
 
-    m_wellLogPlotCollection         = new RimWellLogPlotCollection();
-    m_rftPlotCollection             = new RimRftPlotCollection();
-    m_pltPlotCollection             = new RimPltPlotCollection();
-    m_summaryPlotCollection         = new RimSummaryPlotCollection();
-    m_summaryCrossPlotCollection    = new RimSummaryCrossPlotCollection();
-    m_flowPlotCollection            = new RimFlowPlotCollection();
-    m_gridCrossPlotCollection       = new RimGridCrossPlotCollection;
+    m_wellLogPlotCollection            = new RimWellLogPlotCollection();
+    m_rftPlotCollection                = new RimRftPlotCollection();
+    m_pltPlotCollection                = new RimPltPlotCollection();
+    m_summaryPlotCollection            = new RimSummaryPlotCollection();
+    m_summaryCrossPlotCollection       = new RimSummaryCrossPlotCollection();
+    m_flowPlotCollection               = new RimFlowPlotCollection();
+    m_gridCrossPlotCollection          = new RimGridCrossPlotCollection;
     m_saturationPressurePlotCollection = new RimSaturationPressurePlotCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimMainPlotCollection::~RimMainPlotCollection()
+RimMainPlotCollection::~RimMainPlotCollection() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMainPlotCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                              const QVariant&            oldValue,
+                                              const QVariant&            newValue )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimMainPlotCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
-{
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimMainPlotCollection::objectToggleField()
 {
@@ -108,7 +118,7 @@ caf::PdmFieldHandle* RimMainPlotCollection::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlotCollection* RimMainPlotCollection::wellLogPlotCollection()
 {
@@ -116,7 +126,7 @@ RimWellLogPlotCollection* RimMainPlotCollection::wellLogPlotCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimRftPlotCollection* RimMainPlotCollection::rftPlotCollection()
 {
@@ -124,7 +134,7 @@ RimRftPlotCollection* RimMainPlotCollection::rftPlotCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimPltPlotCollection* RimMainPlotCollection::pltPlotCollection()
 {
@@ -132,7 +142,7 @@ RimPltPlotCollection* RimMainPlotCollection::pltPlotCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotCollection* RimMainPlotCollection::summaryPlotCollection()
 {
@@ -140,7 +150,7 @@ RimSummaryPlotCollection* RimMainPlotCollection::summaryPlotCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCrossPlotCollection* RimMainPlotCollection::summaryCrossPlotCollection()
 {
@@ -148,7 +158,7 @@ RimSummaryCrossPlotCollection* RimMainPlotCollection::summaryCrossPlotCollection
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFlowPlotCollection* RimMainPlotCollection::flowPlotCollection()
 {
@@ -164,7 +174,7 @@ RimGridCrossPlotCollection* RimMainPlotCollection::gridCrossPlotCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSaturationPressurePlotCollection* RimMainPlotCollection::saturationPressurePlotCollection()
 {
@@ -172,7 +182,7 @@ RimSaturationPressurePlotCollection* RimMainPlotCollection::saturationPressurePl
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::deleteAllContainedObjects()
 {
@@ -186,9 +196,8 @@ void RimMainPlotCollection::deleteAllContainedObjects()
     m_saturationPressurePlotCollection()->deleteAllChildObjects();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::updateCurrentTimeStepInPlots()
 {
@@ -196,42 +205,42 @@ void RimMainPlotCollection::updateCurrentTimeStepInPlots()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::updatePlotsWithFormations()
 {
-    if (m_wellLogPlotCollection)
+    if ( m_wellLogPlotCollection )
     {
-        for (RimWellLogPlot* wellLogPlot : m_wellLogPlotCollection->wellLogPlots())
+        for ( RimWellLogPlot* wellLogPlot : m_wellLogPlotCollection->wellLogPlots() )
         {
             wellLogPlot->loadDataAndUpdate();
         }
     }
 
-    if (m_pltPlotCollection)
+    if ( m_pltPlotCollection )
     {
-        for (RimWellPltPlot* pltPlot : m_pltPlotCollection->pltPlots())
+        for ( RimWellPltPlot* pltPlot : m_pltPlotCollection->pltPlots() )
         {
             pltPlot->loadDataAndUpdate();
         }
     }
 
-    if (m_rftPlotCollection)
+    if ( m_rftPlotCollection )
     {
-        for (RimWellRftPlot* rftPlot : m_rftPlotCollection->rftPlots())
+        for ( RimWellRftPlot* rftPlot : m_rftPlotCollection->rftPlots() )
         {
             rftPlot->loadDataAndUpdate();
         }
     }
 
-    if (m_flowPlotCollection)
+    if ( m_flowPlotCollection )
     {
         m_flowPlotCollection->loadDataAndUpdate();
     }
 
-    if (m_gridCrossPlotCollection)
+    if ( m_gridCrossPlotCollection )
     {
-        for (RimGridCrossPlot* crossPlot : m_gridCrossPlotCollection->gridCrossPlots())
+        for ( RimGridCrossPlot* crossPlot : m_gridCrossPlotCollection->gridCrossPlots() )
         {
             crossPlot->loadDataAndUpdate();
         }
@@ -243,9 +252,9 @@ void RimMainPlotCollection::updatePlotsWithFormations()
 //--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::updatePlotsWithCompletions()
 {
-    if (m_wellLogPlotCollection)
+    if ( m_wellLogPlotCollection )
     {
-        for (RimWellLogPlot* wellLogPlot : m_wellLogPlotCollection->wellLogPlots())
+        for ( RimWellLogPlot* wellLogPlot : m_wellLogPlotCollection->wellLogPlots() )
         {
             wellLogPlot->loadDataAndUpdate();
         }
@@ -253,7 +262,7 @@ void RimMainPlotCollection::updatePlotsWithCompletions()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::deleteAllCachedData()
 {
@@ -262,3 +271,10 @@ void RimMainPlotCollection::deleteAllCachedData()
     m_pltPlotCollection()->deleteAllExtractors();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMainPlotCollection::ensureDefaultFlowPlotsAreCreated()
+{
+    m_flowPlotCollection()->ensureDefaultFlowPlotsAreCreated();
+}

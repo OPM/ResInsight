@@ -22,22 +22,22 @@
 
 #include "cafPdmUiFilePathEditor.h"
 
-CAF_PDM_SOURCE_INIT(RicSaturationPressureUi, "RicSaturationPressureUi");
+CAF_PDM_SOURCE_INIT( RicSaturationPressureUi, "RicSaturationPressureUi" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicSaturationPressureUi::RicSaturationPressureUi()
 {
-    CAF_PDM_InitObject("RicSaturationPressureUi", "", "", "");
+    CAF_PDM_InitObject( "RicSaturationPressureUi", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_caseToApply, "CaseToApply", "Case to Apply", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_caseToApply, "CaseToApply", "Case to Apply", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSaturationPressureUi::setSelectedCase(RimEclipseCase* eclipseCase)
+void RicSaturationPressureUi::setSelectedCase( RimEclipseCase* eclipseCase )
 {
     m_caseToApply = eclipseCase;
 }
@@ -53,14 +53,14 @@ RimEclipseCase* RicSaturationPressureUi::selectedCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RicSaturationPressureUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                             bool*                      useOptionsOnly)
+QList<caf::PdmOptionItemInfo>
+    RicSaturationPressureUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if (fieldNeedingOptions == &m_caseToApply)
+    if ( fieldNeedingOptions == &m_caseToApply )
     {
-        RimTools::caseOptionItems(&options);
+        RimTools::caseOptionItems( &options );
     }
 
     return options;

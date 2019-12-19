@@ -24,26 +24,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName(Rim3dView* view, QList<caf::PdmOptionItemInfo>* optionItems)
+void RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( Rim3dView*                     view,
+                                                                    QList<caf::PdmOptionItemInfo>* optionItems )
 {
-    if (!view || !optionItems) return;
+    if ( !view || !optionItems ) return;
 
-    QString caseName;
-
-    RimCase* rimCase = nullptr;
-    view->firstAncestorOrThisOfType(rimCase);
-    if (rimCase)
-    {
-        caseName = rimCase->caseUserDescription();
-    }
-    else
-    {
-        caseName = "<Unnamed case>";
-    }
-
-    QString displayName = caseName + " : " + view->name();
+    QString displayName = view->autoName();
 
     caf::QIconProvider iconProvider = view->uiCapability()->uiIconProvider();
 
-    optionItems->push_back(caf::PdmOptionItemInfo(displayName, view, false, iconProvider));
+    optionItems->push_back( caf::PdmOptionItemInfo( displayName, view, false, iconProvider ) );
 }

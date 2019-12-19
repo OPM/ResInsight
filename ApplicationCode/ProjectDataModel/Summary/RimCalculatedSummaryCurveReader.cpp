@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,23 +21,21 @@
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RifCalculatedSummaryCurveReader::RifCalculatedSummaryCurveReader(RimSummaryCalculationCollection* calculationCollection)
-    : m_calculationCollection(calculationCollection)
+RifCalculatedSummaryCurveReader::RifCalculatedSummaryCurveReader( RimSummaryCalculationCollection* calculationCollection )
+    : m_calculationCollection( calculationCollection )
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifCalculatedSummaryCurveReader::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
+const std::vector<time_t>& RifCalculatedSummaryCurveReader::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    RimSummaryCalculation* calc = findCalculationByName(resultAddress);
-    if (calc)
+    RimSummaryCalculation* calc = findCalculationByName( resultAddress );
+    if ( calc )
     {
         return calc->timeSteps();
     }
@@ -48,12 +46,13 @@ const std::vector<time_t>& RifCalculatedSummaryCurveReader::timeSteps(const RifE
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RifCalculatedSummaryCurveReader::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const
+bool RifCalculatedSummaryCurveReader::values( const RifEclipseSummaryAddress& resultAddress,
+                                              std::vector<double>*            values ) const
 {
-    RimSummaryCalculation* calc = findCalculationByName(resultAddress);
-    if (calc)
+    RimSummaryCalculation* calc = findCalculationByName( resultAddress );
+    if ( calc )
     {
         *values = calc->values();
 
@@ -64,12 +63,12 @@ bool RifCalculatedSummaryCurveReader::values(const RifEclipseSummaryAddress& res
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::string RifCalculatedSummaryCurveReader::unitName(const RifEclipseSummaryAddress& resultAddress) const
+std::string RifCalculatedSummaryCurveReader::unitName( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    RimSummaryCalculation* calculation = findCalculationByName(resultAddress);
-    if (calculation != nullptr && !calculation->unitName().isEmpty())
+    RimSummaryCalculation* calculation = findCalculationByName( resultAddress );
+    if ( calculation != nullptr && !calculation->unitName().isEmpty() )
     {
         return calculation->unitName().toStdString();
     }
@@ -78,30 +77,31 @@ std::string RifCalculatedSummaryCurveReader::unitName(const RifEclipseSummaryAdd
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifCalculatedSummaryCurveReader::buildMetaData()
 {
     m_allResultAddresses.clear();
 
-    for (RimSummaryCalculation* calc : m_calculationCollection->calculations())
+    for ( RimSummaryCalculation* calc : m_calculationCollection->calculations() )
     {
-        m_allResultAddresses.insert(RifEclipseSummaryAddress::calculatedAddress(calc->description().toStdString()));
+        m_allResultAddresses.insert( RifEclipseSummaryAddress::calculatedAddress( calc->description().toStdString() ) );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCalculation* RifCalculatedSummaryCurveReader::findCalculationByName(const RifEclipseSummaryAddress& resultAddress) const
+RimSummaryCalculation*
+    RifCalculatedSummaryCurveReader::findCalculationByName( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    if (m_calculationCollection && resultAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
+    if ( m_calculationCollection && resultAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
     {
-        QString calculatedName = QString::fromStdString(resultAddress.quantityName());
+        QString calculatedName = QString::fromStdString( resultAddress.quantityName() );
 
-        for (RimSummaryCalculation* calc : m_calculationCollection->calculations())
+        for ( RimSummaryCalculation* calc : m_calculationCollection->calculations() )
         {
-            if (calc->description() == calculatedName)
+            if ( calc->description() == calculatedName )
             {
                 return calc;
             }
@@ -109,4 +109,12 @@ RimSummaryCalculation* RifCalculatedSummaryCurveReader::findCalculationByName(co
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaEclipseUnitTools::UnitSystem RifCalculatedSummaryCurveReader::unitSystem() const
+{
+    return RiaEclipseUnitTools::UNITS_UNKNOWN;
 }

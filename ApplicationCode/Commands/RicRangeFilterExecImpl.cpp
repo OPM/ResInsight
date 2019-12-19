@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -25,13 +25,13 @@
 #include "cvfAssert.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicRangeFilterExecImpl::RicRangeFilterExecImpl(RimCellRangeFilterCollection* rangeFilterCollection, 
-                                               RimCellRangeFilter* insertBeforeCellRangeFilter)
-    : CmdExecuteCommand(nullptr)
+RicRangeFilterExecImpl::RicRangeFilterExecImpl( RimCellRangeFilterCollection* rangeFilterCollection,
+                                                RimCellRangeFilter*           insertBeforeCellRangeFilter )
+    : CmdExecuteCommand( nullptr )
 {
-    CVF_ASSERT(rangeFilterCollection);
+    CVF_ASSERT( rangeFilterCollection );
     m_cellRangeFilterCollection = rangeFilterCollection;
 
     m_insertBeforeCellRangeFilter = insertBeforeCellRangeFilter;
@@ -40,75 +40,72 @@ RicRangeFilterExecImpl::RicRangeFilterExecImpl(RimCellRangeFilterCollection* ran
     m_jSlice = false;
     m_kSlice = false;
 
-    m_gridIndex = 0;
+    m_gridIndex   = 0;
     m_iSliceStart = -1;
     m_jSliceStart = -1;
     m_kSliceStart = -1;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicRangeFilterExecImpl::~RicRangeFilterExecImpl()
-{
-}
+RicRangeFilterExecImpl::~RicRangeFilterExecImpl() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilter* RicRangeFilterExecImpl::createRangeFilter()
 {
-    CVF_ASSERT(m_cellRangeFilterCollection);
+    CVF_ASSERT( m_cellRangeFilterCollection );
 
     RimCellRangeFilter* rangeFilter = new RimCellRangeFilter();
 
     size_t flterIndex = m_cellRangeFilterCollection->rangeFilters().size() + 1;
-    
-    rangeFilter->setGridIndex(m_gridIndex);
 
-    rangeFilter->name = QString("New Filter (%1)").arg(flterIndex);
+    rangeFilter->setGridIndex( m_gridIndex );
 
-    if (m_iSlice)
+    rangeFilter->name = QString( "New Filter (%1)" ).arg( flterIndex );
+
+    if ( m_iSlice )
     {
-        rangeFilter->name = QString("Slice I (%1)").arg(flterIndex);
+        rangeFilter->name = QString( "Slice I (%1)" ).arg( flterIndex );
     }
 
-    if (m_jSlice)
+    if ( m_jSlice )
     {
-        rangeFilter->name = QString("Slice J (%1)").arg(flterIndex);
+        rangeFilter->name = QString( "Slice J (%1)" ).arg( flterIndex );
     }
 
-    if (m_kSlice)
+    if ( m_kSlice )
     {
-        rangeFilter->name = QString("Slice K (%1)").arg(flterIndex);
+        rangeFilter->name = QString( "Slice K (%1)" ).arg( flterIndex );
     }
 
     return rangeFilter;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicRangeFilterExecImpl::applyCommandDataOnFilter(RimCellRangeFilter* rangeFilter)
+void RicRangeFilterExecImpl::applyCommandDataOnFilter( RimCellRangeFilter* rangeFilter )
 {
-    rangeFilter->setGridIndex(m_gridIndex);
-    if (m_iSlice)
+    rangeFilter->setGridIndex( m_gridIndex );
+    if ( m_iSlice )
     {
         rangeFilter->cellCountI = 1;
     }
 
-    if (m_jSlice)
+    if ( m_jSlice )
     {
         rangeFilter->cellCountJ = 1;
     }
 
-    if (m_kSlice)
+    if ( m_kSlice )
     {
         rangeFilter->cellCountK = 1;
     }
 
-    if (m_iSliceStart > -1) rangeFilter->startIndexI = m_iSliceStart;
-    if (m_jSliceStart > -1) rangeFilter->startIndexJ = m_jSliceStart;
-    if (m_kSliceStart > -1) rangeFilter->startIndexK = m_kSliceStart;
+    if ( m_iSliceStart > -1 ) rangeFilter->startIndexI = m_iSliceStart;
+    if ( m_jSliceStart > -1 ) rangeFilter->startIndexJ = m_jSliceStart;
+    if ( m_kSliceStart > -1 ) rangeFilter->startIndexK = m_kSliceStart;
 }
-

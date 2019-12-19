@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,6 @@
 #include "cafPdmPtrField.h"
 #include "cafQIconProvider.h"
 
-#include "cvfBase.h"
 #include "cvfObject.h"
 
 #include "RivCellSetEnum.h"
@@ -38,98 +37,105 @@ class RimCellRangeFilter;
 class RimPropertyFilter;
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class RimViewController : public caf::PdmObject
 {
-     CAF_PDM_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
     RimViewController();
     ~RimViewController() override;
 
-    bool                                    isActive() const;
+    bool isActive() const;
 
-    RimGridView*                            managedView() const;
-    void                                    setManagedView(RimGridView* view);
+    RimGridView* managedView() const;
+    void         setManagedView( RimGridView* view );
 
-    RimGridView*                            masterView() const;
-    RimViewLinker*                          ownerViewLinker() const;
+    RimGridView*   masterView() const;
+    RimViewLinker* ownerViewLinker() const;
 
-    const RigCaseToCaseCellMapper*          cellMapper();
-    
-    bool                                    isCameraLinked() const;
-    bool                                    showCursor() const;
-    bool                                    isTimeStepLinked() const;
+    const RigCaseToCaseCellMapper* cellMapper();
 
-    bool                                    isResultColorControlled() const;
-    bool                                    isLegendDefinitionsControlled() const;
-    bool                                    isRangeFiltersControlled() const;
-    
-    bool                                    isVisibleCellsOveridden() const;
-    bool                                    isPropertyFilterOveridden() const;
+    bool isCameraLinked() const;
+    bool showCursor() const;
+    bool isTimeStepLinked() const;
 
-    void                                    scheduleCreateDisplayModelAndRedrawForDependentView() const;
-    void                                    scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType) const;
-    void                                    updateOverrides();
-    void                                    updateOptionSensitivity();
-    void                                    removeOverrides();
-    void                                    updateDisplayNameAndIcon();
+    bool isResultColorControlled() const;
+    bool isLegendDefinitionsControlled() const;
+    bool isRangeFiltersControlled() const;
 
-    void                                    updateRangeFilterOverrides(RimCellRangeFilter* changedRangeFilter);
-    void                                    applyRangeFilterCollectionByUserChoice();
-    void                                    updatePropertyFilterOverrides(RimPropertyFilter* changedPropertyFilter);
+    bool isVisibleCellsOveridden() const;
+    bool isPropertyFilterOveridden() const;
 
-protected:  // Pdm overridden methods
-    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void scheduleCreateDisplayModelAndRedrawForDependentView() const;
+    void scheduleGeometryRegenForDepViews( RivCellSetEnum geometryType ) const;
+    void updateOverrides();
+    void updateOptionSensitivity();
+    void removeOverrides();
+    void updateDisplayNameAndIcon();
 
-    caf::PdmFieldHandle*                    userDescriptionField() override  { return &m_name; }
-    caf::PdmFieldHandle*                    objectToggleField() override     { return &m_isActive; }
+    void updateRangeFilterOverrides( RimCellRangeFilter* changedRangeFilter );
+    void applyRangeFilterCollectionByUserChoice();
+    void updatePropertyFilterOverrides( RimPropertyFilter* changedPropertyFilter );
 
-private:
-    void                                    updateCameraLink();
-    void                                    updateTimeStepLink();
-    void                                    updateResultColorsControl();
-    void                                    updateLegendDefinitions();
+protected: // Pdm overridden methods
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    void                                    updateDefaultOptions();
-
-    bool                                    isCameraControlPossible() const;
-    bool                                    isMasterAndDepViewDifferentType() const;
-    bool                                    isRangeFilterControlPossible() const;
-    bool                                    isPropertyFilterControlPossible() const;
-    bool                                    isRangeFilterMappingApplicable() const;
-    bool                                    isCellResultControlAdvisable() const;
-    bool                                    isRangeFilterControlAdvisable() const;
-    bool                                    isPropertyFilterControlAdvisable() const;
-
-    RimEclipseView*                         managedEclipseView() const;
-    RimGeoMechView*                         managedGeoView() const;
-    
-    static void                             removeOverrides(RimGridView* view);
-    static bool                             askUserToRestoreOriginalRangeFilterCollection(const QString& viewName);
+    caf::PdmFieldHandle* userDescriptionField() override
+    {
+        return &m_name;
+    }
+    caf::PdmFieldHandle* objectToggleField() override
+    {
+        return &m_isActive;
+    }
 
 private:
-    caf::PdmField<QString>                  m_name;
-    caf::PdmPtrField<RimGridView*>          m_managedView;
+    void updateCameraLink();
+    void updateTimeStepLink();
+    void updateResultColorsControl();
+    void updateLegendDefinitions();
 
-    caf::PdmField<bool>                     m_isActive;
-    caf::PdmField<bool>                     m_syncCamera;
-    caf::PdmField<bool>                     m_showCursor;
-    caf::PdmField<bool>                     m_syncTimeStep;
+    void updateDefaultOptions();
 
+    bool isCameraControlPossible() const;
+    bool isMasterAndDepViewDifferentType() const;
+    bool isPropertyFilterControlPossible() const;
+    bool isRangeFilterMappingApplicable() const;
+    bool isCellResultControlAdvisable() const;
+    bool isRangeFilterControlAdvisable() const;
+    bool isPropertyFilterControlAdvisable() const;
+
+    RimEclipseView* managedEclipseView() const;
+    RimGeoMechView* managedGeoView() const;
+
+    static void removeOverrides( RimGridView* view );
+    static bool askUserToRestoreOriginalRangeFilterCollection( const QString& viewName );
+
+private:
+    caf::PdmField<QString>         m_name;
+    caf::PdmPtrField<RimGridView*> m_managedView;
+
+    caf::PdmField<bool> m_isActive;
+    caf::PdmField<bool> m_syncCamera;
+    caf::PdmField<bool> m_showCursor;
+    caf::PdmField<bool> m_syncTimeStep;
 
     // Overridden properties
-    caf::PdmField<bool>                     m_syncCellResult;
-    caf::PdmField<bool>                     m_syncLegendDefinitions;
-    
-    caf::PdmField<bool>                     m_syncRangeFilters;
-    caf::PdmField<bool>                     m_syncVisibleCells;
-    caf::PdmField<bool>                     m_syncPropertyFilters;
+    caf::PdmField<bool> m_syncCellResult;
+    caf::PdmField<bool> m_syncLegendDefinitions;
 
-    cvf::ref<RigCaseToCaseCellMapper>       m_caseToCaseCellMapper;
+    caf::PdmField<bool> m_syncRangeFilters;
+    caf::PdmField<bool> m_syncVisibleCells;
+    caf::PdmField<bool> m_syncPropertyFilters;
+
+    cvf::ref<RigCaseToCaseCellMapper> m_caseToCaseCellMapper;
 };

@@ -20,7 +20,6 @@
 
 #include "RiaPorosityModel.h"
 
-#include "cvfBase.h"
 #include "cvfMatrix4.h"
 #include "cvfObject.h"
 
@@ -43,13 +42,13 @@ class RimFracture;
 class RigEclipseToStimPlanCellTransmissibilityCalculator
 {
 public:
-    explicit RigEclipseToStimPlanCellTransmissibilityCalculator(const RimEclipseCase*   caseToApply,
-                                                                cvf::Mat4d              fractureTransform,
-                                                                double                  skinFactor,
-                                                                double                  cDarcy,
-                                                                const RigFractureCell&  stimPlanCell,
-                                                                const std::set<size_t>& reservoirCellIndicesOpenForFlow,
-                                                                const RimFracture*      fracture);
+    explicit RigEclipseToStimPlanCellTransmissibilityCalculator( const RimEclipseCase*   caseToApply,
+                                                                 cvf::Mat4d              fractureTransform,
+                                                                 double                  skinFactor,
+                                                                 double                  cDarcy,
+                                                                 const RigFractureCell&  stimPlanCell,
+                                                                 const std::set<size_t>& reservoirCellIndicesOpenForFlow,
+                                                                 const RimFracture*      fracture );
 
     // These three vectors have the same size
     const std::vector<size_t>& globalIndiciesToContributingEclipseCells() const;
@@ -65,14 +64,15 @@ public:
     static std::vector<QString> optionalResultNames();
 
 private:
-    void                calculateStimPlanCellsMatrixTransmissibility(const std::set<size_t>& reservoirCellIndicesOpenForFlow);
-    std::vector<size_t> getPotentiallyFracturedCellsForPolygon(const std::vector<cvf::Vec3d>& polygon) const;
+    void calculateStimPlanCellsMatrixTransmissibility( const std::set<size_t>& reservoirCellIndicesOpenForFlow );
+    std::vector<size_t> getPotentiallyFracturedCellsForPolygon( const std::vector<cvf::Vec3d>& polygon ) const;
 
-    static cvf::ref<RigResultAccessor> createResultAccessor(const RimEclipseCase* eclipseCase, const QString& uiResultName);
+    static cvf::ref<RigResultAccessor> createResultAccessor( const RimEclipseCase* eclipseCase,
+                                                             const QString&        uiResultName );
 
 private:
-    const RimEclipseCase*   m_case;
-    const RimFracture*      m_fracture;
+    const RimEclipseCase* m_case;
+    const RimFracture*    m_fracture;
 
     double                 m_cDarcy;
     double                 m_fractureSkinFactor;

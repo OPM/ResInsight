@@ -21,27 +21,27 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
 
-CAF_PDM_SOURCE_INIT(RimPlotCellFilterCollection, "RimPlotCellFilterCollection");
+CAF_PDM_SOURCE_INIT( RimPlotCellFilterCollection, "RimPlotCellFilterCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimPlotCellFilterCollection::RimPlotCellFilterCollection()
 {
-    CAF_PDM_InitObject("Plot Cell Filters", "", "", "");
+    CAF_PDM_InitObject( "Plot Cell Filters", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_cellFilters, "CellFilters", "Cell Filters", "", "", "");
-    m_cellFilters.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_cellFilters, "CellFilters", "Cell Filters", "", "", "" );
+    m_cellFilters.uiCapability()->setUiHidden( true );
 
-    setName("Filter Collection");
+    setName( "Filter Collection" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCellFilterCollection::addCellFilter(RimPlotCellFilter* cellFilter)
+void RimPlotCellFilterCollection::addCellFilter( RimPlotCellFilter* cellFilter )
 {
-    m_cellFilters.push_back(cellFilter);
+    m_cellFilters.push_back( cellFilter );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,28 +55,28 @@ size_t RimPlotCellFilterCollection::cellFilterCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCellFilterCollection::computeCellVisibilityFromFilter(size_t timeStepIndex, cvf::UByteArray* cellVisibility)
+void RimPlotCellFilterCollection::computeCellVisibilityFromFilter( size_t timeStepIndex, cvf::UByteArray* cellVisibility )
 {
-    if (isChecked())
+    if ( isChecked() )
     {
-        updateCellVisibilityFromFilter(timeStepIndex, cellVisibility);
+        updateCellVisibilityFromFilter( timeStepIndex, cellVisibility );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCellFilterCollection::setCase(RimCase* gridCase)
+void RimPlotCellFilterCollection::setCase( RimCase* gridCase )
 {
-    RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>(gridCase);
-    if (eclipseResultCase)
+    RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>( gridCase );
+    if ( eclipseResultCase )
     {
         std::vector<RimEclipseResultDefinition*> resultDefinitions;
 
-        this->descendantsIncludingThisOfType(resultDefinitions);
-        for (auto r : resultDefinitions)
+        this->descendantsIncludingThisOfType( resultDefinitions );
+        for ( auto r : resultDefinitions )
         {
-            r->setEclipseCase(eclipseResultCase);
+            r->setEclipseCase( eclipseResultCase );
         }
     }
 }
@@ -84,13 +84,13 @@ void RimPlotCellFilterCollection::setCase(RimCase* gridCase)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCellFilterCollection::updateCellVisibilityFromFilter(size_t timeStepIndex, cvf::UByteArray* cellVisibility)
+void RimPlotCellFilterCollection::updateCellVisibilityFromFilter( size_t timeStepIndex, cvf::UByteArray* cellVisibility )
 {
-    for (RimPlotCellFilter* f : m_cellFilters())
+    for ( RimPlotCellFilter* f : m_cellFilters() )
     {
-        if (f->isChecked())
+        if ( f->isChecked() )
         {
-            f->updateCellVisibility(timeStepIndex, cellVisibility);
+            f->updateCellVisibility( timeStepIndex, cellVisibility );
         }
     }
 }

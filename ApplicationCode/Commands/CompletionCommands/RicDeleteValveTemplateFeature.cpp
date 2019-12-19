@@ -26,14 +26,14 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicDeleteValveTemplateFeature, "RicDeleteValveTemplateFeature");
+CAF_CMD_SOURCE_INIT( RicDeleteValveTemplateFeature, "RicDeleteValveTemplateFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteValveTemplateFeature::isCommandEnabled()
 {
-    if (caf::SelectionManager::instance()->selectedItemOfType<RimValveTemplate>())
+    if ( caf::SelectionManager::instance()->selectedItemOfType<RimValveTemplate>() )
     {
         return true;
     }
@@ -43,28 +43,28 @@ bool RicDeleteValveTemplateFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteValveTemplateFeature::onActionTriggered(bool isChecked)
+void RicDeleteValveTemplateFeature::onActionTriggered( bool isChecked )
 {
     RimValveTemplate* valveTemplate = caf::SelectionManager::instance()->selectedItemOfType<RimValveTemplate>();
 
-    if (valveTemplate)
+    if ( valveTemplate )
     {
         RimProject* project = nullptr;
-        valveTemplate->firstAncestorOrThisOfTypeAsserted(project);
+        valveTemplate->firstAncestorOrThisOfTypeAsserted( project );
         std::vector<RimWellPathValve*> valves;
-        project->descendantsIncludingThisOfType(valves);
-        for (RimWellPathValve* valve : valves)
+        project->descendantsIncludingThisOfType( valves );
+        for ( RimWellPathValve* valve : valves )
         {
-            if (valve->valveTemplate() == valveTemplate)
+            if ( valve->valveTemplate() == valveTemplate )
             {
-                valve->setValveTemplate(nullptr);
+                valve->setValveTemplate( nullptr );
                 valve->updateAllRequiredEditors();
             }
         }
 
         RimValveTemplateCollection* collection = nullptr;
-        valveTemplate->firstAncestorOrThisOfTypeAsserted(collection);
-        collection->removeAndDeleteValveTemplate(valveTemplate);
+        valveTemplate->firstAncestorOrThisOfTypeAsserted( collection );
+        collection->removeAndDeleteValveTemplate( valveTemplate );
         collection->updateAllRequiredEditors();
 
         project->scheduleCreateDisplayModelAndRedrawAllViews();
@@ -74,10 +74,9 @@ void RicDeleteValveTemplateFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteValveTemplateFeature::setupActionLook(QAction* actionToSetup)
+void RicDeleteValveTemplateFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Delete Valve Template");
-    actionToSetup->setIcon(QIcon(":/Erase.png"));
-    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
+    actionToSetup->setText( "Delete Valve Template" );
+    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
 }
-

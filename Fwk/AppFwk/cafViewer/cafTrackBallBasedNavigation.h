@@ -48,6 +48,7 @@ class QMouseEvent;
 
 namespace caf
 {
+
 class RotationSensitivityCalculator
 {
 public:
@@ -56,9 +57,12 @@ public:
         , m_lastPosY(0)
         , m_lastMouseVelocityLenght(200)
         , m_isEnabled(false)
+        , m_fixedSensitivity(std::numeric_limits<double>::infinity())
     {}
-    
-    void enable(bool enable) { m_isEnabled = enable; }
+
+    void enableAdaptiveRotationSensitivity(bool enable) { m_isEnabled = enable;  m_fixedSensitivity = std::numeric_limits<double>::infinity(); }
+    void enableFixedSensitivity(double senstivity)      { m_isEnabled = true;  m_fixedSensitivity = senstivity;}
+
     void init(QMouseEvent* eventAtRotationStart);
 
     double calculateSensitivity(QMouseEvent* eventWhenRotating);
@@ -69,6 +73,7 @@ private:
     int                                 m_lastPosY;
     unsigned long                       m_lastTime; 
     double                              m_lastMouseVelocityLenght;
+    double                              m_fixedSensitivity;
 };
 
 } // End namespace caf
@@ -92,7 +97,8 @@ public:
     ~TrackBallBasedNavigation() override;
     void enableEventEating(bool enable) { m_consumeEvents = enable; }
     void enableRotation(bool enable)    { m_isRotationEnabled = enable; }
-    void enableAdaptiveRotationSensitivity(bool enable) { m_roationSensitivityCalculator.enable(enable); }
+    void enableAdaptiveRotationSensitivity(bool enable) { m_roationSensitivityCalculator.enableAdaptiveRotationSensitivity(enable); }
+    void enableFixedSensitivity(double senstivity)      { m_roationSensitivityCalculator.enableFixedSensitivity(senstivity); }
 
 protected:
     // General navigation policy overrides
@@ -101,8 +107,9 @@ protected:
     void                        setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection ) override;
     cvf::Vec3d                  pointOfInterest() override; 
     void                        setPointOfInterest(cvf::Vec3d poi) override;
-    void                                updatePointOfInterestDuringZoomIfNecessary(int zoomX, int zoomY);
-    void                                forcePointOfInterestUpdateDuringNextWheelZoom();
+    void                        pickAndSetPointOfInterest(int winPosX, int winPosY);
+    void                        updatePointOfInterestDuringZoomIfNecessary(int winPosX, int winPosY);
+    void                        forcePointOfInterestUpdateDuringNextWheelZoom();
 
     // Track ball navigation specific
     void                                initializeRotationCenter();
@@ -128,8 +135,8 @@ protected:
     bool                                isRotationEnabled() { return m_isRotationEnabled; }
 
 private:
-    void                                updateWheelZoomPosition(int zoomX, int zoomY);
-    bool                                shouldRaytraceForNewPoiDuringWheelZoom(int zoomX, int zoomY) const;
+    void                                updateWheelZoomPosition(int winPosX, int winPosY);
+    bool                                shouldRaytraceForNewPoiDuringWheelZoom(int winPosX, int winPosY) const;
 
 private:
     bool                                m_consumeEvents;

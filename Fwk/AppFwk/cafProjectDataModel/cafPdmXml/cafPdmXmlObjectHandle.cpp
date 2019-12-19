@@ -76,7 +76,11 @@ void PdmXmlObjectHandle::readFields(QXmlStreamReader& xmlStream, PdmObjectFactor
             }
             else
             {
-                std::cout << "Line " << xmlStream.lineNumber() << ": Warning: Could not find a field with name " << name.toLatin1().data() << " in the current object : " << classKeyword().toLatin1().data() << std::endl;
+                // Debug text is commented out, as this code is relatively often reached. Consider a new logging concept
+                // to receive this information
+                //
+                // std::cout << "Line " << xmlStream.lineNumber() << ": Warning: Could not find a field with name " << name.toLatin1().data() << " in the current object : " << classKeyword().toLatin1().data() << std::endl;
+
                 xmlStream.skipCurrentElement();
             }
             break;
@@ -165,6 +169,8 @@ PdmObjectHandle* PdmXmlObjectHandle::readUnknownObjectFromXmlString(const QStrin
     QString classKeyword = inputStream.name().toString(); 
     PdmObjectHandle* newObject = objectFactory->create(classKeyword);
 
+    if (!newObject) return nullptr;
+
     xmlObj(newObject)->readFields(inputStream, objectFactory);
 
     return newObject;
@@ -180,6 +186,8 @@ PdmObjectHandle* PdmXmlObjectHandle::copyByXmlSerialization(PdmObjectFactory* ob
     QString xmlString = this->writeObjectToXmlString();
 
     PdmObjectHandle* objectCopy = PdmXmlObjectHandle::readUnknownObjectFromXmlString(xmlString, objectFactory);
+    if (!objectCopy) return nullptr;
+
     objectCopy->xmlCapability()->initAfterReadRecursively();
 
     return objectCopy;
@@ -195,6 +203,8 @@ caf::PdmObjectHandle* PdmXmlObjectHandle::copyAndCastByXmlSerialization(const QS
     QString xmlString = this->writeObjectToXmlString();
 
     PdmObjectHandle* upgradedObject = objectFactory->create(destinationClassKeyword);
+    if (!upgradedObject) return nullptr;
+    
     QXmlStreamReader inputStream(xmlString);
 
     QXmlStreamReader::TokenType tt;
@@ -264,6 +274,22 @@ bool PdmXmlObjectHandle::isValidXmlElementName(const QString& name)
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmXmlObjectHandle::registerClassKeyword(const QString& registerKeyword)
+{
+    m_classInheritanceStack.push_back(registerKeyword);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmXmlObjectHandle::inheritsClassWithKeyword(const QString& testClassKeyword) const
+{
+    return std::find(m_classInheritanceStack.begin(), m_classInheritanceStack.end(), testClassKeyword) != m_classInheritanceStack.end();
 }
 
 //--------------------------------------------------------------------------------------------------

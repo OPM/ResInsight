@@ -40,20 +40,23 @@ public:
         COMMAND_WARNING,
         COMMAND_ERROR
     };
+
 public:
-    RicfCommandResponse(Status status = COMMAND_OK, const QString& message="");
-    
-    Status             status() const;
-    QString            message() const;
-    caf::PdmObject*    result() const;
-    void               setResult(caf::PdmObject* result);
-    void               updateStatus(Status status, const QString& message);
+    RicfCommandResponse( Status status = COMMAND_OK, const QString& message = "" );
+    explicit RicfCommandResponse( caf::PdmObject* ok_result );
+
+    Status          status() const;
+    QString         sanitizedResponseMessage() const;
+    QStringList     messages() const;
+    caf::PdmObject* result() const;
+    void            setResult( caf::PdmObject* result );
+    void            updateStatus( Status status, const QString& message );
 
 private:
-    static QString     statusLabel(Status status);
+    static QString statusLabel( Status status );
+
 private:
-    Status                             m_status;
-    QStringList                        m_messages;
-    caf::PdmPointer<caf::PdmObject>    m_result;
+    Status                          m_status;
+    QStringList                     m_messages;
+    std::unique_ptr<caf::PdmObject> m_result;
 };
-

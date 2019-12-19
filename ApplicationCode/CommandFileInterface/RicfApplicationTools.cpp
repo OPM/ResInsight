@@ -35,32 +35,34 @@
 //--------------------------------------------------------------------------------------------------
 /// Empty wellPathNames returns all well paths
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RicfApplicationTools::wellPathsFromNames(const QStringList& wellPathNames, QStringList* wellsNotFound)
+std::vector<RimWellPath*> RicfApplicationTools::wellPathsFromNames( const QStringList& wellPathNames,
+                                                                    QStringList*       wellsNotFound )
 {
     std::vector<RimWellPath*> wellPaths;
     auto                      allWellPaths = RiaApplication::instance()->project()->allWellPaths();
 
-    if (!wellPathNames.empty())
+    if ( !wellPathNames.empty() )
     {
-        std::set<QString> wellPathNameSet(wellPathNames.begin(), wellPathNames.end());
+        std::set<QString> wellPathNameSet( wellPathNames.begin(), wellPathNames.end() );
 
-        for (auto wellPath : allWellPaths)
+        for ( auto wellPath : allWellPaths )
         {
-            auto matchedName = RiaWellNameComparer::tryMatchNameInList(wellPath->name(), toStringVector(wellPathNames));
-            if (!matchedName.isEmpty())
+            auto matchedName = RiaWellNameComparer::tryMatchNameInList( wellPath->name(),
+                                                                        toStringVector( wellPathNames ) );
+            if ( !matchedName.isEmpty() )
             {
-                wellPaths.push_back(wellPath);
-                wellPathNameSet.erase(matchedName);
+                wellPaths.push_back( wellPath );
+                wellPathNameSet.erase( matchedName );
             }
         }
 
-        if (wellsNotFound)
+        if ( wellsNotFound )
         {
             wellsNotFound->clear();
-            if (!wellPathNameSet.empty())
+            if ( !wellPathNameSet.empty() )
             {
-                for (const auto& wpn : wellPathNameSet)
-                    wellsNotFound->push_back(wpn);
+                for ( const auto& wpn : wellPathNameSet )
+                    wellsNotFound->push_back( wpn );
             }
         }
     }
@@ -74,20 +76,20 @@ std::vector<RimWellPath*> RicfApplicationTools::wellPathsFromNames(const QString
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RicfApplicationTools::toStringVector(const QStringList& stringList)
+std::vector<QString> RicfApplicationTools::toStringVector( const QStringList& stringList )
 {
-    return std::vector<QString>(stringList.begin(), stringList.end());
+    return std::vector<QString>( stringList.begin(), stringList.end() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RicfApplicationTools::toQStringList(const std::vector<QString>& v)
+QStringList RicfApplicationTools::toQStringList( const std::vector<QString>& v )
 {
     QStringList stringList;
-    for (const auto& s : v)
+    for ( const auto& s : v )
     {
-        stringList.push_back(s);
+        stringList.push_back( s );
     }
     return stringList;
 }
@@ -95,18 +97,18 @@ QStringList RicfApplicationTools::toQStringList(const std::vector<QString>& v)
 //--------------------------------------------------------------------------------------------------
 /// If caseId is -1, return first case found
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RicfApplicationTools::caseFromId(int caseId)
+RimEclipseCase* RicfApplicationTools::caseFromId( int caseId )
 {
     auto eclipseCases = RiaApplication::instance()->project()->eclipseCases();
-    if (caseId < 0)
+    if ( caseId < 0 )
     {
-        if (!eclipseCases.empty()) return eclipseCases.front();
+        if ( !eclipseCases.empty() ) return eclipseCases.front();
     }
     else
     {
-        for (RimEclipseCase* c : eclipseCases)
+        for ( RimEclipseCase* c : eclipseCases )
         {
-            if (c->caseId() == caseId) return c;
+            if ( c->caseId() == caseId ) return c;
         }
     }
     return nullptr;
@@ -115,16 +117,16 @@ RimEclipseCase* RicfApplicationTools::caseFromId(int caseId)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RicfApplicationTools::viewFromCaseIdAndViewName(int caseId, const QString& viewName)
+RimEclipseView* RicfApplicationTools::viewFromCaseIdAndViewName( int caseId, const QString& viewName )
 {
-    for (RimEclipseCase* c : RiaApplication::instance()->project()->eclipseCases())
+    for ( RimEclipseCase* c : RiaApplication::instance()->project()->eclipseCases() )
     {
-        if (c->caseId() == caseId)
+        if ( c->caseId() == caseId )
         {
-            for (auto v : c->views())
+            for ( auto v : c->views() )
             {
-                auto eclipseView = dynamic_cast<RimEclipseView*>(v);
-                if (eclipseView && eclipseView->name().compare(viewName, Qt::CaseInsensitive) == 0)
+                auto eclipseView = dynamic_cast<RimEclipseView*>( v );
+                if ( eclipseView && eclipseView->name().compare( viewName, Qt::CaseInsensitive ) == 0 )
                 {
                     return eclipseView;
                 }

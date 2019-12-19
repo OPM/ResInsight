@@ -22,19 +22,18 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
-#include "RiaRegressionTestRunner.h"
 
 #include <QDir>
 #include <QFileInfo>
 
-CAF_PDM_SOURCE_INIT(RicfOpenProject, "openProject");
+CAF_PDM_SOURCE_INIT( RicfOpenProject, "openProject" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicfOpenProject::RicfOpenProject()
 {
-    RICF_InitField(&m_path, "path", QString(), "Path", "", "", "");
+    RICF_InitField( &m_path, "path", QString(), "Path", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -42,27 +41,22 @@ RicfOpenProject::RicfOpenProject()
 //--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicfOpenProject::execute()
 {
-    QString projectPath = m_path;
-    QFileInfo projectPathInfo(projectPath);
-    if (!projectPathInfo.exists())
+    QString   projectPath = m_path;
+    QFileInfo projectPathInfo( projectPath );
+    if ( !projectPathInfo.exists() )
     {
-        QDir startDir(RiaApplication::instance()->startDir());
-        projectPath = startDir.absoluteFilePath(m_path);
+        QDir startDir( RiaApplication::instance()->startDir() );
+        projectPath = startDir.absoluteFilePath( m_path );
     }
-    bool ok = RiaApplication::instance()->loadProject(projectPath);
-    if (!ok)
+    bool ok = RiaApplication::instance()->loadProject( projectPath );
+    if ( !ok )
     {
-        QString errMsg = QString("openProject: Unable to open project at %1").arg(m_path());
-        RiaLogging::error(errMsg);
-        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, errMsg);
-    }
-
-    if (RiaRegressionTestRunner::instance()->isRunningRegressionTests())
-    {
-        RiaRegressionTestRunner::regressionTestConfigureProject();
+        QString errMsg = QString( "openProject: Unable to open project at %1" ).arg( m_path() );
+        RiaLogging::error( errMsg );
+        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, errMsg );
     }
 
-    RicfCommandFileExecutor::instance()->setLastProjectPath(projectPath);
+    RicfCommandFileExecutor::instance()->setLastProjectPath( projectPath );
 
     return RicfCommandResponse();
 }

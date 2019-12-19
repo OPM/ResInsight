@@ -33,34 +33,34 @@
 //==================================================================================================
 ///
 //==================================================================================================
-RimEclipseView* RicSelectOrCreateViewFeatureImpl::showViewSelection(RimEclipseResultCase* resultCase,
-                                                                    const QString&        lastUsedViewKey,
-                                                                    const QString&        newViewName,
-                                                                    const QString&        dialogTitle)
+RimEclipseView* RicSelectOrCreateViewFeatureImpl::showViewSelection( RimEclipseResultCase* resultCase,
+                                                                     const QString&        lastUsedViewKey,
+                                                                     const QString&        newViewName,
+                                                                     const QString&        dialogTitle )
 {
-    RimEclipseView* defaultSelectedView = getDefaultSelectedView(resultCase, lastUsedViewKey);
+    RimEclipseView* defaultSelectedView = getDefaultSelectedView( resultCase, lastUsedViewKey );
 
     RicSelectViewUI featureUi;
-    featureUi.setNewViewName(newViewName);
-    if (defaultSelectedView)
+    featureUi.setNewViewName( newViewName );
+    if ( defaultSelectedView )
     {
-        featureUi.setView(defaultSelectedView);
+        featureUi.setView( defaultSelectedView );
     }
     else
     {
-        featureUi.setCase(resultCase);
+        featureUi.setCase( resultCase );
     }
 
-    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &featureUi, dialogTitle, "");
-    propertyDialog.resize(QSize(400, 200));
+    caf::PdmUiPropertyViewDialog propertyDialog( nullptr, &featureUi, dialogTitle, "" );
+    propertyDialog.resize( QSize( 400, 200 ) );
 
-    if (propertyDialog.exec() != QDialog::Accepted) return nullptr;
+    if ( propertyDialog.exec() != QDialog::Accepted ) return nullptr;
 
     RimEclipseView* viewToManipulate = nullptr;
-    if (featureUi.createNewView())
+    if ( featureUi.createNewView() )
     {
         RimEclipseView* createdView = resultCase->createAndAddReservoirView();
-        createdView->setName(featureUi.newViewName());
+        createdView->setName( featureUi.newViewName() );
 
         // Must be run before buildViewItems, as wells are created in this function
         createdView->loadDataAndUpdate();
@@ -74,8 +74,8 @@ RimEclipseView* RicSelectOrCreateViewFeatureImpl::showViewSelection(RimEclipseRe
     }
 
     QString refFromProjectToView =
-        caf::PdmReferenceHelper::referenceFromRootToObject(RiaApplication::instance()->project(), viewToManipulate);
-    RiaApplication::instance()->setCacheDataObject(lastUsedViewKey, refFromProjectToView);
+        caf::PdmReferenceHelper::referenceFromRootToObject( RiaApplication::instance()->project(), viewToManipulate );
+    RiaApplication::instance()->setCacheDataObject( lastUsedViewKey, refFromProjectToView );
 
     return viewToManipulate;
 }
@@ -83,52 +83,52 @@ RimEclipseView* RicSelectOrCreateViewFeatureImpl::showViewSelection(RimEclipseRe
 //==================================================================================================
 ///
 //==================================================================================================
-void RicSelectOrCreateViewFeatureImpl::focusView(RimEclipseView* view)
+void RicSelectOrCreateViewFeatureImpl::focusView( RimEclipseView* view )
 {
-    RiuMainWindow::instance()->setExpanded(view);
-    RiuMainWindow::instance()->selectAsCurrentItem(view);
+    RiuMainWindow::instance()->setExpanded( view );
+    RiuMainWindow::instance()->selectAsCurrentItem( view );
     RiuMainWindow::instance()->raise();
 }
 
 //==================================================================================================
 ///
 //==================================================================================================
-RimEclipseView* RicSelectOrCreateViewFeatureImpl::getDefaultSelectedView(RimEclipseResultCase* resultCase,
-                                                                         const QString&        lastUsedViewKey)
+RimEclipseView* RicSelectOrCreateViewFeatureImpl::getDefaultSelectedView( RimEclipseResultCase* resultCase,
+                                                                          const QString&        lastUsedViewKey )
 {
     RimEclipseView* defaultSelectedView = nullptr;
 
-    QString         lastUsedViewRef = RiaApplication::instance()->cacheDataObject(lastUsedViewKey).toString();
+    QString         lastUsedViewRef = RiaApplication::instance()->cacheDataObject( lastUsedViewKey ).toString();
     RimEclipseView* lastUsedView    = dynamic_cast<RimEclipseView*>(
-        caf::PdmReferenceHelper::objectFromReference(RiaApplication::instance()->project(), lastUsedViewRef));
-    if (lastUsedView)
+        caf::PdmReferenceHelper::objectFromReference( RiaApplication::instance()->project(), lastUsedViewRef ) );
+    if ( lastUsedView )
     {
         RimEclipseResultCase* lastUsedViewResultCase = nullptr;
-        lastUsedView->firstAncestorOrThisOfTypeAsserted(lastUsedViewResultCase);
+        lastUsedView->firstAncestorOrThisOfTypeAsserted( lastUsedViewResultCase );
 
-        if (lastUsedViewResultCase == resultCase)
+        if ( lastUsedViewResultCase == resultCase )
         {
             defaultSelectedView = lastUsedView;
         }
     }
 
-    if (!defaultSelectedView)
+    if ( !defaultSelectedView )
     {
-        RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
-        if (activeView)
+        RimEclipseView* activeView = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeReservoirView() );
+        if ( activeView )
         {
             RimEclipseResultCase* activeViewResultCase = nullptr;
-            activeView->firstAncestorOrThisOfTypeAsserted(activeViewResultCase);
+            activeView->firstAncestorOrThisOfTypeAsserted( activeViewResultCase );
 
-            if (activeViewResultCase == resultCase)
+            if ( activeViewResultCase == resultCase )
             {
                 defaultSelectedView = activeView;
             }
             else
             {
-                if (resultCase->views().size() > 0)
+                if ( resultCase->views().size() > 0 )
                 {
-                    defaultSelectedView = dynamic_cast<RimEclipseView*>(resultCase->views()[0]);
+                    defaultSelectedView = dynamic_cast<RimEclipseView*>( resultCase->views()[0] );
                 }
             }
         }

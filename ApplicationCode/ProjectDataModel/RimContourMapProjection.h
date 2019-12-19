@@ -74,7 +74,7 @@ public:
     RimContourMapProjection();
     ~RimContourMapProjection() override;
 
-    void generateResultsIfNecessary(int timeStep);
+    void generateResultsIfNecessary( int timeStep );
     void generateGeometryIfNecessary();
     void clearGeometry();
 
@@ -83,11 +83,14 @@ public:
     const std::vector<ContourPolygons>& contourPolygons() const;
     const std::vector<cvf::Vec4d>&      trianglesWithVertexValues();
 
-    double            sampleSpacing() const;
-    double            sampleSpacingFactor() const;
-    bool              showContourLines() const;
+    double sampleSpacing() const;
+    double sampleSpacingFactor() const;
+    bool   showContourLines() const;
 
     QString resultAggregationText() const;
+
+    QString caseName() const;
+    QString currentTimeStepName() const;
 
     double maxValue() const;
     double minValue() const;
@@ -100,15 +103,18 @@ public:
 
     bool isColumnResult() const;
 
-    double valueAtVertex(uint i, uint j) const;
+    double valueAtVertex( uint i, uint j ) const;
 
     uint   numberOfCells() const;
     uint   numberOfValidCells() const;
     size_t numberOfVertices() const;
 
-    bool       checkForMapIntersection(const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint) const;
-    void       setPickPoint(cvf::Vec2d globalPickPoint);
+    bool checkForMapIntersection( const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint ) const;
+    void       setPickPoint( cvf::Vec2d globalPickPoint );
     cvf::Vec3d origin3d() const;
+
+    std::vector<double> xVertexPositions() const;
+    std::vector<double> yVertexPositions() const;
 
     // Pure-virtual public methods which should be overridden by Eclipse and Geo-mechanical contour map implementations
     virtual QString                 resultDescriptionText() const = 0;
@@ -117,34 +123,37 @@ public:
 
 protected:
     // Protected virtual methods to be overridden by Eclipse and Geo-mechanical contour map implementations
-    virtual void                updateGridInformation()              = 0;
-    virtual std::vector<double> retrieveParameterWeights()           = 0;
-    virtual std::vector<double> generateResults(int timeStep)        = 0;
-    virtual bool                resultVariableChanged() const        = 0;
-    virtual void                clearResultVariable()                = 0;
-    virtual RimGridView*        baseView() const                     = 0;
-    virtual size_t              kLayer(size_t globalCellIdx) const   = 0;
-    virtual std::vector<size_t> findIntersectingCells(const cvf::BoundingBox& bbox) const = 0;
-    virtual double              calculateOverlapVolume(size_t globalCellIdx, const cvf::BoundingBox& bbox) const = 0;
-    virtual double              calculateRayLengthInCell(size_t globalCellIdx, const cvf::Vec3d& highestPoint, const cvf::Vec3d& lowestPoint) const = 0;
-    virtual double              getParameterWeightForCell(size_t globalCellIdx, const std::vector<double>& parameterWeights) const = 0;
-    
-    virtual size_t              gridResultIndex(size_t globalCellIdx) const;
+    virtual void                updateGridInformation()                                                            = 0;
+    virtual std::vector<double> retrieveParameterWeights()                                                         = 0;
+    virtual std::vector<double> generateResults( int timeStep )                                                    = 0;
+    virtual bool                resultVariableChanged() const                                                      = 0;
+    virtual void                clearResultVariable()                                                              = 0;
+    virtual RimGridView*        baseView() const                                                                   = 0;
+    virtual size_t              kLayer( size_t globalCellIdx ) const                                               = 0;
+    virtual std::vector<size_t> findIntersectingCells( const cvf::BoundingBox& bbox ) const                        = 0;
+    virtual double              calculateOverlapVolume( size_t globalCellIdx, const cvf::BoundingBox& bbox ) const = 0;
+    virtual double              calculateRayLengthInCell( size_t            globalCellIdx,
+                                                          const cvf::Vec3d& highestPoint,
+                                                          const cvf::Vec3d& lowestPoint ) const                    = 0;
+    virtual double              getParameterWeightForCell( size_t                     globalCellIdx,
+                                                           const std::vector<double>& parameterWeights ) const     = 0;
 
-    double calculateValueInMapCell(uint i, uint j, const std::vector<double>& gridCellValues) const;
+    virtual size_t gridResultIndex( size_t globalCellIdx ) const;
+
+    double calculateValueInMapCell( uint i, uint j, const std::vector<double>& gridCellValues ) const;
 
 protected:
     // Keep track of whether cached data needs updating
     bool gridMappingNeedsUpdating() const;
-    bool resultsNeedsUpdating(int timeStep) const;
+    bool resultsNeedsUpdating( int timeStep ) const;
     bool geometryNeedsUpdating() const;
     bool resultRangeIsValid() const;
     void clearGridMapping();
     void clearResults();
     void clearTimeStepRange();
 
-    double                  maxValue(const std::vector<double>& aggregatedResults) const;
-    double                  minValue(const std::vector<double>& aggregatedResults) const;
+    double                    maxValue( const std::vector<double>& aggregatedResults ) const;
+    double                    minValue( const std::vector<double>& aggregatedResults ) const;
     std::pair<double, double> minmaxValuesAllTimeSteps();
 
     virtual cvf::ref<cvf::UByteArray>                   getCellVisibility() const;
@@ -156,75 +165,75 @@ protected:
     void                    generateTrianglesWithVertexValues();
     std::vector<cvf::Vec3d> generateVertices() const;
     void                    generateContourPolygons();
-    ContourPolygons         createContourPolygonsFromLineSegments(caf::ContourLines::ListOfLineSegments& unorderedLineSegments, double contourValue);
-    void                    smoothContourPolygons(ContourPolygons* contourPolygons, bool favourExpansion);
-    void                    clipContourPolygons(ContourPolygons* contourPolygons, const ContourPolygons* clipBy);
-    static double           sumPolygonArea(const ContourPolygons& contourPolygons);
-    static double           sumTriangleAreas(const std::vector<cvf::Vec4d>& triangles);
+    ContourPolygons createContourPolygonsFromLineSegments( caf::ContourLines::ListOfLineSegments& unorderedLineSegments,
+                                                           double                                 contourValue );
+    void            smoothContourPolygons( ContourPolygons* contourPolygons, bool favourExpansion );
+    void            clipContourPolygons( ContourPolygons* contourPolygons, const ContourPolygons* clipBy );
+    static double   sumPolygonArea( const ContourPolygons& contourPolygons );
+    static double   sumTriangleAreas( const std::vector<cvf::Vec4d>& triangles );
 
-    std::vector<CellIndexAndResult> cellOverlapVolumesAndResults(const cvf::Vec2d& globalPos2d,
-                                                                 const std::vector<double>& weightingResultValues) const;
-    std::vector<CellIndexAndResult> cellRayIntersectionAndResults(const cvf::Vec2d& globalPos2d,
-                                                                  const std::vector<double>& weightingResultValues) const;
+    std::vector<CellIndexAndResult> cellOverlapVolumesAndResults( const cvf::Vec2d&          globalPos2d,
+                                                                  const std::vector<double>& weightingResultValues ) const;
+    std::vector<CellIndexAndResult> cellRayIntersectionAndResults( const cvf::Vec2d&          globalPos2d,
+                                                                   const std::vector<double>& weightingResultValues ) const;
 
     bool        isMeanResult() const;
     bool        isStraightSummationResult() const;
-    static bool isStraightSummationResult(ResultAggregationEnum aggregationType);
+    static bool isStraightSummationResult( ResultAggregationEnum aggregationType );
 
-    double interpolateValue(const cvf::Vec2d& gridPosition2d) const;
-    double valueInCell(uint i, uint j) const;
-    bool   hasResultInCell(uint i, uint j) const;
-    double calculateValueAtVertex(uint i, uint j) const;
+    double interpolateValue( const cvf::Vec2d& gridPosition2d ) const;
+    double valueInCell( uint i, uint j ) const;
+    bool   hasResultInCell( uint i, uint j ) const;
+    double calculateValueAtVertex( uint i, uint j ) const;
 
     // Cell index and position conversion
-    std::vector<CellIndexAndResult> cellsAtIJ(uint i, uint j) const;
-    size_t                          cellIndexFromIJ(uint i, uint j) const;
-    size_t                          vertexIndexFromIJ(uint i, uint j) const;
-    cvf::Vec2ui                     ijFromVertexIndex(size_t gridIndex) const;
-    cvf::Vec2ui                     ijFromCellIndex(size_t mapIndex) const;
-    cvf::Vec2ui                     ijFromLocalPos(const cvf::Vec2d& localPos2d) const;
-    cvf::Vec2d                      cellCenterPosition(uint i, uint j) const;
+    std::vector<CellIndexAndResult> cellsAtIJ( uint i, uint j ) const;
+    size_t                          cellIndexFromIJ( uint i, uint j ) const;
+    size_t                          vertexIndexFromIJ( uint i, uint j ) const;
+    cvf::Vec2ui                     ijFromVertexIndex( size_t gridIndex ) const;
+    cvf::Vec2ui                     ijFromCellIndex( size_t mapIndex ) const;
+    cvf::Vec2ui                     ijFromLocalPos( const cvf::Vec2d& localPos2d ) const;
+    cvf::Vec2d                      cellCenterPosition( uint i, uint j ) const;
     cvf::Vec2d                      origin2d() const;
 
-    std::vector<double> xVertexPositions() const;
-    std::vector<double> yVertexPositions() const;
+    cvf::Vec2ui calculateMapSize() const;
+    double      gridEdgeOffset() const;
 
-    cvf::Vec2ui         calculateMapSize() const;
-    double              gridEdgeOffset() const;
-    
- protected:
-     // Framework overrides
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void defineEditorAttribute(const caf::PdmFieldHandle* field,
-                               QString                    uiConfigName,
-                               caf::PdmUiEditorAttribute* attribute) override;
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    void initAfterRead() override;
-       
 protected:
-    caf::PdmField<double>                           m_relativeSampleSpacing;
-    caf::PdmField<ResultAggregation>                m_resultAggregation;
-    caf::PdmField<bool>                             m_showContourLines;
-    caf::PdmField<bool>                             m_showContourLabels;
-    caf::PdmField<bool>                             m_smoothContourLines;
+    // Framework overrides
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void initAfterRead() override;
+
+protected:
+    caf::PdmField<double>            m_relativeSampleSpacing;
+    caf::PdmField<ResultAggregation> m_resultAggregation;
+    caf::PdmField<bool>              m_showContourLines;
+    caf::PdmField<bool>              m_showContourLabels;
+    caf::PdmField<bool>              m_smoothContourLines;
 
     cvf::ref<cvf::UByteArray>                           m_cellGridIdxVisibility;
     std::vector<double>                                 m_aggregatedResults;
     std::vector<double>                                 m_aggregatedVertexResults;
     std::vector<std::vector<std::pair<size_t, double>>> m_projected3dGridIndices;
 
-    cvf::Vec2d                            m_pickPoint;
-    cvf::Vec2ui                           m_mapSize;
-    cvf::BoundingBox                      m_expandedBoundingBox;
-    cvf::BoundingBox                      m_gridBoundingBox;
-    double                                m_sampleSpacing;
-    std::vector<ContourPolygons>          m_contourPolygons;
-    std::vector<double>                   m_contourLevelCumulativeAreas;
-    std::vector<cvf::Vec4d>               m_trianglesWithVertexValues;
-    int                                   m_currentResultTimestep;
-    std::vector<bool>                     m_mapCellVisibility;
+    cvf::Vec2d                   m_pickPoint;
+    cvf::Vec2ui                  m_mapSize;
+    cvf::BoundingBox             m_expandedBoundingBox;
+    cvf::BoundingBox             m_gridBoundingBox;
+    double                       m_sampleSpacing;
+    std::vector<ContourPolygons> m_contourPolygons;
+    std::vector<double>          m_contourLevelCumulativeAreas;
+    std::vector<cvf::Vec4d>      m_trianglesWithVertexValues;
+    int                          m_currentResultTimestep;
+    std::vector<bool>            m_mapCellVisibility;
 
-    double                                m_minResultAllTimeSteps;
-    double                                m_maxResultAllTimeSteps;
+    double m_minResultAllTimeSteps;
+    double m_maxResultAllTimeSteps;
 };

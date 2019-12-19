@@ -30,6 +30,7 @@ class RimWellLogPlotCollection;
 class RimRftPlotCollection;
 class RimPltPlotCollection;
 class RimGridCrossPlotCollection;
+class RimGridPlotWindowCollection;
 class RimSummaryPlotCollection;
 class RimSummaryCrossPlotCollection;
 class RimSummaryPlot;
@@ -64,11 +65,14 @@ public:
     void updatePlotsWithFormations();
     void updatePlotsWithCompletions();
     void deleteAllCachedData();
+    void ensureDefaultFlowPlotsAreCreated();
 
 private:
     // Overridden PDM methods
     caf::PdmFieldHandle* objectToggleField() override;
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue ) override;
 
 private:
     caf::PdmChildField<RimWellLogPlotCollection*>            m_wellLogPlotCollection;

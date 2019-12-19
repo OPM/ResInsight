@@ -41,7 +41,7 @@ public:
 
     RimEclipseResultDefinition* resultDefinition() const;
 
-    void rangeValues(double* lower, double* upper) const;
+    void rangeValues( double* lower, double* upper ) const;
     bool isCategorySelectionActive() const;
 
     void setToDefaultValues();
@@ -49,18 +49,20 @@ public:
     void computeResultValueRange();
     void updateFromCurrentTimeStep();
 
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                           const QVariant&            oldValue,
+                           const QVariant&            newValue ) override;
     void initAfterRead() override;
 
     void updateUiFieldsFromActiveResult();
 
 private:
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
-    void defineEditorAttribute(const caf::PdmFieldHandle* field,
-                               QString                    uiConfigName,
-                               caf::PdmUiEditorAttribute* attribute) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     friend class RimEclipsePropertyFilterCollection;
@@ -70,7 +72,7 @@ private:
     void updateReadOnlyStateOfAllFields();
     void updateRangeLabel();
     bool isPropertyFilterControlled();
-    void setCategoriesFromTracerNames(const std::vector<QString>& tracerNames);
+    void setCategoriesFromTracerNames( const std::vector<QString>& tracerNames );
 
     RimEclipsePropertyFilterCollection* parentContainer();
 

@@ -67,44 +67,49 @@ namespace caf
 }
 // clang-format on
 
-CAF_PDM_SOURCE_INIT(RicExportCompletionDataSettingsUi, "RicExportCompletionDataSettingsUi");
+CAF_PDM_SOURCE_INIT( RicExportCompletionDataSettingsUi, "RicExportCompletionDataSettingsUi" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 {
-    CAF_PDM_InitObject("RimExportCompletionDataSettings", "", "", "");
+    CAF_PDM_InitObject( "RimExportCompletionDataSettings", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&fileSplit, "FileSplit", "File Split", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &fileSplit, "FileSplit", "File Split", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&compdatExport, "compdatExport", "Export", "", " ", "");
+    CAF_PDM_InitFieldNoDefault( &compdatExport, "compdatExport", "Export", "", " ", "" );
 
-    CAF_PDM_InitField(&timeStep, "TimeStepIndex", 0, "    Time Step", "", "", "");
+    CAF_PDM_InitField( &timeStep, "TimeStepIndex", 0, "    Time Step", "", "", "" );
 
-    CAF_PDM_InitField(&includeMsw, "IncludeMSW", true, "Include Multi Segment Well Model", "", "", "");
+    CAF_PDM_InitField( &includeMsw, "IncludeMSW", true, "Include Multi Segment Well Model", "", "", "" );
 
-    CAF_PDM_InitField(&useLateralNTG, "UseLateralNTG", false, "Use NTG Horizontally", "", "", "");
+    CAF_PDM_InitField( &useLateralNTG, "UseLateralNTG", false, "Use NTG Horizontally", "", "", "" );
 
-    CAF_PDM_InitField(&includePerforations, "IncludePerforations", true, "Perforations", "", "", "");
-    CAF_PDM_InitField(&includeFishbones, "IncludeFishbones", true, "Fishbones", "", "", "");
-    CAF_PDM_InitField(&includeFractures, "IncludeFractures", true, "Fractures", "", "", "");
+    CAF_PDM_InitField( &includePerforations, "IncludePerforations", true, "Perforations", "", "", "" );
+    CAF_PDM_InitField( &includeFishbones, "IncludeFishbones", true, "Fishbones", "", "", "" );
+    CAF_PDM_InitField( &includeFractures, "IncludeFractures", true, "Fractures", "", "", "" );
 
-    CAF_PDM_InitField(&performTransScaling, "TransScalingType", false, "Perform Transmissibility Scaling", "", "", "");
-    CAF_PDM_InitField(&transScalingTimeStep, "TransScalingTimeStep", 0, "Current Time Step", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&transScalingWBHPSource, "TransScalingWBHPSource", "WBHP Selection", "", "", "");
-    CAF_PDM_InitField(&transScalingWBHP, "TransScalingWBHP", 200.0, "WBHP Before Production Start", "", "", "");
+    CAF_PDM_InitField( &performTransScaling, "TransScalingType", false, "Perform Transmissibility Scaling", "", "", "" );
+    CAF_PDM_InitField( &transScalingTimeStep, "TransScalingTimeStep", 0, "Current Time Step", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &transScalingWBHPSource, "TransScalingWBHPSource", "WBHP Selection", "", "", "" );
+    CAF_PDM_InitField( &transScalingWBHP, "TransScalingWBHP", 200.0, "WBHP Before Production Start", "", "", "" );
 
-    CAF_PDM_InitField(&excludeMainBoreForFishbones,
-                      "ExcludeMainBoreForFishbones",
-                      false,
-                      "    Exclude Main Bore Transmissibility",
-                      "",
-                      "Main bore perforation intervals are defined by start/end MD of each active fishbone sub definition",
-                      "");
+    CAF_PDM_InitField( &excludeMainBoreForFishbones,
+                       "ExcludeMainBoreForFishbones",
+                       false,
+                       "    Exclude Main Bore Transmissibility",
+                       "",
+                       "Main bore perforation intervals are defined by start/end MD of each active fishbone sub "
+                       "definition",
+                       "" );
 
-    CAF_PDM_InitFieldNoDefault(
-        &m_reportCompletionTypesSeparately, "ReportCompletionTypesSeparately", "Export Completion Types", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_reportCompletionTypesSeparately,
+                                "ReportCompletionTypesSeparately",
+                                "Export Completion Types",
+                                "",
+                                "",
+                                "" );
 
     m_displayForSimWell = true;
 
@@ -140,7 +145,7 @@ void RicExportCompletionDataSettingsUi::showForWellPath()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportCompletionDataSettingsUi::setCombinationMode(CombinationMode combinationMode)
+void RicExportCompletionDataSettingsUi::setCombinationMode( CombinationMode combinationMode )
 {
     m_reportCompletionTypesSeparately = combinationMode;
 }
@@ -148,7 +153,7 @@ void RicExportCompletionDataSettingsUi::setCombinationMode(CombinationMode combi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportCompletionDataSettingsUi::showFractureInUi(bool enable)
+void RicExportCompletionDataSettingsUi::showFractureInUi( bool enable )
 {
     m_fracturesEnabled = enable;
 }
@@ -156,7 +161,7 @@ void RicExportCompletionDataSettingsUi::showFractureInUi(bool enable)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportCompletionDataSettingsUi::showPerforationsInUi(bool enable)
+void RicExportCompletionDataSettingsUi::showPerforationsInUi( bool enable )
 {
     m_perforationsEnabled = enable;
 }
@@ -164,7 +169,7 @@ void RicExportCompletionDataSettingsUi::showPerforationsInUi(bool enable)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportCompletionDataSettingsUi::showFishbonesInUi(bool enable)
+void RicExportCompletionDataSettingsUi::showFishbonesInUi( bool enable )
 {
     m_fishbonesEnabled = enable;
 }
@@ -180,17 +185,17 @@ bool RicExportCompletionDataSettingsUi::reportCompletionsTypesIndividually() con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportCompletionDataSettingsUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                                         const QVariant&            oldValue,
-                                                         const QVariant&            newValue)
+void RicExportCompletionDataSettingsUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                          const QVariant&            oldValue,
+                                                          const QVariant&            newValue )
 {
-    if (changedField == &compdatExport)
+    if ( changedField == &compdatExport )
     {
-        if (compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
+        if ( compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS )
         {
             includeFractures = false;
         }
-        else if (compdatExport == TRANSMISSIBILITIES || includeMsw)
+        else if ( compdatExport == TRANSMISSIBILITIES || includeMsw )
         {
             includeFractures = true;
         }
@@ -201,84 +206,89 @@ void RicExportCompletionDataSettingsUi::fieldChangedByUi(const caf::PdmFieldHand
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicExportCompletionDataSettingsUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+    RicExportCompletionDataSettingsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                              bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
-    if (fieldNeedingOptions == &timeStep)
+    if ( fieldNeedingOptions == &timeStep )
     {
         QStringList timeStepNames;
 
-        if (caseToApply)
+        if ( caseToApply )
         {
             timeStepNames = caseToApply->timeStepStrings();
         }
-        for (int i = 0; i < timeStepNames.size(); i++)
+        for ( int i = 0; i < timeStepNames.size(); i++ )
         {
-            options.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
+            options.push_back( caf::PdmOptionItemInfo( timeStepNames[i], i ) );
         }
     }
-    else if (fieldNeedingOptions == &transScalingTimeStep)
+    else if ( fieldNeedingOptions == &transScalingTimeStep )
     {
-        std::map<int, std::vector<std::pair<QString, QString>>> wellProductionStartStrings = generateWellProductionStartStrings();
+        std::map<int, std::vector<std::pair<QString, QString>>> wellProductionStartStrings =
+            generateWellProductionStartStrings();
 
         QStringList timeStepNames;
 
-        if (caseToApply)
+        if ( caseToApply )
         {
             timeStepNames = caseToApply->timeStepStrings();
         }
-        for (int i = 0; i < timeStepNames.size(); i++)
+        for ( int i = 0; i < timeStepNames.size(); i++ )
         {
             QString timeStepString = timeStepNames[i];
-            auto it = wellProductionStartStrings.find(i);
-            if (it != wellProductionStartStrings.end())
+            auto    it             = wellProductionStartStrings.find( i );
+            if ( it != wellProductionStartStrings.end() )
             {
-                int numberOfWells = static_cast<int>(it->second.size());
+                int         numberOfWells = static_cast<int>( it->second.size() );
                 QStringList wellList;
                 QStringList wellPressureList;
-                const int maxStringLength = 70;
-                QString startStringFormat(" [Start: %1]");
+                const int   maxStringLength = 70;
+                QString     startStringFormat( " [Start: %1]" );
 
-                for (int w = 0; w < numberOfWells; ++w)
+                for ( int w = 0; w < numberOfWells; ++w )
                 {
-                    QString wellString = it->second[w].first;
-                    QStringList candidateWellList = wellList; candidateWellList << wellString;
+                    QString     wellString        = it->second[w].first;
+                    QStringList candidateWellList = wellList;
+                    candidateWellList << wellString;
 
-                    if (startStringFormat.arg(candidateWellList.join(", ")).length() < maxStringLength)
+                    if ( startStringFormat.arg( candidateWellList.join( ", " ) ).length() < maxStringLength )
                     {
                         wellList = candidateWellList;
                     }
 
-                    QString wellStringWithPressure = QString("%1 (%2)").arg(it->second[w].first).arg(it->second[w].second);
-                    QStringList candidateWellPressureList = wellPressureList; candidateWellPressureList << wellStringWithPressure;
-                    if (startStringFormat.arg(candidateWellPressureList.join(", ")).length() < maxStringLength)
+                    QString wellStringWithPressure =
+                        QString( "%1 (%2)" ).arg( it->second[w].first ).arg( it->second[w].second );
+                    QStringList candidateWellPressureList = wellPressureList;
+                    candidateWellPressureList << wellStringWithPressure;
+                    if ( startStringFormat.arg( candidateWellPressureList.join( ", " ) ).length() < maxStringLength )
                     {
                         wellPressureList = candidateWellPressureList;
                     }
                 }
-                
-                if (wellList.size() < numberOfWells)
+
+                if ( wellList.size() < numberOfWells )
                 {
-                    wellList += QString("+ %1 more").arg(numberOfWells - wellList.size());
-                    timeStepString += startStringFormat.arg(wellList.join(", "));
+                    wellList += QString( "+ %1 more" ).arg( numberOfWells - wellList.size() );
+                    timeStepString += startStringFormat.arg( wellList.join( ", " ) );
                 }
-                else if (wellPressureList.size() < numberOfWells)
+                else if ( wellPressureList.size() < numberOfWells )
                 {
-                    timeStepString += startStringFormat.arg(wellList.join(", "));
+                    timeStepString += startStringFormat.arg( wellList.join( ", " ) );
                 }
                 else
                 {
-                    timeStepString += startStringFormat.arg(wellPressureList.join(", "));
+                    timeStepString += startStringFormat.arg( wellPressureList.join( ", " ) );
                 }
             }
 
-            options.push_back(caf::PdmOptionItemInfo(timeStepString, i));
+            options.push_back( caf::PdmOptionItemInfo( timeStepString, i ) );
         }
     }
 
     else
     {
-        options = RicCaseAndFileExportSettingsUi::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+        options = RicCaseAndFileExportSettingsUi::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
     }
     return options;
 }
@@ -286,97 +296,98 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RicExportCompletionDataSettingsUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Export Settings");
-        group->add(&compdatExport);
-        group->add(&caseToApply);
-        group->add(&useLateralNTG);
-        group->add(&includeMsw);
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Export Settings" );
+        group->add( &compdatExport );
+        group->add( &caseToApply );
+        group->add( &useLateralNTG );
+        group->add( &includeMsw );
     }
 
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup("File Settings");
-        group->add(&fileSplit);
-        group->add(&m_reportCompletionTypesSeparately);
-        group->add(&folder);
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "File Settings" );
+        group->add( &fileSplit );
+        group->add( &m_reportCompletionTypesSeparately );
+        group->add( &folder );
     }
 
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Completions Export Selection");
-        if (!m_displayForSimWell)
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Completions Export Selection" );
+        if ( !m_displayForSimWell )
         {
-            if (m_perforationsEnabled)
+            if ( m_perforationsEnabled )
             {
-                group->add(&includePerforations);
-                group->add(&timeStep);
-                if (!includePerforations)
-                    timeStep.uiCapability()->setUiReadOnly(true);
+                group->add( &includePerforations );
+                group->add( &timeStep );
+                if ( !includePerforations )
+                    timeStep.uiCapability()->setUiReadOnly( true );
                 else
-                    timeStep.uiCapability()->setUiReadOnly(false);
+                    timeStep.uiCapability()->setUiReadOnly( false );
             }
         }
 
-        if (m_fracturesEnabled)
+        if ( m_fracturesEnabled )
         {
-            group->add(&includeFractures);
+            group->add( &includeFractures );
 
-            caf::PdmUiGroup* pddGroup = group->addNewGroup("Pressure Differential Depletion Scaling");
-            pddGroup->setUiReadOnly(!includeFractures());
+            caf::PdmUiGroup* pddGroup = group->addNewGroup( "Pressure Differential Depletion Scaling" );
+            pddGroup->setUiReadOnly( !includeFractures() );
 
-            pddGroup->add(&performTransScaling);
-            pddGroup->add(&transScalingTimeStep);
-            pddGroup->add(&transScalingWBHPSource);
-            pddGroup->add(&transScalingWBHP);
+            pddGroup->add( &performTransScaling );
+            pddGroup->add( &transScalingTimeStep );
+            pddGroup->add( &transScalingWBHPSource );
+            pddGroup->add( &transScalingWBHP );
 
-            if (!includeFractures())
+            if ( !includeFractures() )
             {
                 performTransScaling = false;
-                performTransScaling.uiCapability()->setUiReadOnly(true);
+                performTransScaling.uiCapability()->setUiReadOnly( true );
             }
             else
             {
-                performTransScaling.uiCapability()->setUiReadOnly(false);
+                performTransScaling.uiCapability()->setUiReadOnly( false );
             }
 
-            if (!performTransScaling())
+            if ( !performTransScaling() )
             {
-                transScalingTimeStep.uiCapability()->setUiReadOnly(true);
-                transScalingWBHPSource.uiCapability()->setUiReadOnly(true);
-                transScalingWBHP.uiCapability()->setUiReadOnly(true);
+                transScalingTimeStep.uiCapability()->setUiReadOnly( true );
+                transScalingWBHPSource.uiCapability()->setUiReadOnly( true );
+                transScalingWBHP.uiCapability()->setUiReadOnly( true );
             }
             else
-            {                
-                transScalingTimeStep.uiCapability()->setUiReadOnly(false);
-                transScalingWBHPSource.uiCapability()->setUiReadOnly(false);
-                transScalingWBHP.uiCapability()->setUiReadOnly(false);
-                if (transScalingWBHPSource == RicExportFractureCompletionsImpl::WBHP_FROM_SUMMARY)
+            {
+                transScalingTimeStep.uiCapability()->setUiReadOnly( false );
+                transScalingWBHPSource.uiCapability()->setUiReadOnly( false );
+                transScalingWBHP.uiCapability()->setUiReadOnly( false );
+                if ( transScalingWBHPSource == RicExportFractureCompletionsImpl::WBHP_FROM_SUMMARY )
                 {
-                    transScalingWBHP.uiCapability()->setUiName("WBHP Before Production Start");
+                    transScalingWBHP.uiCapability()->setUiName( "WBHP Before Production Start" );
                 }
                 else
                 {
-                    transScalingWBHP.uiCapability()->setUiName("User Defined WBHP");
+                    transScalingWBHP.uiCapability()->setUiName( "User Defined WBHP" );
                 }
             }
 
             // Set visibility
-            includeFractures.uiCapability()->setUiHidden(compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS && !includeMsw);
+            includeFractures.uiCapability()->setUiHidden( compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS &&
+                                                          !includeMsw );
         }
 
-        if (!m_displayForSimWell)
+        if ( !m_displayForSimWell )
         {
-            if (m_fishbonesEnabled)
+            if ( m_fishbonesEnabled )
             {
-                group->add(&includeFishbones);
-                group->add(&excludeMainBoreForFishbones);
+                group->add( &includeFishbones );
+                group->add( &excludeMainBoreForFishbones );
 
                 // Set visibility
-                if (!includeFishbones)
-                    excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(true);
+                if ( !includeFishbones )
+                    excludeMainBoreForFishbones.uiCapability()->setUiReadOnly( true );
                 else
-                    excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(false);
+                    excludeMainBoreForFishbones.uiCapability()->setUiReadOnly( false );
             }
         }
     }
@@ -387,29 +398,33 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<int, std::vector<std::pair<QString, QString>>> RicExportCompletionDataSettingsUi::generateWellProductionStartStrings()
+std::map<int, std::vector<std::pair<QString, QString>>>
+    RicExportCompletionDataSettingsUi::generateWellProductionStartStrings()
 {
     std::map<int, std::vector<std::pair<QString, QString>>> wellProductionStartStrings;
 
     const RimProject* project = nullptr;
-    if (caseToApply)
+    if ( caseToApply )
     {
-        caseToApply->firstAncestorOrThisOfTypeAsserted(project);
-        for (const RimWellPath* wellPath : project->allWellPaths())
+        caseToApply->firstAncestorOrThisOfTypeAsserted( project );
+        for ( const RimWellPath* wellPath : project->allWellPaths() )
         {
             int    initialWellProductionTimeStep = -1;
-            double initialWellPressure = 0.0;
-            double currentWellPressure = 0.0;
-            RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeStepFromSummaryData(caseToApply,
-                wellPath->completions()->wellNameForExport(),
-                0,
-                &initialWellProductionTimeStep,
-                &initialWellPressure,
-                &currentWellPressure);
-            if (initialWellProductionTimeStep >= 0)
+            double initialWellPressure           = 0.0;
+            double currentWellPressure           = 0.0;
+            RicExportFractureCompletionsImpl::
+                getWellPressuresAndInitialProductionTimeStepFromSummaryData( caseToApply,
+                                                                             wellPath->completions()->wellNameForExport(),
+                                                                             0,
+                                                                             &initialWellProductionTimeStep,
+                                                                             &initialWellPressure,
+                                                                             &currentWellPressure );
+            if ( initialWellProductionTimeStep >= 0 )
             {
-                QString pressureUnits = RiaEclipseUnitTools::unitStringPressure(wellPath->unitSystem());
-                wellProductionStartStrings[initialWellProductionTimeStep].push_back(std::make_pair(wellPath->name(), QString("%1 %2").arg(initialWellPressure, 4, 'f', 1).arg(pressureUnits)));
+                QString pressureUnits = RiaEclipseUnitTools::unitStringPressure( wellPath->unitSystem() );
+                wellProductionStartStrings[initialWellProductionTimeStep].push_back(
+                    std::make_pair( wellPath->name(),
+                                    QString( "%1 %2" ).arg( initialWellPressure, 4, 'f', 1 ).arg( pressureUnits ) ) );
             }
         }
     }

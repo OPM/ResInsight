@@ -60,6 +60,7 @@
 #include "cvfRenderSequence.h"
 #include "cvfRenderbufferObject.h"
 #include "cvfRendering.h"
+#include "cvfRenderingScissor.h"
 #include "cvfScene.h"
 #include "cvfShaderSourceProvider.h"
 #include "cvfSingleQuadRenderingGenerator.h"
@@ -72,10 +73,11 @@
 #include "cvfqtPerformanceInfoHud.h"
 #include "cvfqtUtils.h"
 
-#include <cmath>
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QInputEvent>
+
+#include <cmath>
 
 namespace caf
 {
@@ -103,6 +105,7 @@ private:
     cvf::ref<cvf::UniformFloat> m_headlightPosition;
 };
 
+
 }
 
 std::list<caf::Viewer*> caf::Viewer::sm_viewers;
@@ -127,7 +130,11 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     m_isOverlayPaintingEnabled(true),
     m_offscreenViewportWidth(0),
     m_offscreenViewportHeight(0),
-    m_parallelProjectionLightDirection(0, 0, -1) // Light directly from behind
+    m_parallelProjectionLightDirection(0, 0, -1), // Light directly from behind
+    m_comparisonViewOffset(0, 0, 0),
+    m_comparisonWindowNormalizedRect(0.5f, 0.0f, 0.5f, 1.0f),
+    m_isComparisonFollowingAnimation(true),
+    m_isComparisonViewActiveFlag(false)
 {
     #if QT_VERSION >= 0x050000
     m_layoutWidget = new QWidget(parent);
@@ -150,10 +157,19 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
 
     m_mainCamera = new cvf::Camera;
     m_mainCamera->setFromLookAt(cvf::Vec3d(0,0,-1), cvf::Vec3d(0,0,0), cvf::Vec3d(0,1,0));
+    m_comparisonMainCamera = new cvf::Camera;
+    m_comparisonMainCamera->setFromLookAt(cvf::Vec3d(0,0,-1), cvf::Vec3d(0,0,0), cvf::Vec3d(0,1,0));
+
     m_renderingSequence = new cvf::RenderSequence();
     m_renderingSequence->setDefaultFFLightPositional(cvf::Vec3f(0.5, 5.0, 7.0));
 
-    m_mainRendering = new cvf::Rendering();
+    m_mainRendering = new cvf::Rendering("Main Rendering");
+    m_comparisonMainRendering = new cvf::Rendering("Comparison Rendering");
+    m_overlayItemsRendering  = new cvf::Rendering("Overlay Rendering");
+    m_overlayItemsRendering->setClearMode(cvf::Viewport::DO_NOT_CLEAR);
+
+    m_comparisonRenderingScissor = new cvf::RenderingScissor;
+    m_comparisonMainRendering->setRenderingScissor(m_comparisonRenderingScissor.p());
 
     m_animationControl = new caf::FrameAnimationControl(this);
     connect(m_animationControl, SIGNAL(changeFrame(int)), SLOT(slotSetCurrentFrame(int)));
@@ -193,20 +209,32 @@ caf::Viewer::~Viewer()
 void caf::Viewer::setupMainRendering()
 {
     m_mainRendering->setCamera(m_mainCamera.p());
+    m_comparisonMainRendering->setCamera(m_comparisonMainCamera.p());
+    m_overlayItemsRendering->setCamera(m_mainCamera.p());
+
     m_mainRendering->setRenderQueueSorter(new cvf::RenderQueueSorterBasic(cvf::RenderQueueSorterBasic::EFFECT_ONLY));
+    m_comparisonMainRendering->setRenderQueueSorter(new cvf::RenderQueueSorterBasic(cvf::RenderQueueSorterBasic::EFFECT_ONLY));
+    m_overlayItemsRendering->setRenderQueueSorter(new cvf::RenderQueueSorterBasic(cvf::RenderQueueSorterBasic::EFFECT_ONLY));
+
     m_mainRendering->addGlobalDynamicUniformSet(m_globalUniformSet.p());
+    m_comparisonMainRendering->addGlobalDynamicUniformSet(m_globalUniformSet.p());
 
     // Set fixed function rendering if QGLFormat does not support directRendering
     if (!this->format().directRendering())
     {
         m_mainRendering->renderEngine()->enableForcedImmediateMode(true);
+        m_comparisonMainRendering->renderEngine()->enableForcedImmediateMode(true);
+        m_overlayItemsRendering->renderEngine()->enableForcedImmediateMode(true);
     }
 
     if (contextGroup()->capabilities() &&
         contextGroup()->capabilities()->hasCapability(cvf::OpenGLCapabilities::FRAMEBUFFER_OBJECT))
     {
         m_offscreenFbo = new cvf::FramebufferObject;
+
         m_mainRendering->setTargetFramebuffer(m_offscreenFbo.p());
+        m_comparisonMainRendering->setTargetFramebuffer(m_offscreenFbo.p());
+        m_overlayItemsRendering->setTargetFramebuffer(m_offscreenFbo.p());
 
         cvf::ref<cvf::RenderbufferObject> rbo = new cvf::RenderbufferObject(cvf::RenderbufferObject::DEPTH_COMPONENT24, 1, 1);
         m_offscreenFbo->attachDepthRenderbuffer(rbo.p());
@@ -225,6 +253,8 @@ void caf::Viewer::setupMainRendering()
 void caf::Viewer::setupRenderingSequence()
 {
     m_renderingSequence->addRendering(m_mainRendering.p());
+    m_renderingSequence->addRendering(m_comparisonMainRendering.p());
+    m_renderingSequence->addRendering(m_overlayItemsRendering.p());
 
     if (m_offscreenFbo.notNull())
     {
@@ -282,30 +312,103 @@ cvf::Camera* caf::Viewer::mainCamera()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Set the scene to be rendered when the animation is inactive (Stopped)
+/// 
 //--------------------------------------------------------------------------------------------------
-void  caf::Viewer::setMainScene(cvf::Scene* scene)
+cvf::Camera* caf::Viewer::comparisonMainCamera()
 {
-    appendAllStaticModelsToFrame(scene);
-
-    m_mainScene = scene;
-    m_mainRendering->setScene(scene);
+    return m_comparisonMainCamera.p();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Scene* caf::Viewer::mainScene()
+void caf::Viewer::setComparisonViewEyePointOffset(const cvf::Vec3d& offset)
 {
-    return m_mainScene.p();
+    m_comparisonViewOffset = offset;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const cvf::Vec3d caf::Viewer::comparisonViewEyePointOffset()
+{
+    return m_comparisonViewOffset;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// setNormalizedComparisonViewRect
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::setComparisonViewVisibleNormalizedRect( const cvf::Rectf& visibleRect )
+{
+    m_comparisonWindowNormalizedRect = visibleRect;
+
+    updateCamera(width(), height());
+    update();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Rectf caf::Viewer::comparisonViewVisibleNormalizedRect() const 
+{
+    return m_comparisonWindowNormalizedRect;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool caf::Viewer::isComparisonViewActive() const
+{
+    return m_isComparisonViewActiveFlag;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Set the scene to be rendered when the animation is inactive (Stopped)
+//--------------------------------------------------------------------------------------------------
+void  caf::Viewer::setMainScene(cvf::Scene* scene, bool isForComparisonView )
+{
+    appendAllStaticModelsToFrame(scene, isForComparisonView);
+    if ( !isForComparisonView )
+    {
+        m_mainScene = scene;
+        m_mainRendering->setScene(scene);
+    }
+    else
+    {
+        m_comparisonMainScene = scene;
+        m_comparisonMainRendering->setScene(scene);
+        updateComparisonViewActiveFlag();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Scene* caf::Viewer::mainScene( bool isForComparisonView)
+{
+    if (!isForComparisonView)
+    {
+        return m_mainScene.p();
+    }
+    else
+    {
+        return m_comparisonMainScene.p();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Return the currently rendered scene
 //--------------------------------------------------------------------------------------------------
-cvf::Scene* caf::Viewer::currentScene()
+cvf::Scene* caf::Viewer::currentScene(bool isForComparisonView)
 {
-    return m_mainRendering->scene();
+    if (!isForComparisonView)
+    {
+        return m_mainRendering->scene();
+    }
+    else
+    {
+        return m_comparisonMainRendering->scene();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -316,6 +419,11 @@ void caf::Viewer::updateCamera(int width, int height)
     if (width < 1 || height < 1) return;
 
     m_mainCamera->viewport()->set(0, 0, width, height);
+    m_comparisonMainCamera->viewport()->set(0, 0, width, height);
+    m_comparisonRenderingScissor->setScissorRectangle(static_cast<int>(width  * m_comparisonWindowNormalizedRect.min().x()),
+                                                      static_cast<int>(height * m_comparisonWindowNormalizedRect.min().y()),
+                                                      static_cast<int>(width  * m_comparisonWindowNormalizedRect.width()),
+                                                      static_cast<int>(height * m_comparisonWindowNormalizedRect.height()));
 
     if (m_mainCamera->projection() == cvf::Camera::PERSPECTIVE)
     {
@@ -347,11 +455,66 @@ bool caf::Viewer::canRender() const
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::optimizeClippingPlanes()
 {
-    cvf::BoundingBox bb = m_mainRendering->boundingBox();
-    if (!bb.isValid()) return;
+    double nearPlaneDist = HUGE_VAL;
+    double farPlaneDist = HUGE_VAL;
 
-    cvf::Vec3d eye     = m_mainCamera->position();
-    cvf::Vec3d viewdir = m_mainCamera->direction();
+    cvf::Vec3d navPointOfinterest = m_navigationPolicy->pointOfInterest();
+
+    if ( calculateNearFarPlanes(m_mainRendering.p(), navPointOfinterest, &farPlaneDist, &nearPlaneDist) )
+    {
+        if ( m_mainCamera->projection() == cvf::Camera::PERSPECTIVE )
+        {
+            m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, nearPlaneDist, farPlaneDist);
+        }
+        else
+        {
+            m_mainCamera->setProjectionAsOrtho(m_mainCamera->frontPlaneFrustumHeight(), nearPlaneDist, farPlaneDist);
+        }
+    }
+
+    copyCameraView(m_mainCamera.p(), m_comparisonMainCamera.p() );
+    m_comparisonMainCamera->viewport()->setClearColor(m_mainCamera->viewport()->clearColor());
+
+    if ( m_comparisonMainRendering->scene() )
+    {
+        cvf::Vec3d camUp;
+        cvf::Vec3d camEye;
+        cvf::Vec3d camViewRefPoint;
+
+        m_comparisonMainCamera->toLookAt( &camEye, &camViewRefPoint, &camUp );
+        camEye += m_comparisonViewOffset;
+        camViewRefPoint += m_comparisonViewOffset;
+        m_comparisonMainCamera->setFromLookAt(camEye, camViewRefPoint, camUp);
+        navPointOfinterest += m_comparisonViewOffset;
+
+        if ( calculateNearFarPlanes(m_comparisonMainRendering.p(), navPointOfinterest, &farPlaneDist, &nearPlaneDist) )
+        {
+            if ( m_comparisonMainCamera->projection() == cvf::Camera::PERSPECTIVE )
+            {
+                m_comparisonMainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, nearPlaneDist, farPlaneDist);
+            }
+            else
+            {
+                m_comparisonMainCamera->setProjectionAsOrtho(m_comparisonMainCamera->frontPlaneFrustumHeight(), nearPlaneDist, farPlaneDist);
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool caf::Viewer::calculateNearFarPlanes(const cvf::Rendering* rendering, 
+                                         const cvf::Vec3d& navPointOfinterest, 
+                                         double *farPlaneDist, 
+                                         double *nearPlaneDist)
+{
+    cvf::BoundingBox bb = rendering->boundingBox();
+
+    if ( !bb.isValid() ) return false;
+
+    cvf::Vec3d eye     = rendering->camera()->position();
+    cvf::Vec3d viewdir = rendering->camera()->direction();
 
     cvf::Vec3d bboxCorners[8];
     bb.cornerVertices(bboxCorners);
@@ -360,68 +523,60 @@ void caf::Viewer::optimizeClippingPlanes()
 
     double maxDistEyeToCornerAlongViewDir = -HUGE_VAL;
     double minDistEyeToCornerAlongViewDir = HUGE_VAL;
-    for (int bcIdx = 0; bcIdx < 8; ++bcIdx )
+    for ( int bcIdx = 0; bcIdx < 8; ++bcIdx )
     {
         double distEyeBoxCornerAlongViewDir = (bboxCorners[bcIdx] - eye)*viewdir;
 
-        if (distEyeBoxCornerAlongViewDir > maxDistEyeToCornerAlongViewDir)
+        if ( distEyeBoxCornerAlongViewDir > maxDistEyeToCornerAlongViewDir )
         {
             maxDistEyeToCornerAlongViewDir = distEyeBoxCornerAlongViewDir;
         }
 
-        if (distEyeBoxCornerAlongViewDir < minDistEyeToCornerAlongViewDir)
+        if ( distEyeBoxCornerAlongViewDir < minDistEyeToCornerAlongViewDir )
         {
             minDistEyeToCornerAlongViewDir = distEyeBoxCornerAlongViewDir; // Sometimes negative-> behind camera
         }
     }
 
-    double farPlaneDist  = CVF_MIN(maxDistEyeToCornerAlongViewDir * 1.2, m_maxClipPlaneDistance);
+    (*farPlaneDist) = CVF_MIN(maxDistEyeToCornerAlongViewDir * 1.2, m_maxClipPlaneDistance);
 
     // Near-plane:
 
     bool isOrthoNearPlaneFollowingCamera = false;
-    double nearPlaneDist = HUGE_VAL;
 
     // If we have perspective projection, set the near plane just in front of camera, and not behind
 
-    if (m_mainCamera->projection() == cvf::Camera::PERSPECTIVE || isOrthoNearPlaneFollowingCamera)
+    if ( rendering->camera()->projection() == cvf::Camera::PERSPECTIVE || isOrthoNearPlaneFollowingCamera )
     {
         // Choose the one furthest from the camera of: 0.8*bbox distance, m_minPerspectiveNearPlaneDistance.
-        nearPlaneDist = CVF_MAX( m_defaultPerspectiveNearPlaneDistance, 0.8*minDistEyeToCornerAlongViewDir);
+        (*nearPlaneDist) = CVF_MAX(m_defaultPerspectiveNearPlaneDistance, 0.8*minDistEyeToCornerAlongViewDir);
 
         // If we are zooming into a detail, allow the near-plane to move towards camera beyond the m_minPerspectiveNearPlaneDistance
-        if (   nearPlaneDist == m_defaultPerspectiveNearPlaneDistance // We are inside the bounding box
-            && m_navigationPolicy.notNull() && m_navigationPolicyEnabled)
+        if ( (*nearPlaneDist) == m_defaultPerspectiveNearPlaneDistance // We are inside the bounding box
+            && m_navigationPolicy.notNull() && m_navigationPolicyEnabled )
         {
-            double pointOfInterestDist = (eye - m_navigationPolicy->pointOfInterest()).length();
-            nearPlaneDist = CVF_MIN(nearPlaneDist, pointOfInterestDist*0.2);
+            double pointOfInterestDist = (eye - navPointOfinterest).length();
+            (*nearPlaneDist) = CVF_MIN((*nearPlaneDist), pointOfInterestDist*0.2);
         }
 
         // Guard against the zero nearplane possibility
-        if (nearPlaneDist <= 0) nearPlaneDist = m_defaultPerspectiveNearPlaneDistance;
+        if ( (*nearPlaneDist) <= 0 ) (*nearPlaneDist) = m_defaultPerspectiveNearPlaneDistance;
     }
     else // Orthographic projection. Set to encapsulate the complete boundingbox, possibly setting a negative nearplane
     {
-        if(minDistEyeToCornerAlongViewDir >= 0) 
+        if ( minDistEyeToCornerAlongViewDir >= 0 )
         {
-            nearPlaneDist = CVF_MIN(0.8 * minDistEyeToCornerAlongViewDir,  m_maxClipPlaneDistance); 
+            (*nearPlaneDist) = CVF_MIN(0.8 * minDistEyeToCornerAlongViewDir, m_maxClipPlaneDistance);
         }
         else
         {
-            nearPlaneDist = CVF_MAX(1.2 * minDistEyeToCornerAlongViewDir, -m_maxClipPlaneDistance);
+            (*nearPlaneDist) = CVF_MAX(1.2 * minDistEyeToCornerAlongViewDir, -m_maxClipPlaneDistance);
         }
     }
 
-    if (farPlaneDist <= nearPlaneDist) farPlaneDist = nearPlaneDist + 1.0;
+    if ( (*farPlaneDist) <= (*nearPlaneDist) ) (*farPlaneDist) = (*nearPlaneDist) + 1.0;
 
-    if (m_mainCamera->projection() == cvf::Camera::PERSPECTIVE)
-    {
-        m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, nearPlaneDist, farPlaneDist);
-    }
-    else
-    {
-        m_mainCamera->setProjectionAsOrtho(m_mainCamera->frontPlaneFrustumHeight(), nearPlaneDist, farPlaneDist);
-    }
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -496,6 +651,28 @@ const caf::NavigationPolicy* caf::Viewer::getNavigationPolicy() const
     return m_navigationPolicy.p();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::RayIntersectSpec> caf::Viewer::rayIntersectSpecFromWindowCoordinates( int winPosX, int winPosY )
+{
+    bool mousePosIsWithinComparisonView = isMousePosWithinComparisonView(winPosX, winPosY);
+
+    return this->rayIntersectSpecFromWindowCoordinates(winPosX, winPosY, mousePosIsWithinComparisonView);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::RayIntersectSpec> caf::Viewer::rayIntersectSpecFromWindowCoordinates(int winPosX, int winPosY, bool isForComparisonView)
+{
+    int translatedMousePosX = winPosX;
+    int translatedMousePosY = height() - winPosY;
+
+    cvf::Rendering* renderingToInvestigate = isForComparisonView ? m_comparisonMainRendering.p(): m_mainRendering.p();
+    
+    return renderingToInvestigate->rayIntersectSpecFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -504,13 +681,15 @@ bool caf::Viewer::rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pick
 {
     CVF_ASSERT(m_mainRendering.notNull());
 
-    int translatedMousePosX = winPosX;
-    int translatedMousePosY = height() - winPosY;
+    bool mousePosIsWithinComparisonView = isMousePosWithinComparisonView(winPosX, winPosY);
 
-    cvf::ref<cvf::RayIntersectSpec> ris = m_mainRendering->rayIntersectSpecFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
+    cvf::Rendering* renderingToInvestigate = mousePosIsWithinComparisonView ? m_comparisonMainRendering.p(): m_mainRendering.p();
+
+    cvf::ref<cvf::RayIntersectSpec> ris = rayIntersectSpecFromWindowCoordinates(winPosX, winPosY);
+
     if (ris.notNull())
     {
-        bool retVal = m_mainRendering->rayIntersect(*ris, pickedPoints);
+        bool retVal = renderingToInvestigate->rayIntersect(*ris, pickedPoints);
         if (retVal && globalRayOrigin)
         {
             CVF_ASSERT(ris->ray() != nullptr);
@@ -522,8 +701,35 @@ bool caf::Viewer::rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pick
     {
         return false;
     }
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool caf::Viewer::isMousePosWithinComparisonView(int winPosX, int winPosY)
+{
+    bool mousePosIsWithinComparisonView = false;
 
+    int translatedMousePosX = winPosX;
+    int translatedMousePosY = height() - winPosY;
+
+    if ( m_comparisonMainRendering.notNull() && m_comparisonMainRendering->scene() )
+    {
+        if ( cvf::RenderingScissor* sciss = m_comparisonMainRendering->renderingScissor() )
+        {
+            cvf::Recti scissorRect(sciss->x(), sciss->y(), sciss->width(), sciss->height());
+            if ( scissorRect.contains(cvf::Vec2i(translatedMousePosX, translatedMousePosY)) )
+            {
+                mousePosIsWithinComparisonView = true;
+            }
+        }
+        else // Whole screen is covered
+        {
+            mousePosIsWithinComparisonView = true;
+        }
+    }    
+    
+    return mousePosIsWithinComparisonView;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -644,9 +850,15 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
 
     optimizeClippingPlanes();
 
+    m_renderingSequence->removeRendering(m_comparisonMainRendering.p());
+    if ( m_comparisonMainRendering->scene() )
+    {
+        m_renderingSequence->insertRendering( m_overlayItemsRendering.p(), m_comparisonMainRendering.p());
+    }
+
     if ( m_poiVisualizationManager.notNull() )
     {
-        m_poiVisualizationManager->update(m_navigationPolicy->pointOfInterest());
+        m_poiVisualizationManager->update(m_navigationPolicy->pointOfInterest()); // Todo: Must be inserted in comparison scene as well, using the display offset
         m_mainRendering->scene()->addModel(m_poiVisualizationManager->model());
     }
 
@@ -728,43 +940,125 @@ void caf::Viewer::zoomAll()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::Viewer::addFrame(cvf::Scene* scene)
+void caf::Viewer::addFrame(cvf::Scene* scene, bool isForComparisonView)
 {
-    appendAllStaticModelsToFrame(scene);
+    appendAllStaticModelsToFrame(scene, isForComparisonView);
 
-    m_frameScenes.push_back(scene);
-    m_animationControl->setNumFrames(static_cast<int>(m_frameScenes.size()));
+    if ( !isForComparisonView )
+    {
+        m_frameScenes.push_back(scene);
+    }
+    else
+    {
+        m_comparisonFrameScenes.push_back(scene);
+    }
+
+    m_animationControl->setNumFrames( static_cast<int>( frameCount() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::Viewer::removeAllFrames()
+void caf::Viewer::removeAllFrames(bool isForComparisonView)
 {
-    m_frameScenes.clear();
-    m_animationControl->setNumFrames(0);
-    m_mainRendering->setScene(m_mainScene.p());
+    if ( !isForComparisonView )
+    {
+        m_frameScenes.clear();
+        m_mainRendering->setScene(m_mainScene.p());
+    }
+    else
+    {
+        m_comparisonFrameScenes.clear();
+        m_comparisonMainRendering->setScene(m_comparisonMainScene.p());
+        updateComparisonViewActiveFlag();
+    }
+
+    m_animationControl->setNumFrames(static_cast<int>(frameCount()));
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool caf::Viewer::isAnimationActive()
+bool caf::Viewer::isAnimationActive(bool isForComparisonView)
 {
-    cvf::Scene* currentScene = m_mainRendering->scene();
-
-    if (!currentScene)
+    if ( !isForComparisonView )
     {
-        return false;
+        cvf::Scene* currentScene = m_mainRendering->scene();
+
+        if ( !currentScene )
+        {
+            return false;
+        }
+
+        if ( m_mainScene.notNull() && m_mainScene.p() == currentScene )
+        {
+            return false;
+        }
+
+        return true;
+    }
+    else
+    {
+        cvf::Scene* currentScene = m_comparisonMainRendering->scene();
+
+        if ( !currentScene )
+        {
+            return false;
+        }
+
+        if ( m_comparisonMainScene.notNull() && m_comparisonMainScene.p() == currentScene )
+        {
+            return false;
+        }
+
+        return true;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::updateComparisonViewActiveFlag()
+{
+    m_isComparisonViewActiveFlag = m_comparisonMainRendering->scene() != nullptr;
+    this->setProperty("cafViewer_IsComparisonViewActive", QVariant(m_isComparisonViewActiveFlag));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::setCurrentComparisonFrame(int frameIndex)
+{
+    if (m_frameScenes.size() == 0) return;
+
+    unsigned clampedFrameIndex = static_cast<unsigned>(clampFrameIndex(frameIndex));
+
+    if (m_releaseOGLResourcesEachFrame)
+    {
+        releaseOGlResourcesForCurrentFrame();
     }
 
-    if (m_mainScene.notNull() && m_mainScene.p() == currentScene)
+    if ( m_comparisonFrameScenes.size() > clampedFrameIndex &&  m_comparisonFrameScenes.at(clampedFrameIndex) != nullptr )
     {
-        return false;
+        m_comparisonMainRendering->setScene(m_comparisonFrameScenes.at(clampedFrameIndex));
+        updateComparisonViewActiveFlag();
+    }
+    else
+    {
+        m_comparisonMainRendering->setScene(nullptr);
+        updateComparisonViewActiveFlag();
     }
 
-    return true;
+    update();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::setComparisonViewToFollowAnimation(bool isToFollow)
+{
+    m_isComparisonFollowingAnimation = isToFollow;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -774,20 +1068,42 @@ void caf::Viewer::slotSetCurrentFrame(int frameIndex)
 {
     if (m_frameScenes.size() == 0) return;
 
-    int clampedFrameIndex = clampFrameIndex(frameIndex);
-
-    if (m_frameScenes.at(clampedFrameIndex) == nullptr) return;
+    unsigned clampedFrameIndex = static_cast<unsigned>(clampFrameIndex(frameIndex));
 
     if (m_releaseOGLResourcesEachFrame)
     {
         releaseOGlResourcesForCurrentFrame();
     }
 
-    m_mainRendering->setScene(m_frameScenes.at(clampedFrameIndex));
+    if (m_frameScenes.size() > clampedFrameIndex &&  m_frameScenes.at(clampedFrameIndex) != nullptr )
+    {
+        m_mainRendering->setScene(m_frameScenes.at(clampedFrameIndex));
+    }
+    else 
+    {
+        m_mainRendering->setScene(nullptr);
+    }
+
+    if ( m_isComparisonFollowingAnimation )
+    {
+        if ( m_comparisonFrameScenes.size() > clampedFrameIndex &&  m_comparisonFrameScenes.at(clampedFrameIndex) != nullptr )
+        {
+            m_comparisonMainRendering->setScene(m_comparisonFrameScenes.at(clampedFrameIndex));
+            updateComparisonViewActiveFlag();
+        }
+        else
+        {
+            m_comparisonMainRendering->setScene(nullptr);
+            updateComparisonViewActiveFlag();
+        }
+    }
 
     update();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void caf::Viewer::releaseOGlResourcesForCurrentFrame()
 {
     if (isAnimationActive())
@@ -881,10 +1197,6 @@ QImage caf::Viewer::snapshotImage()
 
         m_offscreenFbo->bind(myOglContext.p());
 
-        // TODO: Consider refactor this code
-        // Creating a QImage from the bits in current frame buffer can be done by
-        // this->grabFrameBuffer() 
-
         GLint iOldPackAlignment = 0;
         glGetIntegerv(GL_PACK_ALIGNMENT, &iOldPackAlignment);
         glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -924,12 +1236,22 @@ QImage caf::Viewer::snapshotImage()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Scene* caf::Viewer::frame(size_t frameIndex)
+cvf::Scene* caf::Viewer::frame(size_t frameIndex, bool isForComparisonView)
 {
-    if (frameIndex < m_frameScenes.size())
-        return m_frameScenes[frameIndex].p();
+    if ( !isForComparisonView )
+    {
+        if ( frameIndex < m_frameScenes.size() )
+            return m_frameScenes[frameIndex].p();
+        else
+            return nullptr;
+    }
     else
-        return nullptr;
+    {
+        if ( frameIndex < m_comparisonFrameScenes.size() )
+            return m_comparisonFrameScenes[frameIndex].p();
+        else
+            return nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1034,15 +1356,23 @@ void caf::Viewer::enableOverlayPainting(bool val)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::Rendering* caf::Viewer::overlayItemsRendering()
+{
+    return m_overlayItemsRendering.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void caf::Viewer::updateOverlayImagePresence()
 {
     if (m_isOverlayPaintingEnabled || m_showPerfInfoHud)
     {
-         m_mainRendering->addOverlayItem(m_overlayImage.p());
+         m_overlayItemsRendering->addOverlayItem(m_overlayImage.p());
     }
     else
     {
-         m_mainRendering->removeOverlayItem(m_overlayImage.p());
+        m_overlayItemsRendering->removeOverlayItem(m_overlayImage.p());
     }
 }
 
@@ -1057,13 +1387,22 @@ void caf::Viewer::navigationPolicyUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::Viewer::addStaticModelOnce(cvf::Model* model)
+void caf::Viewer::addStaticModelOnce(cvf::Model* model, bool isForComparisonView)
 {
-    if (m_staticModels.contains(model)) return;
+    if ( !isForComparisonView )
+    {
+        if ( m_staticModels.contains(model) ) return;
 
-    m_staticModels.push_back(model);
+        m_staticModels.push_back(model);
+    }
+    else
+    {
+        if ( m_comparisonStaticModels.contains(model) ) return;
 
-    appendModelToAllFrames(model);
+        m_comparisonStaticModels.push_back(model);
+    }
+
+    appendModelToAllFrames(model, isForComparisonView);
 
     updateCachedValuesInScene();
 }
@@ -1073,11 +1412,15 @@ void caf::Viewer::addStaticModelOnce(cvf::Model* model)
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::removeStaticModel(cvf::Model* model)
 {
-    removeModelFromAllFrames(model);
-    
-    m_staticModels.erase(model);
+    if ( m_staticModels.contains(model) || m_comparisonStaticModels.contains(model) )
+    {
+        removeModelFromAllFrames(model);
 
-    updateCachedValuesInScene();
+        m_staticModels.erase(model);
+        m_comparisonStaticModels.erase(model);
+
+        updateCachedValuesInScene();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1089,10 +1432,31 @@ void caf::Viewer::removeAllStaticModels()
     {
         removeModelFromAllFrames(m_staticModels.at(i));
     }
+    
+    for (size_t i = 0; i < m_comparisonStaticModels.size(); i++)
+    {
+        removeModelFromAllFrames(m_comparisonStaticModels.at(i));
+    }
 
     m_staticModels.clear();
+    m_comparisonStaticModels.clear();
 
     updateCachedValuesInScene();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::setEnableMask(unsigned int mask, bool isForComparisonView /*= false */)
+{
+    if (!isForComparisonView)
+    {
+        m_mainRendering->setEnableMask(mask);
+    }
+    else
+    {
+        m_comparisonMainRendering->setEnableMask(mask);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1111,34 +1475,75 @@ void caf::Viewer::removeModelFromAllFrames(cvf::Model* model)
     {
         m_mainScene->removeModel(model);
     }
+
+    for (size_t i = 0; i < m_comparisonFrameScenes.size(); i++)
+    {
+        cvf::Scene* scene = m_comparisonFrameScenes.at(i);
+
+        scene->removeModel(model);
+    }
+
+    if (m_comparisonMainScene.notNull())
+    {
+        m_comparisonMainScene->removeModel(model);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::Viewer::appendModelToAllFrames(cvf::Model* model)
+void caf::Viewer::appendModelToAllFrames(cvf::Model* model, bool isForComparisonView )
 {
-    for (size_t i = 0; i < m_frameScenes.size(); i++)
+    if ( !isForComparisonView )
     {
-        cvf::Scene* scene = m_frameScenes.at(i);
+        for ( size_t i = 0; i < m_frameScenes.size(); i++ )
+        {
+            cvf::Scene* scene = m_frameScenes.at(i);
 
-        scene->addModel(model);
+            scene->addModel(model);
+        }
+
+        if ( m_mainScene.notNull() )
+        {
+            m_mainScene->addModel(model);
+        }
     }
-
-    if (m_mainScene.notNull())
+    else
     {
-        m_mainScene->addModel(model);
+        for ( size_t i = 0; i < m_comparisonFrameScenes.size(); i++ )
+        {
+            cvf::Scene* scene = m_comparisonFrameScenes.at(i);
+
+            scene->addModel(model);
+        }
+
+        if ( m_comparisonMainScene.notNull() )
+        {
+            m_comparisonMainScene->addModel(model);
+        }
     }
 }   
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::Viewer::appendAllStaticModelsToFrame(cvf::Scene* scene)
+void caf::Viewer::appendAllStaticModelsToFrame(cvf::Scene* scene, bool isForComparisonView )
 {
-    for (size_t i = 0; i < m_staticModels.size(); i++)
+    if (!scene) return;
+
+    if ( !isForComparisonView )
     {
-        scene->addModel(m_staticModels.at(i));
+        for ( size_t i = 0; i < m_staticModels.size(); i++ )
+        {
+            scene->addModel(m_staticModels.at(i));
+        }
+    }
+    else
+    {
+        for ( size_t i = 0; i < m_comparisonStaticModels.size(); i++ )
+        {
+            scene->addModel(m_comparisonStaticModels.at(i));
+        }
     }
 }
 
@@ -1147,12 +1552,12 @@ void caf::Viewer::appendAllStaticModelsToFrame(cvf::Scene* scene)
 //--------------------------------------------------------------------------------------------------
 cvf::OverlayItem* caf::Viewer::overlayItem(int winPosX, int winPosY)
 {
-    if (m_mainRendering.isNull()) return nullptr;
+    if (m_overlayItemsRendering.isNull()) return nullptr;
 
     int translatedMousePosX = winPosX;
     int translatedMousePosY = height() - winPosY;
 
-    return m_mainRendering->overlayItemFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
+    return m_overlayItemsRendering->overlayItemFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
 }
 
 
@@ -1341,3 +1746,19 @@ int caf::Viewer::clampFrameIndex(int frameIndex) const
     return clampedFrameIndex;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::copyCameraView(cvf::Camera* srcCamera, cvf::Camera* dstCamera)
+{
+    if (srcCamera->projection() == cvf::Camera::PERSPECTIVE)
+    {
+        dstCamera->setProjectionAsPerspective(srcCamera->fieldOfViewYDeg(), srcCamera->nearPlane(), srcCamera->farPlane());
+    }
+    else
+    {
+        dstCamera->setProjectionAsOrtho(srcCamera->frontPlaneFrustumHeight(), srcCamera->nearPlane(), srcCamera->farPlane());
+    }
+
+    dstCamera->setViewMatrix(srcCamera->viewMatrix());
+}

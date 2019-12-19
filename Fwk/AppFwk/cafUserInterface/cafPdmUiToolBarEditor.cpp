@@ -42,12 +42,14 @@
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiFieldEditorHelper.h"
 #include "cafPdmUiFieldHandle.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiObjectHandle.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 
 #include <QAction>
+#include <QLineEdit>
 #include <QMainWindow>
 #include <QToolBar>
 
@@ -203,6 +205,32 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiToolBarEditor::focusWidget(PdmUiFieldEditorHandle* uiFieldEditorHandle)
+{
+    // Some editors have a placeholder widget as parent of the main editor widget
+    // This is the case for combo box widget to allow up/down arrow buttons associated with the combo box
+    
+    QWidget* editorWidget = nullptr;
+    auto comboEditor = dynamic_cast<caf::PdmUiComboBoxEditor*>(uiFieldEditorHandle);
+    if (comboEditor)
+    {
+        auto topWidget = comboEditor->editorWidget();
+        QComboBox* comboBox = topWidget->findChild<QComboBox*>();
+
+        editorWidget = comboBox;
+
+    }
+    else
+    {
+        editorWidget = uiFieldEditorHandle->editorWidget();
+    }
+
+    return editorWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void PdmUiToolBarEditor::setFields(std::vector<caf::PdmFieldHandle*>& fields)
@@ -233,6 +261,48 @@ void PdmUiToolBarEditor::clear()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiToolBarEditor::setFocusWidgetFromKeyword(const QString& fieldKeyword)
+{
+    if (!m_toolbar->isVisible()) return;
+
+    auto fieldView = m_fieldViews.find(fieldKeyword);
+    if (fieldView != m_fieldViews.end() && fieldView->second)
+    {
+        QWidget* widget = focusWidget(fieldView->second);
+
+        if (widget)
+        {
+            widget->setFocus(Qt::ActiveWindowFocusReason);
+
+            PdmUiLineEditorAttribute attributes;
+
+            for (auto field : m_fields)
+            {
+                if (field->keyword() == fieldKeyword)
+                {
+                    caf::PdmUiObjectHandle* uiObject = uiObj(field->ownerObject());
+                    if (uiObject)
+                    {
+                        uiObject->editorAttribute(field, uiEditorConfigName(), &attributes);
+                    }
+                }
+            }
+
+            if (attributes.selectAllOnFocusEvent)
+            {
+                auto lineEdit = dynamic_cast<QLineEdit*>(widget);
+                if (lineEdit  )
+                {
+                    lineEdit->selectAll();
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void PdmUiToolBarEditor::show()
@@ -252,6 +322,40 @@ void PdmUiToolBarEditor::hide()
     {
         m_toolbar->hide();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Special config name used to configure toolbar UI (tooltip etc.)
+//--------------------------------------------------------------------------------------------------
+QString PdmUiToolBarEditor::uiEditorConfigName()
+{
+    return "ToolbarConfigName";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString PdmUiToolBarEditor::keywordForFocusWidget()
+{
+    QString keyword;
+
+    if (m_toolbar->isVisible())
+    {
+        for (auto fieldViewPair : m_fieldViews)
+        {
+            auto uiFieldEditorHandle = fieldViewPair.second;
+            if (uiFieldEditorHandle)
+            {
+                auto widget = focusWidget(uiFieldEditorHandle);
+                if (widget && widget->hasFocus())
+                {
+                    keyword = fieldViewPair.first;
+                }
+            }
+        }
+    }
+
+    return keyword;
 }
 
 } // end namespace caf

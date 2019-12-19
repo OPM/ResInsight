@@ -60,12 +60,7 @@ public:
     PdmUiFilePathEditorAttribute()
     {
         m_selectSaveFileName = false;
-#ifdef _WIN32
         m_fileSelectionFilter = "All files (*.*)";
-#else
-        m_fileSelectionFilter = "All files (*)";
-#endif
-        
         m_defaultPath = QString();
         m_selectDirectory = false;
         m_appendUiSelectedFolderToText = false;

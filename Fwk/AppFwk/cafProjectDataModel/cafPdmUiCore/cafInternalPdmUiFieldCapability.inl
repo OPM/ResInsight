@@ -20,6 +20,8 @@ void caf::PdmFieldUiCap<FieldType>::setValueFromUiEditor(const QVariant& uiValue
 {
     QVariant oldUiBasedQVariant = toUiBasedQVariant();
 
+    bool setUiValueDirectly = false;
+
     // Check whether we are handling selections of values or actual values
     if (m_optionEntryCache.size())
     {
@@ -77,17 +79,22 @@ void caf::PdmFieldUiCap<FieldType>::setValueFromUiEditor(const QVariant& uiValue
         }
         else
         {
-            // We are not getting indexes as expected from the UI. For now assert, to catch this condition
-            // but it should possibly be handled as setting the values explicitly. The code for that is below the assert
-            CAF_ASSERT(false);
-            typename FieldType::FieldDataType value;
-            PdmUiFieldSpecialization<typename FieldType::FieldDataType>::setFromVariant(uiValue, value);
-            m_field->setValue(value);
-            m_optionEntryCache.clear();
+            // We are not getting indexes as usually expected when an option cache is present.
+            // This situation can occur if a text field is edited by a combobox allowing user defined input
+            // when a history of recently used strings are stored in a field of string
+
+            setUiValueDirectly = true;
         }
     }
     else
-    {   // Not an option based GUI, the uiValue is a real field value
+    {   
+        // Not an option based GUI, the uiValue is a real field value
+        
+        setUiValueDirectly = true;
+    }
+
+    if (setUiValueDirectly)
+    {
         typename FieldType::FieldDataType value;
         PdmUiFieldSpecialization<typename FieldType::FieldDataType>::setFromVariant(uiValue, value);
         m_field->setValue(value);
@@ -245,6 +252,15 @@ template <typename FieldType>
 QVariant caf::PdmFieldUiCap<FieldType>::toUiBasedQVariant() const
 {
     return PdmUiFieldSpecialization<typename FieldType::FieldDataType>::convert(m_field->value());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template < typename FieldType>
+bool caf::PdmFieldUiCap<FieldType>::isQVariantDataEqual(const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant) const
+{
+    return PdmValueFieldSpecialization<typename FieldType::FieldDataType>::isEqual(oldUiBasedQVariant, newUiBasedQVariant);
 }
 
 

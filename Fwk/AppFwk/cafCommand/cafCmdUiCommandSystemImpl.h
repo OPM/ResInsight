@@ -51,6 +51,7 @@ public:
     CmdUiCommandSystemImpl();
 
     void fieldChangedCommand(const std::vector<PdmFieldHandle*>& fieldsToUpdate, const QVariant& newUiValue) override;
+    void setCurrentContextMenuTargetWidget(QWidget* targetWidget) override;
     void populateMenuWithDefaultCommands(const QString& uiConfigName, QMenu* menu) override;
     
     bool isUndoEnabled();

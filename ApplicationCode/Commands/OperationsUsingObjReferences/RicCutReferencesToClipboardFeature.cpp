@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -31,10 +31,10 @@
 #include <QApplication>
 #include <QClipboard>
 
-CAF_CMD_SOURCE_INIT(RicCutReferencesToClipboardFeature, "RicCutReferencesToClipboardFeature");
+CAF_CMD_SOURCE_INIT( RicCutReferencesToClipboardFeature, "RicCutReferencesToClipboardFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicCutReferencesToClipboardFeature::isCommandEnabled()
 {
@@ -42,60 +42,62 @@ bool RicCutReferencesToClipboardFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicCutReferencesToClipboardFeature::onActionTriggered(bool isChecked)
+void RicCutReferencesToClipboardFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
-    if (!isAnyCuttableObjectSelected()) return;
+    if ( !isAnyCuttableObjectSelected() ) return;
 
     std::vector<QString> referenceList;
 
     std::vector<caf::PdmObject*> selectedFormationNamesCollObjs;
-    caf::SelectionManager::instance()->objectsByType(&selectedFormationNamesCollObjs);
+    caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesCollObjs );
 
-    for (caf::PdmObject* pdmObject : selectedFormationNamesCollObjs)
+    for ( caf::PdmObject* pdmObject : selectedFormationNamesCollObjs )
     {
-        if (RicCutReferencesToClipboardFeature::isCuttingOfObjectSupported(pdmObject))
+        if ( RicCutReferencesToClipboardFeature::isCuttingOfObjectSupported( pdmObject ) )
         {
-            QString itemRef = caf::PdmReferenceHelper::referenceFromRootToObject(caf::SelectionManager::instance()->pdmRootObject(), pdmObject);
-            
-            referenceList.push_back(itemRef);
+            QString itemRef =
+                caf::PdmReferenceHelper::referenceFromRootToObject( caf::SelectionManager::instance()->pdmRootObject(),
+                                                                    pdmObject );
+
+            referenceList.push_back( itemRef );
         }
     }
 
     MimeDataWithReferences* myObject = new MimeDataWithReferences;
-    myObject->setReferences(referenceList);
+    myObject->setReferences( referenceList );
 
     QClipboard* clipboard = QApplication::clipboard();
-    if (clipboard)
+    if ( clipboard )
     {
-        clipboard->setMimeData(myObject);
+        clipboard->setMimeData( myObject );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicCutReferencesToClipboardFeature::setupActionLook(QAction* actionToSetup)
+void RicCutReferencesToClipboardFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Cut");
-    actionToSetup->setIcon(QIcon(":/Clipboard.png"));
-    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Cut);
+    actionToSetup->setText( "Cut" );
+    actionToSetup->setIcon( QIcon( ":/Clipboard.png" ) );
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence::Cut );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicCutReferencesToClipboardFeature::isAnyCuttableObjectSelected()
 {
     std::vector<caf::PdmObject*> selectedFormationNamesCollObjs;
-    caf::SelectionManager::instance()->objectsByType(&selectedFormationNamesCollObjs);
+    caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesCollObjs );
 
-    for (caf::PdmObject* pdmObject : selectedFormationNamesCollObjs)
+    for ( caf::PdmObject* pdmObject : selectedFormationNamesCollObjs )
     {
-        if (RicCutReferencesToClipboardFeature::isCuttingOfObjectSupported(pdmObject))
+        if ( RicCutReferencesToClipboardFeature::isCuttingOfObjectSupported( pdmObject ) )
         {
             return true;
         }
@@ -105,13 +107,13 @@ bool RicCutReferencesToClipboardFeature::isAnyCuttableObjectSelected()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RicCutReferencesToClipboardFeature::isCuttingOfObjectSupported(caf::PdmObject* pdmObject)
+bool RicCutReferencesToClipboardFeature::isCuttingOfObjectSupported( caf::PdmObject* pdmObject )
 {
-    if (RimSummaryCase* summaryCase = dynamic_cast<RimSummaryCase*>(pdmObject))
+    if ( RimSummaryCase* summaryCase = dynamic_cast<RimSummaryCase*>( pdmObject ) )
     {
-        if (!summaryCase->isObservedData())
+        if ( !summaryCase->isObservedData() )
         {
             return true;
         }

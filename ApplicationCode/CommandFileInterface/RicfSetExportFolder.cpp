@@ -23,7 +23,7 @@
 
 #include <QDir>
 
-CAF_PDM_SOURCE_INIT(RicfSetExportFolder, "setExportFolder");
+CAF_PDM_SOURCE_INIT( RicfSetExportFolder, "setExportFolder" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -42,24 +42,24 @@ RicfSetExportFolder::RicfSetExportFolder()
 //--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicfSetExportFolder::execute()
 {
-    if (m_createFolder)
+    if ( m_createFolder )
     {
         QDir dir;
 
-        if (!dir.exists(m_path))
+        if ( !dir.exists( m_path ) )
         {
-            dir.mkpath(m_path);
+            dir.mkpath( m_path );
 
-            if (!dir.exists(m_path))
+            if ( !dir.exists( m_path ) )
             {
-                QString error = QString("Could not create folder : %1").arg(m_path);
-                RiaLogging::error(error);
-                return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+                QString error = QString( "Could not create folder : %1" ).arg( m_path );
+                RiaLogging::error( error );
+                return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
             }
         }
     }
 
     RicfCommandFileExecutor* executor = RicfCommandFileExecutor::instance();
-    executor->setExportPath(m_type(), m_path);
+    executor->setExportPath( m_type(), m_path );
     return RicfCommandResponse();
 }

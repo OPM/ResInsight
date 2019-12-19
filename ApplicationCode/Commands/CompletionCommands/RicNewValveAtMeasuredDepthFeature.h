@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cafCmdFeature.h"
 
 class RiuWellPathSelectionItem;
@@ -31,12 +30,10 @@ class RicNewValveAtMeasuredDepthFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    void onActionTriggered(bool isChecked) override;
-    void setupActionLook(QAction* actionToSetup) override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
     bool isCommandEnabled() override;
 
 private:
     static RiuWellPathSelectionItem* wellPathSelectionItem();
 };
-
-

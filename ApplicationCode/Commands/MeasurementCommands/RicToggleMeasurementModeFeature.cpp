@@ -21,6 +21,7 @@
 #include "RiaGuiApplication.h"
 
 #include "Rim3dView.h"
+#include "RimGridView.h"
 #include "RimMeasurement.h"
 #include "RimProject.h"
 
@@ -31,15 +32,15 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicToggleMeasurementModeFeature, "RicToggleMeasurementModeFeature");
-CAF_CMD_SOURCE_INIT(RicTogglePolyMeasurementModeFeature, "RicTogglePolyMeasurementModeFeature");
+CAF_CMD_SOURCE_INIT( RicToggleMeasurementModeFeature, "RicToggleMeasurementModeFeature" );
+CAF_CMD_SOURCE_INIT( RicTogglePolyMeasurementModeFeature, "RicTogglePolyMeasurementModeFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RicToggleMeasurementModeFeature::refreshActionLook()
 {
-    setupActionLook(action());
+    setupActionLook( action() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,18 +54,18 @@ bool RicToggleMeasurementModeFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicToggleMeasurementModeFeature::onActionTriggered(bool isChecked)
+void RicToggleMeasurementModeFeature::onActionTriggered( bool isChecked )
 {
     auto meas = measurement();
-    if (meas->measurementMode() == RimMeasurement::MEASURE_REGULAR)
+    if ( meas->measurementMode() == RimMeasurement::MEASURE_REGULAR )
     {
-        meas->setMeasurementMode(RimMeasurement::MEASURE_DISABLED);
+        meas->setMeasurementMode( RimMeasurement::MEASURE_DISABLED );
     }
     else
     {
-        meas->setMeasurementMode(RimMeasurement::MEASURE_REGULAR);
+        meas->setMeasurementMode( RimMeasurement::MEASURE_REGULAR );
     }
-    
+
     refreshActionLook();
     refreshPolyMeasuremeantActionLook();
 }
@@ -72,32 +73,32 @@ void RicToggleMeasurementModeFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicToggleMeasurementModeFeature::setupActionLook(QAction* actionToSetup)
+void RicToggleMeasurementModeFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Measurement");
-    actionToSetup->setToolTip("Single Line Measurement (Ctrl+M)");
-    actionToSetup->setIcon(QIcon(":/Ruler24x24.png"));
-    actionToSetup->setCheckable(true);
+    actionToSetup->setText( "Measurement" );
+    actionToSetup->setToolTip( "Single Line Measurement (Ctrl+M)" );
+    actionToSetup->setIcon( QIcon( ":/Ruler24x24.png" ) );
+    actionToSetup->setCheckable( true );
 
     auto* meas = measurement();
-    if (meas && meas->measurementMode() == RimMeasurement::MEASURE_REGULAR)
+    if ( meas && meas->measurementMode() == RimMeasurement::MEASURE_REGULAR )
     {
-        applyShortcutWithHintToAction(actionToSetup, QKeySequence(Qt::Key_Escape));
-        applyShortcutWithHintToAction(actionToSetup, QKeySequence(tr("Ctrl+M")));
+        applyShortcutWithHintToAction( actionToSetup, QKeySequence( Qt::Key_Escape ) );
+        applyShortcutWithHintToAction( actionToSetup, QKeySequence( tr( "Ctrl+M" ) ) );
     }
     else
     {
-        applyShortcutWithHintToAction(actionToSetup, QKeySequence(tr("Ctrl+M")));
+        applyShortcutWithHintToAction( actionToSetup, QKeySequence( tr( "Ctrl+M" ) ) );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicToggleMeasurementModeFeature::isCommandChecked()
 {
     auto meas = measurement();
-    if (meas)
+    if ( meas )
     {
         return meas->measurementMode() == RimMeasurement::MEASURE_REGULAR;
     }
@@ -111,7 +112,7 @@ bool RicToggleMeasurementModeFeature::isCommandChecked()
 RimMeasurement* RicToggleMeasurementModeFeature::measurement() const
 {
     RiaGuiApplication* app = RiaGuiApplication::instance();
-    CAF_ASSERT(app && app->project());
+    CAF_ASSERT( app && app->project() );
 
     return app->project()->measurement();
 }
@@ -122,8 +123,8 @@ RimMeasurement* RicToggleMeasurementModeFeature::measurement() const
 Rim3dView* RicToggleMeasurementModeFeature::activeView() const
 {
     RiaApplication* app = RiaApplication::instance();
-    CAF_ASSERT(app);
-    auto view = app->activeReservoirView();
+    CAF_ASSERT( app );
+    auto view = dynamic_cast<Rim3dView*>( app->activeMainOrComparisonGridView() );
     return view;
 }
 
@@ -132,23 +133,23 @@ Rim3dView* RicToggleMeasurementModeFeature::activeView() const
 //--------------------------------------------------------------------------------------------------
 void RicToggleMeasurementModeFeature::refreshPolyMeasuremeantActionLook()
 {
-    auto cmdFeature = caf::CmdFeatureManager::instance()->getCommandFeature("RicTogglePolyMeasurementModeFeature");
-    static_cast<RicTogglePolyMeasurementModeFeature*>(cmdFeature)->refreshActionLook();
+    auto cmdFeature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicTogglePolyMeasurementModeFeature" );
+    static_cast<RicTogglePolyMeasurementModeFeature*>( cmdFeature )->refreshActionLook();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicTogglePolyMeasurementModeFeature::onActionTriggered(bool isChecked)
+void RicTogglePolyMeasurementModeFeature::onActionTriggered( bool isChecked )
 {
     auto meas = measurement();
-    if (meas->measurementMode() == RimMeasurement::MEASURE_POLYLINE)
+    if ( meas->measurementMode() == RimMeasurement::MEASURE_POLYLINE )
     {
-        meas->setMeasurementMode(RimMeasurement::MEASURE_DISABLED);
+        meas->setMeasurementMode( RimMeasurement::MEASURE_DISABLED );
     }
     else
     {
-        meas->setMeasurementMode(RimMeasurement::MEASURE_POLYLINE);
+        meas->setMeasurementMode( RimMeasurement::MEASURE_POLYLINE );
     }
 
     refreshActionLook();
@@ -158,22 +159,22 @@ void RicTogglePolyMeasurementModeFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicTogglePolyMeasurementModeFeature::setupActionLook(QAction* actionToSetup)
+void RicTogglePolyMeasurementModeFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Poly Line Measurement");
-    actionToSetup->setToolTip("Poly Line Measurement (Ctrl+Shift+M)");
-    actionToSetup->setIcon(QIcon(":/RulerPoly24x24.png"));
-    actionToSetup->setCheckable(true);
+    actionToSetup->setText( "Poly Line Measurement" );
+    actionToSetup->setToolTip( "Poly Line Measurement (Ctrl+Shift+M)" );
+    actionToSetup->setIcon( QIcon( ":/RulerPoly24x24.png" ) );
+    actionToSetup->setCheckable( true );
 
     auto* meas = measurement();
-    if (meas && meas->measurementMode() == RimMeasurement::MEASURE_POLYLINE)
+    if ( meas && meas->measurementMode() == RimMeasurement::MEASURE_POLYLINE )
     {
-        applyShortcutWithHintToAction(actionToSetup, QKeySequence(Qt::Key_Escape));
-        applyShortcutWithHintToAction(actionToSetup, QKeySequence(tr("Ctrl+Shift+M")));
+        applyShortcutWithHintToAction( actionToSetup, QKeySequence( Qt::Key_Escape ) );
+        applyShortcutWithHintToAction( actionToSetup, QKeySequence( tr( "Ctrl+Shift+M" ) ) );
     }
     else
     {
-        applyShortcutWithHintToAction(actionToSetup, QKeySequence(tr("Ctrl+Shift+M")));
+        applyShortcutWithHintToAction( actionToSetup, QKeySequence( tr( "Ctrl+Shift+M" ) ) );
     }
 }
 
@@ -183,7 +184,7 @@ void RicTogglePolyMeasurementModeFeature::setupActionLook(QAction* actionToSetup
 bool RicTogglePolyMeasurementModeFeature::isCommandChecked()
 {
     auto meas = measurement();
-    if (meas)
+    if ( meas )
     {
         return meas->measurementMode() == RimMeasurement::MEASURE_POLYLINE;
     }
@@ -196,6 +197,6 @@ bool RicTogglePolyMeasurementModeFeature::isCommandChecked()
 //--------------------------------------------------------------------------------------------------
 void RicTogglePolyMeasurementModeFeature::refreshMeasurementActionLook()
 {
-    auto cmdFeature = caf::CmdFeatureManager::instance()->getCommandFeature("RicToggleMeasurementModeFeature");
-    static_cast<RicToggleMeasurementModeFeature*>(cmdFeature)->refreshActionLook();
+    auto cmdFeature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicToggleMeasurementModeFeature" );
+    static_cast<RicToggleMeasurementModeFeature*>( cmdFeature )->refreshActionLook();
 }

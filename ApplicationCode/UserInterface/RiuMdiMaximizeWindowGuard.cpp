@@ -11,17 +11,17 @@ RiuMdiMaximizeWindowGuard::RiuMdiMaximizeWindowGuard()
 {
     {
         RiuMainWindow* mainWindow = RiaGuiApplication::instance()->mainWindow();
-        if (mainWindow)
+        if ( mainWindow )
         {
-            mainWindow->enableShowFirstVisibleMdiWindowMaximized(false);
+            mainWindow->enableShowFirstVisibleMdiWindowMaximized( false );
         }
     }
 
     {
         RiuPlotMainWindow* plotMainWindow = RiaGuiApplication::instance()->mainPlotWindow();
-        if (plotMainWindow)
+        if ( plotMainWindow )
         {
-            plotMainWindow->enableShowFirstVisibleMdiWindowMaximized(false);
+            plotMainWindow->enableShowFirstVisibleMdiWindowMaximized( false );
         }
     }
 }
@@ -33,17 +33,17 @@ RiuMdiMaximizeWindowGuard::~RiuMdiMaximizeWindowGuard()
 {
     {
         RiuMainWindow* mainWindow = RiaGuiApplication::instance()->mainWindow();
-        if (mainWindow)
+        if ( mainWindow )
         {
-            mainWindow->enableShowFirstVisibleMdiWindowMaximized(true);
+            mainWindow->enableShowFirstVisibleMdiWindowMaximized( true );
         }
     }
 
     {
         RiuPlotMainWindow* plotMainWindow = RiaGuiApplication::instance()->mainPlotWindow();
-        if (plotMainWindow)
+        if ( plotMainWindow )
         {
-            plotMainWindow->enableShowFirstVisibleMdiWindowMaximized(true);
+            plotMainWindow->enableShowFirstVisibleMdiWindowMaximized( true );
         }
     }
 }

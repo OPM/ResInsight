@@ -25,7 +25,7 @@
 #include <QDir>
 #include <QFileDialog>
 
-CAF_CMD_SOURCE_INIT(RicRunCommandFileFeature, "RicRunCommandFileFeature");
+CAF_CMD_SOURCE_INIT( RicRunCommandFileFeature, "RicRunCommandFileFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -38,30 +38,33 @@ bool RicRunCommandFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicRunCommandFileFeature::onActionTriggered(bool isChecked)
+void RicRunCommandFileFeature::onActionTriggered( bool isChecked )
 {
-    RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->lastUsedDialogDirectoryWithFallbackToProjectFolder("COMMAND_FILE");
+    RiaApplication* app        = RiaApplication::instance();
+    QString         defaultDir = app->lastUsedDialogDirectoryWithFallbackToProjectFolder( "COMMAND_FILE" );
 
-    QString fileName = QFileDialog::getOpenFileName(nullptr, "Open ResInsight Command File", defaultDir, "ResInsight Command File (*.txt);;All files(*.*)");
+    QString fileName = QFileDialog::getOpenFileName( nullptr,
+                                                     "Open ResInsight Command File",
+                                                     defaultDir,
+                                                     "ResInsight Command File (*.txt);;All files(*.*)" );
 
-    if (!fileName.isEmpty())
+    if ( !fileName.isEmpty() )
     {
-        QFile file(fileName);
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+        QFile file( fileName );
+        if ( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
         {
-            QTextStream in(&file);
+            QTextStream in( &file );
 
             QString applicationPath = QDir::currentPath();
 
-            QFileInfo fi(fileName);
-            QDir::setCurrent(fi.absolutePath());
+            QFileInfo fi( fileName );
+            QDir::setCurrent( fi.absolutePath() );
 
-            RicfCommandFileExecutor::instance()->executeCommands(in);
+            RicfCommandFileExecutor::instance()->executeCommands( in );
 
-            QDir::setCurrent(applicationPath);
-        
-            app->setLastUsedDialogDirectory("COMMAND_FILE", QFileInfo(fileName).absolutePath());
+            QDir::setCurrent( applicationPath );
+
+            app->setLastUsedDialogDirectory( "COMMAND_FILE", QFileInfo( fileName ).absolutePath() );
         }
     }
 }
@@ -69,7 +72,7 @@ void RicRunCommandFileFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicRunCommandFileFeature::setupActionLook(QAction* actionToSetup)
+void RicRunCommandFileFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Run Command File");
+    actionToSetup->setText( "Run Command File" );
 }

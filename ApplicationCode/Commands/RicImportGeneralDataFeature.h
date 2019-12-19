@@ -42,24 +42,23 @@ public:
 
         operator bool() const
         {
-            return !(eclipseCaseFiles.empty() && eclipseInputFiles.empty() && eclipseSummaryFiles.empty());
+            return !( eclipseCaseFiles.empty() && eclipseInputFiles.empty() && eclipseSummaryFiles.empty() );
         }
     };
 
-    static OpenCaseResults openEclipseFilesFromFileNames(const QStringList& fileNames);
-    static QStringList fileNamesFromCaseNames(const QStringList& caseNames);
+    static OpenCaseResults openEclipseFilesFromFileNames( const QStringList& fileNames, bool doCreateDefaultPlot );
+    static QStringList     fileNamesFromCaseNames( const QStringList& caseNames );
+    static QStringList     getEclipseFileNamesWithDialog( RiaDefines::ImportFileType fileTypes );
 
 protected:
-
     // Overrides
     bool isCommandEnabled() override;
-    void onActionTriggered(bool isChecked) override;
-    void setupActionLook(QAction* actionToSetup) override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
-    static void openFileDialog(RiaDefines::ImportFileType fileTypes);
+    static void openFileDialog( RiaDefines::ImportFileType fileTypes );
 
-    static bool openEclipseCaseFromFileNames(const QStringList& fileNames);
-    static bool openInputEclipseCaseFromFileNames(const QStringList& fileNames);
-    static bool openSummaryCaseFromFileNames(const QStringList& fileNames);
-
+    static bool openEclipseCaseFromFileNames( const QStringList& fileNames );
+    static bool openInputEclipseCaseFromFileNames( const QStringList& fileNames );
+    static bool openSummaryCaseFromFileNames( const QStringList& fileNames, bool doCreateDefaultPlot = true );
 };

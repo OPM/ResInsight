@@ -22,7 +22,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicDefaultDockConfigGeoMechFeature, "RicDefaultDockConfigGeoMechFeature");
+CAF_CMD_SOURCE_INIT( RicDefaultDockConfigGeoMechFeature, "RicDefaultDockConfigGeoMechFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -35,7 +35,7 @@ bool RicDefaultDockConfigGeoMechFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDefaultDockConfigGeoMechFeature::onActionTriggered(bool isChecked)
+void RicDefaultDockConfigGeoMechFeature::onActionTriggered( bool isChecked )
 {
     RiuDockWidgetTools::setVisibleDockingWindowsForGeoMech();
 }
@@ -43,7 +43,7 @@ void RicDefaultDockConfigGeoMechFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDefaultDockConfigGeoMechFeature::setupActionLook(QAction* actionToSetup)
+void RicDefaultDockConfigGeoMechFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Default Window Visibility (Geo Mech)");
+    actionToSetup->setText( "Default Window Visibility (Geo Mech)" );
 }

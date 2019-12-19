@@ -33,9 +33,9 @@ class RicPasteIntersectionsFeature : public caf::CmdFeature
 protected:
     // Overrides
     bool isCommandEnabled() override;
-    void onActionTriggered(bool isChecked) override;
-    void setupActionLook(QAction* actionToSetup) override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static RimIntersectionCollection* findIntersectionCollection(caf::PdmObjectHandle* objectHandle);
+    static RimIntersectionCollection* findIntersectionCollection( caf::PdmObjectHandle* objectHandle );
 };

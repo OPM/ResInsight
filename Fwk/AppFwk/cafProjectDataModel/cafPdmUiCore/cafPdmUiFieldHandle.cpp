@@ -52,9 +52,8 @@ QList<caf::PdmOptionItemInfo> PdmUiFieldHandle::valueOptions(bool* useOptionsOnl
 //--------------------------------------------------------------------------------------------------
 void PdmUiFieldHandle::notifyFieldChanged(const QVariant& oldFieldValue, const QVariant& newFieldValue)
 {
-    // Todo : Should use a virtual version of isElementEqual. The variant != operation will not work on user types
 
-    if (oldFieldValue != newFieldValue)
+    if (!this->isQVariantDataEqual( oldFieldValue, newFieldValue))
     {
         PdmFieldHandle* fieldHandle = this->fieldHandle();
         CAF_ASSERT(fieldHandle && fieldHandle->ownerObject());
@@ -125,6 +124,15 @@ void PdmUiFieldHandle::setAutoAddingOptionFromValue(bool isAddingValue)
 ///
 //--------------------------------------------------------------------------------------------------
 void PdmUiFieldHandle::setValueFromUiEditor(const QVariant& uiValue) {}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiFieldHandle::isQVariantDataEqual(const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant) const 
+{ 
+    CAF_ASSERT(false); 
+    return false; 
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Implementation of uiCapability() defined in cafPdmFieldHandle.h

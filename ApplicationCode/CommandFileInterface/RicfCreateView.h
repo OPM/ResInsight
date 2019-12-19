@@ -22,12 +22,17 @@
 
 #include "cafPdmField.h"
 
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
 class RicfCreateViewResult : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RicfCreateViewResult(int viewId = -1);
+    RicfCreateViewResult( int viewId = -1 );
 
 public:
     caf::PdmField<int> viewId;

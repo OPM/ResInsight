@@ -119,6 +119,15 @@ bool caf::PdmFieldXmlCap<FieldType>::resolveReferences()
      return objHandle != nullptr;
  }
 
+ //--------------------------------------------------------------------------------------------------
+ ///
+ //--------------------------------------------------------------------------------------------------
+ template<typename DataType>
+ QString caf::PdmFieldXmlCap<PdmPtrField<DataType*>>::referenceString() const
+ {
+     return m_referenceString;
+ }
+
  //==================================================================================================
 /// XML Implementation for PdmPtrArrayField<>
 //==================================================================================================

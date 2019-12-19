@@ -22,6 +22,8 @@ public:
     QVariant    toUiBasedQVariant() const override;
 
 private:
+    bool isQVariantDataEqual(const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant) const override;
+
     mutable QList<PdmOptionItemInfo> m_optionEntryCache;
 
 private:

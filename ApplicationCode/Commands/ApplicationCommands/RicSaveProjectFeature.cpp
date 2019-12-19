@@ -1,31 +1,68 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicSaveProjectFeature.h"
 
+#include "RiaApplication.h"
 #include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 
 #include <QAction>
+#include <QMessageBox>
 
-CAF_CMD_SOURCE_INIT(RicSaveProjectFeature, "RicSaveProjectFeature");
+RICF_SOURCE_INIT( RicSaveProjectFeature, "RicSaveProjectFeature", "saveProject" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+RicSaveProjectFeature::RicSaveProjectFeature()
+{
+    CAF_PDM_InitFieldNoDefault( &m_filePath, "filePath", "", "", "", "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicfCommandResponse RicSaveProjectFeature::execute()
+{
+    this->disableModelChangeContribution();
+
+    bool    worked = false;
+    QString errorMessage;
+    if ( !m_filePath().isEmpty() )
+    {
+        worked = RiaApplication::instance()->saveProjectAs( m_filePath(), &errorMessage );
+    }
+    else
+    {
+        worked = RiaApplication::instance()->saveProject( &errorMessage );
+    }
+
+    if ( !worked )
+    {
+        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, errorMessage );
+    }
+
+    return RicfCommandResponse();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 bool RicSaveProjectFeature::isCommandEnabled()
 {
@@ -33,25 +70,44 @@ bool RicSaveProjectFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSaveProjectFeature::onActionTriggered(bool isChecked)
+void RicSaveProjectFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    RiaApplication*    app    = RiaApplication::instance();
+    RiaGuiApplication* guiApp = dynamic_cast<RiaGuiApplication*>( app );
 
-    RiaGuiApplication* app = RiaGuiApplication::instance();
+    if ( guiApp && !guiApp->isProjectSavedToDisc() )
+    {
+        m_filePath = guiApp->promptForProjectSaveAsFileName();
 
-    app->saveProject();
+        if ( m_filePath().isEmpty() )
+        {
+            return;
+        }
+    }
+
+    auto response = execute();
+    if ( response.status() != RicfCommandResponse::COMMAND_OK )
+    {
+        QString displayMessage = response.messages().join( "\n" );
+        if ( RiaGuiApplication::isRunning() )
+        {
+            QMessageBox::warning( nullptr, "Error when saving project file", displayMessage );
+        }
+        RiaLogging::error( displayMessage );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSaveProjectFeature::setupActionLook(QAction* actionToSetup)
+void RicSaveProjectFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("&Save Project");
-    actionToSetup->setIcon(QIcon(":/Save.png"));
-    actionToSetup->setShortcuts(QKeySequence::Save);
+    actionToSetup->setText( "&Save Project" );
+    actionToSetup->setIcon( QIcon( ":/Save.png" ) );
+
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence::Save );
 }
 
 //--------------------------------------------------------------------------------------------------

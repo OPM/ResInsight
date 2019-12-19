@@ -41,7 +41,7 @@ public:
     QString sessionPinCode() const;
 
 protected:
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
     caf::PdmChildField<RicHoloLensServerSettings*> m_serverSettings;

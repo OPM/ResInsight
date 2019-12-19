@@ -43,9 +43,11 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QPointer>
 
 class QAction;
 class QKeySequence;
+class QWidget;
 
 namespace caf 
 {
@@ -66,14 +68,18 @@ public:
     QAction* action(const QString& commandId);
     QAction* action(const QString& commandId, const QString& customActionText);
     QAction* actionWithUserData(const QString& commandId, const QString& customActionText, const QVariant& userData);
-    void refreshStates(const QStringList& commandIdList = QStringList());
-    void refreshEnabledState(const QStringList& commandIdList = QStringList());
-    void refreshCheckedState(const QStringList& commandIdList = QStringList());
 
-    CmdFeature* getCommandFeature(const std::string& commandId);
+    void     refreshStates(const QStringList& commandIdList = QStringList());
+    void     refreshEnabledState(const QStringList& commandIdList = QStringList());
+    void     refreshCheckedState(const QStringList& commandIdList = QStringList());
 
+    CmdFeature*              getCommandFeature(const std::string& commandId);
     std::vector<CmdFeature*> commandFeaturesMatchingSubString(const std::string& subString) const;
     std::vector<CmdFeature*> commandFeaturesMatchingKeyboardShortcut(const QKeySequence& keySequence) const;
+
+    void     setCurrentContextMenuTargetWidget(QWidget * targetWidget);
+    QWidget* currentContextMenuTargetWidget();
+
 private:
     CmdFeatureManager();
 
@@ -87,6 +93,7 @@ private:
     std::map<std::string , size_t > m_commandIdToFeatureIdxMap;
     std::map<QAction*, size_t >     m_actionToFeatureIdxMap;
 
+    QPointer<QWidget> m_currentContextMenuTargetWidget;
 };
 
 

@@ -39,6 +39,7 @@
 class QVariant;
 class QMenu;
 class QString;
+class QWidget;
 
 namespace caf 
 {
@@ -57,6 +58,7 @@ public:
     void setCommandInterface(PdmUiCommandSystemInterface* undoCommandInterface);
 
     void setUiValueToField(PdmUiFieldHandle* uiFieldHandle, const QVariant& newUiValue);
+    void setCurrentContextMenuTargetWidget(QWidget* targetWidget);
     void populateMenuWithDefaultCommands(const QString& uiConfigName, QMenu* menu);
 
 private:

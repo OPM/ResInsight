@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017  Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,46 +21,47 @@
 #include "cvfAssert.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RigEclipseTimeStepInfo::RigEclipseTimeStepInfo(const QDateTime& date, int reportNumber, double daysSinceSimulationStart)
-    : m_date(date),
-    m_reportNumber(reportNumber),
-    m_daysSinceSimulationStart(daysSinceSimulationStart)
+RigEclipseTimeStepInfo::RigEclipseTimeStepInfo( const QDateTime& date, int reportNumber, double daysSinceSimulationStart )
+    : m_date( date )
+    , m_reportNumber( reportNumber )
+    , m_daysSinceSimulationStart( daysSinceSimulationStart )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigEclipseTimeStepInfo> RigEclipseTimeStepInfo::createTimeStepInfos(std::vector<QDateTime> dates,
-                                                                  std::vector<int> reportNumbers,
-                                                                  std::vector<double> daysSinceSimulationStarts)
+std::vector<RigEclipseTimeStepInfo>
+    RigEclipseTimeStepInfo::createTimeStepInfos( std::vector<QDateTime> dates,
+                                                 std::vector<int>       reportNumbers,
+                                                 std::vector<double>    daysSinceSimulationStarts )
 {
-    CVF_ASSERT(dates.size() == reportNumbers.size());
-    CVF_ASSERT(dates.size() == daysSinceSimulationStarts.size());
+    CVF_ASSERT( dates.size() == reportNumbers.size() );
+    CVF_ASSERT( dates.size() == daysSinceSimulationStarts.size() );
 
     std::vector<RigEclipseTimeStepInfo> timeStepInfos;
 
-    for (size_t i = 0; i < dates.size(); i++)
+    for ( size_t i = 0; i < dates.size(); i++ )
     {
-        timeStepInfos.push_back(RigEclipseTimeStepInfo(dates[i], reportNumbers[i], daysSinceSimulationStarts[i]));
+        timeStepInfos.push_back( RigEclipseTimeStepInfo( dates[i], reportNumbers[i], daysSinceSimulationStarts[i] ) );
     }
 
     return timeStepInfos;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RigEclipseResultInfo::RigEclipseResultInfo(const RigEclipseResultAddress& resultAddress,
-                                           bool needsToBeStored, 
-                                           bool mustBeCalculated, 
-                                           size_t gridScalarResultIndex) 
-    : m_resultAddress(resultAddress)
-    , m_needsToBeStored(needsToBeStored)
-    , m_mustBeCalculated(mustBeCalculated)
-    , m_gridScalarResultIndex(gridScalarResultIndex)
+RigEclipseResultInfo::RigEclipseResultInfo( const RigEclipseResultAddress& resultAddress,
+                                            bool                           needsToBeStored,
+                                            bool                           mustBeCalculated,
+                                            size_t                         gridScalarResultIndex )
+    : m_resultAddress( resultAddress )
+    , m_needsToBeStored( needsToBeStored )
+    , m_mustBeCalculated( mustBeCalculated )
+    , m_gridScalarResultIndex( gridScalarResultIndex )
 {
 }
 
@@ -75,7 +76,7 @@ RiaDefines::ResultCatType RigEclipseResultInfo::resultType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseResultInfo::setResultType(RiaDefines::ResultCatType newType)
+void RigEclipseResultInfo::setResultType( RiaDefines::ResultCatType newType )
 {
     m_resultAddress.m_resultCatType = newType;
 }
@@ -91,7 +92,7 @@ const QString& RigEclipseResultInfo::resultName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseResultInfo::setResultName(const QString& name)
+void RigEclipseResultInfo::setResultName( const QString& name )
 {
     m_resultAddress.m_resultName = name;
 }
@@ -115,7 +116,7 @@ bool RigEclipseResultInfo::mustBeCalculated() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseResultInfo::setMustBeCalculated(bool mustCalculate)
+void RigEclipseResultInfo::setMustBeCalculated( bool mustCalculate )
 {
     m_mustBeCalculated = mustCalculate;
 }
@@ -139,53 +140,51 @@ const std::vector<RigEclipseTimeStepInfo>& RigEclipseResultInfo::timeStepInfos()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseResultInfo::setTimeStepInfos(const std::vector<RigEclipseTimeStepInfo>& timeSteps)
+void RigEclipseResultInfo::setTimeStepInfos( const std::vector<RigEclipseTimeStepInfo>& timeSteps )
 {
     m_timeStepInfos = timeSteps;
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RigEclipseResultInfo::dates() const
 {
     std::vector<QDateTime> values;
 
-    for (auto v : m_timeStepInfos)
+    for ( auto v : m_timeStepInfos )
     {
-        values.push_back(v.m_date);
+        values.push_back( v.m_date );
     }
 
     return values;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigEclipseResultInfo::daysSinceSimulationStarts() const
 {
     std::vector<double> values;
 
-    for (auto v : m_timeStepInfos)
+    for ( auto v : m_timeStepInfos )
     {
-        values.push_back(v.m_daysSinceSimulationStart);
+        values.push_back( v.m_daysSinceSimulationStart );
     }
 
     return values;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<int> RigEclipseResultInfo::reportNumbers() const
 {
     std::vector<int> values;
 
-    for (auto v : m_timeStepInfos)
+    for ( auto v : m_timeStepInfos )
     {
-        values.push_back(v.m_reportNumber);
+        values.push_back( v.m_reportNumber );
     }
 
     return values;
@@ -194,7 +193,7 @@ std::vector<int> RigEclipseResultInfo::reportNumbers() const
 //--------------------------------------------------------------------------------------------------
 /// Ordering operator for set storage. Just the type and name are used to find unique addresses.
 //--------------------------------------------------------------------------------------------------
-bool RigEclipseResultInfo::operator<(const RigEclipseResultInfo& rhs) const
+bool RigEclipseResultInfo::operator<( const RigEclipseResultInfo& rhs ) const
 {
-     return m_resultAddress < rhs.m_resultAddress;
+    return m_resultAddress < rhs.m_resultAddress;
 }

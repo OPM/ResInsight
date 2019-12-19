@@ -29,5 +29,5 @@ class Ric3dWellLogCurvePickEventHandler : public RicDefaultPickEventHandler
 public:
     static Ric3dWellLogCurvePickEventHandler* instance();
 
-    bool handle3dPickEvent(const Ric3dPickEvent& eventObject) override;
+    bool handle3dPickEvent( const Ric3dPickEvent& eventObject ) override;
 };

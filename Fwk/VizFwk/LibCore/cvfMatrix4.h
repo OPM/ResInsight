@@ -37,6 +37,8 @@
 
 #pragma once
 
+#include "cvfBase.h"
+
 #include "cvfSystem.h"
 #include "cvfVector3.h"
 #include "cvfVector4.h"

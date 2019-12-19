@@ -397,6 +397,28 @@ void PdmUiTreeViewQModel::updateEditorsForSubTree(PdmUiTreeOrdering* root)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::list<QModelIndex> PdmUiTreeViewQModel::allIndicesRecursive(const QModelIndex& current) const
+{
+    std::list<QModelIndex> currentAndDescendants;
+    currentAndDescendants.push_back(current);
+
+    int rows = rowCount(current);
+    int cols = columnCount(current);
+    for (int row = 0; row < rows; ++row)
+    {
+        for (int col = 0; col < cols; ++col)
+        {
+            QModelIndex childIndex = index(row, col, current);
+            std::list<QModelIndex> subList = allIndicesRecursive(childIndex);
+            currentAndDescendants.insert(currentAndDescendants.end(), subList.begin(), subList.end());
+        }
+    }
+    return currentAndDescendants;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeOrdering* caf::PdmUiTreeViewQModel::treeItemFromIndex(const QModelIndex& index) const 

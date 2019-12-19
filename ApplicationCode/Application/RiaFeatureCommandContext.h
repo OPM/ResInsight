@@ -31,8 +31,10 @@ class RiaFeatureCommandContext
 public:
     static RiaFeatureCommandContext* instance();
 
+    RiaFeatureCommandContext( const RiaFeatureCommandContext& ) = delete;
+
     QObject* object() const;
-    void     setObject(QObject* object);
+    void     setObject( QObject* object );
 
     QString titleString() const;
     QString contentString() const;
@@ -54,7 +56,7 @@ private:
 class RiaFeatureCommandContextHelper
 {
 public:
-    RiaFeatureCommandContextHelper(QObject* externalObject);
+    explicit RiaFeatureCommandContextHelper( QObject* externalObject );
     ~RiaFeatureCommandContextHelper();
 };
 
@@ -64,7 +66,7 @@ public:
 class RiaFeatureCommandContextTextHelper
 {
 public:
-    RiaFeatureCommandContextTextHelper(const QString& title, const QString& text);
+    RiaFeatureCommandContextTextHelper( const QString& title, const QString& text );
     ~RiaFeatureCommandContextTextHelper();
 
 private:

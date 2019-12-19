@@ -31,6 +31,8 @@ private:
     friend class PdmUiCommandSystemProxy;
     friend class CmdFieldChangeExec;
     virtual void setValueFromUiEditor(const QVariant& uiValue);
+    // This is needed to handle custom types in QVariants since operator == between QVariant does not work when they use custom types.
+    virtual bool isQVariantDataEqual(const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant) const;
 
 private:
     PdmFieldHandle* m_owner;

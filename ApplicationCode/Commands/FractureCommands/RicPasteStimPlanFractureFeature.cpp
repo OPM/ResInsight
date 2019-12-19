@@ -31,7 +31,7 @@
 #include <QAction>
 #include <QString>
 
-CAF_CMD_SOURCE_INIT(RicPasteStimPlanFractureFeature, "RicPasteStimPlanFractureFeature");
+CAF_CMD_SOURCE_INIT( RicPasteStimPlanFractureFeature, "RicPasteStimPlanFractureFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -39,17 +39,17 @@ CAF_CMD_SOURCE_INIT(RicPasteStimPlanFractureFeature, "RicPasteStimPlanFractureFe
 bool RicPasteStimPlanFractureFeature::isCommandEnabled()
 {
     caf::PdmObjectGroup objectGroup;
-    RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
+    RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
     std::vector<caf::PdmPointer<RimStimPlanFractureTemplate>> typedObjects;
-    objectGroup.objectsByType(&typedObjects);
+    objectGroup.objectsByType( &typedObjects );
 
-    if (typedObjects.size() == 0)
+    if ( typedObjects.size() == 0 )
     {
         return false;
     }
 
-    if (fractureTemplateCollection())
+    if ( fractureTemplateCollection() )
     {
         return true;
     }
@@ -60,25 +60,25 @@ bool RicPasteStimPlanFractureFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPasteStimPlanFractureFeature::onActionTriggered(bool isChecked)
+void RicPasteStimPlanFractureFeature::onActionTriggered( bool isChecked )
 {
     auto fractureTemplateColl = fractureTemplateCollection();
-    if (!fractureTemplateColl) return;
+    if ( !fractureTemplateColl ) return;
 
     caf::PdmObjectGroup objectGroup;
-    RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
+    RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
     std::vector<caf::PdmPointer<RimStimPlanFractureTemplate>> typedObjects;
-    objectGroup.objectsByType(&typedObjects);
+    objectGroup.objectsByType( &typedObjects );
 
-    for (const auto& source : typedObjects)
+    for ( const auto& source : typedObjects )
     {
         auto copyOfStimPlanTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(
-            source->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+            source->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
-        fractureTemplateColl->addFractureTemplate(copyOfStimPlanTemplate);
+        fractureTemplateColl->addFractureTemplate( copyOfStimPlanTemplate );
 
-        RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(copyOfStimPlanTemplate);
+        RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate( copyOfStimPlanTemplate );
     }
 
     return;
@@ -87,11 +87,11 @@ void RicPasteStimPlanFractureFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPasteStimPlanFractureFeature::setupActionLook(QAction* actionToSetup)
+void RicPasteStimPlanFractureFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Paste (StimPlan Fracture)");
+    actionToSetup->setText( "Paste (StimPlan Fracture)" );
 
-    RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
+    RicPasteFeatureImpl::setIconAndShortcuts( actionToSetup );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,10 +101,10 @@ RimFractureTemplateCollection* RicPasteStimPlanFractureFeature::fractureTemplate
 {
     RimFractureTemplateCollection* fractureTemplateColl = nullptr;
 
-    auto destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
-    if (destinationObject)
+    auto destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    if ( destinationObject )
     {
-        destinationObject->firstAncestorOrThisOfType(fractureTemplateColl);
+        destinationObject->firstAncestorOrThisOfType( fractureTemplateColl );
     }
 
     return fractureTemplateColl;

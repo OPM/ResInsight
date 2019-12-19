@@ -21,20 +21,20 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template<class T>
+template <class T>
 RiaWeightedMeanCalculator<T>::RiaWeightedMeanCalculator()
-    : m_aggregatedValue(T{})
-    , m_aggregatedWeight(0.0)
+    : m_aggregatedValue( T{} )
+    , m_aggregatedWeight( 0.0 )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template<class T>
-void RiaWeightedMeanCalculator<T>::addValueAndWeight(T value, double weight)
+template <class T>
+void RiaWeightedMeanCalculator<T>::addValueAndWeight( T value, double weight )
 {
-    CVF_ASSERT(weight >= 0.0);
+    CVF_ASSERT( weight >= 0.0 );
 
     m_aggregatedValue = m_aggregatedValue + value * weight;
     m_aggregatedWeight += weight;
@@ -43,14 +43,14 @@ void RiaWeightedMeanCalculator<T>::addValueAndWeight(T value, double weight)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template<class T>
+template <class T>
 T RiaWeightedMeanCalculator<T>::weightedMean() const
 {
     bool validWeights = validAggregatedWeight();
-    CVF_TIGHT_ASSERT(validWeights);
-    if (validWeights)
+    CVF_TIGHT_ASSERT( validWeights );
+    if ( validWeights )
     {
-        return m_aggregatedValue * (1.0 / m_aggregatedWeight);
+        return m_aggregatedValue * ( 1.0 / m_aggregatedWeight );
     }
     return T{};
 }
@@ -58,17 +58,16 @@ T RiaWeightedMeanCalculator<T>::weightedMean() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template<class T>
+template <class T>
 double RiaWeightedMeanCalculator<T>::aggregatedWeight() const
 {
     return m_aggregatedWeight;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template<class T>
+template <class T>
 bool RiaWeightedMeanCalculator<T>::validAggregatedWeight() const
 {
     return m_aggregatedWeight > 1.0e-12;

@@ -22,7 +22,7 @@
 #include "RigEquil.h"
 
 #include "RimEclipseCase.h"
-#include "RimRiuQwtPlotOwnerInterface.h"
+#include "RimPlotInterface.h"
 #include "RimTools.h"
 #include "RimViewWindow.h"
 
@@ -30,41 +30,43 @@
 
 namespace caf
 {
-template<>
+template <>
 void RimPlotAxisAnnotation::ExportKeywordEnum::setUp()
 {
-    addItem(RimPlotAxisAnnotation::PL_USER_DEFINED, "User Defined", "User Defined");
-    addItem(RimPlotAxisAnnotation::PL_EQUIL_WATER_OIL_CONTACT, "PL_EQUIL_WATER_OIL_CONTACT", "PL_EQUIL_WATER_OIL_CONTACT");
-    addItem(RimPlotAxisAnnotation::PL_EQUIL_GAS_OIL_CONTACT, "PL_EQUIL_GAS_OIL_CONTACT", "PL_EQUIL_GAS_OIL_CONTACT");
-    setDefault(RimPlotAxisAnnotation::PL_USER_DEFINED);
+    addItem( RimPlotAxisAnnotation::PL_USER_DEFINED, "User Defined", "User Defined" );
+    addItem( RimPlotAxisAnnotation::PL_EQUIL_WATER_OIL_CONTACT,
+             "PL_EQUIL_WATER_OIL_CONTACT",
+             "PL_EQUIL_WATER_OIL_CONTACT" );
+    addItem( RimPlotAxisAnnotation::PL_EQUIL_GAS_OIL_CONTACT, "PL_EQUIL_GAS_OIL_CONTACT", "PL_EQUIL_GAS_OIL_CONTACT" );
+    setDefault( RimPlotAxisAnnotation::PL_USER_DEFINED );
 }
 } // namespace caf
 
-CAF_PDM_SOURCE_INIT(RimPlotAxisAnnotation, "RimPlotAxisAnnotation");
+CAF_PDM_SOURCE_INIT( RimPlotAxisAnnotation, "RimPlotAxisAnnotation" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimPlotAxisAnnotation::RimPlotAxisAnnotation()
 {
-    CAF_PDM_InitObject("Plot Axis Annotation", ":/LeftAxis16x16.png", "", "");
+    CAF_PDM_InitObject( "Plot Axis Annotation", ":/LeftAxis16x16.png", "", "" );
 
-    CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
-    m_isActive.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField( &m_isActive, "Active", true, "Active", "", "", "" );
+    m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_name, "Name", "Name", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_value, "Value", "Value", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_value, "Value", "Value", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_annotationType, "AnnotationType", "AnnotationType", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_annotationType, "AnnotationType", "AnnotationType", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_sourceCase, "Associated3DCase", "Eclipse Case", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_equilNum, "m_equilNum", "equil Num", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_sourceCase, "Associated3DCase", "Eclipse Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_equilNum, "m_equilNum", "equil Num", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisAnnotation::setName(const QString& name)
+void RimPlotAxisAnnotation::setName( const QString& name )
 {
     m_name = name;
 }
@@ -72,7 +74,7 @@ void RimPlotAxisAnnotation::setName(const QString& name)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisAnnotation::setValue(double value)
+void RimPlotAxisAnnotation::setValue( double value )
 {
     m_value = value;
 }
@@ -80,9 +82,9 @@ void RimPlotAxisAnnotation::setValue(double value)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisAnnotation::setEquilibriumData(RimEclipseCase*        eclipseCase,
-                                               int                    zeroBasedEquilRegionIndex,
-                                               PlotAxisAnnotationType annotationType)
+void RimPlotAxisAnnotation::setEquilibriumData( RimEclipseCase*        eclipseCase,
+                                                int                    zeroBasedEquilRegionIndex,
+                                                PlotAxisAnnotationType annotationType )
 {
     m_sourceCase     = eclipseCase;
     m_equilNum       = zeroBasedEquilRegionIndex + 1;
@@ -104,11 +106,11 @@ QString RimPlotAxisAnnotation::name() const
 //--------------------------------------------------------------------------------------------------
 double RimPlotAxisAnnotation::value() const
 {
-    if (m_annotationType() == PL_EQUIL_WATER_OIL_CONTACT)
+    if ( m_annotationType() == PL_EQUIL_WATER_OIL_CONTACT )
     {
         return selectedItem().waterOilContactDepth();
     }
-    else if (m_annotationType() == PL_EQUIL_GAS_OIL_CONTACT)
+    else if ( m_annotationType() == PL_EQUIL_GAS_OIL_CONTACT )
     {
         return selectedItem().gasOilContactDepth();
     }
@@ -121,16 +123,16 @@ double RimPlotAxisAnnotation::value() const
 //--------------------------------------------------------------------------------------------------
 QColor RimPlotAxisAnnotation::color() const
 {
-    if (m_annotationType() == PL_EQUIL_WATER_OIL_CONTACT)
+    if ( m_annotationType() == PL_EQUIL_WATER_OIL_CONTACT )
     {
-        return QColor(0, 0, 0);
+        return QColor( 0, 0, 0 );
     }
-    else if (m_annotationType() == PL_EQUIL_GAS_OIL_CONTACT)
+    else if ( m_annotationType() == PL_EQUIL_GAS_OIL_CONTACT )
     {
-        return QColor(220, 0, 0);
+        return QColor( 220, 0, 0 );
     }
 
-    return QColor(0, 0, 100);
+    return QColor( 0, 0, 100 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -152,36 +154,36 @@ caf::PdmFieldHandle* RimPlotAxisAnnotation::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                             const QVariant&            oldValue,
-                                             const QVariant&            newValue)
+void RimPlotAxisAnnotation::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                              const QVariant&            oldValue,
+                                              const QVariant&            newValue )
 {
-    RimRiuQwtPlotOwnerInterface* parentPlot = nullptr;
-    this->firstAncestorOrThisOfType(parentPlot);
-    if (parentPlot)
+    RimPlotInterface* parentPlot = nullptr;
+    this->firstAncestorOrThisOfType( parentPlot );
+    if ( parentPlot )
     {
-        parentPlot->updateAxisDisplay();
+        parentPlot->updateAxes();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimPlotAxisAnnotation::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                           bool*                      useOptionsOnly)
+QList<caf::PdmOptionItemInfo>
+    RimPlotAxisAnnotation::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if (fieldNeedingOptions == &m_sourceCase)
+    if ( fieldNeedingOptions == &m_sourceCase )
     {
-        RimTools::caseOptionItems(&options);
+        RimTools::caseOptionItems( &options );
     }
-    else if (fieldNeedingOptions == &m_equilNum)
+    else if ( fieldNeedingOptions == &m_equilNum )
     {
-        for (int i = 0; i < static_cast<int>(equilItems().size()); i++)
+        for ( int i = 0; i < static_cast<int>( equilItems().size() ); i++ )
         {
-            QString uiText = QString("%1").arg(i + 1);
-            options.push_back(caf::PdmOptionItemInfo(uiText, i));
+            QString uiText = QString( "%1" ).arg( i + 1 );
+            options.push_back( caf::PdmOptionItemInfo( uiText, i ) );
         }
     }
 
@@ -191,19 +193,19 @@ QList<caf::PdmOptionItemInfo> RimPlotAxisAnnotation::calculateValueOptions(const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimPlotAxisAnnotation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add(&m_annotationType);
+    uiOrdering.add( &m_annotationType );
 
-    if (m_annotationType() == PL_USER_DEFINED)
+    if ( m_annotationType() == PL_USER_DEFINED )
     {
-        uiOrdering.add(&m_name);
-        uiOrdering.add(&m_value);
+        uiOrdering.add( &m_name );
+        uiOrdering.add( &m_value );
     }
     else
     {
-        uiOrdering.add(&m_sourceCase);
-        uiOrdering.add(&m_equilNum);
+        uiOrdering.add( &m_sourceCase );
+        uiOrdering.add( &m_equilNum );
     }
 
     uiOrdering.skipRemainingFields();
@@ -216,7 +218,7 @@ RigEquil RimPlotAxisAnnotation::selectedItem() const
 {
     int index = m_equilNum() - 1;
 
-    if (index < static_cast<int>(equilItems().size()))
+    if ( index < static_cast<int>( equilItems().size() ) )
     {
         return equilItems()[index];
     }
@@ -229,7 +231,7 @@ RigEquil RimPlotAxisAnnotation::selectedItem() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RigEquil> RimPlotAxisAnnotation::equilItems() const
 {
-    if (m_sourceCase && m_sourceCase->eclipseCaseData())
+    if ( m_sourceCase && m_sourceCase->eclipseCaseData() )
     {
         m_sourceCase->ensureDeckIsParsedForEquilData();
 
@@ -246,22 +248,22 @@ void RimPlotAxisAnnotation::updateName()
 {
     QString text;
 
-    if (m_annotationType() == PL_EQUIL_WATER_OIL_CONTACT || m_annotationType() == PL_EQUIL_GAS_OIL_CONTACT)
+    if ( m_annotationType() == PL_EQUIL_WATER_OIL_CONTACT || m_annotationType() == PL_EQUIL_GAS_OIL_CONTACT )
     {
-        double diffBetweenTwoContactDepths =
-            std::fabs(selectedItem().gasOilContactDepth() - selectedItem().waterOilContactDepth());
+        double diffBetweenTwoContactDepths = std::fabs( selectedItem().gasOilContactDepth() -
+                                                        selectedItem().waterOilContactDepth() );
 
-        if (diffBetweenTwoContactDepths < 0.1)
+        if ( diffBetweenTwoContactDepths < 0.1 )
         {
-            text = QString("GWC %1").arg(selectedItem().gasOilContactDepth());
+            text = QString( "GWC %1" ).arg( selectedItem().gasOilContactDepth() );
         }
-        else if (m_annotationType() == PL_EQUIL_WATER_OIL_CONTACT)
+        else if ( m_annotationType() == PL_EQUIL_WATER_OIL_CONTACT )
         {
-            text = QString("WOC %1").arg(value());
+            text = QString( "WOC %1" ).arg( value() );
         }
-        else if (m_annotationType() == PL_EQUIL_GAS_OIL_CONTACT)
+        else if ( m_annotationType() == PL_EQUIL_GAS_OIL_CONTACT )
         {
-            text = QString("GOC %1").arg(value());
+            text = QString( "GOC %1" ).arg( value() );
         }
 
         m_name = text;

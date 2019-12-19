@@ -11,11 +11,11 @@ class View(PdmObject):
     """ResInsight view class
 
     Attributes:
-        id(int): View Id corresponding to the View Id in ResInsight project.
+        view_id(int): View Id corresponding to the View Id in ResInsight project.
 
     """
-    def __init__(self, pdm_object):
-        PdmObject.__init__(self, pdm_object.pb2_object(), pdm_object.channel())
+    def __init__(self, pdm_object, project):
+        PdmObject.__init__(self, pdm_object.pb2_object(), pdm_object.channel(), project)
         self.view_id = pdm_object.get_value("ViewId")
 
     def show_grid_box(self):
@@ -103,7 +103,7 @@ class View(PdmObject):
             pdm_case = self.ancestor("ResInsightGeoMechCase")
         if pdm_case is None:
             return None
-        return rips.case.Case(self._channel, pdm_case.get_value("CaseId"))
+        return rips.case.Case(self._channel, pdm_case.get_value("CaseId"), self._project)
 
     def clone(self):
         """Clone the current view"""
@@ -195,15 +195,17 @@ class View(PdmObject):
                 viewIds=[self.view_id],
                 undefinedValue=undefined_value))
 
-    def export_snapshot(self, prefix=''):
+    def export_snapshot(self, prefix='', export_folder=''):
         """ Export snapshot for the current view
         
         Arguments:
             prefix (str): Exported file name prefix
+            export_folder(str): The path to export to. By default will use the global export folder
         """
         case_id = self.case().case_id
         return self._execute_command(
             exportSnapshots=Cmd.ExportSnapshotsRequest(type='VIEWS',
                                                        prefix=prefix,
                                                        caseId=case_id,
-                                                       viewId=self.view_id))
+                                                       viewId=self.view_id,
+                                                       exportFolder=export_folder))

@@ -61,7 +61,7 @@ class RicfMultiCaseReplace : public RicfCommandObject
 public:
     RicfMultiCaseReplace();
 
-    void setCaseReplacePairs(const std::map<int, QString>& caseIdToGridFileNameMap);
+    void setCaseReplacePairs( const std::map<int, QString>& caseIdToGridFileNameMap );
 
     RicfCommandResponse execute() override;
 

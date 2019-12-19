@@ -29,7 +29,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicReloadWellPathFormationNamesFeature, "RicReloadWellPathFormationNamesFeature");
+CAF_CMD_SOURCE_INIT( RicReloadWellPathFormationNamesFeature, "RicReloadWellPathFormationNamesFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -37,40 +37,40 @@ CAF_CMD_SOURCE_INIT(RicReloadWellPathFormationNamesFeature, "RicReloadWellPathFo
 bool RicReloadWellPathFormationNamesFeature::isCommandEnabled()
 {
     std::vector<RimWellPath*> wellPaths;
-    caf::SelectionManager::instance()->objectsByType(&wellPaths);
+    caf::SelectionManager::instance()->objectsByType( &wellPaths );
 
     std::vector<RimWellPathCollection*> wellPathCollection;
-    caf::SelectionManager::instance()->objectsByType(&wellPathCollection);
+    caf::SelectionManager::instance()->objectsByType( &wellPathCollection );
 
-    return (wellPaths.size() > 0 || wellPathCollection.size() > 0);
+    return ( wellPaths.size() > 0 || wellPathCollection.size() > 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicReloadWellPathFormationNamesFeature::onActionTriggered(bool isChecked)
+void RicReloadWellPathFormationNamesFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimWellPath*> wellPaths;
-    caf::SelectionManager::instance()->objectsByType(&wellPaths);
+    caf::SelectionManager::instance()->objectsByType( &wellPaths );
 
     std::vector<RimWellPathCollection*> wellPathCollections;
-    caf::SelectionManager::instance()->objectsByType(&wellPathCollections);
+    caf::SelectionManager::instance()->objectsByType( &wellPathCollections );
 
-    if (wellPaths.size() > 0)
+    if ( wellPaths.size() > 0 )
     {
         RimWellPathCollection* wellPathCollection;
-        wellPaths[0]->firstAncestorOrThisOfTypeAsserted(wellPathCollection);
+        wellPaths[0]->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
         wellPathCollection->reloadAllWellPathFormations();
     }
-    else if (wellPathCollections.size() > 0) 
+    else if ( wellPathCollections.size() > 0 )
     {
-        wellPathCollections[0]->reloadAllWellPathFormations(); 
+        wellPathCollections[0]->reloadAllWellPathFormations();
     }
 
     RimProject* project = RiaApplication::instance()->project();
-    if (project)
+    if ( project )
     {
-        if (project->mainPlotCollection())
+        if ( project->mainPlotCollection() )
         {
             project->mainPlotCollection->updatePlotsWithFormations();
         }
@@ -80,8 +80,8 @@ void RicReloadWellPathFormationNamesFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicReloadWellPathFormationNamesFeature::setupActionLook(QAction* actionToSetup)
+void RicReloadWellPathFormationNamesFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Reload All Well Picks");
-    actionToSetup->setIcon(QIcon(":/Refresh-32.png"));
+    actionToSetup->setText( "Reload All Well Picks" );
+    actionToSetup->setIcon( QIcon( ":/Refresh-32.png" ) );
 }

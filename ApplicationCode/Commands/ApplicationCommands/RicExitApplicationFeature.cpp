@@ -25,7 +25,7 @@
 #include <QAction>
 #include <QDebug>
 
-CAF_CMD_SOURCE_INIT(RicExitApplicationFeature, "RicExitApplicationFeature");
+CAF_CMD_SOURCE_INIT( RicExitApplicationFeature, "RicExitApplicationFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -38,25 +38,25 @@ bool RicExitApplicationFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExitApplicationFeature::onActionTriggered(bool isChecked)
+void RicExitApplicationFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
     RiaGuiApplication* app = RiaGuiApplication::instance();
-    if (!app->askUserToSaveModifiedProject()) return;
+    if ( !app->askUserToSaveModifiedProject() ) return;
 
-    if (app->mainPlotWindow())
+    if ( app->mainPlotWindow() )
     {
         app->mainPlotWindow()->saveWinGeoAndDockToolBarLayout();
     }
 
-    if (app->mainWindow())
+    if ( app->mainWindow() )
     {
         app->mainWindow()->saveWinGeoAndDockToolBarLayout();
     }
 
     // Hide all windows first to make sure they get closed properly
-    for (QWidget* topLevelWidget : app->topLevelWidgets())
+    for ( QWidget* topLevelWidget : app->topLevelWidgets() )
     {
         topLevelWidget->hide();
     }
@@ -67,8 +67,9 @@ void RicExitApplicationFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExitApplicationFeature::setupActionLook(QAction* actionToSetup)
+void RicExitApplicationFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("E&xit");
-    actionToSetup->setShortcut(QKeySequence::Quit);
+    actionToSetup->setText( "E&xit" );
+
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence::Quit );
 }

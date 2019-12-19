@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,85 +22,91 @@
 #include "RiaColorTables.h"
 
 #include "RimAnnotationGroupCollection.h"
-#include "RimTextAnnotation.h"
-#include "RimReachCircleAnnotation.h"
-#include "RimPolylinesFromFileAnnotation.h"
-#include "RimUserDefinedPolylinesAnnotation.h"
 #include "RimAnnotationLineAppearance.h"
+#include "RimPolylinesFromFileAnnotation.h"
+#include "RimReachCircleAnnotation.h"
+#include "RimTextAnnotation.h"
+#include "RimUserDefinedPolylinesAnnotation.h"
 
-#include "RimProject.h"
-#include "RimGridView.h"
 #include "RimAnnotationInViewCollection.h"
+#include "RimGridView.h"
+#include "RimProject.h"
 
 #include "QMessageBox"
-#include <QString>
 #include "RiaColorTables.h"
+#include <QString>
 
-
-CAF_PDM_SOURCE_INIT(RimAnnotationCollection, "RimAnnotationCollection");
+CAF_PDM_SOURCE_INIT( RimAnnotationCollection, "RimAnnotationCollection" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimAnnotationCollection::RimAnnotationCollection()
 {
-    CAF_PDM_InitObject("Annotations", ":/Annotations16x16.png", "", "");
+    CAF_PDM_InitObject( "Annotations", ":/Annotations16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_reachCircleAnnotations, "ReachCircleAnnotations", "Reach Circle Annotations", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_userDefinedPolylineAnnotations, "UserDefinedPolylineAnnotations", "User Defined Polyline Annotations", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_polylineFromFileAnnotations, "PolylineFromFileAnnotations", "Polylines From File", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_reachCircleAnnotations, "ReachCircleAnnotations", "Reach Circle Annotations", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_userDefinedPolylineAnnotations,
+                                "UserDefinedPolylineAnnotations",
+                                "User Defined Polyline Annotations",
+                                "",
+                                "",
+                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_polylineFromFileAnnotations,
+                                "PolylineFromFileAnnotations",
+                                "Polylines From File",
+                                "",
+                                "",
+                                "" );
 
-    m_reachCircleAnnotations.uiCapability()->setUiHidden(true);
-    m_userDefinedPolylineAnnotations.uiCapability()->setUiHidden(true);
-    m_polylineFromFileAnnotations.uiCapability()->setUiHidden(true);
+    m_reachCircleAnnotations.uiCapability()->setUiHidden( true );
+    m_userDefinedPolylineAnnotations.uiCapability()->setUiHidden( true );
+    m_polylineFromFileAnnotations.uiCapability()->setUiHidden( true );
 
-    m_reachCircleAnnotations = new RimAnnotationGroupCollection();
+    m_reachCircleAnnotations         = new RimAnnotationGroupCollection();
     m_userDefinedPolylineAnnotations = new RimAnnotationGroupCollection();
-    m_polylineFromFileAnnotations = new RimAnnotationGroupCollection();
+    m_polylineFromFileAnnotations    = new RimAnnotationGroupCollection();
 
-    m_reachCircleAnnotations->uiCapability()->setUiName(RimAnnotationGroupCollection::REACH_CIRCLE_ANNOTATION_UI_NAME);
-    m_userDefinedPolylineAnnotations->uiCapability()->setUiName(RimAnnotationGroupCollection::USED_DEFINED_POLYLINE_ANNOTATION_UI_NAME);
-    m_polylineFromFileAnnotations->uiCapability()->setUiName(RimAnnotationGroupCollection::POLYLINE_FROM_FILE_ANNOTATION_UI_NAME);
+    m_reachCircleAnnotations->uiCapability()->setUiName( RimAnnotationGroupCollection::REACH_CIRCLE_ANNOTATION_UI_NAME );
+    m_userDefinedPolylineAnnotations->uiCapability()->setUiName(
+        RimAnnotationGroupCollection::USED_DEFINED_POLYLINE_ANNOTATION_UI_NAME );
+    m_polylineFromFileAnnotations->uiCapability()->setUiName(
+        RimAnnotationGroupCollection::POLYLINE_FROM_FILE_ANNOTATION_UI_NAME );
 
-    m_reachCircleAnnotations->uiCapability()->setUiIconFromResourceString(":/ReachCircle16x16.png");
-    m_userDefinedPolylineAnnotations->uiCapability()->setUiIconFromResourceString(":/PolylinesFromFile16x16.png");
-    m_polylineFromFileAnnotations->uiCapability()->setUiIconFromResourceString(":/PolylinesFromFile16x16.png");
-
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimAnnotationCollection::~RimAnnotationCollection()
-{
+    m_reachCircleAnnotations->uiCapability()->setUiIconFromResourceString( ":/ReachCircle16x16.png" );
+    m_userDefinedPolylineAnnotations->uiCapability()->setUiIconFromResourceString( ":/PolylinesFromFile16x16.png" );
+    m_polylineFromFileAnnotations->uiCapability()->setUiIconFromResourceString( ":/PolylinesFromFile16x16.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationCollection::addAnnotation(RimReachCircleAnnotation* annotation)
+RimAnnotationCollection::~RimAnnotationCollection() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationCollection::addAnnotation( RimReachCircleAnnotation* annotation )
 {
-    m_reachCircleAnnotations->addAnnotation(annotation);
+    m_reachCircleAnnotations->addAnnotation( annotation );
     updateViewAnnotationCollections();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationCollection::addAnnotation(RimUserDefinedPolylinesAnnotation* annotation)
+void RimAnnotationCollection::addAnnotation( RimUserDefinedPolylinesAnnotation* annotation )
 {
-
-    m_userDefinedPolylineAnnotations->addAnnotation(annotation);
+    m_userDefinedPolylineAnnotations->addAnnotation( annotation );
     updateViewAnnotationCollections();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationCollection::addAnnotation(RimPolylinesFromFileAnnotation* annotation)
+void RimAnnotationCollection::addAnnotation( RimPolylinesFromFileAnnotation* annotation )
 {
-    m_polylineFromFileAnnotations->addAnnotation(annotation);
+    m_polylineFromFileAnnotations->addAnnotation( annotation );
     updateViewAnnotationCollections();
 }
 
@@ -110,9 +116,9 @@ void RimAnnotationCollection::addAnnotation(RimPolylinesFromFileAnnotation* anno
 std::vector<RimReachCircleAnnotation*> RimAnnotationCollection::reachCircleAnnotations() const
 {
     std::vector<RimReachCircleAnnotation*> annotations;
-    for (auto& a : m_reachCircleAnnotations->annotations())
+    for ( auto& a : m_reachCircleAnnotations->annotations() )
     {
-        annotations.push_back(dynamic_cast<RimReachCircleAnnotation*>(a));
+        annotations.push_back( dynamic_cast<RimReachCircleAnnotation*>( a ) );
     }
     return annotations;
 }
@@ -123,75 +129,75 @@ std::vector<RimReachCircleAnnotation*> RimAnnotationCollection::reachCircleAnnot
 std::vector<RimUserDefinedPolylinesAnnotation*> RimAnnotationCollection::userDefinedPolylineAnnotations() const
 {
     std::vector<RimUserDefinedPolylinesAnnotation*> annotations;
-    for (auto& a : m_userDefinedPolylineAnnotations->annotations())
+    for ( auto& a : m_userDefinedPolylineAnnotations->annotations() )
     {
-        annotations.push_back(dynamic_cast<RimUserDefinedPolylinesAnnotation*>(a));
+        annotations.push_back( dynamic_cast<RimUserDefinedPolylinesAnnotation*>( a ) );
     }
     return annotations;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolylinesFromFileAnnotation*> RimAnnotationCollection::polylinesFromFileAnnotations() const
 {
     std::vector<RimPolylinesFromFileAnnotation*> annotations;
-    for (auto& a : m_polylineFromFileAnnotations->annotations())
+    for ( auto& a : m_polylineFromFileAnnotations->annotations() )
     {
-        annotations.push_back(dynamic_cast<RimPolylinesFromFileAnnotation*>(a));
+        annotations.push_back( dynamic_cast<RimPolylinesFromFileAnnotation*>( a ) );
     }
     return annotations;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylinesFromFile(const QStringList& fileNames)
+RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylinesFromFile( const QStringList& fileNames )
 {
-    QStringList newFileNames;
+    QStringList                                  newFileNames;
     std::vector<RimPolylinesFromFileAnnotation*> polyLinesObjsToReload;
 
-    for(const QString& newFileName : fileNames)
+    for ( const QString& newFileName : fileNames )
     {
         bool isFound = false;
-        for(RimPolylinesFromFileAnnotation* polyLinesAnnot: polylinesFromFileAnnotations())
+        for ( RimPolylinesFromFileAnnotation* polyLinesAnnot : polylinesFromFileAnnotations() )
         {
-            if(polyLinesAnnot->fileName() == newFileName)
+            if ( polyLinesAnnot->fileName() == newFileName )
             {
-                polyLinesObjsToReload.push_back(polyLinesAnnot);
+                polyLinesObjsToReload.push_back( polyLinesAnnot );
                 isFound = true;
                 break;
             }
         }
 
-        if(!isFound)
+        if ( !isFound )
         {
-            newFileNames.push_back(newFileName);
+            newFileNames.push_back( newFileName );
         }
     }
 
     size_t newLinesIdx = 0;
-    for(const QString& newFileName :  newFileNames)
+    for ( const QString& newFileName : newFileNames )
     {
         RimPolylinesFromFileAnnotation* newPolyLinesAnnot = new RimPolylinesFromFileAnnotation;
 
-        auto newColor = RiaColorTables::categoryPaletteColors().cycledColor3f(lineBasedAnnotationsCount());
+        auto newColor = RiaColorTables::categoryPaletteColors().cycledColor3f( lineBasedAnnotationsCount() );
 
-        newPolyLinesAnnot->setFileName(newFileName);
+        newPolyLinesAnnot->setFileName( newFileName );
         newPolyLinesAnnot->setDescriptionFromFileName();
-        newPolyLinesAnnot->appearance()->setColor(newColor);
+        newPolyLinesAnnot->appearance()->setColor( newColor );
 
-        m_polylineFromFileAnnotations->addAnnotation(newPolyLinesAnnot);
-        polyLinesObjsToReload.push_back(newPolyLinesAnnot);
+        m_polylineFromFileAnnotations->addAnnotation( newPolyLinesAnnot );
+        polyLinesObjsToReload.push_back( newPolyLinesAnnot );
 
         ++newLinesIdx;
     }
 
     updateViewAnnotationCollections();
 
-    reloadPolylinesFromFile(polyLinesObjsToReload);
+    reloadPolylinesFromFile( polyLinesObjsToReload );
 
-    if (!newFileNames.empty())
+    if ( !newFileNames.empty() )
     {
         return polylinesFromFileAnnotations().back();
     }
@@ -199,7 +205,6 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
     {
         return nullptr;
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,9 +212,8 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
 //--------------------------------------------------------------------------------------------------
 size_t RimAnnotationCollection::lineBasedAnnotationsCount() const
 {
-    return m_reachCircleAnnotations->annotations().size() + 
-        m_userDefinedPolylineAnnotations->annotations().size() + 
-        m_polylineFromFileAnnotations->annotations().size();
+    return m_reachCircleAnnotations->annotations().size() + m_userDefinedPolylineAnnotations->annotations().size() +
+           m_polylineFromFileAnnotations->annotations().size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,9 +223,12 @@ void RimAnnotationCollection::updateViewAnnotationCollections()
 {
     auto views = gridViewsContainingAnnotations();
 
-    for (const auto* view : views)
+    for ( const auto* view : views )
     {
-        view->annotationCollection()->onGlobalCollectionChanged(this);
+        if ( view->annotationCollection() )
+        {
+            view->annotationCollection()->onGlobalCollectionChanged( this );
+        }
     }
 }
 
@@ -240,42 +247,46 @@ void RimAnnotationCollection::onAnnotationDeleted()
 std::vector<caf::PdmObject*> RimAnnotationCollection::allPdmAnnotations() const
 {
     std::vector<caf::PdmObject*> all;
-    all.insert(all.end(), m_textAnnotations->m_annotations.begin(), m_textAnnotations->m_annotations.end());
-    all.insert(all.end(), m_reachCircleAnnotations->m_annotations.begin(), m_reachCircleAnnotations->m_annotations.end());
-    all.insert(all.end(), m_userDefinedPolylineAnnotations->m_annotations.begin(), m_userDefinedPolylineAnnotations->m_annotations.end());
-    all.insert(all.end(), m_polylineFromFileAnnotations->m_annotations.begin(), m_polylineFromFileAnnotations->m_annotations.end());
+    all.insert( all.end(), m_textAnnotations->m_annotations.begin(), m_textAnnotations->m_annotations.end() );
+    all.insert( all.end(), m_reachCircleAnnotations->m_annotations.begin(), m_reachCircleAnnotations->m_annotations.end() );
+    all.insert( all.end(),
+                m_userDefinedPolylineAnnotations->m_annotations.begin(),
+                m_userDefinedPolylineAnnotations->m_annotations.end() );
+    all.insert( all.end(),
+                m_polylineFromFileAnnotations->m_annotations.begin(),
+                m_polylineFromFileAnnotations->m_annotations.end() );
     return all;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationCollection::reloadPolylinesFromFile(const std::vector<RimPolylinesFromFileAnnotation *>& polyLinesObjsToReload)
+void RimAnnotationCollection::reloadPolylinesFromFile(
+    const std::vector<RimPolylinesFromFileAnnotation*>& polyLinesObjsToReload )
 {
     QString totalErrorMessage;
 
-    for ( RimPolylinesFromFileAnnotation* polyLinesAnnot: polyLinesObjsToReload )
+    for ( RimPolylinesFromFileAnnotation* polyLinesAnnot : polyLinesObjsToReload )
     {
         QString errormessage;
 
-        polyLinesAnnot->readPolyLinesFile(&errormessage);
+        polyLinesAnnot->readPolyLinesFile( &errormessage );
         if ( !errormessage.isEmpty() )
         {
-            totalErrorMessage += "\nError in: " + polyLinesAnnot->fileName()
-                + "\n\t" + errormessage;
+            totalErrorMessage += "\nError in: " + polyLinesAnnot->fileName() + "\n\t" + errormessage;
         }
     }
 
     if ( !totalErrorMessage.isEmpty() )
     {
-        QMessageBox::warning(nullptr, "Import Polylines", totalErrorMessage);
+        QMessageBox::warning( nullptr, "Import Polylines", totalErrorMessage );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationCollection::loadDataAndUpdate()
 {
-    reloadPolylinesFromFile(polylinesFromFileAnnotations());
+    reloadPolylinesFromFile( polylinesFromFileAnnotations() );
 }

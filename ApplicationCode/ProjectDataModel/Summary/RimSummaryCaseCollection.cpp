@@ -20,40 +20,42 @@
 
 #include "RiaFieldHandleTools.h"
 
+#include "RifReaderEnsembleStatisticsRft.h"
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimGridSummaryCase.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 
+#include "RifReaderEclipseRft.h"
 #include "RifSummaryReaderInterface.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 
-CAF_PDM_SOURCE_INIT(RimSummaryCaseCollection, "SummaryCaseSubCollection");
+CAF_PDM_SOURCE_INIT( RimSummaryCaseCollection, "SummaryCaseSubCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 double EnsembleParameter::stdDeviation() const
 {
-    double N = static_cast<double>(values.size());
-    if (N > 1 && isNumeric())
+    double N = static_cast<double>( values.size() );
+    if ( N > 1 && isNumeric() )
     {
-        double sumValues = 0.0;
+        double sumValues        = 0.0;
         double sumValuesSquared = 0.0;
-        for (const QVariant& variant : values)
+        for ( const QVariant& variant : values )
         {
             double value = variant.toDouble();
             sumValues += value;
             sumValuesSquared += value * value;
         }
 
-        return std::sqrt((N * sumValuesSquared - sumValues * sumValues) / (N * (N - 1.0)));
+        return std::sqrt( ( N * sumValuesSquared - sumValues * sumValues ) / ( N * ( N - 1.0 ) ) );
     }
     return 0.0;
 }
@@ -66,52 +68,51 @@ double EnsembleParameter::normalizedStdDeviation() const
 {
     const double eps = 1.0e-4;
 
-    double maxAbs = std::max(std::fabs(maxValue), std::fabs(minValue));
-    if (maxAbs < eps)
+    double maxAbs = std::max( std::fabs( maxValue ), std::fabs( minValue ) );
+    if ( maxAbs < eps )
     {
         return 0.0;
     }
 
     double normalisedStdDev = stdDeviation() / maxAbs;
-    if (normalisedStdDev < eps)
+    if ( normalisedStdDev < eps )
     {
         return 0.0;
     }
     return normalisedStdDev;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void EnsembleParameter::sortByBinnedVariation(std::vector<NameParameterPair>& parameterVector)
+void EnsembleParameter::sortByBinnedVariation( std::vector<NameParameterPair>& parameterVector )
 {
     double minStdDev = std::numeric_limits<double>::infinity();
     double maxStdDev = 0.0;
-    for (const auto& paramPair : parameterVector)
+    for ( const auto& paramPair : parameterVector )
     {
-        minStdDev = std::min(minStdDev, paramPair.second.normalizedStdDeviation());
-        maxStdDev = std::max(maxStdDev, paramPair.second.normalizedStdDeviation());
+        minStdDev = std::min( minStdDev, paramPair.second.normalizedStdDeviation() );
+        maxStdDev = std::max( maxStdDev, paramPair.second.normalizedStdDeviation() );
     }
-    if ((maxStdDev - minStdDev) < 1.0e-8)
+    if ( ( maxStdDev - minStdDev ) < 1.0e-8 )
     {
         return;
     }
 
-    double delta = (maxStdDev - minStdDev) / NR_OF_VARIATION_BINS;
+    double delta = ( maxStdDev - minStdDev ) / NR_OF_VARIATION_BINS;
 
     std::vector<double> bins;
-    for (int i = 0; i < NR_OF_VARIATION_BINS - 1; ++i)
+    for ( int i = 0; i < NR_OF_VARIATION_BINS - 1; ++i )
     {
-        bins.push_back(minStdDev + (i + 1) * delta);
+        bins.push_back( minStdDev + ( i + 1 ) * delta );
     }
 
-    for (NameParameterPair& nameParamPair : parameterVector)
+    for ( NameParameterPair& nameParamPair : parameterVector )
     {
         int binNumber = 0;
-        for (double bin : bins)
+        for ( double bin : bins )
         {
-            if (nameParamPair.second.normalizedStdDeviation() >= bin)
+            if ( nameParamPair.second.normalizedStdDeviation() >= bin )
             {
                 binNumber++;
             }
@@ -120,31 +121,56 @@ void EnsembleParameter::sortByBinnedVariation(std::vector<NameParameterPair>& pa
     }
 
     // Sort by variation bin (highest first) but keep name as sorting parameter when parameters have the same variation index
-    std::stable_sort(parameterVector.begin(), parameterVector.end(),
-        [&bins](const NameParameterPair& lhs, const NameParameterPair& rhs)
-        {
-            return lhs.second.variationBin > rhs.second.variationBin;
-        }
-    );
+    std::stable_sort( parameterVector.begin(),
+                      parameterVector.end(),
+                      [&bins]( const NameParameterPair& lhs, const NameParameterPair& rhs ) {
+                          return lhs.second.variationBin > rhs.second.variationBin;
+                      } );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString EnsembleParameter::uiName( const NameParameterPair& paramPair )
+{
+    QString stem = paramPair.first;
+    QString variationString;
+    if ( paramPair.second.isNumeric() )
+    {
+        switch ( paramPair.second.variationBin )
+        {
+            case LOW_VARIATION:
+                variationString = QString( " (Low variation)" );
+            case MEDIUM_VARIATION:
+                break;
+            case HIGH_VARIATION:
+                variationString = QString( " (High variation)" );
+                break;
+        }
+    }
+    return QString( "%1%2" ).arg( stem ).arg( variationString );
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseCollection::RimSummaryCaseCollection()
 {
-    CAF_PDM_InitObject("Summary Case Group", ":/SummaryGroup16x16.png", "", "");
+    CAF_PDM_InitObject( "Summary Case Group", ":/SummaryGroup16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_cases, "SummaryCases", "", "", "", "");
-    m_cases.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "", "", "", "" );
+    m_cases.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField(&m_name, "SummaryCollectionName", QString("Group"), "Name", "", "", "");
+    CAF_PDM_InitField( &m_name, "SummaryCollectionName", QString( "Group" ), "Name", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_nameAndItemCount, "NameCount", "Name", "", "", "");
-    m_nameAndItemCount.registerGetMethod(this, &RimSummaryCaseCollection::nameAndItemCount);
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_nameAndItemCount);
+    CAF_PDM_InitFieldNoDefault( &m_nameAndItemCount, "NameCount", "Name", "", "", "" );
+    m_nameAndItemCount.registerGetMethod( this, &RimSummaryCaseCollection::nameAndItemCount );
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_nameAndItemCount );
 
-    CAF_PDM_InitField(&m_isEnsemble, "IsEnsemble", false, "Is Ensemble", "", "", "");
-    m_isEnsemble.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField( &m_isEnsemble, "IsEnsemble", false, "Is Ensemble", "", "", "" );
+    m_isEnsemble.uiCapability()->setUiHidden( true );
+
+    m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft( this );
 
     m_commonAddressCount = 0;
 }
@@ -161,15 +187,15 @@ RimSummaryCaseCollection::~RimSummaryCaseCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::removeCase(RimSummaryCase* summaryCase)
+void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase )
 {
     size_t caseCountBeforeRemove = m_cases.size();
-    m_cases.removeChildObject(summaryCase);
+    m_cases.removeChildObject( summaryCase );
     updateReferringCurveSets();
 
-    if (m_isEnsemble && m_cases.size() != caseCountBeforeRemove)
+    if ( m_isEnsemble && m_cases.size() != caseCountBeforeRemove )
     {
-        if(dynamic_cast<RimDerivedEnsembleCase*>(summaryCase) == nullptr)
+        if ( dynamic_cast<RimDerivedEnsembleCase*>( summaryCase ) == nullptr )
             calculateEnsembleParametersIntersectionHash();
     }
 }
@@ -177,28 +203,28 @@ void RimSummaryCaseCollection::removeCase(RimSummaryCase* summaryCase)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::addCase(RimSummaryCase* summaryCase, bool updateCurveSets)
+void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase, bool updateCurveSets )
 {
-    m_cases.push_back(summaryCase);
+    m_cases.push_back( summaryCase );
 
     // Update derived ensemble cases (if any)
     std::vector<RimDerivedEnsembleCaseCollection*> referringObjects;
-    objectsWithReferringPtrFieldsOfType(referringObjects);
-    for (auto derEnsemble : referringObjects)
+    objectsWithReferringPtrFieldsOfType( referringObjects );
+    for ( auto derEnsemble : referringObjects )
     {
-        if (!derEnsemble) continue;
+        if ( !derEnsemble ) continue;
 
         derEnsemble->updateDerivedEnsembleCases();
-        if (updateCurveSets) derEnsemble->updateReferringCurveSets();
+        if ( updateCurveSets ) derEnsemble->updateReferringCurveSets();
     }
 
-    if (m_isEnsemble)
+    if ( m_isEnsemble )
     {
-        validateEnsembleCases({ summaryCase });
+        validateEnsembleCases( {summaryCase} );
         calculateEnsembleParametersIntersectionHash();
     }
 
-    if(updateCurveSets) updateReferringCurveSets();
+    if ( updateCurveSets ) updateReferringCurveSets();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,7 +238,7 @@ std::vector<RimSummaryCase*> RimSummaryCaseCollection::allSummaryCases() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::setName(const QString& name)
+void RimSummaryCaseCollection::setName( const QString& name )
 {
     m_name = name;
 }
@@ -226,7 +252,7 @@ QString RimSummaryCaseCollection::name() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCaseCollection::isEnsemble() const
 {
@@ -234,112 +260,156 @@ bool RimSummaryCaseCollection::isEnsemble() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::setAsEnsemble(bool isEnsemble)
+void RimSummaryCaseCollection::setAsEnsemble( bool isEnsemble )
 {
-    if (isEnsemble != m_isEnsemble)
+    if ( isEnsemble != m_isEnsemble )
     {
         m_isEnsemble = isEnsemble;
         updateIcon();
 
-        if (m_isEnsemble && dynamic_cast<RimDerivedEnsembleCaseCollection*>(this) == nullptr)
+        if ( m_isEnsemble && dynamic_cast<RimDerivedEnsembleCaseCollection*>( this ) == nullptr )
         {
-            validateEnsembleCases(allSummaryCases());
+            validateEnsembleCases( allSummaryCases() );
             calculateEnsembleParametersIntersectionHash();
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RimSummaryCaseCollection::ensembleSummaryAddresses() const
 {
-   std::set<RifEclipseSummaryAddress> addresses;
-   size_t maxAddrCount = 0;
-   int maxAddrIndex = -1;
+    std::set<RifEclipseSummaryAddress> addresses;
+    size_t                             maxAddrCount = 0;
+    int                                maxAddrIndex = -1;
 
-   for (int i = 0; i < (int)m_cases.size(); i++)
-   {
-       RimSummaryCase* currCase = m_cases[i];
-       if (!currCase) continue;
+    for ( int i = 0; i < (int)m_cases.size(); i++ )
+    {
+        RimSummaryCase* currCase = m_cases[i];
+        if ( !currCase ) continue;
 
-       RifSummaryReaderInterface* reader = currCase->summaryReader();
-       if (!reader) continue;
+        RifSummaryReaderInterface* reader = currCase->summaryReader();
+        if ( !reader ) continue;
 
-       size_t addrCount = reader->allResultAddresses().size();
-       if (addrCount > maxAddrCount)
-       {
-           maxAddrCount = addrCount;
-           maxAddrIndex = (int)i;
-       }
-   }
+        size_t addrCount = reader->allResultAddresses().size();
+        if ( addrCount > maxAddrCount )
+        {
+            maxAddrCount = addrCount;
+            maxAddrIndex = (int)i;
+        }
+    }
 
-   if (maxAddrIndex >= 0 && m_cases[maxAddrIndex]->summaryReader())
-   {
-       const std::set<RifEclipseSummaryAddress>& addrs = m_cases[maxAddrIndex]->summaryReader()->allResultAddresses();
-       addresses.insert(addrs.begin(), addrs.end());
-   }
-   return addresses;
+    if ( maxAddrIndex >= 0 && m_cases[maxAddrIndex]->summaryReader() )
+    {
+        const std::set<RifEclipseSummaryAddress>& addrs = m_cases[maxAddrIndex]->summaryReader()->allResultAddresses();
+        addresses.insert( addrs.begin(), addrs.end() );
+    }
+    return addresses;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-EnsembleParameter RimSummaryCaseCollection::ensembleParameter(const QString& paramName) const
+std::set<QString> RimSummaryCaseCollection::wellsWithRftData() const
 {
-    if (!isEnsemble() || paramName.isEmpty()) return EnsembleParameter();
+    std::set<QString> allWellNames;
+    for ( RimSummaryCase* summaryCase : m_cases )
+    {
+        RifReaderRftInterface* reader = summaryCase->rftReader();
+        if ( reader )
+        {
+            std::set<QString> wellNames = reader->wellNames();
+            allWellNames.insert( wellNames.begin(), wellNames.end() );
+        }
+    }
+    return allWellNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QDateTime> RimSummaryCaseCollection::rftTimeStepsForWell( const QString& wellName ) const
+{
+    std::set<QDateTime> allTimeSteps;
+    for ( RimSummaryCase* summaryCase : m_cases )
+    {
+        RifReaderRftInterface* reader = summaryCase->rftReader();
+        if ( reader )
+        {
+            std::set<QDateTime> timeStep = reader->availableTimeSteps( wellName );
+            allTimeSteps.insert( timeStep.begin(), timeStep.end() );
+        }
+    }
+    return allTimeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifReaderRftInterface* RimSummaryCaseCollection::rftStatisticsReader()
+{
+    return m_statisticsEclipseRftReader.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+EnsembleParameter RimSummaryCaseCollection::ensembleParameter( const QString& paramName ) const
+{
+    if ( !isEnsemble() || paramName.isEmpty() ) return EnsembleParameter();
 
     EnsembleParameter eParam;
     eParam.name = paramName;
 
     size_t numericValuesCount = 0;
-    size_t textValuesCount = 0;
+    size_t textValuesCount    = 0;
 
     // Prepare case realization params, and check types
-    for (const auto& rimCase : allSummaryCases())
+    for ( const auto& rimCase : allSummaryCases() )
     {
         auto crp = rimCase->caseRealizationParameters();
-        if (!crp) continue;
+        if ( !crp ) continue;
 
-        auto value = crp->parameterValue(paramName);
-        if (!value.isValid()) continue;
+        auto value = crp->parameterValue( paramName );
+        if ( !value.isValid() ) continue;
 
-        if (value.isNumeric())
+        if ( value.isNumeric() )
         {
             double numVal = value.numericValue();
-            eParam.values.push_back(QVariant(numVal));
-            if (numVal < eParam.minValue) eParam.minValue = numVal;
-            if (numVal > eParam.maxValue) eParam.maxValue = numVal;
+            eParam.values.push_back( QVariant( numVal ) );
+            if ( numVal < eParam.minValue ) eParam.minValue = numVal;
+            if ( numVal > eParam.maxValue ) eParam.maxValue = numVal;
             numericValuesCount++;
         }
-        else if (value.isText())
+        else if ( value.isText() )
         {
-            eParam.values.push_back(QVariant(value.textValue()));
+            eParam.values.push_back( QVariant( value.textValue() ) );
             textValuesCount++;
         }
     }
 
-    if (numericValuesCount && !textValuesCount)
+    if ( numericValuesCount && !textValuesCount )
     {
         eParam.type = EnsembleParameter::TYPE_NUMERIC;
     }
-    else if (textValuesCount && !numericValuesCount)
+    else if ( textValuesCount && !numericValuesCount )
     {
         eParam.type = EnsembleParameter::TYPE_TEXT;
     }
-    if (numericValuesCount && textValuesCount)
+    if ( numericValuesCount && textValuesCount )
     {
         // A mix of types have been added to parameter values
-        if (numericValuesCount > textValuesCount)
+        if ( numericValuesCount > textValuesCount )
         {
             // Use numeric type
-            for (auto& val : eParam.values)
+            for ( auto& val : eParam.values )
             {
-                if (val.type() == QVariant::String)
+                if ( val.type() == QVariant::String )
                 {
-                    val.setValue(std::numeric_limits<double>::infinity());
+                    val.setValue( std::numeric_limits<double>::infinity() );
                 }
             }
             eParam.type = EnsembleParameter::TYPE_NUMERIC;
@@ -347,39 +417,39 @@ EnsembleParameter RimSummaryCaseCollection::ensembleParameter(const QString& par
         else
         {
             // Use text type
-            for (auto& val : eParam.values)
+            for ( auto& val : eParam.values )
             {
-                if (val.type() == QVariant::Double)
+                if ( val.type() == QVariant::Double )
                 {
-                    val.setValue(QString::number(val.value<double>()));
+                    val.setValue( QString::number( val.value<double>() ) );
                 }
             }
-            eParam.type = EnsembleParameter::TYPE_TEXT;
+            eParam.type     = EnsembleParameter::TYPE_TEXT;
             eParam.minValue = std::numeric_limits<double>::infinity();
             eParam.maxValue = -std::numeric_limits<double>::infinity();
         }
     }
 
-    if (eParam.isText())
+    if ( eParam.isText() )
     {
         // Remove duplicate texts
         std::set<QString> valueSet;
-        for (const auto& val : eParam.values)
+        for ( const auto& val : eParam.values )
         {
-            valueSet.insert(val.toString());
+            valueSet.insert( val.toString() );
         }
         eParam.values.clear();
-        for (const auto& val : valueSet)
+        for ( const auto& val : valueSet )
         {
-            eParam.values.push_back(QVariant(val));
+            eParam.values.push_back( QVariant( val ) );
         }
     }
-    
+
     return eParam;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::calculateEnsembleParametersIntersectionHash()
 {
@@ -387,47 +457,50 @@ void RimSummaryCaseCollection::calculateEnsembleParametersIntersectionHash()
 
     // Find ensemble parameters intersection
     std::set<QString> paramNames;
-    auto sumCases = allSummaryCases();
+    auto              sumCases = allSummaryCases();
 
-    for (size_t i = 0; i < sumCases.size(); i++)
+    for ( size_t i = 0; i < sumCases.size(); i++ )
     {
         auto crp = sumCases[i]->caseRealizationParameters();
-        if (!crp) continue;
+        if ( !crp ) continue;
 
         auto caseParamNames = crp->parameterNames();
-        
-        if (i == 0) paramNames = caseParamNames;
+
+        if ( i == 0 )
+            paramNames = caseParamNames;
         else
         {
             std::set<QString> newIntersection;
-            std::set_intersection(paramNames.begin(), paramNames.end(),
-                                  caseParamNames.begin(), caseParamNames.end(),
-                                  std::inserter(newIntersection, newIntersection.end()));
+            std::set_intersection( paramNames.begin(),
+                                   paramNames.end(),
+                                   caseParamNames.begin(),
+                                   caseParamNames.end(),
+                                   std::inserter( newIntersection, newIntersection.end() ) );
 
-            if(paramNames.size() != newIntersection.size()) paramNames = newIntersection;
+            if ( paramNames.size() != newIntersection.size() ) paramNames = newIntersection;
         }
     }
 
-    for (auto sumCase : sumCases)
+    for ( auto sumCase : sumCases )
     {
         auto crp = sumCase->caseRealizationParameters();
-        if(crp) crp->calculateParametersHash(paramNames);
+        if ( crp ) crp->calculateParametersHash( paramNames );
     }
 
     // Find common addess count
-    for (const auto sumCase : sumCases)
+    for ( const auto sumCase : sumCases )
     {
         const auto reader = sumCase->summaryReader();
-        if(!reader) continue;
+        if ( !reader ) continue;
         auto currAddrCount = reader->allResultAddresses().size();
 
-        if (m_commonAddressCount == 0)
+        if ( m_commonAddressCount == 0 )
         {
             m_commonAddressCount = currAddrCount;
         }
         else
         {
-            if (currAddrCount != m_commonAddressCount)
+            if ( currAddrCount != m_commonAddressCount )
             {
                 m_commonAddressCount = 0;
                 break;
@@ -437,19 +510,19 @@ void RimSummaryCaseCollection::calculateEnsembleParametersIntersectionHash()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::clearEnsembleParametersHashes()
 {
-    for (auto sumCase : allSummaryCases())
+    for ( auto sumCase : allSummaryCases() )
     {
         auto crp = sumCase->caseRealizationParameters();
-        if (crp) crp->clearParametersHash();
+        if ( crp ) crp->clearParametersHash();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::loadDataAndUpdate()
 {
@@ -457,64 +530,66 @@ void RimSummaryCaseCollection::loadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCaseCollection::validateEnsembleCases(const std::vector<RimSummaryCase*> cases)
+bool RimSummaryCaseCollection::validateEnsembleCases( const std::vector<RimSummaryCase*> cases )
 {
     // Validate ensemble parameters
     try
     {
-        QString errors;
+        QString                errors;
         std::hash<std::string> paramsHasher;
-        size_t paramsHash = 0;
+        size_t                 paramsHash = 0;
 
-        for (RimSummaryCase* rimCase : cases)
+        for ( RimSummaryCase* rimCase : cases )
         {
-            if (rimCase->caseRealizationParameters() == nullptr || rimCase->caseRealizationParameters()->parameters().empty())
+            if ( rimCase->caseRealizationParameters() == nullptr ||
+                 rimCase->caseRealizationParameters()->parameters().empty() )
             {
-                errors.append(QString("The case %1 has no ensemble parameters\n").arg(QFileInfo(rimCase->summaryHeaderFilename()).fileName()));
+                errors.append( QString( "The case %1 has no ensemble parameters\n" )
+                                   .arg( QFileInfo( rimCase->summaryHeaderFilename() ).fileName() ) );
             }
             else
             {
                 QString paramNames;
-                for (std::pair<QString, RigCaseRealizationParameters::Value> paramPair : rimCase->caseRealizationParameters()->parameters())
+                for ( std::pair<QString, RigCaseRealizationParameters::Value> paramPair :
+                      rimCase->caseRealizationParameters()->parameters() )
                 {
-                    paramNames.append(paramPair.first);
+                    paramNames.append( paramPair.first );
                 }
 
-                size_t currHash = paramsHasher(paramNames.toStdString());
-                if (paramsHash == 0)
+                size_t currHash = paramsHasher( paramNames.toStdString() );
+                if ( paramsHash == 0 )
                 {
                     paramsHash = currHash;
                 }
-                else if (paramsHash != currHash)
+                else if ( paramsHash != currHash )
                 {
-                    throw QString("Ensemble parameters differ between cases");
+                    throw QString( "Ensemble parameters differ between cases" );
                 }
             }
         }
 
-
-        if (!errors.isEmpty())
+        if ( !errors.isEmpty() )
         {
-            QString textToDisplay = errors.left(500);
+            QString textToDisplay = errors.left( 500 );
 
-            textToDisplay.prepend("Missing ensemble parameters\n\n");
+            textToDisplay.prepend( "Missing ensemble parameters\n\n" );
 
-            textToDisplay.append("\n");
-            textToDisplay.append("No parameters file (parameters.txt or runspecification.xml) was found in \n");
-            textToDisplay.append("the searched folders. ResInsight searches the home folder of the summary \n");
-            textToDisplay.append("case file and the three folder levels above that.\n");
+            textToDisplay.append( "\n" );
+            textToDisplay.append( "No parameters file (parameters.txt or runspecification.xml) was found in \n" );
+            textToDisplay.append( "the searched folders. ResInsight searches the home folder of the summary \n" );
+            textToDisplay.append( "case file and the three folder levels above that.\n" );
 
             throw textToDisplay;
         }
         return true;
     }
-    catch (QString errorMessage)
+    catch ( QString errorMessage )
     {
         QMessageBox mbox;
-        mbox.setIcon(QMessageBox::Icon::Warning);
-        mbox.setText(errorMessage);
+        mbox.setIcon( QMessageBox::Icon::Warning );
+        mbox.setText( errorMessage );
         mbox.exec();
         return false;
     }
@@ -523,9 +598,21 @@ bool RimSummaryCaseCollection::validateEnsembleCases(const std::vector<RimSummar
 //--------------------------------------------------------------------------------------------------
 /// Sorting operator for sets and maps. Sorts by name.
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCaseCollection::operator<(const RimSummaryCaseCollection& rhs) const
+bool RimSummaryCaseCollection::operator<( const RimSummaryCaseCollection& rhs ) const
 {
     return name() < rhs.name();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaEclipseUnitTools::UnitSystem RimSummaryCaseCollection::unitSystem() const
+{
+    if ( m_cases.empty() )
+    {
+        return RiaEclipseUnitTools::UNITS_UNKNOWN;
+    }
+    return m_cases[0]->unitsSystem();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -537,11 +624,11 @@ caf::PdmFieldHandle* RimSummaryCaseCollection::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::onLoadDataAndUpdate()
 {
-    if (m_isEnsemble) calculateEnsembleParametersIntersectionHash();
+    if ( m_isEnsemble ) calculateEnsembleParametersIntersectionHash();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -551,11 +638,11 @@ void RimSummaryCaseCollection::updateReferringCurveSets()
 {
     // Update curve set referring to this group
     std::vector<RimEnsembleCurveSet*> referringObjects;
-    objectsWithReferringPtrFieldsOfType(referringObjects);
+    objectsWithReferringPtrFieldsOfType( referringObjects );
 
-    for (auto curveSet : referringObjects)
+    for ( auto curveSet : referringObjects )
     {
-        if (curveSet) curveSet->updateAllCurves();
+        if ( curveSet ) curveSet->updateAllCurves();
     }
 }
 
@@ -565,25 +652,27 @@ void RimSummaryCaseCollection::updateReferringCurveSets()
 QString RimSummaryCaseCollection::nameAndItemCount() const
 {
     size_t itemCount = m_cases.size();
-    if (itemCount > 20)
+    if ( itemCount > 20 )
     {
-        return QString("%1 (%2)").arg(m_name()).arg(itemCount);
+        return QString( "%1 (%2)" ).arg( m_name() ).arg( itemCount );
     }
 
     return m_name();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::updateIcon()
 {
-    if (m_isEnsemble) setUiIconFromResourceString(":/SummaryEnsemble16x16.png");
-    else              setUiIconFromResourceString(":/SummaryGroup16x16.png");
+    if ( m_isEnsemble )
+        setUiIconFromResourceString( ":/SummaryEnsemble16x16.png" );
+    else
+        setUiIconFromResourceString( ":/SummaryGroup16x16.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::initAfterRead()
 {
@@ -591,29 +680,31 @@ void RimSummaryCaseCollection::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimSummaryCaseCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                 const QVariant&            oldValue,
+                                                 const QVariant&            newValue )
 {
-    if (changedField == &m_isEnsemble)
+    if ( changedField == &m_isEnsemble )
     {
         updateIcon();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimSummaryCaseCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add(&m_name);
-    uiOrdering.skipRemainingFields(true);
+    uiOrdering.add( &m_name );
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::setNameAsReadOnly()
 {
-    m_name.uiCapability()->setUiReadOnly(true);
+    m_name.uiCapability()->setUiReadOnly( true );
 }

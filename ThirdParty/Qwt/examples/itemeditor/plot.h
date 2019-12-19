@@ -19,7 +19,7 @@ public:
 public Q_SLOTS:
     void exportPlot();
     void setMode( int );
-    
+
 private:
     void populate();
 

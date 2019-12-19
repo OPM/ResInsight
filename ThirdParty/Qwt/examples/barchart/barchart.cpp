@@ -60,7 +60,7 @@ void BarChart::populate()
 
         d_barChartItem->setSymbol( i, symbol );
     }
-    
+
     QVector< QVector<double> > series;
     for ( int i = 0; i < numSamples; i++ )
     {

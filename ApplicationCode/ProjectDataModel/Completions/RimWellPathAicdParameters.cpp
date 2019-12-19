@@ -21,15 +21,14 @@
 #include "RimWellPath.h"
 #include "RimWellPathValve.h"
 
+#include "cafPdmDoubleStringValidator.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmDoubleStringValidator.h"
 
 #include <limits>
 
-CAF_PDM_SOURCE_INIT(RimWellPathAicdParameters, "WellPathAicdParameters");
-
+CAF_PDM_SOURCE_INIT( RimWellPathAicdParameters, "WellPathAicdParameters" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -82,12 +81,12 @@ RimWellPathAicdParameters::~RimWellPathAicdParameters() {}
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathAicdParameters::isValid() const
 {
-    for (const caf::PdmField<QString>* stringField : stringFieldsWithNoValidDefault())
+    for ( const caf::PdmField<QString>* stringField : stringFieldsWithNoValidDefault() )
     {
-        if (stringField->value().isEmpty()) return false;
+        if ( stringField->value().isEmpty() ) return false;
         bool ok = true;
-        stringField->value().toDouble(&ok);
-        if (!ok) return false;
+        stringField->value().toDouble( &ok );
+        if ( !ok ) return false;
     }
     return true;
 }
@@ -106,13 +105,13 @@ bool RimWellPathAicdParameters::isOpen() const
 std::array<double, AICD_NUM_PARAMS> RimWellPathAicdParameters::doubleValues() const
 {
     std::array<double, AICD_NUM_PARAMS> doubleValues;
-    for (int i = 0; i < (int)AICD_NUM_PARAMS; ++i)
+    for ( int i = 0; i < (int)AICD_NUM_PARAMS; ++i )
     {
-        caf::PdmDoubleStringValidator validator(nullptr);
-        QString stringValue = m_aicdParameterFields[(AICDParameters)i].value();
-        bool ok = true;
-        double doubleValue = stringValue.toDouble(&ok);
-        if (ok)
+        caf::PdmDoubleStringValidator validator( nullptr );
+        QString                       stringValue = m_aicdParameterFields[(AICDParameters)i].value();
+        bool                          ok          = true;
+        double                        doubleValue = stringValue.toDouble( &ok );
+        if ( ok )
         {
             doubleValues[i] = doubleValue;
         }
@@ -127,45 +126,45 @@ std::array<double, AICD_NUM_PARAMS> RimWellPathAicdParameters::doubleValues() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathAicdParameters::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimWellPathAicdParameters::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    bool readOnly = uiConfigName == QString("InsideValve");
+    bool readOnly = uiConfigName == QString( "InsideValve" );
 
-    uiOrdering.add(&m_deviceOpen);
-    m_deviceOpen.uiCapability()->setUiReadOnly(readOnly);
-    for (int i = 0; i < (int)AICD_NUM_REQ_PARAMS; ++i)
+    uiOrdering.add( &m_deviceOpen );
+    m_deviceOpen.uiCapability()->setUiReadOnly( readOnly );
+    for ( int i = 0; i < (int)AICD_NUM_REQ_PARAMS; ++i )
     {
-        uiOrdering.add(&m_aicdParameterFields[(AICDParameters) i]);
-        m_aicdParameterFields[(AICDParameters) i].uiCapability()->setUiReadOnly(readOnly);
+        uiOrdering.add( &m_aicdParameterFields[(AICDParameters)i] );
+        m_aicdParameterFields[(AICDParameters)i].uiCapability()->setUiReadOnly( readOnly );
     }
-    
-    caf::PdmUiGroup* additionalGroup = uiOrdering.addNewGroup("Additional Parameters");
-    for (int i = (int)AICD_NUM_REQ_PARAMS; i < (int)AICD_NUM_PARAMS; ++i)
+
+    caf::PdmUiGroup* additionalGroup = uiOrdering.addNewGroup( "Additional Parameters" );
+    for ( int i = (int)AICD_NUM_REQ_PARAMS; i < (int)AICD_NUM_PARAMS; ++i )
     {
-        additionalGroup->add(&m_aicdParameterFields[(AICDParameters) i]);
-        m_aicdParameterFields[(AICDParameters)i].uiCapability()->setUiReadOnly(readOnly);
+        additionalGroup->add( &m_aicdParameterFields[(AICDParameters)i] );
+        m_aicdParameterFields[(AICDParameters)i].uiCapability()->setUiReadOnly( readOnly );
     }
-    additionalGroup->setCollapsedByDefault(true);   
+    additionalGroup->setCollapsedByDefault( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathAicdParameters::defineEditorAttribute(const caf::PdmFieldHandle* field,
-                                                      QString                    uiConfigName,
-                                                      caf::PdmUiEditorAttribute* attribute)
+void RimWellPathAicdParameters::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                       QString                    uiConfigName,
+                                                       caf::PdmUiEditorAttribute* attribute )
 {
-    const caf::PdmField<QString>* stringField = dynamic_cast<const caf::PdmField<QString>*>(field);
-    caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>(attribute);
-    if (stringField && lineEditorAttr)
+    const caf::PdmField<QString>*  stringField    = dynamic_cast<const caf::PdmField<QString>*>( field );
+    caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
+    if ( stringField && lineEditorAttr )
     {
-        if (stringFieldsWithNoValidDefault().count(stringField))
+        if ( stringFieldsWithNoValidDefault().count( stringField ) )
         {
-            lineEditorAttr->validator = new caf::PdmDoubleStringValidator("");
+            lineEditorAttr->validator = new caf::PdmDoubleStringValidator( "" );
         }
         else
         {
-            lineEditorAttr->validator = new caf::PdmDoubleStringValidator("1*");
+            lineEditorAttr->validator = new caf::PdmDoubleStringValidator( "1*" );
         }
     }
 }
@@ -176,9 +175,9 @@ void RimWellPathAicdParameters::defineEditorAttribute(const caf::PdmFieldHandle*
 std::set<const caf::PdmField<QString>*> RimWellPathAicdParameters::stringFieldsWithNoValidDefault() const
 {
     std::set<const caf::PdmField<QString>*> fields;
-    for (int i = 0; i < (int)AICD_NUM_REQ_PARAMS; ++i)
+    for ( int i = 0; i < (int)AICD_NUM_REQ_PARAMS; ++i )
     {
-        fields.insert(&m_aicdParameterFields[(AICDParameters) i]);
+        fields.insert( &m_aicdParameterFields[(AICDParameters)i] );
     }
     return fields;
 }
@@ -188,15 +187,19 @@ std::set<const caf::PdmField<QString>*> RimWellPathAicdParameters::stringFieldsW
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAicdParameters::setUnitLabels()
 {
-    if (isMetric())
+    if ( isMetric() )
     {
-        m_aicdParameterFields[AICD_DENSITY_CALIB_FLUID].uiCapability()->setUiName("Calibration Fluid Density (kg / m ^ 3)");
-        m_aicdParameterFields[AICD_MAX_FLOW_RATE].uiCapability()->setUiName("Max Flow Rate for AICD Device(m ^ 3 / day)");
+        m_aicdParameterFields[AICD_DENSITY_CALIB_FLUID].uiCapability()->setUiName(
+            "Calibration Fluid Density (kg / m ^ 3)" );
+        m_aicdParameterFields[AICD_MAX_FLOW_RATE].uiCapability()->setUiName(
+            "Max Flow Rate for AICD Device(m ^ 3 / day)" );
     }
     else
     {
-        m_aicdParameterFields[AICD_DENSITY_CALIB_FLUID].uiCapability()->setUiName("Calibration Fluid Density (lb / ft ^3)");
-        m_aicdParameterFields[AICD_MAX_FLOW_RATE].uiCapability()->setUiName("Max Flow Rate for AICD Device(ft ^ 3 / day)");
+        m_aicdParameterFields[AICD_DENSITY_CALIB_FLUID].uiCapability()->setUiName(
+            "Calibration Fluid Density (lb / ft ^3)" );
+        m_aicdParameterFields[AICD_MAX_FLOW_RATE].uiCapability()->setUiName(
+            "Max Flow Rate for AICD Device(ft ^ 3 / day)" );
     }
 }
 
@@ -207,10 +210,10 @@ bool RimWellPathAicdParameters::isMetric() const
 {
     bool         metric = false;
     RimWellPath* wellPath;
-    firstAncestorOrThisOfType(wellPath);
-    if (wellPath)
+    firstAncestorOrThisOfType( wellPath );
+    if ( wellPath )
     {
-        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+        if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC )
         {
             metric = true;
         }

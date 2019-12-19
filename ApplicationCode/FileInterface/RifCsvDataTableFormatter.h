@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RifEclipseDataTableFormatter.h"
+#include "RifTextDataTableFormatter.h"
 
 //==================================================================================================
 //
@@ -28,13 +28,13 @@
 class RifCsvDataTableFormatter
 {
 public:
-    RifCsvDataTableFormatter(QTextStream& out, const QString fieldSeparator = ",");
+    RifCsvDataTableFormatter( QTextStream& out, const QString fieldSeparator = "," );
 
-    RifCsvDataTableFormatter& header(const std::vector<RifEclipseOutputTableColumn>& tableHeader);
-    RifCsvDataTableFormatter& add(const QString& str);
-    RifCsvDataTableFormatter& add(double num);
-    RifCsvDataTableFormatter& add(int num);
-    RifCsvDataTableFormatter& add(size_t num);
+    RifCsvDataTableFormatter& header( const std::vector<RifTextDataTableColumn>& tableHeader );
+    RifCsvDataTableFormatter& add( const QString& str );
+    RifCsvDataTableFormatter& add( double num );
+    RifCsvDataTableFormatter& add( int num );
+    RifCsvDataTableFormatter& add( size_t num );
     void                      rowCompleted();
     void                      tableCompleted();
 
@@ -42,9 +42,9 @@ private:
     void outputBuffer();
 
 private:
-    QTextStream&                             m_out;
-    std::vector<RifEclipseOutputTableColumn> m_columnHeaders;
-    std::vector<RifEclipseOutputTableLine>   m_buffer;
-    std::vector<QString>                     m_lineBuffer;
-    QString                                  m_fieldSeparator;
+    QTextStream&                        m_out;
+    std::vector<RifTextDataTableColumn> m_columnHeaders;
+    std::vector<RifTextDataTableLine>   m_buffer;
+    std::vector<QString>                m_lineBuffer;
+    QString                             m_fieldSeparator;
 };

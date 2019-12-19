@@ -48,7 +48,7 @@ public:
     RicfCommandResponse execute() override;
 
 private:
-    void buildExportSettings(const QString& exportFolder, RicSaveEclipseInputVisibleCellsUi* exportSettings);
+    void buildExportSettings( const QString& exportFolder, RicSaveEclipseInputVisibleCellsUi* exportSettings );
 
     caf::PdmField<int>                         m_caseId;
     caf::PdmField<int>                         m_viewId;

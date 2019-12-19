@@ -20,21 +20,32 @@
 
 #include "RiaGuiApplication.h"
 
+#include "RimViewWindow.h"
+
+#include "Rim3dView.h"
+#include "RimCase.h"
+#include "RimProject.h"
+
+#include "RiuInterfaceToViewWindow.h"
 #include "RiuMainWindow.h"
+#include "RiuMainWindowBase.h"
 #include "RiuPlotMainWindow.h"
+#include "RiuViewer.h"
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeView.h"
 
+#include <QMainWindow>
+#include <QMdiSubWindow>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowTools::collapseSiblings(const caf::PdmUiItem* sourceUiItem)
+void RiuMainWindowTools::collapseSiblings( const caf::PdmUiItem* sourceUiItem )
 {
-    if (!sourceUiItem) return;
+    if ( !sourceUiItem ) return;
 
-    if (!RiaGuiApplication::isRunning()) return;
+    if ( !RiaGuiApplication::isRunning() ) return;
 
     {
         caf::PdmUiTreeView*     sourceTreeView         = nullptr;
@@ -43,42 +54,114 @@ void RiuMainWindowTools::collapseSiblings(const caf::PdmUiItem* sourceUiItem)
         {
             QModelIndex modIndex;
 
-            if (RiuMainWindow::instance())
+            if ( RiuMainWindow::instance() )
             {
-                modIndex = RiuMainWindow::instance()->projectTreeView()->findModelIndex(sourceUiItem);
+                modIndex = RiuMainWindow::instance()->projectTreeView()->findModelIndex( sourceUiItem );
             }
 
-            if (modIndex.isValid())
+            if ( modIndex.isValid() )
             {
                 sourceTreeView = RiuMainWindow::instance()->projectTreeView();
             }
             else
             {
                 RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
-                if (mpw)
+                if ( mpw )
                 {
-                    modIndex = mpw->projectTreeView()->findModelIndex(sourceUiItem);
-                    if (modIndex.isValid())
+                    modIndex = mpw->projectTreeView()->findModelIndex( sourceUiItem );
+                    if ( modIndex.isValid() )
                     {
                         sourceTreeView = mpw->projectTreeView();
                     }
                 }
             }
 
-            if (!modIndex.isValid()) return;
+            if ( !modIndex.isValid() ) return;
 
-            sourceTreeOrderingItem = static_cast<caf::PdmUiTreeOrdering*>(modIndex.internalPointer());
+            sourceTreeOrderingItem = static_cast<caf::PdmUiTreeOrdering*>( modIndex.internalPointer() );
         }
 
-        if (sourceTreeView && sourceTreeOrderingItem && sourceTreeOrderingItem->parent())
+        if ( sourceTreeView && sourceTreeOrderingItem && sourceTreeOrderingItem->parent() )
         {
-            for (int i = 0; i < sourceTreeOrderingItem->parent()->childCount(); i++)
+            for ( int i = 0; i < sourceTreeOrderingItem->parent()->childCount(); i++ )
             {
-                auto siblingTreeOrderingItem = sourceTreeOrderingItem->parent()->child(i);
-                if (siblingTreeOrderingItem != sourceTreeOrderingItem)
+                auto siblingTreeOrderingItem = sourceTreeOrderingItem->parent()->child( i );
+                if ( siblingTreeOrderingItem != sourceTreeOrderingItem )
                 {
-                    sourceTreeView->setExpanded(siblingTreeOrderingItem->activeItem(), false);
+                    sourceTreeView->setExpanded( siblingTreeOrderingItem->activeItem(), false );
                 }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowTools::setWindowSizeOnWidgetsInMdiWindows( RiuMainWindowBase* mainWindow, int width, int height )
+{
+    if ( !mainWindow ) return;
+
+    auto widgets = mainWindow->findChildren<QMdiSubWindow*>();
+    for ( auto w : widgets )
+    {
+        if ( !w ) continue;
+
+        w->showNormal();
+    }
+
+    // Process events before resize to make sure the widget is ready for resize
+    // If not, a maximized window with not get the prescribed window size
+    QApplication::processEvents();
+
+    for ( auto w : widgets )
+    {
+        if ( !w ) continue;
+        auto viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( w->widget() );
+
+        if ( viewWindow && viewWindow->viewWidget() )
+        {
+            QWidget* viewWidget = viewWindow->viewWidget();
+
+            viewWidget->resize( width, height );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowTools::setFixedWindowSizeFor3dViews( RiuMainWindowBase* mainWindow, int width, int height )
+{
+    if ( !mainWindow ) return;
+
+    RimProject* proj = RiaApplication::instance()->project();
+    if ( !proj ) return;
+
+    std::vector<RimCase*> projectCases;
+    proj->allCases( projectCases );
+
+    for ( RimCase* cas : projectCases )
+    {
+        if ( !cas ) continue;
+
+        std::vector<Rim3dView*> views = cas->views();
+
+        for ( Rim3dView* riv : views )
+        {
+            if ( riv && riv->viewer() )
+            {
+                // Make sure all views are maximized for snapshotting
+                QMdiSubWindow* subWnd = mainWindow->findMdiSubWindow( riv->viewer()->layoutWidget() );
+                if ( subWnd )
+                {
+                    subWnd->showMaximized();
+                }
+
+                // This size is set to match the regression test reference images
+                QSize windowSize( width, height );
+
+                riv->viewer()->setFixedSize( windowSize );
             }
         }
     }

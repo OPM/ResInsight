@@ -29,24 +29,24 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST(RigEclipseWellLogExtractor, ShortWellPathInsideOneCell)
+TEST( RigEclipseWellLogExtractor, ShortWellPathInsideOneCell )
 {
-    cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData(nullptr);
+    cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData( nullptr );
 
     {
         cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
 
-        mockFileInterface->setWorldCoordinates(cvf::Vec3d(10, 10, 10), cvf::Vec3d(20, 20, 20));
-        mockFileInterface->setGridPointDimensions(cvf::Vec3st(4, 5, 6));
-        mockFileInterface->enableWellData(false);
+        mockFileInterface->setWorldCoordinates( cvf::Vec3d( 10, 10, 10 ), cvf::Vec3d( 20, 20, 20 ) );
+        mockFileInterface->setGridPointDimensions( cvf::Vec3st( 4, 5, 6 ) );
+        mockFileInterface->enableWellData( false );
 
-        mockFileInterface->open("", reservoir.p());
+        mockFileInterface->open( "", reservoir.p() );
 
         reservoir->mainGrid()->computeCachedData();
     }
 
     auto cells = reservoir->mainGrid()->globalCellArray();
-    EXPECT_FALSE(cells.empty());
+    EXPECT_FALSE( cells.empty() );
 
     auto firstCell = reservoir->mainGrid()->globalCellArray()[0];
     auto center    = firstCell.center();
@@ -58,22 +58,22 @@ TEST(RigEclipseWellLogExtractor, ShortWellPathInsideOneCell)
 
         {
             double offset = 0.0;
-            wellPathPoints.push_back(center);
-            mdValues.push_back(offset);
+            wellPathPoints.push_back( center );
+            mdValues.push_back( offset );
         }
 
         {
             double offset = 0.1;
-            wellPathPoints.push_back(center + cvf::Vec3d(0, 0, offset));
-            mdValues.push_back(offset);
+            wellPathPoints.push_back( center + cvf::Vec3d( 0, 0, offset ) );
+            mdValues.push_back( offset );
         }
 
         wellPathGeometry->m_wellPathPoints = wellPathPoints;
         wellPathGeometry->m_measuredDepths = mdValues;
     }
 
-    cvf::ref<RigEclipseWellLogExtractor> e = new RigEclipseWellLogExtractor(reservoir.p(), wellPathGeometry.p(), "");
+    cvf::ref<RigEclipseWellLogExtractor> e = new RigEclipseWellLogExtractor( reservoir.p(), wellPathGeometry.p(), "" );
 
     auto intersections = e->cellIntersectionInfosAlongWellPath();
-    EXPECT_FALSE(intersections.empty());
+    EXPECT_FALSE( intersections.empty() );
 }

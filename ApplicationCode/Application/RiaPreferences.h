@@ -4,17 +4,17 @@
 //  Copyright (C) 2011-2018 Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,9 +22,9 @@
 #pragma once
 
 #include "RiaApplication.h"
-#include "RiaGuiApplication.h"
 #include "RiaDefines.h"
 #include "RiaFontCache.h"
+#include "RiaGuiApplication.h"
 #include "RiaQDateTimeTools.h"
 
 #include "cafAppEnum.h"
@@ -33,20 +33,30 @@
 #include "cafPdmObject.h"
 
 // Include to make Pdm work for cvf::Color
-#include "cafPdmFieldCvfColor.h"    
+#include "cafPdmFieldCvfColor.h"
+
+#include <QStringList>
 
 #include <map>
 
 class RifReaderSettings;
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 class RiaPreferences : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum SummaryRestartFilesImportMode { IMPORT, NOT_IMPORT, SEPARATE_CASES };
+    enum SummaryRestartFilesImportMode
+    {
+        IMPORT,
+        NOT_IMPORT,
+        SEPARATE_CASES
+    };
     typedef caf::AppEnum<SummaryRestartFilesImportMode> SummaryRestartFilesImportModeType;
-    typedef RiaFontCache::FontSizeType FontSizeType;
+    typedef RiaFontCache::FontSizeType                  FontSizeType;
 
     enum SummaryHistoryCurveStyleMode
     {
@@ -56,42 +66,55 @@ public:
     };
     typedef caf::AppEnum<SummaryHistoryCurveStyleMode> SummaryHistoryCurveStyleModeType;
 
-    RiaPreferences(void);
-    ~RiaPreferences(void) override;
+    RiaPreferences( void );
+    ~RiaPreferences( void ) override;
 
     QStringList tabNames();
 
     const RifReaderSettings* readerSettings() const;
 
     // Debug settings
-    bool appendClassNameToUiText() const;
-    bool appendFieldKeywordToToolTipText() const;
-    bool showTestToolbar() const;
-    bool includeFractureDebugInfoFile() const;
-    bool showProjectChangedDialog() const;
+    bool    appendClassNameToUiText() const;
+    bool    appendFieldKeywordToToolTipText() const;
+    bool    showViewIdInProjectTree() const;
+    bool    showTestToolbar() const;
+    bool    includeFractureDebugInfoFile() const;
+    bool    showProjectChangedDialog() const;
     QString holoLensExportFolder() const;
+    bool    useShaders() const;
+    bool    show3dInformation() const;
 
     const QString& dateFormat() const;
     const QString& timeFormat() const;
 
+    bool        searchPlotTemplateFoldersRecursively() const;
+    QStringList plotTemplateFolders() const;
+    void        appendPlotTemplateFolders( const QString& folder );
+    QString     defaultPlotTemplateAbsolutePath() const;
+    void        setDefaultPlotTemplatePath( const QString& templatePath );
+    bool        showSummaryTimeAsLongString() const;
+    bool        useMultipleThreadsWhenReadingSummaryData() const;
+
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
+    void writePreferencesToApplicationStore();
+
 public: // Pdm Fields
-    caf::PdmField<caf::AppEnum< RiaGuiApplication::RINavigationPolicy > > navigationPolicy;
+    caf::PdmField<caf::AppEnum<RiaGuiApplication::RINavigationPolicy>> navigationPolicy;
 
-    caf::PdmField<bool>     enableGrpcServer;
-    caf::PdmField<int>      defaultGrpcPortNumber;
+    caf::PdmField<bool> enableGrpcServer;
+    caf::PdmField<int>  defaultGrpcPortNumber;
 
-    caf::PdmField<QString>  scriptDirectories;
-    caf::PdmField<QString>  scriptEditorExecutable;
+    caf::PdmField<QString> scriptDirectories;
+    caf::PdmField<QString> scriptEditorExecutable;
 
-    caf::PdmField<QString>  octaveExecutable;
-    caf::PdmField<bool>     octaveShowHeaderInfoWhenExecutingScripts;
-    
-    caf::PdmField<QString>  pythonExecutable;
-    caf::PdmField<bool>     showPythonDebugInfo;
+    caf::PdmField<QString> octaveExecutable;
+    caf::PdmField<bool>    octaveShowHeaderInfoWhenExecutingScripts;
 
-    caf::PdmField<QString>  ssihubAddress;
+    caf::PdmField<QString> pythonExecutable;
+    caf::PdmField<bool>    showPythonDebugInfo;
+
+    caf::PdmField<QString> ssihubAddress;
 
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>> defaultMeshModeType;
 
@@ -106,33 +129,34 @@ public: // Pdm Fields
     caf::PdmField<FontSizeType> defaultWellLabelFontSize;
     caf::PdmField<FontSizeType> defaultAnnotationFontSize;
     caf::PdmField<FontSizeType> defaultPlotFontSize;
-    
-    caf::PdmField<bool>     showLegendBackground;
 
-    caf::PdmField<bool>     useShaders;
-    caf::PdmField<bool>     showHud;    
+    caf::PdmField<bool> showLegendBackground;
 
-    caf::PdmField<QString>  lastUsedProjectFileName;
+    caf::PdmField<QString> lastUsedProjectFileName;
 
-    caf::PdmField<bool>     autocomputeDepthRelatedProperties;
-    caf::PdmField<bool>     loadAndShowSoil;
+    caf::PdmField<bool> autocomputeDepthRelatedProperties;
+    caf::PdmField<bool> loadAndShowSoil;
 
-    caf::PdmField<bool>                                 summaryRestartFilesShowImportDialog;
-    caf::PdmField<SummaryRestartFilesImportModeType>    summaryImportMode;
-    caf::PdmField<SummaryRestartFilesImportModeType>    gridImportMode;
-    caf::PdmField<SummaryRestartFilesImportModeType>    summaryEnsembleImportMode;
+    caf::PdmField<bool>                              summaryRestartFilesShowImportDialog;
+    caf::PdmField<SummaryRestartFilesImportModeType> summaryImportMode;
+    caf::PdmField<SummaryRestartFilesImportModeType> gridImportMode;
+    caf::PdmField<SummaryRestartFilesImportModeType> summaryEnsembleImportMode;
 
     caf::PdmField<QString>                          defaultSummaryCurvesTextFilter;
     caf::PdmField<SummaryHistoryCurveStyleModeType> defaultSummaryHistoryCurveStyle;
 
-    caf::PdmField<bool>     holoLensDisableCertificateVerification;
-    caf::PdmField<QString>  csvTextExportFieldSeparator;
+    caf::PdmField<bool>    holoLensDisableCertificateVerification;
+    caf::PdmField<QString> csvTextExportFieldSeparator;
 
 protected:
-    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
-    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    void                            initAfterRead() override;
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+    void                          initAfterRead() override;
+
 private:
     static QString tabNameGeneral();
     static QString tabNameEclipse();
@@ -143,15 +167,26 @@ private:
 
 private:
     caf::PdmChildField<RifReaderSettings*> m_readerSettings;
-    caf::PdmField<bool>                    m_appendClassNameToUiText;
-    caf::PdmField<bool>                    m_appendFieldKeywordToToolTipText;
 
-    caf::PdmField<bool>                    m_showProjectChangedDialog;
+    caf::PdmField<bool> m_appendClassNameToUiText;
+    caf::PdmField<bool> m_appendFieldKeywordToToolTipText;
+    caf::PdmField<bool> m_showViewIdInProjectTree;
+    caf::PdmField<bool> m_useShaders;
+    caf::PdmField<bool> m_showHud;
 
-    caf::PdmField<bool>                    m_showTestToolbar;
-    caf::PdmField<bool>                    m_includeFractureDebugInfoFile;
-    caf::PdmField<QString>                 m_holoLensExportFolder;
-    caf::PdmField<QString>                 m_dateFormat;
-    caf::PdmField<QString>                 m_timeFormat;
-    QStringList                            m_tabNames;
+    caf::PdmField<bool> m_showProjectChangedDialog;
+
+    caf::PdmField<bool>    m_showTestToolbar;
+    caf::PdmField<bool>    m_includeFractureDebugInfoFile;
+    caf::PdmField<QString> m_holoLensExportFolder;
+    caf::PdmField<QString> m_dateFormat;
+    caf::PdmField<QString> m_timeFormat;
+    caf::PdmField<bool>    m_showSummaryTimeAsLongString;
+    caf::PdmField<bool>    m_useMultipleThreadsWhenLoadingSummaryData;
+
+    caf::PdmField<QString>       m_plotTemplateFolders;
+    caf::PdmField<bool>          m_searchPlotTemplateFoldersRecursively;
+    caf::PdmField<caf::FilePath> m_defaultPlotTemplate;
+
+    QStringList m_tabNames;
 };

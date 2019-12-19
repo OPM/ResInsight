@@ -1,0 +1,16 @@
+@startuml
+
+RimViewLinkerCollection --* "1" RimViewLinker
+RimViewLinker --* "n" RimViewController
+RimViewLinker "masterView" --->  RimGridView
+
+RimViewController "managedView" --->  RimGridView
+
+Rim3dView <|-- RimGridView
+
+
+RimViewLinker .>  RimViewManipulator
+Rim3dView  -* RiuViewer
+RimViewManipulator ...> RiuViewer
+
+@enduml

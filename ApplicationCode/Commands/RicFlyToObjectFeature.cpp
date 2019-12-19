@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -36,15 +36,14 @@
 #include <algorithm>
 #include <cmath>
 
-CAF_CMD_SOURCE_INIT(RicFlyToObjectFeature, "RicFlyToObjectFeature");
-
+CAF_CMD_SOURCE_INIT( RicFlyToObjectFeature, "RicFlyToObjectFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicFlyToObjectFeature::isCommandEnabled()
 {
-    if (RicFlyToObjectFeature::boundingBoxForSelectedObjects().isValid())
+    if ( RicFlyToObjectFeature::boundingBoxForSelectedObjects().isValid() )
     {
         return true;
     }
@@ -55,69 +54,68 @@ bool RicFlyToObjectFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicFlyToObjectFeature::onActionTriggered(bool isChecked)
+void RicFlyToObjectFeature::onActionTriggered( bool isChecked )
 {
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-    if (!activeView) return;
+    if ( !activeView ) return;
 
     RiuViewer* destinationViewer = activeView->viewer();
-    if (!destinationViewer) return;
+    if ( !destinationViewer ) return;
 
     cvf::BoundingBox bb = RicFlyToObjectFeature::boundingBoxForSelectedObjects();
-    CVF_ASSERT(bb.isValid());
+    CVF_ASSERT( bb.isValid() );
 
     cvf::ref<caf::DisplayCoordTransform> transForm = activeView->displayCoordTransform();
 
-    cvf::Vec3d centerInDisplayCoords = transForm->transformToDisplayCoord(bb.center());
+    cvf::Vec3d centerInDisplayCoords = transForm->transformToDisplayCoord( bb.center() );
 
     cvf::Vec3d directionNormalToLargesExtent = cvf::Vec3d::X_AXIS;
-    double largesExtent = fabs(bb.extent().y());
-    if (fabs(bb.extent().x()) > largesExtent)
+    double     largesExtent                  = fabs( bb.extent().y() );
+    if ( fabs( bb.extent().x() ) > largesExtent )
     {
-        largesExtent = fabs(bb.extent().x());
+        largesExtent                  = fabs( bb.extent().x() );
         directionNormalToLargesExtent = cvf::Vec3d::Y_AXIS;
     }
 
-    cvf::Vec3d cameraEye = centerInDisplayCoords + directionNormalToLargesExtent * std::max(largesExtent, 30.0);
+    cvf::Vec3d cameraEye = centerInDisplayCoords + directionNormalToLargesExtent * std::max( largesExtent, 30.0 );
     cvf::Vec3d cameraViewRefPoint = centerInDisplayCoords;
-    cvf::Vec3d cameraUp = cvf::Vec3d::Z_AXIS;
+    cvf::Vec3d cameraUp           = cvf::Vec3d::Z_AXIS;
 
-    destinationViewer->mainCamera()->setFromLookAt(cameraEye, cameraViewRefPoint, cameraUp);
+    destinationViewer->mainCamera()->setFromLookAt( cameraEye, cameraViewRefPoint, cameraUp );
 
-    destinationViewer->setPointOfInterest(cameraViewRefPoint);
-    
-    activeView->updateCurrentTimeStepAndRedraw();
+    destinationViewer->setPointOfInterest( cameraViewRefPoint );
+
+    activeView->updateDisplayModelForCurrentTimeStepAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicFlyToObjectFeature::setupActionLook(QAction* actionToSetup)
+void RicFlyToObjectFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Fly to Object");
-    //actionToSetup->setIcon(QIcon(":/3DView16x16.png"));
-}    
+    actionToSetup->setText( "Fly to Object" );
+    // actionToSetup->setIcon(QIcon(":/3DView16x16.png"));
+}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RicFlyToObjectFeature::boundingBoxForSelectedObjects()
 {
     cvf::BoundingBox bb;
 
     std::vector<Rim3dPropertiesInterface*> objects;
-    caf::SelectionManager::instance()->objectsByType(&objects);
+    caf::SelectionManager::instance()->objectsByType( &objects );
 
-    for (auto obj : objects)
+    for ( auto obj : objects )
     {
-        if (obj)
+        if ( obj )
         {
-            bb.add(obj->boundingBoxInDomainCoords());
+            bb.add( obj->boundingBoxInDomainCoords() );
         }
     }
 
     return bb;
 }
-

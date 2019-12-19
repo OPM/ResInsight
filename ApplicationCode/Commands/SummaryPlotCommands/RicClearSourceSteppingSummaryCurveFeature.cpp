@@ -27,10 +27,10 @@
 
 #include "cafSelectionManager.h"
 
-#include <QAction>
 #include "RimEnsembleCurveSetCollection.h"
+#include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicClearSourceSteppingSummaryCurveFeature, "RicClearSourceSteppingSummaryCurveFeature");
+CAF_CMD_SOURCE_INIT( RicClearSourceSteppingSummaryCurveFeature, "RicClearSourceSteppingSummaryCurveFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -38,18 +38,18 @@ CAF_CMD_SOURCE_INIT(RicClearSourceSteppingSummaryCurveFeature, "RicClearSourceSt
 bool RicClearSourceSteppingSummaryCurveFeature::isCommandEnabled()
 {
     std::vector<caf::PdmObject*> objects;
-    caf::SelectionManager::instance()->objectsByType(&objects);
+    caf::SelectionManager::instance()->objectsByType( &objects );
 
-    if (objects.size() == 1)
+    if ( objects.size() == 1 )
     {
         auto c = objects[0];
 
         RimSummaryPlot* summaryPlot = nullptr;
-        c->firstAncestorOrThisOfTypeAsserted(summaryPlot);
-        if (summaryPlot)
+        c->firstAncestorOrThisOfTypeAsserted( summaryPlot );
+        if ( summaryPlot )
         {
-            if (summaryPlot->ensembleCurveSetCollection()->curveSetForSourceStepping()
-                || summaryPlot->summaryCurveCollection()->curveForSourceStepping())
+            if ( summaryPlot->ensembleCurveSetCollection()->curveSetForSourceStepping() ||
+                 summaryPlot->summaryCurveCollection()->curveForSourceStepping() )
             {
                 return true;
             }
@@ -62,20 +62,20 @@ bool RicClearSourceSteppingSummaryCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicClearSourceSteppingSummaryCurveFeature::onActionTriggered(bool isChecked)
+void RicClearSourceSteppingSummaryCurveFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimSummaryCurve*> summaryCurves;
-    caf::SelectionManager::instance()->objectsByType(&summaryCurves);
+    caf::SelectionManager::instance()->objectsByType( &summaryCurves );
 
-    if (summaryCurves.size() == 1)
+    if ( summaryCurves.size() == 1 )
     {
         auto c = summaryCurves[0];
 
         RimSummaryPlot* summaryPlot = nullptr;
-        c->firstAncestorOrThisOfType(summaryPlot);
-        if (summaryPlot)
+        c->firstAncestorOrThisOfType( summaryPlot );
+        if ( summaryPlot )
         {
-            RicClearSourceSteppingEnsembleCurveSetFeature::clearAllSourceSteppingInSummaryPlot(summaryPlot);
+            RicClearSourceSteppingEnsembleCurveSetFeature::clearAllSourceSteppingInSummaryPlot( summaryPlot );
         }
     }
 }
@@ -83,8 +83,8 @@ void RicClearSourceSteppingSummaryCurveFeature::onActionTriggered(bool isChecked
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicClearSourceSteppingSummaryCurveFeature::setupActionLook(QAction* actionToSetup)
+void RicClearSourceSteppingSummaryCurveFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Clear Source Stepping Curve");
-    actionToSetup->setIcon(QIcon(":/StepUpDown16x16.png"));
+    actionToSetup->setText( "Clear Source Stepping Curve" );
+    actionToSetup->setIcon( QIcon( ":/StepUpDown16x16.png" ) );
 }

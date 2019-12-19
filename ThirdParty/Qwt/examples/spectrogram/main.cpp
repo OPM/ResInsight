@@ -53,7 +53,7 @@ MainWindow::MainWindow( QWidget *parent ):
     QSlider *slider = new QSlider( Qt::Horizontal );
     slider->setRange( 0, 255 );
     slider->setValue( 255 );
-    connect( slider, SIGNAL( valueChanged( int ) ), 
+    connect( slider, SIGNAL( valueChanged( int ) ),
         d_plot, SLOT( setAlpha( int ) ) );
 
     toolBar->addWidget( slider );

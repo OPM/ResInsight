@@ -34,10 +34,11 @@ class QString;
 //==================================================================================================
 namespace RiaExtractionTools
 {
-RigEclipseWellLogExtractor* wellLogExtractorEclipseCase(RimWellPath* wellPath, RimEclipseCase* eclipseCase);
-RigGeoMechWellLogExtractor* wellLogExtractorGeoMechCase(RimWellPath* wellPath, RimGeoMechCase* geomCase);
+RigEclipseWellLogExtractor* wellLogExtractorEclipseCase( RimWellPath* wellPath, RimEclipseCase* eclipseCase );
+RigGeoMechWellLogExtractor* wellLogExtractorGeoMechCase( RimWellPath* wellPath, RimGeoMechCase* geomCase );
 
-RigEclipseWellLogExtractor* findOrCreateSimWellExtractor(const RimSimWellInView* simWell, const RigWellPath* wellPathGeom);
+RigEclipseWellLogExtractor* findOrCreateSimWellExtractor( const RimSimWellInView* simWell,
+                                                          const RigWellPath*      wellPathGeom );
 
 RimWellLogPlotCollection* wellLogPlotCollection();
 

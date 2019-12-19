@@ -36,10 +36,10 @@ public:
     };
 
 public:
-    explicit RiaGitDiff(const QString& pathToGitTool);
+    explicit RiaGitDiff( const QString& pathToGitTool );
     ~RiaGitDiff();
 
-    bool      executeDiff(const QString& baseFolder);
+    bool      executeDiff( const QString& baseFolder );
     ErrorType error() const;
     QString   errorMessage() const;
     QString   errorDetails() const;

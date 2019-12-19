@@ -31,19 +31,19 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromActnumKeyword(const ecl_file_type* ecl_file)
+std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromActnumKeyword( const ecl_file_type* ecl_file )
 {
-    CAF_ASSERT(ecl_file);
+    CAF_ASSERT( ecl_file );
 
     std::vector<std::vector<int>> activeCellsAllGrids;
 
-    int actnumKeywordCount = ecl_file_get_num_named_kw(ecl_file, ACTNUM_KW);
-    for (size_t gridIdx = 0; gridIdx < static_cast<size_t>(actnumKeywordCount); gridIdx++)
+    int actnumKeywordCount = ecl_file_get_num_named_kw( ecl_file, ACTNUM_KW );
+    for ( size_t gridIdx = 0; gridIdx < static_cast<size_t>( actnumKeywordCount ); gridIdx++ )
     {
         std::vector<int> nativeActnumvValues;
-        RifEclipseOutputFileTools::keywordData(ecl_file, ACTNUM_KW, gridIdx, &nativeActnumvValues);
+        RifEclipseOutputFileTools::keywordData( ecl_file, ACTNUM_KW, gridIdx, &nativeActnumvValues );
 
-        activeCellsAllGrids.push_back(nativeActnumvValues);
+        activeCellsAllGrids.push_back( nativeActnumvValues );
     }
 
     return activeCellsAllGrids;
@@ -52,9 +52,10 @@ std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromActnumKeyword
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword(const ecl_file_type* ecl_file, bool dualPorosity)
+std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword( const ecl_file_type* ecl_file,
+                                                                                bool                 dualPorosity )
 {
-    CAF_ASSERT(ecl_file);
+    CAF_ASSERT( ecl_file );
 
     std::vector<std::vector<int>> activeCellsAllGrids;
 
@@ -63,47 +64,50 @@ std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword(c
     //
     // See documentation of active cells in top of ecl_grid.cpp
 
-    int porvKeywordCount = ecl_file_get_num_named_kw(ecl_file, PORV_KW);
-    for (size_t gridIdx = 0; gridIdx < static_cast<size_t>(porvKeywordCount); gridIdx++)
+    int porvKeywordCount = ecl_file_get_num_named_kw( ecl_file, PORV_KW );
+    for ( size_t gridIdx = 0; gridIdx < static_cast<size_t>( porvKeywordCount ); gridIdx++ )
     {
         std::vector<double> porvValues;
-        RifEclipseOutputFileTools::keywordData(ecl_file, PORV_KW, gridIdx, &porvValues);
+        RifEclipseOutputFileTools::keywordData( ecl_file, PORV_KW, gridIdx, &porvValues );
 
         std::vector<int> activeCellsOneGrid;
 
         size_t activeCellCount = porvValues.size();
-        if (dualPorosity)
+        if ( dualPorosity )
         {
             activeCellCount /= 2;
         }
-        activeCellsOneGrid.resize(activeCellCount, 0);
+        activeCellsOneGrid.resize( activeCellCount, 0 );
 
-        for (size_t poreValueIndex = 0; poreValueIndex < porvValues.size(); poreValueIndex++)
+        for ( size_t poreValueIndex = 0; poreValueIndex < porvValues.size(); poreValueIndex++ )
         {
             size_t indexToCell = poreValueIndex;
-            if (indexToCell >= activeCellCount)
+            if ( indexToCell >= activeCellCount )
             {
                 indexToCell = poreValueIndex - activeCellCount;
             }
 
-            if (porvValues[poreValueIndex] > 0.0)
+            if ( porvValues[poreValueIndex] > 0.0 )
             {
-                if (!dualPorosity || poreValueIndex < porvValues.size() / 2)
+                if ( dualPorosity )
                 {
-                    activeCellsOneGrid[indexToCell] = CELL_ACTIVE_MATRIX;
+                    if ( poreValueIndex < activeCellCount )
+                    {
+                        activeCellsOneGrid[indexToCell] += CELL_ACTIVE_MATRIX;
+                    }
+                    else
+                    {
+                        activeCellsOneGrid[indexToCell] += CELL_ACTIVE_FRACTURE;
+                    }
                 }
                 else
                 {
-                    activeCellsOneGrid[indexToCell] += CELL_ACTIVE_FRACTURE;
+                    activeCellsOneGrid[indexToCell] = CELL_ACTIVE_MATRIX;
                 }
-            }
-            else
-            {
-                activeCellsOneGrid[indexToCell] = 0;
             }
         }
 
-        activeCellsAllGrids.push_back(activeCellsOneGrid);
+        activeCellsAllGrids.push_back( activeCellsOneGrid );
     }
 
     return activeCellsAllGrids;
@@ -112,24 +116,24 @@ std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword(c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifActiveCellsReader::applyActiveCellsToAllGrids(ecl_grid_type*                       ecl_main_grid,
-                                                      const std::vector<std::vector<int>>& activeCellsForAllGrids)
+void RifActiveCellsReader::applyActiveCellsToAllGrids( ecl_grid_type*                       ecl_main_grid,
+                                                       const std::vector<std::vector<int>>& activeCellsForAllGrids )
 {
-    CAF_ASSERT(ecl_main_grid);
+    CAF_ASSERT( ecl_main_grid );
 
-    for (int gridIndex = 0; gridIndex < static_cast<int>(activeCellsForAllGrids.size()); gridIndex++)
+    for ( int gridIndex = 0; gridIndex < static_cast<int>( activeCellsForAllGrids.size() ); gridIndex++ )
     {
         ecl_grid_type* currentGrid = ecl_main_grid;
-        if (gridIndex > 0)
+        if ( gridIndex > 0 )
         {
-            currentGrid = ecl_grid_iget_lgr(ecl_main_grid, gridIndex - 1);
+            currentGrid = ecl_grid_iget_lgr( ecl_main_grid, gridIndex - 1 );
         }
 
         auto activeCellsForGrid = activeCellsForAllGrids[gridIndex];
-        CAF_ASSERT(ecl_grid_get_global_size(currentGrid) == static_cast<int>(activeCellsForGrid.size()));
+        CAF_ASSERT( ecl_grid_get_global_size( currentGrid ) == static_cast<int>( activeCellsForGrid.size() ) );
 
         int* actnum_values = activeCellsForGrid.data();
 
-        ecl_grid_reset_actnum(currentGrid, actnum_values);
+        ecl_grid_reset_actnum( currentGrid, actnum_values );
     }
 }

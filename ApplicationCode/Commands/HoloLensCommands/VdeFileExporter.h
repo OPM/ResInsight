@@ -27,8 +27,6 @@ class VdePacketDirectory;
 
 class RimGridView;
 
-
-
 //==================================================================================================
 //
 //
@@ -37,16 +35,17 @@ class RimGridView;
 class VdeFileExporter
 {
 public:
-    VdeFileExporter(QString absOutputFolder);
+    VdeFileExporter( QString absOutputFolder );
 
-    bool exportToFile(const QString& modelMetaJsonStr, const VdePacketDirectory& packetDirectory, const std::vector<int>& packetIdsToExport);
-    bool exportViewContents(const RimGridView& view);
-
-private:
-    static bool writeModelMetaJsonFile(const QString& modelMetaJsonStr, QString fileName);
-    bool        writeDataPacketToFile(int arrayId, const VdeArrayDataPacket& packet) const;
+    bool exportToFile( const QString&            modelMetaJsonStr,
+                       const VdePacketDirectory& packetDirectory,
+                       const std::vector<int>&   packetIdsToExport );
+    bool exportViewContents( const RimGridView& view );
 
 private:
-    QString  m_absOutputFolder;
+    static bool writeModelMetaJsonFile( const QString& modelMetaJsonStr, QString fileName );
+    bool        writeDataPacketToFile( int arrayId, const VdeArrayDataPacket& packet ) const;
 
+private:
+    QString m_absOutputFolder;
 };

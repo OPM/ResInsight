@@ -23,21 +23,39 @@
 #include "RimFractureTemplate.h"
 #include "RimProject.h"
 
-CAF_PDM_SOURCE_INIT(RimFractureContainment, "FractureContainment");
+CAF_PDM_SOURCE_INIT( RimFractureContainment, "FractureContainment" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimFractureContainment::RimFractureContainment()
 {
-    CAF_PDM_InitObject("Fracture Containment", "", "", "");
+    CAF_PDM_InitObject( "Fracture Containment", "", "", "" );
 
-    CAF_PDM_InitField(&m_useContainment, "IsUsingFractureContainment", false, "Use Containment", "", "", "");
-    CAF_PDM_InitField(&m_topKLayer, "TopKLayer", 0, "  Top Layer", "", "Do not allow fracture to grow into this layer", "");
-    CAF_PDM_InitField(&m_baseKLayer, "BaseKLayer", 0, "  Base Layer", "", "Do not allow fracture to grow into this layer", "");
+    CAF_PDM_InitField( &m_useContainment, "IsUsingFractureContainment", false, "Use Containment", "", "", "" );
+    CAF_PDM_InitField( &m_topKLayer, "TopKLayer", 0, "  Top Layer", "", "Do not allow fracture to grow into this layer", "" );
+    CAF_PDM_InitField( &m_baseKLayer,
+                       "BaseKLayer",
+                       0,
+                       "  Base Layer",
+                       "",
+                       "Do not allow fracture to grow into this layer",
+                       "" );
 
-    CAF_PDM_InitField(&m_truncateAtFaults, "TruncateAtFaults", false, "Truncate At Faults", "", "If Fault Throw is larger than limit, truncate at fault", "");
-    CAF_PDM_InitField(&m_minimumFaultThrow, "FaultThrowValue", 0.0f, "  Minimum Fault Throw", "", "If Fault Throw is larger than limit, truncate at fault", "");
+    CAF_PDM_InitField( &m_truncateAtFaults,
+                       "TruncateAtFaults",
+                       false,
+                       "Truncate At Faults",
+                       "",
+                       "If Fault Throw is larger than limit, truncate at fault",
+                       "" );
+    CAF_PDM_InitField( &m_minimumFaultThrow,
+                       "FaultThrowValue",
+                       0.0f,
+                       "  Minimum Fault Throw",
+                       "",
+                       "If Fault Throw is larger than limit, truncate at fault",
+                       "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +68,7 @@ RimFractureContainment::~RimFractureContainment() {}
 //--------------------------------------------------------------------------------------------------
 double RimFractureContainment::minimumFaultThrow() const
 {
-    if (m_truncateAtFaults())
+    if ( m_truncateAtFaults() )
     {
         return m_minimumFaultThrow;
     }
@@ -63,44 +81,44 @@ double RimFractureContainment::minimumFaultThrow() const
 //--------------------------------------------------------------------------------------------------
 bool RimFractureContainment::isEnabled() const
 {
-    return (m_useContainment() || m_truncateAtFaults());
+    return ( m_useContainment() || m_truncateAtFaults() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFractureContainment::isEclipseCellOpenForFlow(const RigMainGrid*      mainGrid,
-                                                      size_t                  globalCellIndex,
-                                                      const std::set<size_t>& reservoirCellIndicesOpenForFlow) const
+bool RimFractureContainment::isEclipseCellOpenForFlow( const RigMainGrid*      mainGrid,
+                                                       size_t                  globalCellIndex,
+                                                       const std::set<size_t>& reservoirCellIndicesOpenForFlow ) const
 {
-    if (!isEnabled()) return true;
+    if ( !isEnabled() ) return true;
 
-    if (m_useContainment())
+    if ( m_useContainment() )
     {
-        CVF_ASSERT(mainGrid);
+        CVF_ASSERT( mainGrid );
 
-        if (globalCellIndex >= mainGrid->globalCellArray().size()) return false;
+        if ( globalCellIndex >= mainGrid->globalCellArray().size() ) return false;
 
         auto cell              = mainGrid->globalCellArray()[globalCellIndex];
         auto mainGridCellIndex = cell.mainGridCellIndex();
 
         size_t i, j, k;
-        mainGrid->ijkFromCellIndex(mainGridCellIndex, &i, &j, &k);
+        mainGrid->ijkFromCellIndex( mainGridCellIndex, &i, &j, &k );
 
-        if (k + 1 < static_cast<size_t>(m_topKLayer()))
+        if ( k + 1 < static_cast<size_t>( m_topKLayer() ) )
         {
             return false;
         }
 
-        if (k + 1 > static_cast<size_t>(m_baseKLayer()))
+        if ( k + 1 > static_cast<size_t>( m_baseKLayer() ) )
         {
             return false;
         }
     }
 
-    if (m_truncateAtFaults())
+    if ( m_truncateAtFaults() )
     {
-        if (reservoirCellIndicesOpenForFlow.count(globalCellIndex) == 0)
+        if ( reservoirCellIndicesOpenForFlow.count( globalCellIndex ) == 0 )
         {
             return false;
         }
@@ -112,7 +130,7 @@ bool RimFractureContainment::isEclipseCellOpenForFlow(const RigMainGrid*      ma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureContainment::setTopKLayer(int topKLayer)
+void RimFractureContainment::setTopKLayer( int topKLayer )
 {
     m_topKLayer = topKLayer;
 }
@@ -128,7 +146,7 @@ int RimFractureContainment::topKLayer() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureContainment::setBaseKLayer(int baseKLayer)
+void RimFractureContainment::setBaseKLayer( int baseKLayer )
 {
     m_baseKLayer = baseKLayer;
 }
@@ -144,42 +162,42 @@ int RimFractureContainment::baseKLayer() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureContainment::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimFractureContainment::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add(&m_useContainment);
-    uiOrdering.add(&m_topKLayer);
-    uiOrdering.add(&m_baseKLayer);
+    uiOrdering.add( &m_useContainment );
+    uiOrdering.add( &m_topKLayer );
+    uiOrdering.add( &m_baseKLayer );
 
-    m_topKLayer.uiCapability()->setUiReadOnly(!m_useContainment());
-    m_baseKLayer.uiCapability()->setUiReadOnly(!m_useContainment());
+    m_topKLayer.uiCapability()->setUiReadOnly( !m_useContainment() );
+    m_baseKLayer.uiCapability()->setUiReadOnly( !m_useContainment() );
 
-    uiOrdering.add(&m_truncateAtFaults);
-    uiOrdering.add(&m_minimumFaultThrow);
+    uiOrdering.add( &m_truncateAtFaults );
+    uiOrdering.add( &m_minimumFaultThrow );
 
-    m_minimumFaultThrow.uiCapability()->setUiReadOnly(!m_truncateAtFaults());
+    m_minimumFaultThrow.uiCapability()->setUiReadOnly( !m_truncateAtFaults() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureContainment::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                              const QVariant&            oldValue,
-                                              const QVariant&            newValue)
+void RimFractureContainment::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                               const QVariant&            oldValue,
+                                               const QVariant&            newValue )
 {
     {
         RimProject* proj;
-        this->firstAncestorOrThisOfType(proj);
-        if (proj)
+        this->firstAncestorOrThisOfType( proj );
+        if ( proj )
         {
             proj->reloadCompletionTypeResultsInAllViews();
         }
     }
 
-    if (changedField == &m_useContainment || changedField == &m_truncateAtFaults)
+    if ( changedField == &m_useContainment || changedField == &m_truncateAtFaults )
     {
         RimFractureTemplate* fractureTemplate = nullptr;
-        this->firstAncestorOrThisOfType(fractureTemplate);
-        if (fractureTemplate)
+        this->firstAncestorOrThisOfType( fractureTemplate );
+        if ( fractureTemplate )
         {
             fractureTemplate->updateConnectedEditors();
         }

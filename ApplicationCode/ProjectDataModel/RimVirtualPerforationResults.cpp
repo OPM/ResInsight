@@ -22,7 +22,7 @@
 #include "RimEclipseView.h"
 #include "RimRegularLegendConfig.h"
 
-CAF_PDM_SOURCE_INIT(RimVirtualPerforationResults, "RimVirtualPerforationResults");
+CAF_PDM_SOURCE_INIT( RimVirtualPerforationResults, "RimVirtualPerforationResults" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -91,8 +91,8 @@ RimRegularLegendConfig* RimVirtualPerforationResults::legendConfig() const
 void RimVirtualPerforationResults::loadData()
 {
     RimEclipseCase* eclipseCase = nullptr;
-    this->firstAncestorOrThisOfType(eclipseCase);
-    if (eclipseCase)
+    this->firstAncestorOrThisOfType( eclipseCase );
+    if ( eclipseCase )
     {
         eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
     }
@@ -101,11 +101,11 @@ void RimVirtualPerforationResults::loadData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVirtualPerforationResults::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue)
+void RimVirtualPerforationResults::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                     const QVariant&            oldValue,
+                                                     const QVariant&            newValue )
 {
-    if (changedField == &m_isActive)
+    if ( changedField == &m_isActive )
     {
         updateUiIconFromToggleField();
 
@@ -113,7 +113,7 @@ void RimVirtualPerforationResults::fieldChangedByUi(const caf::PdmFieldHandle* c
     }
 
     RimEclipseView* eclView = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(eclView);
+    this->firstAncestorOrThisOfTypeAsserted( eclView );
 
     eclView->scheduleCreateDisplayModelAndRedraw();
 }
@@ -129,12 +129,12 @@ caf::PdmFieldHandle* RimVirtualPerforationResults::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVirtualPerforationResults::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimVirtualPerforationResults::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add(&m_geometryScaleFactor);
-    uiOrdering.add(&m_showClosedConnections);
+    uiOrdering.add( &m_geometryScaleFactor );
+    uiOrdering.add( &m_showClosedConnections );
 
-    uiOrdering.skipRemainingFields(true);
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -10,3 +10,5 @@ from rips.instance import Instance
 from rips.pdmobject import PdmObject
 from rips.view import View
 from rips.project import Project
+from rips.plot import Plot
+from rips.contour_map import ContourMap, ContourMapType

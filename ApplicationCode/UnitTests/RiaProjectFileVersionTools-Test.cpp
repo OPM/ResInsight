@@ -4,7 +4,7 @@
 
 #include <QStringList>
 
-TEST(RiaProjectFileVersionTools, DecodeProjectVersionString)
+TEST( RiaProjectFileVersionTools, DecodeProjectVersionString )
 {
     {
         int majorVersion  = -1;
@@ -13,13 +13,16 @@ TEST(RiaProjectFileVersionTools, DecodeProjectVersionString)
         int developmentId = -1;
 
         QString projectFileVersionString = "2017.05.1";
-        RiaProjectFileVersionTools::decodeVersionString(projectFileVersionString, &majorVersion, &minorVersion, &patchNumber,
-                                                        &developmentId);
+        RiaProjectFileVersionTools::decodeVersionString( projectFileVersionString,
+                                                         &majorVersion,
+                                                         &minorVersion,
+                                                         &patchNumber,
+                                                         &developmentId );
 
-        EXPECT_EQ(2017, majorVersion);
-        EXPECT_EQ(5, minorVersion);
-        EXPECT_EQ(1, patchNumber);
-        EXPECT_EQ(-1, developmentId);
+        EXPECT_EQ( 2017, majorVersion );
+        EXPECT_EQ( 5, minorVersion );
+        EXPECT_EQ( 1, patchNumber );
+        EXPECT_EQ( -1, developmentId );
     }
 
     {
@@ -29,13 +32,16 @@ TEST(RiaProjectFileVersionTools, DecodeProjectVersionString)
         int developmentId = -1;
 
         QString projectFileVersionString = "";
-        RiaProjectFileVersionTools::decodeVersionString(projectFileVersionString, &majorVersion, &minorVersion, &patchNumber,
-                                                        &developmentId);
+        RiaProjectFileVersionTools::decodeVersionString( projectFileVersionString,
+                                                         &majorVersion,
+                                                         &minorVersion,
+                                                         &patchNumber,
+                                                         &developmentId );
 
-        EXPECT_EQ(-1, majorVersion);
-        EXPECT_EQ(-1, minorVersion);
-        EXPECT_EQ(-1, patchNumber);
-        EXPECT_EQ(-1, developmentId);
+        EXPECT_EQ( -1, majorVersion );
+        EXPECT_EQ( -1, minorVersion );
+        EXPECT_EQ( -1, patchNumber );
+        EXPECT_EQ( -1, developmentId );
     }
 
     {
@@ -45,13 +51,16 @@ TEST(RiaProjectFileVersionTools, DecodeProjectVersionString)
         int developmentId = -1;
 
         QString projectFileVersionString = "2017.05.2-dev.23";
-        RiaProjectFileVersionTools::decodeVersionString(projectFileVersionString, &majorVersion, &minorVersion, &patchNumber,
-                                                        &developmentId);
+        RiaProjectFileVersionTools::decodeVersionString( projectFileVersionString,
+                                                         &majorVersion,
+                                                         &minorVersion,
+                                                         &patchNumber,
+                                                         &developmentId );
 
-        EXPECT_EQ(2017, majorVersion);
-        EXPECT_EQ(5, minorVersion);
-        EXPECT_EQ(2, patchNumber);
-        EXPECT_EQ(23, developmentId);
+        EXPECT_EQ( 2017, majorVersion );
+        EXPECT_EQ( 5, minorVersion );
+        EXPECT_EQ( 2, patchNumber );
+        EXPECT_EQ( 23, developmentId );
     }
 
     {
@@ -61,17 +70,20 @@ TEST(RiaProjectFileVersionTools, DecodeProjectVersionString)
         int developmentId = -1;
 
         QString projectFileVersionString = "2017.05.2-dev.long.text..23";
-        RiaProjectFileVersionTools::decodeVersionString(projectFileVersionString, &majorVersion, &minorVersion, &patchNumber,
-                                                        &developmentId);
+        RiaProjectFileVersionTools::decodeVersionString( projectFileVersionString,
+                                                         &majorVersion,
+                                                         &minorVersion,
+                                                         &patchNumber,
+                                                         &developmentId );
 
-        EXPECT_EQ(2017, majorVersion);
-        EXPECT_EQ(5, minorVersion);
-        EXPECT_EQ(2, patchNumber);
-        EXPECT_EQ(23, developmentId);
+        EXPECT_EQ( 2017, majorVersion );
+        EXPECT_EQ( 5, minorVersion );
+        EXPECT_EQ( 2, patchNumber );
+        EXPECT_EQ( 23, developmentId );
     }
 }
 
-TEST(RiaProjectFileVersionTools, OrderKnownVersionStrings)
+TEST( RiaProjectFileVersionTools, OrderKnownVersionStrings )
 {
     QStringList versionStrings;
     {
@@ -145,13 +157,15 @@ TEST(RiaProjectFileVersionTools, OrderKnownVersionStrings)
 
     QStringList sortedVersionList = versionStrings;
     {
-        qSort(sortedVersionList.begin(), sortedVersionList.end(), RiaProjectFileVersionTools::isCandidateVersionNewerThanOther);
+        std::sort( sortedVersionList.begin(),
+                   sortedVersionList.end(),
+                   RiaProjectFileVersionTools::isCandidateVersionNewerThanOther );
     }
 
-/*
-    for (const auto& s : sortedVersionList)
-    {
-        std::cout << s.toStdString() << "\n";
-    }
-*/
+    /*
+        for (const auto& s : sortedVersionList)
+        {
+            std::cout << s.toStdString() << "\n";
+        }
+    */
 }

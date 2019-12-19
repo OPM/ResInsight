@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -34,37 +34,38 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicPasteSummaryCaseFeature, "RicPasteSummaryCaseFeature");
+CAF_CMD_SOURCE_INIT( RicPasteSummaryCaseFeature, "RicPasteSummaryCaseFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicPasteSummaryCaseFeature::isCommandEnabled()
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
-    if (!destinationObject) return false;
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
+        caf::SelectionManager::instance()->selectedItem() );
+    if ( !destinationObject ) return false;
 
     RimSummaryCaseCollection* summaryCaseCollection = nullptr;
-    destinationObject->firstAncestorOrThisOfType(summaryCaseCollection);
+    destinationObject->firstAncestorOrThisOfType( summaryCaseCollection );
 
     RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
-    destinationObject->firstAncestorOrThisOfType(summaryCaseMainCollection);
+    destinationObject->firstAncestorOrThisOfType( summaryCaseMainCollection );
 
-    if (!(summaryCaseCollection || summaryCaseMainCollection))
+    if ( !( summaryCaseCollection || summaryCaseMainCollection ) )
     {
         return false;
     }
 
-    std::vector<caf::PdmPointer<RimSummaryCase> > summaryCases = RicPasteSummaryCaseFeature::summaryCases();
-    
-    if (summaryCases.size() == 0)
+    std::vector<caf::PdmPointer<RimSummaryCase>> summaryCases = RicPasteSummaryCaseFeature::summaryCases();
+
+    if ( summaryCases.size() == 0 )
     {
         return false;
     }
 
-    for (RimSummaryCase* summaryCase : summaryCases)
+    for ( RimSummaryCase* summaryCase : summaryCases )
     {
-        if (summaryCase->isObservedData())
+        if ( summaryCase->isObservedData() )
         {
             return false;
         }
@@ -73,23 +74,25 @@ bool RicPasteSummaryCaseFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicPasteSummaryCaseFeature::onActionTriggered(bool isChecked)
+void RicPasteSummaryCaseFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
+        caf::SelectionManager::instance()->selectedItem() );
+    if ( !destinationObject ) return;
 
-    std::vector<caf::PdmPointer<RimSummaryCase> > sourceObjects = RicPasteSummaryCaseFeature::summaryCases();
+    std::vector<caf::PdmPointer<RimSummaryCase>> sourceObjects = RicPasteSummaryCaseFeature::summaryCases();
 
     RimSummaryCaseCollection* summaryCaseCollection = nullptr;
-    destinationObject->firstAncestorOrThisOfType(summaryCaseCollection);
+    destinationObject->firstAncestorOrThisOfType( summaryCaseCollection );
 
-    if (summaryCaseCollection)
+    if ( summaryCaseCollection )
     {
-        for (size_t i = 0; i < sourceObjects.size(); i++)
+        for ( size_t i = 0; i < sourceObjects.size(); i++ )
         {
-            RicPasteSummaryCaseFeature::removeFromSourceCollection(sourceObjects[i]);
-            summaryCaseCollection->addCase(sourceObjects[i]);
+            RicPasteSummaryCaseFeature::removeFromSourceCollection( sourceObjects[i] );
+            summaryCaseCollection->addCase( sourceObjects[i] );
         }
 
         summaryCaseCollection->updateConnectedEditors();
@@ -98,14 +101,14 @@ void RicPasteSummaryCaseFeature::onActionTriggered(bool isChecked)
     }
 
     RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
-    destinationObject->firstAncestorOrThisOfType(summaryCaseMainCollection);
+    destinationObject->firstAncestorOrThisOfType( summaryCaseMainCollection );
 
-    if (summaryCaseMainCollection)
+    if ( summaryCaseMainCollection )
     {
-        for (size_t i = 0; i < sourceObjects.size(); i++)
+        for ( size_t i = 0; i < sourceObjects.size(); i++ )
         {
-            RicPasteSummaryCaseFeature::removeFromSourceCollection(sourceObjects[i]);
-            summaryCaseMainCollection->addCase(sourceObjects[i]);
+            RicPasteSummaryCaseFeature::removeFromSourceCollection( sourceObjects[i] );
+            summaryCaseMainCollection->addCase( sourceObjects[i] );
         }
 
         RicPasteFeatureImpl::clearClipboard();
@@ -114,50 +117,50 @@ void RicPasteSummaryCaseFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicPasteSummaryCaseFeature::setupActionLook(QAction* actionToSetup)
+void RicPasteSummaryCaseFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Paste Summary Case");
-    actionToSetup->setIcon(QIcon(":/clipboard.png"));
-    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Paste);
+    actionToSetup->setText( "Paste Summary Case" );
+    actionToSetup->setIcon( QIcon( ":/clipboard.png" ) );
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence::Paste );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmPointer<RimSummaryCase> > RicPasteSummaryCaseFeature::summaryCases()
+std::vector<caf::PdmPointer<RimSummaryCase>> RicPasteSummaryCaseFeature::summaryCases()
 {
     caf::PdmObjectGroup objectGroup;
-    RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
+    RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
-    std::vector<caf::PdmPointer<RimSummaryCase> > typedObjects;
-    objectGroup.objectsByType(&typedObjects);
+    std::vector<caf::PdmPointer<RimSummaryCase>> typedObjects;
+    objectGroup.objectsByType( &typedObjects );
 
     return typedObjects;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicPasteSummaryCaseFeature::removeFromSourceCollection(RimSummaryCase* summaryCase)
+void RicPasteSummaryCaseFeature::removeFromSourceCollection( RimSummaryCase* summaryCase )
 {
     RimSummaryCaseCollection* sourceSummaryCaseCollection = nullptr;
-    summaryCase->firstAncestorOrThisOfType(sourceSummaryCaseCollection);
+    summaryCase->firstAncestorOrThisOfType( sourceSummaryCaseCollection );
 
-    if (sourceSummaryCaseCollection)
+    if ( sourceSummaryCaseCollection )
     {
-        sourceSummaryCaseCollection->removeCase(summaryCase);
+        sourceSummaryCaseCollection->removeCase( summaryCase );
         sourceSummaryCaseCollection->updateConnectedEditors();
         return;
     }
 
     RimSummaryCaseMainCollection* sourceSummaryCaseMainCollection = nullptr;
-    summaryCase->firstAncestorOrThisOfType(sourceSummaryCaseMainCollection);
+    summaryCase->firstAncestorOrThisOfType( sourceSummaryCaseMainCollection );
 
-    if (sourceSummaryCaseMainCollection)
+    if ( sourceSummaryCaseMainCollection )
     {
-        sourceSummaryCaseMainCollection->removeCase(summaryCase);
+        sourceSummaryCaseMainCollection->removeCase( summaryCase );
         sourceSummaryCaseMainCollection->updateConnectedEditors();
     }
 }

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -26,36 +26,35 @@
 #include "RimSummaryCalculationCollection.h"
 
 #include "cafPdmUiListEditor.h"
+#include "cafPdmUiObjectEditorHandle.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
-#include "cafPdmUiObjectEditorHandle.h"
 
-
-CAF_PDM_SOURCE_INIT(RicSummaryCurveCalculator, "RicSummaryCurveCalculator");
+CAF_PDM_SOURCE_INIT( RicSummaryCurveCalculator, "RicSummaryCurveCalculator" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCalculator::RicSummaryCurveCalculator()
 {
-    CAF_PDM_InitObject("RicSummaryCurveCalculator", "", "", "");
+    CAF_PDM_InitObject( "RicSummaryCurveCalculator", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_currentCalculation, "CurrentCalculation", "", "", "", "");
-    m_currentCalculation.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    //m_currentCalculation.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
-    m_currentCalculation.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault( &m_currentCalculation, "CurrentCalculation", "", "", "", "" );
+    m_currentCalculation.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    // m_currentCalculation.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+    m_currentCalculation.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault(&m_newCalculation, "NewCalculation", "New Calculation", "", "", "");
-    RicSummaryCurveCalculator::assignPushButtonEditor(&m_newCalculation);
-    
-    CAF_PDM_InitFieldNoDefault(&m_deleteCalculation, "DeleteCalculation", "Delete Calculation", "", "", "");
-    RicSummaryCurveCalculator::assignPushButtonEditor(&m_deleteCalculation);
+    CAF_PDM_InitFieldNoDefault( &m_newCalculation, "NewCalculation", "New Calculation", "", "", "" );
+    RicSummaryCurveCalculator::assignPushButtonEditor( &m_newCalculation );
 
-    m_calcContextMenuMgr = std::unique_ptr<RiuCalculationsContextMenuManager>(new RiuCalculationsContextMenuManager());
+    CAF_PDM_InitFieldNoDefault( &m_deleteCalculation, "DeleteCalculation", "Delete Calculation", "", "", "" );
+    RicSummaryCurveCalculator::assignPushButtonEditor( &m_deleteCalculation );
+
+    m_calcContextMenuMgr = std::unique_ptr<RiuCalculationsContextMenuManager>( new RiuCalculationsContextMenuManager() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicSummaryCurveCalculator::calculatedSummariesGroupName()
 {
@@ -63,7 +62,7 @@ QString RicSummaryCurveCalculator::calculatedSummariesGroupName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicSummaryCurveCalculator::calulationGroupName()
 {
@@ -71,7 +70,7 @@ QString RicSummaryCurveCalculator::calulationGroupName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculation* RicSummaryCurveCalculator::currentCalculation() const
 {
@@ -79,30 +78,30 @@ RimSummaryCalculation* RicSummaryCurveCalculator::currentCalculation() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculator::setCurrentCalculation(RimSummaryCalculation* calculation)
+void RicSummaryCurveCalculator::setCurrentCalculation( RimSummaryCalculation* calculation )
 {
     m_currentCalculation = calculation;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicSummaryCurveCalculator::parseExpression() const
 {
-    if (m_currentCalculation())
+    if ( m_currentCalculation() )
     {
         QString previousCurveName = m_currentCalculation->description();
-        if (!m_currentCalculation()->parseExpression())
+        if ( !m_currentCalculation()->parseExpression() )
         {
             return false;
         }
 
         QString currentCurveName = m_currentCalculation->description();
-        if (previousCurveName != currentCurveName)
+        if ( previousCurveName != currentCurveName )
         {
-            RiaSummaryTools::notifyCalculatedCurveNameHasChanged(previousCurveName, currentCurveName);
+            RiaSummaryTools::notifyCalculatedCurveNameHasChanged( previousCurveName, currentCurveName );
         }
 
         m_currentCalculation()->updateDependentCurvesAndPlots();
@@ -112,26 +111,28 @@ bool RicSummaryCurveCalculator::parseExpression() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculator::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RicSummaryCurveCalculator::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                  const QVariant&            oldValue,
+                                                  const QVariant&            newValue )
 {
-    if (changedField == &m_newCalculation)
+    if ( changedField == &m_newCalculation )
     {
         m_newCalculation = false;
 
         RimSummaryCalculation* rimCalc = calculationCollection()->addCalculation();
-        m_currentCalculation = rimCalc;
+        m_currentCalculation           = rimCalc;
 
         this->updateConnectedEditors();
     }
-    else if (changedField == &m_deleteCalculation)
+    else if ( changedField == &m_deleteCalculation )
     {
         m_deleteCalculation = false;
 
-        if (m_currentCalculation())
+        if ( m_currentCalculation() )
         {
-            calculationCollection()->deleteCalculation(m_currentCalculation());
+            calculationCollection()->deleteCalculation( m_currentCalculation() );
             m_currentCalculation = nullptr;
 
             this->updateConnectedEditors();
@@ -141,45 +142,50 @@ void RicSummaryCurveCalculator::fieldChangedByUi(const caf::PdmFieldHandle* chan
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculator::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RicSummaryCurveCalculator::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if (!m_currentCalculation())
+    if ( !m_currentCalculation() )
     {
-        if (calculationCollection()->calculations().size() > 0)
+        if ( calculationCollection()->calculations().size() > 0 )
         {
             m_currentCalculation = calculationCollection()->calculations()[0];
         }
     }
 
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroupWithKeyword("Calculated Summaries", RicSummaryCurveCalculator::calculatedSummariesGroupName());
-        group->add(&m_currentCalculation);
-        group->add(&m_newCalculation);
-        group->add(&m_deleteCalculation);
+        caf::PdmUiGroup* group =
+            uiOrdering.addNewGroupWithKeyword( "Calculated Summaries",
+                                               RicSummaryCurveCalculator::calculatedSummariesGroupName() );
+        group->add( &m_currentCalculation );
+        group->add( &m_newCalculation );
+        group->add( &m_deleteCalculation );
     }
 
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroupWithKeyword("Calculation Settings", RicSummaryCurveCalculator::calulationGroupName());
-        if (m_currentCalculation())
+        caf::PdmUiGroup* group = uiOrdering.addNewGroupWithKeyword( "Calculation Settings",
+                                                                    RicSummaryCurveCalculator::calulationGroupName() );
+        if ( m_currentCalculation() )
         {
-            m_currentCalculation->uiOrdering(uiConfigName, *group);
+            m_currentCalculation->uiOrdering( uiConfigName, *group );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RicSummaryCurveCalculator::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo>
+    RicSummaryCurveCalculator::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                      bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
-    if (fieldNeedingOptions == &m_currentCalculation)
+    if ( fieldNeedingOptions == &m_currentCalculation )
     {
-        for (auto c : calculationCollection()->calculations())
+        for ( auto c : calculationCollection()->calculations() )
         {
-            options.push_back(caf::PdmOptionItemInfo(c->description(), c));
+            options.push_back( caf::PdmOptionItemInfo( c->description(), c ) );
         }
     }
 
@@ -187,12 +193,12 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCalculator::calculateValueOptions(c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculationCollection* RicSummaryCurveCalculator::calculationCollection()
 {
     RimProject* proj = RiaApplication::instance()->project();
-    if (proj)
+    if ( proj )
     {
         return proj->calculationCollection();
     }
@@ -201,49 +207,49 @@ RimSummaryCalculationCollection* RicSummaryCurveCalculator::calculationCollectio
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculator::assignPushButtonEditor(caf::PdmFieldHandle* fieldHandle)
+void RicSummaryCurveCalculator::assignPushButtonEditor( caf::PdmFieldHandle* fieldHandle )
 {
-    CVF_ASSERT(fieldHandle);
-    CVF_ASSERT(fieldHandle->uiCapability());
+    CVF_ASSERT( fieldHandle );
+    CVF_ASSERT( fieldHandle->uiCapability() );
 
-    fieldHandle->uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    fieldHandle->uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    fieldHandle->uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    fieldHandle->uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculator::assignPushButtonEditorText(caf::PdmUiEditorAttribute* attribute, const QString& text)
+void RicSummaryCurveCalculator::assignPushButtonEditorText( caf::PdmUiEditorAttribute* attribute, const QString& text )
 {
-    caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
-    if (attrib)
+    caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+    if ( attrib )
     {
         attrib->m_buttonText = text;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicSummaryCurveCalculator::calculate() const
 {
-    if (m_currentCalculation())
+    if ( m_currentCalculation() )
     {
         QString previousCurveName = m_currentCalculation->description();
-        if (!m_currentCalculation()->parseExpression())
+        if ( !m_currentCalculation()->parseExpression() )
         {
             return false;
         }
 
         QString currentCurveName = m_currentCalculation->description();
-        if (previousCurveName != currentCurveName)
+        if ( previousCurveName != currentCurveName )
         {
-            RiaSummaryTools::notifyCalculatedCurveNameHasChanged(previousCurveName, currentCurveName);
+            RiaSummaryTools::notifyCalculatedCurveNameHasChanged( previousCurveName, currentCurveName );
         }
 
-        if (!m_currentCalculation()->calculate())
+        if ( !m_currentCalculation()->calculate() )
         {
             return false;
         }
@@ -256,17 +262,19 @@ bool RicSummaryCurveCalculator::calculate() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculator::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RicSummaryCurveCalculator::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                       QString                    uiConfigName,
+                                                       caf::PdmUiEditorAttribute* attribute )
 {
-    if (&m_newCalculation == field)
+    if ( &m_newCalculation == field )
     {
-        RicSummaryCurveCalculator::assignPushButtonEditorText(attribute, "New Calculation");
+        RicSummaryCurveCalculator::assignPushButtonEditorText( attribute, "New Calculation" );
     }
-    else if (&m_deleteCalculation == field)
+    else if ( &m_deleteCalculation == field )
     {
-        RicSummaryCurveCalculator::assignPushButtonEditorText(attribute, "Delete Calculation");
+        RicSummaryCurveCalculator::assignPushButtonEditorText( attribute, "Delete Calculation" );
     }
 }
 
@@ -275,19 +283,19 @@ void RicSummaryCurveCalculator::defineEditorAttribute(const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculator::onEditorWidgetsCreated()
 {
-    if (m_currentCalculation() != nullptr)
+    if ( m_currentCalculation() != nullptr )
     {
         m_currentCalculation->attachToWidget();
     }
 
-    for (const auto& e : m_currentCalculation.uiCapability()->connectedEditors())
+    for ( const auto& e : m_currentCalculation.uiCapability()->connectedEditors() )
     {
-        caf::PdmUiListEditor* listEditor = dynamic_cast<caf::PdmUiListEditor*>(e);
-        if (!listEditor) continue;
+        caf::PdmUiListEditor* listEditor = dynamic_cast<caf::PdmUiListEditor*>( e );
+        if ( !listEditor ) continue;
 
         QWidget* widget = listEditor->editorWidget();
-        if (!widget) continue;
+        if ( !widget ) continue;
 
-        m_calcContextMenuMgr->attachWidget(widget, this);
+        m_calcContextMenuMgr->attachWidget( widget, this );
     }
 }

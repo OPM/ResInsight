@@ -5,42 +5,44 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDataSourceSteppingTools::modifyCurrentIndex(caf::PdmValueField* valueField, const QList<caf::PdmOptionItemInfo>& options, int indexOffset)
+void RimDataSourceSteppingTools::modifyCurrentIndex( caf::PdmValueField*                  valueField,
+                                                     const QList<caf::PdmOptionItemInfo>& options,
+                                                     int                                  indexOffset )
 {
-    if (valueField && !options.isEmpty())
+    if ( valueField && !options.isEmpty() )
     {
-        QVariant currentValue = valueField->toQVariant();
+        QVariant                              currentValue = valueField->toQVariant();
         caf::PdmPointer<caf::PdmObjectHandle> currentHandle = currentValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
-        int currentIndex = -1;
-        for (int i = 0; i < options.size(); i++)
+        int                                   currentIndex = -1;
+        for ( int i = 0; i < options.size(); i++ )
         {
             QVariant optionValue = options[i].value();
             // First try pointer variety. They are not supported by QVariant::operator==
             caf::PdmPointer<caf::PdmObjectHandle> optionHandle = optionValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
-            if (optionHandle)
+            if ( optionHandle )
             {
-                if (currentHandle == optionHandle)
+                if ( currentHandle == optionHandle )
                 {
                     currentIndex = i;
                 }
             }
-            else if (currentValue == optionValue)
-            {                
+            else if ( currentValue == optionValue )
+            {
                 currentIndex = i;
             }
         }
 
-        if (currentIndex == -1)
+        if ( currentIndex == -1 )
         {
             currentIndex = 0;
         }
 
         int nextIndex = currentIndex + indexOffset;
-        if (nextIndex < options.size() && nextIndex > -1)
+        if ( nextIndex < options.size() && nextIndex > -1 )
         {
             QVariant newValue = options[nextIndex].value();
-            valueField->setFromQVariant(newValue);
-            valueField->uiCapability()->notifyFieldChanged(currentValue, newValue);
+            valueField->setFromQVariant( newValue );
+            valueField->uiCapability()->notifyFieldChanged( currentValue, newValue );
         }
     }
 }

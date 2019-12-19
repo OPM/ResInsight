@@ -28,6 +28,7 @@ class RimFractureTemplateCollection;
 class RimCompletionTemplateCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
 public:
     RimCompletionTemplateCollection();
     ~RimCompletionTemplateCollection() override;
@@ -40,12 +41,11 @@ public:
 
 private:
     friend class RimOilField;
-    void setFractureTemplateCollection(RimFractureTemplateCollection* fractureTemplateCollection);
+    void setFractureTemplateCollection( RimFractureTemplateCollection* fractureTemplateCollection );
 
     caf::PdmChildField<RimFractureTemplateCollection*> m_fractureTemplates;
     caf::PdmChildField<RimValveTemplateCollection*>    m_valveTemplates;
 
 protected:
-    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 };

@@ -2,23 +2,20 @@
 #include "WidgetLayoutTest.h"
 
 #include <QGridLayout>
-#include <QLineEdit>
-#include <QPushButton>
 #include <QGroupBox>
 #include <QLabel>
-
-
-
+#include <QLineEdit>
+#include <QPushButton>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 WidgetLayoutTest::WidgetLayoutTest(QWidget* parent /*= 0*/, Qt::WindowFlags f /*= 0*/)
     : QWidget(parent, f)
 {
     QVBoxLayout* l = new QVBoxLayout;
     setLayout(l);
-    
+
     {
         QPushButton* b1 = new QPushButton("Original config", this);
         connect(b1, SIGNAL(clicked()), SLOT(setUpInitialConfiguration()));
@@ -47,11 +44,11 @@ WidgetLayoutTest::WidgetLayoutTest(QWidget* parent /*= 0*/, Qt::WindowFlags f /*
     m_widget4 = new QLineEdit("4", this);
     m_widget5 = new QLineEdit("5", this);
 
-    m_groupBoxA = new QGroupBox("Groupbox A", this);
+    m_groupBoxA       = new QGroupBox("Groupbox A", this);
     m_groupBoxALayout = new QGridLayout();
     m_groupBoxA->setLayout(m_groupBoxALayout);
 
-    m_groupBoxB = new QGroupBox("Groupbox B", this);
+    m_groupBoxB       = new QGroupBox("Groupbox B", this);
     m_groupBoxBLayout = new QGridLayout();
     m_groupBoxB->setLayout(m_groupBoxBLayout);
 
@@ -59,22 +56,19 @@ WidgetLayoutTest::WidgetLayoutTest(QWidget* parent /*= 0*/, Qt::WindowFlags f /*
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-WidgetLayoutTest::~WidgetLayoutTest()
-{
-
-}
+WidgetLayoutTest::~WidgetLayoutTest() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void WidgetLayoutTest::setUpInitialConfiguration()
 {
     m_mainLayout->addWidget(m_widget1);
 
     m_mainLayout->addWidget(m_groupBoxA);
-    
+
     m_groupBoxALayout->addWidget(m_widget2, 0, 0);
     if (!m_widget3)
     {
@@ -89,7 +83,7 @@ void WidgetLayoutTest::setUpInitialConfiguration()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void WidgetLayoutTest::setUpInitialConfigurationA()
 {
@@ -100,7 +94,7 @@ void WidgetLayoutTest::setUpInitialConfigurationA()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void WidgetLayoutTest::setUpInitialConfigurationB()
 {

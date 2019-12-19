@@ -33,91 +33,95 @@
 
 namespace caf
 {
-template<>
+template <>
 void caf::AppEnum<RimSummaryTimeAxisProperties::TimeModeType>::setUp()
 {
-    addItem(RimSummaryTimeAxisProperties::DATE, "DATE", "Date");
-    addItem(RimSummaryTimeAxisProperties::TIME_FROM_SIMULATION_START, "TIME_FROM_SIMULATION_START", "Time From Simulation Start");
+    addItem( RimSummaryTimeAxisProperties::DATE, "DATE", "Date" );
+    addItem( RimSummaryTimeAxisProperties::TIME_FROM_SIMULATION_START,
+             "TIME_FROM_SIMULATION_START",
+             "Time From Simulation Start" );
 
-    setDefault(RimSummaryTimeAxisProperties::DATE);
+    setDefault( RimSummaryTimeAxisProperties::DATE );
 }
 
-template<>
+template <>
 void caf::AppEnum<RimSummaryTimeAxisProperties::TimeUnitType>::setUp()
 {
-    addItem(RimSummaryTimeAxisProperties::SECONDS, "SECONDS", "Seconds");
-    addItem(RimSummaryTimeAxisProperties::MINUTES, "MINUTES", "Minutes");
-    addItem(RimSummaryTimeAxisProperties::HOURS, "HOURS", "Hours");
-    addItem(RimSummaryTimeAxisProperties::DAYS, "DAYS ", "Days");
-	addItem(RimSummaryTimeAxisProperties::MONTHS, "MONTHS", "Months");
-    addItem(RimSummaryTimeAxisProperties::YEARS, "YEARS", "Years");
+    addItem( RimSummaryTimeAxisProperties::SECONDS, "SECONDS", "Seconds" );
+    addItem( RimSummaryTimeAxisProperties::MINUTES, "MINUTES", "Minutes" );
+    addItem( RimSummaryTimeAxisProperties::HOURS, "HOURS", "Hours" );
+    addItem( RimSummaryTimeAxisProperties::DAYS, "DAYS ", "Days" );
+    addItem( RimSummaryTimeAxisProperties::MONTHS, "MONTHS", "Months" );
+    addItem( RimSummaryTimeAxisProperties::YEARS, "YEARS", "Years" );
 
-    setDefault(RimSummaryTimeAxisProperties::YEARS);
+    setDefault( RimSummaryTimeAxisProperties::YEARS );
 }
 
 } // namespace caf
 
-CAF_PDM_SOURCE_INIT(RimSummaryTimeAxisProperties, "SummaryTimeAxisProperties");
+CAF_PDM_SOURCE_INIT( RimSummaryTimeAxisProperties, "SummaryTimeAxisProperties" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
 {
-    CAF_PDM_InitObject("Time Axis", ":/BottomAxis16x16.png", "", "");
+    CAF_PDM_InitObject( "Time Axis", ":/BottomAxis16x16.png", "", "" );
 
-    CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
-    m_isActive.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField( &m_isActive, "Active", true, "Active", "", "", "" );
+    m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField(&showTitle, "ShowTitle", false, "Show Title    ", "", "", "");
-    CAF_PDM_InitField(&title, "Title", QString("Time"), "Title          ", "", "", "");
+    CAF_PDM_InitField( &showTitle, "ShowTitle", false, "Show Title    ", "", "", "" );
+    CAF_PDM_InitField( &title, "Title", QString( "Time" ), "Title          ", "", "", "" );
 
-    CAF_PDM_InitField(&m_isAutoZoom, "AutoZoom", true, "Set Range Automatically", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_timeMode, "TimeMode", "Time Mode", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_timeUnit, "TimeUnit", "Time Unit", "", "", "");
+    CAF_PDM_InitField( &m_isAutoZoom, "AutoZoom", true, "Set Range Automatically", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeMode, "TimeMode", "Time Mode", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeUnit, "TimeUnit", "Time Unit", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_visibleDateRangeMax, "VisibleDateRangeMax", "Max Date", "", "", "");
-    m_visibleDateRangeMax.uiCapability()->setUiEditorTypeName(caf::PdmUiDateEditor::uiEditorTypeName());
-    CAF_PDM_InitFieldNoDefault(&m_visibleDateRangeMin, "VisibleDateRangeMin", "Min Date", "", "", "");
-    m_visibleDateRangeMin.uiCapability()->setUiEditorTypeName(caf::PdmUiDateEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault( &m_visibleDateRangeMax, "VisibleDateRangeMax", "Max Date", "", "", "" );
+    m_visibleDateRangeMax.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_visibleDateRangeMin, "VisibleDateRangeMin", "Min Date", "", "", "" );
+    m_visibleDateRangeMin.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault(&m_visibleTimeRangeMax, "VisibleTimeRangeMax", "MaxTime", "", "", "");
-    m_visibleTimeRangeMax.uiCapability()->setUiEditorTypeName(caf::PdmUiTimeEditor::uiEditorTypeName());
-    m_visibleTimeRangeMax.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitFieldNoDefault( &m_visibleTimeRangeMax, "VisibleTimeRangeMax", "MaxTime", "", "", "" );
+    m_visibleTimeRangeMax.uiCapability()->setUiEditorTypeName( caf::PdmUiTimeEditor::uiEditorTypeName() );
+    m_visibleTimeRangeMax.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault(&m_visibleTimeRangeMin, "VisibleTimeRangeMin", "Min Time", "", "", "");
-    m_visibleTimeRangeMin.uiCapability()->setUiEditorTypeName(caf::PdmUiTimeEditor::uiEditorTypeName());
-    m_visibleTimeRangeMin.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitFieldNoDefault( &m_visibleTimeRangeMin, "VisibleTimeRangeMin", "Min Time", "", "", "" );
+    m_visibleTimeRangeMin.uiCapability()->setUiEditorTypeName( caf::PdmUiTimeEditor::uiEditorTypeName() );
+    m_visibleTimeRangeMin.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault(&m_visibleTimeSinceStartRangeMax, "VisibleTimeModeRangeMax", "Max", "", "", "");
-    m_visibleTimeSinceStartRangeMax.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault( &m_visibleTimeSinceStartRangeMax, "VisibleTimeModeRangeMax", "Max", "", "", "" );
+    m_visibleTimeSinceStartRangeMax.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault(&m_visibleTimeSinceStartRangeMin, "VisibleTimeModeRangeMin", "Min", "", "", "");
-    m_visibleTimeSinceStartRangeMin.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault( &m_visibleTimeSinceStartRangeMin, "VisibleTimeModeRangeMin", "Min", "", "", "" );
+    m_visibleTimeSinceStartRangeMin.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault(&m_titlePositionEnum, "TitlePosition", "Title Position", "", "", "");
-    CAF_PDM_InitField(&m_titleFontSize, "FontSize", 10, "Font Size", "", "", "");
-    m_titleFontSize = RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
-    CAF_PDM_InitField(&m_valuesFontSize, "ValuesFontSize", 10, "Font Size", "", "", "");
-    m_valuesFontSize = RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
-	
-	CAF_PDM_InitField(&m_automaticDateComponents, "AutoDate", true, "Automatic Date/Time Labels", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_dateComponents, "DateComponents", "Set Date Label", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_timeComponents, "TimeComponents", "Set Time Label", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_titlePositionEnum, "TitlePosition", "Title Position", "", "", "" );
+    CAF_PDM_InitField( &m_titleFontSize, "FontSize", 10, "Font Size", "", "", "" );
+    m_titleFontSize = RiaFontCache::pointSizeFromFontSizeEnum(
+        RiaApplication::instance()->preferences()->defaultPlotFontSize() );
+    CAF_PDM_InitField( &m_valuesFontSize, "ValuesFontSize", 10, "Font Size", "", "", "" );
+    m_valuesFontSize = RiaFontCache::pointSizeFromFontSizeEnum(
+        RiaApplication::instance()->preferences()->defaultPlotFontSize() );
 
-    CAF_PDM_InitFieldNoDefault(&m_dateFormat, "DateFormat", "Date Label Format", "", "", "");
-    m_dateFormat.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+    CAF_PDM_InitField( &m_automaticDateComponents, "AutoDate", true, "Automatic Date/Time Labels", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_dateComponents, "DateComponents", "Set Date Label", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeComponents, "TimeComponents", "Set Time Label", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_dateFormat, "DateFormat", "Date Label Format", "", "", "" );
+    m_dateFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_dateFormat = RiaApplication::instance()->preferences()->dateFormat();
 
-    CAF_PDM_InitFieldNoDefault(&m_timeFormat, "TimeFormat", "Time Label Format", "", "", "");
-    m_timeFormat.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault( &m_timeFormat, "TimeFormat", "Time Label Format", "", "", "" );
+    m_timeFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_timeFormat = RiaApplication::instance()->preferences()->timeFormat();
 
-    CAF_PDM_InitFieldNoDefault(&m_visibleDateTimeRangeMax_OBSOLETE, "VisibleRangeMax", "Max", "", "", "");
-    m_visibleDateTimeRangeMax_OBSOLETE.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault( &m_visibleDateTimeRangeMax_OBSOLETE, "VisibleRangeMax", "Max", "", "", "" );
+    m_visibleDateTimeRangeMax_OBSOLETE.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault(&m_visibleDateTimeRangeMin_OBSOLETE, "VisibleRangeMin", "Min", "", "", "");
-    m_visibleDateTimeRangeMin_OBSOLETE.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault( &m_visibleDateTimeRangeMin_OBSOLETE, "VisibleRangeMin", "Min", "", "", "" );
+    m_visibleDateTimeRangeMin_OBSOLETE.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,7 +143,7 @@ int RimSummaryTimeAxisProperties::titleFontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTimeAxisProperties::setTitleFontSize(int fontSize)
+void RimSummaryTimeAxisProperties::setTitleFontSize( int fontSize )
 {
     m_titleFontSize = fontSize;
 }
@@ -155,7 +159,7 @@ int RimSummaryTimeAxisProperties::valuesFontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTimeAxisProperties::setValuesFontSize(int fontSize)
+void RimSummaryTimeAxisProperties::setValuesFontSize( int fontSize )
 {
     m_valuesFontSize = fontSize;
 }
@@ -165,9 +169,9 @@ void RimSummaryTimeAxisProperties::setValuesFontSize(int fontSize)
 //--------------------------------------------------------------------------------------------------
 double RimSummaryTimeAxisProperties::visibleRangeMin() const
 {
-    if (m_timeMode() == DATE)
+    if ( m_timeMode() == DATE )
     {
-        return QwtDate::toDouble(visibleDateTimeMin());
+        return QwtDate::toDouble( visibleDateTimeMin() );
     }
     else
         return m_visibleTimeSinceStartRangeMin();
@@ -178,9 +182,9 @@ double RimSummaryTimeAxisProperties::visibleRangeMin() const
 //--------------------------------------------------------------------------------------------------
 double RimSummaryTimeAxisProperties::visibleRangeMax() const
 {
-    if (m_timeMode() == DATE)
+    if ( m_timeMode() == DATE )
     {
-        return QwtDate::toDouble(visibleDateTimeMax());
+        return QwtDate::toDouble( visibleDateTimeMax() );
     }
     else
         return m_visibleTimeSinceStartRangeMax();
@@ -189,38 +193,38 @@ double RimSummaryTimeAxisProperties::visibleRangeMax() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTimeAxisProperties::setVisibleRangeMin(double value)
+void RimSummaryTimeAxisProperties::setVisibleRangeMin( double value )
 {
-    if (m_timeMode() == DATE)
+    if ( m_timeMode() == DATE )
     {
-        QDateTime dateTime              = QwtDate::toDateTime(value);
-        m_visibleTimeSinceStartRangeMin = fromDateToDisplayTime(dateTime);
-        setVisibleDateTimeMin(dateTime);
+        QDateTime dateTime              = QwtDate::toDateTime( value );
+        m_visibleTimeSinceStartRangeMin = fromDateToDisplayTime( dateTime );
+        setVisibleDateTimeMin( dateTime );
     }
     else
     {
         m_visibleTimeSinceStartRangeMin = value;
-        QDateTime dateTime              = fromDisplayTimeToDate(value);
-        setVisibleDateTimeMin(dateTime);
+        QDateTime dateTime              = fromDisplayTimeToDate( value );
+        setVisibleDateTimeMin( dateTime );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTimeAxisProperties::setVisibleRangeMax(double value)
+void RimSummaryTimeAxisProperties::setVisibleRangeMax( double value )
 {
-    if (m_timeMode() == DATE)
+    if ( m_timeMode() == DATE )
     {
-        QDateTime dateTime              = QwtDate::toDateTime(value);
-        m_visibleTimeSinceStartRangeMax = fromDateToDisplayTime(dateTime);
-        setVisibleDateTimeMax(dateTime);
+        QDateTime dateTime              = QwtDate::toDateTime( value );
+        m_visibleTimeSinceStartRangeMax = fromDateToDisplayTime( dateTime );
+        setVisibleDateTimeMax( dateTime );
     }
     else
     {
         m_visibleTimeSinceStartRangeMax = value;
-        QDateTime dateTime              = fromDisplayTimeToDate(value);
-        setVisibleDateTimeMax(dateTime);
+        QDateTime dateTime              = fromDisplayTimeToDate( value );
+        setVisibleDateTimeMax( dateTime );
     }
 }
 
@@ -235,7 +239,7 @@ bool RimSummaryTimeAxisProperties::isAutoZoom() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTimeAxisProperties::setAutoZoom(bool enableAutoZoom)
+void RimSummaryTimeAxisProperties::setAutoZoom( bool enableAutoZoom )
 {
     m_isAutoZoom = enableAutoZoom;
 }
@@ -245,8 +249,8 @@ void RimSummaryTimeAxisProperties::setAutoZoom(bool enableAutoZoom)
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::updateTimeVisibleRange()
 {
-    m_visibleTimeSinceStartRangeMax = fromDateToDisplayTime(visibleDateTimeMax());
-    m_visibleTimeSinceStartRangeMin = fromDateToDisplayTime(visibleDateTimeMin());
+    m_visibleTimeSinceStartRangeMax = fromDateToDisplayTime( visibleDateTimeMax() );
+    m_visibleTimeSinceStartRangeMin = fromDateToDisplayTime( visibleDateTimeMin() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -254,22 +258,22 @@ void RimSummaryTimeAxisProperties::updateTimeVisibleRange()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::updateDateVisibleRange()
 {
-    setVisibleDateTimeMin(fromDisplayTimeToDate(m_visibleTimeSinceStartRangeMin()));
-    setVisibleDateTimeMax(fromDisplayTimeToDate(m_visibleTimeSinceStartRangeMax()));
+    setVisibleDateTimeMin( fromDisplayTimeToDate( m_visibleTimeSinceStartRangeMin() ) );
+    setVisibleDateTimeMax( fromDisplayTimeToDate( m_visibleTimeSinceStartRangeMax() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDateTime RimSummaryTimeAxisProperties::fromDisplayTimeToDate(double displayTime)
+QDateTime RimSummaryTimeAxisProperties::fromDisplayTimeToDate( double displayTime )
 {
     RimSummaryPlot* rimSummaryPlot = nullptr;
-    this->firstAncestorOrThisOfType(rimSummaryPlot);
+    this->firstAncestorOrThisOfType( rimSummaryPlot );
     time_t startOfSimulation = rimSummaryPlot->firstTimeStepOfFirstCurve();
 
     time_t    secsSinceSimulationStart = displayTime / fromTimeTToDisplayUnitScale();
     QDateTime date;
-    date.setTime_t(startOfSimulation + secsSinceSimulationStart);
+    date.setTime_t( startOfSimulation + secsSinceSimulationStart );
 
     return date;
 }
@@ -277,15 +281,15 @@ QDateTime RimSummaryTimeAxisProperties::fromDisplayTimeToDate(double displayTime
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimSummaryTimeAxisProperties::fromDateToDisplayTime(const QDateTime& displayTime)
+double RimSummaryTimeAxisProperties::fromDateToDisplayTime( const QDateTime& displayTime )
 {
     time_t secsSinceEpoc = displayTime.toTime_t();
 
     RimSummaryPlot* rimSummaryPlot = nullptr;
-    this->firstAncestorOrThisOfType(rimSummaryPlot);
+    this->firstAncestorOrThisOfType( rimSummaryPlot );
     time_t startOfSimulation = rimSummaryPlot->firstTimeStepOfFirstCurve();
 
-    return fromTimeTToDisplayUnitScale() * (secsSinceEpoc - startOfSimulation);
+    return fromTimeTToDisplayUnitScale() * ( secsSinceEpoc - startOfSimulation );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -301,7 +305,7 @@ bool RimSummaryTimeAxisProperties::isActive() const
 //--------------------------------------------------------------------------------------------------
 QDateTime RimSummaryTimeAxisProperties::visibleDateTimeMin() const
 {
-    return RiaQDateTimeTools::createUtcDateTime(m_visibleDateRangeMin(), m_visibleTimeRangeMin());
+    return RiaQDateTimeTools::createUtcDateTime( m_visibleDateRangeMin(), m_visibleTimeRangeMin() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -309,13 +313,13 @@ QDateTime RimSummaryTimeAxisProperties::visibleDateTimeMin() const
 //--------------------------------------------------------------------------------------------------
 QDateTime RimSummaryTimeAxisProperties::visibleDateTimeMax() const
 {
-    return RiaQDateTimeTools::createUtcDateTime(m_visibleDateRangeMax(), m_visibleTimeRangeMax());
+    return RiaQDateTimeTools::createUtcDateTime( m_visibleDateRangeMax(), m_visibleTimeRangeMax() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTimeAxisProperties::setVisibleDateTimeMin(const QDateTime& dateTime)
+void RimSummaryTimeAxisProperties::setVisibleDateTimeMin( const QDateTime& dateTime )
 {
     m_visibleDateRangeMin = dateTime.date();
     m_visibleTimeRangeMin = dateTime.time();
@@ -324,7 +328,7 @@ void RimSummaryTimeAxisProperties::setVisibleDateTimeMin(const QDateTime& dateTi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTimeAxisProperties::setVisibleDateTimeMax(const QDateTime& dateTime)
+void RimSummaryTimeAxisProperties::setVisibleDateTimeMax( const QDateTime& dateTime )
 {
     m_visibleDateRangeMax = dateTime.date();
     m_visibleTimeRangeMax = dateTime.time();
@@ -333,53 +337,56 @@ void RimSummaryTimeAxisProperties::setVisibleDateTimeMax(const QDateTime& dateTi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimSummaryTimeAxisProperties::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                                  bool*                      useOptionsOnly)
+QList<caf::PdmOptionItemInfo>
+    RimSummaryTimeAxisProperties::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
 
-    if (&m_titleFontSize == fieldNeedingOptions || &m_valuesFontSize == fieldNeedingOptions)
+    if ( &m_titleFontSize == fieldNeedingOptions || &m_valuesFontSize == fieldNeedingOptions )
     {
         std::vector<int> fontSizes;
-        fontSizes.push_back(8);
-        fontSizes.push_back(9);
-        fontSizes.push_back(10);
-        fontSizes.push_back(11);
-        fontSizes.push_back(12);
-        fontSizes.push_back(14);
-        fontSizes.push_back(16);
-        fontSizes.push_back(18);
-        fontSizes.push_back(24);
+        fontSizes.push_back( 8 );
+        fontSizes.push_back( 9 );
+        fontSizes.push_back( 10 );
+        fontSizes.push_back( 11 );
+        fontSizes.push_back( 12 );
+        fontSizes.push_back( 14 );
+        fontSizes.push_back( 16 );
+        fontSizes.push_back( 18 );
+        fontSizes.push_back( 24 );
 
-        for (int value : fontSizes)
+        for ( int value : fontSizes )
         {
-            QString text = QString("%1").arg(value);
-            options.push_back(caf::PdmOptionItemInfo(text, value));
+            QString text = QString( "%1" ).arg( value );
+            options.push_back( caf::PdmOptionItemInfo( text, value ) );
         }
     }
-    else if (fieldNeedingOptions == &m_dateFormat)
+    else if ( fieldNeedingOptions == &m_dateFormat )
     {
-        for (auto dateFormat : RiaQDateTimeTools::supportedDateFormats())
+        for ( auto dateFormat : RiaQDateTimeTools::supportedDateFormats() )
         {
-            QDate   exampleDate = QDate(2019, 8, 16);
+            QDate   exampleDate = QDate( 2019, 8, 16 );
             QString fullDateFormat =
-                RiaQDateTimeTools::dateFormatString(dateFormat, dateComponents(RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY));
-            QString uiText = QString("%1 (%2)").arg(fullDateFormat).arg(exampleDate.toString(fullDateFormat));
-            uiText.replace("AP", "AM/PM");
-            options.push_back(caf::PdmOptionItemInfo(uiText, QVariant::fromValue(dateFormat)));
+                RiaQDateTimeTools::dateFormatString( dateFormat,
+                                                     dateComponents( RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY ) );
+            QString uiText = QString( "%1 (%2)" ).arg( fullDateFormat ).arg( exampleDate.toString( fullDateFormat ) );
+            uiText.replace( "AP", "AM/PM" );
+            options.push_back( caf::PdmOptionItemInfo( uiText, QVariant::fromValue( dateFormat ) ) );
         }
     }
-    else if (fieldNeedingOptions == &m_timeFormat)
+    else if ( fieldNeedingOptions == &m_timeFormat )
     {
-        for (auto timeFormat : RiaQDateTimeTools::supportedTimeFormats())
+        for ( auto timeFormat : RiaQDateTimeTools::supportedTimeFormats() )
         {
-            QTime   exampleTime = QTime(15, 48, 22);
+            QTime   exampleTime = QTime( 15, 48, 22 );
             QString timeFormatString =
-                RiaQDateTimeTools::timeFormatString(timeFormat, timeComponents(RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND));
-            QString uiText = QString("%1 (%2)").arg(timeFormatString).arg(exampleTime.toString(timeFormatString));
-            uiText.replace("AP", "AM/PM");
-            options.push_back(caf::PdmOptionItemInfo(uiText, QVariant::fromValue(timeFormat)));
+                RiaQDateTimeTools::timeFormatString( timeFormat,
+                                                     timeComponents( RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND ) );
+            QString uiText = QString( "%1 (%2)" ).arg( timeFormatString ).arg( exampleTime.toString( timeFormatString ) );
+            uiText.replace( "AP", "AM/PM" );
+            options.push_back( caf::PdmOptionItemInfo( uiText, QVariant::fromValue( timeFormat ) ) );
         }
     }
     return options;
@@ -404,7 +411,7 @@ RimSummaryTimeAxisProperties::TimeModeType RimSummaryTimeAxisProperties::timeMod
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTimeAxisProperties::setTimeMode(TimeModeType val)
+void RimSummaryTimeAxisProperties::setTimeMode( TimeModeType val )
 {
     m_timeMode = val;
 }
@@ -415,7 +422,7 @@ void RimSummaryTimeAxisProperties::setTimeMode(TimeModeType val)
 double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
 {
     double scale = 1.0;
-    switch (m_timeUnit())
+    switch ( m_timeUnit() )
     {
         case SECONDS:
             break;
@@ -423,16 +430,16 @@ double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
             scale = 1.0 / 60.0;
             break;
         case HOURS:
-            scale = 1.0 / (60.0 * 60.0);
+            scale = 1.0 / ( 60.0 * 60.0 );
             break;
         case DAYS:
-            scale = 1.0 / (60.0 * 60.0 * 24.0);
+            scale = 1.0 / ( 60.0 * 60.0 * 24.0 );
             break;
         case YEARS:
             scale = 1.0 / 31556952.0;
             break;
         default:
-            CVF_ASSERT(false);
+            CVF_ASSERT( false );
             break;
     }
 
@@ -445,7 +452,7 @@ double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
 double RimSummaryTimeAxisProperties::fromDaysToDisplayUnitScale()
 {
     double scale = 1.0;
-    switch (m_timeUnit())
+    switch ( m_timeUnit() )
     {
         case SECONDS:
             scale = 60.0 * 60.0 * 24.0;
@@ -462,7 +469,7 @@ double RimSummaryTimeAxisProperties::fromDaysToDisplayUnitScale()
             scale = 1.0 / 365.2425;
             break;
         default:
-            CVF_ASSERT(false);
+            CVF_ASSERT( false );
             break;
     }
 
@@ -472,10 +479,11 @@ double RimSummaryTimeAxisProperties::fromDaysToDisplayUnitScale()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaQDateTimeTools::DateFormatComponents RimSummaryTimeAxisProperties::dateComponents(RiaQDateTimeTools::DateFormatComponents fallback) const
+RiaQDateTimeTools::DateFormatComponents
+    RimSummaryTimeAxisProperties::dateComponents( RiaQDateTimeTools::DateFormatComponents fallback ) const
 {
-    if (m_automaticDateComponents()) return fallback;
-    
+    if ( m_automaticDateComponents() ) return fallback;
+
     RiaQDateTimeTools::DateFormatComponents components = m_dateComponents();
 
     return components;
@@ -484,10 +492,11 @@ RiaQDateTimeTools::DateFormatComponents RimSummaryTimeAxisProperties::dateCompon
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaQDateTimeTools::TimeFormatComponents RimSummaryTimeAxisProperties::timeComponents(RiaQDateTimeTools::TimeFormatComponents fallback) const
+RiaQDateTimeTools::TimeFormatComponents
+    RimSummaryTimeAxisProperties::timeComponents( RiaQDateTimeTools::TimeFormatComponents fallback ) const
 {
-    if (m_automaticDateComponents()) return fallback;
-	
+    if ( m_automaticDateComponents() ) return fallback;
+
     RiaQDateTimeTools::TimeFormatComponents components = m_timeComponents();
 
     return components;
@@ -512,72 +521,72 @@ const QString& RimSummaryTimeAxisProperties::timeFormat() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTimeAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimSummaryTimeAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup& titleGroup = *(uiOrdering.addNewGroup("Axis Title"));
-    titleGroup.add(&showTitle);
-	titleGroup.add(&title);
-	title.uiCapability()->setUiReadOnly(!showTitle());
-	if (showTitle())
-	{		
-		titleGroup.add(&m_titlePositionEnum);
-		titleGroup.add(&m_titleFontSize);
-	}
-
-    caf::PdmUiGroup* timeGroup = uiOrdering.addNewGroup("Time Values");
-    timeGroup->add(&m_timeMode);
-    if (m_timeMode() == DATE)
+    caf::PdmUiGroup& titleGroup = *( uiOrdering.addNewGroup( "Axis Title" ) );
+    titleGroup.add( &showTitle );
+    titleGroup.add( &title );
+    title.uiCapability()->setUiReadOnly( !showTitle() );
+    if ( showTitle() )
     {
-        timeGroup->add(&m_visibleDateRangeMax, true);
-        timeGroup->add(&m_visibleTimeRangeMax, false);
-        timeGroup->add(&m_visibleDateRangeMin, true);
-        timeGroup->add(&m_visibleTimeRangeMin, false);
-		timeGroup->add(&m_automaticDateComponents);
-		if (!m_automaticDateComponents())
-		{
-			timeGroup->add(&m_dateComponents);
-			timeGroup->add(&m_timeComponents);
-		}
+        titleGroup.add( &m_titlePositionEnum );
+        titleGroup.add( &m_titleFontSize );
+    }
+
+    caf::PdmUiGroup* timeGroup = uiOrdering.addNewGroup( "Time Values" );
+    timeGroup->add( &m_timeMode );
+    if ( m_timeMode() == DATE )
+    {
+        timeGroup->add( &m_visibleDateRangeMax, true );
+        timeGroup->add( &m_visibleTimeRangeMax, false );
+        timeGroup->add( &m_visibleDateRangeMin, true );
+        timeGroup->add( &m_visibleTimeRangeMin, false );
+        timeGroup->add( &m_automaticDateComponents );
+        if ( !m_automaticDateComponents() )
+        {
+            timeGroup->add( &m_dateComponents );
+            timeGroup->add( &m_timeComponents );
+        }
     }
     else
     {
-        timeGroup->add(&m_timeUnit);
-        timeGroup->add(&m_visibleTimeSinceStartRangeMax);
-        timeGroup->add(&m_visibleTimeSinceStartRangeMin);
+        timeGroup->add( &m_timeUnit );
+        timeGroup->add( &m_visibleTimeSinceStartRangeMax );
+        timeGroup->add( &m_visibleTimeSinceStartRangeMin );
     }
-    timeGroup->add(&m_valuesFontSize);
-	if (m_timeMode() == DATE)
-	{
-		caf::PdmUiGroup* advancedGroup = timeGroup->addNewGroup("Date/Time Label Format");
-		advancedGroup->setCollapsedByDefault(true);
-		if (m_automaticDateComponents() || m_dateComponents() != RiaQDateTimeTools::DATE_FORMAT_NONE)
-		{
-			advancedGroup->add(&m_dateFormat);
-		}
-		if (m_automaticDateComponents() || m_timeComponents() != RiaQDateTimeTools::TIME_FORMAT_NONE)
-		{
-			advancedGroup->add(&m_timeFormat);
-		}        
-	}
+    timeGroup->add( &m_valuesFontSize );
+    if ( m_timeMode() == DATE )
+    {
+        caf::PdmUiGroup* advancedGroup = timeGroup->addNewGroup( "Date/Time Label Format" );
+        advancedGroup->setCollapsedByDefault( true );
+        if ( m_automaticDateComponents() || m_dateComponents() != RiaQDateTimeTools::DATE_FORMAT_NONE )
+        {
+            advancedGroup->add( &m_dateFormat );
+        }
+        if ( m_automaticDateComponents() || m_timeComponents() != RiaQDateTimeTools::TIME_FORMAT_NONE )
+        {
+            advancedGroup->add( &m_timeFormat );
+        }
+    }
 
-    uiOrdering.skipRemainingFields(true);
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTimeAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue)
+void RimSummaryTimeAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                     const QVariant&            oldValue,
+                                                     const QVariant&            newValue )
 {
     RimSummaryPlot* rimSummaryPlot = nullptr;
-    this->firstAncestorOrThisOfType(rimSummaryPlot);
-    if (!rimSummaryPlot) return;
+    this->firstAncestorOrThisOfType( rimSummaryPlot );
+    if ( !rimSummaryPlot ) return;
 
-    if (changedField == &m_visibleDateRangeMax)
+    if ( changedField == &m_visibleDateRangeMax )
     {
         QDate test = newValue.toDate();
-        if (!test.isValid())
+        if ( !test.isValid() )
         {
             m_visibleDateRangeMax = oldValue.toDate();
         }
@@ -585,10 +594,10 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* c
         updateTimeVisibleRange();
         m_isAutoZoom = false;
     }
-    else if (changedField == &m_visibleTimeRangeMax)
+    else if ( changedField == &m_visibleTimeRangeMax )
     {
         QTime test = newValue.toTime();
-        if (!test.isValid())
+        if ( !test.isValid() )
         {
             m_visibleTimeRangeMax = oldValue.toTime();
         }
@@ -596,10 +605,10 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* c
         updateTimeVisibleRange();
         m_isAutoZoom = false;
     }
-    else if (changedField == &m_visibleDateRangeMin)
+    else if ( changedField == &m_visibleDateRangeMin )
     {
         QDate test = newValue.toDate();
-        if (!test.isValid())
+        if ( !test.isValid() )
         {
             m_visibleDateRangeMin = oldValue.toDate();
         }
@@ -607,10 +616,10 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* c
         updateTimeVisibleRange();
         m_isAutoZoom = false;
     }
-    else if (changedField == &m_visibleTimeRangeMin)
+    else if ( changedField == &m_visibleTimeRangeMin )
     {
         QTime test = newValue.toTime();
-        if (!test.isValid())
+        if ( !test.isValid() )
         {
             m_visibleTimeRangeMin = oldValue.toTime();
         }
@@ -618,22 +627,22 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* c
         updateTimeVisibleRange();
         m_isAutoZoom = false;
     }
-    else if (changedField == &m_visibleTimeSinceStartRangeMin || changedField == &m_visibleTimeSinceStartRangeMax)
+    else if ( changedField == &m_visibleTimeSinceStartRangeMin || changedField == &m_visibleTimeSinceStartRangeMax )
     {
         updateDateVisibleRange();
         m_isAutoZoom = false;
     }
-    else if (changedField == &m_timeMode)
+    else if ( changedField == &m_timeMode )
     {
         rimSummaryPlot->loadDataAndUpdate();
     }
-    else if (changedField == &m_timeUnit)
+    else if ( changedField == &m_timeUnit )
     {
         updateTimeVisibleRange(); // Use the stored max min dates to update the visible time range to new unit
         rimSummaryPlot->loadDataAndUpdate();
         updateDateVisibleRange();
     }
-    else if (changedField == &m_dateFormat || changedField == &m_timeFormat)
+    else if ( changedField == &m_dateFormat || changedField == &m_timeFormat )
     {
         updateTimeVisibleRange(); // Use the stored max min dates to update the visible time range to new unit
         rimSummaryPlot->loadDataAndUpdate();
@@ -650,12 +659,12 @@ void RimSummaryTimeAxisProperties::initAfterRead()
 {
     QDateTime maxDateTime = m_visibleDateTimeRangeMax_OBSOLETE();
     QDateTime minDateTime = m_visibleDateTimeRangeMin_OBSOLETE();
-    if (maxDateTime.isValid())
+    if ( maxDateTime.isValid() )
     {
         m_visibleDateRangeMax = maxDateTime.date();
         m_visibleTimeRangeMax = maxDateTime.time();
     }
-    if (minDateTime.isValid())
+    if ( minDateTime.isValid() )
     {
         m_visibleDateRangeMin = minDateTime.date();
         m_visibleTimeRangeMin = minDateTime.time();
@@ -665,26 +674,26 @@ void RimSummaryTimeAxisProperties::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTimeAxisProperties::defineEditorAttribute(const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute)
+void RimSummaryTimeAxisProperties::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                          QString                    uiConfigName,
+                                                          caf::PdmUiEditorAttribute* attribute )
 {
-    if (field == &m_visibleDateRangeMin || field == &m_visibleDateRangeMax)
+    if ( field == &m_visibleDateRangeMin || field == &m_visibleDateRangeMax )
     {
-        auto dateAttrib = dynamic_cast<caf::PdmUiDateEditorAttribute*>(attribute);
-        if (dateAttrib)
+        auto dateAttrib = dynamic_cast<caf::PdmUiDateEditorAttribute*>( attribute );
+        if ( dateAttrib )
         {
-            dateAttrib->dateFormat =
-                RiaQDateTimeTools::dateFormatString(m_dateFormat(), RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY);
+            dateAttrib->dateFormat = RiaQDateTimeTools::dateFormatString( m_dateFormat(),
+                                                                          RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
         }
     }
-    else if (field == &m_visibleTimeRangeMin || field == &m_visibleTimeRangeMax)
+    else if ( field == &m_visibleTimeRangeMin || field == &m_visibleTimeRangeMax )
     {
-        auto timeAttrib = dynamic_cast<caf::PdmUiTimeEditorAttribute*>(attribute);
-        if (timeAttrib)
+        auto timeAttrib = dynamic_cast<caf::PdmUiTimeEditorAttribute*>( attribute );
+        if ( timeAttrib )
         {
             timeAttrib->timeFormat =
-                RiaQDateTimeTools::timeFormatString(m_timeFormat(), RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND);
+                RiaQDateTimeTools::timeFormatString( m_timeFormat(), RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND );
         }
     }
 }

@@ -8,19 +8,19 @@
   Stable Qwt releases are available from the 
   Qwt <a href="https://sourceforge.net/projects/qwt/files/qwt">project page</a>.
 
-  Qwt-6.1.3 consists of 4 files:
+  Qwt-6.1.4 consists of 4 files:
 
-  - qwt-6.1.3.zip\n
+  - qwt-6.1.4.zip\n
     Zip file with the Qwt sources and the html documentation for Windows
 
-  - qwt-6.1.3.tar.bz2\n
+  - qwt-6.1.4.tar.bz2\n
     Compressed tar file with the Qwt sources and the html documentation
     for UNIX systems ( Linux, Mac, ... )
 
-  - qwt-6.1.3.pdf\n
+  - qwt-6.1.4.pdf\n
     Qwt documentation as PDF document. 
 
-  - qwt-6.1.3.qch\n
+  - qwt-6.1.4.qch\n
     Qwt documentation as Qt Compressed Help document, that can be loaded into
     the Qt Assistant or Creator. In the Qt Creator context sensitive help will be
     available like for Qt classes.
@@ -28,7 +28,7 @@
   Precompiled Qwt Designer plugins, that are compatible with some binary packages
   of the Qt Creator:
 
-  - qwtdesigner-6.1.3-*.zip
+  - qwtdesigner-6.1.4-*.zip
 
 
 \section INSTALL Installing Qwt
@@ -41,10 +41,10 @@
   by editing qwtconfig.pri. Its default settings is:
 
   - Windows\n
-    C:\\Qwt-6.1.3
+    C:\\Qwt-6.1.4
 
   - Unix like systems\n
-    /usr/local/qwt-6.1.3
+    /usr/local/qwt-6.1.4
 
   For the rest of the document this install path will be written as <i>${QWT_ROOT}</i> 
   and needs to be replaced by the real path in all commands below.
@@ -106,7 +106,7 @@
   So creating a makefile usually means something like:
 
 \code
-  cd qwt-6.1.3
+  cd qwt-6.1.4
   /usr/local/Qt-5.0.1/bin/qmake qwt.pro
 \endcode
 
@@ -140,7 +140,7 @@
   Creating a makefile usually means something like:
 
 \code
-  cd qwt-6.1.3
+  cd qwt-6.1.4
   qmake qwt.pro
 \endcode
 
@@ -227,7 +227,7 @@
 
   - open the settings dialog from the <i>Tools->Options</i> menu 
   - raise the tab "Help->Documentation". 
-  - press the <i>Add</i> button and select qwt-6.1.3.qch.
+  - press the <i>Add</i> button and select qwt-6.1.4.qch.
 
   Now the context sensitive help ( <i>F1</i> ) works for Qwt classes.
 
@@ -235,7 +235,7 @@
 
   - open the settings dialog from the <i>Edit->Preferences</i> menu 
   - raise the tab <i>Documentation</i>. 
-  - press the <i>Add</i> button and select qwt-6.1.3.qch.
+  - press the <i>Add</i> button and select qwt-6.1.4.qch.
 
 \section COMPILEANDLINKAPP Building a Qwt application
 

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -27,61 +27,60 @@
 #include "cafPdmUiTextEditor.h"
 #include "cafVecIjk.h"
 
-
-CAF_PDM_SOURCE_INIT(RicExportLgrUi, "RicExportLgrUi");
+CAF_PDM_SOURCE_INIT( RicExportLgrUi, "RicExportLgrUi" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 namespace caf
 {
-    template<>
-    void Lgr::SplitTypeEnum::setUp()
-    {
-        addItem(Lgr::LGR_PER_CELL,       "LGR_PER_CELL",         "LGR Per Cell");
-        addItem(Lgr::LGR_PER_COMPLETION, "LGR_PER_COMPLETION",   "LGR Per Completion");
-        addItem(Lgr::LGR_PER_WELL,       "LGR_PER_WELL",         "LGR Per Well");
+template <>
+void Lgr::SplitTypeEnum::setUp()
+{
+    addItem( Lgr::LGR_PER_CELL, "LGR_PER_CELL", "LGR Per Cell" );
+    addItem( Lgr::LGR_PER_COMPLETION, "LGR_PER_COMPLETION", "LGR Per Completion" );
+    addItem( Lgr::LGR_PER_WELL, "LGR_PER_WELL", "LGR Per Well" );
 
-        setDefault(Lgr::LGR_PER_COMPLETION);
-    }
+    setDefault( Lgr::LGR_PER_COMPLETION );
 }
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicExportLgrUi::RicExportLgrUi()
 {
-    CAF_PDM_InitObject("Export CARFIN", "", "", "");
+    CAF_PDM_InitObject( "Export CARFIN", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_exportFolder, "ExportFolder", "Export Folder", "", "", "");
-    m_exportFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault( &m_exportFolder, "ExportFolder", "Export Folder", "", "", "" );
+    m_exportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault(&m_caseToApply, "CaseToApply", "Source Case", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_timeStep, "TimeStepIndex", "Time Step", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_caseToApply, "CaseToApply", "Source Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStepIndex", "Time Step", "", "", "" );
 
-    CAF_PDM_InitField(&m_includePerforations, "IncludePerforations", true, "Perforations", "", "", "");
-    CAF_PDM_InitField(&m_includeFractures, "IncludeFractures", true, "Fractures", "", "", "");
-    CAF_PDM_InitField(&m_includeFishbones, "IncludeFishbones", true, "Fishbones", "", "", "");
+    CAF_PDM_InitField( &m_includePerforations, "IncludePerforations", true, "Perforations", "", "", "" );
+    CAF_PDM_InitField( &m_includeFractures, "IncludeFractures", true, "Fractures", "", "", "" );
+    CAF_PDM_InitField( &m_includeFishbones, "IncludeFishbones", true, "Fishbones", "", "", "" );
 
     QString ijkLabel = "Cell Count I, J, K";
-    CAF_PDM_InitField(&m_cellCountI,    "CellCountI",   2, ijkLabel, "", "", "");
-    CAF_PDM_InitField(&m_cellCountJ,    "CellCountJ",   2, "", "", "", "");
-    CAF_PDM_InitField(&m_cellCountK,    "CellCountK",   2, "", "", "", "");
+    CAF_PDM_InitField( &m_cellCountI, "CellCountI", 2, ijkLabel, "", "", "" );
+    CAF_PDM_InitField( &m_cellCountJ, "CellCountJ", 2, "", "", "", "" );
+    CAF_PDM_InitField( &m_cellCountK, "CellCountK", 2, "", "", "", "" );
 
-    m_cellCountJ.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_cellCountK.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_cellCountJ.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_cellCountK.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitField(&m_splitType,     "SplitType", Lgr::SplitTypeEnum(), "Split Type", "", "", "");
+    CAF_PDM_InitField( &m_splitType, "SplitType", Lgr::SplitTypeEnum(), "Split Type", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicExportLgrUi::setCase(RimEclipseCase* rimCase)
+void RicExportLgrUi::setCase( RimEclipseCase* rimCase )
 {
-    bool isDifferent = (rimCase != m_caseToApply);
+    bool isDifferent = ( rimCase != m_caseToApply );
 
-    if (isDifferent)
+    if ( isDifferent )
     {
         m_caseToApply = rimCase;
         setDefaultValuesFromCase();
@@ -89,13 +88,13 @@ void RicExportLgrUi::setCase(RimEclipseCase* rimCase)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicExportLgrUi::setTimeStep(int timeStep)
+void RicExportLgrUi::setTimeStep( int timeStep )
 {
     bool isDifferent = timeStep != m_timeStep;
 
-    if (isDifferent)
+    if ( isDifferent )
     {
         m_timeStep = timeStep;
         setDefaultValuesFromCase();
@@ -103,15 +102,15 @@ void RicExportLgrUi::setTimeStep(int timeStep)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::VecIjk RicExportLgrUi::lgrCellCount() const
 {
-    return caf::VecIjk (m_cellCountI, m_cellCountJ, m_cellCountK);
+    return caf::VecIjk( m_cellCountI, m_cellCountJ, m_cellCountK );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicExportLgrUi::exportFolder() const
 {
@@ -119,7 +118,7 @@ QString RicExportLgrUi::exportFolder() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RicExportLgrUi::caseToApply() const
 {
@@ -127,7 +126,7 @@ RimEclipseCase* RicExportLgrUi::caseToApply() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RicExportLgrUi::timeStep() const
 {
@@ -140,14 +139,14 @@ int RicExportLgrUi::timeStep() const
 std::set<RigCompletionData::CompletionType> RicExportLgrUi::completionTypes() const
 {
     std::set<RigCompletionData::CompletionType> cts;
-    if (m_includePerforations()) cts.insert(RigCompletionData::PERFORATION);
-    if (m_includeFractures()) cts.insert(RigCompletionData::FRACTURE);
-    if (m_includeFishbones()) cts.insert(RigCompletionData::FISHBONES);
+    if ( m_includePerforations() ) cts.insert( RigCompletionData::PERFORATION );
+    if ( m_includeFractures() ) cts.insert( RigCompletionData::FRACTURE );
+    if ( m_includeFishbones() ) cts.insert( RigCompletionData::FISHBONES );
     return cts;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Lgr::SplitType RicExportLgrUi::splitType() const
 {
@@ -157,28 +156,28 @@ Lgr::SplitType RicExportLgrUi::splitType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportLgrUi::hideExportFolderField(bool hide)
+void RicExportLgrUi::hideExportFolderField( bool hide )
 {
-    m_exportFolder.uiCapability()->setUiHidden(hide);
+    m_exportFolder.uiCapability()->setUiHidden( hide );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicExportLgrUi::setExportFolder(const QString& folder)
+void RicExportLgrUi::setExportFolder( const QString& folder )
 {
     m_exportFolder = folder;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportLgrUi::setDefaultValuesFromCase()
 {
-    if (m_caseToApply)
+    if ( m_caseToApply )
     {
         QString caseFolder = m_caseToApply->locationOnDisc();
-        m_exportFolder = caseFolder;
+        m_exportFolder     = caseFolder;
     }
 
     m_cellCountI = 2;
@@ -187,27 +186,28 @@ void RicExportLgrUi::setDefaultValuesFromCase()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RicExportLgrUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RicExportLgrUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                     bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if (fieldNeedingOptions == &m_caseToApply)
+    if ( fieldNeedingOptions == &m_caseToApply )
     {
-        RimTools::caseOptionItems(&options);
+        RimTools::caseOptionItems( &options );
     }
-    else if (fieldNeedingOptions == &m_timeStep)
+    else if ( fieldNeedingOptions == &m_timeStep )
     {
         QStringList timeStepNames;
 
-        if (m_caseToApply)
+        if ( m_caseToApply )
         {
             timeStepNames = m_caseToApply->timeStepStrings();
         }
-        for (int i = 0; i < timeStepNames.size(); i++)
+        for ( int i = 0; i < timeStepNames.size(); i++ )
         {
-            options.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
+            options.push_back( caf::PdmOptionItemInfo( timeStepNames[i], i ) );
         }
     }
 
@@ -215,48 +215,52 @@ QList<caf::PdmOptionItemInfo> RicExportLgrUi::calculateValueOptions(const caf::P
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicExportLgrUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RicExportLgrUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                       const QVariant&            oldValue,
+                                       const QVariant&            newValue )
 {
-    if (changedField == &m_caseToApply)
+    if ( changedField == &m_caseToApply )
     {
         setDefaultValuesFromCase();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicExportLgrUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RicExportLgrUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiOrdering::LayoutOptions layout(true, 6, 1);
-    uiOrdering.add(&m_caseToApply, layout);
-    uiOrdering.add(&m_timeStep, layout);
-    uiOrdering.add(&m_exportFolder, layout);
-    uiOrdering.add(&m_includeFractures, layout);
-    uiOrdering.add(&m_includeFishbones, layout);
-    uiOrdering.add(&m_includePerforations, layout);
-    uiOrdering.add(&m_splitType, {true, 6, 1});
+    caf::PdmUiOrdering::LayoutOptions layout( true, 6, 1 );
+    uiOrdering.add( &m_caseToApply, layout );
+    uiOrdering.add( &m_timeStep, layout );
+    uiOrdering.add( &m_exportFolder, layout );
+    uiOrdering.add( &m_includeFractures, layout );
+    uiOrdering.add( &m_includeFishbones, layout );
+    uiOrdering.add( &m_includePerforations, layout );
+    uiOrdering.add( &m_splitType, {true, 6, 1} );
 
-    caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup("Grid Refinement");
-    gridRefinement->add(&m_cellCountI, { true, 2, 1});
-    gridRefinement->add(&m_cellCountJ, { false });
-    gridRefinement->add(&m_cellCountK, { false });
+    caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup( "Grid Refinement" );
+    gridRefinement->add( &m_cellCountI, {true, 2, 1} );
+    gridRefinement->add( &m_cellCountJ, {false} );
+    gridRefinement->add( &m_cellCountK, {false} );
 
-//    uiOrdering.add(&m_wellPathsInfo);
-    uiOrdering.skipRemainingFields(true);
+    //    uiOrdering.add(&m_wellPathsInfo);
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicExportLgrUi::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RicExportLgrUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                            QString                    uiConfigName,
+                                            caf::PdmUiEditorAttribute* attribute )
 {
-    if (field == &m_exportFolder)
+    if ( field == &m_exportFolder )
     {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
-        if (myAttr)
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
+        if ( myAttr )
         {
             myAttr->m_selectDirectory = true;
         }

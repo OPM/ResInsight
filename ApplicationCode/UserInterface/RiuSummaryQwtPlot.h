@@ -20,45 +20,56 @@
 
 #include "RiaQDateTimeTools.h"
 #include "RiuInterfaceToViewWindow.h"
-#include "RiuQwtPlot.h"
+#include "RiuQwtPlotWidget.h"
 
 #include "cafPdmPointer.h"
 
 #include <QPointer>
 
-class RimEnsembleCurveSet;
+class RimEnsembleParameterColorHandlerInterface;
 class RiuCvfOverlayItemWidget;
+class RiuQwtPlotZoomer;
+class RiuQwtPlotWheelZoomer;
 
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
-class RiuSummaryQwtPlot : public RiuQwtPlot
+class RiuSummaryQwtPlot : public RiuQwtPlotWidget, public RiuInterfaceToViewWindow
 {
     Q_OBJECT;
 
 public:
-    RiuSummaryQwtPlot(RimViewWindow* ownerViewWindow, QWidget* parent = nullptr);
+    RiuSummaryQwtPlot( RimPlotInterface* plotDefinition, QWidget* parent = nullptr );
 
-    void
-        useDateBasedTimeAxis(const QString&                          dateFormat,
-                             const QString&                          timeFormat,
-                             RiaQDateTimeTools::DateFormatComponents dateComponents = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED,
-                             RiaQDateTimeTools::TimeFormatComponents timeComponents = RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED);
+    void useDateBasedTimeAxis(
+        const QString&                          dateFormat,
+        const QString&                          timeFormat,
+        RiaQDateTimeTools::DateFormatComponents dateComponents = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED,
+        RiaQDateTimeTools::TimeFormatComponents timeComponents = RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED );
 
     void useTimeBasedTimeAxis();
 
-    void addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet* curveSetToShowLegendFor);
-    void removeEnsembleCurveSetLegend(RimEnsembleCurveSet* curveSetToShowLegendFor);
+    RimViewWindow* ownerViewWindow() const override;
+
+    void setLegendFontSize( int fontSize );
+    void setLegendVisible( bool visible );
+
+    void setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic );
 
 protected:
-    void keyPressEvent(QKeyEvent*) override;
-    void contextMenuEvent(QContextMenuEvent*) override;
+    void keyPressEvent( QKeyEvent* ) override;
+    void contextMenuEvent( QContextMenuEvent* ) override;
     void setDefaults();
-    void updateLayout() override;
-private:
-    void updateLegendLayout();
-    std::map<caf::PdmPointer<RimEnsembleCurveSet>, QPointer<RiuCvfOverlayItemWidget>> m_ensembleLegendWidgets;
+    bool isZoomerActive() const override;
+    void endZoomOperations() override;
 
+private slots:
+    void onZoomedSlot();
+
+private:
+    QPointer<RiuQwtPlotZoomer>      m_zoomerLeft;
+    QPointer<RiuQwtPlotZoomer>      m_zoomerRight;
+    QPointer<RiuQwtPlotWheelZoomer> m_wheelZoomer;
 };

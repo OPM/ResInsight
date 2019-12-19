@@ -31,16 +31,16 @@ void Plot::populate()
     curve->setPen( Qt::blue, 4 ),
     curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
 
-    QwtSymbol *symbol = new QwtSymbol( QwtSymbol::Ellipse, 
+    QwtSymbol *symbol = new QwtSymbol( QwtSymbol::Ellipse,
         QBrush( Qt::yellow ), QPen( Qt::red, 2 ), QSize( 8, 8 ) );
     curve->setSymbol( symbol );
 
     QPolygonF points;
-    points << QPointF( 10.0, 4.4 ) 
-        << QPointF( 100.0, 3.0 ) << QPointF( 200.0, 4.5 ) 
-        << QPointF( 300.0, 6.8 ) << QPointF( 400.0, 7.9 ) 
-        << QPointF( 500.0, 7.1 ) << QPointF( 600.0, 7.9 ) 
-        << QPointF( 700.0, 7.1 ) << QPointF( 800.0, 5.4 ) 
+    points << QPointF( 10.0, 4.4 )
+        << QPointF( 100.0, 3.0 ) << QPointF( 200.0, 4.5 )
+        << QPointF( 300.0, 6.8 ) << QPointF( 400.0, 7.9 )
+        << QPointF( 500.0, 7.1 ) << QPointF( 600.0, 7.9 )
+        << QPointF( 700.0, 7.1 ) << QPointF( 800.0, 5.4 )
         << QPointF( 900.0, 2.8 ) << QPointF( 1000.0, 3.6 );
     curve->setSamples( points );
     curve->attach( this );
@@ -56,7 +56,7 @@ void Plot::setTransformation( QwtTransform *transform )
     // we have to reassign the axis settinge, because they are
     // invalidated, when the scale engine has changed
 
-    QwtScaleDiv scaleDiv = 
+    QwtScaleDiv scaleDiv =
         axisScaleEngine( QwtPlot::xBottom )->divideScale( 10.0, 1000.0, 8, 10 );
 
     QList<double> ticks;

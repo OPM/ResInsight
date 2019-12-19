@@ -255,7 +255,7 @@ const QwtScaleDiv &GridItem::yScaleDiv() const
     return m_yScaleDiv;
 }
 
-void GridItem::updateScaleDiv( 
+void GridItem::updateScaleDiv(
     const QwtScaleDiv& xScaleDiv, const QwtScaleDiv& yScaleDiv )
 {
     if ( m_gridAttributes & AutoUpdate )

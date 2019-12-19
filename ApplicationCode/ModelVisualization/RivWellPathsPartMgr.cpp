@@ -30,8 +30,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWellPathsPartMgr::RivWellPathsPartMgr(Rim3dView* view)
-    : m_rimView(view)
+RivWellPathsPartMgr::RivWellPathsPartMgr( Rim3dView* view )
+    : m_rimView( view )
 {
 }
 
@@ -43,54 +43,60 @@ RivWellPathsPartMgr::~RivWellPathsPartMgr() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivWellPathsPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList*              model,
-                                                           const caf::DisplayCoordTransform* displayCoordTransform,
-                                                           double                            characteristicCellSize,
-                                                           const cvf::BoundingBox&           wellPathClipBoundingBox)
-{
-    if (!isWellPathVisible()) return;
-
-    createPartManagersIfRequired();
-
-    for (auto& partMgr : m_wellPathsPartMgrs)
-    {
-        partMgr->appendStaticGeometryPartsToModel(model, displayCoordTransform, characteristicCellSize, wellPathClipBoundingBox);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivWellPathsPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList*    model,
-                                                           const cvf::BoundingBox& wellPathClipBoundingBox)
-{
-    if (!isWellPathVisible()) return;
-
-    createPartManagersIfRequired();
-
-    for (auto& partMgr : m_wellPathsPartMgrs)
-    {
-        partMgr->appendStaticFracturePartsToModel(model, wellPathClipBoundingBox);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivWellPathsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model,
-                                                            size_t                            timeStepIndex,
+void RivWellPathsPartMgr::appendStaticGeometryPartsToModel( cvf::ModelBasicList*              model,
                                                             const caf::DisplayCoordTransform* displayCoordTransform,
                                                             double                            characteristicCellSize,
-                                                            const cvf::BoundingBox&           wellPathClipBoundingBox)
+                                                            const cvf::BoundingBox&           wellPathClipBoundingBox )
 {
-    if (!isWellPathVisible()) return;
+    if ( !isWellPathVisible() ) return;
 
     createPartManagersIfRequired();
 
-    for (auto& partMgr : m_wellPathsPartMgrs)
+    for ( auto& partMgr : m_wellPathsPartMgrs )
     {
-        partMgr->appendDynamicGeometryPartsToModel(
-            model, timeStepIndex, displayCoordTransform, characteristicCellSize, wellPathClipBoundingBox);
+        partMgr->appendStaticGeometryPartsToModel( model,
+                                                   displayCoordTransform,
+                                                   characteristicCellSize,
+                                                   wellPathClipBoundingBox );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivWellPathsPartMgr::appendStaticFracturePartsToModel( cvf::ModelBasicList*    model,
+                                                            const cvf::BoundingBox& wellPathClipBoundingBox )
+{
+    if ( !isWellPathVisible() ) return;
+
+    createPartManagersIfRequired();
+
+    for ( auto& partMgr : m_wellPathsPartMgrs )
+    {
+        partMgr->appendStaticFracturePartsToModel( model, wellPathClipBoundingBox );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivWellPathsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList*              model,
+                                                             size_t                            timeStepIndex,
+                                                             const caf::DisplayCoordTransform* displayCoordTransform,
+                                                             double                            characteristicCellSize,
+                                                             const cvf::BoundingBox&           wellPathClipBoundingBox )
+{
+    if ( !isWellPathVisible() ) return;
+
+    createPartManagersIfRequired();
+
+    for ( auto& partMgr : m_wellPathsPartMgrs )
+    {
+        partMgr->appendDynamicGeometryPartsToModel( model,
+                                                    timeStepIndex,
+                                                    displayCoordTransform,
+                                                    characteristicCellSize,
+                                                    wellPathClipBoundingBox );
     }
 }
 
@@ -116,14 +122,14 @@ void RivWellPathsPartMgr::createPartManagersIfRequired()
     RimProject* proj      = RiaApplication::instance()->project();
     auto        wellPaths = proj->allWellPaths();
 
-    if (m_wellPathsPartMgrs.size() != wellPaths.size())
+    if ( m_wellPathsPartMgrs.size() != wellPaths.size() )
     {
         clearGeometryCache();
 
-        for (auto wellPath : wellPaths)
+        for ( auto wellPath : wellPaths )
         {
-            RivWellPathPartMgr* wppm = new RivWellPathPartMgr(wellPath, m_rimView);
-            m_wellPathsPartMgrs.push_back(wppm);
+            RivWellPathPartMgr* wppm = new RivWellPathPartMgr( wellPath, m_rimView );
+            m_wellPathsPartMgrs.push_back( wppm );
             m_mapFromViewToIndex[wellPath] = wppm;
         }
     }
@@ -136,8 +142,8 @@ bool RivWellPathsPartMgr::isWellPathVisible() const
 {
     auto wellPathColl = RimTools::wellPathCollection();
 
-    if (!wellPathColl->isActive()) return false;
-    if (wellPathColl->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return false;
+    if ( !wellPathColl->isActive() ) return false;
+    if ( wellPathColl->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF ) return false;
 
     return true;
 }

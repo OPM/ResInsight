@@ -23,8 +23,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivObjectSourceInfo::RivObjectSourceInfo(caf::PdmObject* object)
-    : m_object(object)
+RivObjectSourceInfo::RivObjectSourceInfo( caf::PdmObject* object )
+    : m_object( object )
 {
 }
 

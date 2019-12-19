@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,8 +20,8 @@
 
 #include "cafPdmUiFormLayoutObjectEditor.h"
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 class RimSummaryCase;
 class RiuSummaryCurveDefSelection;
@@ -34,14 +34,14 @@ class QVBoxLayout;
 class QHBoxLayout;
 class QBoxLayout;
 
-namespace caf {
-    class PdmUiItem;
+namespace caf
+{
+class PdmUiItem;
 }
 
-
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class RiuSummaryCurveDefSelectionEditor : public caf::PdmUiFormLayoutObjectEditor
 {
@@ -52,21 +52,21 @@ public:
     RiuSummaryCurveDefSelection* summaryAddressSelection() const;
 
 private:
-    void        recursivelyConfigureAndUpdateTopLevelUiOrdering(const caf::PdmUiOrdering& topLevelUiOrdering,
-                                                                        const QString& uiConfigName) override;
-    
-    QWidget*    createWidget(QWidget* parent) override;
+    void recursivelyConfigureAndUpdateTopLevelUiOrdering( const caf::PdmUiOrdering& topLevelUiOrdering,
+                                                          const QString&            uiConfigName ) override;
 
-    void                configureAndUpdateFields(int widgetStartIndex, 
-                                                 QBoxLayout* layout,
-                                                 const std::vector<caf::PdmUiItem *>& topLevelUiItems,
-                                                 const QString& uiConfigName);
+    QWidget* createWidget( QWidget* parent ) override;
 
-    QMinimizePanel*     createGroupBoxWithContent(caf::PdmUiGroup* group, const QString& uiConfigName);
+    void configureAndUpdateFields( int                                 widgetStartIndex,
+                                   QBoxLayout*                         layout,
+                                   const std::vector<caf::PdmUiItem*>& topLevelUiItems,
+                                   const QString&                      uiConfigName );
+
+    QMinimizePanel* createGroupBoxWithContent( caf::PdmUiGroup* group, const QString& uiConfigName );
 
 private:
-    QPointer<QHBoxLayout>   m_firstRowLeftLayout;
-    QPointer<QHBoxLayout>   m_firstRowRightLayout;
+    QPointer<QHBoxLayout> m_firstRowLeftLayout;
+    QPointer<QHBoxLayout> m_firstRowRightLayout;
 
-    std::unique_ptr<RiuSummaryCurveDefSelection>  m_summaryAddressSelection;
+    std::unique_ptr<RiuSummaryCurveDefSelection> m_summaryAddressSelection;
 };

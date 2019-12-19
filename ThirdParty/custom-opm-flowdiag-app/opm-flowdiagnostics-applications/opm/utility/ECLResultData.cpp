@@ -71,6 +71,8 @@ namespace {
             inline std::string
             firstBlockKeyword(const ecl_file_view_type* block)
             {
+                if (!block) return "";
+
                 return ecl_kw_get_header(ecl_file_view_iget_kw(block, 0));
             }
 

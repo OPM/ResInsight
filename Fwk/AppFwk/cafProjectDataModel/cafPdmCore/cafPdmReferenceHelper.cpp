@@ -326,7 +326,7 @@ PdmObjectHandle* PdmReferenceHelper::objectFromFieldReference(PdmFieldHandle* fr
     CAF_ASSERT(lastCommonAnchestor);
     CAF_ASSERT(decodedReference.size());
 
-    while (decodedReference.front() == "..")
+    while (!decodedReference.empty() && decodedReference.front() == "..")
     {
         PdmFieldHandle* parentField = lastCommonAnchestor->parentField();
         if (!parentField)

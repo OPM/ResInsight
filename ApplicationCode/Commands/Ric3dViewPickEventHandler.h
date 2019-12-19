@@ -29,12 +29,8 @@ class Ric3dViewPickEventHandler : public caf::PickEventHandler
 {
 public:
     // Override from caf
-    void registerAsPickEventHandler() override;
-    void unregisterAsPickEventHandler() override;
-    bool handlePickEvent(const caf::PickEvent& eventObject) override;
-    virtual bool handle3dPickEvent(const Ric3dPickEvent& eventObject) = 0;
-
+    void         registerAsPickEventHandler() override;
+    void         unregisterAsPickEventHandler() override;
+    bool         handlePickEvent( const caf::PickEvent& eventObject ) override;
+    virtual bool handle3dPickEvent( const Ric3dPickEvent& eventObject ) = 0;
 };
-
-
-

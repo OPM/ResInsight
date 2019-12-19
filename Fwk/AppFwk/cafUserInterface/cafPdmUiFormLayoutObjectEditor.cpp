@@ -69,21 +69,6 @@ caf::PdmUiFormLayoutObjectEditor::~PdmUiFormLayoutObjectEditor()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void caf::PdmUiFormLayoutObjectEditor::slotScrollToSelectedItemsInFieldEditors() const
-{
-    for (auto fieldView : m_fieldViews)
-    {
-        auto listEditor = dynamic_cast<PdmUiListEditor*>(fieldView.second);
-        if (listEditor)
-        {
-            listEditor->scrollToSelectedItem();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInNewGridLayout(const PdmUiOrdering& uiOrdering,

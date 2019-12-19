@@ -19,31 +19,29 @@
 #include "RimWellLogPlotNameConfig.h"
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT(RimWellLogPlotNameConfig, "RimWellLogPlotNameConfig");
+CAF_PDM_SOURCE_INIT( RimWellLogPlotNameConfig, "RimWellLogPlotNameConfig" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotNameConfig::RimWellLogPlotNameConfig(const RimNameConfigHolderInterface* configHolder)
-    : RimNameConfig(configHolder)
+RimWellLogPlotNameConfig::RimWellLogPlotNameConfig()
+    : RimNameConfig( "Well Log Plot" )
 {
-    CAF_PDM_InitObject("Well Log Plot Name Generator", "", "", "");
+    CAF_PDM_InitObject( "Well Log Plot Name Generator", "", "", "" );
 
-    CAF_PDM_InitField(&m_addCaseName,   "AddCaseName",   false, "Add Case Name",   "", "", "");
-    CAF_PDM_InitField(&m_addWellName,   "AddWellName",   false, "Add Well Name",   "", "", "");
-    CAF_PDM_InitField(&m_addTimestep,   "AddTimeStep",   false, "Add Time Step",   "", "", "");
-    CAF_PDM_InitField(&m_addAirGap,     "AddAirGap",     false, "Add Air Gap",     "", "", "");
-    CAF_PDM_InitField(&m_addWaterDepth, "AddWaterDepth", false, "Add Water Depth", "", "", "");
-
-    m_customName = "Well Log Plot";
+    CAF_PDM_InitField( &m_addCaseName, "AddCaseName", false, "Add Case Name", "", "", "" );
+    CAF_PDM_InitField( &m_addWellName, "AddWellName", false, "Add Well Name", "", "", "" );
+    CAF_PDM_InitField( &m_addTimestep, "AddTimeStep", false, "Add Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_addAirGap, "AddAirGap", false, "Add Air Gap", "", "", "" );
+    CAF_PDM_InitField( &m_addWaterDepth, "AddWaterDepth", false, "Add Water Depth", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogPlotNameConfig::addCaseName() const
 {
@@ -51,7 +49,7 @@ bool RimWellLogPlotNameConfig::addCaseName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogPlotNameConfig::addWellName() const
 {
@@ -59,7 +57,7 @@ bool RimWellLogPlotNameConfig::addWellName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogPlotNameConfig::addTimeStep() const
 {
@@ -85,25 +83,53 @@ bool RimWellLogPlotNameConfig::addWaterDepth() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotNameConfig::enableAllAutoNameTags(bool enable)
+void RimWellLogPlotNameConfig::setAutoNameTags( bool addCaseName,
+                                                bool addWellName,
+                                                bool addTimeStep,
+                                                bool addAirGap,
+                                                bool addWaterDepth )
 {
-    m_addCaseName   = enable;
-    m_addWellName   = enable;
-    m_addTimestep   = enable;
-    m_addAirGap     = enable;
-    m_addWaterDepth = enable;
+    m_addCaseName   = addCaseName;
+    m_addWellName   = addWellName;
+    m_addTimestep   = addTimeStep;
+    m_addAirGap     = addAirGap;
+    m_addWaterDepth = addWaterDepth;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotNameConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimWellLogPlotNameConfig::setFieldVisibility( bool caseNameVisible,
+                                                   bool wellNameVisible,
+                                                   bool timeStepVisible,
+                                                   bool airGapVisible,
+                                                   bool waterDepthVisible )
 {
-    RimNameConfig::defineUiOrdering(uiConfigName, uiOrdering);
-    uiOrdering.add(&m_addCaseName);
-    uiOrdering.add(&m_addWellName);
-    uiOrdering.add(&m_addTimestep);
-    uiOrdering.add(&m_addAirGap);
-    uiOrdering.add(&m_addWaterDepth);
+    m_addCaseName.uiCapability()->setUiHidden( !caseNameVisible );
+    m_addWellName.uiCapability()->setUiHidden( !wellNameVisible );
+    m_addTimestep.uiCapability()->setUiHidden( !timeStepVisible );
+    m_addAirGap.uiCapability()->setUiHidden( !airGapVisible );
+    m_addWaterDepth.uiCapability()->setUiHidden( !waterDepthVisible );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotNameConfig::doEnableAllAutoNameTags( bool enable )
+{
+    setAutoNameTags( enable, enable, enable, enable, enable );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotNameConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    RimNameConfig::defineUiOrdering( uiConfigName, uiOrdering );
+
+    uiOrdering.add( &m_addCaseName );
+    uiOrdering.add( &m_addWellName );
+    uiOrdering.add( &m_addTimestep );
+    uiOrdering.add( &m_addAirGap );
+    uiOrdering.add( &m_addWaterDepth );
+}

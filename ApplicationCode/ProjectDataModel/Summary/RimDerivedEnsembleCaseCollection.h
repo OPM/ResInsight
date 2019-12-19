@@ -25,16 +25,16 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
-#include "cafPdmPtrField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
+#include "cafPdmPtrField.h"
 
 #include <vector>
 
 class RimSummaryCase;
 
 //==================================================================================================
-///  
+///
 //==================================================================================================
 class RimDerivedEnsembleCaseCollection : public RimSummaryCaseCollection
 {
@@ -44,43 +44,59 @@ public:
     RimDerivedEnsembleCaseCollection();
     ~RimDerivedEnsembleCaseCollection() override;
 
-    RimSummaryCaseCollection*   ensemble1() const { return m_ensemble1; }
-    RimSummaryCaseCollection*   ensemble2() const { return m_ensemble2; }
-    DerivedEnsembleOperator     op() const { return m_operator(); }
-    bool                        isValid() const { return m_ensemble1 != nullptr && m_ensemble2 != nullptr; }
+    RimSummaryCaseCollection* ensemble1() const
+    {
+        return m_ensemble1;
+    }
+    RimSummaryCaseCollection* ensemble2() const
+    {
+        return m_ensemble2;
+    }
+    DerivedEnsembleOperator op() const
+    {
+        return m_operator();
+    }
+    bool isValid() const
+    {
+        return m_ensemble1 != nullptr && m_ensemble2 != nullptr;
+    }
 
-    void                        setEnsemble1(RimSummaryCaseCollection* ensemble);
-    void                        setEnsemble2(RimSummaryCaseCollection* ensemble);
+    void setEnsemble1( RimSummaryCaseCollection* ensemble );
+    void setEnsemble2( RimSummaryCaseCollection* ensemble );
 
-    std::vector<RimSummaryCase*>    allSummaryCases() const override;
+    std::vector<RimSummaryCase*>       allSummaryCases() const override;
     std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const override;
-    void                                    updateDerivedEnsembleCases();
-    bool                                    hasCaseReference(const RimSummaryCase* sumCase) const;
+    void                               updateDerivedEnsembleCases();
+    bool                               hasCaseReference( const RimSummaryCase* sumCase ) const;
 
-    void                            onLoadDataAndUpdate() override;
+    void onLoadDataAndUpdate() override;
 
 private:
-    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
-                                                                  caf::PdmUiEditorAttribute* attribute) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue ) override;
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
 
-    void                                    setAllCasesNotInUse();
-    void                                    deleteCasesNoInUse();
-    RimDerivedEnsembleCase*                 firstCaseNotInUse();
-    std::vector<RimDerivedEnsembleCase*>    allDerivedCases(bool activeOnly) const;
-    void                                    updateAutoName();
-    RimSummaryCase*                         findCaseByParametersHash(const std::vector<RimSummaryCase*>& cases, size_t hash) const;
+    void                                 setAllCasesNotInUse();
+    void                                 deleteCasesNoInUse();
+    RimDerivedEnsembleCase*              firstCaseNotInUse();
+    std::vector<RimDerivedEnsembleCase*> allDerivedCases( bool activeOnly ) const;
+    void                                 updateAutoName();
+    RimSummaryCase* findCaseByParametersHash( const std::vector<RimSummaryCase*>& cases, size_t hash ) const;
     std::vector<RimDerivedEnsembleCaseCollection*> findReferringEnsembles() const;
 
 private:
-    std::vector<RimSummaryCaseCollection*>  allEnsembles() const;
+    std::vector<RimSummaryCaseCollection*> allEnsembles() const;
 
 private:
-    caf::PdmPtrField<RimSummaryCaseCollection*>             m_ensemble1;
-    caf::PdmPtrField<RimSummaryCaseCollection*>             m_ensemble2;
-    caf::PdmField<caf::AppEnum<DerivedEnsembleOperator>>    m_operator;
-    caf::PdmField<bool>                                     m_swapEnsemblesButton;
-    caf::PdmField<QString>                                  m_caseCount;
+    caf::PdmPtrField<RimSummaryCaseCollection*>          m_ensemble1;
+    caf::PdmPtrField<RimSummaryCaseCollection*>          m_ensemble2;
+    caf::PdmField<caf::AppEnum<DerivedEnsembleOperator>> m_operator;
+    caf::PdmField<bool>                                  m_swapEnsemblesButton;
+    caf::PdmField<QString>                               m_caseCount;
 };

@@ -19,33 +19,34 @@
 
 #pragma once
 
-#include "cvfBase.h"
 #include "cvfArray.h"
 
 #include <QColor>
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class RiaColorTools
 {
 public:
-    static bool         isBrightnessAboveThreshold(cvf::Color3f backgroundColor);
-    
-    static cvf::Color3f computeOffsetColor(cvf::Color3f color, float offsetFactor);
+    static bool isBrightnessAboveThreshold( cvf::Color3f backgroundColor );
+
+    static cvf::Color3f computeOffsetColor( cvf::Color3f color, float offsetFactor );
     static cvf::Color3f darkContrastColor();
     static cvf::Color3f brightContrastColor();
     static cvf::Color3f darkContrastColorSofter();
     static cvf::Color3f brightContrastColorSofter();
-    static cvf::Color3f contrastColor(cvf::Color3f backgroundColor, bool softerContrast = false);
-    static QColor       toQColor(cvf::Color3f color, float alpha = 1.0f);
-    static QColor       toQColor(cvf::Color4f color);
-    static cvf::Color3f fromQColorTo3f(QColor);
+    static cvf::Color3f contrastColor( cvf::Color3f backgroundColor, bool softerContrast = false );
+    static QColor       toQColor( cvf::Color3f color, float alpha = 1.0f );
+    static QColor       toQColor( cvf::Color4f color );
+    static cvf::Color3f fromQColorTo3f( QColor );
 
-    static QColor       blendQColors(const QColor& color1, const QColor& color2, int weight1 = 1, int weight2 = 1);
+    static cvf::Color3f
+                  blendCvfColors( const cvf::Color3f& color1, const cvf::Color3f& color2, int weight1 = 1, int weight2 = 1 );
+    static QColor blendQColors( const QColor& color1, const QColor& color2, int weight1 = 1, int weight2 = 1 );
 
 private:
-    static float relativeLuminance(cvf::Color3f backgroundColor);
-    static float calculateNonLinearColorValue(float colorFraction);
+    static float relativeLuminance( cvf::Color3f backgroundColor );
+    static float calculateNonLinearColorValue( float colorFraction );
 };

@@ -2,6 +2,10 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (ApplicationCode)
 
+if (CMAKE_COMPILER_IS_GNUCXX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations")
+endif()
+
 # Open GL
 find_package( OpenGL )
 
@@ -76,6 +80,11 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+################################################################################
+# Eigen
+################################################################################
+include_directories(SYSTEM ${ResInsight_SOURCE_DIR}/ThirdParty/Eigen-Subset)
+
 #############################################################################
 # Defining all the source (and header) files
 #############################################################################
@@ -124,6 +133,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     ProjectDataModel/Annotations/CMakeLists_files.cmake
     ProjectDataModel/Completions/CMakeLists_files.cmake
     ProjectDataModel/Measurement/CMakeLists_files.cmake
+    ProjectDataModel/PlotTemplates/CMakeLists_files.cmake
     
     GeoMech/GeoMechVisualization/CMakeLists_files.cmake
     
@@ -157,6 +167,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/ViewLink/CMakeLists_files.cmake
     Commands/WellLogCommands/CMakeLists_files.cmake
     Commands/WellPathCommands/CMakeLists_files.cmake
+    Commands/PlotTemplateCommands/CMakeLists_files.cmake
 
     CommandFileInterface/CMakeLists_files.cmake
     CommandFileInterface/Core/CMakeLists_files.cmake
@@ -230,9 +241,21 @@ if (RESINSIGHT_FOUND_HDF5)
         FileInterface/RifHdf5Reader.cpp
     )
 
+    add_definitions(-DUSE_HDF5)
+
+    if(MSVC)
+	    add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
+
+        include_directories(${RESINSIGHT_HDF5_DIR}/include)
+    else()
+	    add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
+		add_definitions(${HDF5_DEFINITIONS})
+
+		include_directories(${HDF5_INCLUDE_DIRS})
+    endif() # MSVC
+
     source_group( "FileInterface" FILES FileInterface/RifHdf5Reader.h FileInterface/RifHdf5Reader.cpp )
 
-    add_definitions(-DUSE_HDF5)
 endif()
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
@@ -314,7 +337,7 @@ if (MSVC)
     set( EXE_FILES WIN32)
     if (RESINSIGHT_ENABLE_GRPC)
         # GRPC generates a lot of harmless warnings on MSVC
-        set_source_files_properties(${GRPC_CPP_SOURCES} ${GRPC_UNIT_TEST_SOURCE_FILES} PROPERTIES COMPILE_FLAGS "/wd4251 /wd4702 /wd4005 /wd4244 /wd4125")
+        set_source_files_properties(${GRPC_CPP_SOURCES} ${GRPC_UNIT_TEST_SOURCE_FILES} PROPERTIES COMPILE_FLAGS "/wd4251 /wd4702 /wd4005 /wd4244 /wd4125 /wd4267")
     endif(RESINSIGHT_ENABLE_GRPC)
 elseif (APPLE)
     set( EXE_FILES MACOSX_BUNDLE)
@@ -334,6 +357,7 @@ set( EXE_FILES
     .clang-format
     .clang-tidy
     Adm/RiaVersionInfo.h.cmake
+    $<TARGET_OBJECTS:cafCommandFeatures> # Needed for cmake version < 3.12. Remove when we can use target_link_libraries with OBJECT libraries
 )
 
 if (RESINSIGHT_ENABLE_GRPC)
@@ -355,11 +379,12 @@ add_executable( ResInsight ${EXE_FILES})
 if (MSVC) 
     # The following warnings are supposed to be used in ResInsight, but temporarily disabled to avoid too much noise
     #  warning C4245: 'return': conversion from 'int' to 'size_t', signed/unsigned mismatch
+	#  warning C4005: Macro redefinition for math constants (M_PI, M_SQRT2 etc)
 
     # If possible, the following command is supposed to be the final target
     # set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W4 /wd4190 /wd4100 /wd4127")    
     
-    set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W4 /wd4190 /wd4100 /wd4127 /wd4245")
+    set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W4 /wd4190 /wd4100 /wd4127 /wd4245 /wd4005")
     if (CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
         # The following warning is generated over 800 times from a qwt header only using VS2015
         # Disabling temporarily
@@ -410,6 +435,7 @@ if (RESINSIGHT_ENABLE_GRPC)
 		endforeach()
 	else()		
 		list(APPEND LINK_LIBRARIES ${GRPC_LIBRARIES})
+		set_target_properties(ResInsight PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/NODEFAULTLIB:MSVCRTD.lib")
 	endif()
 endif()
 
@@ -452,6 +478,7 @@ if(RESINSIGHT_ENABLE_COTIRE)
         # QT 5
         qrc_cafAnimControl.cpp
         qrc_ResInsight.cpp
+        qrc_cafCommandFeatures.cpp
         ProjectDataModel/RimContourMapView.cpp
         Commands/CompletionExportCommands/RicExportFractureCompletionsImpl.cpp
     )

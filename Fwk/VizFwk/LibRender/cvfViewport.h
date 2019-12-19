@@ -85,8 +85,7 @@ public:
 
     String      debugString() const;
 
-private:
-    cvfGLbitfield clearFlagsOpenGL(ClearMode clearMode);
+    static cvfGLbitfield clearFlagsOpenGL(ClearMode clearMode);
 
 private:
     int         m_x;

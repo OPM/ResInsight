@@ -17,19 +17,21 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlotCollection.h"
 
+#include "RiaApplication.h"
 #include "RimGridCrossPlot.h"
+#include "RimProject.h"
 
-CAF_PDM_SOURCE_INIT(RimGridCrossPlotCollection, "RimGridCrossPlotCollection");
+CAF_PDM_SOURCE_INIT( RimGridCrossPlotCollection, "RimGridCrossPlotCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimGridCrossPlotCollection::RimGridCrossPlotCollection()
 {
-    CAF_PDM_InitObject("Grid Cross Plots", ":/SummaryXPlotsLight16x16.png", "", "");
+    CAF_PDM_InitObject( "Grid Cross Plots", ":/SummaryXPlotsLight16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_gridCrossPlots, "GridCrossPlots", "Grid Cross Plots", "", "", "");
-    m_gridCrossPlots.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_gridCrossPlots, "GridCrossPlots", "Grid Cross Plots", "", "", "" );
+    m_gridCrossPlots.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,15 +63,23 @@ RimGridCrossPlot* RimGridCrossPlotCollection::createGridCrossPlot()
     RimGridCrossPlot* plot = new RimGridCrossPlot();
     plot->setAsPlotMdiWindow();
 
-    //plot->setDescription(QString("Summary Cross Plot %1").arg(m_gridCrossPlots.size()));
-    addGridCrossPlot(plot);
+    // plot->setDescription(QString("Summary Cross Plot %1").arg(m_gridCrossPlots.size()));
+    addGridCrossPlot( plot );
     return plot;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCollection::addGridCrossPlot(RimGridCrossPlot* plot)
+void RimGridCrossPlotCollection::addGridCrossPlot( RimGridCrossPlot* plot )
 {
-    m_gridCrossPlots().push_back(plot);
+    m_gridCrossPlots().push_back( plot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCollection::removeGridCrossPlot( RimGridCrossPlot* plot )
+{
+    m_gridCrossPlots.removeChildObject( plot );
 }

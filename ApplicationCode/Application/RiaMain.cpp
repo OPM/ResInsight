@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -25,94 +25,101 @@
 #include "cvfqtUtils.h"
 
 #ifndef WIN32
-#include <unistd.h>
 #include <sys/types.h>
+#include <unistd.h>
 #endif
 
-RiaApplication* createApplication(int &argc, char *argv[])
+RiaApplication* createApplication( int& argc, char* argv[] )
 {
-    for (int i = 1; i < argc; ++i)
+    for ( int i = 1; i < argc; ++i )
     {
-        if (!qstrcmp(argv[i], "--console") || !qstrcmp(argv[i], "--unittest"))
+        if ( !qstrcmp( argv[i], "--console" ) || !qstrcmp( argv[i], "--unittest" ) )
         {
-            return new RiaConsoleApplication(argc, argv);
+            return new RiaConsoleApplication( argc, argv );
         }
     }
-    return new RiaGuiApplication(argc, argv);
+    return new RiaGuiApplication( argc, argv );
 }
 
-int main(int argc, char *argv[])
+int main( int argc, char* argv[] )
 {
 #ifndef WIN32
     // From Qt 5.3 and onwards Qt has a mechanism for checking this automatically
     // But it only checks user id not group id, so better to do it ourselves.
-    if (getuid() != geteuid() || getgid() != getegid())
+    if ( getuid() != geteuid() || getgid() != getegid() )
     {
-        std::cerr << "FATAL: The application binary appears to be running setuid or setgid, this is a security hole." << std::endl;
+        std::cerr << "FATAL: The application binary appears to be running setuid or setgid, this is a security hole."
+                  << std::endl;
         return 1;
     }
 #endif
-    RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
+    RiaLogging::loggerInstance()->setLevel( RI_LL_DEBUG );
 
-    std::unique_ptr<RiaApplication> app (createApplication(argc, argv));
+    std::unique_ptr<RiaApplication> app( createApplication( argc, argv ) );
 
     cvf::ProgramOptions progOpt;
-    bool                result = RiaArgumentParser::parseArguments(&progOpt);
+    bool                result = RiaArgumentParser::parseArguments( &progOpt );
 
-    const cvf::String usageText = progOpt.usageText(110, 30);
+    const cvf::String usageText = progOpt.usageText( 110, 30 );
     app->initialize();
-    app->setCommandLineHelpText( cvfqt::Utils::toQString(usageText) );
+    app->setCommandLineHelpText( cvfqt::Utils::toQString( usageText ) );
 
-    if (!result)
+    if ( !result )
     {
         std::vector<cvf::String> unknownOptions = progOpt.unknownOptions();
-        QString unknownOptionsText;
-        for (cvf::String option : unknownOptions)
+        QString                  unknownOptionsText;
+        for ( cvf::String option : unknownOptions )
         {
-            unknownOptionsText += QString("\tUnknown option: %1\n").arg(cvfqt::Utils::toQString(option));
+            unknownOptionsText += QString( "\tUnknown option: %1\n" ).arg( cvfqt::Utils::toQString( option ) );
         }
 
-        app->showFormattedTextInMessageBoxOrConsole("ERROR: Unknown command line options detected ! \n"
-                                                    + unknownOptionsText
-                                                    + "\n\n"
-                                                    + "The current command line options in ResInsight are:\n"
-                                                    + app->commandLineParameterHelp());
+        app->showFormattedTextInMessageBoxOrConsole(
+            "ERROR: Unknown command line options detected ! \n" + unknownOptionsText + "\n\n" +
+            "The current command line options in ResInsight are:\n" + app->commandLineParameterHelp() );
 
-        if (dynamic_cast<RiaGuiApplication*>(app.get()) == nullptr)
+        if ( dynamic_cast<RiaGuiApplication*>( app.get() ) == nullptr )
         {
             return 1;
         }
     }
-  
-    QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
-    setlocale(LC_NUMERIC,"C");
 
-    RiaApplication::ApplicationStatus status = app->handleArguments(&progOpt);
-    if (status == RiaApplication::EXIT_COMPLETED)
+    QLocale::setDefault( QLocale( QLocale::English, QLocale::UnitedStates ) );
+    setlocale( LC_NUMERIC, "C" );
+
+    // Handle the command line arguments.
+    // Todo: Move to a one-shot timer, delaying the execution until we are inside the event loop.
+    // The complete handling of the resulting ApplicationStatus must be moved along.
+    // The reason for this is: deleteLater() does not work outside the event loop
+    // Make execution of command line stuff operate in identical conditions as interactive operation.
+
+    RiaApplication::ApplicationStatus status = app->handleArguments( &progOpt );
+
+    if ( status == RiaApplication::EXIT_COMPLETED )
     {
         return 0;
     }
-    else if (status == RiaApplication::EXIT_WITH_ERROR)
+    else if ( status == RiaApplication::EXIT_WITH_ERROR )
     {
         return 2;
     }
-    else if (status == RiaApplication::KEEP_GOING)
+    else if ( status == RiaApplication::KEEP_GOING )
     {
         int exitCode = 0;
         try
         {
-            if (app->initializeGrpcServer(progOpt))
+            if ( app->initializeGrpcServer( progOpt ) )
             {
                 app->launchGrpcServer();
             }
             exitCode = QCoreApplication::instance()->exec();
         }
-        catch (std::exception& exep )
+        catch ( std::exception& exep )
         {
-            std::cout << "A standard c++ exception that terminated ResInsight caught in RiaMain.cpp: " << exep.what() << std::endl;
+            std::cout << "A standard c++ exception that terminated ResInsight caught in RiaMain.cpp: " << exep.what()
+                      << std::endl;
             throw;
         }
-        catch(...)
+        catch ( ... )
         {
             std::cout << "An unknown exception that terminated ResInsight caught in RiaMain.cpp.  " << std::endl;
             throw;
@@ -121,7 +128,6 @@ int main(int argc, char *argv[])
         return exitCode;
     }
 
-    CVF_ASSERT(false && "Unknown ApplicationStatus");
+    CVF_ASSERT( false && "Unknown ApplicationStatus" );
     return -1;
 }
-

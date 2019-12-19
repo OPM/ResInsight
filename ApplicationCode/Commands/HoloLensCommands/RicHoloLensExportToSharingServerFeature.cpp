@@ -17,8 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicHoloLensExportToSharingServerFeature.h"
-#include "RicHoloLensSessionManager.h"
 #include "RicHoloLensSession.h"
+#include "RicHoloLensSessionManager.h"
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
@@ -27,7 +27,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicHoloLensExportToSharingServerFeature, "RicHoloLensExportToSharingServerFeature");
+CAF_CMD_SOURCE_INIT( RicHoloLensExportToSharingServerFeature, "RicHoloLensExportToSharingServerFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -35,7 +35,7 @@ CAF_CMD_SOURCE_INIT(RicHoloLensExportToSharingServerFeature, "RicHoloLensExportT
 bool RicHoloLensExportToSharingServerFeature::isCommandEnabled()
 {
     RicHoloLensSession* session = RicHoloLensSessionManager::instance()->session();
-    if (session && session->isSessionValid())
+    if ( session && session->isSessionValid() )
     {
         return true;
     }
@@ -48,32 +48,31 @@ bool RicHoloLensExportToSharingServerFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensExportToSharingServerFeature::onActionTriggered(bool isChecked)
+void RicHoloLensExportToSharingServerFeature::onActionTriggered( bool isChecked )
 {
     RicHoloLensSession* session = RicHoloLensSessionManager::instance()->session();
-    if (!session || !session->isSessionValid())
+    if ( !session || !session->isSessionValid() )
     {
-        RiaLogging::error("No valid HoloLens session present");
+        RiaLogging::error( "No valid HoloLens session present" );
         return;
     }
 
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
-    if (!activeView)
+    if ( !activeView )
     {
-        RiaLogging::error("No active view");
+        RiaLogging::error( "No active view" );
         return;
     }
 
-
-    session->updateSessionDataFromView(*activeView);
+    session->updateSessionDataFromView( *activeView );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensExportToSharingServerFeature::setupActionLook(QAction* actionToSetup)
+void RicHoloLensExportToSharingServerFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/HoloLensSendOnce24x24.png"));
+    actionToSetup->setIcon( QIcon( ":/HoloLensSendOnce24x24.png" ) );
 
-    actionToSetup->setText("Send to HoloLens Server Once");
+    actionToSetup->setText( "Send to HoloLens Server Once" );
 }

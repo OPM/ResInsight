@@ -39,25 +39,26 @@ public:
     Rim3dWellLogFileCurve();
     ~Rim3dWellLogFileCurve() override;
 
-    void            setDefaultFileCurveDataInfo();
-    void    curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const override;
+    void    setDefaultFileCurveDataInfo();
+    void    curveValuesAndMds( std::vector<double>* values, std::vector<double>* measuredDepthValues ) const override;
     QString resultPropertyString() const override;
     QString name() const override;
     QString createAutoName() const override;
+
 protected:
-    caf::PdmFieldHandle*            userDescriptionField() override;
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                  const QVariant& oldValue,
-                                  const QVariant& newValue) override;
+    caf::PdmFieldHandle* userDescriptionField() override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue ) override;
 
 private:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                bool*                      useOptionsOnly) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    caf::PdmPtrField<RimWellLogFile*> m_wellLogFile;
-    caf::PdmField<QString>            m_wellLogChannelName;
+    caf::PdmPtrField<RimWellLogFile*>                  m_wellLogFile;
+    caf::PdmField<QString>                             m_wellLogChannelName;
     caf::PdmChildField<RimWellLogFileCurveNameConfig*> m_nameConfig;
 };
