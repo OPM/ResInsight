@@ -186,12 +186,12 @@ QList<caf::PdmOptionItemInfo>
     {
         if ( &m_resultPositionTypeUiField == fieldNeedingOptions )
         {
-            std::vector<RigFemResultPosEnum> optionItems = { RIG_NODAL,
-                                                             RIG_ELEMENT_NODAL,
-                                                             RIG_INTEGRATION_POINT,
-                                                             RIG_ELEMENT_NODAL_FACE,
-                                                             RIG_FORMATION_NAMES,
-                                                             RIG_ELEMENT };
+            std::vector<RigFemResultPosEnum> optionItems = {RIG_NODAL,
+                                                            RIG_ELEMENT_NODAL,
+                                                            RIG_INTEGRATION_POINT,
+                                                            RIG_ELEMENT_NODAL_FACE,
+                                                            RIG_FORMATION_NAMES,
+                                                            RIG_ELEMENT};
             if ( m_addWellPathDerivedResults )
             {
                 optionItems.push_back( RIG_WELLPATH_DERIVED );
@@ -261,7 +261,7 @@ void RimGeoMechResultDefinition::setGeoMechCase( RimGeoMechCase* geomCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechCase* RimGeoMechResultDefinition::geoMechCase() const 
+RimGeoMechCase* RimGeoMechResultDefinition::geoMechCase() const
 {
     return m_geomCase;
 }

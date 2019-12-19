@@ -132,7 +132,7 @@ void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFract
     double fractionPorvPhaseSumSoil = 0.0;
     double fractionPorvPhaseSumSgas = 0.0;
 
-    for ( auto element : tofAndIndexMap )
+    for ( const auto& element : tofAndIndexMap )
     {
         double tofValue = element.first;
         for ( int index : element.second )

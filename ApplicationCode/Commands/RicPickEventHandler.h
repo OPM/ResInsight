@@ -41,7 +41,9 @@ class Rim3dView;
 class Ric3dPickEvent : public caf::PickEvent
 {
 public:
-    Ric3dPickEvent( const std::vector<RiuPickItemInfo>& pickItemInfos, Rim3dView* view,  Qt::KeyboardModifiers keyboardModifiers)
+    Ric3dPickEvent( const std::vector<RiuPickItemInfo>& pickItemInfos,
+                    Rim3dView*                          view,
+                    Qt::KeyboardModifiers               keyboardModifiers )
         : m_pickItemInfos( pickItemInfos )
         , m_view( view )
         , m_keyboardModifiers( keyboardModifiers )

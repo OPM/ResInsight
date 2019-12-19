@@ -24,6 +24,8 @@
 
 class RimWellAllocationPlot;
 class RimFlowCharacteristicsPlot;
+class RimWellDistributionPlot;
+class RimWellDistributionPlotCollection;
 
 //==================================================================================================
 ///
@@ -48,8 +50,10 @@ public:
     void                        ensureDefaultFlowPlotsAreCreated();
 
 private:
-    caf::PdmChildField<RimFlowCharacteristicsPlot*>      m_flowCharacteristicsPlot;
-    caf::PdmChildField<RimWellAllocationPlot*>           m_defaultWellAllocPlot;
-    caf::PdmChildArrayField<RimWellAllocationPlot*>      m_storedWellAllocPlots;
-    caf::PdmChildArrayField<RimFlowCharacteristicsPlot*> m_storedFlowCharacteristicsPlots;
+    caf::PdmChildField<RimFlowCharacteristicsPlot*> m_flowCharacteristicsPlot;
+    caf::PdmChildField<RimWellAllocationPlot*>      m_defaultWellAllocPlot;
+    // caf::PdmChildField<RimWellDistributionPlot*>            m_dbgWellDistributionPlot;
+    caf::PdmChildField<RimWellDistributionPlotCollection*> m_wellDistributionPlotCollection;
+    caf::PdmChildArrayField<RimWellAllocationPlot*>        m_storedWellAllocPlots;
+    caf::PdmChildArrayField<RimFlowCharacteristicsPlot*>   m_storedFlowCharacteristicsPlots;
 };
