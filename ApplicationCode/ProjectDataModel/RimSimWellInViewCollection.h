@@ -97,6 +97,14 @@ public:
         PROPERTY_TYPE_SINGLE
     };
 
+    enum WellDiskPropertyConfigType
+    {
+        PRODUCTION_RATES,
+        INJECTION_RATES,
+        CUMULATIVE_PRODUCTION_RATES,
+        CUMULATIVE_INJECTION_RATES
+    };
+
     typedef caf::AppEnum<RimSimWellInViewCollection::WellPipeColors> WellPipeColorsEnum;
 
     caf::PdmField<bool> isActive;

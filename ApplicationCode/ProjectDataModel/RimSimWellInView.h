@@ -70,6 +70,9 @@ public:
     double water() const;
     bool   isSingleProperty() const;
     double singleProperty() const;
+    double total() const;
+    bool   isValidDisk() const;
+    double diskScale() const;
 
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
@@ -105,7 +108,8 @@ public:
 
     caf::PdmChildField<RimSimWellFractureCollection*> simwellFractureCollection;
 
-    void calculateInjectionProductionFractions( const RimWellDiskConfig& wellDiskConfig );
+    double calculateInjectionProductionFractions( const RimWellDiskConfig& wellDiskConfig, bool* isOk );
+    void   scaleDisk( double minValue, double maxValue );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
@@ -122,7 +126,8 @@ private:
 
     double extractValueForTimeStep( RimGridSummaryCase* gridSummaryCase,
                                     const std::string&  vectorName,
-                                    const QDateTime&    currentDate );
+                                    const QDateTime&    currentDate,
+                                    bool*               isOk );
 
 private:
     cvf::ref<RigSimWellData> m_simWellData;
@@ -131,6 +136,9 @@ private:
     double                   m_gas;
     double                   m_water;
     double                   m_singleProperty;
+    double                   m_total;
     bool                     m_isInjector;
     bool                     m_isSingleProperty;
+    bool                     m_isValidDisk;
+    double                   m_diskScale;
 };

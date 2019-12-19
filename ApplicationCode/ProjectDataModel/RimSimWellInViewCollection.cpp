@@ -137,6 +137,23 @@ void AppEnum<RimSimWellInViewCollection::WellDiskPropertyType>::setUp()
 }
 } // namespace caf
 
+namespace caf
+{
+template <>
+void AppEnum<RimSimWellInViewCollection::WellDiskPropertyConfigType>::setUp()
+{
+    addItem( RimSimWellInViewCollection::PRODUCTION_RATES, "PRODUCTION_RATES", "Production Rates" );
+    addItem( RimSimWellInViewCollection::INJECTION_RATES, "INJECTION_RATES", "Injection Rates" );
+    addItem( RimSimWellInViewCollection::CUMULATIVE_PRODUCTION_RATES,
+             "CUMULATIVE_PRODUCTION_RATES",
+             "Cumulative Production Rates" );
+    addItem( RimSimWellInViewCollection::CUMULATIVE_INJECTION_RATES,
+             "CUMULATIVE_INJECTION_RATES",
+             "Cumulative Injection Rates" );
+    setDefault( RimSimWellInViewCollection::PRODUCTION_RATES );
+}
+} // namespace caf
+
 CAF_PDM_SOURCE_INIT( RimSimWellInViewCollection, "Wells" );
 
 //--------------------------------------------------------------------------------------------------
@@ -475,22 +492,64 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
         else if ( &spheresScaleFactor == changedField || &m_showWellSpheres == changedField ||
-                  &m_showWellDisks == changedField || &showConnectionStatusColors == changedField )
+                  &m_showWellDisks == changedField || &showConnectionStatusColors == changedField ||
+                  &wellDiskQuantity == changedField )
         {
             RimWellDiskConfig wellDiskConfig;
             if ( wellDiskPropertyType() == RimSimWellInViewCollection::PROPERTY_TYPE_PREDEFINED )
             {
-                wellDiskConfig.setOilProperty( "WOPR" );
-                wellDiskConfig.setGasProperty( "WGPR" );
-                wellDiskConfig.setWaterProperty( "WWPR" );
+                WellDiskPropertyConfigType configType = caf::AppEnum<WellDiskPropertyConfigType>::fromIndex(
+                    wellDiskQuantity().toInt() );
+                if ( configType == PRODUCTION_RATES )
+                {
+                    wellDiskConfig.setOilProperty( "WOPR" );
+                    wellDiskConfig.setGasProperty( "WGPR" );
+                    wellDiskConfig.setWaterProperty( "WWPR" );
+                }
+                else if ( configType == INJECTION_RATES )
+                {
+                    wellDiskConfig.setOilProperty( "" );
+                    wellDiskConfig.setGasProperty( "WGIR" );
+                    wellDiskConfig.setWaterProperty( "WWIR" );
+                }
+                else if ( configType == CUMULATIVE_PRODUCTION_RATES )
+                {
+                    wellDiskConfig.setOilProperty( "WOPRH" );
+                    wellDiskConfig.setGasProperty( "WGPRH" );
+                    wellDiskConfig.setWaterProperty( "WWPRH" );
+                }
+                else if ( configType == CUMULATIVE_INJECTION_RATES )
+                {
+                    wellDiskConfig.setOilProperty( "" );
+                    wellDiskConfig.setGasProperty( "WGIRH" );
+                    wellDiskConfig.setWaterProperty( "WWIRH" );
+                }
             }
             else
             {
                 wellDiskConfig.setSingleProperty( wellDiskQuantity.v().toStdString() );
             }
 
+            double minValue = std::numeric_limits<double>::max();
+            double maxValue = -minValue;
             for ( RimSimWellInView* w : wells )
-                w->calculateInjectionProductionFractions( wellDiskConfig );
+            {
+                bool   isOk  = true;
+                double value = w->calculateInjectionProductionFractions( wellDiskConfig, &isOk );
+                if ( isOk )
+                {
+                    minValue = std::min( minValue, value );
+                    maxValue = std::max( maxValue, value );
+                }
+            }
+
+            if ( maxValue > minValue )
+            {
+                for ( RimSimWellInView* w : wells )
+                {
+                    w->scaleDisk( minValue, maxValue );
+                }
+            }
 
             m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
@@ -571,11 +630,11 @@ QList<caf::PdmOptionItemInfo>
         QList<caf::PdmOptionItemInfo> options;
         if ( wellDiskPropertyType() == RimSimWellInViewCollection::PROPERTY_TYPE_PREDEFINED )
         {
-            options.push_back( caf::PdmOptionItemInfo( "Production Rates", QVariant( 1 ) ) );
-            options.push_back( caf::PdmOptionItemInfo( "Injection Rates", QVariant( 2 ) ) );
-            options.push_back( caf::PdmOptionItemInfo( "Cumulative Production Rates", QVariant( 3 ) ) );
-            options.push_back( caf::PdmOptionItemInfo( "Cumulative Injection Rates", QVariant( 4 ) ) );
-            options.push_front( caf::PdmOptionItemInfo( RiaDefines::undefinedResultName(), "" ) );
+            for ( size_t i = 0; i < caf::AppEnum<WellDiskPropertyConfigType>::size(); ++i )
+            {
+                options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<WellDiskPropertyConfigType>::uiTextFromIndex( i ),
+                                                           caf::AppEnum<WellDiskPropertyConfigType>::fromIndex( i ) ) );
+            }
         }
         else
         {

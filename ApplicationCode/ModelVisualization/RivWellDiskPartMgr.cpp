@@ -137,7 +137,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
 
     cvf::GeometryBuilderFaceList builder;
     RivDiskGeometryGenerator     gen;
-    gen.setRelativeRadius( 2.5f );
+    gen.setRelativeRadius( 2.5f * ( m_rimWell->diskScale() ) );
     gen.setRelativeLength( 0.1f );
     gen.setNumSlices( numSectors );
     gen.generate( &builder );
@@ -208,7 +208,17 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
     CVF_ASSERT( vertexCount == numSectors * 3 );
 
     QString labelText;
-    if ( m_rimWell->isSingleProperty() )
+    if ( !m_rimWell->isValidDisk() )
+    {
+        // Make invalid disks gray
+        for ( size_t i = 0; i < numSectors * 3; i++ )
+        {
+            cvf::Color3ub c = cvf::Color3::GRAY;
+            colorArray->set( i, c );
+        }
+        labelText = QString( "%1: N/A" ).arg( m_rimWell->name() );
+    }
+    else if ( m_rimWell->isSingleProperty() )
     {
         const double singleProperty = m_rimWell->singleProperty();
         // Set color for the triangle vertices

@@ -624,11 +624,11 @@ size_t RimSimWellInView::resultWellIndex() const
     return m_resultWellIndex;
 }
 
-void RimSimWellInView::calculateInjectionProductionFractions( const RimWellDiskConfig& wellDiskConfig )
+double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDiskConfig& wellDiskConfig, bool* isOk )
 {
     const RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType( reservoirView );
-    if ( !reservoirView ) return;
+    if ( !reservoirView ) return false;
 
     size_t                 timeStep      = static_cast<size_t>( reservoirView->currentTimeStep() );
     std::vector<QDateTime> caseTimeSteps = reservoirView->eclipseCase()->timeStepDates();
@@ -647,22 +647,58 @@ void RimSimWellInView::calculateInjectionProductionFractions( const RimWellDiskC
     m_isSingleProperty = wellDiskConfig.isSingleProperty();
     if ( wellDiskConfig.isSingleProperty() )
     {
-        m_singleProperty = extractValueForTimeStep( gridSummaryCase, wellDiskConfig.getSingleProperty(), currentDate );
+        m_singleProperty = extractValueForTimeStep( gridSummaryCase, wellDiskConfig.getSingleProperty(), currentDate, isOk );
+        if ( !( *isOk ) )
+        {
+            m_isValidDisk = false;
+            return -1.0;
+        }
+
+        m_total = m_singleProperty;
     }
     else
     {
         m_isInjector = RimSimWellInViewTools::gridSummaryCaseForWell( this );
 
-        m_oil   = extractValueForTimeStep( gridSummaryCase, wellDiskConfig.getOilProperty(), currentDate );
-        m_gas   = extractValueForTimeStep( gridSummaryCase, wellDiskConfig.getGasProperty(), currentDate ) / 1000.0;
-        m_water = extractValueForTimeStep( gridSummaryCase, wellDiskConfig.getWaterProperty(), currentDate );
+        m_oil = extractValueForTimeStep( gridSummaryCase, wellDiskConfig.getOilProperty(), currentDate, isOk );
+        if ( !( *isOk ) )
+        {
+            m_isValidDisk = false;
+            return -1.0;
+        }
+
+        m_gas = extractValueForTimeStep( gridSummaryCase, wellDiskConfig.getGasProperty(), currentDate, isOk ) / 1000.0;
+        if ( !( *isOk ) )
+        {
+            m_isValidDisk = false;
+            return -1.0;
+        }
+
+        m_water = extractValueForTimeStep( gridSummaryCase, wellDiskConfig.getWaterProperty(), currentDate, isOk );
+        if ( !( *isOk ) )
+        {
+            m_isValidDisk = false;
+            return -1.0;
+        }
+
+        m_total = m_oil + m_gas + m_water;
     }
+
+    m_isValidDisk = true;
+    return m_total;
 }
 
 double RimSimWellInView::extractValueForTimeStep( RimGridSummaryCase* gridSummaryCase,
                                                   const std::string&  vectorName,
-                                                  const QDateTime&    currentDate )
+                                                  const QDateTime&    currentDate,
+                                                  bool*               isOk )
 {
+    if ( vectorName.empty() )
+    {
+        *isOk = true;
+        return 0.0;
+    }
+
     RifEclipseSummaryAddress addr( RifEclipseSummaryAddress::SUMMARY_WELL,
                                    vectorName,
                                    -1,
@@ -683,7 +719,8 @@ double RimSimWellInView::extractValueForTimeStep( RimGridSummaryCase* gridSummar
     {
         // TODO: better error handling
         std::cerr << "ERROR: no address found for well " << name().toStdString() << " " << vectorName << std::endl;
-        return -1;
+        *isOk = false;
+        return 0.0;
     }
 
     std::vector<double> values;
@@ -709,12 +746,29 @@ double RimSimWellInView::extractValueForTimeStep( RimGridSummaryCase* gridSummar
         QDateTime t = QDateTime::fromTime_t( resampledTimeSteps[i] );
         if ( t > currentDate )
         {
+            *isOk = true;
             return resampledValues[i];
         }
     }
 
     std::cerr << "ERROR: no resampled value found for well " << name().toStdString() << " " << vectorName << std::endl;
+    *isOk = false;
     return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSimWellInView::scaleDisk( double minValue, double maxValue )
+{
+    if ( m_isValidDisk )
+    {
+        m_diskScale = 1.0 + ( m_total - minValue ) / ( maxValue - minValue );
+    }
+    else
+    {
+        m_diskScale = 1.0;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -744,6 +798,22 @@ double RimSimWellInView::water() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimSimWellInView::total() const
+{
+    return m_total;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSimWellInView::isValidDisk() const
+{
+    return m_isValidDisk;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::isSingleProperty() const
 {
     return m_isSingleProperty;
@@ -755,6 +825,21 @@ bool RimSimWellInView::isSingleProperty() const
 double RimSimWellInView::singleProperty() const
 {
     return m_singleProperty;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSimWellInView::diskScale() const
+{
+    if ( m_isValidDisk )
+    {
+        return m_diskScale;
+    }
+    else
+    {
+        return 1.0;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
