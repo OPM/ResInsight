@@ -7,10 +7,6 @@
   </url>
   
   <url>
-    <loc>https://resinsight.org/3d-main-window/derivedresults/</loc>
-  </url>
-  
-  <url>
     <loc>https://resinsight.org/3d-main-window/3dviews/</loc>
   </url>
   
@@ -332,6 +328,10 @@
   
   <url>
     <loc>https://resinsight.org/3d-main-window/annotations/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/3d-main-window/derivedresults/</loc>
   </url>
   
   <url>
