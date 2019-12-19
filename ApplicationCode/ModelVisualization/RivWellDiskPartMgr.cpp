@@ -181,7 +181,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
         if ( enableLighting )
         {
             gen.addFragmentCode( cvf::ShaderSourceRepository::src_VaryingColorGlobalAlpha );
-            gen.addFragmentCode( cvf::ShaderSourceRepository::light_SimpleHeadlight );
+            gen.addFragmentCode( cvf::ShaderSourceRepository::light_Phong );
             gen.addFragmentCode( cvf::ShaderSourceRepository::fs_Standard );
         }
         else
@@ -191,6 +191,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
 
         m_shaderProg = gen.generate();
         m_shaderProg->setDefaultUniform( new cvf::UniformFloat( "u_alpha", 1.0f ) );
+        m_shaderProg->setDefaultUniform( new cvf::UniformFloat( "u_ambientIntensity", 100.0f ) );
 
         m_shaderEffect->setShaderProgram( m_shaderProg.p() );
     }
