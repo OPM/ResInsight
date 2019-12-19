@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiaPlotWindowRedrawScheduler.h"
 
+#include "RiuMultiPlotPage.h"
 #include "RiuMultiPlotWindow.h"
 #include "RiuQwtPlotWidget.h"
 
@@ -40,9 +41,19 @@ RiaPlotWindowRedrawScheduler* RiaPlotWindowRedrawScheduler::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPlotWindowRedrawScheduler::schedulePlotWindowUpdate( RiuMultiPlotWindow* plotWindow )
+void RiaPlotWindowRedrawScheduler::scheduleMultiPlotWindowUpdate( RiuMultiPlotWindow* plotWindow )
 {
     m_plotWindowsToUpdate.push_back( plotWindow );
+
+    startTimer( 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPlotWindowRedrawScheduler::scheduleMultiPlotPageUpdate( RiuMultiPlotPage* plotPage )
+{
+    m_plotPagesToUpdate.push_back( plotPage );
 
     startTimer( 0 );
 }
@@ -70,6 +81,7 @@ void RiaPlotWindowRedrawScheduler::clearAllScheduledUpdates()
         }
     }
     m_plotWidgetsToReplot.clear();
+    m_plotPagesToUpdate.clear();
     m_plotWindowsToUpdate.clear();
 }
 
@@ -80,6 +92,7 @@ void RiaPlotWindowRedrawScheduler::performScheduledUpdatesAndReplots()
 {
     std::set<RiuQwtPlotWidget*>   updatedPlots;
     std::set<RiuMultiPlotWindow*> updatedPlotWindows;
+    std::set<RiuMultiPlotPage*>   updatedPlotPages;
 
     for ( RiuMultiPlotWindow* plotWindow : m_plotWindowsToUpdate )
     {
@@ -87,6 +100,19 @@ void RiaPlotWindowRedrawScheduler::performScheduledUpdatesAndReplots()
         {
             plotWindow->performUpdate();
             updatedPlotWindows.insert( plotWindow );
+            for ( RiuMultiPlotPage* page : plotWindow->pages() )
+            {
+                updatedPlotPages.insert( page );
+            }
+        }
+    }
+
+    for ( RiuMultiPlotPage* plotPage : m_plotPagesToUpdate )
+    {
+        if ( plotPage && !updatedPlotPages.count( plotPage ) )
+        {
+            plotPage->performUpdate();
+            updatedPlotPages.insert( plotPage );
         }
     }
 
@@ -101,6 +127,7 @@ void RiaPlotWindowRedrawScheduler::performScheduledUpdatesAndReplots()
     }
 
     m_plotWidgetsToReplot.clear();
+    m_plotPagesToUpdate.clear();
     m_plotWindowsToUpdate.clear();
 }
 

@@ -18,7 +18,7 @@
 #pragma once
 
 #include "RimPlotWindow.h"
-#include "RiuMultiPlotWindow.h"
+#include "RiuMultiPlotInterface.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
@@ -48,6 +48,15 @@ public:
         COLUMNS_UNLIMITED = 1000,
     };
     using ColumnCountEnum = caf::AppEnum<ColumnCount>;
+
+    enum RowCount
+    {
+        ROWS_1 = 1,
+        ROWS_2 = 2,
+        ROWS_3 = 3,
+        ROWS_4 = 4,
+    };
+    using RowCountEnum = caf::AppEnum<RowCount>;
 
 public:
     RimMultiPlotWindow( bool hidePlotsInTreeView = false );
@@ -82,7 +91,9 @@ public:
     void setAutoScaleYEnabled( bool enabled );
 
     int                  columnCount() const;
+    int                  rowsPerPage() const;
     caf::PdmFieldHandle* columnCountField();
+    caf::PdmFieldHandle* rowsPerPageField();
     bool                 showPlotTitles() const;
 
     void zoomAll() override;
@@ -134,11 +145,12 @@ private:
 protected:
     caf::PdmField<bool>            m_showPlotWindowTitle;
     caf::PdmField<QString>         m_plotWindowTitle;
-    caf::PdmField<ColumnCountEnum> m_columnCountEnum;
+    caf::PdmField<ColumnCountEnum> m_columnCount;
+    caf::PdmField<RowCountEnum>    m_rowsPerPage;
     caf::PdmField<bool>            m_showIndividualPlotTitles;
 
-    friend class RiuMultiPlotWindow;
-    QPointer<RiuMultiPlotWindow> m_viewer;
+    friend class RiuMultiPlotInterface;
+    QPointer<RiuMultiPlotInterface> m_viewer;
 
 private:
     caf::PdmChildArrayField<RimPlot*> m_plots;

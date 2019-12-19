@@ -32,7 +32,7 @@
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogTrack.h"
 
-#include "RiuMultiPlotWindow.h"
+#include "RiuMultiPlotPage.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotWidget.h"
@@ -105,7 +105,7 @@ RimWellLogPlot::RimWellLogPlot()
     m_maxAvailableDepth = -HUGE_VAL;
 
     m_commonDataSourceEnabled = true;
-    m_columnCountEnum         = RimMultiPlotWindow::COLUMNS_UNLIMITED;
+    m_columnCount             = RimMultiPlotWindow::COLUMNS_UNLIMITED;
 
     m_plotWindowTitle.xmlCapability()->setIOWritable( false );
     m_plotLegendsHorizontal = false;
@@ -616,7 +616,7 @@ void RimWellLogPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     caf::PdmUiGroup* titleAndLegendsGroup = uiOrdering.addNewGroup( "Plot Layout" );
     uiOrderingForAutoName( uiConfigName, *titleAndLegendsGroup );
     RimPlotWindow::uiOrderingForLegendSettings( uiConfigName, *titleAndLegendsGroup );
-    titleAndLegendsGroup->add( &m_columnCountEnum );
+    titleAndLegendsGroup->add( &m_columnCount );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -683,7 +683,7 @@ void RimWellLogPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                             QString                    uiConfigName,
                                             caf::PdmUiEditorAttribute* attribute )
 {
-    if ( field == &m_columnCountEnum )
+    if ( field == &m_columnCount )
     {
         auto comboAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
         if ( comboAttr )

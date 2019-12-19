@@ -116,6 +116,7 @@
 #include "cvfqtUtils.h"
 
 #include <QDebug>
+#include <QDesktopWidget>
 #include <QDir>
 #include <QErrorMessage>
 #include <QFileDialog>
@@ -1718,6 +1719,18 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences* oldPreference
             {
                 m_mainWindow->applyFontSizesToDockedPlots();
             }
+
+            if ( oldPreferences->defaultPageLayout() != m_preferences->defaultPageLayout() )
+            {
+                for ( RimViewWindow* viewWindow : allViewWindows )
+                {
+                    RimPlotWindow* plotWindow = dynamic_cast<RimPlotWindow*>( viewWindow );
+                    if ( plotWindow )
+                    {
+                        plotWindow->updateLayout();
+                    }
+                }
+            }
         }
 
         std::vector<caf::PdmUiItem*> uiEditorsToUpdate;
@@ -1750,6 +1763,14 @@ void RiaGuiApplication::updateGrpcServer()
         m_grpcServer->runInThread();
     }
 #endif
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaGuiApplication::applicationResolution()
+{
+    return RiaGuiApplication::instance()->desktop()->logicalDpiX();
 }
 
 //--------------------------------------------------------------------------------------------------

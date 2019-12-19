@@ -139,7 +139,7 @@ std::vector<std::pair<QPoint, QString>> RiuAbstractLegendFrame::visibleLabels( c
 {
     const int textX = layout.tickEndX + layout.tickTextLeadSpace;
 
-    const double overlapTolerance = 1.1 * layout.charHeight;
+    const double overlapTolerance = 1.2 * layout.charHeight;
     int          lastVisibleTextY = 0;
 
     std::vector<std::pair<QPoint, QString>> visibleTickLabels;

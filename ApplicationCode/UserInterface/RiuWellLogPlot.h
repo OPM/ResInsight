@@ -17,18 +17,22 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiuMultiPlotWindow.h"
+#include "RiuInterfaceToViewWindow.h"
+#include "RiuMultiPlotPage.h"
 
 class RiuQwtPlotWidget;
 class RimWellLogPlot;
 
-class RiuWellLogPlot : public RiuMultiPlotWindow
+class RiuWellLogPlot : public RiuMultiPlotPage, public RiuInterfaceToViewWindow
 {
     Q_OBJECT
 public:
     RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent );
 
+    RimViewWindow* ownerViewWindow() const override;
+
     void updateVerticalScrollBar( double minVisible, double maxVisible, double minAvailable, double maxAvailable ) override;
+    void renderTo( QPaintDevice* paintDevice ) override;
 
 protected:
     void keyPressEvent( QKeyEvent* event ) override;
@@ -37,7 +41,6 @@ protected:
 
     void reinsertScrollbar();
     void alignScrollbar( int offset );
-    void doRenderTo( QPaintDevice* paintDevice ) override;
 
 private:
     RimWellLogPlot* wellLogPlotDefinition();

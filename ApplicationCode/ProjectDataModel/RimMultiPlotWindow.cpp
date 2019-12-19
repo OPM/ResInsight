@@ -19,10 +19,11 @@
 
 #include "RimPlot.h"
 
+#include "RiuMultiPlotWindow.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
-#include <QPainter>
+#include <QPaintDevice>
 #include <QRegularExpression>
 
 #include <cvfAssert.h>
@@ -39,6 +40,16 @@ void RimMultiPlotWindow::ColumnCountEnum::setUp()
     addItem( RimMultiPlotWindow::COLUMNS_UNLIMITED, "UNLIMITED", "Unlimited" );
     setDefault( RimMultiPlotWindow::COLUMNS_2 );
 }
+template <>
+void RimMultiPlotWindow::RowCountEnum::setUp()
+{
+    addItem( RimMultiPlotWindow::ROWS_1, "1", "1 Row" );
+    addItem( RimMultiPlotWindow::ROWS_2, "2", "2 Rows" );
+    addItem( RimMultiPlotWindow::ROWS_3, "3", "3 Rows" );
+    addItem( RimMultiPlotWindow::ROWS_4, "4", "4 Rows" );
+    setDefault( RimMultiPlotWindow::ROWS_2 );
+}
+
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimMultiPlotWindow, "MultiPlot" );
@@ -58,7 +69,8 @@ RimMultiPlotWindow::RimMultiPlotWindow( bool hidePlotsInTreeView )
     m_plots.uiCapability()->setUiHidden( true );
     m_plots.uiCapability()->setUiTreeChildrenHidden( hidePlotsInTreeView );
 
-    CAF_PDM_InitFieldNoDefault( &m_columnCountEnum, "NumberOfColumns", "Number of Columns", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_columnCount, "NumberOfColumns", "Number of Columns", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_rowsPerPage, "RowsPerPage", "Rows per Page", "", "", "" );
 
     CAF_PDM_InitField( &m_showIndividualPlotTitles, "ShowPlotTitles", false, "Show Sub Plot Titles", "", "", "" );
 
@@ -91,7 +103,13 @@ RimMultiPlotWindow& RimMultiPlotWindow::operator=( RimMultiPlotWindow&& rhs )
         m_plots.push_back( plot );
     }
 
-    m_columnCountEnum = rhs.m_columnCountEnum;
+    m_showPlotWindowTitle      = rhs.m_showPlotWindowTitle;
+    m_plotWindowTitle          = rhs.m_plotWindowTitle;
+    m_columnCount              = rhs.m_columnCount;
+    m_rowsPerPage              = rhs.m_rowsPerPage;
+    m_showIndividualPlotTitles = rhs.m_showIndividualPlotTitles;
+
+    m_acceptDrops = rhs.m_acceptDrops;
 
     return *this;
 }
@@ -274,7 +292,7 @@ std::vector<RimPlot*> RimMultiPlotWindow::visiblePlots() const
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlotWindow::doUpdateLayout()
 {
-    if ( m_showWindow )
+    if ( m_showWindow && m_viewer )
     {
         m_viewer->scheduleUpdate();
     }
@@ -350,11 +368,19 @@ void RimMultiPlotWindow::setAutoScaleYEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 int RimMultiPlotWindow::columnCount() const
 {
-    if ( m_columnCountEnum() == COLUMNS_UNLIMITED )
+    if ( m_columnCount() == COLUMNS_UNLIMITED )
     {
         return std::numeric_limits<int>::max();
     }
-    return static_cast<int>( m_columnCountEnum() );
+    return static_cast<int>( m_columnCount() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimMultiPlotWindow::rowsPerPage() const
+{
+    return static_cast<int>( m_rowsPerPage() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -362,7 +388,15 @@ int RimMultiPlotWindow::columnCount() const
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimMultiPlotWindow::columnCountField()
 {
-    return &m_columnCountEnum;
+    return &m_columnCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimMultiPlotWindow::rowsPerPageField()
+{
+    return &m_rowsPerPage;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -494,7 +528,7 @@ void RimMultiPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         updatePlotWindowTitle();
         applyPlotWindowTitleToWidgets();
     }
-    else if ( changedField == &m_columnCountEnum )
+    else if ( changedField == &m_columnCount || changedField == &m_rowsPerPage )
     {
         updateLayout();
         RiuPlotMainWindowTools::refreshToolbars();
@@ -520,7 +554,8 @@ void RimMultiPlotWindow::uiOrderingForPlotLayout( QString uiConfigName, caf::Pdm
     uiOrdering.add( &m_plotWindowTitle );
     uiOrdering.add( &m_showIndividualPlotTitles );
     RimPlotWindow::uiOrderingForLegendSettings( uiConfigName, uiOrdering );
-    uiOrdering.add( &m_columnCountEnum );
+    uiOrdering.add( &m_columnCount );
+    uiOrdering.add( &m_rowsPerPage );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -531,7 +566,7 @@ QList<caf::PdmOptionItemInfo> RimMultiPlotWindow::calculateValueOptions( const c
 {
     QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
 
-    if ( fieldNeedingOptions == &m_columnCountEnum )
+    if ( fieldNeedingOptions == &m_columnCount )
     {
         for ( size_t i = 0; i < ColumnCountEnum::size(); ++i )
         {

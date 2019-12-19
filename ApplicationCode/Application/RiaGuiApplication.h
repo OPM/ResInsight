@@ -125,6 +125,7 @@ public:
     static void clearAllSelections();
     void        applyGuiPreferences( const RiaPreferences* oldPreferences = nullptr );
     void        updateGrpcServer();
+    static int  applicationResolution();
 
     // Public RiaApplication overrides
     void              initialize() override;

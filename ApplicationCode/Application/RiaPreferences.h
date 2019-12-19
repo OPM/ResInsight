@@ -105,6 +105,7 @@ public:
 
     void        writePreferencesToApplicationStore();
     QPageLayout defaultPageLayout() const;
+    QMarginsF   margins() const;
 
 public: // Pdm Fields
     caf::PdmField<caf::AppEnum<RiaGuiApplication::RINavigationPolicy>> navigationPolicy;
