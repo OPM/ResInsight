@@ -26,10 +26,9 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
+#include "RigNNCData.h"
 
 #include "cvfArray.h"
-
-class RigNNCData;
 
 class RigEclipseAllenFaultsStatCalc : public RigStatisticsCalculator
 {
@@ -60,6 +59,5 @@ private:
                 accumulator.addValue( v );
             }
         }
-
     }
 };
