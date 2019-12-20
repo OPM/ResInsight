@@ -510,7 +510,6 @@ void RiuMainWindow::createMenus()
 
     connect( viewMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshViewActions() ) );
 
-    // Debug menu
     testMenu->addAction( m_mockModelAction );
     testMenu->addAction( m_mockResultsModelAction );
     testMenu->addAction( m_mockLargeResultsModelAction );
@@ -523,6 +522,7 @@ void RiuMainWindow::createMenus()
     testMenu->addAction( m_executePaintEventPerformanceTest );
     testMenu->addAction( cmdFeatureMgr->action( "RicLaunchUnitTestsFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicRunCommandFileFeature" ) );
+    testMenu->addAction( cmdFeatureMgr->action( "RicExportObjectAndFieldKeywordsFeature" ) );
     testMenu->addSeparator();
 
     testMenu->addAction( cmdFeatureMgr->action( "RicHoloLensExportToFolderFeature" ) );
