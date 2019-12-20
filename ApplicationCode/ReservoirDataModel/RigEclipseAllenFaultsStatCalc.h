@@ -60,5 +60,6 @@ private:
                 accumulator.addValue( v );
             }
         }
+
     }
 };

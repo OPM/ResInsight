@@ -28,6 +28,7 @@
 #include "RicfCommandObject.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigAllenDiagramData.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"
@@ -62,6 +63,7 @@
 #include "RimViewLinker.h"
 #include "RimWellLogExtractionCurve.h"
 
+#include "cafCategoryMapper.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -1882,6 +1884,61 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                 {
                     const std::vector<QString>& fnVector = eclipseCaseData->activeFormationNames()->formationNames();
                     legendConfigToUpdate->setNamedCategoriesInverse( fnVector );
+                }
+                else if ( this->resultType() == RiaDefines::ALLEN_DIAGRAMS )
+                {
+                    if ( this->resultVariable() == RiaDefines::allCombinationsAllenResultName() )
+                    {
+                        const std::vector<QString>& fnVector = eclipseCaseData->activeFormationNames()->formationNames();
+                        std::vector<int>            fnameIdxes;
+                        for ( int i = static_cast<int>( fnVector.size() ); i > 0; --i )
+                            fnameIdxes.push_back( i - 1 );
+
+                        cvf::Color3ubArray legendBaseColors = RiaColorTables::categoryPaletteColors().color3ubArray();
+
+                        cvf::ref<caf::CategoryMapper> formationColorMapper = new caf::CategoryMapper;
+                        formationColorMapper->setCategories( fnameIdxes );
+                        formationColorMapper->setInterpolateColors( legendBaseColors );
+
+                        const std::map<std::pair<int, int>, int>& formationCombToCathegory =
+                            eclipseCaseData->allenDiagramData()->formationCombinationToCategory();
+
+                        std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
+                        for ( int frmNameIdx : fnameIdxes )
+                        {
+                            cvf::Color3ub formationColor = formationColorMapper->mapToColor( frmNameIdx );
+                            categories.emplace_back( std::make_tuple( fnVector[frmNameIdx], frmNameIdx, formationColor ) );
+                        }
+
+                        for ( auto it = formationCombToCathegory.rbegin(); it != formationCombToCathegory.rend(); ++it )
+                        {
+                            int frmIdx1   = it->first.first;
+                            int frmIdx2   = it->first.second;
+                            int combIndex = it->second;
+
+                            QString frmName1 = fnVector[frmIdx1];
+                            QString frmName2 = fnVector[frmIdx2];
+
+                            cvf::Color3f formationColor1 = cvf::Color3f( formationColorMapper->mapToColor( frmIdx1 ) );
+                            cvf::Color3f formationColor2 = cvf::Color3f( formationColorMapper->mapToColor( frmIdx2 ) );
+
+                            cvf::Color3ub blendColor = cvf::Color3ub(
+                                cvf::Color3f( 0.5f * ( formationColor1.r() + formationColor2.r() ),
+                                              0.5f * ( formationColor1.g() + formationColor2.g() ),
+                                              0.5f * ( formationColor1.b() + formationColor2.b() ) ) );
+                            categories.emplace_back( std::make_tuple( frmName1 + "-" + frmName2, combIndex, blendColor ) );
+                        }
+
+                        legendConfigToUpdate->setCategoryItems( categories );
+                    }
+                    else if ( this->resultVariable() == RiaDefines::binaryAllenResultName() )
+                    {
+                        std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
+                        categories.emplace_back( std::make_tuple( "Same formation", 0, cvf::Color3ub::BROWN ) );
+                        categories.emplace_back( std::make_tuple( "Different formation", 1, cvf::Color3ub::ORANGE ) );
+
+                        legendConfigToUpdate->setCategoryItems( categories );
+                    }
                 }
                 else if ( this->resultType() == RiaDefines::DYNAMIC_NATIVE &&
                           this->resultVariable() == RiaDefines::completionTypeResultName() )

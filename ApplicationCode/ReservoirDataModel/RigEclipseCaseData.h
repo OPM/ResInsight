@@ -47,6 +47,7 @@ class RigWellPath;
 class RimEclipseCase;
 class RigVirtualPerforationTransmissibilities;
 class RigEquil;
+class RigAllenDiagramData;
 
 struct RigWellResultPoint;
 
@@ -88,9 +89,10 @@ public:
 
     bool hasFractureResults() const;
 
-    void               setActiveFormationNames( RigFormationNames* activeFormationNames );
-    void               setActiveFormationNamesAndUpdatePlots( RigFormationNames* activeFormationNames );
-    RigFormationNames* activeFormationNames();
+    void                 setActiveFormationNames( RigFormationNames* activeFormationNames );
+    void                 setActiveFormationNamesAndUpdatePlots( RigFormationNames* activeFormationNames );
+    RigFormationNames*   activeFormationNames();
+    RigAllenDiagramData* allenDiagramData();
 
     void                                   setSimWellData( const cvf::Collection<RigSimWellData>& data );
     const cvf::Collection<RigSimWellData>& wellResults() const

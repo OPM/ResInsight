@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "RigAllenDiagramData.h"
 #include "RigCaseCellResultCalculator.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseMultiPropertyStatCalc.h"
@@ -61,6 +62,8 @@ RigCaseCellResultsData::RigCaseCellResultsData( RigEclipseCaseData*           ow
 
     m_ownerCaseData = ownerCaseData;
     m_ownerMainGrid = ownerCaseData->mainGrid();
+
+    m_allenDiagramData = new RigAllenDiagramData;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2893,6 +2896,14 @@ RigFormationNames* RigCaseCellResultsData::activeFormationNames()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigAllenDiagramData* RigCaseCellResultsData::allenDiagramData()
+{
+    return m_allenDiagramData.p();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///  If we have any results on any time step, assume we have loaded results
 //--------------------------------------------------------------------------------------------------
 bool RigCaseCellResultsData::isDataPresent( size_t scalarResultIndex ) const
@@ -2990,64 +3001,65 @@ void RigCaseCellResultsData::computeAllenResults( RigCaseCellResultsData* cellRe
     CVF_ASSERT( mainGrid );
     CVF_ASSERT( cellResultsData );
 
-    auto allAllenEclResAddr = RigEclipseResultAddress( RiaDefines::ALLEN_DIAGRAMS,
-                                                       RiaDefines::allCombinationsAllenResultName() );
-
-    auto binaryAllenEclResAddr = RigEclipseResultAddress( RiaDefines::ALLEN_DIAGRAMS,
-                                                          RiaDefines::binaryAllenResultName() );
-
-    if ( mainGrid->nncData()->staticConnectionScalarResult( allAllenEclResAddr ) ) return;
-
-    std::vector<double>& allAllenResults = mainGrid->nncData()->makeStaticConnectionScalarResult(
-        RiaDefines::allCombinationsAllenResultName() );
-
-    std::vector<double>& allAllenFormationResults = mainGrid->nncData()->makeStaticConnectionScalarResult(
-        RiaDefines::activeFormationNamesResultName() );
-
-    std::vector<double>& binaryAllenResults = mainGrid->nncData()->makeStaticConnectionScalarResult(
-        RiaDefines::binaryAllenResultName() );
-
-    mainGrid->nncData()->setEclResultAddress( RiaDefines::allCombinationsAllenResultName(), allAllenEclResAddr );
-    mainGrid->nncData()->setEclResultAddress( RiaDefines::binaryAllenResultName(), binaryAllenEclResAddr );
-    mainGrid->nncData()->setEclResultAddress( RiaDefines::activeFormationNamesResultName(),
-                                              RigEclipseResultAddress( RiaDefines::FORMATION_NAMES,
-                                                                       RiaDefines::activeFormationNamesResultName() ) );
-
-    bool hasFormationData = cellResultsData->hasResultEntry(
-        RigEclipseResultAddress( RiaDefines::FORMATION_NAMES, RiaDefines::activeFormationNamesResultName() ) );
+    auto fnNamesResAddr   = RigEclipseResultAddress( RiaDefines::FORMATION_NAMES,
+                                                   RiaDefines::activeFormationNamesResultName() );
+    bool hasFormationData = cellResultsData->hasResultEntry( fnNamesResAddr );
 
     if ( hasFormationData )
     {
-        const std::vector<double>& fnData =
-            cellResultsData->cellScalarResults( RigEclipseResultAddress( RiaDefines::FORMATION_NAMES,
-                                                                         RiaDefines::activeFormationNamesResultName() ),
-                                                0 );
+        auto fnAllenResultResAddr = RigEclipseResultAddress( RiaDefines::ALLEN_DIAGRAMS,
+                                                             RiaDefines::allCombinationsAllenResultName() );
+        auto fnBinAllenResAddr    = RigEclipseResultAddress( RiaDefines::ALLEN_DIAGRAMS,
+                                                          RiaDefines::binaryAllenResultName() );
+
+        // Create and retreive nnc result arrays
+
+        std::vector<double>& fnAllenNncResults = mainGrid->nncData()->makeStaticConnectionScalarResult(
+            RiaDefines::allCombinationsAllenResultName() );
+        std::vector<double>& fnBinAllenNncResults = mainGrid->nncData()->makeStaticConnectionScalarResult(
+            RiaDefines::binaryAllenResultName() );
+
+        // Associate them with eclipse result address
+
+        mainGrid->nncData()->setEclResultAddress( RiaDefines::allCombinationsAllenResultName(), fnAllenResultResAddr );
+        mainGrid->nncData()->setEclResultAddress( RiaDefines::binaryAllenResultName(), fnBinAllenResAddr );
+
+        const std::vector<double>& fnData = cellResultsData->cellScalarResults( fnNamesResAddr, 0 );
+
+        // Add a result entry for the special allen grid data (used only for the grid cells without nnc coverage)
 
         cellResultsData->addStaticScalarResult( RiaDefines::ALLEN_DIAGRAMS,
                                                 RiaDefines::allCombinationsAllenResultName(),
                                                 false,
                                                 fnData.size() );
+        cellResultsData->addStaticScalarResult( RiaDefines::ALLEN_DIAGRAMS,
+                                                RiaDefines::binaryAllenResultName(),
+                                                false,
+                                                fnData.size() );
 
-        std::vector<double>* alData = cellResultsData->modifiableCellScalarResult( allAllenEclResAddr, 0 );
+        std::vector<double>* alData    = cellResultsData->modifiableCellScalarResult( fnAllenResultResAddr, 0 );
+        std::vector<double>* binAlData = cellResultsData->modifiableCellScalarResult( fnBinAllenResAddr, 0 );
 
         ( *alData ) = fnData;
 
-        std::map<std::pair<int, int>, int> formationCombinationToCategory;
-
-        for ( size_t i = 0; i < mainGrid->nncData()->connections().size(); i++ )
+        for ( double& val : ( *binAlData ) )
         {
-            const auto& c = mainGrid->nncData()->connections()[i];
+            val = 0.0;
+        }
+
+        size_t formationCount = cellResultsData->activeFormationNames()->formationNames().size();
+
+        const std::vector<RigConnection>& nncConnections = mainGrid->nncData()->connections();
+
+        std::map<std::pair<int, int>, int> formationCombinationToCategory;
+        for ( size_t i = 0; i < nncConnections.size(); i++ )
+        {
+            const auto& c = nncConnections[i];
 
             size_t globCellIdx1 = c.m_c1GlobIdx;
             size_t globCellIdx2 = c.m_c2GlobIdx;
 
-            size_t i1, j1, k1;
-            mainGrid->ijkFromCellIndex( globCellIdx1, &i1, &j1, &k1 );
-
             int formation1 = (int)( fnData[globCellIdx1] );
-
-            size_t i2, j2, k2;
-            mainGrid->ijkFromCellIndex( globCellIdx2, &i2, &j2, &k2 );
             int formation2 = (int)( fnData[globCellIdx2] );
 
             int category = -1;
@@ -3067,7 +3079,7 @@ void RigCaseCellResultsData::computeAllenResults( RigCaseCellResultsData* cellRe
                 }
                 else
                 {
-                    category = static_cast<int>( formationCombinationToCategory.size() );
+                    category = static_cast<int>( formationCombinationToCategory.size() + formationCount );
 
                     formationCombinationToCategory[formationCombination] = category;
                 }
@@ -3075,20 +3087,21 @@ void RigCaseCellResultsData::computeAllenResults( RigCaseCellResultsData* cellRe
 
             if ( category < 0 )
             {
-                binaryAllenResults[i]       = 0.0;
-                allAllenResults[i]          = std::numeric_limits<double>::max();
-                allAllenFormationResults[i] = std::numeric_limits<double>::max();
+                fnBinAllenNncResults[i] = 0.0;
+                fnAllenNncResults[i]    = std::numeric_limits<double>::max();
             }
             else
             {
-                binaryAllenResults[i]       = 1.0;
-                allAllenResults[i]          = category;
-                allAllenFormationResults[i] = formation1;
+                fnBinAllenNncResults[i] = 1.0;
+                fnAllenNncResults[i]    = category;
             }
         }
+
+        cellResultsData->allenDiagramData()->setFormationCombinationToCategorymap( formationCombinationToCategory );
     }
     else
     {
+#if 0
         for ( size_t i = 0; i < mainGrid->nncData()->connections().size(); i++ )
         {
             const auto& c = mainGrid->nncData()->connections()[i];
@@ -3108,10 +3121,11 @@ void RigCaseCellResultsData::computeAllenResults( RigCaseCellResultsData* cellRe
                 binaryValue = 1.0;
             }
 
-            allAllenResults[i]          = k1;
+            fnAllenNncResults[i]        = k1;
             allAllenFormationResults[i] = k1;
-            binaryAllenResults[i]       = binaryValue;
+            fnBinAllenNncResults[i]     = binaryValue;
         }
+#endif
     }
 }
 
