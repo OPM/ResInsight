@@ -287,7 +287,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
         m_wellDiskPart = part;
     }
 
-    if ( well->showWellLabel() && !well->name().isEmpty() )
+    if ( well->showWellLabel() && well->showWellDisks() && !well->name().isEmpty() )
     {
         cvf::Font* font = RiaGuiApplication::instance()->defaultWellLabelFont();
 
