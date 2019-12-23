@@ -1003,3 +1003,24 @@ RimSimWellInViewCollection::WellDiskPropertyType RimSimWellInViewCollection::wel
 {
     return m_wellDiskPropertyType.v();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSimWellInViewCollection::wellDiskPropertyUiText() const
+{
+    if ( wellDiskPropertyType() == RimSimWellInViewCollection::PROPERTY_TYPE_PREDEFINED )
+    {
+        return caf::AppEnum<WellDiskPropertyConfigType>::uiTextFromIndex( wellDiskQuantity().toInt() );
+    }
+    return wellDiskQuantity;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSimWellInViewCollection::isWellDisksVisible() const
+{
+    return m_showWellDisks.v().isTrue() || m_showWellDisks.v().isPartiallyTrue();
+}
+

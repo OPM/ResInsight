@@ -137,6 +137,8 @@ public:
 
     caf::PdmField<QString> wellDiskQuantity;
     WellDiskPropertyType   wellDiskPropertyType() const;
+    QString                wellDiskPropertyUiText() const;
+    bool                   isWellDisksVisible() const;
 
     caf::PdmChildArrayField<RimSimWellInView*> wells;
 
