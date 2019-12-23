@@ -30,6 +30,7 @@
 
 class RimEclipseView;
 class RimSimWellInView;
+class RimWellDiskConfig;
 
 //==================================================================================================
 ///
@@ -171,6 +172,8 @@ protected:
 private:
     void calculateWellGeometryVisibility( size_t frameIndex );
     void updateStateFromEnabledChildCount( size_t showLabelCount, caf::PdmField<caf::Tristate>* fieldToUpdate );
+    void updateWellDisks( const RimWellDiskConfig& wellDiskConfig );
+    RimWellDiskConfig getActiveWellDiskConfig() const;
 
 private:
     RimEclipseView*                      m_reservoirView;
