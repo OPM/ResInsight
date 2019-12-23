@@ -156,6 +156,8 @@ public:
 
     static void updateWellAllocationPlots();
 
+    void updateWellDisks();
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,

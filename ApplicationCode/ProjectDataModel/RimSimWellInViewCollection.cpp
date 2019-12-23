@@ -996,6 +996,15 @@ bool RimSimWellInViewCollection::isWellDisksVisible() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSimWellInViewCollection::updateWellDisks()
+{
+    RimWellDiskConfig wellDiskConfig = getActiveWellDiskConfig();
+    updateWellDisks( wellDiskConfig );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSimWellInViewCollection::updateWellDisks( const RimWellDiskConfig& wellDiskConfig )
 {
     double minValue = std::numeric_limits<double>::max();
