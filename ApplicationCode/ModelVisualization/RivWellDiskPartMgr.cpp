@@ -92,18 +92,14 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
 
         if ( doFlatten )
         {
-            whEndPos.x()   = xOffset;
-            whEndPos.y()   = 0.0;
-            whStartPos.x() = xOffset;
-            whStartPos.y() = 0.0;
-            whEndPos       = displayXf->scaleToDisplaySize( whEndPos );
-            whStartPos     = displayXf->scaleToDisplaySize( whStartPos );
+            whEndPos.x() = xOffset;
+            whEndPos.y() = 0.0;
+            whEndPos     = displayXf->scaleToDisplaySize( whEndPos );
             whEndPos.z() += characteristicCellSize;
         }
         else
         {
-            whEndPos   = displayXf->transformToDisplayCoord( whEndPos );
-            whStartPos = displayXf->transformToDisplayCoord( whStartPos );
+            whEndPos = displayXf->transformToDisplayCoord( whEndPos );
             whEndPos.z() += characteristicCellSize;
         }
     }
