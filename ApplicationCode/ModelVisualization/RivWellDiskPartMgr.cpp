@@ -41,8 +41,10 @@
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
 #include "cvfEffect.h"
+#include "cvfGeometryBuilderDrawableGeo.h"
 #include "cvfGeometryBuilderFaceList.h"
 #include "cvfGeometryBuilderTriangles.h"
+#include "cvfGeometryUtils.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfRenderState_FF.h"
@@ -124,14 +126,14 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
     diskPosition.z() += pipeRadius + arrowLength;
 
     cvf::Vec3d textPosition = diskPosition;
-    textPosition.z() += 2.0 * arrowLength;
+    textPosition.z() += arrowLength;
 
     cvf::Mat4f matr;
 
     double ijScaleFactor = arrowLength / 6;
     matr( 0, 0 ) *= ijScaleFactor;
     matr( 1, 1 ) *= ijScaleFactor;
-    matr( 2, 2 ) *= arrowLength;
+    matr( 2, 2 ) *= ijScaleFactor;
 
     matr.setTranslation( cvf::Vec3f( diskPosition ) );
 
@@ -287,6 +289,63 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
         m_wellDiskPart = part;
     }
 
+    // Add visual indicator for well type: producer or injector
+    if ( wellResultFrame.m_productionType == RigWellResultFrame::PRODUCER )
+    {
+    }
+    else if ( wellResultFrame.m_productionType == RigWellResultFrame::OIL_INJECTOR ||
+              wellResultFrame.m_productionType == RigWellResultFrame::GAS_INJECTOR ||
+              wellResultFrame.m_productionType == RigWellResultFrame::WATER_INJECTOR )
+    {
+        cvf::GeometryBuilderFaceList builder;
+        cvf::Vec3f                   pos( 0.0, 0.0, pipeRadius * 0.5 );
+
+        // Construct a cross using to "bars"
+        cvf::GeometryUtils::createBox( pos, pipeRadius * 0.2, pipeRadius * 0.8, pipeRadius * 0.5, &builder );
+        cvf::GeometryUtils::createBox( pos, pipeRadius * 0.8, pipeRadius * 0.2, pipeRadius * 0.5, &builder );
+
+        cvf::ref<cvf::Vec3fArray> vertices = builder.vertices();
+        cvf::ref<cvf::UIntArray>  faceList = builder.faceList();
+
+        cvf::Mat4f matr;
+
+        double ijScaleFactor = arrowLength / 60;
+        matr( 0, 0 ) *= ijScaleFactor;
+        matr( 1, 1 ) *= ijScaleFactor;
+        matr( 2, 2 ) *= ijScaleFactor;
+
+        matr.setTranslation( cvf::Vec3f( diskPosition ) );
+
+        for ( size_t i = 0; i < vertices->size(); i++ )
+        {
+            cvf::Vec3f v = vertices->get( i );
+            v.transformPoint( matr );
+            vertices->set( i, v );
+        }
+
+        cvf::Color4f                injectorMarkerColor = getWellInjectionColor( wellResultFrame.m_productionType );
+        caf::SurfaceEffectGenerator surfaceGen( injectorMarkerColor, caf::PO_1 );
+        if ( viewWithSettings() && viewWithSettings()->isLightingDisabled() )
+        {
+            surfaceGen.enableLighting( false );
+        }
+        cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
+
+        cvf::ref<cvf::DrawableGeo> injectorGeo = new cvf::DrawableGeo;
+        injectorGeo->setVertexArray( vertices.p() );
+        injectorGeo->setFromFaceList( *faceList );
+        injectorGeo->computeNormals();
+
+        cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName( "RivWellDiskPartMgr: injector " + cvfqt::Utils::toString( well->name() ) );
+        part->setDrawable( injectorGeo.p() );
+
+        part->setEffect( eff.p() );
+        part->setSourceInfo( sourceInfo.p() );
+
+        m_wellDiskInjectorPart = part;
+    }
+
     if ( well->showWellLabel() && well->showWellDisks() && !well->name().isEmpty() )
     {
         cvf::Font* font = RiaGuiApplication::instance()->defaultWellLabelFont();
@@ -324,8 +383,9 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
 //--------------------------------------------------------------------------------------------------
 void RivWellDiskPartMgr::clearAllGeometry()
 {
-    m_wellDiskPart      = nullptr;
-    m_wellDiskLabelPart = nullptr;
+    m_wellDiskPart         = nullptr;
+    m_wellDiskLabelPart    = nullptr;
+    m_wellDiskInjectorPart = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -350,6 +410,11 @@ void RivWellDiskPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList*
     if ( m_rimWell->showWellDisks() && m_wellDiskPart.notNull() )
     {
         model->addPart( m_wellDiskPart.p() );
+    }
+
+    if ( m_rimWell->showWellDisks() && m_wellDiskInjectorPart.notNull() )
+    {
+        model->addPart( m_wellDiskInjectorPart.p() );
     }
 }
 
@@ -377,6 +442,11 @@ void RivWellDiskPartMgr::appendFlattenedDynamicGeometryPartsToModel( cvf::ModelB
     {
         model->addPart( m_wellDiskPart.p() );
     }
+
+    if ( m_rimWell->showWellDisks() && m_wellDiskInjectorPart.notNull() )
+    {
+        model->addPart( m_wellDiskInjectorPart.p() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -399,4 +469,25 @@ RimSimWellInViewCollection* RivWellDiskPartMgr::simWellInViewCollection()
     if ( m_rimWell ) m_rimWell->firstAncestorOrThisOfType( wellCollection );
 
     return wellCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color4f RivWellDiskPartMgr::getWellInjectionColor( RigWellResultFrame::WellProductionType productionType )
+{
+    if ( productionType == RigWellResultFrame::OIL_INJECTOR )
+    {
+        return cvf::Color4f( cvf::Color3::ORANGE );
+    }
+    else if ( productionType == RigWellResultFrame::GAS_INJECTOR )
+    {
+        return cvf::Color4f( cvf::Color3::RED );
+    }
+    else if ( productionType == RigWellResultFrame::WATER_INJECTOR )
+    {
+        return cvf::Color4f( cvf::Color3::BLUE );
+    }
+
+    return cvf::Color4f( cvf::Color3::BLACK );
 }

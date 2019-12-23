@@ -21,6 +21,8 @@
 #include "cafPdmPointer.h"
 #include "cvfObject.h"
 
+#include "RigWellResultPoint.h"
+
 namespace cvf
 {
 class Part;
@@ -29,6 +31,7 @@ class Transform;
 class Font;
 class Effect;
 class ShaderProgram;
+class Color4f;
 } // namespace cvf
 
 namespace caf
@@ -63,11 +66,14 @@ private:
     Rim3dView*                  viewWithSettings();
     RimSimWellInViewCollection* simWellInViewCollection();
 
+    static cvf::Color4f getWellInjectionColor( RigWellResultFrame::WellProductionType productionType );
+
 private:
     caf::PdmPointer<RimSimWellInView> m_rimWell;
 
     cvf::ref<cvf::Part> m_wellDiskPart;
     cvf::ref<cvf::Part> m_wellDiskLabelPart;
+    cvf::ref<cvf::Part> m_wellDiskInjectorPart;
 
     bool                         m_useShaders;
     cvf::ref<cvf::ShaderProgram> m_shaderProg;
