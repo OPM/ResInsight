@@ -178,8 +178,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
         cvf::ShaderProgramGenerator gen( "PerVertexColor", cvf::ShaderSourceProvider::instance() );
         gen.addVertexCode( cvf::ShaderSourceRepository::vs_Standard );
 
-        // TODO: settable?
-        bool enableLighting = true;
+        bool enableLighting = !( viewWithSettings() && viewWithSettings()->isLightingDisabled() );
         if ( enableLighting )
         {
             gen.addFragmentCode( cvf::ShaderSourceRepository::src_VaryingColorGlobalAlpha );
@@ -188,12 +187,17 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
         }
         else
         {
+            gen.addFragmentCode( cvf::ShaderSourceRepository::src_VaryingColorGlobalAlpha );
             gen.addFragmentCode( cvf::ShaderSourceRepository::fs_Unlit );
         }
-
         m_shaderProg = gen.generate();
+
+        if ( enableLighting )
+        {
+            m_shaderProg->setDefaultUniform( new cvf::UniformFloat( "u_ambientIntensity", 100.0f ) );
+        }
+
         m_shaderProg->setDefaultUniform( new cvf::UniformFloat( "u_alpha", 1.0f ) );
-        m_shaderProg->setDefaultUniform( new cvf::UniformFloat( "u_ambientIntensity", 100.0f ) );
 
         m_shaderEffect->setShaderProgram( m_shaderProg.p() );
     }
