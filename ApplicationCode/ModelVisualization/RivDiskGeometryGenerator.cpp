@@ -137,11 +137,5 @@ void createDisc( double radius, size_t numSlices, cvf::GeometryBuilder* builder 
 void RivDiskGeometryGenerator::generate( cvf::GeometryBuilder* builder )
 {
     const unsigned int numPolysZDir = 1;
-
-    unsigned int startIdx = builder->vertexCount();
     createDisc( m_relativeRadius, m_numSlices, builder );
-    unsigned int endIdx = builder->vertexCount() - 1;
-
-    cvf::Mat4f mat = cvf::Mat4f::fromTranslation( cvf::Vec3f( 0, 0, 1.0f - m_relativeLength ) );
-    builder->transformVertexRange( startIdx, endIdx, mat );
 }

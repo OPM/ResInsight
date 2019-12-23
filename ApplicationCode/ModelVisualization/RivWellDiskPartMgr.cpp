@@ -119,7 +119,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
                          m_rimWell->wellHeadScaleFactor();
 
     cvf::Vec3d diskPosition = whEndPos;
-    diskPosition.z() += pipeRadius + arrowLength;
+    diskPosition.z() += pipeRadius + arrowLength * 2.0;
 
     cvf::Vec3d textPosition = diskPosition;
     textPosition.z() += arrowLength;
@@ -292,28 +292,81 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t                            f
     // Add visual indicator for well type: producer or injector
     if ( wellResultFrame.m_productionType == RigWellResultFrame::PRODUCER )
     {
+        const uint numPolysZDir = 1;
+        float      bottomRadius = 0.5f;
+        float      topRadius    = 0.5f;
+        float      height       = 0.1f;
+        float      topOffsetX   = 0.0f;
+        float      topOffsetY   = 0.0f;
+
+        cvf::GeometryBuilderFaceList builder;
+        cvf::GeometryUtils::createObliqueCylinder( bottomRadius,
+                                                   topRadius,
+                                                   height,
+                                                   topOffsetX,
+                                                   topOffsetY,
+                                                   20,
+                                                   true,
+                                                   true,
+                                                   true,
+                                                   numPolysZDir,
+                                                   &builder );
+
+        cvf::ref<cvf::Vec3fArray> vertices = builder.vertices();
+        cvf::ref<cvf::UIntArray>  faceList = builder.faceList();
+
+        cvf::Mat4f matr;
+        matr( 0, 0 ) *= ijScaleFactor;
+        matr( 1, 1 ) *= ijScaleFactor;
+        matr( 2, 2 ) *= ijScaleFactor;
+        matr.setTranslation( cvf::Vec3f( diskPosition ) );
+
+        for ( size_t i = 0; i < vertices->size(); i++ )
+        {
+            cvf::Vec3f v = vertices->get( i );
+            v.transformPoint( matr );
+            vertices->set( i, v );
+        }
+
+        caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( cvf::Color3::BLACK ), caf::PO_1 );
+        if ( viewWithSettings() && viewWithSettings()->isLightingDisabled() )
+        {
+            surfaceGen.enableLighting( false );
+        }
+        cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
+
+        cvf::ref<cvf::DrawableGeo> injectorGeo = new cvf::DrawableGeo;
+        injectorGeo->setVertexArray( vertices.p() );
+        injectorGeo->setFromFaceList( *faceList );
+        injectorGeo->computeNormals();
+
+        cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName( "RivWellDiskPartMgr: producer " + cvfqt::Utils::toString( well->name() ) );
+        part->setDrawable( injectorGeo.p() );
+
+        part->setEffect( eff.p() );
+        part->setSourceInfo( sourceInfo.p() );
+
+        m_wellDiskInjectorPart = part;
     }
     else if ( wellResultFrame.m_productionType == RigWellResultFrame::OIL_INJECTOR ||
               wellResultFrame.m_productionType == RigWellResultFrame::GAS_INJECTOR ||
               wellResultFrame.m_productionType == RigWellResultFrame::WATER_INJECTOR )
     {
         cvf::GeometryBuilderFaceList builder;
-        cvf::Vec3f                   pos( 0.0, 0.0, pipeRadius * 0.5 );
+        cvf::Vec3f                   pos( 0.0, 0.0, 0.0 );
 
         // Construct a cross using to "bars"
-        cvf::GeometryUtils::createBox( pos, pipeRadius * 0.2, pipeRadius * 0.8, pipeRadius * 0.5, &builder );
-        cvf::GeometryUtils::createBox( pos, pipeRadius * 0.8, pipeRadius * 0.2, pipeRadius * 0.5, &builder );
+        cvf::GeometryUtils::createBox( pos, 0.2, 0.8, 0.1, &builder );
+        cvf::GeometryUtils::createBox( pos, 0.8, 0.2, 0.1, &builder );
 
         cvf::ref<cvf::Vec3fArray> vertices = builder.vertices();
         cvf::ref<cvf::UIntArray>  faceList = builder.faceList();
 
         cvf::Mat4f matr;
-
-        double ijScaleFactor = arrowLength / 60;
         matr( 0, 0 ) *= ijScaleFactor;
         matr( 1, 1 ) *= ijScaleFactor;
         matr( 2, 2 ) *= ijScaleFactor;
-
         matr.setTranslation( cvf::Vec3f( diskPosition ) );
 
         for ( size_t i = 0; i < vertices->size(); i++ )
