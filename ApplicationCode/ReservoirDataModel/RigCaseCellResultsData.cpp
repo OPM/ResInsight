@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "RigAllenDiagramData.h"
 #include "RigCaseCellResultCalculator.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseMultiPropertyStatCalc.h"
@@ -44,6 +45,7 @@
 
 #include <QDateTime>
 
+#include "RigEclipseAllenFaultsStatCalc.h"
 #include <algorithm>
 #include <cmath>
 
@@ -60,6 +62,8 @@ RigCaseCellResultsData::RigCaseCellResultsData( RigEclipseCaseData*           ow
 
     m_ownerCaseData = ownerCaseData;
     m_ownerMainGrid = ownerCaseData->mainGrid();
+
+    m_allenDiagramData = new RigAllenDiagramData;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -422,6 +426,13 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseRe
                                                                       QString( "%1K" ).arg( baseName ) ) );
         statisticsCalculator = calc;
     }
+    else if ( resultName == RiaDefines::allCombinationsAllenResultName() ||
+              resultName == RiaDefines::binaryAllenResultName() )
+    {
+        cvf::ref<RigEclipseAllenFaultsStatCalc> calc = new RigEclipseAllenFaultsStatCalc( m_ownerMainGrid->nncData(),
+                                                                                          resVarAddr );
+        statisticsCalculator                         = calc;
+    }
     else
     {
         statisticsCalculator = new RigEclipseNativeStatCalc( this, resVarAddr );
@@ -438,7 +449,8 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseRe
 //--------------------------------------------------------------------------------------------------
 QStringList RigCaseCellResultsData::resultNames( RiaDefines::ResultCatType resType ) const
 {
-    QStringList                                       varList;
+    QStringList varList;
+
     std::vector<RigEclipseResultInfo>::const_iterator it;
     for ( it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it )
     {
@@ -448,6 +460,7 @@ QStringList RigCaseCellResultsData::resultNames( RiaDefines::ResultCatType resTy
             varList.push_back( it->resultName() );
         }
     }
+
     return varList;
 }
 
@@ -897,6 +910,17 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
                                        false );
     }
 
+    // Fault results
+    {
+        findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ALLEN_DIAGRAMS,
+                                                                RiaDefines::binaryAllenResultName() ),
+                                       false );
+
+        findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ALLEN_DIAGRAMS,
+                                                                RiaDefines::allCombinationsAllenResultName() ),
+                                       false );
+    }
+
     // FLUX
     {
         if ( hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRWATI+" ) ) &&
@@ -1202,6 +1226,11 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
                   resultName == RiaDefines::riAreaNormTranZResultName() )
         {
             computeRiTRANSbyAreaComponent( resultName );
+        }
+        else if ( resultName == RiaDefines::allCombinationsAllenResultName() ||
+                  resultName == RiaDefines::binaryAllenResultName() )
+        {
+            computeAllenResults( this, m_ownerMainGrid );
         }
     }
     else if ( type == RiaDefines::DYNAMIC_NATIVE )
@@ -2854,6 +2883,8 @@ void RigCaseCellResultsData::setActiveFormationNames( RigFormationNames* activeF
             fnData->at( cIdx ) = HUGE_VAL;
         }
     }
+
+    computeAllenResults( this, m_ownerMainGrid );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2862,6 +2893,14 @@ void RigCaseCellResultsData::setActiveFormationNames( RigFormationNames* activeF
 RigFormationNames* RigCaseCellResultsData::activeFormationNames()
 {
     return m_activeFormationNamesData.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigAllenDiagramData* RigCaseCellResultsData::allenDiagramData()
+{
+    return m_allenDiagramData.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2952,6 +2991,142 @@ RigStatisticsDataCache* RigCaseCellResultsData::statistics( const RigEclipseResu
     size_t scalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
     CAF_ASSERT( scalarResultIndex < m_statisticsDataCache.size() );
     return m_statisticsDataCache[scalarResultIndex].p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::computeAllenResults( RigCaseCellResultsData* cellResultsData, RigMainGrid* mainGrid )
+{
+    CVF_ASSERT( mainGrid );
+    CVF_ASSERT( cellResultsData );
+
+    auto fnNamesResAddr   = RigEclipseResultAddress( RiaDefines::FORMATION_NAMES,
+                                                   RiaDefines::activeFormationNamesResultName() );
+    bool hasFormationData = cellResultsData->hasResultEntry( fnNamesResAddr );
+
+    if ( hasFormationData )
+    {
+        auto fnAllenResultResAddr = RigEclipseResultAddress( RiaDefines::ALLEN_DIAGRAMS,
+                                                             RiaDefines::allCombinationsAllenResultName() );
+        auto fnBinAllenResAddr    = RigEclipseResultAddress( RiaDefines::ALLEN_DIAGRAMS,
+                                                          RiaDefines::binaryAllenResultName() );
+
+        // Create and retreive nnc result arrays
+
+        std::vector<double>& fnAllenNncResults = mainGrid->nncData()->makeStaticConnectionScalarResult(
+            RiaDefines::allCombinationsAllenResultName() );
+        std::vector<double>& fnBinAllenNncResults = mainGrid->nncData()->makeStaticConnectionScalarResult(
+            RiaDefines::binaryAllenResultName() );
+
+        // Associate them with eclipse result address
+
+        mainGrid->nncData()->setEclResultAddress( RiaDefines::allCombinationsAllenResultName(), fnAllenResultResAddr );
+        mainGrid->nncData()->setEclResultAddress( RiaDefines::binaryAllenResultName(), fnBinAllenResAddr );
+
+        const std::vector<double>& fnData = cellResultsData->cellScalarResults( fnNamesResAddr, 0 );
+
+        // Add a result entry for the special allen grid data (used only for the grid cells without nnc coverage)
+
+        cellResultsData->addStaticScalarResult( RiaDefines::ALLEN_DIAGRAMS,
+                                                RiaDefines::allCombinationsAllenResultName(),
+                                                false,
+                                                fnData.size() );
+        cellResultsData->addStaticScalarResult( RiaDefines::ALLEN_DIAGRAMS,
+                                                RiaDefines::binaryAllenResultName(),
+                                                false,
+                                                fnData.size() );
+
+        std::vector<double>* alData    = cellResultsData->modifiableCellScalarResult( fnAllenResultResAddr, 0 );
+        std::vector<double>* binAlData = cellResultsData->modifiableCellScalarResult( fnBinAllenResAddr, 0 );
+
+        ( *alData ) = fnData;
+
+        for ( double& val : ( *binAlData ) )
+        {
+            val = 0.0;
+        }
+
+        size_t formationCount = cellResultsData->activeFormationNames()->formationNames().size();
+
+        const std::vector<RigConnection>& nncConnections = mainGrid->nncData()->connections();
+
+        std::map<std::pair<int, int>, int> formationCombinationToCategory;
+        for ( size_t i = 0; i < nncConnections.size(); i++ )
+        {
+            const auto& c = nncConnections[i];
+
+            size_t globCellIdx1 = c.m_c1GlobIdx;
+            size_t globCellIdx2 = c.m_c2GlobIdx;
+
+            int formation1 = (int)( fnData[globCellIdx1] );
+            int formation2 = (int)( fnData[globCellIdx2] );
+
+            int category = -1;
+            if ( formation1 != formation2 )
+            {
+                if ( formation1 < formation2 )
+                {
+                    std::swap( formation1, formation2 );
+                }
+
+                auto formationCombination = std::make_pair( formation1, formation2 );
+
+                auto existingCategory = formationCombinationToCategory.find( formationCombination );
+                if ( existingCategory != formationCombinationToCategory.end() )
+                {
+                    category = existingCategory->second;
+                }
+                else
+                {
+                    category = static_cast<int>( formationCombinationToCategory.size() + formationCount );
+
+                    formationCombinationToCategory[formationCombination] = category;
+                }
+            }
+
+            if ( category < 0 )
+            {
+                fnBinAllenNncResults[i] = 0.0;
+                fnAllenNncResults[i]    = std::numeric_limits<double>::max();
+            }
+            else
+            {
+                fnBinAllenNncResults[i] = 1.0;
+                fnAllenNncResults[i]    = category;
+            }
+        }
+
+        cellResultsData->allenDiagramData()->setFormationCombinationToCategorymap( formationCombinationToCategory );
+    }
+    else
+    {
+#if 0
+        for ( size_t i = 0; i < mainGrid->nncData()->connections().size(); i++ )
+        {
+            const auto& c = mainGrid->nncData()->connections()[i];
+
+            size_t globCellIdx1 = c.m_c1GlobIdx;
+            size_t globCellIdx2 = c.m_c2GlobIdx;
+
+            size_t i1, j1, k1;
+            mainGrid->ijkFromCellIndex( globCellIdx1, &i1, &j1, &k1 );
+
+            size_t i2, j2, k2;
+            mainGrid->ijkFromCellIndex( globCellIdx2, &i2, &j2, &k2 );
+
+            double binaryValue = 0.0;
+            if ( k1 != k2 )
+            {
+                binaryValue = 1.0;
+            }
+
+            fnAllenNncResults[i]        = k1;
+            allAllenFormationResults[i] = k1;
+            fnBinAllenNncResults[i]     = binaryValue;
+        }
+#endif
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

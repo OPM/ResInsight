@@ -735,6 +735,14 @@ RigFormationNames* RigEclipseCaseData::activeFormationNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RigAllenDiagramData* RigEclipseCaseData::allenDiagramData() 
+{
+    return m_matrixModelResults->allenDiagramData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigCaseCellResultsData* RigEclipseCaseData::results( RiaDefines::PorosityModelType porosityModel )
 {
     if ( porosityModel == RiaDefines::MATRIX_MODEL )
