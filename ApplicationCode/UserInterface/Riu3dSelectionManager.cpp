@@ -161,7 +161,7 @@ RiuEclipseSelectionItem::RiuEclipseSelectionItem( RimGridView*                  
                                                   RimEclipseResultDefinition*        resultDefinition,
                                                   size_t                             timestepIdx,
                                                   size_t                             gridIndex,
-                                                  size_t                             cellIndex,
+                                                  size_t                             gridLocalCellIndex,
                                                   size_t                             nncIndex,
                                                   cvf::Color3f                       color,
                                                   cvf::StructGridInterface::FaceType face,
@@ -170,7 +170,7 @@ RiuEclipseSelectionItem::RiuEclipseSelectionItem( RimGridView*                  
     , m_resultDefinition( resultDefinition )
     , m_timestepIdx( timestepIdx )
     , m_gridIndex( gridIndex )
-    , m_gridLocalCellIndex( cellIndex )
+    , m_gridLocalCellIndex( gridLocalCellIndex )
     , m_nncIndex( nncIndex )
     , m_color( color )
     , m_face( face )
