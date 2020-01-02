@@ -958,6 +958,7 @@ QList<caf::PdmOptionItemInfo>
     if ( rftCurveSet ) hasRftPlotParent = true;
 
     bool isCategoryResult = false;
+    bool isAllenDiagram   = false;
     {
         RimEclipseCellColors* eclCellColors = nullptr;
         this->firstAncestorOrThisOfType( eclCellColors );
@@ -978,6 +979,11 @@ QList<caf::PdmOptionItemInfo>
         {
             isCategoryResult = true;
         }
+
+        if ( eclCellColors && eclCellColors->resultType() == RiaDefines::ALLEN_DIAGRAMS )
+        {
+            isAllenDiagram = true;
+        }
     }
 
     QList<caf::PdmOptionItemInfo> options;
@@ -986,14 +992,17 @@ QList<caf::PdmOptionItemInfo>
     {
         // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of this type
         std::vector<MappingType> mappingTypes;
-        mappingTypes.push_back( LINEAR_DISCRETE );
-
-        if ( !crossPlotCurveSet )
+        if ( !isAllenDiagram )
         {
-            mappingTypes.push_back( LINEAR_CONTINUOUS );
-            mappingTypes.push_back( LOG10_CONTINUOUS );
+            mappingTypes.push_back( LINEAR_DISCRETE );
+
+            if ( !crossPlotCurveSet )
+            {
+                mappingTypes.push_back( LINEAR_CONTINUOUS );
+                mappingTypes.push_back( LOG10_CONTINUOUS );
+            }
+            mappingTypes.push_back( LOG10_DISCRETE );
         }
-        mappingTypes.push_back( LOG10_DISCRETE );
 
         if ( isCategoryResult )
         {
@@ -1009,27 +1018,30 @@ QList<caf::PdmOptionItemInfo>
     {
         // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of this type
         std::vector<ColorRangesType> rangeTypes;
-        if ( !hasEnsembleCurveSetParent && !hasRftPlotParent )
+        if ( !isAllenDiagram )
         {
-            rangeTypes.push_back( NORMAL );
-            rangeTypes.push_back( OPPOSITE_NORMAL );
-            rangeTypes.push_back( WHITE_PINK );
-            rangeTypes.push_back( PINK_WHITE );
-            rangeTypes.push_back( BLUE_WHITE_RED );
-            rangeTypes.push_back( RED_WHITE_BLUE );
-            rangeTypes.push_back( WHITE_BLACK );
-            rangeTypes.push_back( BLACK_WHITE );
-            rangeTypes.push_back( ANGULAR );
-        }
-        else
-        {
-            for ( const auto& col : ColorManager::EnsembleColorRanges() )
+            if ( !hasEnsembleCurveSetParent && !hasRftPlotParent )
             {
-                rangeTypes.push_back( col.first );
+                rangeTypes.push_back( NORMAL );
+                rangeTypes.push_back( OPPOSITE_NORMAL );
+                rangeTypes.push_back( WHITE_PINK );
+                rangeTypes.push_back( PINK_WHITE );
+                rangeTypes.push_back( BLUE_WHITE_RED );
+                rangeTypes.push_back( RED_WHITE_BLUE );
+                rangeTypes.push_back( WHITE_BLACK );
+                rangeTypes.push_back( BLACK_WHITE );
+                rangeTypes.push_back( ANGULAR );
             }
-        }
+            else
+            {
+                for ( const auto& col : ColorManager::EnsembleColorRanges() )
+                {
+                    rangeTypes.push_back( col.first );
+                }
+            }
 
-        if ( hasStimPlanParent ) rangeTypes.push_back( STIMPLAN );
+            if ( hasStimPlanParent ) rangeTypes.push_back( STIMPLAN );
+        }
 
         if ( isCategoryResult )
         {
