@@ -426,8 +426,8 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseRe
                                                                       QString( "%1K" ).arg( baseName ) ) );
         statisticsCalculator = calc;
     }
-    else if ( resultName == RiaDefines::allCombinationsAllenResultName() ||
-              resultName == RiaDefines::binaryAllenResultName() )
+    else if ( resultName == RiaDefines::formationAllenResultName() ||
+              resultName == RiaDefines::formationBinaryAllenResultName() )
     {
         cvf::ref<RigEclipseAllenFaultsStatCalc> calc = new RigEclipseAllenFaultsStatCalc( m_ownerMainGrid->nncData(),
                                                                                           resVarAddr );
@@ -913,11 +913,11 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
     // Fault results
     {
         findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ALLEN_DIAGRAMS,
-                                                                RiaDefines::binaryAllenResultName() ),
+                                                                RiaDefines::formationBinaryAllenResultName() ),
                                        false );
 
         findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ALLEN_DIAGRAMS,
-                                                                RiaDefines::allCombinationsAllenResultName() ),
+                                                                RiaDefines::formationAllenResultName() ),
                                        false );
     }
 
@@ -1227,8 +1227,8 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
         {
             computeRiTRANSbyAreaComponent( resultName );
         }
-        else if ( resultName == RiaDefines::allCombinationsAllenResultName() ||
-                  resultName == RiaDefines::binaryAllenResultName() )
+        else if ( resultName == RiaDefines::formationAllenResultName() ||
+                  resultName == RiaDefines::formationBinaryAllenResultName() )
         {
             computeAllenResults( this, m_ownerMainGrid );
         }
@@ -3008,32 +3008,32 @@ void RigCaseCellResultsData::computeAllenResults( RigCaseCellResultsData* cellRe
     if ( hasFormationData )
     {
         auto fnAllenResultResAddr = RigEclipseResultAddress( RiaDefines::ALLEN_DIAGRAMS,
-                                                             RiaDefines::allCombinationsAllenResultName() );
+                                                             RiaDefines::formationAllenResultName() );
         auto fnBinAllenResAddr    = RigEclipseResultAddress( RiaDefines::ALLEN_DIAGRAMS,
-                                                          RiaDefines::binaryAllenResultName() );
+                                                          RiaDefines::formationBinaryAllenResultName() );
 
         // Create and retreive nnc result arrays
 
         std::vector<double>& fnAllenNncResults = mainGrid->nncData()->makeStaticConnectionScalarResult(
-            RiaDefines::allCombinationsAllenResultName() );
+            RiaDefines::formationAllenResultName() );
         std::vector<double>& fnBinAllenNncResults = mainGrid->nncData()->makeStaticConnectionScalarResult(
-            RiaDefines::binaryAllenResultName() );
+            RiaDefines::formationBinaryAllenResultName() );
 
         // Associate them with eclipse result address
 
-        mainGrid->nncData()->setEclResultAddress( RiaDefines::allCombinationsAllenResultName(), fnAllenResultResAddr );
-        mainGrid->nncData()->setEclResultAddress( RiaDefines::binaryAllenResultName(), fnBinAllenResAddr );
+        mainGrid->nncData()->setEclResultAddress( RiaDefines::formationAllenResultName(), fnAllenResultResAddr );
+        mainGrid->nncData()->setEclResultAddress( RiaDefines::formationBinaryAllenResultName(), fnBinAllenResAddr );
 
         const std::vector<double>& fnData = cellResultsData->cellScalarResults( fnNamesResAddr, 0 );
 
         // Add a result entry for the special allen grid data (used only for the grid cells without nnc coverage)
 
         cellResultsData->addStaticScalarResult( RiaDefines::ALLEN_DIAGRAMS,
-                                                RiaDefines::allCombinationsAllenResultName(),
+                                                RiaDefines::formationAllenResultName(),
                                                 false,
                                                 fnData.size() );
         cellResultsData->addStaticScalarResult( RiaDefines::ALLEN_DIAGRAMS,
-                                                RiaDefines::binaryAllenResultName(),
+                                                RiaDefines::formationBinaryAllenResultName(),
                                                 false,
                                                 fnData.size() );
 

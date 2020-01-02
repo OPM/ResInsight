@@ -34,6 +34,19 @@ public:
         return m_formationCombinationToCategory;
     }
 
+    std::pair<int, int> formationIndexCombinationFromCategory( int category )
+    {
+        for ( auto it : m_formationCombinationToCategory )
+        {
+            if ( it.second == category )
+            {
+                return it.first;
+            }
+        }
+
+        return std::make_pair( -1, -1 );
+    }
+
     void setFormationCombinationToCategorymap( const std::map<std::pair<int, int>, int>& mapping )
     {
         m_formationCombinationToCategory = mapping;

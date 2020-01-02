@@ -372,17 +372,17 @@ QString RiaDefines::completionTypeResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::binaryAllenResultName()
+QString RiaDefines::formationBinaryAllenResultName()
 {
-    return "Binary Allen";
+    return "Binary Formation Allen";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::allCombinationsAllenResultName()
+QString RiaDefines::formationAllenResultName()
 {
-    return "All Allen Categories";
+    return "Formation Allen";
 }
 
 //--------------------------------------------------------------------------------------------------

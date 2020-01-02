@@ -1391,8 +1391,8 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
     if ( this->m_resultType() == RiaDefines::FLOW_DIAGNOSTICS && m_resultVariable() == RIG_FLD_MAX_FRACTION_TRACER_RESNAME )
         return true;
 
-    if ( this->resultVariable() == RiaDefines::allCombinationsAllenResultName() ||
-         this->resultVariable() == RiaDefines::binaryAllenResultName() )
+    if ( this->resultVariable() == RiaDefines::formationAllenResultName() ||
+         this->resultVariable() == RiaDefines::formationBinaryAllenResultName() )
     {
         return true;
     }
@@ -1887,7 +1887,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                 }
                 else if ( this->resultType() == RiaDefines::ALLEN_DIAGRAMS )
                 {
-                    if ( this->resultVariable() == RiaDefines::allCombinationsAllenResultName() )
+                    if ( this->resultVariable() == RiaDefines::formationAllenResultName() )
                     {
                         const std::vector<QString>& fnVector = eclipseCaseData->activeFormationNames()->formationNames();
                         std::vector<int>            fnameIdxes;
@@ -1931,7 +1931,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
 
                         legendConfigToUpdate->setCategoryItems( categories );
                     }
-                    else if ( this->resultVariable() == RiaDefines::binaryAllenResultName() )
+                    else if ( this->resultVariable() == RiaDefines::formationBinaryAllenResultName() )
                     {
                         std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
                         categories.emplace_back( std::make_tuple( "Same formation", 0, cvf::Color3ub::BROWN ) );

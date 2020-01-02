@@ -136,7 +136,7 @@ public:
                                       RimEclipseResultDefinition*        resultDefinition,
                                       size_t                             timestepIdx,
                                       size_t                             gridIndex,
-                                      size_t                             cellIndex,
+                                      size_t                             gridLocalCellIndex,
                                       size_t                             nncIndex,
                                       cvf::Color3f                       color,
                                       cvf::StructGridInterface::FaceType face,
