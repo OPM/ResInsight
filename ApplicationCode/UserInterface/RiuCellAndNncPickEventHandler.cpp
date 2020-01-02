@@ -22,6 +22,7 @@
 
 #include "Rim2dIntersectionView.h"
 #include "RimBoxIntersection.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
@@ -37,6 +38,10 @@
 #include "RivFemPartGeometryGenerator.h"
 #include "RivFemPickSourceInfo.h"
 #include "RivSourceInfo.h"
+
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
+#include "RigNNCData.h"
 
 #include "cafPdmObjectHandle.h"
 
@@ -113,26 +118,25 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
 
     if ( !firstHitPart ) return false;
 
-    size_t                             gridIndex       = cvf::UNDEFINED_SIZE_T;
-    size_t                             cellIndex       = cvf::UNDEFINED_SIZE_T;
-    cvf::StructGridInterface::FaceType face            = cvf::StructGridInterface::NO_FACE;
-    int                                gmFace          = -1;
-    bool                               intersectionHit = false;
+    size_t                             gridIndex          = cvf::UNDEFINED_SIZE_T;
+    size_t                             gridLocalCellIndex = cvf::UNDEFINED_SIZE_T;
+    cvf::StructGridInterface::FaceType face               = cvf::StructGridInterface::NO_FACE;
+    int                                gmFace             = -1;
+    bool                               intersectionHit    = false;
     std::array<cvf::Vec3f, 3>          intersectionTriangleHit;
     RimGeoMechResultDefinition*        geomResDef    = nullptr;
     RimEclipseResultDefinition*        eclResDef     = nullptr;
     size_t                             timestepIndex = -1;
 
     // clang-format off
-    if ( const RivSourceInfo* rivSourceInfo = 
-            dynamic_cast<const RivSourceInfo*>( firstHitPart->sourceInfo() ) )
+    if ( const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>( firstHitPart->sourceInfo() ) )
     {
         gridIndex = rivSourceInfo->gridIndex();
         if ( rivSourceInfo->hasCellFaceMapping() )
         {
             CVF_ASSERT( rivSourceInfo->m_cellFaceFromTriangleMapper.notNull() );
 
-            cellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex( firstPartTriangleIndex );
+            gridLocalCellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex( firstPartTriangleIndex );
             face      = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace( firstPartTriangleIndex );
         }
     }
@@ -140,17 +144,17 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                 dynamic_cast<const RivFemPickSourceInfo*>( firstHitPart->sourceInfo() ) )
     {
         gridIndex = femSourceInfo->femPartIndex();
-        cellIndex = femSourceInfo->triangleToElmMapper()->elementIndex( firstPartTriangleIndex );
+        gridLocalCellIndex = femSourceInfo->triangleToElmMapper()->elementIndex( firstPartTriangleIndex );
         gmFace    = femSourceInfo->triangleToElmMapper()->elementFace( firstPartTriangleIndex );
     }
     else if ( const RivExtrudedCurveIntersectionSourceInfo* intersectionSourceInfo = 
                 dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
     {
         RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView, 
-                             intersectionSourceInfo, 
-                             firstPartTriangleIndex, 
-                             &cellIndex, 
-                             &gridIndex );
+                                                 intersectionSourceInfo, 
+                                                 firstPartTriangleIndex, 
+                                                 &gridLocalCellIndex, 
+                                                 &gridIndex );
 
         intersectionHit         = true;
         intersectionTriangleHit = intersectionSourceInfo->triangle( firstPartTriangleIndex );
@@ -173,10 +177,10 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                 dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
     {
         RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
-                             intersectionBoxSourceInfo,
-                             firstPartTriangleIndex,
-                             &cellIndex,
-                             &gridIndex );
+                                                 intersectionBoxSourceInfo,
+                                                 firstPartTriangleIndex,
+                                                 &gridLocalCellIndex,
+                                                 &gridIndex );
 
         intersectionHit         = true;
         intersectionTriangleHit = intersectionBoxSourceInfo->triangle( firstPartTriangleIndex );
@@ -197,7 +201,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
     }
     // clang-format on
 
-    if ( cellIndex == cvf::UNDEFINED_SIZE_T )
+    if ( gridLocalCellIndex == cvf::UNDEFINED_SIZE_T )
     {
         Riu3dSelectionManager::instance()->deleteAllItems();
         return false;
@@ -253,11 +257,55 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
 
         if ( eclResDef )
         {
+            // Select the other cell if we are about to select the same cell at an nnc.
+            // To make consecutive clicks toggle between closest and furthest cell
+            // clang-format off
+
+            if ( nncIndex != cvf::UNDEFINED_SIZE_T )
+            {
+                auto selectedItem = dynamic_cast<RiuEclipseSelectionItem*>( Riu3dSelectionManager::instance()->selectedItem() );
+
+                if ( selectedItem && 
+                     selectedItem->m_gridIndex == gridIndex &&
+                     selectedItem->m_gridLocalCellIndex == gridLocalCellIndex && 
+                     selectedItem->m_nncIndex == nncIndex )
+                {
+                    RigMainGrid* mainGrid = eclipseView->eclipseCase()->eclipseCaseData()->mainGrid();
+                    const RigConnection& nncConn = mainGrid->nncData()->connections()[nncIndex];
+
+                    size_t c1LocalIdx = cvf::UNDEFINED_SIZE_T;
+                    const RigGridBase* grid1 = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConn.m_c1GlobIdx, &c1LocalIdx);
+                    size_t c1GridIdx = grid1->gridIndex();
+                    size_t c2LocalIdx = cvf::UNDEFINED_SIZE_T;
+                    const RigGridBase* grid2 = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConn.m_c2GlobIdx, &c2LocalIdx);
+                    size_t c2GridIdx = grid2->gridIndex();
+
+                    if (gridLocalCellIndex == c1LocalIdx && gridIndex == c1GridIdx)
+                    {
+                        gridLocalCellIndex = c2LocalIdx;
+                        gridIndex = c2GridIdx;
+                        face = cvf::StructGridInterface::oppositeFace(face);
+                    }
+                    else if (gridLocalCellIndex == c2LocalIdx && gridIndex == c2GridIdx)
+                    {
+                        gridLocalCellIndex = c1LocalIdx;
+                        gridIndex = c1GridIdx;
+                        face = cvf::StructGridInterface::oppositeFace(face);
+                    }
+                    else
+                    {
+                        // None really matched, error in nnc data. 
+                    }
+                }
+            }
+
+            // clang-format on
+
             selItem = new RiuEclipseSelectionItem( associatedGridView,
                                                    eclResDef,
                                                    timestepIndex,
                                                    gridIndex,
-                                                   cellIndex,
+                                                   gridLocalCellIndex,
                                                    nncIndex,
                                                    curveColor,
                                                    face,
@@ -271,7 +319,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                                                        geomResDef,
                                                        timestepIndex,
                                                        gridIndex,
-                                                       cellIndex,
+                                                       gridLocalCellIndex,
                                                        curveColor,
                                                        gmFace,
                                                        localIntersectionPoint,
@@ -281,7 +329,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                                                        geomResDef,
                                                        timestepIndex,
                                                        gridIndex,
-                                                       cellIndex,
+                                                       gridLocalCellIndex,
                                                        curveColor,
                                                        gmFace,
                                                        localIntersectionPoint );
