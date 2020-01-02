@@ -40,6 +40,7 @@
 
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 
+#include "RigAllenDiagramData.h"
 #include "RimIntersectionResultDefinition.h"
 #include "cafDisplayCoordTransform.h"
 
@@ -321,13 +322,17 @@ QString RiuResultTextBuilder::faultResultDetails()
 
             if ( m_viewWithFaultsSettings && m_viewWithFaultsSettings->faultResultSettings()->hasValidCustomResult() )
             {
-                text += "Fault result data:\n";
-                this->appendTextFromResultColors( eclipseCaseData,
-                                                  m_gridIndex,
-                                                  m_cellIndex,
-                                                  m_timeStepIndex,
-                                                  m_viewWithFaultsSettings->currentFaultResultColors(),
-                                                  &text );
+                if ( m_viewWithFaultsSettings->faultResultSettings()->customFaultResult()->resultType() !=
+                     RiaDefines::ALLEN_DIAGRAMS )
+                {
+                    text += "Fault result data:\n";
+                    this->appendTextFromResultColors( eclipseCaseData,
+                                                      m_gridIndex,
+                                                      m_cellIndex,
+                                                      m_timeStepIndex,
+                                                      m_viewWithFaultsSettings->currentFaultResultColors(),
+                                                      &text );
+                }
             }
         }
     }
@@ -471,6 +476,41 @@ QString RiuResultTextBuilder::nncResultText()
                         double  scalarValue = ( *nncValues )[m_nncIndex];
 
                         text = QString( "%1 : %2" ).arg( resultVar ).arg( scalarValue );
+                    }
+
+                    if ( resultType == RiaDefines::ALLEN_DIAGRAMS )
+                    {
+                        nncValues = nncData->staticConnectionScalarResult( eclipseResultAddress );
+                        QString resultValueText;
+
+                        if ( m_viewWithFaultsSettings->currentFaultResultColors()->resultVariable() ==
+                             RiaDefines::formationAllenResultName() )
+                        {
+                            std::pair<int, int> fmIndexPair =
+                                eclipseCase->allenDiagramData()->formationIndexCombinationFromCategory(
+                                    ( *nncValues )[m_nncIndex] );
+
+                            RigFormationNames* fmNames = eclipseCase->activeFormationNames();
+                            // clang-format off
+                            if ( fmNames && 
+                                 fmIndexPair.first >= 0 && 
+                                 fmIndexPair.second >= 0 &&
+                                 fmNames->formationNames().size() > fmIndexPair.first &&
+                                 fmNames->formationNames().size() > fmIndexPair.second )
+                            {
+                                resultValueText = fmNames->formationNames()[fmIndexPair.first] + " - " +
+                                                  fmNames->formationNames()[fmIndexPair.second];
+                            }
+                            // clang-format on
+                        }
+                        else if ( m_viewWithFaultsSettings->currentFaultResultColors()->resultVariable() ==
+                                  RiaDefines::formationBinaryAllenResultName() )
+                        {
+                            resultValueText = ( *nncValues )[m_nncIndex] == 0 ? "Same formation" : "Different formation";
+                        }
+
+                        QString resultVar = m_viewWithFaultsSettings->currentFaultResultColors()->resultVariableUiName();
+                        text              = QString( "%1 : %2" ).arg( resultVar ).arg( resultValueText );
                     }
                 }
             }

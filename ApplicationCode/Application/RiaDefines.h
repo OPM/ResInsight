@@ -106,8 +106,8 @@ QString mobilePoreVolumeName();
 QString completionTypeResultName();
 
 // Fault results
-QString binaryAllenResultName();
-QString allCombinationsAllenResultName();
+QString formationBinaryAllenResultName();
+QString formationAllenResultName();
 
 // Mock model text identifiers
 QString mockModelBasic();
