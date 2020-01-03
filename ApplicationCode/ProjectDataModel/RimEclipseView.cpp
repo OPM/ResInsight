@@ -1252,7 +1252,7 @@ void RimEclipseView::onUpdateLegends()
                     }
                     else
                     {
-                        const std::vector<QString>& fnVector = eclipseCase->activeFormationNames()->formationNames();
+                        const std::vector<QString> fnVector = eclipseCase->formationNames();
                         cellEdgeResult()->legendConfig()->setNamedCategoriesInverse( fnVector );
                     }
                 }

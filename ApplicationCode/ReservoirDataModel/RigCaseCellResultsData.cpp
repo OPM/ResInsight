@@ -2890,7 +2890,7 @@ void RigCaseCellResultsData::setActiveFormationNames( RigFormationNames* activeF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFormationNames* RigCaseCellResultsData::activeFormationNames()
+const RigFormationNames* RigCaseCellResultsData::activeFormationNames() const
 {
     return m_activeFormationNamesData.p();
 }

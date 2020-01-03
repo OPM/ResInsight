@@ -727,7 +727,7 @@ void RigEclipseCaseData::setActiveFormationNamesAndUpdatePlots( RigFormationName
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFormationNames* RigEclipseCaseData::activeFormationNames()
+const RigFormationNames* RigEclipseCaseData::activeFormationNames() const
 {
     return m_matrixModelResults->activeFormationNames();
 }
@@ -735,7 +735,20 @@ RigFormationNames* RigEclipseCaseData::activeFormationNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigAllenDiagramData* RigEclipseCaseData::allenDiagramData() 
+const std::vector<QString> RigEclipseCaseData::formationNames() const
+{
+    if ( activeFormationNames() )
+    {
+        return activeFormationNames()->formationNames();
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigAllenDiagramData* RigEclipseCaseData::allenDiagramData()
 {
     return m_matrixModelResults->allenDiagramData();
 }

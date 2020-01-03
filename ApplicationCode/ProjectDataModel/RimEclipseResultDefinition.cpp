@@ -1882,15 +1882,15 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
             {
                 if ( this->resultType() == RiaDefines::FORMATION_NAMES )
                 {
-                    const std::vector<QString>& fnVector = eclipseCaseData->activeFormationNames()->formationNames();
+                    std::vector<QString> fnVector = eclipseCaseData->formationNames();
                     legendConfigToUpdate->setNamedCategoriesInverse( fnVector );
                 }
                 else if ( this->resultType() == RiaDefines::ALLEN_DIAGRAMS )
                 {
                     if ( this->resultVariable() == RiaDefines::formationAllenResultName() )
                     {
-                        const std::vector<QString>& fnVector = eclipseCaseData->activeFormationNames()->formationNames();
-                        std::vector<int>            fnameIdxes;
+                        const std::vector<QString> fnVector = eclipseCaseData->formationNames();
+                        std::vector<int>           fnameIdxes;
                         for ( int i = static_cast<int>( fnVector.size() ); i > 0; --i )
                             fnameIdxes.push_back( i - 1 );
 

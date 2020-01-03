@@ -29,7 +29,7 @@ public:
     RigFormationNames();
     ~RigFormationNames() override;
 
-    int formationIndexFromKLayerIdx( size_t Kidx )
+    int formationIndexFromKLayerIdx( size_t Kidx ) const
     {
         if ( Kidx >= m_nameIndexPrKLayer.size() ) return -1;
         return m_nameIndexPrKLayer[Kidx];

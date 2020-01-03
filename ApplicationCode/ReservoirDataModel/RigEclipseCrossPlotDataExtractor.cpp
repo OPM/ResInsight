@@ -47,8 +47,6 @@ RigEclipseCrossPlotResult
     RigCaseCellResultsData* resultData = caseData->results( RiaDefines::MATRIX_MODEL );
     if ( !resultData ) return result;
 
-    RigFormationNames* activeFormationNames = resultData->activeFormationNames();
-
     const std::vector<std::vector<double>>* catValuesForAllSteps = nullptr;
 
     if ( xAddress.isValid() && yAddress.isValid() )
@@ -136,6 +134,8 @@ RigEclipseCrossPlotResult
                 }
                 else if ( groupingType == GROUP_BY_FORMATION )
                 {
+                    const RigFormationNames* activeFormationNames = resultData->activeFormationNames();
+
                     if ( activeFormationNames )
                     {
                         int    category = 0;

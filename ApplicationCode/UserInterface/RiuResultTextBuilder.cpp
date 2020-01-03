@@ -490,16 +490,15 @@ QString RiuResultTextBuilder::nncResultText()
                                 eclipseCase->allenDiagramData()->formationIndexCombinationFromCategory(
                                     ( *nncValues )[m_nncIndex] );
 
-                            RigFormationNames* fmNames = eclipseCase->activeFormationNames();
+                            std::vector<QString> fmNames = eclipseCase->formationNames();
                             // clang-format off
-                            if ( fmNames && 
-                                 fmIndexPair.first >= 0 && 
+                            if ( fmIndexPair.first >= 0 && 
                                  fmIndexPair.second >= 0 &&
-                                 fmNames->formationNames().size() > fmIndexPair.first &&
-                                 fmNames->formationNames().size() > fmIndexPair.second )
+                                 fmNames.size() > fmIndexPair.first &&
+                                 fmNames.size() > fmIndexPair.second )
                             {
-                                resultValueText = fmNames->formationNames()[fmIndexPair.first] + " - " +
-                                                  fmNames->formationNames()[fmIndexPair.second];
+                                resultValueText = fmNames[fmIndexPair.first] + " - " +
+                                                  fmNames[fmIndexPair.second];
                             }
                             // clang-format on
                         }

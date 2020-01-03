@@ -1001,15 +1001,11 @@ void RimGridCrossPlotDataSet::updateLegendRange()
                 RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
                 if ( eclipseCase )
                 {
-                    RigFormationNames* formationNames = eclipseCase->eclipseCaseData()->activeFormationNames();
-                    if ( formationNames )
+                    const std::vector<QString> categoryNames = eclipseCase->eclipseCaseData()->formationNames();
+                    if ( !categoryNames.empty() )
                     {
-                        const std::vector<QString>& categoryNames = formationNames->formationNames();
-                        if ( !categoryNames.empty() )
-                        {
-                            legendConfig()->setNamedCategoriesInverse( categoryNames );
-                            legendConfig()->setAutomaticRanges( 0, categoryNames.size() - 1, 0, categoryNames.size() - 1 );
-                        }
+                        legendConfig()->setNamedCategoriesInverse( categoryNames );
+                        legendConfig()->setAutomaticRanges( 0, categoryNames.size() - 1, 0, categoryNames.size() - 1 );
                     }
                 }
             }
