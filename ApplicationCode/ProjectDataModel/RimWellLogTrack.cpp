@@ -2031,10 +2031,7 @@ std::vector<QString> RimWellLogTrack::formationNamesVector( RimCase* rimCase )
     }
     else if ( geoMechCase )
     {
-        if ( geoMechCase->geoMechData()->femPartResults()->activeFormationNames() )
-        {
-            return geoMechCase->geoMechData()->femPartResults()->activeFormationNames()->formationNames();
-        }
+        return geoMechCase->geoMechData()->femPartResults()->formationNames();
     }
 
     return std::vector<QString>();

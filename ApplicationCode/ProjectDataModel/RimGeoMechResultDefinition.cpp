@@ -697,11 +697,7 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
 
     if ( this->hasCategoryResult() )
     {
-        std::vector<QString> fnVector;
-        if ( gmCase->femPartResults()->activeFormationNames() )
-        {
-            fnVector = gmCase->femPartResults()->activeFormationNames()->formationNames();
-        }
+        std::vector<QString> fnVector = gmCase->femPartResults()->formationNames();
         legendConfigToUpdate->setNamedCategoriesInverse( fnVector );
     }
 

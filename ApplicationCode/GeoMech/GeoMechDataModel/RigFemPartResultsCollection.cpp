@@ -139,7 +139,20 @@ void RigFemPartResultsCollection::setActiveFormationNames( RigFormationNames* ac
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFormationNames* RigFemPartResultsCollection::activeFormationNames()
+std::vector<QString> RigFemPartResultsCollection::formationNames() const
+{
+    if ( activeFormationNames() )
+    {
+        return activeFormationNames()->formationNames();
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigFormationNames* RigFemPartResultsCollection::activeFormationNames() const
 {
     return m_activeFormationNamesData.p();
 }
@@ -2037,7 +2050,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateFormationIndices
     float  inf      = std::numeric_limits<float>::infinity();
     dstFrameData.resize( valCount, inf );
 
-    RigFormationNames* activeFormNames = m_activeFormationNamesData.p();
+    const RigFormationNames* activeFormNames = m_activeFormationNamesData.p();
 
     frameCountProgress.incrementProgress();
 
