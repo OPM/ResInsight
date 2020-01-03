@@ -32,7 +32,7 @@ CAF_PDM_SOURCE_INIT( RimSurface, "Surface" );
 //--------------------------------------------------------------------------------------------------
 RimSurface::RimSurface()
 {
-    CAF_PDM_InitObject( "Surface", "", "", "" );
+    CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_userDescription, "SurfaceUserDecription", "Name", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_surfaceDefinitionFilePath, "SurfaceFilePath", "File", "", "", "" );
