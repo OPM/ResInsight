@@ -31,6 +31,7 @@
 #include "RimObservedSummaryData.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSurfaceCollection.h"
 #include "RimValveTemplateCollection.h"
 #include "RimWellPathCollection.h"
 
@@ -71,18 +72,20 @@ RimOilField::RimOilField( void )
                                 "",
                                 "" );
 
-    completionTemplateCollection = new RimCompletionTemplateCollection;
-
     CAF_PDM_InitFieldNoDefault( &measurement, "Measurement", "Measurement", "", "", "" );
     measurement = new RimMeasurement();
     measurement.xmlCapability()->disableIO();
 
-    analysisModels            = new RimEclipseCaseCollection();
-    wellPathCollection        = new RimWellPathCollection();
-    summaryCaseMainCollection = new RimSummaryCaseMainCollection();
-    observedDataCollection    = new RimObservedDataCollection();
-    formationNamesCollection  = new RimFormationNamesCollection();
-    annotationCollection      = new RimAnnotationCollection();
+    CAF_PDM_InitFieldNoDefault( &surfaceCollection, "SurfaceCollection", "Surfaces", "", "", "" );
+    surfaceCollection = new RimSurfaceCollection();
+
+    completionTemplateCollection = new RimCompletionTemplateCollection;
+    analysisModels               = new RimEclipseCaseCollection();
+    wellPathCollection           = new RimWellPathCollection();
+    summaryCaseMainCollection    = new RimSummaryCaseMainCollection();
+    observedDataCollection       = new RimObservedDataCollection();
+    formationNamesCollection     = new RimFormationNamesCollection();
+    annotationCollection         = new RimAnnotationCollection();
 
     m_fractureTemplateCollection_OBSOLETE = new RimFractureTemplateCollection;
     m_fractureTemplateCollection_OBSOLETE.xmlCapability()->setIOWritable( false );

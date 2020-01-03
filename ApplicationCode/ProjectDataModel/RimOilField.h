@@ -37,6 +37,7 @@ class RimSummaryCaseMainCollection;
 class RimWellPathCollection;
 class RimAnnotationCollection;
 class RimMeasurement;
+class RimSurfaceCollection;
 
 //==================================================================================================
 ///
@@ -67,6 +68,7 @@ public:
     caf::PdmChildField<RimFormationNamesCollection*>     formationNamesCollection;
     caf::PdmChildField<RimAnnotationCollection*>         annotationCollection;
     caf::PdmChildField<RimMeasurement*>                  measurement;
+    caf::PdmChildField<RimSurfaceCollection*>            surfaceCollection;
 
 protected:
     void initAfterRead() override;
