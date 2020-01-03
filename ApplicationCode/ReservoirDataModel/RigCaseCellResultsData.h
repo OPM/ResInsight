@@ -58,7 +58,7 @@ public:
     const RifReaderInterface* readerInterface() const;
     void                      setHdf5Filename( const QString& hdf5SourSimFilename );
     void                      setActiveFormationNames( RigFormationNames* activeFormationNames );
-    RigFormationNames*        activeFormationNames();
+    const RigFormationNames*  activeFormationNames() const;
     RigAllenDiagramData*      allenDiagramData();
 
     void                     setMainGrid( RigMainGrid* ownerGrid );
@@ -197,7 +197,7 @@ private:
 
 private:
     cvf::ref<RifReaderInterface>  m_readerInterface;
-    cvf::ref<RigFormationNames>   m_activeFormationNamesData;
+    cvf::cref<RigFormationNames>  m_activeFormationNamesData;
     cvf::ref<RigAllenDiagramData> m_allenDiagramData;
 
     std::vector<std::vector<std::vector<double>>>

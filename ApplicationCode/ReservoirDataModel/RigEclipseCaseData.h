@@ -89,10 +89,11 @@ public:
 
     bool hasFractureResults() const;
 
-    void                 setActiveFormationNames( RigFormationNames* activeFormationNames );
-    void                 setActiveFormationNamesAndUpdatePlots( RigFormationNames* activeFormationNames );
-    RigFormationNames*   activeFormationNames();
-    RigAllenDiagramData* allenDiagramData();
+    void                       setActiveFormationNames( RigFormationNames* activeFormationNames );
+    void                       setActiveFormationNamesAndUpdatePlots( RigFormationNames* activeFormationNames );
+    const RigFormationNames*   activeFormationNames() const;
+    const std::vector<QString> formationNames() const;
+    RigAllenDiagramData*       allenDiagramData();
 
     void                                   setSimWellData( const cvf::Collection<RigSimWellData>& data );
     const cvf::Collection<RigSimWellData>& wellResults() const
