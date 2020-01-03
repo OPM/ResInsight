@@ -440,6 +440,8 @@ void RiuQwtPlotWidget::addOverlayFrame( QFrame* overlayFrame )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::removeOverlayFrame( QFrame* overlayFrame )
 {
+    CAF_ASSERT( overlayFrame );
+
     overlayFrame->hide();
     overlayFrame->setParent( nullptr );
     m_overlayFrames.removeOne( overlayFrame );
