@@ -47,6 +47,7 @@ public:
     void detachQwtCurves();
     void reattachQwtCurves();
 
+    RimSummaryCurve*     findRimCurveFromQwtCurve( const QwtPlotCurve* qwtCurve ) const;
     RimEnsembleCurveSet* findRimCurveSetFromQwtCurve( const QwtPlotCurve* qwtCurve ) const;
 
     void addCurveSet( RimEnsembleCurveSet* curveSet );
@@ -57,8 +58,6 @@ public:
     size_t                            curveSetCount() const;
 
     void deleteAllCurveSets();
-
-    void setCurrentSummaryCurveSet( RimEnsembleCurveSet* curveSet );
 
     // Functions related to source stepping
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
@@ -82,6 +81,5 @@ private:
 
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_ySourceStepping;
 
-    caf::PdmPointer<RimEnsembleCurveSet> m_currentEnsembleCurveSet;
     caf::PdmPointer<RimEnsembleCurveSet> m_curveSetForSourceStepping;
 };
