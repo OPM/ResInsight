@@ -405,13 +405,11 @@ caf::PdmObject* RimSummaryPlot::findPdmObjectFromQwtCurve( const QwtPlotCurve* q
 
     if ( m_ensembleCurveSetCollection )
     {
-        RimEnsembleCurveSet* foundCurveSet = m_ensembleCurveSetCollection->findRimCurveSetFromQwtCurve( qwtCurve );
+        RimSummaryCurve* foundCurve = m_ensembleCurveSetCollection->findRimCurveFromQwtCurve( qwtCurve );
 
-        if ( foundCurveSet )
+        if ( foundCurve )
         {
-            m_ensembleCurveSetCollection->setCurrentSummaryCurveSet( foundCurveSet );
-
-            return foundCurveSet;
+            return foundCurve;
         }
     }
     return nullptr;
