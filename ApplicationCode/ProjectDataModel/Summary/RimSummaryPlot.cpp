@@ -1232,7 +1232,7 @@ void RimSummaryPlot::deleteCurves( const std::vector<RimSummaryCurve*>& curves )
                         if ( curveSet->curves().empty() )
                         {
                             if ( curveSet->colorMode() == RimEnsembleCurveSet::ColorMode::BY_ENSEMBLE_PARAM &&
-                                 m_plotWidget )
+                                 m_plotWidget && curveSet->legendFrame() )
                             {
                                 m_plotWidget->removeOverlayFrame( curveSet->legendFrame() );
                             }

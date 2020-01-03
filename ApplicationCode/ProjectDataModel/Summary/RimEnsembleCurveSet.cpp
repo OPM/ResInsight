@@ -185,7 +185,10 @@ RimEnsembleCurveSet::~RimEnsembleCurveSet()
     if ( parentPlot && parentPlot->viewer() )
     {
         m_qwtPlotCurveForLegendText->detach();
-        parentPlot->viewer()->removeOverlayFrame( m_legendOverlayFrame );
+        if ( m_legendOverlayFrame )
+        {
+            parentPlot->viewer()->removeOverlayFrame( m_legendOverlayFrame );
+        }
     }
     if ( m_legendOverlayFrame )
     {
