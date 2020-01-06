@@ -464,7 +464,7 @@ void RimEclipseCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
             }
         }
     }
-    else if ( changedField == &activeFormationNames )
+    else if ( changedField == &m_activeFormationNames )
     {
         updateFormationNamesData();
     }
@@ -949,18 +949,6 @@ double RimEclipseCase::characteristicCellSize() const
     }
 
     return 10.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseCase::setFormationNames( RimFormationNames* formationNames )
-{
-    activeFormationNames = formationNames;
-    if ( m_rigEclipseCase.notNull() && formationNames != nullptr )
-    {
-        m_rigEclipseCase->setActiveFormationNamesAndUpdatePlots( formationNames->formationNamesData() );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

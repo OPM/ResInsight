@@ -618,7 +618,7 @@ void RimEclipseResultCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     uiOrdering.add( &m_unitSystem );
 
     auto group = uiOrdering.addNewGroup( "Case Options" );
-    group->add( &activeFormationNames );
+    group->add( &m_activeFormationNames );
     group->add( &m_flipXAxis );
     group->add( &m_flipYAxis );
 

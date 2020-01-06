@@ -134,7 +134,7 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     // These does not work properly for statistics case, so hide for now
     m_flipXAxis.uiCapability()->setUiHidden( true );
     m_flipYAxis.uiCapability()->setUiHidden( true );
-    activeFormationNames.uiCapability()->setUiHidden( true );
+    m_activeFormationNames.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -426,7 +426,7 @@ void RimEclipseStatisticsCase::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     group = uiOrdering.addNewGroup( "Case Options" );
     group->add( &m_wellDataSourceCase );
-    group->add( &activeFormationNames );
+    group->add( &m_activeFormationNames );
     group->add( &m_flipXAxis );
     group->add( &m_flipYAxis );
 }

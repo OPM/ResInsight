@@ -72,6 +72,7 @@ RicfCommandResponse RicfImportFormationNames::execute()
                     if ( rimCase->caseId() == m_applyToCaseId() )
                     {
                         rimCase->setFormationNames( formationNames );
+                        rimCase->updateFormationNamesData();
                         rimCase->updateConnectedEditors();
                         foundCase = true;
                         break;

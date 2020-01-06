@@ -322,7 +322,7 @@ void RimEclipseInputCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     uiOrdering.add( &m_additionalFiles );
 
     auto group = uiOrdering.addNewGroup( "Case Options" );
-    group->add( &activeFormationNames );
+    group->add( &m_activeFormationNames );
     group->add( &m_flipXAxis );
     group->add( &m_flipYAxis );
 }

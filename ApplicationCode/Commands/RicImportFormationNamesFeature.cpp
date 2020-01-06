@@ -111,6 +111,7 @@ void RicImportFormationNamesFeature::onActionTriggered( bool isChecked )
                 if ( ownerCase )
                 {
                     ownerCase->setFormationNames( formationName );
+                    ownerCase->updateFormationNamesData();
                     ownerCase->updateConnectedEditors();
                 }
             }

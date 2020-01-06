@@ -53,8 +53,6 @@ public:
     caf::PdmField<int>     caseId;
     caf::PdmField<QString> caseUserDescription;
 
-    caf::PdmPtrField<RimFormationNames*> activeFormationNames;
-
     std::vector<Rim3dView*>   views() const;
     std::vector<RimGridView*> gridViews() const;
 
@@ -69,8 +67,9 @@ public:
 
     virtual cvf::Vec3d displayModelOffset() const;
 
-    virtual void updateFormationNamesData() = 0;
-    virtual void setFormationNames( RimFormationNames* formationNames );
+    void               setFormationNames( RimFormationNames* formationNames );
+    RimFormationNames* activeFormationNames() const;
+    virtual void       updateFormationNamesData() = 0;
 
     virtual double characteristicCellSize() const = 0;
 
@@ -85,14 +84,12 @@ protected:
     void                            initAfterRead() override;
 
 private:
-    caf::PdmFieldHandle* userDescriptionField() override
-    {
-        return &caseUserDescription;
-    }
+    caf::PdmFieldHandle* userDescriptionField() override;
 
 protected:
     caf::PdmChildField<RimTimeStepFilter*>               m_timeStepFilter;
     caf::PdmChildField<Rim2dIntersectionViewCollection*> m_2dIntersectionViewCollection;
+    caf::PdmPtrField<RimFormationNames*>                 m_activeFormationNames;
 
 private:
     bool m_isInActiveDestruction;
