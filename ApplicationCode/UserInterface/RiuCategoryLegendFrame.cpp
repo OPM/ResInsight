@@ -89,7 +89,7 @@ void RiuCategoryLegendFrame::renderRect( QPainter* painter, const LayoutInfo& la
     int yStart = layout.colorBarRect.top() + static_cast<int>( index * categoryHeight );
     int yEnd   = layout.colorBarRect.top() + static_cast<int>( ( index + 1 ) * categoryHeight );
 
-    QRect rect( QPoint( layout.tickStartX, yStart ), QPoint( layout.tickMidX, yEnd ) );
+    QRect rect( QPoint( layout.tickStartX, yStart ), QPoint( layout.tickMidX - 1, yEnd - 1 ) );
     painter->fillRect( rect, QBrush( color ) );
 }
 
