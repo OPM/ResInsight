@@ -15,7 +15,6 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
 #include "RiuMultiPlotInterface.h"
@@ -80,7 +79,7 @@ public:
     void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) override {}
 
     void renderTo( QPaintDevice* paintDevice ) override;
-    void renderTo( QPainter* painter );
+    void renderTo( QPainter* painter, double scalingFactor );
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;

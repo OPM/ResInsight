@@ -19,9 +19,9 @@
 
 #include "RiuQwtPlotWidget.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTools.h"
 #include "RiaFontCache.h"
+#include "RiaGuiApplication.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 
 #include "RimPlot.h"
@@ -609,10 +609,21 @@ void RiuQwtPlotWidget::endZoomOperations() {}
 //--------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::renderTo( QPainter* painter, const QRect& targetRect )
+void RiuQwtPlotWidget::renderTo( QPainter* painter, const QRect& targetRect, double scaling )
 {
     static_cast<QwtPlotCanvas*>( this->canvas() )->setPaintAttribute( QwtPlotCanvas::BackingStore, false );
+
+    QPoint plotTopLeftInWindowCoords = targetRect.topLeft();
+
+    QRectF canvasRect = this->plotLayout()->canvasRect();
+    QPoint canvasTopLeftInPlotCoords( canvasRect.topLeft().x() * scaling, canvasRect.topLeft().y() * scaling );
+    QPoint canvasBottomRightInPlotCoords( canvasRect.bottomRight().x() * scaling, canvasRect.bottomRight().y() * scaling );
+
+    QPoint canvasTopLeftInWindowCoords     = canvasTopLeftInPlotCoords + plotTopLeftInWindowCoords;
+    QPoint canvasBottomRightInWindowCoords = canvasBottomRightInPlotCoords + plotTopLeftInWindowCoords;
+
     QwtPlotRenderer renderer( this );
+    renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, true );
     renderer.render( this, painter, targetRect );
     static_cast<QwtPlotCanvas*>( this->canvas() )->setPaintAttribute( QwtPlotCanvas::BackingStore, true );
 
@@ -621,11 +632,8 @@ void RiuQwtPlotWidget::renderTo( QPainter* painter, const QRect& targetRect )
         if ( overlayFrame->isVisible() )
         {
             QPoint overlayTopLeftInCanvasCoords = overlayFrame->frameGeometry().topLeft();
-            QPoint canvasTopLeftInPlotCoords    = this->canvas()->frameGeometry().topLeft();
-            QPoint plotTopLeftInWindowCoords    = targetRect.topLeft();
 
-            QPoint overlayTopLeftInWindowCoords = plotTopLeftInWindowCoords + canvasTopLeftInPlotCoords +
-                                                  overlayTopLeftInCanvasCoords;
+            QPoint overlayTopLeftInWindowCoords = overlayTopLeftInCanvasCoords + canvasTopLeftInWindowCoords;
             {
                 QRect overlayRect = overlayFrame->frameGeometry();
                 QSize desiredSize = overlayRect.size();
@@ -633,6 +641,14 @@ void RiuQwtPlotWidget::renderTo( QPainter* painter, const QRect& targetRect )
                 QSize actualSize  = desiredSize.expandedTo( minimumSize );
                 overlayRect.moveTo( overlayTopLeftInWindowCoords );
                 overlayRect.setSize( actualSize );
+                /*                QPoint overlayBottomRightInWindowCoords = overlayRect.bottomRight();
+                                overlayBottomRightInWindowCoords.setX(
+                                    std::min( overlayBottomRightInWindowCoords.x(),
+                                              canvasBottomRightInPlotCoords.x() - (int)scaling * m_overlayMargins ) );
+                                overlayBottomRightInWindowCoords.setY(
+                                    std::min( overlayBottomRightInWindowCoords.y(),
+                                              canvasBottomRightInPlotCoords.y() - (int)scaling * m_overlayMargins ) );
+                                overlayRect.setBottomRight( overlayBottomRightInWindowCoords ); */
                 overlayFrame->renderTo( painter, overlayRect );
             }
         }
@@ -644,8 +660,10 @@ void RiuQwtPlotWidget::renderTo( QPainter* painter, const QRect& targetRect )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::renderTo( QPaintDevice* paintDevice, const QRect& targetRect )
 {
+    int      resolution = paintDevice->logicalDpiX();
+    double   scaling    = resolution / static_cast<double>( RiaGuiApplication::applicationResolution() );
     QPainter painter( paintDevice );
-    renderTo( &painter, targetRect );
+    renderTo( &painter, targetRect, scaling );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -766,6 +784,29 @@ void RiuQwtPlotWidget::updateOverlayFrameLayout()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::scaleFonts( double scalingFactor )
+{
+    for ( int axisId = static_cast<int>( QwtPlot::yLeft ); axisId < static_cast<int>( axisCnt ); ++axisId )
+    {
+        QFont axisFont = this->axisFont( axisId );
+        axisFont.setPointSize( axisFont.pointSize() * scalingFactor );
+        this->setAxisFont( axisId, axisFont );
+
+        // Axis title font
+        QwtText axisTitle     = this->axisTitle( axisId );
+        QFont   axisTitleFont = axisTitle.font();
+        axisTitleFont.setPointSize( axisTitleFont.pointSize() * scalingFactor );
+        axisTitle.setFont( axisTitleFont );
+        this->setAxisTitle( axisId, axisTitle );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::selectPlotOwner( bool toggleItemInSelection )
 {
     if ( toggleItemInSelection )

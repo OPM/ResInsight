@@ -76,13 +76,14 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimMultiPlotWindow* plotDefinition, QWidget*
 
     m_plotTitle = createTitleLabel();
     m_layout->addWidget( m_plotTitle );
+    m_plotTitle->setVisible( m_plotDefinition->isMultiPlotTitleVisible() );
 
     m_plotLayout = new QHBoxLayout;
     m_layout->addLayout( m_plotLayout );
 
     m_plotWidgetFrame = new QFrame;
-    m_plotWidgetFrame->setVisible( true );
     m_plotLayout->addWidget( m_plotWidgetFrame, 1 );
+    m_plotWidgetFrame->setVisible( true );
 
     m_gridLayout = new QGridLayout( m_plotWidgetFrame );
     m_gridLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -308,14 +309,17 @@ void RiuMultiPlotPage::scheduleReplotOfAllPlots()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::renderTo( QPaintDevice* paintDevice )
 {
+    int    resolution = paintDevice->logicalDpiX();
+    double scaling    = resolution / static_cast<double>( RiaGuiApplication::applicationResolution() );
+
     QPainter painter( paintDevice );
-    renderTo( &painter );
+    renderTo( &painter, scaling );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::renderTo( QPainter* painter )
+void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
 {
     setSelectionsVisible( false );
     m_plotTitle->render( painter );
@@ -345,7 +349,7 @@ void RiuMultiPlotPage::renderTo( QPainter* painter )
         QPoint plotWidgetFrameTopLeft = m_plotWidgetFrame->frameGeometry().topLeft();
         plotWidgetGeometry.moveTo( plotWidgetTopLeft + plotWidgetFrameTopLeft - marginOffset );
 
-        plotWidget->renderTo( painter, plotWidgetGeometry );
+        plotWidget->renderTo( painter, plotWidgetGeometry, scalingFactor );
     }
 
     setSelectionsVisible( true );
@@ -378,7 +382,6 @@ void RiuMultiPlotPage::contextMenuEvent( QContextMenuEvent* event )
 QLabel* RiuMultiPlotPage::createTitleLabel() const
 {
     QLabel* plotTitle = new QLabel( "PLOT TITLE HERE", nullptr );
-    plotTitle->setVisible( m_plotDefinition->isMultiPlotTitleVisible() );
     plotTitle->setAlignment( Qt::AlignHCenter );
     plotTitle->setWordWrap( true );
     plotTitle->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );

@@ -178,13 +178,13 @@ void RimMultiPlotWindow::insertPlot( RimPlot* plot, size_t index )
     if ( plot )
     {
         m_plots.insert( index, plot );
-        plot->setShowWindow( true );
 
         if ( m_viewer )
         {
             plot->createPlotWidget();
             m_viewer->insertPlot( plot->viewer(), index );
         }
+        plot->setShowWindow( true );
         plot->setLegendsVisible( false );
 
         onPlotAdditionOrRemoval();
