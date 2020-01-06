@@ -79,6 +79,35 @@ TEST( RifWellMeasurementReaderTest, ReadCorrectInputFile )
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifWellMeasurementReaderTest, KindsAreUppercased )
+{
+    QTemporaryFile file;
+    EXPECT_TRUE( file.open() );
+
+    {
+        QTextStream out( &file );
+        out << "NO 1234/1-2, 1234.56, 2019-11-13, LOT, 99.9, 3, Good test\n"
+            << "NO 1234/3-4, 2345.67, 2024-12-24, lot, 88.8, 1, Poor test\n"
+            << "NO 1234/5-6, 3456.78, 2026-12-24, lOt, 77.7, 2, Poor test\n";
+    }
+
+    QStringList filePaths;
+    filePaths.append( file.fileName() );
+
+    std::vector<RifWellMeasurement> wellMeasurements;
+    RifWellMeasurementReader::readWellMeasurements( wellMeasurements, filePaths );
+
+    ASSERT_EQ( 3u, wellMeasurements.size() );
+
+    for ( unsigned int i = 0; i < wellMeasurements.size(); i++ )
+    {
+        ASSERT_EQ( "LOT", wellMeasurements[i].kind.toStdString() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Helper to check exception messages when reading invalid files
 //--------------------------------------------------------------------------------------------------
 ::testing::AssertionResult readingThrowsException( const QStringList& filePaths, const QString& expectedMessage )
