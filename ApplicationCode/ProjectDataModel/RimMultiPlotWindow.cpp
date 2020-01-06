@@ -295,6 +295,7 @@ void RimMultiPlotWindow::doUpdateLayout()
     if ( m_showWindow && m_viewer )
     {
         m_viewer->scheduleUpdate();
+        m_viewer->adjustSize();
     }
 }
 
