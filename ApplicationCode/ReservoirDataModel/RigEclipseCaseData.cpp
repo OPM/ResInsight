@@ -36,10 +36,6 @@
 #include "RigVirtualPerforationTransmissibilities.h"
 #include "RigWellPath.h"
 
-#include "RimFlowPlotCollection.h"
-#include "RimMainPlotCollection.h"
-#include "RimProject.h"
-
 #include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
@@ -705,23 +701,6 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBox()
 void RigEclipseCaseData::setActiveFormationNames( RigFormationNames* activeFormationNames )
 {
     m_matrixModelResults->setActiveFormationNames( activeFormationNames );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setActiveFormationNamesAndUpdatePlots( RigFormationNames* activeFormationNames )
-{
-    setActiveFormationNames( activeFormationNames );
-
-    RimProject* project = RiaApplication::instance()->project();
-    if ( project )
-    {
-        if ( project->mainPlotCollection() )
-        {
-            project->mainPlotCollection->updatePlotsWithFormations();
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -480,12 +480,25 @@ void RimEclipseCase::updateFormationNamesData()
     {
         if ( activeFormationNames() )
         {
-            rigEclipseCase->setActiveFormationNamesAndUpdatePlots( activeFormationNames()->formationNamesData() );
+            rigEclipseCase->setActiveFormationNames( activeFormationNames()->formationNamesData() );
         }
         else
         {
-            rigEclipseCase->setActiveFormationNamesAndUpdatePlots( nullptr );
+            rigEclipseCase->setActiveFormationNames( nullptr );
         }
+
+        // Update plots based on formations
+        {
+            RimProject* project = RiaApplication::instance()->project();
+            if ( project )
+            {
+                if ( project->mainPlotCollection() )
+                {
+                    project->mainPlotCollection->updatePlotsWithFormations();
+                }
+            }
+        }
+
         std::vector<Rim3dView*> views = this->views();
         for ( Rim3dView* view : views )
         {
