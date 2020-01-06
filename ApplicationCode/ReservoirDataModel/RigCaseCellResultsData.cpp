@@ -3083,18 +3083,15 @@ void RigCaseCellResultsData::computeAllenResults( RigCaseCellResultsData* cellRe
 
                     formationCombinationToCategory[formationCombination] = category;
                 }
-            }
-
-            if ( category < 0 )
-            {
-                fnBinAllenNncResults[i] = 0.0;
-                fnAllenNncResults[i]    = std::numeric_limits<double>::max();
+                fnBinAllenNncResults[i] = 1.0;
             }
             else
             {
-                fnBinAllenNncResults[i] = 1.0;
-                fnAllenNncResults[i]    = category;
+                category                = formation1;
+                fnBinAllenNncResults[i] = 0.0;
             }
+
+            fnAllenNncResults[i] = category;
         }
 
         cellResultsData->allenDiagramData()->setFormationCombinationToCategorymap( formationCombinationToCategory );
