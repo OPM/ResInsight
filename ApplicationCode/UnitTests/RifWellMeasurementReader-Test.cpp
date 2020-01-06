@@ -227,6 +227,7 @@ TEST( RifWellMeasurementReaderTest, CommentsAndEmptyLinesAreIgnored )
         // Comment should be ignored
         out << "# This is a comment.\n";
         out << "#This is also a comment.\n";
+        out << " # This is also a comment which does not start on first character.\n";
         // Should skip empty lines
         out << "\n";
         out << "\t\n";

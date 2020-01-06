@@ -185,7 +185,7 @@ bool RifWellMeasurementReader::isEmptyLine( const QString& line )
 //--------------------------------------------------------------------------------------------------
 bool RifWellMeasurementReader::isCommentLine( const QString& line )
 {
-    return line.startsWith( "#" );
+    return line.trimmed().startsWith( "#" );
 }
 
 //--------------------------------------------------------------------------------------------------
