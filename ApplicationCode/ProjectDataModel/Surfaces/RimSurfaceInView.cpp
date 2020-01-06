@@ -27,9 +27,16 @@ CAF_PDM_SOURCE_INIT( RimSurfaceInView, "SurfaceInView" );
 //--------------------------------------------------------------------------------------------------
 RimSurfaceInView::RimSurfaceInView()
 {
-    CAF_PDM_InitObject( "Surface", "", "", "" );
+    CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
+
     CAF_PDM_InitField( &m_isActive, "IsActive", true, "Visible", "", "", "" );
+    m_isActive.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
+    m_name.registerGetMethod( this, &RimSurfaceInView::name );
+
     CAF_PDM_InitFieldNoDefault( &m_surface, "SurfaceRef", "Surface", "", "", "" );
+    m_surface.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -40,7 +47,7 @@ RimSurfaceInView::~RimSurfaceInView() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSurfaceInView::name()
+QString RimSurfaceInView::name() const
 {
     if ( m_surface ) return m_surface->userDescription();
 
@@ -51,3 +58,35 @@ QString RimSurfaceInView::name()
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInView::loadDataAndUpdate() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurface* RimSurfaceInView::surface() const
+{
+    return m_surface();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInView::setSurface( RimSurface* surf )
+{
+    m_surface = surf;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSurfaceInView::userDescriptionField()
+{
+    return &m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSurfaceInView::objectToggleField()
+{
+    return &m_isActive;
+}

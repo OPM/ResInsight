@@ -64,6 +64,33 @@ QString RimSurface::userDescription()
     return m_userDescription();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSurface::userDescriptionField()
+{
+    return &m_userDescription;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                   const QVariant&            oldValue,
+                                   const QVariant&            newValue )
+{
+    if ( changedField == &m_surfaceDefinitionFilePath )
+    {
+        updateDataFromFile();
+
+        // Todo: Update visualization
+    }
+    else if ( changedField == &m_color )
+    {
+        // Todo: Update visualization
+    }
+}
+
 struct SurfacePointData
 {
     int                 i;

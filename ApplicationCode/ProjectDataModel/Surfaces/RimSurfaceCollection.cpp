@@ -20,8 +20,10 @@
 #include "QMessageBox"
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RimGridView.h"
 #include "RimProject.h"
 #include "RimSurface.h"
+#include "RimSurfaceInView.h"
 
 CAF_PDM_SOURCE_INIT( RimSurfaceCollection, "SurfaceCollection" );
 
@@ -125,16 +127,67 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSurface*> RimSurfaceCollection::surfaces() const
+{
+    return m_surfaces.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToReload )
 {
     RimProject*               proj = RiaApplication::instance()->project();
     std::vector<RimGridView*> views;
     proj->allVisibleGridViews( views );
 
+    // Make sure the tree items are syncronized
+
     for ( auto view : views )
     {
-        // Update SurfaceInViewCollection
-        // For each visible surfaceInView included in surfsToReload
-        // LoadDataAndUpdate
+        view->updateSurfacesInViewTreeItems();
+    }
+
+    std::set<RimGridView*> viewsNeedingUpdate;
+
+    for ( auto surf : surfsToReload )
+    {
+        std::vector<RimSurfaceInView*> surfsInView;
+        surf->objectsWithReferringPtrFieldsOfType( surfsInView );
+        for ( auto surfInView : surfsInView )
+        {
+            RimGridView* gridView;
+            surfInView->firstAncestorOrThisOfType( gridView );
+
+            if ( gridView ) viewsNeedingUpdate.insert( gridView );
+        }
+    }
+
+    // Update the views:
+    for ( auto view : viewsNeedingUpdate )
+    {
+        view->scheduleCreateDisplayModelAndRedraw();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::updateViews()
+{
+    RimProject*               proj = RiaApplication::instance()->project();
+    std::vector<RimGridView*> views;
+    proj->allVisibleGridViews( views );
+
+    // Make sure the tree items are syncronized
+
+    for ( auto view : views )
+    {
+        view->updateSurfacesInViewTreeItems();
+    }
+
+    for ( auto view : views )
+    {
+        view->scheduleCreateDisplayModelAndRedraw();
     }
 }

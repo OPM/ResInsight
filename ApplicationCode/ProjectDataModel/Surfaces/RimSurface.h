@@ -49,6 +49,11 @@ public:
     QString userDescription();
 
 private:
+    caf::PdmFieldHandle* userDescriptionField() override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue ) override;
+
     caf::PdmField<caf::FilePath> m_surfaceDefinitionFilePath;
     caf::PdmField<QString>       m_userDescription;
     caf::PdmField<cvf::Color3f>  m_color;

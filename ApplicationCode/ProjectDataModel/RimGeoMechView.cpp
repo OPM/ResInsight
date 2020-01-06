@@ -42,6 +42,7 @@
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimRegularLegendConfig.h"
+#include "RimSurfaceInViewCollection.h"
 #include "RimTensorResults.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewLinker.h"
@@ -907,6 +908,7 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( &m_wellMeasurementCollection );
 
     uiTreeOrdering.add( m_intersectionCollection() );
+    if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
 
     uiTreeOrdering.add( m_rangeFilterCollection() );
     uiTreeOrdering.add( m_propertyFilterCollection() );

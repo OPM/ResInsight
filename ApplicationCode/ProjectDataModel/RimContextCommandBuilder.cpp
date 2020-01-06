@@ -102,6 +102,8 @@
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSurface.h"
+#include "RimSurfaceCollection.h"
 #include "RimValveTemplate.h"
 #include "RimValveTemplateCollection.h"
 #include "RimViewController.h"
@@ -798,6 +800,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewStimPlanFractureTemplateFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicConvertFractureTemplateUnitFeature";
+        }
+        else if ( dynamic_cast<RimSurfaceCollection*>( firstUiItem ) || dynamic_cast<RimSurface*>( firstUiItem ) )
+        {
+            menuBuilder << "RicImportSurfacesFeature";
         }
         else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) ||
                   dynamic_cast<RimAnnotationGroupCollection*>( firstUiItem ) )

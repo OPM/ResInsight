@@ -57,7 +57,7 @@ void RicImportSurfacesFeature::onActionTriggered( bool isChecked )
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "BINARY_GRID", QFileInfo( fileNames.last() ).absolutePath() );
 
-    // Find or create the AnnotationsCollection
+    // Find or create the SurfaceCollection
 
     RimProject*           proj     = RiaApplication::instance()->project();
     RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
@@ -66,20 +66,17 @@ void RicImportSurfacesFeature::onActionTriggered( bool isChecked )
     {
         surfColl                                  = new RimSurfaceCollection();
         proj->activeOilField()->surfaceCollection = surfColl;
+        proj->updateConnectedEditors();
     }
 
     // For each file,
 
     RimSurface* lastCreatedOrUpdated = surfColl->importSurfacesFromFiles( fileNames );
 
-    proj->updateConnectedEditors();
-
     if ( lastCreatedOrUpdated )
     {
         Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
     }
-
-    // surfColl->scheduleRedrawOfRelevantViews();
 }
 
 //--------------------------------------------------------------------------------------------------

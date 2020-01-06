@@ -17,10 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
 
 class RimSurfaceInView;
+class RimSurface;
 
 class RimSurfaceInViewCollection : public caf::PdmObject
 {
@@ -33,7 +35,10 @@ public:
     void updateFromSurfaceCollection();
 
 private:
+    caf::PdmFieldHandle* objectToggleField() override;
+
+    bool hasSurfaceInViewForSurface(const RimSurface * surf) const;
+
+    caf::PdmField<bool>                        m_isActive;
     caf::PdmChildArrayField<RimSurfaceInView*> m_surfacesInView;
 };
-
-

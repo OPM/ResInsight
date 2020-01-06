@@ -71,6 +71,7 @@
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
+#include "RimSurfaceInViewCollection.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
@@ -1753,6 +1754,8 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( faultCollection() );
     uiTreeOrdering.add( annotationCollection() );
     uiTreeOrdering.add( intersectionCollection() );
+
+    if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
 
     uiTreeOrdering.add( m_rangeFilterCollection() );
     uiTreeOrdering.add( m_propertyFilterCollection() );

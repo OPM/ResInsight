@@ -34,6 +34,10 @@ public:
 
     RimSurface* importSurfacesFromFiles( const QStringList& fileNames );
 
+    std::vector<RimSurface*> surfaces() const;
+
+    void updateViews();
+
 private:
     void updateViews( const std::vector<RimSurface*>& surfsToReload );
 

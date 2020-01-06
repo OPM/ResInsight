@@ -32,11 +32,16 @@ public:
     RimSurfaceInView();
     ~RimSurfaceInView() override;
 
-    QString name();
-
     void loadDataAndUpdate();
 
+    QString     name() const;
+    RimSurface* surface() const;
+    void        setSurface( RimSurface* surf );
+
 private:
+    caf::PdmFieldHandle* userDescriptionField() override;
+    caf::PdmFieldHandle* objectToggleField() override;
+
     caf::PdmProxyValueField<QString> m_name;
     caf::PdmField<bool>              m_isActive;
     caf::PdmPtrField<RimSurface*>    m_surface;

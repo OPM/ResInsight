@@ -18,6 +18,10 @@
 
 #include "RimSurfaceInViewCollection.h"
 
+#include "RiaApplication.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimSurfaceCollection.h"
 #include "RimSurfaceInView.h"
 
 CAF_PDM_SOURCE_INIT( RimSurfaceInViewCollection, "SurfaceInViewCollection" );
@@ -27,9 +31,13 @@ CAF_PDM_SOURCE_INIT( RimSurfaceInViewCollection, "SurfaceInViewCollection" );
 //--------------------------------------------------------------------------------------------------
 RimSurfaceInViewCollection::RimSurfaceInViewCollection()
 {
-    CAF_PDM_InitObject( "Surfaces", "", "", "" );
+    CAF_PDM_InitObject( "Surfaces", ":/ReservoirSurfaces16x16.png", "", "" );
+
+    CAF_PDM_InitField( &m_isActive, "isActive", true, "Active", "", "", "" );
+    m_isActive.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_surfacesInView, "SurfacesInViewField", "SurfacesInViewField", "", "", "" );
+    m_surfacesInView.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -40,4 +48,64 @@ RimSurfaceInViewCollection::~RimSurfaceInViewCollection() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceInViewCollection::updateFromSurfaceCollection() {}
+void RimSurfaceInViewCollection::updateFromSurfaceCollection()
+{
+    // Delete surfaceInView without any real Surface connection
+
+    std::vector<RimSurfaceInView*> surfsInView = m_surfacesInView.childObjects();
+
+    for ( auto surf : surfsInView )
+    {
+        if ( !surf->surface() )
+        {
+            m_surfacesInView.removeChildObject( surf );
+            delete surf;
+        }
+    }
+
+    // Create new entries
+
+    RimProject*           proj     = RiaApplication::instance()->project();
+    RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
+
+    if ( surfColl )
+    {
+        std::vector<RimSurface*> surfs = surfColl->surfaces();
+
+        for ( auto surf : surfs )
+        {
+            if ( !this->hasSurfaceInViewForSurface( surf ) )
+            {
+                RimSurfaceInView* newSurfInView = new RimSurfaceInView();
+                newSurfInView->setSurface( surf );
+                m_surfacesInView.push_back( newSurfInView );
+            }
+        }
+    }
+
+    this->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSurfaceInViewCollection::hasSurfaceInViewForSurface( const RimSurface* surf ) const
+{
+    for ( auto surfInView : m_surfacesInView )
+    {
+        if ( surfInView->surface() == surf )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSurfaceInViewCollection::objectToggleField()
+{
+    return &m_isActive;
+}

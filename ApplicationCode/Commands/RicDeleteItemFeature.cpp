@@ -54,6 +54,7 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
+#include "RimSurface.h"
 #include "RimTextAnnotation.h"
 #include "RimViewController.h"
 #include "RimWellAllocationPlot.h"
@@ -139,6 +140,7 @@ bool isDeletable( caf::PdmUiItem* uiItem )
     if ( dynamic_cast<RimReachCircleAnnotation*>( uiItem ) ) return true;
     if ( dynamic_cast<RimPolylinesAnnotation*>( uiItem ) ) return true;
     if ( dynamic_cast<RimIntersectionResultDefinition*>( uiItem ) ) return true;
+    if ( dynamic_cast<RimSurface*>( uiItem ) ) return true;
 
     if ( dynamic_cast<RimGridCrossPlot*>( uiItem ) )
     {
