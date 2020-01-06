@@ -135,6 +135,7 @@ void RiuSelectionChangedHandler::handleSetSelectedItem( const RiuSelectionItem* 
 void RiuSelectionChangedHandler::addCurveFromSelectionItem( const RiuEclipseSelectionItem* eclipseSelectionItem ) const
 {
     RimEclipseResultDefinition* eclResDef = eclipseSelectionItem->m_resultDefinition;
+    if ( !eclResDef ) return;
 
     if ( eclResDef->isFlowDiagOrInjectionFlooding() && eclResDef->resultVariable() != RIG_NUM_FLOODED_PV )
     {

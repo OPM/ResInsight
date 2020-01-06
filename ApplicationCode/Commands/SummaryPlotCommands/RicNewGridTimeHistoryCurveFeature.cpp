@@ -223,7 +223,7 @@ bool RicNewGridTimeHistoryCurveFeature::isCommandEnabled()
     if ( items.size() > 0 )
     {
         const RiuEclipseSelectionItem* eclSelectionItem = dynamic_cast<const RiuEclipseSelectionItem*>( items[0] );
-        if ( eclSelectionItem )
+        if ( eclSelectionItem && eclSelectionItem->m_resultDefinition )
         {
             if ( eclSelectionItem->m_resultDefinition->isFlowDiagOrInjectionFlooding() &&
                  eclSelectionItem->m_resultDefinition->resultVariable() != RIG_NUM_FLOODED_PV )

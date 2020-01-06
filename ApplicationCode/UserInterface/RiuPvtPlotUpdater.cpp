@@ -75,7 +75,7 @@ void RiuPvtPlotUpdater::updateOnSelectionChanged( const RiuSelectionItem* select
     bool mustClearPlot          = true;
     m_viewToFollowAnimationFrom = nullptr;
 
-    if ( m_targetPlotPanel->isVisible() && eclipseSelectionItem )
+    if ( m_targetPlotPanel->isVisible() && eclipseSelectionItem && eclipseSelectionItem->m_resultDefinition )
     {
         if ( queryDataAndUpdatePlot( eclipseSelectionItem->m_resultDefinition,
                                      eclipseSelectionItem->m_timestepIdx,
@@ -145,6 +145,8 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot( const RimEclipseResultDefinition
                                                 RiuPvtPlotPanel*                  plotPanel )
 {
     CVF_ASSERT( plotPanel );
+
+    if ( !eclipseResDef ) return false;
 
     RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>( eclipseResDef->eclipseCase() );
     RigEclipseCaseData*   eclipseCaseData   = eclipseResultCase ? eclipseResultCase->eclipseCaseData() : nullptr;
