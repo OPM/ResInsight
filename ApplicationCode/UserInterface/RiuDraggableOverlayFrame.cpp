@@ -112,8 +112,12 @@ RiuDraggableOverlayFrame::AnchorCorner RiuDraggableOverlayFrame::anchorCorner() 
 //--------------------------------------------------------------------------------------------------
 QSize RiuDraggableOverlayFrame::sizeHint() const
 {
-    QSize contentSize = m_contentFrame->sizeHint();
-    return QSize( contentSize.width() + 2, contentSize.height() + 2 );
+    if ( m_contentFrame )
+    {
+        QSize contentSize = m_contentFrame->sizeHint();
+        return QSize( contentSize.width() + 2, contentSize.height() + 2 );
+    }
+    return QSize( 0, 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,6 +125,10 @@ QSize RiuDraggableOverlayFrame::sizeHint() const
 //--------------------------------------------------------------------------------------------------
 QSize RiuDraggableOverlayFrame::minimumSizeHint() const
 {
-    QSize contentSize = m_contentFrame->minimumSizeHint();
-    return QSize( contentSize.width() + 2, contentSize.height() + 2 );
+    if ( m_contentFrame )
+    {
+        QSize contentSize = m_contentFrame->minimumSizeHint();
+        return QSize( contentSize.width() + 2, contentSize.height() + 2 );
+    }
+    return QSize( 0, 0 );
 }

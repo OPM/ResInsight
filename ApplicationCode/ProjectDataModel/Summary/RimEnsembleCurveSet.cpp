@@ -897,6 +897,7 @@ void RimEnsembleCurveSet::updateCurveColors()
                                                                      plot->viewer()->overlayMargins() );
             }
             m_legendOverlayFrame->setContentFrame( m_legendConfig->makeLegendFrame() );
+            plot->viewer()->addOverlayFrame( m_legendOverlayFrame );
         }
         else
         {

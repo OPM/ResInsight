@@ -105,7 +105,7 @@ void RimWellRftEnsembleCurveSet::setColorMode( ColorMode mode )
 void RimWellRftEnsembleCurveSet::initializeLegend()
 {
     auto ensembleParam = m_ensemble->ensembleParameter( m_ensembleParameter );
-    m_ensembleLegendConfig->setTitle( m_ensemble->name() + ":\n" + m_ensembleParameter );
+    m_ensembleLegendConfig->setTitle( m_ensemble->name() + "\n" + m_ensembleParameter );
     RimEnsembleCurveSetColorManager::initializeLegendConfig( m_ensembleLegendConfig, ensembleParam );
 }
 
