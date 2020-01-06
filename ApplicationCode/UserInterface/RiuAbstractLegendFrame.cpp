@@ -41,10 +41,12 @@ QSize RiuAbstractLegendFrame::sizeHint() const
     layoutInfo( &layout );
 
     QFontMetrics fontMetrics( this->font() );
-    QStringList  titleLines = m_title.split( "\n", QString::SkipEmptyParts );
+    QRect        titleRect = fontMetrics.boundingRect( QRect( 0, 0, 200, 200 ), Qt::AlignLeft, m_title );
 
-    int preferredContentHeight = titleLines.size() * layout.lineSpacing + labelCount() * layout.lineSpacing;
+    int preferredContentHeight = titleRect.height() + labelCount() * layout.lineSpacing;
     int preferredHeight        = preferredContentHeight + layout.margins.top() + layout.margins.bottom();
+
+    int titleWidth = titleRect.width() + layout.margins.left() + layout.margins.right();
 
     int maxTickTextWidth = 0;
     for ( int i = 0; i < labelCount(); ++i )
@@ -57,7 +59,7 @@ QSize RiuAbstractLegendFrame::sizeHint() const
     int preferredWidth = layout.tickEndX + layout.margins.left() + layout.margins.right() + layout.tickTextLeadSpace +
                          maxTickTextWidth;
 
-    preferredWidth = std::max( preferredWidth, fontMetrics.boundingRect( m_title ).width() );
+    preferredWidth = std::max( preferredWidth, titleWidth );
     preferredWidth = std::min( preferredWidth, 400 );
 
     return QSize( preferredWidth, preferredHeight );
@@ -72,10 +74,11 @@ QSize RiuAbstractLegendFrame::minimumSizeHint() const
     layoutInfo( &layout );
 
     QFontMetrics fontMetrics( this->font() );
-    QStringList  titleLines = m_title.split( "\n", QString::SkipEmptyParts );
+    QRect        titleRect = fontMetrics.boundingRect( QRect( 0, 0, 200, 200 ), Qt::AlignLeft, m_title );
 
-    int preferredContentHeight = titleLines.size() * layout.lineSpacing + 2 * layout.lineSpacing;
+    int preferredContentHeight = titleRect.height() + 2 * layout.lineSpacing;
     int preferredHeight        = preferredContentHeight + layout.margins.top() + layout.margins.bottom();
+    int titleWidth             = titleRect.width() + layout.margins.left() + layout.margins.right();
 
     int firstTextWidth   = fontMetrics.boundingRect( label( 0 ) ).width();
     int lastTextWidth    = fontMetrics.boundingRect( label( labelCount() - 1 ) ).width();
@@ -84,7 +87,7 @@ QSize RiuAbstractLegendFrame::minimumSizeHint() const
     int preferredWidth = layout.tickEndX + layout.margins.left() + layout.margins.right() + layout.tickTextLeadSpace +
                          maxTickTextWidth;
 
-    preferredWidth = std::max( preferredWidth, fontMetrics.boundingRect( m_title ).width() );
+    preferredWidth = std::max( preferredWidth, titleWidth );
     preferredWidth = std::min( preferredWidth, 400 );
 
     return QSize( preferredWidth, preferredHeight );
@@ -100,10 +103,11 @@ void RiuAbstractLegendFrame::renderTo( QPainter* painter, const QRect& targetRec
 
     painter->save();
     painter->translate( targetRect.topLeft() );
-    QPoint titlePos( layout.margins.left(), layout.margins.top() + layout.lineSpacing / 2 );
-    painter->drawText( titlePos, m_title );
-
-    QStringList titleLines = m_title.split( "\n", QString::SkipEmptyParts );
+    QPoint       titlePos( layout.margins.left(), layout.margins.top() );
+    QFontMetrics fontMetrics( this->font() );
+    QRect        boundingRect = fontMetrics.boundingRect( targetRect, Qt::AlignLeft, m_title );
+    boundingRect.moveTo( titlePos );
+    painter->drawText( boundingRect, m_title );
 
     std::vector<std::pair<QPoint, QString>> visibleTickLabels = visibleLabels( layout );
     for ( auto tickLabel : visibleTickLabels )

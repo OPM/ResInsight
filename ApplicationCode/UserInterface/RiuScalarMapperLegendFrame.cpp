@@ -160,12 +160,10 @@ int RiuScalarMapperLegendFrame::rectCount() const
 void RiuScalarMapperLegendFrame::renderRect( QPainter* painter, const LayoutInfo& layout, int rectIndex ) const
 {
     int           rectIndexFromBottom = rectCount() - rectIndex - 1;
-    cvf::Color3ub startColor          = m_scalarMapper->mapToColor(
-        m_scalarMapper->domainValue( m_tickValues[rectIndexFromBottom] ) );
-    cvf::Color3ub endColor = m_scalarMapper->mapToColor(
-        m_scalarMapper->domainValue( m_tickValues[rectIndexFromBottom + 1] ) );
-    QColor startQColor( startColor.r(), startColor.g(), startColor.b() );
-    QColor endQColor( endColor.r(), endColor.g(), endColor.b() );
+    cvf::Color3ub startColor          = m_scalarMapper->mapToColor( m_tickValues[rectIndexFromBottom] );
+    cvf::Color3ub endColor            = m_scalarMapper->mapToColor( m_tickValues[rectIndexFromBottom + 1] );
+    QColor        startQColor( startColor.r(), startColor.g(), startColor.b() );
+    QColor        endQColor( endColor.r(), endColor.g(), endColor.b() );
 
     QRectF gradientRect( QPointF( layout.tickStartX,
                                   layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom] + 1 ),
