@@ -15,7 +15,6 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #include "RiuMultiPlotWindow.h"
 
 #include "RiaGuiApplication.h"
@@ -292,6 +291,9 @@ void RiuMultiPlotWindow::renderTo( QPaintDevice* paintDevice )
 {
     setSelectionsVisible( false );
 
+    int    resolution = paintDevice->logicalDpiX();
+    double scaling    = resolution / static_cast<double>( RiaGuiApplication::applicationResolution() );
+
     bool     firstPage = true;
     QPainter painter( paintDevice );
     for ( RiuMultiPlotPage* page : m_pages )
@@ -304,7 +306,7 @@ void RiuMultiPlotWindow::renderTo( QPaintDevice* paintDevice )
                 pagedDevice->newPage();
             }
         }
-        page->renderTo( &painter );
+        page->renderTo( &painter, scaling );
         firstPage = false;
     }
 

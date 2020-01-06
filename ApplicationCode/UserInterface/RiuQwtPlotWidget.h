@@ -105,7 +105,7 @@ public:
     void removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
     void updateLayout() override;
 
-	void renderTo( QPainter* painter, const QRect& targetRect );
+    void renderTo( QPainter* painter, const QRect& targetRect, double scaling );
     void renderTo( QPaintDevice* painter, const QRect& targetRect );
     int  overlayMargins() const;
 
@@ -138,6 +138,8 @@ private:
     caf::UiStyleSheet createCanvasStyleSheet() const;
 
     void updateOverlayFrameLayout();
+
+    void scaleFonts( double scalingFactor );
 
 private:
     caf::PdmPointer<RimPlot>         m_plotDefinition;

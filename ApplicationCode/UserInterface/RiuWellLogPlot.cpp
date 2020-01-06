@@ -59,7 +59,6 @@ void RiuWellLogPlot::updateVerticalScrollBar( double minVisible, double maxVisib
         m_trackScrollBar->setRange( (int)minAvailable, (int)( ( maxAvailable - visibleRange ) ) );
         m_trackScrollBar->setPageStep( (int)visibleRange );
         m_trackScrollBar->setValue( (int)minVisible );
-        m_trackScrollBar->setVisible( true );
     }
     m_trackScrollBar->blockSignals( false );
 }
@@ -108,9 +107,8 @@ void RiuWellLogPlot::reinsertScrollbar()
     int                               rowCount    = this->m_gridLayout->rowCount();
     int                               colCount    = this->m_gridLayout->columnCount();
 
-    m_trackScrollBar->setVisible( !plotWidgets.empty() );
-
     m_gridLayout->addLayout( m_trackScrollBarLayout, 2, colCount, rowCount * 2 - 1, 1 );
+    m_trackScrollBar->setVisible( !plotWidgets.empty() );
     m_gridLayout->setColumnStretch( colCount, 0 );
 }
 
@@ -141,6 +139,7 @@ void RiuWellLogPlot::slotSetMinDepth( int value )
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::performUpdate()
 {
+    m_trackScrollBar->setVisible( false );
     reinsertPlotWidgets();
     reinsertScrollbar();
     int axisShift = alignCanvasTops();
