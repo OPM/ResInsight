@@ -98,8 +98,8 @@ RifWellMeasurement
     wellMeasurement.wellName = tokens[0];
     wellMeasurement.MD       = parseDouble( tokens[1], "Measured Depth", lineNumber, filePath );
     wellMeasurement.date     = parseDate( tokens[2], "Date", lineNumber, filePath );
-    wellMeasurement.value    = parseDouble( tokens[3], "Value", lineNumber, filePath );
-    wellMeasurement.kind     = tokens[4];
+    wellMeasurement.kind     = tokens[3];
+    wellMeasurement.value    = parseDouble( tokens[4], "Value", lineNumber, filePath );
     wellMeasurement.quality  = parseInt( tokens[5], "Quality", lineNumber, filePath );
     wellMeasurement.remark   = tokens[6];
     wellMeasurement.filePath = filePath;

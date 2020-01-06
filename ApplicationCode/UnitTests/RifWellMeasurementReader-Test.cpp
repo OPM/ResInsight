@@ -37,8 +37,8 @@ TEST( RifWellMeasurementReaderTest, ReadCorrectInputFile )
 
     {
         QTextStream out( &file );
-        out << "NO 1234/5-6, 1234.56, 2019-11-13, 99.9, XLOT, 3, Good test\n"
-            << "NO 4321/7-8, 4321.79, 2024-12-24, 88.8, DP, 1, Poor test\n";
+        out << "NO 1234/5-6, 1234.56, 2019-11-13, XLOT, 99.9, 3, Good test\n"
+            << "NO 4321/7-8, 4321.79, 2024-12-24, DP, 88.8, 1, Poor test\n";
     }
 
     QStringList filePaths;
@@ -140,8 +140,8 @@ TEST( RifWellMeasurementReaderTest, ReadEmptyWellNameThrows )
 
     {
         QTextStream out( &file );
-        out << "NO 1234/5-6, 1234.56, 2019-11-13, 99.9, XLOT, 3, Good test\n";
-        out << ", 1234.56, 2019-11-13, 99.9, XLOT, 3, Good test\n";
+        out << "NO 1234/5-6, 1234.56, 2019-11-13, XLOT, 99.9, 3, Good test\n";
+        out << ", 1234.56, 2019-11-13, XLOT, 99.9, 3, Good test\n";
     }
 
     QStringList filePaths;
@@ -161,8 +161,8 @@ TEST( RifWellMeasurementReaderTest, ReadInvalidMeasureDepthThrows )
 
     {
         QTextStream out( &file );
-        out << "well 1, 1234.56, 2019-11-13, 99.9, XLOT, 3, Good test\n";
-        out << "well 2, this is should be a number, 2019-11-13, 99.9, XLOT, 3, Good test\n";
+        out << "well 1, 1234.56, 2019-11-13, XLOT, 99.9, 3, Good test\n";
+        out << "well 2, this is should be a number, 2019-11-13, XLOT, 99.9, 3, Good test\n";
     }
 
     QStringList filePaths;
@@ -182,8 +182,8 @@ TEST( RifWellMeasurementReaderTest, ReadInvalidQualityThrows )
 
     {
         QTextStream out( &file );
-        out << "well 1, 1234.56, 2019-11-13, 99.9, XLOT, this is not an int, Good test\n";
-        out << "well 2, 1234.56, 2019-11-13, 99.9, XLOT, 3, Good test\n";
+        out << "well 1, 1234.56, 2019-11-13, XLOT, 99.9, this is not an int, Good test\n";
+        out << "well 2, 1234.56, 2019-11-13, XLOT, 99.9, 3, Good test\n";
     }
 
     QStringList filePaths;
@@ -203,8 +203,8 @@ TEST( RifWellMeasurementReaderTest, ReadInvalidDateFormateThrows )
 
     {
         QTextStream out( &file );
-        out << "well 1, 1234.56, 17th May 1814, 99.9, XLOT, 1, Good test\n";
-        out << "well 2, 1234.56, 2019-11-13, 99.9, XLOT, 3, Good test\n";
+        out << "well 1, 1234.56, 17th May 1814, XLOT, 99.9, 1, Good test\n";
+        out << "well 2, 1234.56, 2019-11-13, XLOT, 99.9, 3, Good test\n";
     }
 
     QStringList filePaths;
@@ -232,14 +232,14 @@ TEST( RifWellMeasurementReaderTest, CommentsAndEmptyLinesAreIgnored )
         out << "\t\n";
         out << "        \n";
         // Then some data
-        out << "well 1, 1234.56, 2019-11-11, 199.9, XLOT, 1, Good test\n";
+        out << "well 1, 1234.56, 2019-11-11, XLOT, 199.9, 1, Good test\n";
         // Comment in-between data should be ignored
         out << "# One more comment in-between the data\n";
-        out << "well 2, 2234.56, 2019-11-12, 299.9, XLOT, 2, Good test\n";
+        out << "well 2, 2234.56, 2019-11-12, XLOT, 299.9, 2, Good test\n";
         // Empty line in-between data should be ignored
         out << "\n";
         // Data with comment sign inside it is not ignored
-        out << "well #3, 3234.56, 2019-11-13, 399.9, XLOT, 3, Good test\n";
+        out << "well #3, 3234.56, 2019-11-13, XLOT, 399.9, 3, Good test\n";
         // Trailing empty lines should be ignored
         out << "\n\n\n";
     }
