@@ -17,6 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiuAbstractOverlayContentFrame.h"
 
+#include "RiaApplication.h"
+#include "RiaFontCache.h"
+#include "RiaPreferences.h"
+
 #include <QLabel>
 #include <QPainter>
 #include <QTextDocument>
@@ -42,9 +46,13 @@ RiuTextOverlayContentFrame::RiuTextOverlayContentFrame( QWidget* parent /*= null
     : RiuAbstractOverlayContentFrame( parent )
 {
     QVBoxLayout* layout = new QVBoxLayout( this );
-    layout->setContentsMargins( 8, 8, 8, 8 );
+    layout->setContentsMargins( 4, 4, 4, 4 );
     m_textLabel = new QLabel;
     layout->addWidget( m_textLabel );
+
+    QFont font = m_textLabel->font();
+    font.setPointSize( RiaApplication::instance()->preferences()->defaultPlotFontSize() );
+    m_textLabel->setFont( font );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,6 +73,7 @@ void RiuTextOverlayContentFrame::renderTo( QPainter* painter, const QRect& targe
     painter->setFont( m_textLabel->font() );
 
     QTextDocument td;
+    td.setDefaultFont( m_textLabel->font() );
     td.setHtml( m_textLabel->text() );
     td.drawContents( painter );
 

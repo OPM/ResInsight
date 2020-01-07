@@ -145,14 +145,14 @@ void RiuQwtPlotWidget::setAxisFontsAndAlignment( QwtPlot::Axis     axis,
 {
     // Axis number font
     QFont axisFont = this->axisFont( axis );
-    axisFont.setPointSize( valueFontSize );
+    axisFont.setPixelSize( valueFontSize );
     axisFont.setBold( false );
     this->setAxisFont( axis, axisFont );
 
     // Axis title font
     QwtText axisTitle     = this->axisTitle( axis );
     QFont   axisTitleFont = axisTitle.font();
-    axisTitleFont.setPointSize( titleFontSize );
+    axisTitleFont.setPixelSize( titleFontSize );
     axisTitleFont.setBold( titleBold );
     axisTitle.setFont( axisTitleFont );
     axisTitle.setRenderFlags( alignment );
@@ -617,7 +617,7 @@ void RiuQwtPlotWidget::renderTo( QPainter* painter, const QRect& targetRect, dou
 
     QRectF canvasRect = this->plotLayout()->canvasRect();
     QPoint canvasTopLeftInPlotCoords( canvasRect.topLeft().x() * scaling, canvasRect.topLeft().y() * scaling );
-    QPoint canvasBottomRightInPlotCoords( canvasRect.bottomRight().x() * scaling, canvasRect.bottomRight().y() * scaling );
+    QPoint canvasBottomRightInPlotCoords( canvasRect.bottomRight().x(), canvasRect.bottomRight().y() );
 
     QPoint canvasTopLeftInWindowCoords     = canvasTopLeftInPlotCoords + plotTopLeftInWindowCoords;
     QPoint canvasBottomRightInWindowCoords = canvasBottomRightInPlotCoords + plotTopLeftInWindowCoords;
@@ -641,14 +641,15 @@ void RiuQwtPlotWidget::renderTo( QPainter* painter, const QRect& targetRect, dou
                 QSize actualSize  = desiredSize.expandedTo( minimumSize );
                 overlayRect.moveTo( overlayTopLeftInWindowCoords );
                 overlayRect.setSize( actualSize );
-                /*                QPoint overlayBottomRightInWindowCoords = overlayRect.bottomRight();
-                                overlayBottomRightInWindowCoords.setX(
-                                    std::min( overlayBottomRightInWindowCoords.x(),
-                                              canvasBottomRightInPlotCoords.x() - (int)scaling * m_overlayMargins ) );
-                                overlayBottomRightInWindowCoords.setY(
-                                    std::min( overlayBottomRightInWindowCoords.y(),
-                                              canvasBottomRightInPlotCoords.y() - (int)scaling * m_overlayMargins ) );
-                                overlayRect.setBottomRight( overlayBottomRightInWindowCoords ); */
+
+                QPoint overlayBottomRightInWindowCoords = overlayRect.bottomRight();
+                overlayBottomRightInWindowCoords.setX(
+                    std::min( overlayBottomRightInWindowCoords.x(),
+                              canvasBottomRightInWindowCoords.x() - (int)scaling * m_overlayMargins ) );
+                overlayBottomRightInWindowCoords.setY(
+                    std::min( overlayBottomRightInWindowCoords.y(),
+                              canvasBottomRightInWindowCoords.y() - (int)scaling * m_overlayMargins ) );
+                overlayRect.moveBottomRight( overlayBottomRightInWindowCoords );
                 overlayFrame->renderTo( painter, overlayRect );
             }
         }
@@ -781,26 +782,6 @@ void RiuQwtPlotWidget::updateOverlayFrameLayout()
             }
             frame->show();
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::scaleFonts( double scalingFactor )
-{
-    for ( int axisId = static_cast<int>( QwtPlot::yLeft ); axisId < static_cast<int>( axisCnt ); ++axisId )
-    {
-        QFont axisFont = this->axisFont( axisId );
-        axisFont.setPointSize( axisFont.pointSize() * scalingFactor );
-        this->setAxisFont( axisId, axisFont );
-
-        // Axis title font
-        QwtText axisTitle     = this->axisTitle( axisId );
-        QFont   axisTitleFont = axisTitle.font();
-        axisTitleFont.setPointSize( axisTitleFont.pointSize() * scalingFactor );
-        axisTitle.setFont( axisTitleFont );
-        this->setAxisTitle( axisId, axisTitle );
     }
 }
 

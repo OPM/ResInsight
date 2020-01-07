@@ -64,15 +64,15 @@ protected:
         QSize overallLegendSize;
     };
 
-    void                                    paintEvent( QPaintEvent* e ) override;
-    std::vector<std::pair<QPoint, QString>> visibleLabels( const LayoutInfo& layout ) const;
+    void                                   paintEvent( QPaintEvent* e ) override;
+    std::vector<std::pair<QRect, QString>> visibleLabels( const LayoutInfo& layout ) const;
 
 private:
-    virtual void    layoutInfo( LayoutInfo* layout ) const                      = 0;
-    virtual QString label( int index ) const                                    = 0;
-    virtual int     labelPixelPosY( const LayoutInfo& layout, int index ) const = 0;
-    virtual int     labelCount() const                                          = 0;
-    virtual int     rectCount() const                                           = 0;
+    virtual void    layoutInfo( LayoutInfo* layout ) const                 = 0;
+    virtual QString label( int index ) const                               = 0;
+    virtual QRect   labelRect( const LayoutInfo& layout, int index ) const = 0;
+    virtual int     labelCount() const                                     = 0;
+    virtual int     rectCount() const                                      = 0;
 
     virtual void renderRect( QPainter* painter, const LayoutInfo& layout, int rectIndex ) const = 0;
 

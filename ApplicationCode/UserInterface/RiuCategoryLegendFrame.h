@@ -45,7 +45,7 @@ private:
     int     labelCount() const override;
     int     rectCount() const override;
     void    renderRect( QPainter* painter, const LayoutInfo& layout, int rectIndex ) const override;
-    int     labelPixelPosY( const LayoutInfo& layout, int index ) const override;
+    QRect   labelRect( const LayoutInfo& layout, int index ) const override;
 
 private:
     cvf::cref<caf::CategoryMapper> m_categoryMapper;

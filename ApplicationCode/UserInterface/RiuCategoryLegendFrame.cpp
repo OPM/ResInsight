@@ -31,7 +31,7 @@ void RiuCategoryLegendFrame::layoutInfo( LayoutInfo* layout ) const
 
     layout->charHeight        = fontMetrics.height();
     layout->charAscent        = fontMetrics.ascent();
-    layout->lineSpacing       = ( fontMetrics.lineSpacing() * 3 ) / 2;
+    layout->lineSpacing       = fontMetrics.lineSpacing();
     layout->margins           = QMargins( 8, 8, 8, 8 );
     layout->tickTextLeadSpace = 5;
 
@@ -96,13 +96,13 @@ void RiuCategoryLegendFrame::renderRect( QPainter* painter, const LayoutInfo& la
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuCategoryLegendFrame::labelPixelPosY( const LayoutInfo& layout, int index ) const
+QRect RiuCategoryLegendFrame::labelRect( const LayoutInfo& layout, int index ) const
 {
-    float categoryHeight = static_cast<float>( layout.colorBarRect.height() ) / labelCount();
-    int   textY          = static_cast<int>( layout.colorBarRect.top() + index * categoryHeight + categoryHeight / 2 );
-
-    int offset = layout.charAscent - static_cast<int>( std::ceil( layout.charHeight / 2.0 ) );
-
-    textY += offset;
-    return textY;
+    float     categoryHeight = static_cast<float>( layout.colorBarRect.height() ) / labelCount();
+    const int posX           = layout.tickEndX + layout.tickTextLeadSpace;
+    int       posY           = static_cast<int>( layout.colorBarRect.bottom() - index * categoryHeight );
+    int       height         = std::max( (int)categoryHeight, layout.charHeight );
+    QString   labelI         = this->label( index );
+    int       width          = this->fontMetrics().boundingRect( labelI ).width();
+    return QRect( posX, posY - height, width, height );
 }
