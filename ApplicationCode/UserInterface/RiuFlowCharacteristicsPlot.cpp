@@ -92,8 +92,7 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot( RimFlowCharacteristicsPl
     addWindowZoom( m_sweepEffPlot );
     m_sweepEffPlot->setTitle( "Sweep Efficiency" );
 
-    int legendFontSize = RiaFontCache::pointSizeFromFontSizeEnum(
-        RiaApplication::instance()->preferences()->defaultPlotFontSize() );
+    int legendFontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
 
     {
         QwtText axisTitle = m_sweepEffPlot->axisTitle( QwtPlot::xBottom );

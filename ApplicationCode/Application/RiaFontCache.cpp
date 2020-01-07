@@ -83,28 +83,29 @@ cvf::ref<caf::FixedAtlasFont> RiaFontCache::getFont( FontSize size )
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// In the 2019 releases the font size was stored as an enum value rather than actual size
+/// Use this method for legacy conversion
 //--------------------------------------------------------------------------------------------------
-int RiaFontCache::pointSizeFromFontSizeEnum( FontSize fontSize )
+RiaFontCache::FontSize RiaFontCache::legacyEnumToPointSize( int enumValue )
 {
-    switch ( fontSize )
+    switch ( enumValue )
     {
-        case RiaFontCache::FONT_SIZE_8:
-            return 8;
-        case RiaFontCache::FONT_SIZE_10:
-            return 10;
-        case RiaFontCache::FONT_SIZE_12:
-            return 12;
-        case RiaFontCache::FONT_SIZE_14:
-            return 14;
-        case RiaFontCache::FONT_SIZE_16:
-            return 16;
-        case RiaFontCache::FONT_SIZE_24:
-            return 24;
-        case RiaFontCache::FONT_SIZE_32:
-            return 32;
+        case 0:
+            return FONT_SIZE_8;
+        case 1:
+            return FONT_SIZE_10;
+        case 2:
+            return FONT_SIZE_12;
+        case 3:
+            return FONT_SIZE_14;
+        case 4:
+            return FONT_SIZE_16;
+        case 5:
+            return FONT_SIZE_24;
+        case 6:
+            return FONT_SIZE_32;
         default:
-            return 16;
+            return FONT_SIZE_8;
     }
 }
 
@@ -120,11 +121,11 @@ RiaFontCache::FontSize RiaFontCache::fontSizeEnumFromPointSize( int pointSize )
     int      closestDiff      = std::numeric_limits<int>::max();
     for ( FontSize enumValue : allValues )
     {
-        int diff = std::abs( pointSizeFromFontSizeEnum( enumValue ) - pointSize );
+        int diff = std::abs( (int)enumValue - pointSize );
         if ( diff < closestDiff )
         {
             closestEnumValue = enumValue;
-            closestDiff      = diff;
+            closestDiff;
         }
     }
     return closestEnumValue;

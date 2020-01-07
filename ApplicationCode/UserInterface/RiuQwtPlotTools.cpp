@@ -63,8 +63,7 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     gridPen.setColor( Qt::lightGray );
     grid->setPen( gridPen );
 
-    int fontSize = RiaFontCache::pointSizeFromFontSizeEnum(
-        RiaApplication::instance()->preferences()->defaultPlotFontSize() );
+    int fontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
     // Axis number font
     QFont axisFont = plot->axisFont( QwtPlot::xBottom );
     axisFont.setPointSize( fontSize );

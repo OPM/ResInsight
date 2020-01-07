@@ -97,8 +97,7 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
 {
     cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
     QFont      font         = RiaGuiApplication::instance()->font();
-    font.setPointSize( RiaFontCache::pointSizeFromFontSizeEnum(
-        RiaGuiApplication::instance()->preferences()->defaultSceneFontSize() ) );
+    font.setPointSize( RiaGuiApplication::instance()->preferences()->defaultSceneFontSize() );
 
     m_axisCross = new cvf::OverlayAxisCross( m_mainCamera.p(), standardFont );
     m_axisCross->setAxisLabels( "X", "Y", "Z" );
@@ -1331,8 +1330,7 @@ void RiuViewer::updateFonts()
     m_showAxisCross = true;
 
     QFont font = QApplication::font();
-    font.setPointSize(
-        RiaFontCache::pointSizeFromFontSizeEnum( RiaApplication::instance()->preferences()->defaultSceneFontSize() ) );
+    font.setPointSize( RiaApplication::instance()->preferences()->defaultSceneFontSize() );
 
     m_zScaleLabel->setFont( font );
     m_infoLabel->setFont( font );

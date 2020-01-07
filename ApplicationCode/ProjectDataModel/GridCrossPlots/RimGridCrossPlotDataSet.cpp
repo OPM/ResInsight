@@ -290,13 +290,15 @@ QString RimGridCrossPlotDataSet::createAutoName() const
         nameTags += timeStepString();
     }
 
+    QString fullTitle = nameTags.join( ", " );
+
     if ( m_nameConfig->addGrouping() && groupParameter() != "None" )
     {
         QString catTitle = groupTitle();
-        if ( !catTitle.isEmpty() ) nameTags += catTitle;
+        if ( !catTitle.isEmpty() ) fullTitle += QString( " [%1]" ).arg( catTitle );
     }
 
-    return nameTags.join( ", " );
+    return fullTitle;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -306,7 +308,7 @@ QString RimGridCrossPlotDataSet::groupTitle() const
 {
     if ( m_grouping != NO_GROUPING )
     {
-        return QString( "Grouped by %1" ).arg( groupParameter() );
+        return QString( "[%1]" ).arg( groupParameter() );
     }
     return "";
 }

@@ -628,11 +628,26 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::initAfterRead()
 {
-    // If the stored font size is larger than the maximum enum value, the stored font size is actually point size
+    // If the stored font size is smaller than the minimum enum value, the stored font size is actually just an enum value
     int defaultSceneFontEnumValue = static_cast<int>( defaultSceneFontSize.v() );
-    if ( defaultSceneFontEnumValue > (int)RiaFontCache::MAX_FONT_SIZE )
+    if ( defaultSceneFontEnumValue < (int)RiaFontCache::MIN_FONT_SIZE )
     {
-        defaultSceneFontSize = RiaFontCache::fontSizeEnumFromPointSize( defaultSceneFontEnumValue );
+        defaultSceneFontSize = RiaFontCache::legacyEnumToPointSize( defaultSceneFontEnumValue );
+    }
+    int defaultWellLabelFontEnumValue = static_cast<int>( defaultWellLabelFontSize.v() );
+    if ( defaultWellLabelFontEnumValue < (int)RiaFontCache::MIN_FONT_SIZE )
+    {
+        defaultWellLabelFontSize = RiaFontCache::legacyEnumToPointSize( defaultWellLabelFontEnumValue );
+    }
+    int defaultAnnotationFontEnumValue = static_cast<int>( defaultAnnotationFontSize.v() );
+    if ( defaultAnnotationFontEnumValue < (int)RiaFontCache::MIN_FONT_SIZE )
+    {
+        defaultAnnotationFontSize = RiaFontCache::legacyEnumToPointSize( defaultAnnotationFontEnumValue );
+    }
+    int defaultPlotFontEnumValue = static_cast<int>( defaultPlotFontSize.v() );
+    if ( defaultPlotFontEnumValue < (int)RiaFontCache::MIN_FONT_SIZE )
+    {
+        defaultPlotFontSize = RiaFontCache::legacyEnumToPointSize( defaultPlotFontEnumValue );
     }
 }
 

@@ -1605,10 +1605,9 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences* oldPreference
 
                 for ( auto fontTypeSizePair : fontSizes )
                 {
-                    RiaFontCache::FontSize oldFontSizeEnum = oldPreferences->defaultFontSizes()[fontTypeSizePair.first];
-                    if ( oldFontSizeEnum != fontTypeSizePair.second )
+                    RiaFontCache::FontSize oldFontSize = oldPreferences->defaultFontSizes()[fontTypeSizePair.first];
+                    if ( oldFontSize != fontTypeSizePair.second )
                     {
-                        int oldFontSize = RiaFontCache::pointSizeFromFontSizeEnum( oldFontSizeEnum );
                         if ( viewWindow->hasCustomFontSizes( fontTypeSizePair.first, oldFontSize ) )
                         {
                             existingObjectsWithCustomFonts = true;
@@ -1656,11 +1655,10 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences* oldPreference
         {
             for ( auto fontTypeSizePair : fontSizes )
             {
-                RiaFontCache::FontSize oldFontSizeEnum = oldPreferences->defaultFontSizes()[fontTypeSizePair.first];
-                if ( oldFontSizeEnum != fontTypeSizePair.second )
+                RiaFontCache::FontSize oldFontSize = oldPreferences->defaultFontSizes()[fontTypeSizePair.first];
+                int                    newFontSize = fontTypeSizePair.second;
+                if ( oldFontSize != newFontSize )
                 {
-                    int oldFontSize = RiaFontCache::pointSizeFromFontSizeEnum( oldFontSizeEnum );
-                    int newFontSize = RiaFontCache::pointSizeFromFontSizeEnum( fontTypeSizePair.second );
                     viewWindow->applyFontSize( fontTypeSizePair.first, oldFontSize, newFontSize, applySettingsToAllViews );
                 }
             }
