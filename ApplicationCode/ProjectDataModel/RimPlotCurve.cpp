@@ -20,6 +20,7 @@
 
 #include "RiaCurveDataTools.h"
 #include "RiaGuiApplication.h"
+#include "RiaPreferences.h"
 
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -658,7 +659,10 @@ void RimPlotCurve::updateCurveAppearance()
     if ( m_pointSymbol() != RiuQwtSymbol::SYMBOL_NONE )
     {
         // QwtPlotCurve will take ownership of the symbol
-        symbol = new RiuQwtSymbol( m_pointSymbol(), m_symbolLabel(), m_symbolLabelPosition() );
+        symbol = new RiuQwtSymbol( m_pointSymbol(),
+                                   m_symbolLabel(),
+                                   m_symbolLabelPosition(),
+                                   RiaApplication::instance()->preferences()->defaultPlotFontSize() );
         symbol->setSize( m_symbolSize, m_symbolSize );
         symbol->setColor( curveColor );
 
