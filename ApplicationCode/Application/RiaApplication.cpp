@@ -27,6 +27,7 @@
 #include "RiaPreferences.h"
 #include "RiaProjectModifier.h"
 #include "RiaSocketServer.h"
+#include "RiaSummaryTools.h"
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
 
@@ -497,6 +498,11 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
             oilField->wellPathCollection->loadDataAndUpdate();
             oilField->wellPathCollection->readWellPathFormationFiles();
         }
+    }
+
+    {
+        RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
+        summaryPlotColl->ensureCalculationIdsAreAssigned();
     }
 
     for ( RimOilField* oilField : m_project->oilFields )

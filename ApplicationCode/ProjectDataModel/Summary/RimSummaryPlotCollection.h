@@ -44,4 +44,6 @@ public:
     void summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const;
 
     void removeSummaryPlot( RimSummaryPlot* summaryPlot );
+
+    void ensureCalculationIdsAreAssigned();
 };
