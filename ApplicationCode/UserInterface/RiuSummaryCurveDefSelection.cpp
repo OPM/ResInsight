@@ -138,8 +138,7 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection()
             {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_CELL_IJK )},
             {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
           {RifEclipseSummaryAddress::SUMMARY_CALCULATED,
-           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_ID )},
-            {new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
+           {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
           {RifEclipseSummaryAddress::SUMMARY_IMPORTED,
            {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
       } )
@@ -351,13 +350,6 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection()
                                 "" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][0]->pdmField(),
-                                "CalculatedVectorsId",
-                                "Calculated Vectors Id",
-                                "",
-                                "",
-                                "" );
-
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][1]->pdmField(),
                                 "CalculatedVectors",
                                 "Calculated Vectors",
                                 "",
@@ -665,6 +657,13 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions( const std::vector
             {
                 avalue = avalue + QString( OBSERVED_DATA_AVALUE_POSTFIX );
             }
+
+            if ( isVectorField && summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+            {
+                // Append calculation id to input vector name calculated data.
+                avalue = avalue + QString( ":%1" ).arg( summaryAddress.id() );
+            }
+
             const auto& currentSelectionVector = identifierAndField->pdmField()->v();
             if ( std::find( currentSelectionVector.begin(), currentSelectionVector.end(), avalue ) ==
                  currentSelectionVector.end() )
@@ -948,7 +947,7 @@ void RiuSummaryCurveDefSelection::defineUiOrdering( QString uiConfigName, caf::P
     }
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
     {
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][1]->pdmField();
+        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][0]->pdmField();
     }
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_IMPORTED )
     {
@@ -1192,8 +1191,24 @@ void RiuSummaryCurveDefSelection::buildAddressListForCategoryRecursively(
     for ( const auto& identifierText : ( *identifierAndFieldItr )->pdmField()->v() )
     {
         auto idText = identifierText;
+
+        // Calculated results have a id appended. E.g. "Calculation_3 ( NORNE_ATW2013, WOPR:B-4H ):3"
+        if ( category == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+        {
+            // Extract the calculation id
+            QStringList tokens        = idText.split( ":" );
+            QString     calculationId = tokens.last();
+
+            // Put the input vector name back together
+            tokens.pop_back();
+            idText = tokens.join( ":" );
+
+            identifierPath.push_back( std::make_pair( RifEclipseSummaryAddress::INPUT_ID, calculationId ) );
+        }
+
         idText.remove( OBSERVED_DATA_AVALUE_POSTFIX );
         identifierPath.push_back( std::make_pair( ( *identifierAndFieldItr )->summaryIdentifier(), idText ) );
+
         if ( ( *identifierAndFieldItr )->summaryIdentifier() != RifEclipseSummaryAddress::INPUT_VECTOR_NAME )
         {
             buildAddressListForCategoryRecursively( category,
@@ -1443,6 +1458,11 @@ void RiuSummaryCurveDefSelection::appendOptionItemsForSubCategoriesAndVectors(
             auto name = address.uiText( identifierAndField->summaryIdentifier() );
             if ( name.size() > 0 )
             {
+                if ( i == CALCULATED_CURVES )
+                {
+                    name += QString( ":%1" ).arg( address.id() ).toStdString();
+                }
+
                 itemNames[i].insert( name );
             }
         }
