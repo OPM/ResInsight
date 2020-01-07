@@ -148,7 +148,7 @@ void RiuGridCrossQwtPlot::setLegendFontSize( int fontSize )
     if ( legend() )
     {
         QFont font = legend()->font();
-        font.setPointSize( fontSize );
+        font.setPixelSize( RiaFontCache::pointSizeToPixelSize( fontSize ) );
         legend()->setFont( font );
         // Set font size for all existing labels
         QList<QwtLegendLabel*> labels = legend()->findChildren<QwtLegendLabel*>();

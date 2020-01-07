@@ -56,6 +56,8 @@ public:
     static cvf::ref<caf::FixedAtlasFont> getFont( FontSize fontSize );
     static FontSize                      legacyEnumToPointSize( int enumValue );
     static FontSize                      fontSizeEnumFromPointSize( int pointSize );
+    static int                           pointSizeToPixelSize( int pointSize );
+    static int                           pixelSizeToPointSize( int pixelSize );
 
     static void clear();
 

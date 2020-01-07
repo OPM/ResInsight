@@ -78,9 +78,9 @@ void RiuScalarMapperLegendFrame::layoutInfo( LayoutInfo* layout ) const
 
     int colorBarWidth  = 25;
     int colorBarHeight = layout->overallLegendSize.height() - layout->margins.top() - layout->margins.bottom() -
-                         titleLines.size() * layout->lineSpacing;
+                         titleLines.size() * layout->lineSpacing - 0.5 * layout->lineSpacing;
 
-    int colorBarStartY = layout->margins.top() + titleLines.size() * layout->lineSpacing;
+    int colorBarStartY = layout->margins.top() + titleLines.size() * layout->lineSpacing + 0.5 * layout->lineSpacing;
 
     layout->colorBarRect = QRect( layout->margins.left(), colorBarStartY, colorBarWidth, colorBarHeight );
 
@@ -203,5 +203,5 @@ QRect RiuScalarMapperLegendFrame::labelRect( const LayoutInfo& layout, int index
     QString labelI = this->label( index );
     int     width  = this->fontMetrics().boundingRect( labelI ).width() + 4;
     int     height = std::min( layout.lineSpacing, std::abs( posY - posYp1 ) );
-    return QRect( posX, posY - height / 2 - layout.charAscent / 2, width, height );
+    return QRect( posX, posY - height / 2, width, height );
 }

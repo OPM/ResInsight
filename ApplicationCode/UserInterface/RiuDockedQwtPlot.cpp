@@ -47,12 +47,13 @@ void RiuDockedQwtPlot::applyFontSizes( bool replot /*= false*/ )
     {
         QwtText text = this->axisTitle( axis );
         QFont   font = text.font();
-        font.setPointSize( fontPointSize );
+        font.setPixelSize(
+            RiaFontCache::pointSizeToPixelSize( RiaApplication::instance()->preferences()->defaultPlotFontSize() ) );
         text.setFont( font );
         this->setAxisTitle( axis, text );
 
         QFont valuesFont = this->axisFont( axis );
-        valuesFont.setPointSize( fontPointSize );
+        valuesFont.setPixelSize( font.pixelSize() );
         this->setAxisFont( axis, valuesFont );
     }
 

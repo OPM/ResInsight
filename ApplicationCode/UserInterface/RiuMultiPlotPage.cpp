@@ -262,10 +262,11 @@ void RiuMultiPlotPage::setSelectionsVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::setFontSize( int fontSize )
 {
+    int pixelSize = RiaFontCache::pointSizeToPixelSize( fontSize );
     {
         QFont font = m_plotTitle->font();
 
-        font.setPointSize( fontSize + 2 );
+        font.setPixelSize( pixelSize + 2 );
         font.setBold( true );
         m_plotTitle->setFont( font );
     }
@@ -273,7 +274,7 @@ void RiuMultiPlotPage::setFontSize( int fontSize )
     for ( QLabel* subTitle : m_subTitles )
     {
         QFont font = subTitle->font();
-        font.setPointSize( fontSize );
+        font.setPixelSize( pixelSize );
         font.setBold( true );
         subTitle->setFont( font );
     }
@@ -733,7 +734,7 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
                 }
                 legends[visibleIndex]->setMaxColumns( legendColumns );
                 QFont legendFont = legends[visibleIndex]->font();
-                legendFont.setPointSize( m_plotDefinition->legendFontSize() );
+                legendFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( m_plotDefinition->legendFontSize() ) );
                 legends[visibleIndex]->setFont( legendFont );
                 legends[visibleIndex]->show();
             }

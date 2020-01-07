@@ -245,8 +245,10 @@ void RiuMultiPlotWindow::setSelectionsVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotWindow::setFontSize( int fontSize )
 {
-    QFont font = this->font();
-    font.setPointSize( fontSize );
+    QFont font      = this->font();
+    int   pixelSize = RiaFontCache::pointSizeToPixelSize( fontSize );
+
+    font.setPixelSize( pixelSize );
     this->setFont( font );
     for ( auto page : m_pages )
     {
@@ -259,7 +261,7 @@ void RiuMultiPlotWindow::setFontSize( int fontSize )
 //--------------------------------------------------------------------------------------------------
 int RiuMultiPlotWindow::fontSize() const
 {
-    return this->font().pointSize();
+    return RiaFontCache::pixelSizeToPointSize( this->font().pixelSize() );
 }
 
 //--------------------------------------------------------------------------------------------------

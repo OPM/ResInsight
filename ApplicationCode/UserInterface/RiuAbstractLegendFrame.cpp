@@ -48,7 +48,7 @@ QSize RiuAbstractLegendFrame::sizeHint() const
     QFontMetrics fontMetrics( this->font() );
     QRect        titleRect = fontMetrics.boundingRect( QRect( 0, 0, 200, 200 ), Qt::AlignLeft, m_title );
 
-    int preferredContentHeight = titleRect.height() + labelCount() * layout.lineSpacing;
+    int preferredContentHeight = titleRect.height() + labelCount() * layout.lineSpacing + 0.5 * layout.lineSpacing;
     int preferredHeight        = preferredContentHeight + layout.margins.top() + layout.margins.bottom();
 
     int titleWidth = titleRect.width() + layout.margins.left() + layout.margins.right();
@@ -81,7 +81,7 @@ QSize RiuAbstractLegendFrame::minimumSizeHint() const
     QFontMetrics fontMetrics( this->font() );
     QRect        titleRect = fontMetrics.boundingRect( QRect( 0, 0, 200, 200 ), Qt::AlignLeft, m_title );
 
-    int preferredContentHeight = titleRect.height() + 2.25 * layout.lineSpacing;
+    int preferredContentHeight = titleRect.height() + 2 * layout.lineSpacing + 0.5 * layout.lineSpacing;
     int preferredHeight        = preferredContentHeight + layout.margins.top() + layout.margins.bottom();
     int titleWidth             = titleRect.width() + layout.margins.left() + layout.margins.right();
 
@@ -104,22 +104,24 @@ QSize RiuAbstractLegendFrame::minimumSizeHint() const
 void RiuAbstractLegendFrame::renderTo( QPainter* painter, const QRect& targetRect )
 {
     QFont font = this->font();
-    font.setPointSize( RiaApplication::instance()->preferences()->defaultPlotFontSize() );
+    font.setPixelSize(
+        RiaFontCache::pointSizeToPixelSize( RiaApplication::instance()->preferences()->defaultPlotFontSize() ) );
     this->setFont( font );
 
     LayoutInfo layout( QSize( targetRect.width(), targetRect.height() ) );
     layoutInfo( &layout );
 
     painter->save();
-    painter->translate( targetRect.topLeft() );
     painter->setFont( this->font() );
-
+    painter->translate( targetRect.topLeft() );
     QPoint titlePos( layout.margins.left(), layout.margins.top() );
     {
         painter->save();
+        painter->translate( QPoint( layout.margins.left(), layout.margins.top() ) );
         QTextDocument td;
+        td.setDocumentMargin( 0.0 );
         td.setDefaultFont( this->font() );
-        td.setHtml( m_title );
+        td.setPlainText( m_title );
         td.drawContents( painter );
         painter->restore();
     }
@@ -130,6 +132,7 @@ void RiuAbstractLegendFrame::renderTo( QPainter* painter, const QRect& targetRec
         painter->save();
         painter->translate( tickLabel.first.topLeft() );
         QTextDocument td;
+        td.setDocumentMargin( 0.0 );
         td.setDefaultFont( this->font() );
         td.setPlainText( tickLabel.second );
         td.drawContents( painter );
