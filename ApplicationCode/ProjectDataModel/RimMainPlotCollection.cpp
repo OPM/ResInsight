@@ -28,6 +28,7 @@
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
 #include "RimSaturationPressurePlotCollection.h"
+#include "RimSummaryAddress.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimViewWindow.h"
@@ -306,4 +307,18 @@ void RimMainPlotCollection::deleteAllCachedData()
 void RimMainPlotCollection::ensureDefaultFlowPlotsAreCreated()
 {
     m_flowPlotCollection()->ensureDefaultFlowPlotsAreCreated();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMainPlotCollection::ensureCalculationIdsAreAssigned()
+{
+    std::vector<RimSummaryAddress*> allAddresses;
+    this->descendantsIncludingThisOfType( allAddresses );
+
+    for ( RimSummaryAddress* adr : allAddresses )
+    {
+        adr->ensureIdIsAssigned();
+    }
 }

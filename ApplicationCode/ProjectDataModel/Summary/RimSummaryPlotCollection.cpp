@@ -20,7 +20,6 @@
 
 #include "RiaApplication.h"
 #include "RimProject.h"
-#include "RimSummaryAddress.h"
 #include "RimSummaryPlot.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryPlotCollection, "SummaryPlotCollection" );
@@ -102,18 +101,4 @@ void RimSummaryPlotCollection::summaryPlotItemInfos( QList<caf::PdmOptionItemInf
 void RimSummaryPlotCollection::removeSummaryPlot( RimSummaryPlot* summaryPlot )
 {
     summaryPlots.removeChildObject( summaryPlot );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlotCollection::ensureCalculationIdsAreAssigned()
-{
-    std::vector<RimSummaryAddress*> allAddresses;
-    this->descendantsIncludingThisOfType( allAddresses );
-
-    for ( RimSummaryAddress* adr : allAddresses )
-    {
-        adr->ensureIdIsAssigned();
-    }
 }

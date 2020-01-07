@@ -72,7 +72,6 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimTextAnnotation.h"
 #include "RimTextAnnotationInView.h"
 #include "RimViewLinker.h"
@@ -501,8 +500,9 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
     }
 
     {
-        RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
-        summaryPlotColl->ensureCalculationIdsAreAssigned();
+        RimMainPlotCollection* mainPlotColl = m_project->mainPlotCollection();
+
+        mainPlotColl->ensureCalculationIdsAreAssigned();
     }
 
     for ( RimOilField* oilField : m_project->oilFields )
