@@ -71,7 +71,6 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimTextAnnotation.h"
 #include "RimTextAnnotationInView.h"
 #include "RimViewLinker.h"
@@ -497,6 +496,12 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
             oilField->wellPathCollection->loadDataAndUpdate();
             oilField->wellPathCollection->readWellPathFormationFiles();
         }
+    }
+
+    {
+        RimMainPlotCollection* mainPlotColl = m_project->mainPlotCollection();
+
+        mainPlotColl->ensureCalculationIdsAreAssigned();
     }
 
     for ( RimOilField* oilField : m_project->oilFields )

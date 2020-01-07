@@ -18,6 +18,12 @@
 
 #include "RimSummaryAddress.h"
 
+#include "RiaApplication.h"
+
+#include "RimProject.h"
+#include "RimSummaryCalculation.h"
+#include "RimSummaryCalculationCollection.h"
+
 namespace caf
 {
 template <>
@@ -125,4 +131,25 @@ RifEclipseSummaryAddress RimSummaryAddress::address()
                                      m_aquiferNumber,
                                      m_isErrorResult,
                                      m_calculationId );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddress::ensureIdIsAssigned()
+{
+    if ( m_category == RifEclipseSummaryAddress::SUMMARY_CALCULATED && m_calculationId == -1 )
+    {
+        RimSummaryCalculationCollection* calcColl = RiaApplication::instance()->project()->calculationCollection();
+
+        for ( const RimSummaryCalculation* c : calcColl->calculations() )
+        {
+            QString description = c->description();
+
+            if ( description == m_quantityName )
+            {
+                m_calculationId = c->id();
+            }
+        }
+    }
 }

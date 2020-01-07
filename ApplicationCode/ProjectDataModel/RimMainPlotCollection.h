@@ -67,6 +67,7 @@ public:
     void updatePlotsWithCompletions();
     void deleteAllCachedData();
     void ensureDefaultFlowPlotsAreCreated();
+    void ensureCalculationIdsAreAssigned();
 
 private:
     // Overridden PDM methods
