@@ -308,7 +308,7 @@ QString RimGridCrossPlotDataSet::groupTitle() const
 {
     if ( m_grouping != NO_GROUPING )
     {
-        return QString( "[%1]" ).arg( groupParameter() );
+        return groupParameter();
     }
     return "";
 }

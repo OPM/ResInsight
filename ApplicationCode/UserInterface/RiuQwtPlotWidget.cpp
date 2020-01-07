@@ -145,14 +145,14 @@ void RiuQwtPlotWidget::setAxisFontsAndAlignment( QwtPlot::Axis     axis,
 {
     // Axis number font
     QFont axisFont = this->axisFont( axis );
-    axisFont.setPointSize( valueFontSize );
+    axisFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( valueFontSize ) );
     axisFont.setBold( false );
     this->setAxisFont( axis, axisFont );
 
     // Axis title font
     QwtText axisTitle     = this->axisTitle( axis );
     QFont   axisTitleFont = axisTitle.font();
-    axisTitleFont.setPointSize( titleFontSize );
+    axisTitleFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( titleFontSize ) );
     axisTitleFont.setBold( titleBold );
     axisTitle.setFont( axisTitleFont );
     axisTitle.setRenderFlags( alignment );

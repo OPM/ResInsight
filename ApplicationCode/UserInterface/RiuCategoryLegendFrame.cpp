@@ -37,9 +37,9 @@ void RiuCategoryLegendFrame::layoutInfo( LayoutInfo* layout ) const
 
     int colorBarWidth  = 25;
     int colorBarHeight = layout->overallLegendSize.height() - layout->margins.top() - layout->margins.bottom() -
-                         titleLines.size() * layout->lineSpacing;
+                         titleLines.size() * layout->lineSpacing - 0.5 * layout->lineSpacing;
 
-    int colorBarStartY = layout->margins.top() + titleLines.size() * layout->lineSpacing;
+    int colorBarStartY = layout->margins.top() + titleLines.size() * layout->lineSpacing + 0.5 * layout->lineSpacing;
 
     layout->colorBarRect = QRect( layout->margins.left(), colorBarStartY, colorBarWidth, colorBarHeight );
 
@@ -100,9 +100,8 @@ QRect RiuCategoryLegendFrame::labelRect( const LayoutInfo& layout, int index ) c
 {
     float     categoryHeight = static_cast<float>( layout.colorBarRect.height() ) / labelCount();
     const int posX           = layout.tickEndX + layout.tickTextLeadSpace;
-    int       posY           = static_cast<int>( layout.colorBarRect.bottom() - index * categoryHeight );
-    int       height         = std::max( (int)categoryHeight, layout.charHeight );
+    int       posY           = static_cast<int>( layout.colorBarRect.bottom() - ( index + 1 ) * categoryHeight );
     QString   labelI         = this->label( index );
     int       width          = this->fontMetrics().boundingRect( labelI ).width();
-    return QRect( posX, posY - height, width, height );
+    return QRect( posX, posY, width, categoryHeight );
 }

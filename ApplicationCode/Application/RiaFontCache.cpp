@@ -18,8 +18,13 @@
 
 #include "RiaFontCache.h"
 
+#include "RiaGuiApplication.h"
+
 #include "cafAppEnum.h"
 #include "cafFixedAtlasFont.h"
+
+#include <QDesktopWidget>
+#include <cmath>
 
 namespace caf
 {
@@ -129,6 +134,36 @@ RiaFontCache::FontSize RiaFontCache::fontSizeEnumFromPointSize( int pointSize )
         }
     }
     return closestEnumValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaFontCache::pointSizeToPixelSize( int pointSize )
+{
+    auto app = RiaGuiApplication::instance();
+    if ( app )
+    {
+        int    dpi    = app->desktop()->logicalDpiX();
+        double inches = pointSize / 72.0;
+        return static_cast<int>( std::ceil( inches * dpi ) );
+    }
+    return pointSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaFontCache::pixelSizeToPointSize( int pixelSize )
+{
+    auto app = RiaGuiApplication::instance();
+    if ( app )
+    {
+        int    dpi    = app->desktop()->logicalDpiX();
+        double inches = pixelSize / dpi;
+        return static_cast<int>( std::ceil( inches * 72.0 ) );
+    }
+    return pixelSize;
 }
 
 //--------------------------------------------------------------------------------------------------
