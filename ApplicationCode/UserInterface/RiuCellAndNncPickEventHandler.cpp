@@ -126,7 +126,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
     std::array<cvf::Vec3f, 3>          intersectionTriangleHit;
     RimGeoMechResultDefinition*        geomResDef    = nullptr;
     RimEclipseResultDefinition*        eclResDef     = nullptr;
-    size_t                             timestepIndex = -1;
+    size_t                             timestepIndex = cvf::UNDEFINED_SIZE_T;
 
     // clang-format off
     if ( const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>( firstHitPart->sourceInfo() ) )
@@ -245,13 +245,13 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             if ( eclipseView )
             {
                 if ( !eclResDef ) eclResDef = eclipseView->cellResult();
-                if ( timestepIndex == -1 ) timestepIndex = eclipseView->currentTimeStep();
+                if ( timestepIndex == cvf::UNDEFINED_SIZE_T ) timestepIndex = eclipseView->currentTimeStep();
             }
 
             if ( geomView )
             {
                 if ( !geomResDef ) geomResDef = geomView->cellResult();
-                if ( timestepIndex == -1 ) timestepIndex = geomView->currentTimeStep();
+                if ( timestepIndex == cvf::UNDEFINED_SIZE_T ) timestepIndex = geomView->currentTimeStep();
             }
         }
 

@@ -494,8 +494,8 @@ QString RiuResultTextBuilder::nncResultText()
                             // clang-format off
                             if ( fmIndexPair.first >= 0 && 
                                  fmIndexPair.second >= 0 &&
-                                 fmNames.size() > fmIndexPair.first &&
-                                 fmNames.size() > fmIndexPair.second )
+                                 static_cast<int>(fmNames.size()) > fmIndexPair.first &&
+                                 static_cast<int>(fmNames.size()) > fmIndexPair.second )
                             {
                                 resultValueText = fmNames[fmIndexPair.first] + " - " +
                                                   fmNames[fmIndexPair.second];
