@@ -17,8 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiuAbstractLegendFrame.h"
 
+#include "RiaApplication.h"
+#include "RiaFontCache.h"
+#include "RiaPreferences.h"
+
 #include <QPaintEvent>
 #include <QPainter>
+#include <QTextDocument>
 
 #include <cmath>
 
@@ -76,7 +81,7 @@ QSize RiuAbstractLegendFrame::minimumSizeHint() const
     QFontMetrics fontMetrics( this->font() );
     QRect        titleRect = fontMetrics.boundingRect( QRect( 0, 0, 200, 200 ), Qt::AlignLeft, m_title );
 
-    int preferredContentHeight = titleRect.height() + 2 * layout.lineSpacing;
+    int preferredContentHeight = titleRect.height() + 2.25 * layout.lineSpacing;
     int preferredHeight        = preferredContentHeight + layout.margins.top() + layout.margins.bottom();
     int titleWidth             = titleRect.width() + layout.margins.left() + layout.margins.right();
 
@@ -98,21 +103,37 @@ QSize RiuAbstractLegendFrame::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 void RiuAbstractLegendFrame::renderTo( QPainter* painter, const QRect& targetRect )
 {
+    QFont font = this->font();
+    font.setPointSize( RiaApplication::instance()->preferences()->defaultPlotFontSize() );
+    this->setFont( font );
+
     LayoutInfo layout( QSize( targetRect.width(), targetRect.height() ) );
     layoutInfo( &layout );
 
     painter->save();
     painter->translate( targetRect.topLeft() );
-    QPoint       titlePos( layout.margins.left(), layout.margins.top() );
-    QFontMetrics fontMetrics( this->font() );
-    QRect        boundingRect = fontMetrics.boundingRect( targetRect, Qt::AlignLeft, m_title );
-    boundingRect.moveTo( titlePos );
-    painter->drawText( boundingRect, m_title );
+    painter->setFont( this->font() );
 
-    std::vector<std::pair<QPoint, QString>> visibleTickLabels = visibleLabels( layout );
+    QPoint titlePos( layout.margins.left(), layout.margins.top() );
+    {
+        painter->save();
+        QTextDocument td;
+        td.setDefaultFont( this->font() );
+        td.setHtml( m_title );
+        td.drawContents( painter );
+        painter->restore();
+    }
+
+    std::vector<std::pair<QRect, QString>> visibleTickLabels = visibleLabels( layout );
     for ( auto tickLabel : visibleTickLabels )
     {
-        painter->drawText( tickLabel.first, tickLabel.second );
+        painter->save();
+        painter->translate( tickLabel.first.topLeft() );
+        QTextDocument td;
+        td.setDefaultFont( this->font() );
+        td.setPlainText( tickLabel.second );
+        td.drawContents( painter );
+        painter->restore();
     }
 
     // Render color bar as one colored rectangle per color interval
@@ -139,43 +160,22 @@ void RiuAbstractLegendFrame::paintEvent( QPaintEvent* e )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<QPoint, QString>> RiuAbstractLegendFrame::visibleLabels( const LayoutInfo& layout ) const
+std::vector<std::pair<QRect, QString>> RiuAbstractLegendFrame::visibleLabels( const LayoutInfo& layout ) const
 {
-    const int textX = layout.tickEndX + layout.tickTextLeadSpace;
+    std::vector<std::pair<QRect, QString>> visibleTickLabels;
 
-    const double overlapTolerance = 1.2 * layout.charHeight;
-    int          lastVisibleTextY = 0;
-
-    std::vector<std::pair<QPoint, QString>> visibleTickLabels;
+    QRect lastRect;
 
     int numLabels = labelCount();
     for ( int i = 0; i < numLabels; i++ )
     {
-        int textY = labelPixelPosY( layout, i );
+        QRect rect = labelRect( layout, i );
 
-        // Always draw first and last tick label. For all others, skip drawing if text ends up
-        // on top of the previous label.
-        if ( i != 0 && i != ( numLabels - 1 ) )
-        {
-            if ( std::fabs( static_cast<double>( textY - lastVisibleTextY ) ) < overlapTolerance )
-            {
-                continue;
-            }
-            // Make sure it does not overlap the last tick as well
+        if ( !lastRect.isEmpty() && rect.intersects( lastRect ) ) continue;
 
-            int lastTickY = layout.colorBarRect.bottom();
-
-            if ( std::fabs( static_cast<double>( lastTickY - textY ) ) < overlapTolerance )
-            {
-                continue;
-            }
-        }
-
-        QString valueString = label( numLabels - i - 1 );
-        QPoint  pos( textX, textY );
-
-        lastVisibleTextY = textY;
-        visibleTickLabels.push_back( {pos, valueString} );
+        QString valueString = label( i );
+        lastRect            = rect;
+        visibleTickLabels.push_back( {rect, valueString} );
     }
     return visibleTickLabels;
 }

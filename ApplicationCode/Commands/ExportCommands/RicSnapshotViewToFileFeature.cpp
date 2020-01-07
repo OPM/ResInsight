@@ -85,22 +85,21 @@ void RicSnapshotViewToFileFeature::savePlotPDFReportAs( const QString& fileName,
     QFile pdfFile( fileName );
     if ( pdfFile.open( QIODevice::WriteOnly ) )
     {
-        int resolution = RiaGuiApplication::applicationResolution();
-        /*        int pageWidth   = plot->pageLayout().fullRectPixels( resolution ).width();
-                int widgetWidth = plot->viewWidget()->width();
-                int deltaWidth  = widgetWidth - pageWidth;
+        int resolution  = RiaGuiApplication::applicationResolution();
+        int pageWidth   = plot->pageLayout().fullRectPixels( resolution ).width();
+        int widgetWidth = plot->viewWidget()->width();
+        int deltaWidth  = widgetWidth - pageWidth;
 
-                while ( std::abs( deltaWidth ) > 1 )
-                {
-                    int newResolution = resolution + deltaWidth / std::abs( deltaWidth );
-                    pageWidth         = plot->pageLayout().fullRectPixels( resolution ).width();
-                    int newDeltaWidth = widgetWidth - pageWidth;
-                    if ( std::abs( newDeltaWidth ) > std::abs( deltaWidth ) ) break;
+        while ( std::abs( deltaWidth ) > 1 )
+        {
+            int newResolution = resolution + deltaWidth / std::abs( deltaWidth );
+            pageWidth         = plot->pageLayout().fullRectPixels( resolution ).width();
+            int newDeltaWidth = widgetWidth - pageWidth;
+            if ( std::abs( newDeltaWidth ) > std::abs( deltaWidth ) ) break;
 
-                    resolution = newResolution;
-                    deltaWidth = newDeltaWidth;
-                }
-                */
+            resolution = newResolution;
+            deltaWidth = newDeltaWidth;
+        }
         QPdfWriter pdfPrinter( fileName );
         pdfPrinter.setPageLayout( plot->pageLayout() );
         pdfPrinter.setCreator( QCoreApplication::applicationName() );

@@ -139,8 +139,6 @@ private:
 
     void updateOverlayFrameLayout();
 
-    void scaleFonts( double scalingFactor );
-
 private:
     caf::PdmPointer<RimPlot>         m_plotDefinition;
     QPoint                           m_clickPosition;

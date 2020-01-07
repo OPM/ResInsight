@@ -72,7 +72,7 @@ void RiuScalarMapperLegendFrame::layoutInfo( LayoutInfo* layout ) const
 
     layout->charHeight        = fontMetrics.height();
     layout->charAscent        = fontMetrics.ascent();
-    layout->lineSpacing       = ( fontMetrics.lineSpacing() * 3 ) / 2;
+    layout->lineSpacing       = fontMetrics.lineSpacing();
     layout->margins           = QMargins( 8, 8, 8, 8 );
     layout->tickTextLeadSpace = 5;
 
@@ -194,9 +194,14 @@ void RiuScalarMapperLegendFrame::renderRect( QPainter* painter, const LayoutInfo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuScalarMapperLegendFrame::labelPixelPosY( const LayoutInfo& layout, int index ) const
+QRect RiuScalarMapperLegendFrame::labelRect( const LayoutInfo& layout, int index ) const
 {
-    int indexFromBottom = labelCount() - index - 1;
-    int offset          = layout.charAscent - static_cast<int>( std::ceil( layout.charHeight / 2.0 ) );
-    return layout.colorBarRect.bottom() - layout.tickYPixelPos[indexFromBottom] + offset;
+    const int posX = layout.tickEndX + layout.tickTextLeadSpace;
+
+    int     posY   = layout.colorBarRect.bottom() - layout.tickYPixelPos[index];
+    int     posYp1 = layout.colorBarRect.bottom() - layout.tickYPixelPos[index + 1];
+    QString labelI = this->label( index );
+    int     width  = this->fontMetrics().boundingRect( labelI ).width() + 4;
+    int     height = std::min( layout.lineSpacing, std::abs( posY - posYp1 ) );
+    return QRect( posX, posY - height / 2 - layout.charAscent / 2, width, height );
 }
