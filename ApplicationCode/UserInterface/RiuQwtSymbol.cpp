@@ -19,6 +19,8 @@
 
 #include "RiuQwtSymbol.h"
 
+#include "RiaFontCache.h"
+
 #include "cvfAssert.h"
 
 #include <QPainter>
@@ -26,10 +28,11 @@
 //--------------------------------------------------------------------------------------------------
 /// Internal class to support labels on symbols
 //--------------------------------------------------------------------------------------------------
-RiuQwtSymbol::RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition )
+RiuQwtSymbol::RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition, int labelFontSizePt )
     : QwtSymbol( QwtSymbol::NoSymbol )
     , m_globalLabel( label )
     , m_labelPosition( labelPosition )
+    , m_labelFontSizePx( RiaFontCache::pointSizeToPixelSize( labelFontSizePt ) )
 {
     QwtSymbol::Style style = QwtSymbol::NoSymbol;
 
@@ -149,10 +152,16 @@ void RiuQwtSymbol::renderSymbols( QPainter* painter, const QPointF* points, int 
 //--------------------------------------------------------------------------------------------------
 void RiuQwtSymbol::renderSymbolLabel( QPainter* painter, const QPointF& position, const QString& label ) const
 {
+    painter->save();
+    QFont font = painter->font();
+    font.setPixelSize( m_labelFontSizePx );
+    painter->setFont( font );
+
     QSize symbolSize = QwtSymbol::size();
     QRect symbolRect( position.x(), position.y(), symbolSize.width(), symbolSize.height() );
     QRect labelRect = labelBoundingRect( painter, symbolRect, label );
     painter->drawText( labelRect.topLeft(), label );
+    painter->restore();
 }
 
 //--------------------------------------------------------------------------------------------------
