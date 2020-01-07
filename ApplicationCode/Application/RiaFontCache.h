@@ -40,20 +40,21 @@ class RiaFontCache
 public:
     enum FontSize
     {
-        FONT_SIZE_8,
-        FONT_SIZE_10,
-        FONT_SIZE_12,
-        FONT_SIZE_14,
-        FONT_SIZE_16,
-        FONT_SIZE_24,
-        FONT_SIZE_32,
+        MIN_FONT_SIZE = 8,
+        FONT_SIZE_8   = 8,
+        FONT_SIZE_10  = 10,
+        FONT_SIZE_12  = 12,
+        FONT_SIZE_14  = 14,
+        FONT_SIZE_16  = 16,
+        FONT_SIZE_24  = 24,
+        FONT_SIZE_32  = 32,
         MAX_FONT_SIZE = FONT_SIZE_32
     };
 
     typedef caf::AppEnum<FontSize> FontSizeType;
 
     static cvf::ref<caf::FixedAtlasFont> getFont( FontSize fontSize );
-    static int                           pointSizeFromFontSizeEnum( FontSize fontSize );
+    static FontSize                      legacyEnumToPointSize( int enumValue );
     static FontSize                      fontSizeEnumFromPointSize( int pointSize );
 
     static void clear();

@@ -110,8 +110,8 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimMultiPlotWindow* plotDefinition, QWidget*
 
     setAcceptDrops( m_plotDefinition->acceptDrops() );
 
-    RiaApplication* app = RiaApplication::instance();
-    int defaultFontSize = RiaFontCache::pointSizeFromFontSizeEnum( app->preferences()->defaultPlotFontSize() );
+    RiaApplication* app             = RiaApplication::instance();
+    int             defaultFontSize = app->preferences()->defaultPlotFontSize();
     setFontSize( defaultFontSize );
 
     this->setObjectName( QString( "%1" ).arg( reinterpret_cast<uint64_t>( this ) ) );
@@ -159,7 +159,7 @@ void RiuMultiPlotPage::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
     plotWidget->setVisible( false );
 
     QLabel* subTitle = new QLabel( plotWidget->plotDefinition()->description() );
-    subTitle->setAlignment( Qt::AlignRight );
+    subTitle->setAlignment( Qt::AlignHCenter );
     subTitle->setVisible( false );
     m_subTitles.insert( static_cast<int>( index ), subTitle );
 
@@ -262,11 +262,21 @@ void RiuMultiPlotPage::setSelectionsVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::setFontSize( int fontSize )
 {
-    QFont font = m_plotTitle->font();
+    {
+        QFont font = m_plotTitle->font();
 
-    font.setPointSize( fontSize + 1 );
-    font.setBold( true );
-    m_plotTitle->setFont( font );
+        font.setPointSize( fontSize + 2 );
+        font.setBold( true );
+        m_plotTitle->setFont( font );
+    }
+
+    for ( QLabel* subTitle : m_subTitles )
+    {
+        QFont font = subTitle->font();
+        font.setPointSize( fontSize );
+        font.setBold( true );
+        subTitle->setFont( font );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -274,7 +284,7 @@ void RiuMultiPlotPage::setFontSize( int fontSize )
 //--------------------------------------------------------------------------------------------------
 int RiuMultiPlotPage::fontSize() const
 {
-    return m_plotTitle->font().pointSize() - 1;
+    return m_plotTitle->font().pointSize() - 2;
 }
 
 //--------------------------------------------------------------------------------------------------

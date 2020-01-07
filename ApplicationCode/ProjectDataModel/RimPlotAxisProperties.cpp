@@ -89,9 +89,9 @@ RimPlotAxisProperties::RimPlotAxisProperties()
 
     CAF_PDM_InitFieldNoDefault(&m_titlePositionEnum, "TitlePosition", "Title Position", "", "", "");
     CAF_PDM_InitField(&m_titleFontSize, "FontSize", 10, "Font Size", "", "", "");
-    m_titleFontSize = RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
+    m_titleFontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
     CAF_PDM_InitField(&m_valuesFontSize, "ValuesFontSize", 10, "Font Size", "", "", "");
-    m_valuesFontSize = RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
+    m_valuesFontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
 
     CAF_PDM_InitFieldNoDefault(&m_annotations, "Annotations", "", "", "", "");
 

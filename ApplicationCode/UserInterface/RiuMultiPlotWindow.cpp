@@ -134,8 +134,8 @@ RiuMultiPlotWindow::RiuMultiPlotWindow( RimMultiPlotWindow* plotDefinition, QWid
 
     setFocusPolicy( Qt::StrongFocus );
 
-    RiaApplication* app = RiaApplication::instance();
-    int defaultFontSize = RiaFontCache::pointSizeFromFontSizeEnum( app->preferences()->defaultPlotFontSize() );
+    RiaApplication* app             = RiaApplication::instance();
+    int             defaultFontSize = app->preferences()->defaultPlotFontSize();
     setFontSize( defaultFontSize );
 
     QSize pageSize = m_plotDefinition->pageLayout().fullRectPixels( RiaGuiApplication::applicationResolution() ).size();
@@ -247,6 +247,11 @@ void RiuMultiPlotWindow::setFontSize( int fontSize )
 {
     QFont font = this->font();
     font.setPointSize( fontSize );
+    this->setFont( font );
+    for ( auto page : m_pages )
+    {
+        page->setFontSize( fontSize );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

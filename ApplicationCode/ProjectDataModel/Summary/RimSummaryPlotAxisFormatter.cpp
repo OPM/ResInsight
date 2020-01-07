@@ -117,24 +117,17 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuSummaryQwtPlot* 
 
         QwtText axisTitleY = qwtPlot->axisTitle( m_axisProperties->qwtPlotAxisType() );
 
-        QFont axisTitleYFont = axisTitleY.font();
-        axisTitleYFont.setBold( true );
-        axisTitleYFont.setPointSize( m_axisProperties->titleFontSize() );
-        axisTitleY.setFont( axisTitleYFont );
-
-        axisTitleY.setText( axisTitle );
-
         Qt::AlignmentFlag titleAlignment = Qt::AlignCenter;
         if ( m_axisProperties->titlePosition() == RimPlotAxisPropertiesInterface::AXIS_TITLE_END )
         {
             titleAlignment = Qt::AlignRight;
         }
+        qwtPlot->setAxisTitleText( m_axisProperties->qwtPlotAxisType(), axisTitle );
         qwtPlot->setAxisFontsAndAlignment( m_axisProperties->qwtPlotAxisType(),
                                            m_axisProperties->titleFontSize(),
                                            m_axisProperties->valuesFontSize(),
                                            true,
                                            titleAlignment );
-        qwtPlot->setAxisTitleText( m_axisProperties->qwtPlotAxisType(), axisTitle );
         qwtPlot->setAxisTitleEnabled( m_axisProperties->qwtPlotAxisType(), true );
     }
 
