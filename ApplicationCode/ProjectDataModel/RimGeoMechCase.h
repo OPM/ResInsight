@@ -80,8 +80,6 @@ public:
 
     double characteristicCellSize() const override;
 
-    void setFormationNames( RimFormationNames* formationNames ) override;
-
     void addElementPropertyFiles( const std::vector<caf::FilePath>& filenames );
 
     double cohesion() const;

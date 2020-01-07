@@ -2843,44 +2843,44 @@ void RigCaseCellResultsData::setActiveFormationNames( RigFormationNames* activeF
         {
             fnData->at( cIdx ) = HUGE_VAL;
         }
-
-        return;
     }
-
-    size_t localCellCount = m_ownerMainGrid->cellCount();
-    for ( size_t cIdx = 0; cIdx < localCellCount; ++cIdx )
+    else
     {
-        size_t i( cvf::UNDEFINED_SIZE_T ), j( cvf::UNDEFINED_SIZE_T ), k( cvf::UNDEFINED_SIZE_T );
-
-        if ( !m_ownerMainGrid->ijkFromCellIndex( cIdx, &i, &j, &k ) ) continue;
-
-        int formNameIdx = activeFormationNames->formationIndexFromKLayerIdx( k );
-        if ( formNameIdx != -1 )
+        size_t localCellCount = m_ownerMainGrid->cellCount();
+        for ( size_t cIdx = 0; cIdx < localCellCount; ++cIdx )
         {
-            fnData->at( cIdx ) = formNameIdx;
+            size_t i( cvf::UNDEFINED_SIZE_T ), j( cvf::UNDEFINED_SIZE_T ), k( cvf::UNDEFINED_SIZE_T );
+
+            if ( !m_ownerMainGrid->ijkFromCellIndex( cIdx, &i, &j, &k ) ) continue;
+
+            int formNameIdx = activeFormationNames->formationIndexFromKLayerIdx( k );
+            if ( formNameIdx != -1 )
+            {
+                fnData->at( cIdx ) = formNameIdx;
+            }
+            else
+            {
+                fnData->at( cIdx ) = HUGE_VAL;
+            }
         }
-        else
+
+        for ( size_t cIdx = localCellCount; cIdx < totalGlobCellCount; ++cIdx )
         {
-            fnData->at( cIdx ) = HUGE_VAL;
-        }
-    }
+            size_t mgrdCellIdx = m_ownerMainGrid->globalCellArray()[cIdx].mainGridCellIndex();
 
-    for ( size_t cIdx = localCellCount; cIdx < totalGlobCellCount; ++cIdx )
-    {
-        size_t mgrdCellIdx = m_ownerMainGrid->globalCellArray()[cIdx].mainGridCellIndex();
+            size_t i( cvf::UNDEFINED_SIZE_T ), j( cvf::UNDEFINED_SIZE_T ), k( cvf::UNDEFINED_SIZE_T );
 
-        size_t i( cvf::UNDEFINED_SIZE_T ), j( cvf::UNDEFINED_SIZE_T ), k( cvf::UNDEFINED_SIZE_T );
+            if ( !m_ownerMainGrid->ijkFromCellIndex( mgrdCellIdx, &i, &j, &k ) ) continue;
 
-        if ( !m_ownerMainGrid->ijkFromCellIndex( mgrdCellIdx, &i, &j, &k ) ) continue;
-
-        int formNameIdx = activeFormationNames->formationIndexFromKLayerIdx( k );
-        if ( formNameIdx != -1 )
-        {
-            fnData->at( cIdx ) = formNameIdx;
-        }
-        else
-        {
-            fnData->at( cIdx ) = HUGE_VAL;
+            int formNameIdx = activeFormationNames->formationIndexFromKLayerIdx( k );
+            if ( formNameIdx != -1 )
+            {
+                fnData->at( cIdx ) = formNameIdx;
+            }
+            else
+            {
+                fnData->at( cIdx ) = HUGE_VAL;
+            }
         }
     }
 
@@ -3047,7 +3047,11 @@ void RigCaseCellResultsData::computeAllenResults( RigCaseCellResultsData* cellRe
             val = 0.0;
         }
 
-        size_t formationCount = cellResultsData->activeFormationNames()->formationNames().size();
+        size_t formationCount = 0;
+        if ( cellResultsData->activeFormationNames() )
+        {
+            formationCount = cellResultsData->activeFormationNames()->formationNames().size();
+        }
 
         const std::vector<RigConnection>& nncConnections = mainGrid->nncData()->connections();
 

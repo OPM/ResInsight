@@ -117,8 +117,6 @@ public:
 
     double characteristicCellSize() const override;
 
-    void setFormationNames( RimFormationNames* formationNames ) override;
-
     std::set<QString> sortedSimWellNames() const;
 
 protected:

@@ -482,18 +482,6 @@ double RimGeoMechCase::characteristicCellSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechCase::setFormationNames( RimFormationNames* formationNames )
-{
-    activeFormationNames = formationNames;
-    if ( m_geoMechCaseData.notNull() && formationNames != nullptr )
-    {
-        m_geoMechCaseData->femPartResults()->setActiveFormationNames( formationNames->formationNamesData() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::addElementPropertyFiles( const std::vector<caf::FilePath>& fileNames )
 {
     std::vector<QString> newFileNames;
@@ -599,7 +587,7 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            oldValue,
                                        const QVariant&            newValue )
 {
-    if ( changedField == &activeFormationNames )
+    if ( changedField == &m_activeFormationNames )
     {
         updateFormationNamesData();
     }
@@ -821,7 +809,7 @@ void RimGeoMechCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     uiOrdering.add( &m_caseFileName );
 
     caf::PdmUiGroup* caseGroup = uiOrdering.addNewGroup( "Case Options" );
-    caseGroup->add( &activeFormationNames );
+    caseGroup->add( &m_activeFormationNames );
     caseGroup->add( &m_cohesion );
     caseGroup->add( &m_frictionAngleDeg );
 

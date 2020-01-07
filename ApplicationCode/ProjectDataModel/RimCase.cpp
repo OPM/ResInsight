@@ -51,7 +51,7 @@ RimCase::RimCase()
     caseId.uiCapability()->setUiReadOnly( true );
     caseId.capability<RicfFieldHandle>()->setIOWriteable( false );
 
-    CAF_PDM_InitFieldNoDefault( &activeFormationNames, "DefaultFormationNames", "Formation Names File", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_activeFormationNames, "DefaultFormationNames", "Formation Names File", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Time Step Filter", "", "", "" );
     m_timeStepFilter.uiCapability()->setUiHidden( true );
@@ -122,7 +122,15 @@ cvf::Vec3d RimCase::displayModelOffset() const
 //--------------------------------------------------------------------------------------------------
 void RimCase::setFormationNames( RimFormationNames* formationNames )
 {
-    activeFormationNames = formationNames;
+    m_activeFormationNames = formationNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFormationNames* RimCase::activeFormationNames() const
+{
+    return m_activeFormationNames();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,7 +164,7 @@ QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions( const caf::PdmFiel
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &activeFormationNames )
+    if ( fieldNeedingOptions == &m_activeFormationNames )
     {
         RimProject* proj = RiaApplication::instance()->project();
         if ( proj && proj->activeOilField() && proj->activeOilField()->formationNamesCollection() )
@@ -185,4 +193,12 @@ void RimCase::initAfterRead()
     {
         RiaApplication::instance()->project()->assignCaseIdToCase( this );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimCase::userDescriptionField()
+{
+    return &caseUserDescription;
 }

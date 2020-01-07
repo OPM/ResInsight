@@ -464,7 +464,7 @@ void RimEclipseCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
             }
         }
     }
-    else if ( changedField == &activeFormationNames )
+    else if ( changedField == &m_activeFormationNames )
     {
         updateFormationNamesData();
     }
@@ -480,12 +480,25 @@ void RimEclipseCase::updateFormationNamesData()
     {
         if ( activeFormationNames() )
         {
-            rigEclipseCase->setActiveFormationNamesAndUpdatePlots( activeFormationNames()->formationNamesData() );
+            rigEclipseCase->setActiveFormationNames( activeFormationNames()->formationNamesData() );
         }
         else
         {
-            rigEclipseCase->setActiveFormationNamesAndUpdatePlots( nullptr );
+            rigEclipseCase->setActiveFormationNames( nullptr );
         }
+
+        // Update plots based on formations
+        {
+            RimProject* project = RiaApplication::instance()->project();
+            if ( project )
+            {
+                if ( project->mainPlotCollection() )
+                {
+                    project->mainPlotCollection->updatePlotsWithFormations();
+                }
+            }
+        }
+
         std::vector<Rim3dView*> views = this->views();
         for ( Rim3dView* view : views )
         {
@@ -949,18 +962,6 @@ double RimEclipseCase::characteristicCellSize() const
     }
 
     return 10.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseCase::setFormationNames( RimFormationNames* formationNames )
-{
-    activeFormationNames = formationNames;
-    if ( m_rigEclipseCase.notNull() && formationNames != nullptr )
-    {
-        m_rigEclipseCase->setActiveFormationNamesAndUpdatePlots( formationNames->formationNamesData() );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
