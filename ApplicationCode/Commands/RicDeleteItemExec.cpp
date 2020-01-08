@@ -22,6 +22,7 @@
 
 #include "RiaGuiApplication.h"
 
+#include "Rim2dIntersectionViewCollection.h"
 #include "Rim3dView.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
@@ -33,6 +34,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimFormationNamesCollection.h"
+#include "RimFractureTemplateCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
@@ -41,6 +43,7 @@
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSurfaceCollection.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
@@ -50,9 +53,6 @@
 
 #include "RiuPlotMainWindow.h"
 
-#include "RimFractureTemplateCollection.h"
-
-#include "Rim2dIntersectionViewCollection.h"
 #include "cafNotificationCenter.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmDocument.h"
@@ -327,6 +327,15 @@ void RicDeleteItemExec::redo()
             if ( annotationColl )
             {
                 annotationColl->onAnnotationDeleted();
+            }
+        }
+
+        {
+            RimSurfaceCollection* surfCollection;
+            parentObj->firstAncestorOrThisOfType( surfCollection );
+            if ( surfCollection )
+            {
+                surfCollection->updateViews();
             }
         }
     }

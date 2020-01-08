@@ -42,6 +42,7 @@
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimRegularLegendConfig.h"
+#include "RimSurfaceInViewCollection.h"
 #include "RimTensorResults.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewLinker.h"
@@ -296,6 +297,15 @@ void RimGeoMechView::onCreateDisplayModel()
     m_intersectionCollection->rebuildGeometry();
     m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
     nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+
+    // Surfaces
+
+    m_surfaceVizModel->removeAllParts();
+    if ( m_surfaceCollection )
+    {
+        m_surfaceCollection->appendPartsToModel( m_surfaceVizModel.p(), scaleTransform() );
+        nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
+    }
 
     // If the animation was active before recreating everything, make viewer view current frame
 
@@ -907,6 +917,7 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( &m_wellMeasurementCollection );
 
     uiTreeOrdering.add( m_intersectionCollection() );
+    if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
 
     uiTreeOrdering.add( m_rangeFilterCollection() );
     uiTreeOrdering.add( m_propertyFilterCollection() );

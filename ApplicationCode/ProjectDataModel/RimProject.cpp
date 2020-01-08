@@ -70,6 +70,7 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSurfaceCollection.h"
 #include "RimTools.h"
 #include "RimUserDefinedPolylinesAnnotation.h"
 #include "RimValveTemplate.h"
@@ -81,6 +82,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+
 #include "SsiHubImportCommands/RimWellPathImport.h"
 
 #include "RiuMainWindow.h"
@@ -1375,6 +1377,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( oilField->analysisModels() ) uiTreeOrdering.add( oilField->analysisModels() );
             if ( oilField->geoMechModels() ) uiTreeOrdering.add( oilField->geoMechModels() );
             if ( oilField->wellPathCollection() ) uiTreeOrdering.add( oilField->wellPathCollection() );
+            if ( oilField->surfaceCollection() ) uiTreeOrdering.add( oilField->surfaceCollection() );
             if ( oilField->formationNamesCollection() ) uiTreeOrdering.add( oilField->formationNamesCollection() );
             if ( oilField->completionTemplateCollection() )
                 uiTreeOrdering.add( oilField->completionTemplateCollection() );
@@ -1396,7 +1399,7 @@ class GlobalPathListMapper
 public:
     GlobalPathListMapper( const QString& globalPathListTable )
     {
-        m_nextValidIdNumber   = 1;
+        m_maxUsedIdNumber     = 0;
         QStringList pathPairs = globalPathListTable.split( ";", QString::SkipEmptyParts );
 
         for ( const QString& pathIdPathPair : pathPairs )
@@ -1419,7 +1422,7 @@ public:
 
                     if ( isOk )
                     {
-                        m_nextValidIdNumber = std::max( m_nextValidIdNumber, idNumber );
+                        m_maxUsedIdNumber = std::max( m_maxUsedIdNumber, idNumber );
                     }
                 }
 
@@ -1513,13 +1516,15 @@ public:
 private:
     QString createUnusedId()
     {
-        QString numberString   = QString( "%1" ).arg( (uint)m_nextValidIdNumber, 3, 10, QChar( '0' ) );
+        m_maxUsedIdNumber++;
+
+        QString numberString   = QString( "%1" ).arg( (uint)m_maxUsedIdNumber, 3, 10, QChar( '0' ) );
         QString pathIdentifier = PATHIDCHAR + pathIdBaseString + numberString + PATHIDCHAR;
-        m_nextValidIdNumber++;
+
         return pathIdentifier;
     }
 
-    size_t m_nextValidIdNumber; // Set when parsing the globalPathListTable. Increment while creating new id's
+    size_t m_maxUsedIdNumber; // Set when parsing the globalPathListTable. Increment while creating new id's
 
     std::map<QString, QString> m_newPathIdToPathMap;
     std::map<QString, QString> m_newPathToPathIdMap;

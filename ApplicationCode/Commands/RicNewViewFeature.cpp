@@ -89,7 +89,7 @@ void RicNewViewFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 Rim3dView* RicNewViewFeature::createReservoirView( RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase )
 {
-    Rim3dView* insertedView = nullptr;
+    RimGridView* insertedView = nullptr;
 
     if ( eclipseCase )
     {
@@ -99,6 +99,8 @@ Rim3dView* RicNewViewFeature::createReservoirView( RimEclipseCase* eclipseCase, 
     {
         insertedView = geomCase->createAndAddReservoirView();
     }
+
+    insertedView->updateSurfacesInViewTreeItems();
 
     // Must be run before buildViewItems, as wells are created in this function
     insertedView->loadDataAndUpdate();

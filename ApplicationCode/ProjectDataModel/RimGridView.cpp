@@ -29,8 +29,11 @@
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
+#include "RimSurfaceCollection.h"
+#include "RimSurfaceInViewCollection.h"
 #include "RimTextAnnotation.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
@@ -45,6 +48,7 @@
 #include "RivSingleCellPartGenerator.h"
 
 #include "cvfModel.h"
+#include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfScene.h"
 
@@ -97,6 +101,12 @@ RimGridView::RimGridView()
     CAF_PDM_InitFieldNoDefault( &m_wellMeasurementCollection, "WellMeasurements", "Well Measurements", "", "", "" );
     m_wellMeasurementCollection = new RimWellMeasurementInViewCollection;
     m_wellMeasurementCollection.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceInViewCollection", "Surface Collection Field", "", "", "" );
+    m_surfaceCollection.uiCapability()->setUiTreeHidden( true );
+
+    m_surfaceVizModel = new cvf::ModelBasicList;
+    m_surfaceVizModel->setName( "SurfaceModel" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,6 +182,14 @@ cvf::ref<cvf::UByteArray> RimGridView::currentTotalCellVisibility()
 RimIntersectionCollection* RimGridView::intersectionCollection() const
 {
     return m_intersectionCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceInViewCollection* RimGridView::surfaceInViewCollection() const
+{
+    return m_surfaceCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -564,4 +582,29 @@ RimViewLinker* RimGridView::viewLinkerIfMasterView() const
 void RimGridView::updateWellMeasurements()
 {
     m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridView::updateSurfacesInViewTreeItems()
+{
+    RimProject*           proj     = RiaApplication::instance()->project();
+    RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
+
+    if ( surfColl && surfColl->surfaces().size() )
+    {
+        if ( !m_surfaceCollection() )
+        {
+            m_surfaceCollection = new RimSurfaceInViewCollection();
+        }
+
+        m_surfaceCollection->updateFromSurfaceCollection();
+    }
+    else
+    {
+        delete m_surfaceCollection;
+    }
+
+    this->updateConnectedEditors();
 }

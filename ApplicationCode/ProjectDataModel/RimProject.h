@@ -193,7 +193,7 @@ protected:
 
 private:
     template <typename T>
-    void fieldContentsByType( caf::PdmObjectHandle* object, std::vector<T*>& typedFields );
+    void fieldContentsByType( caf::PdmObjectHandle* object, std::vector<T*>& fieldContents );
 
     void transferPathsToGlobalPathList();
     void distributePathsFromGlobalPathList();
@@ -225,7 +225,7 @@ private:
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void RimProject::fieldContentsByType( caf::PdmObjectHandle* object, std::vector<T*>& typedFields )
+void RimProject::fieldContentsByType( caf::PdmObjectHandle* object, std::vector<T*>& fieldContents )
 {
     if ( !object ) return;
 
@@ -237,14 +237,14 @@ void RimProject::fieldContentsByType( caf::PdmObjectHandle* object, std::vector<
     for ( const auto& field : allFieldsInObject )
     {
         caf::PdmField<T>* typedField = dynamic_cast<caf::PdmField<T>*>( field );
-        if ( typedField ) typedFields.push_back( &typedField->v() );
+        if ( typedField ) fieldContents.push_back( &typedField->v() );
 
         caf::PdmField<std::vector<T>>* typedFieldInVector = dynamic_cast<caf::PdmField<std::vector<T>>*>( field );
         if ( typedFieldInVector )
         {
             for ( T& typedFieldFromVector : typedFieldInVector->v() )
             {
-                typedFields.push_back( &typedFieldFromVector );
+                fieldContents.push_back( &typedFieldFromVector );
             }
         }
 
@@ -253,6 +253,6 @@ void RimProject::fieldContentsByType( caf::PdmObjectHandle* object, std::vector<
 
     for ( const auto& child : children )
     {
-        fieldContentsByType( child, typedFields );
+        fieldContentsByType( child, fieldContents );
     }
 }

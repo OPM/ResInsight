@@ -31,6 +31,7 @@ class RimPropertyFilterCollection;
 class RimGridCollection;
 class RimCellRangeFilterCollection;
 class RimWellMeasurementInViewCollection;
+class RimSurfaceInViewCollection;
 
 class RimGridView : public Rim3dView
 {
@@ -47,6 +48,7 @@ public:
     cvf::ref<cvf::UByteArray> currentTotalCellVisibility();
 
     RimIntersectionCollection*                  intersectionCollection() const;
+    RimSurfaceInViewCollection*                 surfaceInViewCollection() const;
     RimIntersectionResultsDefinitionCollection* separateIntersectionResultsCollection() const;
     RimAnnotationInViewCollection*              annotationCollection() const;
     RimWellMeasurementInViewCollection*         measurementCollection() const;
@@ -72,6 +74,7 @@ public:
                         bool                        forceChange = false ) override;
 
     void updateWellMeasurements();
+    void updateSurfacesInViewTreeItems();
 
 protected:
     virtual void       updateViewFollowingRangeFilterUpdates();
@@ -87,6 +90,8 @@ protected:
     void initAfterRead() override;
 
 protected:
+    cvf::ref<cvf::ModelBasicList> m_surfaceVizModel;
+
     // Fields
     caf::PdmChildField<RimIntersectionCollection*> m_intersectionCollection;
 
@@ -98,6 +103,7 @@ protected:
     caf::PdmChildField<RimGridCollection*>                  m_gridCollection;
     caf::PdmChildField<RimAnnotationInViewCollection*>      m_annotationCollection;
     caf::PdmChildField<RimWellMeasurementInViewCollection*> m_wellMeasurementCollection;
+    caf::PdmChildField<RimSurfaceInViewCollection*>         m_surfaceCollection;
 
 private:
     void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;

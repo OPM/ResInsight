@@ -57,6 +57,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/GridBox
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Intersections
+    ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Surfaces
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface/Core
@@ -68,6 +69,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/GridCrossPlots
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Measurement
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Surfaces
     
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
@@ -134,12 +136,14 @@ list( APPEND REFERENCED_CMAKE_FILES
     ProjectDataModel/Completions/CMakeLists_files.cmake
     ProjectDataModel/Measurement/CMakeLists_files.cmake
     ProjectDataModel/PlotTemplates/CMakeLists_files.cmake
+    ProjectDataModel/Surfaces/CMakeLists_files.cmake
     
     GeoMech/GeoMechVisualization/CMakeLists_files.cmake
     
     ModelVisualization/CMakeLists_files.cmake
     ModelVisualization/GridBox/CMakeLists_files.cmake
     ModelVisualization/Intersections/CMakeLists_files.cmake
+	ModelVisualization/Surfaces/CMakeLists_files.cmake
     ModelVisualization/WindowEdgeAxesOverlayItem/CMakeLists_files.cmake
     
     UserInterface/CMakeLists_files.cmake
@@ -163,6 +167,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
     Commands/SummaryPlotCommands/CMakeLists_files.cmake
     Commands/SsiHubImportCommands/CMakeLists_files.cmake
+    Commands/SurfaceCommands/CMakeLists_files.cmake
     Commands/ToggleCommands/CMakeLists_files.cmake
     Commands/ViewLink/CMakeLists_files.cmake
     Commands/WellLogCommands/CMakeLists_files.cmake

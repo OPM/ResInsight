@@ -456,6 +456,7 @@ void RiuMainWindow::createMenus()
     importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedDataInMenuFeature" ) );
     importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedFmuDataInMenuFeature" ) );
     importMenu->addAction( cmdFeatureMgr->action( "RicImportFormationNamesFeature" ) );
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportSurfacesFeature" ) );
 
     QMenu* exportMenu = fileMenu->addMenu( "&Export" );
     exportMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToFileFeature" ) );

@@ -71,6 +71,7 @@
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
+#include "RimSurfaceInViewCollection.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
@@ -537,6 +538,15 @@ void RimEclipseView::onCreateDisplayModel()
                                                   m_intersectionVizModel.p(),
                                                   m_reservoirGridPartManager->scaleTransform() );
     nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+
+    // Surfaces
+
+    m_surfaceVizModel->removeAllParts();
+    if ( m_surfaceCollection )
+    {
+        m_surfaceCollection->appendPartsToModel( m_surfaceVizModel.p(), m_reservoirGridPartManager->scaleTransform() );
+        nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
+    }
 
     // Well path model
 
@@ -1753,6 +1763,8 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( faultCollection() );
     uiTreeOrdering.add( annotationCollection() );
     uiTreeOrdering.add( intersectionCollection() );
+
+    if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
 
     uiTreeOrdering.add( m_rangeFilterCollection() );
     uiTreeOrdering.add( m_propertyFilterCollection() );
