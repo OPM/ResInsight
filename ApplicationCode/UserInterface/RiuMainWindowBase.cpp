@@ -316,17 +316,6 @@ void RiuMainWindowBase::removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* vie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::UiStyleSheet RiuMainWindowBase::createStyleSheet()
-{
-    caf::UiStyleSheet styleSheet;
-    styleSheet.set( "background-color", QColor( Qt::lightGray ).name() );
-    styleSheet.set( "border", "1px dashed black" );
-    return styleSheet;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::setExpanded( const caf::PdmUiItem* uiItem, bool expanded )
 {
     m_projectTreeView->setExpanded( uiItem, expanded );
